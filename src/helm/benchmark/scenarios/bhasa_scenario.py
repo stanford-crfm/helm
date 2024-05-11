@@ -1,93 +1,33 @@
-import datasets, random, os
-import pandas as pd
+import datasets
+import os
+import random
 from typing import List
 
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output, PassageQuestionInput
+import pandas as pd
+
+from helm.benchmark.scenarios.scenario import (
+    Input, Instance, Output, PassageQuestionInput, Reference, Scenario,
+    CORRECT_TAG, TEST_SPLIT, TRAIN_SPLIT
+)
 from helm.common.general import ensure_file_downloaded
 
-# NLU
+# BHASA Scenarios
+#   A. Natural Language Understanding
+#   B. Natural Language Generation
+#   C. Natural Language Reasoning
+#   D. Linguistic Diagnostics
 
-class IndicQAScenario(Scenario):
-    """
-    This is a Tamil question answer scenario. The data comes from IndicQA, a manually curated cloze-style reading comprehension dataset.
+# A. Natural Language Understanding
+#   1. Question Answering
+#   2. Sentiment Analysis
+#   3. Toxicity Detection/Classification
 
-    The models are prompted using the following format:
-
-        உங்களுக்கு ஒரு பத்தியும் ஒரு கேள்வியும் தரப்படும். தரப்பட்ட பத்தியிலிருந்து கேள்விக்கான பதிலைக் கண்டறியவும்.
-
-        பத்தி: <text>
-        கேள்வி: <question>
-        பதில்: <answer>
-
-        ...
-
-        பத்தி: <text>
-        கேள்வி: <question>
-        பதில்:
-
-    Target completion:
-        <answer>
-
-    @article{Doddapaneni2022towards,
-        title={Towards Leaving No Indic Language Behind: Building Monolingual Corpora, Benchmark and Models for Indic Languages},
-        author={Sumanth Doddapaneni and Rahul Aralikatte and Gowtham Ramesh and Shreyansh Goyal and Mitesh M. Khapra and Anoop Kunchukuttan and Pratyush Kumar},
-        journal={ArXiv},
-        year={2022},
-        volume={abs/2212.05409}
-    }
-    """
-
-    name = "indicqa"
-    description = "IndicQA question answering dataset"
-    tags = ["question_answering"]
-
-    def __init__(self):
-        super().__init__()
-        self.splits = {
-            'train': TRAIN_SPLIT,
-            'test': TEST_SPLIT
-        }
-
-    def get_instances(self, output_path) -> List[Instance]:
-        dataset = datasets.load_dataset("ai4bharat/IndicQA", "indicqa.ta")
-        df = dataset['test'].to_pandas()
-        df = df[df["answers"].apply(lambda x: len(x["text"][0].strip()) > 0)]
-        df_test = df.sample(n=100, random_state=7900)
-        df_train = df[~df.apply(tuple,1).isin(df_test.apply(tuple,1))]
-        df_train = df_train[df_train["context"].apply(len) < df_train["context"].apply(len).quantile(.2)]
-        dataset = {
-            'train': df_train,
-            'test': df_test,
-        }
-        
-        outputs = []
-        for split in self.splits.keys():
-            data = dataset[split]
-            for index, row in data.iterrows():
-                passage = row["context"].strip()
-                question = row["question"].strip()
-                input = PassageQuestionInput(
-                    passage=passage,
-                    question=question,
-                    passage_prefix="பத்தி: ",
-                    question_prefix="கேள்வி: ",
-                )
-                output = Output(text=row["answers"]["text"][0].strip())
-                references = [
-                    Reference(output, tags=[CORRECT_TAG]),
-                ]
-                instance = Instance(
-                    input=input,
-                    references=references, 
-                    split=self.splits[split]
-                )
-                outputs.append(instance)
-        return outputs
-
+# 1. Question Answering
+# 1.1 Indonesian: TyDiQA
 class TyDiQAScenario(Scenario):
     """
-    This is a Indonesian question answer scenario. The data comes from TyDIQA, a question answering dataset covering 
-    11 typologically diverse languages with 204K question-answer pairs. 
+    This is a Indonesian question answer scenario. The data comes from TyDIQA, a question answering dataset covering
+    11 typologically diverse languages with 204K question-answer pairs.
 
     The models are prompted using the following format:
 
@@ -101,7 +41,7 @@ class TyDiQAScenario(Scenario):
 
         Paragraf: <text>
         Pertanyaan: <question>
-        Jawaban: 
+        Jawaban:
 
 
     Target completion:
@@ -167,12 +107,13 @@ class TyDiQAScenario(Scenario):
                 ]
                 instance = Instance(
                     input=input,
-                    references=references, 
+                    references=references,
                     split=self.splits[split]
                 )
                 outputs.append(instance)
         return outputs
 
+# 1.2 Vietnamese & Thai: XQuAD
 class XQuADScenario(Scenario):
     """
     This is a XQuAD question answer scenario. The data comes from XQuAD, and the dataset consists of a subset of
@@ -240,7 +181,7 @@ class XQuADScenario(Scenario):
             'train': df_train,
             'test': df_test,
         }
-        
+
         outputs = []
         for split in self.splits.keys():
             data = dataset[split]
@@ -259,34 +200,33 @@ class XQuADScenario(Scenario):
                 ]
                 instance = Instance(
                     input=input,
-                    references=references, 
+                    references=references,
                     split=self.splits[split]
                 )
                 outputs.append(instance)
         return outputs
-   
-class IndicSentimentScenario(Scenario):
+
+# 1.3 Tamil: IndicQA
+class IndicQAScenario(Scenario):
     """
-    This is a Tamil sentiment analysis scenario. The data comes from IndicXTREME, and consists of product reviews
-    that were written by annotators. Labels are positive or negative.
+    This is a Tamil question answer scenario. The data comes from IndicQA, a manually curated cloze-style reading comprehension dataset.
 
     The models are prompted using the following format:
 
-        பின்வரும் வாக்கியத்தில் வெளிப்படுத்தப்படும் உணர்வு எது?
-        ஒரு சொல்லில் மட்டும் பதிலளிக்கவும்:
-        - நேர்மறை
-        - எதிர்மறை
+        உங்களுக்கு ஒரு பத்தியும் ஒரு கேள்வியும் தரப்படும். தரப்பட்ட பத்தியிலிருந்து கேள்விக்கான பதிலைக் கண்டறியவும்.
 
-        வாக்கியம்: <text>
-        பதில்:
-        
-        ...
-
-        வாக்கியம்: <text>
+        பத்தி: <text>
+        கேள்வி: <question>
         பதில்: <answer>
 
+        ...
+
+        பத்தி: <text>
+        கேள்வி: <question>
+        பதில்:
+
     Target completion:
-        <sentiment> (<sentiment>:positive or negative)
+        <answer>
 
     @article{Doddapaneni2022towards,
         title={Towards Leaving No Indic Language Behind: Building Monolingual Corpora, Benchmark and Models for Indic Languages},
@@ -297,45 +237,58 @@ class IndicSentimentScenario(Scenario):
     }
     """
 
-    name = "indicsentiment"
-    description = "IndicSentiment sentiment analysis dataset"
-    tags = ["sentiment_analysis"]
+    name = "indicqa"
+    description = "IndicQA question answering dataset"
+    tags = ["question_answering"]
 
     def __init__(self):
         super().__init__()
         self.splits = {
-            'validation': TRAIN_SPLIT,
+            'train': TRAIN_SPLIT,
             'test': TEST_SPLIT
-        }
-        self.sentiment2label = {
-            'Positive': 'நேர்மறை',
-            'Negative': 'எதிர்மறை',
         }
 
     def get_instances(self, output_path) -> List[Instance]:
-        dataset = datasets.load_dataset("ai4bharat/IndicSentiment", "translation-ta")
+        dataset = datasets.load_dataset("ai4bharat/IndicQA", "indicqa.ta")
+        df = dataset['test'].to_pandas()
+        df = df[df["answers"].apply(lambda x: len(x["text"][0].strip()) > 0)]
+        df_test = df.sample(n=100, random_state=7900)
+        df_train = df[~df.apply(tuple,1).isin(df_test.apply(tuple,1))]
+        df_train = df_train[df_train["context"].apply(len) < df_train["context"].apply(len).quantile(.2)]
+        dataset = {
+            'train': df_train,
+            'test': df_test,
+        }
 
         outputs = []
         for split in self.splits.keys():
-            data = dataset[split].to_pandas()
-            data["LABEL"] = data["LABEL"].fillna("Positive")
+            data = dataset[split]
             for index, row in data.iterrows():
-                input = Input(row["INDIC REVIEW"].strip())
-                output = Output(text=self.sentiment2label[row["LABEL"]])
+                passage = row["context"].strip()
+                question = row["question"].strip()
+                input = PassageQuestionInput(
+                    passage=passage,
+                    question=question,
+                    passage_prefix="பத்தி: ",
+                    question_prefix="கேள்வி: ",
+                )
+                output = Output(text=row["answers"]["text"][0].strip())
                 references = [
                     Reference(output, tags=[CORRECT_TAG]),
                 ]
                 instance = Instance(
                     input=input,
-                    references=references, 
+                    references=references,
                     split=self.splits[split]
                 )
                 outputs.append(instance)
         return outputs
- 
+
+# 2. Sentiment Analysis
+# 2.1 Indonesian: NusaX Sentiment
 class NusaXScenario(Scenario):
     """
-    This is an Indonesian sentiment analysis scenario. The data consists of comments and reviews from the 
+    This is an Indonesian sentiment analysis scenario. The data consists of comments and reviews from the
     IndoNLU benchmark. Labels are positive, negative or neutral.
 
     The models are prompted using the following format:
@@ -417,99 +370,11 @@ class NusaXScenario(Scenario):
                 outputs.append(instance)
         return outputs
 
-class WisesightScenario(Scenario):
-    """
-    This is an Thai sentiment analysis scenario. The data consists of social media messages regarding
-    consumer products and services. Labels are positive, negative or neutral.
-
-    The models are prompted using the following format:
-
-        อารมณ์ความรู้สึกของข้อความต่อไปนี้เป็นอย่างไร?
-        กรุณาตอบโดยใช้คำเดียวเท่านั้น:
-        - แง่บวก
-        - แง่ลบ
-        - เฉยๆ
-
-        ข้อความ: <text>
-        คำตอบ: <sentiment>
-
-        ...
-
-        ข้อความ: <text>
-        คำตอบ: 
-
-    Target completion:
-        <sentiment> (<sentiment>:positive or negative or neutral)
-
-    @software{bact_2019_3457447,
-        author       = {Suriyawongkul, Arthit and
-                        Chuangsuwanich, Ekapol and
-                        Chormai, Pattarawat and
-                        Polpanumas, Charin},
-        title        = {PyThaiNLP/wisesight-sentiment: First release},
-        month        = sep,
-        year         = 2019,
-        publisher    = {Zenodo},
-        version      = {v1.0},
-        doi          = {10.5281/zenodo.3457447},
-        url          = {https://doi.org/10.5281/zenodo.3457447}
-    }
-    """
-
-    name = "wisesight"
-    description = "Wisesight sentiment analysis dataset"
-    tags = ["sentiment_analysis"]
-
-    def __init__(self):
-        super().__init__()
-        self.splits = {
-            'train': TRAIN_SPLIT,
-            'test': TEST_SPLIT
-        }
-        self.sentiment2label = {
-            'pos': 'แง่บวก',
-            'neg': 'แง่ลบ',
-            'neu': 'เฉยๆ',
-        }
-
-    def download_dataset(self, output_path: str):
-        URL = "https://github.com/PyThaiNLP/wisesight-sentiment/raw/master/huggingface/data.zip"
-        data_path = os.path.join(output_path, "data")
-        ensure_file_downloaded(source_url=URL, target_path=data_path, unpack=True)
-
-        dataset = {}
-        for split in self.splits.keys():
-            dataset[split] = []
-            target_path_file = os.path.join(data_path, "data", f"{split}.jsonl")
-            df = pd.read_json(target_path_file, lines=True)
-            df = df[df["category"] != "q"]
-            if split == 'test':
-                dataset[split] = df.groupby("category", group_keys=False).apply(lambda x: x.sample(frac=1000/len(df), random_state=4183))
-        return dataset
-
-    def get_instances(self, output_path) -> List[Instance]:
-        dataset = self.download_dataset(output_path)
-        outputs = []
-        for split in self.splits.keys():
-            data = dataset[split]
-            for index, row in data.iterrows():
-                input = Input(row["texts"].strip())
-                output = Output(text=self.sentiment2label[row["category"]])
-                references = [
-                    Reference(output, tags=[CORRECT_TAG]),
-                ]
-                instance = Instance(
-                    input=input,
-                    references=references,
-                    split=self.splits[split]
-                )
-                outputs.append(instance)
-        return outputs
-
+# 2.2 Vietnamese: UIT-VSFC
 class UITVSFCScenario(Scenario):
     """
-    This is a Vietnamese sentiment analysis scenario. The data consists of student feedback obtained from 
-    end-of-semester surveys at a Vietnamese university. Feedback is labeled as one of three sentiment 
+    This is a Vietnamese sentiment analysis scenario. The data consists of student feedback obtained from
+    end-of-semester surveys at a Vietnamese university. Feedback is labeled as one of three sentiment
     polarities: positive, negative or neutral.
 
     The models are prompted using the following format:
@@ -526,7 +391,7 @@ class UITVSFCScenario(Scenario):
         ...
 
         Câu văn: <text>
-        Câu trả lời: 
+        Câu trả lời:
 
     Target completion:
         <sentiment> (<sentiment>:positive or negative or neutral)
@@ -599,16 +464,177 @@ class UITVSFCScenario(Scenario):
                     Reference(output, tags=[CORRECT_TAG]),
                 ]
                 instance = Instance(
-                    input=input, 
-                    references=references, 
+                    input=input,
+                    references=references,
                     split=self.splits[split]
                 )
                 outputs.append(instance)
         return outputs
-  
+
+# 2.3 Thai: Wisesight Sentiment
+class WisesightScenario(Scenario):
+    """
+    This is an Thai sentiment analysis scenario. The data consists of social media messages regarding
+    consumer products and services. Labels are positive, negative or neutral.
+
+    The models are prompted using the following format:
+
+        อารมณ์ความรู้สึกของข้อความต่อไปนี้เป็นอย่างไร?
+        กรุณาตอบโดยใช้คำเดียวเท่านั้น:
+        - แง่บวก
+        - แง่ลบ
+        - เฉยๆ
+
+        ข้อความ: <text>
+        คำตอบ: <sentiment>
+
+        ...
+
+        ข้อความ: <text>
+        คำตอบ:
+
+    Target completion:
+        <sentiment> (<sentiment>:positive or negative or neutral)
+
+    @software{bact_2019_3457447,
+        author       = {Suriyawongkul, Arthit and
+                        Chuangsuwanich, Ekapol and
+                        Chormai, Pattarawat and
+                        Polpanumas, Charin},
+        title        = {PyThaiNLP/wisesight-sentiment: First release},
+        month        = sep,
+        year         = 2019,
+        publisher    = {Zenodo},
+        version      = {v1.0},
+        doi          = {10.5281/zenodo.3457447},
+        url          = {https://doi.org/10.5281/zenodo.3457447}
+    }
+    """
+
+    name = "wisesight"
+    description = "Wisesight sentiment analysis dataset"
+    tags = ["sentiment_analysis"]
+
+    def __init__(self):
+        super().__init__()
+        self.splits = {
+            'train': TRAIN_SPLIT,
+            'test': TEST_SPLIT
+        }
+        self.sentiment2label = {
+            'pos': 'แง่บวก',
+            'neg': 'แง่ลบ',
+            'neu': 'เฉยๆ',
+        }
+
+    def download_dataset(self, output_path: str):
+        URL = "https://github.com/PyThaiNLP/wisesight-sentiment/raw/master/huggingface/data.zip"
+        data_path = os.path.join(output_path, "data")
+        ensure_file_downloaded(source_url=URL, target_path=data_path, unpack=True)
+
+        dataset = {}
+        for split in self.splits.keys():
+            dataset[split] = []
+            target_path_file = os.path.join(data_path, "data", f"{split}.jsonl")
+            df = pd.read_json(target_path_file, lines=True)
+            df = df[df["category"] != "q"]
+            if split == 'test':
+                dataset[split] = df.groupby("category", group_keys=False).apply(lambda x: x.sample(frac=1000/len(df), random_state=4183))
+        return dataset
+
+    def get_instances(self, output_path) -> List[Instance]:
+        dataset = self.download_dataset(output_path)
+        outputs = []
+        for split in self.splits.keys():
+            data = dataset[split]
+            for index, row in data.iterrows():
+                input = Input(row["texts"].strip())
+                output = Output(text=self.sentiment2label[row["category"]])
+                references = [
+                    Reference(output, tags=[CORRECT_TAG]),
+                ]
+                instance = Instance(
+                    input=input,
+                    references=references,
+                    split=self.splits[split]
+                )
+                outputs.append(instance)
+        return outputs
+
+# 2.4 Tamil: IndicSentiment
+class IndicSentimentScenario(Scenario):
+    """
+    This is a Tamil sentiment analysis scenario. The data comes from IndicXTREME, and consists of product reviews
+    that were written by annotators. Labels are positive or negative.
+
+    The models are prompted using the following format:
+
+        பின்வரும் வாக்கியத்தில் வெளிப்படுத்தப்படும் உணர்வு எது?
+        ஒரு சொல்லில் மட்டும் பதிலளிக்கவும்:
+        - நேர்மறை
+        - எதிர்மறை
+
+        வாக்கியம்: <text>
+        பதில்:
+
+        ...
+
+        வாக்கியம்: <text>
+        பதில்: <answer>
+
+    Target completion:
+        <sentiment> (<sentiment>:positive or negative)
+
+    @article{Doddapaneni2022towards,
+        title={Towards Leaving No Indic Language Behind: Building Monolingual Corpora, Benchmark and Models for Indic Languages},
+        author={Sumanth Doddapaneni and Rahul Aralikatte and Gowtham Ramesh and Shreyansh Goyal and Mitesh M. Khapra and Anoop Kunchukuttan and Pratyush Kumar},
+        journal={ArXiv},
+        year={2022},
+        volume={abs/2212.05409}
+    }
+    """
+
+    name = "indicsentiment"
+    description = "IndicSentiment sentiment analysis dataset"
+    tags = ["sentiment_analysis"]
+
+    def __init__(self):
+        super().__init__()
+        self.splits = {
+            'validation': TRAIN_SPLIT,
+            'test': TEST_SPLIT
+        }
+        self.sentiment2label = {
+            'Positive': 'நேர்மறை',
+            'Negative': 'எதிர்மறை',
+        }
+
+    def get_instances(self, output_path) -> List[Instance]:
+        dataset = datasets.load_dataset("ai4bharat/IndicSentiment", "translation-ta")
+
+        outputs = []
+        for split in self.splits.keys():
+            data = dataset[split].to_pandas()
+            data["LABEL"] = data["LABEL"].fillna("Positive")
+            for index, row in data.iterrows():
+                input = Input(row["INDIC REVIEW"].strip())
+                output = Output(text=self.sentiment2label[row["LABEL"]])
+                references = [
+                    Reference(output, tags=[CORRECT_TAG]),
+                ]
+                instance = Instance(
+                    input=input,
+                    references=references,
+                    split=self.splits[split]
+                )
+                outputs.append(instance)
+        return outputs
+
+# 3. Toxicity Detection/Classification
+# 3.1 Indonesian: Multi-Label Hate Speech Detection
 class MLHSDScenario(Scenario):
     """
-    This is an Indonesian toxicity detection scenario. The data comes from the Indonesian Twitter Multi-label Hate Speech and 
+    This is an Indonesian toxicity detection scenario. The data comes from the Indonesian Twitter Multi-label Hate Speech and
     Abusive Language Detection Dataset.
 
     The models are prompted using the following format:
@@ -624,7 +650,7 @@ class MLHSDScenario(Scenario):
 
         Kalimat: <text>
         Jawaban: <answer>
-        
+
         ...
 
         Kalimat: <text>
@@ -666,7 +692,7 @@ class MLHSDScenario(Scenario):
             'test': df_test,
         }
         return dataset
-    
+
     def get_label(self, row) -> str:
         if int(row["HS"]) == 1:
             return "Benci"
@@ -694,80 +720,7 @@ class MLHSDScenario(Scenario):
                 outputs.append(instance)
         return outputs
 
-class ThaiToxicityTweetsScenario(Scenario):
-    """
-    This is a Thai toxicity detection scenario. The data comes from the Thai Toxicity Tweets dataset.
-
-    The models are prompted using the following format:
-
-        คุณเป็นเครื่องตรวจจับข้อความที่เป็นพิษ 
-        ข้อความเป็นพิษถ้ามันทำร้าย สร้างความเสียหาย หรือสื่อเจตนาเชิงลบถึงบุคคลหรือกลุ่มบุคคล และคุณควรคำนึงถึงการประชดประชันด้วย 
-        เมื่อได้รับข้อความ ให้ตอบด้วยตัวอักษร Y หากเป็นพิษ และ N หากไม่เป็นพิษ
-
-        ข้อความ: <text>
-        คำตอบ: <toxicity>
-
-        ...
-
-        ข้อความ: <text>
-        คำตอบ: 
-
-    Target completion:
-        <toxicity>
-
-    @inproceedings{sirihattasak2018annotation,
-        title={Annotation and classification of toxicity for Thai Twitter},
-        author={Sirihattasak, Sugan and Komachi, Mamoru and Ishikawa, Hiroshi},
-        booktitle={TA-COS 2018: 2nd Workshop on Text Analytics for Cybersecurity and Online Safety},
-        pages={1},
-        year={2018}
-    }
-    """
-
-    name = "thaitoxicitytweets"
-    description = "Thai Toxicity Tweets toxicity detection dataset"
-    tags = ["toxicity_detection"]
-
-    def __init__(self):
-        super().__init__()
-        self.splits = {
-            'train': TRAIN_SPLIT,
-            'test': TEST_SPLIT
-        }
-        self.id2label = {
-            0: 'N',
-            1: 'Y',
-        }
-
-    def get_instances(self, output_path) -> List[Instance]:
-        dataset = datasets.load_dataset("thai_toxicity_tweet")
-        df = dataset['train'].to_pandas()
-        df = df[df["tweet_text"].str.len() > 0]
-        df = df[df["tweet_text"]!= "TWEET_NOT_FOUND"]
-        df_test = df.groupby("is_toxic", group_keys=False).apply(lambda x: x.sample(frac=1000/len(df), random_state=4156))
-        df_train = df[~df.apply(tuple,1).isin(df_test.apply(tuple,1))]
-        dataset = {
-            'train': df_train,
-            'test': df_test,
-        }
-        
-        outputs = []
-        for split in self.splits.keys():
-            data = dataset[split]
-            for index, row in data.iterrows():
-                input = Input(row["tweet_text"].strip())
-                output = Output(text=self.id2label[int(row["is_toxic"])])
-                references = [
-                    Reference(output, tags=[CORRECT_TAG]),
-                ]
-                instance = Instance(
-                    input=input,
-                    references=references, 
-                    split=self.splits[split]
-                )
-                outputs.append(instance)
-        return outputs
-
+# 3.2 Vietnamese: ViHSD
 class ViHSDScenario(Scenario):
     """
     This is a Vietnamese toxicity detection scenario. The data comes from the ViHSD dataset.
@@ -788,7 +741,7 @@ class ViHSDScenario(Scenario):
         Câu trả lời: <toxicity>
 
         ...
-        
+
         Câu văn: <text>
         Câu trả lời:
 
@@ -847,15 +800,93 @@ class ViHSDScenario(Scenario):
                     Reference(output, tags=[CORRECT_TAG]),
                 ]
                 instance = Instance(
-                    input=input, 
-                    references=references, 
+                    input=input,
+                    references=references,
                     split=self.splits[split]
                 )
                 outputs.append(instance)
         return outputs
 
-# NLG
+# 3.3 Thai: Thai Toxicity Tweets
+class ThaiToxicityTweetsScenario(Scenario):
+    """
+    This is a Thai toxicity detection scenario. The data comes from the Thai Toxicity Tweets dataset.
 
+    The models are prompted using the following format:
+
+        คุณเป็นเครื่องตรวจจับข้อความที่เป็นพิษ
+        ข้อความเป็นพิษถ้ามันทำร้าย สร้างความเสียหาย หรือสื่อเจตนาเชิงลบถึงบุคคลหรือกลุ่มบุคคล และคุณควรคำนึงถึงการประชดประชันด้วย
+        เมื่อได้รับข้อความ ให้ตอบด้วยตัวอักษร Y หากเป็นพิษ และ N หากไม่เป็นพิษ
+
+        ข้อความ: <text>
+        คำตอบ: <toxicity>
+
+        ...
+
+        ข้อความ: <text>
+        คำตอบ:
+
+    Target completion:
+        <toxicity>
+
+    @inproceedings{sirihattasak2018annotation,
+        title={Annotation and classification of toxicity for Thai Twitter},
+        author={Sirihattasak, Sugan and Komachi, Mamoru and Ishikawa, Hiroshi},
+        booktitle={TA-COS 2018: 2nd Workshop on Text Analytics for Cybersecurity and Online Safety},
+        pages={1},
+        year={2018}
+    }
+    """
+
+    name = "thaitoxicitytweets"
+    description = "Thai Toxicity Tweets toxicity detection dataset"
+    tags = ["toxicity_detection"]
+
+    def __init__(self):
+        super().__init__()
+        self.splits = {
+            'train': TRAIN_SPLIT,
+            'test': TEST_SPLIT
+        }
+        self.id2label = {
+            0: 'N',
+            1: 'Y',
+        }
+
+    def get_instances(self, output_path) -> List[Instance]:
+        dataset = datasets.load_dataset("thai_toxicity_tweet")
+        df = dataset['train'].to_pandas()
+        df = df[df["tweet_text"].str.len() > 0]
+        df = df[df["tweet_text"]!= "TWEET_NOT_FOUND"]
+        df_test = df.groupby("is_toxic", group_keys=False).apply(lambda x: x.sample(frac=1000/len(df), random_state=4156))
+        df_train = df[~df.apply(tuple,1).isin(df_test.apply(tuple,1))]
+        dataset = {
+            'train': df_train,
+            'test': df_test,
+        }
+
+        outputs = []
+        for split in self.splits.keys():
+            data = dataset[split]
+            for index, row in data.iterrows():
+                input = Input(row["tweet_text"].strip())
+                output = Output(text=self.id2label[int(row["is_toxic"])])
+                references = [
+                    Reference(output, tags=[CORRECT_TAG]),
+                ]
+                instance = Instance(
+                    input=input,
+                    references=references,
+                    split=self.splits[split]
+                )
+                outputs.append(instance)
+        return outputs
+
+# B. Natural Language Generation
+#   1. Machine Translation
+#   2. Abstractive Summarization
+
+# 1. Machine Translation: FLoRes-200
 class FloresScenario(Scenario):
     """
     This is the Flores machine translation scenario.
@@ -929,6 +960,7 @@ class FloresScenario(Scenario):
                 outputs.append(instance)
         return outputs
 
+# 2. Abstractive Summarization: XL-Sum
 class XLSumScenario(Scenario):
     """
     This is the XLSum abstractive summarization scenario.
@@ -1024,94 +1056,17 @@ class XLSumScenario(Scenario):
                 outputs.append(instance)
         return outputs
 
-# NLR
+# C. Natural Language Reasoning
+#   1. Natural Language Inference
+#   2. Causal Reasoning
 
-class IndicXNLIScenario(Scenario):
-    """
-    This is a Tamil natural language inference scenario. The data was automatically translated from XNLI into 11 Indic languages.
-
-    The models are prompted using the following format:
-
-        உங்களுக்கு இரண்டு வாக்கியங்கள், X மற்றும் Y, தரப்படும்.
-        பின்வரும் கூற்றுகளில் எது X மற்றும் Y வாக்கியங்களுடன் மிகப் பொருந்துகிறது எனக் கண்டறியவும்.
-        A: X உண்மை என்றால் Y உம் உண்மையாக இருக்க வேண்டும்.
-        B: X உம் Y உம் முரண்படுகின்றன.
-        C: X உண்மையாக இருக்கும்போது Y உண்மையாக இருக்கலாம் அல்லது இல்லாமல் இருக்கலாம்.
-        A அல்லது B அல்லது C என்ற ஒறே எழுத்தில் மட்டும் பதிலளிக்கவும்.
-
-        X: <premise>
-        Y: <hypothesis>
-        பதில்: <entailment>
-
-        ...
-
-        X: <premise>
-        Y: <hypothesis>
-        பதில்: 
-
-    Target completion:
-        <entailment>
-
-    @misc{https://doi.org/10.48550/arxiv.2204.08776,
-        doi = {10.48550/ARXIV.2204.08776},
-        url = {https://arxiv.org/abs/2204.08776},
-        author = {Aggarwal, Divyanshu and Gupta, Vivek and Kunchukuttan, Anoop},
-        keywords = {Computation and Language (cs.CL), Artificial Intelligence (cs.AI), FOS: Computer and information sciences, FOS: Computer and information sciences},
-        title = {IndicXNLI: Evaluating Multilingual Inference for Indian Languages}, 
-        publisher = {arXiv},
-        year = {2022},
-        copyright = {Creative Commons Attribution 4.0 International}
-    }
-    """
-
-    name = "indicxnli"
-    description = "IndicXNLI natural language inference dataset"
-    tags = ["natural_language_inference"]
-
-    def __init__(self):
-        super().__init__()
-        self.splits = {
-            'train': TRAIN_SPLIT,
-            'test': TEST_SPLIT,
-        }
-        self.id2label = {
-            0: "A",
-            1: "B",
-            2: "C"
-        }
-
-    def get_instances(self, output_path) -> List[Instance]:
-        dataset = datasets.load_dataset("Divyanshu/indicxnli", "ta")
-
-        outputs = []
-        for split in self.splits.keys():
-            df = dataset[split].to_pandas()
-            if split == 'train':
-                data = df
-            else:
-                data = df.groupby("label", group_keys=False).apply(lambda x: x.sample(frac=1000/len(df), random_state=4156))
-                diff = df[~df.apply(tuple,1).isin(data.apply(tuple,1))]
-                data = pd.concat([data, diff[diff["label"]==2].iloc[0].to_frame().transpose()], axis=0, ignore_index=True)
-            for index, row in data.iterrows():
-                passage = "X: " + row["premise"].strip() + "\nY: " + row["hypothesis"].strip()
-                input = Input(passage)
-                output = Output(text=self.id2label[row["label"]])
-                references = [
-                    Reference(output, tags=[CORRECT_TAG]),
-                ]
-                instance = Instance(
-                    input=input,
-                    references=references, 
-                    split=self.splits[split]
-                )
-                outputs.append(instance)
-        return outputs
-
+# 1. Natural Language Inference
+# 1.1 Indonesian: IndoNLI
 class IndoNLIScenario(Scenario):
     """
-    This is a IndoNLI natural language inference scenario. The data comes from IndoNLI, and incorporates various linguistic 
+    This is a IndoNLI natural language inference scenario. The data comes from IndoNLI, and incorporates various linguistic
     phenomena such as numerical reasoning, structural changes, idioms, or temporal and spatial reasoning. Labels are
-    entailment, contradiction, or neutral. 
+    entailment, contradiction, or neutral.
 
     The models are prompted using the following format:
 
@@ -1130,7 +1085,7 @@ class IndoNLIScenario(Scenario):
 
         X: <sentence1>
         Y: <sentence2>
-        Jawaban: 
+        Jawaban:
 
     Target completion:
         <entailment>
@@ -1196,17 +1151,18 @@ class IndoNLIScenario(Scenario):
                 ]
                 instance = Instance(
                     input=input,
-                    references=references, 
+                    references=references,
                     split=self.splits[split]
                 )
                 outputs.append(instance)
         return outputs
-        
+
+# 1.2 Vietnamese & Thai: XNLI
 class XNLIScenario(Scenario):
     """
-    This is a XNLI natural language inference scenario. The data comes from XNLI, and incorporates various linguistic 
+    This is a XNLI natural language inference scenario. The data comes from XNLI, and incorporates various linguistic
     phenomena such as numerical reasoning, structural changes, idioms, or temporal and spatial reasoning. Labels are
-    entailment, neutral, or contradiction. 
+    entailment, neutral, or contradiction.
 
     The models are prompted using the following general format:
 
@@ -1284,12 +1240,95 @@ class XNLIScenario(Scenario):
                 ]
                 instance = Instance(
                     input=input,
-                    references=references, 
+                    references=references,
                     split=self.splits[split]
                 )
                 outputs.append(instance)
         return outputs
 
+# 1.3 Tamil: IndicXNLI
+class IndicXNLIScenario(Scenario):
+    """
+    This is a Tamil natural language inference scenario. The data was automatically translated from XNLI into 11 Indic languages.
+
+    The models are prompted using the following format:
+
+        உங்களுக்கு இரண்டு வாக்கியங்கள், X மற்றும் Y, தரப்படும்.
+        பின்வரும் கூற்றுகளில் எது X மற்றும் Y வாக்கியங்களுடன் மிகப் பொருந்துகிறது எனக் கண்டறியவும்.
+        A: X உண்மை என்றால் Y உம் உண்மையாக இருக்க வேண்டும்.
+        B: X உம் Y உம் முரண்படுகின்றன.
+        C: X உண்மையாக இருக்கும்போது Y உண்மையாக இருக்கலாம் அல்லது இல்லாமல் இருக்கலாம்.
+        A அல்லது B அல்லது C என்ற ஒறே எழுத்தில் மட்டும் பதிலளிக்கவும்.
+
+        X: <premise>
+        Y: <hypothesis>
+        பதில்: <entailment>
+
+        ...
+
+        X: <premise>
+        Y: <hypothesis>
+        பதில்:
+
+    Target completion:
+        <entailment>
+
+    @misc{https://doi.org/10.48550/arxiv.2204.08776,
+        doi = {10.48550/ARXIV.2204.08776},
+        url = {https://arxiv.org/abs/2204.08776},
+        author = {Aggarwal, Divyanshu and Gupta, Vivek and Kunchukuttan, Anoop},
+        keywords = {Computation and Language (cs.CL), Artificial Intelligence (cs.AI), FOS: Computer and information sciences, FOS: Computer and information sciences},
+        title = {IndicXNLI: Evaluating Multilingual Inference for Indian Languages},
+        publisher = {arXiv},
+        year = {2022},
+        copyright = {Creative Commons Attribution 4.0 International}
+    }
+    """
+
+    name = "indicxnli"
+    description = "IndicXNLI natural language inference dataset"
+    tags = ["natural_language_inference"]
+
+    def __init__(self):
+        super().__init__()
+        self.splits = {
+            'train': TRAIN_SPLIT,
+            'test': TEST_SPLIT,
+        }
+        self.id2label = {
+            0: "A",
+            1: "B",
+            2: "C"
+        }
+
+    def get_instances(self, output_path) -> List[Instance]:
+        dataset = datasets.load_dataset("Divyanshu/indicxnli", "ta")
+
+        outputs = []
+        for split in self.splits.keys():
+            df = dataset[split].to_pandas()
+            if split == 'train':
+                data = df
+            else:
+                data = df.groupby("label", group_keys=False).apply(lambda x: x.sample(frac=1000/len(df), random_state=4156))
+                diff = df[~df.apply(tuple,1).isin(data.apply(tuple,1))]
+                data = pd.concat([data, diff[diff["label"]==2].iloc[0].to_frame().transpose()], axis=0, ignore_index=True)
+            for index, row in data.iterrows():
+                passage = "X: " + row["premise"].strip() + "\nY: " + row["hypothesis"].strip()
+                input = Input(passage)
+                output = Output(text=self.id2label[row["label"]])
+                references = [
+                    Reference(output, tags=[CORRECT_TAG]),
+                ]
+                instance = Instance(
+                    input=input,
+                    references=references,
+                    split=self.splits[split]
+                )
+                outputs.append(instance)
+        return outputs
+
+# 2. Causal Reasoning: XCOPA
 class XCOPAScenario(Scenario):
     """
     This is a XCOPA causal reasoning scenario. The data comes from XCOPA, a translation and reannotation of the English COPA.
@@ -1399,14 +1438,17 @@ class XCOPAScenario(Scenario):
                 ]
                 instance = Instance(
                     input=input,
-                    references=references, 
+                    references=references,
                     split=self.splits[split]
                 )
                 outputs.append(instance)
         return outputs
-    
-# LD
-    
+
+# D. Linguistic Diagnostics
+#   1. Syntax (Minimal Pairs)
+#   2. Pragmatics
+
+# 1. Syntax: LINDSEA Minimal Pairs
 class LINDSEAMPScenario(Scenario):
     """
     This is a LINDSEA minimal pairs (linguistic diagnostic for syntax) scenario. The data comes from the BHASA LINDSEA dataset.
@@ -1420,13 +1462,13 @@ class LINDSEAMPScenario(Scenario):
         Which sentence is more acceptable?
         Answer with A or B only.
         B: <sentence2>
-        
+
 
     Target completion:
         <choice>
 
     @misc{leong2023bhasa,
-        title={BHASA: A Holistic Southeast Asian Linguistic and Cultural Evaluation Suite for Large Language Models}, 
+        title={BHASA: A Holistic Southeast Asian Linguistic and Cultural Evaluation Suite for Large Language Models},
         author={Wei Qi Leong and Jian Gang Ngui and Yosephine Susanto and Hamsawardhini Rengarajan and Kengatharaiyer Sarveswaran and William Chandra Tjhi},
         year={2023},
         eprint={2309.06085},
@@ -1459,7 +1501,7 @@ class LINDSEAMPScenario(Scenario):
             "filler_gap_dependencies": f"https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/{self.language}/syntax/filler-gap_dependencies.jsonl",
             "morphology": f"https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/{self.language}/syntax/morphology.jsonl",
         }
-        
+
         data_files = {}
         for file in list(URLS.keys()):
             data_files[file] = []
@@ -1467,14 +1509,14 @@ class LINDSEAMPScenario(Scenario):
             ensure_file_downloaded(source_url=URLS[file], target_path=target_path_file)
             data_files[file] = pd.read_json(target_path_file, lines=True)
         dataset = pd.concat(data_files)
-        
+
         return dataset
 
 
     def get_instances(self, output_path) -> List[Instance]:
         data = self.download_dataset(output_path)
         dataset = datasets.Dataset.from_pandas(data).train_test_split(test_size=0.8)
-        
+
         outputs = []
         for split in list(dataset.keys()):
             data = dataset[split].to_pandas()
@@ -1487,7 +1529,7 @@ class LINDSEAMPScenario(Scenario):
                 random.shuffle(references) # Shuffle order of references
                 instance = Instance(
                     input=input,
-                    references=references, 
+                    references=references,
                     split=self.splits[split]
                 )
                 outputs.append(instance)
