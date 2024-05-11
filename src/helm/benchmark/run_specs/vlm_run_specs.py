@@ -117,9 +117,9 @@ def _get_image2structure_metric_specs(
         metric_names = [
             AnnotatedImageMetrics.PIXEL_SIMILARITY,
             AnnotatedImageMetrics.FID_SIMILARITY,
-            AnnotatedImageMetrics.BLOCK_EARTH_MOVER_SIMILARITY,
-            AnnotatedImageMetrics.BLOCK_EARTH_MOVER_SIMILARITY_NORM2,
-            AnnotatedImageMetrics.BLOCK_EARTH_MOVER_SIMILARITY_NORM1,
+            AnnotatedImageMetrics.BLOCK_EMD,
+            AnnotatedImageMetrics.EARTH_MOVER_SIMILARITY,
+            AnnotatedImageMetrics.EARTH_MOVER_SIMILARITY_WHITE,
         ]
     if include_edit_similarity:
         metric_names.append(AnnotatedImageMetrics.EDIT_SIMILARITY)
