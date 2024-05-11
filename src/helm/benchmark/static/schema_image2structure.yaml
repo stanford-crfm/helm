@@ -76,20 +76,20 @@ metrics:
     description: Average Levenshtein edit similarity (1 - distance normalized by length of longer sequence) between model generation and reference.
 
   # Vision Language metrics [image]:
-  - name: block_emd_similarity
-    display_name: Block Earth Mover Similarity
-    short_display_name: Block EMS
-    description: Block Earth Mover Similarity
+  - name: block_emd
+    display_name: Block Earth Mover Distance
+    short_display_name: Block-EMD
+    description: Block Earth Mover Distance (EMD adapted to speed up calculations)
+    lower_is_better: true
+  - name: earth_mover_similarity
+    display_name: Earth Mover Similarity
+    short_display_name: EMS
+    description: Earth Mover Similarity
     lower_is_better: false
-  - name: block_emd_similarity_white
-    display_name: Block Earth Mover Similarity (white)
-    short_display_name: Block EMS (white)
-    description: Block Earth Mover Similarity (white)
-    lower_is_better: false
-  - name: block_emd_similarity_median_color
-    display_name: Block Earth Mover Similarity (median)
-    short_display_name: Block EMS (median)
-    description: Block Earth Mover Similarity (median)
+  - name: earth_mover_similarity_white
+    display_name: Earth Mover Similarity (against White)
+    short_display_name: EMS (white)
+    description: Earth Mover Similarity against white image
     lower_is_better: false
   - name: pixel_similarity
     display_name: Pixel Similarity
@@ -169,11 +169,9 @@ metric_groups:
         split: ${main_split}
       - name: fid_similarity
         split: ${main_split}
-      - name: block_emd_similarity
+      - name: block_emd
         split: ${main_split}
-      - name: block_emd_similarity_white
-        split: ${main_split}
-      - name: block_emd_similarity_median_color
+      - name: earth_mover_similarity
         split: ${main_split}
 
   - name: generation_text

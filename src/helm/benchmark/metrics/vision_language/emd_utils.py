@@ -280,6 +280,10 @@ def compute_emd_recursive(
     assert max_num_patches > 0
     assert 0 < weight_most_frequent_color <= 1
 
+    # Convert the images to RGB first. Some images have 4 channels (RGBA)
+    img1_PIL = img1_PIL.convert("RGB")
+    img2_PIL = img2_PIL.convert("RGB")
+
     # Resize the images so that there are not too many patches
     # Try to maintain the aspect ratio and resize to a multiple of the patch size
     num_patches = math.ceil(img1_PIL.size[0] / patch_size[0]) * math.ceil(img1_PIL.size[1] / patch_size[1])
