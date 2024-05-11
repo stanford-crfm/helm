@@ -26,8 +26,13 @@ from helm.common.general import ensure_file_downloaded
 # 1.1 Indonesian: TyDiQA
 class TyDiQAScenario(Scenario):
     """
-    This is a Indonesian question answer scenario. The data comes from TyDIQA, a question answering dataset covering
-    11 typologically diverse languages with 204K question-answer pairs.
+    TyDiQA is is an open-book question answering scenario for 11 typologically-diverse languages.
+    The questions are written by people who want to know the answer, but do not know the answer yet,
+    and the data is collected directly in each language without the use of translation.
+
+    This scenario only uses the Indonesian subset of the data, and uses the Gold Passage (GoldP) task,
+    which requires the tested system to extract a span from the given passage to answer a given question.
+    There are no unanswerable questions.
 
     The models are prompted using the following format:
 
@@ -71,8 +76,8 @@ class TyDiQAScenario(Scenario):
         }
     """
 
-    name = "tydiqa"
-    description = "TyDiQA GoldP question answering dataset"
+    name = "tydiqa_id"
+    description = "Indonesian Open-book Question Answering task"
     tags = ["question_answering"]
 
     def __init__(self):
@@ -88,11 +93,15 @@ class TyDiQAScenario(Scenario):
         outputs = []
         for split in self.splits.keys():
             df = dataset[split].to_pandas()
-            if split == 'train':
+
+            if split == "train":
+                # Select only bottom 20th percentile by length for in-context examples as examples are very long
                 data = df[df["passage_text"].apply(len) < df["passage_text"].apply(len).quantile(.2)]
             else:
+                # Sample 100 examples for test
                 data = df.sample(n=100, random_state=5018)
-            for index, row in data.iterrows():
+
+            for _, row in data.iterrows():
                 passage = row["passage_text"].strip()
                 question = row["question_text"].strip()
                 input = PassageQuestionInput(
@@ -116,8 +125,12 @@ class TyDiQAScenario(Scenario):
 # 1.2 Vietnamese & Thai: XQuAD
 class XQuADScenario(Scenario):
     """
-    This is a XQuAD question answer scenario. The data comes from XQuAD, and the dataset consists of a subset of
-    240 paragraphs and 1190 question-answer pairs from the development set of SQuAD v1.1 together (Rajpurkar et al., 2016).
+    XQuAD is an open-book question answering scenario that is parallel across 10 languages.
+    The dataset consists of a subset of 240 paragraphs and 1190 question-answer pairs from the
+    development set of SQuAD v1.1 (Rajpurkar et al., 2016) together with their professional translations.
+
+    This scenario only uses the Vietnamese and Thai subsets of the data and there are no
+    unanswerable questions.
 
     The models are prompted using the following general format:
 
@@ -148,7 +161,7 @@ class XQuADScenario(Scenario):
     """
 
     name = "xquad"
-    description = "XQuAD question answering dataset"
+    description = "Vietnamese and Thai Open-book Question Answering task"
     tags = ["question_answering"]
 
     def __init__(self, language: str):
@@ -172,10 +185,16 @@ class XQuADScenario(Scenario):
         }
 
     def get_instances(self, output_path) -> List[Instance]:
-        dataset = datasets.load_dataset("xquad", f"xquad.{self.language}")
-        df = dataset['validation'].to_pandas()
+        dataset = datasets.load_dataset("xquad", f"xquad.{self.language}", split="validation")
+        df = dataset.to_pandas()
+
+        # Sample 100 examples for test
         df_test = df.sample(n=100, random_state=self.map[self.language]["random_state"])
-        df_train = df[~df.apply(tuple,1).isin(df_test.apply(tuple,1))]
+
+        # In-context examples to be drawn from remaining examples (since there is no train data)
+        df_train = df[~df.index.isin(df_test.index)]
+
+        # Select only bottom 20th percentile by length for in-context examples as examples are very long
         df_train = df_train[df_train["context"].apply(len) < df_train["context"].apply(len).quantile(.2)]
         dataset = {
             'train': df_train,
@@ -185,7 +204,7 @@ class XQuADScenario(Scenario):
         outputs = []
         for split in self.splits.keys():
             data = dataset[split]
-            for index, row in data.iterrows():
+            for _, row in data.iterrows():
                 passage = row["context"].strip()
                 question = row["question"].strip()
                 input = PassageQuestionInput(
@@ -209,7 +228,14 @@ class XQuADScenario(Scenario):
 # 1.3 Tamil: IndicQA
 class IndicQAScenario(Scenario):
     """
-    This is a Tamil question answer scenario. The data comes from IndicQA, a manually curated cloze-style reading comprehension dataset.
+    IndicQA is an open-book question answering scenario for 11 Indic languages.
+    Answers to questions are to be extracted from the text provided. The data is taken from
+    Wikipedia articles across various domains and questions and answers were manually created
+    by native speakers.
+
+    This scenario only uses the Tamil subset of the data and unanswerable questions
+    are removed from the dataset in order to be consistent with the question answering
+    scenarios for Indonesian, Vietnamese and Thai.
 
     The models are prompted using the following format:
 
@@ -238,7 +264,7 @@ class IndicQAScenario(Scenario):
     """
 
     name = "indicqa"
-    description = "IndicQA question answering dataset"
+    description = "Tamil Open-book Question Answering task"
     tags = ["question_answering"]
 
     def __init__(self):
@@ -249,11 +275,19 @@ class IndicQAScenario(Scenario):
         }
 
     def get_instances(self, output_path) -> List[Instance]:
-        dataset = datasets.load_dataset("ai4bharat/IndicQA", "indicqa.ta")
-        df = dataset['test'].to_pandas()
+        dataset = datasets.load_dataset("ai4bharat/IndicQA", "indicqa.ta", split="test")
+        df = dataset.to_pandas()
+
+        # Remove unanswerable questions (answer is an empty string)
         df = df[df["answers"].apply(lambda x: len(x["text"][0].strip()) > 0)]
+
+        # Sample 100 examples for test
         df_test = df.sample(n=100, random_state=7900)
-        df_train = df[~df.apply(tuple,1).isin(df_test.apply(tuple,1))]
+
+        # In-context examples to be drawn from remaining examples (since there is no train/dev data)
+        df_train = df[~df.index.isin(df_test.index)]
+
+        # Select only bottom 20th percentile by length for in-context examples as examples are very long
         df_train = df_train[df_train["context"].apply(len) < df_train["context"].apply(len).quantile(.2)]
         dataset = {
             'train': df_train,
@@ -263,7 +297,7 @@ class IndicQAScenario(Scenario):
         outputs = []
         for split in self.splits.keys():
             data = dataset[split]
-            for index, row in data.iterrows():
+            for _, row in data.iterrows():
                 passage = row["context"].strip()
                 question = row["question"].strip()
                 input = PassageQuestionInput(
