@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Optional, Dict
 
 from helm.benchmark.model_deployment_registry import (
     ClientSpec,
