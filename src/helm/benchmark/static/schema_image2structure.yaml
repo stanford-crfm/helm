@@ -157,6 +157,8 @@ metric_groups:
     metrics:
       - name: ${main_name}
         split: ${main_split}
+      - name: earth_mover_similarity
+        split: ${main_split}
       - name: compilation_success
         split: ${main_split}
 
@@ -172,6 +174,8 @@ metric_groups:
       - name: block_emd
         split: ${main_split}
       - name: earth_mover_similarity
+        split: ${main_split}
+      - name: earth_mover_similarity_white
         split: ${main_split}
 
   - name: generation_text
@@ -199,7 +203,7 @@ run_groups:
       - generation_image
       - generation_text
     environment:
-      main_name: block_emd_similarity
+      main_name: earth_mover_similarity
       main_split: valid
     taxonomy:
       task: image-to-text
@@ -216,7 +220,7 @@ run_groups:
       - generation_image
       - generation_text
     environment:
-      main_name: block_emd_similarity
+      main_name: earth_mover_similarity
       main_split: valid
     taxonomy:
       task: image-to-text
@@ -232,7 +236,7 @@ run_groups:
       - accuracy
       - generation_image
     environment:
-      main_name: block_emd_similarity
+      main_name: earth_mover_similarity
       main_split: valid
     taxonomy:
       task: image-to-text
