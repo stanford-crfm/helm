@@ -29,7 +29,10 @@ def register_huggingface_model(
         object_spec_args["openvino"] = openvino
 
     # Auto-infer model properties from the tokenizer.
-    with HuggingFaceTokenizer.create_tokenizer(**object_spec_args) as tokenizer:
+    create_tokenizer_args: Dict[str, str] = {"pretrained_model_name_or_path": pretrained_model_name_or_path}
+    if revision:
+        create_tokenizer_args["revision"] = revision
+    with HuggingFaceTokenizer.create_tokenizer(**create_tokenizer_args) as tokenizer:
         max_sequence_length = tokenizer.model_max_length
         end_of_text_token = tokenizer.eos_token or ""
         prefix_token = tokenizer.bos_token or ""
