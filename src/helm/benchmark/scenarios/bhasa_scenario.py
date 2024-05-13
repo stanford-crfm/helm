@@ -727,8 +727,16 @@ class IndicSentimentScenario(Scenario):
 # 3.1 Indonesian: Multi-Label Hate Speech Detection
 class MLHSDScenario(Scenario):
     """
-    This is an Indonesian toxicity detection scenario. The data comes from the Indonesian Twitter Multi-label Hate Speech and
-    Abusive Language Detection Dataset.
+    Multi-Label Hate Speech and Abusive Language Detection (MLHSD) is an Indonesian toxicity
+    classification scenario.  The data is obtained from Twitter and PII have been anonymized to
+    USER and URL.
+
+    The original dataset was used for a multi-label classification task, but it has been repurposed
+    as a multi-class classification task to be more aligned with the task for other languages.
+    The mapping is done as follows:
+    - Clean: No abusive language or hate speech labels
+    - Abusive: Only abusive language label but no hate speech labels
+    - Hate: As long as one hate speech label is present
 
     The models are prompted using the following format:
 
@@ -773,8 +781,8 @@ class MLHSDScenario(Scenario):
     """
 
     name = "mlhsd"
-    description = "MLHSD toxicity detection dataset"
-    tags = ["toxicity_dectection"]
+    description = "Multi-Label Hate Speech and Abusive Language Detection (MLHSD) Indonesian toxicity classification task"
+    tags = ["toxicity_detection"]
 
     def __init__(self):
         super().__init__()
@@ -788,9 +796,14 @@ class MLHSDScenario(Scenario):
         target_path_file = os.path.join(output_path, "mlhsd")
         ensure_file_downloaded(source_url=URL, target_path=target_path_file)
         df = pd.read_csv(target_path_file, encoding="ISO-8859-1")
+
+        # Map multi-label task to multi-class task
         df['label'] = df.apply(lambda x: self.get_label(x), axis=1)
+
         df_test = df.groupby("label", group_keys=False).apply(lambda x: x.sample(frac=1000/len(df), random_state=7123))
-        df_train = df[~df.apply(tuple,1).isin(df_test.apply(tuple,1))]
+
+        # In-context examples to be drawn from remaining examples (since there is no train/dev data)
+        df_train = df[~df.index.isin(df_test.index)]
         dataset = {
             'train': df_train,
             'test': df_test,
@@ -827,7 +840,8 @@ class MLHSDScenario(Scenario):
 # 3.2 Vietnamese: ViHSD
 class ViHSDScenario(Scenario):
     """
-    This is a Vietnamese toxicity detection scenario. The data comes from the ViHSD dataset.
+    ViHSD is a Vietnamese toxicity classification scenario. The data is obtained from social media.
+    The labels are Clean, Offensive and Hate.
 
     The models are prompted using the following format:
 
@@ -872,7 +886,7 @@ class ViHSDScenario(Scenario):
     """
 
     name = "vihsd"
-    description = "ViHSD toxicity detection dataset"
+    description = "ViHSD Vietnamese toxicity classification task"
     tags = ["toxicity_detection"]
 
     def __init__(self):
@@ -922,7 +936,9 @@ class ViHSDScenario(Scenario):
 # 3.3 Thai: Thai Toxicity Tweets
 class ThaiToxicityTweetsScenario(Scenario):
     """
-    This is a Thai toxicity detection scenario. The data comes from the Thai Toxicity Tweets dataset.
+    Thai Toxicity Tweets is a Thai toxicity detection scenario. The data is obtained from Twitter.
+    Instances with no labels or had "TWEET_NOT_FOUND" as the text were dropped from the dataset.
+    The labels are either Y (the text is toxic) or N (the text is clean).
 
     The models are prompted using the following format:
 
@@ -952,7 +968,7 @@ class ThaiToxicityTweetsScenario(Scenario):
     """
 
     name = "thaitoxicitytweets"
-    description = "Thai Toxicity Tweets toxicity detection dataset"
+    description = "Thai Toxicity Tweets toxicity detection task"
     tags = ["toxicity_detection"]
 
     def __init__(self):
@@ -967,12 +983,18 @@ class ThaiToxicityTweetsScenario(Scenario):
         }
 
     def get_instances(self, output_path) -> List[Instance]:
-        dataset = datasets.load_dataset("thai_toxicity_tweet")
-        df = dataset['train'].to_pandas()
+        dataset = datasets.load_dataset("thai_toxicity_tweet", split="train")
+        df = dataset.to_pandas()
+
+        # Drop instances where there are no labels or text is "TWEET_NOT_FOUND"
         df = df[df["tweet_text"].str.len() > 0]
         df = df[df["tweet_text"]!= "TWEET_NOT_FOUND"]
+
         df_test = df.groupby("is_toxic", group_keys=False).apply(lambda x: x.sample(frac=1000/len(df), random_state=4156))
-        df_train = df[~df.apply(tuple,1).isin(df_test.apply(tuple,1))]
+
+        # In-context examples to be drawn from remaining examples (since there is no train/dev data)
+        df_train = df[~df.index.isin(df_test.index)]
+
         dataset = {
             'train': df_train,
             'test': df_test,
