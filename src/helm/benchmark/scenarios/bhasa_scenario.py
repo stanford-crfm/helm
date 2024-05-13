@@ -740,12 +740,23 @@ class MLHSDScenario(Scenario):
     Target completion:
         <answer>
 
-    @inproceedings{ibrohim2019multi,
-        title={Multi-label hate speech and abusive language detection in Indonesian Twitter},
-        author={Ibrohim, Muhammad Okky and Budi, Indra},
-        booktitle={Proceedings of the third workshop on abusive language online},
-        pages={46--57},
-        year={2019}
+    @inproceedings{ibrohim-budi-2019-multi,
+        title = "Multi-label Hate Speech and Abusive Language Detection in {I}ndonesian {T}witter",
+        author = "Ibrohim, Muhammad Okky  and
+            Budi, Indra",
+        editor = "Roberts, Sarah T.  and
+            Tetreault, Joel  and
+            Prabhakaran, Vinodkumar  and
+            Waseem, Zeerak",
+        booktitle = "Proceedings of the Third Workshop on Abusive Language Online",
+        month = aug,
+        year = "2019",
+        address = "Florence, Italy",
+        publisher = "Association for Computational Linguistics",
+        url = "https://aclanthology.org/W19-3506",
+        doi = "10.18653/v1/W19-3506",
+        pages = "46--57",
+        abstract = "Hate speech and abusive language spreading on social media need to be detected automatically to avoid conflict between citizen. Moreover, hate speech has a target, category, and level that also needs to be detected to help the authority in prioritizing which hate speech must be addressed immediately. This research discusses multi-label text classification for abusive language and hate speech detection including detecting the target, category, and level of hate speech in Indonesian Twitter using machine learning approach with Support Vector Machine (SVM), Naive Bayes (NB), and Random Forest Decision Tree (RFDT) classifier and Binary Relevance (BR), Label Power-set (LP), and Classifier Chains (CC) as the data transformation method. We used several kinds of feature extractions which are term frequency, orthography, and lexicon features. Our experiment results show that in general RFDT classifier using LP as the transformation method gives the best accuracy with fast computational time.",
     }
     """
 
@@ -829,13 +840,22 @@ class ViHSDScenario(Scenario):
     Target completion:
         <toxicity>
 
-    @inproceedings{luu2021large,
-        title={A large-scale dataset for hate speech detection on vietnamese social media texts},
-        author={Luu, Son T and Nguyen, Kiet Van and Nguyen, Ngan Luu-Thuy},
-        booktitle={Advances and Trends in Artificial Intelligence. Artificial Intelligence Practices: 34th International Conference on Industrial, Engineering and Other Applications of Applied Intelligent Systems, IEA/AIE 2021, Kuala Lumpur, Malaysia, July 26--29, 2021, Proceedings, Part I 34},
-        pages={415--426},
-        year={2021},
-        organization={Springer}
+    @InProceedings{10.1007/978-3-030-79457-6_35,
+        author="Luu, Son T.
+            and Nguyen, Kiet Van
+            and Nguyen, Ngan Luu-Thuy",
+        editor="Fujita, Hamido
+            and Selamat, Ali
+            and Lin, Jerry Chun-Wei
+            and Ali, Moonis",
+        title="A Large-Scale Dataset for Hate Speech Detection on Vietnamese Social Media Texts",
+        booktitle="Advances and Trends in Artificial Intelligence. Artificial Intelligence Practices",
+        year="2021",
+        publisher="Springer International Publishing",
+        address="Cham",
+        pages="415--426",
+        isbn="978-3-030-79457-6",
+        url="https://link.springer.com/chapter/10.1007/978-3-030-79457-6_35",
     }
     """
 
@@ -914,7 +934,8 @@ class ThaiToxicityTweetsScenario(Scenario):
         author={Sirihattasak, Sugan and Komachi, Mamoru and Ishikawa, Hiroshi},
         booktitle={TA-COS 2018: 2nd Workshop on Text Analytics for Cybersecurity and Online Safety},
         pages={1},
-        year={2018}
+        year={2018},
+        url={http://www.lrec-conf.org/workshops/lrec2018/W32/pdf/1_W32.pdf},
     }
     """
 
@@ -989,7 +1010,8 @@ class FloresScenario(Scenario):
     @article{nllb2022,
         author    = {NLLB Team, Marta R. Costa-jussà, James Cross, Onur Çelebi, Maha Elbayad, Kenneth Heafield, Kevin Heffernan, Elahe Kalbassi,  Janice Lam, Daniel Licht, Jean Maillard, Anna Sun, Skyler Wang, Guillaume Wenzek, Al Youngblood, Bapi Akula, Loic Barrault, Gabriel Mejia Gonzalez, Prangthip Hansanti, John Hoffman, Semarley Jarrett, Kaushik Ram Sadagopan, Dirk Rowe, Shannon Spruit, Chau Tran, Pierre Andrews, Necip Fazil Ayan, Shruti Bhosale, Sergey Edunov, Angela Fan, Cynthia Gao, Vedanuj Goswami, Francisco Guzmán, Philipp Koehn, Alexandre Mourachko, Christophe Ropers, Safiyyah Saleem, Holger Schwenk, Jeff Wang},
         title     = {No Language Left Behind: Scaling Human-Centered Machine Translation},
-        year      = {2022}
+        year      = {2022},
+        url       = {https://research.facebook.com/publications/no-language-left-behind/},
     }
 
     """
@@ -1081,7 +1103,7 @@ class XLSumScenario(Scenario):
     """
 
     name = "xlsum"
-    description = "XLSum abstractive summarization dataset"
+    description = "XL-Sum abstractive summarization dataset"
     tags = ["abstractive_summarization"]
 
     def __init__(self, language: str):
@@ -1265,20 +1287,27 @@ class XNLIScenario(Scenario):
     Target completion:
         <entailment>
 
-    @InProceedings{conneau2018xnli,
-        author = {Conneau, Alexis
-                    and Rinott, Ruty
-                    and Lample, Guillaume
-                    and Williams, Adina
-                    and Bowman, Samuel R.
-                    and Schwenk, Holger
-                    and Stoyanov, Veselin},
-        title = {XNLI: Evaluating Cross-lingual Sentence Representations},
-        booktitle = {Proceedings of the 2018 Conference on Empirical Methods
-                    in Natural Language Processing},
-        year = {2018},
-        publisher = {Association for Computational Linguistics},
-        location = {Brussels, Belgium},
+    @inproceedings{conneau-etal-2018-xnli,
+        title = "{XNLI}: Evaluating Cross-lingual Sentence Representations",
+        author = "Conneau, Alexis  and
+            Rinott, Ruty  and
+            Lample, Guillaume  and
+            Williams, Adina  and
+            Bowman, Samuel  and
+            Schwenk, Holger  and
+            Stoyanov, Veselin",
+        editor = "Riloff, Ellen  and
+            Chiang, David  and
+            Hockenmaier, Julia  and
+            Tsujii, Jun{'}ichi",
+        booktitle = "Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing",
+        month = oct # "-" # nov,
+        year = "2018",
+        address = "Brussels, Belgium",
+        publisher = "Association for Computational Linguistics",
+        url = "https://aclanthology.org/D18-1269",
+        doi = "10.18653/v1/D18-1269",
+        pages = "2475--2485",
     }
     """
 
@@ -1554,7 +1583,8 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
         year={2023},
         eprint={2309.06085},
         archivePrefix={arXiv},
-        primaryClass={cs.CL}
+        primaryClass={cs.CL},
+        url={https://arxiv.org/abs/2309.06085},
     }
     """
 
@@ -1602,7 +1632,7 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
         for split in list(dataset.keys()):
             data = dataset[split].to_pandas()
             for _, row in data.iterrows():
-                input = Input(text=self.prompt[self.language]['question'] + "\n\n")
+                input = Input(text=self.prompt[self.language]['question'] + "\n")
                 references = [
                     Reference(Output(text=row["correct"].strip()), tags=[CORRECT_TAG]),
                     Reference(Output(text=row["wrong"].strip()), tags=[]),

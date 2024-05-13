@@ -120,9 +120,8 @@ run_groups:
       - bhasa_linguistic
 
   - name: bhasa_nlu
-    display_name: BHASA natural language understanding tasks
-    description: >
-      The BHASA NLU 
+    display_name: BHASA natural language understanding (NLU)
+    description: BHASA natural language understanding (NLU) tasks
     category: BHASA scenarios
     subgroups:
       - tydiqa
@@ -137,18 +136,16 @@ run_groups:
       - thaitoxicitytweets
 
     - name: bhasa_nlg
-    display_name: BHASA natural language generation tasks
-    description: >
-      The BHASA NLG
+    display_name: BHASA natural language generation (NLG)
+    description: BHASA natural language generation (NLG) tasks
     category: BHASA scenarios
     subgroups:
       - flores
       - xlsum
 
     - name: bhasa_nlr
-    display_name: BHASA natural language reasoning tasks
-    description: >
-      The BHASA NLR
+    display_name: BHASA natural language reasoning (NLR)
+    description: BHASA natural language reasoning (NLR) tasks
     category: BHASA scenarios
     subgroups:
       - indonli
@@ -157,9 +154,8 @@ run_groups:
       - xcopa
 
     - name: bhasa_linguistic
-    display_name: BHASA linguistic diagnostic tasks
-    description: >
-      The BHASA LD
+    display_name: BHASA linguistic diagnostics (LD)
+    description: BHASA linguistic diagnostics (LD) tasks
     category: BHASA scenarios
     subgroups:
       - lindsea_syntax_minimal_pairs
@@ -176,7 +172,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: f1_score
+      main_name: squad_f1_score
       main_split: test
     taxonomy:
       task: question answering
@@ -194,7 +190,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: f1_score
+      main_name: squad_f1_score
       main_split: test
     taxonomy:
       task: question answering
@@ -212,7 +208,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: f1_score
+      main_name: squad_f1_score
       main_split: test
     taxonomy:
       task: question answering
@@ -278,7 +274,7 @@ run_groups:
   - name: indicsentiment
     display_name: IndicSentiment
     description: >
-      IndicSentiment [(Doddapaneni, 2022)](https://aclanthology.org/2023.acl-long.693/) is a Tamil sentiment analysis dataset that comes from IndicXTREME, and consists of product reviews that were written by annotators. Labels are positive or negative.
+      IndicSentiment is a Tamil sentiment analysis dataset that comes from IndicXTREME [(Doddapaneni, 2022)](https://aclanthology.org/2023.acl-long.693/), and consists of product reviews that were written by annotators. Labels are positive or negative.
     metric_groups:
       - accuracy
       - efficiency
@@ -287,17 +283,34 @@ run_groups:
       main_name: f1_score
       main_split: test
     taxonomy:
-      task: question answering
-      what: Indonesian quesstion answering dataset
+      task: sentiment analysis
+      what: Tamil sentiment analysis dataset
       who: "?"
-      when: 2020
+      when: "?"
+      language: Tamil
+
+  - name: mlhsd
+    display_name: MLHSD
+    description: >
+      MLHSD [(Ibrohim, 2019)](https://aclanthology.org/W19-3506) is an Indonesian toxicity detection dataset.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: toxicity detection/classification
+      what: Indonesian toxicity detection/classification dataset
+      who: "?"
+      when: "?"
       language: Indonesian
 
-  - name: tydiqa
-    display_name: TyDiQA
+  - name: vihsd
+    display_name: ViHSD
     description: >
-      TyDiQA is is an open-book question answering dataset for 11 typologically-diverse languages. The questions are written by people who want to know the answer, but do not know the answer yet,
-      and the data is collected directly in each language without the use of translation [(Clark, 2020)](https://aclanthology.org/2020.tacl-1.30).
+      ViHSD [(Luu, 2021)](https://link.springer.com/chapter/10.1007/978-3-030-79457-6_35 )is a Vietnamese toxicity detection dataset.
     metric_groups:
       - accuracy
       - efficiency
@@ -306,160 +319,188 @@ run_groups:
       main_name: f1_score
       main_split: test
     taxonomy:
-      task: question answering
-      what: Indonesian quesstion answering dataset
+      task: toxicity detection/classification
+      what: Vietnamese toxicity detection/classification dataset
       who: "?"
-      when: 2020
+      when: "?"
+      language: Vietnamese
+
+  - name: thaitoxicitytweets
+    display_name: Thai Toxicity Tweets
+    description: >
+      Thai Toxicity Tweets [(Sirihattasak, 2018)](http://www.lrec-conf.org/workshops/lrec2018/W32/pdf/1_W32.pdf) is a Thai toxicity detection dataset.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: toxicity detection/classification
+      what: Thai toxicity detection/classification dataset
+      who: "?"
+      when: "?"
+      language: Thai
+
+  - name: flores
+    display_name: Flores
+    description: >
+      Flores [(NLLB Team, 2022)](https://research.facebook.com/publications/no-language-left-behind/) is a machine translation dataset.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: ChrF++
+      main_split: test
+    taxonomy:
+      task: machine translation
+      what: Indonesian, Tamil, Thai, Vietnamese, English Machine translation dataset
+      who: "?"
+      when: "?"
+      language: Indonesian, Tamil, Thai, Vietnamese, English
+
+  - name: xlsum
+    display_name: XL-Sum
+    description: >
+      XLSum [(Hasan, 2021)](https://aclanthology.org/2021.findings-acl.413) is an abstractive summarization dataset.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: xlsum_rouge_l
+      main_split: test
+    taxonomy:
+      task: abstractive summarization
+      what: Indonesian, Tamil, Thai, Vietnamese abstractive summarization dataset
+      who: "?"
+      when: "?"
+      language: Indonesian, Tamil, Thai, Vietnamese
+
+  - name: indonli
+    display_name: IndoNLI
+    description: >
+      IndoNLI [(Mahendra, 2021)](https://aclanthology.org/2021.emnlp-main.821) is a natural language inference dataset that incorporates various linguistic phenomena such as numerical reasoning, structural changes, idioms, or temporal and spatial reasoning. Labels are entailment, contradiction, or neutral.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: accuracy
+      main_split: test
+    taxonomy:
+      task: natural language inference
+      what: Indonesian natural language inference dataset
+      who: "?"
+      when: "?"
       language: Indonesian
 
-  - name: tydiqa
-    display_name: TyDiQA
+  - name: xnli
+    display_name: XNLI
     description: >
-      TyDiQA is is an open-book question answering dataset for 11 typologically-diverse languages. The questions are written by people who want to know the answer, but do not know the answer yet,
-      and the data is collected directly in each language without the use of translation [(Clark, 2020)](https://aclanthology.org/2020.tacl-1.30).
+      XNLI [(Conneau, 2018)](https://aclanthology.org/D18-1269) is a natural language inference dataset that  incorporates various linguistic phenomena such as numerical reasoning, structural changes, idioms, or temporal and spatial reasoning. Labels are entailment, neutral, or contradiction.
     metric_groups:
       - accuracy
       - efficiency
       - general_information
     environment:
-      main_name: f1_score
+      main_name: accuracy
       main_split: test
     taxonomy:
-      task: question answering
-      what: Indonesian quesstion answering dataset
+      task: natural language inference
+      what: Thai and Vietnamese quesstion answering dataset
+      who: "?"
+      when: "?"
+      language: Thai and Vietnamese
+
+  - name: indicxnli
+    display_name: IndicXNLI
+    description: >
+      IndicXNLI is a Tamil sentiment analysis dataset that comes from IndicXTREME [(Doddapaneni, 2022)](https://aclanthology.org/2023.acl-long.693/), which automatically translated from XNLI into 11 Indic languages.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: accuracy
+      main_split: test
+    taxonomy:
+      task: natural language inference
+      what: Tamil natural language inference dataset
+      who: "?"
+      when: "?"
+      language: Tamil
+
+  - name: xcopa
+    display_name: XCOPA
+    description: >
+      XCOPA [(Ponti, 2020)](https://ducdauge.github.io/files/xcopa.pdf) is causal reasoning dataset, a translation and reannotation of the English COPA.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: accuracy
+      main_split: test
+    taxonomy:
+      task: causal reasoning
+      what: Indonesian, Tamil, Thai, Vietnamese  causal reasoning dataset
       who: "?"
       when: 2020
+      language: Indonesian, Tamil, Thai, Vietnamese 
+
+  - name: lindsea_syntax_minimal_pairs
+    display_name: LINDSEA Syntax Minimal Pairs
+    description: >
+      LINDSEA minimal pairs is a linguistic diagnostic for syntax dataset from BHASA [(Leong, 2023)](https://arxiv.org/abs/2309.06085).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: accuracy
+      main_split: test
+    taxonomy:
+      task: minimal pairs
+      what: Indonesian minimal pairs dataset
+      who: "?"
+      when: "?"
       language: Indonesian
 
-  - name: tydiqa
-    display_name: TyDiQA
+  - name: lindsea_pragmatics_pragmatic_reasoning_single
+    display_name: LINDSEA Pragmatics Pragmatic Reasoning (single sentence)
     description: >
-      TyDiQA is is an open-book question answering dataset for 11 typologically-diverse languages. The questions are written by people who want to know the answer, but do not know the answer yet,
-      and the data is collected directly in each language without the use of translation [(Clark, 2020)](https://aclanthology.org/2020.tacl-1.30).
+      LINDSEA pragmatic reasoning (single sentence) is a linguistic diagnostic for pragmatics dataset from BHASA [(Leong, 2023)](https://arxiv.org/abs/2309.06085).
     metric_groups:
       - accuracy
       - efficiency
       - general_information
     environment:
-      main_name: f1_score
+      main_name: accuracy
       main_split: test
     taxonomy:
-      task: question answering
-      what: Indonesian quesstion answering dataset
+      task: pragmatic reasoning
+      what: Indonesian pragmatic reasoning dataset
       who: "?"
-      when: 2020
+      when: "?"
       language: Indonesian
 
-  - name: tydiqa
-    display_name: TyDiQA
+  - name: lindsea_pragmatics_pragmatic_reasoning_pair
+    display_name: LINDSEA Pragmatics Pragmatic Reasoning (sentence pair)
     description: >
-      TyDiQA is is an open-book question answering dataset for 11 typologically-diverse languages. The questions are written by people who want to know the answer, but do not know the answer yet,
-      and the data is collected directly in each language without the use of translation [(Clark, 2020)](https://aclanthology.org/2020.tacl-1.30).
+      LINDSEA pragmatic reasoning (sentence pair) is a linguistic diagnostic for pragmatics dataset from BHASA [(Leong, 2023)](https://arxiv.org/abs/2309.06085).
     metric_groups:
       - accuracy
       - efficiency
       - general_information
     environment:
-      main_name: f1_score
+      main_name: accuracy
       main_split: test
     taxonomy:
-      task: question answering
-      what: Indonesian quesstion answering dataset
+      task: pragmatic reasoning
+      what: Indonesian pragmatic reasoning dataset
       who: "?"
-      when: 2020
-      language: Indonesian
-
-  - name: tydiqa
-    display_name: TyDiQA
-    description: >
-      TyDiQA is is an open-book question answering dataset for 11 typologically-diverse languages. The questions are written by people who want to know the answer, but do not know the answer yet,
-      and the data is collected directly in each language without the use of translation [(Clark, 2020)](https://aclanthology.org/2020.tacl-1.30).
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: f1_score
-      main_split: test
-    taxonomy:
-      task: question answering
-      what: Indonesian quesstion answering dataset
-      who: "?"
-      when: 2020
-      language: Indonesian
-
-  - name: tydiqa
-    display_name: TyDiQA
-    description: >
-      TyDiQA is is an open-book question answering dataset for 11 typologically-diverse languages. The questions are written by people who want to know the answer, but do not know the answer yet,
-      and the data is collected directly in each language without the use of translation [(Clark, 2020)](https://aclanthology.org/2020.tacl-1.30).
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: f1_score
-      main_split: test
-    taxonomy:
-      task: question answering
-      what: Indonesian quesstion answering dataset
-      who: "?"
-      when: 2020
-      language: Indonesian
-
-  - name: tydiqa
-    display_name: TyDiQA
-    description: >
-      TyDiQA is is an open-book question answering dataset for 11 typologically-diverse languages. The questions are written by people who want to know the answer, but do not know the answer yet,
-      and the data is collected directly in each language without the use of translation [(Clark, 2020)](https://aclanthology.org/2020.tacl-1.30).
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: f1_score
-      main_split: test
-    taxonomy:
-      task: question answering
-      what: Indonesian quesstion answering dataset
-      who: "?"
-      when: 2020
-      language: Indonesian
-
-  - name: tydiqa
-    display_name: TyDiQA
-    description: >
-      TyDiQA is is an open-book question answering dataset for 11 typologically-diverse languages. The questions are written by people who want to know the answer, but do not know the answer yet,
-      and the data is collected directly in each language without the use of translation [(Clark, 2020)](https://aclanthology.org/2020.tacl-1.30).
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: f1_score
-      main_split: test
-    taxonomy:
-      task: question answering
-      what: Indonesian quesstion answering dataset
-      who: "?"
-      when: 2020
-      language: Indonesian
-
-  - name: tydiqa
-    display_name: TyDiQA
-    description: >
-      TyDiQA is is an open-book question answering dataset for 11 typologically-diverse languages. The questions are written by people who want to know the answer, but do not know the answer yet,
-      and the data is collected directly in each language without the use of translation [(Clark, 2020)](https://aclanthology.org/2020.tacl-1.30).
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: f1_score
-      main_split: test
-    taxonomy:
-      task: question answering
-      what: Indonesian quesstion answering dataset
-      who: "?"
-      when: 2020
+      when: "?"
       language: Indonesian

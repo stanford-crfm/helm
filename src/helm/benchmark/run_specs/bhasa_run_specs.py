@@ -1,5 +1,6 @@
 from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
+    ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
 )
 from helm.benchmark.adaptation.common_adapter_specs import (
     get_generation_adapter_spec,
@@ -590,14 +591,33 @@ def get_xcopa_spec(language="id") -> RunSpec:
 #   3. Semantics: Pragmatic Reasoning (sentence pair)
 
 # 1. Syntax: LINDSEA Minimal Pairs
+lindsea_syntax_minimal_pairs_prompts = {
+    "id": {
+        "output_prefix": "Jawablah dengan satu huruf A atau B saja.",
+        "output_noun": "Jawaban",
+    },
+}
+
 @run_spec_function("lindsea_syntax_minimal_pairs")
-def get_lindsea_syntax_minimal_pairs_spec(language="id") -> RunSpec:
+def get_lindsea_syntax_minimal_pairs_spec(language="id", mcq=False, calibrated=False) -> RunSpec:
     name = f"lindsea_syntax_minimal_pairs_{language}"
 
-    adapter_spec = get_multiple_choice_separate_adapter_spec(
-        method=ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
-        empty_input=True,
-    )
+    if mcq and calibrated:
+        adapter_spec = get_multiple_choice_separate_adapter_spec(
+            method=ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
+            empty_input=True,
+        )
+    elif mcq:
+        adapter_spec = get_multiple_choice_separate_adapter_spec(
+            method=ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
+            empty_input=True,
+        )
+    else:
+        adapter_spec = get_generation_adapter_spec(
+            output_noun=lindsea_syntax_minimal_pairs_prompts[language]["output_noun"] + "\n" + lindsea_syntax_minimal_pairs_prompts[language]["output_noun"],
+            stop_sequences=["\n"],
+            max_tokens=8,
+        )
 
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.bhasa_scenario.LINDSEASyntaxMinimalPairsScenario",
