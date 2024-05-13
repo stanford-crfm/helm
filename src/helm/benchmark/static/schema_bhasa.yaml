@@ -1,0 +1,465 @@
+---
+############################################################
+metrics:
+  - name: num_perplexity_tokens
+    display_name: '# tokens'
+    description: Average number of tokens in the predicted output (for language modeling, the input too).
+  - name: num_bytes
+    display_name: '# bytes'
+    description: Average number of bytes in the predicted output (for language modeling, the input too).
+  - name: num_references
+    display_name: '# ref'
+    description: Number of references.
+  - name: num_train_trials
+    display_name: '# trials'
+    description: Number of trials, where in each trial we choose an independent, random set of training instances.
+  - name: estimated_num_tokens_cost
+    display_name: 'cost'
+    description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
+  - name: num_prompt_tokens
+    display_name: '# prompt tokens'
+    description: Number of tokens in the prompt.
+  - name: num_prompt_characters
+    display_name: '# prompt chars'
+    description: Number of characters in the prompt.
+  - name: num_completion_tokens
+    display_name: '# completion tokens'
+    description: Actual number of completion tokens (over all completions).
+  - name: num_output_tokens
+    display_name: '# output tokens'
+    description: Actual number of output tokens.
+  - name: max_num_output_tokens
+    display_name: 'Max output tokens'
+    description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
+  - name: num_requests
+    display_name: '# requests'
+    description: Number of distinct API requests.
+  - name: num_instances
+    display_name: '# eval'
+    description: Number of evaluation instances.
+  - name: num_train_instances
+    display_name: '# train'
+    description: Number of training instances (e.g., in-context examples).
+  - name: prompt_truncated
+    display_name: truncated
+    description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
+  - name: finish_reason_length
+    display_name: finish b/c length
+    description: Fraction of instances where the the output was terminated because of the max tokens limit.
+  - name: finish_reason_stop
+    display_name: finish b/c stop
+    description: Fraction of instances where the the output was terminated because of the stop sequences.
+  - name: finish_reason_endoftext
+    display_name: finish b/c endoftext
+    description: Fraction of instances where the the output was terminated because the end of text token was generated.
+  - name: finish_reason_unknown
+    display_name: finish b/c unknown
+    description: Fraction of instances where the the output was terminated for unknown reasons.
+  - name: num_completions
+    display_name: '# completions'
+    description: Number of completions.
+  - name: predicted_index
+    display_name: Predicted index
+    description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
+
+  - name: ChrF++
+    display_name: ChrF++
+    description: Character n-gram F-score with word n-gram order (ChrF++) [(Popovic, 2015)](https://aclanthology.org/W15-3049/). Code can be found [here](https://github.com/mjpost/sacrebleu).
+  - name: squad_exact_match
+    display_name: SQuAD exact match
+    description: Character n-gram F-score with word n-gram order (ChrF++) [(Popovic, 2015)](https://aclanthology.org/W15-3049/). Code can be found [here](https://github.com/mjpost/sacrebleu)
+  - name: squad_f1_score
+    display_name: SQuAD macro-averaged F1 score
+    description: Character n-gram F-score with word n-gram order (ChrF++) [(Popovic, 2015)](https://aclanthology.org/W15-3049/). Code can be found [here](https://github.com/mjpost/sacrebleu)
+  - name: xlsum_rouge_l
+    display_name: XL-Sum ROUGE-L
+    description: XL-Sum ROUGE score (F1 score, using the "mid" result when performing bootstrap aggregation) [(Hasan, 2021)](https://aclanthology.org/2021.findings-acl.413/). Code can be found [here](https://github.com/csebuetnlp/xl-sum).
+
+############################################################
+perturbations: []
+
+############################################################
+metric_groups:
+  - name: accuracy
+    display_name: Accuracy
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+
+  - name: efficiency
+    display_name: Efficiency
+    metrics:
+    - name: inference_runtime
+      split: ${main_split}
+
+  - name: general_information
+    display_name: General information
+    metrics:
+    - name: num_instances
+      split: ${main_split}
+    - name: num_train_instances
+      split: ${main_split}
+    - name: prompt_truncated
+      split: ${main_split}
+    - name: num_prompt_tokens
+      split: ${main_split}
+    - name: num_output_tokens
+      split: ${main_split}
+
+############################################################
+
+run_groups:
+  - name: bhasa
+    display_name: BHASA
+    description: BHASA tasks
+    category: All scenarios
+    subgroups:
+      - bhasa_nlu
+      - bhasa_nlg
+      - bhasa_nlr
+      - bhasa_linguistic
+
+  - name: bhasa_nlu
+    display_name: BHASA natural language understanding tasks
+    description: >
+      The BHASA NLU 
+    category: BHASA scenarios
+    subgroups:
+      - tydiqa
+      - xquad
+      - indicqa
+      - nusax
+      - uitvsfc
+      - wisesight
+      - indicsentiment
+      - mlhsd
+      - vihsd
+      - thaitoxicitytweets
+
+    - name: bhasa_nlg
+    display_name: BHASA natural language generation tasks
+    description: >
+      The BHASA NLG
+    category: BHASA scenarios
+    subgroups:
+      - flores
+      - xlsum
+
+    - name: bhasa_nlr
+    display_name: BHASA natural language reasoning tasks
+    description: >
+      The BHASA NLR
+    category: BHASA scenarios
+    subgroups:
+      - indonli
+      - xnli
+      - indicxnli
+      - xcopa
+
+    - name: bhasa_linguistic
+    display_name: BHASA linguistic diagnostic tasks
+    description: >
+      The BHASA LD
+    category: BHASA scenarios
+    subgroups:
+      - lindsea_syntax_minimal_pairs
+      - lindsea_pragmatics_pragmatic_reasoning_single
+      - lindsea_pragmatics_pragmatic_reasoning_pair
+
+  - name: tydiqa
+    display_name: TyDiQA
+    description: >
+      TyDiQA [(Clark, 2020)](https://aclanthology.org/2020.tacl-1.30) is an open-book question answering dataset for 11 typologically-diverse languages. The questions are written by people who want to know the answer, but do not know the answer yet,
+      and the data is collected directly in each language without the use of translation.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: Indonesian question answering dataset
+      who: "?"
+      when: "?"
+      language: Indonesian
+
+  - name: xquad
+    display_name: XQuAD
+    description: >
+      XQuAD [(Artetxe, 2019)](https://arxiv.org/abs/1910.11856) is an open-book question answering dataset that is parallel across 10 languages. The dataset consists of a subset of 240 paragraphs and 1190 question-answer pairs from the development set of SQuAD v1.1 (Rajpurkar et al., 2016) together with their professional translations.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: Thai and Vietnamese quesstion answering dataset
+      who: "?"
+      when: "?"
+      language: Thai and Vietnamese.
+
+  - name: indicqa
+    display_name: IndicQA
+    description: >
+      IndicQA [(Doddapaneni, 2023)](https://aclanthology.org/2023.acl-long.693)is an open-book question answering dataset for 11 Indic languages. Answers to questions are to be extracted from the text provided. The data is taken from Wikipedia articles across various domains and questions and answers were manually created by native speakers.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: Tamil quesstion answering dataset
+      who: "?"
+      when: "?"
+      language: Tamil
+
+  - name: nusax
+    display_name: NusaX
+    description: >
+      NusaX [(Winata, 2023)](https://aclanthology.org/2023.eacl-main.57) is an Indonesian sentiment analysis dataset. The data consists of comments and reviews from the IndoNLU benchmark. Labels are positive, negative or neutral.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: sentiment analysis 
+      what: Indonesian sentiment analysis dataset
+      who: "?"
+      when: "?"
+      language: Indonesian
+
+  - name: uitvsfc
+    display_name: UIT-VSFC
+    description: >
+      UIT-VSFC [(Nguyen, 2018)](https://ieeexplore.ieee.org/document/8573337) is a Vietnamese sentiment analysis dataset. The data consists of student feedback obtained from end-of-semester surveys at a Vietnamese university. Feedback is labeled as one of three sentiment polarities: positive, negative or neutral.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: sentiment analysis
+      what: Vietnamese sentiment analysis dataset
+      who: "?"
+      when: "?"
+      language: Vietnamese
+
+  - name: wisesight
+    display_name: Wisesight
+    description: >
+      Wisesight [(Suriyawongkul, 2019)](https://doi.org/10.5281/zenodo.3457447) is an Thai sentiment analysis scenario. The data consists of social media messages regarding consumer products and services. Labels are positive, negative or neutral.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: sentiment analysis
+      what: Thai sentiment analysis dataset
+      who: "?"
+      when: "?"
+      language: Thai
+
+  - name: indicsentiment
+    display_name: IndicSentiment
+    description: >
+      IndicSentiment [(Doddapaneni, 2022)](https://aclanthology.org/2023.acl-long.693/) is a Tamil sentiment analysis dataset that comes from IndicXTREME, and consists of product reviews that were written by annotators. Labels are positive or negative.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: Indonesian quesstion answering dataset
+      who: "?"
+      when: 2020
+      language: Indonesian
+
+  - name: tydiqa
+    display_name: TyDiQA
+    description: >
+      TyDiQA is is an open-book question answering dataset for 11 typologically-diverse languages. The questions are written by people who want to know the answer, but do not know the answer yet,
+      and the data is collected directly in each language without the use of translation [(Clark, 2020)](https://aclanthology.org/2020.tacl-1.30).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: Indonesian quesstion answering dataset
+      who: "?"
+      when: 2020
+      language: Indonesian
+
+  - name: tydiqa
+    display_name: TyDiQA
+    description: >
+      TyDiQA is is an open-book question answering dataset for 11 typologically-diverse languages. The questions are written by people who want to know the answer, but do not know the answer yet,
+      and the data is collected directly in each language without the use of translation [(Clark, 2020)](https://aclanthology.org/2020.tacl-1.30).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: Indonesian quesstion answering dataset
+      who: "?"
+      when: 2020
+      language: Indonesian
+
+  - name: tydiqa
+    display_name: TyDiQA
+    description: >
+      TyDiQA is is an open-book question answering dataset for 11 typologically-diverse languages. The questions are written by people who want to know the answer, but do not know the answer yet,
+      and the data is collected directly in each language without the use of translation [(Clark, 2020)](https://aclanthology.org/2020.tacl-1.30).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: Indonesian quesstion answering dataset
+      who: "?"
+      when: 2020
+      language: Indonesian
+
+  - name: tydiqa
+    display_name: TyDiQA
+    description: >
+      TyDiQA is is an open-book question answering dataset for 11 typologically-diverse languages. The questions are written by people who want to know the answer, but do not know the answer yet,
+      and the data is collected directly in each language without the use of translation [(Clark, 2020)](https://aclanthology.org/2020.tacl-1.30).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: Indonesian quesstion answering dataset
+      who: "?"
+      when: 2020
+      language: Indonesian
+
+  - name: tydiqa
+    display_name: TyDiQA
+    description: >
+      TyDiQA is is an open-book question answering dataset for 11 typologically-diverse languages. The questions are written by people who want to know the answer, but do not know the answer yet,
+      and the data is collected directly in each language without the use of translation [(Clark, 2020)](https://aclanthology.org/2020.tacl-1.30).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: Indonesian quesstion answering dataset
+      who: "?"
+      when: 2020
+      language: Indonesian
+
+  - name: tydiqa
+    display_name: TyDiQA
+    description: >
+      TyDiQA is is an open-book question answering dataset for 11 typologically-diverse languages. The questions are written by people who want to know the answer, but do not know the answer yet,
+      and the data is collected directly in each language without the use of translation [(Clark, 2020)](https://aclanthology.org/2020.tacl-1.30).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: Indonesian quesstion answering dataset
+      who: "?"
+      when: 2020
+      language: Indonesian
+
+  - name: tydiqa
+    display_name: TyDiQA
+    description: >
+      TyDiQA is is an open-book question answering dataset for 11 typologically-diverse languages. The questions are written by people who want to know the answer, but do not know the answer yet,
+      and the data is collected directly in each language without the use of translation [(Clark, 2020)](https://aclanthology.org/2020.tacl-1.30).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: Indonesian quesstion answering dataset
+      who: "?"
+      when: 2020
+      language: Indonesian
+
+  - name: tydiqa
+    display_name: TyDiQA
+    description: >
+      TyDiQA is is an open-book question answering dataset for 11 typologically-diverse languages. The questions are written by people who want to know the answer, but do not know the answer yet,
+      and the data is collected directly in each language without the use of translation [(Clark, 2020)](https://aclanthology.org/2020.tacl-1.30).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: Indonesian quesstion answering dataset
+      who: "?"
+      when: 2020
+      language: Indonesian
+
+  - name: tydiqa
+    display_name: TyDiQA
+    description: >
+      TyDiQA is is an open-book question answering dataset for 11 typologically-diverse languages. The questions are written by people who want to know the answer, but do not know the answer yet,
+      and the data is collected directly in each language without the use of translation [(Clark, 2020)](https://aclanthology.org/2020.tacl-1.30).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: Indonesian quesstion answering dataset
+      who: "?"
+      when: 2020
+      language: Indonesian

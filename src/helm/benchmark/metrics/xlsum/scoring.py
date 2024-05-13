@@ -146,6 +146,7 @@ class BootstrapAggregator(object):
 
     # Matrix of (bootstrap sample, measure).
     sample_mean = np.zeros((self._n_samples, matrix.shape[1]))
+    np.random.seed(4156)
     for i in range(self._n_samples):
       sample_idx = np.random.choice(
           np.arange(matrix.shape[0]), size=matrix.shape[0])

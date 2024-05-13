@@ -585,20 +585,14 @@ def get_xcopa_spec(language="id") -> RunSpec:
     return generate_xcopa_run_spec(language)
 
 # D. Linguistic Diagnostics
-#  1. Syntax (Minimal Pairs)
-#  2. Pragmatics
+#   1. Syntax: Minimal Pairs
+#   2. Semantics: Pragmatic Reasoning (single sentece)
+#   3. Semantics: Pragmatic Reasoning (sentence pair)
 
 # 1. Syntax: LINDSEA Minimal Pairs
-SYNTAX_PROMPTS = {
-    "id": {
-        "instructions": "Anda adalah seorang ahli bahasa Indonesia.",
-        "output_suffix": "Jawablah dengan menggunakan A atau B saja.",
-        "output_noun": "Jawaban",
-    },
-}
-
-def generate_lindsea_syntax_run_spec(language="id") -> RunSpec:
-    name = f"lindsea_syntax_{language}"
+@run_spec_function("lindsea_syntax_minimal_pairs")
+def get_lindsea_syntax_minimal_pairs_spec(language="id") -> RunSpec:
+    name = f"lindsea_syntax_minimal_pairs_{language}"
 
     adapter_spec = get_multiple_choice_separate_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
@@ -606,7 +600,7 @@ def generate_lindsea_syntax_run_spec(language="id") -> RunSpec:
     )
 
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.bhasa_scenario.LINDSEAMPScenario",
+        class_name="helm.benchmark.scenarios.bhasa_scenario.LINDSEASyntaxMinimalPairsScenario",
         args={
             "language": language,
         }
@@ -620,6 +614,56 @@ def generate_lindsea_syntax_run_spec(language="id") -> RunSpec:
         groups=["bhasa_linguistic"],
     )
 
-@run_spec_function("lindsea_syntax")
-def get_lindsea_syntax_spec(language="id") -> RunSpec:
-    return generate_lindsea_syntax_run_spec(language)
+# 2. Pragmatics: LINDSEA Pragmatics Reasoning (single sentence)
+@run_spec_function("lindsea_pragmatics_pragmatic_reasoning_single")
+def get_lindsea_pragmatics_pragmatic_reasoning_single_spec(language="id") -> RunSpec:
+    name = f"lindsea_pragmatics_pragmatic_reasoning_single_{language}"
+
+    adapter_spec = get_generation_adapter_spec(
+        output_noun="Jawaban",
+        stop_sequences=["\n"],
+        max_train_instances=0,
+        max_tokens=8,
+    )
+
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.bhasa_scenario.LINDSEAPragmaticsPragmaticReasoningSingleScenario",
+        args={
+            "language": language,
+        }
+    )
+
+    return RunSpec(
+        name=name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["bhasa_linguistic"],
+    )
+
+# 3. Pragmatics: LINDSEA Pragmatic Reasoning (sentence pair)
+@run_spec_function("lindsea_pragmatics_pragmatic_reasoning_pair")
+def get_lindsea_pragmatics_pragmatic_reasoning_pair_spec(language="id") -> RunSpec:
+    name = f"lindsea_pragmatics_pragmatic_reasoning_pair_{language}"
+
+    adapter_spec = get_generation_adapter_spec(
+        output_noun="Jawaban",
+        stop_sequences=["\n"],
+        max_train_instances=0,
+        max_tokens=8,
+    )
+
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.bhasa_scenario.LINDSEAPragmaticsPragmaticReasoningPairScenario",
+        args={
+            "language": language,
+        }
+    )
+
+    return RunSpec(
+        name=name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["bhasa_linguistic"],
+    )

@@ -18,8 +18,8 @@ from helm.benchmark.metrics.metric import Metric, MetricResult, MetricSpec
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.xlsum import rouge_scorer, tokenizers
-
+from helm.benchmark.metrics.xlsum import rouge_scorer
+from helm.benchmark.metrics.xlsum.scoring import BootstrapAggregator
 
 class BhasaMachineTranslationMetric(Metric):
     """Machine Translation Metrics
@@ -27,6 +27,28 @@ class BhasaMachineTranslationMetric(Metric):
     This class computes the following standard machine translation metrics
 
     1. ChrF++
+
+    @inproceedings{popovic-2015-chrf,
+        title = "chr{F}: character n-gram {F}-score for automatic {MT} evaluation",
+        author = "Popovi{\'c}, Maja",
+        editor = "Bojar, Ond{\v{r}}ej  and
+        Chatterjee, Rajan  and
+        Federmann, Christian  and
+        Haddow, Barry  and
+        Hokamp, Chris  and
+        Huck, Matthias  and
+        Logacheva, Varvara  and
+        Pecina, Pavel",
+        booktitle = "Proceedings of the Tenth Workshop on Statistical Machine Translation",
+        month = sep,
+        year = "2015",
+        address = "Lisbon, Portugal",
+        publisher = "Association for Computational Linguistics",
+        url = "https://aclanthology.org/W15-3049",
+        doi = "10.18653/v1/W15-3049",
+        pages = "392--395",
+        github = "https://github.com/mjpost/sacrebleu",
+    }
     """
 
     def __init__(self):
@@ -76,6 +98,25 @@ class BhasaQAMetric(Metric):
 
     1. SQuAD exact match
     2. SQuAD macro-averaged F1 score
+
+    @inproceedings{rajpurkar-etal-2016-squad,
+        title = "{SQ}u{AD}: 100,000+ Questions for Machine Comprehension of Text",
+        author = "Rajpurkar, Pranav  and
+            Zhang, Jian  and
+            Lopyrev, Konstantin  and
+            Liang, Percy",
+        editor = "Su, Jian  and
+            Duh, Kevin  and
+            Carreras, Xavier",
+        booktitle = "Proceedings of the 2016 Conference on Empirical Methods in Natural Language Processing",
+        month = nov,
+        year = "2016",
+        address = "Austin, Texas",
+        publisher = "Association for Computational Linguistics",
+        url = "https://aclanthology.org/D16-1264",
+        doi = "10.18653/v1/D16-1264",
+        pages = "2383--2392",
+    }
     """
 
     def __init__(self, language: str = 'en'):
@@ -174,36 +215,55 @@ class BhasaSummarizationMetric(Metric):
 
     This class computes the following standard summarization metrics
 
-    1. Rouge-L (F1 score, using the "mid" result when performing bootstrap aggregation)
+    1. XL-Sum Rouge-L (F1 score, using the "mid" result when performing bootstrap aggregation)
+
+    @inproceedings{hasan-etal-2021-xl,
+    title = "{XL}-Sum: Large-Scale Multilingual Abstractive Summarization for 44 Languages",
+        author = "Hasan, Tahmid  and
+            Bhattacharjee, Abhik  and
+            Islam, Md. Saiful  and
+            Mubasshir, Kazi  and
+            Li, Yuan-Fang  and
+            Kang, Yong-Bin  and
+            Rahman, M. Sohel  and
+            Shahriyar, Rifat",
+        editor = "Zong, Chengqing  and
+            Xia, Fei  and
+            Li, Wenjie  and
+            Navigli, Roberto",
+        booktitle = "Findings of the Association for Computational Linguistics: ACL-IJCNLP 2021",
+        month = aug,
+        year = "2021",
+        address = "Online",
+        publisher = "Association for Computational Linguistics",
+        url = "https://aclanthology.org/2021.findings-acl.413",
+        doi = "10.18653/v1/2021.findings-acl.413",
+        pages = "4693--4703",
+        github = "https://github.com/csebuetnlp/xl-sum",
+    }
+    
     """
 
     def __init__(self, language: str = 'en'):
         self.language: str = language
-        self.rouge_fns = {
-            "rouge_l": self._get_bhasa_rouge_function("rougeL"),
+        self.rouge_metrics = {
+            "rougeL": "xlsum_rouge_l",
         }
+        self.rouge_scorer = self._get_bhasa_rouge_scorer(self.rouge_metrics)
 
-    def _get_bhasa_rouge_function(self, rouge_type: str) -> Callable[[str, str], float]:
-        if self.language == "th":
-            scorer = rouge_scorer.RougeScorer(
-                [rouge_type],
-                use_stemmer=True,
-                callable_tokenizer=tokenizers.ThaiTokenizer())
-        else:
-            scorer = rouge_scorer.RougeScorer([rouge_type], use_stemmer=True)
-        return partial(rouge_score_fn, scorer=scorer, rouge_type=rouge_type)
-
-    def evaluate(
-        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
-    ) -> MetricResult:
-        return super().evaluate(scenario_state, metric_service, eval_cache_path, parallelism=parallelism)
+    def _get_bhasa_rouge_scorer(self, rouge_metrics: str) -> Callable[[str, str], float]:
+        language = "thai" if self.language == "th" else None
+        return rouge_scorer.RougeScorer(list(rouge_metrics.keys()), use_stemmer=False, lang=language)
 
     def _compute_rouge(self, refs: List[str], pred: str) -> Dict[str, float]:
         metrics: Dict[str, float] = {}
 
-        for metric, metric_fn in self.rouge_fns.items():
-            metrics[metric] = np.max([metric_fn(ref, pred) for ref in refs])
-
+        aggregator = BootstrapAggregator()
+        for ref in refs:
+            aggregator.add_scores(self.rouge_scorer.score(ref, pred))
+        aggregates = aggregator.aggregate()
+        for key, value in self.rouge_metrics.items():
+            metrics[value] = aggregates[key].mid.fmeasure * 100
         return metrics
 
     def _remove_braces(self, text: str) -> str:
@@ -212,6 +272,11 @@ class BhasaSummarizationMetric(Metric):
         if text.endswith("}"):
             text = text[:-1]
         return text
+    
+    def evaluate(
+        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
+    ) -> MetricResult:
+        return super().evaluate(scenario_state, metric_service, eval_cache_path, parallelism=parallelism)
 
     def evaluate_generation(
         self,
