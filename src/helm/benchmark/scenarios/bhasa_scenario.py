@@ -75,7 +75,7 @@ class TyDiQAScenario(Scenario):
     }
     """
 
-    name = "tydiqa_id"
+    name = "tydiqa"
     description = "Indonesian Open-book Question Answering task"
     tags = ["question_answering"]
 
@@ -1626,18 +1626,25 @@ class XCOPAScenario(Scenario):
         return outputs
 
 # D. Linguistic Diagnostics (LINDSEA)
-#   1. Syntax: Minimal Pairs
-#   2. Semantics: Pragmatic Reasoning (single sentece)
-#   3. Semantics: Pragmatic Reasoning (sentence pair)
+#   1. Syntax
+#   2. Pragmatics
 
 # 1. Syntax: LINDSEA Minimal Pairs
 class LINDSEASyntaxMinimalPairsScenario(Scenario):
     """
-    This is a LINDSEA minimal pairs (linguistic diagnostic for syntax) scenario. The data comes from the BHASA LINDSEA dataset.
+    The LINDSEA Minimal Pairs dataset is a linguistic diagnostic scenario targeting syntactic phenomena.
+    The data is manually handcrafted by linguists and native speakers and verified through multiple rounds
+    of quality control. The high-level categories tested for include morphology, argument structure,
+    filler-gap dependencies, as well as negative polarity items and negation.
+
+    The test is designed as a minimal pair, with a pair of sentences that differ minimally from each other
+    and which exemplify a specific syntactic phenomenon. The system under test needs to determine which
+    sentence of the pair is more acceptable.
 
     The models are prompted using the following general format:
 
         Which sentence is more acceptable?
+        Answer only with a single letter A or B.
         <sentence>
 
     Target completion:
@@ -1654,16 +1661,16 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
     }
     """
 
-    name = "lindseaminimalpairs"
-    description = "LINDSEA minimal pairs dataset"
+    name = "lindsea_minimal_pairs"
+    description = "LINDSEA minimal pairs task"
     tags = ["minimal_pairs", "linguistic_diagnostic", "syntax"]
 
     def __init__(self, language: str):
         super().__init__()
         self.language = language
         self.splits = {
-            'train': TRAIN_SPLIT,
-            'test': TEST_SPLIT
+            "train": TRAIN_SPLIT,
+            "test": TEST_SPLIT
         }
         self.prompt = {
             "id": {
@@ -1681,7 +1688,6 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
 
         data_files = {}
         for file in list(URLS.keys()):
-            data_files[file] = []
             target_path_file = os.path.join(output_path, file)
             ensure_file_downloaded(source_url=URLS[file], target_path=target_path_file)
             data_files[file] = pd.read_json(target_path_file, lines=True)
@@ -1698,7 +1704,7 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
         for split in list(dataset.keys()):
             data = dataset[split].to_pandas()
             for _, row in data.iterrows():
-                input = Input(text=self.prompt[self.language]['question'] + "\n")
+                input = Input(text=self.prompt[self.language]["question"] + "\n")
                 references = [
                     Reference(Output(text=row["correct"].strip()), tags=[CORRECT_TAG]),
                     Reference(Output(text=row["wrong"].strip()), tags=[]),
@@ -1712,10 +1718,16 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
                 outputs.append(instance)
         return outputs
 
-# 2. Pragmatics: LINDSEA Pragmatic Reasoning (single sentence)
+# 2. Pragmatics
+# 2.1 LINDSEA Pragmatic Reasoning (single sentence)
 class LINDSEAPragmaticsPragmaticReasoningSingleScenario(Scenario):
     """
-    This is a LINDSEA single-sentence pragmatic reasoning (linguistic diagnostic for pragmatics) scenario. The data comes from the BHASA LINDSEA dataset.
+    The LINDSEA Pragmatic Reasoning dataset is a linguistic diagnostic scenario targeting pragmatics.
+    The data is manually handcrafted by linguists and native speakers and verified through multiple rounds
+    of quality control. The high-level categories tested for include scalar implicatures and presuppositions.
+
+    The single-sentence pragmatic reasoning dataset involves questions targeting the truth value of a single sentence.
+    The system under test needs to determine if the sentence is true/false or if the proposition is possible/impossible.
 
     The models are prompted using the following general format:
 
@@ -1736,16 +1748,16 @@ class LINDSEAPragmaticsPragmaticReasoningSingleScenario(Scenario):
     }
     """
 
-    name = "lindseapragmaticreasoningsingle"
-    description = "LINDSEA pragmatic reasoning single sentence dataset"
+    name = "lindsea_pragmatic_reasoning_single"
+    description = "LINDSEA pragmatic reasoning single sentence task"
     tags = ["pragmatic_reasoning", "linguistic_diagnostic", "pragmatics"]
 
     def __init__(self, language: str):
         super().__init__()
         self.language = language
         self.splits = {
-            'train': TRAIN_SPLIT,
-            'test': TEST_SPLIT
+            "train": TRAIN_SPLIT,
+            "test": TEST_SPLIT
         }
         self.prompt = {
             "id": {
@@ -1772,12 +1784,13 @@ class LINDSEAPragmaticsPragmaticReasoningSingleScenario(Scenario):
             data = dataset[split].to_pandas()
             for _, row in data.iterrows():
                 passage = "{question}\nPernyataan: {text}\n{instruction}".format(
-                    question=self.prompt[self.language]['question'].format(row["question_translated"]),
+                    question=self.prompt[self.language]["question"].format(row["question_translated"]),
                     text=row["text"],
-                    instruction=self.prompt[self.language]['instruction'].format(row["choices_translated"]),
+                    instruction=self.prompt[self.language]["instruction"].format(row["choices_translated"]),
                 )
                 input = Input(text=passage)
 
+                # Split "True or False" into ["True", "or", "False"]
                 choices = row["choices"].split()
                 choices_translated = row["choices_translated"].split()
                 label2choice = {
@@ -1795,10 +1808,15 @@ class LINDSEAPragmaticsPragmaticReasoningSingleScenario(Scenario):
                 outputs.append(instance)
         return outputs
 
-# 3. Pragmatics: LINDSEA Pragmatic Reasoning (sentence pair)
+# 2.2 Pragmatics: LINDSEA Pragmatic Reasoning (sentence pair)
 class LINDSEAPragmaticsPragmaticReasoningPairScenario(Scenario):
     """
-    This is a LINDSEA pair-sentence pragmatic reasoning (linguistic diagnostic for syntax) scenario. The data comes from the BHASA LINDSEA dataset.
+    The LINDSEA Pragmatic Reasoning dataset is a linguistic diagnostic scenario targeting pragmatics.
+    The data is manually handcrafted by linguists and native speakers and verified through multiple rounds
+    of quality control. The high-level categories tested for include scalar implicatures and presuppositions.
+
+    The sentence-pair pragmatic reasoning dataset involves questions targeting whether a conclusion can be drawn
+    from another sentence.
 
     The models are prompted using the following general format:
 
@@ -1820,16 +1838,16 @@ class LINDSEAPragmaticsPragmaticReasoningPairScenario(Scenario):
     }
     """
 
-    name = "lindseapragmaticreasoningpair"
-    description = "LINDSEA pragmatic reasoning sentence pair dataset"
+    name = "lindsea_pragmatic_reasoning_pair"
+    description = "LINDSEA pragmatic reasoning sentence pair task"
     tags = ["pragmatic_reasoning", "linguistic_diagnostic", "pragmatics"]
 
     def __init__(self, language: str):
         super().__init__()
         self.language = language
         self.splits = {
-            'train': TRAIN_SPLIT,
-            'test': TEST_SPLIT
+            "train": TRAIN_SPLIT,
+            "test": TEST_SPLIT
         }
         self.prompt = {
             "id": {
@@ -1859,9 +1877,9 @@ class LINDSEAPragmaticsPragmaticReasoningPairScenario(Scenario):
             for _, row in data.iterrows():
                 passage = "Situasi: {premise}\n{question}\nPernyataan: {conclusion}\n{instruction}".format(
                     premise=row["text"],
-                    question=self.prompt[self.language]['question'],
+                    question=self.prompt[self.language]["question"],
                     conclusion=row["conclusion"],
-                    instruction=self.prompt[self.language]['instruction'],
+                    instruction=self.prompt[self.language]["instruction"],
                 )
                 input = Input(text=passage)
                 references = [
