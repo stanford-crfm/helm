@@ -322,8 +322,13 @@ class IndicQAScenario(Scenario):
 # 2.1 Indonesian: NusaX Sentiment
 class NusaXScenario(Scenario):
     """
-    This is an Indonesian sentiment analysis scenario. The data consists of comments and reviews from the
-    IndoNLU benchmark. Labels are positive, negative or neutral.
+    NusaX is a sentiment analysis scenario for 11 Indonesian languages.
+    The data is derived from a subset of SmSA (Purwarianti and Crisdayanti, 2019) and manually translated
+    from Indonesian to 10 other local languages, such as Acehnese and Toba Batak.
+    It consists of comments and reviews from various online platforms.
+
+    Only the Indonesian subset of the data is used for this scenario, and the labels are
+    positive, negative or neutral.
 
     The models are prompted using the following format:
 
@@ -344,18 +349,37 @@ class NusaXScenario(Scenario):
     Target completion:
         <sentiment> (<sentiment>:positive or negative or neutral)
 
-    @inproceedings{van2018uit,
-        title={UIT-VSFC: Vietnamese students’ feedback corpus for sentiment analysis},
-        author={Van Nguyen, Kiet and Nguyen, Vu Duc and Nguyen, Phu XV and Truong, Tham TH and Nguyen, Ngan Luu-Thuy},
-        booktitle={2018 10th international conference on knowledge and systems engineering (KSE)},
-        pages={19--24},
-        year={2018},
-        organization={IEEE}
+    @inproceedings{winata-etal-2023-nusax,
+        title = "{N}usa{X}: Multilingual Parallel Sentiment Dataset for 10 {I}ndonesian Local Languages",
+        author = "Winata, Genta Indra  and
+        Aji, Alham Fikri  and
+        Cahyawijaya, Samuel  and
+        Mahendra, Rahmad  and
+        Koto, Fajri  and
+        Romadhony, Ade  and
+        Kurniawan, Kemal  and
+        Moeljadi, David  and
+        Prasojo, Radityo Eko  and
+        Fung, Pascale  and
+        Baldwin, Timothy  and
+        Lau, Jey Han  and
+        Sennrich, Rico  and
+        Ruder, Sebastian",
+        editor = "Vlachos, Andreas  and
+        Augenstein, Isabelle",
+        booktitle = "Proceedings of the 17th Conference of the European Chapter of the Association for Computational Linguistics",
+        month = may,
+        year = "2023",
+        address = "Dubrovnik, Croatia",
+        publisher = "Association for Computational Linguistics",
+        url = "https://aclanthology.org/2023.eacl-main.57",
+        doi = "10.18653/v1/2023.eacl-main.57",
+        pages = "815--834",
     }
     """
 
     name = "nusax"
-    description = "NusaX-Senti sentiment analysis dataset"
+    description = "Indonesian NusaX-Senti Sentiment Analysis dataset"
     tags = ["sentiment_analysis"]
 
     def __init__(self):
@@ -378,7 +402,6 @@ class NusaXScenario(Scenario):
 
         dataset = {}
         for split in self.splits.keys():
-            dataset[split] = []
             target_path_file = os.path.join(output_path, split)
             ensure_file_downloaded(source_url=URLS[split], target_path=target_path_file)
             data = pd.read_csv(target_path_file)
@@ -390,7 +413,7 @@ class NusaXScenario(Scenario):
         outputs = []
         for split in self.splits.keys():
             data = dataset[split]
-            for index, row in data.iterrows():
+            for _, row in data.iterrows():
                 input = Input(row["text"].strip())
                 output = Output(text=self.sentiment2label[row["label"]])
                 references = [
@@ -407,7 +430,7 @@ class NusaXScenario(Scenario):
 # 2.2 Vietnamese: UIT-VSFC
 class UITVSFCScenario(Scenario):
     """
-    This is a Vietnamese sentiment analysis scenario. The data consists of student feedback obtained from
+    UIT-VSFC is a Vietnamese sentiment analysis scenario. The data consists of student feedback obtained from
     end-of-semester surveys at a Vietnamese university. Feedback is labeled as one of three sentiment
     polarities: positive, negative or neutral.
 
@@ -441,7 +464,7 @@ class UITVSFCScenario(Scenario):
     """
 
     name = "uitvsfc"
-    description = "BHASA Vietnamese Students' Feedback Corpus for sentiment analysis"
+    description = "Vietnamese Students' Feedback Corpus sentiment analysis task"
     tags = ["sentiment_analysis"]
 
     def __init__(self):
@@ -491,7 +514,7 @@ class UITVSFCScenario(Scenario):
         outputs = []
         for split in self.splits.keys():
             data = dataset[split]
-            for index, row in data.iterrows():
+            for _, row in data.iterrows():
                 input = Input(row['text'])
                 output = Output(text=self.id2label[int(row['label'])])
                 references = [
@@ -508,8 +531,12 @@ class UITVSFCScenario(Scenario):
 # 2.3 Thai: Wisesight Sentiment
 class WisesightScenario(Scenario):
     """
-    This is an Thai sentiment analysis scenario. The data consists of social media messages regarding
-    consumer products and services. Labels are positive, negative or neutral.
+    Wisesight Sentiment is a Thai sentiment analysis scenario. The data consists of social media messages
+    regarding consumer products and services.
+
+    The dataset originally included the label "question" for instances that were questions. These instances
+    made up only a small subset of the data and were dropped in order to make the task more consistent
+    with those of other languages. Labels are therefore only positive, negative or neutral.
 
     The models are prompted using the following format:
 
@@ -546,7 +573,7 @@ class WisesightScenario(Scenario):
     """
 
     name = "wisesight"
-    description = "Wisesight sentiment analysis dataset"
+    description = "Wisesight Sentiment Thai sentiment analysis task"
     tags = ["sentiment_analysis"]
 
     def __init__(self):
@@ -568,10 +595,9 @@ class WisesightScenario(Scenario):
 
         dataset = {}
         for split in self.splits.keys():
-            dataset[split] = []
             target_path_file = os.path.join(data_path, "data", f"{split}.jsonl")
             df = pd.read_json(target_path_file, lines=True)
-            df = df[df["category"] != "q"]
+            df = df[df["category"] != "q"] # Drop instances with the "question" label
             if split == 'test':
                 dataset[split] = df.groupby("category", group_keys=False).apply(lambda x: x.sample(frac=1000/len(df), random_state=4183))
         return dataset
@@ -581,7 +607,7 @@ class WisesightScenario(Scenario):
         outputs = []
         for split in self.splits.keys():
             data = dataset[split]
-            for index, row in data.iterrows():
+            for _, row in data.iterrows():
                 input = Input(row["texts"].strip())
                 output = Output(text=self.sentiment2label[row["category"]])
                 references = [
@@ -598,8 +624,11 @@ class WisesightScenario(Scenario):
 # 2.4 Tamil: IndicSentiment
 class IndicSentimentScenario(Scenario):
     """
-    This is a Tamil sentiment analysis scenario. The data comes from IndicXTREME, and consists of product reviews
-    that were written by annotators. Labels are positive or negative.
+    IndicSentiment is a sentiment analysis scenario for 10 Indic languages. The data consists of
+    product reviews written in English that were then translated by native speakers of the
+    respective languages, resulting in a parallel dataset across the 10 languages.
+
+    Only the Tamil subset of the dataset is used for this scenario. Labels are positive or negative.
 
     The models are prompted using the following format:
 
@@ -619,17 +648,23 @@ class IndicSentimentScenario(Scenario):
     Target completion:
         <sentiment> (<sentiment>:positive or negative)
 
-    @article{Doddapaneni2022towards,
-        title={Towards Leaving No Indic Language Behind: Building Monolingual Corpora, Benchmark and Models for Indic Languages},
-        author={Sumanth Doddapaneni and Rahul Aralikatte and Gowtham Ramesh and Shreyansh Goyal and Mitesh M. Khapra and Anoop Kunchukuttan and Pratyush Kumar},
-        journal={ArXiv},
-        year={2022},
-        volume={abs/2212.05409}
+    @inproceedings{doddapaneni-etal-2023-towards,
+        title = "Towards Leaving No {I}ndic Language Behind: Building Monolingual Corpora, Benchmark and Models for {I}ndic Languages",
+        author = "Doddapaneni, Sumanth and Aralikatte, Rahul and Ramesh, Gowtham and Goyal, Shreya and Khapra, Mitesh M. and Kunchukuttan, Anoop and Kumar, Pratyush",
+        editor = "Rogers, Anna and Boyd-Graber, Jordan and Okazaki, Naoaki",
+        booktitle = "Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+        month = jul,
+        year = "2023",
+        address = "Toronto, Canada",
+        publisher = "Association for Computational Linguistics",
+        url = "https://aclanthology.org/2023.acl-long.693",
+        doi = "10.18653/v1/2023.acl-long.693",
+        pages = "12402--12426"
     }
     """
 
     name = "indicsentiment"
-    description = "IndicSentiment sentiment analysis dataset"
+    description = "IndicSentiment Tamil sentiment analysis task"
     tags = ["sentiment_analysis"]
 
     def __init__(self):
@@ -650,7 +685,7 @@ class IndicSentimentScenario(Scenario):
         for split in self.splits.keys():
             data = dataset[split].to_pandas()
             data["LABEL"] = data["LABEL"].fillna("Positive")
-            for index, row in data.iterrows():
+            for _, row in data.iterrows():
                 input = Input(row["INDIC REVIEW"].strip())
                 output = Output(text=self.sentiment2label[row["LABEL"]])
                 references = [
