@@ -1104,7 +1104,11 @@ class FloresScenario(Scenario):
 # 2. Abstractive Summarization: XL-Sum
 class XLSumScenario(Scenario):
     """
-    This is the XLSum abstractive summarization scenario.
+    The XL-Sum scenario is an abstractive summarization scenario for 44 languages. The data is obtained from BBC articles
+    which typically have a professionally written summary in the form of a bold paragraph containing one or two sentences
+    at the beginning of the article. This bold paragraph is automatically extracted and used as the ground truth summary.
+
+    Only the Indonesian, Vietnamese, Thai and Tamil subsets of the data are used for this scenario.
 
     The models are prompted using the following general format:
 
@@ -1142,7 +1146,7 @@ class XLSumScenario(Scenario):
     """
 
     name = "xlsum"
-    description = "XL-Sum abstractive summarization dataset"
+    description = "XL-Sum abstractive summarization task"
     tags = ["abstractive_summarization"]
 
     def __init__(self, language: str):
@@ -1180,8 +1184,10 @@ class XLSumScenario(Scenario):
         for split in self.splits.keys():
             df = dataset[split].to_pandas()
             if split == 'train':
+                # Select only bottom 20th percentile by length for in-context examples as examples are very long
                 data = df[df["text"].apply(len) < df["text"].apply(len).quantile(.2)]
             else:
+                # Sample 100 examples for test
                 data = df.sample(n=100, random_state=self.map[self.language]['random_state'])
             for _, row in data.iterrows():
                 input = Input(row["text"].strip())
