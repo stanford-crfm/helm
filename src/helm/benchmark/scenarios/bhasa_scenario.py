@@ -1665,17 +1665,15 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
     description = "LINDSEA minimal pairs task"
     tags = ["minimal_pairs", "linguistic_diagnostic", "syntax"]
 
-    def __init__(self, language: str):
+    def __init__(self, method: str, language: str):
         super().__init__()
+        self.method = method
         self.language = language
-        self.splits = {
-            "train": TRAIN_SPLIT,
-            "test": TEST_SPLIT
-        }
-        self.prompt = {
+        self.prompts = {
             "id": {
-                "question": "Kalimat mana yang lebih mungkin?",
-            },
+                "instructions": "Kalimat mana yang lebih mungkin?",
+                "output_prefix": "Jawablah dengan satu huruf saja, A atau B."
+            }
         }
 
     def download_dataset(self, output_path: str):
@@ -1696,24 +1694,46 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
         return dataset
 
 
-    def get_instances(self, output_path) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         data = self.download_dataset(output_path)
-        dataset = datasets.Dataset.from_pandas(data).train_test_split(test_size=0.9, seed=5018)
 
         outputs = []
-        for split in list(dataset.keys()):
-            data = dataset[split].to_pandas()
+        if self.method == "mcq":
             for _, row in data.iterrows():
-                input = Input(text=self.prompt[self.language]["question"] + "\n")
+                # Fixed shuffling of options
+                random.seed(4156)
+                options = [(row["correct"], 1), (row["wrong"], 2)]
+                random.shuffle(options)
+                options_reversed = True if options[0][1] == 2 else False
+
+                prompt_components = self.prompts[self.language]
+                instructions = prompt_components["instructions"]
+                output_prefix = prompt_components["output_prefix"]
+                prompt = f"{instructions}\nA: {options[0][0]}\nB: {options[1][0]}\n{output_prefix}"
+                input = Input(text=prompt)
+                # Determine correct option based on whether shuffling reversed the options
+                references = [
+                    Reference(Output(text="A"), tags=[] if options_reversed else [CORRECT_TAG]),
+                    Reference(Output(text="B"), tags=[CORRECT_TAG] if options_reversed else [])
+                ]
+                instance = Instance(
+                    input=input,
+                    references=references,
+                    split=TEST_SPLIT
+                )
+                outputs.append(instance)
+        else:
+            for _, row in data.iterrows():
+                # No need to shuffle since we are comparing logprobs of the options separately
+                input = Input(text="")
                 references = [
                     Reference(Output(text=row["correct"].strip()), tags=[CORRECT_TAG]),
                     Reference(Output(text=row["wrong"].strip()), tags=[]),
                 ]
-                random.shuffle(references) # Shuffle order of references
                 instance = Instance(
                     input=input,
                     references=references,
-                    split=self.splits[split]
+                    split=TEST_SPLIT
                 )
                 outputs.append(instance)
         return outputs

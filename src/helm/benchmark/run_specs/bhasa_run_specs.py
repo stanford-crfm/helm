@@ -585,43 +585,37 @@ def generate_xcopa_run_spec(language="id"):
 def get_xcopa_spec(language="id") -> RunSpec:
     return generate_xcopa_run_spec(language)
 
-# D. Linguistic Diagnostics
-#   1. Syntax: Minimal Pairs
-#   2. Semantics: Pragmatic Reasoning (single sentece)
-#   3. Semantics: Pragmatic Reasoning (sentence pair)
+# D. Linguistic Diagnostics (LINDSEA)
+#   1. Syntax
+#   2. Pragmatics
 
 # 1. Syntax: LINDSEA Minimal Pairs
 lindsea_syntax_minimal_pairs_prompts = {
     "id": {
-        "output_prefix": "Jawablah dengan satu huruf A atau B saja.",
+        "instructions": "Kalimat mana yang lebih mungkin?",
+        "output_prefix": "Jawablah dengan satu huruf saja, A atau B.",
         "output_noun": "Jawaban",
     },
 }
 
 @run_spec_function("lindsea_syntax_minimal_pairs")
-def get_lindsea_syntax_minimal_pairs_spec(language="id", mcq=False, calibrated=False) -> RunSpec:
+def get_lindsea_syntax_minimal_pairs_spec(language: str = "id", method: str = "mcq") -> RunSpec:
     name = f"lindsea_syntax_minimal_pairs_{language}"
-
-    if mcq and calibrated:
-        adapter_spec = get_multiple_choice_separate_adapter_spec(
-            method=ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
-            empty_input=True,
+    if method == "mcq":
+        adapter_spec = get_generation_adapter_spec(
+            output_noun=lindsea_syntax_minimal_pairs_prompts[language]["output_noun"],
+            max_tokens=1
         )
-    elif mcq:
+    else:
         adapter_spec = get_multiple_choice_separate_adapter_spec(
             method=ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
             empty_input=True,
-        )
-    else:
-        adapter_spec = get_generation_adapter_spec(
-            output_noun=lindsea_syntax_minimal_pairs_prompts[language]["output_noun"] + "\n" + lindsea_syntax_minimal_pairs_prompts[language]["output_noun"],
-            stop_sequences=["\n"],
-            max_tokens=8,
         )
 
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.bhasa_scenario.LINDSEASyntaxMinimalPairsScenario",
         args={
+            "method": method,
             "language": language,
         }
     )
