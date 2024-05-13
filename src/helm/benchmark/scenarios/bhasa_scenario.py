@@ -1211,9 +1211,9 @@ class XLSumScenario(Scenario):
 # 1.1 Indonesian: IndoNLI
 class IndoNLIScenario(Scenario):
     """
-    This is a IndoNLI natural language inference scenario. The data comes from IndoNLI, and incorporates various linguistic
-    phenomena such as numerical reasoning, structural changes, idioms, or temporal and spatial reasoning. Labels are
-    entailment, contradiction, or neutral.
+    IndoNLI is an Indonesian Natural Language Inference (NLI) scenario. The data is sourced from Wikipedia, news, and web articles.
+    Native speakers use premise text from these sources and write hypothesis sentences for each NLI label.
+    The labels are entailment, contradiction, or neutral.
 
     The models are prompted using the following format:
 
@@ -1251,8 +1251,8 @@ class IndoNLIScenario(Scenario):
     """
 
     name = "indonli"
-    description = "IndoNLI natural language inference dataset"
-    tags = ["textual_entailment"]
+    description = "IndoNLI Indonesian Natural Language Inference task"
+    tags = ["natural_language_inference"]
 
     def __init__(self):
         super().__init__()
@@ -1306,9 +1306,9 @@ class IndoNLIScenario(Scenario):
 # 1.2 Vietnamese & Thai: XNLI
 class XNLIScenario(Scenario):
     """
-    This is a XNLI natural language inference scenario. The data comes from XNLI, and incorporates various linguistic
-    phenomena such as numerical reasoning, structural changes, idioms, or temporal and spatial reasoning. Labels are
-    entailment, neutral, or contradiction.
+    XNLI is a Natural Language Inference scenario for 15 languages. The data was constructed following the
+    MultiNLI crowdsourcing procedure to obtain English data, which was then professionally translated across
+    14 other languages. Labels are entailment, neutral, or contradiction.
 
     The models are prompted using the following general format:
 
@@ -1357,8 +1357,8 @@ class XNLIScenario(Scenario):
     """
 
     name = "xnli"
-    description = "XNLI natural language inference dataset"
-    tags = ["textual_entailment"]
+    description = "XNLI Natural Language Inference task"
+    tags = ["natural_language_inference"]
 
     def __init__(self, language: str):
         super().__init__()
@@ -1381,9 +1381,13 @@ class XNLIScenario(Scenario):
             if split == 'train':
                 data = df
             else:
+                # This produces 999 instances
                 data = df.groupby("label", group_keys=False).apply(lambda x: x.sample(frac=1000/len(df), random_state=4156))
-                diff = df[~df.apply(tuple,1).isin(data.apply(tuple,1))]
-                data = pd.concat([data, diff[diff["label"]==1].iloc[0].to_frame().transpose()], axis=0, ignore_index=True)
+
+                # Extract one neutral instance from the remaining instances to add to the test data to make 1000 in total
+                remainder = df[~df.index.isin(data.index)]
+                neutral_instance = remainder[remainder["label"]==1].iloc[0].to_frame().transpose()
+                data = pd.concat([data, neutral_instance], axis=0, ignore_index=True)
             for _, row in data.iterrows():
                 passage = "X: " + row["premise"].strip() + "\nY: " + row["hypothesis"].strip()
                 input = Input(passage)
@@ -1402,7 +1406,12 @@ class XNLIScenario(Scenario):
 # 1.3 Tamil: IndicXNLI
 class IndicXNLIScenario(Scenario):
     """
-    This is a Tamil natural language inference scenario. The data was automatically translated from XNLI into 11 Indic languages.
+    IndicXNLI is a Natural Language Inference scenario for 11 Indic languages. The data was
+    automatically translated from the English XNLI dataset into 11 Indic languages using
+    IndicTrans (Ramesh et al., 2021).
+
+    Only the Tamil subset of the data is used in this scenario. The labels are
+    entailment, contradiction and neutral.
 
     The models are prompted using the following format:
 
@@ -1446,7 +1455,7 @@ class IndicXNLIScenario(Scenario):
     """
 
     name = "indicxnli"
-    description = "IndicXNLI natural language inference dataset"
+    description = "IndicXNLI Natural Language Inference task"
     tags = ["natural_language_inference"]
 
     def __init__(self):
@@ -1470,9 +1479,13 @@ class IndicXNLIScenario(Scenario):
             if split == 'train':
                 data = df
             else:
+                # This produces 999 instances
                 data = df.groupby("label", group_keys=False).apply(lambda x: x.sample(frac=1000/len(df), random_state=4156))
-                diff = df[~df.apply(tuple,1).isin(data.apply(tuple,1))]
-                data = pd.concat([data, diff[diff["label"]==2].iloc[0].to_frame().transpose()], axis=0, ignore_index=True)
+
+                # Extract one neutral instance from the remaining instances to add to the test data to make 1000 in total
+                remainder = df[~df.index.isin(data.index)]
+                neutral_instance = remainder[remainder["label"]==2].iloc[0].to_frame().transpose()
+                data = pd.concat([data, neutral_instance], axis=0, ignore_index=True)
             for _, row in data.iterrows():
                 passage = "X: " + row["premise"].strip() + "\nY: " + row["hypothesis"].strip()
                 input = Input(passage)
