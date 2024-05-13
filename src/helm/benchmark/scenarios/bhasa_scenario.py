@@ -82,8 +82,8 @@ class TyDiQAScenario(Scenario):
     def __init__(self):
         super().__init__()
         self.splits = {
-            'train': TRAIN_SPLIT,
-            'validation': TEST_SPLIT
+            "train": TRAIN_SPLIT,
+            "validation": TEST_SPLIT
         }
 
     def get_instances(self, output_path) -> List[Instance]:
@@ -167,8 +167,8 @@ class XQuADScenario(Scenario):
         super().__init__()
         self.language = language
         self.splits = {
-            'train': TRAIN_SPLIT,
-            'test': TEST_SPLIT
+            "train": TRAIN_SPLIT,
+            "test": TEST_SPLIT
         }
         self.map = {
             "th": {
@@ -196,8 +196,8 @@ class XQuADScenario(Scenario):
         # Select only bottom 20th percentile by length for in-context examples as examples are very long
         df_train = df_train[df_train["context"].apply(len) < df_train["context"].apply(len).quantile(.2)]
         dataset = {
-            'train': df_train,
-            'test': df_test,
+            "train": df_train,
+            "test": df_test,
         }
 
         outputs = []
@@ -209,8 +209,8 @@ class XQuADScenario(Scenario):
                 input = PassageQuestionInput(
                     passage=passage,
                     question=question,
-                    passage_prefix=self.map[self.language]['passage_prefix'],
-                    question_prefix=self.map[self.language]['question_prefix'],
+                    passage_prefix=self.map[self.language]["passage_prefix"],
+                    question_prefix=self.map[self.language]["question_prefix"],
                 )
                 references = []
                 for answer in row["answers"]["text"]:
@@ -283,8 +283,8 @@ class IndicQAScenario(Scenario):
     def __init__(self):
         super().__init__()
         self.splits = {
-            'train': TRAIN_SPLIT,
-            'test': TEST_SPLIT
+            "train": TRAIN_SPLIT,
+            "test": TEST_SPLIT
         }
 
     def get_instances(self, output_path) -> List[Instance]:
@@ -303,8 +303,8 @@ class IndicQAScenario(Scenario):
         # Select only bottom 20th percentile by length for in-context examples as examples are very long
         df_train = df_train[df_train["context"].apply(len) < df_train["context"].apply(len).quantile(.2)]
         dataset = {
-            'train': df_train,
-            'test': df_test,
+            "train": df_train,
+            "test": df_test,
         }
 
         outputs = []
@@ -398,13 +398,13 @@ class NusaXScenario(Scenario):
     def __init__(self):
         super().__init__()
         self.splits = {
-            'train': TRAIN_SPLIT,
-            'test': TEST_SPLIT
+            "train": TRAIN_SPLIT,
+            "test": TEST_SPLIT
         }
         self.sentiment2label = {
-            'positive': 'Positif',
-            'negative': 'Negatif',
-            'neutral': 'Netral',
+            "positive": "Positif",
+            "negative": "Negatif",
+            "neutral": "Netral",
         }
 
     def download_dataset(self, output_path: str):
@@ -484,13 +484,13 @@ class UITVSFCScenario(Scenario):
     def __init__(self):
         super().__init__()
         self.splits = {
-            'train': TRAIN_SPLIT,
-            'test': TEST_SPLIT
+            "train": TRAIN_SPLIT,
+            "test": TEST_SPLIT
         }
         self.id2label = {
-            0: 'Tiêu cực',
-            1: 'Trung lập',
-            2: 'Tích cực',
+            0: "Tiêu cực",
+            1: "Trung lập",
+            2: "Tích cực",
         }
 
     def download_dataset(self, output_path: str):
@@ -512,13 +512,13 @@ class UITVSFCScenario(Scenario):
                 dataset[split][file] = []
                 target_path_file = os.path.join(output_path, split, file)
                 ensure_file_downloaded(source_url=URLS[split][file], target_path=target_path_file)
-                with open(target_path_file, 'r') as f:
+                with open(target_path_file, "r") as f:
                     lines = f.readlines()
                     for line in lines:
                         dataset[split][file].append(str(line).strip())
             data = pd.DataFrame({
-                "text": dataset[split]['sentences'],
-                "label": dataset[split]['sentiments']
+                "text": dataset[split]["sentences"],
+                "label": dataset[split]["sentiments"]
             })
             dataset[split] = data
         return dataset
@@ -529,8 +529,8 @@ class UITVSFCScenario(Scenario):
         for split in self.splits.keys():
             data = dataset[split]
             for _, row in data.iterrows():
-                input = Input(row['text'])
-                output = Output(text=self.id2label[int(row['label'])])
+                input = Input(row["text"])
+                output = Output(text=self.id2label[int(row["label"])])
                 references = [
                     Reference(output, tags=[CORRECT_TAG]),
                 ]
@@ -593,13 +593,13 @@ class WisesightScenario(Scenario):
     def __init__(self):
         super().__init__()
         self.splits = {
-            'train': TRAIN_SPLIT,
-            'test': TEST_SPLIT
+            "train": TRAIN_SPLIT,
+            "test": TEST_SPLIT
         }
         self.sentiment2label = {
-            'pos': 'แง่บวก',
-            'neg': 'แง่ลบ',
-            'neu': 'เฉยๆ',
+            "pos": "แง่บวก",
+            "neg": "แง่ลบ",
+            "neu": "เฉยๆ",
         }
 
     def download_dataset(self, output_path: str):
@@ -612,7 +612,7 @@ class WisesightScenario(Scenario):
             target_path_file = os.path.join(data_path, "data", f"{split}.jsonl")
             df = pd.read_json(target_path_file, lines=True)
             df = df[df["category"] != "q"] # Drop instances with the "question" label
-            if split == 'test':
+            if split == "test":
                 dataset[split] = df.groupby("category", group_keys=False).apply(lambda x: x.sample(frac=1000/len(df), random_state=4183))
             else:
                 dataset[split] = df
@@ -694,12 +694,12 @@ class IndicSentimentScenario(Scenario):
     def __init__(self):
         super().__init__()
         self.splits = {
-            'validation': TRAIN_SPLIT,
-            'test': TEST_SPLIT
+            "validation": TRAIN_SPLIT,
+            "test": TEST_SPLIT
         }
         self.sentiment2label = {
-            'Positive': 'நேர்மறை',
-            'Negative': 'எதிர்மறை',
+            "Positive": "நேர்மறை",
+            "Negative": "எதிர்மறை",
         }
 
     def get_instances(self, output_path) -> List[Instance]:
@@ -787,8 +787,8 @@ class MLHSDScenario(Scenario):
     def __init__(self):
         super().__init__()
         self.splits = {
-            'train': TRAIN_SPLIT,
-            'test': TEST_SPLIT
+            "train": TRAIN_SPLIT,
+            "test": TEST_SPLIT
         }
 
     def download_dataset(self, output_path: str):
@@ -798,15 +798,15 @@ class MLHSDScenario(Scenario):
         df = pd.read_csv(target_path_file, encoding="ISO-8859-1")
 
         # Map multi-label task to multi-class task
-        df['label'] = df.apply(lambda x: self.get_label(x), axis=1)
+        df["label"] = df.apply(lambda x: self.get_label(x), axis=1)
 
         df_test = df.groupby("label", group_keys=False).apply(lambda x: x.sample(frac=1000/len(df), random_state=7123))
 
         # In-context examples to be drawn from remaining examples (since there is no train/dev data)
         df_train = df[~df.index.isin(df_test.index)]
         dataset = {
-            'train': df_train,
-            'test': df_test,
+            "train": df_train,
+            "test": df_test,
         }
         return dataset
 
@@ -825,7 +825,7 @@ class MLHSDScenario(Scenario):
             data = dataset[split]
             for _, row in data.iterrows():
                 input = Input(row["Tweet"].strip())
-                output = Output(text=row['label'])
+                output = Output(text=row["label"])
                 references = [
                     Reference(output, tags=[CORRECT_TAG]),
                 ]
@@ -892,13 +892,13 @@ class ViHSDScenario(Scenario):
     def __init__(self):
         super().__init__()
         self.splits = {
-            'train': TRAIN_SPLIT,
-            'test': TEST_SPLIT
+            "train": TRAIN_SPLIT,
+            "test": TEST_SPLIT
         }
         self.id2label = {
-            0: 'Sạch',
-            1: 'Công kích',
-            2: 'Thù ghét',
+            0: "Sạch",
+            1: "Công kích",
+            2: "Thù ghét",
         }
 
     def download_dataset(self, output_path: str):
@@ -974,12 +974,12 @@ class ThaiToxicityTweetsScenario(Scenario):
     def __init__(self):
         super().__init__()
         self.splits = {
-            'train': TRAIN_SPLIT,
-            'test': TEST_SPLIT
+            "train": TRAIN_SPLIT,
+            "test": TEST_SPLIT
         }
         self.id2label = {
-            0: 'N',
-            1: 'Y',
+            0: "N",
+            1: "Y",
         }
 
     def get_instances(self, output_path) -> List[Instance]:
@@ -996,8 +996,8 @@ class ThaiToxicityTweetsScenario(Scenario):
         df_train = df[~df.index.isin(df_test.index)]
 
         dataset = {
-            'train': df_train,
-            'test': df_test,
+            "train": df_train,
+            "test": df_test,
         }
 
         outputs = []
@@ -1062,12 +1062,12 @@ class FloresScenario(Scenario):
     def __init__(self, pair: str):
         super().__init__()
         self.pair = pair
-        self.source = pair.split('_')[0]
-        self.target = pair.split('_')[1]
+        self.source = pair.split("_")[0]
+        self.target = pair.split("_")[1]
 
         self.splits = {
-            'dev': TRAIN_SPLIT,
-            'devtest': TEST_SPLIT
+            "dev": TRAIN_SPLIT,
+            "devtest": TEST_SPLIT
         }
 
         self.languages = {
@@ -1154,8 +1154,8 @@ class XLSumScenario(Scenario):
         self.language = language
 
         self.splits = {
-            'train': TRAIN_SPLIT,
-            'test': TEST_SPLIT,
+            "train": TRAIN_SPLIT,
+            "test": TEST_SPLIT,
         }
 
         self.map = {
@@ -1178,17 +1178,17 @@ class XLSumScenario(Scenario):
         }
 
     def get_instances(self, output_path) -> List[Instance]:
-        dataset = datasets.load_dataset("csebuetnlp/xlsum", self.map[self.language]['lang'])
+        dataset = datasets.load_dataset("csebuetnlp/xlsum", self.map[self.language]["lang"])
 
         outputs = []
         for split in self.splits.keys():
             df = dataset[split].to_pandas()
-            if split == 'train':
+            if split == "train":
                 # Select only bottom 20th percentile by length for in-context examples as examples are very long
                 data = df[df["text"].apply(len) < df["text"].apply(len).quantile(.2)]
             else:
                 # Sample 100 examples for test
-                data = df.sample(n=100, random_state=self.map[self.language]['random_state'])
+                data = df.sample(n=100, random_state=self.map[self.language]["random_state"])
             for _, row in data.iterrows():
                 input = Input(row["text"].strip())
                 output = Output(row["summary"].strip())
@@ -1257,19 +1257,19 @@ class IndoNLIScenario(Scenario):
     def __init__(self):
         super().__init__()
         self.splits = {
-            'train': TRAIN_SPLIT,
-            'test': TEST_SPLIT,
+            "train": TRAIN_SPLIT,
+            "test": TEST_SPLIT,
         }
         self.id2label = {
-            'e': 'A',
-            'c': 'B',
-            'n': 'C'
+            "e": "A",
+            "c": "B",
+            "n": "C"
         }
 
     def download_dataset(self, output_path: str):
         URLS = {
-            'train': "https://raw.githubusercontent.com/ir-nlp-csui/indonli/main/data/indonli/train.jsonl",
-            'test': "https://raw.githubusercontent.com/ir-nlp-csui/indonli/main/data/indonli/test_lay.jsonl"
+            "train": "https://raw.githubusercontent.com/ir-nlp-csui/indonli/main/data/indonli/train.jsonl",
+            "test": "https://raw.githubusercontent.com/ir-nlp-csui/indonli/main/data/indonli/test_lay.jsonl"
         }
 
         dataset = {}
@@ -1277,7 +1277,7 @@ class IndoNLIScenario(Scenario):
             target_path_file = os.path.join(output_path, split)
             ensure_file_downloaded(source_url=URLS[split], target_path=target_path_file)
             df = pd.read_json(target_path_file, lines=True)
-            if split == 'test':
+            if split == "test":
                 dataset[split] = df.groupby("label", group_keys=False).apply(lambda x: x.sample(frac=1000/len(df), random_state=4685))
             else:
                 dataset[split] = df
@@ -1364,13 +1364,13 @@ class XNLIScenario(Scenario):
         super().__init__()
         self.language = language
         self.splits = {
-            'validation': TRAIN_SPLIT,
-            'test': TEST_SPLIT,
+            "validation": TRAIN_SPLIT,
+            "test": TEST_SPLIT,
         }
         self.id2label = {
-            0: 'A',
-            2: 'B',
-            1: 'C'
+            0: "A",
+            2: "B",
+            1: "C"
         }
 
     def get_instances(self, output_path) -> List[Instance]:
@@ -1378,7 +1378,7 @@ class XNLIScenario(Scenario):
         outputs = []
         for split in self.splits.keys():
             df = dataset[split].to_pandas()
-            if split == 'train':
+            if split == "train":
                 data = df
             else:
                 # This produces 999 instances
@@ -1461,8 +1461,8 @@ class IndicXNLIScenario(Scenario):
     def __init__(self):
         super().__init__()
         self.splits = {
-            'train': TRAIN_SPLIT,
-            'test': TEST_SPLIT,
+            "train": TRAIN_SPLIT,
+            "test": TEST_SPLIT,
         }
         self.id2label = {
             0: "A",
@@ -1476,7 +1476,7 @@ class IndicXNLIScenario(Scenario):
         outputs = []
         for split in self.splits.keys():
             df = dataset[split].to_pandas()
-            if split == 'train':
+            if split == "train":
                 data = df
             else:
                 # This produces 999 instances
@@ -1504,12 +1504,20 @@ class IndicXNLIScenario(Scenario):
 # 2. Causal Reasoning: XCOPA
 class XCOPAScenario(Scenario):
     """
-    This is a XCOPA causal reasoning scenario. The data comes from XCOPA, a translation and reannotation of the English COPA.
+    XCOPA is a commonsense causal reasoning scenario for 11 languages. The data is sourced from the English
+    COPA dataset and professionally translated across 11 languages to create a parallel dataset.
+
+    Only the Indonesian, Vietnamese, Thai and Tamil subsets were used for this scenario. Each instance consists of a
+    premise and two sentences. The system under test needs to determine which of the two sentences is more likely to be
+    the cause/effect of the premise. Whether the cause or the effect is asked for differs from instance to instance.
+    Although there should be an equal number of instances asking for the cause and for the effect, it was found in the
+    BHASA paper (Leong et al., 2023) that this was not the case for Indonesian and Thai. The cause/effect label is
+    fixed in this scenario by harmonizing the labels across the four languages based on the Tamil subset as the reference.
 
     The models are prompted using the following general format:
 
-        Based on the following situation, which of the following choices is most likely to be its {question}?
-        Answer with only A or B.
+        Based on the following situation, which of the following choices is most likely to be its {cause/effect}?
+        Answer only with a single letter A or B.
 
         Situation: <premise>
         A: <choice1>
@@ -1545,19 +1553,19 @@ class XCOPAScenario(Scenario):
     """
 
     name = "xcopa"
-    description = "XCOPA causal reasoning dataset"
+    description = "XCOPA causal reasoning task"
     tags = ["causal_reasoning"]
 
     def __init__(self, language: str):
         super().__init__()
         self.language = language
         self.splits = {
-            'validation': TRAIN_SPLIT,
-            'test': TEST_SPLIT,
+            "validation": TRAIN_SPLIT,
+            "test": TEST_SPLIT,
         }
         self.id2label = {
-            0: 'A',
-            1: 'B',
+            0: "A",
+            1: "B",
         }
         self.prompt = {
             "id": {
@@ -1588,21 +1596,21 @@ class XCOPAScenario(Scenario):
 
     def get_instances(self, output_path) -> List[Instance]:
         language_dataset = datasets.load_dataset("xcopa", self.language)
-        tamil_dataset = datasets.load_dataset("xcopa", 'ta')
+        tamil_dataset = datasets.load_dataset("xcopa", "ta")
 
         outputs = []
         for split in self.splits.keys():
             language_df = language_dataset[split].to_pandas()
             tamil_df = tamil_dataset[split].to_pandas()
-            data = pd.merge(language_df, tamil_df[['question', 'idx']], on='idx') # Use the Tamil split's question column
+            data = pd.merge(language_df, tamil_df[["question", "idx"]], on="idx") # Use the Tamil split's question column
             for _, row in data.iterrows():
-                instruction1 = self.prompt[self.language]['instruction1'].format(self.prompt[self.language][row['question_y']])
+                instruction1 = self.prompt[self.language]["instruction1"].format(self.prompt[self.language][row["question_y"]])
                 passage = "{premise}\n{instruction1}\nA: {choice1}\nB: {choice2}\n{instruction2}".format(
                     premise=row["premise"].strip(),
                     instruction1=instruction1,
                     choice1=row["choice1"].strip(),
                     choice2=row["choice2"].strip(),
-                    instruction2=self.prompt[self.language]['instruction2'],
+                    instruction2=self.prompt[self.language]["instruction2"],
                 )
                 input = Input(passage)
                 output = Output(self.id2label[int(row["label"])])
