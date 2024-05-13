@@ -1572,7 +1572,7 @@ class XCOPAScenario(Scenario):
                 "cause": "sebab",
                 "effect": "akibat",
                 "instruction1": "Berdasarkan situasi di atas, mana dari pilihan-pilihan berikut ini yang lebih mungkin menjadi {}?",
-                "instruction2": "Jawablah dengan satu huruf A atau B saja.",
+                "instruction2": "Jawablah dengan satu huruf saja, A atau B.",
             },
             "ta": {
                 "cause": "காரணமாக",
