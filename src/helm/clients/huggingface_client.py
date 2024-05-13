@@ -82,17 +82,40 @@ class HuggingFaceServer:
                     export = True
 
                 self.device = "cpu"
-                self.model = OVModelForCausalLM.from_pretrained(
-                    pretrained_model_name_or_path, export=export, trust_remote_code=True, **kwargs
-                ).to(self.device)
+                # Security issue: currently we trust remote code by default.
+                # We retain this temporarily to maintain reverse compatibility.
+                # TODO: Delete if-else and don't set trust_remote_code=True
+                if "trust_remote_code" in kwargs:
+                    self.model = OVModelForCausalLM.from_pretrained(
+                        pretrained_model_name_or_path, export=export, **kwargs
+                    ).to(self.device)
+                else:
+                    self.model = OVModelForCausalLM.from_pretrained(
+                        pretrained_model_name_or_path, export=export, trust_remote_code=True, **kwargs
+                    ).to(self.device)
             else:
-                self.model = AutoModelForCausalLM.from_pretrained(
-                    pretrained_model_name_or_path, trust_remote_code=True, **kwargs
-                ).to(self.device)
+                # Security issue: currently we trust remote code by default.
+                # We retain this temporarily to maintain reverse compatibility.
+                # TODO: Delete if-else and don't set trust_remote_code=True
+                if "trust_remote_code" in kwargs:
+                    self.model = AutoModelForCausalLM.from_pretrained(pretrained_model_name_or_path, **kwargs).to(
+                        self.device
+                    )
+                else:
+                    self.model = AutoModelForCausalLM.from_pretrained(
+                        pretrained_model_name_or_path, trust_remote_code=True, **kwargs
+                    ).to(self.device)
+        self.wrapped_tokenizer: WrappedPreTrainedTokenizer
         with htrack_block(f"Loading Hugging Face tokenizer for model {pretrained_model_name_or_path}"):
-            self.wrapped_tokenizer: WrappedPreTrainedTokenizer = HuggingFaceTokenizer.create_tokenizer(
-                pretrained_model_name_or_path, **kwargs
-            )
+            # Security issue: currently we trust remote code by default.
+            # We retain this temporarily to maintain reverse compatibility.
+            # TODO: Delete if-else and don't set trust_remote_code=True
+            if "trust_remote_code" in kwargs:
+                self.wrapped_tokenizer = HuggingFaceTokenizer.create_tokenizer(pretrained_model_name_or_path, **kwargs)
+            else:
+                self.wrapped_tokenizer = HuggingFaceTokenizer.create_tokenizer(
+                    pretrained_model_name_or_path, trust_remote_code=True, **kwargs
+                )
 
     def serve_request(self, raw_request: HuggingFaceRequest) -> Dict:
         with self.wrapped_tokenizer as tokenizer:
