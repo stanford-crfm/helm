@@ -1024,7 +1024,12 @@ class ThaiToxicityTweetsScenario(Scenario):
 # 1. Machine Translation: FLoRes-200
 class FloresScenario(Scenario):
     """
-    This is the Flores machine translation scenario.
+    FLoRes-200 is a machine translation scenario for 200+ languages. The data is obtained from English Wikimedia
+    projects (Wikivoyage, Wikijunior and Wikinews), and professionally translated across 200+ languages to obtain a
+    parallel dataset.
+
+    Only the English, Indonesian, Vietnamese, Thai and Tamil subsets are used in this scenario. Both directions
+    (in and out of English) for each Southeast Asian language are included in the scenario.
 
     The models are prompted using the following general format:
 
@@ -1051,7 +1056,7 @@ class FloresScenario(Scenario):
     """
 
     name = "flores"
-    description = "Flores machine translation dataset"
+    description = "FLoRes-200 machine translation task"
     tags = ["machine_translation"]
 
     def __init__(self, pair: str):
