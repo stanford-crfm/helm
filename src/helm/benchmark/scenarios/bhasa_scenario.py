@@ -516,11 +516,14 @@ class UITVSFCScenario(Scenario):
                     lines = f.readlines()
                     for line in lines:
                         dataset[split][file].append(str(line).strip())
-            data = pd.DataFrame({
-                "text": dataset[split]["sentences"],
-                "label": dataset[split]["sentiments"]
+            df = pd.DataFrame({
+                "text": dataset[split]['sentences'],
+                "label": dataset[split]['sentiments']
             })
-            dataset[split] = data
+            if split == "test":
+                dataset[split] = df.groupby("label", group_keys=False).apply(lambda x: x.sample(frac=1000/len(df), random_state=4156))
+            else:
+                dataset[split] = df
         return dataset
 
     def get_instances(self, output_path) -> List[Instance]:
@@ -1733,7 +1736,7 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
                 instance = Instance(
                     input=input,
                     references=references,
-                    split=TEST_SPLIT
+                    split=TEST_SPLIT,
                 )
                 outputs.append(instance)
         return outputs
@@ -1775,10 +1778,6 @@ class LINDSEAPragmaticsPragmaticReasoningSingleScenario(Scenario):
     def __init__(self, language: str):
         super().__init__()
         self.language = language
-        self.splits = {
-            "train": TRAIN_SPLIT,
-            "test": TEST_SPLIT
-        }
         self.prompt = {
             "id": {
                 "question": "Apakah pernyataan berikut ini {}?",
@@ -1797,35 +1796,31 @@ class LINDSEAPragmaticsPragmaticReasoningSingleScenario(Scenario):
 
     def get_instances(self, output_path) -> List[Instance]:
         data = self.download_dataset(output_path)
-        dataset = datasets.Dataset.from_pandas(data).train_test_split(test_size=0.9, seed=5018)
-
         outputs = []
-        for split in list(dataset.keys()):
-            data = dataset[split].to_pandas()
-            for _, row in data.iterrows():
-                passage = "{question}\nPernyataan: {text}\n{instruction}".format(
-                    question=self.prompt[self.language]["question"].format(row["question_translated"]),
-                    text=row["text"],
-                    instruction=self.prompt[self.language]["instruction"].format(row["choices_translated"]),
-                )
-                input = Input(text=passage)
+        for _, row in data.iterrows():
+            passage = "{question}\nPernyataan: {text}\n{instruction}".format(
+                question=self.prompt[self.language]["question"].format(row["question_translated"]),
+                text=row["text"],
+                instruction=self.prompt[self.language]["instruction"].format(row["choices_translated"]),
+            )
+            input = Input(text=passage)
 
-                # Split "True or False" into ["True", "or", "False"]
-                choices = row["choices"].split()
-                choices_translated = row["choices_translated"].split()
-                label2choice = {
-                    choices[0]: choices_translated[0],
-                    choices[2]: choices_translated[2],
-                }
-                references = [
-                    Reference(Output(text=label2choice[row["label"].strip()]), tags=[CORRECT_TAG]),
-                ]
-                instance = Instance(
-                    input=input,
-                    references=references,
-                    split=self.splits[split]
-                )
-                outputs.append(instance)
+            # Split "True or False" into ["True", "or", "False"]
+            choices = row["choices"].split()
+            choices_translated = row["choices_translated"].split()
+            label2choice = {
+                choices[0]: choices_translated[0],
+                choices[2]: choices_translated[2],
+            }
+            references = [
+                Reference(Output(text=label2choice[row["label"].strip()]), tags=[CORRECT_TAG]),
+            ]
+            instance = Instance(
+                input=input,
+                references=references,
+                split=TEST_SPLIT,
+            )
+            outputs.append(instance)
         return outputs
 
 # 2.2 Pragmatics: LINDSEA Pragmatic Reasoning (sentence pair)
@@ -1865,10 +1860,6 @@ class LINDSEAPragmaticsPragmaticReasoningPairScenario(Scenario):
     def __init__(self, language: str):
         super().__init__()
         self.language = language
-        self.splits = {
-            "train": TRAIN_SPLIT,
-            "test": TEST_SPLIT
-        }
         self.prompt = {
             "id": {
                 "question": "Berdasarkan situasi ini, apakah pernyataan berikut ini benar atau salah?",
@@ -1889,26 +1880,22 @@ class LINDSEAPragmaticsPragmaticReasoningPairScenario(Scenario):
 
     def get_instances(self, output_path) -> List[Instance]:
         data = self.download_dataset(output_path)
-        dataset = datasets.Dataset.from_pandas(data).train_test_split(test_size=0.9, seed=5018)
-
         outputs = []
-        for split in list(dataset.keys()):
-            data = dataset[split].to_pandas()
-            for _, row in data.iterrows():
-                passage = "Situasi: {premise}\n{question}\nPernyataan: {conclusion}\n{instruction}".format(
-                    premise=row["text"],
-                    question=self.prompt[self.language]["question"],
-                    conclusion=row["conclusion"],
-                    instruction=self.prompt[self.language]["instruction"],
-                )
-                input = Input(text=passage)
-                references = [
-                    Reference(Output(text=self.prompt[self.language][row["label"]]), tags=[CORRECT_TAG]),
-                ]
-                instance = Instance(
-                    input=input,
-                    references=references,
-                    split=self.splits[split]
-                )
-                outputs.append(instance)
+        for _, row in data.iterrows():
+            passage = "Situasi: {premise}\n{question}\nPernyataan: {conclusion}\n{instruction}".format(
+                premise=row["text"],
+                question=self.prompt[self.language]["question"],
+                conclusion=row["conclusion"],
+                instruction=self.prompt[self.language]["instruction"],
+            )
+            input = Input(text=passage)
+            references = [
+                Reference(Output(text=self.prompt[self.language][row["label"]]), tags=[CORRECT_TAG]),
+            ]
+            instance = Instance(
+                input=input,
+                references=references,
+                split=TEST_SPLIT,
+            )
+            outputs.append(instance)
         return outputs

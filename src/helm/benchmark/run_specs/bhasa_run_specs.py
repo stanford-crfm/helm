@@ -628,7 +628,7 @@ def get_lindsea_syntax_minimal_pairs_spec(language: str = "id", method: str = "m
         groups=["bhasa_linguistic"],
     )
 
-# 2. Pragmatics: LINDSEA Pragmatics Reasoning (single sentence)
+# 2.1. Pragmatics: LINDSEA Pragmatics Reasoning (single sentence)
 @run_spec_function("lindsea_pragmatics_pragmatic_reasoning_single")
 def get_lindsea_pragmatics_pragmatic_reasoning_single_spec(language="id") -> RunSpec:
     name = f"lindsea_pragmatics_pragmatic_reasoning_single_{language}"
@@ -655,7 +655,7 @@ def get_lindsea_pragmatics_pragmatic_reasoning_single_spec(language="id") -> Run
         groups=["bhasa_linguistic"],
     )
 
-# 3. Pragmatics: LINDSEA Pragmatic Reasoning (sentence pair)
+# 2.2. Pragmatics: LINDSEA Pragmatic Reasoning (sentence pair)
 @run_spec_function("lindsea_pragmatics_pragmatic_reasoning_pair")
 def get_lindsea_pragmatics_pragmatic_reasoning_pair_spec(language="id") -> RunSpec:
     name = f"lindsea_pragmatics_pragmatic_reasoning_pair_{language}"
