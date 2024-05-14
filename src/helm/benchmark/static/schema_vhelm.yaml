@@ -264,12 +264,6 @@ metric_groups:
       - name: ${main_name}
         split: ${main_split}
 
-  - name: efficiency
-    display_name: Efficiency
-    metrics:
-    - name: inference_runtime
-      split: ${main_split}
-
   - name: general_information
     display_name: General information
     metrics:
@@ -290,24 +284,6 @@ metric_groups:
       - name: toxic_frac
         split: ${main_split}
 
-  - name: generation_image
-    display_name: Generation (image)
-    metrics:
-      - name: pixel_similarity
-        split: ${main_split}
-      - name: compilation_success
-        split: ${main_split}
-      - name: fid_similarity
-        split: ${main_split}
-      - name: earth_mover_similarity
-        split: ${main_split}
-
-  - name: generation_text
-    display_name: Generation (text)
-    metrics:
-      - name: edit_similarity
-        split: ${main_split}
-
 ############################################################
 run_groups:
   - name: core_scenarios
@@ -316,11 +292,10 @@ run_groups:
     category: All scenarios
     subgroups:
       - hateful_memes
-      - heim_human_eval
       - viz_wiz
       - vqa
       - mmmu
-      - image2structure
+      - image2webpage
       - unicorn
       - bingo
       - multipanelvqa
@@ -333,7 +308,6 @@ run_groups:
     description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -350,7 +324,6 @@ run_groups:
     description: Crossmodal-3600 dataset (XM3600 in short), a geographically-diverse set of 3600 images annotated with human-generated reference captions in 36 languages. ([paper](https://arxiv.org/abs/2205.12522))
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: f1_score
@@ -367,7 +340,6 @@ run_groups:
     description: An image caption corpus consisting of 158,915 crowd-sourced captions describing 31,783 Flickr images. ([paper](https://shannon.cs.illinois.edu/DenotationGraph/TACLDenotationGraph.pdf))
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: f1_score
@@ -384,7 +356,6 @@ run_groups:
     description: Questions about real-world visual reasoning and compositional QA
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: f1_score
@@ -396,38 +367,11 @@ run_groups:
       when: "2019"
       language: English
 
-  - name: heim_human_eval
-    display_name: HEIM Human Eval Scenario
-    description: Seeing if we can use VLMs to evaluate AI-generated images from HEIM
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: multiple-choice question answering
-      what: AI-generated images
-      who: Text-to-image models
-      when: "2024"
-      language: English
-
-  - name: image2structure
-    display_name: Image2Structure
-    description: Scenarios for evaluating the ability of Vision-Language models to generate structured outputs from images.
-    category: All scenarios
-    subgroups:
-      - image2latex
-      - image2webpage
-      - image2musicsheet
-
   - name: hateful_memes
     display_name: Hateful Memes
     description: The Hateful Memes benchmark for multimodal hate speech detection [(Dwibedi et al., 2020)](https://arxiv.org/pdf/2005.04790.pdf).
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -444,7 +388,6 @@ run_groups:
     description: Expose the vulnerability of open-source VLMs with toxic and biased content ([paper](https://arxiv.org/abs/2311.17600))
     metric_groups:
       - accuracy
-      - efficiency
       - toxicity
       - general_information
     environment:
@@ -457,49 +400,13 @@ run_groups:
       when: "2023"
       language: English
 
-  - name: mscoco_captioning
-    display_name: MSCOCO (captioning)
-    description: Microsoft COCO (MS-COCO) is a large-scale object detection, segmentation, and captioning dataset.
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: f1_score
-      main_split: valid
-    taxonomy:
-      task: image captioning
-      what: Real world images
-      who: Human experts
-      when: "2014"
-      language: English
-
-  - name: mscoco_categorization
-    display_name: MSCOCO (categorization)
-    description: Microsoft COCO (MS-COCO) is a large-scale object detection, segmentation, and captioning dataset.
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: valid
-    taxonomy:
-      task: image captioning
-      what: Real world images
-      who: Human experts
-      when: "2014"
-      language: English
-
   - name: viz_wiz
     display_name: VizWiz
     description: A benchmark for visual question answering with images and questions created by visually impaired people [(Gurari et al., 2018)](https://arxiv.org/abs/1802.08218).
     metric_groups:
       - accuracy
-      - efficiency
-      - general_information
     environment:
-      main_name: f1_score
+      main_name: quasi_exact_match
       main_split: valid
     taxonomy:
       task: multimodal short answer question answering
@@ -513,10 +420,8 @@ run_groups:
     description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
     metric_groups:
       - accuracy
-      - efficiency
-      - general_information
     environment:
-      main_name: f1_score
+      main_name: quasi_exact_match
       main_split: valid
     taxonomy:
       task: multimodal short answer question answering
@@ -524,13 +429,13 @@ run_groups:
       who: Human experts
       when: "2017"
       language: English
+      language: English
 
   - name: math_vista
     display_name: MathVista
     description: Evaluating Math Reasoning in Visual Contexts
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -547,7 +452,6 @@ run_groups:
     description: A benchmark designed to evaluate multimodal models on massive multi-discipline tasks demanding college-level subject knowledge and deliberate reasoning [(Yue et al., 2023)](https://arxiv.org/abs/2311.16502).
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -580,6 +484,7 @@ run_groups:
     description: Open-ended questions about biased images
     metric_groups:
       - accuracy
+      - general_information
     environment:
       main_name: f1_score
       main_split: test
@@ -595,7 +500,6 @@ run_groups:
     description: Question about real-world or synthetic multipanel images for evaluating multi-panel image reasoning ability
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -612,7 +516,6 @@ run_groups:
     description: Open-ended questions about object appearance in real-world images for evaluating hallucination behaviour
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -629,7 +532,6 @@ run_groups:
     description: A massive multiple-choice question-answering benchmark that spans 9 evaluation aspects with the image input including the comprehension of both the image and video modality
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -646,7 +548,6 @@ run_groups:
     description: A comprehensive MLLM Evaluation benchmark with perception and cognition evaluations on 14 subtasks
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -663,6 +564,7 @@ run_groups:
     description: A Comprehensive Benchmark for Multimodal Large Language Model Reasoning over Image Sequences
     metric_groups:
       - accuracy
+      - general_information
     environment:
       main_name: f1_score
       main_split: test
@@ -673,33 +575,11 @@ run_groups:
       when: "2024"
       language: English
 
-  - name: image2latex
-    display_name: Image2LaTeX
-    description: The Image2LaTeX benchmark for converting images of mathematical equations, tables. algorithms and tikz to LaTeX.
-    metric_groups:
-      - accuracy
-      - generation_image
-      - generation_text
-      - efficiency
-      - general_information
-    environment:
-      main_name: earth_mover_similarity
-      main_split: valid
-    taxonomy:
-      task: image-to-text
-      what: mathematical equations, tables, algorithms, tikz
-      who: n/a
-      when: "2024"
-      language: English
-
   - name: image2webpage
     display_name: Image2webpage
     description: The Image2webpage benchmark for converting images of webpages to HTML/CSS/Javascript.
     metric_groups:
       - accuracy
-      - generation_image
-      - generation_text
-      - efficiency
       - general_information
     environment:
       main_name: earth_mover_similarity
@@ -711,47 +591,11 @@ run_groups:
       when: "2024"
       language: English
 
-  - name: image2musicsheet
-    display_name: Image2musicsheet
-    description: The Image2musicsheet benchmark for converting images of music sheets to LilyPond.
-    metric_groups:
-      - accuracy
-      - generation_image
-      - efficiency
-      - general_information
-    environment:
-      main_name: earth_mover_similarity
-      main_split: valid
-    taxonomy:
-      task: image-to-text
-      what: music sheets
-      who: n/a
-      when: "2024"
-      language: English
-
-  - name: chart2csv
-    display_name: Chart2CSV
-    description: The Chart2CSV benchmark for converting images of charts to CSV.
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: chart to CSV
-      what: plots
-      who: n/a
-      when: "2024"
-      language: English
-
   - name: pairs
     display_name: PAIRS
     description: Examining Gender and Racial Bias in Large Vision-Language Models Using a Novel Dataset of Parallel Images.
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: exact_match
