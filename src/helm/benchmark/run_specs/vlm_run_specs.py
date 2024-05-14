@@ -232,7 +232,7 @@ def get_gqa_spec() -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.gqa_scenario.GQAScenario", args={}
     )
     adapter_spec: AdapterSpec = _get_short_answer_generation_adapter_spec(
-        instructions="Answer the question using a single word or phrase."
+        instructions="Answer the question using a single word."
     )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
 
@@ -477,7 +477,9 @@ def get_math_vista_spec(grade: str, question_type: str) -> RunSpec:
 
     adapter_spec: AdapterSpec
     if question_type == "free_form":
-        adapter_spec = _get_short_answer_generation_adapter_spec()
+        adapter_spec = _get_short_answer_generation_adapter_spec(
+            instructions="Just give the numerical answer without showing the steps, the unit, or percentage symbol."
+        )
     elif question_type == "multi_choice":
         adapter_spec = _get_multiple_choice_joint_adapter_spec(
             input_noun=None, output_noun="Answer", max_train_instances=0
@@ -568,7 +570,7 @@ def get_unicorn_spec(subject: str) -> RunSpec:
         args={"subject": subject},
     )
     adapter_spec: AdapterSpec = _get_generation_adapter_spec(
-        instructions="Only give numerical or boolean answer without an explanation."
+        instructions="Only give a yes/no or numerical answer without an explanation."
     )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
 
@@ -587,7 +589,10 @@ def get_bingo_spec(subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.bingo_scenario.BingoScenario", args={"subject": subject}
     )
-    adapter_spec: AdapterSpec = _get_short_answer_generation_adapter_spec()
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(
+        instructions="Answer with a long and clear explanation.",
+        max_tokens=100,
+    )
     metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
 
     run_spec_name: str = "bingo"
