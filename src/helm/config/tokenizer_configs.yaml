@@ -247,6 +247,17 @@ tokenizer_configs:
     end_of_text_token: "</s>"
     prefix_token: "<s>"
 
+  # AI Singapore
+  - name: aisingapore/sea-lion-7b
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        trust_remote_code: true
+        use_fast: false
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: ""
+
+
 
   # Allen Institute for AI
   # The allenai/olmo-7b requires Python 3.9 or newer.

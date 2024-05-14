@@ -561,6 +561,25 @@ model_deployments:
 
   # HuggingFace
 
+  ## AI Singapore
+  - name: huggingface/sea-lion-7b
+    model_name: aisingapore/sea-lion-7b
+    tokenizer_name: aisingapore/sea-lion-7b
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        trust_remote_code: true
+
+  - name: huggingface/sea-lion-7b-instruct
+    model_name: aisingapore/sea-lion-7b-instruct
+    tokenizer_name: aisingapore/sea-lion-7b
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        trust_remote_code: true
+
   ## Bigcode
   - name: huggingface/santacoder
     model_name: bigcode/santacoder
