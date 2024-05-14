@@ -3,12 +3,18 @@ import pytest
 from helm.common.cache import BlackHoleCacheConfig
 from helm.common.request import Request, RequestResult
 from helm.clients.huggingface_client import HuggingFaceClient
+from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 
 
 class TestHuggingFaceClient:
     def test_gpt2(self):
+        tokenizer = HuggingFaceTokenizer(
+            BlackHoleCacheConfig(), "huggingface/gpt2", pretrained_model_name_or_path="openai/gpt2"
+        )
         client = HuggingFaceClient(
-            cache_config=BlackHoleCacheConfig(), pretrained_model_name_or_path="openai-community/gpt2"
+            cache_config=BlackHoleCacheConfig(),
+            tokenizer=tokenizer,
+            pretrained_model_name_or_path="openai-community/gpt2",
         )
         prompt: str = "I am a computer scientist."
         result: RequestResult = client.make_request(
@@ -29,8 +35,13 @@ class TestHuggingFaceClient:
 
     @pytest.mark.skip(reason="GPT-J 6B is 22 GB and extremely slow without a GPU.")
     def test_gptj_6b(self):
+        tokenizer = HuggingFaceTokenizer(
+            BlackHoleCacheConfig(), "huggingface/gpt2", pretrained_model_name_or_path="openai/gpt2"
+        )
         client = HuggingFaceClient(
-            cache_config=BlackHoleCacheConfig(), pretrained_model_name_or_path="openai-community/gpt2"
+            cache_config=BlackHoleCacheConfig(),
+            tokenizer=tokenizer,
+            pretrained_model_name_or_path="openai-community/gpt2",
         )
         result: RequestResult = client.make_request(
             Request(
@@ -45,8 +56,13 @@ class TestHuggingFaceClient:
         assert len(result.completions) == 3
 
     def test_logprob(self):
+        tokenizer = HuggingFaceTokenizer(
+            BlackHoleCacheConfig(), "huggingface/gpt2", pretrained_model_name_or_path="openai/gpt2"
+        )
         client = HuggingFaceClient(
-            cache_config=BlackHoleCacheConfig(), pretrained_model_name_or_path="openai-community/gpt2"
+            cache_config=BlackHoleCacheConfig(),
+            tokenizer=tokenizer,
+            pretrained_model_name_or_path="openai-community/gpt2",
         )
         prompt: str = "I am a computer scientist."
         result: RequestResult = client.make_request(

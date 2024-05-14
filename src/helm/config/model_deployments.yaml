@@ -810,6 +810,7 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         pretrained_model_name_or_path: openai-community/gpt2
+        trust_remote_code: false
 
   ## StabilityAI
   - name: huggingface/stablelm-base-alpha-3b

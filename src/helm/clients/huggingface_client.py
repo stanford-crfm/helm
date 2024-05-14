@@ -17,6 +17,7 @@ from helm.common.request import (
     GeneratedOutput,
     Token,
 )
+from helm.tokenizers.tokenizer import Tokenizer
 from .client import CachingClient, truncate_sequence
 from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer, WrappedPreTrainedTokenizer
 from threading import Lock
@@ -53,7 +54,13 @@ class HuggingFaceRequest(TypedDict):
 class HuggingFaceServer:
     """A thin wrapper around a Hugging Face AutoModelForCausalLM for HuggingFaceClient to call."""
 
-    def __init__(self, pretrained_model_name_or_path: str, openvino=False, **kwargs):
+    def __init__(
+        self,
+        pretrained_model_name_or_path: str,
+        wrapped_tokenizer: WrappedPreTrainedTokenizer,
+        openvino=False,
+        **kwargs,
+    ):
         if torch.cuda.is_available():
             hlog("CUDA is available, initializing with a GPU...")
             self.device: str = "cuda:0"
@@ -105,17 +112,7 @@ class HuggingFaceServer:
                     self.model = AutoModelForCausalLM.from_pretrained(
                         pretrained_model_name_or_path, trust_remote_code=True, **kwargs
                     ).to(self.device)
-        self.wrapped_tokenizer: WrappedPreTrainedTokenizer
-        with htrack_block(f"Loading Hugging Face tokenizer for model {pretrained_model_name_or_path}"):
-            # Security issue: currently we trust remote code by default.
-            # We retain this temporarily to maintain reverse compatibility.
-            # TODO: Delete if-else and don't set trust_remote_code=True
-            if "trust_remote_code" in kwargs:
-                self.wrapped_tokenizer = HuggingFaceTokenizer.create_tokenizer(pretrained_model_name_or_path, **kwargs)
-            else:
-                self.wrapped_tokenizer = HuggingFaceTokenizer.create_tokenizer(
-                    pretrained_model_name_or_path, trust_remote_code=True, **kwargs
-                )
+        self.wrapped_tokenizer = wrapped_tokenizer
 
     def serve_request(self, raw_request: HuggingFaceRequest) -> Dict:
         with self.wrapped_tokenizer as tokenizer:
@@ -218,7 +215,12 @@ class HuggingFaceServerFactory:
     _servers_lock: Lock = Lock()
 
     @staticmethod
-    def get_server(helm_model_name: str, pretrained_model_name_or_path: str, **kwargs) -> Any:
+    def get_server(
+        helm_model_name: str,
+        pretrained_model_name_or_path: str,
+        wrapped_tokenizer: WrappedPreTrainedTokenizer,
+        **kwargs,
+    ) -> Any:
         """
         Checks if the desired HuggingFaceModel is cached. Creates the HuggingFaceModel if it's not cached.
         Returns the HuggingFaceModel.
@@ -230,7 +232,7 @@ class HuggingFaceServerFactory:
                     f"for HELM model {helm_model_name} with Hugging Face Transformers"
                 ):
                     HuggingFaceServerFactory._servers[helm_model_name] = HuggingFaceServer(
-                        pretrained_model_name_or_path, **kwargs
+                        pretrained_model_name_or_path, wrapped_tokenizer, **kwargs
                     )
 
         return HuggingFaceServerFactory._servers[helm_model_name]
@@ -262,9 +264,22 @@ def _process_huggingface_client_kwargs(raw_kwargs: Dict[str, Any]):
 
 
 class HuggingFaceClient(CachingClient):
-    def __init__(self, cache_config: CacheConfig, pretrained_model_name_or_path: Optional[str] = None, **kwargs):
+    def __init__(
+        self,
+        cache_config: CacheConfig,
+        tokenizer: Tokenizer,
+        pretrained_model_name_or_path: Optional[str] = None,
+        **kwargs,
+    ):
         super().__init__(cache_config=cache_config)
         self._pretrained_model_name_or_path = pretrained_model_name_or_path
+        if not isinstance(tokenizer, HuggingFaceTokenizer):
+            raise ValueError(
+                f"Tokenizer for Hugging Face model {pretrained_model_name_or_path} must be a HuggingFaceTokenizer, "
+                "but instead it is {tokenizer}"
+            )
+        self._wrapped_tokenizer: WrappedPreTrainedTokenizer = tokenizer.get_pretrained_tokenizer()
+        self._tokenizer = tokenizer
         self._kwargs = _process_huggingface_client_kwargs(kwargs)
 
     def make_request(self, request: Request) -> RequestResult:
@@ -290,6 +305,7 @@ class HuggingFaceClient(CachingClient):
         huggingface_model: HuggingFaceServer = HuggingFaceServerFactory.get_server(
             helm_model_name=request.model,
             pretrained_model_name_or_path=pretrained_model_name_or_path,
+            wrapped_tokenizer=self._wrapped_tokenizer,
             **self._kwargs,
         )
 
