@@ -626,8 +626,7 @@ run_groups:
 
   - name: seed_bench
     display_name: Seed Bench 
-    description: A massive multiple-choice question-answering benchmark that spans 9 evaluation aspects with the image input
-    including the comprehension of both the image and video modality
+    description: A massive multiple-choice question-answering benchmark that spans 9 evaluation aspects with the image input including the comprehension of both the image and video modality
     metric_groups:
       - accuracy
       - efficiency
