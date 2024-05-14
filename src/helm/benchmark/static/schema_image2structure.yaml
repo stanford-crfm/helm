@@ -157,8 +157,6 @@ metric_groups:
     metrics:
       - name: ${main_name}
         split: ${main_split}
-      - name: compilation_success
-        split: ${main_split}
       - name: earth_mover_similarity
         split: ${main_split}
 
