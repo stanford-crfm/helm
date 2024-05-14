@@ -40,7 +40,7 @@ def get_tydiqa_spec() -> RunSpec:
         instructions="Anda akan diberikan sebuah paragraf dan sebuah pertanyaan. Jawablah pertanyaannya dengan mengekstrak jawaban dari paragraf tersebut.",
         output_noun="Jawaban",
         stop_sequences=["\n"],
-        max_tokens=128,
+        max_tokens=256,
     )
 
     scenario_spec = ScenarioSpec(
@@ -76,7 +76,7 @@ def generate_xquad_run_spec(language="th"):
         instructions=XQUAD_PROMPTS[language]["instructions"],
         output_noun=XQUAD_PROMPTS[language]["output_noun"],
         stop_sequences=["\n"],
-        max_tokens=128,
+        max_tokens=256,
     )
 
     scenario_spec = ScenarioSpec(
@@ -109,7 +109,7 @@ def get_indicqa_spec() -> RunSpec:
         instructions="உங்களுக்கு ஒரு பத்தியும் ஒரு கேள்வியும் தரப்படும். தரப்பட்ட பத்தியிலிருந்து கேள்விக்கான பதிலைக் கண்டறியவும்.",
         output_noun="பதில்",
         stop_sequences=["\n"],
-        max_tokens=128,
+        max_tokens=256,
     )
 
     scenario_spec = ScenarioSpec(
@@ -137,7 +137,7 @@ def get_nusax_spec() -> RunSpec:
         input_noun="Kalimat",
         output_noun="Jawaban",
         stop_sequences=["\n"],
-        max_tokens=8,
+        max_tokens=16,
     )
 
     scenario_spec = ScenarioSpec(
@@ -162,7 +162,7 @@ def get_uitvsfc_spec() -> RunSpec:
         input_noun="Câu văn",
         output_noun="Câu trả lời",
         stop_sequences=["\n"],
-        max_tokens=8,
+        max_tokens=16,
     )
 
     scenario_spec = ScenarioSpec(
@@ -187,7 +187,7 @@ def get_wisesight_spec() -> RunSpec:
         input_noun="ข้อความ",
         output_noun="คำตอบ",
         stop_sequences=["\n"],
-        max_tokens=8,
+        max_tokens=16,
     )
 
     scenario_spec = ScenarioSpec(
@@ -212,7 +212,7 @@ def get_indicsentiment_spec() -> RunSpec:
         input_noun="வாக்கியம்",
         output_noun="பதில்",
         stop_sequences=["\n"],
-        max_tokens=8,
+        max_tokens=16,
     )
 
     scenario_spec = ScenarioSpec(
@@ -238,7 +238,7 @@ def get_mlhsd_spec() -> RunSpec:
         input_noun="Kalimat",
         output_noun="Jawaban",
         stop_sequences=["\n"],
-        max_tokens=8,
+        max_tokens=16,
     )
 
     scenario_spec = ScenarioSpec(
@@ -263,7 +263,7 @@ def get_vihsd_spec() -> RunSpec:
         input_noun="Câu văn",
         output_noun="Câu trả lời",
         stop_sequences=["\n"],
-        max_tokens=8,
+        max_tokens=16,
     )
 
     scenario_spec = ScenarioSpec(
@@ -288,7 +288,7 @@ def get_thaitoxicitytweets_spec() -> RunSpec:
         input_noun="ข้อความ",
         output_noun="คำตอบ",
         stop_sequences=["\n"],
-        max_tokens=8,
+        max_tokens=16,
     )
 
     scenario_spec = ScenarioSpec(
@@ -360,7 +360,7 @@ def generate_flores_run_spec(source="en", target="id"):
         input_noun=TRANSLATION_PROMPTS[pair]["input_noun"],
         output_noun=TRANSLATION_PROMPTS[pair]["output_noun"],
         stop_sequences=["\n"],
-        max_tokens=128,
+        max_tokens=256,
     )
 
     scenario_spec = ScenarioSpec(
@@ -414,7 +414,7 @@ def generate_xlsum_run_spec(language="id"):
         input_noun=XLSUM_PROMPTS[language]["input_noun"],
         output_noun=XLSUM_PROMPTS[language]["output_noun"],
         stop_sequences=["\n"],
-        max_tokens=128,
+        max_tokens=512,
         temperature=0.3,
     )
 
@@ -453,7 +453,7 @@ def get_indonli_spec() -> RunSpec:
         instructions="Anda akan diberikan dua kalimat, X dan Y.\nTentukan mana dari pernyataan berikut ini yang paling sesuai untuk kalimat X dan Y.\nA: Kalau X benar, maka Y juga harus benar.\nB: X bertentangan dengan Y.\nC: Ketika X benar, Y mungkin benar atau mungkin tidak benar.\nJawablah dengan satu huruf saja, A, B atau C.",
         output_noun="Jawaban",
         stop_sequences=["\n"],
-        max_tokens=8,
+        max_tokens=2,
     )
 
     scenario_spec = ScenarioSpec(
@@ -489,7 +489,7 @@ def generate_xnli_run_spec(language="vi"):
         instructions=XNLI_PROMPTS[language]["instructions"] + "\n" + XNLI_PROMPTS[language]["input_suffix"],
         output_noun=XNLI_PROMPTS[language]["output_noun"],
         stop_sequences=["\n"],
-        max_tokens=8,
+        max_tokens=2,
     )
 
     scenario_spec = ScenarioSpec(
@@ -520,7 +520,7 @@ def get_indicxnli_spec() -> RunSpec:
         instructions="உங்களுக்கு இரண்டு வாக்கியங்கள், X மற்றும் Y, தரப்படும்.\nபின்வரும் கூற்றுகளில் எது X மற்றும் Y வாக்கியங்களுடன் மிகப் பொருந்துகிறது எனக் கண்டறியவும்.\nA: X உண்மை என்றால் Y உம் உண்மையாக இருக்க வேண்டும்.\nB: X உம் Y உம் முரண்படுகின்றன.\nC: X உண்மையாக இருக்கும்போது Y உண்மையாக இருக்கலாம் அல்லது இல்லாமல் இருக்கலாம்.\nA அல்லது B அல்லது C என்ற ஒறே எழுத்தில் மட்டும் பதிலளிக்கவும்.",
         output_noun="பதில்",
         stop_sequences=["\n"],
-        max_tokens=8,
+        max_tokens=2,
     )
 
     scenario_spec = ScenarioSpec(
@@ -562,7 +562,7 @@ def generate_xcopa_run_spec(language="id"):
         input_noun=XCOPA_PROMPTS[language]["input_noun"],
         output_noun=XCOPA_PROMPTS[language]["output_noun"],
         stop_sequences=["\n"],
-        max_tokens=8,
+        max_tokens=2,
     )
 
     scenario_spec = ScenarioSpec(
@@ -599,7 +599,7 @@ def get_lindsea_syntax_minimal_pairs_spec(language: str = "id", method: str = "m
     if method == "mcq":
         adapter_spec = get_generation_adapter_spec(
             output_noun=LINDSEA_OUTPUT_NOUNS[language],
-            max_tokens=1
+            max_tokens=2
         )
     else:
         adapter_spec = get_multiple_choice_separate_adapter_spec(

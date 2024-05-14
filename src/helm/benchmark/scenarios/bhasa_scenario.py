@@ -712,6 +712,8 @@ class IndicSentimentScenario(Scenario):
         outputs = []
         for split in self.splits.keys():
             data = dataset[split].to_pandas()
+            # Current version on HuggingFace datasets has 2 instances without labels across all languages.
+            # Confirmed with first author that the labels for these instances should be Positive.
             data["LABEL"] = data["LABEL"].fillna("Positive")
             for _, row in data.iterrows():
                 input = Input(row["INDIC REVIEW"].strip())
