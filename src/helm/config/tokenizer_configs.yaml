@@ -253,6 +253,7 @@ tokenizer_configs:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
       args:
         trust_remote_code: true
+        use_fast: false
     end_of_text_token: "<|endoftext|>"
     prefix_token: ""
 
