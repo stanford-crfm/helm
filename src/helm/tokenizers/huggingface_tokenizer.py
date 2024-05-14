@@ -109,6 +109,11 @@ class HuggingFaceTokenizer(CachingTokenizer):
         )
 
     def _tokenize_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        if request["tokenizer"] != self._helm_tokenizer_name:
+            raise ValueError(
+                f"This HuggingFaceTokenizer expects tokenizer to be {self._helm_tokenizer_name} "
+                "but instead the request has tokenizer {request['tokenizer']}"
+            )
         if request["encode"]:
             if request["truncation"]:
                 with self.get_pretrained_tokenizer() as tokenizer:
@@ -153,6 +158,11 @@ class HuggingFaceTokenizer(CachingTokenizer):
         return {"tokens": tokens}
 
     def _decode_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        if request["tokenizer"] != self._helm_tokenizer_name:
+            raise ValueError(
+                f"This HuggingFaceTokenizer expects tokenizer to be {self._helm_tokenizer_name} "
+                "but instead the request has tokenizer {request['tokenizer']}"
+            )
         with self.get_pretrained_tokenizer() as tokenizer:
             text = tokenizer.decode(
                 request["tokens"], clean_up_tokenization_spaces=request["clean_up_tokenization_spaces"]
