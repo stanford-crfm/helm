@@ -10,6 +10,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG, TEST_SPLIT, TRAIN_SPLIT
 )
 from helm.common.general import ensure_file_downloaded
+from helm.common.hierarchical_logger import hlog
 
 # BHASA Scenarios
 #   A. Natural Language Understanding
@@ -1702,29 +1703,33 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
 
         outputs = []
         if self.method == "mcq":
-            for _, row in data.iterrows():
-                # Fixed shuffling of options
-                random.seed(4156)
-                options = [(row["correct"], 1), (row["wrong"], 2)]
-                random.shuffle(options)
-                options_reversed = True if options[0][1] == 2 else False
+            category_list = data["category"].value_counts().keys()
+            hlog("MCQ method for LINDSEA Minimal Pairs chosen. Shuffling options...")
+            for category in category_list:
+                # Fix shuffling within each category
+                random.seed(1)
+                for _, row in data[data["category"]==category].iterrows():
+                    options = [(row["correct"], 1), (row["wrong"], 2)]
+                    random.shuffle(options)
+                    options_reversed = True if options[0][1] == 2 else False
 
-                prompt_components = self.prompts[self.language]
-                instructions = prompt_components["instructions"]
-                output_prefix = prompt_components["output_prefix"]
-                prompt = f"{instructions}\nA: {options[0][0]}\nB: {options[1][0]}\n{output_prefix}"
-                input = Input(text=prompt)
-                # Determine correct option based on whether shuffling reversed the options
-                references = [
-                    Reference(Output(text="A"), tags=[] if options_reversed else [CORRECT_TAG]),
-                    Reference(Output(text="B"), tags=[CORRECT_TAG] if options_reversed else [])
-                ]
-                instance = Instance(
-                    input=input,
-                    references=references,
-                    split=TEST_SPLIT
-                )
-                outputs.append(instance)
+                    prompt_components = self.prompts[self.language]
+                    instructions = prompt_components["instructions"]
+                    output_prefix = prompt_components["output_prefix"]
+                    prompt = f"{instructions}\nA: {options[0][0]}\nB: {options[1][0]}\n{output_prefix}"
+                    input = Input(text=prompt)
+                    # Determine correct option based on whether shuffling reversed the options
+                    references = [
+                        Reference(Output(text="A"), tags=[] if options_reversed else [CORRECT_TAG]),
+                        Reference(Output(text="B"), tags=[CORRECT_TAG] if options_reversed else [])
+                    ]
+                    instance = Instance(
+                        input=input,
+                        references=references,
+                        split=TEST_SPLIT
+                    )
+                    outputs.append(instance)
+
         else:
             for _, row in data.iterrows():
                 # No need to shuffle since we are comparing logprobs of the options separately
