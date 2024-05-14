@@ -97,7 +97,7 @@ class HuggingFaceTokenizer(CachingTokenizer):
                     )
         return HuggingFaceTokenizer._tokenizers[helm_tokenizer_name]
 
-    def get_pretrained_tokenizer(self) -> WrappedPreTrainedTokenizer:
+    def get_wrapped_tokenizer(self) -> WrappedPreTrainedTokenizer:
         """Get the underlying Hugging Face WrappedPreTrainedTokenizer."""
         pretrained_model_name_or_path = (
             self._pretrained_model_name_or_path if self._pretrained_model_name_or_path else self._helm_tokenizer_name
@@ -116,7 +116,7 @@ class HuggingFaceTokenizer(CachingTokenizer):
             )
         if request["encode"]:
             if request["truncation"]:
-                with self.get_pretrained_tokenizer() as tokenizer:
+                with self.get_wrapped_tokenizer() as tokenizer:
                     tokens = tokenizer.encode(
                         request["text"],
                         truncation=request["truncation"],
@@ -124,7 +124,7 @@ class HuggingFaceTokenizer(CachingTokenizer):
                         add_special_tokens=False,
                     )
             else:
-                with self.get_pretrained_tokenizer() as tokenizer:
+                with self.get_wrapped_tokenizer() as tokenizer:
                     tokens = tokenizer.encode(request["text"], add_special_tokens=False)
         else:
             if "gpt" in request["tokenizer"] or request["tokenizer"] in [
@@ -136,7 +136,7 @@ class HuggingFaceTokenizer(CachingTokenizer):
                 # convert_tokens_to_string method. We prefer to use this method instead
                 # of the hacky cleanup_tokens method below as it might handle cases
                 # we haven't thought of in cleanup_tokens.
-                with self.get_pretrained_tokenizer() as tokenizer:
+                with self.get_wrapped_tokenizer() as tokenizer:
                     tokens = [
                         tokenizer.convert_tokens_to_string([token]) for token in tokenizer.tokenize(request["text"])
                     ]
@@ -149,7 +149,7 @@ class HuggingFaceTokenizer(CachingTokenizer):
                 # But this replaces all the "▁" characters by "", which is not what we want.
                 # This would be problematic as tokenize(" Hello", encode=False) would return ["Hello"]
                 # Just like tokenize("Hello", encode=False) would return ["Hello"].
-                with self.get_pretrained_tokenizer() as tokenizer:
+                with self.get_wrapped_tokenizer() as tokenizer:
                     tokens = tokenizer.tokenize(request["text"])
                 # Some tokenizers (e.g. Qwen/Qwen-7B) return the tokens as bytes, so we have to decode them to strings.
                 if tokens and type(tokens[0]) == bytes:
@@ -163,7 +163,7 @@ class HuggingFaceTokenizer(CachingTokenizer):
                 f"This HuggingFaceTokenizer expects tokenizer to be {self._helm_tokenizer_name} "
                 "but instead the request has tokenizer {request['tokenizer']}"
             )
-        with self.get_pretrained_tokenizer() as tokenizer:
+        with self.get_wrapped_tokenizer() as tokenizer:
             text = tokenizer.decode(
                 request["tokens"], clean_up_tokenization_spaces=request["clean_up_tokenization_spaces"]
             )

@@ -278,7 +278,7 @@ class HuggingFaceClient(CachingClient):
                 f"Tokenizer for Hugging Face model {pretrained_model_name_or_path} must be a HuggingFaceTokenizer, "
                 "but instead it is {tokenizer}"
             )
-        self._wrapped_tokenizer: WrappedPreTrainedTokenizer = tokenizer.get_pretrained_tokenizer()
+        self._wrapped_tokenizer: WrappedPreTrainedTokenizer = tokenizer.get_wrapped_tokenizer()
         self._tokenizer = tokenizer
         self._kwargs = _process_huggingface_client_kwargs(kwargs)
 
