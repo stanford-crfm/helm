@@ -1,6 +1,5 @@
 from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
-    ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
 )
 from helm.benchmark.adaptation.common_adapter_specs import (
     get_generation_adapter_spec,
@@ -53,7 +52,7 @@ def get_tydiqa_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_bhasa_qa_metric_specs(args={
-            "language": 'id',
+            "language": "id",
         }),
         groups=["bhasa_nlu"],
     )
@@ -74,8 +73,8 @@ def generate_xquad_run_spec(language="th"):
     name = f"xquad_{language}"
 
     adapter_spec = get_generation_adapter_spec(
-        instructions=XQUAD_PROMPTS[language]['instructions'],
-        output_noun=XQUAD_PROMPTS[language]['output_noun'],
+        instructions=XQUAD_PROMPTS[language]["instructions"],
+        output_noun=XQUAD_PROMPTS[language]["output_noun"],
         stop_sequences=["\n"],
         max_tokens=128,
     )
@@ -122,7 +121,7 @@ def get_indicqa_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_bhasa_qa_metric_specs(args={
-            "language": 'ta',
+            "language": "ta",
         }),
         groups=["bhasa_nlu"],
     )
@@ -357,9 +356,9 @@ def generate_flores_run_spec(source="en", target="id"):
     name = f"flores_{pair}"
 
     adapter_spec = get_generation_adapter_spec(
-        instructions=TRANSLATION_PROMPTS[pair]['instructions'],
-        input_noun=TRANSLATION_PROMPTS[pair]['input_noun'],
-        output_noun=TRANSLATION_PROMPTS[pair]['output_noun'],
+        instructions=TRANSLATION_PROMPTS[pair]["instructions"],
+        input_noun=TRANSLATION_PROMPTS[pair]["input_noun"],
+        output_noun=TRANSLATION_PROMPTS[pair]["output_noun"],
         stop_sequences=["\n"],
         max_tokens=128,
     )
@@ -411,9 +410,9 @@ def generate_xlsum_run_spec(language="id"):
     name = f"xlsum_{language}"
 
     adapter_spec = get_generation_adapter_spec(
-        instructions=XLSUM_PROMPTS[language]['instructions'],
-        input_noun=XLSUM_PROMPTS[language]['input_noun'],
-        output_noun=XLSUM_PROMPTS[language]['output_noun'],
+        instructions=XLSUM_PROMPTS[language]["instructions"],
+        input_noun=XLSUM_PROMPTS[language]["input_noun"],
+        output_noun=XLSUM_PROMPTS[language]["output_noun"],
         stop_sequences=["\n"],
         max_tokens=128,
         temperature=0.3,
@@ -487,8 +486,8 @@ def generate_xnli_run_spec(language="vi"):
     name = f"xnli_{language}"
 
     adapter_spec = get_generation_adapter_spec(
-        instructions=XNLI_PROMPTS[language]['instructions'] + '\n' + XNLI_PROMPTS[language]['input_suffix'],
-        output_noun=XNLI_PROMPTS[language]['output_noun'],
+        instructions=XNLI_PROMPTS[language]["instructions"] + "\n" + XNLI_PROMPTS[language]["input_suffix"],
+        output_noun=XNLI_PROMPTS[language]["output_noun"],
         stop_sequences=["\n"],
         max_tokens=8,
     )
@@ -560,8 +559,8 @@ def generate_xcopa_run_spec(language="id"):
     name = f"xcopa_{language}"
 
     adapter_spec = get_generation_adapter_spec(
-        input_noun=XCOPA_PROMPTS[language]['input_noun'],
-        output_noun=XCOPA_PROMPTS[language]['output_noun'],
+        input_noun=XCOPA_PROMPTS[language]["input_noun"],
+        output_noun=XCOPA_PROMPTS[language]["output_noun"],
         stop_sequences=["\n"],
         max_tokens=8,
     )
@@ -590,12 +589,8 @@ def get_xcopa_spec(language="id") -> RunSpec:
 #   2. Pragmatics
 
 # 1. Syntax: LINDSEA Minimal Pairs
-lindsea_syntax_minimal_pairs_prompts = {
-    "id": {
-        "instructions": "Kalimat mana yang lebih mungkin?",
-        "output_prefix": "Jawablah dengan satu huruf saja, A atau B.",
-        "output_noun": "Jawaban",
-    },
+LINDSEA_OUTPUT_NOUNS = {
+    "id": "Jawaban"
 }
 
 @run_spec_function("lindsea_syntax_minimal_pairs")
@@ -603,7 +598,7 @@ def get_lindsea_syntax_minimal_pairs_spec(language: str = "id", method: str = "m
     name = f"lindsea_syntax_minimal_pairs_{language}"
     if method == "mcq":
         adapter_spec = get_generation_adapter_spec(
-            output_noun=lindsea_syntax_minimal_pairs_prompts[language]["output_noun"],
+            output_noun=LINDSEA_OUTPUT_NOUNS[language],
             max_tokens=1
         )
     else:
@@ -628,13 +623,13 @@ def get_lindsea_syntax_minimal_pairs_spec(language: str = "id", method: str = "m
         groups=["bhasa_linguistic"],
     )
 
-# 2.1. Pragmatics: LINDSEA Pragmatics Reasoning (single sentence)
+# 2.1. Pragmatics: LINDSEA Pragmatic Reasoning (single sentence)
 @run_spec_function("lindsea_pragmatics_pragmatic_reasoning_single")
 def get_lindsea_pragmatics_pragmatic_reasoning_single_spec(language="id") -> RunSpec:
     name = f"lindsea_pragmatics_pragmatic_reasoning_single_{language}"
 
     adapter_spec = get_generation_adapter_spec(
-        output_noun="Jawaban",
+        output_noun=LINDSEA_OUTPUT_NOUNS[language],
         stop_sequences=["\n"],
         max_train_instances=0,
         max_tokens=8,
@@ -661,7 +656,7 @@ def get_lindsea_pragmatics_pragmatic_reasoning_pair_spec(language="id") -> RunSp
     name = f"lindsea_pragmatics_pragmatic_reasoning_pair_{language}"
 
     adapter_spec = get_generation_adapter_spec(
-        output_noun="Jawaban",
+        output_noun=LINDSEA_OUTPUT_NOUNS[language],
         stop_sequences=["\n"],
         max_train_instances=0,
         max_tokens=8,
