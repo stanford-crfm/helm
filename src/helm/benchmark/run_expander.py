@@ -347,6 +347,25 @@ class AnthropicClaude3RunExpander(RunExpander):
         return [run_spec]
 
 
+class GPT4ORunExpander(RunExpander):
+    """Custom prompts for Anthropic Claude 3 models."""
+
+    name = "gpt_4o"
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        if run_spec.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
+            instructions = "Answer with only a single letter."
+            if run_spec.adapter_spec.instructions:
+                instructions = f"{instructions}\n\n{run_spec.adapter_spec.instructions}"
+            return [
+                replace(
+                    run_spec,
+                    adapter_spec=replace(run_spec.adapter_spec, instructions=instructions),
+                ),
+            ]
+        return [run_spec]
+
+
 class FollowFormatInstructionsRunExpander(RunExpander):
     """Adds more explicit instructions about following the format to prompts.
 

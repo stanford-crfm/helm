@@ -39,6 +39,7 @@ from helm.benchmark.run_expander import (
     LlavaRunExpander,
     OpenFlamingoRunExpander,
     StopRunExpander,
+    GPT4ORunExpander,
 )
 from helm.benchmark.run_spec import RunSpec, get_run_spec_function
 from helm.common.general import singleton
@@ -129,6 +130,9 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         # Anthropic Claude 3
         if ANTHROPIC_CLAUDE_3_MODEL_TAG in model.tags:
             run_spec = singleton(AnthropicClaude3RunExpander().expand(run_spec))
+
+        if run_spec.adapter_spec.model == "openai/gpt-4o-2024-05-13":
+            run_spec = singleton(GPT4ORunExpander().expand(run_spec))
 
         # Google Gemini Vision v1.0 returns an empty completion or throws an error if max_tokens is 1
         if (
