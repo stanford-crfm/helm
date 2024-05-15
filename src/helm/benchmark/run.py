@@ -264,6 +264,13 @@ def main():
         default=None,
         help="Full class name of the Runner class to use. If unset, uses the default Runner.",
     )
+    parser.add_argument(
+        "--openvino",
+        action="store_true",
+        default=False,
+        help="Experimental: Apply openvino optimization to Hugging Face AutoModelForCausalLM models "
+        "specified with the --enable-huggingface-models and --enable-local-huggingface-models flags.",
+    )
     add_run_args(parser)
     args = parser.parse_args()
     validate_args(args)
@@ -275,12 +282,19 @@ def main():
         from helm.benchmark.huggingface_registration import register_huggingface_hub_model_from_flag_value
 
         for huggingface_model_name in args.enable_huggingface_models:
-            register_huggingface_hub_model_from_flag_value(huggingface_model_name)
+            if args.openvino:
+                register_huggingface_hub_model_from_flag_value(huggingface_model_name, args.openvino)
+            else:
+                register_huggingface_hub_model_from_flag_value(huggingface_model_name)
+
     if args.enable_local_huggingface_models:
         from helm.benchmark.huggingface_registration import register_huggingface_local_model_from_flag_value
 
         for huggingface_model_path in args.enable_local_huggingface_models:
-            register_huggingface_local_model_from_flag_value(huggingface_model_path)
+            if args.openvino:
+                register_huggingface_local_model_from_flag_value(huggingface_model_path, args.openvino)
+            else:
+                register_huggingface_local_model_from_flag_value(huggingface_model_path)
 
     run_entries: List[RunEntry] = []
     if args.conf_paths:
