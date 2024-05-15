@@ -131,7 +131,10 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         if ANTHROPIC_CLAUDE_3_MODEL_TAG in model.tags:
             run_spec = singleton(AnthropicClaude3RunExpander().expand(run_spec))
 
-        if run_spec.adapter_spec.model == "openai/gpt-4o-2024-05-13":
+        if (
+            run_spec.adapter_spec.model == "openai/gpt-4o-2024-05-13"
+            or run_spec.adapter_spec.model == "google/gemini-1.5-flash-preview-0514"
+        ):
             run_spec = singleton(GPT4ORunExpander().expand(run_spec))
 
         # Google Gemini Vision v1.0 returns an empty completion or throws an error if max_tokens is 1

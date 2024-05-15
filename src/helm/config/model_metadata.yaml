@@ -705,6 +705,14 @@ models:
     release_date: 2024-04-10
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: google/gemini-1.5-flash-preview-0514
+    display_name: Gemini 1.5 Flash (0514 preview)
+    description: Gemini 1.5 Flash is a smaller Gemini model. It has a 1 million token context window and allows to interleave text, images, audio and video as inputs. ([blog](https://blog.google/technology/developers/gemini-gemma-developer-updates-may-2024/))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2024-05-14
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: google/gemma-2b
     display_name: Gemma (2B)
     # TODO: Fill in Gemma description.
