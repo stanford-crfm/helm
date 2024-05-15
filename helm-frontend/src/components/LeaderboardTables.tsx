@@ -185,7 +185,7 @@ export default function LeaderboardTables({
                     key={`${activeGroup}-${idx}`}
                     className={`${
                       idx === activeSortColumn ? "bg-gray-100" : "bg-white"
-                    } ${idx === 0 ? "left-0 z-10" : ""} ${
+                    } ${idx === 0 ? "left-0 z-40" : ""} ${
                       headerValue.description
                         ? "underline decoration-dashed decoration-gray-300	"
                         : ""
@@ -256,7 +256,7 @@ export default function LeaderboardTables({
                               : ""
                           } ${
                             cellIdx === 0
-                              ? "underline decoration-dashed decoration-gray-300 z-20"
+                              ? "underline decoration-dashed decoration-gray-300 z-10"
                               : "z-0"
                           }`}
                         >
