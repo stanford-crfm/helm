@@ -100,6 +100,25 @@ models:
   # - j2-large -> j2-light
 
 
+  # AI Singapore
+  - name: aisingapore/sea-lion-7b
+    display_name: SEA-LION (7B)
+    description: SEA-LION is a collection of language models which has been pretrained and instruct-tuned on languages from the Southeast Asia region. It utilizes the MPT architecture and a custom SEABPETokenizer for tokenization.
+    creator_organization_name: AI Singapore
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-02-24
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: aisingapore/sea-lion-7b-instruct
+    display_name: SEA-LION Instruct (7B)
+    description: SEA-LION is a collection of language models which has been pretrained and instruct-tuned on languages from the Southeast Asia region. It utilizes the MPT architecture and a custom SEABPETokenizer for tokenization.
+    creator_organization_name: AI Singapore
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-02-24
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
 
   # Aleph Alpha
   # Aleph Alpha's Luminous models: https://docs.aleph-alpha.com/docs/introduction/luminous
