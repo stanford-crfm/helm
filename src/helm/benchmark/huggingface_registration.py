@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Optional, Dict, Union
 
 from helm.benchmark.model_deployment_registry import (
     ClientSpec,
@@ -17,14 +17,22 @@ from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 
 
 def register_huggingface_model(
-    helm_model_name: str, pretrained_model_name_or_path: str, revision: Optional[str] = None
+    helm_model_name: str,
+    pretrained_model_name_or_path: str,
+    revision: Optional[str] = None,
+    openvino: Optional[bool] = False,
 ) -> None:
-    object_spec_args = {"pretrained_model_name_or_path": pretrained_model_name_or_path}
+    object_spec_args: Dict[str, Union[str, bool]] = {"pretrained_model_name_or_path": pretrained_model_name_or_path}
     if revision:
         object_spec_args["revision"] = revision
+    if openvino:
+        object_spec_args["openvino"] = openvino
 
     # Auto-infer model properties from the tokenizer.
-    with HuggingFaceTokenizer.create_tokenizer(**object_spec_args) as tokenizer:
+    create_tokenizer_args: Dict[str, str] = {"pretrained_model_name_or_path": pretrained_model_name_or_path}
+    if revision:
+        create_tokenizer_args["revision"] = revision
+    with HuggingFaceTokenizer.create_tokenizer(**create_tokenizer_args) as tokenizer:
         max_sequence_length = tokenizer.model_max_length
         end_of_text_token = tokenizer.eos_token or ""
         prefix_token = tokenizer.bos_token or ""
@@ -71,7 +79,7 @@ def register_huggingface_model(
     register_tokenizer_config(tokenizer_config)
 
 
-def register_huggingface_hub_model_from_flag_value(raw_model_string: str) -> None:
+def register_huggingface_hub_model_from_flag_value(raw_model_string: str, openvino=False) -> None:
     raw_model_string_parts = raw_model_string.split("@")
     pretrained_model_name_or_path: str
     revision: Optional[str]
@@ -88,10 +96,11 @@ def register_huggingface_hub_model_from_flag_value(raw_model_string: str) -> Non
         helm_model_name=raw_model_string,
         pretrained_model_name_or_path=pretrained_model_name_or_path,
         revision=revision,
+        openvino=openvino,
     )
 
 
-def register_huggingface_local_model_from_flag_value(path: str) -> None:
+def register_huggingface_local_model_from_flag_value(path: str, openvino=False) -> None:
     if not path:
         raise ValueError("Path to Hugging Face model must be non-empty")
     path_parts = os.path.split(path)
@@ -99,4 +108,5 @@ def register_huggingface_local_model_from_flag_value(path: str) -> None:
     register_huggingface_model(
         helm_model_name=helm_model_name,
         pretrained_model_name_or_path=path,
+        openvino=openvino,
     )

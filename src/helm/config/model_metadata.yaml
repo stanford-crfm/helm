@@ -1806,6 +1806,14 @@ models:
     release_date: 2024-04-09
     tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: openai/gpt-4o-2024-05-13
+    display_name: GPT-4o (2024-05-13)
+    description: GPT-4o (2024-05-13) is a large multimodal model that accepts as input any combination of text, audio, and image and generates any combination of text, audio, and image outputs.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2024-04-09
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: openai/gpt-4-vision-preview
     # According to https://platform.openai.com/docs/models/gpt-4-turbo-and-gpt-4, this model has pointed gpt-4-1106-vision-preview.
     display_name: GPT-4V (1106 preview)
@@ -1953,7 +1961,7 @@ models:
 
   - name: qwen/qwen-7b
     display_name: Qwen
-    description: 7B-parameter version of the large language model series, Qwen (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen-7B is a Transformer-based large language model, which is pretrained on a large volume of data, including web texts, books, codes, etc. 
+    description: 7B-parameter version of the large language model series, Qwen (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen is a family of transformer models with SwiGLU activation, RoPE, and multi-head attention. ([blog](https://qwenlm.github.io/blog/qwen1.5/))
     creator_organization_name: Qwen
     access: open
     release_date: 2024-02-05
@@ -1961,7 +1969,7 @@ models:
 
   - name: qwen/qwen1.5-7b
     display_name: Qwen1.5 (7B)
-    description: 7B-parameter version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen-7B is a Transformer-based large language model, which is pretrained on a large volume of data, including web texts, books, codes, etc. 
+    description: 7B-parameter version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen is a family of transformer models with SwiGLU activation, RoPE, and multi-head attention. ([blog](https://qwenlm.github.io/blog/qwen1.5/))
     creator_organization_name: Qwen
     access: open
     release_date: 2024-02-05
@@ -1969,7 +1977,7 @@ models:
 
   - name: qwen/qwen1.5-14b
     display_name: Qwen1.5 (14B)
-    description: 14B-parameter version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen-7B is a Transformer-based large language model, which is pretrained on a large volume of data, including web texts, books, codes, etc. 
+    description: 14B-parameter version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen is a family of transformer models with SwiGLU activation, RoPE, and multi-head attention. ([blog](https://qwenlm.github.io/blog/qwen1.5/))
     creator_organization_name: Qwen
     access: open
     release_date: 2024-02-05
@@ -1977,19 +1985,59 @@ models:
 
   - name: qwen/qwen1.5-32b
     display_name: Qwen1.5 (32B)
-    description: 32B-parameter version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen-7B is a Transformer-based large language model, which is pretrained on a large volume of data, including web texts, books, codes, etc. 
+    description: 32B-parameter version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen is a family of transformer models with SwiGLU activation, RoPE, and multi-head attention. The 32B version also includes grouped query attention (GQA). ([blog](https://qwenlm.github.io/blog/qwen1.5-32b/))
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2024-04-02
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: qwen/qwen1.5-72b
+    display_name: Qwen1.5 (72B)
+    description: 72B-parameter version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen is a family of transformer models with SwiGLU activation, RoPE, and multi-head attention. ([blog](https://qwenlm.github.io/blog/qwen1.5/))
     creator_organization_name: Qwen
     access: open
     release_date: 2024-02-05
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: qwen/qwen1.5-72b
-    display_name: Qwen1.5 (72B)
-    description: 72B-parameter version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen-7B is a Transformer-based large language model, which is pretrained on a large volume of data, including web texts, books, codes, etc. 
+  - name: qwen/qwen1.5-7b-chat
+    display_name: Qwen1.5 Chat (7B)
+    description: 7B-parameter version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen is a family of transformer models with SwiGLU activation, RoPE, and multi-head attention. ([blog](https://qwenlm.github.io/blog/qwen1.5/))
     creator_organization_name: Qwen
     access: open
     release_date: 2024-02-05
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: qwen/qwen1.5-14b-chat
+    display_name: Qwen1.5 Chat (14B)
+    description: 14B-parameter chat version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen is a family of transformer models with SwiGLU activation, RoPE, and multi-head attention. ([blog](https://qwenlm.github.io/blog/qwen1.5/))
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2024-02-05
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: qwen/qwen1.5-32b-chat
+    display_name: Qwen1.5 Chat (32B)
+    description: 32B-parameter version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen is a family of transformer models with SwiGLU activation, RoPE, and multi-head attention. The 32B version also includes grouped query attention (GQA). ([blog](https://qwenlm.github.io/blog/qwen1.5-32b/))
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2024-04-02
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: qwen/qwen1.5-72b-chat
+    display_name: Qwen1.5 Chat (72B)
+    description: 72B-parameter chat version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen is a family of transformer models with SwiGLU activation, RoPE, and multi-head attention. ([blog](https://qwenlm.github.io/blog/qwen1.5/))
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2024-02-05
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: qwen/qwen1.5-110b-chat
+    display_name: Qwen1.5 Chat (110B)
+    description: 110B-parameter chat version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen is a family of transformer models with SwiGLU activation, RoPE, and multi-head attention. The 110B version also includes grouped query attention (GQA). ([blog](https://qwenlm.github.io/blog/qwen1.5-110b/))
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2024-04-25
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: qwen/qwen-vl
     display_name: Qwen-VL

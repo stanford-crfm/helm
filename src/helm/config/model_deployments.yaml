@@ -1348,6 +1348,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
+  - name: openai/gpt-4o-2024-05-13
+    model_name: openai/gpt-4o-2024-05-13
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
   - name: openai/gpt-4-vision-preview
     model_name: openai/gpt-4-vision-preview
     tokenizer_name: openai/cl100k_base
@@ -1642,7 +1649,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient"
       args:
-        together_model: meta-llama/Meta-Llama-3-8B
+        together_model: meta-llama/Llama-3-8b-chat-hf
 
   - name: together/llama-3-70b-chat
     model_name: meta/llama-3-70b-chat
@@ -1651,7 +1658,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient"
       args:
-        together_model: meta-llama/Meta-Llama-3-70B
+        together_model: meta-llama/Llama-3-70b-chat-hf
 
   # 01.AI
   - name: together/yi-6b
@@ -1679,7 +1686,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient"
       args:
-        together_model: zero-one-ai/Yi-6B
+        together_model: zero-one-ai/Yi-6B-Chat
 
   - name: together/yi-34b-chat
     model_name: 01-ai/yi-34b-chat
@@ -1688,7 +1695,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient"
       args:
-        together_model: zero-one-ai/Yi-34B
+        together_model: zero-one-ai/Yi-34B-Chat
 
 
   # Allen Institute for AI
@@ -1983,7 +1990,7 @@ model_deployments:
   - name: together/qwen-7b
     model_name: qwen/qwen-7b
     tokenizer_name: qwen/qwen-7b
-    max_sequence_length: 8191
+    max_sequence_length: 32767
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient"
       args:
@@ -2019,11 +2026,46 @@ model_deployments:
   - name: together/qwen1.5-72b
     model_name: qwen/qwen1.5-72b
     tokenizer_name: qwen/qwen1.5-7b
-    max_sequence_length: 4095
+    max_sequence_length: 32767
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient"
       args:
         together_model: Qwen/Qwen1.5-72B
+
+  - name: together/qwen1.5-7b-chat
+    model_name: qwen/qwen1.5-7b-chat
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32767
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+
+  - name: together/qwen1.5-14b-chat
+    model_name: qwen/qwen1.5-14b-chat
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32767
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+
+  - name: together/qwen1.5-32b-chat
+    model_name: qwen/qwen1.5-32b-chat
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32767
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+
+  - name: together/qwen1.5-72b-chat
+    model_name: qwen/qwen1.5-72b-chat
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32767
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+
+  - name: together/qwen1.5-110b-chat
+    model_name: qwen/qwen1.5-110b-chat
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32767
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
 
   - name: huggingface/qwen-vl
     model_name: qwen/qwen-vl

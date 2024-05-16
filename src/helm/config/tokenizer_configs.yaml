@@ -288,6 +288,12 @@ tokenizer_configs:
     end_of_text_token: "<|endoftext|>"
     prefix_token: "<|endoftext|>"
 
+  - name: openai/o200k_base
+    tokenizer_spec:
+      class_name: "helm.tokenizers.tiktoken_tokenizer.TiktokenTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|endoftext|>"
+
   - name: openai/clip-vit-large-patch14
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
@@ -335,6 +341,9 @@ tokenizer_configs:
   - name: snowflake/snowflake-arctic-instruct
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: Snowflake/snowflake-arctic-instruct
+        trust_remote_code: true
     end_of_text_token: "<|im_end|>"
     prefix_token: "<|im_start|>"
 

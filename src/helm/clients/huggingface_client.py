@@ -53,7 +53,7 @@ class HuggingFaceRequest(TypedDict):
 class HuggingFaceServer:
     """A thin wrapper around a Hugging Face AutoModelForCausalLM for HuggingFaceClient to call."""
 
-    def __init__(self, pretrained_model_name_or_path: str, **kwargs):
+    def __init__(self, pretrained_model_name_or_path: str, openvino=False, **kwargs):
         if torch.cuda.is_available():
             hlog("CUDA is available, initializing with a GPU...")
             self.device: str = "cuda:0"
@@ -61,9 +61,34 @@ class HuggingFaceServer:
             self.device = "cpu"
         with htrack_block(f"Loading Hugging Face model {pretrained_model_name_or_path}"):
             # WARNING this may fail if your GPU does not have enough memory
-            self.model = AutoModelForCausalLM.from_pretrained(
-                pretrained_model_name_or_path, trust_remote_code=True, **kwargs
-            ).to(self.device)
+            if openvino:
+                """
+                Optimum Intel provides a simple interface to optimize Transformer models and convert them to \
+                OpenVINO™ Intermediate Representation (IR) format to accelerate end-to-end pipelines on \
+                Intel® architectures using OpenVINO™ runtime.
+                """
+                from pathlib import Path
+                from helm.common.optional_dependencies import handle_module_not_found_error
+
+                try:
+                    from optimum.intel.openvino import OVModelForCausalLM
+                except ModuleNotFoundError as e:
+                    handle_module_not_found_error(e, ["openvino"])
+
+                model_file = Path(pretrained_model_name_or_path) / "openvino_model.xml"
+                if model_file.exists():
+                    export = False
+                else:
+                    export = True
+
+                self.device = "cpu"
+                self.model = OVModelForCausalLM.from_pretrained(
+                    pretrained_model_name_or_path, export=export, trust_remote_code=True, **kwargs
+                ).to(self.device)
+            else:
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    pretrained_model_name_or_path, trust_remote_code=True, **kwargs
+                ).to(self.device)
         with htrack_block(f"Loading Hugging Face tokenizer for model {pretrained_model_name_or_path}"):
             self.wrapped_tokenizer: WrappedPreTrainedTokenizer = HuggingFaceTokenizer.create_tokenizer(
                 pretrained_model_name_or_path, **kwargs
