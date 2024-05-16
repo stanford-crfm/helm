@@ -294,14 +294,19 @@ run_groups:
       - hateful_memes
       - viz_wiz
       - vqa
+      - gqa
+      - a_okvqa
       - mmmu
+      - math_vista
       - image2webpage
+      - mm_safety_bench
       - unicorn
       - bingo
       - multipanelvqa
       - pope
       - seed_bench
       - mme
+      - pairs
 
   - name: a_okvqa
     display_name: A-OKVQA

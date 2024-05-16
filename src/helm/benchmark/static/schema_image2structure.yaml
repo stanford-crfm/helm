@@ -86,11 +86,6 @@ metrics:
     short_display_name: EMS
     description: Earth Mover Similarity
     lower_is_better: false
-  - name: earth_mover_similarity_white
-    display_name: Earth Mover Similarity (against White)
-    short_display_name: EMS (white)
-    description: Earth Mover Similarity against white image
-    lower_is_better: false
   - name: pixel_similarity
     display_name: Pixel Similarity
     short_display_name: PS
@@ -170,8 +165,6 @@ metric_groups:
       - name: block_emd
         split: ${main_split}
       - name: earth_mover_similarity
-        split: ${main_split}
-      - name: earth_mover_similarity_white
         split: ${main_split}
 
   - name: generation_text
