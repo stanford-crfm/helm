@@ -830,6 +830,21 @@ model_deployments:
       args:
         pretrained_model_name_or_path: openai-community/gpt2
 
+  ## SCB10X
+  - name: huggingface/typhoon-v1.5-72b
+    model_name: scb10x/typhoon-v1.5-72b
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/typhoon-v1.5-72b-instruct
+    model_name: scb10x/typhoon-v1.5-72b-instruct
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
   ## StabilityAI
   - name: huggingface/stablelm-base-alpha-3b
     model_name: stabilityai/stablelm-base-alpha-3b
