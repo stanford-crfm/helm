@@ -1681,7 +1681,7 @@ model_deployments:
 
   - name: together/llama-guard-7b
     model_name: meta/llama-guard-7b
-    tokenizer_name: hf-internal-testing/llama-tokenizer
+    tokenizer_name: meta-llama/Llama-2-7b-hf
     max_sequence_length: 2047
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient"
@@ -1690,7 +1690,7 @@ model_deployments:
 
   - name: together/llama-guard-2-8b
     model_name: meta/llama-guard-2-8b
-    tokenizer_name: meta-llama/Llama-2-7b-hf
+    tokenizer_name: meta/llama-3-8b
     max_sequence_length: 4094
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient"
