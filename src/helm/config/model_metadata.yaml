@@ -1258,7 +1258,7 @@ models:
 
   - name: meta/llama-guard-7b
     display_name: Llama Guard (7B)
-    description: Llama-Guard is a 7B parameter Llama 2-based input-output safeguard model. It can be used for classifying content in both LLM inputs (prompt classification) and in LLM responses (response classification). It acts as an LLM it generates text in its output that indicates whether a given prompt or response is safe/unsafe, and if unsafe based on a policy, it also lists the violating subcategories
+    description: Llama-Guard is a 7B parameter Llama 2-based input-output safeguard model. It can be used for classifying content in both LLM inputs (prompt classification) and in LLM responses (response classification). It acts as an LLM it generates text in its output that indicates whether a given prompt or response is safe/unsafe, and if unsafe based on a policy, it also lists the violating subcategories.
     creator_organization_name: Meta
     access: open
     num_parameters: 7000000000
@@ -1267,7 +1267,7 @@ models:
 
   - name: meta/llama-guard-2-8b
     display_name: Llama Guard 2 (8B)
-    description: Llama Guard 2 is an 8B parameter Llama 3-based [1] LLM safeguard model. Similar to Llama Guard, it can be used for classifying content in both LLM inputs (prompt classification) and in LLM responses (response classification). It acts as an LLM – it generates text in its output that indicates whether a given prompt or response is safe or unsafe, and if unsafe, it also lists the content categories violated
+    description: Llama Guard 2 is an 8B parameter Llama 3-based LLM safeguard model. Similar to Llama Guard, it can be used for classifying content in both LLM inputs (prompt classification) and in LLM responses (response classification). It acts as an LLM – it generates text in its output that indicates whether a given prompt or response is safe or unsafe, and if unsafe, it also lists the content categories violated.
     creator_organization_name: Meta
     access: open
     num_parameters: 8000000000
