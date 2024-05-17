@@ -2257,6 +2257,43 @@ models:
     release_date: 2023-08-24
     tags: [VISION_LANGUAGE_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
 
+  # SAIL (Sea AI Lab)
+  - name: sail/sailor-7b
+    display_name: Sailor (7B)
+    description: Sailor is a suite of Open Language Models tailored for South-East Asia, focusing on languages such as Indonesian, Thai, Vietnamese, Malay, and Lao. These models were continually pre-trained from Qwen1.5. ([paper](https://arxiv.org/abs/2404.03608))
+    creator_organization_name: SAIL
+    access: open
+    num_parameters: 7000000000
+    release_date: 2024-04-04
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: sail/sailor-7b-chat
+    display_name: Sailor Chat (7B)
+    description: Sailor is a suite of Open Language Models tailored for South-East Asia, focusing on languages such as Indonesian, Thai, Vietnamese, Malay, and Lao. These models were continually pre-trained from Qwen1.5. ([paper](https://arxiv.org/abs/2404.03608))
+    creator_organization_name: SAIL
+    access: open
+    num_parameters: 7000000000
+    release_date: 2024-04-04
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: sail/sailor-14b
+    display_name: Sailor (14B)
+    description: Sailor is a suite of Open Language Models tailored for South-East Asia, focusing on languages such as Indonesian, Thai, Vietnamese, Malay, and Lao. These models were continually pre-trained from Qwen1.5. ([paper](https://arxiv.org/abs/2404.03608))
+    creator_organization_name: SAIL
+    access: open
+    num_parameters: 14000000000
+    release_date: 2024-04-04
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: sail/sailor-14b-chat
+    display_name: Sailor Chat (14B)
+    description: Sailor is a suite of Open Language Models tailored for South-East Asia, focusing on languages such as Indonesian, Thai, Vietnamese, Malay, and Lao. These models were continually pre-trained from Qwen1.5. ([paper](https://arxiv.org/abs/2404.03608))
+    creator_organization_name: SAIL
+    access: open
+    num_parameters: 14000000000
+    release_date: 2024-04-04
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   # Salesforce
   - name: salesforce/codegen # NOT SUPPORTED
     display_name: CodeGen (16B)
