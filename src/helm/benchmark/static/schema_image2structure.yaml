@@ -173,6 +173,20 @@ metric_groups:
       - name: edit_similarity
         split: ${main_split}
 
+  - name: general_information
+    display_name: General information
+    metrics:
+      - name: num_instances
+        split: ${main_split}
+      - name: num_train_instances
+        split: ${main_split}
+      - name: prompt_truncated
+        split: ${main_split}
+      - name: num_prompt_tokens
+        split: ${main_split}
+      - name: num_output_tokens
+        split: ${main_split}
+
 ############################################################
 run_groups:
   - name: core_scenarios
