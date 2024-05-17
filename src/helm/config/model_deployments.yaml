@@ -1679,6 +1679,24 @@ model_deployments:
       args:
         together_model: meta-llama/Llama-3-70b-chat-hf
 
+  - name: together/llama-guard-7b
+    model_name: meta/llama-guard-7b
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 2047
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: meta-llama/llama-guard-7b
+
+  - name: together/llama-guard-2-8b
+    model_name: meta/llama-guard-2-8b
+    tokenizer_name: meta-llama/Llama-2-7b-hf
+    max_sequence_length: 4094
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: meta-llama/llamaguard-2-8b
+
   # 01.AI
   - name: together/yi-6b
     model_name: 01-ai/yi-6b
