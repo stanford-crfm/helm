@@ -7,6 +7,7 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_GENERATION_MULTIMODAL,
     ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
 )
+from helm.benchmark.scenarios.vision_language.image2structure.image2structure_scenario import DIFFICULTY_ALL
 from helm.benchmark.metrics.common_metric_specs import (
     get_basic_reference_metric_specs,
     get_exact_match_metric_specs,
@@ -403,10 +404,12 @@ def get_vqa_spec() -> RunSpec:
 
 
 @run_spec_function("image2latex")
-def get_image2latex_spec(subset: str, recompile_prompt: bool = False, args: Optional[Dict] = None) -> RunSpec:
+def get_image2latex_spec(
+    subset: str, recompile_prompt: bool = False, difficulty: str = DIFFICULTY_ALL, args: Optional[Dict] = None
+) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.image2structure.latex_scenario.LatexScenario",
-        args={"subset": subset, "recompile_prompt": recompile_prompt},
+        args={"subset": subset, "recompile_prompt": recompile_prompt, "difficulty": difficulty},
     )
     adapter_spec: AdapterSpec = _get_generation_adapter_spec(
         instructions="Just give a short answer without answering in a complete sentence.",
@@ -436,10 +439,12 @@ def get_image2latex_spec(subset: str, recompile_prompt: bool = False, args: Opti
 
 
 @run_spec_function("image2webpage")
-def get_image2webpage_spec(subset: str, recompile_prompt: bool = False, args: Optional[Dict] = None) -> RunSpec:
+def get_image2webpage_spec(
+    subset: str, recompile_prompt: bool = False, difficulty: str = DIFFICULTY_ALL, args: Optional[Dict] = None
+) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.image2structure.webpage_scenario.WebpageScenario",
-        args={"subset": subset, "recompile_prompt": recompile_prompt},
+        args={"subset": subset, "recompile_prompt": recompile_prompt, "difficulty": difficulty},
     )
     adapter_spec: AdapterSpec = _get_generation_adapter_spec(
         instructions="Just give a short answer without answering in a complete sentence.",
@@ -460,6 +465,40 @@ def get_image2webpage_spec(subset: str, recompile_prompt: bool = False, args: Op
     run_spec_name: str = "image2webpage"
     return RunSpec(
         name=f"{run_spec_name}:subset={subset}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+        annotators=annotator_specs,
+    )
+
+
+@run_spec_function("image2musicsheet")
+def get_image2musicsheet_spec(difficulty: str = DIFFICULTY_ALL, args: Optional[Dict] = None) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.image2structure.musicsheet_scenario.MusicSheetScenario",
+        # There os only one subset for music sheets
+        args={"subset": "music", "recompile_prompt": False, "difficulty": difficulty},
+    )
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(
+        instructions="Just give a short answer without answering in a complete sentence.",
+        max_tokens=2000,
+    )
+    metric_specs: List[MetricSpec] = _get_image2structure_metric_specs(
+        generation_type="lilypond",
+        args=args,
+        include_edit_similarity=False,  # No ground truth for music sheets
+        size_handling_method="padding",
+    )
+    annotator_specs: List[AnnotatorSpec] = [
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.image2structure.lilypond_compiler_annotator.LilypondCompilerAnnotator",  # noqa: E501
+        )
+    ]
+
+    run_spec_name: str = "image2musicsheet"
+    return RunSpec(
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -493,39 +532,6 @@ def get_math_vista_spec(grade: str, question_type: str) -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
         groups=[run_spec_name],
-    )
-
-
-@run_spec_function("image2musicsheet")
-def get_image2musicsheet_spec(args: Optional[Dict] = None) -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.vision_language.image2structure.musicsheet_scenario.MusicSheetScenario",
-        args={"subset": "music", "recompile_prompt": False},  # There os only one subset for music sheets
-    )
-    adapter_spec: AdapterSpec = _get_generation_adapter_spec(
-        instructions="Just give a short answer without answering in a complete sentence.",
-        max_tokens=2000,
-    )
-    metric_specs: List[MetricSpec] = _get_image2structure_metric_specs(
-        generation_type="lilypond",
-        args=args,
-        include_edit_similarity=False,  # No ground truth for music sheets
-        size_handling_method="padding",
-    )
-    annotator_specs: List[AnnotatorSpec] = [
-        AnnotatorSpec(
-            class_name="helm.benchmark.annotation.image2structure.lilypond_compiler_annotator.LilypondCompilerAnnotator",  # noqa: E501
-        )
-    ]
-
-    run_spec_name: str = "image2musicsheet"
-    return RunSpec(
-        name=run_spec_name,
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=metric_specs,
-        groups=[run_spec_name],
-        annotators=annotator_specs,
     )
 
 

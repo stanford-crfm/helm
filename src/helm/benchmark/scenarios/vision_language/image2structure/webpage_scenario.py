@@ -4,6 +4,7 @@ from helm.benchmark.scenarios.scenario import VALID_SPLIT
 from helm.benchmark.scenarios.vision_language.image2structure.image2structure_scenario import (
     Image2StructureScenario,
     PROCESSED,
+    DIFFICULTY_ALL,
 )
 from helm.benchmark.scenarios.vision_language.image2structure.webpage.jekyll_server import JekyllServer
 from helm.benchmark.scenarios.vision_language.image2structure.webpage.driver import (
@@ -140,9 +141,10 @@ class WebpageScenario(Image2StructureScenario):
         subset: str,
         recompile_prompt: bool = True,
         split: str = VALID_SPLIT,
+        difficulty: str = DIFFICULTY_ALL,
         screenshot_options: ScreenshotOptions = ScreenshotOptions(),
     ):
-        super().__init__(subset, recompile_prompt, split)
+        super().__init__(subset, recompile_prompt, split, difficulty)
         self._screenshot_options = screenshot_options
         self._html2text = HTML2Text()
         self._html2text.ignore_links = True
