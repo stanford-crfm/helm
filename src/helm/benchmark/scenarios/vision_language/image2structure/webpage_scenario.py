@@ -127,8 +127,8 @@ class WebpageScenario(Image2StructureScenario):
         " look like the image as much as feasibly possible."
     )
 
-    HUGGINGFACE_DATASET_NAME = "stanford-crfm/i2s-webpage"
-    SUBSETS = ["css", "html", "javascript"]
+    HUGGINGFACE_DATASET_NAME = "stanford-crfm/i2s-webpage-test"
+    SUBSETS = ["css", "html", "javascript", "real"]
     MAX_TRIES: int = 5
     ASSETS_EXTENSIONS: List[str] = ["png", "jpg", "jpeg", "gif", "svg", "webp", "ico", "bmp", "tiff"]
 

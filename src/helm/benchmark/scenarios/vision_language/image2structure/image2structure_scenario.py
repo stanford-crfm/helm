@@ -158,7 +158,7 @@ class Image2StructureScenario(Scenario):
                     # representing the structure (such as LaTeX code)
                     multimedia_object = MultimediaObject([image_object])
                 reference = Reference(
-                    output=Output(text=row["text"], multimedia_content=multimedia_object),
+                    output=Output(text=row["text"] if "text" in row else "", multimedia_content=multimedia_object),
                     tags=[CORRECT_TAG],
                 )
             else:

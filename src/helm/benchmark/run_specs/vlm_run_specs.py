@@ -415,7 +415,7 @@ def get_image2latex_spec(subset: str, recompile_prompt: bool = False, args: Opti
     metric_specs: List[MetricSpec] = _get_image2structure_metric_specs(
         generation_type="latex",
         args=args,
-        include_edit_similarity=True,
+        include_edit_similarity=(subset != "real"),
         size_handling_method="padding",
     )
     annotator_specs: List[AnnotatorSpec] = [
@@ -448,7 +448,7 @@ def get_image2webpage_spec(subset: str, recompile_prompt: bool = False, args: Op
     metric_specs: List[MetricSpec] = _get_image2structure_metric_specs(
         generation_type="webpage",
         args=args,
-        include_edit_similarity=True,
+        include_edit_similarity=(subset != "real"),
         size_handling_method="none",
     )
     annotator_specs: List[AnnotatorSpec] = [
