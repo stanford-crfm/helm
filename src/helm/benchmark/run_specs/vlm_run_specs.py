@@ -427,9 +427,11 @@ def get_image2latex_spec(
         )
     ]
 
-    run_spec_name: str = "image2latex"
+    run_spec_name: str = f"image2latex:subset={subset}"
+    if difficulty != DIFFICULTY_ALL:
+        run_spec_name += f":difficulty={difficulty}"
     return RunSpec(
-        name=f"{run_spec_name}:subset={subset}",
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -462,9 +464,11 @@ def get_image2webpage_spec(
         )
     ]
 
-    run_spec_name: str = "image2webpage"
+    run_spec_name: str = f"image2webpage:subset={subset}"
+    if difficulty != DIFFICULTY_ALL:
+        run_spec_name += f":difficulty={difficulty}"
     return RunSpec(
-        name=f"{run_spec_name}:subset={subset}",
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -497,6 +501,8 @@ def get_image2musicsheet_spec(difficulty: str = DIFFICULTY_ALL, args: Optional[D
     ]
 
     run_spec_name: str = "image2musicsheet"
+    if difficulty != DIFFICULTY_ALL:
+        run_spec_name += f":difficulty={difficulty}"
     return RunSpec(
         name=run_spec_name,
         scenario_spec=scenario_spec,
