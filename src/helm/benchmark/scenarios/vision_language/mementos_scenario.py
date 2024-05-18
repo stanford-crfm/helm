@@ -47,9 +47,10 @@ class MementosScenario(Scenario):
 
     DATA_FILES: str = "{subject}/{split}/metadata.csv"
 
-    QUESTION_PROMPT: str = (
-        "Write a description for the given image sequence in a single paragraph, what is happening in this episode?"
-    )
+    # QUESTION_PROMPT: str = (
+    #     "Write a description for the given image sequence in a single paragraph, what is happening in this episode?"
+    # )
+    ORIGINALITY_QUESTION_PROMPT: str = "Write a creative and original story for the given image sequence."
 
     SUBJECTS: List[str] = ["comics", "dailylife", "robotics"]
 
@@ -98,7 +99,8 @@ class MementosScenario(Scenario):
 
                 content: List[MediaObject] = [
                     MediaObject(location=local_image_path, content_type="image/png"),
-                    MediaObject(text=self.QUESTION_PROMPT, content_type="text/plain"),
+                    # MediaObject(text=self.QUESTION_PROMPT, content_type="text/plain"),
+                    MediaObject(text=self.ORIGINALITY_QUESTION_PROMPT, content_type="text/plain"),
                 ]
                 answer: str = row["description"]
                 instances.append(

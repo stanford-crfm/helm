@@ -15,6 +15,7 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request, RequestResult, GeneratedOutput
 from helm.clients.client import Client
 from helm.proxy.critique.critique_client import CritiqueClient
+from helm.common.media_object import MultimediaObject, MediaObject
 
 
 class CritiqueParseError(Exception):
@@ -31,6 +32,7 @@ class ModelCritiqueClient(CritiqueClient):
             get_default_model_deployment_for_model(model_name, warn_arg_deprecated=False, ignore_deprecated=True)
             or self._model_name
         )
+        self.vision_language = True if model_name.startswith("kaist-ai/prometheus-vision-13b-v1.0") else False
 
     def _interpolate_fields(self, text: str, fields: Dict[str, str]) -> str:
         for key, value in fields.items():
@@ -78,12 +80,20 @@ class ModelCritiqueClient(CritiqueClient):
 
                 prompt = anthropic.HUMAN_PROMPT + prompt + anthropic.AI_PROMPT
 
+            multimodal_prompt: Optional[MultimediaObject] = None
+            if self.vision_language:
+                assert question.image_url is not None
+                image_media: MediaObject = MediaObject(location=question.image_url, content_type="image/png")
+                text_media: MediaObject = MediaObject(text=prompt, content_type="text/plain")
+                multimodal_prompt = MultimediaObject(media_objects=[image_media, text_media])
+
             request = Request(
                 model=self._model_name,
                 model_deployment=self._model_deployment_name,
                 prompt=prompt,
                 max_tokens=max_tokens,
                 echo_prompt=False,
+                multimodal_prompt=multimodal_prompt,
             )
             requests.append(request)
         return requests
