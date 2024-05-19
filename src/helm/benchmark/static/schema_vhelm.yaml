@@ -291,14 +291,16 @@ run_groups:
     description: The scenarios where we evaluate all the models.
     category: All scenarios
     subgroups:
-      - hateful_memes
-      - viz_wiz
       - vqa
+      - viz_wiz
+      - flickr30k
       - gqa
-      - a_okvqa
-      - mmmu
       - math_vista
       - image2webpage
+      - a_okvqa
+      - mmmu
+      - pairs
+      - hateful_memes
       - mm_safety_bench
       - unicorn
       - bingo
@@ -306,7 +308,6 @@ run_groups:
       - pope
       - seed_bench
       - mme
-      - pairs
 
   - name: a_okvqa
     display_name: A-OKVQA
@@ -363,7 +364,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: f1_score
+      main_name: quasi_exact_match
       main_split: valid
     taxonomy:
       task: short answer question answering
