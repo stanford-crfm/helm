@@ -17,7 +17,11 @@ class TestHuggingFaceGPT2Tokenizer:
     def setup_method(self, method):
         cache_file = tempfile.NamedTemporaryFile(delete=False)
         self.cache_path: str = cache_file.name
-        self.tokenizer = HuggingFaceTokenizer(SqliteCacheConfig(self.cache_path))
+        self.tokenizer = HuggingFaceTokenizer(
+            SqliteCacheConfig(self.cache_path),
+            tokenizer_name="huggingface/gpt2",
+            pretrained_model_name_or_path="openai-community/gpt2",
+        )
 
     def teardown_method(self, method):
         os.remove(self.cache_path)
