@@ -2,6 +2,7 @@
 from typing import List
 import unittest
 
+from helm.common.media_object import MediaObject, MultimediaObject
 from helm.benchmark.scenarios.scenario import Input, Instance, Output, Reference
 from .data_augmenter import DataAugmenter
 from .extra_space_perturbation import ExtraSpacePerturbation
@@ -31,6 +32,35 @@ def test_extra_space_perturbation():
     assert instances[1].perturbation.num_spaces == 2
     assert instances[1].input.text == "Hello  my  name  is"
     assert instances[1].references[0].output.text == "some name"
+
+
+def test_multimodal_text_perturbation():
+    data_augmenter = DataAugmenter(perturbations=[ExtraSpacePerturbation(num_spaces=3)])
+    input: Input = Input(
+        multimedia_content=MultimediaObject(
+            [
+                MediaObject(text="Hello what is", content_type="text/plain"),
+                MediaObject(text="your name", content_type="text/plain"),
+            ]
+        )
+    )
+    instance: Instance = Instance(id="id0", input=input, references=[Reference(Output(text="some name"), tags=[])])
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
+
+    assert len(instances) == 2
+
+    # Test that the first instance is unperturbed
+    assert instances[0].id == "id0"
+    assert instances[0].perturbation is None
+    media_objects = instances[0].input.multimedia_content.media_objects
+    assert media_objects[0].text == "Hello what is"
+    assert media_objects[1].text == "your name"
+
+    assert instances[1].id == "id0"
+    assert instances[1].perturbation.name == "extra_space"
+    media_objects = instances[1].input.multimedia_content.media_objects
+    assert media_objects[0].text == "Hello   what   is"
+    assert media_objects[1].text == "your   name"
 
 
 def test_misspelling_perturbation():

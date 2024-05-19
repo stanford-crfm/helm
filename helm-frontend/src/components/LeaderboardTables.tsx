@@ -194,7 +194,7 @@ export default function LeaderboardTables({
                       headerValue.description ? headerValue.description : ""
                     }
                   >
-                    <div className="flex justify-between items-center min-w-48 w-48 max-w-48 text-wrap">
+                    <div className="z-20 flex justify-between items-center min-w-48 w-48 max-w-48 text-wrap">
                       <span className={`inline-block w-full break-words`}>
                         {getHeaderValue(headerValue)}
                       </span>
@@ -219,7 +219,7 @@ export default function LeaderboardTables({
                     <td
                       key={`${activeGroup}-${cellIdx}`}
                       className={`${
-                        cellIdx === 0 ? "text-lg sticky left-0" : ""
+                        cellIdx === 0 ? "z-20 text-lg sticky left-0" : "z-0"
                       } ${idx % 2 === 0 ? "bg-gray-50" : "bg-white"}`}
                     >
                       {cellIdx == 1 ? (
@@ -256,8 +256,8 @@ export default function LeaderboardTables({
                               : ""
                           } ${
                             cellIdx === 0
-                              ? "underline decoration-dashed decoration-gray-300"
-                              : ""
+                              ? "underline decoration-dashed decoration-gray-300 z-20"
+                              : "z-0"
                           }`}
                         >
                           <RowValue

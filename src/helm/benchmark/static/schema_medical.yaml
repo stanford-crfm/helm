@@ -1,0 +1,247 @@
+---
+############################################################
+metrics:
+  # Infrastructure metrics:
+  - name: num_perplexity_tokens
+    display_name: '# tokens'
+    description: Average number of tokens in the predicted output (for language modeling, the input too).
+  - name: num_bytes
+    display_name: '# bytes'
+    description: Average number of bytes in the predicted output (for language modeling, the input too).
+
+  - name: num_references
+    display_name: '# ref'
+    description: Number of references.
+  - name: num_train_trials
+    display_name: '# trials'
+    description: Number of trials, where in each trial we choose an independent, random set of training instances.
+  - name: estimated_num_tokens_cost
+    display_name: 'cost'
+    description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
+  - name: num_prompt_tokens
+    display_name: '# prompt tokens'
+    description: Number of tokens in the prompt.
+  - name: num_prompt_characters
+    display_name: '# prompt chars'
+    description: Number of characters in the prompt.
+  - name: num_completion_tokens
+    display_name: '# completion tokens'
+    description: Actual number of completion tokens (over all completions).
+  - name: num_output_tokens
+    display_name: '# output tokens'
+    description: Actual number of output tokens.
+  - name: max_num_output_tokens
+    display_name: 'Max output tokens'
+    description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
+  - name: num_requests
+    display_name: '# requests'
+    description: Number of distinct API requests.
+  - name: num_instances
+    display_name: '# eval'
+    description: Number of evaluation instances.
+  - name: num_train_instances
+    display_name: '# train'
+    description: Number of training instances (e.g., in-context examples).
+  - name: prompt_truncated
+    display_name: truncated
+    description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
+  - name: finish_reason_length
+    display_name: finish b/c length
+    description: Fraction of instances where the the output was terminated because of the max tokens limit.
+  - name: finish_reason_stop
+    display_name: finish b/c stop
+    description: Fraction of instances where the the output was terminated because of the stop sequences.
+  - name: finish_reason_endoftext
+    display_name: finish b/c endoftext
+    description: Fraction of instances where the the output was terminated because the end of text token was generated.
+  - name: finish_reason_unknown
+    display_name: finish b/c unknown
+    description: Fraction of instances where the the output was terminated for unknown reasons.
+  - name: num_completions
+    display_name: '# completions'
+    description: Number of completions.
+  - name: predicted_index
+    display_name: Predicted index
+    description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
+
+  # Accuracy metrics:
+  - name: exact_match
+    display_name: Exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
+    lower_is_better: false
+  - name: f1_score
+    display_name: F1
+    description: Average F1 score in terms of word overlap between the model output and correct reference.
+    lower_is_better: false
+
+  # Toxicity metrics
+  - name: expected_max_toxicity
+    display_name: Average max toxicity
+    short_display_name: Avg. max toxicity
+    lower_is_better: true
+    description: Average max toxicity score across all completions (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
+  - name: max_toxicity_probability
+    display_name: max toxicity
+    lower_is_better: true
+    description: Fraction of instances where most toxic completion is above 0.5 toxicity (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
+  - name: toxic_frac
+    display_name: Toxic fraction
+    lower_is_better: true
+    description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).
+
+
+############################################################
+perturbations: []
+
+############################################################
+metric_groups:
+  - name: accuracy
+    display_name: Accuracy
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+
+  - name: efficiency
+    display_name: Efficiency
+    metrics:
+    - name: inference_runtime
+      split: ${main_split}
+
+  - name: general_information
+    display_name: General information
+    hide_win_rates: true
+    metrics:
+    - name: num_instances
+      split: ${main_split}
+    - name: num_train_instances
+      split: ${main_split}
+    - name: prompt_truncated
+      split: ${main_split}
+    - name: num_prompt_tokens
+      split: ${main_split}
+    - name: num_output_tokens
+      split: ${main_split}
+
+  - name: toxicity
+    display_name: Toxicity
+    metrics:
+    - name: toxic_frac
+      split: ${main_split}
+
+############################################################
+run_groups:
+  - name: medical_scenarios
+    display_name: Medical Scenarios
+    description: Scenarios for the medical domain
+    category: All scenarios
+    subgroups:
+      - med_qa
+      - med_mcqa
+      - pubmed_qa
+      - mmlu
+      - live_qa
+      - medication_qa
+
+  - name: med_qa
+    display_name: MedQA
+    description: MedQA is an open domain question answering dataset composed of questions from professional medical board exams ([Jin et al. 2020](https://arxiv.org/pdf/2009.13081.pdf)).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: med_mcqa
+    display_name: MedMCQA
+    description: AIIMS/NEET QA multiple choice questions with 4 choices.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: pubmed_qa
+    display_name: PubMedQA
+    description: biomedical literature Q + Context + A yes/no/maybe + long answer questions
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: mmlu
+    display_name: MMLU (Massive Multitask Language Understanding)
+    short_display_name: MMLU
+    description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intensive question answering across 57 domains [(Hendrycks et al., 2021)](https://openreview.net/forum?id=d7KBjmI3GmQ).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: live_qa
+    display_name: LiveQA
+    description: Consumer health questions with librarian-generated reference answers.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: medication_qa
+    display_name: MedicationQA
+    description: Consumer medication questions with reference answers.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English

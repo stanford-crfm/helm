@@ -11,28 +11,17 @@ function NavDropdown() {
 
   useEffect(() => {
     fetch(
-      "https://storage.googleapis.com/crfm-helm-public/config/project_metadata.json",
+      "https://raw.githubusercontent.com/stanford-crfm/helm/main/helm-frontend/project_metadata.json",
     )
       .then((response) => response.json())
       .then((data: ProjectMetadata[]) => {
         setProjectMetadata(data);
         // set currProjectMetadata to val where projectMetadataEntry.id matches window.PROJECT_ID
         if (window.PROJECT_ID) {
-          if (window.PROJECT_ID === "global") {
-            // TODO replace this hardcoding if we choose to put global in the project metadata array
-            setCurrProjectMetadata({
-              id: "global",
-              title: "All Projects",
-              description: "description",
-              releases: ["releases"],
-              imageUrl: "imageUrl",
-            });
-          } else {
-            const currentEntry = data.find(
-              (entry) => entry.id === window.PROJECT_ID,
-            );
-            setCurrProjectMetadata(currentEntry);
-          }
+          const currentEntry = data.find(
+            (entry) => entry.id === window.PROJECT_ID,
+          );
+          setCurrProjectMetadata(currentEntry);
           // handles falling back to HELM lite as was previously done in this file
         } else {
           const currentEntry = data.find((entry) => entry.id === "lite");
@@ -52,11 +41,11 @@ function NavDropdown() {
   }
 
   return (
-    <div className="dropdown">
+    <div className="dropdown z-40">
       <div
         tabIndex={0}
         role="button"
-        className="btn normal-case bg-white font-bold p-2 border-0 text-lg block whitespace-nowrap"
+        className="btn normal-case bg-white font-bold p-2 border-0 text-lg block whitespace-nowrap z-40"
         aria-haspopup="true"
         aria-controls="menu"
       >
@@ -73,13 +62,21 @@ function NavDropdown() {
         role="menu"
       >
         {projectMetadata.map((item, index) => (
-          <li key={index}>
+          <li key={index} className="z-40">
             <a
               href={getReleaseUrl(undefined, item.id)}
               className="block"
               role="menuitem"
             >
-              <strong>{item.title}:</strong> {item.description}
+              <strong
+                className={
+                  currProjectMetadata.title === item.title ? "underline" : ""
+                }
+              >
+                {item.title}
+              </strong>
+              {": "}
+              {item.description}
             </a>
           </li>
         ))}
