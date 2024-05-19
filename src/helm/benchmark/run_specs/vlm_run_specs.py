@@ -145,11 +145,6 @@ def _get_image2structure_metric_specs(
     ]
     return metric_specs + get_basic_reference_metric_specs()
 
-def get_gpt4v_originality_metric_specs() -> List[MetricSpec]:
-    return [
-        MetricSpec(class_name="helm.benchmark.metrics.gpt4v_originality_metrics.GPT4VOriginalityMetric", args={}),
-    ]
-
 
 def get_gpt4v_critique_originality_metric_specs(num_respondents: int) -> List[MetricSpec]:
     return [
