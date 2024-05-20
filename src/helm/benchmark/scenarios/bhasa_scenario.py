@@ -1472,8 +1472,8 @@ class IndicXNLIScenario(Scenario):
         }
         self.id2label = {
             0: "A",
-            1: "B",
-            2: "C"
+            2: "B",
+            1: "C"
         }
 
     def get_instances(self, output_path) -> List[Instance]:
