@@ -54,7 +54,7 @@ def get_tydiqa_spec() -> RunSpec:
         metric_specs=get_bhasa_qa_metric_specs(args={
             "language": "id",
         }),
-        groups=["bhasa_nlu"],
+        groups=["bhasa_nlu", "tydiqa"],
     )
 
 # 1.2 Vietnamese & Thai: XQuAD
@@ -93,7 +93,7 @@ def generate_xquad_run_spec(language="th"):
         metric_specs=get_bhasa_qa_metric_specs(args={
             "language": language,
         }),
-        groups=["bhasa_nlu"],
+        groups=["bhasa_nlu", f"xquad_{language}"],
     )
 
 @run_spec_function("xquad")
@@ -123,7 +123,7 @@ def get_indicqa_spec() -> RunSpec:
         metric_specs=get_bhasa_qa_metric_specs(args={
             "language": "ta",
         }),
-        groups=["bhasa_nlu"],
+        groups=["bhasa_nlu", "indicqa"],
     )
 
 # 2. Sentiment Analysis
@@ -149,7 +149,7 @@ def get_nusax_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_f1_metric_specs(),
-        groups=["bhasa_nlu"],
+        groups=["bhasa_nlu", "nusax"],
     )
 
 # 2.2 Vietnamese: UIT-VSFC
@@ -174,7 +174,7 @@ def get_uitvsfc_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_f1_metric_specs(),
-        groups=["bhasa_nlu"],
+        groups=["bhasa_nlu", "uitvsfc"],
     )
 
 # 2.3 Thai: Wisesight Sentiment
@@ -199,7 +199,7 @@ def get_wisesight_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_f1_metric_specs(),
-        groups=["bhasa_nlu"],
+        groups=["bhasa_nlu", "wisesight"],
     )
 
 # 2.4 Tamil: IndicSentiment
@@ -224,7 +224,7 @@ def get_indicsentiment_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_classification_metric_specs() + get_basic_metric_specs([]),
-        groups=["bhasa_nlu"],
+        groups=["bhasa_nlu", "indicsentiment"],
     )
 
 # 3. Toxicity Detection/Classification
@@ -250,7 +250,7 @@ def get_mlhsd_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_f1_metric_specs(),
-        groups=["bhasa_nlu"],
+        groups=["bhasa_nlu", "mlhsd"],
     )
 
 # 3.2 Vietnamese: ViHSD
@@ -275,7 +275,7 @@ def get_vihsd_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_f1_metric_specs(),
-        groups=["bhasa_nlu"],
+        groups=["bhasa_nlu", "vihsd"],
     )
 
 # 3.3 Thai: Thai Toxicity Tweets
@@ -300,7 +300,7 @@ def get_thaitoxicitytweets_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_f1_metric_specs(),
-        groups=["bhasa_nlu"],
+        groups=["bhasa_nlu", "thaitoxicitytweets"],
     )
 
 # B. Natural Language Generation
@@ -375,7 +375,7 @@ def generate_flores_run_spec(source="en", target="id"):
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_bhasa_machine_translation_metric_specs(),
-        groups=["bhasa_nlg"],
+        groups=["bhasa_nlg", f"flores_{pair}"],
     )
 
 @run_spec_function("flores")
@@ -432,7 +432,7 @@ def generate_xlsum_run_spec(language="id"):
         metric_specs=get_bhasa_summarization_metric_specs(args={
             "language": language
         }),
-        groups=["bhasa_nlg"],
+        groups=["bhasa_nlg", f"xlsum_{language}"],
     )
 
 @run_spec_function("xlsum")
@@ -465,7 +465,7 @@ def get_indonli_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_f1_metric_specs(),
-        groups=["bhasa_nlr"],
+        groups=["bhasa_nlr", "indonli"],
     )
 
 # 1.2 Vietnamese & Thai: XNLI
@@ -504,7 +504,7 @@ def generate_xnli_run_spec(language="vi"):
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_f1_metric_specs(),
-        groups=["bhasa_nlr"],
+        groups=["bhasa_nlr", f"xnli_{language}"],
     )
 
 @run_spec_function("xnli")
@@ -532,7 +532,7 @@ def get_indicxnli_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_f1_metric_specs(),
-        groups=["bhasa_nlr"],
+        groups=["bhasa_nlr", "indicxnli"],
     )
 
 # 2. Causal Reasoning: XCOPA
@@ -577,7 +577,7 @@ def generate_xcopa_run_spec(language="id"):
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_f1_metric_specs(),
-        groups=["bhasa_nlr"],
+        groups=["bhasa_nlr", f"xcopa_{language}"],
     )
 
 @run_spec_function("xcopa")
@@ -620,7 +620,7 @@ def get_lindsea_syntax_minimal_pairs_spec(language: str = "id", method: str = "m
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["bhasa_linguistic"],
+        groups=["bhasa_linguistic", f"lindsea_syntax_minimal_pairs_{language}"],
     )
 
 # 2.1. Pragmatics: LINDSEA Pragmatic Reasoning (single sentence)
@@ -647,7 +647,7 @@ def get_lindsea_pragmatics_pragmatic_reasoning_single_spec(language="id") -> Run
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["bhasa_linguistic"],
+        groups=["bhasa_linguistic", f"lindsea_pragmatics_pragmatic_reasoning_single_{language}"],
     )
 
 # 2.2. Pragmatics: LINDSEA Pragmatic Reasoning (sentence pair)
@@ -674,5 +674,5 @@ def get_lindsea_pragmatics_pragmatic_reasoning_pair_spec(language="id") -> RunSp
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["bhasa_linguistic"],
+        groups=["bhasa_linguistic", f"lindsea_pragmatics_pragmatic_reasoning_pair_{language}"],
     )
