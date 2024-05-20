@@ -325,6 +325,25 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
 
+  - name: cohere/command-r
+    model_name: cohere/command-r
+    tokenizer_name: cohere/c4ai-command-r-v01
+    max_sequence_length: 128000
+    max_request_length: 128000
+    client_spec:
+      class_name: "helm.clients.cohere_client.CohereChatClient"
+
+  - name: cohere/command-r-plus
+    model_name: cohere/command-r-plus
+    tokenizer_name: cohere/c4ai-command-r-plus
+    # "We have a known issue where prompts between 112K - 128K in length
+    # result in bad generations."
+    # Source: https://docs.cohere.com/docs/command-r-plus
+    max_sequence_length: 110000
+    max_request_length: 110000
+    client_spec:
+      class_name: "helm.clients.cohere_client.CohereChatClient"
+
   # Craiyon
 
   - name: craiyon/dalle-mini
