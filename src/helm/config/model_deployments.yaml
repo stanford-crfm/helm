@@ -1795,6 +1795,20 @@ model_deployments:
       args:
         together_model: mistralai/Mistral-7B-v0.1
 
+  - name: together/mistral-7b-instruct-v0.1
+    model_name: mistralai/mistral-7b-instruct-v0.1
+    tokenizer_name: mistralai/Mistral-7B-v0.1
+    max_sequence_length: 4000
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+
+  - name: together/mistral-7b-instruct-v0.2
+    model_name: mistralai/mistral-7b-instruct-v0.2
+    tokenizer_name: mistralai/Mistral-7B-v0.1
+    max_sequence_length: 32000
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+
   - name: together/mixtral-8x7b-32kseqlen
     model_name: mistralai/mixtral-8x7b-32kseqlen
     tokenizer_name: mistralai/Mistral-7B-v0.1
