@@ -15,7 +15,7 @@ mkdir $LOCAL_BENCHMARK_OUTPUT_PATH
 export GCS_BENCHMARK_OUTPUT_PATH=gs://crfm-helm-public/lite/benchmark_output
 ```
 
-### Paths
+## Paths
 
 Locations of the `benchmark_output` folders for each project:
 
@@ -26,9 +26,9 @@ Locations of the `benchmark_output` folders for each project:
 
 ## Download a whole project
 
-Warning: Classic and HEIM require very large amounts of disk space - >1TB for Clsasic and >200GB for HEIM. Ensure that you have enough local disk space before downloading these projects.
+Warning: Downloading a whole HELM project requires a very large amounts of disk space - a few hundred GB for most projects, and more than 1 TB for Classic. Ensure that you have enough local disk space before downloading these projects.
 
-1. (Optional) Use the `gsutil du` ([documentation](https://cloud.google.com/storage/docs/gsutil/commands/du)) command to compute the size of the download and sure you have enough space on your local disk:
+1. (Optional) Use the `gsutil du` ([documentation](https://cloud.google.com/storage/docs/gsutil/commands/du)) command to compute the size of the download and ensure you have enough space on your local disk:
 ```sh
 gsutil du -sh $GCS_BENCHMARK_OUTPUT_PATH
 ```
@@ -37,7 +37,7 @@ gsutil du -sh $GCS_BENCHMARK_OUTPUT_PATH
 gsutil -m rsync -r $GCS_BENCHMARK_OUTPUT_PATH $LOCAL_BENCHMARK_OUTPUT_PATH
 ```
 
-### Download a specific version
+## Download a specific version
 
 You can also download a specific version to save local disk space. The instructions differ depending on which version you are downloading. Check if your version is in the following list:
 
@@ -46,7 +46,7 @@ You can also download a specific version to save local disk space. The instructi
 
 If you are downloading one of the above versions, then you must follow the instructions in _both_ **Download a specific releases** and **Download a specific suite**. Otherwise, you should _skip_ **Download a specific releases** and _only_ follow the instructions in **Download a specific suite**.
 
-### Download a specific release
+## Download a specific release
 
 1. Set the release version:
 ```sh
@@ -62,7 +62,7 @@ gsutil -m rsync -r $GCS_BENCHMARK_OUTPUT_PATH/releases/$RELEASE_VERSION $LOCAL_B
 ```
 4. Inspect the file contents of `$LOCAL_BENCHMARK_OUTPUT_PATH/releases/$RELEASE_VERSION/summary.json`. For _each_ suite listed in the `suites` array field, repeat the steps in **Download a specific suite** for that suite.
 
-#### Download a specific suite
+## Download a specific suite
 
 1. Set the suite version:
 ```sh
@@ -77,6 +77,6 @@ mkdir $LOCAL_BENCHMARK_OUTPUT_PATH/runs/$SUITE_VERSION
 gsutil -m rsync -r $GCS_BENCHMARK_OUTPUT_PATH/runs/$SUITE_VERSION $LOCAL_BENCHMARK_OUTPUT_PATH/runs/$SUITE_VERSION
 ```
 
-## Web browser
+## GCS browser
 
-If you wish to view the data in the web browser without downloading it, you can use the [GCS browser](https://console.cloud.google.com/storage/browser/crfm-helm-public). Note that this requires logging into any Google account and agreeing to the Google Cloud Platform Terms of Service.
+If you wish to explore the raw data files in the web browser without downloading it, you can use the [GCS browser](https://console.cloud.google.com/storage/browser/crfm-helm-public). Note that this requires logging into any Google account and agreeing to the Google Cloud Platform Terms of Service.
