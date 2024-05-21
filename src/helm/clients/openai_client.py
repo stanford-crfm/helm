@@ -60,10 +60,10 @@ class OpenAIClient(CachingClient):
 
     def _get_cache_key(self, raw_request: Dict, request: Request):
         cache_key = CachingClient.make_cache_key(raw_request, request)
-        if is_vlm(request.model):
-            assert request.multimodal_prompt is not None
+        if request.multimodal_prompt:
             prompt_key: str = generate_uid_for_multimodal_prompt(request.multimodal_prompt)
             cache_key = {**cache_key, "multimodal_prompt": prompt_key}
+            assert not cache_key["messages"]
             del cache_key["messages"]
         return cache_key
 
@@ -103,6 +103,14 @@ class OpenAIClient(CachingClient):
 
     def _make_chat_request(self, request: Request) -> RequestResult:
         messages: Optional[List[Dict[str, Union[str, Any]]]] = request.messages
+        if (
+            (request.prompt and request.messages)
+            or (request.prompt and request.multimodal_prompt)
+            or (request.messages and request.multimodal_prompt)
+        ):
+            raise ValueError(
+                f"More than one of `prompt`, `messages` and `multimodal_prompt` was set in request: {request}"
+            )
         if request.messages is not None:
             # Checks that all messages have a role and some content
             for message in request.messages:
