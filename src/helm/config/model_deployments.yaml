@@ -307,7 +307,7 @@ model_deployments:
 
   - name: cohere/command
     model_name: cohere/command
-    tokenizer_name: cohere/cohere
+    tokenizer_name: cohere/command
     max_sequence_length: 2019 # TODO: verify this
     max_request_length: 2020 # TODO: verify this
     client_spec:
@@ -317,7 +317,7 @@ model_deployments:
 
   - name: cohere/command-light
     model_name: cohere/command-light
-    tokenizer_name: cohere/cohere
+    tokenizer_name: cohere/command-light
     max_sequence_length: 2019 # TODO: verify this
     max_request_length: 2020 # TODO: verify this
     client_spec:
@@ -327,7 +327,7 @@ model_deployments:
 
   - name: cohere/command-r
     model_name: cohere/command-r
-    tokenizer_name: cohere/c4ai-command-r-v01
+    tokenizer_name: cohere/command-r
     max_sequence_length: 128000
     max_request_length: 128000
     client_spec:
@@ -335,7 +335,7 @@ model_deployments:
 
   - name: cohere/command-r-plus
     model_name: cohere/command-r-plus
-    tokenizer_name: cohere/c4ai-command-r-plus
+    tokenizer_name: cohere/command-r-plus
     # "We have a known issue where prompts between 112K - 128K in length
     # result in bad generations."
     # Source: https://docs.cohere.com/docs/command-r-plus
