@@ -1380,12 +1380,18 @@ class ChatMLRunExpander(RunExpander):
         ]
 
 
-class ExtraScenarioInstructionsRunExpander(RunExpander):
-    """Extra scenario instructions."""
+class OutputFormatInstructions(RunExpander):
+    """Add extra instructions to about output formatting to HELM Lite scenarios.
 
-    name = "extra_scenario_instructions"
+    Many instruction-following models and chat models are tuned to expect conversational prompts
+    and respond in a conversational way. This run expander instructs these models to provide the
+    output in the format expected by the scenario.
 
-    def __init__(self, scenario):
+    The argument should be the name of the scenario."""
+
+    name = "output_format_instructions"
+
+    def __init__(self, scenario: str):
         self.scenario = scenario
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
@@ -1458,7 +1464,7 @@ RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     NumOutputTokensRunExpander,
     ChatMLRunExpander,
     EvalSplitRunExpander,
-    ExtraScenarioInstructionsRunExpander,
+    OutputFormatInstructions,
 ]
 
 
