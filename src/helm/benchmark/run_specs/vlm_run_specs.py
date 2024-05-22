@@ -73,7 +73,7 @@ def _get_captioning_adapter_spec() -> AdapterSpec:
 def get_open_end_answer_generation_adapter_spec():
     return _get_generation_adapter_spec(
         instructions="Follow the given instruction and give your complete answer.",
-        max_tokens=500,
+        max_tokens=100,
     )
 
 
