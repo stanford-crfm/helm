@@ -83,10 +83,9 @@ class GPT4VCritiqueMetric(MetricInterface):
         completions: List[GeneratedOutput] = request_result.completions
         input_text: str = completions[0].text
         input_media: MultimediaObject = input_request.multimodal_prompt
-        image_object: List[MediaObject] = [
+        image_objects: List[MediaObject] = [
             item for item in input_media.media_objects if item.is_type(IMAGE_TYPE) and item.location
         ]
-        image_url = image_object[0].location  # we only take the first image as input
 
         template = CritiqueTaskTemplate(
             name="vhelm_gpt4v_originality",
@@ -100,7 +99,7 @@ class GPT4VCritiqueMetric(MetricInterface):
                     question_type=QuestionType.MULTIPLE_CHOICE,
                     text="How original is the text, given it was created with the image?",
                     options=list(self.ORIGINALITY_ANSWER_TO_SCORE.keys()),
-                    image_url=image_url,
+                    media_object=image_objects[0],  # we only take the first image as input
                 )
             ],
         )

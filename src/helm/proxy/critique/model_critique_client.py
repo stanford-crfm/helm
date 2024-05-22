@@ -82,10 +82,12 @@ class ModelCritiqueClient(CritiqueClient):
 
             multimodal_prompt: Optional[MultimediaObject] = None
             if self.vision_language:
-                assert question.image_url is not None
-                image_media: MediaObject = MediaObject(location=question.image_url, content_type="image/png")
+                assert question.media_object is not None, "Expect media_object for vision-language models"
+                image_media: MediaObject = question.media_object
                 text_media: MediaObject = MediaObject(text=prompt, content_type="text/plain")
                 multimodal_prompt = MultimediaObject(media_objects=[image_media, text_media])
+                prompt = ""  # set to empty string to avoid conflicts with multimodal_prompt
+
             request = Request(
                 model=self._model_name,
                 model_deployment=self._model_deployment_name,
