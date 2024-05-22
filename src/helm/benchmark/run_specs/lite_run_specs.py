@@ -388,3 +388,22 @@ def get_factual_defence_qa_spec() -> RunSpec:
         metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
         groups=["factual_defence_qa"],
     )
+
+@run_spec_function("defence_mcqa")
+def get_defence_mcqa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.defence_mcqa_scenario.DefenceMCQAScenario",
+        args={"task": task},
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=method, instructions="", input_noun="Question", output_noun="Answer"
+    )
+
+    return RunSpec(
+        name=f"defence_mcqa:task={task},method={method}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["defence_mcqa"],
+    )

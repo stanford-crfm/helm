@@ -923,6 +923,16 @@ metric_groups:
 ############################################################
 run_groups:
 ## Top-level
+  - name: kainos_internal
+    display_name: Kainos Internal
+    description: Internal metrics used for Kainos internal evaluation.
+    category: All scenarios
+    subgroups:
+      - defence_mcqa
+      - analytical_defence_qa
+      - open_ended_defence_qa
+      - factual_defence_qa
+
   - name: core_scenarios
     display_name: Core scenarios
     description: The scenarios where we evaluate all the models.
@@ -964,9 +974,6 @@ run_groups:
       - openbookqa
       - truthful_qa
       - test_custom_qa
-      - analytical_defence_qa
-      - open_ended_defence_qa
-      - factual_defence_qa
 
   - name: information_retrieval
     display_name: Information retrieval
@@ -1473,6 +1480,26 @@ run_groups:
   - name: test_custom_qa
     display_name: TestCustomQA
     description: Test Custom QA
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: defence_mcqa
+    display_name: DefenceMCQA
+    description: Multiple-choice question-answering on Defence topics.
     metric_groups:
       - accuracy
       - calibration

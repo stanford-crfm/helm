@@ -6,7 +6,7 @@ from typing import List, Dict, Any
 from .scenario import Scenario, Instance, Reference, VALID_SPLIT, TRAIN_SPLIT, CORRECT_TAG, Input, Output
 
 
-class TestCustomQAScenario(Scenario):
+class DefenceMCQAScenario(Scenario):
     """
     Copy of TruthfulQA Scenario for testing
 
