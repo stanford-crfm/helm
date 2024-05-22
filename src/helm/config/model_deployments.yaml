@@ -204,8 +204,6 @@ model_deployments:
     max_request_length: 2020 # TODO: verify this
     client_spec:
       class_name: "helm.clients.cohere_client.CohereClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
 
   - name: cohere/command-light
     model_name: cohere/command-light
@@ -214,8 +212,6 @@ model_deployments:
     max_request_length: 2020 # TODO: verify this
     client_spec:
       class_name: "helm.clients.cohere_client.CohereClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
 
   - name: cohere/command-r
     model_name: cohere/command-r
