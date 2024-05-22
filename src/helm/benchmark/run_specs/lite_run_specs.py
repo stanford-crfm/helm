@@ -325,3 +325,66 @@ def get_test_custom_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT
         metric_specs=get_exact_match_metric_specs(),
         groups=["test_custom_qa"],
     )
+
+
+@run_spec_function("analytical_defence_qa")
+def get_analytical_defence_qa_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.defence_qa_scenario.AnalyticalDefenceQAScenario", args={}
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        input_noun="Passage",
+        output_noun="Answer",
+        max_tokens=100,  # max 30 words
+    )
+
+    return RunSpec(
+        name="analytical_defence_qa",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
+        groups=["analytical_defence_qa"],
+    )
+
+
+@run_spec_function("open_ended_defence_qa")
+def get_open_ended_defence_qa_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.defence_qa_scenario.OpenEndedDefenceQAScenario", args={}
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        input_noun="Passage",
+        output_noun="Answer",
+        max_tokens=100,  # max 30 words
+    )
+
+    return RunSpec(
+        name="open_ended_defence_qa",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
+        groups=["open_ended_defence_qa"],
+    )
+
+
+@run_spec_function("factual_defence_qa")
+def get_factual_defence_qa_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.defence_qa_scenario.FactualDefenceQAScenario", args={}
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        input_noun="Passage",
+        output_noun="Answer",
+        max_tokens=100,  # max 30 words
+    )
+
+    return RunSpec(
+        name="factual_defence_qa",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
+        groups=["factual_defence_qa"],
+    )

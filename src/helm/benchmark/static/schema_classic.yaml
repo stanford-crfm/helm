@@ -964,6 +964,9 @@ run_groups:
       - openbookqa
       - truthful_qa
       - test_custom_qa
+      - analytical_defence_qa
+      - open_ended_defence_qa
+      - factual_defence_qa
 
   - name: information_retrieval
     display_name: Information retrieval
@@ -1271,6 +1274,71 @@ run_groups:
     taxonomy:
       task: question answering
       what: passages are books and movie scripts, questions are unknown
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: analytical_defence_qa
+    display_name: Defence QA(Analytical)
+    description: Benchmark for analytical question answering for defence documents
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: passages are from defence documents, questions are unknown
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: open_ended_defence_qa
+    display_name: Defence QA(Open Ended)
+    description: Benchmark for open ended question answering for defence documents
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: passages are from defence documents, questions are unknown
+      who: "?"
+      when: "?"
+      language: English
+  - name: factual_defence_qa
+    display_name: Defence QA(Factual)
+    description: Benchmark for factual question answering for defence documents
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: passages are from defence documents, questions are unknown
       who: "?"
       when: "?"
       language: English
