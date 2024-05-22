@@ -1393,8 +1393,9 @@ class OutputFormatInstructions(RunExpander):
     """Add extra instructions to about output formatting to HELM Lite scenarios.
 
     Many instruction-following models and chat models are tuned to expect conversational prompts
-    and respond in a conversational way. This run expander instructs these models to provide the
-    output in the format expected by the scenario.
+    and respond in a conversational way. These models occasionally produce outputs that are not
+    in the expected format. This run expander instructs these models to provide the output in
+    the format expected by the scenario.
 
     The argument should be the name of the scenario."""
 
