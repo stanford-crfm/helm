@@ -43,10 +43,14 @@ export default function RowValue({ value, title, hideIcon }: Props) {
     if (href) {
       return (
         <Link to={href} inTable title={title}>
-          <div className="flex items-center">
+          <div className="flex items-center ">
             {formatNumber(value.value)}
             {!hideIcon && (
-              <ArrowTopRightOnSquareIcon className="w-3 h-3 ml-1 opacity-30" />
+              <ArrowTopRightOnSquareIcon
+                className="w-3 h-3 ml-1"
+                stroke="#cbcbcb"
+                fill="#cbcbcb"
+              />
             )}
           </div>
         </Link>
@@ -66,7 +70,11 @@ export default function RowValue({ value, title, hideIcon }: Props) {
         <div className="flex items-center">
           {formatNumber(value.value)}
           {!hideIcon && (
-            <ArrowTopRightOnSquareIcon className="w-3 h-3 ml-1 opacity-30" />
+            <ArrowTopRightOnSquareIcon
+              className="w-3 h-3 ml-1"
+              stroke="#cbcbcb"
+              fill="#cbcbcb"
+            />
           )}
         </div>
       </Link>

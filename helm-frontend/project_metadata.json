@@ -27,7 +27,7 @@
 		"title": "MMLU",
 		"description": "Massive Multitask Language Understanding (MMLU) evaluations using standardized prompts",
 		"id": "mmlu",
-		"releases": ["v1.2.0", "v1.1.0", "v1.0.0"]
+		"releases": ["v1.3.0", "v1.2.0", "v1.1.0", "v1.0.0"]
 	},
 	{
 		"title": "VHELM",
