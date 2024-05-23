@@ -3,6 +3,7 @@ import string
 from dataclasses import replace
 from functools import partial
 from typing import Any, Callable, Dict, List, cast
+from collections import Counter
 
 import numpy as np
 from nltk.metrics.scores import f_measure
@@ -122,7 +123,7 @@ class BhasaQAMetric(Metric):
     def __init__(self, language: str = 'en'):
         self.language: str = language
         self.metrics: Dict[str, Callable] = {
-            "squad_exact_match": exact_match,
+            "squad_exact_match_score": self.squad_exact_match_score,
             "squad_f1_score": self.squad_f1_score,
         }
 
@@ -131,7 +132,7 @@ class BhasaQAMetric(Metric):
     ) -> MetricResult:
         return super().evaluate(scenario_state, metric_service, eval_cache_path, parallelism=parallelism)
 
-    def split_text(self, text: str) -> List[str]:
+    def normalize_answer(self, text: str) -> List[str]:
         """
         For Thai, this will split the text using PyThaiNLP's tokenizer.
         For all other languages, this will:
@@ -142,7 +143,7 @@ class BhasaQAMetric(Metric):
         If the language is English, it will
         - Remove articles "a", "an", and "the"
 
-        Modifies code from [QuAC](http://quac.ai/) found at https://s3.amazonaws.com/my89public/quac/scorer.py
+        Modifies code from [SQuAD v1.1](https://github.com/allenai/bi-att-flow/blob/master/squad/evaluate-v1.1.py).
         """
 
         def remove_articles(text: str) -> str:
@@ -160,25 +161,26 @@ class BhasaQAMetric(Metric):
 
         normalized_text = remove_punc(lower(text))
         if self.language == "th":
-            return set(word_tokenize(normalized_text, engine="newmm"))
+            return word_tokenize(normalized_text, engine="newmm")
         elif self.language == "en":
-            return set(white_space_fix(remove_articles(normalized_text)).split())
+            return white_space_fix(remove_articles(normalized_text)).split()
         else:
-            return set(white_space_fix(normalized_text).split())
+            return white_space_fix(normalized_text).split()
 
     def squad_f1_score(self, gold: str, pred: str) -> float:
-        score = f_measure(self.split_text(gold), self.split_text(pred))
-
-        if score is None:
-            return 0.0
-        return score
-
-    def _remove_braces(self, text: str) -> str:
-        if text.startswith("{"):
-            text = text[1:]
-        if text.endswith("}"):
-            text = text[:-1]
-        return text
+        prediction_tokens = self.normalize_answer(pred)
+        ground_truth_tokens = self.normalize_answer(gold)
+        common = Counter(prediction_tokens) & Counter(ground_truth_tokens)
+        num_same = sum(common.values())
+        if num_same == 0:
+            return 0
+        precision = 1.0 * num_same / len(prediction_tokens)
+        recall = 1.0 * num_same / len(ground_truth_tokens)
+        f1 = (2 * precision * recall) / (precision + recall)
+        return f1
+    
+    def squad_exact_match_score(self, gold: str, pred: str) -> float:
+        return self.normalize_answer(pred) == self.normalize_answer(gold)
 
     def evaluate_generation(
         self,
@@ -195,13 +197,13 @@ class BhasaQAMetric(Metric):
 
             assert request_state.result is not None
             sorted_completions = sorted(request_state.result.completions, key=lambda x: -x.logprob)
-            preds = [self._remove_braces(completion.text).strip() for completion in sorted_completions]
+            preds = [completion.text.strip() for completion in sorted_completions]
 
             for name, metric in self.metrics.items():
                 name = MetricName(name)
                 metric = cast(Callable[[str, str], float], metric)
-                score_1 = max(metric(self._remove_braces(gold.output.text).strip(), preds[0]) for gold in golds)
-                score_k = max(metric(self._remove_braces(gold.output.text).strip(), pred) for gold in golds for pred in preds)
+                score_1 = max(metric(gold.output.text.strip(), preds[0]) for gold in golds)
+                score_k = max(metric(gold.output.text.strip(), pred) for gold in golds for pred in preds)
 
                 metrics = [Stat(name).add(score_1)]
                 if adapter_spec.num_outputs != 1:
