@@ -928,7 +928,7 @@ run_groups:
     description: Internal metrics used for Kainos internal evaluation.
     category: All scenarios
     subgroups:
-      - defence_mcqa
+      - mc_defence_qa
       - analytical_defence_qa
       - open_ended_defence_qa
       - factual_defence_qa
@@ -1285,6 +1285,28 @@ run_groups:
       when: "?"
       language: English
 
+  - name: mc_defence_qa
+    display_name: Defence QA(Multiple-Choice)
+    description: Benchmark for multiple-choice question answering for defence documents
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
   - name: analytical_defence_qa
     display_name: Defence QA(Analytical)
     description: Benchmark for analytical question answering for defence documents
@@ -1328,6 +1350,7 @@ run_groups:
       who: "?"
       when: "?"
       language: English
+
   - name: factual_defence_qa
     display_name: Defence QA(Factual)
     description: Benchmark for factual question answering for defence documents
@@ -1480,26 +1503,6 @@ run_groups:
   - name: test_custom_qa
     display_name: TestCustomQA
     description: Test Custom QA
-    metric_groups:
-      - accuracy
-      - calibration
-      - robustness
-      - fairness
-      - efficiency
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: valid
-    taxonomy:
-      task: question answering
-      what: "?"
-      who: "?"
-      when: "?"
-      language: English
-
-  - name: defence_mcqa
-    display_name: DefenceMCQA
-    description: Multiple-choice question-answering on Defence topics.
     metric_groups:
       - accuracy
       - calibration
