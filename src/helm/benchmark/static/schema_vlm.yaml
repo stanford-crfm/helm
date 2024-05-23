@@ -673,6 +673,21 @@ run_groups:
       who: Human experts
       when: "2024"
       language: English
+  
+  - name: vibe_eval
+    display_name: Vibe Eval
+    description: A new open benchmark for evaluating multimodal chat models with 269 visual understanding prompts, including 100 of hard difficulty, complete with gold-standard responses authored by experts
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: short answer question answering
+      what: visual understanding task with normal and hard difficulty 
+      who: Human experts
+      when: "2024"
+      language: English
 
   - name: image2latex
     display_name: Image2LaTeX
