@@ -308,6 +308,8 @@ run_groups:
       - pope
       - seed_bench
       - mme
+      - mementos
+      - crossmodal_3600
 
   - name: a_okvqa
     display_name: A-OKVQA
