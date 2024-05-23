@@ -25,7 +25,7 @@ class CritiqueParseError(Exception):
 class ModelCritiqueClient(CritiqueClient):
     """A CritiqueClient that queries a Model to answer CritiqueRequests."""
 
-    VISION_LANGUAGE_MODELS = ["kaist-ai/prometheus-vision-13b-v1.0"]
+    VISION_LANGUAGE_MODELS = ["huggingface/prometheus-vision"]
 
     def __init__(self, client: Client, model_name):
         self._client = client

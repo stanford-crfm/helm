@@ -38,6 +38,7 @@ class HuggingFaceVLMClient(CachingClient):
         "huggingface/llava-v1.6-vicuna-13b-hf": "llava-hf/llava-v1.6-vicuna-13b-hf",
         "huggingface/llava-v1.6-mistral-7b-hf": "llava-hf/llava-v1.6-mistral-7b-hf",
         "huggingface/llava-v1.6-34b-hf": "llava-hf/llava-v1.6-34b-hf",
+        "huggingface/prometheus-vision-13b-v1.0-hf": "PahaII/prometheus-vision-13b-v1.0-hf",
     }
 
     def __init__(self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig):

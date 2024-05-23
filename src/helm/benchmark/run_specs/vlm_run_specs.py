@@ -73,7 +73,7 @@ def _get_captioning_adapter_spec() -> AdapterSpec:
 def get_open_end_answer_generation_adapter_spec():
     return _get_generation_adapter_spec(
         instructions="Follow the given instruction and give your complete answer.",
-        max_tokens=500,
+        max_tokens=100,
     )
 
 
@@ -146,10 +146,10 @@ def _get_image2structure_metric_specs(
     return metric_specs + get_basic_reference_metric_specs()
 
 
-def get_bingo_eval_critique_metric_specs(num_respondents: int, max_tokens: int) -> List[MetricSpec]:
+def get_prometheus_vision_critique_metric_specs(num_respondents: int, max_tokens: int) -> List[MetricSpec]:
     return [
         MetricSpec(
-            class_name="helm.benchmark.metrics.prometheus_vision_bingo_critique_metrics.PrometheusVisionBingoCritiqueMetric",
+            class_name="helm.benchmark.metrics.prometheus_vision_critique_metrics.PrometheusVisionCritiqueMetric",
             args={
                 "num_respondents": num_respondents,
                 "max_tokens": max_tokens,
@@ -607,7 +607,7 @@ def get_bingo_spec(subject: str, num_respondents: int) -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.bingo_scenario.BingoScenario", args={"subject": subject}
     )
     adapter_spec: AdapterSpec = _get_short_answer_generation_adapter_spec()
-    metric_specs: List[MetricSpec] = get_bingo_eval_critique_metric_specs(
+    metric_specs: List[MetricSpec] = get_prometheus_vision_critique_metric_specs(
         num_respondents=num_respondents, max_tokens=200
     )
 
