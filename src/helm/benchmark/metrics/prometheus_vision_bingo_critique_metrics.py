@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
@@ -10,11 +10,11 @@ from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.common.critique_request import CritiqueTaskTemplate, CritiqueQuestionTemplate, CritiqueRequest, QuestionType
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import RequestResult, Request, GeneratedOutput
-from helm.common.media_object import MultimediaObject, IMAGE_TYPE, MediaObject
+from helm.common.media_object import MultimediaObject, IMAGE_TYPE, MediaObject, TEXT_TYPE
 import re
 
 
-class PrometheusVisionMetric(MetricInterface):
+class PrometheusVisionBingoCritiqueMetric(MetricInterface):
     """
     We compute the same metrics from the Prometheus-Vision: Vision-Language Model as a Judge for Fine-Grained Evaluation paper:
     https://arxiv.org/pdf/2401.06591.pdf
@@ -24,22 +24,29 @@ class PrometheusVisionMetric(MetricInterface):
 
     # We can add more evaluation aspects here
     METRIC_NAME: str = "prometheus_vision"
-    METRIC_PROMPT: str = (
-        """###Task Description:\n An instruction (might include an Input inside it), a response to evaluate and image. 1. Write a detailed feedback that assesses the quality of the response, not evaluating in general. 2. After writing a feedback, write a score that is an integer between 1 and 5. 3. The output format should look as follows: Feedback, [RESULT] (an integer number between 1 and 5) 4. Please do not generate any other opening, closing, and explanations.\n\n###The instruction to evaluate: {{instruction}}\n\n"""
-    )
-    ORIGINALITY_ANSWER_TO_SCORE: Dict[str, int] = {
-        "I’ve seen something like this before to the point it’s become tiresome.": 1,
-        "The text is not really original, but it has some originality to it.": 2,
-        "Neutral.": 3,
-        "I find the text to be fresh and original.": 4,
-        "I find the text to be extremely creative and out of this world.": 5,
-    }
+    METRIC_PROMPT: str = """\
+###Task Description:
+An instruction (might include an Input inside it), a response to evaluate and image. 1. Write a detailed feedback that assesses the quality of the response, not evaluating in general. 2. After writing a feedback, write a score that is an integer between 1 and 5. 3. The output format should look as follows: Feedback, [RESULT] (an integer number between 1 and 5) 4. Please do not generate any other opening, closing, and explanations.
+###Reference Answer:
+{{reference}}
+###The instruction to evaluate:
+{{prompt}}
+"""
 
-    def __init__(self, num_respondents: int):
+    def __init__(self, num_respondents: int, max_tokens: int):
         self._num_respondents = num_respondents
+        self._max_tokens = max_tokens
 
     def __repr__(self) -> str:
-        return "PrometheusVisionMetric()"
+        return "PrometheusVisionBingoCritiqueMetric()"
+
+    def _extract_score_from_prometheus_vision_output(self, evaluator_response: str):
+
+        re_match = re.search(r"\s*([1-5])", evaluator_response)
+        if re_match is None:
+            hlog(f"Error parsing answer: {evaluator_response}. Skipping question (and so the respondent entirely)")
+            return None
+        return int(re_match.group(1))
 
     def evaluate(
         self,
@@ -81,36 +88,43 @@ class PrometheusVisionMetric(MetricInterface):
         metric_service: MetricService,
         eval_cache_path: str,
     ) -> List[Stat]:
-        input_request: Request = request_state.request
+        input_content = request_state.instance.input
         # Predicted outputs and their prometheus vision scores
         assert request_state.result is not None
         request_result: RequestResult = request_state.result
         # Get input image and generated response for evaluation
-        assert input_request.multimodal_prompt is not None
+        assert input_content.multimedia_content is not None
         completions: List[GeneratedOutput] = request_result.completions
-        input_text: str = completions[0].text
-        input_media: MultimediaObject = input_request.multimodal_prompt
-        image_object: List[MediaObject] = [
+        generated_text: str = completions[0].text
+        input_media: MultimediaObject = input_content.multimedia_content
+        ref_text: str = request_state.instance.references[0].output.text
+        image_objects: List[MediaObject] = [
             item for item in input_media.media_objects if item.is_type(IMAGE_TYPE) and item.location
         ]
-        image_url = image_object[0].location  # we only take the first image as input
-
+        input_text: Optional[str] = [item for item in input_media.media_objects if item.is_type(TEXT_TYPE)][0].text
         template = CritiqueTaskTemplate(
-            name="vhelm_prometheus_vision",
-            instructions="Answer the question given the text and image." "\n\n{{prompt}}",
+            name="vhelm_bingo_eval",
+            instructions=self.METRIC_PROMPT,
             num_respondents=self._num_respondents,
+            max_tokens=self._max_tokens,
             questions=[
                 CritiqueQuestionTemplate(
                     name=self.METRIC_NAME,
-                    question_type=QuestionType.MULTIPLE_CHOICE,
-                    text=self.METRIC_PROMPT,
-                    options=list(self.ORIGINALITY_ANSWER_TO_SCORE.keys()),
-                    image_url=image_url,
+                    question_type=QuestionType.FREE_RESPONSE,
+                    text="",
+                    options=[],
+                    media_object=image_objects[0],  # we only take the first image as input
                 )
             ],
         )
-        request = CritiqueRequest(template=template, fields={"prompt": input_text, "instruction": input_text})
-
+        request = CritiqueRequest(
+            template=template,
+            fields={
+                "prompt": input_text if input_text is not None else "",
+                "generation": generated_text,
+                "reference": ref_text,
+            },
+        )
         # send to critique request
         result = metric_service.make_critique_request(request)
         if not result or not result.responses:
@@ -126,7 +140,7 @@ class PrometheusVisionMetric(MetricInterface):
             for answer_name, answer in response.answers.items():
                 assert isinstance(answer, str)
                 answer_value: float
-                answer_value = float(re.findall(r"\d+", answer)[0])
+                answer_value = self._extract_score_from_prometheus_vision_output(answer)
                 stats[answer_name].add(answer_value)
 
         return list(stats.values())

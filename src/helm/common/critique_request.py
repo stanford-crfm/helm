@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Dict, List, Union, Optional
+from helm.common.media_object import MediaObject
 
 
 class QuestionType:
@@ -34,9 +35,8 @@ class CritiqueQuestionTemplate:
 
     Can contain placeholders like {{placeholder}} that will be interpolated using the fields in CritiqueRequest."""
 
-    image_url: Optional[str] = None
+    media_object: Optional[MediaObject] = None
     """Path of image for multimodal input.
-    
     Image path or URL of the question."""
 
 
@@ -57,6 +57,9 @@ class CritiqueTaskTemplate:
 
     questions: List[CritiqueQuestionTemplate]
     """List of templates for the questions."""
+
+    max_tokens: Optional[int] = None
+    """Max token to be generated for the free-end generation."""
 
 
 @dataclass(frozen=True)

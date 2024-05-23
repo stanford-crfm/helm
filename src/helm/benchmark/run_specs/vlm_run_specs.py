@@ -146,12 +146,13 @@ def _get_image2structure_metric_specs(
     return metric_specs + get_basic_reference_metric_specs()
 
 
-def get_prometheus_vision_metric_specs(num_respondents: int) -> List[MetricSpec]:
+def get_bingo_eval_critique_metric_specs(num_respondents: int, max_tokens: int) -> List[MetricSpec]:
     return [
         MetricSpec(
-            class_name="helm.benchmark.metrics.prometheus_vision_metrics.PrometheusVisionMetric",
+            class_name="helm.benchmark.metrics.prometheus_vision_bingo_critique_metrics.PrometheusVisionBingoCritiqueMetric",
             args={
                 "num_respondents": num_respondents,
+                "max_tokens": max_tokens,
             },
         )
     ]
@@ -601,12 +602,14 @@ def get_unicorn_spec(subject: str) -> RunSpec:
 
 
 @run_spec_function("bingo")
-def get_bingo_spec(subject: str) -> RunSpec:
+def get_bingo_spec(subject: str, num_respondents: int) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.bingo_scenario.BingoScenario", args={"subject": subject}
     )
     adapter_spec: AdapterSpec = _get_short_answer_generation_adapter_spec()
-    metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
+    metric_specs: List[MetricSpec] = get_bingo_eval_critique_metric_specs(
+        num_respondents=num_respondents, max_tokens=200
+    )
 
     run_spec_name: str = "bingo"
     return RunSpec(
@@ -757,15 +760,13 @@ def get_pairs_spec(subset: str, person: str) -> RunSpec:
 
 
 @run_spec_function("mementos")
-def get_mementos_spec(subject: str, num_respondents: int) -> RunSpec:
+def get_mementos_spec(subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.mementos_scenario.MementosScenario",
         args={"subject": subject},
     )
-    # adapter_spec: AdapterSpec = _get_short_answer_generation_adapter_spec()
-    # metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
-    adapter_spec: AdapterSpec = get_open_end_answer_generation_adapter_spec()
-    metric_specs: List[MetricSpec] = get_prometheus_vision_metric_specs(num_respondents=num_respondents)
+    adapter_spec: AdapterSpec = _get_short_answer_generation_adapter_spec()
+    metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
 
     run_spec_name: str = "mementos"
     return RunSpec(
