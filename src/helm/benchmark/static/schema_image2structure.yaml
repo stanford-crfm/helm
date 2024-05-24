@@ -205,6 +205,7 @@ run_groups:
       - accuracy
       - generation_image
       - generation_text
+      - general_information
     environment:
       main_name: earth_mover_similarity
       main_split: valid
@@ -222,6 +223,7 @@ run_groups:
       - accuracy
       - generation_image
       - generation_text
+      - general_information
     environment:
       main_name: earth_mover_similarity
       main_split: valid
@@ -238,6 +240,7 @@ run_groups:
     metric_groups:
       - accuracy
       - generation_image
+      - general_information
     environment:
       main_name: earth_mover_similarity
       main_split: valid
