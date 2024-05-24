@@ -30,7 +30,8 @@ jobs:
       - run: helm-run --run-entries simple1:model=simple/model1 --max-eval-instances 10 --suite test
       - run: helm-summarize --suite test
       - run: helm-server --help
-    
+  
+  install:  
     # Tests that the Optimum Intel command works when only installing required dependencies
     name: Run Optimum Intel with minimal dependencies only
     runs-on: ubuntu-latest
