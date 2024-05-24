@@ -1,8 +1,7 @@
-from typing import List, Tuple, Dict, Any
-from abc import ABC, abstractmethod
+from typing import List, Dict, Any
+from abc import ABC
 
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.src.helm.benchmark.annotation.annotator import Annotator
 from helm.src.helm.clients.auto_client import AutoClient
 from helm.src.helm.common.request import Request
