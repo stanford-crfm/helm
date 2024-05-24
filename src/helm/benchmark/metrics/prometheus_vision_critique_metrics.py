@@ -26,7 +26,7 @@ class PrometheusVisionCritiqueMetric(MetricInterface):
 
     # We can add more evaluation aspects here
     METRIC_NAME: str = "prometheus_vision"
-    METRIC_PROMPT: str = """\
+    METRIC_PROMPT: str = """A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the human's questions.\nUSER:<image>\
 ###Task Description:
 An instruction (might include an Input inside it), a response to evaluate, a reference answer that gets a score of 5, \
     image and a score rubric representing an evaluation criterion is given.
@@ -55,6 +55,7 @@ Score 4: {{orig_score4_description}}
 Score 5: {{orig_score5_description}}
 
 ###Feedback:
+ASSISTANT:
 """
 
     def __init__(self, num_respondents: int, max_tokens: int):
@@ -65,6 +66,7 @@ Score 5: {{orig_score5_description}}
         return "PrometheusVisionCritiqueMetric()"
 
     def _extract_score_from_prometheus_vision_output(self, evaluator_response: str):
+        evaluator_response = evaluator_response.split("ASSISTANT:")[1]
         re_match = re.search(r"\s*([1-5])", evaluator_response)
         if re_match is None:
             hlog(f"Error parsing answer: {evaluator_response}. Skipping question (and so the respondent entirely)")
