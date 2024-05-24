@@ -8,7 +8,7 @@ on:
     paths-ignore:
       - 'helm-frontend/**'
 
-job1:
+jobs:
   install:
     # Tests that the HELM CLI commands work when only installing required dependencies
     # without optional extra dependencies.
@@ -30,9 +30,8 @@ job1:
       - run: helm-run --run-entries simple1:model=simple/model1 --max-eval-instances 10 --suite test
       - run: helm-summarize --suite test
       - run: helm-server --help
-
-job2:  
-  install:  
+ 
+  install_openvino:  
     # Tests that the Optimum Intel command works when only installing required dependencies
     name: Run Optimum Intel with minimal dependencies only
     runs-on: ubuntu-latest
