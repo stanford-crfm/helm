@@ -90,8 +90,8 @@ class GPT4VCritiqueMetric(MetricInterface):
         template = CritiqueTaskTemplate(
             name="vhelm_gpt4v_originality",
             # TODO: Add proper instructions
-            instructions="Answer the question given the text and image, remember to only answer "
-            "with a capital letter.\n\n{{prompt}}",
+            instructions="Answer the multiple choice question by just giving the letter of the correct "
+            "answer.\n\n{{prompt}}",
             num_respondents=self._num_respondents,
             questions=[
                 CritiqueQuestionTemplate(
