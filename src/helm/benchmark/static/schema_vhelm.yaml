@@ -304,7 +304,6 @@ run_groups:
       - mm_safety_bench
       - unicorn
       - bingo
-      - multipanelvqa
       - pope
       - seed_bench
       - mme
