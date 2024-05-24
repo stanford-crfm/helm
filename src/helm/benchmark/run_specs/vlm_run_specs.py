@@ -30,6 +30,7 @@ def _get_generation_adapter_spec(
     output_prefix: str = "",
     output_suffix: str = "",
     max_tokens: int = 100,
+    max_train_instances: int = 0,
     stop_sequences: Optional[List[str]] = None,
 ) -> AdapterSpec:
     return AdapterSpec(
@@ -41,8 +42,7 @@ def _get_generation_adapter_spec(
         output_prefix=output_prefix,
         output_suffix=output_suffix,
         instance_prefix="\n",
-        # We focus on zero-shot evaluation for now as most open VLMs only support a single image input
-        max_train_instances=0,
+        max_train_instances=max_train_instances,
         num_outputs=1,
         max_tokens=max_tokens,
         stop_sequences=stop_sequences if stop_sequences is not None else [],
@@ -213,7 +213,7 @@ def get_crossmodal_3600_spec(location: str, language: str) -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.crossmodal_3600_scenario.Crossmodal3600Scenario",
         args={"location": location, "language": language},
     )
-    adapter_spec: AdapterSpec = _get_generation_adapter_spec(max_tokens=20)
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(max_tokens=20, max_train_instances=3)
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
 
     run_spec_name: str = "crossmodal_3600"
@@ -235,6 +235,7 @@ def get_flickr30k_spec() -> RunSpec:
         instructions="Generate a caption for the following image. The caption should be short "
         "and needs to be a complete sentence.",
         max_tokens=30,
+        max_train_instances=3,
     )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
 
@@ -618,6 +619,7 @@ def get_bingo_spec(subject: str) -> RunSpec:
     adapter_spec: AdapterSpec = _get_generation_adapter_spec(
         instructions="Answer with a long and clear explanation.",
         max_tokens=100,
+        max_train_instances=3,
     )
     metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
 
