@@ -1,6 +1,7 @@
 import os
 from typing import Any, Dict, Mapping, Optional
 
+from helm.clients.auto_client import AutoClient
 from helm.common.credentials_utils import provide_api_key
 from helm.common.cache_backend_config import CacheBackendConfig, CacheConfig
 from helm.common.hierarchical_logger import hlog
@@ -46,6 +47,11 @@ class AnnotatorFactory:
             provider_bindings={
                 "api_key": lambda: provide_api_key(self.credentials, annotator_name),
                 "file_storage_path": lambda: self._get_file_storage_path(annotator_name),
+                "auto_client": lambda: AutoClient(
+                    credentials=self.credentials,
+                    file_storage_path=self.file_storage_path,
+                    cache_backend_config=self.cache_backend_config,
+                ),
             },
         )
         annotator = create_object(annotator_spec)
