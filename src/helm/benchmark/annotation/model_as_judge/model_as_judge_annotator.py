@@ -41,6 +41,6 @@ class ModelAsJudgeAnnotator(Annotator, ABC):
         # TODO check that this is right
         annotation = self.generate_annotation(prompt)
         if annotation != "Error generating annotation":
-            annotations.append({request_state.request.prompt: annotation})
+            annotations.append({"text": annotation})
 
         return annotations
