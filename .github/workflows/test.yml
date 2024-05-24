@@ -8,7 +8,7 @@ on:
     paths-ignore:
       - 'helm-frontend/**'
 
-jobs:
+job1:
   install:
     # Tests that the HELM CLI commands work when only installing required dependencies
     # without optional extra dependencies.
@@ -31,7 +31,7 @@ jobs:
       - run: helm-summarize --suite test
       - run: helm-server --help
 
-jobs:  
+job2:  
   install:  
     # Tests that the Optimum Intel command works when only installing required dependencies
     name: Run Optimum Intel with minimal dependencies only
