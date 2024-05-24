@@ -135,7 +135,13 @@ class ModelCritiqueClient(CritiqueClient):
                 raise CritiqueParseError(
                     f"Invalid answer: {completion}. Multiple choice questions should have one answer."
                 )
-            return answers[0]
+            letter_answer = answers[0]
+            choice_rank = string.ascii_uppercase.index(letter_answer)
+            if choice_rank >= len(question.options):
+                raise CritiqueParseError(
+                    f"Invalid answer: {completion}. The answer is out of range of the options: {question.options}"
+                )
+            return letter_answer
         except CritiqueParseError as e:
             # If there was an error parsing the answer, we assume the user did not answer the question.
             hlog(f"Error parsing answer: {e}. Skipping question (and so the respondent entirely)")
