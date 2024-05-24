@@ -125,6 +125,7 @@ Score 5: {{orig_score5_description}}
             item for item in input_media.media_objects if item.is_type(IMAGE_TYPE) and item.location
         ]
         input_text: Optional[str] = [item for item in input_media.media_objects if item.is_type(TEXT_TYPE)][0].text
+
         template = CritiqueTaskTemplate(
             name="vhelm_prometheus_vision",
             instructions=self.METRIC_PROMPT,
@@ -147,12 +148,11 @@ Score 5: {{orig_score5_description}}
                 "orig_response": generated_text,
                 "orig_reference_answer": ref_text,
                 "orig_criteria": "similarity between the reponse and the reference.",
-                # TODO: need to fill in some descriptions
-                "orig_score1_description": "",
-                "orig_score2_description": "",
-                "orig_score3_description": "",
-                "orig_score4_description": "",
-                "orig_score5_description": "",
+                "orig_score1_description": "The model's responses do not follow the instructions provided.",
+                "orig_score2_description": "The resulting response follows the instructions, but the answer is completely wrong relative to the reference answer.",
+                "orig_score3_description": "The resulting response follows the instructions, but the answer is partial wrong relative to the reference answer.",
+                "orig_score4_description": "The resulting response follows the instructions, the overall answer is relatively perfect with only a very few errors.",
+                "orig_score5_description": "The overall answer is completely correct compared to the reference answer, and conforms to the instructions provided.",
             },
         )
         # send to critique request
