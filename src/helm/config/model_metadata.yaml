@@ -468,7 +468,25 @@ models:
     creator_organization_name: Cohere
     access: limited
     release_date: 2023-09-29
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: cohere/command-r
+    display_name: Cohere Command R
+    description: Command R is a multilingual 35B parameter model with a context length of 128K that has been trained with conversational tool use capabilities.
+    creator_organization_name: Cohere
+    access: open
+    num_parameters: 35000000000
+    release_date: 2024-03-11
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: cohere/command-r-plus
+    display_name: Cohere Command R Plus
+    description: Command R+ is a multilingual 104B parameter model with a context length of 128K that has been trained with conversational tool use capabilities.
+    creator_organization_name: Cohere
+    access: open
+    num_parameters: 104000000000
+    release_date: 2024-04-04
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # Craiyon
   - name: craiyon/dalle-mini

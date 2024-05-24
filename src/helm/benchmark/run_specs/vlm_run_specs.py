@@ -146,6 +146,7 @@ def _get_image2structure_metric_specs(
     return metric_specs + get_basic_reference_metric_specs()
 
 
+
 def get_prometheus_vision_critique_metric_specs(num_respondents: int, max_tokens: int) -> List[MetricSpec]:
     return [
         MetricSpec(
@@ -153,6 +154,16 @@ def get_prometheus_vision_critique_metric_specs(num_respondents: int, max_tokens
             args={
                 "num_respondents": num_respondents,
                 "max_tokens": max_tokens,
+            },
+        )
+    ]
+
+def get_gpt4v_critique_originality_metric_specs(num_respondents: int) -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.gpt4v_originality_critique_metrics.GPT4VCritiqueMetric",
+            args={
+                "num_respondents": num_respondents,
             },
         )
     ]
@@ -760,13 +771,13 @@ def get_pairs_spec(subset: str, person: str) -> RunSpec:
 
 
 @run_spec_function("mementos")
-def get_mementos_spec(subject: str) -> RunSpec:
+def get_mementos_spec(subject: str, num_respondents: int) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.mementos_scenario.MementosScenario",
         args={"subject": subject},
     )
-    adapter_spec: AdapterSpec = _get_short_answer_generation_adapter_spec()
-    metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
+    adapter_spec: AdapterSpec = get_open_end_answer_generation_adapter_spec()
+    metric_specs: List[MetricSpec] = get_gpt4v_critique_originality_metric_specs(num_respondents=num_respondents)
 
     run_spec_name: str = "mementos"
     return RunSpec(

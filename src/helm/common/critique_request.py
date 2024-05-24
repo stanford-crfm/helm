@@ -37,6 +37,7 @@ class CritiqueQuestionTemplate:
 
     media_object: Optional[MediaObject] = None
     """Path of image for multimodal input.
+
     Image path or URL of the question."""
 
 

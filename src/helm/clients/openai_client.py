@@ -63,7 +63,6 @@ class OpenAIClient(CachingClient):
         if request.multimodal_prompt:
             prompt_key: str = generate_uid_for_multimodal_prompt(request.multimodal_prompt)
             cache_key = {**cache_key, "multimodal_prompt": prompt_key}
-            assert not cache_key["messages"]
             del cache_key["messages"]
         return cache_key
 
