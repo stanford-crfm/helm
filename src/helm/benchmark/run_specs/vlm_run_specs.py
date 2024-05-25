@@ -603,7 +603,7 @@ def get_unicorn_spec(subject: str) -> RunSpec:
 
     run_spec_name: str = "unicorn"
     return RunSpec(
-        name=run_spec_name,
+        name=f"{run_spec_name}:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -625,7 +625,7 @@ def get_bingo_spec(subject: str) -> RunSpec:
 
     run_spec_name: str = "bingo"
     return RunSpec(
-        name=run_spec_name,
+        name=f"{run_spec_name}:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -694,7 +694,7 @@ def get_seed_bench_spec(subject: str) -> RunSpec:
 
     run_spec_name: str = "seed_bench"
     return RunSpec(
-        name=run_spec_name,
+        name=f"{run_spec_name}:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -715,7 +715,7 @@ def get_mme_spec(subject: str) -> RunSpec:
 
     run_spec_name: str = "mme"
     return RunSpec(
-        name=run_spec_name,
+        name=f"{run_spec_name}:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -782,7 +782,7 @@ def get_mementos_spec(subject: str, num_respondents: int) -> RunSpec:
 
     run_spec_name: str = "mementos"
     return RunSpec(
-        name=run_spec_name,
+        name=f"{run_spec_name}:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
