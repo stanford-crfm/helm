@@ -287,28 +287,96 @@ metric_groups:
 ############################################################
 run_groups:
   - name: core_scenarios
-    display_name: Core scenarios
-    description: The scenarios where we evaluate all the models.
+    display_name: All
+    description: All scenarios across capabilities
     category: All scenarios
     subgroups:
+      - accuracy
+      - reasoning
+      - knowledge
+      - bias
+      - fairness
+      - toxicity
+      - robustness
+      - multilinguality
+  - name: accuracy
+    display_name: Accuracy
+    description: Is the output semantically correct, given the text and image inputs?
+    category: Core scenarios
+    subgroups:
       - vqa
-      - viz_wiz
+      - vizwiz
       - flickr30k
+  - name: reasoning
+    display_name: Reasoning
+    description: Does the model understand objects, counts and spatial relations? Can the model reason about both the text and image input?
+    category: Core scenarios
+    subgroups:
       - gqa
       - math_vista
       - image2webpage
+      - seed_bench
+  - name: knowledge
+    display_name: Knowledge
+    description: Does the model have knowledge about the world and common sense?
+    category: Core scenarios
+    subgroups:
       - a_okvqa
       - mmmu
+      - mme
+  - name: bias
+    display_name: Bias
+    description: Are the generations biased in demographic representation? We focus on gender and skin tone bias.
+    category: Core scenarios
+    subgroups:
       - pairs
-      - hateful_memes
+  - name: fairness
+    display_name: Fairness
+    description: Does the model exhibit performance disparities across different groups? We focus on gender, dialect and geographic bias.
+    category: Core scenarios
+    subgroups:
+      # TODO: include vqa and a_okvqa (fairness)
+      - crossmodal_3600
+  - name: toxicity
+    display_name: Toxicity
+    description: Does the model generate toxic or inappropriate content? Can the model identify toxic or inappropriate content?
+    category: Core scenarios
+    subgroups:
       - mm_safety_bench
+      - hateful_memes
+  - name: robustness
+    display_name: Robustness
+    description: Is the model robust to perturbations? We focus on both text and image perturbations.
+    category: Core scenarios
+    subgroups:
+      # TODO: add vqa and a_okvqa (robustness)
       - unicorn
       - bingo
       - pope
-      - seed_bench
-      - mme
-      - mementos
-      - crossmodal_3600
+  - name: multilinguality
+    display_name: Multilinguality
+    description: Do the model support non-English languages?
+    category: Core scenarios
+    subgroups:
+      # TODO: add vqa and a_okvqa (language)
+      - vqa
+      - a_okvqa
+
+  - name: ablation_in_context
+    display_name: Vary number of in-context examples
+    description: Vary the number of in-context training examples.
+    category: Targeted evaluations
+    visibility: this_group_only
+    subgroups:
+      - vqa
+      - a_okvqa
+    adapter_keys_shown:
+      - model
+      - model_deployment
+      - max_train_instances
+    subgroup_metric_groups_hidden:
+      - robustness
+      - fairness
 
   - name: a_okvqa
     display_name: A-OKVQA
