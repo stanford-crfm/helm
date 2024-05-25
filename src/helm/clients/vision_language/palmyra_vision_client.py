@@ -6,13 +6,9 @@ import requests
 from helm.common.cache import CacheConfig
 from helm.common.images_utils import encode_base64
 from helm.common.media_object import TEXT_TYPE
-from helm.common.request import Request, RequestResult, GeneratedOutput, Token
-from helm.common.tokenization_request import (
-    TokenizationRequest,
-    TokenizationRequestResult,
-)
+from helm.common.request import Request, RequestResult, GeneratedOutput
 from helm.common.request import wrap_request_time
-from helm.clients.client import CachingClient, generate_uid_for_multimodal_prompt
+from helm.clients.client import CachingClient, generate_uid_for_multimodal_prompt, truncate_and_tokenize_response_text
 from helm.tokenizers.tokenizer import Tokenizer
 
 
@@ -69,12 +65,7 @@ class PalmyraVisionClient(CachingClient):
         completions: List[GeneratedOutput] = []
         for choice in result["choices"]:
             text: str = choice["text"]
-
-            tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-                TokenizationRequest(text, tokenizer=self.tokenizer_name)
-            )
-            tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
-            completions.append(GeneratedOutput(text=text, logprob=0, tokens=tokens))
+            completions.append(truncate_and_tokenize_response_text(text, request, self.tokenizer, self.tokenizer_name))
 
         return RequestResult(
             success=True,
