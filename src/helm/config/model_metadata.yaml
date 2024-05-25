@@ -2406,6 +2406,15 @@ models:
     # Does not support echo
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: writer/palmyra-vision-003
+    display_name: Palmyra Vision 003
+    description:  Palmyra Vision 003 (internal only)
+    creator_organization_name: Writer
+    access: limited
+    num_parameters: 5000000000
+    release_date: 2024-05-24
+    # Does not support echo
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_VLM_TAG]
 
 
   # Yandex
