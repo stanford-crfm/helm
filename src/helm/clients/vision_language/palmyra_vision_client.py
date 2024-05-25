@@ -50,9 +50,11 @@ class PalmyraVisionClient(CachingClient):
                     self.endpoint, headers={"Content-Type": "application/json"}, data=json.dumps({"parts": prompt})
                 )
                 assert response.status_code == 200, f"Got status code {response.status_code}: {response.text}"
-                response = json.loads(response.text)
-                assert "choices" in response and "errors" not in response, f"Invalid response: {response.text}"
-                return response
+                json_response = json.loads(response.text)
+                assert (
+                    "choices" in json_response and "errors" not in json_response
+                ), f"Invalid response: {response.text}"
+                return json_response
 
             cache_key = CachingClient.make_cache_key(
                 raw_request={"prompt": generate_uid_for_multimodal_prompt(request.multimodal_prompt)},
