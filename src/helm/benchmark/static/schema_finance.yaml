@@ -134,7 +134,7 @@ run_groups:
 
   - name: financial_scenarios_ablations
     display_name: Financial Scenarios Ablations
-    description: Scenarios for the financial domain with blations
+    description: Scenarios for the financial domain with ablations
     category: All scenarios
     subgroups:
       - fin_qa
