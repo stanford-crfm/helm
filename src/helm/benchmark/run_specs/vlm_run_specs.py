@@ -146,7 +146,6 @@ def _get_image2structure_metric_specs(
     return metric_specs + get_basic_reference_metric_specs()
 
 
-
 def get_prometheus_vision_critique_metric_specs(num_respondents: int, max_tokens: int) -> List[MetricSpec]:
     return [
         MetricSpec(
@@ -157,6 +156,7 @@ def get_prometheus_vision_critique_metric_specs(num_respondents: int, max_tokens
             },
         )
     ]
+
 
 def get_gpt4v_critique_originality_metric_specs(num_respondents: int) -> List[MetricSpec]:
     return [
