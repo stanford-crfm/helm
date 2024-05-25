@@ -62,11 +62,11 @@ class PalmyraVisionClient(CachingClient):
         except RuntimeError as ex:
             return RequestResult(success=False, cached=False, error=str(ex), completions=[], embedding=[])
 
-        completions: List[GeneratedOutput] = []
-        for choice in result["choices"]:
-            text: str = choice["text"]
-            completions.append(truncate_and_tokenize_response_text(text, request, self.tokenizer, self.tokenizer_name))
-
+        # The internal endpoint doesn't support any other parameters, so we have to truncate ourselves
+        completions: List[GeneratedOutput] = [
+            truncate_and_tokenize_response_text(choice["text"], request, self.tokenizer, self.tokenizer_name)
+            for choice in result["choices"]
+        ]
         return RequestResult(
             success=True,
             cached=cached,
