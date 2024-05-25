@@ -8,7 +8,6 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
 )
 from helm.benchmark.metrics.common_metric_specs import (
-    get_basic_reference_metric_specs,
     get_exact_match_metric_specs,
     get_generative_harms_metric_specs,
     get_basic_metric_specs,
