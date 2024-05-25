@@ -305,7 +305,7 @@ run_groups:
     category: Core scenarios
     subgroups:
       - vqa
-      - vizwiz
+      - viz_wiz
       - flickr30k
   - name: reasoning
     display_name: Reasoning
@@ -321,6 +321,7 @@ run_groups:
     description: Does the model have knowledge about the world and common sense?
     category: Core scenarios
     subgroups:
+      # TODO: add Vibe-eval
       - a_okvqa
       - mmmu
       - mme
