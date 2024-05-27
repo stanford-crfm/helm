@@ -304,7 +304,7 @@ run_groups:
     description: Is the output semantically correct, given the text and image inputs?
     category: Core scenarios
     subgroups:
-      - vqa
+      - vqa_base
       - viz_wiz
       - flickr30k
   - name: reasoning
@@ -321,8 +321,7 @@ run_groups:
     description: Does the model have knowledge about the world and common sense?
     category: Core scenarios
     subgroups:
-      # TODO: add Vibe-eval
-      - a_okvqa
+      - a_okvqa_base
       - mmmu
       - mme
   - name: bias
@@ -336,7 +335,8 @@ run_groups:
     description: Does the model exhibit performance disparities across different groups? We focus on gender, dialect and geographic bias.
     category: Core scenarios
     subgroups:
-      # TODO: include vqa and a_okvqa (fairness)
+      - vqa_dialect
+      - a_okvqa_dialect
       - crossmodal_3600
   - name: toxicity
     display_name: Toxicity
@@ -350,7 +350,8 @@ run_groups:
     description: Is the model robust to perturbations? We focus on both text and image perturbations.
     category: Core scenarios
     subgroups:
-      # TODO: add vqa and a_okvqa (robustness)
+      - vqa_robustness
+      - a_okvqa_robustness
       - unicorn
       - bingo
       - pope
@@ -359,9 +360,12 @@ run_groups:
     description: Do the model support non-English languages?
     category: Core scenarios
     subgroups:
-      # TODO: add vqa and a_okvqa (language)
-      - vqa
-      - a_okvqa
+      - vqa_chinese
+      - vqa_hindi
+      - vqa_spanish
+      - a_okvqa_chinese
+      - a_okvqa_hindi
+      - a_okvqa_spanish
 
   - name: ablation_in_context
     display_name: Vary number of in-context examples
@@ -369,15 +373,12 @@ run_groups:
     category: Targeted evaluations
     visibility: this_group_only
     subgroups:
-      - vqa
-      - a_okvqa
+      - vqa_ablation_in_context
+      - a_okvqa_ablation_in_context
     adapter_keys_shown:
       - model
       - model_deployment
       - max_train_instances
-    subgroup_metric_groups_hidden:
-      - robustness
-      - fairness
 
   - name: a_okvqa
     display_name: A-OKVQA
