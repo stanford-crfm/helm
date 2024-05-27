@@ -223,6 +223,9 @@ metrics:
 
 ############################################################
 perturbations:
+  - name: translate
+    display_name: Translate
+    description: Translate prompts to different languages.
   - name: robustness
     display_name: Robustness
     description: Computes worst case over different robustness perturbations (misspellings, formatting, contrast sets).
@@ -283,6 +286,28 @@ metric_groups:
     metrics:
       - name: toxic_frac
         split: ${main_split}
+
+  - name: fairness
+    display_name: Fairness
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+        perturbation_name: fairness
+
+  - name: robustness
+    display_name: Robustness
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+        perturbation_name: robustness
+
+  - name: translate
+    display_name: Translate
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+        perturbation_name: translate
+
 
 ############################################################
 run_groups:
@@ -400,7 +425,7 @@ run_groups:
     display_name: A-OKVQA (AAE)
     description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
     metric_groups:
-      - accuracy
+      - fairness
       - general_information
     environment:
       main_name: exact_match
@@ -416,7 +441,7 @@ run_groups:
     display_name: A-OKVQA (robustness)
     description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
     metric_groups:
-      - accuracy
+      - robustness
       - general_information
     environment:
       main_name: exact_match
@@ -432,7 +457,7 @@ run_groups:
     display_name: A-OKVQA (chinese)
     description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
     metric_groups:
-      - accuracy
+      - translate
       - general_information
     environment:
       main_name: exact_match
@@ -448,7 +473,7 @@ run_groups:
     display_name: A-OKVQA (hindi)
     description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
     metric_groups:
-      - accuracy
+      - translate
       - general_information
     environment:
       main_name: exact_match
@@ -464,7 +489,7 @@ run_groups:
     display_name: A-OKVQA (spanish)
     description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
     metric_groups:
-      - accuracy
+      - translate
       - general_information
     environment:
       main_name: exact_match
@@ -593,6 +618,7 @@ run_groups:
     description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
     metric_groups:
       - accuracy
+      - general_information
     environment:
       main_name: quasi_exact_match
       main_split: valid
@@ -607,7 +633,8 @@ run_groups:
     display_name: VQAv2 (AAE)
     description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
     metric_groups:
-      - accuracy
+      - fairness
+      - general_information
     environment:
       main_name: quasi_exact_match
       main_split: valid
@@ -622,7 +649,8 @@ run_groups:
     display_name: VQAv2 (robustness)
     description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
     metric_groups:
-      - accuracy
+      - robustness
+      - general_information
     environment:
       main_name: quasi_exact_match
       main_split: valid
@@ -637,7 +665,8 @@ run_groups:
     display_name: VQAv2 (chinese)
     description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
     metric_groups:
-      - accuracy
+      - translate
+      - general_information
     environment:
       main_name: quasi_exact_match
       main_split: valid
@@ -652,7 +681,8 @@ run_groups:
     display_name: VQAv2 (hindi)
     description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
     metric_groups:
-      - accuracy
+      - translate
+      - general_information
     environment:
       main_name: quasi_exact_match
       main_split: valid
@@ -667,7 +697,8 @@ run_groups:
     display_name: VQAv2 (spanish)
     description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
     metric_groups:
-      - accuracy
+      - translate
+      - general_information
     environment:
       main_name: quasi_exact_match
       main_split: valid
@@ -683,6 +714,7 @@ run_groups:
     description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
     metric_groups:
       - accuracy
+      - general_information
     environment:
       main_name: quasi_exact_match
       main_split: valid
