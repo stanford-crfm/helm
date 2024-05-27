@@ -47,7 +47,8 @@ jobs:
           cache: pip
       - run: python3 -m pip install --upgrade build
       - run: python3 -m build
-      - run: python3 -m pip install dist/crfm_helm-*.whl[openvino]
+      - run: python3 -m pip install dist/crfm_helm-*.whl
+      - run: python3 -m pip install optimum[openvino]
       - run: helm-run --run-entries boolq:model=stanford-crfm/BioMedLM --enable-huggingface-models stanford-crfm/BioMedLM --suite v1 --max-eval-instances 10 --openvino
 
   test:
