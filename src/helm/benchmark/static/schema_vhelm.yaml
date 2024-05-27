@@ -380,8 +380,104 @@ run_groups:
       - model_deployment
       - max_train_instances
 
-  - name: a_okvqa
+  - name: a_okvqa_base
     display_name: A-OKVQA
+    description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: multiple-choice question answering
+      what: Real-world images
+      who: Human experts
+      when: "2023"
+      language: English
+
+  - name: a_okvqa_dialect
+    display_name: A-OKVQA (AAE)
+    description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: multiple-choice question answering
+      what: Real-world images
+      who: Human experts
+      when: "2023"
+      language: English
+
+  - name: a_okvqa_robustness
+    display_name: A-OKVQA (robustness)
+    description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: multiple-choice question answering
+      what: Real-world images
+      who: Human experts
+      when: "2023"
+      language: English
+
+  - name: a_okvqa_chinese
+    display_name: A-OKVQA (chinese)
+    description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: multiple-choice question answering
+      what: Real-world images
+      who: Human experts
+      when: "2023"
+      language: Chinese
+
+  - name: a_okvqa_hindi
+    display_name: A-OKVQA (hindi)
+    description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: multiple-choice question answering
+      what: Real-world images
+      who: Human experts
+      when: "2023"
+      language: Hindi
+
+  - name: a_okvqa_spanish
+    display_name: A-OKVQA (spanish)
+    description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: multiple-choice question answering
+      what: Real-world images
+      who: Human experts
+      when: "2023"
+      language: Spanish
+
+  - name: a_okvqa_ablation_in_context
+    display_name: A-OKVQA (in_context examples ablation)
     description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
     metric_groups:
       - accuracy
@@ -492,7 +588,7 @@ run_groups:
       when: "2018"
       language: English
 
-  - name: vqa
+  - name: vqa_base
     display_name: VQAv2
     description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
     metric_groups:
@@ -506,6 +602,95 @@ run_groups:
       who: Human experts
       when: "2017"
       language: English
+
+  - name: vqa_dialect
+    display_name: VQAv2 (AAE)
+    description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: quasi_exact_match
+      main_split: valid
+    taxonomy:
+      task: multimodal short answer question answering
+      what: Real-world images
+      who: Human experts
+      when: "2017"
+      language: English
+
+  - name: vqa_robustness
+    display_name: VQAv2 (robustness)
+    description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: quasi_exact_match
+      main_split: valid
+    taxonomy:
+      task: multimodal short answer question answering
+      what: Real-world images
+      who: Human experts
+      when: "2017"
+      language: English
+
+  - name: vqa_chinese
+    display_name: VQAv2 (chinese)
+    description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: quasi_exact_match
+      main_split: valid
+    taxonomy:
+      task: multimodal short answer question answering
+      what: Real-world images
+      who: Human experts
+      when: "2017"
+      language: Chinese
+
+  - name: vqa_hindi
+    display_name: VQAv2 (hindi)
+    description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: quasi_exact_match
+      main_split: valid
+    taxonomy:
+      task: multimodal short answer question answering
+      what: Real-world images
+      who: Human experts
+      when: "2017"
+      language: Hindi
+
+  - name: vqa_spanish
+    display_name: VQAv2 (spanish)
+    description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: quasi_exact_match
+      main_split: valid
+    taxonomy:
+      task: multimodal short answer question answering
+      what: Real-world images
+      who: Human experts
+      when: "2017"
+      language: Spanish
+
+  - name: vqa_ablation_in_context
+    display_name: VQAv2 (in_context examples ablation)
+    description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: quasi_exact_match
+      main_split: valid
+    taxonomy:
+      task: multimodal short answer question answering
+      what: Real-world images
+      who: Human experts
+      when: "2017"
       language: English
 
   - name: math_vista
