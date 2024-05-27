@@ -88,7 +88,7 @@ class PaliGemmaClient(CachingClient):
                 prompt_pieces.append(media_object.text)
             else:
                 raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
-        prompt_text: str = prompt_pieces.join("\n")
+        prompt_text: str = "\n".join(prompt_pieces)
         model_inputs = processor(text=prompt_text, images=image, return_tensors="pt").to(self._device)
         input_len = model_inputs["input_ids"].shape[-1]
 
