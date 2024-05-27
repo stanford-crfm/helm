@@ -50,14 +50,19 @@ class AzureOpenAIClient(CachingClient):
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
 
+        # TODO: Currently API key, endpoint & deployment name are all being fetched from environment variables - change to config file
+        # (model_deployment.yaml or model_metadata.yaml)
+
         openai.api_type = "azure"
         openai.api_base = os.getenv("AZURE_OPENAI_ENDPOINT")
-        openai.api_version = "2023-05-15"
+        openai.api_version = "2024-02-01"
         openai.api_key = os.getenv("AZURE_OPENAI_KEY")
 
-        self.client = OpenAI(
+        self.client = AzureOpenAI(
             api_key=os.getenv("AZURE_OPENAI_KEY"),
-            api_version=os.getenv("AZURE_OPENAI_KEY")
+            api_version="2024-02-01",
+            azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+            http_client=httpx.Client(verify=requests.certs.where())
         )
 
     def _is_chat_model_engine(self, model_engine: str) -> bool:
@@ -80,6 +85,7 @@ class AzureOpenAIClient(CachingClient):
         return cache_key
 
     def _make_embedding_request(self, request: Request) -> RequestResult:
+
         raw_request: Dict[str, Any]
         raw_request = {
             "engine": self._get_model_for_request(request),
@@ -116,6 +122,7 @@ class AzureOpenAIClient(CachingClient):
         )
 
     def _make_chat_request(self, request: Request) -> RequestResult:
+
         messages: Optional[List[Dict[str, Union[str, Any]]]] = request.messages
         if (
             (request.prompt and request.messages)
@@ -246,32 +253,26 @@ class AzureOpenAIClient(CachingClient):
     def _to_raw_completion_request(self, request: Request) -> Dict[str, Any]:
         raw_request: Dict[str, Any] = {
             # Note: In older deprecated versions of the OpenAI API, "model" used to be "engine".
-            "model": self._get_model_for_request(request),
-            "prompt": request.prompt,
+            "model": os.getenv("AZURE_DEPLOYMENT_NAME"),
+            "messages": [{"role": "user", "content": request.prompt}],
             "temperature": request.temperature,
             "n": request.num_completions,
             "max_tokens": request.max_tokens,
-            "best_of": request.top_k_per_token,
-            "logprobs": request.top_k_per_token,
             "stop": request.stop_sequences or None,  # API doesn't like empty list
             "top_p": request.top_p,
             "presence_penalty": request.presence_penalty,
-            "frequency_penalty": request.frequency_penalty,
-            "echo": request.echo_prompt,
+            "frequency_penalty": request.frequency_penalty
         }
-
-        # OpenAI doesn't let you ask for more completions than the number of
-        # per-token candidates.
-        raw_request["best_of"] = max(raw_request["best_of"], raw_request["n"])
-        raw_request["logprobs"] = max(raw_request["logprobs"], raw_request["n"])
 
         return raw_request
 
+    # TODO: Fix - Class only tested/working for completion requests
     def _make_completion_request(self, request: Request) -> RequestResult:
+
         raw_request = self._to_raw_completion_request(request)
 
         def do_it() -> Dict[str, Any]:
-            return self.client.completions.create(**raw_request).model_dump(mode="json")
+            return self.client.chat.completions.create(**raw_request).model_dump(mode="json")
 
         try:
             cache_key = self._get_cache_key(raw_request, request)
@@ -285,25 +286,15 @@ class AzureOpenAIClient(CachingClient):
             sequence_logprob = 0
             tokens: List[Token] = []
 
-            raw_data = raw_completion["logprobs"]
-            for (
-                text,
-                logprob,
-            ) in zip(raw_data["tokens"], raw_data["token_logprobs"]):
-                tokens.append(Token(text=text, logprob=logprob or 0))
-                sequence_logprob += logprob or 0
+            # TODO: Fix Issue below - tokens not returned by Azure OpenAI - not currently being counted.
+
             completion = GeneratedOutput(
-                text=raw_completion["text"],
+                text=raw_completion["message"]["content"],
                 logprob=sequence_logprob,
                 tokens=tokens,
                 finish_reason={"reason": raw_completion["finish_reason"]},
             )
-            # OpenAI sends us back tokens past the end of text token,
-            # so we need to manually truncate the list of tokens.
-            # TODO: filed an issue with their support to check what the expected behavior here is.
-            completion = truncate_sequence(
-                completion, replace(request, stop_sequences=request.stop_sequences + [OpenAIClient.END_OF_TEXT])
-            )
+
             completions.append(completion)
 
         return RequestResult(
