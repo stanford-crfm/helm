@@ -20,11 +20,11 @@ class ModelAsJudgeAnnotator(Annotator, ABC):
     def generate_annotation(self, prompt: str) -> str:
         """Generates an annotation from the model specified in AutoClient using it."""
         # TODO: Check that this method does the right thing
-        annotation_request: Request = {
-            "model_deployment": self.model_deployment,
-            "model_name": self.model_name,
-            "prompt": prompt,
-        }
+        annotation_request: Request = Request(
+            model_deployment=self.model_deployment,
+            model=self.model_name,
+            prompt=prompt,
+        )
         request_result = self.auto_client.make_request(annotation_request)
         if request_result.success:
             return request_result.completions[0].text
@@ -40,6 +40,6 @@ class ModelAsJudgeAnnotator(Annotator, ABC):
         # TODO check that this is right
         annotation = self.generate_annotation(prompt)
         if annotation != "Error generating annotation":
-            annotations.append({"text": annotation})
+            annotations.append({"model_annotation": annotation})
 
         return annotations
