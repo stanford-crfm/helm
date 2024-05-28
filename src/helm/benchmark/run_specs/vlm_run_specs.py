@@ -428,21 +428,26 @@ def get_image2latex_spec(
     ]
 
     run_spec_name: str = f"image2latex:subset={subset}"
+    groups: List[str] = ["image2latex", f"image2{subset}"]
     if difficulty != DIFFICULTY_ALL:
         run_spec_name += f":difficulty={difficulty}"
+        groups += [f"image2latex-{difficulty}"]
     return RunSpec(
         name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=[run_spec_name],
+        groups=groups,
         annotators=annotator_specs,
     )
 
 
 @run_spec_function("image2webpage")
 def get_image2webpage_spec(
-    subset: str, recompile_prompt: bool = False, difficulty: str = DIFFICULTY_ALL, args: Optional[Dict] = None
+    subset: str,
+    recompile_prompt: bool = False,
+    difficulty: str = DIFFICULTY_ALL,
+    args: Optional[Dict] = None,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.image2structure.webpage_scenario.WebpageScenario",
@@ -465,14 +470,16 @@ def get_image2webpage_spec(
     ]
 
     run_spec_name: str = f"image2webpage:subset={subset}"
+    groups: List[str] = ["image2webpage", f"image2{subset}"]
     if difficulty != DIFFICULTY_ALL:
         run_spec_name += f":difficulty={difficulty}"
+        groups += [f"image2webpage-{difficulty}"]
     return RunSpec(
         name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=[run_spec_name],
+        groups=groups,
         annotators=annotator_specs,
     )
 
@@ -501,14 +508,16 @@ def get_image2musicsheet_spec(difficulty: str = DIFFICULTY_ALL, args: Optional[D
     ]
 
     run_spec_name: str = "image2musicsheet"
+    groups: List[str] = ["image2musicsheet"]
     if difficulty != DIFFICULTY_ALL:
         run_spec_name += f":difficulty={difficulty}"
+        groups += [f"image2musicsheet-{difficulty}"]
     return RunSpec(
         name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=[run_spec_name],
+        groups=groups,
         annotators=annotator_specs,
     )
 
