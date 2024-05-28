@@ -7,6 +7,7 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_GENERATION_MULTIMODAL,
     ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
 )
+from helm.benchmark.scenarios.vision_language.image2structure.image2structure_scenario import DIFFICULTY_ALL
 from helm.benchmark.metrics.common_metric_specs import (
     get_exact_match_metric_specs,
     get_generative_harms_metric_specs,
@@ -429,10 +430,12 @@ def get_vqa_spec() -> RunSpec:
 
 
 @run_spec_function("image2latex")
-def get_image2latex_spec(subset: str, recompile_prompt: bool = False, args: Optional[Dict] = None) -> RunSpec:
+def get_image2latex_spec(
+    subset: str, recompile_prompt: bool = False, difficulty: str = DIFFICULTY_ALL, args: Optional[Dict] = None
+) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.image2structure.latex_scenario.LatexScenario",
-        args={"subset": subset, "recompile_prompt": recompile_prompt},
+        args={"subset": subset, "recompile_prompt": recompile_prompt, "difficulty": difficulty},
     )
     adapter_spec: AdapterSpec = _get_generation_adapter_spec(
         instructions="Just give a short answer without answering in a complete sentence.",
@@ -441,7 +444,7 @@ def get_image2latex_spec(subset: str, recompile_prompt: bool = False, args: Opti
     metric_specs: List[MetricSpec] = _get_image2structure_metric_specs(
         generation_type="latex",
         args=args,
-        include_edit_similarity=True,
+        include_edit_similarity=(subset != "real"),
         size_handling_method="padding",
     )
     annotator_specs: List[AnnotatorSpec] = [
@@ -450,22 +453,31 @@ def get_image2latex_spec(subset: str, recompile_prompt: bool = False, args: Opti
         )
     ]
 
-    run_spec_name: str = "image2latex"
+    run_spec_name: str = f"image2latex:subset={subset}"
+    groups: List[str] = ["image2latex", f"image2{subset}"]
+    if difficulty != DIFFICULTY_ALL:
+        run_spec_name += f":difficulty={difficulty}"
+        groups += [f"image2latex-{difficulty}"]
     return RunSpec(
-        name=f"{run_spec_name}:subset={subset}",
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=[run_spec_name],
+        groups=groups,
         annotators=annotator_specs,
     )
 
 
 @run_spec_function("image2webpage")
-def get_image2webpage_spec(subset: str, recompile_prompt: bool = False, args: Optional[Dict] = None) -> RunSpec:
+def get_image2webpage_spec(
+    subset: str,
+    recompile_prompt: bool = False,
+    difficulty: str = DIFFICULTY_ALL,
+    args: Optional[Dict] = None,
+) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.image2structure.webpage_scenario.WebpageScenario",
-        args={"subset": subset, "recompile_prompt": recompile_prompt},
+        args={"subset": subset, "recompile_prompt": recompile_prompt, "difficulty": difficulty},
     )
     adapter_spec: AdapterSpec = _get_generation_adapter_spec(
         instructions="Just give a short answer without answering in a complete sentence.",
@@ -474,7 +486,7 @@ def get_image2webpage_spec(subset: str, recompile_prompt: bool = False, args: Op
     metric_specs: List[MetricSpec] = _get_image2structure_metric_specs(
         generation_type="webpage",
         args=args,
-        include_edit_similarity=True,
+        include_edit_similarity=(subset != "real"),
         size_handling_method="none",
     )
     annotator_specs: List[AnnotatorSpec] = [
@@ -483,13 +495,17 @@ def get_image2webpage_spec(subset: str, recompile_prompt: bool = False, args: Op
         )
     ]
 
-    run_spec_name: str = "image2webpage"
+    run_spec_name: str = f"image2webpage:subset={subset}"
+    groups: List[str] = ["image2webpage", f"image2{subset}"]
+    if difficulty != DIFFICULTY_ALL:
+        run_spec_name += f":difficulty={difficulty}"
+        groups += [f"image2webpage-{difficulty}"]
     return RunSpec(
-        name=f"{run_spec_name}:subset={subset}",
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=[run_spec_name],
+        groups=groups,
         annotators=annotator_specs,
     )
 
@@ -525,10 +541,11 @@ def get_math_vista_spec(grade: str, question_type: str) -> RunSpec:
 
 
 @run_spec_function("image2musicsheet")
-def get_image2musicsheet_spec(args: Optional[Dict] = None) -> RunSpec:
+def get_image2musicsheet_spec(difficulty: str = DIFFICULTY_ALL, args: Optional[Dict] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.image2structure.musicsheet_scenario.MusicSheetScenario",
-        args={"subset": "music", "recompile_prompt": False},  # There os only one subset for music sheets
+        # There os only one subset for music sheets
+        args={"subset": "music", "recompile_prompt": False, "difficulty": difficulty},
     )
     adapter_spec: AdapterSpec = _get_generation_adapter_spec(
         instructions="Just give a short answer without answering in a complete sentence.",
@@ -547,12 +564,16 @@ def get_image2musicsheet_spec(args: Optional[Dict] = None) -> RunSpec:
     ]
 
     run_spec_name: str = "image2musicsheet"
+    groups: List[str] = ["image2musicsheet"]
+    if difficulty != DIFFICULTY_ALL:
+        run_spec_name += f":difficulty={difficulty}"
+        groups += [f"image2musicsheet-{difficulty}"]
     return RunSpec(
         name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=[run_spec_name],
+        groups=groups,
         annotators=annotator_specs,
     )
 

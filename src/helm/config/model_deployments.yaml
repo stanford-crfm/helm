@@ -1784,6 +1784,14 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient"
 
+  - name: huggingface/olmo-1.7-7b
+    model_name: allenai/olmo-1.7-7b
+    tokenizer_name: allenai/OLMo-1.7-7B-hf
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: allenai/OLMo-1.7-7B-hf
 
   ## MistralAI
   - name: together/mistral-7b-v0.1
