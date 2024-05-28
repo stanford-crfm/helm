@@ -128,7 +128,7 @@ class WebpageScenario(Image2StructureScenario):
     )
 
     HUGGINGFACE_DATASET_NAME = "stanford-crfm/i2s-webpage"
-    SUBSETS = ["css", "html", "javascript"]
+    SUBSETS = ["css", "html", "javascript", "real"]
     MAX_TRIES: int = 5
     ASSETS_EXTENSIONS: List[str] = ["png", "jpg", "jpeg", "gif", "svg", "webp", "ico", "bmp", "tiff"]
 
