@@ -1,5 +1,5 @@
 from threading import Lock
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import torch
 from dataclasses import dataclass
@@ -29,7 +29,7 @@ torch.backends.cuda.enable_flash_sdp(False)
 
 @dataclass(frozen=True)
 class LoadedPaliGemmaForConditionalGeneration:
-    """Loaded model and processor for IDEFICS."""
+    """Loaded model and processor for PaliGemma."""
 
     model: PaliGemmaForConditionalGeneration
     processor: AutoProcessor
@@ -41,10 +41,12 @@ _models: Dict[str, Optional[LoadedPaliGemmaForConditionalGeneration]] = {}
 
 class PaliGemmaClient(CachingClient):
     """
-    IDEFICS (Image-aware Decoder Enhanced à la Flamingo with Interleaved Cross-attentionS) is an
-    open-access reproduction of Flamingo, a closed-source visual language model developed by Deepmind.
-    Like GPT-4, the multimodal model accepts arbitrary sequences of image and text inputs and produces
-    text outputs. IDEFICS is built solely on publicly available data and models.
+    PaliGemma is a versatile and lightweight vision-language model (VLM) inspired by PaLI-3
+    and based on open components such as the SigLIP vision model and the Gemma language model.
+    It takes both image and text as input and generates text as output, supporting multiple languages.
+    It is designed for class-leading fine-tune performance on a wide range of vision-language tasks
+    such as image and short video caption, visual question answering, text reading, object detection
+    and object segmentation.
     """
 
     def __init__(self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig):
@@ -79,13 +81,11 @@ class PaliGemmaClient(CachingClient):
         processor = loaded_model_processor.processor
         generation_args = {"max_new_tokens": request.max_tokens}
 
-        image: Optional[Image.Image] = None
+        images: List[Image.Image] = []
         prompt_pieces: List[str] = []
         for media_object in request.multimodal_prompt.media_objects:
             if media_object.is_type("image") and media_object.location:
-                if image is not None:
-                    raise ValueError("Only one image is supported by PaliGemma")
-                image = open_image(media_object.location)
+                images += [open_image(media_object.location).convert("RGB")]
             elif media_object.is_type(TEXT_TYPE):
                 if media_object.text is None:
                     raise ValueError("MediaObject of text type has missing text field value")
@@ -93,7 +93,7 @@ class PaliGemmaClient(CachingClient):
             else:
                 raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
         prompt_text: str = "\n".join(prompt_pieces)
-        model_inputs = processor(text=prompt_text, images=image, return_tensors="pt").to(self._device)
+        model_inputs = processor(text=prompt_text, images=images, return_tensors="pt").to(self._device)
         input_len = model_inputs["input_ids"].shape[-1]
 
         completions: List[GeneratedOutput] = []

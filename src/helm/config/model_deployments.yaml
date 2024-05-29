@@ -522,6 +522,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.vision_language.paligemma_client.PaliGemmaClient"
 
+  - name: google/paligemma-3b-mix-448
+    model_name: google/paligemma-3b-mix-448
+    tokenizer_name: google/gemma-2b
+    max_sequence_length: 7167
+    client_spec:
+      class_name: "helm.clients.vision_language.paligemma_client.PaliGemmaClient"
+
   ## PaLM 2
   - name: google/text-bison@001
     model_name: google/text-bison@001
