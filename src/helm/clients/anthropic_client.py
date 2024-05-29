@@ -1,5 +1,6 @@
 from typing import Any, Dict, List, Optional, TypedDict, Union, cast
 import json
+import os
 import requests
 import tempfile
 import time
@@ -244,6 +245,8 @@ class AnthropicMessagesClient(CachingClient):
     # Source: https://docs.anthropic.com/claude/docs/models-overview
     MAX_OUTPUT_TOKENS: int = 4096
 
+    MAX_IMAGE_SIZE_BYTES: int = 5242880  # 5MB
+
     def __init__(
         self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig, api_key: Optional[str] = None
     ):
@@ -286,7 +289,12 @@ class AnthropicMessagesClient(CachingClient):
                     if not media_object.location:
                         raise Exception("MediaObject of image type has missing location field value")
 
-                    from helm.common.images_utils import encode_base64, get_dimensions, copy_image
+                    from helm.common.images_utils import (
+                        encode_base64,
+                        get_dimensions,
+                        copy_image,
+                        resize_image_to_max_file_size,
+                    )
 
                     image_location: str = media_object.location
                     base64_image: str
@@ -308,6 +316,21 @@ class AnthropicMessagesClient(CachingClient):
                                 dest=temp_file.name,
                                 width=min(image_width, AnthropicClient.MAX_IMAGE_DIMENSION),
                                 height=min(image_height, AnthropicClient.MAX_IMAGE_DIMENSION),
+                            )
+                            base64_image = encode_base64(temp_file.name, format="JPEG")
+
+                    elif os.path.getsize(image_location) > AnthropicMessagesClient.MAX_IMAGE_SIZE_BYTES:
+                        hlog(
+                            f"WARNING: Image {image_location} exceeds max allowed size: "
+                            f"{AnthropicMessagesClient.MAX_IMAGE_SIZE_BYTES} bytes"
+                        )
+                        # Resize the image so it is smaller than the max allowed size
+                        with tempfile.NamedTemporaryFile(suffix=".jpg") as temp_file:
+                            hlog(f"Resizing image to temporary path: {temp_file.name}")
+                            resize_image_to_max_file_size(
+                                src=image_location,
+                                dest=temp_file.name,
+                                max_size_in_bytes=AnthropicMessagesClient.MAX_IMAGE_SIZE_BYTES,
                             )
                             base64_image = encode_base64(temp_file.name, format="JPEG")
                     else:

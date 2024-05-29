@@ -9,7 +9,6 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
 )
 from helm.benchmark.scenarios.vision_language.image2structure.image2structure_scenario import DIFFICULTY_ALL
 from helm.benchmark.metrics.common_metric_specs import (
-    get_basic_reference_metric_specs,
     get_exact_match_metric_specs,
     get_generative_harms_metric_specs,
     get_basic_metric_specs,
@@ -31,6 +30,7 @@ def _get_generation_adapter_spec(
     output_prefix: str = "",
     output_suffix: str = "",
     max_tokens: int = 100,
+    max_train_instances: int = 0,
     stop_sequences: Optional[List[str]] = None,
 ) -> AdapterSpec:
     return AdapterSpec(
@@ -42,8 +42,7 @@ def _get_generation_adapter_spec(
         output_prefix=output_prefix,
         output_suffix=output_suffix,
         instance_prefix="\n",
-        # We focus on zero-shot evaluation for now as most open VLMs only support a single image input
-        max_train_instances=0,
+        max_train_instances=max_train_instances,
         num_outputs=1,
         max_tokens=max_tokens,
         stop_sequences=stop_sequences if stop_sequences is not None else [],
@@ -143,7 +142,7 @@ def _get_image2structure_metric_specs(
             },
         ),
     ]
-    return metric_specs + get_basic_reference_metric_specs()
+    return metric_specs + get_basic_metric_specs([])
 
 
 def get_gpt4v_critique_originality_metric_specs(num_respondents: int) -> List[MetricSpec]:
@@ -213,7 +212,7 @@ def get_crossmodal_3600_spec(location: str, language: str) -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.crossmodal_3600_scenario.Crossmodal3600Scenario",
         args={"location": location, "language": language},
     )
-    adapter_spec: AdapterSpec = _get_generation_adapter_spec(max_tokens=20)
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(max_tokens=20, max_train_instances=0)
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
 
     run_spec_name: str = "crossmodal_3600"
@@ -231,7 +230,12 @@ def get_flickr30k_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.flickr30k_scenario.Flickr30KScenario", args={}
     )
-    adapter_spec: AdapterSpec = _get_captioning_adapter_spec()
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(
+        instructions="Generate a caption for the following image. The caption should be short "
+        "and needs to be a complete sentence.",
+        max_tokens=30,
+        max_train_instances=0,
+    )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
 
     run_spec_name: str = "flickr30k"
@@ -250,7 +254,7 @@ def get_gqa_spec() -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.gqa_scenario.GQAScenario", args={}
     )
     adapter_spec: AdapterSpec = _get_short_answer_generation_adapter_spec(
-        instructions="Answer the question using a single word or phrase."
+        instructions="Answer the question using a single word."
     )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
 
@@ -317,7 +321,11 @@ def get_mscoco_captioning_spec(long: bool = False) -> RunSpec:
             max_tokens=150,
         )
     else:
-        adapter_spec = _get_captioning_adapter_spec()
+        adapter_spec = _get_generation_adapter_spec(
+            instructions="Generate a caption for the following image. The caption should be short and does "
+            "not need to be a complete sentence.",
+            max_tokens=20,
+        )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
 
     run_spec_name: str = "mscoco_captioning"
@@ -503,6 +511,36 @@ def get_image2webpage_spec(
     )
 
 
+@run_spec_function("math_vista")
+def get_math_vista_spec(grade: str, question_type: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.math_vista_scenario.MathVistaScenario",
+        args={"grade": grade, "question_type": question_type},
+    )
+
+    adapter_spec: AdapterSpec
+    if question_type == "free_form":
+        adapter_spec = _get_short_answer_generation_adapter_spec(
+            instructions="Just give the numerical answer without showing the steps, the unit, or percentage symbol."
+        )
+    elif question_type == "multi_choice":
+        adapter_spec = _get_multiple_choice_joint_adapter_spec(
+            input_noun=None, output_noun="Answer", max_train_instances=0
+        )
+    else:
+        raise ValueError(f"Invalid question type: {question_type}")
+
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+    run_spec_name: str = "math_vista"
+    return RunSpec(
+        name=f"{run_spec_name}:grade={grade},question_type={question_type}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
 @run_spec_function("image2musicsheet")
 def get_image2musicsheet_spec(difficulty: str = DIFFICULTY_ALL, args: Optional[Dict] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -535,34 +573,6 @@ def get_image2musicsheet_spec(difficulty: str = DIFFICULTY_ALL, args: Optional[D
         metric_specs=metric_specs,
         groups=groups,
         annotators=annotator_specs,
-    )
-
-
-@run_spec_function("math_vista")
-def get_math_vista_spec(grade: str, question_type: str) -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.vision_language.math_vista_scenario.MathVistaScenario",
-        args={"grade": grade, "question_type": question_type},
-    )
-
-    adapter_spec: AdapterSpec
-    if question_type == "free_form":
-        adapter_spec = _get_short_answer_generation_adapter_spec()
-    elif question_type == "multi_choice":
-        adapter_spec = _get_multiple_choice_joint_adapter_spec(
-            input_noun=None, output_noun="Answer", max_train_instances=0
-        )
-    else:
-        raise ValueError(f"Invalid question type: {question_type}")
-
-    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
-    run_spec_name: str = "math_vista"
-    return RunSpec(
-        name=f"{run_spec_name}:grade={grade},question_type={question_type}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=metric_specs,
-        groups=[run_spec_name],
     )
 
 
@@ -605,13 +615,13 @@ def get_unicorn_spec(subject: str) -> RunSpec:
         args={"subject": subject},
     )
     adapter_spec: AdapterSpec = _get_generation_adapter_spec(
-        instructions="Only give numerical or boolean answer without an explanation."
+        instructions="Only give a yes/no or numerical answer without an explanation."
     )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
 
     run_spec_name: str = "unicorn"
     return RunSpec(
-        name=run_spec_name,
+        name=f"{run_spec_name}:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -624,12 +634,16 @@ def get_bingo_spec(subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.bingo_scenario.BingoScenario", args={"subject": subject}
     )
-    adapter_spec: AdapterSpec = _get_short_answer_generation_adapter_spec()
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(
+        instructions="Answer with a long and clear explanation.",
+        max_tokens=100,
+        max_train_instances=0,
+    )
     metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
 
     run_spec_name: str = "bingo"
     return RunSpec(
-        name=run_spec_name,
+        name=f"{run_spec_name}:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -698,7 +712,7 @@ def get_seed_bench_spec(subject: str) -> RunSpec:
 
     run_spec_name: str = "seed_bench"
     return RunSpec(
-        name=run_spec_name,
+        name=f"{run_spec_name}:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -719,7 +733,7 @@ def get_mme_spec(subject: str) -> RunSpec:
 
     run_spec_name: str = "mme"
     return RunSpec(
-        name=run_spec_name,
+        name=f"{run_spec_name}:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -786,7 +800,7 @@ def get_mementos_spec(subject: str, num_respondents: int) -> RunSpec:
 
     run_spec_name: str = "mementos"
     return RunSpec(
-        name=run_spec_name,
+        name=f"{run_spec_name}:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
