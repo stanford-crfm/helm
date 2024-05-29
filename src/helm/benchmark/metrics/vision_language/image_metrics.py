@@ -388,9 +388,15 @@ class AnnotatedImageMetrics(Metric):
         features1 = self._get_inception_features(img1_tensor)
         features2 = self._get_inception_features(img2_tensor)
 
-        fid_score = self._calculate_fid(features1, features2)
-        normalize_fid: float = np.exp(-fid_score * self.NORMALIZE_FID_FACTOR)
-        return normalize_fid
+        # TODO: Justify the value of the constant here or remove this code to only keep the cosine similarity.
+        # fid_score = self._calculate_fid(features1, features2)
+        # normalize_fid: float = np.exp(-fid_score * self.NORMALIZE_FID_FACTOR)
+        # return normalize_fid
+
+        # Use the cosine similarity between the features as a proxy for FID
+        # Return a score between 0 and 1, where 1 is the most similar
+        score = 0.5 * (1 + np.dot(features1[0], features2[0]) / (np.linalg.norm(features1) * np.linalg.norm(features2)))
+        return score
 
     def compute_ssim(self, generated_image: np.ndarray, reference_image: np.ndarray) -> float:
         """Compute the Structural Similarity Index (SSIM) between the generated and reference images."""
