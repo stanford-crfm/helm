@@ -15,6 +15,7 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request, RequestResult, GeneratedOutput
 from helm.clients.client import Client
 from helm.proxy.critique.critique_client import CritiqueClient
+from helm.common.media_object import MultimediaObject, MediaObject
 
 
 class CritiqueParseError(Exception):
@@ -31,6 +32,7 @@ class ModelCritiqueClient(CritiqueClient):
             get_default_model_deployment_for_model(model_name, warn_arg_deprecated=False, ignore_deprecated=True)
             or self._model_name
         )
+        self.vision_language = True if model_name.startswith("openai/gpt-4-vision") else False
 
     def _interpolate_fields(self, text: str, fields: Dict[str, str]) -> str:
         for key, value in fields.items():
@@ -78,12 +80,21 @@ class ModelCritiqueClient(CritiqueClient):
 
                 prompt = anthropic.HUMAN_PROMPT + prompt + anthropic.AI_PROMPT
 
+            multimodal_prompt: Optional[MultimediaObject] = None
+            if self.vision_language:
+                assert question.media_object is not None, "Expect media_object for vision-language models"
+                image_media: MediaObject = question.media_object
+                text_media: MediaObject = MediaObject(text=prompt, content_type="text/plain")
+                multimodal_prompt = MultimediaObject(media_objects=[image_media, text_media])
+                prompt = ""  # set to empty string to avoid conflicts with multimodal_prompt
+
             request = Request(
                 model=self._model_name,
                 model_deployment=self._model_deployment_name,
                 prompt=prompt,
                 max_tokens=max_tokens,
                 echo_prompt=False,
+                multimodal_prompt=multimodal_prompt,
             )
             requests.append(request)
         return requests
@@ -124,7 +135,13 @@ class ModelCritiqueClient(CritiqueClient):
                 raise CritiqueParseError(
                     f"Invalid answer: {completion}. Multiple choice questions should have one answer."
                 )
-            return answers[0]
+            letter_answer = answers[0]
+            choice_rank = string.ascii_uppercase.index(letter_answer)
+            if choice_rank >= len(question.options):
+                raise CritiqueParseError(
+                    f"Invalid answer: {completion}. The answer is out of range of the options: {question.options}"
+                )
+            return letter_answer
         except CritiqueParseError as e:
             # If there was an error parsing the answer, we assume the user did not answer the question.
             hlog(f"Error parsing answer: {e}. Skipping question (and so the respondent entirely)")

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Optional
+from helm.common.media_object import MediaObject
 
 
 class QuestionType:
@@ -33,6 +34,11 @@ class CritiqueQuestionTemplate:
     """Only used when question_type is 'multiple_choice' or 'checkbox'. List of HTML-formatted text for the options.
 
     Can contain placeholders like {{placeholder}} that will be interpolated using the fields in CritiqueRequest."""
+
+    media_object: Optional[MediaObject] = None
+    """Path of image for multimodal input.
+
+    Image path or URL of the question."""
 
 
 @dataclass(frozen=True)

@@ -307,7 +307,7 @@ model_deployments:
 
   - name: cohere/command
     model_name: cohere/command
-    tokenizer_name: cohere/cohere
+    tokenizer_name: cohere/command
     max_sequence_length: 2019 # TODO: verify this
     max_request_length: 2020 # TODO: verify this
     client_spec:
@@ -317,13 +317,32 @@ model_deployments:
 
   - name: cohere/command-light
     model_name: cohere/command-light
-    tokenizer_name: cohere/cohere
+    tokenizer_name: cohere/command-light
     max_sequence_length: 2019 # TODO: verify this
     max_request_length: 2020 # TODO: verify this
     client_spec:
       class_name: "helm.clients.cohere_client.CohereClient"
     window_service_spec:
       class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
+
+  - name: cohere/command-r
+    model_name: cohere/command-r
+    tokenizer_name: cohere/command-r
+    max_sequence_length: 128000
+    max_request_length: 128000
+    client_spec:
+      class_name: "helm.clients.cohere_client.CohereChatClient"
+
+  - name: cohere/command-r-plus
+    model_name: cohere/command-r-plus
+    tokenizer_name: cohere/command-r-plus
+    # "We have a known issue where prompts between 112K - 128K in length
+    # result in bad generations."
+    # Source: https://docs.cohere.com/docs/command-r-plus
+    max_sequence_length: 110000
+    max_request_length: 110000
+    client_spec:
+      class_name: "helm.clients.cohere_client.CohereChatClient"
 
   # Craiyon
 
@@ -452,6 +471,14 @@ model_deployments:
 
   - name: google/gemini-1.5-pro-preview-0409
     model_name: google/gemini-1.5-pro-preview-0409
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+    # TODO: Max output tokens: 8192
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+
+  - name: google/gemini-1.5-flash-preview-0514
+    model_name: google/gemini-1.5-flash-preview-0514
     tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
     max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
     # TODO: Max output tokens: 8192
@@ -1679,6 +1706,24 @@ model_deployments:
       args:
         together_model: meta-llama/Llama-3-70b-chat-hf
 
+  - name: together/llama-guard-7b
+    model_name: meta/llama-guard-7b
+    tokenizer_name: meta-llama/Llama-2-7b-hf
+    max_sequence_length: 2047
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: meta-llama/llama-guard-7b
+
+  - name: together/llama-guard-2-8b
+    model_name: meta/llama-guard-2-8b
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 4094
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: meta-llama/llamaguard-2-8b
+
   # 01.AI
   - name: together/yi-6b
     model_name: 01-ai/yi-6b
@@ -1739,6 +1784,14 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient"
 
+  - name: huggingface/olmo-1.7-7b
+    model_name: allenai/olmo-1.7-7b
+    tokenizer_name: allenai/OLMo-1.7-7B-hf
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: allenai/OLMo-1.7-7B-hf
 
   ## MistralAI
   - name: together/mistral-7b-v0.1
@@ -2003,6 +2056,15 @@ model_deployments:
     max_sequence_and_generated_tokens_length: 30048
     client_spec:
       class_name: "helm.clients.palmyra_client.PalmyraClient"
+
+  - name: writer/palmyra-vision-003
+    model_name: writer/palmyra-vision-003
+    tokenizer_name: writer/gpt2
+    max_sequence_length: 2048
+    max_sequence_and_generated_tokens_length: 2048
+    client_spec:
+      class_name: "helm.clients.vision_language.palmyra_vision_client.PalmyraVisionClient"
+
 
   # Qwen
 
