@@ -127,7 +127,6 @@ def _get_image2structure_metric_specs(
             AnnotatedImageMetrics.FID_SIMILARITY,
             AnnotatedImageMetrics.BLOCK_EMD,
             AnnotatedImageMetrics.EARTH_MOVER_SIMILARITY,
-            AnnotatedImageMetrics.EARTH_MOVER_SIMILARITY_WHITE,
         ]
     if include_edit_similarity:
         metric_names.append(AnnotatedImageMetrics.EDIT_SIMILARITY)
@@ -445,11 +444,12 @@ def get_image2latex_spec(
         )
     ]
 
-    run_spec_name: str = f"image2latex:subset={subset}"
-    groups: List[str] = ["image2latex", f"image2{subset}"]
-    if difficulty != DIFFICULTY_ALL:
-        run_spec_name += f":difficulty={difficulty}"
-        groups += [f"image2latex-{difficulty}"]
+    run_spec_name: str = f"image2latex:subset={subset}:difficulty={difficulty}"
+    groups: List[str]
+    if subset == "real":
+        groups = ["image2latex_real"]
+    else:
+        groups = ["image2latex", f"image2latex_{difficulty}"]
     return RunSpec(
         name=run_spec_name,
         scenario_spec=scenario_spec,
@@ -487,11 +487,12 @@ def get_image2webpage_spec(
         )
     ]
 
-    run_spec_name: str = f"image2webpage:subset={subset}"
-    groups: List[str] = ["image2webpage", f"image2{subset}"]
-    if difficulty != DIFFICULTY_ALL:
-        run_spec_name += f":difficulty={difficulty}"
-        groups += [f"image2webpage-{difficulty}"]
+    run_spec_name: str = f"image2webpage:subset={subset}:difficulty={difficulty}"
+    groups: List[str]
+    if subset == "real":
+        groups = ["image2webpage_real"]
+    else:
+        groups = ["image2webpage", f"image2webpage_{difficulty}"]
     return RunSpec(
         name=run_spec_name,
         scenario_spec=scenario_spec,
@@ -525,11 +526,8 @@ def get_image2musicsheet_spec(difficulty: str = DIFFICULTY_ALL, args: Optional[D
         )
     ]
 
-    run_spec_name: str = "image2musicsheet"
-    groups: List[str] = ["image2musicsheet"]
-    if difficulty != DIFFICULTY_ALL:
-        run_spec_name += f":difficulty={difficulty}"
-        groups += [f"image2musicsheet-{difficulty}"]
+    run_spec_name: str = f"image2musicsheet:difficulty={difficulty}"
+    groups: List[str] = ["image2musicsheet", f"image2musicsheet_{difficulty}"]
     return RunSpec(
         name=run_spec_name,
         scenario_spec=scenario_spec,
