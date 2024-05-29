@@ -26,7 +26,8 @@ class PrometheusVisionCritiqueMetric(MetricInterface):
 
     # We can add more evaluation aspects here
     METRIC_NAME: str = "prometheus_vision"
-    METRIC_PROMPT: str = """A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the human's questions.\nUSER:<image>\
+    METRIC_PROMPT: str = """A chat between a curious human and an artificial intelligence assistant. \
+        The assistant gives helpful, detailed, and polite answers to the human's questions.\nUSER:<image>\
 ###Task Description:
 An instruction (might include an Input inside it), a response to evaluate, a reference answer that gets a score of 5, \
     image and a score rubric representing an evaluation criterion is given.
@@ -151,10 +152,14 @@ ASSISTANT:
                 "orig_reference_answer": ref_text,
                 "orig_criteria": "similarity between the reponse and the reference.",
                 "orig_score1_description": "The model's responses do not follow the instructions provided.",
-                "orig_score2_description": "The resulting response follows the instructions, but the answer is completely wrong relative to the reference answer.",
-                "orig_score3_description": "The resulting response follows the instructions, but the answer is partial wrong relative to the reference answer.",
-                "orig_score4_description": "The resulting response follows the instructions, the overall answer is relatively perfect with only a very few errors.",
-                "orig_score5_description": "The overall answer is completely correct compared to the reference answer, and conforms to the instructions provided.",
+                "orig_score2_description": "The resulting response follows the instructions, but the answer \
+                    is completely wrong relative to the reference answer.",
+                "orig_score3_description": "The resulting response follows the instructions, but the answer is \
+                    partial wrong relative to the reference answer.",
+                "orig_score4_description": "The resulting response follows the instructions, the overall answer \
+                    is relatively perfect with only a very few errors.",
+                "orig_score5_description": "The overall answer is completely correct compared to the reference \
+                    answer, and conforms to the instructions provided.",
             },
         )
         # send to critique request
