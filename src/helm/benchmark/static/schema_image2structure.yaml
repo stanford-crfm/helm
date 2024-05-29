@@ -6,13 +6,6 @@ adapter: []
 ############################################################
 metrics:
   # Infrastructure metrics:
-  - name: num_perplexity_tokens
-    display_name: '# tokens'
-    description: Average number of tokens in the predicted output (for language modeling, the input too).
-  - name: num_bytes
-    display_name: '# bytes'
-    description: Average number of bytes in the predicted output (for language modeling, the input too).
-
   - name: num_references
     display_name: '# ref'
     description: Number of references.
@@ -135,6 +128,20 @@ metric_groups:
       - name: compilation_success
         split: ${main_split}
 
+  - name: general_information
+    display_name: General information
+    metrics:
+      - name: num_instances
+        split: ${main_split}
+      - name: num_train_instances
+        split: ${main_split}
+      - name: prompt_truncated
+        split: ${main_split}
+      - name: num_prompt_tokens
+        split: ${main_split}
+      - name: num_output_tokens
+        split: ${main_split}
+
   - name: accuracy_simple
     display_name: Earth Mover Similarity
     metrics:
@@ -206,6 +213,7 @@ run_groups:
       - accuracy
       - generation_image
       - generation_text
+      - general_information
     environment:
       main_name: earth_mover_similarity
       main_split: valid
@@ -224,6 +232,7 @@ run_groups:
       - compilation
       - generation_image
       - generation_text
+      - general_information
     environment:
       main_name: earth_mover_similarity
       main_split: valid
@@ -242,6 +251,7 @@ run_groups:
       - compilation
       - generation_image
       - generation_text
+      - general_information
     environment:
       main_name: earth_mover_similarity
       main_split: valid
@@ -260,6 +270,7 @@ run_groups:
       - compilation
       - generation_image
       - generation_text
+      - general_information
     environment:
       main_name: earth_mover_similarity
       main_split: valid
@@ -276,6 +287,7 @@ run_groups:
     metric_groups:
       - accuracy
       - generation_image
+      - general_information
     environment:
       main_name: earth_mover_similarity
       main_split: valid
@@ -293,6 +305,7 @@ run_groups:
       - accuracy
       - generation_image
       - generation_text
+      - general_information
     environment:
       main_name: earth_mover_similarity
       main_split: valid
@@ -311,6 +324,7 @@ run_groups:
       - compilation
       - generation_image
       - generation_text
+      - general_information
     environment:
       main_name: earth_mover_similarity
       main_split: valid
@@ -329,6 +343,7 @@ run_groups:
       - compilation
       - generation_image
       - generation_text
+      - general_information
     environment:
       main_name: earth_mover_similarity
       main_split: valid
@@ -347,6 +362,7 @@ run_groups:
       - compilation
       - generation_image
       - generation_text
+      - general_information
     environment:
       main_name: earth_mover_similarity
       main_split: valid
@@ -363,6 +379,7 @@ run_groups:
     metric_groups:
       - accuracy
       - generation_image
+      - general_information
     environment:
       main_name: earth_mover_similarity
       main_split: valid
@@ -379,6 +396,7 @@ run_groups:
     metric_groups:
       - accuracy
       - generation_image
+      - general_information
     environment:
       main_name: earth_mover_similarity
       main_split: valid
@@ -396,6 +414,7 @@ run_groups:
       - accuracy_simple
       - compilation
       - generation_image
+      - general_information
     environment:
       main_name: earth_mover_similarity
       main_split: valid
@@ -413,6 +432,7 @@ run_groups:
       - accuracy_simple
       - compilation
       - generation_image
+      - general_information
     environment:
       main_name: earth_mover_similarity
       main_split: valid
@@ -430,6 +450,7 @@ run_groups:
       - accuracy_simple
       - compilation
       - generation_image
+      - general_information
     environment:
       main_name: earth_mover_similarity
       main_split: valid
