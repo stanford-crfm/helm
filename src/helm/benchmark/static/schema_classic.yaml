@@ -1298,7 +1298,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: quasi_exact_match
+      main_name: exact_match
       main_split: test
     taxonomy:
       task: "?"
@@ -1320,7 +1320,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: quasi_exact_match
+      main_name: f1_score
       main_split: test
     taxonomy:
       task: question answering
@@ -1342,7 +1342,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: quasi_exact_match
+      main_name: f1_score
       main_split: test
     taxonomy:
       task: question answering
