@@ -59,6 +59,9 @@ class CritiqueTaskTemplate:
     questions: List[CritiqueQuestionTemplate]
     """List of templates for the questions."""
 
+    max_tokens: Optional[int] = None
+    """Max token to be generated for the free-end generation."""
+
 
 @dataclass(frozen=True)
 class CritiqueRequest:
