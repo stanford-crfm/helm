@@ -145,7 +145,7 @@ def _get_image2structure_metric_specs(
     return metric_specs + get_basic_metric_specs([])
 
 
-def get_prometheus_vision_critique_metric_specs(num_respondents: int, max_tokens: int) -> List[MetricSpec]:
+def _get_prometheus_vision_critique_metric_specs(num_respondents: int, max_tokens: int) -> List[MetricSpec]:
     return [
         MetricSpec(
             class_name="helm.benchmark.metrics.prometheus_vision_critique_metrics.PrometheusVisionCritiqueMetric",
@@ -157,7 +157,7 @@ def get_prometheus_vision_critique_metric_specs(num_respondents: int, max_tokens
     ]
 
 
-def get_gpt4v_critique_originality_metric_specs(num_respondents: int) -> List[MetricSpec]:
+def _get_gpt4v_critique_originality_metric_specs(num_respondents: int) -> List[MetricSpec]:
     return [
         MetricSpec(
             class_name="helm.benchmark.metrics.gpt4v_originality_critique_metrics.GPT4VCritiqueMetric",
@@ -168,7 +168,7 @@ def get_gpt4v_critique_originality_metric_specs(num_respondents: int) -> List[Me
     ]
 
 
-def get_vibe_eval_critique_metric_specs(num_respondents: int, max_tokens: int) -> List[MetricSpec]:
+def _get_vibe_eval_critique_metric_specs(num_respondents: int, max_tokens: int) -> List[MetricSpec]:
     return [
         MetricSpec(
             class_name="helm.benchmark.metrics.reka_vibe_critique_metrics.RekaVibeCritiqueMetric",
@@ -663,7 +663,11 @@ def get_bingo_spec(subject: str, num_respondents: int) -> RunSpec:
         max_tokens=100,
         max_train_instances=0,
     )
-    metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
+    metric_specs: List[MetricSpec] = _get_prometheus_vision_critique_metric_specs(
+        num_respondents=num_respondents,
+        # prometheus_vision always generates detailed explanations
+        max_tokens=200,
+    )
 
     run_spec_name: str = "bingo"
     return RunSpec(
@@ -820,7 +824,7 @@ def get_mementos_spec(subject: str, num_respondents: int) -> RunSpec:
         args={"subject": subject},
     )
     adapter_spec: AdapterSpec = get_open_end_answer_generation_adapter_spec()
-    metric_specs: List[MetricSpec] = get_gpt4v_critique_originality_metric_specs(num_respondents=num_respondents)
+    metric_specs: List[MetricSpec] = _get_gpt4v_critique_originality_metric_specs(num_respondents=num_respondents)
 
     run_spec_name: str = "mementos"
     return RunSpec(
@@ -839,7 +843,7 @@ def get_vibe_eval_spec(subject: str, num_respondents: int) -> RunSpec:
         args={"subject": subject},
     )
     adapter_spec: AdapterSpec = get_open_end_answer_generation_adapter_spec()
-    metric_specs: List[MetricSpec] = get_vibe_eval_critique_metric_specs(
+    metric_specs: List[MetricSpec] = _get_vibe_eval_critique_metric_specs(
         num_respondents=num_respondents, max_tokens=200
     )
 
