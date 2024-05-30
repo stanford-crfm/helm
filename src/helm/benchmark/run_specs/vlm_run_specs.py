@@ -156,6 +156,18 @@ def get_gpt4v_critique_originality_metric_specs(num_respondents: int) -> List[Me
     ]
 
 
+def get_vibe_eval_critique_metric_specs(num_respondents: int, max_tokens: int) -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.reka_vibe_critique_metrics.RekaVibeCritiqueMetric",
+            args={
+                "num_respondents": num_respondents,
+                "max_tokens": max_tokens,
+            },
+        )
+    ]
+
+
 ############################################################
 # VHELM run specs
 
@@ -801,6 +813,27 @@ def get_mementos_spec(subject: str, num_respondents: int) -> RunSpec:
     run_spec_name: str = "mementos"
     return RunSpec(
         name=f"{run_spec_name}:subject={subject}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("vibe_eval")
+def get_vibe_eval_spec(subject: str, num_respondents: int) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.vibe_eval_scenario.VibeEvalScenario",
+        args={"subject": subject},
+    )
+    adapter_spec: AdapterSpec = get_open_end_answer_generation_adapter_spec()
+    metric_specs: List[MetricSpec] = get_vibe_eval_critique_metric_specs(
+        num_respondents=num_respondents, max_tokens=200
+    )
+
+    run_spec_name: str = "vibe_eval"
+    return RunSpec(
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
