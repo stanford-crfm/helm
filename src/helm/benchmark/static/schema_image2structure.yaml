@@ -140,7 +140,7 @@ metric_groups:
     metrics:
       - name: earth_mover_similarity
         split: ${main_split}
-    
+
   - name: compilation
     display_name: Compilation Rate
     metrics:

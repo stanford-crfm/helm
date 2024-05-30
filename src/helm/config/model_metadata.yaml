@@ -2414,6 +2414,15 @@ models:
     # Does not support echo
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: writer/palmyra-vision-003
+    display_name: Palmyra Vision 003
+    description:  Palmyra Vision 003 (internal only)
+    creator_organization_name: Writer
+    access: limited
+    num_parameters: 5000000000
+    release_date: 2024-05-24
+    # Does not support echo
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_VLM_TAG]
 
 
   # Yandex
@@ -2425,3 +2434,65 @@ models:
     num_parameters: 100000000000
     release_date: 2022-06-23
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG]
+
+  # Reka
+  - name: reka/reka-core
+    display_name: Reka-Core
+    description: Reka-Core
+    creator_organization_name: Reka AI
+    access: limited
+    release_date: 2024-04-18
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: reka/reka-core-20240415
+    display_name: Reka-Core-20240415
+    description: Reka-Core-20240415
+    creator_organization_name: Reka AI
+    access: limited
+    release_date: 2024-04-18
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+  
+  - name: reka/reka-core-20240501
+    display_name: Reka-Core-20240501
+    description: Reka-Core-20240501
+    creator_organization_name: Reka AI
+    access: limited
+    release_date: 2024-05-01
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: reka/reka-flash
+    display_name: Reka-Flash (21B)
+    description: Reka-Flash (21B)
+    creator_organization_name: Reka AI
+    access: limited
+    num_parameters: 21000000000
+    release_date: 2024-04-18
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: reka/reka-flash-20240226
+    display_name: Reka-Flash-20240226 (21B)
+    description: Reka-Flash-20240226 (21B)
+    creator_organization_name: Reka AI
+    access: limited
+    num_parameters: 21000000000
+    release_date: 2024-04-18
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: reka/reka-edge
+    display_name: Reka-Edge (7B)
+    description: Reka-Edge (7B)
+    creator_organization_name: Reka AI
+    access: limited
+    num_parameters: 7000000000
+    release_date: 2024-04-18
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: reka/reka-edge-20240208
+    display_name: Reka-Edge-20240208 (7B)
+    description: Reka-Edge-20240208 (7B)
+    creator_organization_name: Reka AI
+    access: limited
+    num_parameters: 7000000000
+    release_date: 2024-04-18
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+  
