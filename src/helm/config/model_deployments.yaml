@@ -2169,3 +2169,53 @@ model_deployments:
     max_sequence_length: 8191
     client_spec:
       class_name: "helm.clients.vision_language.qwen_vlm_client.QwenVLMClient"
+
+# Reka
+  - name: reka/reka-core
+    model_name: reka/reka-core
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.reka_client.RekaClient"
+  
+  - name: reka/reka-core-20240415
+    model_name: reka/reka-core-20240415
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.reka_client.RekaClient"
+  
+  - name: reka/reka-core-20240501
+    model_name: reka/reka-core-20240501
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.reka_client.RekaClient"
+
+  - name: reka/reka-flash
+    model_name: reka/reka-flash
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.reka_client.RekaClient"
+
+  - name: reka/reka-flash-20240226
+    model_name: reka/reka-flash-20240226
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.reka_client.RekaClient"
+
+  - name: reka/reka-edge
+    model_name: reka/reka-edge
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 64000
+    client_spec:
+      class_name: "helm.clients.reka_client.RekaClient"
+
+  - name: reka/reka-edge-20240208
+    model_name: reka/reka-edge-20240208
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 64000
+    client_spec:
+      class_name: "helm.clients.reka_client.RekaClient"
