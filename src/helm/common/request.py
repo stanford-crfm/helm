@@ -73,7 +73,11 @@ class Request:
     """Parameters for image generation."""
 
     def validate(self):
-        if (self.messages and self.prompt) or (self.messages and self.multimodal_prompt) or (self.prompt and self.multimodal_prompt):
+        if (
+            (self.messages and self.prompt)
+            or (self.messages and self.multimodal_prompt)
+            or (self.prompt and self.multimodal_prompt)
+        ):
             raise ValueError("Only one of the variables messages, prompt, multimodal_prompt should be set")
 
         if self.multimodal_prompt:
