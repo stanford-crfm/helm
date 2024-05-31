@@ -145,7 +145,19 @@ def _get_image2structure_metric_specs(
     return metric_specs + get_basic_metric_specs([])
 
 
-def get_gpt4v_critique_originality_metric_specs(num_respondents: int) -> List[MetricSpec]:
+def _get_prometheus_vision_critique_metric_specs(num_respondents: int, max_tokens: int) -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.prometheus_vision_critique_metrics.PrometheusVisionCritiqueMetric",
+            args={
+                "num_respondents": num_respondents,
+                "max_tokens": max_tokens,
+            },
+        )
+    ]
+
+
+def _get_gpt4v_critique_originality_metric_specs(num_respondents: int) -> List[MetricSpec]:
     return [
         MetricSpec(
             class_name="helm.benchmark.metrics.gpt4v_originality_critique_metrics.GPT4VCritiqueMetric",
@@ -156,7 +168,7 @@ def get_gpt4v_critique_originality_metric_specs(num_respondents: int) -> List[Me
     ]
 
 
-def get_vibe_eval_critique_metric_specs(num_respondents: int, max_tokens: int) -> List[MetricSpec]:
+def _get_vibe_eval_critique_metric_specs(num_respondents: int, max_tokens: int) -> List[MetricSpec]:
     return [
         MetricSpec(
             class_name="helm.benchmark.metrics.reka_vibe_critique_metrics.RekaVibeCritiqueMetric",
@@ -219,13 +231,23 @@ def get_chart2csv_spec() -> RunSpec:
 
 
 @run_spec_function("crossmodal_3600")
-def get_crossmodal_3600_spec(location: str, language: str) -> RunSpec:
+def get_crossmodal_3600_spec(location: str, language: str, num_respondents: int) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.crossmodal_3600_scenario.Crossmodal3600Scenario",
         args={"location": location, "language": language},
     )
-    adapter_spec: AdapterSpec = _get_generation_adapter_spec(max_tokens=20, max_train_instances=0)
-    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(
+        instructions="Answer the question with a complete sentence in plain words",
+        max_tokens=20,
+    )
+
+    metric_specs: List[MetricSpec] = (
+        _get_prometheus_vision_critique_metric_specs(
+            num_respondents=num_respondents,
+            max_tokens=200,
+        )
+        + _get_open_ended_generation_metric_specs()
+    )
 
     run_spec_name: str = "crossmodal_3600"
     return RunSpec(
@@ -238,17 +260,23 @@ def get_crossmodal_3600_spec(location: str, language: str) -> RunSpec:
 
 
 @run_spec_function("flickr30k")
-def get_flickr30k_spec() -> RunSpec:
+def get_flickr30k_spec(num_respondents: int) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.flickr30k_scenario.Flickr30KScenario", args={}
     )
     adapter_spec: AdapterSpec = _get_generation_adapter_spec(
-        instructions="Generate a caption for the following image. The caption should be short "
-        "and needs to be a complete sentence.",
+        instructions="Generate a caption for the following image in plain words. The caption should "
+        "be short and needs to be a complete sentence.",
         max_tokens=30,
         max_train_instances=0,
     )
-    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
+    metric_specs: List[MetricSpec] = (
+        _get_prometheus_vision_critique_metric_specs(
+            num_respondents=num_respondents,
+            max_tokens=200,
+        )
+        + _get_open_ended_generation_metric_specs()
+    )
 
     run_spec_name: str = "flickr30k"
     return RunSpec(
@@ -330,7 +358,7 @@ def get_mscoco_captioning_spec(long: bool = False) -> RunSpec:
     if long:
         adapter_spec = _get_generation_adapter_spec(
             instructions="Generate a long, detailed caption for the following image.",
-            max_tokens=150,
+            max_tokens=200,
         )
     else:
         adapter_spec = _get_generation_adapter_spec(
@@ -627,7 +655,8 @@ def get_unicorn_spec(subject: str) -> RunSpec:
         args={"subject": subject},
     )
     adapter_spec: AdapterSpec = _get_generation_adapter_spec(
-        instructions="Only give a yes/no or numerical answer without an explanation."
+        instructions="Only give a yes/no or numerical answer without an explanation.",
+        max_tokens=1,  # the model may generate answer with a period
     )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
 
@@ -642,16 +671,22 @@ def get_unicorn_spec(subject: str) -> RunSpec:
 
 
 @run_spec_function("bingo")
-def get_bingo_spec(subject: str) -> RunSpec:
+def get_bingo_spec(subject: str, num_respondents: int) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.bingo_scenario.BingoScenario", args={"subject": subject}
     )
     adapter_spec: AdapterSpec = _get_generation_adapter_spec(
-        instructions="Answer with a long and clear explanation.",
+        instructions="Answer the question with a complete and clear explanation in sentences without listing it out.",
         max_tokens=100,
         max_train_instances=0,
     )
-    metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
+    metric_specs: List[MetricSpec] = (
+        _get_prometheus_vision_critique_metric_specs(
+            num_respondents=num_respondents,
+            max_tokens=200,
+        )
+        + _get_open_ended_generation_metric_specs()
+    )
 
     run_spec_name: str = "bingo"
     return RunSpec(
@@ -808,7 +843,10 @@ def get_mementos_spec(subject: str, num_respondents: int) -> RunSpec:
         args={"subject": subject},
     )
     adapter_spec: AdapterSpec = get_open_end_answer_generation_adapter_spec()
-    metric_specs: List[MetricSpec] = get_gpt4v_critique_originality_metric_specs(num_respondents=num_respondents)
+    metric_specs: List[MetricSpec] = (
+        _get_prometheus_vision_critique_metric_specs(num_respondents=num_respondents, max_tokens=200)
+        + _get_open_ended_generation_metric_specs()
+    )
 
     run_spec_name: str = "mementos"
     return RunSpec(
@@ -827,8 +865,9 @@ def get_vibe_eval_spec(subject: str, num_respondents: int) -> RunSpec:
         args={"subject": subject},
     )
     adapter_spec: AdapterSpec = get_open_end_answer_generation_adapter_spec()
-    metric_specs: List[MetricSpec] = get_vibe_eval_critique_metric_specs(
-        num_respondents=num_respondents, max_tokens=200
+    metric_specs: List[MetricSpec] = (
+        _get_prometheus_vision_critique_metric_specs(num_respondents=num_respondents, max_tokens=200)
+        + _get_open_ended_generation_metric_specs()
     )
 
     run_spec_name: str = "vibe_eval"

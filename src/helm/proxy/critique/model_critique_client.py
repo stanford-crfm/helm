@@ -25,7 +25,7 @@ class CritiqueParseError(Exception):
 class ModelCritiqueClient(CritiqueClient):
     """A CritiqueClient that queries a Model to answer CritiqueRequests."""
 
-    VISION_LANGUAGE_MODELS = ["openai/gpt-4-vision", "reka/reka"]
+    VISION_LANGUAGE_MODELS = ["openai/gpt-4-vision", "reka/reka", "huggingface/prometheus-vision"]
 
     def __init__(self, client: Client, model_name):
         self._client = client
