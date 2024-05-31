@@ -915,7 +915,21 @@ models:
     release_date: 2023-06-29 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/code-generation#model_versions
     tags: [CODE_MODEL_TAG]
 
+  - name: google/medlm-medium
+    display_name: MedLM (Medium)
+    description: MedLM is a family of foundation models fine-tuned for the healthcare industry based on Google Research's medically-tuned large language model, Med-PaLM 2. ([documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/medlm/overview))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-12-13
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: google/medlm-large
+    display_name: MedLM (Large)
+    description: MedLM is a family of foundation models fine-tuned for the healthcare industry based on Google Research's medically-tuned large language model, Med-PaLM 2. ([documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/medlm/overview))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-12-13
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   # HuggingFace
   - name: HuggingFaceM4/idefics2-8b
