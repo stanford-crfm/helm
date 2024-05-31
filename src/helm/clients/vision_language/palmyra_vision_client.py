@@ -49,7 +49,6 @@ class PalmyraVisionClient(CachingClient):
                 response = requests.post(
                     self.endpoint, headers={"Content-Type": "application/json"}, data=json.dumps({"parts": prompt})
                 )
-                assert response.status_code == 200, f"Got status code {response.status_code}: {response.text}"
                 if response.status_code != 200:
                     curl_command: str = (
                         f"curl --location {self.endpoint} --header 'Content-Type: application/json' "
