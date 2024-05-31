@@ -117,7 +117,6 @@ run_groups:
       - bhasa_nlu
       - bhasa_nlg
       - bhasa_nlr
-      - bhasa_linguistic
 
   - name: bhasa_nlu
     display_name: BHASA natural language understanding (NLU)
@@ -152,15 +151,6 @@ run_groups:
       - xnli
       - indicxnli
       - xcopa
-
-    - name: bhasa_linguistic
-    display_name: BHASA linguistic diagnostics (LD)
-    description: BHASA linguistic diagnostics (LD) scenarios
-    category: BHASA scenarios
-    subgroups:
-      - lindsea_syntax_minimal_pairs
-      - lindsea_pragmatics_pragmatic_reasoning_single
-      - lindsea_pragmatics_pragmatic_reasoning_pair
 
   - name: tydiqa
     display_name: TyDiQA
@@ -450,57 +440,3 @@ run_groups:
       who: "?"
       when: "?"
       language: Indonesian, Tamil, Thai, Vietnamese 
-
-  - name: lindsea_syntax_minimal_pairs
-    display_name: LINDSEA Syntax Minimal Pairs
-    description: >
-      LINDSEA minimal pairs is a linguistic diagnostic for syntax dataset from BHASA [(Leong, 2023)](https://arxiv.org/abs/2309.06085), involving pairs of sentences that differ minimally from each other and contrast in grammatical acceptability.
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: accuracy
-      main_split: test
-    taxonomy:
-      task: minimal pairs
-      what: sentence pairs with minimal differences and constrasting grammatical acceptability
-      who: "?"
-      when: "?"
-      language: Indonesian
-
-  - name: lindsea_pragmatics_pragmatic_reasoning_single
-    display_name: LINDSEA Pragmatics Pragmatic Reasoning (single sentence)
-    description: >
-      LINDSEA pragmatic reasoning (single sentence) is a linguistic diagnostic for pragmatics dataset from BHASA [(Leong, 2023)](https://arxiv.org/abs/2309.06085), involving scalar implicatures and presuppositions.
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: accuracy
-      main_split: test
-    taxonomy:
-      task: pragmatic reasoning
-      what: scalar implicatures and presuppositions
-      who: "?"
-      when: "?"
-      language: Indonesian
-
-  - name: lindsea_pragmatics_pragmatic_reasoning_pair
-    display_name: LINDSEA Pragmatics Pragmatic Reasoning (sentence pair)
-    description: >
-      LINDSEA pragmatic reasoning (sentence pair) is a linguistic diagnostic for pragmatics dataset from BHASA [(Leong, 2023)](https://arxiv.org/abs/2309.06085), involving scalar implicatures and presuppositions.
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: accuracy
-      main_split: test
-    taxonomy:
-      task: pragmatic reasoning
-      what: scalar implicatures and presuppositions
-      who: "?"
-      when: "?"
-      language: Indonesian
