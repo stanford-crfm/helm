@@ -11,47 +11,64 @@ from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.common.critique_request import CritiqueTaskTemplate, CritiqueQuestionTemplate, CritiqueRequest, QuestionType
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import RequestResult, GeneratedOutput
-from helm.common.media_object import MultimediaObject, IMAGE_TYPE, TEXT_TYPE, MediaObject
+from helm.common.media_object import MultimediaObject, IMAGE_TYPE, MediaObject, TEXT_TYPE
 
 
-class RekaVibeCritiqueMetric(MetricInterface):
+class PrometheusVisionCritiqueMetric(MetricInterface):
     """
-    Critique evaluation for evaluating the correctness of generated response given the image and
-    reference by Reka-vibe-eval.
+    We compute the same metrics from the Prometheus-Vision: Vision-Language Model as a Judge for
+    Fine-Grained Evaluation paper:
+    https://arxiv.org/pdf/2401.06591.pdf
+
+    In this paper, the output of a Vision-Language Model named Prometheus-Vision is used to evaluate
+    the quality of the output of other Vision-Language Models to be evaluated.
     """
 
     # We can add more evaluation aspects here
-    VIBE_EVAL_NAME: str = "reka_vibe"
-    REKA_VIBE_PROMPT_WITH_IMAGE: str = """\
-[Question]
-{{prompt}}
+    METRIC_NAME: str = "prometheus_vision"
+    METRIC_PROMPT: str = """A chat between a curious human and an artificial intelligence assistant. \
+        The assistant gives helpful, detailed, and polite answers to the human's questions.\nUSER:<image>\
+###Task Description:
+An instruction (might include an Input inside it), a response to evaluate, a reference answer that gets a score of 5, \
+    image and a score rubric representing an evaluation criterion is given.
+1. Write a detailed feedback that assesses the quality of the response strictly based on the given score rubric, not \
+    evaluating in general.
+2. After writing a feedback, write a score that is an integer between 1 and 5. You should refer to the score rubric.
+3. The output format should look as follows: Feedback: (write a feedback for criteria) [RESULT] (an integer number \
+    between 1 and 5)
+4. Please do not generate any other opening, closing, and explanations.
 
-[Assistant Response]
-{{generation}}
+###The instruction to evaluate:
+{{orig_instruction}}
 
-[Ground Truth Response]
-{{reference}}
+###Response to evaluate:
+{{orig_response}}
 
-[System]
-Rate whether the assistant response correctly matches the ground truth, in regards to the image above.
-The rating should be 1-5, where 1 is incorrect and 5 is correct.
-Your response should be in the format:
-Short Explanation: (explanation in only one sentence)
-Rating: (int)"""
+###Reference Answer (Score 5):
+{{orig_reference_answer}}
+
+###Score Rubrics:
+[{{orig_criteria}}]
+Score 1: {{orig_score1_description}}
+Score 2: {{orig_score2_description}}
+Score 3: {{orig_score3_description}}
+Score 4: {{orig_score4_description}}
+Score 5: {{orig_score5_description}}
+
+###Feedback:
+ASSISTANT:
+"""
 
     def __init__(self, num_respondents: int, max_tokens: int):
         self._num_respondents = num_respondents
         self._max_tokens = max_tokens
 
     def __repr__(self) -> str:
-        return "RekaVibeCritiqueMetric()"
+        return "PrometheusVisionCritiqueMetric()"
 
-    def _extract_score_from_reka_output(self, evaluator_response: str):
-        """
-        Extract the score from the evaluator response. Refer to the official Vibe-Eval implementation:
-        https://github.com/reka-ai/reka-vibe-eval/blob/3852d4712da172a7b85dddeffc4f9c3482a6f4c9/evaluate.py#L159-#L164
-        """
-        re_match = re.search(r"Rating:\s*([1-5])", evaluator_response)
+    def _extract_score_from_prometheus_vision_output(self, evaluator_response: str):
+        evaluator_response = evaluator_response.split("ASSISTANT:")[1]
+        re_match = re.search(r"\s*([1-5])", evaluator_response)
         if re_match is None:
             hlog(f"Error parsing answer: {evaluator_response}. Skipping question (and so the respondent entirely)")
             return None
@@ -98,29 +115,28 @@ Rating: (int)"""
         eval_cache_path: str,
     ) -> List[Stat]:
         input_content = request_state.request
-        # Predicted outputs and their originality scores
+        # Predicted outputs and their prometheus vision scores
         assert request_state.result is not None
         request_result: RequestResult = request_state.result
-        # Get input image and generated response for the originality evaluation
+        # Get input image and generated response for evaluation
         assert input_content.multimodal_prompt is not None
         completions: List[GeneratedOutput] = request_result.completions
         generated_text: str = completions[0].text
         input_media: MultimediaObject = input_content.multimodal_prompt
         ref_text: str = request_state.instance.references[0].output.text
-
         image_objects: List[MediaObject] = [
             item for item in input_media.media_objects if item.is_type(IMAGE_TYPE) and item.location
         ]
         input_text: Optional[str] = [item for item in input_media.media_objects if item.is_type(TEXT_TYPE)][0].text
 
         template = CritiqueTaskTemplate(
-            name="vhelm_vibe_eval",
-            instructions=self.REKA_VIBE_PROMPT_WITH_IMAGE,
+            name="vhelm_prometheus_vision",
+            instructions=self.METRIC_PROMPT,
             num_respondents=self._num_respondents,
             max_tokens=self._max_tokens,
             questions=[
                 CritiqueQuestionTemplate(
-                    name=self.VIBE_EVAL_NAME,
+                    name=self.METRIC_NAME,
                     question_type=QuestionType.FREE_RESPONSE,
                     text="",
                     options=[],
@@ -128,22 +144,31 @@ Rating: (int)"""
                 )
             ],
         )
-
         request = CritiqueRequest(
             template=template,
             fields={
-                "prompt": input_text if input_text is not None else "",
-                "generation": generated_text,
-                "reference": ref_text,
+                "orig_instruction": input_text if input_text is not None else "",
+                "orig_response": generated_text,
+                "orig_reference_answer": ref_text,
+                "orig_criteria": "similarity between the reponse and the reference.",
+                "orig_score1_description": "The model's responses do not follow the instructions provided.",
+                "orig_score2_description": "The resulting response follows the instructions, but the answer \
+                    is completely wrong relative to the reference answer.",
+                "orig_score3_description": "The resulting response follows the instructions, but the answer is \
+                    partially wrong relative to the reference answer.",
+                "orig_score4_description": "The resulting response follows the instructions, the overall answer \
+                    is relatively perfect with only a very few errors.",
+                "orig_score5_description": "The overall answer is completely correct compared to the reference \
+                    answer, and conforms to the instructions provided.",
             },
         )
-
         # send to critique request
         result = metric_service.make_critique_request(request)
         if not result or not result.responses:
             # Skip computing metrics if there aren't any responses yet
             hlog("Waiting for responses to be generated.")
             return []
+
         stats: Dict[str, Stat] = {}
         for question in template.questions:
             stats[question.name] = Stat(MetricName(question.name))
@@ -152,7 +177,7 @@ Rating: (int)"""
             for answer_name, answer in response.answers.items():
                 assert isinstance(answer, str)
                 answer_value: float
-                answer_value = self._extract_score_from_reka_output(answer)
+                answer_value = self._extract_score_from_prometheus_vision_output(answer)
                 stats[answer_name].add(answer_value)
 
         return list(stats.values())

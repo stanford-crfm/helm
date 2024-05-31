@@ -1410,7 +1410,15 @@ models:
     release_date: 2023-10-05
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-
+  # KAIST AI
+  - name: kaistai/prometheus-vision-13b-v1.0-hf
+    display_name: LLaVA + Vicuna-v1.5 (13B)
+    description: LLaVa is an open-source chatbot trained by fine-tuning LlamA/Vicuna on GPT-generated multimodal instruction-following data. ([paper](https://arxiv.org/abs/2304.08485))
+    creator_organization_name: KAIST AI
+    access: open
+    num_parameters: 13000000000
+    release_date: 2024-01-01
+    tags: [VISION_LANGUAGE_MODEL_TAG, LLAVA_MODEL_TAG, LIMITED_FUNCTIONALITY_VLM_TAG]
 
   # 01.AI
   - name: 01-ai/yi-6b
