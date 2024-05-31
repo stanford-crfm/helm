@@ -155,7 +155,7 @@ ASSISTANT:
                 "orig_score2_description": "The resulting response follows the instructions, but the answer \
                     is completely wrong relative to the reference answer.",
                 "orig_score3_description": "The resulting response follows the instructions, but the answer is \
-                    partial wrong relative to the reference answer.",
+                    partially wrong relative to the reference answer.",
                 "orig_score4_description": "The resulting response follows the instructions, the overall answer \
                     is relatively perfect with only a very few errors.",
                 "orig_score5_description": "The overall answer is completely correct compared to the reference \

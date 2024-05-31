@@ -241,9 +241,12 @@ def get_crossmodal_3600_spec(location: str, language: str, num_respondents: int)
         max_tokens=20,
     )
 
-    metric_specs: List[MetricSpec] = _get_prometheus_vision_critique_metric_specs(
-        num_respondents=num_respondents,
-        max_tokens=200,
+    metric_specs: List[MetricSpec] = (
+        _get_prometheus_vision_critique_metric_specs(
+            num_respondents=num_respondents,
+            max_tokens=200,
+        )
+        + _get_open_ended_generation_metric_specs()
     )
 
     run_spec_name: str = "crossmodal_3600"
@@ -267,9 +270,12 @@ def get_flickr30k_spec(num_respondents: int) -> RunSpec:
         max_tokens=30,
         max_train_instances=0,
     )
-    metric_specs: List[MetricSpec] = _get_prometheus_vision_critique_metric_specs(
-        num_respondents=num_respondents,
-        max_tokens=200,
+    metric_specs: List[MetricSpec] = (
+        _get_prometheus_vision_critique_metric_specs(
+            num_respondents=num_respondents,
+            max_tokens=200,
+        )
+        + _get_open_ended_generation_metric_specs()
     )
 
     run_spec_name: str = "flickr30k"
@@ -674,9 +680,12 @@ def get_bingo_spec(subject: str, num_respondents: int) -> RunSpec:
         max_tokens=100,
         max_train_instances=0,
     )
-    metric_specs: List[MetricSpec] = _get_prometheus_vision_critique_metric_specs(
-        num_respondents=num_respondents,
-        max_tokens=200,
+    metric_specs: List[MetricSpec] = (
+        _get_prometheus_vision_critique_metric_specs(
+            num_respondents=num_respondents,
+            max_tokens=200,
+        )
+        + _get_open_ended_generation_metric_specs()
     )
 
     run_spec_name: str = "bingo"
@@ -853,8 +862,9 @@ def get_vibe_eval_spec(subject: str, num_respondents: int) -> RunSpec:
         args={"subject": subject},
     )
     adapter_spec: AdapterSpec = get_open_end_answer_generation_adapter_spec()
-    metric_specs: List[MetricSpec] = _get_prometheus_vision_critique_metric_specs(
-        num_respondents=num_respondents, max_tokens=200
+    metric_specs: List[MetricSpec] = (
+        _get_prometheus_vision_critique_metric_specs(num_respondents=num_respondents, max_tokens=200)
+        + _get_open_ended_generation_metric_specs()
     )
 
     run_spec_name: str = "vibe_eval"
