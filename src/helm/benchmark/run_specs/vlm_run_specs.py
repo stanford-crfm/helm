@@ -843,7 +843,10 @@ def get_mementos_spec(subject: str, num_respondents: int) -> RunSpec:
         args={"subject": subject},
     )
     adapter_spec: AdapterSpec = get_open_end_answer_generation_adapter_spec()
-    metric_specs: List[MetricSpec] = _get_gpt4v_critique_originality_metric_specs(num_respondents=num_respondents)
+    metric_specs: List[MetricSpec] = (
+        _get_prometheus_vision_critique_metric_specs(num_respondents=num_respondents, max_tokens=200)
+        + _get_open_ended_generation_metric_specs()
+    )
 
     run_spec_name: str = "mementos"
     return RunSpec(
