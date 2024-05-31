@@ -100,6 +100,25 @@ models:
   # - j2-large -> j2-light
 
 
+  # AI Singapore
+  - name: aisingapore/sea-lion-7b
+    display_name: SEA-LION (7B)
+    description: SEA-LION is a collection of language models which has been pretrained and instruct-tuned on languages from the Southeast Asia region. It utilizes the MPT architecture and a custom SEABPETokenizer for tokenization.
+    creator_organization_name: AI Singapore
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-02-24
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: aisingapore/sea-lion-7b-instruct
+    display_name: SEA-LION Instruct (7B)
+    description: SEA-LION is a collection of language models which has been pretrained and instruct-tuned on languages from the Southeast Asia region. It utilizes the MPT architecture and a custom SEABPETokenizer for tokenization.
+    creator_organization_name: AI Singapore
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-02-24
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
 
   # Aleph Alpha
   # Aleph Alpha's Luminous models: https://docs.aleph-alpha.com/docs/introduction/luminous
@@ -449,7 +468,25 @@ models:
     creator_organization_name: Cohere
     access: limited
     release_date: 2023-09-29
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: cohere/command-r
+    display_name: Cohere Command R
+    description: Command R is a multilingual 35B parameter model with a context length of 128K that has been trained with conversational tool use capabilities.
+    creator_organization_name: Cohere
+    access: open
+    num_parameters: 35000000000
+    release_date: 2024-03-11
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: cohere/command-r-plus
+    display_name: Cohere Command R Plus
+    description: Command R+ is a multilingual 104B parameter model with a context length of 128K that has been trained with conversational tool use capabilities.
+    creator_organization_name: Cohere
+    access: open
+    num_parameters: 104000000000
+    release_date: 2024-04-04
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # Craiyon
   - name: craiyon/dalle-mini
@@ -705,6 +742,14 @@ models:
     release_date: 2024-04-10
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: google/gemini-1.5-flash-preview-0514
+    display_name: Gemini 1.5 Flash (0514 preview)
+    description: Gemini 1.5 Flash is a smaller Gemini model. It has a 1 million token context window and allows interleaving text, images, audio and video as inputs. ([blog](https://blog.google/technology/developers/gemini-gemma-developer-updates-may-2024/))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2024-05-14  
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: google/gemma-2b
     display_name: Gemma (2B)
     # TODO: Fill in Gemma description.
@@ -741,6 +786,22 @@ models:
     release_date: 2024-02-21
     # TODO: Add OUTPUT_FORMAT_INSTRUCTIONS_TAG tag
     tags: [TEXT_MODEL_TAG, GOOGLE_GEMMA_INSTRUCT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/paligemma-3b-mix-224
+    display_name: PaliGemma (3B) Mix 224
+    description: PaliGemma is a versatile and lightweight vision-language model (VLM) inspired by PaLI-3 and based on open components such as the SigLIP vision model and the Gemma language model. ([blog](https://developers.googleblog.com/en/gemma-family-and-toolkit-expansion-io-2024/))
+    creator_organization_name: Google
+    access: open
+    release_date: 2024-05-12
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: google/paligemma-3b-mix-448
+    display_name: PaliGemma (3B) Mix 448
+    description: PaliGemma is a versatile and lightweight vision-language model (VLM) inspired by PaLI-3 and based on open components such as the SigLIP vision model and the Gemma language model. ([blog](https://developers.googleblog.com/en/gemma-family-and-toolkit-expansion-io-2024/))
+    creator_organization_name: Google
+    access: open
+    release_date: 2024-05-12
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: google/text-bison@001
     display_name: PaLM-2 (Bison)
@@ -1237,6 +1298,26 @@ models:
     release_date: 2024-04-18
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: meta/llama-guard-7b
+    display_name: Llama Guard (7B)
+    description: Llama-Guard is a 7B parameter Llama 2-based input-output safeguard model. It can be used for classifying content in both LLM inputs (prompt classification) and in LLM responses (response classification). It acts as an LLM it generates text in its output that indicates whether a given prompt or response is safe/unsafe, and if unsafe based on a policy, it also lists the violating subcategories.
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-12-07
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: meta/llama-guard-2-8b
+    display_name: Llama Guard 2 (8B)
+    description: Llama Guard 2 is an 8B parameter Llama 3-based LLM safeguard model. Similar to Llama Guard, it can be used for classifying content in both LLM inputs (prompt classification) and in LLM responses (response classification). It acts as an LLM – it generates text in its output that indicates whether a given prompt or response is safe or unsafe, and if unsafe, it also lists the content categories violated.
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-04-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  
+
 
   # Microsoft/NVIDIA
   - name: microsoft/TNLGv2_530B
@@ -1395,6 +1476,14 @@ models:
     # TODO: Add instruct tag.
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: allenai/olmo-1.7-7b
+    display_name: OLMo 1.7 (7B)
+    description: OLMo is a series of Open Language Models trained on the Dolma dataset. The instruct versions was trained on the Tulu SFT mixture and a cleaned version of the UltraFeedback dataset.
+    creator_organization_name: Allen Institute for AI
+    access: open
+    num_parameters: 7000000000
+    release_date: 2024-04-17
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   # Mistral AI
   - name: mistralai/mistral-7b-v0.1
@@ -1805,6 +1894,14 @@ models:
     access: limited
     release_date: 2024-04-09
     tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/gpt-4o-2024-05-13
+    display_name: GPT-4o (2024-05-13)
+    description: GPT-4o (2024-05-13) is a large multimodal model that accepts as input any combination of text, audio, and image and generates any combination of text, audio, and image outputs.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2024-04-09
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: openai/gpt-4-vision-preview
     # According to https://platform.openai.com/docs/models/gpt-4-turbo-and-gpt-4, this model has pointed gpt-4-1106-vision-preview.
@@ -2333,6 +2430,15 @@ models:
     # Does not support echo
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: writer/palmyra-vision-003
+    display_name: Palmyra Vision 003
+    description:  Palmyra Vision 003 (internal only)
+    creator_organization_name: Writer
+    access: limited
+    num_parameters: 5000000000
+    release_date: 2024-05-24
+    # Does not support echo
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_VLM_TAG]
 
 
   # Yandex
@@ -2344,3 +2450,65 @@ models:
     num_parameters: 100000000000
     release_date: 2022-06-23
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG]
+
+  # Reka
+  - name: reka/reka-core
+    display_name: Reka-Core
+    description: Reka-Core
+    creator_organization_name: Reka AI
+    access: limited
+    release_date: 2024-04-18
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: reka/reka-core-20240415
+    display_name: Reka-Core-20240415
+    description: Reka-Core-20240415
+    creator_organization_name: Reka AI
+    access: limited
+    release_date: 2024-04-18
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+  
+  - name: reka/reka-core-20240501
+    display_name: Reka-Core-20240501
+    description: Reka-Core-20240501
+    creator_organization_name: Reka AI
+    access: limited
+    release_date: 2024-05-01
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: reka/reka-flash
+    display_name: Reka-Flash (21B)
+    description: Reka-Flash (21B)
+    creator_organization_name: Reka AI
+    access: limited
+    num_parameters: 21000000000
+    release_date: 2024-04-18
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: reka/reka-flash-20240226
+    display_name: Reka-Flash-20240226 (21B)
+    description: Reka-Flash-20240226 (21B)
+    creator_organization_name: Reka AI
+    access: limited
+    num_parameters: 21000000000
+    release_date: 2024-04-18
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: reka/reka-edge
+    display_name: Reka-Edge (7B)
+    description: Reka-Edge (7B)
+    creator_organization_name: Reka AI
+    access: limited
+    num_parameters: 7000000000
+    release_date: 2024-04-18
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: reka/reka-edge-20240208
+    display_name: Reka-Edge-20240208 (7B)
+    description: Reka-Edge-20240208 (7B)
+    creator_organization_name: Reka AI
+    access: limited
+    num_parameters: 7000000000
+    release_date: 2024-04-18
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+  

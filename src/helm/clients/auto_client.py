@@ -88,6 +88,7 @@ class AutoClient(Client):
                     "location": lambda: self.credentials.get(host_organization + "Location", None),  # VertexAI
                     "hf_auth_token": lambda: self.credentials.get("huggingfaceAuthToken", None),  # HuggingFace
                     "file_cache": lambda: self._get_file_cache(host_organization),  # Text-to-image models
+                    "endpoint": lambda: self.credentials.get(host_organization + "Endpoint", None),  # Palmyra
                 },
             )
             client = create_object(client_spec)

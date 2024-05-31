@@ -39,10 +39,9 @@ class CachingClient(Client):
         """
         if request.random is not None:
             assert "random" not in raw_request
-            cache_key: Mapping = {**raw_request, "random": request.random}
+            return {**raw_request, "random": request.random}
         else:
-            cache_key = raw_request
-        return cache_key
+            return {**raw_request}
 
 
 def truncate_sequence(sequence: GeneratedOutput, request: Request, print_warning: bool = True) -> GeneratedOutput:
