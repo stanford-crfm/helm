@@ -1384,7 +1384,7 @@ class XNLIScenario(Scenario):
         outputs = []
         for split in self.splits.keys():
             df = dataset[split].to_pandas()
-            if split == "train":
+            if split == "validation":
                 data = df
             else:
                 # This produces 999 instances
@@ -1467,7 +1467,7 @@ class IndicXNLIScenario(Scenario):
     def __init__(self):
         super().__init__()
         self.splits = {
-            "train": TRAIN_SPLIT,
+            "validation": TRAIN_SPLIT,
             "test": TEST_SPLIT,
         }
         self.id2label = {
@@ -1482,7 +1482,7 @@ class IndicXNLIScenario(Scenario):
         outputs = []
         for split in self.splits.keys():
             df = dataset[split].to_pandas()
-            if split == "train":
+            if split == "validation":
                 data = df
             else:
                 # This produces 999 instances
