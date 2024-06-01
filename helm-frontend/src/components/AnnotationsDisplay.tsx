@@ -7,7 +7,10 @@ import MediaObjectDisplay from "./MediaObjectDisplay";
 // all annotations are supported generally.
 type Props = {
   predictionAnnotations:
-    | Record<string, Array<CompletionAnnotation> | Map<string, string | number>>
+    | Record<
+        string,
+        Array<CompletionAnnotation> | Record<string, string | number>
+      >
     | undefined;
 };
 
