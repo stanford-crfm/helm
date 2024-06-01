@@ -582,19 +582,23 @@ model_deployments:
   ## MedLM
   - name: google/medlm-medium
     model_name: google/medlm-medium
-    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
-    max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
-    # TODO: Max output tokens: 8192
+    tokenizer_name: google/text-bison@001
+    max_sequence_length: 6000 # Officially 8192
+    max_sequence_and_generated_tokens_length: 7000 # Officially 9216
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAITextClient"
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
 
   - name: google/medlm-large
     model_name: google/medlm-large
-    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
-    max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
-    # TODO: Max output tokens: 8192
+    tokenizer_name: google/text-bison@001
+    max_sequence_length: 6000 # Officially 8192
+    max_sequence_and_generated_tokens_length: 7000 # Officially 9216
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAITextClient"
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
 
   ## PaliGemma
   - name: google/paligemma-3b-mix-224
