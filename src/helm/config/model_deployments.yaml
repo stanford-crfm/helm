@@ -409,7 +409,7 @@ model_deployments:
     tokenizer_name: deepseek-ai/deepseek-llm-67b-chat
     max_sequence_length: 4095
     client_spec:
-      class_name: "helm.clients.together_client.TogetherClient"
+      class_name: "helm.clients.together_client.TogetherChatClient"
 
   # Gooseai
 
