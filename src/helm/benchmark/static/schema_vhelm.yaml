@@ -347,25 +347,23 @@ run_groups:
     description: Do the model support non-English languages?
     category: Core scenarios
     subgroups:
-      - vqa_chinese
-      - vqa_hindi
-      - vqa_spanish
       - a_okvqa_chinese
       - a_okvqa_hindi
       - a_okvqa_spanish
+      - a_okvqa_swahili
 
-  - name: ablation_in_context
-    display_name: Vary number of in-context examples
-    description: Vary the number of in-context training examples.
-    category: Targeted evaluations
-    visibility: this_group_only
-    subgroups:
-      - vqa_ablation_in_context
-      - a_okvqa_ablation_in_context
-    adapter_keys_shown:
-      - model
-      - model_deployment
-      - max_train_instances
+#  - name: ablation_in_context
+#    display_name: Vary number of in-context examples
+#    description: Vary the number of in-context training examples.
+#    category: Targeted evaluations
+#    visibility: this_group_only
+#    subgroups:
+#      - vqa_ablation_in_context
+#      - a_okvqa_ablation_in_context
+#    adapter_keys_shown:
+#      - model
+#      - model_deployment
+#      - max_train_instances
 
   - name: a_okvqa_base
     display_name: A-OKVQA
@@ -462,6 +460,22 @@ run_groups:
       who: Human experts
       when: "2023"
       language: Spanish
+
+  - name: a_okvqa_swahili
+    display_name: A-OKVQA (swahili)
+    description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
+    metric_groups:
+      - translate
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: multiple-choice question answering
+      what: Real-world images
+      who: Human experts
+      when: "2023"
+      language: Swahili
 
   - name: a_okvqa_ablation_in_context
     display_name: A-OKVQA (in_context examples ablation)
