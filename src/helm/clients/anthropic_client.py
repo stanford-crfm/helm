@@ -222,16 +222,6 @@ def _is_content_moderation_failure(response: Dict) -> bool:
     return False
 
 
-def _is_empty_response_failure(response: Dict) -> bool:
-    """
-    Return whether a response has empty content. Happens infrequently.
-    """
-    if "error" not in response and "content" in response and not response["content"]:
-        hlog(f"Anthropic - empty response: {response}")
-        return True
-    return False
-
-
 class AnthropicMessagesRequest(TypedDict, total=False):
     messages: List[MessageParam]
     model: str
@@ -395,20 +385,31 @@ class AnthropicMessagesClient(CachingClient):
                     elif "text" not in result["content"][0]:
                         raise AnthropicMessagesResponseError(f"Anthropic response has non-text content: {result}")
                     return result
-                except (BadRequestError, AnthropicMessagesResponseError) as e:
+                except BadRequestError as e:
                     response = e.response.json()
-                    if _is_content_moderation_failure(response) or _is_empty_response_failure(response):
+                    if _is_content_moderation_failure(response):
                         return response
                     raise
 
-            cache_key = CachingClient.make_cache_key(
-                {
-                    "completion_index": completion_index,
-                    **raw_request,
-                },
-                request,
-            )
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            try:
+                cache_key = CachingClient.make_cache_key(
+                    {
+                        "completion_index": completion_index,
+                        **raw_request,
+                    },
+                    request,
+                )
+                response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            except AnthropicMessagesResponseError:
+                hlog("WARNING: Response has empty content")
+                return RequestResult(
+                    success=False,
+                    cached=False,
+                    error="Anthropic response has empty content",
+                    completions=[],
+                    embedding=[],
+                    error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                )
 
             if _is_content_moderation_failure(response):
                 hlog(
