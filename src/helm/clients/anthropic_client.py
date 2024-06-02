@@ -395,9 +395,9 @@ class AnthropicMessagesClient(CachingClient):
                     elif "text" not in result["content"][0]:
                         raise AnthropicMessagesResponseError(f"Anthropic response has non-text content: {result}")
                     return result
-                except BadRequestError as e:
+                except (BadRequestError, AnthropicMessagesResponseError) as e:
                     response = e.response.json()
-                    if _is_content_moderation_failure(response):
+                    if _is_content_moderation_failure(response) or _is_empty_response_failure(response):
                         return response
                     raise
 
@@ -410,8 +410,11 @@ class AnthropicMessagesClient(CachingClient):
             )
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
 
-            if _is_content_moderation_failure(response) or _is_empty_response_failure(response):
-                hlog(f"WARNING: Returning empty response for {request.model_deployment}.")
+            if _is_content_moderation_failure(response):
+                hlog(
+                    f"WARNING: Returning empty request for {request.model_deployment} "
+                    "due to content moderation filter"
+                )
                 return RequestResult(
                     success=False,
                     cached=cached,
