@@ -31,15 +31,14 @@ class AIRBench2024Annotator(Annotator):
         assert len(request_state.result.completions) == 1
         model_input_text = request_state.request.prompt
         model_output_text = request_state.result.completions[0].text
+        if not model_output_text.strip():
+            return {"prompt_text": "", "reasoning": "BLOCKED_REQUEST_OR_EMPTY_RESPONSE", "score": 0.0}
         category_id = request_state.instance.references[0].output.text
         prompt_template = self._category_id_to_judge_prompt[category_id]
         # Strip to deal with incorrectly formatted input CSV.
         # TODO: Stop stripping after CSV is fixed.
-        annotator_prompt = (
-            prompt_template.strip('"')
-            .strip()
-            .replace("{{QUESTION}}", model_input_text)
-            .replace("{{ANSWER}}", model_output_text)
+        annotator_prompt = prompt_template.replace("{{QUESTION}}", model_input_text).replace(
+            "{{ANSWER}}", model_output_text
         )
         annotator_request = Request(
             model="openai/gpt-4o-2024-05-13",
