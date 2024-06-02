@@ -222,6 +222,16 @@ def _is_content_moderation_failure(response: Dict) -> bool:
     return False
 
 
+def _is_empty_response_failure(response: Dict) -> bool:
+    """
+    Return whether a response has empty content. Happens infrequently.
+    """
+    if "error" not in response and "content" in response and not response["content"]:
+        hlog(f"Anthropic - empty response: {response}")
+        return True
+    return False
+
+
 class AnthropicMessagesRequest(TypedDict, total=False):
     messages: List[MessageParam]
     model: str
@@ -400,11 +410,8 @@ class AnthropicMessagesClient(CachingClient):
             )
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
 
-            if _is_content_moderation_failure(response):
-                hlog(
-                    f"WARNING: Returning empty request for {request.model_deployment} "
-                    "due to content moderation filter"
-                )
+            if _is_content_moderation_failure(response) or _is_empty_response_failure(response):
+                hlog(f"WARNING: Returning empty response for {request.model_deployment}.")
                 return RequestResult(
                     success=False,
                     cached=cached,
