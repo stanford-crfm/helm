@@ -845,7 +845,7 @@ models:
 
   - name: google/paligemma-3b-mix-224
     display_name: PaliGemma (3B) Mix 224
-    description: PaliGemma is a versatile and lightweight vision-language model (VLM) inspired by PaLI-3 and based on open components such as the SigLIP vision model and the Gemma language model. ([blog](https://developers.googleblog.com/en/gemma-family-and-toolkit-expansion-io-2024/))
+    description: PaliGemma is a versatile and lightweight vision-language model (VLM) inspired by PaLI-3 and based on open components such as the SigLIP vision model and the Gemma language model. Finetuned on a mixture of downstream academic datasets. ([blog](https://developers.googleblog.com/en/gemma-family-and-toolkit-expansion-io-2024/))
     creator_organization_name: Google
     access: open
     release_date: 2024-05-12
@@ -853,7 +853,7 @@ models:
 
   - name: google/paligemma-3b-mix-448
     display_name: PaliGemma (3B) Mix 448
-    description: PaliGemma is a versatile and lightweight vision-language model (VLM) inspired by PaLI-3 and based on open components such as the SigLIP vision model and the Gemma language model. ([blog](https://developers.googleblog.com/en/gemma-family-and-toolkit-expansion-io-2024/))
+    description: PaliGemma is a versatile and lightweight vision-language model (VLM) inspired by PaLI-3 and based on open components such as the SigLIP vision model and the Gemma language model. Finetuned on a mixture of downstream academic datasets. ([blog](https://developers.googleblog.com/en/gemma-family-and-toolkit-expansion-io-2024/))
     creator_organization_name: Google
     access: open
     release_date: 2024-05-12
