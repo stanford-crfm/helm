@@ -611,7 +611,7 @@ model_deployments:
     max_sequence_length: 6000 # Officially 8192
     max_sequence_and_generated_tokens_length: 9216
     client_spec:
-      class_name: "helm.proxy.clients.vertexai_client.VertexAITextClient"
+      class_name: "helm.clients.vertexai_client.VertexAITextClient"
     window_service_spec:
       class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
 
@@ -652,7 +652,7 @@ model_deployments:
     max_sequence_length: 6000 # Officially 6144
     max_sequence_and_generated_tokens_length: 7168
     client_spec:
-      class_name: "helm.proxy.clients.vertexai_client.VertexAITextClient"
+      class_name: "helm.clients.vertexai_client.VertexAITextClient"
     window_service_spec:
       class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
 
