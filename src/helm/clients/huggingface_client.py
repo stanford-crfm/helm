@@ -74,7 +74,6 @@ class HuggingFaceServer:
                 OpenVINO™ Intermediate Representation (IR) format to accelerate end-to-end pipelines on \
                 Intel® architectures using OpenVINO™ runtime.
                 """
-                from pathlib import Path
                 from helm.common.optional_dependencies import handle_module_not_found_error
 
                 try:
