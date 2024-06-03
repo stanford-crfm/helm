@@ -1,0 +1,10 @@
+git+https://github.com/otuncelli/turkish-stemmer-python
+git+https://github.com/abhik1505040/bengali-stemmer
+absl-py
+nltk
+numpy
+six>=1.14
+pythainlp
+pyonmttok
+jieba
+fugashi[unidic]
