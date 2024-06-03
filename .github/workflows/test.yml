@@ -45,7 +45,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
-      - run: free -h
       - run: python3 -m pip install --upgrade build
       - run: python3 -m build
       - run: python3 -m pip install "$(ls dist/crfm_helm-*.whl)[openvino]"
