@@ -299,12 +299,14 @@ def check_limits(
 
 
 def get_args():
-    # model_name, tokenizer_name, prefix and suffix are passed as arguments
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--model-deployment-name", type=str, default="")
-    parser.add_argument("--model-name", type=str)
-    parser.add_argument("--tokenizer-name", type=str)
+    parser.add_argument(
+        "--model-deployment-name",
+        type=str,
+        help="The model deployment to compute sequence length limits for.",
+        required=True,
+    )
     parser.add_argument(
         "--prefix",
         type=str,
