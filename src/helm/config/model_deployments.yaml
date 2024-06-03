@@ -1849,6 +1849,13 @@ model_deployments:
       args:
         together_model: zero-one-ai/Yi-34B-Chat
 
+  - name: 01-ai/yi-large-preview
+    model_name: 01-ai/yi-large-preview
+    tokenizer_name: 01-ai/Yi-6B
+    max_sequence_length: 8000
+    client_spec:
+      class_name: "helm.clients.yi_client.YiChatClient"
+
 
   # Allen Institute for AI
   - name: together/olmo-7b
