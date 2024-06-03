@@ -74,7 +74,6 @@ class HuggingFaceServer:
                 OpenVINO™ Intermediate Representation (IR) format to accelerate end-to-end pipelines on \
                 Intel® architectures using OpenVINO™ runtime.
                 """
-                from pathlib import Path
                 from helm.common.optional_dependencies import handle_module_not_found_error
 
                 try:
@@ -82,23 +81,17 @@ class HuggingFaceServer:
                 except ModuleNotFoundError as e:
                     handle_module_not_found_error(e, ["openvino"])
 
-                model_file = Path(pretrained_model_name_or_path) / "openvino_model.xml"
-                if model_file.exists():
-                    export = False
-                else:
-                    export = True
-
                 self.device = "cpu"
                 # Security issue: currently we trust remote code by default.
                 # We retain this temporarily to maintain reverse compatibility.
                 # TODO: Delete if-else and don't set trust_remote_code=True
                 if "trust_remote_code" in kwargs:
                     self.model = OVModelForCausalLM.from_pretrained(
-                        pretrained_model_name_or_path, export=export, **kwargs
+                        pretrained_model_name_or_path, export=True, **kwargs
                     ).to(self.device)
                 else:
                     self.model = OVModelForCausalLM.from_pretrained(
-                        pretrained_model_name_or_path, export=export, trust_remote_code=True, **kwargs
+                        pretrained_model_name_or_path, export=True, trust_remote_code=True, **kwargs
                     ).to(self.device)
             else:
                 # Security issue: currently we trust remote code by default.
