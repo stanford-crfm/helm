@@ -734,6 +734,22 @@ models:
     release_date: 2023-12-13
     tags: [VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, GOOGLE_GEMINI_PRO_VISION_V1_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: google/gemini-1.5-pro-001
+    display_name: Gemini 1.5 Pro (001)
+    description: Gemini 1.5 Pro is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. ([paper](https://arxiv.org/abs/2403.05530))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2024-05-24
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-1.5-flash-001
+    display_name: Gemini 1.5 Flash (001)
+    description: Gemini 1.5 Flash is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. ([paper](https://arxiv.org/abs/2403.05530))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2024-05-24
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: google/gemini-1.5-pro-preview-0409
     display_name: Gemini 1.5 Pro (0409 preview)
     description: Gemini 1.5 Pro is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. ([paper](https://arxiv.org/abs/2403.05530))
@@ -742,12 +758,52 @@ models:
     release_date: 2024-04-10
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: google/gemini-1.5-pro-preview-0514
+    display_name: Gemini 1.5 Pro (0514 preview)
+    description: Gemini 1.5 Pro is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. ([paper](https://arxiv.org/abs/2403.05530))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2024-05-14
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: google/gemini-1.5-flash-preview-0514
     display_name: Gemini 1.5 Flash (0514 preview)
     description: Gemini 1.5 Flash is a smaller Gemini model. It has a 1 million token context window and allows interleaving text, images, audio and video as inputs. ([blog](https://blog.google/technology/developers/gemini-gemma-developer-updates-may-2024/))
     creator_organization_name: Google
     access: limited
     release_date: 2024-05-14  
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-1.5-pro-001-safety-default
+    display_name: Gemini 1.5 Pro (001, default safety)
+    description: Gemini 1.5 Pro is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. ([paper](https://arxiv.org/abs/2403.05530))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2024-05-24
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-1.5-pro-001-safety-block-none
+    display_name: Gemini 1.5 Pro (001, BLOCK_NONE safety)
+    description: Gemini 1.5 Pro is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. ([paper](https://arxiv.org/abs/2403.05530))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2024-05-24
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-1.5-flash-001-safety-default
+    display_name: Gemini 1.5 Flash (001, default safety)
+    description: Gemini 1.5 Flash is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. ([paper](https://arxiv.org/abs/2403.05530))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2024-05-24
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-1.5-flash-001-safety-block-none
+    display_name: Gemini 1.5 Flash (001, BLOCK_NONE safety)
+    description: Gemini 1.5 Flash is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. ([paper](https://arxiv.org/abs/2403.05530))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2024-05-24
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemma-2b
@@ -786,6 +842,22 @@ models:
     release_date: 2024-02-21
     # TODO: Add OUTPUT_FORMAT_INSTRUCTIONS_TAG tag
     tags: [TEXT_MODEL_TAG, GOOGLE_GEMMA_INSTRUCT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/paligemma-3b-mix-224
+    display_name: PaliGemma (3B) Mix 224
+    description: PaliGemma is a versatile and lightweight vision-language model (VLM) inspired by PaLI-3 and based on open components such as the SigLIP vision model and the Gemma language model. ([blog](https://developers.googleblog.com/en/gemma-family-and-toolkit-expansion-io-2024/))
+    creator_organization_name: Google
+    access: open
+    release_date: 2024-05-12
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: google/paligemma-3b-mix-448
+    display_name: PaliGemma (3B) Mix 448
+    description: PaliGemma is a versatile and lightweight vision-language model (VLM) inspired by PaLI-3 and based on open components such as the SigLIP vision model and the Gemma language model. ([blog](https://developers.googleblog.com/en/gemma-family-and-toolkit-expansion-io-2024/))
+    creator_organization_name: Google
+    access: open
+    release_date: 2024-05-12
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: google/text-bison@001
     display_name: PaLM-2 (Bison)
@@ -843,7 +915,21 @@ models:
     release_date: 2023-06-29 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/code-generation#model_versions
     tags: [CODE_MODEL_TAG]
 
+  - name: google/medlm-medium
+    display_name: MedLM (Medium)
+    description: MedLM is a family of foundation models fine-tuned for the healthcare industry based on Google Research's medically-tuned large language model, Med-PaLM 2. ([documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/medlm/overview))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-12-13
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: google/medlm-large
+    display_name: MedLM (Large)
+    description: MedLM is a family of foundation models fine-tuned for the healthcare industry based on Google Research's medically-tuned large language model, Med-PaLM 2. ([documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/medlm/overview))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-12-13
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   # HuggingFace
   - name: HuggingFaceM4/idefics2-8b
@@ -1394,7 +1480,15 @@ models:
     release_date: 2023-10-05
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-
+  # KAIST AI
+  - name: kaistai/prometheus-vision-13b-v1.0-hf
+    display_name: LLaVA + Vicuna-v1.5 (13B)
+    description: LLaVa is an open-source chatbot trained by fine-tuning LlamA/Vicuna on GPT-generated multimodal instruction-following data. ([paper](https://arxiv.org/abs/2304.08485))
+    creator_organization_name: KAIST AI
+    access: open
+    num_parameters: 13000000000
+    release_date: 2024-01-01
+    tags: [VISION_LANGUAGE_MODEL_TAG, LLAVA_MODEL_TAG, LIMITED_FUNCTIONALITY_VLM_TAG]
 
   # 01.AI
   - name: 01-ai/yi-6b
@@ -1472,25 +1566,52 @@ models:
   # Mistral AI
   - name: mistralai/mistral-7b-v0.1
     display_name: Mistral v0.1 (7B)
-    description: Mistral 7B is a 7.3B parameter transformer model that uses Grouped-Query Attention (GQA) and Sliding-Window Attention (SWA).
+    description: Mistral 7B is a 7.3B parameter transformer model that uses Grouped-Query Attention (GQA) and Sliding-Window Attention (SWA). ([blog post](https://mistral.ai/news/announcing-mistral-7b/))
+    creator_organization_name: Mistral AI
+    access: open
+    num_parameters: 7300000000
+    release_date: 2023-09-27
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: mistralai/mistral-7b-instruct-v0.1
+    display_name: Mistral v0.1 (7B)
+    description: Mistral v0.1 Instruct 7B is a 7.3B parameter transformer model that uses Grouped-Query Attention (GQA) and Sliding-Window Attention (SWA). The instruct version was fined-tuned using publicly available conversation datasets. ([blog post](https://mistral.ai/news/announcing-mistral-7b/))
     creator_organization_name: Mistral AI
     access: open
     num_parameters: 7300000000
     release_date: 2023-09-27
     tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: mistralai/mistral-7b-instruct-v0.2
+    display_name: Mistral v0.2 (7B)
+    description: Mistral v0.2 Instruct 7B is a 7.3B parameter transformer model that uses Grouped-Query Attention (GQA). Compared to v0.1, v0.2 has a 32k context window and no Sliding-Window Attention (SWA). ([blog post](https://mistral.ai/news/la-plateforme/))
+    creator_organization_name: Mistral AI
+    access: open
+    num_parameters: 7300000000
+    release_date: 2024-03-23
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/mistral-7b-instruct-v0.3
+    display_name: Mistral v0.3 (7B)
+    description: Mistral v0.3 Instruct 7B is a 7.3B parameter transformer model that uses Grouped-Query Attention (GQA). Compared to v0.1, v0.2 has a 32k context window and no Sliding-Window Attention (SWA). ([blog post](https://mistral.ai/news/la-plateforme/))
+    creator_organization_name: Mistral AI
+    access: open
+    num_parameters: 7300000000
+    release_date: 2024-05-22
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: mistralai/mixtral-8x7b-32kseqlen
     display_name: Mixtral (8x7B 32K seqlen)
-    description: Mistral AI's mixture-of-experts model ([tweet](https://twitter.com/MistralAI/status/1733150512395038967)).
+    description: Mixtral is a mixture-of-experts model that has 46.7B total parameters but only uses 12.9B parameters per token. ([blog post](https://mistral.ai/news/mixtral-of-experts/), [tweet](https://twitter.com/MistralAI/status/1733150512395038967)).
     creator_organization_name: Mistral AI
     access: open
     num_parameters: 46700000000
     release_date: 2023-12-08
-    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: mistralai/mixtral-8x7b-instruct-v0.1
     display_name: Mixtral (8x7B Instruct)
-    description: Mixtral (8x7B Instruct) is a version of Mixtral (8x7B) that was optimized through supervised fine-tuning and direct preference optimisation (DPO) for careful instruction following.
+    description: Mixtral (8x7B Instruct) is a version of Mixtral (8x7B) that was optimized through supervised fine-tuning and direct preference optimisation (DPO) for careful instruction following. ([blog post](https://mistral.ai/news/mixtral-of-experts/)).
     creator_organization_name: Mistral AI
     access: open
     num_parameters: 46700000000
@@ -1505,7 +1626,7 @@ models:
     access: open
     num_parameters: 176000000000
     release_date: 2024-04-10
-    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: mistralai/mixtral-8x22b-instruct-v0.1
     display_name: Mixtral Instruct (8x22B)
@@ -2414,6 +2535,15 @@ models:
     # Does not support echo
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: writer/palmyra-vision-003
+    display_name: Palmyra Vision 003
+    description:  Palmyra Vision 003 (internal only)
+    creator_organization_name: Writer
+    access: limited
+    num_parameters: 5000000000
+    release_date: 2024-05-24
+    # Does not support echo
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_VLM_TAG]
 
 
   # Yandex
@@ -2425,3 +2555,65 @@ models:
     num_parameters: 100000000000
     release_date: 2022-06-23
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG]
+
+  # Reka
+  - name: reka/reka-core
+    display_name: Reka-Core
+    description: Reka-Core
+    creator_organization_name: Reka AI
+    access: limited
+    release_date: 2024-04-18
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: reka/reka-core-20240415
+    display_name: Reka-Core-20240415
+    description: Reka-Core-20240415
+    creator_organization_name: Reka AI
+    access: limited
+    release_date: 2024-04-18
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+  
+  - name: reka/reka-core-20240501
+    display_name: Reka-Core-20240501
+    description: Reka-Core-20240501
+    creator_organization_name: Reka AI
+    access: limited
+    release_date: 2024-05-01
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: reka/reka-flash
+    display_name: Reka-Flash (21B)
+    description: Reka-Flash (21B)
+    creator_organization_name: Reka AI
+    access: limited
+    num_parameters: 21000000000
+    release_date: 2024-04-18
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: reka/reka-flash-20240226
+    display_name: Reka-Flash-20240226 (21B)
+    description: Reka-Flash-20240226 (21B)
+    creator_organization_name: Reka AI
+    access: limited
+    num_parameters: 21000000000
+    release_date: 2024-04-18
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: reka/reka-edge
+    display_name: Reka-Edge (7B)
+    description: Reka-Edge (7B)
+    creator_organization_name: Reka AI
+    access: limited
+    num_parameters: 7000000000
+    release_date: 2024-04-18
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: reka/reka-edge-20240208
+    display_name: Reka-Edge-20240208 (7B)
+    description: Reka-Edge-20240208 (7B)
+    creator_organization_name: Reka AI
+    access: limited
+    num_parameters: 7000000000
+    release_date: 2024-04-18
+    tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+  

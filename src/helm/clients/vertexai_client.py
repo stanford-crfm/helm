@@ -1,7 +1,7 @@
 import requests
 from abc import ABC, abstractmethod
 from threading import Lock
-from typing import Any, Dict, Optional, List, Union
+from typing import Any, Dict, Mapping, Optional, List, Union
 
 from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE
@@ -26,21 +26,61 @@ class VertexAIContentBlockedError(Exception):
     pass
 
 
+class SafetySettingPresets:
+    BLOCK_NONE = "block_none"  # Disable all blocking
+    DEFAULT = "default"  # Use default safety settings
+
+
+def _get_safety_settings_for_preset(
+    safety_settings_preset: Optional[str],
+) -> Optional[Dict[HarmCategory, SafetySetting.HarmBlockThreshold]]:
+    """Get the safety settings for the safety_settings_preset.
+
+    If safety_settings_preset is None, use the default value of BLOCK_NONE (*not* DEFAULT)."""
+    if safety_settings_preset is None or safety_settings_preset == SafetySettingPresets.BLOCK_NONE:
+        return {
+            harm_category: SafetySetting.HarmBlockThreshold(SafetySetting.HarmBlockThreshold.BLOCK_NONE)
+            for harm_category in iter(HarmCategory)
+        }
+    elif safety_settings_preset == SafetySettingPresets.DEFAULT:
+        return None
+    else:
+        raise ValueError(f"Unknown safety_settings_preset: {safety_settings_preset}")
+
+
+def _get_model_name_for_request(request: Request) -> str:
+    # We have to strip "-safety-" suffixes from model names because they are not part of the Vertex AI model name
+    # TODO: Clean up this hack
+    return request.model_engine.split("-safety-")[0]
+
+
 class VertexAIClient(CachingClient, ABC):
     """Client for Vertex AI models"""
 
-    def __init__(self, cache_config: CacheConfig, project_id: str, location: str) -> None:
+    def __init__(
+        self, cache_config: CacheConfig, project_id: str, location: str, safety_settings_preset: Optional[str] = None
+    ) -> None:
         super().__init__(cache_config=cache_config)
         self.project_id = project_id
         self.location = location
 
-        # VertexAI's default safety filter is overly sensitive, so we disable it.
-        self.safety_settings: Dict[HarmCategory, SafetySetting.HarmBlockThreshold] = {
-            harm_category: SafetySetting.HarmBlockThreshold(SafetySetting.HarmBlockThreshold.BLOCK_NONE)
-            for harm_category in iter(HarmCategory)
-        }
+        self.safety_settings_preset = safety_settings_preset
+        self.safety_settings = _get_safety_settings_for_preset(safety_settings_preset)
 
         vertexai.init(project=self.project_id, location=self.location)
+
+    def make_cache_key_with_safety_settings_preset(self, raw_request: Mapping, request: Request) -> Mapping:
+        """Construct the key for the cache using the raw request.
+
+        Add `self.safety_settings_preset` to the key, if not None."""
+        if self.safety_settings_preset is not None:
+            assert "safety_settings_preset" not in raw_request
+            return {
+                **CachingClient.make_cache_key(raw_request, request),
+                "safety_settings_preset": self.safety_settings_preset,
+            }
+        else:
+            return CachingClient.make_cache_key(raw_request, request)
 
     @abstractmethod
     def make_request(self, request: Request) -> RequestResult:
@@ -71,7 +111,7 @@ class VertexAITextClient(VertexAIClient):
         }
 
         completions: List[GeneratedOutput] = []
-        model_name: str = request.model_engine
+        model_name: str = _get_model_name_for_request(request)
 
         try:
 
@@ -87,9 +127,9 @@ class VertexAITextClient(VertexAIClient):
             # We need to include the engine's name to differentiate among requests made for different model
             # engines since the engine name is not included in the request itself.
             # Same for the prompt.
-            cache_key = CachingClient.make_cache_key(
+            cache_key = self.make_cache_key_with_safety_settings_preset(
                 {
-                    "engine": request.model_engine,
+                    "engine": model_name,
                     "prompt": request.prompt,
                     **parameters,
                 },
@@ -177,7 +217,7 @@ class VertexAIChatClient(VertexAIClient):
         }
 
         completions: List[GeneratedOutput] = []
-        model_name: str = request.model_engine
+        model_name: str = _get_model_name_for_request(request)
         model = self.get_model(model_name)
 
         try:
@@ -220,7 +260,7 @@ class VertexAIChatClient(VertexAIClient):
             # We need to include the engine's name to differentiate among requests made for different model
             # engines since the engine name is not included in the request itself.
             # Same for the prompt.
-            cache_key = CachingClient.make_cache_key(
+            cache_key = self.make_cache_key_with_safety_settings_preset(
                 {
                     "model_name": model_name,
                     "prompt": request.prompt,
@@ -315,7 +355,7 @@ class VertexAIChatClient(VertexAIClient):
         }
 
         completions: List[GeneratedOutput] = []
-        model_name: str = request.model_engine
+        model_name: str = _get_model_name_for_request(request)
         model = self.get_model(model_name)
 
         request_time = 0
@@ -357,7 +397,7 @@ class VertexAIChatClient(VertexAIClient):
                 if completion_index > 0:
                     raw_cache_key["completion_index"] = completion_index
 
-                cache_key = CachingClient.make_cache_key(raw_cache_key, request)
+                cache_key = self.make_cache_key_with_safety_settings_preset(raw_cache_key, request)
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             except requests.exceptions.RequestException as e:
                 error: str = f"Gemini Vision error: {e}"

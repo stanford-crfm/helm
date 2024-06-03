@@ -163,49 +163,6 @@ metrics:
     description: Evaluates the quality of generated caption by measuring the weighted similarity of n-grams between the captions and a set of human-written reference captions, emphasizing informativeness and consensus.
     lower_is_better: false
 
-  # Bias metrics:
-  - name: bias_metric:mode=associations,demographic_category=race,target_category=profession
-    display_name: Stereotypical associations (race, profession)
-    short_display_name: Stereotypes (race)
-    lower_is_better: true
-    description: Measures uneven association of racial groups (Asian, Hispanic, White) with target professions. This measurement is based on cooccurence statistics between the racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics) and the target professions (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
-  - name: bias_metric:mode=associations,demographic_category=race,target_category=adjective
-    display_name: Stereotypical associations (race, adjectives)
-    short_display_name: Stereotypes (race)
-    lower_is_better: true
-    description: Measures uneven association of racial groups (Asian, Hispanic, White) with target adjectives. This measurement is based on cooccurence statistics between the racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics) and the target adjectives (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
-
-  - name: bias_metric:mode=associations,demographic_category=gender,target_category=profession
-    display_name: Stereotypical associations (gender, profession)
-    short_display_name: Stereotypes (gender)
-    lower_is_better: true
-    description: Measures uneven association of gender groups (male, female) with target professions. This measurement is based on cooccurence statistics between the gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)) and the target professions (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
-  - name: bias_metric:mode=associations,demographic_category=gender,target_category=adjective
-    display_name: Stereotypical associations (gender, adjectives)
-    short_display_name: Stereotypes (gender)
-    lower_is_better: true
-    description: Measures uneven association of gender groups (male, female) with target adjectives. This measurement is based on cooccurence statistics between the gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)) and the target adjectives (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
-
-  - name: bias_metric:mode=representation,demographic_category=race
-    display_name: Demographic representation (race)
-    short_display_name: Representation (race)
-    lower_is_better: true
-    description: Measures uneven representation of racial groups (Asian, Hispanic, White). This measurement is based on disparities in the frequency statistics across racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics).
-  - name: bias_metric:mode=representation,demographic_category=gender
-    display_name: Demographic representation (gender)
-    short_display_name: Representation (gender)
-    lower_is_better: true
-    description: Measures uneven representation of gender groups (male, female). This measurement is based on disparities in the frequency statistics across gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
-
-  - name: bbq_metric_ambiguous_bias
-    display_name: BBQ (ambiguous)
-    lower_is_better: true
-    description: Metric of [Parrish et al. (2022)](https://aclanthology.org/2022.findings-acl.165/) for BBQ on ambiguous examples.
-  - name: bbq_metric_unambiguous_bias
-    display_name: BBQ (unambiguous)
-    lower_is_better: true
-    description: Metric of [Parrish et al. (2022)](https://aclanthology.org/2022.findings-acl.165/) for BBQ on unambiguous examples.
-
   # Toxicity metrics
   - name: expected_max_toxicity
     display_name: Average max toxicity
@@ -223,6 +180,9 @@ metrics:
 
 ############################################################
 perturbations:
+  - name: translate
+    display_name: Translate
+    description: Translate prompts to different languages.
   - name: robustness
     display_name: Robustness
     description: Computes worst case over different robustness perturbations (misspellings, formatting, contrast sets).
@@ -264,12 +224,6 @@ metric_groups:
       - name: ${main_name}
         split: ${main_split}
 
-  - name: efficiency
-    display_name: Efficiency
-    metrics:
-    - name: inference_runtime
-      split: ${main_split}
-
   - name: general_information
     display_name: General information
     metrics:
@@ -290,50 +244,225 @@ metric_groups:
       - name: toxic_frac
         split: ${main_split}
 
-  - name: generation_image
-    display_name: Generation (image)
+  - name: fairness
+    display_name: Fairness
     metrics:
-      - name: pixel_similarity
+      - name: ${main_name}
         split: ${main_split}
-      - name: compilation_success
-        split: ${main_split}
-      - name: fid_similarity
-        split: ${main_split}
-      - name: earth_mover_similarity
-        split: ${main_split}
+        perturbation_name: fairness
 
-  - name: generation_text
-    display_name: Generation (text)
+  - name: robustness
+    display_name: Robustness
     metrics:
-      - name: edit_similarity
+      - name: ${main_name}
         split: ${main_split}
+        perturbation_name: robustness
+
+  - name: translate
+    display_name: Translate
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+        perturbation_name: translate
+
 
 ############################################################
 run_groups:
   - name: core_scenarios
-    display_name: Core scenarios
-    description: The scenarios where we evaluate all the models.
+    display_name: All
+    description: All scenarios across capabilities
     category: All scenarios
     subgroups:
-      - hateful_memes
-      - heim_human_eval
+      - accuracy
+      - reasoning
+      - knowledge
+      - bias
+      - fairness
+      - toxicity
+      - robustness
+      - multilinguality
+  - name: accuracy
+    display_name: Accuracy
+    description: Is the output semantically correct, given the text and image inputs?
+    category: Core scenarios
+    subgroups:
+      - vqa_base
       - viz_wiz
-      - vqa
+      - flickr30k
+  - name: reasoning
+    display_name: Reasoning
+    description: Does the model understand objects, counts and spatial relations? Can the model reason about both the text and image input?
+    category: Core scenarios
+    subgroups:
+      - gqa
+      - math_vista
+      - image2webpage
+      - seed_bench
+  - name: knowledge
+    display_name: Knowledge
+    description: Does the model have knowledge about the world and common sense?
+    category: Core scenarios
+    subgroups:
+      - a_okvqa_base
       - mmmu
-      - image2structure
+      - mme
+  - name: bias
+    display_name: Bias
+    description: Are the generations biased in demographic representation? We focus on gender and skin tone bias.
+    category: Core scenarios
+    subgroups:
+      - pairs
+  - name: fairness
+    display_name: Fairness
+    description: Does the model exhibit performance disparities across different groups? We focus on gender, dialect and geographic bias.
+    category: Core scenarios
+    subgroups:
+      - vqa_dialect
+      - a_okvqa_dialect
+      - crossmodal_3600
+  - name: toxicity
+    display_name: Toxicity
+    description: Does the model generate toxic or inappropriate content? Can the model identify toxic or inappropriate content?
+    category: Core scenarios
+    subgroups:
+      - mm_safety_bench
+      - hateful_memes
+  - name: robustness
+    display_name: Robustness
+    description: Is the model robust to perturbations? We focus on both text and image perturbations.
+    category: Core scenarios
+    subgroups:
+      - vqa_robustness
+      - a_okvqa_robustness
       - unicorn
       - bingo
-      - multipanelvqa
       - pope
-      - seed_bench
-      - mme
+  - name: multilinguality
+    display_name: Multilinguality
+    description: Do the model support non-English languages?
+    category: Core scenarios
+    subgroups:
+      - vqa_chinese
+      - vqa_hindi
+      - vqa_spanish
+      - a_okvqa_chinese
+      - a_okvqa_hindi
+      - a_okvqa_spanish
 
-  - name: a_okvqa
+  - name: ablation_in_context
+    display_name: Vary number of in-context examples
+    description: Vary the number of in-context training examples.
+    category: Targeted evaluations
+    visibility: this_group_only
+    subgroups:
+      - vqa_ablation_in_context
+      - a_okvqa_ablation_in_context
+    adapter_keys_shown:
+      - model
+      - model_deployment
+      - max_train_instances
+
+  - name: a_okvqa_base
     display_name: A-OKVQA
     description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
     metric_groups:
       - accuracy
-      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: multiple-choice question answering
+      what: Real-world images
+      who: Human experts
+      when: "2023"
+      language: English
+
+  - name: a_okvqa_dialect
+    display_name: A-OKVQA (AAE)
+    description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
+    metric_groups:
+      - fairness
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: multiple-choice question answering
+      what: Real-world images
+      who: Human experts
+      when: "2023"
+      language: English
+
+  - name: a_okvqa_robustness
+    display_name: A-OKVQA (robustness)
+    description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
+    metric_groups:
+      - robustness
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: multiple-choice question answering
+      what: Real-world images
+      who: Human experts
+      when: "2023"
+      language: English
+
+  - name: a_okvqa_chinese
+    display_name: A-OKVQA (chinese)
+    description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
+    metric_groups:
+      - translate
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: multiple-choice question answering
+      what: Real-world images
+      who: Human experts
+      when: "2023"
+      language: Chinese
+
+  - name: a_okvqa_hindi
+    display_name: A-OKVQA (hindi)
+    description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
+    metric_groups:
+      - translate
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: multiple-choice question answering
+      what: Real-world images
+      who: Human experts
+      when: "2023"
+      language: Hindi
+
+  - name: a_okvqa_spanish
+    display_name: A-OKVQA (spanish)
+    description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
+    metric_groups:
+      - translate
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: multiple-choice question answering
+      what: Real-world images
+      who: Human experts
+      when: "2023"
+      language: Spanish
+
+  - name: a_okvqa_ablation_in_context
+    display_name: A-OKVQA (in_context examples ablation)
+    description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
+    metric_groups:
+      - accuracy
       - general_information
     environment:
       main_name: exact_match
@@ -350,7 +479,6 @@ run_groups:
     description: Crossmodal-3600 dataset (XM3600 in short), a geographically-diverse set of 3600 images annotated with human-generated reference captions in 36 languages. ([paper](https://arxiv.org/abs/2205.12522))
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: f1_score
@@ -367,7 +495,6 @@ run_groups:
     description: An image caption corpus consisting of 158,915 crowd-sourced captions describing 31,783 Flickr images. ([paper](https://shannon.cs.illinois.edu/DenotationGraph/TACLDenotationGraph.pdf))
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: f1_score
@@ -384,10 +511,9 @@ run_groups:
     description: Questions about real-world visual reasoning and compositional QA
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
-      main_name: f1_score
+      main_name: quasi_exact_match
       main_split: valid
     taxonomy:
       task: short answer question answering
@@ -396,38 +522,11 @@ run_groups:
       when: "2019"
       language: English
 
-  - name: heim_human_eval
-    display_name: HEIM Human Eval Scenario
-    description: Seeing if we can use VLMs to evaluate AI-generated images from HEIM
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: multiple-choice question answering
-      what: AI-generated images
-      who: Text-to-image models
-      when: "2024"
-      language: English
-
-  - name: image2structure
-    display_name: Image2Structure
-    description: Scenarios for evaluating the ability of Vision-Language models to generate structured outputs from images.
-    category: All scenarios
-    subgroups:
-      - image2latex
-      - image2webpage
-      - image2musicsheet
-
   - name: hateful_memes
     display_name: Hateful Memes
     description: The Hateful Memes benchmark for multimodal hate speech detection [(Dwibedi et al., 2020)](https://arxiv.org/pdf/2005.04790.pdf).
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -444,7 +543,6 @@ run_groups:
     description: Expose the vulnerability of open-source VLMs with toxic and biased content ([paper](https://arxiv.org/abs/2311.17600))
     metric_groups:
       - accuracy
-      - efficiency
       - toxicity
       - general_information
     environment:
@@ -457,49 +555,13 @@ run_groups:
       when: "2023"
       language: English
 
-  - name: mscoco_captioning
-    display_name: MSCOCO (captioning)
-    description: Microsoft COCO (MS-COCO) is a large-scale object detection, segmentation, and captioning dataset.
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: f1_score
-      main_split: valid
-    taxonomy:
-      task: image captioning
-      what: Real world images
-      who: Human experts
-      when: "2014"
-      language: English
-
-  - name: mscoco_categorization
-    display_name: MSCOCO (categorization)
-    description: Microsoft COCO (MS-COCO) is a large-scale object detection, segmentation, and captioning dataset.
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: valid
-    taxonomy:
-      task: image captioning
-      what: Real world images
-      who: Human experts
-      when: "2014"
-      language: English
-
   - name: viz_wiz
     display_name: VizWiz
     description: A benchmark for visual question answering with images and questions created by visually impaired people [(Gurari et al., 2018)](https://arxiv.org/abs/1802.08218).
     metric_groups:
       - accuracy
-      - efficiency
-      - general_information
     environment:
-      main_name: f1_score
+      main_name: quasi_exact_match
       main_split: valid
     taxonomy:
       task: multimodal short answer question answering
@@ -508,15 +570,110 @@ run_groups:
       when: "2018"
       language: English
 
-  - name: vqa
+  - name: vqa_base
     display_name: VQAv2
     description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
-      main_name: f1_score
+      main_name: quasi_exact_match
+      main_split: valid
+    taxonomy:
+      task: multimodal short answer question answering
+      what: Real-world images
+      who: Human experts
+      when: "2017"
+      language: English
+
+  - name: vqa_dialect
+    display_name: VQAv2 (AAE)
+    description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
+    metric_groups:
+      - fairness
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: valid
+    taxonomy:
+      task: multimodal short answer question answering
+      what: Real-world images
+      who: Human experts
+      when: "2017"
+      language: English
+
+  - name: vqa_robustness
+    display_name: VQAv2 (robustness)
+    description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
+    metric_groups:
+      - robustness
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: valid
+    taxonomy:
+      task: multimodal short answer question answering
+      what: Real-world images
+      who: Human experts
+      when: "2017"
+      language: English
+
+  - name: vqa_chinese
+    display_name: VQAv2 (chinese)
+    description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
+    metric_groups:
+      - translate
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: valid
+    taxonomy:
+      task: multimodal short answer question answering
+      what: Real-world images
+      who: Human experts
+      when: "2017"
+      language: Chinese
+
+  - name: vqa_hindi
+    display_name: VQAv2 (hindi)
+    description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
+    metric_groups:
+      - translate
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: valid
+    taxonomy:
+      task: multimodal short answer question answering
+      what: Real-world images
+      who: Human experts
+      when: "2017"
+      language: Hindi
+
+  - name: vqa_spanish
+    display_name: VQAv2 (spanish)
+    description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
+    metric_groups:
+      - translate
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: valid
+    taxonomy:
+      task: multimodal short answer question answering
+      what: Real-world images
+      who: Human experts
+      when: "2017"
+      language: Spanish
+
+  - name: vqa_ablation_in_context
+    display_name: VQAv2 (in_context examples ablation)
+    description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: quasi_exact_match
       main_split: valid
     taxonomy:
       task: multimodal short answer question answering
@@ -530,7 +687,6 @@ run_groups:
     description: Evaluating Math Reasoning in Visual Contexts
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -547,7 +703,6 @@ run_groups:
     description: A benchmark designed to evaluate multimodal models on massive multi-discipline tasks demanding college-level subject knowledge and deliberate reasoning [(Yue et al., 2023)](https://arxiv.org/abs/2311.16502).
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -580,6 +735,7 @@ run_groups:
     description: Open-ended questions about biased images
     metric_groups:
       - accuracy
+      - general_information
     environment:
       main_name: f1_score
       main_split: test
@@ -595,7 +751,6 @@ run_groups:
     description: Question about real-world or synthetic multipanel images for evaluating multi-panel image reasoning ability
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -612,7 +767,6 @@ run_groups:
     description: Open-ended questions about object appearance in real-world images for evaluating hallucination behaviour
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -626,11 +780,9 @@ run_groups:
 
   - name: seed_bench
     display_name: Seed Bench 
-    description: A massive multiple-choice question-answering benchmark that spans 9 evaluation aspects with the image input
-    including the comprehension of both the image and video modality
+    description: A massive multiple-choice question-answering benchmark that spans 9 evaluation aspects with the image input including the comprehension of both the image and video modality
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -647,7 +799,6 @@ run_groups:
     description: A comprehensive MLLM Evaluation benchmark with perception and cognition evaluations on 14 subtasks
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -664,6 +815,7 @@ run_groups:
     description: A Comprehensive Benchmark for Multimodal Large Language Model Reasoning over Image Sequences
     metric_groups:
       - accuracy
+      - general_information
     environment:
       main_name: f1_score
       main_split: test
@@ -674,33 +826,11 @@ run_groups:
       when: "2024"
       language: English
 
-  - name: image2latex
-    display_name: Image2LaTeX
-    description: The Image2LaTeX benchmark for converting images of mathematical equations, tables. algorithms and tikz to LaTeX.
-    metric_groups:
-      - accuracy
-      - generation_image
-      - generation_text
-      - efficiency
-      - general_information
-    environment:
-      main_name: earth_mover_similarity
-      main_split: valid
-    taxonomy:
-      task: image-to-text
-      what: mathematical equations, tables, algorithms, tikz
-      who: n/a
-      when: "2024"
-      language: English
-
   - name: image2webpage
     display_name: Image2webpage
     description: The Image2webpage benchmark for converting images of webpages to HTML/CSS/Javascript.
     metric_groups:
       - accuracy
-      - generation_image
-      - generation_text
-      - efficiency
       - general_information
     environment:
       main_name: earth_mover_similarity
@@ -712,47 +842,11 @@ run_groups:
       when: "2024"
       language: English
 
-  - name: image2musicsheet
-    display_name: Image2musicsheet
-    description: The Image2musicsheet benchmark for converting images of music sheets to LilyPond.
-    metric_groups:
-      - accuracy
-      - generation_image
-      - efficiency
-      - general_information
-    environment:
-      main_name: earth_mover_similarity
-      main_split: valid
-    taxonomy:
-      task: image-to-text
-      what: music sheets
-      who: n/a
-      when: "2024"
-      language: English
-
-  - name: chart2csv
-    display_name: Chart2CSV
-    description: The Chart2CSV benchmark for converting images of charts to CSV.
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: chart to CSV
-      what: plots
-      who: n/a
-      when: "2024"
-      language: English
-
   - name: pairs
     display_name: PAIRS
     description: Examining Gender and Racial Bias in Large Vision-Language Models Using a Novel Dataset of Parallel Images.
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: exact_match

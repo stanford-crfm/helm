@@ -25,6 +25,8 @@ class CritiqueParseError(Exception):
 class ModelCritiqueClient(CritiqueClient):
     """A CritiqueClient that queries a Model to answer CritiqueRequests."""
 
+    VISION_LANGUAGE_MODELS = ["openai/gpt-4-vision", "reka/reka", "huggingface/prometheus-vision"]
+
     def __init__(self, client: Client, model_name):
         self._client = client
         self._model_name = model_name
@@ -32,7 +34,11 @@ class ModelCritiqueClient(CritiqueClient):
             get_default_model_deployment_for_model(model_name, warn_arg_deprecated=False, ignore_deprecated=True)
             or self._model_name
         )
-        self.vision_language = True if model_name.startswith("openai/gpt-4-vision") else False
+        self.vision_language = False
+        for vision_language_model_name in self.VISION_LANGUAGE_MODELS:
+            if model_name.startswith(vision_language_model_name):
+                self.vision_language = True
+                break
 
     def _interpolate_fields(self, text: str, fields: Dict[str, str]) -> str:
         for key, value in fields.items():
@@ -60,10 +66,15 @@ class ModelCritiqueClient(CritiqueClient):
 
         requests: List[Request] = []
         for question in task.questions:
-            prompt: str = base_prompt + "\n\n" + self._question_to_prompt(question, fields)
+            prompt: str
+            if len(question.text) > 0:
+                prompt = base_prompt + "\n\n" + self._question_to_prompt(question, fields)
+            else:
+                # We may don't want to add extra newlines and prompts
+                # if the question text is empty (e.g., the Vibe-Eval evaluator).
+                prompt = base_prompt
             if question.question_type == "free_response":
-                # TODO: Make max_tokens configurable
-                max_tokens = 100
+                max_tokens = 100 if task.max_tokens is None else task.max_tokens
             elif question.question_type == "checkbox":
                 # We multiply by 2 because the model will generate a comma after each option.
                 max_tokens = len(question.options) * 2
