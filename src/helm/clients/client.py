@@ -44,7 +44,12 @@ class CachingClient(Client):
             return {**raw_request}
 
 
-def truncate_sequence(sequence: GeneratedOutput, request: Request, print_warning: bool = True) -> GeneratedOutput:
+def truncate_sequence(
+    sequence: GeneratedOutput,
+    request: Request,
+    end_of_text_token: Optional[str] = None,
+    print_warning: bool = True,
+) -> GeneratedOutput:
     """
     Certain providers have bugs where they aren't respecting max_tokens,
     stop_sequences and the end of text token, so as a hack, we have to manually
@@ -63,7 +68,11 @@ def truncate_sequence(sequence: GeneratedOutput, request: Request, print_warning
             hlog("WARNING: don't know how to handle echo_prompt and max_tokens > 0, not truncating")
         return sequence
 
-    for stop in request.stop_sequences:
+    if end_of_text_token:
+        stop_sequences = request.stop_sequences + [end_of_text_token]
+    else:
+        stop_sequences = request.stop_sequences
+    for stop in stop_sequences:
         # Find `stop` in the text
         try:
             new_text = sequence.text[: sequence.text.index(stop)]
@@ -115,7 +124,12 @@ def truncate_sequence(sequence: GeneratedOutput, request: Request, print_warning
 
 
 def truncate_and_tokenize_response_text(
-    text: str, request: Request, tokenizer: Tokenizer, tokenizer_name: str, original_finish_reason: str = "endoftext"
+    text: str,
+    request: Request,
+    tokenizer: Tokenizer,
+    tokenizer_name: str,
+    end_of_text_token: Optional[str] = None,
+    original_finish_reason: str = "endoftext",
 ) -> GeneratedOutput:
     """Truncate a string-only response to respect stop_sequences and max_tokens.
 
@@ -138,7 +152,11 @@ def truncate_and_tokenize_response_text(
     if request.echo_prompt:
         raise Exception("truncate_and_tokenize_response_text() does not support requests with echo_prompt = True")
 
-    for stop_sequence in request.stop_sequences:
+    if end_of_text_token:
+        stop_sequences = request.stop_sequences + [end_of_text_token]
+    else:
+        stop_sequences = request.stop_sequences
+    for stop_sequence in stop_sequences:
         try:
             text = text[: text.index(stop_sequence)]
             finish_reason = "stop"

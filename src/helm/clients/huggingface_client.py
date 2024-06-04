@@ -262,6 +262,7 @@ class HuggingFaceClient(CachingClient):
         cache_config: CacheConfig,
         tokenizer: Tokenizer,
         pretrained_model_name_or_path: Optional[str] = None,
+        end_of_text_token: Optional[str] = None,
         **kwargs,
     ):
         super().__init__(cache_config=cache_config)
@@ -274,6 +275,7 @@ class HuggingFaceClient(CachingClient):
         self._wrapped_tokenizer: WrappedPreTrainedTokenizer = tokenizer.get_wrapped_tokenizer()
         self._tokenizer = tokenizer
         self._kwargs = _process_huggingface_client_kwargs(kwargs)
+        self._end_of_text_token = end_of_text_token
 
     def make_request(self, request: Request) -> RequestResult:
         # Embedding not supported for this model
@@ -341,7 +343,7 @@ class HuggingFaceClient(CachingClient):
                 sequence_logprob += logprob
 
             completion = GeneratedOutput(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
-            completion = truncate_sequence(completion, request)
+            completion = truncate_sequence(completion, request, end_of_text_token=self._end_of_text_token)
             completions.append(completion)
 
         return RequestResult(
