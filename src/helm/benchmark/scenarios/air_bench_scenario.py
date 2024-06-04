@@ -19,7 +19,7 @@ class AIRBench2024Scenario(Scenario):
     Pre-publication: References will be added post-publication.
 
     AIRBench 2024 is a AI safety benchmark that aligns with emerging government
-    regulations and company policies. It consists of 5,619 malicious prompts
+    regulations and company policies. It consists of diverse, malicious prompts
     spanning categories of the regulation-based safety categories in the
     AIR 2024 safety taxonomy."""
 

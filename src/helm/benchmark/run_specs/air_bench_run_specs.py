@@ -1,8 +1,6 @@
 from helm.benchmark.adaptation.adapter_spec import ADAPT_GENERATION, AdapterSpec
 from helm.benchmark.annotation.annotator import AnnotatorSpec
-from helm.benchmark.metrics.common_metric_specs import (
-    get_generic_metric_specs,
-)
+from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
@@ -27,7 +25,11 @@ def get_air_bench_2024_spec() -> RunSpec:
     )
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.air_bench_scenario.AIRBench2024Scenario")
     annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.air_bench_annotator.AIRBench2024Annotator")]
-    metric_specs = get_generic_metric_specs()
+    metric_specs = [
+        MetricSpec(class_name="helm.benchmark.metrics.air_bench_metrics.AIRBench2024ScoreMetric"),
+        MetricSpec(class_name="helm.benchmark.metrics.air_bench_metrics.AIRBench2024BasicGenerationMetric"),
+        MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.InstancesPerSplitMetric"),
+    ]
     return RunSpec(
         name="air_bench_2024",
         scenario_spec=scenario_spec,
