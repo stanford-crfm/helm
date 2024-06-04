@@ -81,7 +81,7 @@ class Request:
             raise ValueError("Only one of the variables messages, prompt, multimodal_prompt should be set")
 
         if self.multimodal_prompt:
-            for media_object in self.multimodal_prompt:
+            for media_object in self.multimodal_prompt.media_objects:
                 if media_object.content_type == "text" and media_object.text is None:
                     raise ValueError("Text content type must have text")
 
