@@ -311,7 +311,6 @@ run_groups:
     subgroups:
       - gqa
       - math_vista
-      - image2webpage
       - seed_bench
   - name: real_world_reasoning
     display_name: Real-world Reasoning
@@ -828,22 +827,6 @@ run_groups:
       task: short answer question answering
       what: Image sequences of comics, dailylife and robotics
       who: Human experts
-      when: "2024"
-      language: English
-
-  - name: image2webpage
-    display_name: Image2webpage
-    description: The Image2webpage benchmark for converting images of webpages to HTML/CSS/Javascript.
-    metric_groups:
-      - accuracy
-      - general_information
-    environment:
-      main_name: earth_mover_similarity
-      main_split: valid
-    taxonomy:
-      task: image-to-text
-      what: css, html, javascript
-      who: n/a
       when: "2024"
       language: English
 

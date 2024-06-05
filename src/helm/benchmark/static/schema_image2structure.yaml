@@ -183,21 +183,6 @@ run_groups:
       - image2webpage
       - image2musicsheet
 
-  - name: core_scenarios_by_difficulty
-    display_name: Image2Structure by difficulty
-    description: Scenarios for evaluating the ability of Vision-Language models to generate structured outputs from images. These scenarios are divided into easy, medium, and hard subsets based on some heuristics.
-    category: All scenarios
-    subgroups:
-      - image2latex_easy
-      - image2latex_medium
-      - image2latex_hard
-      - image2webpage_easy
-      - image2webpage_medium
-      - image2webpage_hard
-      - image2musicsheet_easy
-      - image2musicsheet_medium
-      - image2musicsheet_hard
-
   - name: image2structure_real
     display_name: Image2Structure (Wild)
     description: Scenarios for evaluating the ability of Vision-Language models to generate structured outputs from images. These scenarios contain images that do not have a ground truth.
