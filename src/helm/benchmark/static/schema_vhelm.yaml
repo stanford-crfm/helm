@@ -313,6 +313,13 @@ run_groups:
       - math_vista
       - image2webpage
       - seed_bench
+  - name: real_world_reasoning
+    display_name: Real-world Reasoning
+    description: Reasoning in the real-world
+    category: Core scenarios
+    subgroups:
+      - gqa
+      - seed_bench
   - name: knowledge
     display_name: Knowledge
     description: Does the model have knowledge about the world and common sense?
