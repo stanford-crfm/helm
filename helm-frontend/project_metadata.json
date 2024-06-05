@@ -36,6 +36,12 @@
 		"releases": ["v1.0.0"]
 	},
 	{
+		"title": "AIRbench",
+		"description": "Safety benchmark based on emerging government regulations and company policies",
+		"id": "air-bench",
+		"releases": ["v1.0.0"]
+	},
+	{
 		"title": "All Leaderboards",
 		"description": "Home page for all HELM leaderboards",
 		"id": "home",
