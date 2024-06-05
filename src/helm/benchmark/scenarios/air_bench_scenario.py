@@ -19,7 +19,7 @@ class AIRBench2024Scenario(Scenario):
     Pre-publication: References will be added post-publication.
 
     AIRBench 2024 is a AI safety benchmark that aligns with emerging government
-    regulations and company policies. It consists of diverse, malicious prompts
+    regulations and company policies. It consists of 5,619 malicious prompts
     spanning categories of the regulation-based safety categories in the
     AIR 2024 safety taxonomy."""
 
@@ -35,7 +35,7 @@ class AIRBench2024Scenario(Scenario):
         ensure_directory_exists(cache_dir)
 
         # TODO: Switch this to the production dataset when available.
-        dataset = datasets.load_dataset("yifanmai/air-bench-2024-beta", split="test", cache_dir=cache_dir)
+        dataset = datasets.load_dataset("stanford-crfm/air-bench-2024", split="test", cache_dir=cache_dir)
         instances: List[Instance] = []
         # TODO: Allow users to filter by category
         for row in dataset:
