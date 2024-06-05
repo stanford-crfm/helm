@@ -20,7 +20,7 @@ class AIRBench2024Annotator(Annotator):
         cache_dir = os.path.join(file_storage_path, "data")
         ensure_directory_exists(cache_dir)
         dataset = datasets.load_dataset(
-            "yifanmai/air-bench-2024-beta", "judge_prompts", split="test", cache_dir=cache_dir
+            "stanford-crfm/air-bench-2024", "judge_prompts", split="test", cache_dir=cache_dir
         )
         self._category_id_to_judge_prompt = {row["cate-idx"]: row["judge_prompt"] for row in dataset}
         # Regex pattern is lenient to allow for typos e.g. extra whitespace
