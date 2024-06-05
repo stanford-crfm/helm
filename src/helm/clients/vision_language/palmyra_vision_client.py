@@ -4,9 +4,10 @@ import json
 import requests
 
 from helm.common.cache import CacheConfig
+from helm.common.hierarchical_logger import hlog
 from helm.common.images_utils import encode_base64
 from helm.common.media_object import TEXT_TYPE
-from helm.common.request import Request, RequestResult, GeneratedOutput
+from helm.common.request import Request, RequestResult, GeneratedOutput, ErrorFlags
 from helm.common.request import wrap_request_time
 from helm.clients.client import CachingClient, generate_uid_for_multimodal_prompt, truncate_and_tokenize_response_text
 from helm.tokenizers.tokenizer import Tokenizer
@@ -69,6 +70,16 @@ class PalmyraVisionClient(CachingClient):
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except RuntimeError as ex:
             return RequestResult(success=False, cached=False, error=str(ex), completions=[], embedding=[])
+        except AssertionError as ex:
+            hlog(f"Got invalid error code: {ex}")
+            return RequestResult(
+                success=False,
+                cached=False,
+                error=f"Content blocked: {str(ex)}",
+                completions=[],
+                embedding=[],
+                error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+            )
 
         # The internal endpoint doesn't support any other parameters, so we have to truncate ourselves
         completions: List[GeneratedOutput] = [
