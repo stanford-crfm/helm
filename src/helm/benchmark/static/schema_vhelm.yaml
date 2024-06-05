@@ -227,17 +227,17 @@ metric_groups:
     metrics:
       - name: ${main_name}
         split: ${main_split}
-      - name: toxic_frac
-        split: ${main_split}
-      - name: ${main_name}
-        split: ${main_split}
-        perturbation_name: fairness
-      - name: ${main_name}
-        split: ${main_split}
-        perturbation_name: robustness
-      - name: ${main_name}
-        split: ${main_split}
-        perturbation_name: translate
+#      - name: toxic_frac
+#        split: ${main_split}
+#      - name: ${main_name}
+#        split: ${main_split}
+#        perturbation_name: fairness
+#      - name: ${main_name}
+#        split: ${main_split}
+#        perturbation_name: robustness
+#      - name: ${main_name}
+#        split: ${main_split}
+#        perturbation_name: translate
 
   - name: general_information
     display_name: General information
