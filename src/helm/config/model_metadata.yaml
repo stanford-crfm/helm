@@ -744,7 +744,7 @@ models:
 
   - name: google/gemini-1.5-pro-001
     display_name: Gemini 1.5 Pro (001)
-    description: Gemini 1.5 Pro is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. ([paper](https://arxiv.org/abs/2403.05530))
+    description: Gemini 1.5 Pro is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. This model is accessed through Vertex AI and has all safety thresholds set to `BLOCK_NONE`. ([paper](https://arxiv.org/abs/2403.05530))
     creator_organization_name: Google
     access: limited
     release_date: 2024-05-24
@@ -752,7 +752,7 @@ models:
 
   - name: google/gemini-1.5-flash-001
     display_name: Gemini 1.5 Flash (001)
-    description: Gemini 1.5 Flash is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. ([paper](https://arxiv.org/abs/2403.05530))
+    description: Gemini 1.5 Flash is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. This model is accessed through Vertex AI and has all safety thresholds set to `BLOCK_NONE`. ([paper](https://arxiv.org/abs/2403.05530))
     creator_organization_name: Google
     access: limited
     release_date: 2024-05-24
@@ -760,7 +760,7 @@ models:
 
   - name: google/gemini-1.5-pro-preview-0409
     display_name: Gemini 1.5 Pro (0409 preview)
-    description: Gemini 1.5 Pro is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. ([paper](https://arxiv.org/abs/2403.05530))
+    description: Gemini 1.5 Pro is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. This model is accessed through Vertex AI and has all safety thresholds set to `BLOCK_NONE`. ([paper](https://arxiv.org/abs/2403.05530))
     creator_organization_name: Google
     access: limited
     release_date: 2024-04-10
@@ -768,7 +768,7 @@ models:
 
   - name: google/gemini-1.5-pro-preview-0514
     display_name: Gemini 1.5 Pro (0514 preview)
-    description: Gemini 1.5 Pro is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. ([paper](https://arxiv.org/abs/2403.05530))
+    description: Gemini 1.5 Pro is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. This model is accessed through Vertex AI and has all safety thresholds set to `BLOCK_NONE`. ([paper](https://arxiv.org/abs/2403.05530))
     creator_organization_name: Google
     access: limited
     release_date: 2024-05-14
@@ -776,7 +776,7 @@ models:
 
   - name: google/gemini-1.5-flash-preview-0514
     display_name: Gemini 1.5 Flash (0514 preview)
-    description: Gemini 1.5 Flash is a smaller Gemini model. It has a 1 million token context window and allows interleaving text, images, audio and video as inputs. ([blog](https://blog.google/technology/developers/gemini-gemma-developer-updates-may-2024/))
+    description: Gemini 1.5 Flash is a smaller Gemini model. It has a 1 million token context window and allows interleaving text, images, audio and video as inputs. This model is accessed through Vertex AI and has all safety thresholds set to `BLOCK_NONE`. ([blog](https://blog.google/technology/developers/gemini-gemma-developer-updates-may-2024/))
     creator_organization_name: Google
     access: limited
     release_date: 2024-05-14  
@@ -784,7 +784,7 @@ models:
 
   - name: google/gemini-1.5-pro-001-safety-default
     display_name: Gemini 1.5 Pro (001, default safety)
-    description: Gemini 1.5 Pro is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. ([paper](https://arxiv.org/abs/2403.05530))
+    description: Gemini 1.5 Pro is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. This model is accessed through Vertex AI and uses default safety settings. ([paper](https://arxiv.org/abs/2403.05530))
     creator_organization_name: Google
     access: limited
     release_date: 2024-05-24
@@ -792,7 +792,7 @@ models:
 
   - name: google/gemini-1.5-pro-001-safety-block-none
     display_name: Gemini 1.5 Pro (001, BLOCK_NONE safety)
-    description: Gemini 1.5 Pro is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. ([paper](https://arxiv.org/abs/2403.05530))
+    description: Gemini 1.5 Pro is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. This model is accessed through Vertex AI and has all safety thresholds set to `BLOCK_NONE`. ([paper](https://arxiv.org/abs/2403.05530))
     creator_organization_name: Google
     access: limited
     release_date: 2024-05-24
@@ -800,7 +800,7 @@ models:
 
   - name: google/gemini-1.5-flash-001-safety-default
     display_name: Gemini 1.5 Flash (001, default safety)
-    description: Gemini 1.5 Flash is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. ([paper](https://arxiv.org/abs/2403.05530))
+    description: Gemini 1.5 Flash is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. This model is accessed through Vertex AI and uses default safety settings. ([paper](https://arxiv.org/abs/2403.05530))
     creator_organization_name: Google
     access: limited
     release_date: 2024-05-24
@@ -808,7 +808,7 @@ models:
 
   - name: google/gemini-1.5-flash-001-safety-block-none
     display_name: Gemini 1.5 Flash (001, BLOCK_NONE safety)
-    description: Gemini 1.5 Flash is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. ([paper](https://arxiv.org/abs/2403.05530))
+    description: Gemini 1.5 Flash is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. This model is accessed through Vertex AI and has all safety thresholds set to `BLOCK_NONE`. ([paper](https://arxiv.org/abs/2403.05530))
     creator_organization_name: Google
     access: limited
     release_date: 2024-05-24
