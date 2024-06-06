@@ -227,17 +227,6 @@ metric_groups:
     metrics:
       - name: ${main_name}
         split: ${main_split}
-#      - name: toxic_frac
-#        split: ${main_split}
-#      - name: ${main_name}
-#        split: ${main_split}
-#        perturbation_name: fairness
-#      - name: ${main_name}
-#        split: ${main_split}
-#        perturbation_name: robustness
-#      - name: ${main_name}
-#        split: ${main_split}
-#        perturbation_name: translate
 
   - name: general_information
     display_name: General information
@@ -369,19 +358,6 @@ run_groups:
       - a_okvqa_hindi
       - a_okvqa_spanish
       - a_okvqa_swahili
-
-#  - name: ablation_in_context
-#    display_name: Vary number of in-context examples
-#    description: Vary the number of in-context training examples.
-#    category: Targeted evaluations
-#    visibility: this_group_only
-#    subgroups:
-#      - vqa_ablation_in_context
-#      - a_okvqa_ablation_in_context
-#    adapter_keys_shown:
-#      - model
-#      - model_deployment
-#      - max_train_instances
 
   - name: a_okvqa_base
     display_name: A-OKVQA
