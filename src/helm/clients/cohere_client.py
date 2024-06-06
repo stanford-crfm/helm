@@ -1,6 +1,8 @@
 import json
+from helm.common.tokenization_request import TokenizationRequest, TokenizationRequestResult
+from helm.tokenizers.tokenizer import Tokenizer
 import requests
-from typing import List, Optional, Sequence, TypedDict
+from typing import List, Optional, Sequence, TypedDict, cast
 
 from helm.common.cache import CacheConfig
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -201,9 +203,11 @@ class CohereChatClient(CachingClient):
     Cohere models will only support chat soon: https://docs.cohere.com/docs/migrating-from-cogenerate-to-cochat
     """
 
-    def __init__(self, api_key: str, cache_config: CacheConfig):
+    def __init__(self, api_key: str, cache_config: CacheConfig, tokenizer: Tokenizer, tokenizer_name: str):
         super().__init__(cache_config=cache_config)
         self.client = cohere.Client(api_key=api_key)
+        self.tokenizer = tokenizer
+        self.tokenizer_name = tokenizer_name
 
     def make_request(self, request: Request) -> RequestResult:
         if request.embedding:
@@ -235,8 +239,18 @@ class CohereChatClient(CachingClient):
             error: str = f"CohereClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
+        text = response["text"]
+        tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
+                TokenizationRequest(text, tokenizer=self.tokenizer_name)
+        )
+        
+        # Log probs are not currently not supported by the OpenAI chat completion API, so set to 0 for now.
+        tokens: List[Token] = [
+            Token(text=cast(str, raw_token), logprob=0) for raw_token in tokenization_result.raw_tokens
+        ]
+        
         completions: List[GeneratedOutput] = []
-        completion: GeneratedOutput = GeneratedOutput(text=response["text"], logprob=0.0, tokens=[])
+        completion: GeneratedOutput = GeneratedOutput(text=text, logprob=0.0, tokens=tokens)
         completions.append(completion)
 
         return RequestResult(

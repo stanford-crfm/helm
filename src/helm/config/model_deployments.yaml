@@ -484,6 +484,30 @@ model_deployments:
     # TODO: Max output tokens: 8192
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+    
+  - name: google/gemini-1.5-flash
+    model_name: google/gemini-1.5-flash
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+    # TODO: Max output tokens: 8192
+    client_spec:
+      class_name: "helm.clients.gemini_client.GeminiChatClient"
+
+  - name: google/gemini-1.5-pro
+    model_name: google/gemini-1.5-pro
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+    # TODO: Max output tokens: 8192
+    client_spec:
+      class_name: "helm.clients.gemini_client.GeminiChatClient"
+      
+  - name: google/gemini-1.0-pro
+    model_name: google/gemini-1.0-pro
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+    # TODO: Max output tokens: 8192
+    client_spec:
+      class_name: "helm.clients.gemini_client.GeminiChatClient"
 
   ## Gemma
   - name: together/gemma-2b
