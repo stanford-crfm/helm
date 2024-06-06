@@ -872,7 +872,7 @@ def get_vibe_eval_spec(subject: str, num_respondents: int) -> RunSpec:
 
     run_spec_name: str = "vibe_eval"
     return RunSpec(
-        name=run_spec_name,
+        name=f"{run_spec_name}:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,

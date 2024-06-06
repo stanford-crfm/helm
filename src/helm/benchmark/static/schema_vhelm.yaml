@@ -319,6 +319,7 @@ run_groups:
     subgroups:
       - gqa
       - seed_bench
+      - mementos
   - name: knowledge
     display_name: Knowledge
     description: Does the model have knowledge about the world and common sense?
