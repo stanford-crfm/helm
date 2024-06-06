@@ -70,16 +70,6 @@ class PalmyraVisionClient(CachingClient):
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except RuntimeError as ex:
             return RequestResult(success=False, cached=False, error=str(ex), completions=[], embedding=[])
-        except AssertionError as ex:
-            hlog(f"Got invalid error code: {ex}")
-            return RequestResult(
-                success=False,
-                cached=False,
-                error=f"Content blocked: {str(ex)}",
-                completions=[],
-                embedding=[],
-                error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
-            )
 
         # The internal endpoint doesn't support any other parameters, so we have to truncate ourselves
         completions: List[GeneratedOutput] = [
