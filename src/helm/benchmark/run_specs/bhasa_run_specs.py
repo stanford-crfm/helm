@@ -6,7 +6,6 @@ from helm.benchmark.adaptation.common_adapter_specs import (
     get_multiple_choice_separate_adapter_spec,
 )
 from helm.benchmark.metrics.bhasa_metrics import (
-    get_bhasa_summarization_metric_specs,
     get_bhasa_machine_translation_metric_specs,
     get_bhasa_qa_metric_specs,
 )
@@ -305,7 +304,6 @@ def get_thaitoxicitytweets_spec() -> RunSpec:
 
 # B. Natural Language Generation
 #   1. Machine Translation
-#   2. Abstractive Summarization
 
 # 1. Machine Translation: FLoRes-200
 TRANSLATION_PROMPTS = {
@@ -381,63 +379,6 @@ def generate_flores_run_spec(source="en", target="id"):
 @run_spec_function("flores")
 def get_flores_spec(source="en", target="id") -> RunSpec:
     return generate_flores_run_spec(source, target)
-
-# 2. Abstractive Summarization: XL-Sum
-XLSUM_PROMPTS = {
-    "id": {
-        "instructions": "Rangkumkan artikel Bahasa Indonesia berikut ini dalam 1 atau 2 kalimat.",
-        "input_noun": "Artikel",
-        "output_noun": "Rangkuman",
-    },
-    "ta": {
-        "instructions": "பின்வரும் தமிழ்க் கட்டுரைக்கு 1 அல்லது 2 வாக்கியங்களில் பொழிப்பு எழுதவும்.",
-        "input_noun": "கட்டுரை",
-        "output_noun": "கட்டுரைப் பொழிப்பு",
-    },
-    "th": {
-        "instructions": "กรุณาสรุปบทความภาษาไทยต่อไปนี้ใน 1 หรือ 2 ประโยค",
-        "input_noun": "บทความ",
-        "output_noun": "บทสรุป",
-    },
-    "vi": {
-        "instructions": "Tóm tắt bài báo Tiếng Việt dưới đây với 1 hay 2 câu.",
-        "input_noun": "Bài báo",
-        "output_noun": "Bản tóm tắt",
-    }
-}
-
-def generate_xlsum_run_spec(language="id"):
-    name = f"xlsum_{language}"
-
-    adapter_spec = get_generation_adapter_spec(
-        instructions=XLSUM_PROMPTS[language]["instructions"],
-        input_noun=XLSUM_PROMPTS[language]["input_noun"],
-        output_noun=XLSUM_PROMPTS[language]["output_noun"],
-        stop_sequences=["\n"],
-        max_tokens=512,
-        temperature=0.3,
-    )
-
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.bhasa_scenario.XLSumScenario",
-        args={
-            "language": language,
-        },
-    )
-
-    return RunSpec(
-        name=name,
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_bhasa_summarization_metric_specs(args={
-            "language": language
-        }),
-        groups=["bhasa_nlg", f"xlsum_{language}"],
-    )
-
-@run_spec_function("xlsum")
-def get_xlsum_spec(language="id") -> RunSpec:
-    return generate_xlsum_run_spec(language)
 
 # C. Natural Language Reasoning
 #   1. Natural Language Inference

@@ -1025,7 +1025,6 @@ class ThaiToxicityTweetsScenario(Scenario):
 
 # B. Natural Language Generation
 #   1. Machine Translation
-#   2. Abstractive Summarization
 
 # 1. Machine Translation: FLoRes-200
 class FloresScenario(Scenario):
@@ -1096,108 +1095,6 @@ class FloresScenario(Scenario):
             for _, row in data.iterrows():
                 input = Input(row["sentence_source"].strip())
                 output = Output(row["sentence_target"].strip())
-                references = [
-                    Reference(output, tags=[CORRECT_TAG]),
-                ]
-                instance = Instance(
-                    input=input,
-                    references=references,
-                    split=self.splits[split]
-                )
-                outputs.append(instance)
-        return outputs
-
-# 2. Abstractive Summarization: XL-Sum
-class XLSumScenario(Scenario):
-    """
-    The XL-Sum scenario is an abstractive summarization scenario for 44 languages. The data is obtained from BBC articles
-    which typically have a professionally written summary in the form of a bold paragraph containing one or two sentences
-    at the beginning of the article. This bold paragraph is automatically extracted and used as the ground truth summary.
-
-    Only the Indonesian, Vietnamese, Thai and Tamil subsets of the data are used for this scenario.
-
-    The models are prompted using the following general format:
-
-        Summarize this <language> language article in 1 or 2 sentences. The answer must be written in <language> language.
-
-        Article: <text>
-        Summary: <summary>
-
-        ...
-
-        Article: <text>
-        Summary:
-
-    Target completion:
-        <summary>
-
-    @inproceedings{hasan-etal-2021-xl,
-        title = "{XL}-Sum: Large-Scale Multilingual Abstractive Summarization for 44 Languages",
-        author = "Hasan, Tahmid  and
-            Bhattacharjee, Abhik  and
-            Islam, Md. Saiful  and
-            Mubasshir, Kazi  and
-            Li, Yuan-Fang  and
-            Kang, Yong-Bin  and
-            Rahman, M. Sohel  and
-            Shahriyar, Rifat",
-        booktitle = "Findings of the Association for Computational Linguistics: ACL-IJCNLP 2021",
-        month = aug,
-        year = "2021",
-        address = "Online",
-        publisher = "Association for Computational Linguistics",
-        url = "https://aclanthology.org/2021.findings-acl.413",
-        pages = "4693--4703",
-    }
-    """
-
-    name = "xlsum"
-    description = "XL-Sum abstractive summarization task"
-    tags = ["abstractive_summarization"]
-
-    def __init__(self, language: str):
-        super().__init__()
-        self.language = language
-
-        self.splits = {
-            "train": TRAIN_SPLIT,
-            "test": TEST_SPLIT,
-        }
-
-        self.map = {
-            "id": {
-                "lang": "indonesian",
-                "random_state": 6036,
-            },
-            "vi": {
-                "lang": "vietnamese",
-                "random_state": 8801,
-            },
-            "th": {
-                "lang": "thai",
-                "random_state": 10736,
-            },
-            "ta": {
-                "lang": "tamil",
-                "random_state": 5291,
-            },
-        }
-
-    def get_instances(self, output_path) -> List[Instance]:
-        dataset = datasets.load_dataset("csebuetnlp/xlsum", self.map[self.language]["lang"])
-
-        outputs = []
-        for split in self.splits.keys():
-            df = dataset[split].to_pandas()
-            if split == "train":
-                # Select only bottom 20th percentile by length for in-context examples as examples are very long
-                data = df[df["text"].apply(len) < df["text"].apply(len).quantile(.2)]
-            else:
-                # Sample 100 examples for test
-                data = df.sample(n=100, random_state=self.map[self.language]["random_state"])
-            for _, row in data.iterrows():
-                input = Input(row["text"].strip())
-                output = Output(row["summary"].strip())
                 references = [
                     Reference(output, tags=[CORRECT_TAG]),
                 ]
