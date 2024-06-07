@@ -45,10 +45,18 @@ export default function LeaderboardTables({
 
   // TODO remove truncation once a visually suitable version of wrapping is determined
   const getHeaderValue = (headerValueObject: HeaderValueObject): string => {
+    const stringsToIgnore = ["AIRBench 2024 -", "-book"];
     if (headerValueObject.value === "Model/adapter") {
       return "Model";
-    } else if (headerValueObject.value.includes("-book")) {
-      return truncateHeader(headerValueObject.value.replace("-book", ""));
+      // hardcoded values to remove
+    } else if (
+      stringsToIgnore.some((str) => headerValueObject.value.includes(str))
+    ) {
+      let updatedValue = headerValueObject.value;
+      stringsToIgnore.forEach((str) => {
+        updatedValue = updatedValue.replace(str, "");
+      });
+      return truncateHeader(updatedValue);
     } else {
       return truncateHeader(headerValueObject.value);
     }
