@@ -1851,8 +1851,8 @@ model_deployments:
 
   - name: 01-ai/yi-large-preview
     model_name: 01-ai/yi-large-preview
-    tokenizer_name: 01-ai/Yi-6B
-    max_sequence_length: 8000
+    tokenizer_name: 01-ai/Yi-6B  # Actual tokenizer is publicly unavailable, so use a substitute
+    max_sequence_length: 16000
     client_spec:
       class_name: "helm.clients.yi_client.YiChatClient"
 
