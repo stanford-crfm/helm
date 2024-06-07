@@ -71,9 +71,6 @@ metrics:
   - name: squad_f1_score
     display_name: SQuAD macro-averaged F1 score
     description: Character n-gram F-score with word n-gram order (ChrF++) [(Popovic, 2015)](https://aclanthology.org/W15-3049/). Code can be found [here](https://github.com/mjpost/sacrebleu)
-  - name: xlsum_rouge_l
-    display_name: XL-Sum ROUGE-L
-    description: XL-Sum ROUGE score (F1 score), using the "mid" result when performing bootstrap aggregation [(Hasan, 2021)](https://aclanthology.org/2021.findings-acl.413/). Code can be found [here](https://github.com/csebuetnlp/xl-sum).
 
 ############################################################
 perturbations: []
@@ -140,7 +137,6 @@ run_groups:
     category: BHASA scenarios
     subgroups:
       - flores
-      - xlsum
 
     - name: bhasa_nlr
     display_name: BHASA natural language reasoning (NLR)
@@ -350,24 +346,6 @@ run_groups:
       who: "professional human translators"
       when: "?"
       language: Indonesian, Tamil, Thai, Vietnamese, English
-
-  - name: xlsum
-    display_name: XL-Sum
-    description: >
-      XLSum [(Hasan, 2021)](https://aclanthology.org/2021.findings-acl.413) is an abstractive summarization dataset obtained from BBC articles, which typically have a professionally written summary in the form of a bold paragraph containing one or two sentences at the beginning of the article. 
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: xlsum_rouge_l
-      main_split: test
-    taxonomy:
-      task: abstractive summarization
-      what: news article summaries
-      who: "?"
-      when: "?"
-      language: Indonesian, Tamil, Thai, Vietnamese
 
   - name: indonli
     display_name: IndoNLI

@@ -19,8 +19,6 @@ from helm.benchmark.metrics.metric import Metric, MetricResult, MetricSpec
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.xlsum import rouge_scorer
-from helm.benchmark.metrics.xlsum.scoring import BootstrapAggregator
 
 class BhasaMachineTranslationMetric(Metric):
     """Machine Translation Metrics
@@ -212,102 +210,9 @@ class BhasaQAMetric(Metric):
 
         return stats
 
-class BhasaSummarizationMetric(Metric):
-    """Summarization Metrics
-
-    This class computes the following standard summarization metrics
-
-    1. XL-Sum Rouge-L (F1 score, using the "mid" result when performing bootstrap aggregation)
-
-    @inproceedings{hasan-etal-2021-xl,
-    title = "{XL}-Sum: Large-Scale Multilingual Abstractive Summarization for 44 Languages",
-        author = "Hasan, Tahmid  and
-            Bhattacharjee, Abhik  and
-            Islam, Md. Saiful  and
-            Mubasshir, Kazi  and
-            Li, Yuan-Fang  and
-            Kang, Yong-Bin  and
-            Rahman, M. Sohel  and
-            Shahriyar, Rifat",
-        editor = "Zong, Chengqing  and
-            Xia, Fei  and
-            Li, Wenjie  and
-            Navigli, Roberto",
-        booktitle = "Findings of the Association for Computational Linguistics: ACL-IJCNLP 2021",
-        month = aug,
-        year = "2021",
-        address = "Online",
-        publisher = "Association for Computational Linguistics",
-        url = "https://aclanthology.org/2021.findings-acl.413",
-        doi = "10.18653/v1/2021.findings-acl.413",
-        pages = "4693--4703",
-        github = "https://github.com/csebuetnlp/xl-sum",
-    }
-    
-    """
-
-    def __init__(self, language: str = 'en'):
-        self.language: str = language
-        self.rouge_metrics = {
-            "rougeL": "xlsum_rouge_l",
-        }
-        self.rouge_scorer = self._get_bhasa_rouge_scorer(self.rouge_metrics)
-
-    def _get_bhasa_rouge_scorer(self, rouge_metrics: str) -> Callable[[str, str], float]:
-        language = "thai" if self.language == "th" else None
-        return rouge_scorer.RougeScorer(list(rouge_metrics.keys()), use_stemmer=False, lang=language)
-
-    def _compute_rouge(self, refs: List[str], pred: str) -> Dict[str, float]:
-        metrics: Dict[str, float] = {}
-
-        aggregator = BootstrapAggregator()
-        for ref in refs:
-            aggregator.add_scores(self.rouge_scorer.score(ref, pred))
-        aggregates = aggregator.aggregate()
-        for key, value in self.rouge_metrics.items():
-            metrics[value] = aggregates[key].mid.fmeasure * 100
-        return metrics
-
-    def _remove_braces(self, text: str) -> str:
-        if text.startswith("{"):
-            text = text[1:]
-        if text.endswith("}"):
-            text = text[:-1]
-        return text
-    
-    def evaluate(
-        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
-    ) -> MetricResult:
-        return super().evaluate(scenario_state, metric_service, eval_cache_path, parallelism=parallelism)
-
-    def evaluate_generation(
-        self,
-        adapter_spec: AdapterSpec,
-        request_state: RequestState,
-        metric_service: MetricService,
-        eval_cache_path: str,
-    ) -> List[Stat]:
-        refs: List[str] = [self._remove_braces(ref.output.text) for ref in request_state.instance.references]
-        inp: str = self._remove_braces(request_state.instance.input.text)
-
-        assert request_state.result is not None
-        pred: str = self._remove_braces(request_state.result.completions[0].text.strip())
-
-        result: List[Stat] = []
-
-        # Compute rouge metrics
-        result.extend([Stat(MetricName(name)).add(float(val)) for name, val in self._compute_rouge(refs, pred).items()])
-
-        return result
-
 def get_bhasa_machine_translation_metric_specs() -> List[MetricSpec]:
     return [
         MetricSpec(class_name="helm.benchmark.metrics.bhasa_metrics.BhasaMachineTranslationMetric")
-    ]
-
-def get_bhasa_summarization_metric_specs(args: Dict[str, Any]) -> List[MetricSpec]:
-    return [
-        MetricSpec(class_name="helm.benchmark.metrics.bhasa_metrics.BhasaSummarizationMetric", args=args)
     ]
 
 def get_bhasa_qa_metric_specs(args: Dict[str, Any]) -> List[MetricSpec]:
