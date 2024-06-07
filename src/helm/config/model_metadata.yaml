@@ -1517,7 +1517,7 @@ models:
     display_name: Yi Large
     description: The Yi models are large language models trained from scratch by developers at 01.AI. ([tweet](https://x.com/01AI_Yi/status/1789894091620458667))
     creator_organization_name: 01.AI
-    access: open
+    access: limited
     release_date: 2024-05-12
     tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
