@@ -2241,6 +2241,14 @@ models:
     release_date: 2024-04-25
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: qwen/qwen2-72b-instruct
+    display_name: Qwen2 Instruct (72B)
+    description: 72B-parameter chat version of the large language model series, Qwen2. Qwen2 uses Group Query Attention (GQA) and has extended context length support up to 128K tokens. ([blog](https://qwenlm.github.io/blog/qwen2/))
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2024-06-07
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: qwen/qwen-vl
     display_name: Qwen-VL
     description: Visual multimodal version of the Qwen large language model series ([paper](https://arxiv.org/abs/2308.12966)).
