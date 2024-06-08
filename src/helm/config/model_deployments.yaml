@@ -990,7 +990,7 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
 
   - name: sail/sailor-14b
-    model_name: sail/sailor-14B
+    model_name: sail/sailor-14b
     tokenizer_name: qwen/qwen1.5-7b
     max_sequence_length: 32768
     client_spec:
