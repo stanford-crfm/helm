@@ -74,7 +74,6 @@ class HuggingFaceServer:
                 OpenVINO™ Intermediate Representation (IR) format to accelerate end-to-end pipelines on \
                 Intel® architectures using OpenVINO™ runtime.
                 """
-                from pathlib import Path
                 from helm.common.optional_dependencies import handle_module_not_found_error
 
                 try:
@@ -82,23 +81,17 @@ class HuggingFaceServer:
                 except ModuleNotFoundError as e:
                     handle_module_not_found_error(e, ["openvino"])
 
-                model_file = Path(pretrained_model_name_or_path) / "openvino_model.xml"
-                if model_file.exists():
-                    export = False
-                else:
-                    export = True
-
                 self.device = "cpu"
                 # Security issue: currently we trust remote code by default.
                 # We retain this temporarily to maintain reverse compatibility.
                 # TODO: Delete if-else and don't set trust_remote_code=True
                 if "trust_remote_code" in kwargs:
                     self.model = OVModelForCausalLM.from_pretrained(
-                        pretrained_model_name_or_path, export=export, **kwargs
+                        pretrained_model_name_or_path, export=True, **kwargs
                     ).to(self.device)
                 else:
                     self.model = OVModelForCausalLM.from_pretrained(
-                        pretrained_model_name_or_path, export=export, trust_remote_code=True, **kwargs
+                        pretrained_model_name_or_path, export=True, trust_remote_code=True, **kwargs
                     ).to(self.device)
             else:
                 # Security issue: currently we trust remote code by default.
@@ -269,6 +262,7 @@ class HuggingFaceClient(CachingClient):
         cache_config: CacheConfig,
         tokenizer: Tokenizer,
         pretrained_model_name_or_path: Optional[str] = None,
+        end_of_text_token: Optional[str] = None,
         **kwargs,
     ):
         super().__init__(cache_config=cache_config)
@@ -281,6 +275,7 @@ class HuggingFaceClient(CachingClient):
         self._wrapped_tokenizer: WrappedPreTrainedTokenizer = tokenizer.get_wrapped_tokenizer()
         self._tokenizer = tokenizer
         self._kwargs = _process_huggingface_client_kwargs(kwargs)
+        self._end_of_text_token = end_of_text_token
 
     def make_request(self, request: Request) -> RequestResult:
         # Embedding not supported for this model
@@ -348,7 +343,7 @@ class HuggingFaceClient(CachingClient):
                 sequence_logprob += logprob
 
             completion = GeneratedOutput(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
-            completion = truncate_sequence(completion, request)
+            completion = truncate_sequence(completion, request, end_of_text_token=self._end_of_text_token)
             completions.append(completion)
 
         return RequestResult(

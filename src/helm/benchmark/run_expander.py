@@ -194,6 +194,15 @@ class StopRunExpander(RunExpander):
         self.value = value
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        if self.value == "none":
+            return [
+                replace(
+                    run_spec,
+                    name=f"{run_spec.name},{self.name}={self.value}",
+                    adapter_spec=replace(run_spec.adapter_spec, stop_sequences=[]),
+                ),
+            ]
+
         if self.value == "hash":
             stop = "###"
         elif self.value == "semicolon":

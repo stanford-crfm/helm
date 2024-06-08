@@ -22,6 +22,10 @@ from helm.common.general import ensure_directory_exists
 from helm.common.hierarchical_logger import hlog
 
 PROCESSED: str = "processed"
+DIFFICULTY_ALL = "all"
+DIFFICULTY_EASY = "easy"
+DIFFICULTY_MEDIUM = "medium"
+DIFFICULTY_HARD = "hard"
 
 
 class Image2StructureScenario(Scenario):
@@ -38,13 +42,16 @@ class Image2StructureScenario(Scenario):
         VALID_SPLIT: "validation",
     }
 
-    def __init__(self, subset: str, recompile_prompt: bool = True, split: str = VALID_SPLIT):
+    def __init__(
+        self, subset: str, recompile_prompt: bool = True, split: str = VALID_SPLIT, difficulty: str = DIFFICULTY_ALL
+    ):
         super().__init__()
         assert subset in self.SUBSETS, f"Invalid subset: {subset}"
         self._subset: str = subset
         self._recompile_prompt: bool = recompile_prompt
         self._split: str = split
         self._output_path: Optional[str] = None
+        self._difficulty: str = difficulty
 
     def preprocess_row(self, row: Dict[str, Any], assets_path: str) -> Dict[str, Any]:
         # By default, there are no assets
@@ -110,6 +117,10 @@ class Image2StructureScenario(Scenario):
                 )
                 continue
 
+            # Filter by difficulty
+            if self._difficulty != DIFFICULTY_ALL and row["difficulty"] != self._difficulty:
+                continue
+
             # Step 1: Preprocess the row
             row = self.preprocess_row(row, assets_path)
 
@@ -158,7 +169,7 @@ class Image2StructureScenario(Scenario):
                     # representing the structure (such as LaTeX code)
                     multimedia_object = MultimediaObject([image_object])
                 reference = Reference(
-                    output=Output(text=row["text"], multimedia_content=multimedia_object),
+                    output=Output(text=row["text"] if "text" in row else "", multimedia_content=multimedia_object),
                     tags=[CORRECT_TAG],
                 )
             else:

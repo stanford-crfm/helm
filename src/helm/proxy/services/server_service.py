@@ -119,7 +119,7 @@ class ServerService(Service):
                 return "codex"
             elif model_deployment.startswith("openai/dall-e-"):
                 return "dall_e"
-            elif model_deployment.startswith("openai/gpt-4-"):
+            elif model_deployment.startswith("openai/gpt-4"):
                 return "gpt4"
             else:
                 return "gpt3"

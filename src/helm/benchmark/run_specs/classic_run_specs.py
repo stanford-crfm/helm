@@ -1498,5 +1498,5 @@ def get_thai_exam_spec(exam: str = "onet", method: str = ADAPT_MULTIPLE_CHOICE_J
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["thai_exam"],
+        groups=["thai_exam", f"thai_exam_{exam}"],
     )
