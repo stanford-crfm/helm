@@ -1849,8 +1849,8 @@ model_deployments:
       args:
         together_model: zero-one-ai/Yi-34B-Chat
 
-  - name: 01-ai/yi-large-preview
-    model_name: 01-ai/yi-large-preview
+  - name: 01-ai/yi-large
+    model_name: 01-ai/yi-large
     tokenizer_name: 01-ai/Yi-6B  # Actual tokenizer is publicly unavailable, so use a substitute
     max_sequence_length: 16000
     client_spec:
