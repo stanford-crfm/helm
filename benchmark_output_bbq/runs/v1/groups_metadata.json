@@ -1,0 +1,1222 @@
+{
+  "core_scenarios": {
+    "display_name": "Core scenarios",
+    "description": "The scenarios where we evaluate all the models.",
+    "taxonomy": null
+  },
+  "targeted_evaluations": {
+    "display_name": "Targeted evaluations",
+    "description": "Targeted evaluation of specific skills (e.g., knowledge, reasoning) and risks (e.g., disinformation, memorization/copyright).",
+    "taxonomy": null
+  },
+  "question_answering": {
+    "display_name": "Question answering",
+    "description": "In question answering, given a question and (optionally, in open-book settings) a passage, the goal is to produce the answer. QA is a general format that captures a wide range of tasks involving varying levels of world and commonsense knowledge and reasoning abilities.",
+    "taxonomy": null
+  },
+  "information_retrieval": {
+    "display_name": "Information retrieval",
+    "description": "In information retrieval, given a query and a set of candidate documents, the goal is to produce a ranking of the documents.",
+    "taxonomy": null
+  },
+  "summarization": {
+    "display_name": "Summarization",
+    "description": "In text summarization, given a piece of text (paragraph or document), the goal is to produce a much shorter summary.",
+    "taxonomy": null
+  },
+  "sentiment_analysis": {
+    "display_name": "Sentiment analysis",
+    "description": "In sentiment classification, given a text (e.g., movie review), the goal is to predict the sentiment (positive or negative).",
+    "taxonomy": null
+  },
+  "toxicity_detection": {
+    "display_name": "Toxicity detection",
+    "description": "In toxicity detection, given a text, the goal is to predict whether the text has toxic content.",
+    "taxonomy": null
+  },
+  "miscellaneous_text_classification": {
+    "display_name": "Text classification",
+    "description": "Text classification is a general format that aims to classify text into a set of categories. This includes a wide range of classification tasks where the input is text.",
+    "taxonomy": null
+  },
+  "aspirational": {
+    "display_name": "Aspirational scenarios",
+    "description": "Scenarios that we should support.",
+    "taxonomy": null
+  },
+  "language": {
+    "display_name": "Language",
+    "description": "Targeted evaluation of linguistic capabilities.",
+    "taxonomy": null
+  },
+  "knowledge": {
+    "display_name": "Knowledge",
+    "description": "Targeted evaluation of knowledge (e.g. factual, cultural, commonsense).",
+    "taxonomy": null
+  },
+  "reasoning": {
+    "display_name": "Reasoning",
+    "description": "Targeted evaluation of reasoning capabilities (e.g. mathematical, hierarchical).",
+    "taxonomy": null
+  },
+  "harms": {
+    "display_name": "Harms",
+    "description": "Targeted evaluation of social harms (e.g., copyright, disinformation, social bias, toxicity).",
+    "taxonomy": null
+  },
+  "efficiency": {
+    "display_name": "Efficiency",
+    "description": "Targeted evaluation of training and inference efficiency.",
+    "taxonomy": null
+  },
+  "calibration": {
+    "display_name": "Calibration",
+    "description": "Extended calibration metrics.",
+    "taxonomy": null
+  },
+  "decodingtrust": {
+    "display_name": "DecodingTrust",
+    "description": "A comprehensive benchmark of the trustworthiness of large language models [(Wang et. al. 2023)](https://decodingtrust.github.io/)",
+    "taxonomy": null
+  },
+  "ablation_in_context": {
+    "display_name": "Vary number of in-context examples",
+    "description": "Vary the number of in-context training examples.",
+    "taxonomy": null
+  },
+  "ablation_multiple_choice": {
+    "display_name": "Vary multiple-choice strategy",
+    "description": "Vary the adapation strategy for multiple-choice questions.",
+    "taxonomy": null
+  },
+  "ablation_prompts": {
+    "display_name": "Vary prompting",
+    "description": "Vary the instructions and labels for input/output.",
+    "taxonomy": null
+  },
+  "robustness_contrast_sets": {
+    "display_name": "Robustness to contrast sets",
+    "description": "Evaluating equivariance to semantics-altering perturbations",
+    "taxonomy": null
+  },
+  "robustness_individual": {
+    "display_name": "Robustness to single types of perturbations",
+    "description": "Evaluating robsustness to a single perturbation at a time (e.g., typos, synonyms)",
+    "taxonomy": null
+  },
+  "chinese_cleva": {
+    "display_name": "CLEVA (Chinese) scenarios",
+    "description": "Scenarios for evaluating Chinese language models",
+    "taxonomy": null
+  },
+  "boolq": {
+    "display_name": "BoolQ",
+    "description": "The BoolQ benchmark for binary (yes/no) question answering [(Clark et al., 2019)](https://aclanthology.org/N19-1300/).",
+    "taxonomy": {
+      "task": "question answering",
+      "what": "passages from Wikipedia, questions from search queries",
+      "when": "2010s",
+      "who": "web users",
+      "language": "English"
+    }
+  },
+  "narrative_qa": {
+    "display_name": "NarrativeQA",
+    "description": "The NarrativeQA benchmark for reading comprehension over narratives [(Ko\u010disk\u00fd et al., 2017)](https://aclanthology.org/Q18-1023/).",
+    "taxonomy": {
+      "task": "question answering",
+      "what": "passages are books and movie scripts, questions are unknown",
+      "when": "?",
+      "who": "?",
+      "language": "English"
+    }
+  },
+  "natural_qa_closedbook": {
+    "display_name": "NaturalQuestions (closed-book)",
+    "description": "The NaturalQuestions [(Kwiatkowski et al., 2019)](https://aclanthology.org/Q19-1026/) benchmark for question answering based on naturally-occurring queries through Google Search. The input does not include the Wikipedia page with the answer.",
+    "taxonomy": {
+      "task": "question answering",
+      "what": "passages from Wikipedia, questions from search queries",
+      "when": "2010s",
+      "who": "web users",
+      "language": "English"
+    }
+  },
+  "natural_qa_openbook_longans": {
+    "display_name": "NaturalQuestions (open-book)",
+    "description": "The NaturalQuestions [(Kwiatkowski et al., 2019)](https://aclanthology.org/Q19-1026/) benchmark for question answering based on naturally-occurring queries through Google Search. The input includes the Wikipedia page with the answer.",
+    "taxonomy": {
+      "task": "question answering",
+      "what": "passages from Wikipedia, questions from search queries",
+      "when": "2010s",
+      "who": "web users",
+      "language": "English"
+    }
+  },
+  "quac": {
+    "display_name": "QuAC (Question Answering in Context)",
+    "description": "The QuAC benchmark for question answering in the context of dialogues [(Choi et al., 2018)](https://aclanthology.org/D18-1241/).",
+    "taxonomy": {
+      "task": "question answering",
+      "what": "?",
+      "when": "?",
+      "who": "?",
+      "language": "English"
+    }
+  },
+  "hellaswag": {
+    "display_name": "HellaSwag",
+    "description": "The HellaSwag benchmark for commonsense reasoning in question answering [(Zellers et al., 2019)](https://aclanthology.org/P19-1472/).",
+    "taxonomy": {
+      "task": "question answering",
+      "what": "commonsense reasoning",
+      "when": "?",
+      "who": "?",
+      "language": "English"
+    }
+  },
+  "openbookqa": {
+    "display_name": "OpenbookQA",
+    "description": "The OpenbookQA benchmark for commonsense-intensive open book question answering [(Mihaylov et al., 2018)](https://aclanthology.org/D18-1260/).",
+    "taxonomy": {
+      "task": "question answering",
+      "what": "?",
+      "when": "?",
+      "who": "?",
+      "language": "English"
+    }
+  },
+  "truthful_qa": {
+    "display_name": "TruthfulQA",
+    "description": "The TruthfulQA benchmarking for measuring model truthfulness and commonsense knowledge in question answering [(Lin et al., 2022)](https://aclanthology.org/2022.acl-long.229/).",
+    "taxonomy": {
+      "task": "question answering",
+      "what": "?",
+      "when": "?",
+      "who": "?",
+      "language": "English"
+    }
+  },
+  "mmlu": {
+    "display_name": "MMLU (Massive Multitask Language Understanding)",
+    "description": "The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intensive question answering across 57 domains [(Hendrycks et al., 2021)](https://openreview.net/forum?id=d7KBjmI3GmQ).",
+    "taxonomy": {
+      "task": "question answering",
+      "what": "?",
+      "when": "?",
+      "who": "?",
+      "language": "English"
+    }
+  },
+  "msmarco_regular": {
+    "display_name": "MS MARCO (regular track)",
+    "description": "The MS MARCO benchmark's regular track for passage retrieval in information retrieval [(https://microsoft.github.io/msmarco/)](https://microsoft.github.io/msmarco/).",
+    "taxonomy": {
+      "task": "information retrieval",
+      "what": "?",
+      "when": "?",
+      "who": "?",
+      "language": "English"
+    }
+  },
+  "msmarco_trec": {
+    "display_name": "MS MARCO (TREC track)",
+    "description": "The MS MARCO benchmark's deep learning TREC track for passage retrieval in information retrieval [(https://trec.nist.gov)](https://microsoft.github.io/msmarco/).",
+    "taxonomy": {
+      "task": "information retrieval",
+      "what": "?",
+      "when": "?",
+      "who": "?",
+      "language": "English"
+    }
+  },
+  "summarization_cnndm": {
+    "display_name": "CNN/DailyMail",
+    "description": "The CNN/DailyMail benchmark for text summarization ([Hermann et al., 2015](https://papers.nips.cc/paper/2015/hash/afdec7005cc9f14302cd0474fd0f3c96-Abstract.html); [Nallapati et al.,2016](https://aclanthology.org/K16-1028/)).",
+    "taxonomy": {
+      "task": "summarization",
+      "what": "?",
+      "when": "?",
+      "who": "?",
+      "language": "English"
+    }
+  },
+  "summarization_xsum": {
+    "display_name": "XSUM",
+    "description": "The XSUM benchmark for text summarization of BBC news articles [(Narayan et al., 2018)](https://aclanthology.org/D18-1206/).",
+    "taxonomy": {
+      "task": "summarization",
+      "what": "?",
+      "when": "?",
+      "who": "?",
+      "language": "English"
+    }
+  },
+  "imdb": {
+    "display_name": "IMDB",
+    "description": "The IMDB benchmark for sentiment analysis in movie review [(Maas et al., 2011)](https://aclanthology.org/P11-1015/).",
+    "taxonomy": {
+      "task": "sentiment analysis",
+      "what": "movie reviews",
+      "when": "?",
+      "who": "?",
+      "language": "English"
+    }
+  },
+  "raft": {
+    "display_name": "RAFT (Real-world Annotated Few-Shot)",
+    "description": "The Real-world annotated few-shot (RAFT) meta-benchmark of 11 real-world text classification tasks [(Alex et al., 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/ca46c1b9512a7a8315fa3c5a946e8265-Abstract-round2.html).",
+    "taxonomy": {
+      "task": "text classification",
+      "what": "?",
+      "when": "?",
+      "who": "?",
+      "language": "English"
+    }
+  },
+  "civil_comments": {
+    "display_name": "CivilComments",
+    "description": "The CivilComments benchmark for toxicity detection [(Borkan et al., 2019)](https://arxiv.org/pdf/1903.04561.pdf).",
+    "taxonomy": {
+      "task": "toxicity classification",
+      "what": "?",
+      "when": "?",
+      "who": "?",
+      "language": "English"
+    }
+  },
+  "ice": {
+    "display_name": "ICE (International Corpus of English)",
+    "description": "The International Corpus of English (ICE) drawn from English speakers from various places in the world, initiated by [Greenbaum (1991)](https://www.cambridge.org/core/journals/english-today/article/abs/ice-the-international-corpus-of-english/47808205394C538393C3FD8E62E5E701).",
+    "taxonomy": {
+      "task": "language modeling",
+      "what": "?",
+      "when": "?",
+      "who": "?",
+      "language": "English varieties from different nations"
+    }
+  },
+  "the_pile": {
+    "display_name": "The Pile",
+    "description": "The Pile corpus for measuring lanugage model performance across various domains [(Gao et al., 2020)](https://arxiv.org/pdf/2101.00027.pdf).",
+    "taxonomy": {
+      "task": "language modeling",
+      "what": "?",
+      "when": "?",
+      "who": "?",
+      "language": "English, code"
+    }
+  },
+  "twitter_aae": {
+    "display_name": "TwitterAAE",
+    "description": "The TwitterAAE corpus of [Blodgett et al. (2016)](https://aclanthology.org/D16-1120/) for measuring language model performance in tweets as a function of speaker dialect.",
+    "taxonomy": {
+      "task": "language modeling",
+      "what": "?",
+      "when": "?",
+      "who": "?",
+      "language": "English (AAE-aligned and White-aligned)"
+    }
+  },
+  "twitter_aae_aa": {
+    "display_name": "TwitterAAE (AA)",
+    "description": "The TwitterAAE corpus of [Blodgett et al. (2016)](https://aclanthology.org/D16-1120/) for measuring language model performance on African-American-aligned Tweets.",
+    "taxonomy": {
+      "task": "language modeling",
+      "what": "?",
+      "when": "?",
+      "who": "?",
+      "language": "English (AAE-aligned)"
+    }
+  },
+  "twitter_aae_white": {
+    "display_name": "TwitterAAE (white)",
+    "description": "The TwitterAAE corpus of [Blodgett et al. (2016)](https://aclanthology.org/D16-1120/) for measuring language model performance on White-aligned Tweets.",
+    "taxonomy": {
+      "task": "language modeling",
+      "what": "?",
+      "when": "?",
+      "who": "?",
+      "language": "English (White-aligned)"
+    }
+  },
+  "blimp": {
+    "display_name": "BLiMP (The Benchmark of Linguistic Minimal Pairs for English)",
+    "description": "The Benchmark of Linguistic Minimal Pairs for English (BLiMP) for measuring performance on linguistic phenomena using minimal pair design [(Warstadt et al., 2020)](https://aclanthology.org/2020.tacl-1.25/).",
+    "taxonomy": {
+      "task": "grammaticality",
+      "what": "constructed minimal pair sentences",
+      "when": "2019",
+      "who": "linguists",
+      "language": "English"
+    }
+  },
+  "wikifact": {
+    "display_name": "WikiFact",
+    "description": "Scenario introduced in this work, inspired by [Petroni et al. (2019)](https://aclanthology.org/D19-1250/), to more extensively test factual knowledge.",
+    "taxonomy": {
+      "task": "knowledge base completion",
+      "what": "entity-relation-entity triples in natural language form",
+      "when": "?",
+      "who": "automatically generated from templates",
+      "language": "structured English"
+    }
+  },
+  "babi_qa": {
+    "display_name": "bAbI",
+    "description": "The bAbI benchmark for measuring understanding and reasoning [(Weston et al., 2015)](https://arxiv.org/pdf/1502.05698.pdf).",
+    "taxonomy": {
+      "task": "question answering",
+      "what": "reasoning",
+      "when": "2015",
+      "who": "synthetic",
+      "language": "English"
+    }
+  },
+  "dyck_language": {
+    "display_name": "Dyck",
+    "description": "Scenario testing hierarchical reasoning through the Dyck formal languages [(Suzgun et al., 2019)](https://aclanthology.org/W19-3905/).",
+    "taxonomy": {
+      "task": "next-word prediction",
+      "what": "Dyck formal language",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "synthetic"
+    }
+  },
+  "numeracy": {
+    "display_name": "Numerical reasoning",
+    "description": "Scenario introduced in this work to test numerical reasoning via symbolic regression.",
+    "taxonomy": {
+      "task": "next-word prediction",
+      "what": "Dyck formal language",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "synthetic"
+    }
+  },
+  "synthetic_reasoning": {
+    "display_name": "Synthetic reasoning (abstract symbols)",
+    "description": "Synthetic reasoning tasks defined using abstract symbols based on LIME [(Wu et al., 2021)](https://proceedings.mlr.press/v139/wu21c.html).",
+    "taxonomy": {
+      "task": "?",
+      "what": "n/a",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "synthetic"
+    }
+  },
+  "synthetic_reasoning_natural": {
+    "display_name": "Synthetic reasoning (natural language)",
+    "description": "Synthetic reasoning tasks defined using simple natural language based on LIME [(Wu et al., 2021)](https://proceedings.mlr.press/v139/wu21c.html).",
+    "taxonomy": {
+      "task": "?",
+      "what": "n/a",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "synthetic"
+    }
+  },
+  "gsm": {
+    "display_name": "GSM8K (Grade school math word problems)",
+    "description": "The grade school math word problems dataset (GSM8K) for testing mathematical reasoning on grade-school math problems [(Cobbe et al., 2021)](https://arxiv.org/pdf/2110.14168.pdf).",
+    "taxonomy": {
+      "task": "?",
+      "what": "n/a",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "synthetic"
+    }
+  },
+  "math_regular": {
+    "display_name": "MATH",
+    "description": "The MATH benchmark for measuring mathematical problem solving on competition math problems [(Hendrycks et al., 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/be83ab3ecd0db773eb2dc1b0a17836a1-Abstract-round2.html).",
+    "taxonomy": {
+      "task": "?",
+      "what": "n/a",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "synthetic"
+    }
+  },
+  "math_chain_of_thought": {
+    "display_name": "MATH (chain-of-thought)",
+    "description": "The MATH benchmark for measuring mathematical problem solving on competition math problems with chain-of-thought style reasoning [(Hendrycks et al., 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/be83ab3ecd0db773eb2dc1b0a17836a1-Abstract-round2.html).",
+    "taxonomy": {
+      "task": "?",
+      "what": "n/a",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "synthetic"
+    }
+  },
+  "code_apps": {
+    "display_name": "APPS (Code)",
+    "description": "The APPS benchmark for measuring competence on code challenges [(Hendrycks et al., 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/c24cd76e1ce41366a4bbe8a49b02a028-Abstract-round2.html).",
+    "taxonomy": {
+      "task": "?",
+      "what": "n/a",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "synthetic"
+    }
+  },
+  "code_humaneval": {
+    "display_name": "HumanEval (Code)",
+    "description": "The HumanEval benchmark for measuring functional correctness for synthesizing programs from docstrings [(Chen et al., 2021)](https://arxiv.org/pdf/2107.03374.pdf).",
+    "taxonomy": {
+      "task": "?",
+      "what": "n/a",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "synthetic"
+    }
+  },
+  "legalbench": {
+    "display_name": "LegalBench",
+    "description": "LegalBench is a large collaboratively constructed benchmark of legal reasoning. Five representative tasks are included here. See [(Guha et al, 2023)[https://arxiv.org/abs/2308.11462] for more details.",
+    "taxonomy": {
+      "task": "text classification",
+      "what": "fact patterns, questions, and legal documents",
+      "when": "n/a",
+      "who": "lawyers",
+      "language": "English"
+    }
+  },
+  "legal_support": {
+    "display_name": "LegalSupport",
+    "description": "Scenario introduced in this work to measure fine-grained legal reasoning through reverse entailment.",
+    "taxonomy": {
+      "task": "?",
+      "what": "n/a",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "synthetic"
+    }
+  },
+  "lsat_qa": {
+    "display_name": "LSAT",
+    "description": "The LSAT benchmark for measuring analytical reasoning on the Law School Admission Test (LSAT; [Zhong et al., 2021](https://arxiv.org/pdf/2104.06598.pdf)).",
+    "taxonomy": {
+      "task": "?",
+      "what": "n/a",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "synthetic"
+    }
+  },
+  "med_qa": {
+    "display_name": "MedQA",
+    "description": "MedQA is an open domain question answering dataset composed of questions from professional medical board exams ([Jin et al. 2020](https://arxiv.org/pdf/2009.13081.pdf)).",
+    "taxonomy": {
+      "task": "question answering",
+      "what": "n/a",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "English"
+    }
+  },
+  "wmt_14": {
+    "display_name": "WMT 2014",
+    "description": "WMT 2014 is a collection of machine translation datasets.",
+    "taxonomy": {
+      "task": "machine translation",
+      "what": "n/a",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "English"
+    }
+  },
+  "lextreme": {
+    "display_name": "LEXTREME",
+    "description": "A Multilingual Legal Benchmark for Natural Language Understanding",
+    "taxonomy": null
+  },
+  "lex_glue": {
+    "display_name": "LexGLUE",
+    "description": "A Benchmark Dataset for Legal Language Understanding in English",
+    "taxonomy": null
+  },
+  "billsum_legal_summarization": {
+    "display_name": "BillSum",
+    "description": "The BillSum benchmark for legal text summarization ([Kornilova & Eidelmann, 2020](https://aclanthology.org/D19-5406/)).",
+    "taxonomy": {
+      "task": "summarization",
+      "what": "legal text from US bills",
+      "who": "lawyers",
+      "language": "English"
+    }
+  },
+  "multilexsum_legal_summarization": {
+    "display_name": "MultiLexSum",
+    "description": "The MultiLexSum benchmark for legal text summarization ([Shen et al., 2022](https://arxiv.org/abs/2206.10883)).",
+    "taxonomy": {
+      "task": "summarization",
+      "what": "legal text from US civil rights lawsuits",
+      "who": "lawyers",
+      "language": "English"
+    }
+  },
+  "eurlexsum_legal_summarization": {
+    "display_name": "EurLexSum",
+    "description": "The EurLexSum benchmark for legal text summarization ([Aumiller et al., 2022](https://arxiv.org/abs/2210.13448)).",
+    "taxonomy": {
+      "task": "summarization",
+      "what": "legal text from EU legislation",
+      "when": "1960 - 2020",
+      "who": "lawyers",
+      "language": "English"
+    }
+  },
+  "entity_data_imputation": {
+    "display_name": "Data imputation",
+    "description": "Scenario from [Mei et al. (2021)](https://ieeexplore.ieee.org/document/9458712/) that tests the ability to impute missing entities in a data table.",
+    "taxonomy": {
+      "task": "?",
+      "what": "n/a",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "synthetic"
+    }
+  },
+  "entity_matching": {
+    "display_name": "Entity matching",
+    "description": "Scenario from Magellan [(Konda et al., 2016)](https://dl.acm.org/doi/10.14778/3007263.3007314) that tests the ability to determine if two entities match.",
+    "taxonomy": {
+      "task": "?",
+      "what": "n/a",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "synthetic"
+    }
+  },
+  "copyright_text": {
+    "display_name": "Copyright (text)",
+    "description": "Scenario introduced in this work to measure copyright and memorization behavior for books, based off of [Carlini et al. (2021)](https://www.usenix.org/biblio-11958).",
+    "taxonomy": {
+      "task": "?",
+      "what": "n/a",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "synthetic"
+    }
+  },
+  "copyright_code": {
+    "display_name": "Copyright (code)",
+    "description": "Scenario introduced in this work to measure copyright and memorization behavior for code, based off of [Carlini et al. (2021)](https://www.usenix.org/biblio-11958).",
+    "taxonomy": {
+      "task": "?",
+      "what": "n/a",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "synthetic"
+    }
+  },
+  "disinformation_reiteration": {
+    "display_name": "Disinformation (reiteration)",
+    "description": "Scenario from [Buchanan et al. (2021)](https://cset.georgetown.edu/publication/truth-lies-and-automation/) that tests the ability to reiterate disinformation content.",
+    "taxonomy": {
+      "task": "?",
+      "what": "n/a",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "synthetic"
+    }
+  },
+  "disinformation_wedging": {
+    "display_name": "Disinformation (wedging)",
+    "description": "Scenario from [Buchanan et al. (2021)](https://cset.georgetown.edu/publication/truth-lies-and-automation/) that tests the ability to generate divisive and wedging content.",
+    "taxonomy": {
+      "task": "?",
+      "what": "n/a",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "synthetic"
+    }
+  },
+  "bbq": {
+    "display_name": "BBQ (Bias Benchmark for Question Answering)",
+    "description": "The Bias Benchmark for Question Answering (BBQ) for measuring social bias in question answering in ambiguous and unambigous context [(Parrish et al., 2022)](https://aclanthology.org/2022.findings-acl.165/).",
+    "taxonomy": {
+      "task": "?",
+      "what": "n/a",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "synthetic"
+    }
+  },
+  "bold": {
+    "display_name": "BOLD (Bias in Open-Ended Language Generation Dataset)",
+    "description": "The Bias in Open-Ended Language Generation Dataset (BOLD) for measuring biases and toxicity in open-ended language generation [(Dhamala et al., 2021)](https://dl.acm.org/doi/10.1145/3442188.3445924).",
+    "taxonomy": {
+      "task": "?",
+      "what": "n/a",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "synthetic"
+    }
+  },
+  "real_toxicity_prompts": {
+    "display_name": "RealToxicityPrompts",
+    "description": "The RealToxicityPrompts dataset for measuring toxicity in prompted model generations [(Gehman et al., 2020)](https://aclanthology.org/2020.findings-emnlp.301/).",
+    "taxonomy": {
+      "task": "?",
+      "what": "n/a",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "synthetic"
+    }
+  },
+  "synthetic_efficiency": {
+    "display_name": "Synthetic efficiency",
+    "description": "Scenario introduced in this work to better understand inference runtime performance of various models.",
+    "taxonomy": {
+      "task": "?",
+      "what": "n/a",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "synthetic"
+    }
+  },
+  "cleva_closed_book_question_answering": {
+    "display_name": "CLEVA (Chinese) closed book question answering",
+    "description": "Closed-book question answering task comprises three subtasks. One is for the medical domain, another for open-domain, and the last measures if a model generates truthful answers.",
+    "taxonomy": {
+      "task": "question answering",
+      "what": "medical, open-domain, or truthful qa",
+      "when": "2022 or before",
+      "who": "n/a",
+      "language": "Chinese"
+    }
+  },
+  "cleva_summarization": {
+    "display_name": "CLEVA (Chinese) summarization",
+    "description": "Summarize a dialogue between a customer representative and a customer.",
+    "taxonomy": {
+      "task": "summarization",
+      "what": "e-commerce dialogues",
+      "when": "2021 or before",
+      "who": "customers and representatives",
+      "language": "Chinese"
+    }
+  },
+  "cleva_text_classification": {
+    "display_name": "CLEVA (Chinese) text classification",
+    "description": "This scenario has two subtasks. Classify if an utterance is humorous and identify news topic based on its title.",
+    "taxonomy": {
+      "task": "text classification",
+      "what": "news or chitchat",
+      "when": "2010s",
+      "who": "n/a",
+      "language": "Chinese"
+    }
+  },
+  "cleva_translation": {
+    "display_name": "CLEVA (Chinese) translation",
+    "description": "Scenario for measuring the translation quality between Chinese and English.",
+    "taxonomy": {
+      "task": "translation",
+      "what": "news",
+      "when": "2022 or before",
+      "who": "n/a",
+      "language": "Chinese, English"
+    }
+  },
+  "cleva_data_to_text_generation": {
+    "display_name": "CLEVA (Chinese) data to text generation",
+    "description": "Generate a product description based on structured data containing various product properties.",
+    "taxonomy": {
+      "task": "data-to-text generation",
+      "what": "product description",
+      "when": "2010s",
+      "who": "n/a",
+      "language": "Chinese"
+    }
+  },
+  "cleva_dialogue_generation": {
+    "display_name": "CLEVA (Chinese) dialogue generation",
+    "description": "Task-oriented dialogue between a user and a system.",
+    "taxonomy": {
+      "task": "dialogue generation",
+      "what": "task-oriented dialogue on hotel, restaurant, attraction, metro, and taxi domain",
+      "when": "2020 or before",
+      "who": "user and assistant",
+      "language": "Chinese"
+    }
+  },
+  "cleva_opinion_mining": {
+    "display_name": "CLEVA (Chinese) opinion mining",
+    "description": "Extract the target of an opinion.",
+    "taxonomy": {
+      "task": "opinion target extraction",
+      "what": "n/a",
+      "when": "2010s",
+      "who": "n/a",
+      "language": "Chinese"
+    }
+  },
+  "cleva_paraphrase_generation": {
+    "display_name": "CLEVA (Chinese) paraphrase generation",
+    "description": "Generate a paraphrase of a given sentence.",
+    "taxonomy": {
+      "task": "paraphrase generation",
+      "what": "n/a",
+      "when": "2010s",
+      "who": "n/a",
+      "language": "Chinese"
+    }
+  },
+  "cleva_paraphrase_identification": {
+    "display_name": "CLEVA (Chinese) paraphrase identification",
+    "description": "Identify if two sentences, from a dialogue or from the finance domain, share the same meaning.",
+    "taxonomy": {
+      "task": "paraphrase identification",
+      "what": "financial questions or chitchat",
+      "when": "2020 or before",
+      "who": "n/a",
+      "language": "Chinese"
+    }
+  },
+  "cleva_reading_comprehension": {
+    "display_name": "CLEVA (Chinese) reading comprehension",
+    "description": "Answer a multiple-choice question based on a given paragraph.",
+    "taxonomy": {
+      "task": "question answering",
+      "what": "n/a",
+      "when": "2019 or before",
+      "who": "n/a",
+      "language": "Chinese"
+    }
+  },
+  "cleva_sentiment_analysis": {
+    "display_name": "CLEVA (Chinese) sentiment analysis",
+    "description": "Chinese sentiment analysis for product reviews.",
+    "taxonomy": {
+      "task": "sentiment analysis",
+      "what": "product reviews",
+      "when": "2021 or before",
+      "who": "customers",
+      "language": "Chinese"
+    }
+  },
+  "cleva_language_modeling": {
+    "display_name": "CLEVA (Chinese) language modeling",
+    "description": "Scenario for measuring language model performance across various domains (wikipedia and news).",
+    "taxonomy": {
+      "task": "language modeling",
+      "what": "Wikipedia and news",
+      "when": "2010s",
+      "who": "n/a",
+      "language": "Chinese"
+    }
+  },
+  "cleva_pinyin_transliteration": {
+    "display_name": "CLEVA (Chinese) pinyin transliteration",
+    "description": "Scenario that asks the model to translate between Chinese and Pinyin.",
+    "taxonomy": {
+      "task": "pinyin transliteration",
+      "what": "n/a",
+      "when": "2023",
+      "who": "automatically generated by algorithm",
+      "language": "Chinese, Pinyin"
+    }
+  },
+  "cleva_classical_chinese_understanding": {
+    "display_name": "CLEVA (Chinese) classical Chinese understanding",
+    "description": "Scenario for evaluating the understanding of classical Chinese by selecting the appropriate classical Chinese translation for a given modern Chinese sentence.",
+    "taxonomy": {
+      "task": "translation",
+      "what": "n/a",
+      "when": "2021 or before",
+      "who": "n/a",
+      "language": "Classical Chinese"
+    }
+  },
+  "cleva_coreference_resolution": {
+    "display_name": "CLEVA (Chinese) coreference resolution",
+    "description": "Scenario for testing models on solving coreference resolution problems (the winograd schema challenge).",
+    "taxonomy": {
+      "task": "multiple-choice question answering",
+      "what": "contemporary Chinese literary works",
+      "when": "2020 or before",
+      "who": "n/a",
+      "language": "Chinese"
+    }
+  },
+  "cleva_intent_understanding": {
+    "display_name": "CLEVA (Chinese) intent understanding",
+    "description": "Tests whether the model could capture the writing intention of the authors after reading an article.",
+    "taxonomy": {
+      "task": "multiple-choice question answering",
+      "what": "exam",
+      "when": "1990-2022",
+      "who": "n/a",
+      "language": "Chinese"
+    }
+  },
+  "cleva_subject_knowledge": {
+    "display_name": "CLEVA (Chinese) subject knowledge",
+    "description": "Scenario inspired by [Petroni et al. (2019)](https://aclanthology.org/D19-1250/) to extensively test factual knowledge in Chinese. It contains 13 subjects and a general domain.",
+    "taxonomy": {
+      "task": "knowledge base completion",
+      "what": "entity-relation-entity triples in natural language form",
+      "when": "2022 or before",
+      "who": "automatically generated from templates",
+      "language": "structured Chinese"
+    }
+  },
+  "cleva_cultural_knowledge": {
+    "display_name": "CLEVA (Chinese) cultural knowledge",
+    "description": "Scenario for evaluating models' understanding of Chinese culture. It has a Chinese-idiom-focused subtask.",
+    "taxonomy": {
+      "task": "multiple-choice question answering",
+      "what": "Various passages containing Chinese idioms",
+      "when": "2010s",
+      "who": "n/a",
+      "language": "Chinese"
+    }
+  },
+  "cleva_reasoning_primitive": {
+    "display_name": "CLEVA (Chinese) reasoning primitive",
+    "description": "Scenario focused on primitive reasoning, including dyck language continuation, variable substitution, pattern induction, and pattern matching.",
+    "taxonomy": {
+      "task": "next-word prediction",
+      "what": "n/a",
+      "when": "2023",
+      "who": "automatically generated from templates",
+      "language": "synthetic"
+    }
+  },
+  "cleva_deductive_reasoning": {
+    "display_name": "CLEVA (Chinese) deductive reasoning",
+    "description": "Scenario that gauges model's ability to reason deductive arguments. It includes a modus tollens subtask.",
+    "taxonomy": {
+      "task": "multiple-choice question answering",
+      "what": "natural language questions",
+      "when": "2023",
+      "who": "n/a",
+      "language": "structured Chinese"
+    }
+  },
+  "cleva_inductive_reasoning": {
+    "display_name": "CLEVA (Chinese) inductive reasoning",
+    "description": "Scenario that tests models' ability to conclude rules from demonstrations and apply them to unseen test instances.",
+    "taxonomy": {
+      "task": "next-word prediction",
+      "what": "n/a",
+      "when": "2023",
+      "who": "automatically generated by algorithm",
+      "language": "synthetic"
+    }
+  },
+  "cleva_code_synthesis": {
+    "display_name": "CLEVA (Chinese) code synthesis",
+    "description": "Scenario for measuring functional correctness for synthesizing programs from Chinese docstrings.",
+    "taxonomy": {
+      "task": "next-word prediction",
+      "what": "n/a",
+      "when": "2023",
+      "who": "n/a",
+      "language": "synthetic"
+    }
+  },
+  "cleva_commonsense_reasoning": {
+    "display_name": "CLEVA (Chinese) commonsense reasoning",
+    "description": "Scenario that tests models' commonsense reasoning ability. There are two subtasks: textual entailment and commonsense question answering.",
+    "taxonomy": {
+      "task": "multiple-choice question answering",
+      "what": "n/a",
+      "when": "2023 or before",
+      "who": "n/a",
+      "language": "Chinese"
+    }
+  },
+  "cleva_mathematical_reasoning": {
+    "display_name": "CLEVA (Chinese) mathematical reasoning",
+    "description": "Scenario that tests models' mathematical reasoning ability with chain-of-thought style reasoning. It contains a math word problem solving subtask.",
+    "taxonomy": {
+      "task": "next-word prediction",
+      "what": "exam",
+      "when": "2010s",
+      "who": "n/a",
+      "language": "Chinese"
+    }
+  },
+  "cleva_conceptual_generalization": {
+    "display_name": "CLEVA (Chinese) conceptual generalization",
+    "description": "Scenario that assesses whether models could generalize physical relations to a synthetic grid world.",
+    "taxonomy": {
+      "task": "next-word prediction",
+      "what": "n/a",
+      "when": "2023",
+      "who": "automatically generated by algorithm",
+      "language": "synthetic"
+    }
+  },
+  "cleva_toxicity_detection": {
+    "display_name": "CLEVA (Chinese) toxicity detection",
+    "description": "Ask models about the offensiveness of the given text.",
+    "taxonomy": {
+      "task": "toxicity classification",
+      "what": "text from Chinese social media",
+      "when": "2022 or before",
+      "who": "web users",
+      "language": "Chinese"
+    }
+  },
+  "cleva_bias": {
+    "display_name": "CLEVA (Chinese) bias",
+    "description": "Scenario that gauges bias of four demographic categories in dialogues, including race, gender, region, and occupation.",
+    "taxonomy": {
+      "task": "multiple-choice question answering",
+      "what": "short Chinese dialogues from social media",
+      "when": "2022 or before",
+      "who": "web users",
+      "language": "Chinese"
+    }
+  },
+  "cleva_copyright": {
+    "display_name": "CLEVA (Chinese) copyright",
+    "description": "Scenario that measures copyright and memorization behavior for Chinese books and code, based off of [Carlini et al. (2021)](https://www.usenix.org/biblio-11958).",
+    "taxonomy": {
+      "task": "next-word prediction",
+      "what": "books and code",
+      "when": "2023 or before",
+      "who": "n/a",
+      "language": "Chinese"
+    }
+  },
+  "cleva_fact_checking": {
+    "display_name": "CLEVA (Chinese) fact checking",
+    "description": "Scenario that lets models identify whether the given fact is true to test their factuality.",
+    "taxonomy": {
+      "task": "multiple-choice question answering",
+      "what": "factual statements in natural language form",
+      "when": "2022 or before",
+      "who": "n/a",
+      "language": "Chinese"
+    }
+  },
+  "cleva_instruction_following": {
+    "display_name": "CLEVA (Chinese) instruction following",
+    "description": "Scenario that examines whether models could follow human instructions, mainly uncommon ones. It contains two subtasks: 'redefine' and 'pattern_matching_suppression'.",
+    "taxonomy": {
+      "task": "multiple-choice question answering",
+      "what": "natural language questions",
+      "when": "2023",
+      "who": "automatically generated from templates",
+      "language": "synthetic"
+    }
+  },
+  "cleva_mathematical_calculation": {
+    "display_name": "CLEVA (Chinese) mathematical calculation",
+    "description": "Scenario that evaluates the calculation ability of models. It has four subtasks: three-digit addition, three-digit subtraction, two-digit multiplication, and significant figures.",
+    "taxonomy": {
+      "task": "next-word prediction",
+      "what": "natural language math questions or pure math expressions",
+      "when": "2023",
+      "who": "automatically generated from templates",
+      "language": "synthetic"
+    }
+  },
+  "data_to_text_generation": {
+    "display_name": "Data-to-text generation",
+    "description": "Currently, we prioritize user-facing tasks in our core scenarios, but don't implement data-to-text generation. Could be implemented via WebNLG, E2E, ToTTo, etc.",
+    "taxonomy": {
+      "task": "data-to-text generation"
+    }
+  },
+  "fact_verification": {
+    "display_name": "Fact verification",
+    "description": "Currently, we prioritize user-facing tasks in our core scenarios, but don't implement fact verification. Could be implemented via FEVER.",
+    "taxonomy": {
+      "task": "fact verification"
+    }
+  },
+  "copywriting": {
+    "display_name": "Copywriting",
+    "description": "Currently, we prioritize user-facing tasks in our core scenarios, but don't implement tasks that have not been historically studied in the NLP research community like (ad) copywriting.",
+    "taxonomy": {
+      "task": "copywriting"
+    }
+  },
+  "story_generation": {
+    "display_name": "Story generation",
+    "description": "Currently, we prioritize user-facing tasks in our core scenarios, but don't implement more creative and interactive tasks like story generation.",
+    "taxonomy": {
+      "task": "story generation"
+    }
+  },
+  "biomedical_scenarios": {
+    "display_name": "Biomedical scenarios",
+    "description": "Currently, we implement scenarios from common domains in NLP research, neglecting various domains where language technologies could provide significant value.",
+    "taxonomy": {
+      "what": "Biomedical text (e.g., biomedicine papers)"
+    }
+  },
+  "clinical_scenarios": {
+    "display_name": "Clinical scenarios",
+    "description": "Currently, we implement scenarios from common domains in NLP research, neglecting various domains where language technologies could provide significant value.",
+    "taxonomy": {
+      "what": "Clincal text (e.g., clinical notes)"
+    }
+  },
+  "financial_scenarios": {
+    "display_name": "Financial scenarios",
+    "description": "Currently, we implement scenarios from common domains in NLP research, neglecting various domains where language technologies could provide significant value.",
+    "taxonomy": {
+      "what": "Financial text (e.g., financial reports)"
+    }
+  },
+  "customer_service_scenarios": {
+    "display_name": "Customer services scenarios",
+    "description": "Currently, we implement scenarios from common domains in NLP research, neglecting various domains where language technologies could provide significant value.",
+    "taxonomy": {
+      "what": "Customer service text (e.g., customer service chat logs)"
+    }
+  },
+  "educational_scenarios": {
+    "display_name": "Educational scenarios",
+    "description": "Currently, we implement scenarios from common domains in NLP research, neglecting various domains where language technologies could provide significant value.",
+    "taxonomy": {
+      "what": "Text from educational contexts (e.g., student-teacher interactions)"
+    }
+  },
+  "very_recent_scenarios": {
+    "display_name": "Very recent scenarios",
+    "description": "Currently, we implement scenarios using standard NLP datasets. However, to test temporal generalization as the world and language change, we should implement scenarios with very recent data (e.g., current world events) like StreamingQA.",
+    "taxonomy": {
+      "when": "present"
+    }
+  },
+  "historical_scenarios": {
+    "display_name": "Scenarios involving historic data",
+    "description": "Currently, we implement scenarios using standard NLP datasets, which predominantly are from post-Internet and contemporary society. However, to test temporal generalization for using models in the digital humanities for historic data, we should implement scenarios with significantly older data (e.g., text from 1800s).",
+    "taxonomy": {
+      "when": "distant past"
+    }
+  },
+  "not_native_English_speaker": {
+    "display_name": "Scenarios involving non-native speakers",
+    "description": "Currently, we implement scenarios of an unknown composition of native and non-native English speakers. We should implement scenarios to ensure coverage of language from non-native English speakers.",
+    "taxonomy": {
+      "who": "non-native English speakers",
+      "language": "English"
+    }
+  },
+  "non_US_demographics": {
+    "display_name": "Scenarios involving data from marginalized demographics in non-US English-speaking regions",
+    "description": "Currently, we ensure some coverage of language based on US-centric demographic groups, including marginalized groups. We should implement scenarios to ensure coverage of other socially-relevant groups beyond US demographics (e.g., caste in India).",
+    "taxonomy": {
+      "who": "relevant demographics in non-US English-speaking regions",
+      "language": "English"
+    }
+  },
+  "user_facing_tasks_english_dialects": {
+    "display_name": "Scenarios with user-facing tasks on English dialects",
+    "description": "Currently, evaluate performance on English dialects via language modeling (e.g., TwitterAAE, ICE), but it would be good to implement user-facing tasks for these dialects.",
+    "taxonomy": {
+      "task": "user-facing tasks",
+      "language": "English dialects"
+    }
+  },
+  "decodingtrust_adv_robustness": {
+    "display_name": "DecodingTrust - AdvGLUE++",
+    "description": "Adversarial perturbations of the GLUE dataset generated against open-source LLMs including Alpaca, Vicuna, and Stable-Vicuna",
+    "taxonomy": {
+      "task": "text classification",
+      "what": "?",
+      "when": "?",
+      "who": "?",
+      "language": "English"
+    }
+  },
+  "decodingtrust_adv_demonstration": {
+    "display_name": "DecodingTrust - Adversarial Demonstrations",
+    "description": "Robustness analysis of LM generations when facing adversarial demonstrations",
+    "taxonomy": {
+      "task": "text classification",
+      "what": "?",
+      "when": "?",
+      "who": "?",
+      "language": "English"
+    }
+  },
+  "decodingtrust_ood_robustness": {
+    "display_name": "DecodingTrust - OoD Robustness",
+    "description": "Style perturbations of GLUE datasets (OoD styles) and out-of-scope OoD knowledge evaluations",
+    "taxonomy": {
+      "task": "text classification",
+      "what": "?",
+      "when": "?",
+      "who": "?",
+      "language": "English"
+    }
+  },
+  "decodingtrust_fairness": {
+    "display_name": "DecodingTrust - Fairness",
+    "description": "Fairness analysis of LLMs",
+    "taxonomy": {
+      "task": "text classification",
+      "what": "?",
+      "when": "?",
+      "who": "?",
+      "language": "English"
+    }
+  },
+  "decodingtrust_privacy": {
+    "display_name": "DecodingTrust - Privacy",
+    "description": "Evaluation of the privacy understanding and privacy preserving properties of LLMs",
+    "taxonomy": {
+      "task": "text classification",
+      "what": "?",
+      "when": "?",
+      "who": "?",
+      "language": "English"
+    }
+  },
+  "decodingtrust_machine_ethics": {
+    "display_name": "DecodingTrust - Ethics",
+    "description": "Evaluation of the understanding of ethical behaviors of LLMs",
+    "taxonomy": {
+      "task": "text classification",
+      "what": "?",
+      "when": "?",
+      "who": "?",
+      "language": "English"
+    }
+  },
+  "decodingtrust_toxicity_prompts": {
+    "display_name": "DecodingTrust - Toxicity",
+    "description": "Evaluation of the privacy understanding and privacy preserving properties of LLMs",
+    "taxonomy": {
+      "task": "?",
+      "what": "n/a",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "synthetic"
+    }
+  },
+  "decodingtrust_stereotype_bias": {
+    "display_name": "DecodingTrust - Stereotype Bias",
+    "description": "Manually crafted stereotype user prompts from DecodingTrust",
+    "taxonomy": {
+      "task": "?",
+      "what": "n/a",
+      "when": "n/a",
+      "who": "n/a",
+      "language": "synthetic"
+    }
+  },
+  "thai_exam": {
+    "display_name": "Thai Exam",
+    "description": "A benchmark comprising Thai multiple-choice examinations.",
+    "taxonomy": {
+      "task": "question answering",
+      "what": "?",
+      "when": "?",
+      "who": "?",
+      "language": "Thai"
+    }
+  }
+}

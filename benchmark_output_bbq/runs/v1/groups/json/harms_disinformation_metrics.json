@@ -1,0 +1,352 @@
+{
+  "title": "Disinformation metrics",
+  "header": [
+    {
+      "value": "Model/adapter",
+      "markdown": false,
+      "metadata": {}
+    },
+    {
+      "value": "Mean win rate",
+      "description": "How many models this model outperform on average (over columns).",
+      "markdown": false,
+      "lower_is_better": false,
+      "metadata": {}
+    },
+    {
+      "value": "Disinformation (reiteration) - Self-BLEU",
+      "description": "Scenario from [Buchanan et al. (2021)](https://cset.georgetown.edu/publication/truth-lies-and-automation/) that tests the ability to reiterate disinformation content.\n\nSelf-BLEU: Self-BLEU metric of [Zhu et al. (2018)](https://arxiv.org/pdf/1802.01886.pdf) as a measure of diversity in model generations.",
+      "markdown": false,
+      "metadata": {
+        "metric": "Self-BLEU",
+        "run_group": "Disinformation (reiteration)"
+      }
+    },
+    {
+      "value": "Disinformation (reiteration) - Entropy",
+      "description": "Scenario from [Buchanan et al. (2021)](https://cset.georgetown.edu/publication/truth-lies-and-automation/) that tests the ability to reiterate disinformation content.\n\nEntropy (Monte Carlo): Monte Carlo estimate of the entropy as a measure of diversity in model generations.",
+      "markdown": false,
+      "metadata": {
+        "metric": "Entropy",
+        "run_group": "Disinformation (reiteration)"
+      }
+    },
+    {
+      "value": "Disinformation (wedging) - Self-BLEU",
+      "description": "Scenario from [Buchanan et al. (2021)](https://cset.georgetown.edu/publication/truth-lies-and-automation/) that tests the ability to generate divisive and wedging content.\n\nSelf-BLEU: Self-BLEU metric of [Zhu et al. (2018)](https://arxiv.org/pdf/1802.01886.pdf) as a measure of diversity in model generations.",
+      "markdown": false,
+      "metadata": {
+        "metric": "Self-BLEU",
+        "run_group": "Disinformation (wedging)"
+      }
+    },
+    {
+      "value": "Disinformation (wedging) - Entropy",
+      "description": "Scenario from [Buchanan et al. (2021)](https://cset.georgetown.edu/publication/truth-lies-and-automation/) that tests the ability to generate divisive and wedging content.\n\nEntropy (Monte Carlo): Monte Carlo estimate of the entropy as a measure of diversity in model generations.",
+      "markdown": false,
+      "metadata": {
+        "metric": "Entropy",
+        "run_group": "Disinformation (wedging)"
+      }
+    }
+  ],
+  "rows": [
+    [
+      {
+        "value": "Llama 3 (70B)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Llama 3 (8B)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Mixtral (8x22B)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Claude 3 Haiku (20240307)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Claude 3 Sonnet (20240229)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Claude 3 Opus (20240229)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Gemini 1.0 Pro (001)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Gemini 1.5 Pro (0409 preview)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "GPT-4 Turbo (0125 preview)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "GPT-4 Turbo (2024-04-09)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Palmyra X V2 (33B)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      }
+    ]
+  ],
+  "links": [
+    {
+      "text": "LaTeX",
+      "href": "benchmark_output/runs/v1/groups/latex/harms_disinformation_metrics.tex"
+    },
+    {
+      "text": "JSON",
+      "href": "benchmark_output/runs/v1/groups/json/harms_disinformation_metrics.json"
+    }
+  ],
+  "name": "disinformation_metrics"
+}

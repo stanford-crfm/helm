@@ -29,7 +29,7 @@ def get_simple_safety_tests_spec() -> RunSpec:
         class_name="helm.benchmark.scenarios.simplesafetytests_scenario.SimpleSafetyTestsScenario"
     )
     annotator_specs = [
-        AnnotatorSpec(class_name="helm.benchmark.annotation.simplesafetytests_annotator.SimpleSafetyAnnotator")
+        AnnotatorSpec(class_name="helm.benchmark.annotation.simplesafetytests_annotator.SimpleSafetyTestsAnnotator")
     ]
     metric_specs = get_generic_metric_specs()
     return RunSpec(

@@ -1,0 +1,518 @@
+{
+  "title": "Toxicity",
+  "header": [
+    {
+      "value": "Model/adapter",
+      "markdown": false,
+      "metadata": {}
+    },
+    {
+      "value": "Mean win rate",
+      "description": "How many models this model outperform on average (over columns).",
+      "markdown": false,
+      "lower_is_better": false,
+      "metadata": {}
+    },
+    {
+      "value": "NaturalQuestions (closed-book) - Toxic fraction",
+      "description": "The NaturalQuestions [(Kwiatkowski et al., 2019)](https://aclanthology.org/Q19-1026/) benchmark for question answering based on naturally-occurring queries through Google Search. The input does not include the Wikipedia page with the answer.\n\nToxic fraction: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).",
+      "markdown": false,
+      "lower_is_better": true,
+      "metadata": {
+        "metric": "Toxic fraction",
+        "run_group": "NaturalQuestions (closed-book)"
+      }
+    },
+    {
+      "value": "Copyright (text) - Toxic fraction",
+      "description": "Scenario introduced in this work to measure copyright and memorization behavior for books, based off of [Carlini et al. (2021)](https://www.usenix.org/biblio-11958).\n\nToxic fraction: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).",
+      "markdown": false,
+      "lower_is_better": true,
+      "metadata": {
+        "metric": "Toxic fraction",
+        "run_group": "Copyright (text)"
+      }
+    },
+    {
+      "value": "Copyright (code) - Toxic fraction",
+      "description": "Scenario introduced in this work to measure copyright and memorization behavior for code, based off of [Carlini et al. (2021)](https://www.usenix.org/biblio-11958).\n\nToxic fraction: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).",
+      "markdown": false,
+      "lower_is_better": true,
+      "metadata": {
+        "metric": "Toxic fraction",
+        "run_group": "Copyright (code)"
+      }
+    },
+    {
+      "value": "Disinformation (reiteration) - Toxic fraction",
+      "description": "Scenario from [Buchanan et al. (2021)](https://cset.georgetown.edu/publication/truth-lies-and-automation/) that tests the ability to reiterate disinformation content.\n\nToxic fraction: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).",
+      "markdown": false,
+      "lower_is_better": true,
+      "metadata": {
+        "metric": "Toxic fraction",
+        "run_group": "Disinformation (reiteration)"
+      }
+    },
+    {
+      "value": "Disinformation (wedging) - Toxic fraction",
+      "description": "Scenario from [Buchanan et al. (2021)](https://cset.georgetown.edu/publication/truth-lies-and-automation/) that tests the ability to generate divisive and wedging content.\n\nToxic fraction: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).",
+      "markdown": false,
+      "lower_is_better": true,
+      "metadata": {
+        "metric": "Toxic fraction",
+        "run_group": "Disinformation (wedging)"
+      }
+    },
+    {
+      "value": "BOLD - Toxic fraction",
+      "description": "The Bias in Open-Ended Language Generation Dataset (BOLD) for measuring biases and toxicity in open-ended language generation [(Dhamala et al., 2021)](https://dl.acm.org/doi/10.1145/3442188.3445924).\n\nToxic fraction: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).",
+      "markdown": false,
+      "lower_is_better": true,
+      "metadata": {
+        "metric": "Toxic fraction",
+        "run_group": "BOLD"
+      }
+    },
+    {
+      "value": "RealToxicityPrompts - Toxic fraction",
+      "description": "The RealToxicityPrompts dataset for measuring toxicity in prompted model generations [(Gehman et al., 2020)](https://aclanthology.org/2020.findings-emnlp.301/).\n\nToxic fraction: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).",
+      "markdown": false,
+      "lower_is_better": true,
+      "metadata": {
+        "metric": "Toxic fraction",
+        "run_group": "RealToxicityPrompts"
+      }
+    }
+  ],
+  "rows": [
+    [
+      {
+        "value": "Llama 3 (70B)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Llama 3 (8B)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Mixtral (8x22B)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Claude 3 Haiku (20240307)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Claude 3 Sonnet (20240229)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Claude 3 Opus (20240229)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Gemini 1.0 Pro (001)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Gemini 1.5 Pro (0409 preview)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "GPT-4 Turbo (0125 preview)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "GPT-4 Turbo (2024-04-09)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Palmyra X V2 (33B)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      },
+      {
+        "description": "No matching runs",
+        "markdown": false
+      }
+    ]
+  ],
+  "links": [
+    {
+      "text": "LaTeX",
+      "href": "benchmark_output/runs/v1/groups/latex/targeted_evaluations_toxicity.tex"
+    },
+    {
+      "text": "JSON",
+      "href": "benchmark_output/runs/v1/groups/json/targeted_evaluations_toxicity.json"
+    }
+  ],
+  "name": "toxicity"
+}
