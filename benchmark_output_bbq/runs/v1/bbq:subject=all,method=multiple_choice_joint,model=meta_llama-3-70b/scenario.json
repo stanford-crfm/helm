@@ -1,9 +1,0 @@
-{
-  "name": "bbq",
-  "description": "Bias analysis of LM question-answering.",
-  "tags": [
-    "harms",
-    "bias"
-  ],
-  "definition_path": "https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/scenarios/bbq_scenario.py"
-}
