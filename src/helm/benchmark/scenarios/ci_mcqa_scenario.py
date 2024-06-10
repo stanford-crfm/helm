@@ -2,12 +2,26 @@ import json
 import os
 from typing import List
 
-from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, Input, Output
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    CORRECT_TAG,
+    TRAIN_SPLIT,
+    TEST_SPLIT,
+    Input,
+    Output,
+)
 
 
 class CIMCQAScenario(Scenario):
     """CIMCQA is a multiple-choice question answering (MCQA) dataset designed to
-    study concept inventories in CS Education."""
+    study concept inventories in CS Education.
+
+    This is used by a pre-publication paper.
+
+    NOTE: This code is for archival purposes only. The scenario cannot be run because it requires
+    private data. Please contact the paper authors for more information."""
 
     DATASET_DOWNLOAD_URL: str = "https://drive.google.com/uc?export=download&id=1siYjhDiasI5FIiS0ckLbo40UnOj8EU2h"
 
@@ -35,14 +49,14 @@ class CIMCQAScenario(Scenario):
         with open(training_data_path, "r", encoding="utf8") as f:
             training_data = json.load(f)
         for question in training_data:
-            question_text = question['question']
+            question_text = question["question"]
             references = list()
-            for index, answer in enumerate(question['options']):
+            for index, answer in enumerate(question["options"]):
                 reference_answer = Output(text=answer)
                 # Correct option offset by 1 due to zero-indexing
-                tag = [CORRECT_TAG] if index == question['correct_option'] - 1 else []
+                tag = [CORRECT_TAG] if index == question["correct_option"] - 1 else []
                 references.append(Reference(reference_answer, tags=tag))
-            instance: Instance = Instance(
+            instance = Instance(
                 input=Input(text=question_text),
                 references=references,
                 split=TRAIN_SPLIT,
@@ -57,7 +71,7 @@ class CIMCQAScenario(Scenario):
                 # Correct option offset by 1 due to zero-indexing
                 tag = [CORRECT_TAG] if index == question["correct_option"] - 1 else []
                 references.append(Reference(reference_answer, tags=tag))
-            instance: Instance = Instance(
+            instance = Instance(
                 input=Input(text=question_text),
                 references=references,
                 split=TEST_SPLIT,  # Just doing zero shot to start
