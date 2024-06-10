@@ -4,7 +4,7 @@ import requests
 
 from helm.common.cache import CacheConfig, Cache
 from helm.common.file_caches.file_cache import FileCache
-from helm.common.request import Request, RequestResult, Sequence, wrap_request_time
+from helm.common.request import Request, RequestResult, GeneratedOutput, wrap_request_time
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -46,12 +46,16 @@ class TogetherImageGenerationClient(Client):
             "model": request.model_engine,
             "prompt": request.prompt,
             "n": request.num_completions,
-            "guidance_scale": request.image_generation_parameters.guidance_scale
-            if request.image_generation_parameters.guidance_scale is not None
-            else self.DEFAULT_GUIDANCE_SCALE,
-            "steps": request.image_generation_parameters.diffusion_denoising_steps
-            if request.image_generation_parameters.diffusion_denoising_steps is not None
-            else self.DEFAULT_STEPS,
+            "guidance_scale": (
+                request.image_generation_parameters.guidance_scale
+                if request.image_generation_parameters.guidance_scale is not None
+                else self.DEFAULT_GUIDANCE_SCALE
+            ),
+            "steps": (
+                request.image_generation_parameters.diffusion_denoising_steps
+                if request.image_generation_parameters.diffusion_denoising_steps is not None
+                else self.DEFAULT_STEPS
+            ),
         }
 
         if (
@@ -83,8 +87,8 @@ class TogetherImageGenerationClient(Client):
             error: str = f"TogetherVisionClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
-        completions: List[Sequence] = [
-            Sequence(
+        completions: List[GeneratedOutput] = [
+            GeneratedOutput(
                 text="",
                 logprob=0,
                 tokens=[],

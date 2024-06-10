@@ -1,6 +1,7 @@
 import { List, ListItem } from "@tremor/react";
 import type DisplayRequest from "@/types/DisplayRequest";
 import Preview from "../Preview";
+import MultimediaObjectDisplay from "../MultimediaObjectDisplay";
 
 type Props = {
   request: DisplayRequest;
@@ -30,6 +31,13 @@ export default function Request({ request }: Props) {
             Prompt ({request.request.prompt.length} Chars)
           </h3>
           <Preview value={request.request.prompt} />
+        </div>
+      ) : request.request.multimodal_prompt ? (
+        <div>
+          <h3 className="block text text-gray-400">Prompt</h3>
+          <MultimediaObjectDisplay
+            multimediaObject={request.request.multimodal_prompt}
+          />
         </div>
       ) : (
         <h3 className="block text text-gray-400">Empty Prompt</h3>

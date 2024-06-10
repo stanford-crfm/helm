@@ -11,26 +11,6 @@ from .caching_tokenizer import CachingTokenizer
 from .tokenizer import cleanup_tokens
 
 
-# TODO: Delete this.
-_MODEL_NAME_ALIASES: Dict[str, str] = {
-    "google/t5-11b": "t5-11b",
-    "huggingface/gpt2": "gpt2",
-    "huggingface/santacoder": "bigcode/santacoder",
-    "huggingface/starcoder": "bigcode/starcoder",
-    "writer/gpt2": "gpt2",  # Palmyra models do not support echo
-    # So they have a different TokenizerConfig called "writer/gpt2"
-    # when in reality they use the same tokenizer as "huggingface/gpt2"
-    "microsoft/gpt2": "gpt2",  # Same as above
-}
-"""Mapping of some HELM model names to Hugging Face pretrained model name."""
-
-
-# TODO: Delete this.
-def resolve_alias(model_name: str) -> str:
-    """Resolve some HELM model names to Hugging Face pretrained model name."""
-    return _MODEL_NAME_ALIASES.get(model_name, model_name)
-
-
 WrappedPreTrainedTokenizer = ThreadSafeWrapper[PreTrainedTokenizerBase]
 """Thread safe wrapper around Hugging Face PreTrainedTokenizerBase.
 
@@ -49,8 +29,17 @@ class HuggingFaceTokenizer(CachingTokenizer):
     _tokenizers: Dict[str, WrappedPreTrainedTokenizer] = {}
     _tokenizers_lock: Lock = Lock()
 
-    def __init__(self, cache_config: CacheConfig, pretrained_model_name_or_path: Optional[str] = None, **kwargs):
+    def __init__(
+        self,
+        cache_config: CacheConfig,
+        tokenizer_name: str,
+        pretrained_model_name_or_path: Optional[str] = None,
+        **kwargs,
+    ):
         super().__init__(cache_config=cache_config)
+        self._helm_tokenizer_name = (
+            tokenizer_name  # HELM tokenizer name (e.g. "huggingface/gpt2"), *not* Hugging Face Hub Model ID
+        )
         self._pretrained_model_name_or_path = pretrained_model_name_or_path
         self._kwargs = kwargs
 
@@ -60,7 +49,11 @@ class HuggingFaceTokenizer(CachingTokenizer):
         # To avoid deadlocks when using HuggingFace tokenizers with multiple processes
         # TODO: Figure out if we actually need this.
         os.environ["TOKENIZERS_PARALLELISM"] = "False"
-
+        from_pretrained_kwargs = {**kwargs}
+        # If unspecified, set `use_fast=True` by default.
+        if "use_fast" not in from_pretrained_kwargs:
+            from_pretrained_kwargs["use_fast"] = True
+        print(from_pretrained_kwargs)
         try:
             # From the Hugging Face documentation, "local_files_only(defaults to False) —
             # Whether or not to only look at local files".
@@ -73,14 +66,14 @@ class HuggingFaceTokenizer(CachingTokenizer):
             # Tokenizers, which are written in Rust." So, use the "fast" version of the tokenizers if available.
             return WrappedPreTrainedTokenizer(
                 AutoTokenizer.from_pretrained(
-                    pretrained_model_name_or_path, local_files_only=True, use_fast=True, **kwargs
+                    pretrained_model_name_or_path, local_files_only=True, **from_pretrained_kwargs
                 )
             )
         except OSError:
             hlog(f"Local files do not exist for HuggingFace tokenizer: {pretrained_model_name_or_path}. Downloading...")
             return WrappedPreTrainedTokenizer(
                 AutoTokenizer.from_pretrained(
-                    pretrained_model_name_or_path, local_files_only=False, use_fast=True, **kwargs
+                    pretrained_model_name_or_path, local_files_only=False, **from_pretrained_kwargs
                 )
             )
 
@@ -104,23 +97,26 @@ class HuggingFaceTokenizer(CachingTokenizer):
                     )
         return HuggingFaceTokenizer._tokenizers[helm_tokenizer_name]
 
-    def _get_tokenizer_for_request(self, request: Dict[str, Any]) -> WrappedPreTrainedTokenizer:
-        """Method used in both _tokenize_do_it and _decode_do_it to get the tokenizer."""
-        pretrained_model_name_or_path: str
-        if self._pretrained_model_name_or_path:
-            pretrained_model_name_or_path = self._pretrained_model_name_or_path
-        else:
-            pretrained_model_name_or_path = resolve_alias(request["tokenizer"])
+    def get_wrapped_tokenizer(self) -> WrappedPreTrainedTokenizer:
+        """Get the underlying Hugging Face WrappedPreTrainedTokenizer."""
+        pretrained_model_name_or_path = (
+            self._pretrained_model_name_or_path if self._pretrained_model_name_or_path else self._helm_tokenizer_name
+        )
         return HuggingFaceTokenizer.get_tokenizer(
-            helm_tokenizer_name=request["tokenizer"],
+            helm_tokenizer_name=self._helm_tokenizer_name,
             pretrained_model_name_or_path=pretrained_model_name_or_path,
             **self._kwargs,
         )
 
     def _tokenize_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        if request["tokenizer"] != self._helm_tokenizer_name:
+            raise ValueError(
+                f"This HuggingFaceTokenizer expects tokenizer to be {self._helm_tokenizer_name} "
+                "but instead the request has tokenizer {request['tokenizer']}"
+            )
         if request["encode"]:
             if request["truncation"]:
-                with self._get_tokenizer_for_request(request) as tokenizer:
+                with self.get_wrapped_tokenizer() as tokenizer:
                     tokens = tokenizer.encode(
                         request["text"],
                         truncation=request["truncation"],
@@ -128,7 +124,7 @@ class HuggingFaceTokenizer(CachingTokenizer):
                         add_special_tokens=False,
                     )
             else:
-                with self._get_tokenizer_for_request(request) as tokenizer:
+                with self.get_wrapped_tokenizer() as tokenizer:
                     tokens = tokenizer.encode(request["text"], add_special_tokens=False)
         else:
             if "gpt" in request["tokenizer"] or request["tokenizer"] in [
@@ -140,7 +136,7 @@ class HuggingFaceTokenizer(CachingTokenizer):
                 # convert_tokens_to_string method. We prefer to use this method instead
                 # of the hacky cleanup_tokens method below as it might handle cases
                 # we haven't thought of in cleanup_tokens.
-                with self._get_tokenizer_for_request(request) as tokenizer:
+                with self.get_wrapped_tokenizer() as tokenizer:
                     tokens = [
                         tokenizer.convert_tokens_to_string([token]) for token in tokenizer.tokenize(request["text"])
                     ]
@@ -153,7 +149,7 @@ class HuggingFaceTokenizer(CachingTokenizer):
                 # But this replaces all the "▁" characters by "", which is not what we want.
                 # This would be problematic as tokenize(" Hello", encode=False) would return ["Hello"]
                 # Just like tokenize("Hello", encode=False) would return ["Hello"].
-                with self._get_tokenizer_for_request(request) as tokenizer:
+                with self.get_wrapped_tokenizer() as tokenizer:
                     tokens = tokenizer.tokenize(request["text"])
                 # Some tokenizers (e.g. Qwen/Qwen-7B) return the tokens as bytes, so we have to decode them to strings.
                 if tokens and type(tokens[0]) == bytes:
@@ -162,7 +158,12 @@ class HuggingFaceTokenizer(CachingTokenizer):
         return {"tokens": tokens}
 
     def _decode_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
-        with self._get_tokenizer_for_request(request) as tokenizer:
+        if request["tokenizer"] != self._helm_tokenizer_name:
+            raise ValueError(
+                f"This HuggingFaceTokenizer expects tokenizer to be {self._helm_tokenizer_name} "
+                "but instead the request has tokenizer {request['tokenizer']}"
+            )
+        with self.get_wrapped_tokenizer() as tokenizer:
             text = tokenizer.decode(
                 request["tokens"], clean_up_tokenization_spaces=request["clean_up_tokenization_spaces"]
             )

@@ -6,7 +6,7 @@ import urllib.parse
 from helm.common.cache import CacheConfig, Cache
 from helm.common.file_caches.file_cache import FileCache
 from helm.common.images_utils import encode_base64
-from helm.common.request import Request, RequestResult, Sequence, wrap_request_time
+from helm.common.request import Request, RequestResult, GeneratedOutput, wrap_request_time
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -65,8 +65,10 @@ class LexicaClient(Client):
             error: str = f"LexicaClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
-        completions: List[Sequence] = [
-            Sequence(text="", logprob=0, tokens=[], multimodal_content=get_single_image_multimedia_object(location))
+        completions: List[GeneratedOutput] = [
+            GeneratedOutput(
+                text="", logprob=0, tokens=[], multimodal_content=get_single_image_multimedia_object(location)
+            )
             for location in response["image_locations"]
         ]
         return RequestResult(

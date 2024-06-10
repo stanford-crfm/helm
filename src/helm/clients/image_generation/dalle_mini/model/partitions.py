@@ -73,9 +73,11 @@ def set_partitions(in_dict, use_scan):
     if use_scan:
         # add None dimension to layers
         result = {
-            k: (P(*(None,) + v) if v is not None else None)
-            if any(x in k for x in ["FlaxBartEncoderLayers", "FlaxBartDecoderLayers"])
-            else v
+            k: (
+                (P(*(None,) + v) if v is not None else None)
+                if any(x in k for x in ["FlaxBartEncoderLayers", "FlaxBartDecoderLayers"])
+                else v
+            )
             for k, v in result.items()
         }
     assert _unmatched not in result.values(), "Incomplete partition spec."

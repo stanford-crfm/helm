@@ -28,9 +28,11 @@ MISTRAL_MODEL_TAG: str = "MISTRAL_MODEL_TAG"
 # For Anthropic models
 ANTHROPIC_CLAUDE_1_MODEL_TAG: str = "ANTHROPIC_CLAUDE_1_MODEL_TAG"
 ANTHROPIC_CLAUDE_2_MODEL_TAG: str = "ANTHROPIC_CLAUDE_2_MODEL_TAG"
+ANTHROPIC_CLAUDE_3_MODEL_TAG: str = "ANTHROPIC_CLAUDE_3_MODEL_TAG"
 
 GOOGLE_PALM_2_MODEL_TAG: str = "GOOGLE_PALM_2_MODEL_TAG"
 GOOGLE_GEMINI_MODEL_TAG: str = "GOOGLE_GEMINI_MODEL_TAG"
+GOOGLE_GEMINI_PRO_VISION_V1_TAG: str = "GOOGLE_GEMINI_PRO_VISION_V1_TAG"
 GOOGLE_GEMMA_INSTRUCT_MODEL_TAG: str = "GOOGLE_GEMMA_INSTRUCT_MODEL_TAG"
 
 # Models which emit garbage tokens when temperature=0.
@@ -158,7 +160,10 @@ def register_model_metadata(model_metadata: ModelMetadata) -> None:
 def get_model_metadata(model_name: str) -> ModelMetadata:
     """Return the `ModelMetadata` for the model name."""
     if model_name not in MODEL_NAME_TO_MODEL_METADATA:
-        raise ValueError(f"No model with name: {model_name}")
+        raise ValueError(
+            f"No model metadata for model name: {model_name} - "
+            "did you remember to add this model to model_metadata.yaml?"
+        )
 
     return MODEL_NAME_TO_MODEL_METADATA[model_name]
 

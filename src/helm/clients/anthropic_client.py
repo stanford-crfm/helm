@@ -1,6 +1,8 @@
 from typing import Any, Dict, List, Optional, TypedDict, Union, cast
 import json
+import os
 import requests
+import tempfile
 import time
 import urllib.parse
 
@@ -13,7 +15,7 @@ from helm.common.request import (
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
     Request,
     RequestResult,
-    Sequence,
+    GeneratedOutput,
     Token,
     ErrorFlags,
 )
@@ -26,7 +28,7 @@ from helm.tokenizers.tokenizer import Tokenizer
 from helm.clients.client import CachingClient, truncate_sequence, truncate_and_tokenize_response_text
 
 try:
-    from anthropic import Anthropic
+    from anthropic import Anthropic, BadRequestError
     from anthropic.types import MessageParam
     from anthropic.types.image_block_param import ImageBlockParam
     from anthropic.types.text_block_param import TextBlockParam
@@ -68,6 +70,9 @@ class AnthropicClient(CachingClient):
     MAX_COMPLETION_LENGTH: int = (
         8192  # See https://docs.google.com/document/d/1vX6xgoA-KEKxqtMlBVAqYvE8KUfZ7ABCjTxAjf1T5kI/edit#
     )
+    # An Anthropic error message: "At least one of the image dimensions exceed max allowed size: 8000 pixels"
+    MAX_IMAGE_DIMENSION: int = 8000
+
     ADDITIONAL_TOKENS: int = 5
     PROMPT_ANSWER_START: str = "The answer is "
 
@@ -128,7 +133,7 @@ class AnthropicClient(CachingClient):
             "top_k": request.top_k_per_token,
         }
 
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
 
         # `num_completions` is not supported, so instead make `num_completions` separate requests.
         for completion_index in range(request.num_completions):
@@ -189,7 +194,7 @@ class AnthropicClient(CachingClient):
             # Log probs are not currently not supported by the Anthropic, so set to 0 for now.
             tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
 
-            completion = Sequence(text=response["completion"], logprob=0, tokens=tokens)
+            completion = GeneratedOutput(text=response["completion"], logprob=0, tokens=tokens)
             # See NOTE() in _filter_completion() to understand why warnings are printed for truncation.
             # TODO(#1512): Fix this with post-processing.
             sequence = truncate_sequence(completion, request, print_warning=True)
@@ -203,6 +208,18 @@ class AnthropicClient(CachingClient):
             completions=completions,
             embedding=[],
         )
+
+
+def _is_content_moderation_failure(response: Dict) -> bool:
+    """Return whether a response failed because of the content moderation filter."""
+    if (
+        "error" in response
+        and "message" in response["error"]
+        and response["error"]["message"] == "Output blocked by content filtering policy"
+    ):
+        hlog(f"Anthropic - output blocked by content filtering policy: {response}")
+        return True
+    return False
 
 
 class AnthropicMessagesRequest(TypedDict, total=False):
@@ -226,7 +243,9 @@ class AnthropicMessagesResponseError(Exception):
 
 class AnthropicMessagesClient(CachingClient):
     # Source: https://docs.anthropic.com/claude/docs/models-overview
-    MAX_OUTPUT_TOKENS = 4096
+    MAX_OUTPUT_TOKENS: int = 4096
+
+    MAX_IMAGE_SIZE_BYTES: int = 5242880  # 5MB
 
     def __init__(
         self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig, api_key: Optional[str] = None
@@ -261,7 +280,7 @@ class AnthropicMessagesClient(CachingClient):
             # TODO(#2439): Refactor out Request validation
             if request.messages is not None or request.prompt:
                 raise AnthropicMessagesRequestError(
-                    "Exactly one of Request.messages, Request.prompt or Request.multimodel_prompt should be set"
+                    "Exactly one of Request.messages, Request.prompt or Request.multimodal_prompt should be set"
                 )
             blocks: List[Union[TextBlockParam, ImageBlockParam]] = []
             for media_object in request.multimodal_prompt.media_objects:
@@ -270,9 +289,53 @@ class AnthropicMessagesClient(CachingClient):
                     if not media_object.location:
                         raise Exception("MediaObject of image type has missing location field value")
 
-                    from helm.common.images_utils import encode_base64
+                    from helm.common.images_utils import (
+                        encode_base64,
+                        get_dimensions,
+                        copy_image,
+                        resize_image_to_max_file_size,
+                    )
 
-                    base64_image: str = encode_base64(media_object.location, format="JPEG")
+                    image_location: str = media_object.location
+                    base64_image: str
+
+                    image_width, image_height = get_dimensions(media_object.location)
+                    if (
+                        image_width > AnthropicClient.MAX_IMAGE_DIMENSION
+                        or image_height > AnthropicClient.MAX_IMAGE_DIMENSION
+                    ):
+                        hlog(
+                            f"WARNING: Image {image_location} exceeds max allowed size: "
+                            f"{AnthropicClient.MAX_IMAGE_DIMENSION} pixels"
+                        )
+                        # Save the resized image to a temporary file
+                        with tempfile.NamedTemporaryFile(suffix=".jpg") as temp_file:
+                            hlog(f"Resizing image to temporary path: {temp_file.name}")
+                            copy_image(
+                                src=image_location,
+                                dest=temp_file.name,
+                                width=min(image_width, AnthropicClient.MAX_IMAGE_DIMENSION),
+                                height=min(image_height, AnthropicClient.MAX_IMAGE_DIMENSION),
+                            )
+                            base64_image = encode_base64(temp_file.name, format="JPEG")
+
+                    elif os.path.getsize(image_location) > AnthropicMessagesClient.MAX_IMAGE_SIZE_BYTES:
+                        hlog(
+                            f"WARNING: Image {image_location} exceeds max allowed size: "
+                            f"{AnthropicMessagesClient.MAX_IMAGE_SIZE_BYTES} bytes"
+                        )
+                        # Resize the image so it is smaller than the max allowed size
+                        with tempfile.NamedTemporaryFile(suffix=".jpg") as temp_file:
+                            hlog(f"Resizing image to temporary path: {temp_file.name}")
+                            resize_image_to_max_file_size(
+                                src=image_location,
+                                dest=temp_file.name,
+                                max_size_in_bytes=AnthropicMessagesClient.MAX_IMAGE_SIZE_BYTES,
+                            )
+                            base64_image = encode_base64(temp_file.name, format="JPEG")
+                    else:
+                        base64_image = encode_base64(image_location, format="JPEG")
+
                     image_block: ImageBlockParam = {
                         "type": "image",
                         "source": {
@@ -290,7 +353,9 @@ class AnthropicMessagesClient(CachingClient):
                         "type": "text",
                         "text": media_object.text,
                     }
-                    blocks.append(text_block)
+                    # Anthropic does not support empty text blocks
+                    if media_object.text.strip():
+                        blocks.append(text_block)
             messages = [{"role": "user", "content": blocks}]
 
         else:
@@ -307,18 +372,24 @@ class AnthropicMessagesClient(CachingClient):
         }
         if system_message is not None:
             raw_request["system"] = cast(str, system_message["content"])
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
 
         # `num_completions` is not supported, so instead make `num_completions` separate requests.
         for completion_index in range(request.num_completions):
 
             def do_it() -> Dict[str, Any]:
-                result = self.client.messages.create(**raw_request).model_dump()
-                if "content" not in result or not result["content"]:
-                    raise AnthropicMessagesResponseError(f"Anthropic response has empty content: {result}")
-                elif "text" not in result["content"][0]:
-                    raise AnthropicMessagesResponseError(f"Anthropic response has non-text content: {result}")
-                return result
+                try:
+                    result = self.client.messages.create(**raw_request).model_dump()
+                    if "content" not in result or not result["content"]:
+                        raise AnthropicMessagesResponseError(f"Anthropic response has empty content: {result}")
+                    elif "text" not in result["content"][0]:
+                        raise AnthropicMessagesResponseError(f"Anthropic response has non-text content: {result}")
+                    return result
+                except BadRequestError as e:
+                    response = e.response.json()
+                    if _is_content_moderation_failure(response):
+                        return response
+                    raise
 
             cache_key = CachingClient.make_cache_key(
                 {
@@ -327,8 +398,24 @@ class AnthropicMessagesClient(CachingClient):
                 },
                 request,
             )
-
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+
+            if _is_content_moderation_failure(response):
+                hlog(
+                    f"WARNING: Returning empty request for {request.model_deployment} "
+                    "due to content moderation filter"
+                )
+                return RequestResult(
+                    success=False,
+                    cached=cached,
+                    error=response["error"]["message"],
+                    completions=[],
+                    embedding=[],
+                    error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                    request_time=response["request_time"],
+                    request_datetime=response["request_datetime"],
+                )
+
             completion = truncate_and_tokenize_response_text(
                 response["content"][0]["text"], request, self.tokenizer, self.tokenizer_name, original_finish_reason=""
             )
@@ -546,7 +633,7 @@ class AnthropicLegacyClient(CachingClient):
 
         # Since Anthropic doesn't support multiple completions, we have to manually call it multiple times,
         # and aggregate the results into `completions` and `request_time`.
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         all_cached = True
         request_time = 0
         request_datetime: Optional[int] = None
@@ -587,7 +674,7 @@ class AnthropicLegacyClient(CachingClient):
             if finish_reason == AnthropicLegacyClient.STOP_SEQUENCE_STOP_REASON:
                 finish_reason = "stop"
 
-            completion = Sequence(
+            completion = GeneratedOutput(
                 text=response["text"],
                 logprob=sequence_logprob,
                 tokens=tokens,

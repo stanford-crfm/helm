@@ -1,12 +1,21 @@
 from copy import deepcopy
-from typing import List, Dict, Any, Optional, Union
+from itertools import zip_longest
+import threading
+from typing import List, Dict, Any, Mapping, Optional, TypedDict, Union
 
 import requests
 from retrying import retry
 
 from helm.common.cache import CacheConfig
-from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
-from .client import CachingClient, truncate_sequence, cleanup_str
+from helm.common.optional_dependencies import handle_module_not_found_error
+from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
+from helm.clients.client import CachingClient, truncate_sequence, cleanup_str
+
+try:
+    from together import Together
+    from together.types import ChatCompletionResponse, CompletionResponse
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["together"])
 
 
 class _RewriteRequestTags:
@@ -220,7 +229,7 @@ class TogetherClient(CachingClient):
                 )
 
         # Expect the result to be structured the same way as a response from OpenAI API.
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         for raw_completion in response["choices"]:
             sequence_logprob = 0
             tokens: List[Token] = []
@@ -243,7 +252,7 @@ class TogetherClient(CachingClient):
             raw_finish_reason: Optional[str] = raw_completion.get("finish_reason")
             finish_reason: Optional[Dict] = {"reason": raw_finish_reason} if raw_finish_reason else None
 
-            completion = Sequence(
+            completion = GeneratedOutput(
                 text=cleanup_str(raw_completion["text"], "together"),
                 logprob=sequence_logprob,
                 tokens=tokens,
@@ -272,3 +281,191 @@ class TogetherClient(CachingClient):
                 completions=completions,
                 embedding=[],
             )
+
+
+_MODEL_TO_DEFAULT_STOP_TOKENS: Optional[Mapping[str, List[str]]] = None
+_MODEL_TO_DEFAULT_STOP_TOKENS_LOCK = threading.Lock()
+
+
+def get_default_stop_tokens_for_model(together_model: str, together_client: Together) -> List[str]:
+    global _MODEL_TO_DEFAULT_STOP_TOKENS
+    global _MODEL_TO_DEFAULT_STOP_TOKENS_LOCK
+    with _MODEL_TO_DEFAULT_STOP_TOKENS_LOCK:
+        if _MODEL_TO_DEFAULT_STOP_TOKENS is None:
+            _MODEL_TO_DEFAULT_STOP_TOKENS = {}
+            for model in together_client.models.list():
+                _MODEL_TO_DEFAULT_STOP_TOKENS[model.id.lower()] = model.config["stop"]
+    stop_tokens = _MODEL_TO_DEFAULT_STOP_TOKENS.get(together_model.lower())
+    if stop_tokens is None:
+        raise ValueError(f"Unknown together_model {together_model}")
+    return stop_tokens
+
+
+class TogetherRawChatRequest(TypedDict):
+    messages: List[Dict[str, str]]
+    model: str
+    max_tokens: int
+    stop: List[str]
+    temperature: float
+    top_p: float
+    top_k: int
+    logprobs: int
+    echo: bool
+    n: int
+
+
+class TogetherChatClient(CachingClient):
+    """Client that uses the Python Together library for chat models."""
+
+    def __init__(self, cache_config: CacheConfig, api_key: Optional[str], together_model: Optional[str] = None):
+        super().__init__(cache_config=cache_config)
+        self._client = Together(api_key=api_key)
+        self._together_model = together_model
+
+    def convert_to_raw_chat_request(self, request: Request) -> TogetherRawChatRequest:
+        if request.messages:
+            messages = request.messages
+        else:
+            messages = [{"role": "user", "content": request.prompt}]
+        if self._together_model is not None:
+            model = self._together_model
+        else:
+            model = request.model
+        return {
+            "messages": messages,
+            "model": model,
+            "max_tokens": request.max_tokens,
+            "stop": request.stop_sequences + get_default_stop_tokens_for_model(model, self._client),
+            "temperature": request.temperature,
+            "top_p": request.top_p,
+            "top_k": request.top_k_per_token,
+            "logprobs": min(request.top_k_per_token, 1),
+            "echo": request.echo_prompt,
+            "n": request.num_completions,
+        }
+
+    def make_request(self, request: Request) -> RequestResult:
+        raw_request = self.convert_to_raw_chat_request(request)
+        cache_key = CachingClient.make_cache_key(raw_request, request)
+
+        def do_it() -> Dict[Any, Any]:
+            response = self._client.chat.completions.create(**raw_request)
+            return response.model_dump(mode="json")
+
+        try:
+            raw_response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            response = ChatCompletionResponse.model_validate(raw_response)
+        except Exception as error:
+            return RequestResult(
+                success=False,
+                cached=False,
+                error=str(error),
+                completions=[],
+                embedding=[],
+            )
+
+        generated_outputs: List[GeneratedOutput] = []
+        for choice in response.choices:
+            # NOTE: Together always returns None for choice.finish_reason
+            # NOTE: Together does not return logprobs for the whole generated output, only for individual tokens
+            tokens: List[Token] = []
+            if choice.logprobs:
+                for token_text, token_logprob in zip_longest(
+                    choice.logprobs.tokens or [], choice.logprobs.token_logprobs or []
+                ):
+                    if token_text is None:
+                        break
+                    tokens.append(Token(text=token_text, logprob=token_logprob or 0.0))
+            assert choice.message.role == "assistant"
+            generated_outputs.append(GeneratedOutput(text=choice.message.content, logprob=0.0, tokens=tokens))
+        return RequestResult(
+            success=True,
+            cached=cached,
+            request_time=raw_response["request_time"],
+            request_datetime=raw_response["request_datetime"],
+            completions=generated_outputs,
+            embedding=[],
+        )
+
+
+class TogetherRawCompletionRequest(TypedDict):
+    prompt: str
+    model: str
+    max_tokens: int
+    stop: List[str]
+    temperature: float
+    top_p: float
+    top_k: int
+    logprobs: int
+    echo: bool
+    n: int
+
+
+class TogetherCompletionClient(CachingClient):
+    """Client that uses the Python Together library for text completion models."""
+
+    def __init__(self, cache_config: CacheConfig, api_key: Optional[str], together_model: Optional[str] = None):
+        super().__init__(cache_config=cache_config)
+        self._client = Together(api_key=api_key)
+        self._together_model = together_model
+
+    def convert_to_raw_completion_request(self, request: Request) -> TogetherRawCompletionRequest:
+        if self._together_model is not None:
+            model = self._together_model
+        else:
+            model = request.model
+        return {
+            "prompt": request.prompt,
+            "model": model,
+            "max_tokens": request.max_tokens,
+            "stop": request.stop_sequences + get_default_stop_tokens_for_model(model, self._client),
+            "temperature": request.temperature,
+            "top_p": request.top_p,
+            "top_k": request.top_k_per_token,
+            "logprobs": min(request.top_k_per_token, 1),
+            "echo": request.echo_prompt,
+            "n": request.num_completions,
+        }
+
+    def make_request(self, request: Request) -> RequestResult:
+        raw_request = self.convert_to_raw_completion_request(request)
+        cache_key = CachingClient.make_cache_key(raw_request, request)
+
+        def do_it() -> Dict[Any, Any]:
+            response = self._client.completions.create(**raw_request)
+            return response.model_dump(mode="json")
+
+        try:
+            raw_response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            response = CompletionResponse.model_validate(raw_response)
+        except Exception as error:
+            return RequestResult(
+                success=False,
+                cached=False,
+                error=str(error),
+                completions=[],
+                embedding=[],
+            )
+
+        generated_outputs: List[GeneratedOutput] = []
+        for choice in response.choices:
+            # NOTE: Together always returns None for choice.finish_reason
+            # NOTE: Together does not return logprobs for the whole generated output, only for individual tokens
+            tokens: List[Token] = []
+            if choice.logprobs:
+                for token_text, token_logprob in zip_longest(
+                    choice.logprobs.tokens or [], choice.logprobs.token_logprobs or []
+                ):
+                    if token_text is None:
+                        break
+                    tokens.append(Token(text=token_text, logprob=token_logprob or 0.0))
+            assert choice.text
+            generated_outputs.append(GeneratedOutput(text=choice.text, logprob=0.0, tokens=tokens))
+        return RequestResult(
+            success=True,
+            cached=cached,
+            request_time=raw_response["request_time"],
+            request_datetime=raw_response["request_datetime"],
+            completions=generated_outputs,
+            embedding=[],
+        )

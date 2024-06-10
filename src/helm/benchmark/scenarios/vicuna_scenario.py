@@ -26,7 +26,7 @@ class VicunaScenario(Scenario):
             return self.category == "all" or raw["category"] == self.category
 
         # Download the raw data
-        source_url = "https://raw.githubusercontent.com/lm-sys/FastChat/main/fastchat/eval/table/question.jsonl"
+        source_url = "https://raw.githubusercontent.com/lm-sys/FastChat/v0.2.5/fastchat/eval/table/question.jsonl"
         data_path: str = os.path.join(output_path, "vicuna_questions.jsonl")
 
         ensure_file_downloaded(

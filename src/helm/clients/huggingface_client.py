@@ -14,11 +14,12 @@ from helm.common.request import (
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
     Request,
     RequestResult,
-    Sequence,
+    GeneratedOutput,
     Token,
 )
+from helm.tokenizers.tokenizer import Tokenizer
 from .client import CachingClient, truncate_sequence
-from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer, WrappedPreTrainedTokenizer, resolve_alias
+from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer, WrappedPreTrainedTokenizer
 from threading import Lock
 
 
@@ -53,7 +54,13 @@ class HuggingFaceRequest(TypedDict):
 class HuggingFaceServer:
     """A thin wrapper around a Hugging Face AutoModelForCausalLM for HuggingFaceClient to call."""
 
-    def __init__(self, pretrained_model_name_or_path: str, **kwargs):
+    def __init__(
+        self,
+        pretrained_model_name_or_path: str,
+        wrapped_tokenizer: WrappedPreTrainedTokenizer,
+        openvino=False,
+        **kwargs,
+    ):
         if torch.cuda.is_available():
             hlog("CUDA is available, initializing with a GPU...")
             self.device: str = "cuda:0"
@@ -61,13 +68,44 @@ class HuggingFaceServer:
             self.device = "cpu"
         with htrack_block(f"Loading Hugging Face model {pretrained_model_name_or_path}"):
             # WARNING this may fail if your GPU does not have enough memory
-            self.model = AutoModelForCausalLM.from_pretrained(
-                pretrained_model_name_or_path, trust_remote_code=True, **kwargs
-            ).to(self.device)
-        with htrack_block(f"Loading Hugging Face tokenizer for model {pretrained_model_name_or_path}"):
-            self.wrapped_tokenizer: WrappedPreTrainedTokenizer = HuggingFaceTokenizer.create_tokenizer(
-                pretrained_model_name_or_path, **kwargs
-            )
+            if openvino:
+                """
+                Optimum Intel provides a simple interface to optimize Transformer models and convert them to \
+                OpenVINO™ Intermediate Representation (IR) format to accelerate end-to-end pipelines on \
+                Intel® architectures using OpenVINO™ runtime.
+                """
+                from helm.common.optional_dependencies import handle_module_not_found_error
+
+                try:
+                    from optimum.intel.openvino import OVModelForCausalLM
+                except ModuleNotFoundError as e:
+                    handle_module_not_found_error(e, ["openvino"])
+
+                self.device = "cpu"
+                # Security issue: currently we trust remote code by default.
+                # We retain this temporarily to maintain reverse compatibility.
+                # TODO: Delete if-else and don't set trust_remote_code=True
+                if "trust_remote_code" in kwargs:
+                    self.model = OVModelForCausalLM.from_pretrained(
+                        pretrained_model_name_or_path, export=True, **kwargs
+                    ).to(self.device)
+                else:
+                    self.model = OVModelForCausalLM.from_pretrained(
+                        pretrained_model_name_or_path, export=True, trust_remote_code=True, **kwargs
+                    ).to(self.device)
+            else:
+                # Security issue: currently we trust remote code by default.
+                # We retain this temporarily to maintain reverse compatibility.
+                # TODO: Delete if-else and don't set trust_remote_code=True
+                if "trust_remote_code" in kwargs:
+                    self.model = AutoModelForCausalLM.from_pretrained(pretrained_model_name_or_path, **kwargs).to(
+                        self.device
+                    )
+                else:
+                    self.model = AutoModelForCausalLM.from_pretrained(
+                        pretrained_model_name_or_path, trust_remote_code=True, **kwargs
+                    ).to(self.device)
+        self.wrapped_tokenizer = wrapped_tokenizer
 
     def serve_request(self, raw_request: HuggingFaceRequest) -> Dict:
         with self.wrapped_tokenizer as tokenizer:
@@ -170,7 +208,12 @@ class HuggingFaceServerFactory:
     _servers_lock: Lock = Lock()
 
     @staticmethod
-    def get_server(helm_model_name: str, pretrained_model_name_or_path: str, **kwargs) -> Any:
+    def get_server(
+        helm_model_name: str,
+        pretrained_model_name_or_path: str,
+        wrapped_tokenizer: WrappedPreTrainedTokenizer,
+        **kwargs,
+    ) -> Any:
         """
         Checks if the desired HuggingFaceModel is cached. Creates the HuggingFaceModel if it's not cached.
         Returns the HuggingFaceModel.
@@ -182,7 +225,7 @@ class HuggingFaceServerFactory:
                     f"for HELM model {helm_model_name} with Hugging Face Transformers"
                 ):
                     HuggingFaceServerFactory._servers[helm_model_name] = HuggingFaceServer(
-                        pretrained_model_name_or_path, **kwargs
+                        pretrained_model_name_or_path, wrapped_tokenizer, **kwargs
                     )
 
         return HuggingFaceServerFactory._servers[helm_model_name]
@@ -214,10 +257,25 @@ def _process_huggingface_client_kwargs(raw_kwargs: Dict[str, Any]):
 
 
 class HuggingFaceClient(CachingClient):
-    def __init__(self, cache_config: CacheConfig, pretrained_model_name_or_path: Optional[str] = None, **kwargs):
+    def __init__(
+        self,
+        cache_config: CacheConfig,
+        tokenizer: Tokenizer,
+        pretrained_model_name_or_path: Optional[str] = None,
+        end_of_text_token: Optional[str] = None,
+        **kwargs,
+    ):
         super().__init__(cache_config=cache_config)
         self._pretrained_model_name_or_path = pretrained_model_name_or_path
+        if not isinstance(tokenizer, HuggingFaceTokenizer):
+            raise ValueError(
+                f"Tokenizer for Hugging Face model {pretrained_model_name_or_path} must be a HuggingFaceTokenizer, "
+                "but instead it is {tokenizer}"
+            )
+        self._wrapped_tokenizer: WrappedPreTrainedTokenizer = tokenizer.get_wrapped_tokenizer()
+        self._tokenizer = tokenizer
         self._kwargs = _process_huggingface_client_kwargs(kwargs)
+        self._end_of_text_token = end_of_text_token
 
     def make_request(self, request: Request) -> RequestResult:
         # Embedding not supported for this model
@@ -236,14 +294,13 @@ class HuggingFaceClient(CachingClient):
             "stop_sequences": request.stop_sequences,
         }
 
-        pretrained_model_name_or_path: str
-        if self._pretrained_model_name_or_path:
-            pretrained_model_name_or_path = self._pretrained_model_name_or_path
-        else:
-            pretrained_model_name_or_path = resolve_alias(request.model_deployment)
+        pretrained_model_name_or_path = (
+            self._pretrained_model_name_or_path if self._pretrained_model_name_or_path else request.model
+        )
         huggingface_model: HuggingFaceServer = HuggingFaceServerFactory.get_server(
-            helm_model_name=request.model_deployment,
+            helm_model_name=request.model,
             pretrained_model_name_or_path=pretrained_model_name_or_path,
+            wrapped_tokenizer=self._wrapped_tokenizer,
             **self._kwargs,
         )
 
@@ -285,8 +342,8 @@ class HuggingFaceClient(CachingClient):
                 tokens.append(Token(text=token_text, logprob=logprob))
                 sequence_logprob += logprob
 
-            completion = Sequence(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
-            completion = truncate_sequence(completion, request)
+            completion = GeneratedOutput(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
+            completion = truncate_sequence(completion, request, end_of_text_token=self._end_of_text_token)
             completions.append(completion)
 
         return RequestResult(

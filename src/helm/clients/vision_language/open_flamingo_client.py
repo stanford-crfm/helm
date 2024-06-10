@@ -10,7 +10,7 @@ from helm.common.images_utils import open_image
 from helm.common.gpu_utils import get_torch_device_name
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import Request, RequestResult, Sequence, Token
+from helm.common.request import Request, RequestResult, GeneratedOutput, Token
 from helm.common.request import wrap_request_time
 from helm.clients.vision_language.open_flamingo import create_model_and_transforms
 from helm.clients.client import CachingClient, generate_uid_for_multimodal_prompt
@@ -134,7 +134,7 @@ class OpenFlamingoClient(CachingClient):
         except RuntimeError as ex:
             return RequestResult(success=False, cached=False, error=str(ex), completions=[], embedding=[])
 
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         for text, tokens in result["output"]:
             # Remove the prompt from the generated text
             text = (
@@ -143,7 +143,7 @@ class OpenFlamingoClient(CachingClient):
                 else text[-1]
             )
             completions.append(
-                Sequence(text=text, logprob=0, tokens=[Token(text=token, logprob=0) for token in tokens])
+                GeneratedOutput(text=text, logprob=0, tokens=[Token(text=token, logprob=0) for token in tokens])
             )
 
         return RequestResult(

@@ -1,7 +1,7 @@
 from collections import OrderedDict, defaultdict
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 import os
-from typing import Dict, Iterable, List, Optional, Set, Tuple
+from typing import Dict, Iterable, List, Optional, Set, Tuple, Any
 
 from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_METHODS,
@@ -15,7 +15,7 @@ from helm.benchmark.metrics.metric import PerInstanceStats
 from helm.common.multimodal_request_utils import gather_generated_image_locations
 from helm.benchmark.presentation.schema import Schema
 from helm.benchmark.run_spec import RunSpec
-from helm.benchmark.scenarios.scenario import Instance, Input
+from helm.benchmark.scenarios.scenario import Instance
 from helm.common.general import write
 from helm.common.hierarchical_logger import hlog, htrack
 from helm.common.images_utils import encode_base64
@@ -56,6 +56,8 @@ class DisplayPrediction:
 
     stats: Dict[str, float]
     """Statistics computed from the predicted output"""
+
+    annotations: Optional[Dict[str, Any]]
 
 
 @dataclass(frozen=True)
@@ -260,25 +262,9 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
         mapped_output = (
             request_state.output_mapping.get(predicted_text.strip()) if request_state.output_mapping else None
         )
-        instance_id_to_instance[
-            (request_state.instance.id, request_state.instance.perturbation)
-        ] = request_state.instance
-
-        # TODO: hacky way to display input images on the old frontend
-        if request_state.instance.input.multimedia_content is not None:
-            html_input: str = ""
-            for media_object in request_state.instance.input.multimedia_content.media_objects:
-                if media_object.is_type("image") and media_object.location is not None:
-                    html_input += f'<br><img src="data:image;base64,{encode_base64(media_object.location)}">'
-                elif media_object.is_type("text") and media_object.text is not None:
-                    html_input += f"<br>{media_object.text}"
-                else:
-                    raise ValueError(f"Unhandled media type: {media_object.type}")
-
-            instance_id_to_instance[(request_state.instance.id, request_state.instance.perturbation)] = replace(
-                request_state.instance,
-                input=Input(text=html_input),
-            )
+        instance_id_to_instance[(request_state.instance.id, request_state.instance.perturbation)] = (
+            request_state.instance
+        )
 
         # Process images and include if they exist
         images: List[str] = [
@@ -298,6 +284,7 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
                 mapped_output=mapped_output,
                 reference_index=request_state.reference_index,
                 stats=trial_stats,
+                annotations=request_state.annotations,
             )
         )
         requests.append(

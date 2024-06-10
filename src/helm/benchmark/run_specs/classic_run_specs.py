@@ -48,34 +48,6 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec, get_scenario_cache_p
 from helm.common.hierarchical_logger import hlog, htrack
 
 
-@run_spec_function("simple1")
-def get_simple1_spec() -> RunSpec:
-    """A run spec for debugging."""
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.simple_scenarios.Simple1Scenario",
-        args={"num_input_tokens": 5, "vocab_size": 20, "num_train_instances": 10, "num_test_instances": 10},
-    )
-    adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION,
-        instructions="Please solve the following problem.\n",
-        max_train_instances=5,
-        max_eval_instances=10,
-        num_outputs=3,
-        num_train_trials=3,
-        model="simple/model1",
-        model_deployment="simple/model1",
-        temperature=1,
-        stop_sequences=["."],
-    )
-    return RunSpec(
-        name="simple1",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_basic_generation_metric_specs([]) + get_generic_metric_specs(),
-        groups=[],
-    )
-
-
 @run_spec_function("bbq")
 def get_bbq_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -350,7 +322,9 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         name="real_toxicity_prompts",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_generative_harms_metric_specs(include_basic_metrics=True),
+        metric_specs=get_generative_harms_metric_specs(
+            include_basic_metrics=True, include_generative_harms_metrics=True
+        ),
         groups=["real_toxicity_prompts"],
     )
 
@@ -1144,7 +1118,7 @@ def get_med_mcqa_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["MedMCQA"],
+        groups=["med_mcqa"],
     )
 
 
@@ -1187,6 +1161,48 @@ def get_pubmed_qa_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
         groups=["pubmed_qa"],
+    )
+
+
+@run_spec_function("live_qa")
+def get_live_qa_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.live_qa_scenario.LiveQAScenario")
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Please answer the following consumer health question.",
+        input_noun="Question",
+        output_noun="Answer",
+        max_train_instances=0,
+        max_tokens=512,
+    )
+
+    return RunSpec(
+        name="live_qa",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_open_ended_generation_metric_specs(),
+        groups=["live_qa"],
+    )
+
+
+@run_spec_function("medication_qa")
+def get_medication_qa_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.medication_qa_scenario.MedicationQAScenario")
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Please answer the following consumer health question.",
+        input_noun="Question",
+        output_noun="Answer",
+        max_train_instances=0,
+        max_tokens=512,
+    )
+
+    return RunSpec(
+        name="medication_qa",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_open_ended_generation_metric_specs(),
+        groups=["medication_qa"],
     )
 
 
@@ -1460,4 +1476,27 @@ def get_lm_entry_spec(task: str, method: str = ADAPT_GENERATION) -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
         groups=["lm_entry"],
+    )
+
+
+@run_spec_function("thai_exam")
+def get_thai_exam_spec(exam: str = "onet", method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.thai_exam_scenario.ThaiExamScenario", args={"exam": exam}
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=method,
+        instructions="The following are multiple choice questions (with answers).",
+        input_noun="Question",
+        output_noun="Answer",
+        max_train_instances=5,
+    )
+
+    return RunSpec(
+        name=f"thai_exam:exam={exam},method={method}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["thai_exam", f"thai_exam_{exam}"],
     )

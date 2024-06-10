@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import PageTitle from "@/components/PageTitle";
-import LeaderboardTables from "@/components/LeaderboardTables";
+import MiniLeaderboardTables from "@/components/MiniLeaderboardTables";
 import type GroupsTable from "@/types/GroupsTable";
 import type GroupMetadata from "@/types/GroupMetadata";
 import getGroupsTablesByName from "@/services/getGroupTablesByName";
@@ -13,9 +13,10 @@ interface GroupDisplayData {
   name: string;
 }
 
-export default function MiniLeaderboard() {
-  const defaultGroup = { title: "Core Scenarios", name: "core_scenarios" };
-  const selectedGroupDisplayData = defaultGroup;
+interface Props {
+  numModelsToAutoFilter?: number;
+}
+export default function MiniLeaderboard({ numModelsToAutoFilter = 6 }: Props) {
   const [allGroupData, setAllGroupData] = useState<GroupDisplayData[]>([]);
   const [groupsTables, setGroupsTables] = useState<GroupsTable[]>([]);
   const [groupMetadata, setGroupMetadata] = useState<
@@ -28,9 +29,6 @@ export default function MiniLeaderboard() {
   useEffect(() => {
     const controller = new AbortController();
     async function fetchData() {
-      if (selectedGroupDisplayData.name === undefined) {
-        return;
-      }
       const groups = await getGroupsTables(controller.signal);
       const result: GroupDisplayData[] = [];
       groups.forEach((group) => {
@@ -42,19 +40,22 @@ export default function MiniLeaderboard() {
         });
       });
       setAllGroupData(result);
-
+      if (result.length === 0) {
+        throw new Error("Could not find any groups!");
+      }
+      const selectedGroupName = result[0].name;
       const [group, metadata] = await Promise.all([
-        getGroupsTablesByName(selectedGroupDisplayData.name, controller.signal),
+        getGroupsTablesByName(selectedGroupName, controller.signal),
         getGroupsMetadata(controller.signal),
       ]);
       setGroupsTables(group);
-      setGroupMetadata(metadata[selectedGroupDisplayData.name]);
+      setGroupMetadata(metadata[selectedGroupName]);
       setIsLoading(false);
     }
 
     void fetchData();
     return () => controller.abort();
-  }, [selectedGroupDisplayData.name]);
+  }, []);
 
   if (isLoading || groupMetadata === undefined) {
     return <Loading />;
@@ -77,12 +78,10 @@ export default function MiniLeaderboard() {
   return (
     <>
       <>
-        <LeaderboardTables
+        <MiniLeaderboardTables
           groupsTables={groupsTables}
           activeGroup={activeGroup}
-          ignoreHref={true}
-          filtered
-          numModelsToAutoFilter={6}
+          numModelsToAutoFilter={numModelsToAutoFilter}
           filteredCols={[0, 1]}
         />
       </>

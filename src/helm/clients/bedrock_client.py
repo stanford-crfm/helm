@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Mapping, Optional
 
 from helm.common.cache import CacheConfig
 from helm.clients.client import CachingClient, truncate_and_tokenize_response_text
-from helm.common.request import Request, RequestResult, Sequence, wrap_request_time
+from helm.common.request import Request, RequestResult, GeneratedOutput, wrap_request_time
 from helm.clients.bedrock_utils import get_bedrock_client
 from helm.tokenizers.tokenizer import Tokenizer
 
@@ -20,7 +20,7 @@ class BedrockClient(CachingClient):
         raise NotImplementedError()
 
     @abstractmethod
-    def convert_raw_response_to_completions(self, response: Dict, request: Request) -> List[Sequence]:
+    def convert_raw_response_to_completions(self, response: Dict, request: Request) -> List[GeneratedOutput]:
         raise NotImplementedError()
 
     def __init__(
@@ -110,11 +110,11 @@ class BedrockTitanClient(BedrockClient):
             },
         }
 
-    def convert_raw_response_to_completions(self, response: Dict, request: Request) -> List[Sequence]:
+    def convert_raw_response_to_completions(self, response: Dict, request: Request) -> List[GeneratedOutput]:
         # TODO: Support the following:
         # - tokens
         # - logprob
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         for raw_completion in response["results"]:
             output_text = raw_completion["outputText"]
             # Call lstrip() Titan has the tendency to emit "\n" as the first token in the generated text output.

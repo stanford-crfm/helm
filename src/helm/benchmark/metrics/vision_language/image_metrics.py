@@ -7,8 +7,9 @@ from nltk.tokenize.treebank import TreebankWordTokenizer
 import torch
 import warnings
 import numpy as np
+import os
+import tempfile
 
-from helm.benchmark.annotation.annotator import Annotation
 from helm.benchmark.metrics.copyright_metrics import _edit_similarity
 from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_service import MetricService
@@ -27,10 +28,7 @@ from helm.benchmark.metrics.vision_language.image_utils import (
     pixel_similarity,
     sift_similarity,
 )
-from helm.benchmark.metrics.vision_language.emd_utils import (  # noqa: F401
-    compute_emd_recursive,
-    get_most_frequent_color,
-)
+from helm.benchmark.metrics.vision_language.emd_utils import compute_emd_recursive, get_most_frequent_color, to_gray
 
 try:
     from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
@@ -80,7 +78,8 @@ class AnnotatedImageMetrics(Metric):
 
     # Metric names
     COMPILE_METRIC: str = "compilation_success"
-    EARTH_MOVER_SIMILARITY: str = "earth_mover_similarity"
+    EARTH_MOVER_SIMILARITY = "earth_mover_similarity"
+    BLOCK_EMD: str = "block_emd"
     PIXEL_SIMILARITY: str = "pixel_similarity"
     SIFT_SIMILARITY: str = "sift_similarity"
     LPIPS_SIMILARITY: str = "lpips_similarity"
@@ -108,7 +107,10 @@ class AnnotatedImageMetrics(Metric):
         metrics: List[AnnotatedMetric] = [
             AnnotatedMetric(self.PIXEL_SIMILARITY, pixel_similarity, "image_np_gray"),
             AnnotatedMetric(self.SIFT_SIMILARITY, sift_similarity, "image_np"),
-            AnnotatedMetric(self.EARTH_MOVER_SIMILARITY, self.compute_emd_similarity_recursive, "image_PIL"),
+            AnnotatedMetric(self.BLOCK_EMD, self.compute_block_emd_raw, "image_PIL"),  # Raw block-EMD
+            AnnotatedMetric(
+                self.EARTH_MOVER_SIMILARITY, self.ems, "image_PIL"
+            ),  # Normalized block-EMD against black/white
             AnnotatedMetric(self.LPIPS_SIMILARITY, self.lpips_similarity, "image_PIL"),
             AnnotatedMetric(self.FID_SIMILARITY, self.fid_similarity, "image_PIL"),
             AnnotatedMetric(self.SSIM_SIMILARITY, self.compute_ssim, "image_np_gray"),
@@ -126,7 +128,7 @@ class AnnotatedImageMetrics(Metric):
         self,
         inputs_required: Set[str],
         request_state: RequestState,
-        annotation: Dict[str, Annotation],
+        annotation: Dict[str, Any],
         ref_image: Optional[Image.Image],
     ) -> Dict[str, Tuple[Any, Any]]:
         inputs: Dict[str, Tuple[Any, Any]] = {}
@@ -136,8 +138,8 @@ class AnnotatedImageMetrics(Metric):
             # Get the image and make sure we have a reference image
             assert ref_image is not None
             assert "media_object" in annotation
-            assert isinstance(annotation["media_object"].data, MediaObject)
-            media_object: MediaObject = annotation["media_object"].data
+            assert isinstance(annotation["media_object"], MediaObject)
+            media_object: MediaObject = annotation["media_object"]
             assert media_object.type == "image"
             assert media_object.is_local_file and media_object.location is not None
             image: Image.Image = Image.open(media_object.location).convert("RGB")
@@ -177,7 +179,7 @@ class AnnotatedImageMetrics(Metric):
         # Text
         if any([input_type.startswith("text") for input_type in inputs_required]):
             assert "text" in annotation
-            text: str = annotation["text"].data
+            text: str = annotation["text"]
             reference = request_state.instance.references[0]
             inputs["text_str"] = (text, reference.output.text)
 
@@ -198,6 +200,7 @@ class AnnotatedImageMetrics(Metric):
         metric_service: MetricService,
         eval_cache_path: str,
     ) -> List[Stat]:
+        compiler_name: str = f"{self.generation_type}_compiler"
         if self._cache is None:
             self._cache = metric_service.get_cache(f"image_metrics_{self.generation_type}")
 
@@ -205,15 +208,13 @@ class AnnotatedImageMetrics(Metric):
             name: Stat(MetricName(name)) for name in (self._metric_names + [self.COMPILE_METRIC])
         }
 
-        if (
-            request_state.annotations is None
-            or request_state.result is None
-            or len(request_state.annotations) != len(request_state.result.completions)
-        ):
+        if request_state.annotations is None or request_state.result is None:
             raise ValueError(
-                "Annotations and results should be present and have the same length.",
+                "Annotations and results should be present.",
                 " Please make sure to add a compiler annotator to the run spec.",
             )
+        if compiler_name not in request_state.annotations:
+            raise ValueError(f"Compiler {compiler_name} should be present in the annotations.")
 
         inputs_required: Set[str] = set()
         for metric_name in self._metric_names:
@@ -238,11 +239,16 @@ class AnnotatedImageMetrics(Metric):
 
         # For each completion, evaluate the metrics
         assert request_state.result is not None
-        assert len(request_state.annotations) == len(request_state.result.completions)
-        for annotation in request_state.annotations:
+        for completion_index in range(len(request_state.result.completions)):
+            annotation: Dict[str, Any] = request_state.annotations[compiler_name][completion_index]
 
             # Handle errors in annotation
-            if "error" in annotation:
+            if "unknown_error" in annotation:
+                hlog(
+                    f"Unknown error in annotation: {annotation['unknown_error']}\n"
+                    f"Scores of zero will be returned for all metrics."
+                )
+            if "error" in annotation or "unknown_error" in annotation:
                 stats_dict[self.COMPILE_METRIC].add(0)  # Did not compile
                 # For all other metrics, we set the value to zero
                 for metric_name in self._metric_names:
@@ -266,24 +272,22 @@ class AnnotatedImageMetrics(Metric):
                 metric: AnnotatedMetric = self.metrics[metric_name]
                 (pred, gt) = inputs[metric.input_type]
 
-                def do_it():
-                    try:
+                value: float
+                try:
+
+                    def do_it():
                         value = metric.function(pred, gt)
                         return {"value": value}
-                    except Exception as e:
-                        return {"error": str(e)}
 
-                cache_key = {"metric_name": metric_name, "pred": pred, "gt": gt}
-                if not isinstance(pred, str):
-                    assert hash_dict is not None
-                    cache_key = {"metric_name": metric_name, **hash_dict}
-                response_metric, _ = self._cache.get(cache_key, do_it)
-                value: float
-                if "error" in response_metric:
-                    hlog(f"Error in metric {metric_name}: {response_metric['error']}")
-                    value = 0
-                else:
+                    cache_key = {"metric_name": metric_name, "pred": pred, "gt": gt}
+                    if not isinstance(pred, str):
+                        assert hash_dict is not None
+                        cache_key = {"metric_name": metric_name, **hash_dict}
+                    response_metric, _ = self._cache.get(cache_key, do_it)
                     value = response_metric["value"]
+                except Exception as e:
+                    hlog(f"Error in metric {metric_name}: {str(e)}")
+                    value = 0
                 stats_dict[metric_name].add(value)
 
             stats_dict[self.COMPILE_METRIC].add(1)  # Compiled
@@ -339,9 +343,20 @@ class AnnotatedImageMetrics(Metric):
 
     def _get_inception_features(self, img_tensor):
         if self._inception_model is None:
-            self._inception_model = models.inception_v3(
-                weights=models.Inception_V3_Weights.IMAGENET1K_V1, transform_input=False
-            ).to(self._device)
+
+            def load_inception_model():
+                return models.inception_v3(weights=models.Inception_V3_Weights.IMAGENET1K_V1, transform_input=False).to(
+                    self._device
+                )
+
+            try:
+                self._inception_model = load_inception_model()
+            except PermissionError:
+                # If access denied, use a temporary directory
+                hlog("Access denied to torch cache directory. Using a temporary directory.")
+                temp_cache_dir = tempfile.mkdtemp()
+                os.environ["TORCH_HOME"] = temp_cache_dir
+                self._inception_model = load_inception_model()
             self._inception_model.eval()
         with torch.no_grad():
             if self._inception_model.training:
@@ -373,9 +388,15 @@ class AnnotatedImageMetrics(Metric):
         features1 = self._get_inception_features(img1_tensor)
         features2 = self._get_inception_features(img2_tensor)
 
-        fid_score = self._calculate_fid(features1, features2)
-        normalize_fid: float = np.exp(-fid_score * self.NORMALIZE_FID_FACTOR)
-        return normalize_fid
+        # TODO: Justify the value of the constant here or remove this code to only keep the cosine similarity.
+        # fid_score = self._calculate_fid(features1, features2)
+        # normalize_fid: float = np.exp(-fid_score * self.NORMALIZE_FID_FACTOR)
+        # return normalize_fid
+
+        # Use the cosine similarity between the features as a proxy for FID
+        # Return a score between 0 and 1, where 1 is the most similar
+        score = 0.5 * (1 + np.dot(features1[0], features2[0]) / (np.linalg.norm(features1) * np.linalg.norm(features2)))
+        return score
 
     def compute_ssim(self, generated_image: np.ndarray, reference_image: np.ndarray) -> float:
         """Compute the Structural Similarity Index (SSIM) between the generated and reference images."""
@@ -396,7 +417,7 @@ class AnnotatedImageMetrics(Metric):
         result = _edit_similarity(completion_tokens, truncated_reference_tokens)
         return result
 
-    def compute_emd_similarity_recursive(
+    def ems(
         self,
         pred_image: Image.Image,
         ref_image: Image.Image,
@@ -406,20 +427,31 @@ class AnnotatedImageMetrics(Metric):
         weight_most_frequent_color: float = 0.001,
         use_tqdm: bool = False,
     ):
-        emd_value = compute_emd_recursive(
-            pred_image,
-            ref_image,
-            threshold_most_frequent_color,
-            patch_size,
-            max_num_patches,
-            weight_most_frequent_color,
-            use_tqdm,
-        )
+        """Same as compute_emd_similarity_recursive EXCEPT that
+        the normalization is against an image of the median color.
+        """
 
-        def do_it():
-            # color: np.ndarray = get_most_frequent_color(np.array(ref_image))[0]
-            # constant_image = Image.new("RGB", ref_image.size, tuple(color))  # type: ignore
-            constant_image = Image.new("RGB", ref_image.size, (255, 255, 255))  # default color is white
+        def compute_numerator():
+            return self.compute_block_emd_raw_wrapper(
+                pred_image,
+                ref_image,
+                threshold_most_frequent_color,
+                patch_size,
+                max_num_patches,
+                weight_most_frequent_color,
+                use_tqdm,
+            )
+
+        def compute_denominator():
+            ref_img_np = np.array(ref_image)
+            (rgb_most_frequent_color, _) = get_most_frequent_color(ref_img_np)
+            grayscale_most_frequent_color = to_gray(rgb_most_frequent_color)[0]
+
+            # Most frequent color as base
+            if grayscale_most_frequent_color < 127:
+                constant_image = Image.new("RGB", ref_image.size, (255, 255, 255))  # Make it white
+            else:
+                constant_image = Image.new("RGB", ref_image.size, (0, 0, 0))  # Make it black
             value = compute_emd_recursive(
                 constant_image,
                 ref_image,
@@ -433,9 +465,69 @@ class AnnotatedImageMetrics(Metric):
 
         hash_dict = {
             "reference_image": str(AnnotatedImageMetrics.HASH_FUNC(ref_image, hash_size=self.HASH_LENGTH)),
+            "generated_image": str(AnnotatedImageMetrics.HASH_FUNC(pred_image, hash_size=self.HASH_LENGTH)),
         }
-        cache_key = {"metric_name": f"intermediate_{self.EARTH_MOVER_SIMILARITY}", **hash_dict}
-        assert self._cache is not None
-        response_metric, _ = self._cache.get(cache_key, do_it)
+        cache_key_numerator = {"metric_name": f"intermediate_{self.BLOCK_EMD}", **hash_dict}
+        cache_key_denominator = {"metric_name": "intermediate_ems_extreme_denominator", **hash_dict}
 
-        return 1.0 - emd_value / response_metric["value"]
+        assert self._cache is not None
+        emd_raw, _ = self._cache.get(cache_key_numerator, compute_numerator)
+        emd_base, _ = self._cache.get(cache_key_denominator, compute_denominator)
+
+        return 1.0 - emd_raw["value"] / emd_base["value"]
+
+    def compute_block_emd_raw(
+        self,
+        pred_image: Image.Image,
+        ref_image: Image.Image,
+        threshold_most_frequent_color: float = 0.5,
+        patch_size: Tuple[int, int] = (8, 8),
+        max_num_patches: int = 100,
+        weight_most_frequent_color: float = 0.001,
+        use_tqdm: bool = False,
+    ):
+        def compute():
+            return self.compute_block_emd_raw_wrapper(
+                pred_image,
+                ref_image,
+                threshold_most_frequent_color,
+                patch_size,
+                max_num_patches,
+                weight_most_frequent_color,
+                use_tqdm,
+            )
+
+        hash_dict = {
+            "reference_image": str(AnnotatedImageMetrics.HASH_FUNC(ref_image, hash_size=self.HASH_LENGTH)),
+            "generated_image": str(AnnotatedImageMetrics.HASH_FUNC(pred_image, hash_size=self.HASH_LENGTH)),
+        }
+        cache_key = {"metric_name": f"intermediate_{self.BLOCK_EMD}", **hash_dict}
+        assert self._cache is not None
+        emd_raw, _ = self._cache.get(cache_key, compute)
+
+        return emd_raw["value"]
+
+    def compute_block_emd_raw_wrapper(
+        self,
+        pred_image: Image.Image,
+        ref_image: Image.Image,
+        threshold_most_frequent_color: float = 0.5,
+        patch_size: Tuple[int, int] = (8, 8),
+        max_num_patches: int = 100,
+        weight_most_frequent_color: float = 0.001,
+        use_tqdm: bool = False,
+    ):
+        """Computes the block Earth Moving Distance (EMD). This attempts to
+        speed up EMD for images with huge areas by considering
+        movement/transformation of blocks of pixels.
+        """
+        emd_value = compute_emd_recursive(
+            pred_image,
+            ref_image,
+            threshold_most_frequent_color,
+            patch_size,
+            max_num_patches,
+            weight_most_frequent_color,
+            use_tqdm,
+        )
+        return {"value": emd_value}

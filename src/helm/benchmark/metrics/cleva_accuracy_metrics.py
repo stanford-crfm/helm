@@ -6,7 +6,7 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
 from helm.benchmark.metrics.metric import MetricName
 from helm.benchmark.metrics.statistic import Stat
-from helm.common.request import Sequence
+from helm.common.request import GeneratedOutput
 
 
 class CLEVATopKAccuracyMetric(EvaluateInstancesMetric):
@@ -44,7 +44,9 @@ class CLEVATopKAccuracyMetric(EvaluateInstancesMetric):
             references = request_state.instance.all_correct_references
             correct_ref_texts = [ref.output.text for ref in references if ref.output.text]
 
-            sorted_completions: List[Sequence] = sorted(request_state.result.completions, key=lambda x: -x.logprob)
+            sorted_completions: List[GeneratedOutput] = sorted(
+                request_state.result.completions, key=lambda x: -x.logprob
+            )
             sorted_completions_text: List[str] = [completion.text for completion in sorted_completions]
             correct = self.correct_or_not(sorted_completions_text, correct_ref_texts)
             per_instance_accuracy.append(correct)

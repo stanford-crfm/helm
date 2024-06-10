@@ -1,9 +1,20 @@
 import collections
+import os
 import typing
 from typing import Dict, List, Optional
 from datasets import load_dataset, DatasetDict
 
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
+from helm.common.general import ensure_directory_exists
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TRAIN_SPLIT,
+    TEST_SPLIT,
+    CORRECT_TAG,
+    Input,
+    Output,
+)
 
 
 def remove_boxed(string: str) -> Optional[str]:
@@ -354,7 +365,13 @@ class MATHScenario(Scenario):
 
     def get_instances(self, output_path: str) -> List[Instance]:
         dataset = {}
-        data = typing.cast(DatasetDict, load_dataset("competition_math")).sort("problem").shuffle(seed=42)
+        cache_dir = os.path.join(output_path, "data")
+        ensure_directory_exists(cache_dir)
+        data = (
+            typing.cast(DatasetDict, load_dataset("competition_math", trust_remote_code=True, cache_dir=cache_dir))
+            .sort("problem")
+            .shuffle(seed=42)
+        )
 
         def group_by_key(dataset_list, key):
             dataset_per_key = collections.defaultdict(list)

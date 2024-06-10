@@ -2,6 +2,162 @@
 
 ## [Upcoming]
 
+## [v0.5.1] - 2024-05-06
+
+### Scenarios
+
+- Updated VLM scenarios for VHELM (#1592)
+- Added `trust_remote_code=True` for `math` and `legalbench` scenarios (#2597)
+
+### Models
+
+- Added Google Gemini 1.5 Pro as a VLM (#2607)
+- Add Mixtral 8x22b Instruct, Llama 3 Chat, and Yi Chat (#2610)
+- Updated VLM models for VHELM (#1592)
+- Improved handling of Gemini content blocking (#2603)
+- Added default instructions prefix for multiple-choice joint adaptation for Claude 3
+- Renamed some model names for consistency (#2596)
+- Added Snowflake Arctic Instruct (#2599, #2591)
+
+### Frontend
+
+- Added global landing page (#2593)
+
+### Evaluation Results
+
+- [VHELM v1.0.0](https://crfm.stanford.edu/helm/mmlu/v1.0.0/)
+    - Initial release with Gemini 1.5 Pro, Claude 3 Sonnet, Claude 3 Opus, Gemini 1.0 Pro Vision, IDEFICS 2 and GPT-4V
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @farzaank
+- @neelguha
+- @percyliang
+- @teetone
+- @yifanmai
+
+## [v0.5.0] - 2024-04-23
+
+### Breaking changes
+
+- The `--run-specs` flag was renamed to `--run-entries` (#2404)
+- The `run_specs*.conf` files were renamed to `run_entries*.conf` (#2430)
+- The `model_metadata` field was removed from `schema*.yaml` files (#2195)
+- The `helm.proxy.clients` package was moved to `helm.clients` (#2413)
+- The `helm.proxy.tokenizers` package was moved to `helm.tokenizers` (#2403)
+- The frontend only supports JSON output produced by `helm-summarize` at version 0.3.0 or newer (#2455)
+- The `Sequence` class was renamed to `GeneratedOutput` (#2551)
+- The `black` linter was upgraded from 22.10.0 to 24.3.0, which produces different output  - run `pip install --upgrade black==24.3.0` to upgrade this dependency (#2545)
+- The `anthropic` dependency was upgraded from `anthropic~=0.2.5` to `anthropic~=0.17` - run `pip install --upgrade anthropic~=0.17` to upgrade this dependency (#2432)
+- The `openai` dependency was upgraded from `openai~=0.27.8` to `openai~=1.0`- run `pip install --upgrade openai~=1.0` to upgrade this dependency (#2384)
+    - The SQLite cache is not compatible across this dependency upgrade - if you encounter an `ModuleNotFoundError: No module named 'openai.openai_object'` error after upgrading `openai`, you will have to delete your old OpenAI SQLite cache (e.g. by running `rm prod_env/cache/openai.sqlite`)
+
+### Scenarios
+
+- Added DecodingTrust (#1827)
+- Added Hateful Memes (#1992)
+- Added MMMU (#2259)
+- Added Image2Structure (#2267, #2472)
+- Added MMU (#2259)
+- Added LMEntry (#1694)
+- Added Unicorn vision-language scenario (#2456)
+- Added Bingo vision-language scenario (#2456)
+- Added MultipanelVQA (#2517)
+- Added POPE (#2517)
+- Added MuliMedQA (#2524)
+- Added ThaiExam (#2534)
+- Added Seed-Bench and MME (#2559)
+- Added Mementos vision-language scenario (#2555)
+- Added Unitxt integration (#2442, #2553)
+
+### Models
+
+- Added OpenAI gpt-3.5-turbo-1106, gpt-3.5-turbo-0125, gpt-4-vision-preview, gpt-4-0125-preview, and gpt-3.5-turbo-instruct (#2189, #2295, #2376, #2400)
+- Added Google Gemini 1.0, Gemini 1.5, and Gemini Vision (#2186, #2189, #2561)
+- Improved handling of content blocking in the Vertex AI client (#2546, #2313)
+- Added Claude 3 (#2432, #2440, #2536)
+- Added Mistral Small, Medium and Large (#2307, #2333, #2399)
+- Added Mixtral 8x7b Instruct and 8x22B (#2416, #2562)
+- Added Luminous Multimodal (#2189)
+- Added Llava and BakLava (#2234)
+- Added Phi-2 (#2338)
+- Added Qwen1.5 (#2338, #2369)
+- Added Qwen VL and VL Chat (#2428)
+- Added Amazon Titan (#2165)
+- Added Google Gemma (#2397)
+- Added OpenFlamingo (#2237)
+- Removed logprobs from models hosted on Together (#2325)
+- Added support for vLLM (#2402)
+- Added DeepSeek LLM 67B Chat (#2563)
+- Added Llama 3 (#2579)
+- Added DBRX Instruct (#2585)
+
+### Framework
+
+- Added support for text-to-image models (#1939)
+- Refactored of `Metric` class structure (#2170, #2171, #2218)
+- Fixed bug in computing general metrics (#2172)
+- Added a `--disable-cache` flag to disable caching in `helm-run` (#2143)
+- Added a `--schema-path` flag to support user-provided `schema.yaml` files in `helm-summarize` (#2520)
+
+### Frontend
+
+- Switched to the new React frontend for local development by default (#2251)
+- Added support for displaying images (#2371)
+- Made various improvements to project and version dropdown menus (#2272, #2401, #2458)
+- Made row and column headers sticky in leaderboard tables (#2273, #2275)
+
+### Evaluation Results
+
+- [Lite v1.1.0](https://crfm.stanford.edu/helm/lite/v1.1.0/)
+    - Added results for Phi-2 and Mistral Medium
+- [Lite v1.2.0](https://crfm.stanford.edu/helm/lite/v1.2.0/)
+    - Added results for Llama 3, Mixtral 8x22B, OLMo, Qwen1.5, and Gemma
+- [HEIM v1.1.0](https://crfm.stanford.edu/helm/heim/v1.1.0/)
+    - Added results for Adobe GigaGAN and DeepFloyd IF
+- [Instruct v1.0.0](https://crfm.stanford.edu/helm/instruct/v1.0.0/)
+    - Initial release with results for OpenAI GPT-4, OpenAI GPT-3.5 Turbo, Anthropic Claude v1.3, Cohere Command beta
+- [MMLU v1.0.0](https://crfm.stanford.edu/helm/mmlu/v1.0.0/)
+    - Initial release with 22 models
+- [MMLU v1.1.0](https://crfm.stanford.edu/helm/mmlu/v1.1.0/)
+    - Added results for Llama 3, Mixtral 8x22B, OLMo, and Qwen1.5 (32B)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @acphile
+- @akashc1
+- @AlphaPav
+- @andyzorigin
+- @boxin-wbx
+- @brianwgoldman
+- @chenweixin107
+- @danielz02
+- @elronbandel
+- @farzaank
+- @garyxcj
+- @ImKeTT
+- @JosselinSomervilleRoberts
+- @kangmintong
+- @michiyasunaga
+- @mmonfort
+- @mtake
+- @percyliang
+- @polaris-73
+- @pongib
+- @ritik99
+- @ruixin31
+- @sbdzdz
+- @shenmishajing
+- @teetone
+- @tybrs
+- @YianZhang
+- @yifanmai
+- @yoavkatz
+
 ## [v0.4.0] - 2023-12-20
 
 ### Models
@@ -305,7 +461,9 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.4.0...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.1...HEAD
+[v0.5.1]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.1
+[v0.5.0]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.0
 [v0.4.0]: https://github.com/stanford-crfm/helm/releases/tag/v0.4.0
 [v0.3.0]: https://github.com/stanford-crfm/helm/releases/tag/v0.3.0
 [v0.2.4]: https://github.com/stanford-crfm/helm/releases/tag/v0.2.4

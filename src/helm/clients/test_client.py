@@ -1,12 +1,12 @@
-from helm.common.cache import BlackHoleCacheConfig
-from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
+from helm.common.cache_backend_config import BlackHoleCacheBackendConfig
+from helm.tokenizers.auto_tokenizer import AutoTokenizer
 from .client import truncate_sequence, truncate_and_tokenize_response_text
 from typing import List
-from helm.common.request import Request, Sequence, Token
+from helm.common.request import Request, GeneratedOutput, Token
 
 
 def truncate_sequence_helper(tokens: List[str], request: Request, expected_tokens: List[str]):
-    sequence = Sequence(
+    sequence = GeneratedOutput(
         text="".join(tokens),
         tokens=[Token(text=text, logprob=-1) for text in tokens],
         logprob=-len(tokens),
@@ -52,8 +52,8 @@ def test_truncate_sequence():
 
 
 def test_truncate_and_tokenize_response_text():
-    tokenizer = HuggingFaceTokenizer(BlackHoleCacheConfig())
     tokenizer_name = "huggingface/gpt2"
+    tokenizer = AutoTokenizer(credentials={}, cache_backend_config=BlackHoleCacheBackendConfig())
 
     # No truncation
     response = truncate_and_tokenize_response_text(

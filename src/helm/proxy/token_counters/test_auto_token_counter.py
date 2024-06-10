@@ -1,7 +1,7 @@
 from typing import List
 from helm.common.cache_backend_config import BlackHoleCacheBackendConfig
 
-from helm.common.request import Request, Sequence, Token
+from helm.common.request import Request, GeneratedOutput, Token
 from helm.tokenizers.auto_tokenizer import AutoTokenizer
 from helm.proxy.token_counters.auto_token_counter import AutoTokenCounter
 
@@ -21,8 +21,8 @@ class TestAutoTokenCounter:
             "that aims to make fundamental advances in the study, development, "
             "and deployment of foundation models.",
         )
-        completions: List[Sequence] = [
-            Sequence(
+        completions: List[GeneratedOutput] = [
+            GeneratedOutput(
                 text=" The CRFM is dedicated to advancing our knowledge of the foundations of artificial intelligence "
                 "(AI) and related fields. It focuses on foundational questions in AI, which are",
                 logprob=-49.00783279519999,
@@ -79,8 +79,8 @@ class TestAutoTokenCounter:
             "that aims to make fundamental advances in the study, development, "
             "and deployment of foundation models.\n\nAssistant:",
         )
-        completions: List[Sequence] = [
-            Sequence(
+        completions: List[GeneratedOutput] = [
+            GeneratedOutput(
                 text="Thank you for the background information. The Center for Research "
                 "on Foundation Models sounds like an interesting initiative focused on "
                 "advancing research and responsible development of large AI models. I "

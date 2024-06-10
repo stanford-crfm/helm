@@ -21,9 +21,11 @@ class YaLMTokenizer(CachingTokenizer):
         # This is a problem because then tokenize(" Hello", encode=False) == tokenize("Hello", encode=False)
         # That is why we manually replace "▁" with a space.
         return {
-            "tokens": token_ids
-            if request["encode"]
-            else cleanup_tokens(self._tokenizer.convert_ids_to_tokens(token_ids), request["tokenizer"])
+            "tokens": (
+                token_ids
+                if request["encode"]
+                else cleanup_tokens(self._tokenizer.convert_ids_to_tokens(token_ids), request["tokenizer"])
+            )
         }
 
     def _decode_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:

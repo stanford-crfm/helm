@@ -8,7 +8,7 @@ from helm.common.cache import CacheConfig
 from helm.common.images_utils import open_image
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import Request, RequestResult, Sequence, Token
+from helm.common.request import Request, RequestResult, GeneratedOutput, Token
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -25,7 +25,7 @@ except ModuleNotFoundError as e:
 
 class HuggingFaceVLMClient(CachingClient):
     """
-    General CLient for VLM models from HuggingFace.
+    General client for VLM models from HuggingFace.
     """
 
     _models_lock: Lock = Lock()
@@ -34,6 +34,11 @@ class HuggingFaceVLMClient(CachingClient):
         "huggingface/llava-1.5-7b-hf": "llava-hf/llava-1.5-7b-hf",
         "huggingface/llava-1.5-13b-hf": "llava-hf/llava-1.5-13b-hf",
         "huggingface/bakLlava-v1-hf": "llava-hf/bakLlava-v1-hf",
+        "huggingface/llava-v1.6-vicuna-7b-hf": "llava-hf/llava-v1.6-vicuna-7b-hf",
+        "huggingface/llava-v1.6-vicuna-13b-hf": "llava-hf/llava-v1.6-vicuna-13b-hf",
+        "huggingface/llava-v1.6-mistral-7b-hf": "llava-hf/llava-v1.6-mistral-7b-hf",
+        "huggingface/llava-v1.6-34b-hf": "llava-hf/llava-v1.6-34b-hf",
+        "huggingface/prometheus-vision-13b-v1.0-hf": "PahaII/prometheus-vision-13b-v1.0-hf",
     }
 
     def __init__(self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig):
@@ -45,7 +50,7 @@ class HuggingFaceVLMClient(CachingClient):
         with self._models_lock:
             model_id: str = self._models_aliases.get(model_name, model_name)
             if model_id not in self._models:
-                self._models[model_id] = pipeline("image-to-text", model=model_id)
+                self._models[model_id] = pipeline("image-to-text", model=model_id, device_map="auto")
             return self._models[model_id]
 
     def make_request(self, request: Request) -> RequestResult:
@@ -90,11 +95,14 @@ class HuggingFaceVLMClient(CachingClient):
         except RuntimeError as e:
             return RequestResult(success=False, cached=False, error=str(e), completions=[], embedding=[])
 
+        output: str = result["generated_text"]
+        if "ASSISTANT: " in output:
+            output = output.split("ASSISTANT: ")[1]
         tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-            TokenizationRequest(result["generated_text"], tokenizer=self.tokenizer_name)
+            TokenizationRequest(output, tokenizer=self.tokenizer_name)
         )
         tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
-        completions: List[Sequence] = [Sequence(text=result["generated_text"], logprob=0, tokens=tokens)]
+        completions: List[GeneratedOutput] = [GeneratedOutput(text=output, logprob=0, tokens=tokens)]
         return RequestResult(
             success=True,
             cached=cached,

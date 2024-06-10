@@ -7,7 +7,7 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.classification_metrics import ClassificationMetric
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.scenarios.scenario import Input, Instance, Output, Reference, CORRECT_TAG
-from helm.common.request import Request, RequestResult, Sequence
+from helm.common.request import Request, RequestResult, GeneratedOutput
 
 
 class _Option(NamedTuple):
@@ -28,7 +28,10 @@ def _request_state(prediction: str, options: List[_Option]):
         output_mapping=None,
         request=Request(model="openai/text-davinci-002", model_deployment="openai/text-davinci-002"),
         result=RequestResult(
-            success=True, embedding=[], completions=[Sequence(text=prediction, logprob=0.0, tokens=[])], cached=False
+            success=True,
+            embedding=[],
+            completions=[GeneratedOutput(text=prediction, logprob=0.0, tokens=[])],
+            cached=False,
         ),
         num_train_instances=0,
         prompt_truncated=False,

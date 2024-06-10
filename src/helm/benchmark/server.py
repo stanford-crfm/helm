@@ -70,6 +70,14 @@ def serve_benchmark_output(filename):
     return response
 
 
+@app.get("/cache/output/<filename:path>")
+def serve_cache_output(filename):
+    response = static_file(filename, root=app.config["helm.cacheoutputpath"])
+    response.set_header("Cache-Control", "no-cache, no-store, must-revalidate")
+    response.set_header("Expires", "0")
+    return response
+
+
 @app.get("/")
 @app.get("/<filename:path>")
 def serve_static(filename="index.html"):
@@ -86,6 +94,12 @@ def main():
         type=str,
         help="The location of the output path (filesystem path or URL)",
         default="benchmark_output",
+    )
+    parser.add_argument(
+        "--cache-output-path",
+        type=str,
+        help="The location of the filesystem cache output folder (filesystem path or URL)",
+        default="prod_env/cache/output",
     )
     parser.add_argument(
         "--suite",
@@ -123,11 +137,13 @@ def main():
         # Output path is a URL, so set the output path base URL in the frontend to that URL
         # so that the frontend reads from that URL directly.
         app.config["helm.outputpath"] = None
+        # TODO: figure out helm.cacheoutputpath
         app.config["helm.outputurl"] = args.output_path
     else:
         # Output path is a location on disk, so set the output path base URL to /benchmark_output
         # and then serve files from the location on disk at that URL.
         app.config["helm.outputpath"] = path.abspath(args.output_path)
+        app.config["helm.cacheoutputpath"] = path.abspath(args.cache_output_path)
         app.config["helm.outputurl"] = "benchmark_output"
 
     app.config["helm.suite"] = args.suite or "latest"

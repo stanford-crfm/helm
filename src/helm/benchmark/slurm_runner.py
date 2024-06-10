@@ -98,9 +98,11 @@ class SlurmRunner(Runner):
         self.max_concurrent_worker_slurm_jobs = (
             int(env_max_concurrent_worker_slurm_jobs)
             if env_max_concurrent_worker_slurm_jobs
-            else RUNNER_CONFIG.helm_max_concurrent_workers
-            if RUNNER_CONFIG.helm_max_concurrent_workers > 0
-            else _DEFAULT_MAX_CONCURRENT_WORKER_SLURM
+            else (
+                RUNNER_CONFIG.helm_max_concurrent_workers
+                if RUNNER_CONFIG.helm_max_concurrent_workers > 0
+                else _DEFAULT_MAX_CONCURRENT_WORKER_SLURM
+            )
         )
 
     def run_all(self, run_specs: List[RunSpec]):

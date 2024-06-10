@@ -4,7 +4,7 @@ from typing import List, Mapping, Optional, cast
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.media_object import MultimediaObject, TEXT_TYPE
-from helm.common.request import Request, RequestResult, Sequence, Token
+from helm.common.request import Request, RequestResult, GeneratedOutput, Token
 from helm.common.cache import Cache, CacheConfig
 from helm.common.tokenization_request import DecodeRequest, TokenizationRequest
 from helm.tokenizers.tokenizer import Tokenizer
@@ -39,13 +39,17 @@ class CachingClient(Client):
         """
         if request.random is not None:
             assert "random" not in raw_request
-            cache_key: Mapping = {**raw_request, "random": request.random}
+            return {**raw_request, "random": request.random}
         else:
-            cache_key = raw_request
-        return cache_key
+            return {**raw_request}
 
 
-def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool = True) -> Sequence:
+def truncate_sequence(
+    sequence: GeneratedOutput,
+    request: Request,
+    end_of_text_token: Optional[str] = None,
+    print_warning: bool = True,
+) -> GeneratedOutput:
     """
     Certain providers have bugs where they aren't respecting max_tokens,
     stop_sequences and the end of text token, so as a hack, we have to manually
@@ -64,7 +68,11 @@ def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool 
             hlog("WARNING: don't know how to handle echo_prompt and max_tokens > 0, not truncating")
         return sequence
 
-    for stop in request.stop_sequences:
+    if end_of_text_token:
+        stop_sequences = request.stop_sequences + [end_of_text_token]
+    else:
+        stop_sequences = request.stop_sequences
+    for stop in stop_sequences:
         # Find `stop` in the text
         try:
             new_text = sequence.text[: sequence.text.index(stop)]
@@ -93,7 +101,7 @@ def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool 
         if print_warning:
             hlog(f"WARNING: truncate_sequence needs to strip {json.dumps(stop)}")
 
-        sequence = Sequence(text=new_text, logprob=new_logprob, tokens=new_tokens)
+        sequence = GeneratedOutput(text=new_text, logprob=new_logprob, tokens=new_tokens)
 
     # Truncate based on the max number of tokens.
     if len(sequence.tokens) > request.max_tokens:
@@ -110,14 +118,19 @@ def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool 
 
         new_logprob = sum(token.logprob for token in new_tokens)
 
-        sequence = Sequence(text=new_text, logprob=new_logprob, tokens=new_tokens)
+        sequence = GeneratedOutput(text=new_text, logprob=new_logprob, tokens=new_tokens)
 
     return sequence
 
 
 def truncate_and_tokenize_response_text(
-    text: str, request: Request, tokenizer: Tokenizer, tokenizer_name: str, original_finish_reason: str = "endoftext"
-) -> Sequence:
+    text: str,
+    request: Request,
+    tokenizer: Tokenizer,
+    tokenizer_name: str,
+    end_of_text_token: Optional[str] = None,
+    original_finish_reason: str = "endoftext",
+) -> GeneratedOutput:
     """Truncate a string-only response to respect stop_sequences and max_tokens.
 
     This can only be used if all of the following conditions are true:
@@ -139,7 +152,11 @@ def truncate_and_tokenize_response_text(
     if request.echo_prompt:
         raise Exception("truncate_and_tokenize_response_text() does not support requests with echo_prompt = True")
 
-    for stop_sequence in request.stop_sequences:
+    if end_of_text_token:
+        stop_sequences = request.stop_sequences + [end_of_text_token]
+    else:
+        stop_sequences = request.stop_sequences
+    for stop_sequence in stop_sequences:
         try:
             text = text[: text.index(stop_sequence)]
             finish_reason = "stop"
@@ -164,7 +181,7 @@ def truncate_and_tokenize_response_text(
         )
         finish_reason = "length"
     tokens = [Token(text=token_string, logprob=0.0) for token_string in token_strings]
-    return Sequence(text=text, logprob=0.0, tokens=tokens, finish_reason={"reason": finish_reason})
+    return GeneratedOutput(text=text, logprob=0.0, tokens=tokens, finish_reason={"reason": finish_reason})
 
 
 def cleanup_str(token: str, tokenizer_name: Optional[str] = None) -> str:

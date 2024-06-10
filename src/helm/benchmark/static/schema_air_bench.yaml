@@ -1,0 +1,3149 @@
+---
+############################################################
+metrics:
+  # Infrastructure metrics:
+  - name: num_perplexity_tokens
+    display_name: '# tokens'
+    description: Average number of tokens in the predicted output (for language modeling, the input too).
+  - name: num_bytes
+    display_name: '# bytes'
+    description: Average number of bytes in the predicted output (for language modeling, the input too).
+
+  - name: num_references
+    display_name: '# ref'
+    description: Number of references.
+  - name: num_train_trials
+    display_name: '# trials'
+    description: Number of trials, where in each trial we choose an independent, random set of training instances.
+  - name: estimated_num_tokens_cost
+    display_name: 'cost'
+    description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
+  - name: num_prompt_tokens
+    display_name: '# prompt tokens'
+    description: Number of tokens in the prompt.
+  - name: num_prompt_characters
+    display_name: '# prompt chars'
+    description: Number of characters in the prompt.
+  - name: num_completion_tokens
+    display_name: '# completion tokens'
+    description: Actual number of completion tokens (over all completions).
+  - name: num_output_tokens
+    display_name: '# output tokens'
+    description: Actual number of output tokens.
+  - name: max_num_output_tokens
+    display_name: 'Max output tokens'
+    description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
+  - name: num_requests
+    display_name: '# requests'
+    description: Number of distinct API requests.
+  - name: num_instances
+    display_name: '# eval'
+    description: Number of evaluation instances.
+  - name: num_train_instances
+    display_name: '# train'
+    description: Number of training instances (e.g., in-context examples).
+  - name: prompt_truncated
+    display_name: truncated
+    description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
+  - name: finish_reason_length
+    display_name: finish b/c length
+    description: Fraction of instances where the the output was terminated because of the max tokens limit.
+  - name: finish_reason_stop
+    display_name: finish b/c stop
+    description: Fraction of instances where the the output was terminated because of the stop sequences.
+  - name: finish_reason_endoftext
+    display_name: finish b/c endoftext
+    description: Fraction of instances where the the output was terminated because the end of text token was generated.
+  - name: finish_reason_unknown
+    display_name: finish b/c unknown
+    description: Fraction of instances where the the output was terminated for unknown reasons.
+  - name: num_completions
+    display_name: '# completions'
+    description: Number of completions.
+  - name: predicted_index
+    display_name: Predicted index
+    description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
+
+  # Efficiency metrics:
+  - name: inference_runtime
+    display_name: Observed inference runtime (s)
+    short_display_name: Observed inference time (s)
+    lower_is_better: true
+    description: Average observed time to process a request to the model (via an API, and thus depends on particular deployment).
+
+  # AIRBench 2024 top level score
+  - name: air_score
+    display_name: AIR Score
+    short_display_name: AIR Score
+    description: AIR Score
+    lower_is_better: true
+
+  # Scores for AIR Level 2 categories
+  - name: air_category_1_score
+    display_name: "Security Risks"
+    short_display_name: "Security Risks"
+    description: "Score for AIR level 2 category: Security Risks"
+    lower_is_better: true
+
+  - name: air_category_2_score
+    display_name: "Operational Misuses"
+    short_display_name: "Operational Misuses"
+    description: "Score for AIR level 2 category: Operational Misuses"
+    lower_is_better: true
+
+  - name: air_category_3_score
+    display_name: "Violence & Extremism"
+    short_display_name: "Violence & Extremism"
+    description: "Score for AIR level 2 category: Violence & Extremism"
+    lower_is_better: true
+
+  - name: air_category_4_score
+    display_name: "Hate/Toxicity"
+    short_display_name: "Hate/Toxicity"
+    description: "Score for AIR level 2 category: Hate/Toxicity"
+    lower_is_better: true
+
+  - name: air_category_5_score
+    display_name: "Sexual Content"
+    short_display_name: "Sexual Content"
+    description: "Score for AIR level 2 category: Sexual Content"
+    lower_is_better: true
+
+  - name: air_category_6_score
+    display_name: "Child Harm"
+    short_display_name: "Child Harm"
+    description: "Score for AIR level 2 category: Child Harm"
+    lower_is_better: true
+
+  - name: air_category_7_score
+    display_name: "Self-harm"
+    short_display_name: "Self-harm"
+    description: "Score for AIR level 2 category: Self-harm"
+    lower_is_better: true
+
+  - name: air_category_8_score
+    display_name: "Political Usage"
+    short_display_name: "Political Usage"
+    description: "Score for AIR level 2 category: Political Usage"
+    lower_is_better: true
+
+  - name: air_category_9_score
+    display_name: "Economic Harm"
+    short_display_name: "Economic Harm"
+    description: "Score for AIR level 2 category: Economic Harm"
+    lower_is_better: true
+
+  - name: air_category_10_score
+    display_name: "Deception"
+    short_display_name: "Deception"
+    description: "Score for AIR level 2 category: Deception"
+    lower_is_better: true
+
+  - name: air_category_11_score
+    display_name: "Manipulation"
+    short_display_name: "Manipulation"
+    description: "Score for AIR level 2 category: Manipulation"
+    lower_is_better: true
+
+  - name: air_category_12_score
+    display_name: "Defamation"
+    short_display_name: "Defamation"
+    description: "Score for AIR level 2 category: Defamation"
+    lower_is_better: true
+
+  - name: air_category_13_score
+    display_name: "Fundamental Rights"
+    short_display_name: "Fundamental Rights"
+    description: "Score for AIR level 2 category: Fundamental Rights"
+    lower_is_better: true
+
+  - name: air_category_14_score
+    display_name: "Discrimination/Bias"
+    short_display_name: "Discrimination/Bias"
+    description: "Score for AIR level 2 category: Discrimination/Bias"
+    lower_is_better: true
+
+  - name: air_category_15_score
+    display_name: "Privacy"
+    short_display_name: "Privacy"
+    description: "Score for AIR level 2 category: Privacy"
+    lower_is_better: true
+
+  - name: air_category_16_score
+    display_name: "Criminal Activities"
+    short_display_name: "Criminal Activities"
+    description: "Score for AIR level 2 category: Criminal Activities"
+    lower_is_better: true
+
+  # Scores for AIR Level 3 categories
+  - name: air_category_1_1_score
+    display_name: "#1: Confidentiality"
+    short_display_name: "#1: Confidentiality"
+    description: "Score for AIR level 3 category #1: Confidentiality"
+    lower_is_better: true
+
+  - name: air_category_1_2_score
+    display_name: "#2: Integrity"
+    short_display_name: "#2: Integrity"
+    description: "Score for AIR level 3 category #2: Integrity"
+    lower_is_better: true
+
+  - name: air_category_1_3_score
+    display_name: "#3: Availability"
+    short_display_name: "#3: Availability"
+    description: "Score for AIR level 3 category #3: Availability"
+    lower_is_better: true
+
+  - name: air_category_2_4_score
+    display_name: "#4: Automated Decision-Making"
+    short_display_name: "#4: Automated Decision-Making"
+    description: "Score for AIR level 3 category #4: Automated Decision-Making"
+    lower_is_better: true
+
+  - name: air_category_2_5_score
+    display_name: "#5: Autonomous Unsafe Operation of Systems"
+    short_display_name: "#5: Autonomous Unsafe Operation of Systems"
+    description: "Score for AIR level 3 category #5: Autonomous Unsafe Operation of Systems"
+    lower_is_better: true
+
+  - name: air_category_2_6_score
+    display_name: "#6: Advice in Heavily Regulated Industries"
+    short_display_name: "#6: Advice in Heavily Regulated Industries"
+    description: "Score for AIR level 3 category #6: Advice in Heavily Regulated Industries"
+    lower_is_better: true
+
+  - name: air_category_3_7_score
+    display_name: "#7: Supporting Malicious Organized Groups"
+    short_display_name: "#7: Supporting Malicious Organized Groups"
+    description: "Score for AIR level 3 category #7: Supporting Malicious Organized Groups"
+    lower_is_better: true
+
+  - name: air_category_3_8_score
+    display_name: "#8: Celebrating Suffering"
+    short_display_name: "#8: Celebrating Suffering"
+    description: "Score for AIR level 3 category #8: Celebrating Suffering"
+    lower_is_better: true
+
+  - name: air_category_3_9_score
+    display_name: "#9: Violent acts"
+    short_display_name: "#9: Violent acts"
+    description: "Score for AIR level 3 category #9: Violent acts"
+    lower_is_better: true
+
+  - name: air_category_3_10_score
+    display_name: "#10: Depicting Violence"
+    short_display_name: "#10: Depicting Violence"
+    description: "Score for AIR level 3 category #10: Depicting Violence"
+    lower_is_better: true
+
+  - name: air_category_3_11_score
+    display_name: "#11: Weapon Usage & Development"
+    short_display_name: "#11: Weapon Usage & Development"
+    description: "Score for AIR level 3 category #11: Weapon Usage & Development"
+    lower_is_better: true
+
+  - name: air_category_3_12_score
+    display_name: "#12: Military and Warfare"
+    short_display_name: "#12: Military and Warfare"
+    description: "Score for AIR level 3 category #12: Military and Warfare"
+    lower_is_better: true
+
+  - name: air_category_4_13_score
+    display_name: "#13: Harassment"
+    short_display_name: "#13: Harassment"
+    description: "Score for AIR level 3 category #13: Harassment"
+    lower_is_better: true
+
+  - name: air_category_4_14_score
+    display_name: "#14: Hate Speech (Inciting/Promoting/Expressing hatred)"
+    short_display_name: "#14: Hate Speech (Inciting/Promoting/Expressing hatred)"
+    description: "Score for AIR level 3 category #14: Hate Speech (Inciting/Promoting/Expressing hatred)"
+    lower_is_better: true
+
+  - name: air_category_4_15_score
+    display_name: "#15: Perpetuating Harmful Beliefs"
+    short_display_name: "#15: Perpetuating Harmful Beliefs"
+    description: "Score for AIR level 3 category #15: Perpetuating Harmful Beliefs"
+    lower_is_better: true
+
+  - name: air_category_4_16_score
+    display_name: "#16: Offensive Language"
+    short_display_name: "#16: Offensive Language"
+    description: "Score for AIR level 3 category #16: Offensive Language"
+    lower_is_better: true
+
+  - name: air_category_5_17_score
+    display_name: "#17: Adult content"
+    short_display_name: "#17: Adult content"
+    description: "Score for AIR level 3 category #17: Adult content"
+    lower_is_better: true
+
+  - name: air_category_5_18_score
+    display_name: "#18: Erotic"
+    short_display_name: "#18: Erotic"
+    description: "Score for AIR level 3 category #18: Erotic"
+    lower_is_better: true
+
+  - name: air_category_5_19_score
+    display_name: "#19: Non-Consensual Nudity"
+    short_display_name: "#19: Non-Consensual Nudity"
+    description: "Score for AIR level 3 category #19: Non-Consensual Nudity"
+    lower_is_better: true
+
+  - name: air_category_5_20_score
+    display_name: "#20: Monetized"
+    short_display_name: "#20: Monetized"
+    description: "Score for AIR level 3 category #20: Monetized"
+    lower_is_better: true
+
+  - name: air_category_6_21_score
+    display_name: "#21: Endangerment, Harm, or Abuse of Children"
+    short_display_name: "#21: Endangerment, Harm, or Abuse of Children"
+    description: "Score for AIR level 3 category #21: Endangerment, Harm, or Abuse of Children"
+    lower_is_better: true
+
+  - name: air_category_6_22_score
+    display_name: "#22: Child Sexual Abuse"
+    short_display_name: "#22: Child Sexual Abuse"
+    description: "Score for AIR level 3 category #22: Child Sexual Abuse"
+    lower_is_better: true
+
+  - name: air_category_7_23_score
+    display_name: "#23: Suicidal and non-suicidal self Injury"
+    short_display_name: "#23: Suicidal and non-suicidal self Injury"
+    description: "Score for AIR level 3 category #23: Suicidal and non-suicidal self Injury"
+    lower_is_better: true
+
+  - name: air_category_8_24_score
+    display_name: "#24: Political Persuasion"
+    short_display_name: "#24: Political Persuasion"
+    description: "Score for AIR level 3 category #24: Political Persuasion"
+    lower_is_better: true
+
+  - name: air_category_8_25_score
+    display_name: "#25: Influencing Politics"
+    short_display_name: "#25: Influencing Politics"
+    description: "Score for AIR level 3 category #25: Influencing Politics"
+    lower_is_better: true
+
+  - name: air_category_8_26_score
+    display_name: "#26: Deterring Democratic Participation"
+    short_display_name: "#26: Deterring Democratic Participation"
+    description: "Score for AIR level 3 category #26: Deterring Democratic Participation"
+    lower_is_better: true
+
+  - name: air_category_8_27_score
+    display_name: "#27: Disrupting Social Order (China-unique)"
+    short_display_name: "#27: Disrupting Social Order (China-unique)"
+    description: "Score for AIR level 3 category #27: Disrupting Social Order (China-unique)"
+    lower_is_better: true
+
+  - name: air_category_9_28_score
+    display_name: "#28: High-Risk Financial Activities"
+    short_display_name: "#28: High-Risk Financial Activities"
+    description: "Score for AIR level 3 category #28: High-Risk Financial Activities"
+    lower_is_better: true
+
+  - name: air_category_9_29_score
+    display_name: "#29: Unfair Market Practices"
+    short_display_name: "#29: Unfair Market Practices"
+    description: "Score for AIR level 3 category #29: Unfair Market Practices"
+    lower_is_better: true
+
+  - name: air_category_9_30_score
+    display_name: "#30: Disempowering Workers"
+    short_display_name: "#30: Disempowering Workers"
+    description: "Score for AIR level 3 category #30: Disempowering Workers"
+    lower_is_better: true
+
+  - name: air_category_9_31_score
+    display_name: "#31: Fraudulent Schemes"
+    short_display_name: "#31: Fraudulent Schemes"
+    description: "Score for AIR level 3 category #31: Fraudulent Schemes"
+    lower_is_better: true
+
+  - name: air_category_10_32_score
+    display_name: "#32: Fraud"
+    short_display_name: "#32: Fraud"
+    description: "Score for AIR level 3 category #32: Fraud"
+    lower_is_better: true
+
+  - name: air_category_10_33_score
+    display_name: "#33: Academic dishonesty"
+    short_display_name: "#33: Academic dishonesty"
+    description: "Score for AIR level 3 category #33: Academic dishonesty"
+    lower_is_better: true
+
+  - name: air_category_10_34_score
+    display_name: "#34: Mis/disinformation"
+    short_display_name: "#34: Mis/disinformation"
+    description: "Score for AIR level 3 category #34: Mis/disinformation"
+    lower_is_better: true
+
+  - name: air_category_11_35_score
+    display_name: "#35: Sowing Division"
+    short_display_name: "#35: Sowing Division"
+    description: "Score for AIR level 3 category #35: Sowing Division"
+    lower_is_better: true
+
+  - name: air_category_11_36_score
+    display_name: "#36: Misrepresentation"
+    short_display_name: "#36: Misrepresentation"
+    description: "Score for AIR level 3 category #36: Misrepresentation"
+    lower_is_better: true
+
+  - name: air_category_12_37_score
+    display_name: "#37: Types of Defamation"
+    short_display_name: "#37: Types of Defamation"
+    description: "Score for AIR level 3 category #37: Types of Defamation"
+    lower_is_better: true
+
+  - name: air_category_13_38_score
+    display_name: "#38: Specific Types of Rights"
+    short_display_name: "#38: Specific Types of Rights"
+    description: "Score for AIR level 3 category #38: Specific Types of Rights"
+    lower_is_better: true
+
+  - name: air_category_14_3940_score
+    display_name: "#39-40: Discrimination/Protected Characteristics Combinations"
+    short_display_name: "#39-40: Discrimination/Protected Characteristics Combinations"
+    description: "Score for AIR level 3 category #39-40: Discrimination/Protected Characteristics Combinations"
+    lower_is_better: true
+
+  - name: air_category_15_4142_score
+    display_name: "#41-42: Privacy Violations/Sensitive Data Combinations"
+    short_display_name: "#41-42: Privacy Violations/Sensitive Data Combinations"
+    description: "Score for AIR level 3 category #41-42: Privacy Violations/Sensitive Data Combinations"
+    lower_is_better: true
+
+  - name: air_category_16_43_score
+    display_name: "#43: Illegal/Regulated substances/goods"
+    short_display_name: "#43: Illegal/Regulated substances/goods"
+    description: "Score for AIR level 3 category #43: Illegal/Regulated substances/goods"
+    lower_is_better: true
+
+  - name: air_category_16_44_score
+    display_name: "#44: Illegal services/exploitation"
+    short_display_name: "#44: Illegal services/exploitation"
+    description: "Score for AIR level 3 category #44: Illegal services/exploitation"
+    lower_is_better: true
+
+  - name: air_category_16_45_score
+    display_name: "#45: Other Illegal/Unlawful/Criminal Activities"
+    short_display_name: "#45: Other Illegal/Unlawful/Criminal Activities"
+    description: "Score for AIR level 3 category #45: Other Illegal/Unlawful/Criminal Activities"
+    lower_is_better: true
+
+  # Scores for AIR Level 4 categories
+  - name: air_category_1_1_1_score
+    display_name: "#1.1: Network intrusion"
+    short_display_name: "#1.1: Network intrusion"
+    description: "Score for AIR level 4 category #1.1: Network intrusion"
+    lower_is_better: true
+
+  - name: air_category_1_1_2_score
+    display_name: "#1.2: Vulnerability probing"
+    short_display_name: "#1.2: Vulnerability probing"
+    description: "Score for AIR level 4 category #1.2: Vulnerability probing"
+    lower_is_better: true
+
+  - name: air_category_1_1_3_score
+    display_name: "#1.3: Spoofing"
+    short_display_name: "#1.3: Spoofing"
+    description: "Score for AIR level 4 category #1.3: Spoofing"
+    lower_is_better: true
+
+  - name: air_category_1_1_4_score
+    display_name: "#1.4: Spear phishing"
+    short_display_name: "#1.4: Spear phishing"
+    description: "Score for AIR level 4 category #1.4: Spear phishing"
+    lower_is_better: true
+
+  - name: air_category_1_1_5_score
+    display_name: "#1.5: Social engineering"
+    short_display_name: "#1.5: Social engineering"
+    description: "Score for AIR level 4 category #1.5: Social engineering"
+    lower_is_better: true
+
+  - name: air_category_1_1_6_score
+    display_name: "#1.6: Unauthorized network entry"
+    short_display_name: "#1.6: Unauthorized network entry"
+    description: "Score for AIR level 4 category #1.6: Unauthorized network entry"
+    lower_is_better: true
+
+  - name: air_category_1_2_7_score
+    display_name: "#2.7: Malware"
+    short_display_name: "#2.7: Malware"
+    description: "Score for AIR level 4 category #2.7: Malware"
+    lower_is_better: true
+
+  - name: air_category_1_2_8_score
+    display_name: "#2.8: Packet forgery"
+    short_display_name: "#2.8: Packet forgery"
+    description: "Score for AIR level 4 category #2.8: Packet forgery"
+    lower_is_better: true
+
+  - name: air_category_1_2_9_score
+    display_name: "#2.9: Data tampering"
+    short_display_name: "#2.9: Data tampering"
+    description: "Score for AIR level 4 category #2.9: Data tampering"
+    lower_is_better: true
+
+  - name: air_category_1_2_10_score
+    display_name: "#2.10: Control override (safety/privacy filters)"
+    short_display_name: "#2.10: Control override (safety/privacy filters)"
+    description: "Score for AIR level 4 category #2.10: Control override (safety/privacy filters)"
+    lower_is_better: true
+
+  - name: air_category_1_3_11_score
+    display_name: "#3.11: System/Website impairment"
+    short_display_name: "#3.11: System/Website impairment"
+    description: "Score for AIR level 4 category #3.11: System/Website impairment"
+    lower_is_better: true
+
+  - name: air_category_1_3_12_score
+    display_name: "#3.12: Network disruption"
+    short_display_name: "#3.12: Network disruption"
+    description: "Score for AIR level 4 category #3.12: Network disruption"
+    lower_is_better: true
+
+  - name: air_category_2_4_1_score
+    display_name: "#4.1: Financing eligibility/Creditworthiness"
+    short_display_name: "#4.1: Financing eligibility/Creditworthiness"
+    description: "Score for AIR level 4 category #4.1: Financing eligibility/Creditworthiness"
+    lower_is_better: true
+
+  - name: air_category_2_4_2_score
+    display_name: "#4.2: Criminal justice/Predictive policing"
+    short_display_name: "#4.2: Criminal justice/Predictive policing"
+    description: "Score for AIR level 4 category #4.2: Criminal justice/Predictive policing"
+    lower_is_better: true
+
+  - name: air_category_2_4_3_score
+    display_name: "#4.3: Adversely affects legal rights"
+    short_display_name: "#4.3: Adversely affects legal rights"
+    description: "Score for AIR level 4 category #4.3: Adversely affects legal rights"
+    lower_is_better: true
+
+  - name: air_category_2_4_4_score
+    display_name: "#4.4: Employment"
+    short_display_name: "#4.4: Employment"
+    description: "Score for AIR level 4 category #4.4: Employment"
+    lower_is_better: true
+
+  - name: air_category_2_4_5_score
+    display_name: "#4.5: Social scoring"
+    short_display_name: "#4.5: Social scoring"
+    description: "Score for AIR level 4 category #4.5: Social scoring"
+    lower_is_better: true
+
+  - name: air_category_2_4_6_score
+    display_name: "#4.6: Housing eligibility"
+    short_display_name: "#4.6: Housing eligibility"
+    description: "Score for AIR level 4 category #4.6: Housing eligibility"
+    lower_is_better: true
+
+  - name: air_category_2_4_7_score
+    display_name: "#4.7: Education eligibility"
+    short_display_name: "#4.7: Education eligibility"
+    description: "Score for AIR level 4 category #4.7: Education eligibility"
+    lower_is_better: true
+
+  - name: air_category_2_4_8_score
+    display_name: "#4.8: Migration eligibility"
+    short_display_name: "#4.8: Migration eligibility"
+    description: "Score for AIR level 4 category #4.8: Migration eligibility"
+    lower_is_better: true
+
+  - name: air_category_2_4_9_score
+    display_name: "#4.9: Insurance eligibility"
+    short_display_name: "#4.9: Insurance eligibility"
+    description: "Score for AIR level 4 category #4.9: Insurance eligibility"
+    lower_is_better: true
+
+  - name: air_category_2_4_10_score
+    display_name: "#4.10: Profiling"
+    short_display_name: "#4.10: Profiling"
+    description: "Score for AIR level 4 category #4.10: Profiling"
+    lower_is_better: true
+
+  - name: air_category_2_5_11_score
+    display_name: "#5.11: Heavy machinery"
+    short_display_name: "#5.11: Heavy machinery"
+    description: "Score for AIR level 4 category #5.11: Heavy machinery"
+    lower_is_better: true
+
+  - name: air_category_2_5_12_score
+    display_name: "#5.12: Transportation"
+    short_display_name: "#5.12: Transportation"
+    description: "Score for AIR level 4 category #5.12: Transportation"
+    lower_is_better: true
+
+  - name: air_category_2_5_13_score
+    display_name: "#5.13: Energy/Electrical grids"
+    short_display_name: "#5.13: Energy/Electrical grids"
+    description: "Score for AIR level 4 category #5.13: Energy/Electrical grids"
+    lower_is_better: true
+
+  - name: air_category_2_5_14_score
+    display_name: "#5.14: Nuclear facilities"
+    short_display_name: "#5.14: Nuclear facilities"
+    description: "Score for AIR level 4 category #5.14: Nuclear facilities"
+    lower_is_better: true
+
+  - name: air_category_2_5_15_score
+    display_name: "#5.15: Aircraft navigation/Air traffic control"
+    short_display_name: "#5.15: Aircraft navigation/Air traffic control"
+    description: "Score for AIR level 4 category #5.15: Aircraft navigation/Air traffic control"
+    lower_is_better: true
+
+  - name: air_category_2_5_16_score
+    display_name: "#5.16: Communication systems"
+    short_display_name: "#5.16: Communication systems"
+    description: "Score for AIR level 4 category #5.16: Communication systems"
+    lower_is_better: true
+
+  - name: air_category_2_5_17_score
+    display_name: "#5.17: Water treatment facilities"
+    short_display_name: "#5.17: Water treatment facilities"
+    description: "Score for AIR level 4 category #5.17: Water treatment facilities"
+    lower_is_better: true
+
+  - name: air_category_2_5_18_score
+    display_name: "#5.18: Life support"
+    short_display_name: "#5.18: Life support"
+    description: "Score for AIR level 4 category #5.18: Life support"
+    lower_is_better: true
+
+  - name: air_category_2_5_19_score
+    display_name: "#5.19: Weapon systems/Battlefield management"
+    short_display_name: "#5.19: Weapon systems/Battlefield management"
+    description: "Score for AIR level 4 category #5.19: Weapon systems/Battlefield management"
+    lower_is_better: true
+
+  - name: air_category_2_5_20_score
+    display_name: "#5.20: Emergency services"
+    short_display_name: "#5.20: Emergency services"
+    description: "Score for AIR level 4 category #5.20: Emergency services"
+    lower_is_better: true
+
+  - name: air_category_2_5_21_score
+    display_name: "#5.21: Other unauthorized actions on behalf of users"
+    short_display_name: "#5.21: Other unauthorized actions on behalf of users"
+    description: "Score for AIR level 4 category #5.21: Other unauthorized actions on behalf of users"
+    lower_is_better: true
+
+  - name: air_category_2_6_22_score
+    display_name: "#6.22: Legal"
+    short_display_name: "#6.22: Legal"
+    description: "Score for AIR level 4 category #6.22: Legal"
+    lower_is_better: true
+
+  - name: air_category_2_6_23_score
+    display_name: "#6.23: Medical/Pharmaceutical"
+    short_display_name: "#6.23: Medical/Pharmaceutical"
+    description: "Score for AIR level 4 category #6.23: Medical/Pharmaceutical"
+    lower_is_better: true
+
+  - name: air_category_2_6_24_score
+    display_name: "#6.24: Accounting"
+    short_display_name: "#6.24: Accounting"
+    description: "Score for AIR level 4 category #6.24: Accounting"
+    lower_is_better: true
+
+  - name: air_category_2_6_25_score
+    display_name: "#6.25: Financial"
+    short_display_name: "#6.25: Financial"
+    description: "Score for AIR level 4 category #6.25: Financial"
+    lower_is_better: true
+
+  - name: air_category_2_6_26_score
+    display_name: "#6.26: Government services"
+    short_display_name: "#6.26: Government services"
+    description: "Score for AIR level 4 category #6.26: Government services"
+    lower_is_better: true
+
+  - name: air_category_3_7_1_score
+    display_name: "#7.1: Extremism"
+    short_display_name: "#7.1: Extremism"
+    description: "Score for AIR level 4 category #7.1: Extremism"
+    lower_is_better: true
+
+  - name: air_category_3_7_2_score
+    display_name: "#7.2: Terrorism"
+    short_display_name: "#7.2: Terrorism"
+    description: "Score for AIR level 4 category #7.2: Terrorism"
+    lower_is_better: true
+
+  - name: air_category_3_7_3_score
+    display_name: "#7.3: Criminal organization"
+    short_display_name: "#7.3: Criminal organization"
+    description: "Score for AIR level 4 category #7.3: Criminal organization"
+    lower_is_better: true
+
+  - name: air_category_3_8_4_score
+    display_name: "#8.4: Glorifying violence, abuse, or the suffering of others"
+    short_display_name: "#8.4: Glorifying violence, abuse, or the suffering of others"
+    description: "Score for AIR level 4 category #8.4: Glorifying violence, abuse, or the suffering of others"
+    lower_is_better: true
+
+  - name: air_category_3_8_5_score
+    display_name: "#8.5: Belittling victimhood or violent events"
+    short_display_name: "#8.5: Belittling victimhood or violent events"
+    description: "Score for AIR level 4 category #8.5: Belittling victimhood or violent events"
+    lower_is_better: true
+
+  - name: air_category_3_8_6_score
+    display_name: "#8.6: Denying or minimizing well-documented, major violent events or the victimhood of such events/Denying the deeds of martyrdom"
+    short_display_name: "#8.6: Denying or minimizing well-documented, major violent events or the victimhood of such events/Denying the deeds of martyrdom"
+    description: "Score for AIR level 4 category #8.6: Denying or minimizing well-documented, major violent events or the victimhood of such events/Denying the deeds of martyrdom"
+    lower_is_better: true
+
+  - name: air_category_3_8_7_score
+    display_name: "#8.7: Beautifying and whitewashing acts of war or aggression"
+    short_display_name: "#8.7: Beautifying and whitewashing acts of war or aggression"
+    description: "Score for AIR level 4 category #8.7: Beautifying and whitewashing acts of war or aggression"
+    lower_is_better: true
+
+  - name: air_category_3_9_8_score
+    display_name: "#9.8: Persons (including murder)"
+    short_display_name: "#9.8: Persons (including murder)"
+    description: "Score for AIR level 4 category #9.8: Persons (including murder)"
+    lower_is_better: true
+
+  - name: air_category_3_9_9_score
+    display_name: "#9.9: Animals"
+    short_display_name: "#9.9: Animals"
+    description: "Score for AIR level 4 category #9.9: Animals"
+    lower_is_better: true
+
+  - name: air_category_3_9_10_score
+    display_name: "#9.10: Property damage"
+    short_display_name: "#9.10: Property damage"
+    description: "Score for AIR level 4 category #9.10: Property damage"
+    lower_is_better: true
+
+  - name: air_category_3_9_11_score
+    display_name: "#9.11: Environmental"
+    short_display_name: "#9.11: Environmental"
+    description: "Score for AIR level 4 category #9.11: Environmental"
+    lower_is_better: true
+
+  - name: air_category_3_10_12_score
+    display_name: "#10.12: Bodily destruction"
+    short_display_name: "#10.12: Bodily destruction"
+    description: "Score for AIR level 4 category #10.12: Bodily destruction"
+    lower_is_better: true
+
+  - name: air_category_3_10_13_score
+    display_name: "#10.13: Bodily mutilation"
+    short_display_name: "#10.13: Bodily mutilation"
+    description: "Score for AIR level 4 category #10.13: Bodily mutilation"
+    lower_is_better: true
+
+  - name: air_category_3_10_14_score
+    display_name: "#10.14: Torture/abuse"
+    short_display_name: "#10.14: Torture/abuse"
+    description: "Score for AIR level 4 category #10.14: Torture/abuse"
+    lower_is_better: true
+
+  - name: air_category_3_10_15_score
+    display_name: "#10.15: Animal abuse"
+    short_display_name: "#10.15: Animal abuse"
+    description: "Score for AIR level 4 category #10.15: Animal abuse"
+    lower_is_better: true
+
+  - name: air_category_3_10_16_score
+    display_name: "#10.16: Activities meant to kill"
+    short_display_name: "#10.16: Activities meant to kill"
+    description: "Score for AIR level 4 category #10.16: Activities meant to kill"
+    lower_is_better: true
+
+  - name: air_category_3_11_17_score
+    display_name: "#11.17: Guns"
+    short_display_name: "#11.17: Guns"
+    description: "Score for AIR level 4 category #11.17: Guns"
+    lower_is_better: true
+
+  - name: air_category_3_11_18_score
+    display_name: "#11.18: Explosives/Dangerous Materials"
+    short_display_name: "#11.18: Explosives/Dangerous Materials"
+    description: "Score for AIR level 4 category #11.18: Explosives/Dangerous Materials"
+    lower_is_better: true
+
+  - name: air_category_3_11_19_score
+    display_name: "#11.19: Bioweapons/Viruses/Gain-of-function"
+    short_display_name: "#11.19: Bioweapons/Viruses/Gain-of-function"
+    description: "Score for AIR level 4 category #11.19: Bioweapons/Viruses/Gain-of-function"
+    lower_is_better: true
+
+  - name: air_category_3_11_20_score
+    display_name: "#11.20: Nuclear Weapons"
+    short_display_name: "#11.20: Nuclear Weapons"
+    description: "Score for AIR level 4 category #11.20: Nuclear Weapons"
+    lower_is_better: true
+
+  - name: air_category_3_11_21_score
+    display_name: "#11.21: Chemical Weapons"
+    short_display_name: "#11.21: Chemical Weapons"
+    description: "Score for AIR level 4 category #11.21: Chemical Weapons"
+    lower_is_better: true
+
+  - name: air_category_3_11_22_score
+    display_name: "#11.22: Radiological Weapons"
+    short_display_name: "#11.22: Radiological Weapons"
+    description: "Score for AIR level 4 category #11.22: Radiological Weapons"
+    lower_is_better: true
+
+  - name: air_category_3_12_23_score
+    display_name: "#12.23: Military"
+    short_display_name: "#12.23: Military"
+    description: "Score for AIR level 4 category #12.23: Military"
+    lower_is_better: true
+
+  - name: air_category_3_12_24_score
+    display_name: "#12.24: Warfare"
+    short_display_name: "#12.24: Warfare"
+    description: "Score for AIR level 4 category #12.24: Warfare"
+    lower_is_better: true
+
+  - name: air_category_4_13_1_score
+    display_name: "#13.1: Bullying"
+    short_display_name: "#13.1: Bullying"
+    description: "Score for AIR level 4 category #13.1: Bullying"
+    lower_is_better: true
+
+  - name: air_category_4_13_2_score
+    display_name: "#13.2: Threats"
+    short_display_name: "#13.2: Threats"
+    description: "Score for AIR level 4 category #13.2: Threats"
+    lower_is_better: true
+
+  - name: air_category_4_13_3_score
+    display_name: "#13.3: Intimidation"
+    short_display_name: "#13.3: Intimidation"
+    description: "Score for AIR level 4 category #13.3: Intimidation"
+    lower_is_better: true
+
+  - name: air_category_4_13_4_score
+    display_name: "#13.4: Shaming"
+    short_display_name: "#13.4: Shaming"
+    description: "Score for AIR level 4 category #13.4: Shaming"
+    lower_is_better: true
+
+  - name: air_category_4_13_5_score
+    display_name: "#13.5: Humiliation"
+    short_display_name: "#13.5: Humiliation"
+    description: "Score for AIR level 4 category #13.5: Humiliation"
+    lower_is_better: true
+
+  - name: air_category_4_13_6_score
+    display_name: "#13.6: Insults/Personal attacks"
+    short_display_name: "#13.6: Insults/Personal attacks"
+    description: "Score for AIR level 4 category #13.6: Insults/Personal attacks"
+    lower_is_better: true
+
+  - name: air_category_4_13_7_score
+    display_name: "#13.7: Abuse"
+    short_display_name: "#13.7: Abuse"
+    description: "Score for AIR level 4 category #13.7: Abuse"
+    lower_is_better: true
+
+  - name: air_category_4_13_8_score
+    display_name: "#13.8: Provoking"
+    short_display_name: "#13.8: Provoking"
+    description: "Score for AIR level 4 category #13.8: Provoking"
+    lower_is_better: true
+
+  - name: air_category_4_13_9_score
+    display_name: "#13.9: Trolling"
+    short_display_name: "#13.9: Trolling"
+    description: "Score for AIR level 4 category #13.9: Trolling"
+    lower_is_better: true
+
+  - name: air_category_4_13_10_score
+    display_name: "#13.10: Doxxing"
+    short_display_name: "#13.10: Doxxing"
+    description: "Score for AIR level 4 category #13.10: Doxxing"
+    lower_is_better: true
+
+  - name: air_category_4_13_11_score
+    display_name: "#13.11: Cursing"
+    short_display_name: "#13.11: Cursing"
+    description: "Score for AIR level 4 category #13.11: Cursing"
+    lower_is_better: true
+
+  - name: air_category_4_14_12_score
+    display_name: "#14.12: Race"
+    short_display_name: "#14.12: Race"
+    description: "Score for AIR level 4 category #14.12: Race"
+    lower_is_better: true
+
+  - name: air_category_4_14_13_score
+    display_name: "#14.13: Ethnicity"
+    short_display_name: "#14.13: Ethnicity"
+    description: "Score for AIR level 4 category #14.13: Ethnicity"
+    lower_is_better: true
+
+  - name: air_category_4_14_14_score
+    display_name: "#14.14: Color"
+    short_display_name: "#14.14: Color"
+    description: "Score for AIR level 4 category #14.14: Color"
+    lower_is_better: true
+
+  - name: air_category_4_14_15_score
+    display_name: "#14.15: Gender"
+    short_display_name: "#14.15: Gender"
+    description: "Score for AIR level 4 category #14.15: Gender"
+    lower_is_better: true
+
+  - name: air_category_4_14_16_score
+    display_name: "#14.16: Sexual orientation"
+    short_display_name: "#14.16: Sexual orientation"
+    description: "Score for AIR level 4 category #14.16: Sexual orientation"
+    lower_is_better: true
+
+  - name: air_category_4_14_17_score
+    display_name: "#14.17: Religion"
+    short_display_name: "#14.17: Religion"
+    description: "Score for AIR level 4 category #14.17: Religion"
+    lower_is_better: true
+
+  - name: air_category_4_14_18_score
+    display_name: "#14.18: Beliefs"
+    short_display_name: "#14.18: Beliefs"
+    description: "Score for AIR level 4 category #14.18: Beliefs"
+    lower_is_better: true
+
+  - name: air_category_4_14_19_score
+    display_name: "#14.19: Nationality"
+    short_display_name: "#14.19: Nationality"
+    description: "Score for AIR level 4 category #14.19: Nationality"
+    lower_is_better: true
+
+  - name: air_category_4_14_20_score
+    display_name: "#14.20: Geographic region"
+    short_display_name: "#14.20: Geographic region"
+    description: "Score for AIR level 4 category #14.20: Geographic region"
+    lower_is_better: true
+
+  - name: air_category_4_14_21_score
+    display_name: "#14.21: Caste"
+    short_display_name: "#14.21: Caste"
+    description: "Score for AIR level 4 category #14.21: Caste"
+    lower_is_better: true
+
+  - name: air_category_4_14_22_score
+    display_name: "#14.22: Social behaviors"
+    short_display_name: "#14.22: Social behaviors"
+    description: "Score for AIR level 4 category #14.22: Social behaviors"
+    lower_is_better: true
+
+  - name: air_category_4_14_23_score
+    display_name: "#14.23: Physical characteristics"
+    short_display_name: "#14.23: Physical characteristics"
+    description: "Score for AIR level 4 category #14.23: Physical characteristics"
+    lower_is_better: true
+
+  - name: air_category_4_14_24_score
+    display_name: "#14.24: Mental characteristics"
+    short_display_name: "#14.24: Mental characteristics"
+    description: "Score for AIR level 4 category #14.24: Mental characteristics"
+    lower_is_better: true
+
+  - name: air_category_4_14_25_score
+    display_name: "#14.25: Personality"
+    short_display_name: "#14.25: Personality"
+    description: "Score for AIR level 4 category #14.25: Personality"
+    lower_is_better: true
+
+  - name: air_category_4_14_26_score
+    display_name: "#14.26: Health conditions"
+    short_display_name: "#14.26: Health conditions"
+    description: "Score for AIR level 4 category #14.26: Health conditions"
+    lower_is_better: true
+
+  - name: air_category_4_14_27_score
+    display_name: "#14.27: Disability"
+    short_display_name: "#14.27: Disability"
+    description: "Score for AIR level 4 category #14.27: Disability"
+    lower_is_better: true
+
+  - name: air_category_4_14_28_score
+    display_name: "#14.28: Pregnancy status"
+    short_display_name: "#14.28: Pregnancy status"
+    description: "Score for AIR level 4 category #14.28: Pregnancy status"
+    lower_is_better: true
+
+  - name: air_category_4_14_29_score
+    display_name: "#14.29: Genetic information"
+    short_display_name: "#14.29: Genetic information"
+    description: "Score for AIR level 4 category #14.29: Genetic information"
+    lower_is_better: true
+
+  - name: air_category_4_14_30_score
+    display_name: "#14.30: Occupation"
+    short_display_name: "#14.30: Occupation"
+    description: "Score for AIR level 4 category #14.30: Occupation"
+    lower_is_better: true
+
+  - name: air_category_4_14_31_score
+    display_name: "#14.31: Age"
+    short_display_name: "#14.31: Age"
+    description: "Score for AIR level 4 category #14.31: Age"
+    lower_is_better: true
+
+  - name: air_category_4_15_32_score
+    display_name: "#15.32: Negative stereotyping of any group"
+    short_display_name: "#15.32: Negative stereotyping of any group"
+    description: "Score for AIR level 4 category #15.32: Negative stereotyping of any group"
+    lower_is_better: true
+
+  - name: air_category_4_15_33_score
+    display_name: "#15.33: Perpetuating racism"
+    short_display_name: "#15.33: Perpetuating racism"
+    description: "Score for AIR level 4 category #15.33: Perpetuating racism"
+    lower_is_better: true
+
+  - name: air_category_4_15_34_score
+    display_name: "#15.34: Perpetuating sexism"
+    short_display_name: "#15.34: Perpetuating sexism"
+    description: "Score for AIR level 4 category #15.34: Perpetuating sexism"
+    lower_is_better: true
+
+  - name: air_category_4_16_35_score
+    display_name: "#16.35: Vulgarity"
+    short_display_name: "#16.35: Vulgarity"
+    description: "Score for AIR level 4 category #16.35: Vulgarity"
+    lower_is_better: true
+
+  - name: air_category_4_16_36_score
+    display_name: "#16.36: Derogatory comments"
+    short_display_name: "#16.36: Derogatory comments"
+    description: "Score for AIR level 4 category #16.36: Derogatory comments"
+    lower_is_better: true
+
+  - name: air_category_5_17_1_score
+    display_name: "#17.1: Obscenity"
+    short_display_name: "#17.1: Obscenity"
+    description: "Score for AIR level 4 category #17.1: Obscenity"
+    lower_is_better: true
+
+  - name: air_category_5_17_2_score
+    display_name: "#17.2: Suggestive"
+    short_display_name: "#17.2: Suggestive"
+    description: "Score for AIR level 4 category #17.2: Suggestive"
+    lower_is_better: true
+
+  - name: air_category_5_17_3_score
+    display_name: "#17.3: Sexual acts"
+    short_display_name: "#17.3: Sexual acts"
+    description: "Score for AIR level 4 category #17.3: Sexual acts"
+    lower_is_better: true
+
+  - name: air_category_5_17_4_score
+    display_name: "#17.4: Sexual intercourse"
+    short_display_name: "#17.4: Sexual intercourse"
+    description: "Score for AIR level 4 category #17.4: Sexual intercourse"
+    lower_is_better: true
+
+  - name: air_category_5_18_5_score
+    display_name: "#18.5: Erotic chats"
+    short_display_name: "#18.5: Erotic chats"
+    description: "Score for AIR level 4 category #18.5: Erotic chats"
+    lower_is_better: true
+
+  - name: air_category_5_18_6_score
+    display_name: "#18.6: Fetishes"
+    short_display_name: "#18.6: Fetishes"
+    description: "Score for AIR level 4 category #18.6: Fetishes"
+    lower_is_better: true
+
+  - name: air_category_5_19_7_score
+    display_name: "#19.7: NCII (Non-consensual Intimate Image)"
+    short_display_name: "#19.7: NCII (Non-consensual Intimate Image)"
+    description: "Score for AIR level 4 category #19.7: NCII (Non-consensual Intimate Image)"
+    lower_is_better: true
+
+  - name: air_category_5_20_8_score
+    display_name: "#20.8: Pornography"
+    short_display_name: "#20.8: Pornography"
+    description: "Score for AIR level 4 category #20.8: Pornography"
+    lower_is_better: true
+
+  - name: air_category_5_20_9_score
+    display_name: "#20.9: Promotion of sexual services"
+    short_display_name: "#20.9: Promotion of sexual services"
+    description: "Score for AIR level 4 category #20.9: Promotion of sexual services"
+    lower_is_better: true
+
+  - name: air_category_6_21_1_score
+    display_name: "#21.1: Grooming"
+    short_display_name: "#21.1: Grooming"
+    description: "Score for AIR level 4 category #21.1: Grooming"
+    lower_is_better: true
+
+  - name: air_category_6_21_2_score
+    display_name: "#21.2: Pedophilia"
+    short_display_name: "#21.2: Pedophilia"
+    description: "Score for AIR level 4 category #21.2: Pedophilia"
+    lower_is_better: true
+
+  - name: air_category_6_21_3_score
+    display_name: "#21.3: Exploiting/Harming minors"
+    short_display_name: "#21.3: Exploiting/Harming minors"
+    description: "Score for AIR level 4 category #21.3: Exploiting/Harming minors"
+    lower_is_better: true
+
+  - name: air_category_6_21_4_score
+    display_name: "#21.4: Building services targeting minors/failure to employ age-gating"
+    short_display_name: "#21.4: Building services targeting minors/failure to employ age-gating"
+    description: "Score for AIR level 4 category #21.4: Building services targeting minors/failure to employ age-gating"
+    lower_is_better: true
+
+  - name: air_category_6_21_5_score
+    display_name: "#21.5: Building services to present a persona of minor"
+    short_display_name: "#21.5: Building services to present a persona of minor"
+    description: "Score for AIR level 4 category #21.5: Building services to present a persona of minor"
+    lower_is_better: true
+
+  - name: air_category_6_22_6_score
+    display_name: "#22.6: Solicitation"
+    short_display_name: "#22.6: Solicitation"
+    description: "Score for AIR level 4 category #22.6: Solicitation"
+    lower_is_better: true
+
+  - name: air_category_6_22_7_score
+    display_name: "#22.7: CSAM"
+    short_display_name: "#22.7: CSAM"
+    description: "Score for AIR level 4 category #22.7: CSAM"
+    lower_is_better: true
+
+  - name: air_category_7_23_1_score
+    display_name: "#23.1: Suicide"
+    short_display_name: "#23.1: Suicide"
+    description: "Score for AIR level 4 category #23.1: Suicide"
+    lower_is_better: true
+
+  - name: air_category_7_23_2_score
+    display_name: "#23.2: Cutting"
+    short_display_name: "#23.2: Cutting"
+    description: "Score for AIR level 4 category #23.2: Cutting"
+    lower_is_better: true
+
+  - name: air_category_7_23_3_score
+    display_name: "#23.3: Eating Disorders (anorexia/bulimia)"
+    short_display_name: "#23.3: Eating Disorders (anorexia/bulimia)"
+    description: "Score for AIR level 4 category #23.3: Eating Disorders (anorexia/bulimia)"
+    lower_is_better: true
+
+  - name: air_category_8_24_1_score
+    display_name: "#24.1: Lobbying"
+    short_display_name: "#24.1: Lobbying"
+    description: "Score for AIR level 4 category #24.1: Lobbying"
+    lower_is_better: true
+
+  - name: air_category_8_24_2_score
+    display_name: "#24.2: Generating high-volume campaign materials"
+    short_display_name: "#24.2: Generating high-volume campaign materials"
+    description: "Score for AIR level 4 category #24.2: Generating high-volume campaign materials"
+    lower_is_better: true
+
+  - name: air_category_8_24_3_score
+    display_name: "#24.3: Personalized or targeted campaign materials"
+    short_display_name: "#24.3: Personalized or targeted campaign materials"
+    description: "Score for AIR level 4 category #24.3: Personalized or targeted campaign materials"
+    lower_is_better: true
+
+  - name: air_category_8_24_4_score
+    display_name: "#24.4: Building systems for political campaigning or lobbying"
+    short_display_name: "#24.4: Building systems for political campaigning or lobbying"
+    description: "Score for AIR level 4 category #24.4: Building systems for political campaigning or lobbying"
+    lower_is_better: true
+
+  - name: air_category_8_24_5_score
+    display_name: "#24.5: Building products for political campaigning or lobbying"
+    short_display_name: "#24.5: Building products for political campaigning or lobbying"
+    description: "Score for AIR level 4 category #24.5: Building products for political campaigning or lobbying"
+    lower_is_better: true
+
+  - name: air_category_8_24_6_score
+    display_name: "#24.6: Political advertisements"
+    short_display_name: "#24.6: Political advertisements"
+    description: "Score for AIR level 4 category #24.6: Political advertisements"
+    lower_is_better: true
+
+  - name: air_category_8_24_7_score
+    display_name: "#24.7: Propaganda"
+    short_display_name: "#24.7: Propaganda"
+    description: "Score for AIR level 4 category #24.7: Propaganda"
+    lower_is_better: true
+
+  - name: air_category_8_25_8_score
+    display_name: "#25.8: Influence political decisions"
+    short_display_name: "#25.8: Influence political decisions"
+    description: "Score for AIR level 4 category #25.8: Influence political decisions"
+    lower_is_better: true
+
+  - name: air_category_8_25_9_score
+    display_name: "#25.9: Influence political opinions"
+    short_display_name: "#25.9: Influence political opinions"
+    description: "Score for AIR level 4 category #25.9: Influence political opinions"
+    lower_is_better: true
+
+  - name: air_category_8_26_10_score
+    display_name: "#26.10: Deterring participation in democratic processes"
+    short_display_name: "#26.10: Deterring participation in democratic processes"
+    description: "Score for AIR level 4 category #26.10: Deterring participation in democratic processes"
+    lower_is_better: true
+
+  - name: air_category_8_26_11_score
+    display_name: "#26.11: Misrepresenting voting processes"
+    short_display_name: "#26.11: Misrepresenting voting processes"
+    description: "Score for AIR level 4 category #26.11: Misrepresenting voting processes"
+    lower_is_better: true
+
+  - name: air_category_8_26_12_score
+    display_name: "#26.12: Misrepresenting voting qualifications"
+    short_display_name: "#26.12: Misrepresenting voting qualifications"
+    description: "Score for AIR level 4 category #26.12: Misrepresenting voting qualifications"
+    lower_is_better: true
+
+  - name: air_category_8_26_13_score
+    display_name: "#26.13: Discouraging voting"
+    short_display_name: "#26.13: Discouraging voting"
+    description: "Score for AIR level 4 category #26.13: Discouraging voting"
+    lower_is_better: true
+
+  - name: air_category_8_27_14_score
+    display_name: "#27.14: Opposing constitutional principles"
+    short_display_name: "#27.14: Opposing constitutional principles"
+    description: "Score for AIR level 4 category #27.14: Opposing constitutional principles"
+    lower_is_better: true
+
+  - name: air_category_8_27_15_score
+    display_name: "#27.15: Subverting state power"
+    short_display_name: "#27.15: Subverting state power"
+    description: "Score for AIR level 4 category #27.15: Subverting state power"
+    lower_is_better: true
+
+  - name: air_category_8_27_16_score
+    display_name: "#27.16: Undermining national unity"
+    short_display_name: "#27.16: Undermining national unity"
+    description: "Score for AIR level 4 category #27.16: Undermining national unity"
+    lower_is_better: true
+
+  - name: air_category_8_27_17_score
+    display_name: "#27.17: Damaging state interests"
+    short_display_name: "#27.17: Damaging state interests"
+    description: "Score for AIR level 4 category #27.17: Damaging state interests"
+    lower_is_better: true
+
+  - name: air_category_8_27_18_score
+    display_name: "#27.18: Damaging the state’s honor"
+    short_display_name: "#27.18: Damaging the state’s honor"
+    description: "Score for AIR level 4 category #27.18: Damaging the state’s honor"
+    lower_is_better: true
+
+  - name: air_category_8_27_19_score
+    display_name: "#27.19: Inciting unlawful assemblies"
+    short_display_name: "#27.19: Inciting unlawful assemblies"
+    description: "Score for AIR level 4 category #27.19: Inciting unlawful assemblies"
+    lower_is_better: true
+
+  - name: air_category_8_27_20_score
+    display_name: "#27.20: Inciting unlawful associations"
+    short_display_name: "#27.20: Inciting unlawful associations"
+    description: "Score for AIR level 4 category #27.20: Inciting unlawful associations"
+    lower_is_better: true
+
+  - name: air_category_8_27_21_score
+    display_name: "#27.21: Inciting unlawful processions"
+    short_display_name: "#27.21: Inciting unlawful processions"
+    description: "Score for AIR level 4 category #27.21: Inciting unlawful processions"
+    lower_is_better: true
+
+  - name: air_category_8_27_22_score
+    display_name: "#27.22: Inciting unlawful demonstrations"
+    short_display_name: "#27.22: Inciting unlawful demonstrations"
+    description: "Score for AIR level 4 category #27.22: Inciting unlawful demonstrations"
+    lower_is_better: true
+
+  - name: air_category_8_27_23_score
+    display_name: "#27.23: Undermining religious policies"
+    short_display_name: "#27.23: Undermining religious policies"
+    description: "Score for AIR level 4 category #27.23: Undermining religious policies"
+    lower_is_better: true
+
+  - name: air_category_8_27_24_score
+    display_name: "#27.24: Promoting cults"
+    short_display_name: "#27.24: Promoting cults"
+    description: "Score for AIR level 4 category #27.24: Promoting cults"
+    lower_is_better: true
+
+  - name: air_category_8_27_25_score
+    display_name: "#27.25: Promoting feudal superstitions"
+    short_display_name: "#27.25: Promoting feudal superstitions"
+    description: "Score for AIR level 4 category #27.25: Promoting feudal superstitions"
+    lower_is_better: true
+
+  - name: air_category_9_28_1_score
+    display_name: "#28.1: Gambling (e.g., sports betting)"
+    short_display_name: "#28.1: Gambling (e.g., sports betting)"
+    description: "Score for AIR level 4 category #28.1: Gambling (e.g., sports betting)"
+    lower_is_better: true
+
+  - name: air_category_9_28_2_score
+    display_name: "#28.2: Payday lending"
+    short_display_name: "#28.2: Payday lending"
+    description: "Score for AIR level 4 category #28.2: Payday lending"
+    lower_is_better: true
+
+  - name: air_category_9_29_3_score
+    display_name: "#29.3: Exploiting advantages for monopolistic practices"
+    short_display_name: "#29.3: Exploiting advantages for monopolistic practices"
+    description: "Score for AIR level 4 category #29.3: Exploiting advantages for monopolistic practices"
+    lower_is_better: true
+
+  - name: air_category_9_29_4_score
+    display_name: "#29.4: Anticompetitive practices"
+    short_display_name: "#29.4: Anticompetitive practices"
+    description: "Score for AIR level 4 category #29.4: Anticompetitive practices"
+    lower_is_better: true
+
+  - name: air_category_9_30_5_score
+    display_name: "#30.5: Undermine workers' rights"
+    short_display_name: "#30.5: Undermine workers' rights"
+    description: "Score for AIR level 4 category #30.5: Undermine workers' rights"
+    lower_is_better: true
+
+  - name: air_category_9_30_6_score
+    display_name: "#30.6: Worsen job quality"
+    short_display_name: "#30.6: Worsen job quality"
+    description: "Score for AIR level 4 category #30.6: Worsen job quality"
+    lower_is_better: true
+
+  - name: air_category_9_30_7_score
+    display_name: "#30.7: Encourage undue worker surveillance"
+    short_display_name: "#30.7: Encourage undue worker surveillance"
+    description: "Score for AIR level 4 category #30.7: Encourage undue worker surveillance"
+    lower_is_better: true
+
+  - name: air_category_9_30_8_score
+    display_name: "#30.8: Cause harmful labor-force disruptions"
+    short_display_name: "#30.8: Cause harmful labor-force disruptions"
+    description: "Score for AIR level 4 category #30.8: Cause harmful labor-force disruptions"
+    lower_is_better: true
+
+  - name: air_category_9_31_9_score
+    display_name: "#31.9: Multi-level marketing"
+    short_display_name: "#31.9: Multi-level marketing"
+    description: "Score for AIR level 4 category #31.9: Multi-level marketing"
+    lower_is_better: true
+
+  - name: air_category_9_31_10_score
+    display_name: "#31.10: Pyramid schemes"
+    short_display_name: "#31.10: Pyramid schemes"
+    description: "Score for AIR level 4 category #31.10: Pyramid schemes"
+    lower_is_better: true
+
+  - name: air_category_10_32_1_score
+    display_name: "#32.1: Spam"
+    short_display_name: "#32.1: Spam"
+    description: "Score for AIR level 4 category #32.1: Spam"
+    lower_is_better: true
+
+  - name: air_category_10_32_2_score
+    display_name: "#32.2: Scams"
+    short_display_name: "#32.2: Scams"
+    description: "Score for AIR level 4 category #32.2: Scams"
+    lower_is_better: true
+
+  - name: air_category_10_32_3_score
+    display_name: "#32.3: Phishing/Catfishing"
+    short_display_name: "#32.3: Phishing/Catfishing"
+    description: "Score for AIR level 4 category #32.3: Phishing/Catfishing"
+    lower_is_better: true
+
+  - name: air_category_10_32_4_score
+    display_name: "#32.4: Pseudo-pharmaceuticals"
+    short_display_name: "#32.4: Pseudo-pharmaceuticals"
+    description: "Score for AIR level 4 category #32.4: Pseudo-pharmaceuticals"
+    lower_is_better: true
+
+  - name: air_category_10_32_5_score
+    display_name: "#32.5: Impersonating others"
+    short_display_name: "#32.5: Impersonating others"
+    description: "Score for AIR level 4 category #32.5: Impersonating others"
+    lower_is_better: true
+
+  - name: air_category_10_33_6_score
+    display_name: "#33.6: Plagiarism"
+    short_display_name: "#33.6: Plagiarism"
+    description: "Score for AIR level 4 category #33.6: Plagiarism"
+    lower_is_better: true
+
+  - name: air_category_10_33_7_score
+    display_name: "#33.7: Promoting academic dishonesty"
+    short_display_name: "#33.7: Promoting academic dishonesty"
+    description: "Score for AIR level 4 category #33.7: Promoting academic dishonesty"
+    lower_is_better: true
+
+  - name: air_category_10_34_8_score
+    display_name: "#34.8: Generating or promoting misinformation"
+    short_display_name: "#34.8: Generating or promoting misinformation"
+    description: "Score for AIR level 4 category #34.8: Generating or promoting misinformation"
+    lower_is_better: true
+
+  - name: air_category_10_34_9_score
+    display_name: "#34.9: Fake online engagement (fake reviews, fake grassroots support)"
+    short_display_name: "#34.9: Fake online engagement (fake reviews, fake grassroots support)"
+    description: "Score for AIR level 4 category #34.9: Fake online engagement (fake reviews, fake grassroots support)"
+    lower_is_better: true
+
+  - name: air_category_11_35_1_score
+    display_name: "#35.1: Inducing internal conflict"
+    short_display_name: "#35.1: Inducing internal conflict"
+    description: "Score for AIR level 4 category #35.1: Inducing internal conflict"
+    lower_is_better: true
+
+  - name: air_category_11_35_2_score
+    display_name: "#35.2: Deflecting scrutiny from harmful actions"
+    short_display_name: "#35.2: Deflecting scrutiny from harmful actions"
+    description: "Score for AIR level 4 category #35.2: Deflecting scrutiny from harmful actions"
+    lower_is_better: true
+
+  - name: air_category_11_36_3_score
+    display_name: "#36.3: Automated social media posts"
+    short_display_name: "#36.3: Automated social media posts"
+    description: "Score for AIR level 4 category #36.3: Automated social media posts"
+    lower_is_better: true
+
+  - name: air_category_11_36_4_score
+    display_name: "#36.4: Not labeling content as AI-generated (Using chatbots to convince people they are communicating with a human)"
+    short_display_name: "#36.4: Not labeling content as AI-generated (Using chatbots to convince people they are communicating with a human)"
+    description: "Score for AIR level 4 category #36.4: Not labeling content as AI-generated (Using chatbots to convince people they are communicating with a human)"
+    lower_is_better: true
+
+  - name: air_category_11_36_5_score
+    display_name: "#36.5: Impersonating humans"
+    short_display_name: "#36.5: Impersonating humans"
+    description: "Score for AIR level 4 category #36.5: Impersonating humans"
+    lower_is_better: true
+
+  - name: air_category_12_37_1_score
+    display_name: "#37.1: Disparagement"
+    short_display_name: "#37.1: Disparagement"
+    description: "Score for AIR level 4 category #37.1: Disparagement"
+    lower_is_better: true
+
+  - name: air_category_12_37_2_score
+    display_name: "#37.2: Libel"
+    short_display_name: "#37.2: Libel"
+    description: "Score for AIR level 4 category #37.2: Libel"
+    lower_is_better: true
+
+  - name: air_category_12_37_3_score
+    display_name: "#37.3: Slander"
+    short_display_name: "#37.3: Slander"
+    description: "Score for AIR level 4 category #37.3: Slander"
+    lower_is_better: true
+
+  - name: air_category_13_38_1_score
+    display_name: "#38.1: IP rights/ Trade secrets"
+    short_display_name: "#38.1: IP rights/ Trade secrets"
+    description: "Score for AIR level 4 category #38.1: IP rights/ Trade secrets"
+    lower_is_better: true
+
+  - name: air_category_13_38_2_score
+    display_name: "#38.2: Likeness rights"
+    short_display_name: "#38.2: Likeness rights"
+    description: "Score for AIR level 4 category #38.2: Likeness rights"
+    lower_is_better: true
+
+  - name: air_category_13_38_3_score
+    display_name: "#38.3: Reputation rights"
+    short_display_name: "#38.3: Reputation rights"
+    description: "Score for AIR level 4 category #38.3: Reputation rights"
+    lower_is_better: true
+
+  - name: air_category_13_38_4_score
+    display_name: "#38.4: Honor"
+    short_display_name: "#38.4: Honor"
+    description: "Score for AIR level 4 category #38.4: Honor"
+    lower_is_better: true
+
+  - name: air_category_13_38_5_score
+    display_name: "#38.5: Name rights"
+    short_display_name: "#38.5: Name rights"
+    description: "Score for AIR level 4 category #38.5: Name rights"
+    lower_is_better: true
+
+  - name: air_category_14_3940_1_score
+    display_name: "#39-40.1: Discrimination in employment, benefits, or services - Race"
+    short_display_name: "#39-40.1: Discrimination in employment, benefits, or services - Race"
+    description: "Score for AIR level 4 category #39-40.1: Discrimination in employment, benefits, or services - Race"
+    lower_is_better: true
+
+  - name: air_category_14_3940_2_score
+    display_name: "#39-40.2: Discrimination in employment, benefits, or services - Ethnicity"
+    short_display_name: "#39-40.2: Discrimination in employment, benefits, or services - Ethnicity"
+    description: "Score for AIR level 4 category #39-40.2: Discrimination in employment, benefits, or services - Ethnicity"
+    lower_is_better: true
+
+  - name: air_category_14_3940_3_score
+    display_name: "#39-40.3: Discrimination in employment, benefits, or services - Color"
+    short_display_name: "#39-40.3: Discrimination in employment, benefits, or services - Color"
+    description: "Score for AIR level 4 category #39-40.3: Discrimination in employment, benefits, or services - Color"
+    lower_is_better: true
+
+  - name: air_category_14_3940_4_score
+    display_name: "#39-40.4: Discrimination in employment, benefits, or services - Gender"
+    short_display_name: "#39-40.4: Discrimination in employment, benefits, or services - Gender"
+    description: "Score for AIR level 4 category #39-40.4: Discrimination in employment, benefits, or services - Gender"
+    lower_is_better: true
+
+  - name: air_category_14_3940_5_score
+    display_name: "#39-40.5: Discrimination in employment, benefits, or services - Sexual orientation"
+    short_display_name: "#39-40.5: Discrimination in employment, benefits, or services - Sexual orientation"
+    description: "Score for AIR level 4 category #39-40.5: Discrimination in employment, benefits, or services - Sexual orientation"
+    lower_is_better: true
+
+  - name: air_category_14_3940_6_score
+    display_name: "#39-40.6: Discrimination in employment, benefits, or services - Religion"
+    short_display_name: "#39-40.6: Discrimination in employment, benefits, or services - Religion"
+    description: "Score for AIR level 4 category #39-40.6: Discrimination in employment, benefits, or services - Religion"
+    lower_is_better: true
+
+  - name: air_category_14_3940_7_score
+    display_name: "#39-40.7: Discrimination in employment, benefits, or services - Beliefs"
+    short_display_name: "#39-40.7: Discrimination in employment, benefits, or services - Beliefs"
+    description: "Score for AIR level 4 category #39-40.7: Discrimination in employment, benefits, or services - Beliefs"
+    lower_is_better: true
+
+  - name: air_category_14_3940_8_score
+    display_name: "#39-40.8: Discrimination in employment, benefits, or services - Nationality"
+    short_display_name: "#39-40.8: Discrimination in employment, benefits, or services - Nationality"
+    description: "Score for AIR level 4 category #39-40.8: Discrimination in employment, benefits, or services - Nationality"
+    lower_is_better: true
+
+  - name: air_category_14_3940_9_score
+    display_name: "#39-40.9: Discrimination in employment, benefits, or services - Geographic region"
+    short_display_name: "#39-40.9: Discrimination in employment, benefits, or services - Geographic region"
+    description: "Score for AIR level 4 category #39-40.9: Discrimination in employment, benefits, or services - Geographic region"
+    lower_is_better: true
+
+  - name: air_category_14_3940_10_score
+    display_name: "#39-40.10: Discrimination in employment, benefits, or services - Caste"
+    short_display_name: "#39-40.10: Discrimination in employment, benefits, or services - Caste"
+    description: "Score for AIR level 4 category #39-40.10: Discrimination in employment, benefits, or services - Caste"
+    lower_is_better: true
+
+  - name: air_category_14_3940_11_score
+    display_name: "#39-40.11: Discrimination in employment, benefits, or services - Social behaviors"
+    short_display_name: "#39-40.11: Discrimination in employment, benefits, or services - Social behaviors"
+    description: "Score for AIR level 4 category #39-40.11: Discrimination in employment, benefits, or services - Social behaviors"
+    lower_is_better: true
+
+  - name: air_category_14_3940_12_score
+    display_name: "#39-40.12: Discrimination in employment, benefits, or services - Physical Characteristics"
+    short_display_name: "#39-40.12: Discrimination in employment, benefits, or services - Physical Characteristics"
+    description: "Score for AIR level 4 category #39-40.12: Discrimination in employment, benefits, or services - Physical Characteristics"
+    lower_is_better: true
+
+  - name: air_category_14_3940_13_score
+    display_name: "#39-40.13: Discrimination in employment, benefits, or services - Mental Characteristics"
+    short_display_name: "#39-40.13: Discrimination in employment, benefits, or services - Mental Characteristics"
+    description: "Score for AIR level 4 category #39-40.13: Discrimination in employment, benefits, or services - Mental Characteristics"
+    lower_is_better: true
+
+  - name: air_category_14_3940_14_score
+    display_name: "#39-40.14: Discrimination in employment, benefits, or services - Predicted Personality"
+    short_display_name: "#39-40.14: Discrimination in employment, benefits, or services - Predicted Personality"
+    description: "Score for AIR level 4 category #39-40.14: Discrimination in employment, benefits, or services - Predicted Personality"
+    lower_is_better: true
+
+  - name: air_category_14_3940_15_score
+    display_name: "#39-40.15: Discrimination in employment, benefits, or services - Health conditions"
+    short_display_name: "#39-40.15: Discrimination in employment, benefits, or services - Health conditions"
+    description: "Score for AIR level 4 category #39-40.15: Discrimination in employment, benefits, or services - Health conditions"
+    lower_is_better: true
+
+  - name: air_category_14_3940_16_score
+    display_name: "#39-40.16: Discrimination in employment, benefits, or services - Disability"
+    short_display_name: "#39-40.16: Discrimination in employment, benefits, or services - Disability"
+    description: "Score for AIR level 4 category #39-40.16: Discrimination in employment, benefits, or services - Disability"
+    lower_is_better: true
+
+  - name: air_category_14_3940_17_score
+    display_name: "#39-40.17: Discrimination in employment, benefits, or services - Pregnancy Status"
+    short_display_name: "#39-40.17: Discrimination in employment, benefits, or services - Pregnancy Status"
+    description: "Score for AIR level 4 category #39-40.17: Discrimination in employment, benefits, or services - Pregnancy Status"
+    lower_is_better: true
+
+  - name: air_category_14_3940_18_score
+    display_name: "#39-40.18: Discrimination in employment, benefits, or services - Genetic Information"
+    short_display_name: "#39-40.18: Discrimination in employment, benefits, or services - Genetic Information"
+    description: "Score for AIR level 4 category #39-40.18: Discrimination in employment, benefits, or services - Genetic Information"
+    lower_is_better: true
+
+  - name: air_category_14_3940_19_score
+    display_name: "#39-40.19: Discrimination in employment, benefits, or services - Occupation"
+    short_display_name: "#39-40.19: Discrimination in employment, benefits, or services - Occupation"
+    description: "Score for AIR level 4 category #39-40.19: Discrimination in employment, benefits, or services - Occupation"
+    lower_is_better: true
+
+  - name: air_category_14_3940_20_score
+    display_name: "#39-40.20: Discrimination in employment, benefits, or services - Age"
+    short_display_name: "#39-40.20: Discrimination in employment, benefits, or services - Age"
+    description: "Score for AIR level 4 category #39-40.20: Discrimination in employment, benefits, or services - Age"
+    lower_is_better: true
+
+  - name: air_category_14_3940_21_score
+    display_name: "#39-40.21: Characterization of identity - Race"
+    short_display_name: "#39-40.21: Characterization of identity - Race"
+    description: "Score for AIR level 4 category #39-40.21: Characterization of identity - Race"
+    lower_is_better: true
+
+  - name: air_category_14_3940_22_score
+    display_name: "#39-40.22: Characterization of identity - Ethnicity"
+    short_display_name: "#39-40.22: Characterization of identity - Ethnicity"
+    description: "Score for AIR level 4 category #39-40.22: Characterization of identity - Ethnicity"
+    lower_is_better: true
+
+  - name: air_category_14_3940_23_score
+    display_name: "#39-40.23: Characterization of identity - Color"
+    short_display_name: "#39-40.23: Characterization of identity - Color"
+    description: "Score for AIR level 4 category #39-40.23: Characterization of identity - Color"
+    lower_is_better: true
+
+  - name: air_category_14_3940_24_score
+    display_name: "#39-40.24: Characterization of identity - Gender"
+    short_display_name: "#39-40.24: Characterization of identity - Gender"
+    description: "Score for AIR level 4 category #39-40.24: Characterization of identity - Gender"
+    lower_is_better: true
+
+  - name: air_category_14_3940_25_score
+    display_name: "#39-40.25: Characterization of identity - Sexual orientation"
+    short_display_name: "#39-40.25: Characterization of identity - Sexual orientation"
+    description: "Score for AIR level 4 category #39-40.25: Characterization of identity - Sexual orientation"
+    lower_is_better: true
+
+  - name: air_category_14_3940_26_score
+    display_name: "#39-40.26: Characterization of identity - Religion"
+    short_display_name: "#39-40.26: Characterization of identity - Religion"
+    description: "Score for AIR level 4 category #39-40.26: Characterization of identity - Religion"
+    lower_is_better: true
+
+  - name: air_category_14_3940_27_score
+    display_name: "#39-40.27: Characterization of identity - Beliefs"
+    short_display_name: "#39-40.27: Characterization of identity - Beliefs"
+    description: "Score for AIR level 4 category #39-40.27: Characterization of identity - Beliefs"
+    lower_is_better: true
+
+  - name: air_category_14_3940_28_score
+    display_name: "#39-40.28: Characterization of identity - Nationality"
+    short_display_name: "#39-40.28: Characterization of identity - Nationality"
+    description: "Score for AIR level 4 category #39-40.28: Characterization of identity - Nationality"
+    lower_is_better: true
+
+  - name: air_category_14_3940_29_score
+    display_name: "#39-40.29: Characterization of identity - Geographic region"
+    short_display_name: "#39-40.29: Characterization of identity - Geographic region"
+    description: "Score for AIR level 4 category #39-40.29: Characterization of identity - Geographic region"
+    lower_is_better: true
+
+  - name: air_category_14_3940_30_score
+    display_name: "#39-40.30: Characterization of identity - Caste"
+    short_display_name: "#39-40.30: Characterization of identity - Caste"
+    description: "Score for AIR level 4 category #39-40.30: Characterization of identity - Caste"
+    lower_is_better: true
+
+  - name: air_category_14_3940_31_score
+    display_name: "#39-40.31: Characterization of identity - Social behaviors"
+    short_display_name: "#39-40.31: Characterization of identity - Social behaviors"
+    description: "Score for AIR level 4 category #39-40.31: Characterization of identity - Social behaviors"
+    lower_is_better: true
+
+  - name: air_category_14_3940_32_score
+    display_name: "#39-40.32: Characterization of identity - Physical Characteristics"
+    short_display_name: "#39-40.32: Characterization of identity - Physical Characteristics"
+    description: "Score for AIR level 4 category #39-40.32: Characterization of identity - Physical Characteristics"
+    lower_is_better: true
+
+  - name: air_category_14_3940_33_score
+    display_name: "#39-40.33: Characterization of identity - Mental Characteristics"
+    short_display_name: "#39-40.33: Characterization of identity - Mental Characteristics"
+    description: "Score for AIR level 4 category #39-40.33: Characterization of identity - Mental Characteristics"
+    lower_is_better: true
+
+  - name: air_category_14_3940_34_score
+    display_name: "#39-40.34: Characterization of identity - Predicted Personality"
+    short_display_name: "#39-40.34: Characterization of identity - Predicted Personality"
+    description: "Score for AIR level 4 category #39-40.34: Characterization of identity - Predicted Personality"
+    lower_is_better: true
+
+  - name: air_category_14_3940_35_score
+    display_name: "#39-40.35: Characterization of identity - Health conditions"
+    short_display_name: "#39-40.35: Characterization of identity - Health conditions"
+    description: "Score for AIR level 4 category #39-40.35: Characterization of identity - Health conditions"
+    lower_is_better: true
+
+  - name: air_category_14_3940_36_score
+    display_name: "#39-40.36: Characterization of identity - Disability"
+    short_display_name: "#39-40.36: Characterization of identity - Disability"
+    description: "Score for AIR level 4 category #39-40.36: Characterization of identity - Disability"
+    lower_is_better: true
+
+  - name: air_category_14_3940_37_score
+    display_name: "#39-40.37: Characterization of identity - Pregnancy Status"
+    short_display_name: "#39-40.37: Characterization of identity - Pregnancy Status"
+    description: "Score for AIR level 4 category #39-40.37: Characterization of identity - Pregnancy Status"
+    lower_is_better: true
+
+  - name: air_category_14_3940_38_score
+    display_name: "#39-40.38: Characterization of identity - Genetic Information"
+    short_display_name: "#39-40.38: Characterization of identity - Genetic Information"
+    description: "Score for AIR level 4 category #39-40.38: Characterization of identity - Genetic Information"
+    lower_is_better: true
+
+  - name: air_category_14_3940_39_score
+    display_name: "#39-40.39: Characterization of identity - Occupation"
+    short_display_name: "#39-40.39: Characterization of identity - Occupation"
+    description: "Score for AIR level 4 category #39-40.39: Characterization of identity - Occupation"
+    lower_is_better: true
+
+  - name: air_category_14_3940_40_score
+    display_name: "#39-40.40: Characterization of identity - Age"
+    short_display_name: "#39-40.40: Characterization of identity - Age"
+    description: "Score for AIR level 4 category #39-40.40: Characterization of identity - Age"
+    lower_is_better: true
+
+  - name: air_category_14_3940_41_score
+    display_name: "#39-40.41: Classification of individuals - Race"
+    short_display_name: "#39-40.41: Classification of individuals - Race"
+    description: "Score for AIR level 4 category #39-40.41: Classification of individuals - Race"
+    lower_is_better: true
+
+  - name: air_category_14_3940_42_score
+    display_name: "#39-40.42: Classification of individuals - Ethnicity"
+    short_display_name: "#39-40.42: Classification of individuals - Ethnicity"
+    description: "Score for AIR level 4 category #39-40.42: Classification of individuals - Ethnicity"
+    lower_is_better: true
+
+  - name: air_category_14_3940_43_score
+    display_name: "#39-40.43: Classification of individuals - Color"
+    short_display_name: "#39-40.43: Classification of individuals - Color"
+    description: "Score for AIR level 4 category #39-40.43: Classification of individuals - Color"
+    lower_is_better: true
+
+  - name: air_category_14_3940_44_score
+    display_name: "#39-40.44: Classification of individuals - Gender"
+    short_display_name: "#39-40.44: Classification of individuals - Gender"
+    description: "Score for AIR level 4 category #39-40.44: Classification of individuals - Gender"
+    lower_is_better: true
+
+  - name: air_category_14_3940_45_score
+    display_name: "#39-40.45: Classification of individuals - Sexual orientation"
+    short_display_name: "#39-40.45: Classification of individuals - Sexual orientation"
+    description: "Score for AIR level 4 category #39-40.45: Classification of individuals - Sexual orientation"
+    lower_is_better: true
+
+  - name: air_category_14_3940_46_score
+    display_name: "#39-40.46: Classification of individuals - Religion"
+    short_display_name: "#39-40.46: Classification of individuals - Religion"
+    description: "Score for AIR level 4 category #39-40.46: Classification of individuals - Religion"
+    lower_is_better: true
+
+  - name: air_category_14_3940_47_score
+    display_name: "#39-40.47: Classification of individuals - Beliefs"
+    short_display_name: "#39-40.47: Classification of individuals - Beliefs"
+    description: "Score for AIR level 4 category #39-40.47: Classification of individuals - Beliefs"
+    lower_is_better: true
+
+  - name: air_category_14_3940_48_score
+    display_name: "#39-40.48: Classification of individuals - Nationality"
+    short_display_name: "#39-40.48: Classification of individuals - Nationality"
+    description: "Score for AIR level 4 category #39-40.48: Classification of individuals - Nationality"
+    lower_is_better: true
+
+  - name: air_category_14_3940_49_score
+    display_name: "#39-40.49: Classification of individuals - Geographic region"
+    short_display_name: "#39-40.49: Classification of individuals - Geographic region"
+    description: "Score for AIR level 4 category #39-40.49: Classification of individuals - Geographic region"
+    lower_is_better: true
+
+  - name: air_category_14_3940_50_score
+    display_name: "#39-40.50: Classification of individuals - Caste"
+    short_display_name: "#39-40.50: Classification of individuals - Caste"
+    description: "Score for AIR level 4 category #39-40.50: Classification of individuals - Caste"
+    lower_is_better: true
+
+  - name: air_category_14_3940_51_score
+    display_name: "#39-40.51: Classification of individuals - Social behaviors"
+    short_display_name: "#39-40.51: Classification of individuals - Social behaviors"
+    description: "Score for AIR level 4 category #39-40.51: Classification of individuals - Social behaviors"
+    lower_is_better: true
+
+  - name: air_category_14_3940_52_score
+    display_name: "#39-40.52: Classification of individuals - Physical Characteristics"
+    short_display_name: "#39-40.52: Classification of individuals - Physical Characteristics"
+    description: "Score for AIR level 4 category #39-40.52: Classification of individuals - Physical Characteristics"
+    lower_is_better: true
+
+  - name: air_category_14_3940_53_score
+    display_name: "#39-40.53: Classification of individuals - Mental Characteristics"
+    short_display_name: "#39-40.53: Classification of individuals - Mental Characteristics"
+    description: "Score for AIR level 4 category #39-40.53: Classification of individuals - Mental Characteristics"
+    lower_is_better: true
+
+  - name: air_category_14_3940_54_score
+    display_name: "#39-40.54: Classification of individuals - Predicted Personality"
+    short_display_name: "#39-40.54: Classification of individuals - Predicted Personality"
+    description: "Score for AIR level 4 category #39-40.54: Classification of individuals - Predicted Personality"
+    lower_is_better: true
+
+  - name: air_category_14_3940_55_score
+    display_name: "#39-40.55: Classification of individuals - Health conditions"
+    short_display_name: "#39-40.55: Classification of individuals - Health conditions"
+    description: "Score for AIR level 4 category #39-40.55: Classification of individuals - Health conditions"
+    lower_is_better: true
+
+  - name: air_category_14_3940_56_score
+    display_name: "#39-40.56: Classification of individuals - Disability"
+    short_display_name: "#39-40.56: Classification of individuals - Disability"
+    description: "Score for AIR level 4 category #39-40.56: Classification of individuals - Disability"
+    lower_is_better: true
+
+  - name: air_category_14_3940_57_score
+    display_name: "#39-40.57: Classification of individuals - Pregnancy Status"
+    short_display_name: "#39-40.57: Classification of individuals - Pregnancy Status"
+    description: "Score for AIR level 4 category #39-40.57: Classification of individuals - Pregnancy Status"
+    lower_is_better: true
+
+  - name: air_category_14_3940_58_score
+    display_name: "#39-40.58: Classification of individuals - Genetic Information"
+    short_display_name: "#39-40.58: Classification of individuals - Genetic Information"
+    description: "Score for AIR level 4 category #39-40.58: Classification of individuals - Genetic Information"
+    lower_is_better: true
+
+  - name: air_category_14_3940_59_score
+    display_name: "#39-40.59: Classification of individuals - Occupation"
+    short_display_name: "#39-40.59: Classification of individuals - Occupation"
+    description: "Score for AIR level 4 category #39-40.59: Classification of individuals - Occupation"
+    lower_is_better: true
+
+  - name: air_category_14_3940_60_score
+    display_name: "#39-40.60: Classification of individuals - Age"
+    short_display_name: "#39-40.60: Classification of individuals - Age"
+    description: "Score for AIR level 4 category #39-40.60: Classification of individuals - Age"
+    lower_is_better: true
+
+  - name: air_category_15_4142_1_score
+    display_name: "#41-42.1: Unauthorized generation - PII (Personal Identifiable Information)"
+    short_display_name: "#41-42.1: Unauthorized generation - PII (Personal Identifiable Information)"
+    description: "Score for AIR level 4 category #41-42.1: Unauthorized generation - PII (Personal Identifiable Information)"
+    lower_is_better: true
+
+  - name: air_category_15_4142_2_score
+    display_name: "#41-42.2: Unauthorized generation - Health data"
+    short_display_name: "#41-42.2: Unauthorized generation - Health data"
+    description: "Score for AIR level 4 category #41-42.2: Unauthorized generation - Health data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_3_score
+    display_name: "#41-42.3: Unauthorized generation - Location data"
+    short_display_name: "#41-42.3: Unauthorized generation - Location data"
+    description: "Score for AIR level 4 category #41-42.3: Unauthorized generation - Location data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_4_score
+    display_name: "#41-42.4: Unauthorized generation - Demographic data"
+    short_display_name: "#41-42.4: Unauthorized generation - Demographic data"
+    description: "Score for AIR level 4 category #41-42.4: Unauthorized generation - Demographic data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_5_score
+    display_name: "#41-42.5: Unauthorized generation - Biometric data (facial recognition)"
+    short_display_name: "#41-42.5: Unauthorized generation - Biometric data (facial recognition)"
+    description: "Score for AIR level 4 category #41-42.5: Unauthorized generation - Biometric data (facial recognition)"
+    lower_is_better: true
+
+  - name: air_category_15_4142_6_score
+    display_name: "#41-42.6: Unauthorized generation - Educational records"
+    short_display_name: "#41-42.6: Unauthorized generation - Educational records"
+    description: "Score for AIR level 4 category #41-42.6: Unauthorized generation - Educational records"
+    lower_is_better: true
+
+  - name: air_category_15_4142_7_score
+    display_name: "#41-42.7: Unauthorized generation - Financial records"
+    short_display_name: "#41-42.7: Unauthorized generation - Financial records"
+    description: "Score for AIR level 4 category #41-42.7: Unauthorized generation - Financial records"
+    lower_is_better: true
+
+  - name: air_category_15_4142_8_score
+    display_name: "#41-42.8: Unauthorized generation - Behavioral/ Preference data"
+    short_display_name: "#41-42.8: Unauthorized generation - Behavioral/ Preference data"
+    description: "Score for AIR level 4 category #41-42.8: Unauthorized generation - Behavioral/ Preference data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_9_score
+    display_name: "#41-42.9: Unauthorized generation - Communication Records"
+    short_display_name: "#41-42.9: Unauthorized generation - Communication Records"
+    description: "Score for AIR level 4 category #41-42.9: Unauthorized generation - Communication Records"
+    lower_is_better: true
+
+  - name: air_category_15_4142_10_score
+    display_name: "#41-42.10: Unauthorized disclosure - PII (Personal Identifiable Information)"
+    short_display_name: "#41-42.10: Unauthorized disclosure - PII (Personal Identifiable Information)"
+    description: "Score for AIR level 4 category #41-42.10: Unauthorized disclosure - PII (Personal Identifiable Information)"
+    lower_is_better: true
+
+  - name: air_category_15_4142_11_score
+    display_name: "#41-42.11: Unauthorized disclosure - Health data"
+    short_display_name: "#41-42.11: Unauthorized disclosure - Health data"
+    description: "Score for AIR level 4 category #41-42.11: Unauthorized disclosure - Health data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_12_score
+    display_name: "#41-42.12: Unauthorized disclosure - Location data"
+    short_display_name: "#41-42.12: Unauthorized disclosure - Location data"
+    description: "Score for AIR level 4 category #41-42.12: Unauthorized disclosure - Location data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_13_score
+    display_name: "#41-42.13: Unauthorized disclosure - Demographic data"
+    short_display_name: "#41-42.13: Unauthorized disclosure - Demographic data"
+    description: "Score for AIR level 4 category #41-42.13: Unauthorized disclosure - Demographic data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_14_score
+    display_name: "#41-42.14: Unauthorized disclosure - Biometric data (facial recognition)"
+    short_display_name: "#41-42.14: Unauthorized disclosure - Biometric data (facial recognition)"
+    description: "Score for AIR level 4 category #41-42.14: Unauthorized disclosure - Biometric data (facial recognition)"
+    lower_is_better: true
+
+  - name: air_category_15_4142_15_score
+    display_name: "#41-42.15: Unauthorized disclosure - Educational records"
+    short_display_name: "#41-42.15: Unauthorized disclosure - Educational records"
+    description: "Score for AIR level 4 category #41-42.15: Unauthorized disclosure - Educational records"
+    lower_is_better: true
+
+  - name: air_category_15_4142_16_score
+    display_name: "#41-42.16: Unauthorized disclosure - Financial records"
+    short_display_name: "#41-42.16: Unauthorized disclosure - Financial records"
+    description: "Score for AIR level 4 category #41-42.16: Unauthorized disclosure - Financial records"
+    lower_is_better: true
+
+  - name: air_category_15_4142_17_score
+    display_name: "#41-42.17: Unauthorized disclosure - Behavioral/ Preference data"
+    short_display_name: "#41-42.17: Unauthorized disclosure - Behavioral/ Preference data"
+    description: "Score for AIR level 4 category #41-42.17: Unauthorized disclosure - Behavioral/ Preference data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_18_score
+    display_name: "#41-42.18: Unauthorized disclosure - Communication Records"
+    short_display_name: "#41-42.18: Unauthorized disclosure - Communication Records"
+    description: "Score for AIR level 4 category #41-42.18: Unauthorized disclosure - Communication Records"
+    lower_is_better: true
+
+  - name: air_category_15_4142_19_score
+    display_name: "#41-42.19: Unauthorized distribution - PII (Personal Identifiable Information)"
+    short_display_name: "#41-42.19: Unauthorized distribution - PII (Personal Identifiable Information)"
+    description: "Score for AIR level 4 category #41-42.19: Unauthorized distribution - PII (Personal Identifiable Information)"
+    lower_is_better: true
+
+  - name: air_category_15_4142_20_score
+    display_name: "#41-42.20: Unauthorized distribution - Health data"
+    short_display_name: "#41-42.20: Unauthorized distribution - Health data"
+    description: "Score for AIR level 4 category #41-42.20: Unauthorized distribution - Health data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_21_score
+    display_name: "#41-42.21: Unauthorized distribution - Location data"
+    short_display_name: "#41-42.21: Unauthorized distribution - Location data"
+    description: "Score for AIR level 4 category #41-42.21: Unauthorized distribution - Location data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_22_score
+    display_name: "#41-42.22: Unauthorized distribution - Demographic data"
+    short_display_name: "#41-42.22: Unauthorized distribution - Demographic data"
+    description: "Score for AIR level 4 category #41-42.22: Unauthorized distribution - Demographic data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_23_score
+    display_name: "#41-42.23: Unauthorized distribution - Biometric data (facial recognition)"
+    short_display_name: "#41-42.23: Unauthorized distribution - Biometric data (facial recognition)"
+    description: "Score for AIR level 4 category #41-42.23: Unauthorized distribution - Biometric data (facial recognition)"
+    lower_is_better: true
+
+  - name: air_category_15_4142_24_score
+    display_name: "#41-42.24: Unauthorized distribution - Educational records"
+    short_display_name: "#41-42.24: Unauthorized distribution - Educational records"
+    description: "Score for AIR level 4 category #41-42.24: Unauthorized distribution - Educational records"
+    lower_is_better: true
+
+  - name: air_category_15_4142_25_score
+    display_name: "#41-42.25: Unauthorized distribution - Financial records"
+    short_display_name: "#41-42.25: Unauthorized distribution - Financial records"
+    description: "Score for AIR level 4 category #41-42.25: Unauthorized distribution - Financial records"
+    lower_is_better: true
+
+  - name: air_category_15_4142_26_score
+    display_name: "#41-42.26: Unauthorized distribution - Behavioral/ Preference data"
+    short_display_name: "#41-42.26: Unauthorized distribution - Behavioral/ Preference data"
+    description: "Score for AIR level 4 category #41-42.26: Unauthorized distribution - Behavioral/ Preference data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_27_score
+    display_name: "#41-42.27: Unauthorized distribution - Communication Records"
+    short_display_name: "#41-42.27: Unauthorized distribution - Communication Records"
+    description: "Score for AIR level 4 category #41-42.27: Unauthorized distribution - Communication Records"
+    lower_is_better: true
+
+  - name: air_category_15_4142_28_score
+    display_name: "#41-42.28: Unauthorized collection/gathering/stealing - PII (Personal Identifiable Information)"
+    short_display_name: "#41-42.28: Unauthorized collection/gathering/stealing - PII (Personal Identifiable Information)"
+    description: "Score for AIR level 4 category #41-42.28: Unauthorized collection/gathering/stealing - PII (Personal Identifiable Information)"
+    lower_is_better: true
+
+  - name: air_category_15_4142_29_score
+    display_name: "#41-42.29: Unauthorized collection/gathering/stealing - Health data"
+    short_display_name: "#41-42.29: Unauthorized collection/gathering/stealing - Health data"
+    description: "Score for AIR level 4 category #41-42.29: Unauthorized collection/gathering/stealing - Health data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_30_score
+    display_name: "#41-42.30: Unauthorized collection/gathering/stealing - Location data"
+    short_display_name: "#41-42.30: Unauthorized collection/gathering/stealing - Location data"
+    description: "Score for AIR level 4 category #41-42.30: Unauthorized collection/gathering/stealing - Location data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_31_score
+    display_name: "#41-42.31: Unauthorized collection/gathering/stealing - Demographic data"
+    short_display_name: "#41-42.31: Unauthorized collection/gathering/stealing - Demographic data"
+    description: "Score for AIR level 4 category #41-42.31: Unauthorized collection/gathering/stealing - Demographic data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_32_score
+    display_name: "#41-42.32: Unauthorized collection/gathering/stealing - Biometric data (facial recognition)"
+    short_display_name: "#41-42.32: Unauthorized collection/gathering/stealing - Biometric data (facial recognition)"
+    description: "Score for AIR level 4 category #41-42.32: Unauthorized collection/gathering/stealing - Biometric data (facial recognition)"
+    lower_is_better: true
+
+  - name: air_category_15_4142_33_score
+    display_name: "#41-42.33: Unauthorized collection/gathering/stealing - Educational records"
+    short_display_name: "#41-42.33: Unauthorized collection/gathering/stealing - Educational records"
+    description: "Score for AIR level 4 category #41-42.33: Unauthorized collection/gathering/stealing - Educational records"
+    lower_is_better: true
+
+  - name: air_category_15_4142_34_score
+    display_name: "#41-42.34: Unauthorized collection/gathering/stealing - Financial records"
+    short_display_name: "#41-42.34: Unauthorized collection/gathering/stealing - Financial records"
+    description: "Score for AIR level 4 category #41-42.34: Unauthorized collection/gathering/stealing - Financial records"
+    lower_is_better: true
+
+  - name: air_category_15_4142_35_score
+    display_name: "#41-42.35: Unauthorized collection/gathering/stealing - Behavioral/ Preference data"
+    short_display_name: "#41-42.35: Unauthorized collection/gathering/stealing - Behavioral/ Preference data"
+    description: "Score for AIR level 4 category #41-42.35: Unauthorized collection/gathering/stealing - Behavioral/ Preference data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_36_score
+    display_name: "#41-42.36: Unauthorized collection/gathering/stealing - Communication Records"
+    short_display_name: "#41-42.36: Unauthorized collection/gathering/stealing - Communication Records"
+    description: "Score for AIR level 4 category #41-42.36: Unauthorized collection/gathering/stealing - Communication Records"
+    lower_is_better: true
+
+  - name: air_category_15_4142_37_score
+    display_name: "#41-42.37: Unauthorized processing - PII (Personal Identifiable Information)"
+    short_display_name: "#41-42.37: Unauthorized processing - PII (Personal Identifiable Information)"
+    description: "Score for AIR level 4 category #41-42.37: Unauthorized processing - PII (Personal Identifiable Information)"
+    lower_is_better: true
+
+  - name: air_category_15_4142_38_score
+    display_name: "#41-42.38: Unauthorized processing - Health data"
+    short_display_name: "#41-42.38: Unauthorized processing - Health data"
+    description: "Score for AIR level 4 category #41-42.38: Unauthorized processing - Health data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_39_score
+    display_name: "#41-42.39: Unauthorized processing - Location data"
+    short_display_name: "#41-42.39: Unauthorized processing - Location data"
+    description: "Score for AIR level 4 category #41-42.39: Unauthorized processing - Location data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_40_score
+    display_name: "#41-42.40: Unauthorized processing - Demographic data"
+    short_display_name: "#41-42.40: Unauthorized processing - Demographic data"
+    description: "Score for AIR level 4 category #41-42.40: Unauthorized processing - Demographic data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_41_score
+    display_name: "#41-42.41: Unauthorized processing - Biometric data (facial recognition)"
+    short_display_name: "#41-42.41: Unauthorized processing - Biometric data (facial recognition)"
+    description: "Score for AIR level 4 category #41-42.41: Unauthorized processing - Biometric data (facial recognition)"
+    lower_is_better: true
+
+  - name: air_category_15_4142_42_score
+    display_name: "#41-42.42: Unauthorized processing - Educational records"
+    short_display_name: "#41-42.42: Unauthorized processing - Educational records"
+    description: "Score for AIR level 4 category #41-42.42: Unauthorized processing - Educational records"
+    lower_is_better: true
+
+  - name: air_category_15_4142_43_score
+    display_name: "#41-42.43: Unauthorized processing - Financial records"
+    short_display_name: "#41-42.43: Unauthorized processing - Financial records"
+    description: "Score for AIR level 4 category #41-42.43: Unauthorized processing - Financial records"
+    lower_is_better: true
+
+  - name: air_category_15_4142_44_score
+    display_name: "#41-42.44: Unauthorized processing - Behavioral/ Preference data"
+    short_display_name: "#41-42.44: Unauthorized processing - Behavioral/ Preference data"
+    description: "Score for AIR level 4 category #41-42.44: Unauthorized processing - Behavioral/ Preference data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_45_score
+    display_name: "#41-42.45: Unauthorized processing - Communication Records"
+    short_display_name: "#41-42.45: Unauthorized processing - Communication Records"
+    description: "Score for AIR level 4 category #41-42.45: Unauthorized processing - Communication Records"
+    lower_is_better: true
+
+  - name: air_category_15_4142_46_score
+    display_name: "#41-42.46: Unauthorized inference/synthesis - PII (Personal Identifiable Information)"
+    short_display_name: "#41-42.46: Unauthorized inference/synthesis - PII (Personal Identifiable Information)"
+    description: "Score for AIR level 4 category #41-42.46: Unauthorized inference/synthesis - PII (Personal Identifiable Information)"
+    lower_is_better: true
+
+  - name: air_category_15_4142_47_score
+    display_name: "#41-42.47: Unauthorized inference/synthesis - Health data"
+    short_display_name: "#41-42.47: Unauthorized inference/synthesis - Health data"
+    description: "Score for AIR level 4 category #41-42.47: Unauthorized inference/synthesis - Health data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_48_score
+    display_name: "#41-42.48: Unauthorized inference/synthesis - Location data"
+    short_display_name: "#41-42.48: Unauthorized inference/synthesis - Location data"
+    description: "Score for AIR level 4 category #41-42.48: Unauthorized inference/synthesis - Location data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_49_score
+    display_name: "#41-42.49: Unauthorized inference/synthesis - Demographic data"
+    short_display_name: "#41-42.49: Unauthorized inference/synthesis - Demographic data"
+    description: "Score for AIR level 4 category #41-42.49: Unauthorized inference/synthesis - Demographic data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_50_score
+    display_name: "#41-42.50: Unauthorized inference/synthesis - Biometric data (facial recognition)"
+    short_display_name: "#41-42.50: Unauthorized inference/synthesis - Biometric data (facial recognition)"
+    description: "Score for AIR level 4 category #41-42.50: Unauthorized inference/synthesis - Biometric data (facial recognition)"
+    lower_is_better: true
+
+  - name: air_category_15_4142_51_score
+    display_name: "#41-42.51: Unauthorized inference/synthesis - Educational records"
+    short_display_name: "#41-42.51: Unauthorized inference/synthesis - Educational records"
+    description: "Score for AIR level 4 category #41-42.51: Unauthorized inference/synthesis - Educational records"
+    lower_is_better: true
+
+  - name: air_category_15_4142_52_score
+    display_name: "#41-42.52: Unauthorized inference/synthesis - Financial records"
+    short_display_name: "#41-42.52: Unauthorized inference/synthesis - Financial records"
+    description: "Score for AIR level 4 category #41-42.52: Unauthorized inference/synthesis - Financial records"
+    lower_is_better: true
+
+  - name: air_category_15_4142_53_score
+    display_name: "#41-42.53: Unauthorized inference/synthesis - Behavioral/ Preference data"
+    short_display_name: "#41-42.53: Unauthorized inference/synthesis - Behavioral/ Preference data"
+    description: "Score for AIR level 4 category #41-42.53: Unauthorized inference/synthesis - Behavioral/ Preference data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_54_score
+    display_name: "#41-42.54: Unauthorized inference/synthesis - Communication Records"
+    short_display_name: "#41-42.54: Unauthorized inference/synthesis - Communication Records"
+    description: "Score for AIR level 4 category #41-42.54: Unauthorized inference/synthesis - Communication Records"
+    lower_is_better: true
+
+  - name: air_category_15_4142_55_score
+    display_name: "#41-42.55: Non-consensual tracking/monitoring/stalking/spyware - PII (Personal Identifiable Information)"
+    short_display_name: "#41-42.55: Non-consensual tracking/monitoring/stalking/spyware - PII (Personal Identifiable Information)"
+    description: "Score for AIR level 4 category #41-42.55: Non-consensual tracking/monitoring/stalking/spyware - PII (Personal Identifiable Information)"
+    lower_is_better: true
+
+  - name: air_category_15_4142_56_score
+    display_name: "#41-42.56: Non-consensual tracking/monitoring/stalking/spyware - Health data"
+    short_display_name: "#41-42.56: Non-consensual tracking/monitoring/stalking/spyware - Health data"
+    description: "Score for AIR level 4 category #41-42.56: Non-consensual tracking/monitoring/stalking/spyware - Health data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_57_score
+    display_name: "#41-42.57: Non-consensual tracking/monitoring/stalking/spyware - Location data"
+    short_display_name: "#41-42.57: Non-consensual tracking/monitoring/stalking/spyware - Location data"
+    description: "Score for AIR level 4 category #41-42.57: Non-consensual tracking/monitoring/stalking/spyware - Location data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_58_score
+    display_name: "#41-42.58: Non-consensual tracking/monitoring/stalking/spyware - Demographic data"
+    short_display_name: "#41-42.58: Non-consensual tracking/monitoring/stalking/spyware - Demographic data"
+    description: "Score for AIR level 4 category #41-42.58: Non-consensual tracking/monitoring/stalking/spyware - Demographic data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_59_score
+    display_name: "#41-42.59: Non-consensual tracking/monitoring/stalking/spyware - Biometric data (facial recognition)"
+    short_display_name: "#41-42.59: Non-consensual tracking/monitoring/stalking/spyware - Biometric data (facial recognition)"
+    description: "Score for AIR level 4 category #41-42.59: Non-consensual tracking/monitoring/stalking/spyware - Biometric data (facial recognition)"
+    lower_is_better: true
+
+  - name: air_category_15_4142_60_score
+    display_name: "#41-42.60: Non-consensual tracking/monitoring/stalking/spyware - Educational records"
+    short_display_name: "#41-42.60: Non-consensual tracking/monitoring/stalking/spyware - Educational records"
+    description: "Score for AIR level 4 category #41-42.60: Non-consensual tracking/monitoring/stalking/spyware - Educational records"
+    lower_is_better: true
+
+  - name: air_category_15_4142_61_score
+    display_name: "#41-42.61: Non-consensual tracking/monitoring/stalking/spyware - Financial records"
+    short_display_name: "#41-42.61: Non-consensual tracking/monitoring/stalking/spyware - Financial records"
+    description: "Score for AIR level 4 category #41-42.61: Non-consensual tracking/monitoring/stalking/spyware - Financial records"
+    lower_is_better: true
+
+  - name: air_category_15_4142_62_score
+    display_name: "#41-42.62: Non-consensual tracking/monitoring/stalking/spyware - Behavioral/ Preference data"
+    short_display_name: "#41-42.62: Non-consensual tracking/monitoring/stalking/spyware - Behavioral/ Preference data"
+    description: "Score for AIR level 4 category #41-42.62: Non-consensual tracking/monitoring/stalking/spyware - Behavioral/ Preference data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_63_score
+    display_name: "#41-42.63: Non-consensual tracking/monitoring/stalking/spyware - Communication Records"
+    short_display_name: "#41-42.63: Non-consensual tracking/monitoring/stalking/spyware - Communication Records"
+    description: "Score for AIR level 4 category #41-42.63: Non-consensual tracking/monitoring/stalking/spyware - Communication Records"
+    lower_is_better: true
+
+  - name: air_category_15_4142_64_score
+    display_name: "#41-42.64: Model Attacks (membership inference, model inversion) - PII (Personal Identifiable Information)"
+    short_display_name: "#41-42.64: Model Attacks (membership inference, model inversion) - PII (Personal Identifiable Information)"
+    description: "Score for AIR level 4 category #41-42.64: Model Attacks (membership inference, model inversion) - PII (Personal Identifiable Information)"
+    lower_is_better: true
+
+  - name: air_category_15_4142_65_score
+    display_name: "#41-42.65: Model Attacks (membership inference, model inversion) - Health data"
+    short_display_name: "#41-42.65: Model Attacks (membership inference, model inversion) - Health data"
+    description: "Score for AIR level 4 category #41-42.65: Model Attacks (membership inference, model inversion) - Health data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_66_score
+    display_name: "#41-42.66: Model Attacks (membership inference, model inversion) - Location data"
+    short_display_name: "#41-42.66: Model Attacks (membership inference, model inversion) - Location data"
+    description: "Score for AIR level 4 category #41-42.66: Model Attacks (membership inference, model inversion) - Location data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_67_score
+    display_name: "#41-42.67: Model Attacks (membership inference, model inversion) - Demographic data"
+    short_display_name: "#41-42.67: Model Attacks (membership inference, model inversion) - Demographic data"
+    description: "Score for AIR level 4 category #41-42.67: Model Attacks (membership inference, model inversion) - Demographic data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_68_score
+    display_name: "#41-42.68: Model Attacks (membership inference, model inversion) - Biometric data (facial recognition)"
+    short_display_name: "#41-42.68: Model Attacks (membership inference, model inversion) - Biometric data (facial recognition)"
+    description: "Score for AIR level 4 category #41-42.68: Model Attacks (membership inference, model inversion) - Biometric data (facial recognition)"
+    lower_is_better: true
+
+  - name: air_category_15_4142_69_score
+    display_name: "#41-42.69: Model Attacks (membership inference, model inversion) - Educational records"
+    short_display_name: "#41-42.69: Model Attacks (membership inference, model inversion) - Educational records"
+    description: "Score for AIR level 4 category #41-42.69: Model Attacks (membership inference, model inversion) - Educational records"
+    lower_is_better: true
+
+  - name: air_category_15_4142_70_score
+    display_name: "#41-42.70: Model Attacks (membership inference, model inversion) - Financial records"
+    short_display_name: "#41-42.70: Model Attacks (membership inference, model inversion) - Financial records"
+    description: "Score for AIR level 4 category #41-42.70: Model Attacks (membership inference, model inversion) - Financial records"
+    lower_is_better: true
+
+  - name: air_category_15_4142_71_score
+    display_name: "#41-42.71: Model Attacks (membership inference, model inversion) - Behavioral/ Preference data"
+    short_display_name: "#41-42.71: Model Attacks (membership inference, model inversion) - Behavioral/ Preference data"
+    description: "Score for AIR level 4 category #41-42.71: Model Attacks (membership inference, model inversion) - Behavioral/ Preference data"
+    lower_is_better: true
+
+  - name: air_category_15_4142_72_score
+    display_name: "#41-42.72: Model Attacks (membership inference, model inversion) - Communication Records"
+    short_display_name: "#41-42.72: Model Attacks (membership inference, model inversion) - Communication Records"
+    description: "Score for AIR level 4 category #41-42.72: Model Attacks (membership inference, model inversion) - Communication Records"
+    lower_is_better: true
+
+  - name: air_category_16_43_1_score
+    display_name: "#43.1: Illegal drugs"
+    short_display_name: "#43.1: Illegal drugs"
+    description: "Score for AIR level 4 category #43.1: Illegal drugs"
+    lower_is_better: true
+
+  - name: air_category_16_44_2_score
+    display_name: "#44.2: Human trafficking"
+    short_display_name: "#44.2: Human trafficking"
+    description: "Score for AIR level 4 category #44.2: Human trafficking"
+    lower_is_better: true
+
+  - name: air_category_16_44_3_score
+    display_name: "#44.3: Sexual exploitation"
+    short_display_name: "#44.3: Sexual exploitation"
+    description: "Score for AIR level 4 category #44.3: Sexual exploitation"
+    lower_is_better: true
+
+  - name: air_category_16_44_4_score
+    display_name: "#44.4: Prostitution"
+    short_display_name: "#44.4: Prostitution"
+    description: "Score for AIR level 4 category #44.4: Prostitution"
+    lower_is_better: true
+
+  - name: air_category_16_45_5_score
+    display_name: "#45.5: Undermining national security or other government interests"
+    short_display_name: "#45.5: Undermining national security or other government interests"
+    description: "Score for AIR level 4 category #45.5: Undermining national security or other government interests"
+    lower_is_better: true
+
+  - name: air_category_16_45_6_score
+    display_name: "#45.6: Undermining social stability"
+    short_display_name: "#45.6: Undermining social stability"
+    description: "Score for AIR level 4 category #45.6: Undermining social stability"
+    lower_is_better: true
+
+  - name: air_category_16_45_7_score
+    display_name: "#45.7: Undermining international relations"
+    short_display_name: "#45.7: Undermining international relations"
+    description: "Score for AIR level 4 category #45.7: Undermining international relations"
+    lower_is_better: true
+
+  - name: air_category_16_45_8_score
+    display_name: "#45.8: Abetting/Furthering activities violating any applicable law"
+    short_display_name: "#45.8: Abetting/Furthering activities violating any applicable law"
+    description: "Score for AIR level 4 category #45.8: Abetting/Furthering activities violating any applicable law"
+    lower_is_better: true
+
+############################################################
+perturbations: []
+
+############################################################
+metric_groups:
+  - name: air_top_level_scores
+    display_name: AIR top level
+    hide_win_rates: true
+    metrics:
+      - name: air_score
+        split: ${main_split}
+
+  - name: air_level_2_scores
+    display_name: AIR level 2 categories
+    hide_win_rates: true
+    metrics:
+      - name: air_category_1_score
+        split: ${main_split}
+      - name: air_category_2_score
+        split: ${main_split}
+      - name: air_category_3_score
+        split: ${main_split}
+      - name: air_category_4_score
+        split: ${main_split}
+      - name: air_category_5_score
+        split: ${main_split}
+      - name: air_category_6_score
+        split: ${main_split}
+      - name: air_category_7_score
+        split: ${main_split}
+      - name: air_category_8_score
+        split: ${main_split}
+      - name: air_category_9_score
+        split: ${main_split}
+      - name: air_category_10_score
+        split: ${main_split}
+      - name: air_category_11_score
+        split: ${main_split}
+      - name: air_category_12_score
+        split: ${main_split}
+      - name: air_category_13_score
+        split: ${main_split}
+      - name: air_category_14_score
+        split: ${main_split}
+      - name: air_category_15_score
+        split: ${main_split}
+      - name: air_category_16_score
+        split: ${main_split}
+
+  - name: air_level_3_scores
+    display_name: AIR level 3 categories
+    hide_win_rates: true
+    metrics:
+      - name: air_category_1_1_score
+        split: ${main_split}
+      - name: air_category_1_2_score
+        split: ${main_split}
+      - name: air_category_1_3_score
+        split: ${main_split}
+      - name: air_category_2_4_score
+        split: ${main_split}
+      - name: air_category_2_5_score
+        split: ${main_split}
+      - name: air_category_2_6_score
+        split: ${main_split}
+      - name: air_category_3_7_score
+        split: ${main_split}
+      - name: air_category_3_8_score
+        split: ${main_split}
+      - name: air_category_3_9_score
+        split: ${main_split}
+      - name: air_category_3_10_score
+        split: ${main_split}
+      - name: air_category_3_11_score
+        split: ${main_split}
+      - name: air_category_3_12_score
+        split: ${main_split}
+      - name: air_category_4_13_score
+        split: ${main_split}
+      - name: air_category_4_14_score
+        split: ${main_split}
+      - name: air_category_4_15_score
+        split: ${main_split}
+      - name: air_category_4_16_score
+        split: ${main_split}
+      - name: air_category_5_17_score
+        split: ${main_split}
+      - name: air_category_5_18_score
+        split: ${main_split}
+      - name: air_category_5_19_score
+        split: ${main_split}
+      - name: air_category_5_20_score
+        split: ${main_split}
+      - name: air_category_6_21_score
+        split: ${main_split}
+      - name: air_category_6_22_score
+        split: ${main_split}
+      - name: air_category_7_23_score
+        split: ${main_split}
+      - name: air_category_8_24_score
+        split: ${main_split}
+      - name: air_category_8_25_score
+        split: ${main_split}
+      - name: air_category_8_26_score
+        split: ${main_split}
+      - name: air_category_8_27_score
+        split: ${main_split}
+      - name: air_category_9_28_score
+        split: ${main_split}
+      - name: air_category_9_29_score
+        split: ${main_split}
+      - name: air_category_9_30_score
+        split: ${main_split}
+      - name: air_category_9_31_score
+        split: ${main_split}
+      - name: air_category_10_32_score
+        split: ${main_split}
+      - name: air_category_10_33_score
+        split: ${main_split}
+      - name: air_category_10_34_score
+        split: ${main_split}
+      - name: air_category_11_35_score
+        split: ${main_split}
+      - name: air_category_11_36_score
+        split: ${main_split}
+      - name: air_category_12_37_score
+        split: ${main_split}
+      - name: air_category_13_38_score
+        split: ${main_split}
+      - name: air_category_14_3940_score
+        split: ${main_split}
+      - name: air_category_15_4142_score
+        split: ${main_split}
+      - name: air_category_16_43_score
+        split: ${main_split}
+      - name: air_category_16_44_score
+        split: ${main_split}
+      - name: air_category_16_45_score
+        split: ${main_split}
+
+  - name: air_level_4_scores
+    display_name: AIR level 4 categories
+    hide_win_rates: true
+    metrics:
+      - name: air_category_1_1_1_score
+        split: ${main_split}
+      - name: air_category_1_1_2_score
+        split: ${main_split}
+      - name: air_category_1_1_3_score
+        split: ${main_split}
+      - name: air_category_1_1_4_score
+        split: ${main_split}
+      - name: air_category_1_1_5_score
+        split: ${main_split}
+      - name: air_category_1_1_6_score
+        split: ${main_split}
+      - name: air_category_1_2_7_score
+        split: ${main_split}
+      - name: air_category_1_2_8_score
+        split: ${main_split}
+      - name: air_category_1_2_9_score
+        split: ${main_split}
+      - name: air_category_1_2_10_score
+        split: ${main_split}
+      - name: air_category_1_3_11_score
+        split: ${main_split}
+      - name: air_category_1_3_12_score
+        split: ${main_split}
+      - name: air_category_2_4_1_score
+        split: ${main_split}
+      - name: air_category_2_4_2_score
+        split: ${main_split}
+      - name: air_category_2_4_3_score
+        split: ${main_split}
+      - name: air_category_2_4_4_score
+        split: ${main_split}
+      - name: air_category_2_4_5_score
+        split: ${main_split}
+      - name: air_category_2_4_6_score
+        split: ${main_split}
+      - name: air_category_2_4_7_score
+        split: ${main_split}
+      - name: air_category_2_4_8_score
+        split: ${main_split}
+      - name: air_category_2_4_9_score
+        split: ${main_split}
+      - name: air_category_2_4_10_score
+        split: ${main_split}
+      - name: air_category_2_5_11_score
+        split: ${main_split}
+      - name: air_category_2_5_12_score
+        split: ${main_split}
+      - name: air_category_2_5_13_score
+        split: ${main_split}
+      - name: air_category_2_5_14_score
+        split: ${main_split}
+      - name: air_category_2_5_15_score
+        split: ${main_split}
+      - name: air_category_2_5_16_score
+        split: ${main_split}
+      - name: air_category_2_5_17_score
+        split: ${main_split}
+      - name: air_category_2_5_18_score
+        split: ${main_split}
+      - name: air_category_2_5_19_score
+        split: ${main_split}
+      - name: air_category_2_5_20_score
+        split: ${main_split}
+      - name: air_category_2_5_21_score
+        split: ${main_split}
+      - name: air_category_2_6_22_score
+        split: ${main_split}
+      - name: air_category_2_6_23_score
+        split: ${main_split}
+      - name: air_category_2_6_24_score
+        split: ${main_split}
+      - name: air_category_2_6_25_score
+        split: ${main_split}
+      - name: air_category_2_6_26_score
+        split: ${main_split}
+      - name: air_category_3_7_1_score
+        split: ${main_split}
+      - name: air_category_3_7_2_score
+        split: ${main_split}
+      - name: air_category_3_7_3_score
+        split: ${main_split}
+      - name: air_category_3_8_4_score
+        split: ${main_split}
+      - name: air_category_3_8_5_score
+        split: ${main_split}
+      - name: air_category_3_8_6_score
+        split: ${main_split}
+      - name: air_category_3_8_7_score
+        split: ${main_split}
+      - name: air_category_3_9_8_score
+        split: ${main_split}
+      - name: air_category_3_9_9_score
+        split: ${main_split}
+      - name: air_category_3_9_10_score
+        split: ${main_split}
+      - name: air_category_3_9_11_score
+        split: ${main_split}
+      - name: air_category_3_10_12_score
+        split: ${main_split}
+      - name: air_category_3_10_13_score
+        split: ${main_split}
+      - name: air_category_3_10_14_score
+        split: ${main_split}
+      - name: air_category_3_10_15_score
+        split: ${main_split}
+      - name: air_category_3_10_16_score
+        split: ${main_split}
+      - name: air_category_3_11_17_score
+        split: ${main_split}
+      - name: air_category_3_11_18_score
+        split: ${main_split}
+      - name: air_category_3_11_19_score
+        split: ${main_split}
+      - name: air_category_3_11_20_score
+        split: ${main_split}
+      - name: air_category_3_11_21_score
+        split: ${main_split}
+      - name: air_category_3_11_22_score
+        split: ${main_split}
+      - name: air_category_3_12_23_score
+        split: ${main_split}
+      - name: air_category_3_12_24_score
+        split: ${main_split}
+      - name: air_category_4_13_1_score
+        split: ${main_split}
+      - name: air_category_4_13_2_score
+        split: ${main_split}
+      - name: air_category_4_13_3_score
+        split: ${main_split}
+      - name: air_category_4_13_4_score
+        split: ${main_split}
+      - name: air_category_4_13_5_score
+        split: ${main_split}
+      - name: air_category_4_13_6_score
+        split: ${main_split}
+      - name: air_category_4_13_7_score
+        split: ${main_split}
+      - name: air_category_4_13_8_score
+        split: ${main_split}
+      - name: air_category_4_13_9_score
+        split: ${main_split}
+      - name: air_category_4_13_10_score
+        split: ${main_split}
+      - name: air_category_4_13_11_score
+        split: ${main_split}
+      - name: air_category_4_14_12_score
+        split: ${main_split}
+      - name: air_category_4_14_13_score
+        split: ${main_split}
+      - name: air_category_4_14_14_score
+        split: ${main_split}
+      - name: air_category_4_14_15_score
+        split: ${main_split}
+      - name: air_category_4_14_16_score
+        split: ${main_split}
+      - name: air_category_4_14_17_score
+        split: ${main_split}
+      - name: air_category_4_14_18_score
+        split: ${main_split}
+      - name: air_category_4_14_19_score
+        split: ${main_split}
+      - name: air_category_4_14_20_score
+        split: ${main_split}
+      - name: air_category_4_14_21_score
+        split: ${main_split}
+      - name: air_category_4_14_22_score
+        split: ${main_split}
+      - name: air_category_4_14_23_score
+        split: ${main_split}
+      - name: air_category_4_14_24_score
+        split: ${main_split}
+      - name: air_category_4_14_25_score
+        split: ${main_split}
+      - name: air_category_4_14_26_score
+        split: ${main_split}
+      - name: air_category_4_14_27_score
+        split: ${main_split}
+      - name: air_category_4_14_28_score
+        split: ${main_split}
+      - name: air_category_4_14_29_score
+        split: ${main_split}
+      - name: air_category_4_14_30_score
+        split: ${main_split}
+      - name: air_category_4_14_31_score
+        split: ${main_split}
+      - name: air_category_4_15_32_score
+        split: ${main_split}
+      - name: air_category_4_15_33_score
+        split: ${main_split}
+      - name: air_category_4_15_34_score
+        split: ${main_split}
+      - name: air_category_4_16_35_score
+        split: ${main_split}
+      - name: air_category_4_16_36_score
+        split: ${main_split}
+      - name: air_category_5_17_1_score
+        split: ${main_split}
+      - name: air_category_5_17_2_score
+        split: ${main_split}
+      - name: air_category_5_17_3_score
+        split: ${main_split}
+      - name: air_category_5_17_4_score
+        split: ${main_split}
+      - name: air_category_5_18_5_score
+        split: ${main_split}
+      - name: air_category_5_18_6_score
+        split: ${main_split}
+      - name: air_category_5_19_7_score
+        split: ${main_split}
+      - name: air_category_5_20_8_score
+        split: ${main_split}
+      - name: air_category_5_20_9_score
+        split: ${main_split}
+      - name: air_category_6_21_1_score
+        split: ${main_split}
+      - name: air_category_6_21_2_score
+        split: ${main_split}
+      - name: air_category_6_21_3_score
+        split: ${main_split}
+      - name: air_category_6_21_4_score
+        split: ${main_split}
+      - name: air_category_6_21_5_score
+        split: ${main_split}
+      - name: air_category_6_22_6_score
+        split: ${main_split}
+      - name: air_category_6_22_7_score
+        split: ${main_split}
+      - name: air_category_7_23_1_score
+        split: ${main_split}
+      - name: air_category_7_23_2_score
+        split: ${main_split}
+      - name: air_category_7_23_3_score
+        split: ${main_split}
+      - name: air_category_8_24_1_score
+        split: ${main_split}
+      - name: air_category_8_24_2_score
+        split: ${main_split}
+      - name: air_category_8_24_3_score
+        split: ${main_split}
+      - name: air_category_8_24_4_score
+        split: ${main_split}
+      - name: air_category_8_24_5_score
+        split: ${main_split}
+      - name: air_category_8_24_6_score
+        split: ${main_split}
+      - name: air_category_8_24_7_score
+        split: ${main_split}
+      - name: air_category_8_25_8_score
+        split: ${main_split}
+      - name: air_category_8_25_9_score
+        split: ${main_split}
+      - name: air_category_8_26_10_score
+        split: ${main_split}
+      - name: air_category_8_26_11_score
+        split: ${main_split}
+      - name: air_category_8_26_12_score
+        split: ${main_split}
+      - name: air_category_8_26_13_score
+        split: ${main_split}
+      - name: air_category_8_27_14_score
+        split: ${main_split}
+      - name: air_category_8_27_15_score
+        split: ${main_split}
+      - name: air_category_8_27_16_score
+        split: ${main_split}
+      - name: air_category_8_27_17_score
+        split: ${main_split}
+      - name: air_category_8_27_18_score
+        split: ${main_split}
+      - name: air_category_8_27_19_score
+        split: ${main_split}
+      - name: air_category_8_27_20_score
+        split: ${main_split}
+      - name: air_category_8_27_21_score
+        split: ${main_split}
+      - name: air_category_8_27_22_score
+        split: ${main_split}
+      - name: air_category_8_27_23_score
+        split: ${main_split}
+      - name: air_category_8_27_24_score
+        split: ${main_split}
+      - name: air_category_8_27_25_score
+        split: ${main_split}
+      - name: air_category_9_28_1_score
+        split: ${main_split}
+      - name: air_category_9_28_2_score
+        split: ${main_split}
+      - name: air_category_9_29_3_score
+        split: ${main_split}
+      - name: air_category_9_29_4_score
+        split: ${main_split}
+      - name: air_category_9_30_5_score
+        split: ${main_split}
+      - name: air_category_9_30_6_score
+        split: ${main_split}
+      - name: air_category_9_30_7_score
+        split: ${main_split}
+      - name: air_category_9_30_8_score
+        split: ${main_split}
+      - name: air_category_9_31_9_score
+        split: ${main_split}
+      - name: air_category_9_31_10_score
+        split: ${main_split}
+      - name: air_category_10_32_1_score
+        split: ${main_split}
+      - name: air_category_10_32_2_score
+        split: ${main_split}
+      - name: air_category_10_32_3_score
+        split: ${main_split}
+      - name: air_category_10_32_4_score
+        split: ${main_split}
+      - name: air_category_10_32_5_score
+        split: ${main_split}
+      - name: air_category_10_33_6_score
+        split: ${main_split}
+      - name: air_category_10_33_7_score
+        split: ${main_split}
+      - name: air_category_10_34_8_score
+        split: ${main_split}
+      - name: air_category_10_34_9_score
+        split: ${main_split}
+      - name: air_category_11_35_1_score
+        split: ${main_split}
+      - name: air_category_11_35_2_score
+        split: ${main_split}
+      - name: air_category_11_36_3_score
+        split: ${main_split}
+      - name: air_category_11_36_4_score
+        split: ${main_split}
+      - name: air_category_11_36_5_score
+        split: ${main_split}
+      - name: air_category_12_37_1_score
+        split: ${main_split}
+      - name: air_category_12_37_2_score
+        split: ${main_split}
+      - name: air_category_12_37_3_score
+        split: ${main_split}
+      - name: air_category_13_38_1_score
+        split: ${main_split}
+      - name: air_category_13_38_2_score
+        split: ${main_split}
+      - name: air_category_13_38_3_score
+        split: ${main_split}
+      - name: air_category_13_38_4_score
+        split: ${main_split}
+      - name: air_category_13_38_5_score
+        split: ${main_split}
+      - name: air_category_14_3940_1_score
+        split: ${main_split}
+      - name: air_category_14_3940_2_score
+        split: ${main_split}
+      - name: air_category_14_3940_3_score
+        split: ${main_split}
+      - name: air_category_14_3940_4_score
+        split: ${main_split}
+      - name: air_category_14_3940_5_score
+        split: ${main_split}
+      - name: air_category_14_3940_6_score
+        split: ${main_split}
+      - name: air_category_14_3940_7_score
+        split: ${main_split}
+      - name: air_category_14_3940_8_score
+        split: ${main_split}
+      - name: air_category_14_3940_9_score
+        split: ${main_split}
+      - name: air_category_14_3940_10_score
+        split: ${main_split}
+      - name: air_category_14_3940_11_score
+        split: ${main_split}
+      - name: air_category_14_3940_12_score
+        split: ${main_split}
+      - name: air_category_14_3940_13_score
+        split: ${main_split}
+      - name: air_category_14_3940_14_score
+        split: ${main_split}
+      - name: air_category_14_3940_15_score
+        split: ${main_split}
+      - name: air_category_14_3940_16_score
+        split: ${main_split}
+      - name: air_category_14_3940_17_score
+        split: ${main_split}
+      - name: air_category_14_3940_18_score
+        split: ${main_split}
+      - name: air_category_14_3940_19_score
+        split: ${main_split}
+      - name: air_category_14_3940_20_score
+        split: ${main_split}
+      - name: air_category_14_3940_21_score
+        split: ${main_split}
+      - name: air_category_14_3940_22_score
+        split: ${main_split}
+      - name: air_category_14_3940_23_score
+        split: ${main_split}
+      - name: air_category_14_3940_24_score
+        split: ${main_split}
+      - name: air_category_14_3940_25_score
+        split: ${main_split}
+      - name: air_category_14_3940_26_score
+        split: ${main_split}
+      - name: air_category_14_3940_27_score
+        split: ${main_split}
+      - name: air_category_14_3940_28_score
+        split: ${main_split}
+      - name: air_category_14_3940_29_score
+        split: ${main_split}
+      - name: air_category_14_3940_30_score
+        split: ${main_split}
+      - name: air_category_14_3940_31_score
+        split: ${main_split}
+      - name: air_category_14_3940_32_score
+        split: ${main_split}
+      - name: air_category_14_3940_33_score
+        split: ${main_split}
+      - name: air_category_14_3940_34_score
+        split: ${main_split}
+      - name: air_category_14_3940_35_score
+        split: ${main_split}
+      - name: air_category_14_3940_36_score
+        split: ${main_split}
+      - name: air_category_14_3940_37_score
+        split: ${main_split}
+      - name: air_category_14_3940_38_score
+        split: ${main_split}
+      - name: air_category_14_3940_39_score
+        split: ${main_split}
+      - name: air_category_14_3940_40_score
+        split: ${main_split}
+      - name: air_category_14_3940_41_score
+        split: ${main_split}
+      - name: air_category_14_3940_42_score
+        split: ${main_split}
+      - name: air_category_14_3940_43_score
+        split: ${main_split}
+      - name: air_category_14_3940_44_score
+        split: ${main_split}
+      - name: air_category_14_3940_45_score
+        split: ${main_split}
+      - name: air_category_14_3940_46_score
+        split: ${main_split}
+      - name: air_category_14_3940_47_score
+        split: ${main_split}
+      - name: air_category_14_3940_48_score
+        split: ${main_split}
+      - name: air_category_14_3940_49_score
+        split: ${main_split}
+      - name: air_category_14_3940_50_score
+        split: ${main_split}
+      - name: air_category_14_3940_51_score
+        split: ${main_split}
+      - name: air_category_14_3940_52_score
+        split: ${main_split}
+      - name: air_category_14_3940_53_score
+        split: ${main_split}
+      - name: air_category_14_3940_54_score
+        split: ${main_split}
+      - name: air_category_14_3940_55_score
+        split: ${main_split}
+      - name: air_category_14_3940_56_score
+        split: ${main_split}
+      - name: air_category_14_3940_57_score
+        split: ${main_split}
+      - name: air_category_14_3940_58_score
+        split: ${main_split}
+      - name: air_category_14_3940_59_score
+        split: ${main_split}
+      - name: air_category_14_3940_60_score
+        split: ${main_split}
+      - name: air_category_15_4142_1_score
+        split: ${main_split}
+      - name: air_category_15_4142_2_score
+        split: ${main_split}
+      - name: air_category_15_4142_3_score
+        split: ${main_split}
+      - name: air_category_15_4142_4_score
+        split: ${main_split}
+      - name: air_category_15_4142_5_score
+        split: ${main_split}
+      - name: air_category_15_4142_6_score
+        split: ${main_split}
+      - name: air_category_15_4142_7_score
+        split: ${main_split}
+      - name: air_category_15_4142_8_score
+        split: ${main_split}
+      - name: air_category_15_4142_9_score
+        split: ${main_split}
+      - name: air_category_15_4142_10_score
+        split: ${main_split}
+      - name: air_category_15_4142_11_score
+        split: ${main_split}
+      - name: air_category_15_4142_12_score
+        split: ${main_split}
+      - name: air_category_15_4142_13_score
+        split: ${main_split}
+      - name: air_category_15_4142_14_score
+        split: ${main_split}
+      - name: air_category_15_4142_15_score
+        split: ${main_split}
+      - name: air_category_15_4142_16_score
+        split: ${main_split}
+      - name: air_category_15_4142_17_score
+        split: ${main_split}
+      - name: air_category_15_4142_18_score
+        split: ${main_split}
+      - name: air_category_15_4142_19_score
+        split: ${main_split}
+      - name: air_category_15_4142_20_score
+        split: ${main_split}
+      - name: air_category_15_4142_21_score
+        split: ${main_split}
+      - name: air_category_15_4142_22_score
+        split: ${main_split}
+      - name: air_category_15_4142_23_score
+        split: ${main_split}
+      - name: air_category_15_4142_24_score
+        split: ${main_split}
+      - name: air_category_15_4142_25_score
+        split: ${main_split}
+      - name: air_category_15_4142_26_score
+        split: ${main_split}
+      - name: air_category_15_4142_27_score
+        split: ${main_split}
+      - name: air_category_15_4142_28_score
+        split: ${main_split}
+      - name: air_category_15_4142_29_score
+        split: ${main_split}
+      - name: air_category_15_4142_30_score
+        split: ${main_split}
+      - name: air_category_15_4142_31_score
+        split: ${main_split}
+      - name: air_category_15_4142_32_score
+        split: ${main_split}
+      - name: air_category_15_4142_33_score
+        split: ${main_split}
+      - name: air_category_15_4142_34_score
+        split: ${main_split}
+      - name: air_category_15_4142_35_score
+        split: ${main_split}
+      - name: air_category_15_4142_36_score
+        split: ${main_split}
+      - name: air_category_15_4142_37_score
+        split: ${main_split}
+      - name: air_category_15_4142_38_score
+        split: ${main_split}
+      - name: air_category_15_4142_39_score
+        split: ${main_split}
+      - name: air_category_15_4142_40_score
+        split: ${main_split}
+      - name: air_category_15_4142_41_score
+        split: ${main_split}
+      - name: air_category_15_4142_42_score
+        split: ${main_split}
+      - name: air_category_15_4142_43_score
+        split: ${main_split}
+      - name: air_category_15_4142_44_score
+        split: ${main_split}
+      - name: air_category_15_4142_45_score
+        split: ${main_split}
+      - name: air_category_15_4142_46_score
+        split: ${main_split}
+      - name: air_category_15_4142_47_score
+        split: ${main_split}
+      - name: air_category_15_4142_48_score
+        split: ${main_split}
+      - name: air_category_15_4142_49_score
+        split: ${main_split}
+      - name: air_category_15_4142_50_score
+        split: ${main_split}
+      - name: air_category_15_4142_51_score
+        split: ${main_split}
+      - name: air_category_15_4142_52_score
+        split: ${main_split}
+      - name: air_category_15_4142_53_score
+        split: ${main_split}
+      - name: air_category_15_4142_54_score
+        split: ${main_split}
+      - name: air_category_15_4142_55_score
+        split: ${main_split}
+      - name: air_category_15_4142_56_score
+        split: ${main_split}
+      - name: air_category_15_4142_57_score
+        split: ${main_split}
+      - name: air_category_15_4142_58_score
+        split: ${main_split}
+      - name: air_category_15_4142_59_score
+        split: ${main_split}
+      - name: air_category_15_4142_60_score
+        split: ${main_split}
+      - name: air_category_15_4142_61_score
+        split: ${main_split}
+      - name: air_category_15_4142_62_score
+        split: ${main_split}
+      - name: air_category_15_4142_63_score
+        split: ${main_split}
+      - name: air_category_15_4142_64_score
+        split: ${main_split}
+      - name: air_category_15_4142_65_score
+        split: ${main_split}
+      - name: air_category_15_4142_66_score
+        split: ${main_split}
+      - name: air_category_15_4142_67_score
+        split: ${main_split}
+      - name: air_category_15_4142_68_score
+        split: ${main_split}
+      - name: air_category_15_4142_69_score
+        split: ${main_split}
+      - name: air_category_15_4142_70_score
+        split: ${main_split}
+      - name: air_category_15_4142_71_score
+        split: ${main_split}
+      - name: air_category_15_4142_72_score
+        split: ${main_split}
+      - name: air_category_16_43_1_score
+        split: ${main_split}
+      - name: air_category_16_44_2_score
+        split: ${main_split}
+      - name: air_category_16_44_3_score
+        split: ${main_split}
+      - name: air_category_16_44_4_score
+        split: ${main_split}
+      - name: air_category_16_45_5_score
+        split: ${main_split}
+      - name: air_category_16_45_6_score
+        split: ${main_split}
+      - name: air_category_16_45_7_score
+        split: ${main_split}
+      - name: air_category_16_45_8_score
+        split: ${main_split}
+
+  - name: efficiency
+    display_name: Efficiency
+    hide_win_rates: true
+    metrics:
+    - name: inference_runtime
+      split: ${main_split}
+
+  - name: general_information
+    display_name: General information
+    hide_win_rates: true
+    metrics:
+    - name: num_instances
+      split: ${main_split}
+    - name: num_train_instances
+      split: ${main_split}
+    - name: prompt_truncated
+      split: ${main_split}
+    - name: num_prompt_tokens
+      split: ${main_split}
+    - name: num_output_tokens
+      split: ${main_split}
+
+############################################################
+
+run_groups:
+  - name: safety_scenarios
+    display_name: Safety Scenarios
+    description: Safety Scenarios
+    category: All Scenarios
+    subgroups:
+      - air_bench_2024
+
+  - name: air_bench_2024
+    display_name: AIRBench 2024
+    description: >
+      AIRBench 2024 is a AI safety benchmark that aligns with emerging government
+      regulations and company policies. It consists of diverse, malicious prompts
+      spanning categories of the regulation-based safety categories in the
+      AIR 2024 safety taxonomy.
+    metric_groups:
+      - air_top_level_scores
+      - air_level_2_scores
+      - air_level_3_scores
+      - air_level_4_scores
+      - efficiency
+      - general_information
+    environment:
+      main_name: air_score
+      main_split: test
+    taxonomy:
+      task: open-ended instruction-following text generation
+      what: malicious prompts
+      who: dataset authors and language models
+      when: "2024"
+      language: English

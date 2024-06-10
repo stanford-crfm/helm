@@ -9,7 +9,7 @@ from helm.common.cache import CacheConfig
 from helm.common.gpu_utils import get_torch_device_name
 from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.media_object import TEXT_TYPE
-from helm.common.request import Request, RequestResult, Sequence, Token
+from helm.common.request import Request, RequestResult, GeneratedOutput, Token
 from helm.common.request import wrap_request_time
 from helm.clients.client import CachingClient, generate_uid_for_multimodal_prompt
 
@@ -104,7 +104,7 @@ class QwenVLMClient(CachingClient):
             else:
                 raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
 
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         request_time: float = 0
         request_datetime: Optional[int] = None
         all_cached: bool = True
@@ -151,7 +151,9 @@ class QwenVLMClient(CachingClient):
 
                 # Tokenize truncated text to get the list of tokens
                 completions.append(
-                    Sequence(text=text, logprob=0, tokens=[Token(text=str(token), logprob=0) for token in tokens])
+                    GeneratedOutput(
+                        text=text, logprob=0, tokens=[Token(text=str(token), logprob=0) for token in tokens]
+                    )
                 )
 
                 request_time += result["request_time"]

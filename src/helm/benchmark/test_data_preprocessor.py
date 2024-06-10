@@ -4,7 +4,7 @@ from typing import List
 from helm.benchmark.augmentations.data_augmenter import DataAugmenterSpec
 from helm.benchmark.augmentations.perturbation import PerturbationSpec
 from helm.benchmark.data_preprocessor import DataPreprocessor
-from helm.benchmark.run_specs.classic_run_specs import get_simple1_spec
+from helm.benchmark.run_specs.simple_run_specs import get_simple1_spec
 from helm.benchmark.scenarios.scenario import create_scenario, Instance, Scenario, with_instance_ids
 
 

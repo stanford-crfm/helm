@@ -1,11 +1,13 @@
 import MarkdownValue from "@/components/MarkdownValue";
 import type RowValueType from "@/types/RowValue";
 import Link from "@/components/Link";
+import { ArrowTopRightOnSquareIcon } from "@heroicons/react/20/solid";
 
 interface Props {
   value: RowValueType;
-  ignoreHref?: boolean;
   title?: string;
+  hideIcon?: boolean;
+  ignoreHref?: boolean;
 }
 
 function formatNumber(value: string | number): string {
@@ -16,7 +18,7 @@ function formatNumber(value: string | number): string {
   return String(Math.round(Number(value) * 1000) / 1000);
 }
 
-export default function RowValue({ value, title }: Props) {
+export default function RowValue({ value, title, hideIcon }: Props) {
   // TODO remove this once we stop adding ⚠ to output JSONs
   if (typeof value.value === "string" && value.value.includes("⚠")) {
     value.value = value.value.replace("⚠", "");
@@ -41,7 +43,16 @@ export default function RowValue({ value, title }: Props) {
     if (href) {
       return (
         <Link to={href} inTable title={title}>
-          {formatNumber(value.value)}
+          <div className="flex items-center ">
+            {formatNumber(value.value)}
+            {!hideIcon && (
+              <ArrowTopRightOnSquareIcon
+                className="w-3 h-3 ml-1"
+                stroke="#cbcbcb"
+                fill="#cbcbcb"
+              />
+            )}
+          </div>
         </Link>
       );
     } else {
@@ -56,7 +67,16 @@ export default function RowValue({ value, title }: Props) {
   if (value.href) {
     return (
       <Link to={value.href} inTable title={title}>
-        {formatNumber(value.value)}
+        <div className="flex items-center">
+          {formatNumber(value.value)}
+          {!hideIcon && (
+            <ArrowTopRightOnSquareIcon
+              className="w-3 h-3 ml-1"
+              stroke="#cbcbcb"
+              fill="#cbcbcb"
+            />
+          )}
+        </div>
       </Link>
     );
   }

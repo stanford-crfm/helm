@@ -11,7 +11,7 @@ from helm.common.gpu_utils import get_torch_device_name
 from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import Request, RequestResult, Sequence, Token
+from helm.common.request import Request, RequestResult, GeneratedOutput, Token
 from helm.common.tokenization_request import TokenizationRequest
 from helm.common.request import wrap_request_time
 from helm.clients.client import CachingClient, generate_uid_for_multimodal_prompt
@@ -88,7 +88,7 @@ class IDEFICSClient(CachingClient):
 
         input_args: Dict[str, Union[str, bool]] = {"return_tensors": "pt"}
         generation_args = {
-            "max_length": request.max_tokens,
+            "max_new_tokens": request.max_tokens,
             "bad_words_ids": processor.tokenizer(self.BAD_WORD_TOKENS, add_special_tokens=False).input_ids,
         }
 
@@ -111,7 +111,7 @@ class IDEFICSClient(CachingClient):
                 raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
         prompt_text: str = request.multimodal_prompt.text.replace(self.END_OF_UTTERANCE_TOKEN, " ")
 
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         with htrack_block(f"Generating for prompt: {prompt_text}"):
             try:
 
@@ -140,7 +140,7 @@ class IDEFICSClient(CachingClient):
 
                 # Truncate the output text as IDEFICS outputs the entire sequence including the prompt
                 if "instruct" in request.model:
-                    assert self.ASSISTANT_PREFIX in text, f"Expected {self.ASSISTANT_PREFIX} in the output"
+                    assert self.ASSISTANT_PREFIX in text, f"Expected {self.ASSISTANT_PREFIX} in the output: {text}"
                     text = text.rpartition(self.ASSISTANT_PREFIX)[-1]
                 else:
                     # Best we can do is to remove the text portion of the prompt from the output
@@ -152,7 +152,7 @@ class IDEFICSClient(CachingClient):
                     TokenizationRequest(text, tokenizer=self.tokenizer_name, encode=False)
                 )
                 tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
-                completions.append(Sequence(text=text, logprob=0, tokens=tokens))
+                completions.append(GeneratedOutput(text=text, logprob=0, tokens=tokens))
 
         return RequestResult(
             success=True,

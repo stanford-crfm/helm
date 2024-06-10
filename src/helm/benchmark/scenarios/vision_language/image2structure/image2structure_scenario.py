@@ -22,6 +22,10 @@ from helm.common.general import ensure_directory_exists
 from helm.common.hierarchical_logger import hlog
 
 PROCESSED: str = "processed"
+DIFFICULTY_ALL = "all"
+DIFFICULTY_EASY = "easy"
+DIFFICULTY_MEDIUM = "medium"
+DIFFICULTY_HARD = "hard"
 
 
 class Image2StructureScenario(Scenario):
@@ -38,13 +42,16 @@ class Image2StructureScenario(Scenario):
         VALID_SPLIT: "validation",
     }
 
-    def __init__(self, subset: str, recompile_prompt: bool = True, split: str = VALID_SPLIT):
+    def __init__(
+        self, subset: str, recompile_prompt: bool = True, split: str = VALID_SPLIT, difficulty: str = DIFFICULTY_ALL
+    ):
         super().__init__()
         assert subset in self.SUBSETS, f"Invalid subset: {subset}"
         self._subset: str = subset
         self._recompile_prompt: bool = recompile_prompt
         self._split: str = split
         self._output_path: Optional[str] = None
+        self._difficulty: str = difficulty
 
     def preprocess_row(self, row: Dict[str, Any], assets_path: str) -> Dict[str, Any]:
         # By default, there are no assets
@@ -102,23 +109,29 @@ class Image2StructureScenario(Scenario):
                 cache_dir=output_path,
             )
         ):
-            question_id: str = row["num_id"]
+            question_uuid: str = str(row["uuid"]).replace('"', "")
             if row["category"][1:-1] != self._subset:
                 hlog(
-                    f"Skipping instance {question_id} as it belong in category"
+                    f"Skipping instance {question_uuid} as it belong in category"
                     f" {row['category']} and not {self._subset}"
                 )
+                continue
+
+            # Filter by difficulty
+            if self._difficulty != DIFFICULTY_ALL and row["difficulty"] != self._difficulty:
                 continue
 
             # Step 1: Preprocess the row
             row = self.preprocess_row(row, assets_path)
 
             # Step 2: Save the image locally
-            image_path: str = os.path.join(images_path, f"{question_id}.png")
+            image_path: str = os.path.join(images_path, f"{question_uuid}.png")
             if not os.path.exists(image_path):
                 if not self._recompile_prompt:  # 2.a
                     row["image"].save(image_path)
                 else:  # 2.b
+                    if "structure" not in row:
+                        raise ValueError("Cannot recompile prompt without structure")
                     structure: str = row["structure"]
                     text: str = self.compile_and_save(structure, assets_path, image_path)
                     row["text"] = text
@@ -135,28 +148,40 @@ class Image2StructureScenario(Scenario):
 
             # Step 5: Create the references
             # 5.a Create the reference containing the structure and the associated image.
-            multimedia_object: MultimediaObject
-            if os.path.exists(row["structure"]):
-                # 5.a.1 The structure is a path, therefore represent it as a multimedia object
-                # containing the files used to compile the structure (such as a repository
-                # containing the HTML, CSS, and JavaScript files used to generate a webpage)
-                multimedia_object = MultimediaObject(
-                    [image_object, MediaObject(location=row["structure"], content_type="path/path")]
+            reference: Reference
+            if "structure" in row:
+                multimedia_object: MultimediaObject
+                if os.path.exists(row["structure"]):
+                    # 5.a.1 The structure is a path, therefore represent it as a multimedia object
+                    # containing the files used to compile the structure (such as a repository
+                    # containing the HTML, CSS, and JavaScript files used to generate a webpage)
+                    multimedia_object = MultimediaObject(
+                        [image_object, MediaObject(location=row["structure"], content_type="path/path")]
+                    )
+                elif row["structure"] == PROCESSED:
+                    # 5.a.2 The structure has been processed and is no longer present in the row
+                    # This can be the case if the structure is a base64 encoding of an archive that
+                    # has been extracted to a temporary path and processed but the path is no longer
+                    # existing (deleted after the processing is done)
+                    multimedia_object = MultimediaObject([image_object])
+                else:
+                    # 5.a.3 The structure is not a path, therefore it is directly a valid string
+                    # representing the structure (such as LaTeX code)
+                    multimedia_object = MultimediaObject([image_object])
+                reference = Reference(
+                    output=Output(text=row["text"] if "text" in row else "", multimedia_content=multimedia_object),
+                    tags=[CORRECT_TAG],
                 )
-            elif row["structure"] == PROCESSED:
-                # 5.a.2 The structure has been processed and is no longer present in the row
-                # This can be the case if the structure is a base64 encoding of an archive that
-                # has been extracted to a temporary path and processed but the path is no longer
-                # existing (deleted after the processing is done)
-                multimedia_object = MultimediaObject([image_object])
             else:
-                # 5.a.3 The structure is not a path, therefore it is directly a valid string
-                # representing the structure (such as LaTeX code)
-                multimedia_object = MultimediaObject([image_object])
-            reference = Reference(
-                output=Output(text=row["text"], multimedia_content=multimedia_object),
-                tags=[CORRECT_TAG],
-            )
+                if "text" in row:
+                    reference = Reference(
+                        output=Output(text=row["text"], multimedia_content=MultimediaObject([image_object])),
+                        tags=[CORRECT_TAG],
+                    )
+                else:
+                    reference = Reference(
+                        output=Output(multimedia_content=MultimediaObject([image_object])), tags=[CORRECT_TAG]
+                    )
             references: List[Reference] = [reference]
 
             # 5.b Create the reference containing the assets

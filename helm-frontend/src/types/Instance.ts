@@ -1,3 +1,4 @@
+import MultimediaObject from "@/types/MultimediaObject";
 import type Reference from "@/types/Reference";
 
 export default interface Instance {
@@ -5,6 +6,7 @@ export default interface Instance {
   split: string;
   input: {
     text: string;
+    multimedia_content: MultimediaObject | undefined;
   };
   references: Reference[];
 }

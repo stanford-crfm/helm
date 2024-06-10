@@ -126,7 +126,7 @@ if __name__ == "__main__":
         "--conf-path",
         type=str,
         help="Where to read RunSpecs to run from",
-        default="src/helm/benchmark/presentation/run_specs.conf",
+        default="src/helm/benchmark/presentation/run_entries.conf",
     )
     parser.add_argument(
         "--models-to-run",

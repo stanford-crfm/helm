@@ -4,6 +4,7 @@ This script filters the wikidata dump to only triples corresponding to identifie
     1) triples.tsv: containing triples corresponding to the seed relations.
     2) names.tsv: aliases for each QID found in triples.tsv.
 """
+
 import argparse
 from tqdm import tqdm
 from typing import Set, List, Dict

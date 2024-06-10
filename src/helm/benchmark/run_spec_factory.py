@@ -4,7 +4,6 @@ from typing import List
 from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_GENERATION,
     ADAPT_MULTIPLE_CHOICE_JOINT,
-    ADAPT_GENERATION_MULTIMODAL,
 )
 from helm.benchmark.model_deployment_registry import (
     ModelDeployment,
@@ -14,36 +13,31 @@ from helm.benchmark.model_deployment_registry import (
 from helm.benchmark.model_metadata_registry import (
     ANTHROPIC_CLAUDE_1_MODEL_TAG,
     ANTHROPIC_CLAUDE_2_MODEL_TAG,
+    ANTHROPIC_CLAUDE_3_MODEL_TAG,
     BUGGY_TEMP_0_TAG,
     CHATML_MODEL_TAG,
-    GOOGLE_GEMMA_INSTRUCT_MODEL_TAG,
-    GOOGLE_GEMINI_MODEL_TAG,
-    GOOGLE_PALM_2_MODEL_TAG,
+    GOOGLE_GEMINI_PRO_VISION_V1_TAG,
     IDEFICS_INSTRUCT_MODEL_TAG,
-    IDEFICS_MODEL_TAG,
     LLAVA_MODEL_TAG,
     OPEN_FLAMINGO_MODEL_TAG,
-    VISION_LANGUAGE_MODEL_TAG,
     NLG_PREFIX_TAG,
     NO_NEWLINES_TAG,
-    OPENAI_CHATGPT_MODEL_TAG,
-    MISTRAL_MODEL_TAG,
+    VISION_LANGUAGE_MODEL_TAG,
+    IDEFICS_MODEL_TAG,
     ModelMetadata,
     get_model_metadata,
 )
 from helm.benchmark.run_expander import (
     RUN_EXPANDERS,
-    AnthropicRunExpander,
+    AnthropicClaude2RunExpander,
+    AnthropicClaude3RunExpander,
     ChatMLRunExpander,
     GlobalPrefixRunExpander,
-    GoogleRunExpander,
     IDEFICSInstructRunExpander,
     IncreaseTemperatureRunExpander,
     IncreaseMaxTokensRunExpander,
     LlavaRunExpander,
     OpenFlamingoRunExpander,
-    OpenAIRunExpander,
-    MistralRunExpander,
     StopRunExpander,
 )
 from helm.benchmark.run_spec import RunSpec, get_run_spec_function
@@ -128,40 +122,24 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             chatml_expander = ChatMLRunExpander()
             run_spec = singleton(chatml_expander.expand(run_spec))
 
-        # Anthropic prompts
+        # Anthropic Claude 1 and 2 prompts
         if ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags or ANTHROPIC_CLAUDE_2_MODEL_TAG in model.tags:
-            run_spec = singleton(AnthropicRunExpander().expand(run_spec))
+            run_spec = singleton(AnthropicClaude2RunExpander().expand(run_spec))
 
-        # OpenAI prompts
-        if OPENAI_CHATGPT_MODEL_TAG in model.tags:
-            run_spec = singleton(OpenAIRunExpander().expand(run_spec))
+        # Anthropic Claude 3
+        if ANTHROPIC_CLAUDE_3_MODEL_TAG in model.tags:
+            run_spec = singleton(AnthropicClaude3RunExpander().expand(run_spec))
 
-        # Google prompts
-        if (
-            GOOGLE_PALM_2_MODEL_TAG in model.tags
-            or GOOGLE_GEMINI_MODEL_TAG
-            or GOOGLE_GEMMA_INSTRUCT_MODEL_TAG in model.tags
-        ):
-            run_spec = singleton(GoogleRunExpander().expand(run_spec))
-
-        # Mistral prompts
-        if MISTRAL_MODEL_TAG in model.tags:
-            run_spec = singleton(MistralRunExpander().expand(run_spec))
-
-        # Google Gemini Vision returns an empty completion or throws an error if max_tokens is 1
+        # Google Gemini Vision v1.0 returns an empty completion or throws an error if max_tokens is 1
         if (
             VISION_LANGUAGE_MODEL_TAG in model.tags
-            and GOOGLE_GEMINI_MODEL_TAG in model.tags
+            and GOOGLE_GEMINI_PRO_VISION_V1_TAG in model.tags
             and run_spec.adapter_spec.max_tokens == 1
         ):
             run_spec = singleton(IncreaseMaxTokensRunExpander(value=1).expand(run_spec))
 
         # IDEFICS special handling
         if IDEFICS_MODEL_TAG in model.tags:
-            # IDEFICS requires more `max_tokens` to generate something reasonable for open-ended generation
-            if run_spec.adapter_spec.method == ADAPT_GENERATION_MULTIMODAL:
-                run_spec = singleton(IncreaseMaxTokensRunExpander(value=30).expand(run_spec))
-
             if IDEFICS_INSTRUCT_MODEL_TAG in model.tags:
                 run_spec = singleton(IDEFICSInstructRunExpander().expand(run_spec))
 
@@ -177,6 +155,10 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         if BUGGY_TEMP_0_TAG in model.tags and run_spec.adapter_spec.temperature == 0:
             increase_temperature_expander = IncreaseTemperatureRunExpander(value=1e-4)
             run_spec = singleton(increase_temperature_expander.expand(run_spec))
+
+        # MedLM-Large
+        if run_spec.adapter_spec.model == "google/medlm-large":
+            run_spec = singleton(StopRunExpander("none").expand(run_spec))
 
         return run_spec
 

@@ -113,19 +113,12 @@ class AnnotationExecutor:
         )
 
     def process(self, annotator_specs: List[AnnotatorSpec], state: RequestState) -> RequestState:
-        annotations: List[Dict[str, Any]] = []
+        annotations: Dict[str, Any] = {}
         try:
             for annotator_spec in annotator_specs:
                 annotator: Annotator = self.factory.get_annotator(annotator_spec)
                 new_annotations = annotator.annotate(state)
-                if len(annotations) == 0:
-                    annotations = new_annotations
-                elif len(new_annotations) > 0:
-                    # If there are new annotations, they should be the same length as the old ones
-                    # as one annotation corresponds to one completion
-                    assert len(annotations) == len(new_annotations)
-                    for i in range(len(annotations)):
-                        annotations[i].update(new_annotations[i])
+                annotations[annotator.name] = new_annotations
         except Exception as e:
             raise AnnotationExecutorError(f"{str(e)} Request: {state.request}") from e
         return replace(state, annotations=annotations)

@@ -4,7 +4,7 @@ from helm.common.cache import CacheConfig
 from helm.common.file_caches.file_cache import FileCache
 from helm.common.general import singleton
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import Request, RequestResult, Sequence, wrap_request_time
+from helm.common.request import Request, RequestResult, GeneratedOutput, wrap_request_time
 from helm.clients.moderation_api_client import ModerationAPIClient
 from helm.clients.client import CachingClient
 from .dalle2_client import DALLE2Client
@@ -82,12 +82,12 @@ class DALLE3Client(DALLE2Client):
             except openai.OpenAIError as e:
                 return self.handle_openai_error(request, e)
 
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         total_request_time: float = 0
         for response in responses:
             image_response: Dict[str, Any] = singleton(response["data"])
             completions.append(
-                Sequence(
+                GeneratedOutput(
                     # From https://cookbook.openai.com/articles/what_is_new_with_dalle_3,
                     # "a new feature in the latest DALL·E-3 API is prompt rewriting, where we use
                     # GPT-4 to optimize all of your prompts before they’re passed to DALL-E."

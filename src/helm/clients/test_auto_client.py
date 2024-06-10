@@ -1,7 +1,7 @@
 import dataclasses
 from tempfile import TemporaryDirectory
 from helm.common.cache_backend_config import BlackHoleCacheBackendConfig
-from helm.common.request import Sequence, Token
+from helm.common.request import GeneratedOutput, Token
 
 import pytest
 
@@ -37,7 +37,7 @@ class TestAutoClient:
             success=True,
             embedding=[],
             completions=[
-                Sequence(
+                GeneratedOutput(
                     text=" intelligent species on the planet. They are also one",
                     logprob=-9.087313510477543,
                     tokens=[

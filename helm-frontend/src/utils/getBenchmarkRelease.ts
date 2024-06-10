@@ -1,3 +1,3 @@
-export default function getBenchmarkRelease(): string {
-  return String(window.RELEASE);
+export default function getBenchmarkRelease(): string | undefined {
+  return window.RELEASE !== undefined ? window.RELEASE : undefined;
 }

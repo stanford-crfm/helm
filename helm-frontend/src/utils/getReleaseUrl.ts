@@ -1,14 +1,15 @@
-import ReleaseIndexEntry from "@/types/ReleaseIndexEntry";
-
 export default function getReleaseUrl(
   version: string | undefined,
-  currReleaseIndexEntry: ReleaseIndexEntry | undefined,
+  currProjectId: string | undefined,
 ): string {
-  if (!currReleaseIndexEntry) {
+  if (!currProjectId) {
     return "#";
   }
-  if (!version) {
-    return `https://crfm.stanford.edu/helm/${currReleaseIndexEntry.id}/`;
+  if (currProjectId === "home") {
+    return `https://crfm.stanford.edu/helm/`;
   }
-  return `https://crfm.stanford.edu/helm/${currReleaseIndexEntry.id}/`;
+  if (!version) {
+    return `https://crfm.stanford.edu/helm/${currProjectId}/latest/`;
+  }
+  return `https://crfm.stanford.edu/helm/${currProjectId}/${version}/`;
 }

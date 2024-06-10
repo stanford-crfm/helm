@@ -38,20 +38,20 @@ Specifically, the authors calculated the CI 95% of Rank Location from the real r
 Choose your point on your tradeoff, how accurate do you need your rank? how much time do you want to wait? Once you have chosen, download the config and define your model
 ```bash
 export EXAMPLES_PER_SCENARIO=10 && \
-export MODEL_TO_RUN=huggingface/gpt2
+export MODEL_TO_RUN=openai/gpt2
 ```
 
 That's it, run the following to get the config file:
 
 ```bash
-wget https://raw.githubusercontent.com/stanford-crfm/helm/main/src/helm/benchmark/presentation/run_specs_core_scenarios_$EXAMPLES_PER_SCENARIO.conf -O run_specs_$EXAMPLES_PER_SCENARIO.conf
+wget https://raw.githubusercontent.com/stanford-crfm/helm/main/src/helm/benchmark/presentation/run_entries_core_scenarios_$EXAMPLES_PER_SCENARIO.conf -O run_entries_$EXAMPLES_PER_SCENARIO.conf
 ```
 
 and this one to run the benchmark (will take some time in the first time since all the data has to be prepared):
 
 ```bash
 helm-run \
---conf-paths run_specs_$EXAMPLES_PER_SCENARIO.conf \
+--conf-paths run_entries_$EXAMPLES_PER_SCENARIO.conf \
 --suite $LEADERBOARD_VERSION \
 --max-eval-instances $EXAMPLES_PER_SCENARIO \
 --models-to-run $MODEL_TO_RUN \

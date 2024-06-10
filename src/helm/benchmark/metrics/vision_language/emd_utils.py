@@ -13,6 +13,10 @@ except ModuleNotFoundError as e:
     handle_module_not_found_error(e, suggestions=["images"])
 
 
+def to_gray(img: np.ndarray) -> np.ndarray:
+    return np.matmul(img, np.array([[0.299], [0.587], [0.114]]))
+
+
 def get_most_frequent_color(img: np.ndarray) -> Tuple[np.ndarray, float]:
     """Get the most frequent color in the image and its frequency.
 
@@ -85,7 +89,7 @@ def img_to_sig_patches(
     img /= 255.0  # Normalize colors to [0, 1]
 
     # Collapse color dimensions to grayscale
-    img = np.mean(img, axis=2, keepdims=True)
+    img = to_gray(img)
 
     # Reshape image into patches and flatten the color dimensions within each patch
     patches = (
@@ -107,7 +111,7 @@ def img_to_sig_patches(
     # Compute the weight of each patch
     # The weight of each point is 1 if the color is not the most frequent color, weight_most_frequent_color otherwise
     flattened_patches = patches.reshape(patches.shape[0], -1)
-    gray_most_frequent_color: float = np.mean(rgb_most_frequent_color) / 255.0
+    gray_most_frequent_color: float = float(to_gray(rgb_most_frequent_color).squeeze() / 255.0)
     weight = weight_most_frequent_color + (1 - weight_most_frequent_color) * np.any(
         flattened_patches != gray_most_frequent_color, axis=1, keepdims=True
     ).astype(np.float32)
@@ -276,6 +280,10 @@ def compute_emd_recursive(
     assert max_num_patches > 0
     assert 0 < weight_most_frequent_color <= 1
 
+    # Convert the images to RGB first. Some images have 4 channels (RGBA)
+    img1_PIL = img1_PIL.convert("RGB")
+    img2_PIL = img2_PIL.convert("RGB")
+
     # Resize the images so that there are not too many patches
     # Try to maintain the aspect ratio and resize to a multiple of the patch size
     num_patches = math.ceil(img1_PIL.size[0] / patch_size[0]) * math.ceil(img1_PIL.size[1] / patch_size[1])
@@ -303,7 +311,7 @@ def compute_emd_recursive(
     # - index 1 - 1 + patch_size[0] * patch_size[1]: color values of the patch
     # - index -2, -1: position of the patch
     (rgb_most_frequent_color, frequency) = get_most_frequent_color(img2_np)
-    gray_most_frequent_color = np.mean(rgb_most_frequent_color) / 255.0
+    gray_most_frequent_color = float(to_gray(rgb_most_frequent_color).squeeze() / 255.0)
     sig1 = img_to_sig_patches(img1_np, rgb_most_frequent_color, patch_size, weight_most_frequent_color)
     sig2 = img_to_sig_patches(img2_np, rgb_most_frequent_color, patch_size, weight_most_frequent_color)
 

@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, cast, Union
 from helm.benchmark.model_metadata_registry import is_vlm
 from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE
-from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
+from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
 from helm.common.hierarchical_logger import hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.tokenization_request import (
@@ -60,8 +60,7 @@ class OpenAIClient(CachingClient):
 
     def _get_cache_key(self, raw_request: Dict, request: Request):
         cache_key = CachingClient.make_cache_key(raw_request, request)
-        if is_vlm(request.model):
-            assert request.multimodal_prompt is not None
+        if request.multimodal_prompt:
             prompt_key: str = generate_uid_for_multimodal_prompt(request.multimodal_prompt)
             cache_key = {**cache_key, "multimodal_prompt": prompt_key}
             del cache_key["messages"]
@@ -103,6 +102,14 @@ class OpenAIClient(CachingClient):
 
     def _make_chat_request(self, request: Request) -> RequestResult:
         messages: Optional[List[Dict[str, Union[str, Any]]]] = request.messages
+        if (
+            (request.prompt and request.messages)
+            or (request.prompt and request.multimodal_prompt)
+            or (request.messages and request.multimodal_prompt)
+        ):
+            raise ValueError(
+                f"More than one of `prompt`, `messages` and `multimodal_prompt` was set in request: {request}"
+            )
         if request.messages is not None:
             # Checks that all messages have a role and some content
             for message in request.messages:
@@ -130,9 +137,8 @@ class OpenAIClient(CachingClient):
                         from helm.common.images_utils import encode_base64
 
                         base64_image: str = encode_base64(media_object.location)
-                        content.append(
-                            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
-                        )
+                        image_object: Dict[str, str] = {"url": f"data:image/jpeg;base64,{base64_image}"}
+                        content.append({"type": "image_url", "image_url": image_object})
                     elif media_object.is_type(TEXT_TYPE):
                         if media_object.text is None:
                             raise ValueError("MediaObject of text type has missing text field value")
@@ -173,7 +179,7 @@ class OpenAIClient(CachingClient):
         except openai.OpenAIError as e:
             if self.INAPPROPRIATE_IMAGE_ERROR in str(e):
                 hlog(f"Failed safety check: {str(request)}")
-                empty_completion = Sequence(
+                empty_completion = GeneratedOutput(
                     text="",
                     logprob=0,
                     tokens=[],
@@ -190,7 +196,7 @@ class OpenAIClient(CachingClient):
             error: str = f"OpenAI error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         for raw_completion in response["choices"]:
             # The OpenAI chat completion API doesn't support echo.
             # If `echo_prompt` is true, combine the prompt and completion.
@@ -204,7 +210,7 @@ class OpenAIClient(CachingClient):
             tokens: List[Token] = [
                 Token(text=cast(str, raw_token), logprob=0) for raw_token in tokenization_result.raw_tokens
             ]
-            completion = Sequence(
+            completion = GeneratedOutput(
                 text=text,
                 logprob=0,  # OpenAI does not provide logprobs
                 tokens=tokens,
@@ -258,7 +264,7 @@ class OpenAIClient(CachingClient):
             error: str = f"OpenAI error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         for raw_completion in response["choices"]:
             sequence_logprob = 0
             tokens: List[Token] = []
@@ -270,7 +276,7 @@ class OpenAIClient(CachingClient):
             ) in zip(raw_data["tokens"], raw_data["token_logprobs"]):
                 tokens.append(Token(text=text, logprob=logprob or 0))
                 sequence_logprob += logprob or 0
-            completion = Sequence(
+            completion = GeneratedOutput(
                 text=raw_completion["text"],
                 logprob=sequence_logprob,
                 tokens=tokens,
