@@ -1562,6 +1562,14 @@ models:
     release_date: 2024-05-12
     tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: 01-ai/yi-large-preview
+    display_name: Yi Large (Preview)
+    description: The Yi models are large language models trained from scratch by developers at 01.AI. ([tweet](https://x.com/01AI_Yi/status/1789894091620458667))
+    creator_organization_name: 01.AI
+    access: limited
+    release_date: 2024-05-12
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
   # Allen Institute for AI
   # OLMo Blog: https://blog.allenai.org/olmo-open-language-model-87ccfc95f580
   - name: allenai/olmo-7b
