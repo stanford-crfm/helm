@@ -24,6 +24,7 @@ from helm.benchmark.adaptation.common_adapter_specs import (
     get_ranking_binary_adapter_spec,
     get_summarization_adapter_spec,
 )
+from helm.benchmark.annotation.annotator import AnnotatorSpec
 from helm.benchmark.metrics.common_metric_specs import (
     get_basic_metric_specs,
     get_bias_metric_specs,
@@ -46,7 +47,6 @@ from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.runner import get_benchmark_output_path
 from helm.benchmark.scenarios.scenario import ScenarioSpec, get_scenario_cache_path
 from helm.common.hierarchical_logger import hlog, htrack
-from helm.benchmark.annotation.annotator import AnnotatorSpec
 
 
 @run_spec_function("bbq")
@@ -1169,36 +1169,24 @@ def get_pubmed_qa_spec() -> RunSpec:
 def get_live_qa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.live_qa_scenario.LiveQAScenario")
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION,
-        global_prefix="",
-        global_suffix="",
+    adapter_spec = get_generation_adapter_spec(
         instructions="Please answer the following consumer health question.",
-        input_prefix="Question",
-        input_suffix="",
-        output_prefix="Answer",
-        output_suffix="",
-        instance_prefix="",
+        input_noun="Question",
+        output_noun="Answer",
         max_train_instances=0,
-        num_outputs=1,
         max_tokens=512,
-        temperature=0.0,
-        stop_sequences=[],
     )
-
     annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.live_qa_annotator.LiveQAAnnotator")]
-    metric_specs = [
-        MetricSpec(class_name="helm.benchmark.metrics.live_qa_metrics.LiveQAScoreMetric"),
-        MetricSpec(class_name="helm.benchmark.metrics.live_qa_metrics.LiveQABasicGenerationMetric"),
-        MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.InstancesPerSplitMetric"),
-    ] + get_open_ended_generation_metric_specs()
+    metric_specs = get_open_ended_generation_metric_specs() + [
+        MetricSpec(class_name="helm.benchmark.metrics.live_qa_metrics.LiveQAScoreMetric")
+    ]
 
     return RunSpec(
         name="live_qa",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=metric_specs,
         annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["live_qa"],
     )
 
@@ -1207,38 +1195,25 @@ def get_live_qa_spec() -> RunSpec:
 def get_medication_qa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.medication_qa_scenario.MedicationQAScenario")
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION,
-        global_prefix="",
-        global_suffix="",
+    adapter_spec = get_generation_adapter_spec(
         instructions="Please answer the following consumer health question.",
-        input_prefix="Question",
-        input_suffix="",
-        output_prefix="Answer",
-        output_suffix="",
-        instance_prefix="",
+        input_noun="Question",
+        output_noun="Answer",
         max_train_instances=0,
-        num_outputs=1,
         max_tokens=512,
-        temperature=0.0,
-        stop_sequences=[],
     )
 
     annotator_specs = [
         AnnotatorSpec(class_name="helm.benchmark.annotation.medication_qa_annotator.MedicationQAAnnotator")
     ]
-    metric_specs = [
-        MetricSpec(class_name="helm.benchmark.metrics.medication_qa_metrics.MedicationQAScoreMetric"),
-        MetricSpec(class_name="helm.benchmark.metrics.medication_qa_metrics.MedicationQABasicGenerationMetric"),
-        MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.InstancesPerSplitMetric"),
-    ] + get_open_ended_generation_metric_specs()
+    metric_specs = [MetricSpec(class_name="helm.benchmark.metrics.medication_qa_metrics.MedicationQAScoreMetric")]
 
     return RunSpec(
         name="medication_qa",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=metric_specs,
         annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["medication_qa"],
     )
 

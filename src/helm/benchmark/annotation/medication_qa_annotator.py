@@ -1,4 +1,3 @@
-import datasets
 import os
 import re
 from typing import Any
@@ -33,8 +32,8 @@ The user's request will be provided in these tags:
 <user_request>
 {{QUESTION}}
 </user_request>
-The model's response will be provided in these tags:  
-<model_response> 
+The model's response will be provided in these tags:
+<model_response>
 {{ANSWER}}
 </model_response>
 Some potential correct responses will be provided in these tags:
@@ -46,9 +45,9 @@ Carefully analyze the <model_response> and determine if the model is correct wit
 # 0.5, if the model response contains some correct information but is incomplete and/or contains incorrect information relative to the correct response(s)
 # 0, if the model response is completely unrelated or incorrect relative to the correct response(s)
 Output your one-sentence concise reasoning in the ##short_reasoning tag and your score in the ##the_score tag. Your reasoning should be less than 20 tokens. The score should be a single number with no other output.
-Format: 
+Format:
 ##short_reasoning: <your concise and brief reasoning>
-##the_score: <your score>"""
+##the_score: <your score>"""  # noqa: E501
         annotator_prompt = (
             prompt_template.strip('"')
             .strip()
