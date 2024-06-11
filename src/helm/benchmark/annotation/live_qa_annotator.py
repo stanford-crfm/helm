@@ -26,6 +26,8 @@ class LiveQAAnnotator(Annotator):
         assert len(request_state.result.completions) == 1
         model_input_text = request_state.request.prompt
         model_output_text = request_state.result.completions[0].text
+        if not model_output_text.strip():
+            return {"prompt_text": "", "reasoning": "BLOCKED_REQUEST_OR_EMPTY_RESPONSE", "score": 0.0}
         correct_responses = ""
         for i, reference in enumerate(request_state.instance.references):
             correct_responses += "Correct Response #" + str(i) + ": " + reference.output.text + "\n"

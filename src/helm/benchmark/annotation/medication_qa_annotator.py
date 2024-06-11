@@ -26,6 +26,8 @@ class MedicationQAAnnotator(Annotator):
         assert len(request_state.result.completions) == 1
         model_input_text = request_state.request.prompt
         model_output_text = request_state.result.completions[0].text
+        if not model_output_text.strip():
+            return {"prompt_text": "", "reasoning": "BLOCKED_REQUEST_OR_EMPTY_RESPONSE", "score": 0.0}
         correct_response = request_state.instance.references[0].output.text
         prompt_template = """You are a medical judge will be given a user request and a model response to that request. Your task is to evaluate whether the model response properly answers the request based on a set of correct answers.
 The user's request will be provided in these tags:
