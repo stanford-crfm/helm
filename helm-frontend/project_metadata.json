@@ -42,7 +42,7 @@
 		"releases": ["v1.0.0"]
 	},
 	{
-		"title": "AIRbench",
+		"title": "AIR-Bench",
 		"description": "Safety benchmark based on emerging government regulations and company policies",
 		"id": "air-bench",
 		"releases": ["v1.0.0"]
