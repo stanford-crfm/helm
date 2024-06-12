@@ -36,6 +36,12 @@
 		"releases": ["v1.0.0"]
 	},
 	{
+		"title": "Image2Struct",
+		"description": "Evaluations of image to structure (LaTeX, webpage, music sheet) multimodal models",
+		"id": "image2structure",
+		"releases": ["v1.0.0"]
+	},
+	{
 		"title": "AIRbench",
 		"description": "Safety benchmark based on emerging government regulations and company policies",
 		"id": "air-bench",
