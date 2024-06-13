@@ -992,6 +992,28 @@ model_deployments:
       args:
         pretrained_model_name_or_path: openai-community/gpt2
 
+  ## OpenThaiGPT
+  - name: huggingface/openthaigpt-1.0.0-7b-chat
+    model_name: openthaigpt/openthaigpt-1.0.0-7b-chat
+    tokenizer_name: huggingface/openthaigpt-1.0.0-7b-chat
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+
+  - name: huggingface/openthaigpt-1.0.0-7b-chat
+    model_name: openthaigpt/openthaigpt-1.0.0-7b-chat
+    tokenizer_name: huggingface/openthaigpt-1.0.0-7b-chat
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+
+  - name: huggingface/openthaigpt-1.0.0-70b-chat
+    model_name: openthaigpt/openthaigpt-1.0.0-70b-chat
+    tokenizer_name: huggingface/openthaigpt-1.0.0-7b-chat
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+
   ## SAIL (SEA AI Lab)
   - name: sail/sailor-7b
     model_name: sail/sailor-7b
