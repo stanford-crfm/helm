@@ -1,6 +1,5 @@
 import datasets
 import os
-import random
 from typing import List
 
 import pandas as pd
@@ -10,7 +9,6 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG, TEST_SPLIT, TRAIN_SPLIT
 )
 from helm.common.general import ensure_file_downloaded
-from helm.common.hierarchical_logger import hlog
 
 # BHASA Scenarios
 #   A. Natural Language Understanding

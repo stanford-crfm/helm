@@ -1,21 +1,15 @@
 import re
 import string
 from dataclasses import replace
-from functools import partial
-from typing import Any, Callable, Dict, List, cast
+from typing import Callable, Dict, List
 from collections import Counter
 
-import numpy as np
-from nltk.metrics.scores import f_measure
 from pythainlp.tokenize import word_tokenize
 from sacrebleu.metrics import CHRF
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.adaptation.scenario_state import ScenarioState
-from helm.benchmark.metrics.evaluate_reference_metrics import exact_match
-from helm.benchmark.metrics.evaluate_reference_metrics import rouge_score as rouge_score_fn
-from helm.benchmark.metrics.metric import Metric, MetricResult, MetricSpec
+from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
@@ -25,7 +19,7 @@ class BhasaMachineTranslationMetric(Metric):
 
     This class computes the following standard machine translation metrics
 
-    1. ChrF++
+    1. chr_f_plus_plus (ChrF++)
 
     @inproceedings{popovic-2015-chrf,
         title = "chr{F}: character n-gram {F}-score for automatic {MT} evaluation",
@@ -53,21 +47,14 @@ class BhasaMachineTranslationMetric(Metric):
     def __init__(self):
         self.chrf_scorer = CHRF(word_order=2)
 
-    def evaluate(
-        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
-    ) -> MetricResult:
-        return super().evaluate(scenario_state, metric_service, eval_cache_path, parallelism=parallelism)
-
-    def _compute_chrf(self, refs: List[str], pred: str) -> Dict[str, float]:
+    def compute_chrf(self, refs: List[str], pred: str) -> Dict[str, float]:
         metrics: Dict[str, float] = {}
-        metrics['ChrF++'] = self.chrf_scorer.sentence_score(pred, refs).score
+        metrics['chr_f_plus_plus'] = self.chrf_scorer.sentence_score(pred, refs).score
         return metrics
 
-    def _remove_braces(self, text: str) -> str:
-        if text.startswith("{"):
-            text = text[1:]
-        if text.endswith("}"):
-            text = text[:-1]
+    def remove_braces(self, text: str) -> str:
+        if text.startswith("{") and text.endswith("}"):
+            text = text[1:-1]
         return text
 
     def evaluate_generation(
@@ -95,8 +82,8 @@ class BhasaQAMetric(Metric):
 
     This class computes the following standard SQuAD v1.1 metrics
 
-    1. SQuAD exact match
-    2. SQuAD macro-averaged F1 score
+    1. squad_exact_match_score (SQuAD exact match score)
+    2. squad_f1_score (SQuAD macro-averaged F1 score)
 
     @inproceedings{rajpurkar-etal-2016-squad,
         title = "{SQ}u{AD}: 100,000+ Questions for Machine Comprehension of Text",
@@ -120,15 +107,10 @@ class BhasaQAMetric(Metric):
 
     def __init__(self, language: str = 'en'):
         self.language: str = language
-        self.metrics: Dict[str, Callable] = {
+        self.metrics: Dict[str, Callable[[str, str], float]] = {
             "squad_exact_match_score": self.squad_exact_match_score,
             "squad_f1_score": self.squad_f1_score,
         }
-
-    def evaluate(
-        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
-    ) -> MetricResult:
-        return super().evaluate(scenario_state, metric_service, eval_cache_path, parallelism=parallelism)
 
     def normalize_answer(self, text: str) -> List[str]:
         """
@@ -147,6 +129,7 @@ class BhasaQAMetric(Metric):
         def remove_articles(text: str) -> str:
             return re.sub(r"\b(a|an|the)\b", " ", text)
 
+        # This function is implemented to match SQuAD v1.1 behavior
         def white_space_fix(text: str) -> str:
             return " ".join(text.split())
 
@@ -199,23 +182,11 @@ class BhasaQAMetric(Metric):
 
             for name, metric in self.metrics.items():
                 name = MetricName(name)
-                metric = cast(Callable[[str, str], float], metric)
                 score_1 = max(metric(gold.output.text.strip(), preds[0]) for gold in golds)
-                score_k = max(metric(gold.output.text.strip(), pred) for gold in golds for pred in preds)
-
                 metrics = [Stat(name).add(score_1)]
                 if adapter_spec.num_outputs != 1:
+                    score_k = max(metric(gold.output.text.strip(), pred) for gold in golds for pred in preds)
                     metrics.append(Stat(replace(name, name=f"{name.name}@{adapter_spec.num_outputs}")).add(score_k))
                 stats.extend(metrics)
 
         return stats
-
-def get_bhasa_machine_translation_metric_specs() -> List[MetricSpec]:
-    return [
-        MetricSpec(class_name="helm.benchmark.metrics.bhasa_metrics.BhasaMachineTranslationMetric")
-    ]
-
-def get_bhasa_qa_metric_specs(args: Dict[str, Any]) -> List[MetricSpec]:
-    return [
-        MetricSpec(class_name="helm.benchmark.metrics.bhasa_metrics.BhasaQAMetric", args=args)
-    ]

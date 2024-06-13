@@ -1,18 +1,13 @@
-from helm.benchmark.adaptation.adapter_spec import (
-    ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
-)
 from helm.benchmark.adaptation.common_adapter_specs import (
     get_generation_adapter_spec,
-    get_multiple_choice_separate_adapter_spec,
 )
-from helm.benchmark.metrics.bhasa_metrics import (
+from helm.benchmark.metrics.bhasa_metrics_specs import (
     get_bhasa_machine_translation_metric_specs,
     get_bhasa_qa_metric_specs,
 )
 from helm.benchmark.metrics.common_metric_specs import (
     get_basic_metric_specs,
     get_classification_metric_specs,
-    get_exact_match_metric_specs,
     get_f1_metric_specs,
 )
 from helm.benchmark.run_spec import RunSpec, run_spec_function
