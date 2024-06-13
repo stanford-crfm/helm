@@ -4,10 +4,9 @@ import json
 import requests
 
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import hlog
 from helm.common.images_utils import encode_base64
 from helm.common.media_object import TEXT_TYPE
-from helm.common.request import Request, RequestResult, GeneratedOutput, ErrorFlags
+from helm.common.request import Request, RequestResult, GeneratedOutput
 from helm.common.request import wrap_request_time
 from helm.clients.client import CachingClient, generate_uid_for_multimodal_prompt, truncate_and_tokenize_response_text
 from helm.tokenizers.tokenizer import Tokenizer
