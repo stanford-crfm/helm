@@ -1022,6 +1022,27 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
 
   ## SCB10X
+  - name: huggingface/typhoon-7b
+    model_name: scb10x/typhoon-7b
+    tokenizer_name: scb10x/typhoon-7b
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/typhoon-v1.5-8b
+    model_name: scb10x/typhoon-v1.5-8b
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/typhoon-v1.5-8b-instruct
+    model_name: scb10x/typhoon-v1.5-8b-instruct
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
   - name: huggingface/typhoon-v1.5-72b
     model_name: scb10x/typhoon-v1.5-72b
     tokenizer_name: qwen/qwen1.5-7b
