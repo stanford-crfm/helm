@@ -95,8 +95,8 @@ class TyDiQAScenario(Scenario):
                 # Select only bottom 20th percentile by length for in-context examples as examples are very long
                 data = df[df["passage_text"].apply(len) < df["passage_text"].apply(len).quantile(.2)]
             else:
-                # Sample 100 examples for test
-                data = df.sample(n=100, random_state=5018)
+                # Sample 565 examples for test
+                data = df.sample(n=565, random_state=5018)
 
             for _, row in data.iterrows():
                 passage = row["passage_text"].strip()
@@ -185,8 +185,8 @@ class XQuADScenario(Scenario):
         dataset = datasets.load_dataset("xquad", f"xquad.{self.language}", split="validation")
         df = dataset.to_pandas()
 
-        # Sample 100 examples for test
-        df_test = df.sample(n=100, random_state=self.map[self.language]["random_state"])
+        # Sample 1000 examples for test
+        df_test = df.sample(n=1000, random_state=self.map[self.language]["random_state"])
 
         # In-context examples to be drawn from remaining examples (since there is no train data)
         df_train = df[~df.index.isin(df_test.index)]
@@ -292,8 +292,8 @@ class IndicQAScenario(Scenario):
         # Remove unanswerable questions (answer is an empty string)
         df = df[df["answers"].apply(lambda x: len(x["text"][0].strip()) > 0)]
 
-        # Sample 100 examples for test
-        df_test = df.sample(n=100, random_state=7900)
+        # Sample 1000 examples for test
+        df_test = df.sample(n=1000, random_state=7900)
 
         # In-context examples to be drawn from remaining examples (since there is no train/dev data)
         df_train = df[~df.index.isin(df_test.index)]
