@@ -7,8 +7,8 @@ from helm.benchmark.metrics.bhasa_metrics_specs import (
 )
 from helm.benchmark.metrics.common_metric_specs import (
     get_basic_metric_specs,
+    get_exact_match_metric_specs,
     get_classification_metric_specs,
-    get_f1_metric_specs,
 )
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
@@ -62,7 +62,8 @@ XQUAD_PROMPTS = {
     },
 }
 
-def generate_xquad_run_spec(language="th"):
+@run_spec_function("xquad")
+def get_xquad_spec(language="th") -> RunSpec:
     name = f"xquad_{language}"
 
     adapter_spec = get_generation_adapter_spec(
@@ -88,10 +89,6 @@ def generate_xquad_run_spec(language="th"):
         }),
         groups=["bhasa_nlu", f"xquad_{language}"],
     )
-
-@run_spec_function("xquad")
-def get_xquad_spec(language="th") -> RunSpec:
-    return generate_xquad_run_spec(language)
 
 # 1.3 Tamil: IndicQA
 @run_spec_function("indicqa")
@@ -141,7 +138,7 @@ def get_nusax_spec() -> RunSpec:
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_f1_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
         groups=["bhasa_nlu", "nusax"],
     )
 
@@ -166,7 +163,7 @@ def get_uitvsfc_spec() -> RunSpec:
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_f1_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
         groups=["bhasa_nlu", "uitvsfc"],
     )
 
@@ -191,7 +188,7 @@ def get_wisesight_spec() -> RunSpec:
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_f1_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
         groups=["bhasa_nlu", "wisesight"],
     )
 
@@ -242,7 +239,7 @@ def get_mlhsd_spec() -> RunSpec:
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_f1_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
         groups=["bhasa_nlu", "mlhsd"],
     )
 
@@ -267,7 +264,7 @@ def get_vihsd_spec() -> RunSpec:
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_f1_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
         groups=["bhasa_nlu", "vihsd"],
     )
 
@@ -292,7 +289,7 @@ def get_thaitoxicitytweets_spec() -> RunSpec:
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_f1_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
         groups=["bhasa_nlu", "thaitoxicitytweets"],
     )
 
@@ -343,7 +340,8 @@ TRANSLATION_PROMPTS = {
     },
 }
 
-def generate_flores_run_spec(source="en", target="id"):
+@run_spec_function("flores")
+def get_flores_spec(source="en", target="id") -> RunSpec:
     pair = f"{source}_{target}"
     name = f"flores_{pair}"
 
@@ -370,10 +368,6 @@ def generate_flores_run_spec(source="en", target="id"):
         groups=["bhasa_nlg", f"flores_{pair}"],
     )
 
-@run_spec_function("flores")
-def get_flores_spec(source="en", target="id") -> RunSpec:
-    return generate_flores_run_spec(source, target)
-
 # C. Natural Language Reasoning
 #   1. Natural Language Inference
 #   2. Causal Reasoning
@@ -399,7 +393,7 @@ def get_indonli_spec() -> RunSpec:
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_f1_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
         groups=["bhasa_nlr", "indonli"],
     )
 
@@ -417,7 +411,8 @@ XNLI_PROMPTS = {
     },
 }
 
-def generate_xnli_run_spec(language="vi"):
+@run_spec_function("xnli")
+def get_xnli_spec(language="vi") -> RunSpec:
     name = f"xnli_{language}"
 
     adapter_spec = get_generation_adapter_spec(
@@ -438,13 +433,9 @@ def generate_xnli_run_spec(language="vi"):
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_f1_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
         groups=["bhasa_nlr", f"xnli_{language}"],
     )
-
-@run_spec_function("xnli")
-def get_xnli_spec(language="vi") -> RunSpec:
-    return generate_xnli_run_spec(language)
 
 # 1.3 Tamil: IndicXNLI
 @run_spec_function("indicxnli")
@@ -466,7 +457,7 @@ def get_indicxnli_spec() -> RunSpec:
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_f1_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
         groups=["bhasa_nlr", "indicxnli"],
     )
 
@@ -490,7 +481,8 @@ XCOPA_PROMPTS = {
     }
 }
 
-def generate_xcopa_run_spec(language="id"):
+@run_spec_function("xcopa")
+def get_xcopa_spec(language="id") -> RunSpec:
     name = f"xcopa_{language}"
 
     adapter_spec = get_generation_adapter_spec(
@@ -511,10 +503,6 @@ def generate_xcopa_run_spec(language="id"):
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_f1_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
         groups=["bhasa_nlr", f"xcopa_{language}"],
     )
-
-@run_spec_function("xcopa")
-def get_xcopa_spec(language="id") -> RunSpec:
-    return generate_xcopa_run_spec(language)
