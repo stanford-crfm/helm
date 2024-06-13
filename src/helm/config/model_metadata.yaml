@@ -2351,6 +2351,33 @@ models:
     tags: [] # TODO: add tags
 
   # SCB10X
+  - name: scb10x/typhoon-7b
+    display_name: Typhoon (7B)
+    description: Typhoon (7B) is pretrained Thai large language model with 7 billion parameters based on Mistral 7B. ([paper](https://arxiv.org/abs/2312.13951))
+    creator_organization_name: SCB10X
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-12-21
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: scb10x/typhoon-v1.5-8b
+    display_name: Typhoon v1.5 (8B)
+    description: Typhoon v1.5 (8B) is pretrained Thai large language model with 8 billion parameters based on Llama 3 8B. ([blog](https://blog.opentyphoon.ai/typhoon-1-5-release-a9364cb8e8d7))
+    creator_organization_name: SCB10X
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-05-08
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: scb10x/typhoon-v1.5-8b-instruct
+    display_name: Typhoon v1.5 Instruct (8B)
+    description: Typhoon v1.5 Instruct (8B) is pretrained Thai large language model with 8 billion parameters based on Llama 3 8B. ([blog](https://blog.opentyphoon.ai/typhoon-1-5-release-a9364cb8e8d7))
+    creator_organization_name: SCB10X
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-05-08
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: scb10x/typhoon-v1.5-72b
     display_name: Typhoon v1.5 (72B)
     description: Typhoon v1.5 (72B) is pretrained Thai large language model with 72 billion parameters based on Qwen1.5-72B. ([blog](https://blog.opentyphoon.ai/typhoon-1-5-release-a9364cb8e8d7))
