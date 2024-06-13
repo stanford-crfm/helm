@@ -30,6 +30,25 @@ jobs:
       - run: helm-run --run-entries simple1:model=simple/model1 --max-eval-instances 10 --suite test
       - run: helm-summarize --suite test
       - run: helm-server --help
+ 
+  install_openvino:  
+    # Tests that the Optimum Intel command works when only installing required dependencies
+    name: Run Optimum Intel with minimal dependencies only
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - run: python3 -m pip install --upgrade build
+      - run: python3 -m build
+      - run: python3 -m pip install "$(ls dist/crfm_helm-*.whl)[openvino]"
+      - run: helm-run --run-entries boolq:model=hf-internal-testing/tiny-random-MistralForCausalLM --enable-huggingface-models hf-internal-testing/tiny-random-MistralForCausalLM --suite v1 --max-eval-instances 10 --openvino
 
   test:
     name: Run all tests
@@ -59,3 +78,4 @@ jobs:
       - name: Run entire pipeline quickly without any data
         # Checking RunSpecs with openai/davinci should be comprehensive enough
         run: source venv/bin/activate && helm-run --suite test -m 100 --skip-instances --models-to-run openai/davinci --exit-on-error
+        

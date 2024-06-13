@@ -27,12 +27,24 @@
 		"title": "MMLU",
 		"description": "Massive Multitask Language Understanding (MMLU) evaluations using standardized prompts",
 		"id": "mmlu",
-		"releases": ["v1.3.0", "v1.2.0", "v1.1.0", "v1.0.0"]
+		"releases": ["v1.4.0", "v1.3.0", "v1.2.0", "v1.1.0", "v1.0.0"]
 	},
 	{
 		"title": "VHELM",
 		"description": "Holistic Evaluation of Vision-Language Models",
 		"id": "vhelm",
+		"releases": ["v1.0.0"]
+	},
+	{
+		"title": "Image2Struct",
+		"description": "Evaluations of image to structure (LaTeX, webpage, music sheet) multimodal models",
+		"id": "image2struct",
+		"releases": ["v1.0.0"]
+	},
+	{
+		"title": "AIR-Bench",
+		"description": "Safety benchmark based on emerging government regulations and company policies",
+		"id": "air-bench",
 		"releases": ["v1.0.0"]
 	},
 	{

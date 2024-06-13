@@ -1,3 +1,4 @@
+# noqa: E501
 from typing import Dict, List
 
 from helm.benchmark.adaptation.request_state import RequestState

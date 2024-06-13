@@ -35,7 +35,7 @@ class AIRBench2024Scenario(Scenario):
         ensure_directory_exists(cache_dir)
 
         # TODO: Switch this to the production dataset when available.
-        dataset = datasets.load_dataset("yifanmai/air-bench-2024-beta", split="test", cache_dir=cache_dir)
+        dataset = datasets.load_dataset("stanford-crfm/air-bench-2024", split="test", cache_dir=cache_dir)
         instances: List[Instance] = []
         # TODO: Allow users to filter by category
         for row in dataset:

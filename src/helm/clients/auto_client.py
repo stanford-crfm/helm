@@ -5,6 +5,7 @@ from typing import Any, Dict, Mapping, Optional
 from retrying import Attempt, RetryError
 
 from helm.benchmark.model_deployment_registry import ModelDeployment, get_model_deployment
+from helm.benchmark.tokenizer_config_registry import get_tokenizer_config
 from helm.common.file_caches.file_cache import FileCache
 from helm.common.file_caches.local_file_cache import LocalFileCache
 from helm.common.credentials_utils import provide_api_key
@@ -89,6 +90,9 @@ class AutoClient(Client):
                     "hf_auth_token": lambda: self.credentials.get("huggingfaceAuthToken", None),  # HuggingFace
                     "file_cache": lambda: self._get_file_cache(host_organization),  # Text-to-image models
                     "endpoint": lambda: self.credentials.get(host_organization + "Endpoint", None),  # Palmyra
+                    "end_of_text_token": lambda: self._get_end_of_text_token(
+                        tokenizer_name=model_deployment.tokenizer_name or model_deployment.name
+                    ),
                 },
             )
             client = create_object(client_spec)
@@ -214,3 +218,9 @@ class AutoClient(Client):
         # Initialize `FileCache` for text-to-image model APIs
         local_file_cache_path: str = os.path.join(self.file_storage_path, "output", host_organization)
         return LocalFileCache(local_file_cache_path, file_extension="png")
+
+    def _get_end_of_text_token(self, tokenizer_name: str) -> Optional[str]:
+        tokenizer_config = get_tokenizer_config(tokenizer_name)
+        if tokenizer_config is None:
+            raise ValueError(f"Could not find tokenizer_config for tokenizer {tokenizer_name}")
+        return tokenizer_config.end_of_text_token

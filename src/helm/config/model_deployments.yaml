@@ -409,7 +409,7 @@ model_deployments:
     tokenizer_name: deepseek-ai/deepseek-llm-67b-chat
     max_sequence_length: 4095
     client_spec:
-      class_name: "helm.clients.together_client.TogetherClient"
+      class_name: "helm.clients.together_client.TogetherChatClient"
 
   # Gooseai
 
@@ -447,6 +447,14 @@ model_deployments:
 
   - name: google/gemini-1.0-pro-001
     model_name: google/gemini-1.0-pro-001
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 30720
+    max_sequence_and_generated_tokens_length: 32768 # Officially max_sequence_length + 2048
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+
+  - name: google/gemini-1.0-pro-002
+    model_name: google/gemini-1.0-pro-002
     tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
     max_sequence_length: 30720
     max_sequence_and_generated_tokens_length: 32768 # Officially max_sequence_length + 2048
@@ -579,6 +587,27 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient"
 
+  ## MedLM
+  - name: google/medlm-medium
+    model_name: google/medlm-medium
+    tokenizer_name: google/text-bison@001
+    max_sequence_length: 6000 # Officially 8192
+    max_sequence_and_generated_tokens_length: 7000 # Officially 9216
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAITextClient"
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
+
+  - name: google/medlm-large
+    model_name: google/medlm-large
+    tokenizer_name: google/text-bison@001
+    max_sequence_length: 6000 # Officially 8192
+    max_sequence_and_generated_tokens_length: 7000 # Officially 9216
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAITextClient"
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
+
   ## PaliGemma
   - name: google/paligemma-3b-mix-224
     model_name: google/paligemma-3b-mix-224
@@ -611,7 +640,7 @@ model_deployments:
     max_sequence_length: 6000 # Officially 8192
     max_sequence_and_generated_tokens_length: 9216
     client_spec:
-      class_name: "helm.proxy.clients.vertexai_client.VertexAITextClient"
+      class_name: "helm.clients.vertexai_client.VertexAITextClient"
     window_service_spec:
       class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
 
@@ -652,7 +681,7 @@ model_deployments:
     max_sequence_length: 6000 # Officially 6144
     max_sequence_and_generated_tokens_length: 7168
     client_spec:
-      class_name: "helm.proxy.clients.vertexai_client.VertexAITextClient"
+      class_name: "helm.clients.vertexai_client.VertexAITextClient"
     window_service_spec:
       class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
 
@@ -699,6 +728,15 @@ model_deployments:
     model_name: bigcode/starcoder
     tokenizer_name: bigcode/starcoder
     max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  ## Biomistral 
+
+  - name: huggingface/biomistral-7b
+    model_name: biomistral/biomistral-7b
+    tokenizer_name: mistralai/Mistral-7B-v0.1
+    max_sequence_length: 32000
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
 
@@ -781,6 +819,15 @@ model_deployments:
     model_name: lmsys/vicuna-13b-v1.3
     tokenizer_name: hf-internal-testing/llama-tokenizer
     max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  ## Meditron 
+
+  - name: huggingface/meditron-7b
+    model_name: epfl-llm/meditron-7b
+    tokenizer_name: meta-llama/Llama-2-7b-hf
+    max_sequence_length: 4094
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
 
@@ -944,6 +991,50 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         pretrained_model_name_or_path: openai-community/gpt2
+
+  ## SAIL (SEA AI Lab)
+  - name: sail/sailor-7b
+    model_name: sail/sailor-7b
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  - name: sail/sailor-7b-chat
+    model_name: sail/sailor-7b-chat
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  - name: sail/sailor-14b
+    model_name: sail/sailor-14b
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  - name: sail/sailor-14b-chat
+    model_name: sail/sailor-14b-chat
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  ## SCB10X
+  - name: huggingface/typhoon-v1.5-72b
+    model_name: scb10x/typhoon-v1.5-72b
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/typhoon-v1.5-72b-instruct
+    model_name: scb10x/typhoon-v1.5-72b-instruct
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
 
   ## StabilityAI
   - name: huggingface/stablelm-base-alpha-3b
@@ -1849,6 +1940,20 @@ model_deployments:
       args:
         together_model: zero-one-ai/Yi-34B-Chat
 
+  - name: 01-ai/yi-large
+    model_name: 01-ai/yi-large
+    tokenizer_name: 01-ai/Yi-6B  # Actual tokenizer is publicly unavailable, so use a substitute
+    max_sequence_length: 16000
+    client_spec:
+      class_name: "helm.clients.yi_client.YiChatClient"
+
+  - name: 01-ai/yi-large-preview
+    model_name: 01-ai/yi-large-preview
+    tokenizer_name: 01-ai/Yi-6B  # Actual tokenizer is publicly unavailable, so use a substitute
+    max_sequence_length: 16000
+    client_spec:
+      class_name: "helm.clients.yi_client.YiChatClient"
+
 
   # Allen Institute for AI
   - name: together/olmo-7b
@@ -2254,6 +2359,13 @@ model_deployments:
     model_name: qwen/qwen1.5-110b-chat
     tokenizer_name: qwen/qwen1.5-7b
     max_sequence_length: 32767
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+
+  - name: together/qwen2-72b-instruct
+    model_name: qwen/qwen2-72b-instruct
+    tokenizer_name: qwen/qwen2-72b-instruct
+    max_sequence_length: 128000
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
 

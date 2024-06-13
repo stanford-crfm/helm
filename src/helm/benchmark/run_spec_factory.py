@@ -156,6 +156,10 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             increase_temperature_expander = IncreaseTemperatureRunExpander(value=1e-4)
             run_spec = singleton(increase_temperature_expander.expand(run_spec))
 
+        # MedLM-Large
+        if run_spec.adapter_spec.model == "google/medlm-large":
+            run_spec = singleton(StopRunExpander("none").expand(run_spec))
+
         return run_spec
 
     run_specs = [alter_run_spec(run_spec) for run_spec in run_specs]
