@@ -2200,7 +2200,7 @@ models:
   # OpenThaiGPT
   - name: openthaigpt/openthaigpt-1.0.0-7b-chat
     display_name: OpenThaiGPT v1.0.0 (7B)
-    description: OpenThaiGPT v1.0.0 (7B) is a Thai language chat model based on Llama 2 that has been specifically fine-tuned for Thai instructions and enhanced by incorporating over 10,000 of the most commonly used Thai words into the dictionary.
+    description: OpenThaiGPT v1.0.0 (7B) is a Thai language chat model based on Llama 2 that has been specifically fine-tuned for Thai instructions and enhanced by incorporating over 10,000 of the most commonly used Thai words into the dictionary. ([blog post](https://openthaigpt.aieat.or.th/openthaigpt-1.0.0-less-than-8-apr-2024-greater-than))
     creator_organization_name: OpenThaiGPT
     access: open
     num_parameters: 7000000000
@@ -2209,7 +2209,7 @@ models:
 
   - name: openthaigpt/openthaigpt-1.0.0-13b-chat
     display_name: OpenThaiGPT v1.0.0 (13B)
-    description: OpenThaiGPT v1.0.0 (13B) is a Thai language chat model based on Llama 2 that has been specifically fine-tuned for Thai instructions and enhanced by incorporating over 10,000 of the most commonly used Thai words into the dictionary.
+    description: OpenThaiGPT v1.0.0 (13B) is a Thai language chat model based on Llama 2 that has been specifically fine-tuned for Thai instructions and enhanced by incorporating over 10,000 of the most commonly used Thai words into the dictionary. ([blog post](https://openthaigpt.aieat.or.th/openthaigpt-1.0.0-less-than-8-apr-2024-greater-than))
     creator_organization_name: OpenThaiGPT
     access: open
     num_parameters: 13000000000
@@ -2218,7 +2218,7 @@ models:
 
   - name: openthaigpt/openthaigpt-1.0.0-70b-chat
     display_name: OpenThaiGPT v1.0.0 (70B)
-    description: OpenThaiGPT v1.0.0 (70B) is a Thai language chat model based on Llama 2 that has been specifically fine-tuned for Thai instructions and enhanced by incorporating over 10,000 of the most commonly used Thai words into the dictionary.
+    description: OpenThaiGPT v1.0.0 (70B) is a Thai language chat model based on Llama 2 that has been specifically fine-tuned for Thai instructions and enhanced by incorporating over 10,000 of the most commonly used Thai words into the dictionary. ([blog post](https://openthaigpt.aieat.or.th/openthaigpt-1.0.0-less-than-8-apr-2024-greater-than))
     creator_organization_name: OpenThaiGPT
     access: open
     num_parameters: 70000000000
