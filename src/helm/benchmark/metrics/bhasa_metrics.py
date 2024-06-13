@@ -47,7 +47,7 @@ class BhasaMachineTranslationMetric(Metric):
     def __init__(self):
         self.chrf_scorer = CHRF(word_order=2)
 
-    def compute_chrf(self, refs: List[str], pred: str) -> Dict[str, float]:
+    def chr_f_plus_plus(self, refs: List[str], pred: str) -> Dict[str, float]:
         metrics: Dict[str, float] = {}
         metrics['chr_f_plus_plus'] = self.chrf_scorer.sentence_score(pred, refs).score
         return metrics
@@ -64,16 +64,16 @@ class BhasaMachineTranslationMetric(Metric):
         metric_service: MetricService,
         eval_cache_path: str,
     ) -> List[Stat]:
-        refs: List[str] = [self._remove_braces(ref.output.text) for ref in request_state.instance.references]
-        inp: str = self._remove_braces(request_state.instance.input.text)
+        refs: List[str] = [self.remove_braces(ref.output.text) for ref in request_state.instance.references]
+        inp: str = self.remove_braces(request_state.instance.input.text)
 
         assert request_state.result is not None
-        pred: str = self._remove_braces(request_state.result.completions[0].text.strip())
+        pred: str = self.remove_braces(request_state.result.completions[0].text.strip())
 
         result: List[Stat] = []
 
         # Compute ChrF++ metrics
-        result.extend([Stat(MetricName(name)).add(float(val)) for name, val in self._compute_chrf(refs, pred).items()])
+        result.extend([Stat(MetricName(name)).add(float(val)) for name, val in self.chr_f_plus_plus(refs, pred).items()])
 
         return result
 
