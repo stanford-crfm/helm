@@ -1389,6 +1389,69 @@ class ChatMLRunExpander(RunExpander):
         ]
 
 
+class OutputFormatInstructions(RunExpander):
+    """Add extra instructions to about output formatting to HELM Lite scenarios.
+
+    Many instruction-following models and chat models are tuned to expect conversational prompts
+    and respond in a conversational way. These models occasionally produce outputs that are not
+    in the expected format. This run expander instructs these models to provide the output in
+    the format expected by the scenario.
+
+    The argument should be the name of the scenario."""
+
+    name = "output_format_instructions"
+
+    def __init__(self, scenario: str):
+        self.scenario = scenario
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        if run_spec.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
+            instructions = "Answer with only a single letter."
+            if run_spec.adapter_spec.instructions:
+                instructions = f"{instructions}\n\n{run_spec.adapter_spec.instructions}"
+            return [
+                replace(
+                    run_spec,
+                    adapter_spec=replace(run_spec.adapter_spec, instructions=instructions),
+                ),
+            ]
+        elif run_spec.adapter_spec.method == ADAPT_GENERATION:
+            output_noun = run_spec.adapter_spec.output_prefix.split(":")[0]
+            if self.scenario == "narrative_qa":
+                instructions = (
+                    "Answer with one word, a few-word phrase, or a short sentence. "
+                    + "Avoid extra, unnecessary information in the answer."
+                )
+            elif self.scenario == "natural_qa":
+                instructions = "Answer with a short answer or a boolean 'yes' or 'no' answer."
+            elif self.scenario == "legalbench":
+                if output_noun != "Answer":
+                    instructions = f"Answer with the {output_noun.lower()}."
+                else:
+                    instructions = "Answer yes or no."
+            elif self.scenario == "wmt_14":
+                instructions = "Answer with the English translation."
+            else:
+                raise ValueError(f"Unknown scenario {self.scenario}")
+
+            if run_spec.adapter_spec.output_prefix:
+                instructions = (
+                    f"{instructions} Do not include '{run_spec.adapter_spec.output_prefix.strip()}' in your answer."
+                )
+
+            if run_spec.adapter_spec.instructions:
+                instructions = f"{instructions}\n\n{run_spec.adapter_spec.instructions}"
+            else:
+                instructions = f"{instructions}\n"
+            return [
+                replace(
+                    run_spec,
+                    adapter_spec=replace(run_spec.adapter_spec, instructions=instructions),
+                ),
+            ]
+        return [run_spec]
+
+
 RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     InstructionsRunExpander,
     PromptRunExpander,
@@ -1411,6 +1474,7 @@ RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     NumOutputTokensRunExpander,
     ChatMLRunExpander,
     EvalSplitRunExpander,
+    OutputFormatInstructions,
 ]
 
 

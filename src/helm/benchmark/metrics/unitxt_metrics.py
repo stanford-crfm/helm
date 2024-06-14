@@ -50,16 +50,20 @@ class UnitxtMetric(MetricInterface):
             for metric_name, metric_score in instance_results.items():
                 if metric_name == "score" or metric_name == "score_name":
                     continue
-                instance_stats.append(
-                    Stat(
-                        MetricName(
-                            name=metric_name,
-                            split=instance.split,
-                            sub_split=instance.sub_split,
-                            perturbation=instance.perturbation,
-                        )
-                    ).add(metric_score)
+                stat = Stat(
+                    MetricName(
+                        name=metric_name,
+                        split=instance.split,
+                        sub_split=instance.sub_split,
+                        perturbation=instance.perturbation,
+                    )
                 )
+                if isinstance(metric_score, list):
+                    for metric_score_element in metric_score:
+                        stat = stat.add(metric_score_element)
+                else:
+                    stat = stat.add(metric_score)
+                instance_stats.append(stat)
             assert instance.id
             per_instance_stats.append(
                 PerInstanceStats(
@@ -77,5 +81,11 @@ class UnitxtMetric(MetricInterface):
             for metric_name, metric_score in global_results.items():
                 if metric_name == "score" or metric_name == "score_name":
                     continue
-                aggregated_stats.append(Stat(MetricName(name=metric_name)).add(metric_score))
+                stat = Stat(MetricName(name=metric_name))
+                if isinstance(metric_score, list):
+                    for metric_score_element in metric_score:
+                        stat = stat.add(metric_score_element)
+                else:
+                    stat = stat.add(metric_score)
+                aggregated_stats.append(stat)
         return MetricResult(aggregated_stats=aggregated_stats, per_instance_stats=per_instance_stats)

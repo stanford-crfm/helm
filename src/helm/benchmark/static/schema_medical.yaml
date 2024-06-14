@@ -74,6 +74,14 @@ metrics:
     display_name: F1
     description: Average F1 score in terms of word overlap between the model output and correct reference.
     lower_is_better: false
+  - name: live_qa_score
+    display_name: Judge Score
+    description: LLM-as-judge score
+    lower_is_better: false
+  - name: medication_qa_score
+    display_name: Judge Score
+    description: LLM-as-judge score
+    lower_is_better: false
 
   # Toxicity metrics
   - name: expected_max_toxicity
@@ -220,7 +228,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: f1_score
+      main_name: live_qa_score
       main_split: test
     taxonomy:
       task: question answering
@@ -237,7 +245,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: f1_score
+      main_name: medication_qa_score
       main_split: test
     taxonomy:
       task: question answering

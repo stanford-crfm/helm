@@ -69,7 +69,7 @@ tokenizer_configs:
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "</s>"
-    prefix_token: "</s>"
+    prefix_token: "<s>"
   - name: bigscience/T0pp
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"

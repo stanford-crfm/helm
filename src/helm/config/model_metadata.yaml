@@ -346,6 +346,18 @@ models:
     release_date: 2023-05-09 # ArXiv submission date
     tags: [CODE_MODEL_TAG]
 
+  # BioMistral
+
+  - name: biomistral/biomistral-7b
+    display_name: BioMistral (7B)
+    description: BioMistral 7B is an open-source LLM tailored for the biomedical domain, utilizing Mistral as its foundation model and further pre-trained on PubMed Central.
+    creator_organization_name: BioMistral
+    access: open
+    num_parameters: 7300000000
+    release_date: 2024-02-15
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+
 
 
   # Cerebras Systems
@@ -437,7 +449,7 @@ models:
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: cohere/command-medium-beta # DEPRECATED
-    display_name: Cohere Command beta (6.1B)
+    display_name: Command beta (6.1B)
     description: Cohere Command beta (6.1B parameters) is fine-tuned from the medium model to respond well with instruction-like prompts ([details](https://docs.cohere.ai/docs/command-beta)).
     creator_organization_name: Cohere
     access: limited
@@ -446,7 +458,7 @@ models:
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: cohere/command-xlarge-beta # DEPRECATED
-    display_name: Cohere Command beta (52.4B)
+    display_name: Command beta (52.4B)
     description: Cohere Command beta (52.4B parameters) is fine-tuned from the XL model to respond well with instruction-like prompts ([details](https://docs.cohere.ai/docs/command-beta)).
     creator_organization_name: Cohere
     access: limited
@@ -455,7 +467,7 @@ models:
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: cohere/command
-    display_name: Cohere Command
+    display_name: Command
     description: Command is Cohere’s flagship text generation model. It is trained to follow user commands and to be instantly useful in practical business applications. [docs](https://docs.cohere.com/reference/generate) and [changelog](https://docs.cohere.com/changelog)
     creator_organization_name: Cohere
     access: limited
@@ -463,7 +475,7 @@ models:
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: cohere/command-light
-    display_name: Cohere Command Light
+    display_name: Command Light
     description: Command is Cohere’s flagship text generation model. It is trained to follow user commands and to be instantly useful in practical business applications. [docs](https://docs.cohere.com/reference/generate) and [changelog](https://docs.cohere.com/changelog)
     creator_organization_name: Cohere
     access: limited
@@ -471,7 +483,7 @@ models:
     tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: cohere/command-r
-    display_name: Cohere Command R
+    display_name: Command R
     description: Command R is a multilingual 35B parameter model with a context length of 128K that has been trained with conversational tool use capabilities.
     creator_organization_name: Cohere
     access: open
@@ -480,7 +492,7 @@ models:
     tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: cohere/command-r-plus
-    display_name: Cohere Command R Plus
+    display_name: Command R Plus
     description: Command R+ is a multilingual 104B parameter model with a context length of 128K that has been trained with conversational tool use capabilities.
     creator_organization_name: Cohere
     access: open
@@ -661,7 +673,16 @@ models:
     release_date: 2023-02-13
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  # EPFL LLM
 
+  - name: epfl-llm/meditron-7b
+    display_name: Meditron (7B)
+    description: Meditron-7B is a 7 billion parameter model adapted to the medical domain from Llama-2-7B through continued pretraining on a comprehensively curated medical corpus.
+    creator_organization_name: EPFL LLM
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-11-27
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   # Google
   - name: google/t5-11b
@@ -1198,8 +1219,6 @@ models:
     release_date: 2023-06-22
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-
-
   # Meta
   - name: meta/opt-iml-175b # NOT SUPPORTED
     display_name: OPT-IML (175B)
@@ -1537,6 +1556,14 @@ models:
 
   - name: 01-ai/yi-large
     display_name: Yi Large
+    description: The Yi models are large language models trained from scratch by developers at 01.AI. ([tweet](https://x.com/01AI_Yi/status/1789894091620458667))
+    creator_organization_name: 01.AI
+    access: limited
+    release_date: 2024-05-12
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: 01-ai/yi-large-preview
+    display_name: Yi Large (Preview)
     description: The Yi models are large language models trained from scratch by developers at 01.AI. ([tweet](https://x.com/01AI_Yi/status/1789894091620458667))
     creator_organization_name: 01.AI
     access: limited
