@@ -69,7 +69,6 @@ Format:
         annotator_response_text = annotator_response.completions[0].text
         parsed_response = json.loads(annotator_response_text)
 
-        print(parsed_response)
         if not parsed_response:
             raise Exception(f"Malformed annotator response: {annotator_response_text}")
         reasoning = parsed_response.get("short_reasoning", "").strip()
