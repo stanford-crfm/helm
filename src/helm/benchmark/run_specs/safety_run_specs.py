@@ -51,7 +51,7 @@ def get_simple_safety_tests_spec() -> RunSpec:
 
 
 @run_spec_function("harm_bench")
-def get_simple_safety_tests_spec() -> RunSpec:
+def get_harm_bench_tests_spec() -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         global_prefix="",
@@ -86,7 +86,7 @@ def get_simple_safety_tests_spec() -> RunSpec:
 
 
 @run_spec_function("anthropic_red_team")
-def get_simple_safety_tests_spec() -> RunSpec:
+def get_anthropic_red_team_spec() -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         global_prefix="",
@@ -117,10 +117,10 @@ def get_simple_safety_tests_spec() -> RunSpec:
         MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.InstancesPerSplitMetric"),
     ]
     return RunSpec(
-        name="harm_bench",
+        name="anthropic_red_team",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
         annotators=annotator_specs,
-        groups=["harm_bench"],
+        groups=["anthropic_red_team"],
     )
