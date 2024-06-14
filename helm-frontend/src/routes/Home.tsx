@@ -13,7 +13,7 @@ export default function Home() {
     return <LiteLanding />;
   } else if (window.PROJECT_ID === "instruct") {
     return <InstructLanding />;
-  } else if (window.PROJECT_ID === "image2structure") {
+  } else if (window.PROJECT_ID === "image2struct") {
     return <Image2StructLanding />;
   } else if (window.PROJECT_ID === "heim") {
     return <HEIMLanding />;
