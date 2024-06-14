@@ -41,5 +41,11 @@ class SimpleSafetyTestsScoreMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         assert request_state.annotations
-        score = request_state.annotations["simple_safety_tests"]["score"]
-        return [Stat(MetricName("sst_score")).add(score)]
+        gpt_score = request_state.annotations["simple_safety_tests"]["gpt_score"]
+        claude_score = request_state.annotations["simple_safety_tests"]["claude_score"]
+        score = (gpt_score + claude_score) / 2
+        return [
+            Stat(MetricName("sst_score")).add(score),
+            Stat(MetricName("sst_gpt_score")).add(gpt_score),
+            Stat(MetricName("sst_claude_score")).add(claude_score),
+        ]
