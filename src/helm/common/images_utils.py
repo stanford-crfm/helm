@@ -30,7 +30,7 @@ def open_image(image_location: str) -> Image.Image:
     return image.convert("RGB")
 
 
-def get_dimensions(image_location: str) -> Tuple[int, int]:
+def get_dimensions(image_location: Optional[str]) -> Tuple[int, int]:
     """Returns the dimensions of the image."""
     image: Image.Image = open_image(image_location)
     return image.size

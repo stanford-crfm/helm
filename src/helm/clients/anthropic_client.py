@@ -284,7 +284,7 @@ class AnthropicMessagesClient(CachingClient):
                         resize_image_to_max_file_size,
                     )
 
-                    image_location: str = media_object.location
+                    image_location: Optional[str] = media_object.location
                     base64_image: str
 
                     image_width, image_height = get_dimensions(media_object.location)
@@ -339,8 +339,9 @@ class AnthropicMessagesClient(CachingClient):
                         "text": media_object.text,
                     }
                     # Anthropic does not support empty text blocks
-                    if media_object.text.strip():
-                        blocks.append(text_block)
+                    if media_object.text:
+                        if media_object.text.strip():
+                            blocks.append(text_block)
             messages = [{"role": "user", "content": blocks}]
 
         else:
