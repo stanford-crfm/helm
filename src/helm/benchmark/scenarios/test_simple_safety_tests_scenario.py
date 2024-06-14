@@ -1,7 +1,7 @@
 import pytest
 from tempfile import TemporaryDirectory
 
-from helm.benchmark.scenarios.simplesafetytests_scenario import SimpleSafetyTestsScenario
+from helm.benchmark.scenarios.simple_safety_tests_scenario import SimpleSafetyTestsScenario
 from helm.benchmark.scenarios.scenario import Input
 
 

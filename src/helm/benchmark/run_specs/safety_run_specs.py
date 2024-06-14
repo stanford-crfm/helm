@@ -28,10 +28,10 @@ def get_simple_safety_tests_spec() -> RunSpec:
         stop_sequences=[],
     )
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.simplesafetytests_scenario.SimpleSafetyTestsScenario"
+        class_name="helm.benchmark.scenarios.simple_safety_tests_scenario.SimpleSafetyTestsScenario"
     )
     annotator_specs = [
-        AnnotatorSpec(class_name="helm.benchmark.annotation.simplesafetytests_annotator.SimpleSafetyTestsAnnotator")
+        AnnotatorSpec(class_name="helm.benchmark.annotation.simple_safety_tests_annotator.SimpleSafetyTestsAnnotator")
     ]
     metric_specs = [
         MetricSpec(class_name="helm.benchmark.metrics.simple_safety_tests_metrics.SimpleSafetyTestsScoreMetric"),
