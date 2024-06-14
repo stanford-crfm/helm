@@ -1044,6 +1044,7 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "chinese": {"chinese": [translate(language_code="zh-CN")]},
     "hindi": {"hindi": [translate(language_code="hi")]},
     "spanish": {"spanish": [translate(language_code="es")]},
+    "swahili": {"swahili": [translate(language_code="sw")]},
     # Styles
     "art": {
         "art": [

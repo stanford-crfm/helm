@@ -162,6 +162,10 @@ metrics:
     display_name: CIDEr
     description: Evaluates the quality of generated caption by measuring the weighted similarity of n-grams between the captions and a set of human-written reference captions, emphasizing informativeness and consensus.
     lower_is_better: false
+  - name: prometheus_vision
+    display_name: Prometheus Vision rating
+    description: Scores are from 1 to 5, where 5 is the best.
+    lower_is_better: false
 
   # Toxicity metrics
   - name: expected_max_toxicity
@@ -273,7 +277,7 @@ run_groups:
     description: All scenarios across capabilities
     category: All scenarios
     subgroups:
-      - accuracy
+      - visual_perception
       - reasoning
       - knowledge
       - bias
@@ -281,8 +285,8 @@ run_groups:
       - toxicity
       - robustness
       - multilinguality
-  - name: accuracy
-    display_name: Accuracy
+  - name: visual_perception
+    display_name: Visual perception
     description: Is the output semantically correct, given the text and image inputs?
     category: Core scenarios
     subgroups:
@@ -296,8 +300,15 @@ run_groups:
     subgroups:
       - gqa
       - math_vista
-      - image2webpage
       - seed_bench
+  - name: real_world_reasoning
+    display_name: Real-world Reasoning
+    description: Reasoning in the real-world
+    category: Core scenarios
+    subgroups:
+      - gqa
+      - seed_bench
+      - mementos
   - name: knowledge
     display_name: Knowledge
     description: Does the model have knowledge about the world and common sense?
@@ -306,6 +317,7 @@ run_groups:
       - a_okvqa_base
       - mmmu
       - mme
+      - vibe_eval
   - name: bias
     display_name: Bias
     description: Are the generations biased in demographic representation? We focus on gender and skin tone bias.
@@ -342,25 +354,10 @@ run_groups:
     description: Do the model support non-English languages?
     category: Core scenarios
     subgroups:
-      - vqa_chinese
-      - vqa_hindi
-      - vqa_spanish
       - a_okvqa_chinese
       - a_okvqa_hindi
       - a_okvqa_spanish
-
-  - name: ablation_in_context
-    display_name: Vary number of in-context examples
-    description: Vary the number of in-context training examples.
-    category: Targeted evaluations
-    visibility: this_group_only
-    subgroups:
-      - vqa_ablation_in_context
-      - a_okvqa_ablation_in_context
-    adapter_keys_shown:
-      - model
-      - model_deployment
-      - max_train_instances
+      - a_okvqa_swahili
 
   - name: a_okvqa_base
     display_name: A-OKVQA
@@ -458,11 +455,11 @@ run_groups:
       when: "2023"
       language: Spanish
 
-  - name: a_okvqa_ablation_in_context
-    display_name: A-OKVQA (in_context examples ablation)
+  - name: a_okvqa_swahili
+    display_name: A-OKVQA (swahili)
     description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
     metric_groups:
-      - accuracy
+      - translate
       - general_information
     environment:
       main_name: exact_match
@@ -472,7 +469,7 @@ run_groups:
       what: Real-world images
       who: Human experts
       when: "2023"
-      language: English
+      language: Swahili
 
   - name: crossmodal_3600
     display_name: Crossmodal 3600
@@ -481,7 +478,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: f1_score
+      main_name: prometheus_vision
       main_split: test
     taxonomy:
       task: multilingual captioning
@@ -497,7 +494,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: f1_score
+      main_name: prometheus_vision
       main_split: test
     taxonomy:
       task: image captioning
@@ -666,22 +663,6 @@ run_groups:
       when: "2017"
       language: Spanish
 
-  - name: vqa_ablation_in_context
-    display_name: VQAv2 (in_context examples ablation)
-    description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
-    metric_groups:
-      - accuracy
-      - general_information
-    environment:
-      main_name: quasi_exact_match
-      main_split: valid
-    taxonomy:
-      task: multimodal short answer question answering
-      what: Real-world images
-      who: Human experts
-      when: "2017"
-      language: English
-
   - name: math_vista
     display_name: MathVista
     description: Evaluating Math Reasoning in Visual Contexts
@@ -737,7 +718,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: f1_score
+      main_name: prometheus_vision
       main_split: test
     taxonomy:
       task: short answer question answering
@@ -745,23 +726,7 @@ run_groups:
       who: Human experts
       when: "2023"
       language: English, Chinese, Japanese, etc.
-  
-  - name: multipanelvqa
-    display_name: MultipanelVQA
-    description: Question about real-world or synthetic multipanel images for evaluating multi-panel image reasoning ability
-    metric_groups:
-      - accuracy
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: short answer or multiple-choice question answering
-      what: Real-world or synthetic multipanel images
-      who: Human experts
-      when: "2024"
-      language: English
-  
+
   - name: pope
     display_name: POPE
     description: Open-ended questions about object appearance in real-world images for evaluating hallucination behaviour
@@ -810,6 +775,22 @@ run_groups:
       when: "2023"
       language: English
 
+  - name: vibe_eval
+    display_name: Vibe Eval
+    description: hard evaluation suite for measuring progress of multimodal language models
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: prometheus_vision
+      main_split: test
+    taxonomy:
+      task: short answer question answering
+      what: Knowledge intensive
+      who: Human experts
+      when: "2024"
+      language: English
+
   - name: mementos
     display_name: Mementos
     description: A Comprehensive Benchmark for Multimodal Large Language Model Reasoning over Image Sequences
@@ -817,28 +798,12 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: f1_score
+      main_name: prometheus_vision
       main_split: test
     taxonomy:
       task: short answer question answering
       what: Image sequences of comics, dailylife and robotics
       who: Human experts
-      when: "2024"
-      language: English
-
-  - name: image2webpage
-    display_name: Image2webpage
-    description: The Image2webpage benchmark for converting images of webpages to HTML/CSS/Javascript.
-    metric_groups:
-      - accuracy
-      - general_information
-    environment:
-      main_name: earth_mover_similarity
-      main_split: valid
-    taxonomy:
-      task: image-to-text
-      what: css, html, javascript
-      who: n/a
       when: "2024"
       language: English
 
