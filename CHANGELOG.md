@@ -43,11 +43,11 @@
 ### Frontend
 
 - Miscellaneous improvements and bugfixes (#2618, #2617, #2616, #2651, #2667, #2724)
-- Added supports for annotators / LLM-as-judge (#2622, #2700)
 
 ### Framework
 
 - Removed `adapter_spec` from `schema_*.yaml` files (#2611)
+- Added support for annotators / LLM-as-judge (#2622, #2700)
 - Updated documentation (#2626, #2529, #2521)
 
 ### Evaluation Results
