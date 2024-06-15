@@ -85,8 +85,10 @@ class HEIMHumanEvalScenario(Scenario):
                     human_answers_to_counts = Counter(human_answers)
 
                     # The mode is the most common human answer and the reference we mark as correct
-                    max_count: int = max(human_answers_to_counts.values())
-                    modes: List[str] = [value for value, count in human_answers_to_counts.items() if count == max_count]
+                    # max_count: int = max(human_answers_to_counts.values())
+                    # modes: List[str] = [
+                    #     value for value, count in human_answers_to_counts.items() if count == max_count
+                    # ]
 
                     content: List[MediaObject] = [MediaObject(location=image_path, content_type="image/png")]
                     if "prompt" in image_annotation:
@@ -98,7 +100,7 @@ class HEIMHumanEvalScenario(Scenario):
                     references: List[Reference] = [
                         HEIMHumanEvalReference(
                             Output(text=answer),
-                            tags=[CORRECT_TAG] if value in modes else [],
+                            tags=[CORRECT_TAG] if value in human_answers_to_counts else [],
                             num_human_answered=human_answers_to_counts[value],
                         )
                         for value, answer in question_info["choices"].items()
