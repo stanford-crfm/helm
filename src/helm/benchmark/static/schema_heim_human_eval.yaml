@@ -44,7 +44,7 @@ run_groups:
     description: The scenarios where we evaluate all the models.
     category: All scenarios
     subgroups:
-      - viz_wiz
+      - heim_human_eval
 
   - name: heim_human_eval
     display_name: HEIM Human Eval Scenario for VLMs
