@@ -83,6 +83,8 @@ class HEIMHumanEvalScenario(Scenario):
                     # Get the most common human answer(s) for the question
                     human_answers: List[str] = [str(answer) for answer in image_annotation["human_annotations"]]
                     human_answers_to_counts = Counter(human_answers)
+
+                    # The mode is the most common human answer and the reference we mark as correct
                     # max_count: int = max(human_answers_to_counts.values())
                     # modes: List[str] = [
                     #     value for value, count in human_answers_to_counts.items() if count == max_count
@@ -98,7 +100,6 @@ class HEIMHumanEvalScenario(Scenario):
                     references: List[Reference] = [
                         HEIMHumanEvalReference(
                             Output(text=answer),
-                            # The mode is the most common human answer and the reference we mark as correct
                             tags=[CORRECT_TAG] if value in human_answers_to_counts else [],
                             num_human_answered=human_answers_to_counts[value],
                         )
