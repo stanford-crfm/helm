@@ -52,17 +52,15 @@ class CLIPScoreMetric(Metric):
         ):
             prompt = singleton(request_state.instance.contrast_inputs).text
 
-        # Truncate the prompt using the CLIP tokenizer before feeding into the CLIP model.
-        # Otherwise, the library will throw an error.
-        model = DEFAULT_CLIP_SCORE_MODEL
-        prompt = WindowServiceFactory.get_window_service(model, metric_service).truncate_from_right(prompt)
+        # Get the window service for this particular model
+        prompt = WindowServiceFactory.get_window_service(adapter_spec.model, metric_service).truncate_from_right(prompt)
 
         scores: List[float] = []
         image_locations: List[str] = gather_generated_image_locations(request_result)
         for location in image_locations:
             if not is_blacked_out_image(location):
                 result: CLIPScoreResult = metric_service.compute_clip_score(
-                    CLIPScoreRequest(prompt, location, model=model, multilingual=self._multilingual)
+                    CLIPScoreRequest(prompt, location, model=DEFAULT_CLIP_SCORE_MODEL, multilingual=self._multilingual)
                 )
                 scores.append(result.score)
 
