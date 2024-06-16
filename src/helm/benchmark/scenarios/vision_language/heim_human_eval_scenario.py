@@ -100,7 +100,7 @@ class HEIMHumanEvalScenario(Scenario):
                     references: List[Reference] = [
                         HEIMHumanEvalReference(
                             Output(text=answer),
-                            tags=[CORRECT_TAG] if value in human_answers_to_counts else [],
+                            tags=[CORRECT_TAG] if human_answers_to_counts[value] >= 2 else [],
                             num_human_answered=human_answers_to_counts[value],
                         )
                         for value, answer in question_info["choices"].items()
