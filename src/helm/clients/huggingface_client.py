@@ -63,12 +63,13 @@ class HuggingFaceServer:
         **kwargs,
     ):
         self.device: Optional[str]
+        kwargs["device_map"] = "auto"
         if "device_map" in kwargs:
             try:
                 import accelerate  # noqa: F401
             except ModuleNotFoundError as e:
                 handle_module_not_found_error(e, ["accelerate"])
-            hlog('Hugging Face device_map set to "auto".')
+            hlog(f'Hugging Face device_map set to "{kwargs["device_map"]}".')
             self.device = None
         elif torch.cuda.is_available():
             hlog('Hugging Face device set to "cuda:0" because CUDA is available.')
