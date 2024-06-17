@@ -1,0 +1,200 @@
+---
+
+############################################################
+metrics:
+  # Infrastructure metrics:
+  - name: num_perplexity_tokens
+    display_name: '# tokens'
+    description: Average number of tokens in the predicted output (for language modeling, the input too).
+  - name: num_bytes
+    display_name: '# bytes'
+    description: Average number of bytes in the predicted output (for language modeling, the input too).
+  - name: num_references
+    display_name: '# ref'
+    description: Number of references.
+  - name: num_train_trials
+    display_name: '# trials'
+    description: Number of trials, where in each trial we choose an independent, random set of training instances.
+  - name: estimated_num_tokens_cost
+    display_name: 'cost'
+    description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
+  - name: num_prompt_tokens
+    display_name: '# prompt tokens'
+    description: Number of tokens in the prompt.
+  - name: num_prompt_characters
+    display_name: '# prompt chars'
+    description: Number of characters in the prompt.
+  - name: num_completion_tokens
+    display_name: '# completion tokens'
+    description: Actual number of completion tokens (over all completions).
+  - name: num_output_tokens
+    display_name: '# output tokens'
+    description: Actual number of output tokens.
+  - name: max_num_output_tokens
+    display_name: 'Max output tokens'
+    description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
+  - name: num_requests
+    display_name: '# requests'
+    description: Number of distinct API requests.
+  - name: num_instances
+    display_name: '# eval'
+    description: Number of evaluation instances.
+  - name: num_train_instances
+    display_name: '# train'
+    description: Number of training instances (e.g., in-context examples).
+  - name: prompt_truncated
+    display_name: truncated
+    description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
+  - name: finish_reason_length
+    display_name: finish b/c length
+    description: Fraction of instances where the the output was terminated because of the max tokens limit.
+  - name: finish_reason_stop
+    display_name: finish b/c stop
+    description: Fraction of instances where the the output was terminated because of the stop sequences.
+  - name: finish_reason_endoftext
+    display_name: finish b/c endoftext
+    description: Fraction of instances where the the output was terminated because the end of text token was generated.
+  - name: finish_reason_unknown
+    display_name: finish b/c unknown
+    description: Fraction of instances where the the output was terminated for unknown reasons.
+  - name: num_completions
+    display_name: '# completions'
+    description: Number of completions.
+  - name: predicted_index
+    display_name: Predicted index
+    description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
+
+  # Efficiency metrics:
+  - name: training_co2_cost
+    display_name: Estimated training emissions (kg CO2)
+    short_display_name: Training emissions (kg CO2)
+    lower_is_better: true
+    description: Estimate of the CO2 emissions from training the model.
+  - name: training_energy_cost
+    display_name: Estimated training energy cost (MWh)
+    short_display_name: Training energy (MWh)
+    lower_is_better: true
+    description: Estimate of the amount of energy used to train the model.
+  - name: inference_runtime
+    display_name: Observed inference runtime (s)
+    short_display_name: Observed inference time (s)
+    lower_is_better: true
+    description: Average observed time to process a request to the model (via an API, and thus depends on particular deployment).
+  - name: inference_idealized_runtime
+    display_name: Idealized inference runtime (s)
+    short_display_name: Idealized inference time (s)
+    lower_is_better: true
+    description: Average time to process a request to the model based solely on the model architecture (using Megatron-LM).
+  - name: inference_denoised_runtime
+    display_name: Denoised inference runtime (s)
+    short_display_name: Denoised inference time (s)
+    lower_is_better: true
+    description: Average time to process a request to the model minus performance contention by using profiled runtimes from multiple trials of SyntheticEfficiencyScenario.
+  - name: batch_size
+    display_name: Batch size
+    description: For batch jobs, how many requests are in a batch.
+
+  # Unitxt Metrics
+  - name: meteor
+    display_name: METEOR
+    short_display_name: METEOR
+    description: METEOR
+  - name: f1
+    display_name: F1
+    short_display_name: F1
+    description: F1
+  - name: precision
+    display_name: Precision
+    short_display_name: Precision
+    description: Precision
+  - name: recall
+    display_name: Recall
+    short_display_name: Recall
+    description: Recall
+  - name: rouge1
+    display_name: ROUGE-1
+    short_display_name: ROUGE-1
+    description: ROUGE-1
+  - name: rouge2
+    display_name: ROUGE-2
+    short_display_name: ROUGE-2
+    description: ROUGE-2
+  - name: rougeL
+    display_name: ROUGE-L
+    short_display_name: ROUGE-L
+    description: ROUGE-L
+  - name: rougeLsum
+    display_name: ROUGE-Lsum
+    short_display_name: ROUGE-Lsum
+    description: ROUGE-Lsum
+  - name: bleu
+    display_name: BLEU
+    short_display_name: BLEU
+    description: BLEU
+
+perturbations: []
+
+metric_groups:
+  - name: accuracy
+    display_name: Accuracy
+    hide_win_rates: true
+    metrics:
+    - name: meteor
+      split: __all__
+    - name: rouge1
+      split: __all__
+    - name: rouge2
+      split: __all__
+    - name: rougeL
+      split: __all__
+    - name: rougeLsum
+      split: __all__
+    - name: bleu
+      split: __all__
+
+  - name: efficiency
+    display_name: Efficiency
+    metrics:
+    - name: inference_runtime
+      split: ${main_split}
+
+  - name: general_information
+    display_name: General information
+    hide_win_rates: true
+    metrics:
+    - name: num_instances
+      split: ${main_split}
+    - name: num_train_instances
+      split: ${main_split}
+    - name: prompt_truncated
+      split: ${main_split}
+    - name: num_prompt_tokens
+      split: ${main_split}
+    - name: num_output_tokens
+      split: ${main_split}
+
+run_groups:
+  - name: table_scenarios
+    display_name: Table  Scenarios
+    description: Table Scenarios
+    category: All Scenarios
+    subgroups:
+      - unitxt_cards.numeric_nlg
+
+  - name: unitxt_cards.numeric_nlg
+    display_name: NumericNLG
+    short_display_name: NumericNLG
+    description: "NumericNLG is a dataset for numerical table-to-text generation using pairs of a table and a paragraph of a table description with richer inference from scientific papers."
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: meteor
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English

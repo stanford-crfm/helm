@@ -4,6 +4,7 @@ import { ChevronUpDownIcon } from "@heroicons/react/24/solid";
 import type GroupsTable from "@/types/GroupsTable";
 import RowValue from "@/components/RowValue";
 import Schema from "@/types/Schema";
+import HeaderValue from "@/types/HeaderValue";
 import getSchema from "@/services/getSchema";
 
 interface Props {
@@ -32,10 +33,6 @@ export default function LeaderboardTables({
   });
   const [sortDirection, setSortDirection] = useState<number>(1);
 
-  interface HeaderValueObject {
-    value: string;
-  }
-
   function truncateHeader(value: string): string {
     if (value.length > 30) {
       return value.substring(0, 27) + "...";
@@ -44,11 +41,19 @@ export default function LeaderboardTables({
   }
 
   // TODO remove truncation once a visually suitable version of wrapping is determined
-  const getHeaderValue = (headerValueObject: HeaderValueObject): string => {
+  const getHeaderValue = (headerValueObject: HeaderValue): string => {
+    const stringsToIgnore = ["AIRBench 2024 -", "-book"];
     if (headerValueObject.value === "Model/adapter") {
       return "Model";
-    } else if (headerValueObject.value.includes("-book")) {
-      return truncateHeader(headerValueObject.value.replace("-book", ""));
+      // hardcoded values to remove
+    } else if (
+      stringsToIgnore.some((str) => headerValueObject.value.includes(str))
+    ) {
+      let updatedValue = headerValueObject.value;
+      stringsToIgnore.forEach((str) => {
+        updatedValue = updatedValue.replace(str, "");
+      });
+      return truncateHeader(updatedValue);
     } else {
       return truncateHeader(headerValueObject.value);
     }
@@ -129,13 +134,17 @@ export default function LeaderboardTables({
     setActiveGroupsTable({ ...groupsTables[activeGroup] });
   }, [activeGroup, groupsTables]);
 
-  const handleSort = (columnIndex: number) => {
+  const handleSort = (columnIndex: number, lowerIsBetter: boolean = false) => {
     let sort = sortDirection;
     if (activeSortColumn === columnIndex) {
       sort = sort * -1;
     } else {
       sort = 1;
     }
+    if (lowerIsBetter) {
+      sort = sort * -1;
+    }
+
     setActiveSortColumn(columnIndex);
     setSortDirection(sort);
 
@@ -168,7 +177,10 @@ export default function LeaderboardTables({
   };
   useEffect(() => {
     if (sortFirstMetric && activeSortColumn) {
-      handleSort(activeSortColumn);
+      handleSort(
+        activeSortColumn,
+        activeGroupsTable.header[activeSortColumn].lower_is_better,
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortFirstMetric, activeSortColumn]);
@@ -180,36 +192,40 @@ export default function LeaderboardTables({
           <table className="rounded-lg shadow-md table">
             <thead>
               <tr>
-                {activeGroupsTable.header.map((headerValue, idx) => (
-                  <th
-                    key={`${activeGroup}-${idx}`}
-                    className={`${
-                      idx === activeSortColumn ? "bg-gray-100" : "bg-white"
-                    } ${idx === 0 ? "left-0 z-40" : ""} ${
-                      headerValue.description
-                        ? "underline decoration-dashed decoration-gray-300	"
-                        : ""
-                    }  whitespace-nowrap px-4 sticky top-0`}
-                    title={
-                      headerValue.description ? headerValue.description : ""
-                    }
-                  >
-                    <div className="z-20 flex justify-between items-center min-w-48 w-48 max-w-48 text-wrap">
-                      <span className={`inline-block w-full break-words`}>
-                        {getHeaderValue(headerValue)}
-                      </span>
+                {activeGroupsTable.header.map(
+                  (headerValue: HeaderValue, idx) => (
+                    <th
+                      key={`${activeGroup}-${idx}`}
+                      className={`${
+                        idx === activeSortColumn ? "bg-gray-100" : "bg-white"
+                      } ${idx === 0 ? "left-0 z-40" : ""} ${
+                        headerValue.description
+                          ? "underline decoration-dashed decoration-gray-300	"
+                          : ""
+                      }  whitespace-nowrap px-4 sticky top-0`}
+                      title={
+                        headerValue.description ? headerValue.description : ""
+                      }
+                    >
+                      <div className="z-20 flex justify-between items-center min-w-48 w-48 max-w-48 text-wrap">
+                        <span className={`inline-block w-full break-words`}>
+                          {getHeaderValue(headerValue)}
+                        </span>
 
-                      {sortable ? (
-                        <button
-                          className="link"
-                          onClick={() => handleSort(idx)}
-                        >
-                          <ChevronUpDownIcon className="w-6 h-6" />
-                        </button>
-                      ) : null}
-                    </div>
-                  </th>
-                ))}
+                        {sortable ? (
+                          <button
+                            className="link"
+                            onClick={() =>
+                              handleSort(idx, headerValue.lower_is_better)
+                            }
+                          >
+                            <ChevronUpDownIcon className="w-6 h-6" />
+                          </button>
+                        ) : null}
+                      </div>
+                    </th>
+                  ),
+                )}
               </tr>
             </thead>
             <tbody>
