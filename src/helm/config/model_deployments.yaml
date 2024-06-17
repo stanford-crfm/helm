@@ -1076,6 +1076,25 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
 
+  # Alibaba DAMO Academy
+  - name: huggingface/seallm-7b-v2
+    model_name: damo/seallm-7b-v2
+    tokenizer_name: damo/seallm-7b-v2
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: SeaLLMs/SeaLLM-7B-v2
+
+  - name: huggingface/seallm-7b-v2.5
+    model_name: damo/seallm-7b-v2.5
+    tokenizer_name: damo/seallm-7b-v2.5
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: SeaLLMs/SeaLLM-7B-v2.5
+
   ## StabilityAI
   - name: huggingface/stablelm-base-alpha-3b
     model_name: stabilityai/stablelm-base-alpha-3b
