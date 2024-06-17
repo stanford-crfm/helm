@@ -11,6 +11,7 @@
 - Added Automatic GPT4V Evaluation for VLM Originality Evaluation
 - Added FinQA scenario (#2588)
 - Added AIR-Bench 2024 (#2698, #2706, #2710, #2712, #2713)
+- Fixed `entity_data_imputation` scenario breakage by mirroring source data files (#2750)
 
 ### Models
 
@@ -42,7 +43,7 @@
 
 ### Frontend
 
-- Miscellaneous improvements and bugfixes (#2618, #2617, #2616, #2651, #2667, #2724)
+- Miscellaneous improvements and bug fixes (#2618, #2617, #2616, #2651, #2667, #2724)
 
 ### Framework
 
