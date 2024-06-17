@@ -59,12 +59,18 @@ class HuggingFaceServer:
         pretrained_model_name_or_path: str,
         wrapped_tokenizer: WrappedPreTrainedTokenizer,
         openvino=False,
+        device: Optional[str] = "auto",
         **kwargs,
     ):
-        if torch.cuda.is_available():
-            hlog("CUDA is available, initializing with a GPU...")
-            self.device: str = "cuda:0"
+        self.device: str
+        if device:
+            hlog(f"Hugging Face device manually set to {device}.")
+            self.device = device
+        elif torch.cuda.is_available():
+            hlog('Hugging Face device automatically set to "cuda:0" because CUDA is available.')
+            self.device = "cuda:0"
         else:
+            hlog('Hugging Face device automatically set to "cpu" because CUDA is unavailable.')
             self.device = "cpu"
         with htrack_block(f"Loading Hugging Face model {pretrained_model_name_or_path}"):
             # WARNING this may fail if your GPU does not have enough memory
