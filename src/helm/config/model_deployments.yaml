@@ -1048,7 +1048,7 @@ model_deployments:
 
   - name: huggingface/seallm-7b-v2.5
     model_name: damo/seallm-7b-v2.5
-    tokenizer_name: google/gemma-7b
+    tokenizer_name: damo/seallm-7b-v2.5
     max_sequence_length: 4096
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
