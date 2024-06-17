@@ -41,7 +41,7 @@ class AutoTokenizer(Tokenizer):
         if tokenizer_config:
             tokenizer_spec = inject_object_spec_args(
                 tokenizer_config.tokenizer_spec,
-                constant_bindings={"cache_config": cache_config},
+                constant_bindings={"cache_config": cache_config, "tokenizer_name": tokenizer_name},
                 provider_bindings={
                     "api_key": lambda: provide_api_key(self.credentials, organization),
                     "project_id": lambda: self.credentials.get(organization + "ProjectId", None),  # VertexAI

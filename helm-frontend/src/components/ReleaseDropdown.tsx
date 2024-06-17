@@ -19,7 +19,7 @@ function ReleaseDropdown() {
 
   useEffect(() => {
     fetch(
-      "https://storage.googleapis.com/crfm-helm-public/config/project_metadata.json",
+      "https://raw.githubusercontent.com/stanford-crfm/helm/main/helm-frontend/project_metadata.json",
     )
       .then((response) => response.json())
       .then((data: ProjectMetadata[]) => {

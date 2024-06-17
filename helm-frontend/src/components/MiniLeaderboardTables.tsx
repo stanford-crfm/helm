@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import type GroupsTable from "@/types/GroupsTable";
 import RowValue from "@/components/RowValue";
 import Schema from "@/types/Schema";
+import HeaderValue from "@/types/HeaderValue";
 import getSchema from "@/services/getSchema";
 
 interface Props {
@@ -34,10 +35,6 @@ export default function MiniLeaderboardTables({
   const [filteredModels, setFilteredModels] =
     useState<string[]>(modelsToFilter);
 
-  interface HeaderValueObject {
-    value: string;
-  }
-
   function truncateHeader(value: string): string {
     if (value.length > 30) {
       return value.substring(0, 27) + "...";
@@ -46,7 +43,7 @@ export default function MiniLeaderboardTables({
   }
 
   // TODO remove truncation once a visually suitable version of wrapping is determined
-  const getHeaderValue = (headerValueObject: HeaderValueObject): string => {
+  const getHeaderValue = (headerValueObject: HeaderValue): string => {
     if (headerValueObject.value === "Model/adapter") {
       return "Model";
     } else if (headerValueObject.value.includes("-book")) {
@@ -108,28 +105,36 @@ export default function MiniLeaderboardTables({
   useEffect(() => {
     setActiveGroupsTable({ ...groupsTables[activeGroup] });
     // upon receiving and setting data for current table, use sort to figure out n top models
+    const lowerIsBetter = activeGroupsTable.header[1].lower_is_better;
     if (numModelsToAutoFilter) {
       const activeRows = groupsTables[0].rows;
       const sortedRows = activeRows.sort((a, b) => {
         // assumes we sort by column 1, which represents Mean Win Rate in the Core Scenarios table
         // this assumption works as numModelsToAutoFilter is only used in mini leaderboards
         // which always have one main scenario we sort by
-        return Number(b[1].value) - Number(a[1].value);
+        return lowerIsBetter
+          ? Number(a[1].value) - Number(b[1].value)
+          : Number(b[1].value) - Number(a[1].value);
       });
       // Get the top ModelsToAutoFilter
       const topNumRows = sortedRows.slice(0, numModelsToAutoFilter);
       const topNumRowNames = topNumRows.map((row) => String(row[0].value));
       setFilteredModels(topNumRowNames);
     }
-  }, [activeGroup, groupsTables, numModelsToAutoFilter]);
+  }, [activeGroup, activeGroupsTable, groupsTables, numModelsToAutoFilter]);
 
-  const handleSort = (columnIndex: number) => {
+  const handleSort = (columnIndex: number, lowerIsBetter: boolean = false) => {
     let sort = sortDirection;
     if (activeSortColumn === columnIndex) {
       sort = sort * -1;
     } else {
       sort = 1;
     }
+
+    if (lowerIsBetter) {
+      sort = sort * -1;
+    }
+
     setActiveSortColumn(columnIndex);
     setSortDirection(sort);
 
@@ -162,7 +167,10 @@ export default function MiniLeaderboardTables({
   };
   useEffect(() => {
     if (sortFirstMetric && activeSortColumn) {
-      handleSort(activeSortColumn);
+      handleSort(
+        activeSortColumn,
+        activeGroupsTable.header[activeSortColumn].lower_is_better,
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortFirstMetric, activeSortColumn]);

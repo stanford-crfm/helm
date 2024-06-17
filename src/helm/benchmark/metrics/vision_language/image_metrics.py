@@ -28,7 +28,7 @@ from helm.benchmark.metrics.vision_language.image_utils import (
     pixel_similarity,
     sift_similarity,
 )
-from helm.benchmark.metrics.vision_language.emd_utils import compute_emd_recursive
+from helm.benchmark.metrics.vision_language.emd_utils import compute_emd_recursive, get_most_frequent_color, to_gray
 
 try:
     from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
@@ -78,7 +78,8 @@ class AnnotatedImageMetrics(Metric):
 
     # Metric names
     COMPILE_METRIC: str = "compilation_success"
-    EARTH_MOVER_SIMILARITY: str = "earth_mover_similarity"
+    EARTH_MOVER_SIMILARITY = "earth_mover_similarity"
+    BLOCK_EMD: str = "block_emd"
     PIXEL_SIMILARITY: str = "pixel_similarity"
     SIFT_SIMILARITY: str = "sift_similarity"
     LPIPS_SIMILARITY: str = "lpips_similarity"
@@ -106,7 +107,10 @@ class AnnotatedImageMetrics(Metric):
         metrics: List[AnnotatedMetric] = [
             AnnotatedMetric(self.PIXEL_SIMILARITY, pixel_similarity, "image_np_gray"),
             AnnotatedMetric(self.SIFT_SIMILARITY, sift_similarity, "image_np"),
-            AnnotatedMetric(self.EARTH_MOVER_SIMILARITY, self.compute_emd_similarity_recursive, "image_PIL"),
+            AnnotatedMetric(self.BLOCK_EMD, self.compute_block_emd_raw, "image_PIL"),  # Raw block-EMD
+            AnnotatedMetric(
+                self.EARTH_MOVER_SIMILARITY, self.ems, "image_PIL"
+            ),  # Normalized block-EMD against black/white
             AnnotatedMetric(self.LPIPS_SIMILARITY, self.lpips_similarity, "image_PIL"),
             AnnotatedMetric(self.FID_SIMILARITY, self.fid_similarity, "image_PIL"),
             AnnotatedMetric(self.SSIM_SIMILARITY, self.compute_ssim, "image_np_gray"),
@@ -384,9 +388,15 @@ class AnnotatedImageMetrics(Metric):
         features1 = self._get_inception_features(img1_tensor)
         features2 = self._get_inception_features(img2_tensor)
 
-        fid_score = self._calculate_fid(features1, features2)
-        normalize_fid: float = np.exp(-fid_score * self.NORMALIZE_FID_FACTOR)
-        return normalize_fid
+        # TODO: Justify the value of the constant here or remove this code to only keep the cosine similarity.
+        # fid_score = self._calculate_fid(features1, features2)
+        # normalize_fid: float = np.exp(-fid_score * self.NORMALIZE_FID_FACTOR)
+        # return normalize_fid
+
+        # Use the cosine similarity between the features as a proxy for FID
+        # Return a score between 0 and 1, where 1 is the most similar
+        score = 0.5 * (1 + np.dot(features1[0], features2[0]) / (np.linalg.norm(features1) * np.linalg.norm(features2)))
+        return score
 
     def compute_ssim(self, generated_image: np.ndarray, reference_image: np.ndarray) -> float:
         """Compute the Structural Similarity Index (SSIM) between the generated and reference images."""
@@ -407,7 +417,7 @@ class AnnotatedImageMetrics(Metric):
         result = _edit_similarity(completion_tokens, truncated_reference_tokens)
         return result
 
-    def compute_emd_similarity_recursive(
+    def ems(
         self,
         pred_image: Image.Image,
         ref_image: Image.Image,
@@ -417,18 +427,31 @@ class AnnotatedImageMetrics(Metric):
         weight_most_frequent_color: float = 0.001,
         use_tqdm: bool = False,
     ):
-        emd_value = compute_emd_recursive(
-            pred_image,
-            ref_image,
-            threshold_most_frequent_color,
-            patch_size,
-            max_num_patches,
-            weight_most_frequent_color,
-            use_tqdm,
-        )
+        """Same as compute_emd_similarity_recursive EXCEPT that
+        the normalization is against an image of the median color.
+        """
 
-        def do_it():
-            constant_image = Image.new("RGB", ref_image.size, (255, 255, 255))  # default color is white
+        def compute_numerator():
+            return self.compute_block_emd_raw_wrapper(
+                pred_image,
+                ref_image,
+                threshold_most_frequent_color,
+                patch_size,
+                max_num_patches,
+                weight_most_frequent_color,
+                use_tqdm,
+            )
+
+        def compute_denominator():
+            ref_img_np = np.array(ref_image)
+            (rgb_most_frequent_color, _) = get_most_frequent_color(ref_img_np)
+            grayscale_most_frequent_color = to_gray(rgb_most_frequent_color)[0]
+
+            # Most frequent color as base
+            if grayscale_most_frequent_color < 127:
+                constant_image = Image.new("RGB", ref_image.size, (255, 255, 255))  # Make it white
+            else:
+                constant_image = Image.new("RGB", ref_image.size, (0, 0, 0))  # Make it black
             value = compute_emd_recursive(
                 constant_image,
                 ref_image,
@@ -442,9 +465,69 @@ class AnnotatedImageMetrics(Metric):
 
         hash_dict = {
             "reference_image": str(AnnotatedImageMetrics.HASH_FUNC(ref_image, hash_size=self.HASH_LENGTH)),
+            "generated_image": str(AnnotatedImageMetrics.HASH_FUNC(pred_image, hash_size=self.HASH_LENGTH)),
         }
-        cache_key = {"metric_name": f"intermediate_{self.EARTH_MOVER_SIMILARITY}", **hash_dict}
-        assert self._cache is not None
-        response_metric, _ = self._cache.get(cache_key, do_it)
+        cache_key_numerator = {"metric_name": f"intermediate_{self.BLOCK_EMD}", **hash_dict}
+        cache_key_denominator = {"metric_name": "intermediate_ems_extreme_denominator", **hash_dict}
 
-        return 1.0 - emd_value / response_metric["value"]
+        assert self._cache is not None
+        emd_raw, _ = self._cache.get(cache_key_numerator, compute_numerator)
+        emd_base, _ = self._cache.get(cache_key_denominator, compute_denominator)
+
+        return 1.0 - emd_raw["value"] / emd_base["value"]
+
+    def compute_block_emd_raw(
+        self,
+        pred_image: Image.Image,
+        ref_image: Image.Image,
+        threshold_most_frequent_color: float = 0.5,
+        patch_size: Tuple[int, int] = (8, 8),
+        max_num_patches: int = 100,
+        weight_most_frequent_color: float = 0.001,
+        use_tqdm: bool = False,
+    ):
+        def compute():
+            return self.compute_block_emd_raw_wrapper(
+                pred_image,
+                ref_image,
+                threshold_most_frequent_color,
+                patch_size,
+                max_num_patches,
+                weight_most_frequent_color,
+                use_tqdm,
+            )
+
+        hash_dict = {
+            "reference_image": str(AnnotatedImageMetrics.HASH_FUNC(ref_image, hash_size=self.HASH_LENGTH)),
+            "generated_image": str(AnnotatedImageMetrics.HASH_FUNC(pred_image, hash_size=self.HASH_LENGTH)),
+        }
+        cache_key = {"metric_name": f"intermediate_{self.BLOCK_EMD}", **hash_dict}
+        assert self._cache is not None
+        emd_raw, _ = self._cache.get(cache_key, compute)
+
+        return emd_raw["value"]
+
+    def compute_block_emd_raw_wrapper(
+        self,
+        pred_image: Image.Image,
+        ref_image: Image.Image,
+        threshold_most_frequent_color: float = 0.5,
+        patch_size: Tuple[int, int] = (8, 8),
+        max_num_patches: int = 100,
+        weight_most_frequent_color: float = 0.001,
+        use_tqdm: bool = False,
+    ):
+        """Computes the block Earth Moving Distance (EMD). This attempts to
+        speed up EMD for images with huge areas by considering
+        movement/transformation of blocks of pixels.
+        """
+        emd_value = compute_emd_recursive(
+            pred_image,
+            ref_image,
+            threshold_most_frequent_color,
+            patch_size,
+            max_num_patches,
+            weight_most_frequent_color,
+            use_tqdm,
+        )
+        return {"value": emd_value}

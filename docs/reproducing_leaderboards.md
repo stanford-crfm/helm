@@ -83,3 +83,13 @@ export NUM_TRAIN_TRIALS=1
 export NUM_EVAL_INSTANCES=10000
 export PRIORITY=4
 ```
+
+### VHELM v1.0.0 (VLM evaluation)
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_vhelm_lite.conf
+export SCHEMA_PATH=schema_vhelm_lite.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=1000
+export PRIORITY=2
+```

@@ -2,10 +2,10 @@ import os
 import pytest
 import tempfile
 
-from helm.common.cache import SqliteCacheConfig
+from helm.common.cache import BlackHoleCacheConfig, SqliteCacheConfig
 from helm.common.request import Request
 
-from .together_client import TogetherClient, TogetherClientError
+from .together_client import TogetherClient, TogetherChatClient, TogetherCompletionClient, TogetherClientError
 
 
 class TestTogetherClient:
@@ -107,3 +107,73 @@ class TestTogetherClient:
                     model_deployment="together/redpajama-incite-base-3b-v1",
                 )
             )
+
+
+@pytest.mark.models
+def test_together_chat_client_make_request():
+    # Requires setting TOGETHER_API_KEY environment variable.
+    client = TogetherChatClient(
+        cache_config=BlackHoleCacheConfig(), api_key=None, together_model="meta-llama/Llama-3-8b-chat-hf"
+    )
+    request = Request(
+        model="meta/llama-3-8b-instruct",
+        model_deployment="together/llama-3-8b-instruct",
+        prompt="Elephants are one of the most",
+        temperature=0.0,
+        max_tokens=10,
+    )
+    result = client.make_request(request)
+    assert result.success
+    assert not result.cached
+    assert result.embedding == []
+    assert len(result.completions) == 1
+    assert result.completions[0].text == "...intelligent animals on Earth!assistant"
+    assert result.completions[0].logprob == 0.0
+    result_token_strings = [token.text for token in result.completions[0].tokens]
+    assert result_token_strings == [
+        "...",
+        "int",
+        "elligent",
+        " animals",
+        " on",
+        " Earth",
+        "!",
+        "<|eot_id|>",
+        "<|start_header_id|>",
+        "assistant",
+    ]
+
+
+@pytest.mark.models
+def test_together_completion_client_make_request():
+    # Requires setting TOGETHER_API_KEY environment variable.
+    client = TogetherCompletionClient(
+        cache_config=BlackHoleCacheConfig(), api_key=None, together_model="meta-llama/Llama-3-8b-hf"
+    )
+    request = Request(
+        model="meta/llama-3-8b",
+        model_deployment="together/llama-3-8b",
+        prompt="Elephants are one of the most",
+        temperature=0.0,
+        max_tokens=10,
+    )
+    result = client.make_request(request)
+    assert result.success
+    assert not result.cached
+    assert result.embedding == []
+    assert len(result.completions) == 1
+    assert result.completions[0].text == " popular animals in the world. They are known for"
+    assert result.completions[0].logprob == 0.0
+    result_token_strings = [token.text for token in result.completions[0].tokens]
+    assert result_token_strings == [
+        " popular",
+        " animals",
+        " in",
+        " the",
+        " world",
+        ".",
+        " They",
+        " are",
+        " known",
+        " for",
+    ]

@@ -40,7 +40,7 @@ class UnicornScenario(Scenario):
     Paper: https://arxiv.org/abs/2311.16101
     """
 
-    UNICORN_HUGGINGFACE_DATASET_NAME: str = "PahaII/unicorn"
+    UNICORN_HUGGINGFACE_DATASET_URL: str = "https://huggingface.co/datasets/PahaII/unicorn/resolve/main"
 
     IMAGE_URL: str = "https://huggingface.co/datasets/PahaII/unicorn/resolve/main/images/{image_path}?download=true"
 
@@ -72,12 +72,12 @@ class UnicornScenario(Scenario):
 
         # There is only the test split in Unicorn benchmark
         instances: List[Instance] = []
-        question_data_files = {TEST_SPLIT: f"{self._subject}.json"}
+        question_data_files = {TEST_SPLIT: f"{self.UNICORN_HUGGINGFACE_DATASET_URL}/{self._subject}.json"}
 
         # Process the test set
         for row in tqdm(
             load_dataset(
-                self.UNICORN_HUGGINGFACE_DATASET_NAME,
+                "json",
                 data_files=question_data_files,
                 split=TEST_SPLIT,
                 cache_dir=output_path,

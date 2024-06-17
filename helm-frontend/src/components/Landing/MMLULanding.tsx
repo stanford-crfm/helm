@@ -7,7 +7,7 @@ export default function MMLULanding() {
         Massive Multitask Language Understanding (MMLU) on HELM
       </h1>
 
-      <div className="flex flex-row md:flex-row items-center gap-8">
+      <div className="flex flex-col lg:flex-row items-center gap-8">
         <div className="flex-1 text-xl">
           <p>
             <strong>Massive Multitask Language Understanding (MMLU)</strong>{" "}

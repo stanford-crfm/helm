@@ -4,6 +4,7 @@ from helm.benchmark.scenarios.scenario import VALID_SPLIT
 from helm.benchmark.scenarios.vision_language.image2structure.image2structure_scenario import (
     Image2StructureScenario,
     PROCESSED,
+    DIFFICULTY_ALL,
 )
 from helm.benchmark.scenarios.vision_language.image2structure.webpage.jekyll_server import JekyllServer
 from helm.benchmark.scenarios.vision_language.image2structure.webpage.driver import (
@@ -123,12 +124,12 @@ class WebpageScenario(Image2StructureScenario):
         "  }\n"
         "]\n"
         "You do not have to create files with the same names. Create as many files as you need, you can even use directories if necessary,"  # noqa: E501
-        " they will be created for you automatically. Try to write some realistic code keeping in mind that is should"
+        " they will be created for you automatically. Try to write some realistic code keeping in mind that it should"
         " look like the image as much as feasibly possible."
     )
 
     HUGGINGFACE_DATASET_NAME = "stanford-crfm/i2s-webpage"
-    SUBSETS = ["css", "html", "javascript"]
+    SUBSETS = ["css", "html", "javascript", "real"]
     MAX_TRIES: int = 5
     ASSETS_EXTENSIONS: List[str] = ["png", "jpg", "jpeg", "gif", "svg", "webp", "ico", "bmp", "tiff"]
 
@@ -140,9 +141,10 @@ class WebpageScenario(Image2StructureScenario):
         subset: str,
         recompile_prompt: bool = True,
         split: str = VALID_SPLIT,
+        difficulty: str = DIFFICULTY_ALL,
         screenshot_options: ScreenshotOptions = ScreenshotOptions(),
     ):
-        super().__init__(subset, recompile_prompt, split)
+        super().__init__(subset, recompile_prompt, split, difficulty)
         self._screenshot_options = screenshot_options
         self._html2text = HTML2Text()
         self._html2text.ignore_links = True

@@ -88,7 +88,7 @@ class IDEFICSClient(CachingClient):
 
         input_args: Dict[str, Union[str, bool]] = {"return_tensors": "pt"}
         generation_args = {
-            "max_length": request.max_tokens,
+            "max_new_tokens": request.max_tokens,
             "bad_words_ids": processor.tokenizer(self.BAD_WORD_TOKENS, add_special_tokens=False).input_ids,
         }
 
@@ -140,7 +140,7 @@ class IDEFICSClient(CachingClient):
 
                 # Truncate the output text as IDEFICS outputs the entire sequence including the prompt
                 if "instruct" in request.model:
-                    assert self.ASSISTANT_PREFIX in text, f"Expected {self.ASSISTANT_PREFIX} in the output"
+                    assert self.ASSISTANT_PREFIX in text, f"Expected {self.ASSISTANT_PREFIX} in the output: {text}"
                     text = text.rpartition(self.ASSISTANT_PREFIX)[-1]
                 else:
                     # Best we can do is to remove the text portion of the prompt from the output

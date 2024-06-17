@@ -1,10 +1,9 @@
 import requests
 from abc import ABC, abstractmethod
 from threading import Lock
-from typing import Any, Dict, Optional, List, Union
+from typing import Any, Dict, Mapping, Optional, List, Union
 
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import hlog
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, ErrorFlags
@@ -27,21 +26,61 @@ class VertexAIContentBlockedError(Exception):
     pass
 
 
+class SafetySettingPresets:
+    BLOCK_NONE = "block_none"  # Disable all blocking
+    DEFAULT = "default"  # Use default safety settings
+
+
+def _get_safety_settings_for_preset(
+    safety_settings_preset: Optional[str],
+) -> Optional[Dict[HarmCategory, SafetySetting.HarmBlockThreshold]]:
+    """Get the safety settings for the safety_settings_preset.
+
+    If safety_settings_preset is None, use the default value of BLOCK_NONE (*not* DEFAULT)."""
+    if safety_settings_preset is None or safety_settings_preset == SafetySettingPresets.BLOCK_NONE:
+        return {
+            harm_category: SafetySetting.HarmBlockThreshold(SafetySetting.HarmBlockThreshold.BLOCK_NONE)
+            for harm_category in iter(HarmCategory)
+        }
+    elif safety_settings_preset == SafetySettingPresets.DEFAULT:
+        return None
+    else:
+        raise ValueError(f"Unknown safety_settings_preset: {safety_settings_preset}")
+
+
+def _get_model_name_for_request(request: Request) -> str:
+    # We have to strip "-safety-" suffixes from model names because they are not part of the Vertex AI model name
+    # TODO: Clean up this hack
+    return request.model_engine.split("-safety-")[0]
+
+
 class VertexAIClient(CachingClient, ABC):
     """Client for Vertex AI models"""
 
-    def __init__(self, cache_config: CacheConfig, project_id: str, location: str) -> None:
+    def __init__(
+        self, cache_config: CacheConfig, project_id: str, location: str, safety_settings_preset: Optional[str] = None
+    ) -> None:
         super().__init__(cache_config=cache_config)
         self.project_id = project_id
         self.location = location
 
-        # VertexAI's default safety filter is overly sensitive, so we disable it.
-        self.safety_settings: Dict[HarmCategory, SafetySetting.HarmBlockThreshold] = {
-            harm_category: SafetySetting.HarmBlockThreshold(SafetySetting.HarmBlockThreshold.BLOCK_NONE)
-            for harm_category in iter(HarmCategory)
-        }
+        self.safety_settings_preset = safety_settings_preset
+        self.safety_settings = _get_safety_settings_for_preset(safety_settings_preset)
 
         vertexai.init(project=self.project_id, location=self.location)
+
+    def make_cache_key_with_safety_settings_preset(self, raw_request: Mapping, request: Request) -> Mapping:
+        """Construct the key for the cache using the raw request.
+
+        Add `self.safety_settings_preset` to the key, if not None."""
+        if self.safety_settings_preset is not None:
+            assert "safety_settings_preset" not in raw_request
+            return {
+                **CachingClient.make_cache_key(raw_request, request),
+                "safety_settings_preset": self.safety_settings_preset,
+            }
+        else:
+            return CachingClient.make_cache_key(raw_request, request)
 
     @abstractmethod
     def make_request(self, request: Request) -> RequestResult:
@@ -72,7 +111,7 @@ class VertexAITextClient(VertexAIClient):
         }
 
         completions: List[GeneratedOutput] = []
-        model_name: str = request.model_engine
+        model_name: str = _get_model_name_for_request(request)
 
         try:
 
@@ -88,9 +127,9 @@ class VertexAITextClient(VertexAIClient):
             # We need to include the engine's name to differentiate among requests made for different model
             # engines since the engine name is not included in the request itself.
             # Same for the prompt.
-            cache_key = CachingClient.make_cache_key(
+            cache_key = self.make_cache_key_with_safety_settings_preset(
                 {
-                    "engine": request.model_engine,
+                    "engine": model_name,
                     "prompt": request.prompt,
                     **parameters,
                 },
@@ -131,12 +170,6 @@ class VertexAITextClient(VertexAIClient):
 class VertexAIChatClient(VertexAIClient):
     """Client for Vertex AI chat models (e.g., Gemini). Supports multimodal prompts."""
 
-    # Set the finish reason to this if the prompt violates the content policy
-    CONTENT_POLICY_VIOLATED_FINISH_REASON: str = "The prompt violates Google's content policy."
-
-    # Gemini returns this error for certain valid requests
-    CONTENT_HAS_NO_PARTS_ERROR: str = "Content has no parts."
-
     # Enum taken from:
     # https://cloud.google.com/vertex-ai/docs/reference/rpc/google.cloud.aiplatform.v1beta1#google.cloud.aiplatform.v1beta1.Candidate.FinishReason
     # We don't directly import this enum because it can differ between different Vertex AI library versions.
@@ -149,7 +182,7 @@ class VertexAIChatClient(VertexAIClient):
     ]
 
     @staticmethod
-    def get_model(model_name: str) -> Any:
+    def get_model(model_name: str) -> GenerativeModel:
         global _models_lock
         global _models
 
@@ -184,7 +217,7 @@ class VertexAIChatClient(VertexAIClient):
         }
 
         completions: List[GeneratedOutput] = []
-        model_name: str = request.model_engine
+        model_name: str = _get_model_name_for_request(request)
         model = self.get_model(model_name)
 
         try:
@@ -202,21 +235,24 @@ class VertexAIChatClient(VertexAIClient):
                 )
                 candidates: List[Candidate] = response.candidates
 
-                # Depending on the version of the Vertex AI library and the type of content blocking,
-                # content blocking can show up in many ways, so this defensively handles most of these ways
+                # Depending on the version of the Vertex AI library and the type of prompt blocking,
+                # prompt blocking can show up in many ways, so this defensively handles most of these ways
+                if response.prompt_feedback and response.prompt_feedback.block_reason:
+                    raise VertexAIContentBlockedError(
+                        f"Prompt blocked with reason: {response.prompt_feedback.block_reason}"
+                    )
                 if not candidates:
-                    raise VertexAIContentBlockedError("No candidates in response due to content blocking")
+                    raise VertexAIContentBlockedError(f"No candidates in response: {response}")
                 predictions: List[Dict[str, Any]] = []
                 for candidate in candidates:
-                    if (
-                        candidate.finish_reason in VertexAIChatClient.CONTENT_BLOCKED_FINISH_REASONS
-                        or not candidate.content.parts
-                    ):
-                        # The prediction was either blocked due to safety settings or the model stopped and returned
-                        # nothing (which also happens when the model is blocked).
-                        # For now, we don't cache blocked requests, because we are trying to get the
-                        # content blocking removed.
-                        raise VertexAIContentBlockedError("Content has no parts due to content blocking")
+                    # Depending on the version of the Vertex AI library and the type of prompt blocking,
+                    # content blocking can show up in many ways, so this defensively handles most of these ways
+                    if candidate.finish_reason in VertexAIChatClient.CONTENT_BLOCKED_FINISH_REASONS:
+                        raise VertexAIContentBlockedError(f"Content blocked with reason: {candidate.finish_reason}")
+                    if not candidate.content:
+                        raise VertexAIContentBlockedError(f"No content in candidate: {candidate}")
+                    if not candidate.content.parts:
+                        raise VertexAIContentBlockedError(f"No content parts in candidate: {candidate}")
                     predictions.append({"text": candidate.content.text})
                     # TODO: Extract more information from the response
                 return {"predictions": predictions}
@@ -224,7 +260,7 @@ class VertexAIChatClient(VertexAIClient):
             # We need to include the engine's name to differentiate among requests made for different model
             # engines since the engine name is not included in the request itself.
             # Same for the prompt.
-            cache_key = CachingClient.make_cache_key(
+            cache_key = self.make_cache_key_with_safety_settings_preset(
                 {
                     "model_name": model_name,
                     "prompt": request.prompt,
@@ -234,11 +270,11 @@ class VertexAIChatClient(VertexAIClient):
             )
 
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-        except VertexAIContentBlockedError:
+        except VertexAIContentBlockedError as e:
             return RequestResult(
                 success=False,
                 cached=False,
-                error="Response was empty due to content moderation filter",
+                error=f"Content blocked: {str(e)}",
                 completions=[],
                 embedding=[],
                 error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
@@ -252,7 +288,7 @@ class VertexAIChatClient(VertexAIClient):
             return RequestResult(
                 success=False,
                 cached=False,
-                error="Response was empty due to content moderation filter",
+                error=f"Content blocked error in cached response: {str(response)}",
                 completions=[],
                 embedding=[],
                 error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
@@ -266,7 +302,7 @@ class VertexAIChatClient(VertexAIClient):
                 return RequestResult(
                     success=False,
                     cached=False,
-                    error="Response was empty due to content moderation filter",
+                    error=f"Content blocked error in cached prediction: {str(prediction)}",
                     completions=[],
                     embedding=[],
                     error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
@@ -291,21 +327,6 @@ class VertexAIChatClient(VertexAIClient):
         )
 
     def _make_multimodal_request(self, request: Request) -> RequestResult:
-        def complete_for_valid_error(error_message: str) -> RequestResult:
-            empty_completion = GeneratedOutput(
-                text="",
-                logprob=0,
-                tokens=[],
-                finish_reason={"reason": error_message},
-            )
-            return RequestResult(
-                success=True,
-                cached=False,
-                request_time=0,
-                completions=[empty_completion] * request.num_completions,
-                embedding=[],
-            )
-
         # Contents can either be text or a list of multimodal content made up of text, images or other content
         contents: Union[str, List[Union[str, Any]]] = request.prompt
         # Used to generate a unique cache key for this specific request
@@ -334,7 +355,7 @@ class VertexAIChatClient(VertexAIClient):
         }
 
         completions: List[GeneratedOutput] = []
-        model_name: str = request.model_engine
+        model_name: str = _get_model_name_for_request(request)
         model = self.get_model(model_name)
 
         request_time = 0
@@ -346,30 +367,62 @@ class VertexAIChatClient(VertexAIClient):
             try:
 
                 def do_it() -> Dict[str, Any]:
-                    raw_response = model.generate_content(
+                    response: GenerationResponse = model.generate_content(
                         contents, generation_config=parameters, safety_settings=self.safety_settings
                     )
-                    if raw_response._raw_response.prompt_feedback.block_reason != 0:
-                        hlog(f"Content blocked for prompt: {request.multimodal_prompt}")
-                        return {"error": self.CONTENT_POLICY_VIOLATED_FINISH_REASON}
-
-                    return {"predictions": [{"text": raw_response.candidates[0].text}]}
+                    # Depending on the version of the Vertex AI library and the type of prompt blocking,
+                    # prompt blocking can show up in many ways, so this defensively handles most of these ways
+                    if response.prompt_feedback and response.prompt_feedback.block_reason:
+                        raise VertexAIContentBlockedError(
+                            f"Prompt blocked with reason: {response.prompt_feedback.block_reason}"
+                        )
+                    if not response.candidates:
+                        raise VertexAIContentBlockedError(f"No candidates in response: {response}")
+                    # We should only have one candidate
+                    assert (
+                        len(response.candidates) == 1
+                    ), f"Expected 1 candidate since candidate_count is 1, got {len(response.candidates)}."
+                    candidate = response.candidates[0]
+                    # Depending on the version of the Vertex AI library and the type of prompt blocking,
+                    # content blocking can show up in many ways, so this defensively handles most of these ways
+                    if candidate.finish_reason in VertexAIChatClient.CONTENT_BLOCKED_FINISH_REASONS:
+                        raise VertexAIContentBlockedError(f"Content blocked with reason: {candidate.finish_reason}")
+                    if not candidate.content:
+                        raise VertexAIContentBlockedError(f"No content in candidate: {candidate}")
+                    if not candidate.content.parts:
+                        raise VertexAIContentBlockedError(f"No content parts in candidate: {candidate}")
+                    return {"predictions": [{"text": candidate.text}]}
 
                 raw_cache_key = {"model_name": model_name, "prompt": prompt_key, **parameters}
                 if completion_index > 0:
                     raw_cache_key["completion_index"] = completion_index
 
-                cache_key = CachingClient.make_cache_key(raw_cache_key, request)
+                cache_key = self.make_cache_key_with_safety_settings_preset(raw_cache_key, request)
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-            except (requests.exceptions.RequestException, ValueError) as e:
-                if str(e) == self.CONTENT_HAS_NO_PARTS_ERROR:
-                    return complete_for_valid_error(self.CONTENT_HAS_NO_PARTS_ERROR)
-
+            except requests.exceptions.RequestException as e:
                 error: str = f"Gemini Vision error: {e}"
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
+            except VertexAIContentBlockedError as e:
+                return RequestResult(
+                    success=False,
+                    cached=False,
+                    error=f"Content blocked: {str(e)}",
+                    completions=[],
+                    embedding=[],
+                    error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                )
 
             if "error" in response:
-                return complete_for_valid_error(response["error"])
+                return RequestResult(
+                    success=False,
+                    cached=True,
+                    error=f"Content blocked error in cached response: {str(response)}",
+                    completions=[],
+                    embedding=[],
+                    error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                    request_time=response["request_time"],
+                    request_datetime=response["request_datetime"],
+                )
 
             response_text = response["predictions"][0]["text"]
             completion = GeneratedOutput(text=response_text, logprob=0, tokens=[])
