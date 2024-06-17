@@ -1021,6 +1021,25 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
 
+  # SambaNova
+  - name: huggingface/sambalingo-thai-base
+    model_name: sambanova/sambalingo-thai-base
+    tokenizer_name: sambanova/sambalingo-thai-base
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: sambanovasystems/SambaLingo-Thai-Base
+
+  - name: huggingface/sambalingo-thai-chat
+    model_name: sambanova/sambalingo-thai-chat
+    tokenizer_name: sambanova/sambalingo-thai-base
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: sambanovasystems/SambaLingo-Thai-Base
+
   ## SCB10X
   - name: huggingface/typhoon-v1.5-72b
     model_name: scb10x/typhoon-v1.5-72b

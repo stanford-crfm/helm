@@ -420,6 +420,15 @@ tokenizer_configs:
     end_of_text_token: "<|endoftext|>"
     prefix_token: ""
 
+  # SambaLingo
+  - name: sambanova/sambalingo-thai-base
+    tokenizer_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: sambanovasystems/SambaLingo-Thai-Base
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+
   # Snowflake
   - name: snowflake/snowflake-arctic-instruct
     tokenizer_spec:
