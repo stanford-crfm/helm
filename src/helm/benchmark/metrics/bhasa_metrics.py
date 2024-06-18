@@ -52,11 +52,6 @@ class BhasaMachineTranslationMetric(Metric):
         metrics['chr_f_plus_plus'] = self.chrf_scorer.sentence_score(pred, refs).score
         return metrics
 
-    def remove_braces(self, text: str) -> str:
-        if text.startswith("{") and text.endswith("}"):
-            text = text[1:-1]
-        return text
-
     def evaluate_generation(
         self,
         adapter_spec: AdapterSpec,
@@ -64,11 +59,11 @@ class BhasaMachineTranslationMetric(Metric):
         metric_service: MetricService,
         eval_cache_path: str,
     ) -> List[Stat]:
-        refs: List[str] = [self.remove_braces(ref.output.text) for ref in request_state.instance.references]
-        inp: str = self.remove_braces(request_state.instance.input.text)
+        refs: List[str] = [ref.output.text for ref in request_state.instance.references]
+        inp: str = request_state.instance.input.text
 
         assert request_state.result is not None
-        pred: str = self.remove_braces(request_state.result.completions[0].text.strip())
+        pred: str = request_state.result.completions[0].text.strip()
 
         result: List[Stat] = []
 
