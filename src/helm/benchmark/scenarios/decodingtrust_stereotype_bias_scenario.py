@@ -61,7 +61,7 @@ class DecodingTrustStereotypeBiasScenario(Scenario):
                             tags=[stereotype_topic_tag, demographic_group_tag, sys_prompt_type_tag],
                         )
                     ],
-                    split=TEST_SPLIT
+                    split=TEST_SPLIT,
                 )
                 instances.append(instance)
 
