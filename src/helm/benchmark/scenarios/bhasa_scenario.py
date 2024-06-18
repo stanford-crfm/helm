@@ -95,8 +95,7 @@ class TyDiQAScenario(Scenario):
                 # Select only bottom 20th percentile by length for in-context examples as examples are very long
                 data = df[df["passage_text"].apply(len) < df["passage_text"].apply(len).quantile(.2)]
             else:
-                # Sample 565 examples for test
-                data = df.sample(n=565, random_state=5018)
+                data = df
 
             for _, row in data.iterrows():
                 passage = row["passage_text"].strip()
