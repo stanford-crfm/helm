@@ -3,7 +3,7 @@
 		"title": "Lite",
 		"description": "Lightweight, broad evaluation of the capabilities of language models using in-context learning",
 		"id": "lite",
-		"releases": ["v1.3.0", "v1.2.0", "v1.1.0", "v1.0.0"]
+		"releases": ["v1.4.0", "v1.3.0", "v1.2.0", "v1.1.0", "v1.0.0"]
 	},
 	{
 		"title": "Classic",
