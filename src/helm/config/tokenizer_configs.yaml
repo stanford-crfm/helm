@@ -394,7 +394,7 @@ tokenizer_configs:
     prefix_token: ""
 
   # OpenThaiGPT
-  - name: huggingface/openthaigpt-1.0.0-7b-chat
+  - name: openthaigpt/openthaigpt-1.0.0-7b-chat
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "</s>"
@@ -449,7 +449,7 @@ tokenizer_configs:
   # SambaLingo
   - name: sambanova/sambalingo-thai-base
     tokenizer_spec:
-      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
       args:
         pretrained_model_name_or_path: sambanovasystems/SambaLingo-Thai-Base
     end_of_text_token: "</s>"
