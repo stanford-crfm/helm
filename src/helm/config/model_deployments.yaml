@@ -1006,6 +1006,8 @@ model_deployments:
     max_sequence_length: 4096
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
 
   - name: huggingface/openthaigpt-1.0.0-70b-chat
     model_name: openthaigpt/openthaigpt-1.0.0-70b-chat
@@ -1013,6 +1015,8 @@ model_deployments:
     max_sequence_length: 4096
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
 
   ## SAIL (SEA AI Lab)
   - name: sail/sailor-7b
@@ -1035,6 +1039,8 @@ model_deployments:
     max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
 
   - name: sail/sailor-14b-chat
     model_name: sail/sailor-14b-chat
@@ -1042,6 +1048,8 @@ model_deployments:
     max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
 
   # SambaNova
   - name: huggingface/sambalingo-thai-base
@@ -1070,6 +1078,8 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         pretrained_model_name_or_path: sambanovasystems/SambaLingo-Thai-Base-70B
+        args:
+          device_map: auto
 
   - name: huggingface/sambalingo-thai-chat-70b
     model_name: sambanova/sambalingo-thai-chat-70b
@@ -1079,6 +1089,8 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         pretrained_model_name_or_path: sambanovasystems/SambaLingo-Thai-Base-70B
+        args:
+          device_map: auto
 
   ## SCB10X
   - name: huggingface/typhoon-7b
@@ -1108,6 +1120,8 @@ model_deployments:
     max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
 
   - name: huggingface/typhoon-v1.5-72b-instruct
     model_name: scb10x/typhoon-v1.5-72b-instruct
@@ -1115,6 +1129,8 @@ model_deployments:
     max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
 
   # Alibaba DAMO Academy
   - name: huggingface/seallm-7b-v2
