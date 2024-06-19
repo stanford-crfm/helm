@@ -175,7 +175,6 @@ numpy==1.23.5
 oauthlib==3.2.2
 omegaconf==2.3.0
 onnx==1.16.0
-onnxruntime==1.17.
 onnxruntime==1.18.0
 open-clip-torch==2.24.0
 openai==1.34.0
