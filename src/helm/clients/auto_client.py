@@ -93,6 +93,8 @@ class AutoClient(Client):
                     "end_of_text_token": lambda: self._get_end_of_text_token(
                         tokenizer_name=model_deployment.tokenizer_name or model_deployment.name
                     ),
+                    # for azure openai hosted models
+                    "deployment": lambda: self.credentials.get(host_organization + "Deployment", None),
                 },
             )
             client = create_object(client_spec)

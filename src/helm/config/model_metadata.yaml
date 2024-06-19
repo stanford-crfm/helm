@@ -2725,4 +2725,22 @@ models:
     num_parameters: 7000000000
     release_date: 2024-04-18
     tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
-  
+
+  - name: azureLlama3/Meta-Llama-3-70B
+    display_name: Azure Meta LLama 3 (70B)
+    description: Azure Hosted Meta Llama 3 with 70B params
+    creator_organization_name: Meta
+    access: limited
+    model: Llama3
+    num_parameters: 7000000000
+    release_date: 2024-04-18
+    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: azureOpenAI/gpt-4
+    display_name: Azure Open AI GPT-4
+    description: Azure Hosted OpenAI Model
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 7000000000
+    release_date: 2024-04-18
+    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]

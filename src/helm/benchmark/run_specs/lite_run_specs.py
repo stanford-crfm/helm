@@ -397,7 +397,7 @@ def get_mc_defence_qa_spec(method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=method,
-        instructions="The following are multiple choice questions (with answers)",
+        instructions="The following contains a paragraph of text followed by a question with multiple choice answers.Produce answer as a single character as in a multiple choice exam as 'A', 'B', 'C' etc as appropriate" ,
         input_noun="Passage",
         output_noun="Answer"
     )

@@ -2432,3 +2432,19 @@ model_deployments:
     max_sequence_length: 64000
     client_spec:
       class_name: "helm.clients.reka_client.RekaClient"
+
+  - name: azureLlama3/Meta-Llama-3-70B
+    model_name: azureLlama3/Meta-Llama-3-70B
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 16000
+    max_request_length: 16000
+    client_spec:
+        class_name: "helm.clients.azure_llama3_client.AzureLlama3Client"
+
+  - name: azureOpenAI/gpt-4
+    model_name: azureOpenAI/gpt-4
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 16000
+    max_request_length: 16000
+    client_spec:
+        class_name: "helm.clients.azure_openai_client.AzureOpenAIClient"
