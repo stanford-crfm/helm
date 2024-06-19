@@ -63,7 +63,6 @@ class HuggingFaceServer:
         **kwargs,
     ):
         self.device: Optional[str]
-        kwargs["device_map"] = "auto"
         if "device_map" in kwargs:
             try:
                 import accelerate  # noqa: F401
