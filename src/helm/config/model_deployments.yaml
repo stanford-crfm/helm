@@ -995,14 +995,14 @@ model_deployments:
   ## OpenThaiGPT
   - name: huggingface/openthaigpt-1.0.0-7b-chat
     model_name: openthaigpt/openthaigpt-1.0.0-7b-chat
-    tokenizer_name: huggingface/openthaigpt-1.0.0-7b-chat
+    tokenizer_name: openthaigpt/openthaigpt-1.0.0-7b-chat
     max_sequence_length: 4096
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
 
   - name: huggingface/openthaigpt-1.0.0-13b-chat
     model_name: openthaigpt/openthaigpt-1.0.0-13b-chat
-    tokenizer_name: huggingface/openthaigpt-1.0.0-7b-chat
+    tokenizer_name: openthaigpt/openthaigpt-1.0.0-7b-chat
     max_sequence_length: 4096
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
