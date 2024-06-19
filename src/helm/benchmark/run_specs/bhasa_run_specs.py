@@ -23,6 +23,7 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 #   2. Sentiment Analysis
 #   3. Toxicity Detection/Classification
 
+
 # 1. Question Answering
 # 1.1 Indonesian: TyDiQA
 @run_spec_function("tydiqa")
@@ -36,19 +37,20 @@ def get_tydiqa_spec() -> RunSpec:
         max_tokens=256,
     )
 
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.bhasa_scenario.TyDiQAScenario"
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bhasa_scenario.TyDiQAScenario")
 
     return RunSpec(
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_bhasa_qa_metric_specs(args={
-            "language": "id",
-        }),
+        metric_specs=get_bhasa_qa_metric_specs(
+            args={
+                "language": "id",
+            }
+        ),
         groups=["bhasa_nlu", "tydiqa"],
     )
+
 
 # 1.2 Vietnamese & Thai: XQuAD
 XQUAD_PROMPTS = {
@@ -61,6 +63,7 @@ XQUAD_PROMPTS = {
         "output_noun": "Câu trả lời",
     },
 }
+
 
 @run_spec_function("xquad")
 def get_xquad_spec(language="th") -> RunSpec:
@@ -84,11 +87,14 @@ def get_xquad_spec(language="th") -> RunSpec:
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_bhasa_qa_metric_specs(args={
-            "language": language,
-        }),
+        metric_specs=get_bhasa_qa_metric_specs(
+            args={
+                "language": language,
+            }
+        ),
         groups=["bhasa_nlu", f"xquad_{language}"],
     )
+
 
 # 1.3 Tamil: IndicQA
 @run_spec_function("indicqa")
@@ -102,19 +108,20 @@ def get_indicqa_spec() -> RunSpec:
         max_tokens=256,
     )
 
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.bhasa_scenario.IndicQAScenario"
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bhasa_scenario.IndicQAScenario")
 
     return RunSpec(
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_bhasa_qa_metric_specs(args={
-            "language": "ta",
-        }),
+        metric_specs=get_bhasa_qa_metric_specs(
+            args={
+                "language": "ta",
+            }
+        ),
         groups=["bhasa_nlu", "indicqa"],
     )
+
 
 # 2. Sentiment Analysis
 # 2.1 Indonesian: NusaX Sentiment
@@ -130,9 +137,7 @@ def get_nusax_spec() -> RunSpec:
         max_tokens=16,
     )
 
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.bhasa_scenario.NusaXScenario"
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bhasa_scenario.NusaXScenario")
 
     return RunSpec(
         name=name,
@@ -141,6 +146,7 @@ def get_nusax_spec() -> RunSpec:
         metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
         groups=["bhasa_nlu", "nusax"],
     )
+
 
 # 2.2 Vietnamese: UIT-VSFC
 @run_spec_function("uitvsfc")
@@ -155,9 +161,7 @@ def get_uitvsfc_spec() -> RunSpec:
         max_tokens=16,
     )
 
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.bhasa_scenario.UITVSFCScenario"
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bhasa_scenario.UITVSFCScenario")
 
     return RunSpec(
         name=name,
@@ -166,6 +170,7 @@ def get_uitvsfc_spec() -> RunSpec:
         metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
         groups=["bhasa_nlu", "uitvsfc"],
     )
+
 
 # 2.3 Thai: Wisesight Sentiment
 @run_spec_function("wisesight")
@@ -180,9 +185,7 @@ def get_wisesight_spec() -> RunSpec:
         max_tokens=16,
     )
 
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.bhasa_scenario.WisesightScenario"
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bhasa_scenario.WisesightScenario")
 
     return RunSpec(
         name=name,
@@ -191,6 +194,7 @@ def get_wisesight_spec() -> RunSpec:
         metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
         groups=["bhasa_nlu", "wisesight"],
     )
+
 
 # 2.4 Tamil: IndicSentiment
 @run_spec_function("indicsentiment")
@@ -205,9 +209,7 @@ def get_indicsentiment_spec() -> RunSpec:
         max_tokens=16,
     )
 
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.bhasa_scenario.IndicSentimentScenario"
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bhasa_scenario.IndicSentimentScenario")
 
     return RunSpec(
         name=name,
@@ -216,6 +218,7 @@ def get_indicsentiment_spec() -> RunSpec:
         metric_specs=get_classification_metric_specs() + get_basic_metric_specs([]),
         groups=["bhasa_nlu", "indicsentiment"],
     )
+
 
 # 3. Toxicity Detection/Classification
 # 3.1 Indonesian: Multi-Label Hate Speech Detection
@@ -231,9 +234,7 @@ def get_mlhsd_spec() -> RunSpec:
         max_tokens=16,
     )
 
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.bhasa_scenario.MLHSDScenario"
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bhasa_scenario.MLHSDScenario")
 
     return RunSpec(
         name=name,
@@ -242,6 +243,7 @@ def get_mlhsd_spec() -> RunSpec:
         metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
         groups=["bhasa_nlu", "mlhsd"],
     )
+
 
 # 3.2 Vietnamese: ViHSD
 @run_spec_function("vihsd")
@@ -256,9 +258,7 @@ def get_vihsd_spec() -> RunSpec:
         max_tokens=16,
     )
 
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.bhasa_scenario.ViHSDScenario"
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bhasa_scenario.ViHSDScenario")
 
     return RunSpec(
         name=name,
@@ -267,6 +267,7 @@ def get_vihsd_spec() -> RunSpec:
         metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
         groups=["bhasa_nlu", "vihsd"],
     )
+
 
 # 3.3 Thai: Thai Toxicity Tweets
 @run_spec_function("thaitoxicitytweets")
@@ -281,9 +282,7 @@ def get_thaitoxicitytweets_spec() -> RunSpec:
         max_tokens=16,
     )
 
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.bhasa_scenario.ThaiToxicityTweetsScenario"
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bhasa_scenario.ThaiToxicityTweetsScenario")
 
     return RunSpec(
         name=name,
@@ -292,6 +291,7 @@ def get_thaitoxicitytweets_spec() -> RunSpec:
         metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
         groups=["bhasa_nlu", "thaitoxicitytweets"],
     )
+
 
 # B. Natural Language Generation
 #   1. Machine Translation
@@ -340,6 +340,7 @@ TRANSLATION_PROMPTS = {
     },
 }
 
+
 @run_spec_function("flores")
 def get_flores_spec(source="en", target="id") -> RunSpec:
     pair = f"{source}_{target}"
@@ -368,9 +369,11 @@ def get_flores_spec(source="en", target="id") -> RunSpec:
         groups=["bhasa_nlg", f"flores_{pair}"],
     )
 
+
 # C. Natural Language Reasoning
 #   1. Natural Language Inference
 #   2. Causal Reasoning
+
 
 # 1. Natural Language Inference
 # 1.1 Indonesian: IndoNLI
@@ -385,9 +388,7 @@ def get_indonli_spec() -> RunSpec:
         max_tokens=2,
     )
 
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.bhasa_scenario.IndoNLIScenario"
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bhasa_scenario.IndoNLIScenario")
 
     return RunSpec(
         name=name,
@@ -396,6 +397,7 @@ def get_indonli_spec() -> RunSpec:
         metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
         groups=["bhasa_nlr", "indonli"],
     )
+
 
 # 1.2 Vietnamese & Thai: XNLI
 XNLI_PROMPTS = {
@@ -410,6 +412,7 @@ XNLI_PROMPTS = {
         "output_noun": "Câu trả lời",
     },
 }
+
 
 @run_spec_function("xnli")
 def get_xnli_spec(language="vi") -> RunSpec:
@@ -437,6 +440,7 @@ def get_xnli_spec(language="vi") -> RunSpec:
         groups=["bhasa_nlr", f"xnli_{language}"],
     )
 
+
 # 1.3 Tamil: IndicXNLI
 @run_spec_function("indicxnli")
 def get_indicxnli_spec() -> RunSpec:
@@ -449,9 +453,7 @@ def get_indicxnli_spec() -> RunSpec:
         max_tokens=2,
     )
 
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.bhasa_scenario.IndicXNLIScenario"
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bhasa_scenario.IndicXNLIScenario")
 
     return RunSpec(
         name=name,
@@ -460,6 +462,7 @@ def get_indicxnli_spec() -> RunSpec:
         metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
         groups=["bhasa_nlr", "indicxnli"],
     )
+
 
 # 2. Causal Reasoning: XCOPA
 XCOPA_PROMPTS = {
@@ -478,8 +481,9 @@ XCOPA_PROMPTS = {
     "vi": {
         "input_noun": "Tình huống",
         "output_noun": "Câu trả lời",
-    }
+    },
 }
+
 
 @run_spec_function("xcopa")
 def get_xcopa_spec(language="id") -> RunSpec:

@@ -14,6 +14,7 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 
+
 class BhasaMachineTranslationMetric(Metric):
     """Machine Translation Metrics
 
@@ -49,7 +50,7 @@ class BhasaMachineTranslationMetric(Metric):
 
     def chr_f_plus_plus(self, refs: List[str], pred: str) -> Dict[str, float]:
         metrics: Dict[str, float] = {}
-        metrics['chr_f_plus_plus'] = self.chrf_scorer.sentence_score(pred, refs).score
+        metrics["chr_f_plus_plus"] = self.chrf_scorer.sentence_score(pred, refs).score
         return metrics
 
     def evaluate_generation(
@@ -68,9 +69,12 @@ class BhasaMachineTranslationMetric(Metric):
         result: List[Stat] = []
 
         # Compute ChrF++ metrics
-        result.extend([Stat(MetricName(name)).add(float(val)) for name, val in self.chr_f_plus_plus(refs, pred).items()])
+        result.extend(
+            [Stat(MetricName(name)).add(float(val)) for name, val in self.chr_f_plus_plus(refs, pred).items()]
+        )
 
         return result
+
 
 class BhasaQAMetric(Metric):
     """Bhasa QA Metrics
@@ -100,7 +104,7 @@ class BhasaQAMetric(Metric):
     }
     """
 
-    def __init__(self, language: str = 'en'):
+    def __init__(self, language: str = "en"):
         self.language: str = language
         self.metrics: Dict[str, Callable[[str, str], float]] = {
             "squad_exact_match_score": self.squad_exact_match_score,
@@ -154,7 +158,7 @@ class BhasaQAMetric(Metric):
         recall = 1.0 * num_same / len(ground_truth_tokens)
         f1 = (2 * precision * recall) / (precision + recall)
         return f1
-    
+
     def squad_exact_match_score(self, gold: str, pred: str) -> float:
         return self.normalize_answer(pred) == self.normalize_answer(gold)
 
