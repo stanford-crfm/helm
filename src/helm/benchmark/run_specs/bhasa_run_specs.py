@@ -104,7 +104,8 @@ def get_indicqa_spec() -> RunSpec:
     name = "indicqa"
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="உங்களுக்கு ஒரு பத்தியும் ஒரு கேள்வியும் தரப்படும். தரப்பட்ட பத்தியிலிருந்து கேள்விக்கான " "பதிலைக் கண்டறியவும்.",
+        instructions="உங்களுக்கு ஒரு பத்தியும் ஒரு கேள்வியும் தரப்படும். தரப்பட்ட பத்தியிலிருந்து கேள்விக்கான பதிலைக் "
+        "கண்டறியவும்.",
         output_noun="பதில்",
         stop_sequences=["\n"],
         max_tokens=256,
@@ -206,7 +207,8 @@ def get_indicsentiment_spec() -> RunSpec:
     name = "indicsentiment"
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="பின்வரும் வாக்கியத்தில் வெளிப்படுத்தப்படும் உணர்வு எது?\nஒரு சொல்லில் மட்டும் பதிலளிக்கவும்:\n- நேர்மறை\n- எதிர்மறை",
+        instructions="பின்வரும் வாக்கியத்தில் வெளிப்படுத்தப்படும் உணர்வு எது?\nஒரு சொல்லில் மட்டும் பதிலளிக்கவும்:"
+        "\n- நேர்மறை\n- எதிர்மறை",
         input_noun="வாக்கியம்",
         output_noun="பதில்",
         stop_sequences=["\n"],
