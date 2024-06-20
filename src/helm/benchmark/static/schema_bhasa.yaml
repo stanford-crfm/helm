@@ -61,6 +61,11 @@ metrics:
   - name: predicted_index
     display_name: Predicted index
     description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
+  - name: exact_match
+    display_name: Exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
+    lower_is_better: false
 
 ############################################################
 perturbations: []
@@ -121,7 +126,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: accuracy
+      main_name: exact_match
       main_split: test
     taxonomy:
       task: minimal pairs
@@ -139,7 +144,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: accuracy
+      main_name: exact_match
       main_split: test
     taxonomy:
       task: pragmatic reasoning
@@ -157,7 +162,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: accuracy
+      main_name: exact_match
       main_split: test
     taxonomy:
       task: pragmatic reasoning

@@ -19,18 +19,14 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 #   2. Pragmatics
 
 # 1. Syntax: LINDSEA Minimal Pairs
-LINDSEA_OUTPUT_NOUNS = {
-    "id": "Jawaban"
-}
+LINDSEA_OUTPUT_NOUNS = {"id": "Jawaban"}
+
 
 @run_spec_function("lindsea_syntax_minimal_pairs")
 def get_lindsea_syntax_minimal_pairs_spec(language: str = "id", method: str = "mcq") -> RunSpec:
     name = f"lindsea_syntax_minimal_pairs_{language}"
     if method == "mcq":
-        adapter_spec = get_generation_adapter_spec(
-            output_noun=LINDSEA_OUTPUT_NOUNS[language],
-            max_tokens=2
-        )
+        adapter_spec = get_generation_adapter_spec(output_noun=LINDSEA_OUTPUT_NOUNS[language], max_tokens=2)
     else:
         adapter_spec = get_multiple_choice_separate_adapter_spec(
             method=ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
@@ -42,7 +38,7 @@ def get_lindsea_syntax_minimal_pairs_spec(language: str = "id", method: str = "m
         args={
             "method": method,
             "language": language,
-        }
+        },
     )
 
     return RunSpec(
@@ -52,6 +48,7 @@ def get_lindsea_syntax_minimal_pairs_spec(language: str = "id", method: str = "m
         metric_specs=get_exact_match_metric_specs(),
         groups=["bhasa_linguistic", f"lindsea_syntax_minimal_pairs_{language}"],
     )
+
 
 # 2.1. Pragmatics: LINDSEA Pragmatic Reasoning (single sentence)
 @run_spec_function("lindsea_pragmatics_pragmatic_reasoning_single")
@@ -69,7 +66,7 @@ def get_lindsea_pragmatics_pragmatic_reasoning_single_spec(language="id") -> Run
         class_name="helm.benchmark.scenarios.bhasa_scenario.LINDSEAPragmaticsPragmaticReasoningSingleScenario",
         args={
             "language": language,
-        }
+        },
     )
 
     return RunSpec(
@@ -79,6 +76,7 @@ def get_lindsea_pragmatics_pragmatic_reasoning_single_spec(language="id") -> Run
         metric_specs=get_exact_match_metric_specs(),
         groups=["bhasa_linguistic", f"lindsea_pragmatics_pragmatic_reasoning_single_{language}"],
     )
+
 
 # 2.2. Pragmatics: LINDSEA Pragmatic Reasoning (sentence pair)
 @run_spec_function("lindsea_pragmatics_pragmatic_reasoning_pair")
@@ -96,7 +94,7 @@ def get_lindsea_pragmatics_pragmatic_reasoning_pair_spec(language="id") -> RunSp
         class_name="helm.benchmark.scenarios.bhasa_scenario.LINDSEAPragmaticsPragmaticReasoningPairScenario",
         args={
             "language": language,
-        }
+        },
     )
 
     return RunSpec(

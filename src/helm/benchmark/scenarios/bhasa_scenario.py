@@ -6,8 +6,15 @@ from typing import List
 import pandas as pd
 
 from helm.benchmark.scenarios.scenario import (
-    Input, Instance, Output, PassageQuestionInput, Reference, Scenario,
-    CORRECT_TAG, TEST_SPLIT, TRAIN_SPLIT
+    Input,
+    Instance,
+    Output,
+    PassageQuestionInput,
+    Reference,
+    Scenario,
+    CORRECT_TAG,
+    TEST_SPLIT,
+    TRAIN_SPLIT,
 )
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog
@@ -18,6 +25,7 @@ from helm.common.hierarchical_logger import hlog
 # D. Linguistic Diagnostics (LINDSEA)
 #   1. Syntax
 #   2. Pragmatics
+
 
 # 1. Syntax: LINDSEA Minimal Pairs
 class LINDSEASyntaxMinimalPairsScenario(Scenario):
@@ -62,7 +70,7 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
         self.prompts = {
             "id": {
                 "instructions": "Kalimat mana yang lebih mungkin?",
-                "output_prefix": "Jawablah dengan satu huruf saja, A atau B."
+                "output_prefix": "Jawablah dengan satu huruf saja, A atau B.",
             }
         }
 
@@ -83,7 +91,6 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
 
         return dataset
 
-
     def get_instances(self, output_path: str) -> List[Instance]:
         data = self.download_dataset(output_path)
 
@@ -94,7 +101,7 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
             for category in category_list:
                 # Fix shuffling within each category
                 random.seed(1)
-                for _, row in data[data["category"]==category].iterrows():
+                for _, row in data[data["category"] == category].iterrows():
                     options = [(row["correct"], 1), (row["wrong"], 2)]
                     random.shuffle(options)
                     options_reversed = True if options[0][1] == 2 else False
@@ -107,13 +114,9 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
                     # Determine correct option based on whether shuffling reversed the options
                     references = [
                         Reference(Output(text="A"), tags=[] if options_reversed else [CORRECT_TAG]),
-                        Reference(Output(text="B"), tags=[CORRECT_TAG] if options_reversed else [])
+                        Reference(Output(text="B"), tags=[CORRECT_TAG] if options_reversed else []),
                     ]
-                    instance = Instance(
-                        input=input,
-                        references=references,
-                        split=TEST_SPLIT
-                    )
+                    instance = Instance(input=input, references=references, split=TEST_SPLIT)
                     outputs.append(instance)
 
         else:
@@ -131,6 +134,7 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
                 )
                 outputs.append(instance)
         return outputs
+
 
 # 2. Pragmatics
 # 2.1 LINDSEA Pragmatic Reasoning (single sentence)
@@ -184,7 +188,6 @@ class LINDSEAPragmaticsPragmaticReasoningSingleScenario(Scenario):
         dataset = pd.read_json(target_path_file, lines=True)
         return dataset
 
-
     def get_instances(self, output_path) -> List[Instance]:
         data = self.download_dataset(output_path)
         outputs = []
@@ -213,6 +216,7 @@ class LINDSEAPragmaticsPragmaticReasoningSingleScenario(Scenario):
             )
             outputs.append(instance)
         return outputs
+
 
 # 2.2 Pragmatics: LINDSEA Pragmatic Reasoning (sentence pair)
 class LINDSEAPragmaticsPragmaticReasoningPairScenario(Scenario):
@@ -267,7 +271,6 @@ class LINDSEAPragmaticsPragmaticReasoningPairScenario(Scenario):
         ensure_file_downloaded(source_url=URL, target_path=target_path_file)
         dataset = pd.read_json(target_path_file, lines=True)
         return dataset
-
 
     def get_instances(self, output_path) -> List[Instance]:
         data = self.download_dataset(output_path)
