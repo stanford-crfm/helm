@@ -1,4 +1,3 @@
-import datasets
 import os
 import random
 from typing import List
@@ -9,12 +8,10 @@ from helm.benchmark.scenarios.scenario import (
     Input,
     Instance,
     Output,
-    PassageQuestionInput,
     Reference,
     Scenario,
     CORRECT_TAG,
     TEST_SPLIT,
-    TRAIN_SPLIT,
 )
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog
@@ -50,7 +47,13 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
 
     @misc{leong2023bhasa,
         title={BHASA: A Holistic Southeast Asian Linguistic and Cultural Evaluation Suite for Large Language Models},
-        author={Wei Qi Leong and Jian Gang Ngui and Yosephine Susanto and Hamsawardhini Rengarajan and Kengatharaiyer Sarveswaran and William Chandra Tjhi},
+        author={Wei Qi Leong
+            and Jian Gang Ngui
+            and Yosephine Susanto
+            and Hamsawardhini Rengarajan
+            and Kengatharaiyer Sarveswaran
+            and William Chandra Tjhi
+        },
         year={2023},
         eprint={2309.06085},
         archivePrefix={arXiv},
@@ -75,11 +78,12 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
         }
 
     def download_dataset(self, output_path: str):
+        BASE_URL = "https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/"
         URLS = {
-            "npis_and_negation": f"https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/{self.language}/syntax/NPIs_and_negation.jsonl",
-            "argument_structure": f"https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/{self.language}/syntax/argument_structure.jsonl",
-            "filler_gap_dependencies": f"https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/{self.language}/syntax/filler-gap_dependencies.jsonl",
-            "morphology": f"https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/{self.language}/syntax/morphology.jsonl",
+            "npis_and_negation": f"{BASE_URL}{self.language}/syntax/NPIs_and_negation.jsonl",
+            "argument_structure": f"{BASE_URL}{self.language}/syntax/argument_structure.jsonl",
+            "filler_gap_dependencies": f"{BASE_URL}{self.language}/syntax/filler-gap_dependencies.jsonl",
+            "morphology": f"{BASE_URL}{self.language}/syntax/morphology.jsonl",
         }
 
         data_files = {}
@@ -158,7 +162,13 @@ class LINDSEAPragmaticsPragmaticReasoningSingleScenario(Scenario):
 
     @misc{leong2023bhasa,
         title={BHASA: A Holistic Southeast Asian Linguistic and Cultural Evaluation Suite for Large Language Models},
-        author={Wei Qi Leong and Jian Gang Ngui and Yosephine Susanto and Hamsawardhini Rengarajan and Kengatharaiyer Sarveswaran and William Chandra Tjhi},
+        author={Wei Qi Leong
+            and Jian Gang Ngui
+            and Yosephine Susanto
+            and Hamsawardhini Rengarajan
+            and Kengatharaiyer Sarveswaran
+            and William Chandra Tjhi
+        },
         year={2023},
         eprint={2309.06085},
         archivePrefix={arXiv},
@@ -181,7 +191,8 @@ class LINDSEAPragmaticsPragmaticReasoningSingleScenario(Scenario):
         }
 
     def download_dataset(self, output_path: str):
-        URL = f"https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/{self.language}/pragmatics/pragmatic_reasoning_single.jsonl"
+        BASE_URL = "https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/"
+        URL = f"{BASE_URL}{self.language}/pragmatics/pragmatic_reasoning_single.jsonl"
         file = "pragmatic_reasoning_single"
         target_path_file = os.path.join(output_path, file)
         ensure_file_downloaded(source_url=URL, target_path=target_path_file)
@@ -240,7 +251,13 @@ class LINDSEAPragmaticsPragmaticReasoningPairScenario(Scenario):
 
     @misc{leong2023bhasa,
         title={BHASA: A Holistic Southeast Asian Linguistic and Cultural Evaluation Suite for Large Language Models},
-        author={Wei Qi Leong and Jian Gang Ngui and Yosephine Susanto and Hamsawardhini Rengarajan and Kengatharaiyer Sarveswaran and William Chandra Tjhi},
+        author={Wei Qi Leong
+            and Jian Gang Ngui
+            and Yosephine Susanto
+            and Hamsawardhini Rengarajan
+            and Kengatharaiyer Sarveswaran
+            and William Chandra Tjhi
+        },
         year={2023},
         eprint={2309.06085},
         archivePrefix={arXiv},
@@ -265,7 +282,8 @@ class LINDSEAPragmaticsPragmaticReasoningPairScenario(Scenario):
         }
 
     def download_dataset(self, output_path: str):
-        URL = f"https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/{self.language}/pragmatics/pragmatic_reasoning_pair.jsonl"
+        BASE_URL = "https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/"
+        URL = f"{BASE_URL}{self.language}/pragmatics/pragmatic_reasoning_pair.jsonl"
         file = "pragmatic_reasoning_pair"
         target_path_file = os.path.join(output_path, file)
         ensure_file_downloaded(source_url=URL, target_path=target_path_file)
