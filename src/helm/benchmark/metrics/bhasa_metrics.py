@@ -184,7 +184,7 @@ class BhasaQAMetric(Metric):
                 metrics = [Stat(MetricName(name)).add(score_1)]
                 if adapter_spec.num_outputs != 1:
                     score_k = max(metric(gold.output.text.strip(), pred) for gold in golds for pred in preds)
-                    metrics.append(Stat(MetricName(f"{name.name}@{adapter_spec.num_outputs}")).add(score_k))
+                    metrics.append(Stat(MetricName(f"{name}@{adapter_spec.num_outputs}")).add(score_k))
                 stats.extend(metrics)
 
         return stats

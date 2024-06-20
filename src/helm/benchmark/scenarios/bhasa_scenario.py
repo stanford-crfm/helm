@@ -1,6 +1,6 @@
 import datasets
 import os
-from typing import List
+from typing import List, Dict
 
 import pandas as pd
 
@@ -205,8 +205,8 @@ class XQuADScenario(Scenario):
                 input = PassageQuestionInput(
                     passage=passage,
                     question=question,
-                    passage_prefix=self.map[self.language]["passage_prefix"],
-                    question_prefix=self.map[self.language]["question_prefix"],
+                    passage_prefix=str(self.map[self.language]["passage_prefix"]),
+                    question_prefix=str(self.map[self.language]["question_prefix"]),
                 )
                 references = []
                 for answer in row["answers"]["text"]:
@@ -397,7 +397,7 @@ class NusaXScenario(Scenario):
             "train": "https://raw.githubusercontent.com/IndoNLP/nusax/main/datasets/sentiment/indonesian/train.csv",
         }
 
-        dataset = {}
+        dataset: Dict[str, pd.DataFrame] = {}
         for split in self.splits.keys():
             target_path_file = os.path.join(output_path, split)
             ensure_file_downloaded(source_url=URLS[split], target_path=target_path_file)
@@ -483,7 +483,7 @@ class UITVSFCScenario(Scenario):
             },
         }
 
-        dataset = {}
+        dataset: Dict[str, pd.DataFrame] = {}
         for split in list(URLS.keys()):
             dataset[split] = {}
             for file in list(URLS[split].keys()):
@@ -581,7 +581,7 @@ class WisesightScenario(Scenario):
         data_path = os.path.join(output_path, "data")
         ensure_file_downloaded(source_url=URL, target_path=data_path, unpack=True)
 
-        dataset = {}
+        dataset: Dict[str, pd.DataFrame] = {}
         for split in self.splits.keys():
             target_path_file = os.path.join(data_path, "data", f"{split}.jsonl")
             df = pd.read_json(target_path_file, lines=True)
@@ -870,7 +870,7 @@ class ViHSDScenario(Scenario):
         data_path = os.path.join(output_path, "data")
         ensure_file_downloaded(source_url=URL, target_path=data_path, unpack=True)
 
-        dataset = {}
+        dataset: Dict[str, pd.DataFrame] = {}
         for split in self.splits.keys():
             target_path_file = os.path.join(data_path, "vihsd", f"{split}.csv")
             df = pd.read_csv(target_path_file)
@@ -1120,7 +1120,7 @@ class IndoNLIScenario(Scenario):
             "test": "https://raw.githubusercontent.com/ir-nlp-csui/indonli/main/data/indonli/test_lay.jsonl",
         }
 
-        dataset = {}
+        dataset: Dict[str, pd.DataFrame] = {}
         for split in self.splits.keys():
             target_path_file = os.path.join(output_path, split)
             ensure_file_downloaded(source_url=URLS[split], target_path=target_path_file)
