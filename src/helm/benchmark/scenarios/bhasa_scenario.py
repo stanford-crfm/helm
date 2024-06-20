@@ -42,7 +42,8 @@ class TyDiQAScenario(Scenario):
 
     The models are prompted using the following format:
 
-        Anda akan diberikan sebuah paragraf dan sebuah pertanyaan. Jawablah pertanyaannya dengan mengekstrak jawaban dari paragraf tersebut.
+        Anda akan diberikan sebuah paragraf dan sebuah pertanyaan. Jawablah pertanyaannya dengan mengekstrak jawaban
+        dari paragraf tersebut.
 
         Paragraf: <text>
         Pertanyaan: <question>
@@ -59,7 +60,8 @@ class TyDiQAScenario(Scenario):
         <answer>
 
     @article{clark-etal-2020-tydi,
-        title = "{T}y{D}i {QA}: A Benchmark for Information-Seeking Question Answering in Typologically Diverse Languages",
+        title = "{T}y{D}i {QA}: A Benchmark for Information-Seeking Question Answering in Typologically
+        Diverse Languages",
         author = "Clark, Jonathan H.  and
         Choi, Eunsol  and
         Collins, Michael  and
@@ -247,7 +249,8 @@ class IndicQAScenario(Scenario):
         <answer>
 
     @inproceedings{doddapaneni-etal-2023-towards,
-        title = "Towards Leaving No {I}ndic Language Behind: Building Monolingual Corpora, Benchmark and Models for {I}ndic Languages",
+        title = "Towards Leaving No {I}ndic Language Behind: Building Monolingual Corpora, Benchmark and Models for
+            {I}ndic Languages",
         author = "Doddapaneni, Sumanth  and
             Aralikatte, Rahul  and
             Ramesh, Gowtham  and
@@ -258,7 +261,8 @@ class IndicQAScenario(Scenario):
         editor = "Rogers, Anna  and
             Boyd-Graber, Jordan  and
             Okazaki, Naoaki",
-        booktitle = "Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+        booktitle = "Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 1:
+            Long Papers)",
         month = jul,
         year = "2023",
         address = "Toronto, Canada",
@@ -367,7 +371,8 @@ class NusaXScenario(Scenario):
         Ruder, Sebastian",
         editor = "Vlachos, Andreas  and
         Augenstein, Isabelle",
-        booktitle = "Proceedings of the 17th Conference of the European Chapter of the Association for Computational Linguistics",
+        booktitle = "Proceedings of the 17th Conference of the European Chapter of the Association for Computational 
+            Linguistics",
         month = may,
         year = "2023",
         address = "Dubrovnik, Croatia",
@@ -638,7 +643,8 @@ class IndicSentimentScenario(Scenario):
         <sentiment> (<sentiment>:positive or negative)
 
     @inproceedings{doddapaneni-etal-2023-towards,
-        title = "Towards Leaving No {I}ndic Language Behind: Building Monolingual Corpora, Benchmark and Models for {I}ndic Languages",
+        title = "Towards Leaving No {I}ndic Language Behind: Building Monolingual Corpora, Benchmark and Models for
+            {I}ndic Languages",
         author = "Doddapaneni, Sumanth  and
             Aralikatte, Rahul  and
             Ramesh, Gowtham  and
@@ -649,7 +655,8 @@ class IndicSentimentScenario(Scenario):
         editor = "Rogers, Anna  and
             Boyd-Graber, Jordan  and
             Okazaki, Naoaki",
-        booktitle = "Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+        booktitle = "Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 1:
+            Long Papers)",
         month = jul,
         year = "2023",
         address = "Toronto, Canada",
@@ -745,7 +752,6 @@ class MLHSDScenario(Scenario):
         url = "https://aclanthology.org/W19-3506",
         doi = "10.18653/v1/W19-3506",
         pages = "46--57",
-        abstract = "Hate speech and abusive language spreading on social media need to be detected automatically to avoid conflict between citizen. Moreover, hate speech has a target, category, and level that also needs to be detected to help the authority in prioritizing which hate speech must be addressed immediately. This research discusses multi-label text classification for abusive language and hate speech detection including detecting the target, category, and level of hate speech in Indonesian Twitter using machine learning approach with Support Vector Machine (SVM), Naive Bayes (NB), and Random Forest Decision Tree (RFDT) classifier and Binary Relevance (BR), Label Power-set (LP), and Classifier Chains (CC) as the data transformation method. We used several kinds of feature extractions which are term frequency, orthography, and lexicon features. Our experiment results show that in general RFDT classifier using LP as the transformation method gives the best accuracy with fast computational time.",
     }
     """
 
@@ -760,7 +766,8 @@ class MLHSDScenario(Scenario):
         self.splits = {"train": TRAIN_SPLIT, "test": TEST_SPLIT}
 
     def download_dataset(self, output_path: str):
-        URL = "https://raw.githubusercontent.com/okkyibrohim/id-multi-label-hate-speech-and-abusive-language-detection/master/re_dataset.csv"
+        BASE_URL = "https://raw.githubusercontent.com/okkyibrohim/"
+        URL = f"{BASE_URL}id-multi-label-hate-speech-and-abusive-language-detection/master/re_dataset.csv"
         target_path_file = os.path.join(output_path, "mlhsd")
         ensure_file_downloaded(source_url=URL, target_path=target_path_file)
         df = pd.read_csv(target_path_file, encoding="ISO-8859-1")
@@ -906,7 +913,8 @@ class ThaiToxicityTweetsScenario(Scenario):
     The models are prompted using the following format:
 
         คุณเป็นเครื่องตรวจจับข้อความที่เป็นพิษ
-        ข้อความเป็นพิษถ้ามันทำร้าย สร้างความเสียหาย หรือสื่อเจตนาเชิงลบถึงบุคคลหรือกลุ่มบุคคล และคุณควรคำนึงถึงการประชดประชันด้วย
+        ข้อความเป็นพิษถ้ามันทำร้าย สร้างความเสียหาย หรือสื่อเจตนาเชิงลบถึงบุคคลหรือกลุ่มบุคคล
+        และคุณควรคำนึงถึงการประชดประชันด้วย
         เมื่อได้รับข้อความ ให้ตอบด้วยตัวอักษร Y หากเป็นพิษ และ N หากไม่เป็นพิษ
 
         ข้อความ: <text>
@@ -1006,10 +1014,17 @@ class FloresScenario(Scenario):
         <translation>
 
     @article{nllb2022,
-        author    = {NLLB Team, Marta R. Costa-jussà, James Cross, Onur Çelebi, Maha Elbayad, Kenneth Heafield, Kevin Heffernan, Elahe Kalbassi,  Janice Lam, Daniel Licht, Jean Maillard, Anna Sun, Skyler Wang, Guillaume Wenzek, Al Youngblood, Bapi Akula, Loic Barrault, Gabriel Mejia Gonzalez, Prangthip Hansanti, John Hoffman, Semarley Jarrett, Kaushik Ram Sadagopan, Dirk Rowe, Shannon Spruit, Chau Tran, Pierre Andrews, Necip Fazil Ayan, Shruti Bhosale, Sergey Edunov, Angela Fan, Cynthia Gao, Vedanuj Goswami, Francisco Guzmán, Philipp Koehn, Alexandre Mourachko, Christophe Ropers, Safiyyah Saleem, Holger Schwenk, Jeff Wang},
-        title     = {No Language Left Behind: Scaling Human-Centered Machine Translation},
-        year      = {2022},
-        url       = {https://research.facebook.com/publications/no-language-left-behind/},
+        author = {NLLB Team, Marta R. Costa-jussà, James Cross, Onur Çelebi, Maha Elbayad, Kenneth Heafield, 
+            Kevin Heffernan, Elahe Kalbassi,  Janice Lam, Daniel Licht, Jean Maillard, Anna Sun, Skyler Wang,
+            Guillaume Wenzek, Al Youngblood, Bapi Akula, Loic Barrault, Gabriel Mejia Gonzalez, Prangthip Hansanti,
+            John Hoffman, Semarley Jarrett, Kaushik Ram Sadagopan, Dirk Rowe, Shannon Spruit, Chau Tran,
+            Pierre Andrews, Necip Fazil Ayan, Shruti Bhosale, Sergey Edunov, Angela Fan, Cynthia Gao,
+            Vedanuj Goswami, Francisco Guzmán, Philipp Koehn, Alexandre Mourachko, Christophe Ropers,
+            Safiyyah Saleem, Holger Schwenk, Jeff Wang
+        },
+        title = {No Language Left Behind: Scaling Human-Centered Machine Translation},
+        year = {2022},
+        url = {https://research.facebook.com/publications/no-language-left-behind/},
     }
 
     """
@@ -1063,9 +1078,9 @@ class FloresScenario(Scenario):
 # 1.1 Indonesian: IndoNLI
 class IndoNLIScenario(Scenario):
     """
-    IndoNLI is an Indonesian Natural Language Inference (NLI) scenario. The data is sourced from Wikipedia, news, and web articles.
-    Native speakers use premise text from these sources and write hypothesis sentences for each NLI label.
-    The labels are entailment, contradiction, or neutral.
+    IndoNLI is an Indonesian Natural Language Inference (NLI) scenario. The data is sourced from Wikipedia, news,
+    and web articles. Native speakers use premise text from these sources and write hypothesis sentences for each
+    NLI label. The labels are entailment, contradiction, or neutral.
 
     The models are prompted using the following format:
 
@@ -1229,7 +1244,7 @@ class XNLIScenario(Scenario):
                     lambda x: x.sample(frac=1000 / len(df), random_state=4156)
                 )
 
-                # Extract one neutral instance from the remaining instances to add to the test data to make 1000 in total
+                # Add 1 neutral instance from remaining instances to the test data to make 1000 in total
                 remainder = df[~df.index.isin(data.index)]
                 neutral_instance = remainder[remainder["label"] == 1].iloc[0].to_frame().transpose()
                 data = pd.concat([data, neutral_instance], axis=0, ignore_index=True)
@@ -1322,7 +1337,7 @@ class IndicXNLIScenario(Scenario):
                     lambda x: x.sample(frac=1000 / len(df), random_state=4156)
                 )
 
-                # Extract one neutral instance from the remaining instances to add to the test data to make 1000 in total
+                # Add 1 neutral instance from remaining instances to the test data to make 1000 in total
                 remainder = df[~df.index.isin(data.index)]
                 neutral_instance = remainder[remainder["label"] == 2].iloc[0].to_frame().transpose()
                 data = pd.concat([data, neutral_instance], axis=0, ignore_index=True)
@@ -1344,12 +1359,13 @@ class XCOPAScenario(Scenario):
     XCOPA is a commonsense causal reasoning scenario for 11 languages. The data is sourced from the English
     COPA dataset and professionally translated across 11 languages to create a parallel dataset.
 
-    Only the Indonesian, Vietnamese, Thai and Tamil subsets were used for this scenario. Each instance consists of a
-    premise and two sentences. The system under test needs to determine which of the two sentences is more likely to be
-    the cause/effect of the premise. Whether the cause or the effect is asked for differs from instance to instance.
-    Although there should be an equal number of instances asking for the cause and for the effect, it was found in the
-    BHASA paper (Leong et al., 2023) that this was not the case for Indonesian and Thai. The cause/effect label is
-    fixed in this scenario by harmonizing the labels across the four languages based on the Tamil subset as the reference.
+    Only the Indonesian, Vietnamese, Thai and Tamil subsets were used for this scenario. Each instance consists of
+    a premise and two sentences. The system under test needs to determine which of the two sentences is more likely
+    to be the cause/effect of the premise. Whether the cause or the effect is asked for differs from instance to
+    instance. Although there should be an equal number of instances asking for the cause and for the effect, it was
+    found in the BHASA paper (Leong et al., 2023) that this was not the case for Indonesian and Thai. The
+    cause/effect label is fixed in this scenario by harmonizing the labels across the four languages based on the
+    Tamil subset as the reference.
 
     The models are prompted using the following general format:
 
@@ -1408,7 +1424,8 @@ class XCOPAScenario(Scenario):
             "id": {
                 "cause": "sebab",
                 "effect": "akibat",
-                "instruction1": "Berdasarkan situasi di atas, mana dari pilihan-pilihan berikut ini yang lebih mungkin menjadi {}?",
+                "instruction1": "Berdasarkan situasi di atas, mana dari pilihan-pilihan berikut ini yang lebih " \
+                    "mungkin menjadi {}?",
                 "instruction2": "Jawablah dengan satu huruf saja, A atau B.",
             },
             "ta": {

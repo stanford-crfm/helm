@@ -1,6 +1,5 @@
 import re
 import string
-from dataclasses import replace
 from typing import Callable, Dict, List
 from collections import Counter
 
@@ -61,7 +60,6 @@ class BhasaMachineTranslationMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         refs: List[str] = [ref.output.text for ref in request_state.instance.references]
-        inp: str = request_state.instance.input.text
 
         assert request_state.result is not None
         pred: str = request_state.result.completions[0].text.strip()
