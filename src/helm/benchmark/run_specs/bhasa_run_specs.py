@@ -102,10 +102,10 @@ def get_xquad_spec(language="th") -> RunSpec:
 @run_spec_function("indicqa")
 def get_indicqa_spec() -> RunSpec:
     name = "indicqa"
+    i = "உங்களுக்கு ஒரு பத்தியும் ஒரு கேள்வியும் தரப்படும். தரப்பட்ட பத்தியிலிருந்து கேள்விக்கான பதிலைக் கண்டறியவும்."
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="உங்களுக்கு ஒரு பத்தியும் ஒரு கேள்வியும் தரப்படும். தரப்பட்ட பத்தியிலிருந்து கேள்விக்கான பதிலைக் "
-        "கண்டறியவும்.",
+        instructions=i,
         output_noun="பதில்",
         stop_sequences=["\n"],
         max_tokens=256,
@@ -181,9 +181,10 @@ def get_uitvsfc_spec() -> RunSpec:
 @run_spec_function("wisesight")
 def get_wisesight_spec() -> RunSpec:
     name = "wisesight"
+    i = "อารมณ์ความรู้สึกของข้อความต่อไปนี้เป็นอย่างไร?\nกรุณาตอบโดยใช้คำเดียวเท่านั้น:\n- แง่บวก\n- แง่ลบ\n- เฉยๆ"
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="อารมณ์ความรู้สึกของข้อความต่อไปนี้เป็นอย่างไร?\nกรุณาตอบโดยใช้คำเดียวเท่านั้น:" "\n- แง่บวก\n- แง่ลบ\n- เฉยๆ",
+        instructions=i,
         input_noun="ข้อความ",
         output_noun="คำตอบ",
         stop_sequences=["\n"],
