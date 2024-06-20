@@ -31,8 +31,8 @@ def get_tydiqa_spec() -> RunSpec:
     name = "tydiqa"
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="Anda akan diberikan sebuah paragraf dan sebuah pertanyaan. Jawablah pertanyaannya dengan " \
-            "mengekstrak jawaban dari paragraf tersebut.",
+        instructions="Anda akan diberikan sebuah paragraf dan sebuah pertanyaan. Jawablah pertanyaannya dengan "
+        "mengekstrak jawaban dari paragraf tersebut.",
         output_noun="Jawaban",
         stop_sequences=["\n"],
         max_tokens=256,
@@ -60,8 +60,8 @@ XQUAD_PROMPTS = {
         "output_noun": "คำตอบ",
     },
     "vi": {
-        "instructions": "Bạn sẽ được cho một đoạn văn và một câu hỏi. Trả lời câu hỏi bằng cách trích xuất câu " \
-            "trả lời từ đoạn văn.",
+        "instructions": "Bạn sẽ được cho một đoạn văn và một câu hỏi. Trả lời câu hỏi bằng cách trích xuất câu "
+        "trả lời từ đoạn văn.",
         "output_noun": "Câu trả lời",
     },
 }
@@ -104,8 +104,7 @@ def get_indicqa_spec() -> RunSpec:
     name = "indicqa"
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="உங்களுக்கு ஒரு பத்தியும் ஒரு கேள்வியும் தரப்படும். தரப்பட்ட பத்தியிலிருந்து கேள்விக்கான " \
-            "பதிலைக் கண்டறியவும்.",
+        instructions="உங்களுக்கு ஒரு பத்தியும் ஒரு கேள்வியும் தரப்படும். தரப்பட்ட பத்தியிலிருந்து கேள்விக்கான " "பதிலைக் கண்டறியவும்.",
         output_noun="பதில்",
         stop_sequences=["\n"],
         max_tokens=256,
@@ -133,8 +132,8 @@ def get_nusax_spec() -> RunSpec:
     name = "nusax"
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="Apa sentimen dari kalimat berikut ini?\nJawablah dengan satu kata saja:" \
-            "\n- Positif\n- Negatif\n- Netral",
+        instructions="Apa sentimen dari kalimat berikut ini?\nJawablah dengan satu kata saja:"
+        "\n- Positif\n- Negatif\n- Netral",
         input_noun="Kalimat",
         output_noun="Jawaban",
         stop_sequences=["\n"],
@@ -158,8 +157,8 @@ def get_uitvsfc_spec() -> RunSpec:
     name = "uitvsfc"
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="Sắc thái của câu sau đây là gì?\nTrả lời với một từ duy nhất:" \
-            "\n- Tích cực\n- Tiêu cực\n- Trung lập",
+        instructions="Sắc thái của câu sau đây là gì?\nTrả lời với một từ duy nhất:"
+        "\n- Tích cực\n- Tiêu cực\n- Trung lập",
         input_noun="Câu văn",
         output_noun="Câu trả lời",
         stop_sequences=["\n"],
@@ -183,8 +182,7 @@ def get_wisesight_spec() -> RunSpec:
     name = "wisesight"
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="อารมณ์ความรู้สึกของข้อความต่อไปนี้เป็นอย่างไร?\nกรุณาตอบโดยใช้คำเดียวเท่านั้น:" \
-            "\n- แง่บวก\n- แง่ลบ\n- เฉยๆ",
+        instructions="อารมณ์ความรู้สึกของข้อความต่อไปนี้เป็นอย่างไร?\nกรุณาตอบโดยใช้คำเดียวเท่านั้น:" "\n- แง่บวก\n- แง่ลบ\n- เฉยๆ",
         input_noun="ข้อความ",
         output_noun="คำตอบ",
         stop_sequences=["\n"],
@@ -233,11 +231,11 @@ def get_mlhsd_spec() -> RunSpec:
     name = "mlhsd"
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="Anda adalah pendeteksi ujaran kebencian. Definisi dari labelnya adalah sebagai berikut:" \
-            "\nBersih: Tidak ada ujaran kebencian.\nKasar: Ada ujaran kebencian dan kata-kata kasar, namun " \ 
-            "tidak menyerang pihak tertentu.\nBenci: Ada ujaran kebencian atau serangan langsung terhadap pihak " \
-            "tertentu.\nBerdasarkan definisi labelnya, klasifikasikan kalimat berikut ini dengan satu kata saja:" \
-            "\n- Bersih\n- Kasar\n- Benci",
+        instructions="Anda adalah pendeteksi ujaran kebencian. Definisi dari labelnya adalah sebagai berikut:"
+        "\nBersih: Tidak ada ujaran kebencian.\nKasar: Ada ujaran kebencian dan kata-kata kasar, namun "
+        "tidak menyerang pihak tertentu.\nBenci: Ada ujaran kebencian atau serangan langsung terhadap pihak "
+        "tertentu.\nBerdasarkan definisi labelnya, klasifikasikan kalimat berikut ini dengan satu kata saja:"
+        "\n- Bersih\n- Kasar\n- Benci",
         input_noun="Kalimat",
         output_noun="Jawaban",
         stop_sequences=["\n"],
@@ -261,11 +259,11 @@ def get_vihsd_spec() -> RunSpec:
     name = "vihsd"
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="Bạn là máy phát hiện phát ngôn thù ghét. Các nhãn được định nghĩa như sau:" \
-            "\nSạch: Không quấy rối.\nCông kích: Bao gồm quấy rối và thậm chí chửi thề, nhưng không " \
-            "tấn công bất kì đối tượng cụ thể nào.\nThù ghét: Trực tiếp quấy rối hay lăng mạ một đối " \ 
-            "tượng cụ thể.\nVới các định nghĩa của nhãn, hãy phân loại câu dưới đây với một từ duy nhất:" \
-            "\n- Sạch\n- Công kích\n- Thù ghét",
+        instructions="Bạn là máy phát hiện phát ngôn thù ghét. Các nhãn được định nghĩa như sau:"
+        "\nSạch: Không quấy rối.\nCông kích: Bao gồm quấy rối và thậm chí chửi thề, nhưng không "
+        "tấn công bất kì đối tượng cụ thể nào.\nThù ghét: Trực tiếp quấy rối hay lăng mạ một đối "
+        "tượng cụ thể.\nVới các định nghĩa của nhãn, hãy phân loại câu dưới đây với một từ duy nhất:"
+        "\n- Sạch\n- Công kích\n- Thù ghét",
         input_noun="Câu văn",
         output_noun="Câu trả lời",
         stop_sequences=["\n"],
@@ -289,9 +287,9 @@ def get_thaitoxicitytweets_spec() -> RunSpec:
     name = "thaitoxicitytweets"
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="คุณเป็นเครื่องตรวจจับข้อความที่เป็นพิษ\nข้อความเป็นพิษถ้ามันทำร้าย สร้างความเสียหาย " \
-            "หรือสื่อเจตนาเชิงลบถึงบุคคลหรือกลุ่มบุคคล และคุณควรคำนึงถึงการประชดประชันด้วย\nเมื่อได้รับข้อความ " \
-            "ให้ตอบด้วยตัวอักษร Y หากเป็นพิษ และ N หากไม่เป็นพิษ",
+        instructions="คุณเป็นเครื่องตรวจจับข้อความที่เป็นพิษ\nข้อความเป็นพิษถ้ามันทำร้าย สร้างความเสียหาย "
+        "หรือสื่อเจตนาเชิงลบถึงบุคคลหรือกลุ่มบุคคล และคุณควรคำนึงถึงการประชดประชันด้วย\nเมื่อได้รับข้อความ "
+        "ให้ตอบด้วยตัวอักษร Y หากเป็นพิษ และ N หากไม่เป็นพิษ",
         input_noun="ข้อความ",
         output_noun="คำตอบ",
         stop_sequences=["\n"],
@@ -398,10 +396,10 @@ def get_indonli_spec() -> RunSpec:
     name = "indonli"
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="Anda akan diberikan dua kalimat, X dan Y.\nTentukan mana dari pernyataan berikut " \
-            "ini yang paling sesuai untuk kalimat X dan Y.\nA: Kalau X benar, maka Y juga harus benar." \
-            "\nB: X bertentangan dengan Y.\nC: Ketika X benar, Y mungkin benar atau mungkin tidak benar." \
-            "\nJawablah dengan satu huruf saja, A, B atau C.",
+        instructions="Anda akan diberikan dua kalimat, X dan Y.\nTentukan mana dari pernyataan berikut "
+        "ini yang paling sesuai untuk kalimat X dan Y.\nA: Kalau X benar, maka Y juga harus benar."
+        "\nB: X bertentangan dengan Y.\nC: Ketika X benar, Y mungkin benar atau mungkin tidak benar."
+        "\nJawablah dengan satu huruf saja, A, B atau C.",
         output_noun="Jawaban",
         stop_sequences=["\n"],
         max_tokens=2,
@@ -422,16 +420,16 @@ def get_indonli_spec() -> RunSpec:
 XNLI_PROMPTS = {
     "th": {
         "instructions": "คุณจะได้รับสองข้อความ X และ Y",
-        "input_suffix": "กรุณาพิจารณาว่า ข้อความใดต่อไปนี้ใช้กับข้อความ X และ Y ได้ดีที่สุด" \
-            "\nA: ถ้า X เป็นจริง Y จะต้องเป็นจริง\nB: X ขัดแย้งกับ Y\nC: เมื่อ X เป็นจริง Y อาจเป็นจริงหรือไม่ก็ได้" \
-            "\nกรุณาตอบด้วยตัวอักษร A, B หรือ C ตัวเดียวเท่านั้น",
+        "input_suffix": "กรุณาพิจารณาว่า ข้อความใดต่อไปนี้ใช้กับข้อความ X และ Y ได้ดีที่สุด"
+        "\nA: ถ้า X เป็นจริง Y จะต้องเป็นจริง\nB: X ขัดแย้งกับ Y\nC: เมื่อ X เป็นจริง Y อาจเป็นจริงหรือไม่ก็ได้"
+        "\nกรุณาตอบด้วยตัวอักษร A, B หรือ C ตัวเดียวเท่านั้น",
         "output_noun": "คำตอบ",
     },
     "vi": {
         "instructions": "Bạn sẽ được cho hai câu, X và Y.",
-        "input_suffix": "Xác định câu nào sau đây là câu phù hợp nhất cho câu X và Y." \
-            "\nA: Nếu X đúng thì Y phải đúng.\nB: X mâu thuẫn với Y." \
-            "\nC: Khi X đúng, Y có thể đúng hoặc không đúng.\nTrả lời với một chữ cái duy nhất A, B, hoặc C.",
+        "input_suffix": "Xác định câu nào sau đây là câu phù hợp nhất cho câu X và Y."
+        "\nA: Nếu X đúng thì Y phải đúng.\nB: X mâu thuẫn với Y."
+        "\nC: Khi X đúng, Y có thể đúng hoặc không đúng.\nTrả lời với một chữ cái duy nhất A, B, hoặc C.",
         "output_noun": "Câu trả lời",
     },
 }
@@ -470,11 +468,11 @@ def get_indicxnli_spec() -> RunSpec:
     name = "indicxnli"
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="உங்களுக்கு இரண்டு வாக்கியங்கள், X மற்றும் Y, தரப்படும்." \
-            "\nபின்வரும் கூற்றுகளில் எது X மற்றும் Y வாக்கியங்களுடன் மிகப் பொருந்துகிறது எனக் கண்டறியவும்." \
-            "\nA: X உண்மை என்றால் Y உம் உண்மையாக இருக்க வேண்டும்.\nB: X உம் Y உம் முரண்படுகின்றன." \
-            "\nC: X உண்மையாக இருக்கும்போது Y உண்மையாக இருக்கலாம் அல்லது இல்லாமல் இருக்கலாம்." \
-            "\nA அல்லது B அல்லது C என்ற ஒறே எழுத்தில் மட்டும் பதிலளிக்கவும்.",
+        instructions="உங்களுக்கு இரண்டு வாக்கியங்கள், X மற்றும் Y, தரப்படும்."
+        "\nபின்வரும் கூற்றுகளில் எது X மற்றும் Y வாக்கியங்களுடன் மிகப் பொருந்துகிறது எனக் கண்டறியவும்."
+        "\nA: X உண்மை என்றால் Y உம் உண்மையாக இருக்க வேண்டும்.\nB: X உம் Y உம் முரண்படுகின்றன."
+        "\nC: X உண்மையாக இருக்கும்போது Y உண்மையாக இருக்கலாம் அல்லது இல்லாமல் இருக்கலாம்."
+        "\nA அல்லது B அல்லது C என்ற ஒறே எழுத்தில் மட்டும் பதிலளிக்கவும்.",
         output_noun="பதில்",
         stop_sequences=["\n"],
         max_tokens=2,

@@ -371,8 +371,8 @@ class NusaXScenario(Scenario):
         Ruder, Sebastian",
         editor = "Vlachos, Andreas  and
         Augenstein, Isabelle",
-        booktitle = "Proceedings of the 17th Conference of the European Chapter of the Association for Computational 
-            Linguistics",
+        booktitle = "Proceedings of the 17th Conference of the European Chapter of the Association for
+            Computational Linguistics",
         month = may,
         year = "2023",
         address = "Dubrovnik, Croatia",
@@ -1014,7 +1014,7 @@ class FloresScenario(Scenario):
         <translation>
 
     @article{nllb2022,
-        author = {NLLB Team, Marta R. Costa-jussà, James Cross, Onur Çelebi, Maha Elbayad, Kenneth Heafield, 
+        author = {NLLB Team, Marta R. Costa-jussà, James Cross, Onur Çelebi, Maha Elbayad, Kenneth Heafield,
             Kevin Heffernan, Elahe Kalbassi,  Janice Lam, Daniel Licht, Jean Maillard, Anna Sun, Skyler Wang,
             Guillaume Wenzek, Al Youngblood, Bapi Akula, Loic Barrault, Gabriel Mejia Gonzalez, Prangthip Hansanti,
             John Hoffman, Semarley Jarrett, Kaushik Ram Sadagopan, Dirk Rowe, Shannon Spruit, Chau Tran,
@@ -1424,8 +1424,8 @@ class XCOPAScenario(Scenario):
             "id": {
                 "cause": "sebab",
                 "effect": "akibat",
-                "instruction1": "Berdasarkan situasi di atas, mana dari pilihan-pilihan berikut ini yang lebih " \
-                    "mungkin menjadi {}?",
+                "instruction1": "Berdasarkan situasi di atas, mana dari pilihan-pilihan berikut ini yang lebih "
+                "mungkin menjadi {}?",
                 "instruction2": "Jawablah dengan satu huruf saja, A atau B.",
             },
             "ta": {
