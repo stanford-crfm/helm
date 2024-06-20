@@ -180,12 +180,11 @@ class BhasaQAMetric(Metric):
             preds = [completion.text.strip() for completion in sorted_completions]
 
             for name, metric in self.metrics.items():
-                name = MetricName(name)
                 score_1 = max(metric(gold.output.text.strip(), preds[0]) for gold in golds)
-                metrics = [Stat(name).add(score_1)]
+                metrics = [Stat(MetricName(name)).add(score_1)]
                 if adapter_spec.num_outputs != 1:
                     score_k = max(metric(gold.output.text.strip(), pred) for gold in golds for pred in preds)
-                    metrics.append(Stat(replace(name, name=f"{name.name}@{adapter_spec.num_outputs}")).add(score_k))
+                    metrics.append(Stat(MetricName(f"{name.name}@{adapter_spec.num_outputs}")).add(score_k))
                 stats.extend(metrics)
 
         return stats
