@@ -12,8 +12,8 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
-from helm.tokenizers.tokenizer import Tokenizer
 from .client import CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
+from helm.tokenizers.tokenizer import Tokenizer
 
 try:
     import openai
@@ -132,6 +132,7 @@ class OpenAIClient(CachingClient):
             content: Union[str, List[Union[str, Any]]]
             if request.multimodal_prompt is not None:
                 content = []
+                request.validate()
                 for media_object in request.multimodal_prompt.media_objects:
                     if media_object.is_type("image") and media_object.location:
                         from helm.common.images_utils import encode_base64
@@ -140,8 +141,6 @@ class OpenAIClient(CachingClient):
                         image_object: Dict[str, str] = {"url": f"data:image/jpeg;base64,{base64_image}"}
                         content.append({"type": "image_url", "image_url": image_object})
                     elif media_object.is_type(TEXT_TYPE):
-                        if media_object.text is None:
-                            raise ValueError("MediaObject of text type has missing text field value")
                         content.append({"type": media_object.type, "text": media_object.text})
                     else:
                         raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
