@@ -1990,7 +1990,7 @@ model_deployments:
       class_name: "helm.clients.together_client.TogetherChatClient"
       args:
         together_model: meta-llama/Llama-3-70b-chat-hf
-
+        
   - name: together/llama-guard-7b
     model_name: meta/llama-guard-7b
     tokenizer_name: meta-llama/Llama-2-7b-hf
