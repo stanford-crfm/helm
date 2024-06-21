@@ -1149,6 +1149,20 @@ model_deployments:
       args:
         device_map: auto
 
+  - name: huggingface/llama-3-typhoon-v1.5x-8b-instruct
+    model_name: scb10x/llama-3-typhoon-v1.5x-8b-instruct
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/llama-3-typhoon-v1.5x-70b-instruct
+    model_name: scb10x/llama-3-typhoon-v1.5x-70b-instruct
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
   # Alibaba DAMO Academy
   - name: huggingface/seallm-7b-v2
     model_name: damo/seallm-7b-v2
