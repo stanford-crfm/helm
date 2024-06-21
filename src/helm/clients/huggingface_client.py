@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional, TypedDict
 
 from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import htrack_block, hlog
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import (
     wrap_request_time,
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
@@ -58,60 +59,61 @@ class HuggingFaceServer:
         self,
         pretrained_model_name_or_path: str,
         wrapped_tokenizer: WrappedPreTrainedTokenizer,
-        openvino=False,
+        openvino: bool = False,
         **kwargs,
     ):
-        if torch.cuda.is_available():
-            hlog("CUDA is available, initializing with a GPU...")
-            self.device: str = "cuda:0"
+        self.device: Optional[str]
+        if "device_map" in kwargs:
+            try:
+                import accelerate  # noqa: F401
+            except ModuleNotFoundError as e:
+                handle_module_not_found_error(e, ["accelerate"])
+            hlog(f'Hugging Face device_map set to "{kwargs["device_map"]}".')
+            self.device = None
+        elif torch.cuda.is_available():
+            hlog('Hugging Face device set to "cuda:0" because CUDA is available.')
+            self.device = "cuda:0"
         else:
+            hlog('Hugging Face device set to "cpu" because CUDA is unavailable.')
             self.device = "cpu"
+
+        # Security issue: currently we trust remote code by default.
+        # We retain this temporarily to maintain reverse compatibility.
+        # TODO: Delete if-else and don't set trust_remote_code=True
+        if "trust_remote_code" not in kwargs:
+            kwargs["trust_remote_code"] = True
+
         with htrack_block(f"Loading Hugging Face model {pretrained_model_name_or_path}"):
             # WARNING this may fail if your GPU does not have enough memory
             if openvino:
-                """
-                Optimum Intel provides a simple interface to optimize Transformer models and convert them to \
-                OpenVINO™ Intermediate Representation (IR) format to accelerate end-to-end pipelines on \
-                Intel® architectures using OpenVINO™ runtime.
-                """
-                from helm.common.optional_dependencies import handle_module_not_found_error
-
+                # Optimum Intel provides a simple interface to optimize Transformer models and convert them to \
+                # OpenVINO™ Intermediate Representation (IR) format to accelerate end-to-end pipelines on \
+                # Intel® architectures using OpenVINO™ runtime.
                 try:
                     from optimum.intel.openvino import OVModelForCausalLM
                 except ModuleNotFoundError as e:
                     handle_module_not_found_error(e, ["openvino"])
 
                 self.device = "cpu"
-                # Security issue: currently we trust remote code by default.
-                # We retain this temporarily to maintain reverse compatibility.
-                # TODO: Delete if-else and don't set trust_remote_code=True
-                if "trust_remote_code" in kwargs:
-                    self.model = OVModelForCausalLM.from_pretrained(
-                        pretrained_model_name_or_path, export=True, **kwargs
-                    ).to(self.device)
-                else:
-                    self.model = OVModelForCausalLM.from_pretrained(
-                        pretrained_model_name_or_path, export=True, trust_remote_code=True, **kwargs
-                    ).to(self.device)
+                self.model = OVModelForCausalLM.from_pretrained(
+                    pretrained_model_name_or_path, export=True, **kwargs
+                ).to(self.device)
+            elif self.device is None:
+                # kwargs contains device_map=auto
+                # Do not call to() because accelerate will take care of model device placement.
+                self.model = AutoModelForCausalLM.from_pretrained(pretrained_model_name_or_path, **kwargs)
             else:
-                # Security issue: currently we trust remote code by default.
-                # We retain this temporarily to maintain reverse compatibility.
-                # TODO: Delete if-else and don't set trust_remote_code=True
-                if "trust_remote_code" in kwargs:
-                    self.model = AutoModelForCausalLM.from_pretrained(pretrained_model_name_or_path, **kwargs).to(
-                        self.device
-                    )
-                else:
-                    self.model = AutoModelForCausalLM.from_pretrained(
-                        pretrained_model_name_or_path, trust_remote_code=True, **kwargs
-                    ).to(self.device)
+                self.model = AutoModelForCausalLM.from_pretrained(pretrained_model_name_or_path, **kwargs).to(
+                    self.device
+                )
         self.wrapped_tokenizer = wrapped_tokenizer
 
     def serve_request(self, raw_request: HuggingFaceRequest) -> Dict:
         with self.wrapped_tokenizer as tokenizer:
             encoded_input = tokenizer(raw_request["prompt"], return_tensors="pt", return_token_type_ids=False).to(
-                self.device
+                0 if self.device is None else self.device
             )
+
         stopping_criteria: Optional[StoppingCriteriaList] = None
         optional_args = {}
         if len(raw_request["stop_sequences"]) > 0:
