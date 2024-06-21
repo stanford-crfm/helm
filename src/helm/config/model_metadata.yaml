@@ -274,7 +274,7 @@ models:
 
   - name: anthropic/claude-3-5-sonnet-20240620
     display_name: Claude 3.5 Sonnet (20240620)
-    description: Claude 3.5 is a Claude 3 family model which outperforms Claude 3 Opus while operating faster and at a lower cost. ([blog](https://www.anthropic.com/news/claude-3-5-sonnet))
+    description: Claude 3.5 Sonnet is a Claude 3 family model which outperforms Claude 3 Opus while operating faster and at a lower cost. ([blog](https://www.anthropic.com/news/claude-3-5-sonnet))
     creator_organization_name: Anthropic
     access: limited
     release_date: 2024-06-20
