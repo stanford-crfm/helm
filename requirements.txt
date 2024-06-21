@@ -281,7 +281,7 @@ surge-api==1.1.4
 sympy==1.11.1
 tabulate==0.9.0
 tempdir==0.7.1
-tensorboard==2.11.2
+tensorboard==2.12.3
 tensorboard-data-server==0.6.1
 tensorboard-plugin-wit==1.8.1
 tensorflow==2.12.1
