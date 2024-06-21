@@ -284,7 +284,7 @@ tempdir==0.7.1
 tensorboard==2.11.2
 tensorboard-data-server==0.6.1
 tensorboard-plugin-wit==1.8.1
-tensorflow==2.11.1
+tensorflow==2.12.1
 tensorflow-estimator==2.11.0
 tensorflow-io-gcs-filesystem==0.34.0
 tensorstore==0.1.45
