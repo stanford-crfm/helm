@@ -1162,6 +1162,8 @@ model_deployments:
     max_sequence_length: 8192
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
 
   # Alibaba DAMO Academy
   - name: huggingface/seallm-7b-v2
