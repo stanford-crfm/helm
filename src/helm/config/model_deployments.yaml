@@ -1036,21 +1036,21 @@ model_deployments:
         device_map: auto
 
   ## SAIL (SEA AI Lab)
-  - name: sail/sailor-7b
+  - name: huggingface/sailor-7b
     model_name: sail/sailor-7b
     tokenizer_name: qwen/qwen1.5-7b
     max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
 
-  - name: sail/sailor-7b-chat
+  - name: huggingface/sailor-7b-chat
     model_name: sail/sailor-7b-chat
     tokenizer_name: qwen/qwen1.5-7b
     max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
 
-  - name: sail/sailor-14b
+  - name: huggingface/sailor-14b
     model_name: sail/sailor-14b
     tokenizer_name: qwen/qwen1.5-7b
     max_sequence_length: 32768
@@ -1059,7 +1059,7 @@ model_deployments:
       args:
         device_map: auto
 
-  - name: sail/sailor-14b-chat
+  - name: huggingface/sailor-14b-chat
     model_name: sail/sailor-14b-chat
     tokenizer_name: qwen/qwen1.5-7b
     max_sequence_length: 32768
