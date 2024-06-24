@@ -131,12 +131,31 @@ metrics:
     display_name: BLEU
     short_display_name: BLEU
     description: BLEU
+  - name: accuracy
+    display_name: Accuracy
+    short_display_name: Accuracy
+    description: Accuracy
+  - name: f1_macro
+    display_name: Macro F1
+    short_display_name: Macro F1
+    description: Macro F1
+  - name: f1_micro
+    display_name: Micro F1
+    short_display_name: Micro F1
+    description: Micro F1
 
 perturbations: []
 
 metric_groups:
-  - name: accuracy
-    display_name: Accuracy
+  - name: main_metrics
+    display_name: Main Metrics
+    hide_win_rates: true
+    metrics:
+    - name: ${main_name}
+      split: __all__
+
+  - name: generation_metrics
+    display_name: Generation Metrics
     hide_win_rates: true
     metrics:
     - name: meteor
@@ -150,6 +169,17 @@ metric_groups:
     - name: rougeLsum
       split: __all__
     - name: bleu
+      split: __all__
+
+  - name: classification_metrics
+    display_name: Classification Metrics
+    hide_win_rates: true
+    metrics:
+    - name: accuracy
+      split: __all__
+    - name: f1_macro
+      split: __all__
+    - name: f1_micro
       split: __all__
 
   - name: efficiency
@@ -180,17 +210,38 @@ run_groups:
     category: All Scenarios
     subgroups:
       - unitxt_cards.numeric_nlg
+      - unitxt_cards.tab_fact
 
   - name: unitxt_cards.numeric_nlg
     display_name: NumericNLG
     short_display_name: NumericNLG
     description: "NumericNLG is a dataset for numerical table-to-text generation using pairs of a table and a paragraph of a table description with richer inference from scientific papers."
     metric_groups:
-      - accuracy
+      - main_metrics
+      - generation_metrics
       - efficiency
       - general_information
     environment:
       main_name: meteor
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: unitxt_cards.tab_fact
+    display_name: TabFact
+    short_display_name: TabFact
+    description: "TabFact"
+    metric_groups:
+      - main_metrics
+      - classification_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: accuracy
       main_split: test
     taxonomy:
       task: "?"
