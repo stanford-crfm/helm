@@ -24,6 +24,7 @@ from helm.benchmark.adaptation.common_adapter_specs import (
     get_ranking_binary_adapter_spec,
     get_summarization_adapter_spec,
 )
+from helm.benchmark.annotation.annotator import AnnotatorSpec
 from helm.benchmark.metrics.common_metric_specs import (
     get_basic_metric_specs,
     get_bias_metric_specs,
@@ -1175,12 +1176,17 @@ def get_live_qa_spec() -> RunSpec:
         max_train_instances=0,
         max_tokens=512,
     )
+    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.live_qa_annotator.LiveQAAnnotator")]
+    metric_specs = get_open_ended_generation_metric_specs() + [
+        MetricSpec(class_name="helm.benchmark.metrics.live_qa_metrics.LiveQAScoreMetric")
+    ]
 
     return RunSpec(
         name="live_qa",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_open_ended_generation_metric_specs(),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["live_qa"],
     )
 
@@ -1197,11 +1203,17 @@ def get_medication_qa_spec() -> RunSpec:
         max_tokens=512,
     )
 
+    annotator_specs = [
+        AnnotatorSpec(class_name="helm.benchmark.annotation.medication_qa_annotator.MedicationQAAnnotator")
+    ]
+    metric_specs = [MetricSpec(class_name="helm.benchmark.metrics.medication_qa_metrics.MedicationQAScoreMetric")]
+
     return RunSpec(
         name="medication_qa",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_open_ended_generation_metric_specs(),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["medication_qa"],
     )
 
@@ -1498,5 +1510,5 @@ def get_thai_exam_spec(exam: str = "onet", method: str = ADAPT_MULTIPLE_CHOICE_J
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["thai_exam"],
+        groups=["thai_exam", f"thai_exam_{exam}"],
     )

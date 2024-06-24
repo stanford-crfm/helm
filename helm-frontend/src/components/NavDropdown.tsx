@@ -41,7 +41,7 @@ function NavDropdown() {
   }
 
   return (
-    <div className="dropdown z-40">
+    <div className="dropdown z-50">
       <div
         tabIndex={0}
         role="button"

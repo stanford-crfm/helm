@@ -43,7 +43,7 @@ class BingoScenario(Scenario):
     Paper: https://arxiv.org/abs/2311.03287
     """
 
-    BINGO_HUGGINGFACE_DATASET_NAME: str = "PahaII/Bingo"
+    BINGO_HUGGINGFACE_DATASET_URL: str = "https://huggingface.co/datasets/PahaII/Bingo/resolve/main"
 
     IMAGE_URL: str = "https://huggingface.co/datasets/PahaII/Bingo/resolve/main/images/{image_path}?download=true"
 
@@ -67,12 +67,12 @@ class BingoScenario(Scenario):
 
         # There is only the test split in Unicorn benchmark
         instances: List[Instance] = []
-        question_data_files = {TEST_SPLIT: f"{self._subject}.json"}
+        question_data_files = {TEST_SPLIT: f"{self.BINGO_HUGGINGFACE_DATASET_URL}/{self._subject}.json"}
 
         # Process the test set
         for row in tqdm(
             load_dataset(
-                self.BINGO_HUGGINGFACE_DATASET_NAME,
+                "json",
                 data_files=question_data_files,
                 split=TEST_SPLIT,
                 cache_dir=output_path,

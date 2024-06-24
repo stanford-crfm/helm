@@ -5,6 +5,9 @@ export default function getReleaseUrl(
   if (!currProjectId) {
     return "#";
   }
+  if (currProjectId === "home") {
+    return `https://crfm.stanford.edu/helm/`;
+  }
   if (!version) {
     return `https://crfm.stanford.edu/helm/${currProjectId}/latest/`;
   }

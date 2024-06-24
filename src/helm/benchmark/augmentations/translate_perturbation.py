@@ -17,6 +17,7 @@ class TranslatePerturbation(TextPerturbation):
         language_code: str = "zh-CN"
 
     name: str = "translate"
+    should_perturb_references: bool = True
 
     def __init__(self, language_code: str):
         self.language_code: str = language_code
