@@ -2448,3 +2448,35 @@ model_deployments:
     max_request_length: 16000
     client_spec:
         class_name: "helm.clients.azure_openai_client.AzureOpenAIClient"
+
+  - name: azureMistralLarge/mistral-large
+    model_name: azureMistralLarge/mistral-large
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 16000
+    max_request_length: 16000
+    client_spec:
+        class_name: "helm.clients.azure_llama3_client.AzureLlama3Client"
+
+  - name: azureCohere/command
+    model_name: azureCohere/command
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 16000
+    max_request_length: 16000
+    client_spec:
+        class_name: "helm.clients.azure_llama3_client.AzureLlama3Client"
+
+  - name: azurePhi3/medium
+    model_name: azurePhi3/medium
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 16000
+    max_request_length: 16000
+    client_spec:
+        class_name: "helm.clients.azure_llama3_client.AzureLlama3Client"
+
+  - name: azureai21/jamba
+    model_name: azureai21/jamba
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 16000
+    max_request_length: 16000
+    client_spec:
+        class_name: "helm.clients.azure_llama3_client.AzureLlama3Client"
