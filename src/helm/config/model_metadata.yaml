@@ -99,6 +99,14 @@ models:
   # - j2-grande -> j2-mid
   # - j2-large -> j2-light
 
+  - name: ai21/jamba-instruct
+    display_name: Jamba Instruct
+    description: Jamba Instruct is an instruction tuned version of Jamba, which uses a hybrid Transformer-Mamba mixture-of-experts (MoE) architecture that interleaves blocks of Transformer and Mamba layers. ([blog](https://www.ai21.com/blog/announcing-jamba-instruct))
+    creator_organization_name: AI21 Labs
+    access: limited
+    num_parameters: 52000000000
+    release_date: 2024-05-02
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # AI Singapore
   - name: aisingapore/sea-lion-7b
