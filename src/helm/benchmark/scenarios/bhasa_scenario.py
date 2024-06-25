@@ -1481,7 +1481,8 @@ class XCOPAScenario(Scenario):
                 instance = Instance(input=input, references=references, split=self.splits[split])
                 outputs.append(instance)
         return outputs
-    
+
+
 # 1. Syntax: LINDSEA Minimal Pairs
 class LINDSEASyntaxMinimalPairsScenario(Scenario):
     """

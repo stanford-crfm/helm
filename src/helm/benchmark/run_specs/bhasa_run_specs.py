@@ -544,6 +544,7 @@ def get_xcopa_spec(language="id") -> RunSpec:
         groups=["bhasa_nlr", f"xcopa_{language}"],
     )
 
+
 # D. Linguistic Diagnostics (LINDSEA)
 #   1. Syntax
 #   2. Pragmatics
