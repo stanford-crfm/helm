@@ -234,7 +234,7 @@ run_groups:
   - name: unitxt_cards.tab_fact
     display_name: TabFact
     short_display_name: TabFact
-    description: "TabFact"
+    description: "tab_fact is a large-scale dataset for the task of fact-checking on tables."
     metric_groups:
       - main_metrics
       - classification_metrics
