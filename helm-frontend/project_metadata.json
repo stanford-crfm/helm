@@ -37,7 +37,7 @@
 	},
 	{
 		"title": "Image2Struct",
-		"description": "Evaluations of image to structure (LaTeX, webpage, music sheet) multimodal models",
+		"description": "A benchmark for evaluating vision-language models in practical tasks of extracting structured information (LaTeX, webpage, music sheet) from images.",
 		"id": "image2struct",
 		"releases": ["v1.0.0"]
 	},
