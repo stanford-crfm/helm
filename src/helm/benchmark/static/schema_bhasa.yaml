@@ -61,7 +61,11 @@ metrics:
   - name: predicted_index
     display_name: Predicted index
     description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
-
+  - name: exact_match
+    display_name: Exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
+    lower_is_better: false
   - name: chr_f_plus_plus
     display_name: ChrF++
     description: Character n-gram F-score with word n-gram order (ChrF++) [(Popovic, 2015)](https://aclanthology.org/W15-3049/). Code can be found [here](https://github.com/mjpost/sacrebleu).
@@ -114,6 +118,7 @@ run_groups:
       - bhasa_nlu
       - bhasa_nlg
       - bhasa_nlr
+      - bhasa_lindsea
 
   - name: bhasa_nlu
     display_name: BHASA natural language understanding (NLU)
@@ -131,22 +136,31 @@ run_groups:
       - vihsd
       - thaitoxicitytweets
 
-    - name: bhasa_nlg
-    display_name: BHASA natural language generation (NLG)
-    description: BHASA natural language generation (NLG) scenarios
-    category: BHASA scenarios
-    subgroups:
-      - flores
+  - name: bhasa_nlg
+  display_name: BHASA natural language generation (NLG)
+  description: BHASA natural language generation (NLG) scenarios
+  category: BHASA scenarios
+  subgroups:
+    - flores
 
-    - name: bhasa_nlr
-    display_name: BHASA natural language reasoning (NLR)
-    description: BHASA natural language reasoning (NLR) scenarios
-    category: BHASA scenarios
-    subgroups:
-      - indonli
-      - xnli
-      - indicxnli
-      - xcopa
+  - name: bhasa_nlr
+  display_name: BHASA natural language reasoning (NLR)
+  description: BHASA natural language reasoning (NLR) scenarios
+  category: BHASA scenarios
+  subgroups:
+    - indonli
+    - xnli
+    - indicxnli
+    - xcopa
+
+  - name: bhasa_lindsea
+  display_name: BHASA Linguistic Diagnostics for Southeast Asian Languages (LINDSEA)
+  description: BHASA Linguistic Diagnostics for Southeast Asian Languages (LINDSEA) scenarios
+  category: BHASA scenarios
+  subgroups:
+    - lindsea_syntax_minimal_pairs
+    - lindsea_pragmatics_pragmatic_reasoning_single
+    - lindsea_pragmatics_pragmatic_reasoning_pair
 
   - name: tydiqa
     display_name: TyDiQA
@@ -418,3 +432,57 @@ run_groups:
       who: "?"
       when: "?"
       language: Indonesian, Tamil, Thai, Vietnamese 
+
+  - name: lindsea_syntax_minimal_pairs
+    display_name: LINDSEA Syntax Minimal Pairs
+    description: >
+      LINDSEA minimal pairs is a linguistic diagnostic for syntax dataset from BHASA [(Leong, 2023)](https://arxiv.org/abs/2309.06085), involving pairs of sentences that differ minimally from each other and contrast in grammatical acceptability.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: minimal pairs
+      what: sentence pairs with minimal differences and constrasting grammatical acceptability
+      who: "?"
+      when: "?"
+      language: Indonesian
+
+  - name: lindsea_pragmatics_pragmatic_reasoning_single
+    display_name: LINDSEA Pragmatics Pragmatic Reasoning (single sentence)
+    description: >
+      LINDSEA pragmatic reasoning (single sentence) is a linguistic diagnostic for pragmatics dataset from BHASA [(Leong, 2023)](https://arxiv.org/abs/2309.06085), involving scalar implicatures and presuppositions.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: pragmatic reasoning
+      what: scalar implicatures and presuppositions
+      who: "?"
+      when: "?"
+      language: Indonesian
+
+  - name: lindsea_pragmatics_pragmatic_reasoning_pair
+    display_name: LINDSEA Pragmatics Pragmatic Reasoning (sentence pair)
+    description: >
+      LINDSEA pragmatic reasoning (sentence pair) is a linguistic diagnostic for pragmatics dataset from BHASA [(Leong, 2023)](https://arxiv.org/abs/2309.06085), involving scalar implicatures and presuppositions.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: pragmatic reasoning
+      what: scalar implicatures and presuppositions
+      who: "?"
+      when: "?"
+      language: Indonesian
