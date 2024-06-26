@@ -490,16 +490,16 @@ class UITVSFCScenario(Scenario):
 
         dataset: Dict[str, pd.DataFrame] = {}
         for split in list(URLS.keys()):
-            dataset[split] = {}
+            file_lines: Dict[str, List[str]] = {}
             for file in list(URLS[split].keys()):
-                dataset[split][file] = []
+                file_lines[file] = []
                 target_path_file = os.path.join(output_path, split, file)
                 ensure_file_downloaded(source_url=URLS[split][file], target_path=target_path_file)
                 with open(target_path_file, "r") as f:
                     lines = f.readlines()
                     for line in lines:
-                        dataset[split][file].append(str(line).strip())
-            df = pd.DataFrame({"text": dataset[split]["sentences"], "label": dataset[split]["sentiments"]})
+                        file_lines[file].append(str(line).strip())
+            df = pd.DataFrame({"text": file_lines["sentences"], "label": file_lines["sentiments"]})
             if split == "test":
                 dataset[split] = df.groupby("label", group_keys=False).apply(
                     lambda x: x.sample(frac=1000 / len(df), random_state=4156)
