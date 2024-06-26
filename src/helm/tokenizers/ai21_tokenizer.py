@@ -5,6 +5,7 @@ import requests
 from dacite import from_dict
 
 from helm.common.cache import Cache, CacheConfig
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -15,10 +16,13 @@ from helm.common.tokenization_request import (
 )
 from helm.clients.ai21_utils import AI21RequestError, handle_failed_request
 from helm.tokenizers.caching_tokenizer import CachingTokenizer
-from .tokenizer import Tokenizer
+from helm.tokenizers.tokenizer import Tokenizer
 
-from ai21_tokenizer import Tokenizer as SDKTokenizer, PreTrainedTokenizers
-from ai21_tokenizer.base_tokenizer import BaseTokenizer
+try:
+    from ai21_tokenizer import Tokenizer as SDKTokenizer, PreTrainedTokenizers
+    from ai21_tokenizer.base_tokenizer import BaseTokenizer
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["ai21"])
 
 
 class AI21Tokenizer(Tokenizer):
