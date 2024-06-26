@@ -6,12 +6,12 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationToken,
 )
-from helm.tokenizers.cohere_tokenizer import CohereLocalTokenizer
+from helm.tokenizers.cohere_tokenizer import CohereTokenizer
 
 
 @pytest.mark.models
 def test_tokenize():
-    tokenizer = CohereLocalTokenizer(api_key=None, cache_config=BlackHoleCacheConfig())
+    tokenizer = CohereTokenizer(api_key=None, cache_config=BlackHoleCacheConfig())
     request = TokenizationRequest(tokenizer="cohere/command", text="otter 🦦")
     result = tokenizer.tokenize(request)
     assert result.success
@@ -21,7 +21,7 @@ def test_tokenize():
 
 @pytest.mark.models
 def test_encode():
-    tokenizer = CohereLocalTokenizer(api_key=None, cache_config=BlackHoleCacheConfig())
+    tokenizer = CohereTokenizer(api_key=None, cache_config=BlackHoleCacheConfig())
     request = TokenizationRequest(tokenizer="cohere/command", text="otter 🦦", encode=True)
     result = tokenizer.tokenize(request)
     assert result.success
@@ -31,7 +31,7 @@ def test_encode():
 
 @pytest.mark.models
 def test_decode():
-    tokenizer = CohereLocalTokenizer(api_key=None, cache_config=BlackHoleCacheConfig())
+    tokenizer = CohereTokenizer(api_key=None, cache_config=BlackHoleCacheConfig())
     request = DecodeRequest(tokenizer="cohere/command", tokens=[1741, 1779, 7728, 107, 107])
     result = tokenizer.decode(request)
     assert result.success

@@ -242,86 +242,6 @@ model_deployments:
       class_name: "helm.clients.anthropic_client.AnthropicLegacyClient"
 
   # Cohere
-  - name: cohere/xlarge-20220609
-    model_name: cohere/xlarge-20220609
-    tokenizer_name: cohere/cohere
-    max_sequence_length: 2047
-    max_request_length: 2048
-    client_spec:
-      class_name: "helm.clients.cohere_client.CohereClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
-
-  - name: cohere/large-20220720
-    model_name: cohere/large-20220720
-    tokenizer_name: cohere/cohere
-    max_sequence_length: 2047
-    max_request_length: 2048
-    client_spec:
-      class_name: "helm.clients.cohere_client.CohereClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
-
-  - name: cohere/medium-20220720
-    model_name: cohere/medium-20220720
-    tokenizer_name: cohere/cohere
-    max_sequence_length: 2047
-    max_request_length: 2048
-    client_spec:
-      class_name: "helm.clients.cohere_client.CohereClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
-
-  - name: cohere/small-20220720
-    model_name: cohere/small-20220720
-    tokenizer_name: cohere/cohere
-    max_sequence_length: 2047
-    max_request_length: 2048
-    client_spec:
-      class_name: "helm.clients.cohere_client.CohereClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
-
-  - name: cohere/xlarge-20221108
-    model_name: cohere/xlarge-20221108
-    tokenizer_name: cohere/cohere
-    max_sequence_length: 2047
-    max_request_length: 2048
-    client_spec:
-      class_name: "helm.clients.cohere_client.CohereClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
-
-  - name: cohere/medium-20221108
-    model_name: cohere/medium-20221108
-    tokenizer_name: cohere/cohere
-    max_sequence_length: 2047
-    max_request_length: 2048
-    client_spec:
-      class_name: "helm.clients.cohere_client.CohereClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
-
-  - name: cohere/command-medium-beta
-    model_name: cohere/command-medium-beta
-    tokenizer_name: cohere/cohere
-    max_sequence_length: 2019
-    max_request_length: 2020
-    client_spec:
-      class_name: "helm.clients.cohere_client.CohereClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
-
-  - name: cohere/command-xlarge-beta
-    model_name: cohere/command-xlarge-beta
-    tokenizer_name: cohere/cohere
-    max_sequence_length: 2019
-    max_request_length: 2020
-    client_spec:
-      class_name: "helm.clients.cohere_client.CohereClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
-
   - name: cohere/command
     model_name: cohere/command
     tokenizer_name: cohere/command
@@ -329,8 +249,6 @@ model_deployments:
     max_request_length: 2020 # TODO: verify this
     client_spec:
       class_name: "helm.clients.cohere_client.CohereClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
 
   - name: cohere/command-light
     model_name: cohere/command-light
@@ -339,8 +257,6 @@ model_deployments:
     max_request_length: 2020 # TODO: verify this
     client_spec:
       class_name: "helm.clients.cohere_client.CohereClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
 
   - name: cohere/command-r
     model_name: cohere/command-r
