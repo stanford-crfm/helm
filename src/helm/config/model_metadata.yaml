@@ -2478,8 +2478,8 @@ models:
     tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: scb10x/llama-3-typhoon-v1.5x-8b-instruct
-    display_name: Llama-3-Typhoon-1.5X-8B-instruct
-    description: Typhoon v1.5 Instruct (8B) is a 8 billion parameter instruct model designed for the Thai language based on Llama 3 Instruct. It utilizes the task-arithmetic model editing technique. ([blog](https://blog.opentyphoon.ai/typhoon-1-5x-our-experiment-designed-for-application-use-cases-7b85d9e9845c))
+    display_name: Typhoon 1.5X instruct (8B)
+    description: Llama-3-Typhoon-1.5X-8B-instruct is a 8 billion parameter instruct model designed for the Thai language based on Llama 3 Instruct. It utilizes the task-arithmetic model editing technique. ([blog](https://blog.opentyphoon.ai/typhoon-1-5x-our-experiment-designed-for-application-use-cases-7b85d9e9845c))
     creator_organization_name: SCB10X
     access: open
     num_parameters: 8000000000
@@ -2487,7 +2487,7 @@ models:
     tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: scb10x/llama-3-typhoon-v1.5x-70b-instruct
-    display_name: Llama-3-Typhoon-1.5X-70B-instruct
+    display_name: Typhoon 1.5X instruct (70B)
     description: Llama-3-Typhoon-1.5X-70B-instruct is a 70 billion parameter instruct model designed for the Thai language based on Llama 3 Instruct. It utilizes the task-arithmetic model editing technique. ([blog](https://blog.opentyphoon.ai/typhoon-1-5x-our-experiment-designed-for-application-use-cases-7b85d9e9845c))
     creator_organization_name: SCB10X
     access: open
