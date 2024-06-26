@@ -21,7 +21,7 @@ def _make_instance(
 class TestMultipleChoiceJointAdapter(TestAdapter):
     def test_sample_examples(self):
         adapter_spec = AdapterSpec(
-            method=ADAPT_MULTIPLE_CHOICE_JOINT, model="openai/ada", model_deployment="openai/ada", max_train_instances=4
+            method=ADAPT_MULTIPLE_CHOICE_JOINT, model="openai/gpt2", model_deployment="huggingface/gpt2", max_train_instances=4
         )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
         all_train_instances = [
@@ -43,7 +43,7 @@ class TestMultipleChoiceJointAdapter(TestAdapter):
 
     def test_sample_examples_no_train_instances(self):
         adapter_spec = AdapterSpec(
-            method=ADAPT_MULTIPLE_CHOICE_JOINT, model="openai/ada", model_deployment="openai/ada", max_train_instances=2
+            method=ADAPT_MULTIPLE_CHOICE_JOINT, model="openai/gpt2", model_deployment="huggingface/gpt2", max_train_instances=2
         )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
         examples = adapter.sample_examples(all_train_instances=[], seed=0)
@@ -52,8 +52,8 @@ class TestMultipleChoiceJointAdapter(TestAdapter):
     def test_sample_examples_greater_max_train_instances(self):
         adapter_spec = AdapterSpec(
             method=ADAPT_MULTIPLE_CHOICE_JOINT,
-            model="openai/ada",
-            model_deployment="openai/ada",
+            model="openai/gpt2",
+            model_deployment="huggingface/gpt2",
             max_train_instances=10,
         )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
@@ -69,7 +69,7 @@ class TestMultipleChoiceJointAdapter(TestAdapter):
     def test_sample_examples_unique_labels(self):
         """This is a demonstration of behavior reported in issue #2224."""
         adapter_spec = AdapterSpec(
-            method=ADAPT_MULTIPLE_CHOICE_JOINT, model="openai/ada", model_deployment="openai/ada", max_train_instances=3
+            method=ADAPT_MULTIPLE_CHOICE_JOINT, model="openai/gpt2", model_deployment="huggingface/gpt2", max_train_instances=3
         )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
         all_train_instances = [
@@ -110,8 +110,8 @@ class TestMultipleChoiceJointAdapter(TestAdapter):
     def test_multiple_correct_reference(self):
         adapter_spec = AdapterSpec(
             method=ADAPT_MULTIPLE_CHOICE_JOINT,
-            model="openai/ada",
-            model_deployment="openai/ada",
+            model="openai/gpt2",
+            model_deployment="huggingface/gpt2",
             max_train_instances=10,
             sample_train=False,
         )
@@ -168,8 +168,8 @@ class TestMultipleChoiceJointAdapter(TestAdapter):
     def test_multiple_correct_reference_multi_label(self):
         adapter_spec = AdapterSpec(
             method=ADAPT_MULTIPLE_CHOICE_JOINT,
-            model="openai/ada",
-            model_deployment="openai/ada",
+            model="openai/gpt2",
+            model_deployment="huggingface/gpt2",
             max_train_instances=10,
             multi_label=True,
             sample_train=False,
