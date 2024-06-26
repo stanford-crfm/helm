@@ -1,4 +1,4 @@
-from typing import List, Tuple, Optional
+from typing import Iterator, List, Tuple, Optional
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.scenarios.scenario import Instance, EVAL_SPLITS
@@ -48,6 +48,35 @@ class LanguageModelingAdapter(Adapter):
         return all_request_states
 
     def _generate_requests(self, eval_instance: Instance) -> List[RequestState]:
+        request_states: List[RequestState] = []
+        for prompt_text, num_conditioning_tokens in self.construct_language_modeling_prompts(eval_instance.input.text):
+            request = Request(
+                model=self.adapter_spec.model,
+                model_deployment=self.adapter_spec.model_deployment,
+                prompt=prompt_text,
+                num_completions=1,
+                temperature=0,
+                max_tokens=self.adapter_spec.max_tokens,  # usually this is zero
+                stop_sequences=self.adapter_spec.stop_sequences,
+                echo_prompt=True,
+                random=self.adapter_spec.random,
+            )
+            request_state = RequestState(
+                instance=eval_instance,
+                reference_index=None,
+                request_mode=None,
+                train_trial_index=0,
+                output_mapping=None,
+                request=request,
+                result=None,
+                num_conditioning_tokens=num_conditioning_tokens,
+                num_train_instances=self.adapter_spec.max_train_instances,
+                prompt_truncated=False,
+            )
+            request_states.append(request_state)
+        return request_states
+
+    def construct_language_modeling_prompts(self, target_text: str, prefix: str = "") -> Iterator[Tuple[str, int]]:
         """
         Adapted from https://github.com/EleutherAI/lm_perplexity/blob/main/lm_perplexity/utils.py.
         """
@@ -88,13 +117,12 @@ class LanguageModelingAdapter(Adapter):
             max_request_length,
             self.window_service.max_sequence_and_generated_tokens_length - self.adapter_spec.max_tokens,
         )
-        prefix_token: str = self.window_service.prefix_token
+        prefix = prefix or self.window_service.prefix_token
 
-        encode_result: EncodeResult = self.window_service.encode(eval_instance.input.text)
+        encode_result: EncodeResult = self.window_service.encode(target_text)
         tokens: List[TokenizationToken] = encode_result.tokens
         text: str = encode_result.text
 
-        request_states: List[RequestState] = []
         num_predicted_tokens: int = 0
 
         # Special handling for first window: predict all tokens
@@ -114,33 +142,9 @@ class LanguageModelingAdapter(Adapter):
 
         # Handle max_sequence_and_generated_tokens_length
         first_seq_len: int = min(max_sequence_length, len(tokens))
-        prompt_text, num_conditioning_tokens = self.construct_language_modeling_prompt(
-            self.window_service.encode(prefix_token).tokens, tokens[:first_seq_len], max_request_length, text
+        yield self.construct_language_modeling_prompt(
+            self.window_service.encode(prefix).tokens, tokens[:first_seq_len], max_request_length, text
         )
-        request = Request(
-            model=self.adapter_spec.model,
-            model_deployment=self.adapter_spec.model_deployment,
-            prompt=prompt_text,
-            num_completions=1,
-            temperature=0,
-            max_tokens=self.adapter_spec.max_tokens,  # usually this is zero
-            stop_sequences=self.adapter_spec.stop_sequences,
-            echo_prompt=True,
-            random=self.adapter_spec.random,
-        )
-        request_state = RequestState(
-            instance=eval_instance,
-            reference_index=None,
-            request_mode=None,
-            train_trial_index=0,
-            output_mapping=None,
-            request=request,
-            result=None,
-            num_conditioning_tokens=1 if len(prefix_token) > 0 else 0,
-            num_train_instances=self.adapter_spec.max_train_instances,
-            prompt_truncated=False,
-        )
-        request_states.append(request_state)
         num_predicted_tokens += first_seq_len
 
         while num_predicted_tokens < len(tokens):
@@ -162,36 +166,8 @@ class LanguageModelingAdapter(Adapter):
                 window_end - max_request_length : num_predicted_tokens
             ]
             pred_tokens: List[TokenizationToken] = tokens[num_predicted_tokens:window_end]
-            prompt_text, num_conditioning_tokens = self.construct_language_modeling_prompt(
-                conditioning_tokens, pred_tokens, max_request_length, text
-            )
-
-            request = Request(
-                model=self.adapter_spec.model,
-                model_deployment=self.adapter_spec.model_deployment,
-                prompt=prompt_text,
-                num_completions=1,
-                temperature=0,
-                max_tokens=self.adapter_spec.max_tokens,  # usually this is zero
-                stop_sequences=self.adapter_spec.stop_sequences,
-                echo_prompt=True,
-            )
-            request_state = RequestState(
-                instance=eval_instance,
-                reference_index=None,
-                request_mode=None,
-                train_trial_index=0,
-                output_mapping=None,
-                request=request,
-                result=None,
-                num_conditioning_tokens=num_conditioning_tokens,
-                num_train_instances=self.adapter_spec.max_train_instances,
-                prompt_truncated=False,
-            )
-            request_states.append(request_state)
+            yield self.construct_language_modeling_prompt(conditioning_tokens, pred_tokens, max_request_length, text)
             num_predicted_tokens += window_pred_len
-
-        return request_states
 
     def construct_language_modeling_prompt(
         self,
