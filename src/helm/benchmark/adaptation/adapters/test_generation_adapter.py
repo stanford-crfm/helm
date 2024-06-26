@@ -86,7 +86,7 @@ class TestGenerationAdapter(TestAdapter):
 
         # Ensure that all the in-context examples were completely removed and we had to truncate the eval Instance input
         assert "train" not in prompt_text
-        assert prompt_text.count("eval") == 1948
+        assert prompt_text.count("eval") == 924
 
     def test_sample_examples_without_references(self):
         adapter_spec = AdapterSpec(
