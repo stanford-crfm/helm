@@ -4,6 +4,8 @@ from helm.benchmark.adaptation.adapter_spec import (
 from helm.benchmark.adaptation.common_adapter_specs import (
     get_generation_adapter_spec,
     get_multiple_choice_separate_adapter_spec,
+    get_multiple_choice_joint_adapter_spec,
+    get_multiple_choice_language_modeling_adapter_spec,
 )
 from helm.benchmark.metrics.bhasa_metrics_specs import (
     get_bhasa_machine_translation_metric_specs,
@@ -554,21 +556,35 @@ LINDSEA_OUTPUT_NOUNS = {"id": "Jawaban"}
 
 
 @run_spec_function("lindsea_syntax_minimal_pairs")
-def get_lindsea_syntax_minimal_pairs_spec(language: str = "id", method: str = "mcq") -> RunSpec:
-    name = f"lindsea_syntax_minimal_pairs_{language}"
-    if method == "mcq":
-        adapter_spec = get_generation_adapter_spec(output_noun=LINDSEA_OUTPUT_NOUNS[language], max_tokens=2)
-    else:
+def get_lindsea_syntax_minimal_pairs_spec(language: str = "id", method: str = "multiple_choice_joint", subset: str = "all") -> RunSpec:
+    from helm.benchmark.scenarios.bhasa_scenario import LINDSEASyntaxMinimalPairsScenario
+    name = f"lindsea_syntax_minimal_pairs:language={language},method={method},subset={subset}"
+    if method == "multiple_choice_joint":
+        prompt_components = LINDSEASyntaxMinimalPairsScenario.LANGUAGE_TO_PROMPT_COMPONENTS[language]
+        instructions = prompt_components["instructions"]
+        output_prefix = prompt_components["output_prefix"]
+        adapter_spec = get_multiple_choice_joint_adapter_spec(
+            instructions=instructions,
+            input_noun=None,
+            output_noun=output_prefix
+        )
+        # adapter_spec = get_generation_adapter_spec(output_noun=LINDSEA_OUTPUT_NOUNS[language], max_tokens=2)
+    elif method == "multiple_choice_language_modeling":
+        adapter_spec = get_multiple_choice_language_modeling_adapter_spec()
+    elif method == "multiple_choice_separate_original":
         adapter_spec = get_multiple_choice_separate_adapter_spec(
             method=ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
             empty_input=True,
         )
+    else:
+        raise ValueError(f"Unknown method {method}")
 
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.bhasa_scenario.LINDSEASyntaxMinimalPairsScenario",
         args={
             "method": method,
             "language": language,
+            "subset": subset,
         },
     )
 

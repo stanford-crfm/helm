@@ -17,6 +17,7 @@ from helm.common.request import Token, GeneratedOutput
 from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
+    ADAPT_MULTIPLE_CHOICE_LANGUAGE_MODELING,
     ADAPT_RANKING_BINARY,
 )
 from helm.benchmark.adaptation.request_state import RequestState
@@ -253,7 +254,7 @@ class BasicReferenceMetric(ReferenceMetric):
             reference_key = ReferenceKey(request_state.reference_index, request_state.request_mode)
             reference_stats[reference_key] = compute_logprob_and_length(request_state, window_service)
 
-        if adapter_spec.method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_RANKING_BINARY]:
+        if adapter_spec.method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_RANKING_BINARY, ADAPT_MULTIPLE_CHOICE_LANGUAGE_MODELING]:
             reference_scores = [
                 reference_stats[ReferenceKey(i, "original")].logprob
                 / reference_stats[ReferenceKey(i, "original")].num_tokens

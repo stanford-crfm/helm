@@ -110,57 +110,57 @@ metric_groups:
 ############################################################
 
 run_groups:
-  - name: bhasa
-    display_name: BHASA
-    description: BHASA scenarios
-    category: All scenarios
-    subgroups:
-      - bhasa_nlu
-      - bhasa_nlg
-      - bhasa_nlr
-      - bhasa_lindsea
+#   - name: bhasa
+#     display_name: BHASA
+#     description: BHASA scenarios
+#     category: All scenarios
+#     subgroups:
+#       - bhasa_nlu
+#       - bhasa_nlg
+#       - bhasa_nlr
+#       - bhasa_lindsea
 
-  - name: bhasa_nlu
-    display_name: BHASA natural language understanding (NLU)
-    description: BHASA natural language understanding (NLU) scenarios
-    category: BHASA scenarios
-    subgroups:
-      - tydiqa
-      - xquad
-      - indicqa
-      - nusax
-      - uitvsfc
-      - wisesight
-      - indicsentiment
-      - mlhsd
-      - vihsd
-      - thaitoxicitytweets
+#   - name: bhasa_nlu
+#     display_name: BHASA natural language understanding (NLU)
+#     description: BHASA natural language understanding (NLU) scenarios
+#     category: BHASA scenarios
+#     subgroups:
+#       - tydiqa
+#       - xquad
+#       - indicqa
+#       - nusax
+#       - uitvsfc
+#       - wisesight
+#       - indicsentiment
+#       - mlhsd
+#       - vihsd
+#       - thaitoxicitytweets
 
-  - name: bhasa_nlg
-  display_name: BHASA natural language generation (NLG)
-  description: BHASA natural language generation (NLG) scenarios
-  category: BHASA scenarios
-  subgroups:
-    - flores
+#   - name: bhasa_nlg
+#     display_name: BHASA natural language generation (NLG)
+#     description: BHASA natural language generation (NLG) scenarios
+#     category: BHASA scenarios
+#     subgroups:
+#       - flores
 
-  - name: bhasa_nlr
-  display_name: BHASA natural language reasoning (NLR)
-  description: BHASA natural language reasoning (NLR) scenarios
-  category: BHASA scenarios
-  subgroups:
-    - indonli
-    - xnli
-    - indicxnli
-    - xcopa
+#   - name: bhasa_nlr
+#     display_name: BHASA natural language reasoning (NLR)
+#     description: BHASA natural language reasoning (NLR) scenarios
+#     category: BHASA scenarios
+#     subgroups:
+#       - indonli
+#       - xnli
+#       - indicxnli
+#       - xcopa
 
   - name: bhasa_lindsea
-  display_name: BHASA Linguistic Diagnostics for Southeast Asian Languages (LINDSEA)
-  description: BHASA Linguistic Diagnostics for Southeast Asian Languages (LINDSEA) scenarios
-  category: BHASA scenarios
-  subgroups:
-    - lindsea_syntax_minimal_pairs
-    - lindsea_pragmatics_pragmatic_reasoning_single
-    - lindsea_pragmatics_pragmatic_reasoning_pair
+    display_name: BHASA Linguistic Diagnostics for Southeast Asian Languages (LINDSEA)
+    description: BHASA Linguistic Diagnostics for Southeast Asian Languages (LINDSEA) scenarios
+    category: BHASA scenarios
+    subgroups:
+      - lindsea_syntax_minimal_pairs_id
+      - lindsea_pragmatics_pragmatic_reasoning_single
+      - lindsea_pragmatics_pragmatic_reasoning_pair
 
   - name: tydiqa
     display_name: TyDiQA
@@ -433,7 +433,7 @@ run_groups:
       when: "?"
       language: Indonesian, Tamil, Thai, Vietnamese 
 
-  - name: lindsea_syntax_minimal_pairs
+  - name: lindsea_syntax_minimal_pairs_id
     display_name: LINDSEA Syntax Minimal Pairs
     description: >
       LINDSEA minimal pairs is a linguistic diagnostic for syntax dataset from BHASA [(Leong, 2023)](https://arxiv.org/abs/2309.06085), involving pairs of sentences that differ minimally from each other and contrast in grammatical acceptability.

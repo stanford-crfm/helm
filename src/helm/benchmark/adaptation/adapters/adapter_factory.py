@@ -6,6 +6,7 @@ from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
+    ADAPT_MULTIPLE_CHOICE_LANGUAGE_MODELING,
     ADAPT_RANKING_BINARY,
     AdapterSpec,
 )
@@ -20,6 +21,7 @@ from helm.benchmark.adaptation.adapters.multimodal.multiple_choice_joint_multimo
 from helm.benchmark.adaptation.adapters.multiple_choice_calibrated_adapter import MultipleChoiceCalibratedAdapter
 from helm.benchmark.adaptation.adapters.multiple_choice_joint_adapter import MultipleChoiceJointAdapter
 from helm.benchmark.adaptation.adapters.multiple_choice_separate_adapter import MultipleChoiceSeparateAdapter
+from helm.benchmark.adaptation.adapters.multiple_choice_language_modeling_adapter import MultipleChoiceLanguageModelingAdapter
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 
 
@@ -42,6 +44,8 @@ class AdapterFactory:
             adapter = MultipleChoiceSeparateAdapter(adapter_spec, tokenizer_service)
         elif method == ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED:
             adapter = MultipleChoiceCalibratedAdapter(adapter_spec, tokenizer_service)
+        elif method == ADAPT_MULTIPLE_CHOICE_LANGUAGE_MODELING:
+            adapter = MultipleChoiceLanguageModelingAdapter(adapter_spec, tokenizer_service)
         elif method == ADAPT_RANKING_BINARY:
             adapter = BinaryRankingAdapter(adapter_spec, tokenizer_service)
         elif method == ADAPT_GENERATION_MULTIMODAL:
