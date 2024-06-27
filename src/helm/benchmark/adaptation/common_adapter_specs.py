@@ -67,7 +67,7 @@ def get_multiple_choice_separate_adapter_spec(method: str, empty_input: bool = F
     or
     [reference_i]
     """
-    assert method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED, ADAPT_MULTIPLE_CHOICE_SEPARATE_LANGUAGE_MODELING}
+    assert method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}
 
     return AdapterSpec(
         method=method,

@@ -1,5 +1,6 @@
 from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
+    ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
 )
 from helm.benchmark.adaptation.common_adapter_specs import (
     get_generation_adapter_spec,
@@ -574,6 +575,11 @@ def get_lindsea_syntax_minimal_pairs_spec(language: str = "id", method: str = "m
     elif method == "multiple_choice_separate_original":
         adapter_spec = get_multiple_choice_separate_adapter_spec(
             method=ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
+            empty_input=True,
+        )
+    elif method == "multiple_choice_separate_calibrated":
+        adapter_spec = get_multiple_choice_separate_adapter_spec(
+            method=ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
             empty_input=True,
         )
     else:
