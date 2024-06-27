@@ -10,8 +10,8 @@ class TestAI21TokenCostEstimator:
 
     def test_estimate_tokens(self):
         request = Request(
-            model="openai/text-davinci-002",
-            model_deployment="openai/text-davinci-002",
+            model="ai21/jamba-instruct",
+            model_deployment="ai21/jamba-instruct",
             prompt="The Center for Research on Foundation Models (CRFM) is "
             "an interdisciplinary initiative born out of the Stanford "
             "Institute for Human-Centered Artificial Intelligence (HAI) "

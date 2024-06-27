@@ -31,41 +31,41 @@ models:
 
 
   # AI21 Labs
-  - name: ai21/j1-jumbo # DEPRECATED
+  - name: ai21/j1-jumbo
     display_name: J1-Jumbo v1 (178B)
     description: Jurassic-1 Jumbo (178B parameters) ([docs](https://studio.ai21.com/docs/jurassic1-language-models/), [tech report](https://uploads-ssl.webflow.com/60fd4503684b466578c0d307/61138924626a6981ee09caf6_jurassic_tech_paper.pdf)).
     creator_organization_name: AI21 Labs
     access: limited
     num_parameters: 178000000000
     release_date: 2021-08-11
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: ai21/j1-large # DEPRECATED
+  - name: ai21/j1-large
     display_name: J1-Large v1 (7.5B)
     description: Jurassic-1 Large (7.5B parameters) ([docs](https://studio.ai21.com/docs/jurassic1-language-models/), [tech report](https://uploads-ssl.webflow.com/60fd4503684b466578c0d307/61138924626a6981ee09caf6_jurassic_tech_paper.pdf)).
     creator_organization_name: AI21 Labs
     access: limited
     num_parameters: 7500000000
     release_date: 2021-08-11
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: ai21/j1-grande # DEPRECATED
+  - name: ai21/j1-grande
     display_name: J1-Grande v1 (17B)
     description: Jurassic-1 Grande (17B parameters) with a "few tweaks" to the training process ([docs](https://studio.ai21.com/docs/jurassic1-language-models/), [tech report](https://uploads-ssl.webflow.com/60fd4503684b466578c0d307/61138924626a6981ee09caf6_jurassic_tech_paper.pdf)).
     creator_organization_name: AI21 Labs
     access: limited
     num_parameters: 17000000000
     release_date: 2022-05-03
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: ai21/j1-grande-v2-beta # DEPRECATED
+  - name: ai21/j1-grande-v2-beta
     display_name: J1-Grande v2 beta (17B)
     description: Jurassic-1 Grande v2 beta (17B parameters)
     creator_organization_name: AI21 Labs
     access: limited
     num_parameters: 17000000000
     release_date: 2022-10-28
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: ai21/j2-jumbo
     display_name: Jurassic-2 Jumbo (178B)
@@ -288,7 +288,6 @@ models:
     release_date: 2024-06-20
     tags: [ANTHROPIC_CLAUDE_3_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  # DEPRECATED: Please do not use.
   - name: anthropic/stanford-online-all-v4-s3
     display_name: Anthropic-LM v4-s3 (52B)
     description: A 52B parameter language model, trained using reinforcement learning from human feedback [paper](https://arxiv.org/pdf/2204.05862.pdf).
@@ -296,7 +295,7 @@ models:
     access: closed
     num_parameters: 52000000000
     release_date: 2021-12-01
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG]
 
 
 
@@ -417,16 +416,16 @@ models:
     access: limited
     num_parameters: 52400000000
     release_date: 2022-06-09
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: cohere/large-20220720 # DEPRECATED
+  - name: cohere/large-20220720
     display_name: Cohere large v20220720 (13.1B)
     description: Cohere large v20220720 (13.1B parameters), which is deprecated by Cohere as of December 2, 2022.
     creator_organization_name: Cohere
     access: limited
     num_parameters: 13100000000
     release_date: 2022-07-20
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: cohere/medium-20220720
     display_name: Cohere medium v20220720 (6.1B)
@@ -435,16 +434,16 @@ models:
     access: limited
     num_parameters: 6100000000
     release_date: 2022-07-20
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: cohere/small-20220720 # DEPRECATED
+  - name: cohere/small-20220720
     display_name: Cohere small v20220720 (410M)
     description: Cohere small v20220720 (410M parameters), which is deprecated by Cohere as of December 2, 2022.
     creator_organization_name: Cohere
     access: limited
     num_parameters: 410000000
     release_date: 2022-07-20
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: cohere/xlarge-20221108
     display_name: Cohere xlarge v20221108 (52.4B)
@@ -453,34 +452,34 @@ models:
     access: limited
     num_parameters: 52400000000
     release_date: 2022-11-08
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: cohere/medium-20221108 # DEPRECATED
+  - name: cohere/medium-20221108
     display_name: Cohere medium v20221108 (6.1B)
     description: Cohere medium v20221108 (6.1B parameters)
     creator_organization_name: Cohere
     access: limited
     num_parameters: 6100000000
     release_date: 2022-11-08
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: cohere/command-medium-beta # DEPRECATED
+  - name: cohere/command-medium-beta
     display_name: Command beta (6.1B)
-    description: Cohere Command beta (6.1B parameters) is fine-tuned from the medium model to respond well with instruction-like prompts ([details](https://docs.cohere.ai/docs/command-beta)).
+    description: Command beta (6.1B parameters) is fine-tuned from the medium model to respond well with instruction-like prompts ([details](https://docs.cohere.ai/docs/command-beta)).
     creator_organization_name: Cohere
     access: limited
     num_parameters: 6100000000
     release_date: 2022-11-08
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  - name: cohere/command-xlarge-beta # DEPRECATED
+  - name: cohere/command-xlarge-beta
     display_name: Command beta (52.4B)
-    description: Cohere Command beta (52.4B parameters) is fine-tuned from the XL model to respond well with instruction-like prompts ([details](https://docs.cohere.ai/docs/command-beta)).
+    description: Command beta (52.4B parameters) is fine-tuned from the XL model to respond well with instruction-like prompts ([details](https://docs.cohere.ai/docs/command-beta)).
     creator_organization_name: Cohere
     access: limited
     num_parameters: 52400000000
     release_date: 2022-11-08
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: cohere/command
     display_name: Command
@@ -1440,7 +1439,7 @@ models:
     access: closed
     num_parameters: 530000000000
     release_date: 2022-01-28
-    tags: []  # deprecated text model
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: microsoft/TNLGv2_7B
     display_name: TNLG v2 (6.7B)
@@ -1449,7 +1448,7 @@ models:
     access: closed
     num_parameters: 6700000000
     release_date: 2022-01-28
-    tags: []  # deprecated text model
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: microsoft/llava-1.5-7b-hf
     display_name: LLaVA 1.5 (7B)
@@ -1852,97 +1851,95 @@ models:
 
   # DEPRECATED: Announced on July 06 2023 that these models will be shut down on January 04 2024.
 
-  - name: openai/davinci # DEPRECATED
+  - name: openai/davinci
     display_name: davinci (175B)
     description: Original GPT-3 (175B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 175000000000
     release_date: 2020-05-28
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: openai/curie # DEPRECATED
+  - name: openai/curie
     display_name: curie (6.7B)
     description: Original GPT-3 (6.7B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 6700000000
     release_date: 2020-05-28
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
     
-  - name: openai/babbage # DEPRECATED
+  - name: openai/babbage
     display_name: babbage (1.3B)
     description: Original GPT-3 (1.3B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 1300000000
     release_date: 2020-05-28
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
     
-  - name: openai/ada # DEPRECATED
+  - name: openai/ada
     display_name: ada (350M)
     description: Original GPT-3 (350M parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 350000000
     release_date: 2020-05-28
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: openai/text-davinci-003 # DEPRECATED
+  - name: openai/text-davinci-003
     display_name: GPT-3.5 (text-davinci-003)
     description: text-davinci-003 model that involves reinforcement learning (PPO) with reward models. Derived from text-davinci-002 ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 175000000000
     release_date: 2022-11-28
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  # TODO: text-davinci-002 supports insertion. Support insertion in our framework.
-  #       https://github.com/stanford-crfm/benchmarking/issues/359
-  - name: openai/text-davinci-002 # DEPRECATED
+  - name: openai/text-davinci-002
     display_name: GPT-3.5 (text-davinci-002)
     description: text-davinci-002 model that involves supervised fine-tuning on human-written demonstrations. Derived from code-davinci-002 ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 175000000000
     release_date: 2022-01-27
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: openai/text-davinci-001 # DEPRECATED
+  - name: openai/text-davinci-001
     display_name: GPT-3.5 (text-davinci-001)
     description: text-davinci-001 model that involves supervised fine-tuning on human-written demonstrations ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 175000000000
     release_date: 2022-01-27
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: openai/text-curie-001 # DEPRECATED
+  - name: openai/text-curie-001
     display_name: text-curie-001
     description: text-curie-001 model that involves supervised fine-tuning on human-written demonstrations ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 6700000000
     release_date: 2022-01-27
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
     
-  - name: openai/text-babbage-001 # DEPRECATED
+  - name: openai/text-babbage-001
     display_name: text-babbage-001
     description: text-babbage-001 model that involves supervised fine-tuning on human-written demonstrations ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 1300000000
     release_date: 2022-01-27
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
     
-  - name: openai/text-ada-001 # DEPRECATED
+  - name: openai/text-ada-001
     display_name: text-ada-001
     description: text-ada-001 model that involves supervised fine-tuning on human-written demonstrations ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 350000000
     release_date: 2022-01-27
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
 
   ## GPT 3.5 Turbo Models
@@ -2090,30 +2087,30 @@ models:
   ## Codex Models
   # DEPRECATED: Codex models have been shut down on March 23 2023.
 
-  - name: openai/code-davinci-002 # DEPRECATED
+  - name: openai/code-davinci-002
     display_name: code-davinci-002
     description: Codex-style model that is designed for pure code-completion tasks ([docs](https://beta.openai.com/docs/models/codex)).
     creator_organization_name: OpenAI
     access: limited
     release_date: 2021-07-01 # TODO: Find correct date (this is for v1)
-    tags: [CODE_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, CODE_MODEL_TAG]
 
-  - name: openai/code-davinci-001 # DEPRECATED
+  - name: openai/code-davinci-001
     display_name: code-davinci-001
     description: code-davinci-001 model
     creator_organization_name: OpenAI
     access: limited
     release_date: 2021-07-01 # Paper date
-    tags: [CODE_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, CODE_MODEL_TAG]
 
-  - name: openai/code-cushman-001 # DEPRECATED
+  - name: openai/code-cushman-001
     display_name: code-cushman-001 (12B)
     description: Codex-style model that is a stronger, multilingual version of the Codex (12B) model in the [Codex paper](https://arxiv.org/pdf/2107.03374.pdf).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 12000000000
     release_date: 2021-07-01 # Paper date
-    tags: [CODE_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, CODE_MODEL_TAG]
 
 
   ## Text Similarity Models
@@ -2123,41 +2120,41 @@ models:
   # DEPRECATED: Announced on July 06 2023 that first generation embeddings models
   #  will be shut down on January 04 2024.
 
-  - name: openai/text-similarity-davinci-001 # DEPRECATED
+  - name: openai/text-similarity-davinci-001
     display_name: text-similarity-davinci-001
     description: Embedding model that is designed for text similarity tasks ([docs](https://openai.com/blog/introducing-text-and-code-embeddings)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 175000000000
     release_date: 2022-01-25 # Blog post date
-    tags: [TEXT_SIMILARITY_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_SIMILARITY_MODEL_TAG]
 
-  - name: openai/text-similarity-curie-001 # DEPRECATED
+  - name: openai/text-similarity-curie-001
     display_name: text-similarity-curie-001
     description: Embedding model that is designed for text similarity tasks ([docs](https://openai.com/blog/introducing-text-and-code-embeddings)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 6700000000
     release_date: 2022-01-25 # Blog post date
-    tags: [TEXT_SIMILARITY_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_SIMILARITY_MODEL_TAG]
 
-  - name: openai/text-similarity-babbage-001 # DEPRECATED
+  - name: openai/text-similarity-babbage-001
     display_name: text-similarity-babbage-001
     description: Embedding model that is designed for text similarity tasks ([docs](https://openai.com/blog/introducing-text-and-code-embeddings)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 1300000000
     release_date: 2022-01-25 # Blog post date
-    tags: [TEXT_SIMILARITY_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_SIMILARITY_MODEL_TAG]
 
-  - name: openai/text-similarity-ada-001 # DEPRECATED
+  - name: openai/text-similarity-ada-001
     display_name: text-similarity-ada-001
     description: Embedding model that is designed for text similarity tasks ([docs](https://openai.com/blog/introducing-text-and-code-embeddings)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 350000000
     release_date: 2022-01-25 # Blog post date
-    tags: [TEXT_SIMILARITY_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_SIMILARITY_MODEL_TAG]
 
   - name: openai/text-embedding-ada-002
     display_name: text-embedding-ada-002

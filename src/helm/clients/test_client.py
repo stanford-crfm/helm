@@ -23,30 +23,28 @@ def test_truncate_sequence():
     # echo_prompt = True, nothing gets truncated
     truncate_sequence_helper(
         ["a", "b", "c"],
-        Request(
-            model="openai/text-davinci-002", model_deployment="openai/text-davinci-002", prompt="abc", echo_prompt=True
-        ),
+        Request(model="openai/gpt2", model_deployment="huggingface/gpt2", prompt="abc", echo_prompt=True),
         ["a", "b", "c"],
     )
 
     # Nothing gets truncated
     truncate_sequence_helper(
         ["hello", " world"],
-        Request(model="openai/text-davinci-002", model_deployment="openai/text-davinci-002", stop_sequences=["#"]),
+        Request(model="openai/gpt2", model_deployment="huggingface/gpt2", stop_sequences=["#"]),
         ["hello", " world"],
     )
 
     # Truncate using stop sequences
     truncate_sequence_helper(
         ["hello", " world", "\n", "what"],
-        Request(model="openai/text-davinci-002", model_deployment="openai/text-davinci-002", stop_sequences=["\n"]),
+        Request(model="openai/gpt2", model_deployment="huggingface/gpt2", stop_sequences=["\n"]),
         ["hello", " world"],
     )
 
     # Truncate using max tokens
     truncate_sequence_helper(
         ["a", "b", "c"],
-        Request(model="openai/text-davinci-002", model_deployment="openai/text-davinci-002", max_tokens=2),
+        Request(model="openai/gpt2", model_deployment="huggingface/gpt2", max_tokens=2),
         ["a", "b"],
     )
 

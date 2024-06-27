@@ -35,8 +35,8 @@ class TestGenerationAdapter(TestAdapter):
 
     def test_construct_prompt(self):
         adapter_spec = AdapterSpec(
-            model="openai/davinci",
-            model_deployment="openai/davinci",
+            model="openai/gpt2",
+            model_deployment="huggingface/gpt2",
             method=ADAPT_GENERATION,
             input_prefix="",
             input_suffix="",
@@ -63,8 +63,8 @@ class TestGenerationAdapter(TestAdapter):
 
     def test_construct_prompt_with_truncation(self):
         adapter_spec = AdapterSpec(
-            model="openai/davinci",
-            model_deployment="openai/davinci",
+            model="openai/gpt2",
+            model_deployment="huggingface/gpt2",
             method=ADAPT_GENERATION,
             input_prefix="",
             output_prefix="",
@@ -86,11 +86,11 @@ class TestGenerationAdapter(TestAdapter):
 
         # Ensure that all the in-context examples were completely removed and we had to truncate the eval Instance input
         assert "train" not in prompt_text
-        assert prompt_text.count("eval") == 1948
+        assert prompt_text.count("eval") == 924
 
     def test_sample_examples_without_references(self):
         adapter_spec = AdapterSpec(
-            method=ADAPT_GENERATION, model="openai/ada", model_deployment="openai/ada", max_train_instances=1
+            method=ADAPT_GENERATION, model="openai/gpt2", model_deployment="huggingface/gpt2", max_train_instances=1
         )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
         all_train_instances = [
@@ -104,7 +104,7 @@ class TestGenerationAdapter(TestAdapter):
 
     def test_sample_examples_open_ended_generation(self):
         adapter_spec = AdapterSpec(
-            method=ADAPT_GENERATION, model="openai/ada", model_deployment="openai/ada", max_train_instances=3
+            method=ADAPT_GENERATION, model="openai/gpt2", model_deployment="huggingface/gpt2", max_train_instances=3
         )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
 
@@ -120,7 +120,7 @@ class TestGenerationAdapter(TestAdapter):
 
     def test_sample_examples_open_ended_generation_stress(self):
         adapter_spec = AdapterSpec(
-            method=ADAPT_GENERATION, model="openai/ada", model_deployment="openai/ada", max_train_instances=5
+            method=ADAPT_GENERATION, model="openai/gpt2", model_deployment="huggingface/gpt2", max_train_instances=5
         )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
 
@@ -162,8 +162,8 @@ class TestGenerationAdapter(TestAdapter):
     def test_multiple_correct_reference(self):
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
-            model="openai/ada",
-            model_deployment="openai/ada",
+            model="openai/gpt2",
+            model_deployment="huggingface/gpt2",
             max_train_instances=2,
             sample_train=False,
         )
@@ -211,8 +211,8 @@ class TestGenerationAdapter(TestAdapter):
     def test_multiple_correct_reference_multi_label(self):
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
-            model="openai/ada",
-            model_deployment="openai/ada",
+            model="openai/gpt2",
+            model_deployment="huggingface/gpt2",
             max_train_instances=2,
             multi_label=True,
             sample_train=False,

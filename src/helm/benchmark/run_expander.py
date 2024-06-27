@@ -10,6 +10,7 @@ from helm.benchmark.model_metadata_registry import (
     get_all_text_models,
     get_model_metadata,
     get_model_names_with_tag,
+    DEPRECATED_MODEL_TAG,
     FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
     LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
     ABLATION_MODEL_TAG,
@@ -610,6 +611,12 @@ class ModelRunExpander(ReplaceValueRunExpander):
                 values_dict["ablation"] = models
             else:
                 values_dict[family_name] = models
+
+        # For each of the keys above, filter out deprecated models.
+        deprecated_models = set(get_model_names_with_tag(DEPRECATED_MODEL_TAG))
+        for family_name in values_dict.keys():
+            values_dict[family_name] = [model for model in values_dict[family_name] if model not in deprecated_models]
+
         return values_dict
 
 
