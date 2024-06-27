@@ -3,37 +3,28 @@
 # Example usage:
 # python compute_request_limits.py --model_deployment_name="writer/palmyra-base" --tokenizer_name="Writer/palmyra-base"
 
-from typing import Any, Optional, Dict
+from typing import Any, Optional
 from helm.common.cache_backend_config import SqliteCacheBackendConfig
-from helm.common.general import ensure_directory_exists
+from helm.common.general import ensure_directory_exists, get_credentials
 from helm.clients.auto_client import AutoClient
 from helm.benchmark.model_deployment_registry import ModelDeployment, get_model_deployment
 from helm.tokenizers.auto_tokenizer import AutoTokenizer
 from helm.common.request import Request
 from helm.common.tokenization_request import TokenizationRequest
+from helm.proxy.services.service import CACHE_DIR
 
 # TODO #1592: reenable this once the imports are faster
 # from helm.clients.client import Client
 from helm.tokenizers.tokenizer import Tokenizer
-
+from helm.benchmark.config_registry import (
+    register_configs_from_directory,
+    register_builtin_configs_from_helm_package,
+)
 import os
 import math
 from tqdm import tqdm
 import argparse
 from attr import dataclass
-
-
-def get_credentials(path: str) -> Dict[str, str]:
-    # Reads the credentials from the given path
-    with open(path, "r") as f:
-        # Read line by line, replaces the spaces, splits on the first ":"
-        # The first part is the key, the second part contians the value in between quotes
-        credentials = {}
-        for line in f.readlines():
-            elt = line.replace(" ", "").replace("\n", "").split(":")
-            if len(elt) == 2:
-                credentials[elt[0]] = elt[1].split('"')[1]
-        return credentials
 
 
 def get_number_of_tokens(prompt: str, tokenizer: Tokenizer, tokenizer_name: str) -> int:
@@ -308,11 +299,14 @@ def check_limits(
 
 
 def get_args():
-    # model_name, tokenizer_name, prefix and suffix are passed as arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model_deployment_name", type=str, default="writer/palmyra-base")
-    parser.add_argument("--model_name", type=str, default="")
-    parser.add_argument("--tokenizer_name", type=str, default="Writer/palmyra-base")
+
+    parser.add_argument(
+        "--model-deployment-name",
+        type=str,
+        help="The model deployment to compute sequence length limits for.",
+        required=True,
+    )
     parser.add_argument(
         "--prefix",
         type=str,
@@ -325,26 +319,35 @@ def get_args():
         default="",
         help='The suffix to use after the prompt. For example for anthropic, use "Assistant: "',
     )
-    parser.add_argument("--credentials_path", type=str, default="../prod_env/credentials.conf")
-    parser.add_argument("--cache_path", type=str, default="../prod_env/cache")
+    parser.add_argument(
+        "--local-path",
+        type=str,
+        help="The prod_env path.",
+        default="prod_env",
+    )
     args = parser.parse_args()
-
-    if args.model_name == "":
-        model_deployment: ModelDeployment = get_model_deployment(args.model_deployment_name)
-        args.model_name = model_deployment.model_name
     return args
 
 
 def main():
-    print("Imports Done\n")
     args = get_args()
 
-    credentials_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), args.credentials_path)
-    credentials = get_credentials(credentials_path)
+    register_builtin_configs_from_helm_package()
+    register_configs_from_directory(args.local_path)
+
+    model_deployment: ModelDeployment = get_model_deployment(args.model_deployment_name)
+    model_name = model_deployment.model_name
+    assert model_name
+    tokenizer_name = model_deployment.tokenizer_name
+    assert tokenizer_name
+
+    credentials = get_credentials(args.local_path)
+    print(credentials)
+    cache_path = os.path.join(args.local_path, CACHE_DIR)
 
     print("=========== Initial setup ===========")
     current_path = os.path.dirname(os.path.realpath(__file__))
-    cache_path = os.path.join(current_path, args.cache_path)
+    cache_path = os.path.join(current_path, cache_path)
     print(f"cache_path: {cache_path}")
 
     ensure_directory_exists(cache_path)
@@ -356,7 +359,7 @@ def main():
 
     print("Making short request...")
     request = Request(
-        model=args.model_name,
+        model=model_name,
         model_deployment=args.model_deployment_name,
         prompt=args.prefix + "hello" + args.suffix,
         max_tokens=1,
@@ -369,8 +372,8 @@ def main():
     print("")
 
     print("========== Model infos ==========")
-    print(f"model_name: {args.model_name}")
-    print(f"tokenizer_name: {args.tokenizer_name}")
+    print(f"model_name: {model_name}")
+    print(f"tokenizer_name: {tokenizer_name}")
     print(f"prefix: {args.prefix}")
     print(f"suffix: {args.suffix}")
     print("=================================")
@@ -381,8 +384,8 @@ def main():
         client,
         auto_tokenizer,
         args.model_deployment_name,
-        args.model_name,
-        args.tokenizer_name,
+        model_name,
+        tokenizer_name,
         prefix=args.prefix,
         suffix=args.suffix,
     )
@@ -395,8 +398,8 @@ def main():
         client,
         auto_tokenizer,
         args.model_deployment_name,
-        args.model_name,
-        args.tokenizer_name,
+        model_name,
+        tokenizer_name,
         max_prompt_length=limits.max_prompt_length,
         prefix=args.prefix,
         suffix=args.suffix,
@@ -412,8 +415,8 @@ def main():
         client,
         auto_tokenizer,
         args.model_deployment_name,
-        args.model_name,
-        args.tokenizer_name,
+        model_name,
+        tokenizer_name,
         limits,
         prefix=args.prefix,
         suffix=args.suffix,
