@@ -1095,8 +1095,7 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         pretrained_model_name_or_path: sambanovasystems/SambaLingo-Thai-Base-70B
-        args:
-          device_map: auto
+        device_map: auto
 
   - name: huggingface/sambalingo-thai-chat-70b
     model_name: sambanova/sambalingo-thai-chat-70b
@@ -1106,8 +1105,7 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         pretrained_model_name_or_path: sambanovasystems/SambaLingo-Thai-Base-70B
-        args:
-          device_map: auto
+        device_map: auto
 
   ## SCB10X
   - name: huggingface/typhoon-7b
