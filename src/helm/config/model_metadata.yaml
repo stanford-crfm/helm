@@ -2396,8 +2396,8 @@ models:
 
   # SambaNova
   - name: sambanova/sambalingo-thai-base
-    display_name: SambaLingo-Thai-Base
-    description: SambaLingo-Thai-Base is a pretrained bi-lingual Thai and English model that adapts Llama 2 (7B) to Thai by training on 38 billion tokens from the Thai split of the Cultura-X dataset. ([paper](https://arxiv.org/abs/2404.05829))
+    display_name: SambaLingo Thai Base (7B)
+    description: SambaLingo-Thai-Base (7B) is a pretrained bi-lingual Thai and English model that adapts Llama 2 (7B) to Thai by training on 38 billion tokens from the Thai split of the Cultura-X dataset. ([paper](https://arxiv.org/abs/2404.05829))
     creator_organization_name: SambaLingo
     access: open
     num_parameters: 7000000000
@@ -2405,8 +2405,8 @@ models:
     tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: sambanova/sambalingo-thai-chat
-    display_name: SambaLingo-Thai-Chat
-    description: SambaLingo-Thai-Chat is a chat model trained using direct preference optimization on SambaLingo-Thai-Base. SambaLingo-Thai-Base adapts Llama 2 (7B) to Thai by training on 38 billion tokens from the Thai split of the Cultura-X dataset. ([paper](https://arxiv.org/abs/2404.05829))
+    display_name: SambaLingo Thai Chat (7B)
+    description: SambaLingo-Thai-Chat (7B) is a chat model trained using direct preference optimization on SambaLingo-Thai-Base. SambaLingo-Thai-Base adapts Llama 2 (7B) to Thai by training on 38 billion tokens from the Thai split of the Cultura-X dataset. ([paper](https://arxiv.org/abs/2404.05829))
     creator_organization_name: SambaLingo
     access: open
     num_parameters: 7000000000
@@ -2414,8 +2414,8 @@ models:
     tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: sambanova/sambalingo-thai-base-70b
-    display_name: SambaLingo-Thai-Base-70B
-    description: SambaLingo-Thai-Base-70B is a pretrained bi-lingual Thai and English model that adapts Llama 2 (70B) to Thai by training on 26 billion tokens from the Thai split of the Cultura-X dataset. ([paper](https://arxiv.org/abs/2404.05829))
+    display_name: SambaLingo Thai Base (70B)
+    description: SambaLingo-Thai-Base (70B) is a pretrained bi-lingual Thai and English model that adapts Llama 2 (70B) to Thai by training on 26 billion tokens from the Thai split of the Cultura-X dataset. ([paper](https://arxiv.org/abs/2404.05829))
     creator_organization_name: SambaLingo
     access: open
     num_parameters: 70000000000
@@ -2423,8 +2423,8 @@ models:
     tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: sambanova/sambalingo-thai-chat-70b
-    display_name: SambaLingo-Thai-Chat-70B
-    description: SambaLingo-Thai-Chat-70B is a chat model trained using direct preference optimization on SambaLingo-Thai-Base-70B. SambaLingo-Thai-Base-70B adapts Llama 2 (7B) to Thai by training on 26 billion tokens from the Thai split of the Cultura-X dataset. ([paper](https://arxiv.org/abs/2404.05829))
+    display_name: SambaLingo Thai Chat (70B)
+    description: SambaLingo-Thai-Chat (70B) is a chat model trained using direct preference optimization on SambaLingo-Thai-Base-70B. SambaLingo-Thai-Base-70B adapts Llama 2 (7B) to Thai by training on 26 billion tokens from the Thai split of the Cultura-X dataset. ([paper](https://arxiv.org/abs/2404.05829))
     creator_organization_name: SambaLingo
     access: open
     num_parameters: 70000000000
