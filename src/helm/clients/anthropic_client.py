@@ -391,14 +391,25 @@ class AnthropicMessagesClient(CachingClient):
                         return response
                     raise
 
-            cache_key = CachingClient.make_cache_key(
-                {
-                    "completion_index": completion_index,
-                    **raw_request,
-                },
-                request,
-            )
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            try:
+                cache_key = CachingClient.make_cache_key(
+                    {
+                        "completion_index": completion_index,
+                        **raw_request,
+                    },
+                    request,
+                )
+                response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            except AnthropicMessagesResponseError:
+                hlog("WARNING: Response has empty content")
+                return RequestResult(
+                    success=False,
+                    cached=False,
+                    error="Anthropic response has empty content",
+                    completions=[],
+                    embedding=[],
+                    error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                )
 
             if _is_content_moderation_failure(response):
                 hlog(

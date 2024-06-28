@@ -1044,6 +1044,7 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "chinese": {"chinese": [translate(language_code="zh-CN")]},
     "hindi": {"hindi": [translate(language_code="hi")]},
     "spanish": {"spanish": [translate(language_code="es")]},
+    "swahili": {"swahili": [translate(language_code="sw")]},
     # Styles
     "art": {
         "art": [
@@ -1406,7 +1407,10 @@ class OutputFormatInstructions(RunExpander):
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         if run_spec.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
-            instructions = "Answer with only a single letter."
+            if self.scenario == "mmlu_only_last_question":
+                instructions = "Answer only the last question with only a single letter."
+            else:
+                instructions = "Answer with only a single letter."
             if run_spec.adapter_spec.instructions:
                 instructions = f"{instructions}\n\n{run_spec.adapter_spec.instructions}"
             return [
@@ -1449,7 +1453,7 @@ class OutputFormatInstructions(RunExpander):
                     adapter_spec=replace(run_spec.adapter_spec, instructions=instructions),
                 ),
             ]
-        return [run_spec]
+        raise ValueError(f"Unknown scenario {self.scenario}")
 
 
 RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [

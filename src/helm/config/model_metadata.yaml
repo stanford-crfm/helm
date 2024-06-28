@@ -99,6 +99,14 @@ models:
   # - j2-grande -> j2-mid
   # - j2-large -> j2-light
 
+  - name: ai21/jamba-instruct
+    display_name: Jamba Instruct
+    description: Jamba Instruct is an instruction tuned version of Jamba, which uses a hybrid Transformer-Mamba mixture-of-experts (MoE) architecture that interleaves blocks of Transformer and Mamba layers. ([blog](https://www.ai21.com/blog/announcing-jamba-instruct))
+    creator_organization_name: AI21 Labs
+    access: limited
+    num_parameters: 52000000000
+    release_date: 2024-05-02
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # AI Singapore
   - name: aisingapore/sea-lion-7b
@@ -117,7 +125,7 @@ models:
     access: open
     num_parameters: 7000000000
     release_date: 2023-02-24
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
 
   # Aleph Alpha
@@ -270,6 +278,14 @@ models:
     access: limited
     creator_organization_name: Anthropic
     release_date: 2024-03-04  # https://www.anthropic.com/news/claude-3-family
+    tags: [ANTHROPIC_CLAUDE_3_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: anthropic/claude-3-5-sonnet-20240620
+    display_name: Claude 3.5 Sonnet (20240620)
+    description: Claude 3.5 Sonnet is a Claude 3 family model which outperforms Claude 3 Opus while operating faster and at a lower cost. ([blog](https://www.anthropic.com/news/claude-3-5-sonnet))
+    creator_organization_name: Anthropic
+    access: limited
+    release_date: 2024-06-20
     tags: [ANTHROPIC_CLAUDE_3_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # DEPRECATED: Please do not use.
@@ -874,7 +890,7 @@ models:
 
   - name: google/paligemma-3b-mix-224
     display_name: PaliGemma (3B) Mix 224
-    description: PaliGemma is a versatile and lightweight vision-language model (VLM) inspired by PaLI-3 and based on open components such as the SigLIP vision model and the Gemma language model. ([blog](https://developers.googleblog.com/en/gemma-family-and-toolkit-expansion-io-2024/))
+    description: PaliGemma is a versatile and lightweight vision-language model (VLM) inspired by PaLI-3 and based on open components such as the SigLIP vision model and the Gemma language model. Pre-trained with 224x224 input images and 128 token input/output text sequences. Finetuned on a mixture of downstream academic datasets. ([blog](https://developers.googleblog.com/en/gemma-family-and-toolkit-expansion-io-2024/))
     creator_organization_name: Google
     access: open
     release_date: 2024-05-12
@@ -882,7 +898,7 @@ models:
 
   - name: google/paligemma-3b-mix-448
     display_name: PaliGemma (3B) Mix 448
-    description: PaliGemma is a versatile and lightweight vision-language model (VLM) inspired by PaLI-3 and based on open components such as the SigLIP vision model and the Gemma language model. ([blog](https://developers.googleblog.com/en/gemma-family-and-toolkit-expansion-io-2024/))
+    description: PaliGemma is a versatile and lightweight vision-language model (VLM) inspired by PaLI-3 and based on open components such as the SigLIP vision model and the Gemma language model. Pre-trained with 448x448 input images and 512 token input/output text sequences. Finetuned on a mixture of downstream academic datasets. ([blog](https://developers.googleblog.com/en/gemma-family-and-toolkit-expansion-io-2024/))
     creator_organization_name: Google
     access: open
     release_date: 2024-05-12
@@ -2197,6 +2213,34 @@ models:
     release_date: 2023-11-06
     tags: [TEXT_TO_IMAGE_MODEL_TAG]
 
+  # OpenThaiGPT
+  - name: openthaigpt/openthaigpt-1.0.0-7b-chat
+    display_name: OpenThaiGPT v1.0.0 (7B)
+    description: OpenThaiGPT v1.0.0 (7B) is a Thai language chat model based on Llama 2 that has been specifically fine-tuned for Thai instructions and enhanced by incorporating over 10,000 of the most commonly used Thai words into the dictionary. ([blog post](https://openthaigpt.aieat.or.th/openthaigpt-1.0.0-less-than-8-apr-2024-greater-than))
+    creator_organization_name: OpenThaiGPT
+    access: open
+    num_parameters: 7000000000
+    release_date: 2024-04-08
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openthaigpt/openthaigpt-1.0.0-13b-chat
+    display_name: OpenThaiGPT v1.0.0 (13B)
+    description: OpenThaiGPT v1.0.0 (13B) is a Thai language chat model based on Llama 2 that has been specifically fine-tuned for Thai instructions and enhanced by incorporating over 10,000 of the most commonly used Thai words into the dictionary. ([blog post](https://openthaigpt.aieat.or.th/openthaigpt-1.0.0-less-than-8-apr-2024-greater-than))
+    creator_organization_name: OpenThaiGPT
+    access: open
+    num_parameters: 13000000000
+    release_date: 2024-04-08
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openthaigpt/openthaigpt-1.0.0-70b-chat
+    display_name: OpenThaiGPT v1.0.0 (70B)
+    description: OpenThaiGPT v1.0.0 (70B) is a Thai language chat model based on Llama 2 that has been specifically fine-tuned for Thai instructions and enhanced by incorporating over 10,000 of the most commonly used Thai words into the dictionary. ([blog post](https://openthaigpt.aieat.or.th/openthaigpt-1.0.0-less-than-8-apr-2024-greater-than))
+    creator_organization_name: OpenThaiGPT
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-04-08
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   # Qwen
 
   - name: qwen/qwen-7b
@@ -2311,7 +2355,7 @@ models:
     access: open
     num_parameters: 7000000000
     release_date: 2024-04-04
-    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: sail/sailor-7b-chat
     display_name: Sailor Chat (7B)
@@ -2329,7 +2373,7 @@ models:
     access: open
     num_parameters: 14000000000
     release_date: 2024-04-04
-    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: sail/sailor-14b-chat
     display_name: Sailor Chat (14B)
@@ -2350,10 +2394,74 @@ models:
     release_date: 2022-03-25
     tags: [] # TODO: add tags
 
+  # SambaNova
+  - name: sambanova/sambalingo-thai-base
+    display_name: SambaLingo-Thai-Base
+    description: SambaLingo-Thai-Base is a pretrained bi-lingual Thai and English model that adapts Llama 2 (7B) to Thai by training on 38 billion tokens from the Thai split of the Cultura-X dataset. ([paper](https://arxiv.org/abs/2404.05829))
+    creator_organization_name: SambaLingo
+    access: open
+    num_parameters: 7000000000
+    release_date: 2024-04-08
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: sambanova/sambalingo-thai-chat
+    display_name: SambaLingo-Thai-Chat
+    description: SambaLingo-Thai-Chat is a chat model trained using direct preference optimization on SambaLingo-Thai-Base. SambaLingo-Thai-Base adapts Llama 2 (7B) to Thai by training on 38 billion tokens from the Thai split of the Cultura-X dataset. ([paper](https://arxiv.org/abs/2404.05829))
+    creator_organization_name: SambaLingo
+    access: open
+    num_parameters: 7000000000
+    release_date: 2024-04-08
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: sambanova/sambalingo-thai-base-70b
+    display_name: SambaLingo-Thai-Base-70B
+    description: SambaLingo-Thai-Base-70B is a pretrained bi-lingual Thai and English model that adapts Llama 2 (70B) to Thai by training on 26 billion tokens from the Thai split of the Cultura-X dataset. ([paper](https://arxiv.org/abs/2404.05829))
+    creator_organization_name: SambaLingo
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-04-08
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: sambanova/sambalingo-thai-chat-70b
+    display_name: SambaLingo-Thai-Chat-70B
+    description: SambaLingo-Thai-Chat-70B is a chat model trained using direct preference optimization on SambaLingo-Thai-Base-70B. SambaLingo-Thai-Base-70B adapts Llama 2 (7B) to Thai by training on 26 billion tokens from the Thai split of the Cultura-X dataset. ([paper](https://arxiv.org/abs/2404.05829))
+    creator_organization_name: SambaLingo
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-04-08
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   # SCB10X
+  - name: scb10x/typhoon-7b
+    display_name: Typhoon (7B)
+    description: Typhoon (7B) is pretrained Thai large language model with 7 billion parameters based on Mistral 7B. ([paper](https://arxiv.org/abs/2312.13951))
+    creator_organization_name: SCB10X
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-12-21
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: scb10x/typhoon-v1.5-8b
+    display_name: Typhoon v1.5 (8B)
+    description: Typhoon v1.5 (8B) is a pretrained Thai large language model with 8 billion parameters based on Llama 3 8B. ([blog](https://blog.opentyphoon.ai/typhoon-1-5-release-a9364cb8e8d7))
+    creator_organization_name: SCB10X
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-05-08
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: scb10x/typhoon-v1.5-8b-instruct
+    display_name: Typhoon v1.5 Instruct (8B)
+    description: Typhoon v1.5 Instruct (8B) is a pretrained Thai large language model with 8 billion parameters based on Llama 3 8B. ([blog](https://blog.opentyphoon.ai/typhoon-1-5-release-a9364cb8e8d7))
+    creator_organization_name: SCB10X
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-05-08
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: scb10x/typhoon-v1.5-72b
     display_name: Typhoon v1.5 (72B)
-    description: Typhoon v1.5 (72B) is pretrained Thai large language model with 72 billion parameters based on Qwen1.5-72B. ([blog](https://blog.opentyphoon.ai/typhoon-1-5-release-a9364cb8e8d7))
+    description: Typhoon v1.5 (72B) is a pretrained Thai large language model with 72 billion parameters based on Qwen1.5-72B. ([blog](https://blog.opentyphoon.ai/typhoon-1-5-release-a9364cb8e8d7))
     creator_organization_name: SCB10X
     access: open
     num_parameters: 72000000000
@@ -2362,12 +2470,49 @@ models:
 
   - name: scb10x/typhoon-v1.5-72b-instruct
     display_name: Typhoon v1.5 Instruct (72B)
-    description: Typhoon v1.5 Instruct (72B) is pretrained Thai large language model with 72 billion parameters based on Qwen1.5-72B. ([blog](https://blog.opentyphoon.ai/typhoon-1-5-release-a9364cb8e8d7))
+    description: Typhoon v1.5 Instruct (72B) is a pretrained Thai large language model with 72 billion parameters based on Qwen1.5-72B. ([blog](https://blog.opentyphoon.ai/typhoon-1-5-release-a9364cb8e8d7))
     creator_organization_name: SCB10X
     access: open
     num_parameters: 72000000000
     release_date: 2024-05-08
     tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: scb10x/llama-3-typhoon-v1.5x-8b-instruct
+    display_name: Typhoon 1.5X instruct (8B)
+    description: Llama-3-Typhoon-1.5X-8B-instruct is a 8 billion parameter instruct model designed for the Thai language based on Llama 3 Instruct. It utilizes the task-arithmetic model editing technique. ([blog](https://blog.opentyphoon.ai/typhoon-1-5x-our-experiment-designed-for-application-use-cases-7b85d9e9845c))
+    creator_organization_name: SCB10X
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-05-29
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: scb10x/llama-3-typhoon-v1.5x-70b-instruct
+    display_name: Typhoon 1.5X instruct (70B)
+    description: Llama-3-Typhoon-1.5X-70B-instruct is a 70 billion parameter instruct model designed for the Thai language based on Llama 3 Instruct. It utilizes the task-arithmetic model editing technique. ([blog](https://blog.opentyphoon.ai/typhoon-1-5x-our-experiment-designed-for-application-use-cases-7b85d9e9845c))
+    creator_organization_name: SCB10X
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-05-29
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  # Alibaba DAMO Academy
+  - name: damo/seallm-7b-v2
+    display_name: SeaLLM v2 (7B)
+    description: SeaLLM v2 is a multilingual LLM for Southeast Asian (SEA) languages trained from Mistral (7B). ([website](https://damo-nlp-sg.github.io/SeaLLMs/))
+    creator_organization_name: Alibaba DAMO Academy
+    access: open
+    num_parameters: 7000000000
+    release_date: 2024-02-02
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: damo/seallm-7b-v2.5
+    display_name: SeaLLM v2.5 (7B)
+    description: SeaLLM is a multilingual LLM for Southeast Asian (SEA) languages trained from Gemma (7B). ([website](https://damo-nlp-sg.github.io/SeaLLMs/))
+    creator_organization_name: Alibaba DAMO Academy
+    access: open
+    num_parameters: 7000000000
+    release_date: 2024-04-12
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   # Snowflake
   - name: snowflake/snowflake-arctic-instruct
