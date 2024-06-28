@@ -34,7 +34,10 @@ class HarmBenchAnnotator(Annotator):
             raise Exception(f"Annotation request failed: {annotator_response.error}")
         assert len(annotator_response.completions) == 1
         annotator_response_text = annotator_response.completions[0].text
-        parsed_response = json.loads(annotator_response_text)
+        try:
+            parsed_response = json.loads(annotator_response_text)
+        except:
+            return {"reasoning": "Failed to parse response", "score": 0}
 
         if not parsed_response:
             raise Exception(f"Malformed annotator response: {annotator_response_text}")
