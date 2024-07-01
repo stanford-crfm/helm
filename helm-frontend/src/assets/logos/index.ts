@@ -1,4 +1,5 @@
 import ai21 from "./ai21.png";
+import aisingapore from "./aisingapore.png";
 import anthropic from "./anthropic.png";
 import bigscience from "./bigscience.png";
 import cohere from "./cohere.png";
@@ -14,6 +15,7 @@ import yandex from "./yandex.png";
 
 export {
   ai21,
+  aisingapore,
   anthropic,
   bigscience,
   cohere,
