@@ -10,6 +10,7 @@ ADAPT_LANGUAGE_MODELING: str = "language_modeling"
 ADAPT_MULTIPLE_CHOICE_JOINT: str = "multiple_choice_joint"
 ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL: str = "multiple_choice_separate_original"
 ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED: str = "multiple_choice_separate_calibrated"
+ADAPT_MULTIPLE_CHOICE_LANGUAGE_MODELING: str = "multiple_choice_language_modeling"
 ADAPT_RANKING_BINARY: str = "ranking_binary"
 
 ADAPT_MULTIPLE_CHOICE_SEPARATE_METHODS: List[str] = [

@@ -1,7 +1,7 @@
 import datasets
 import os
 import random
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 import pandas as pd
 
@@ -1525,16 +1525,18 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
     description = "LINDSEA minimal pairs task"
     tags = ["minimal_pairs", "linguistic_diagnostic", "syntax"]
 
-    def __init__(self, method: str, language: str):
+    LANGUAGE_TO_PROMPT_COMPONENTS: Dict[str, Dict[str, str]] = {
+        "id": {
+            "instructions": "Kalimat mana yang lebih mungkin?",
+            "output_prefix": "Jawablah dengan satu huruf saja, A atau B",
+        }
+    }
+
+    def __init__(self, method: str, language: str, subset: str = "all"):
         super().__init__()
         self.method = method
         self.language = language
-        self.prompts = {
-            "id": {
-                "instructions": "Kalimat mana yang lebih mungkin?",
-                "output_prefix": "Jawablah dengan satu huruf saja, A atau B.",
-            }
-        }
+        self.subset = subset
 
     def download_dataset(self, output_path: str):
         BASE_URL = "https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/"
@@ -1545,8 +1547,10 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
             "morphology": f"{BASE_URL}{self.language}/syntax/morphology.jsonl",
         }
 
+        subsets = list(URLS.keys()) if self.subset == "all" else [self.subset]
+
         data_files = {}
-        for file in list(URLS.keys()):
+        for file in subsets:
             target_path_file = os.path.join(output_path, file)
             ensure_file_downloaded(source_url=URLS[file], target_path=target_path_file)
             data_files[file] = pd.read_json(target_path_file, lines=True)
@@ -1569,15 +1573,11 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
                     random.shuffle(options)
                     options_reversed = True if options[0][1] == 2 else False
 
-                    prompt_components = self.prompts[self.language]
-                    instructions = prompt_components["instructions"]
-                    output_prefix = prompt_components["output_prefix"]
-                    prompt = f"{instructions}\nA: {options[0][0]}\nB: {options[1][0]}\n{output_prefix}"
-                    input = Input(text=prompt)
+                    input = Input(text="")
                     # Determine correct option based on whether shuffling reversed the options
                     references = [
-                        Reference(Output(text="A"), tags=[] if options_reversed else [CORRECT_TAG]),
-                        Reference(Output(text="B"), tags=[CORRECT_TAG] if options_reversed else []),
+                        Reference(Output(text=options[0][0]), tags=[] if options_reversed else [CORRECT_TAG]),
+                        Reference(Output(text=options[1][0]), tags=[CORRECT_TAG] if options_reversed else []),
                     ]
                     instance = Instance(input=input, references=references, split=TEST_SPLIT)
                     outputs.append(instance)
