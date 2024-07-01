@@ -1637,11 +1637,12 @@ class LINDSEAPragmaticsPragmaticReasoningSingleScenario(Scenario):
 
     name = "lindsea_pragmatic_reasoning_single"
     description = "LINDSEA pragmatic reasoning single sentence task"
-    tags = ["pragmatic_reasoning", "linguistic_diagnostic", "pragmatics"]
+    tags = ["linguistic_diagnostic", "pragmatics", "pragmatic_reasoning"]
 
-    def __init__(self, language: str):
+    def __init__(self, language: str, subset: str):
         super().__init__()
         self.language = language
+        self.subset = subset
         self.prompt = {
             "id": {
                 "question": "Apakah pernyataan berikut ini {}?",
@@ -1656,6 +1657,8 @@ class LINDSEAPragmaticsPragmaticReasoningSingleScenario(Scenario):
         target_path_file = os.path.join(output_path, file)
         ensure_file_downloaded(source_url=URL, target_path=target_path_file)
         dataset = pd.read_json(target_path_file, lines=True)
+        if self.subset != "all":
+            dataset = dataset[dataset["linguistic_phenomenon"] == self.subset]
         return dataset
 
     def get_instances(self, output_path) -> List[Instance]:
@@ -1726,11 +1729,12 @@ class LINDSEAPragmaticsPragmaticReasoningPairScenario(Scenario):
 
     name = "lindsea_pragmatic_reasoning_pair"
     description = "LINDSEA pragmatic reasoning sentence pair task"
-    tags = ["pragmatic_reasoning", "linguistic_diagnostic", "pragmatics"]
+    tags = ["linguistic_diagnostic", "pragmatics", "pragmatic_reasoning"]
 
-    def __init__(self, language: str):
+    def __init__(self, language: str, subset: str):
         super().__init__()
         self.language = language
+        self.subset = subset
         self.prompt = {
             "id": {
                 "question": "Berdasarkan situasi ini, apakah pernyataan berikut ini benar atau salah?",
@@ -1747,6 +1751,8 @@ class LINDSEAPragmaticsPragmaticReasoningPairScenario(Scenario):
         target_path_file = os.path.join(output_path, file)
         ensure_file_downloaded(source_url=URL, target_path=target_path_file)
         dataset = pd.read_json(target_path_file, lines=True)
+        if self.subset != "all":
+            dataset = dataset[dataset["linguistic_phenomenon"] == self.subset]
         return dataset
 
     def get_instances(self, output_path) -> List[Instance]:
