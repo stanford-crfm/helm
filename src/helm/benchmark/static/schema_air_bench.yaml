@@ -76,7 +76,7 @@ metrics:
     display_name: AIR Score
     short_display_name: AIR Score
     description: AIR Score
-    lower_is_better: true
+    lower_is_better: false
 
   # Scores for AIR Level 2 categories
   - name: air_category_1_score
