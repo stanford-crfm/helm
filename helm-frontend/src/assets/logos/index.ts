@@ -8,6 +8,7 @@ import meta from "./meta.png";
 import microsoft from "./microsoft.png";
 import nvidia from "./nvidia.png";
 import openai from "./openai.png";
+import scb10x from "./scb10x.png";
 import together from "./together.png";
 import tsinghuaKeg from "./tsinghua-keg.png";
 import yandex from "./yandex.png";
@@ -23,6 +24,7 @@ export {
   microsoft,
   nvidia,
   openai,
+  scb10x,
   together,
   tsinghuaKeg,
   yandex,
