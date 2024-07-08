@@ -853,7 +853,7 @@ models:
 
   - name: google/gemma-2b
     display_name: Gemma (2B)
-    description: Gemma is a family of lightweight, open models built from the research and technology that Google used to create the Gemini models. ([model card](https://www.kaggle.com/models/google/gemma))
+    description: Gemma is a family of lightweight, open models built from the research and technology that Google used to create the Gemini models. ([model card](https://www.kaggle.com/models/google/gemma), [blog post](https://blog.google/technology/developers/gemma-open-models/))
     creator_organization_name: Google
     access: open
     release_date: 2024-02-21
@@ -861,7 +861,7 @@ models:
 
   - name: google/gemma-2b-it
     display_name: Gemma Instruct (2B)
-    description: Gemma is a family of lightweight, open models built from the research and technology that Google used to create the Gemini models. ([model card](https://www.kaggle.com/models/google/gemma))
+    description: Gemma is a family of lightweight, open models built from the research and technology that Google used to create the Gemini models. ([model card](https://www.kaggle.com/models/google/gemma), [blog post](https://blog.google/technology/developers/gemma-open-models/))
     creator_organization_name: Google
     access: open
     release_date: 2024-02-21
@@ -869,7 +869,7 @@ models:
 
   - name: google/gemma-7b
     display_name: Gemma (7B)
-    description: Gemma is a family of lightweight, open models built from the research and technology that Google used to create the Gemini models. ([model card](https://www.kaggle.com/models/google/gemma))
+    description: Gemma is a family of lightweight, open models built from the research and technology that Google used to create the Gemini models. ([model card](https://www.kaggle.com/models/google/gemma), [blog post](https://blog.google/technology/developers/gemma-open-models/))
     creator_organization_name: Google
     access: open
     release_date: 2024-02-21
@@ -877,7 +877,7 @@ models:
 
   - name: google/gemma-7b-it
     display_name: Gemma Instruct (7B)
-    description: Gemma is a family of lightweight, open models built from the research and technology that Google used to create the Gemini models. ([model card](https://www.kaggle.com/models/google/gemma))
+    description: Gemma is a family of lightweight, open models built from the research and technology that Google used to create the Gemini models. ([model card](https://www.kaggle.com/models/google/gemma), [blog post](https://blog.google/technology/developers/gemma-open-models/))
     creator_organization_name: Google
     access: open
     release_date: 2024-02-21
