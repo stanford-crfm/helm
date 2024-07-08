@@ -47,6 +47,7 @@ class AzureOpenAIClient(CachingClient):
             api_key: Optional[str] = None,
             endpoint: Optional[str] = None,
             deployment: Optional[str] = None
+
     ):
         super().__init__(cache_config=cache_config)
         self.tokenizer = tokenizer
@@ -68,6 +69,8 @@ class AzureOpenAIClient(CachingClient):
             azure_endpoint=self.end_point,
             http_client=httpx.Client(verify=requests.certs.where()),
             azure_deployment=self.deployment
+
+
         )
 
     def _is_chat_model_engine(self, model_engine: str) -> bool:
@@ -133,6 +136,7 @@ class AzureOpenAIClient(CachingClient):
                 (request.prompt and request.messages)
                 or (request.prompt and request.multimodal_prompt)
                 or (request.messages and request.multimodal_prompt)
+
         ):
             raise ValueError(
                 f"More than one of `prompt`, `messages` and `multimodal_prompt` was set in request: {request}"
