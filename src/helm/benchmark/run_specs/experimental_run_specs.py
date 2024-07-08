@@ -33,11 +33,6 @@ def get_ci_mcqa_spec() -> RunSpec:
     )
 
 
-_VERIFIABILITY_JUDGMENT_WITH_EXPLANATION = """
-
-"""
-
-
 @run_spec_function("verifiability_judgment_with_explanation")
 def get_verifiability_judgment_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
