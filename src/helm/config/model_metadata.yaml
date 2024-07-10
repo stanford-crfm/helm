@@ -883,7 +883,7 @@ models:
     release_date: 2024-02-21
     tags: [TEXT_MODEL_TAG, GOOGLE_GEMMA_INSTRUCT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  - name: google/gemma-2b
+  - name: google/gemma-2-9b
     display_name: Gemma 2 (9B)
     description: Gemma is a family of lightweight, open models built from the research and technology that Google used to create the Gemini models. ([model card](https://www.kaggle.com/models/google/gemma), [blog post](https://blog.google/technology/developers/google-gemma-2/))
     creator_organization_name: Google
