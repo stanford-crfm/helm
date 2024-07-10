@@ -845,8 +845,8 @@ model_deployments:
         device_map: auto
         torch_dtype: torch.bfloat16
 
-  - name: huggingface/gemma-2-27b-it
-    model_name: google/gemma-2-27b-it
+  - name: huggingface/gemma-2-27b
+    model_name: google/gemma-2-27b
     tokenizer_name: google/gemma-2-9b
     max_sequence_length: 8192
     client_spec:
