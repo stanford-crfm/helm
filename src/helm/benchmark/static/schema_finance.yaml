@@ -132,6 +132,23 @@ run_groups:
       when: 1999 to 2019
       language: English
 
+  - name: financebench
+    display_name: FinanceBench
+    description: FinanceBench
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering with numeric reasoning
+      what: financial reports
+      who: financial experts
+      when: 1999 to 2019
+      language: English
+
   - name: financial_scenarios_ablations
     display_name: Financial Scenarios Ablations
     description: Scenarios for the financial domain with ablations
