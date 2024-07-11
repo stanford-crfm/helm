@@ -824,6 +824,47 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
 
+  ## Google
+  - name: huggingface/gemma-2-9b
+    model_name: google/gemma-2-9b
+    tokenizer_name: google/gemma-2-9b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/gemma-2-9b-it
+    model_name: google/gemma-2-9b-it
+    tokenizer_name: google/gemma-2-9b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/gemma-2-27b
+    model_name: google/gemma-2-27b
+    tokenizer_name: google/gemma-2-9b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/gemma-2-27b-it
+    model_name: google/gemma-2-27b-it
+    tokenizer_name: google/gemma-2-9b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
   ## LMSYS
   - name: huggingface/vicuna-7b-v1.3
     model_name: lmsys/vicuna-7b-v1.3
