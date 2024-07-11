@@ -1435,6 +1435,8 @@ class OutputFormatInstructions(RunExpander):
                     instructions = "Answer yes or no."
             elif self.scenario == "wmt_14":
                 instructions = "Answer with the English translation."
+            elif self.scenario == "math":
+                instructions = "Wrap the final answer with the \\boxed{} command."
             else:
                 raise ValueError(f"Unknown scenario {self.scenario}")
 
