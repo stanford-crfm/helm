@@ -6,11 +6,12 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationToken,
 )
-from helm.tokenizers.ai21_tokenizer import AI21LocalTokenizer
 
 
 @pytest.mark.models
 def test_tokenize():
+    from helm.tokenizers.ai21_tokenizer import AI21LocalTokenizer
+
     tokenizer = AI21LocalTokenizer(cache_config=BlackHoleCacheConfig())
     request = TokenizationRequest(tokenizer="ai21/jamba-instruct-tokenizer", text="otter 🦦")
     result = tokenizer.tokenize(request)
@@ -23,6 +24,8 @@ def test_tokenize():
 
 @pytest.mark.models
 def test_encode():
+    from helm.tokenizers.ai21_tokenizer import AI21LocalTokenizer
+
     tokenizer = AI21LocalTokenizer(cache_config=BlackHoleCacheConfig())
     request = TokenizationRequest(tokenizer="ai21/jamba-instruct-tokenizer", text="otter 🦦", encode=True)
     result = tokenizer.tokenize(request)
@@ -33,6 +36,8 @@ def test_encode():
 
 @pytest.mark.models
 def test_decode():
+    from helm.tokenizers.ai21_tokenizer import AI21LocalTokenizer
+
     tokenizer = AI21LocalTokenizer(cache_config=BlackHoleCacheConfig())
     request = DecodeRequest(
         tokenizer="ai21/jamba-instruct-tokenizer", tokens=[1860, 1901, 62934, 1784, 1703, 1710, 1710]

@@ -167,7 +167,6 @@ class AI21ChatClient(CachingClient):
             "n": request.num_completions,
             "top_p": request.top_p,
         }
-        print(raw_request)
 
         def do_it():
             chat_completion_response: ChatCompletionResponse = self.client.chat.completions.create(
