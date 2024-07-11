@@ -99,10 +99,7 @@ model_deployments:
 
   - name: ai21/jamba-instruct
     model_name: ai21/jamba-instruct
-    # Temporary substitute tokenizer because AI21's local tokenizer is not implemented yet.
-    # The tokenizer is unneeded anyway because max_sequence_length is very long.
-    # TODO: Implement AI21's local tokenizer
-    tokenizer_name: openai/cl100k_base
+    tokenizer_name: ai21/jamba-instruct-tokenizer
     max_sequence_length: 256000
     client_spec:
       class_name: "helm.clients.ai21_client.AI21ChatClient"
