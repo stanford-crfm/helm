@@ -60,34 +60,25 @@ class KPIEDGARScenario(Scenario):
 
     Concretely, we prompt models using the following format:
 
-    Input:
     ```
-    Passage: <passage>
-    Question: Question: Enclose KPIs (key performance indicators) and values of those in the above passage using the following tags.
-    <tag1>...</tag1>:  <tag1_desc>
-    ...
-    <tagN>...</tagN>:  <tagN_desc>
-    ```
-
-    Reference:
-    ```
-    <int>, ..., <int>[correct]
+Context: {Sentence}
+Task: Extract key performance indicators (KPIs) and values from the above text. Also, specify one of the following categories to each of the extracted KPIs and values in brackets. 
+kpi: Key Performance Indicators expressible in numerical and monetary value, cy: Current Year monetary value, py: Prior Year monetary value, py1: Two Year Past Value.
+Answer:
     ```
 
     Example
 
-    Input:
     ```
-    Passage: Apple reported revenue of $ 1.5 billion this year .
-    Question: Question: Enclose KPIs (key performance indicators) and values of those in the above passage using the following tags.
-    <kpi>...</kpi>: Key Performance Indicators expressible in numerical and monetary value, e.g. revenue or net sales.
-    <cy>...</cy>: Current Year monetary value of a KPI .
-    ...
+Context: The following table summarizes our total share-based compensation expense and excess tax benefits recognized : As of December 28 , 2019 , there was $ 284 million of total unrecognized compensation cost related to nonvested share-based compensation grants .
+Task: Extract key performance indicators (KPIs) and values from the above text. Also, specify one of the following categories to each of the extracted KPIs and values in brackets.
+kpi: Key Performance Indicators expressible in numerical and monetary value, cy: Current Year monetary value, py: Prior Year monetary value, py1: Two Year Past Value.
+Answer: 
     ```
 
     Reference:
     ```
-    Apple reported <kpi>revenue</kpi> of $ <cy>1.5 billion</cy> this year .
+    284 [cy], total unrecognized compensation cost [kpi]
     ```
 
     """  # noqa

@@ -109,6 +109,13 @@ class CtiMitreScenario(Scenario):
         E. Others
         Answer:
         -----------------------
+
+    Reference:
+        V. Orbinato, M. Barbaraci, R. Natella, and D. Cotroneo, 
+        “Automatic Mapping of Unstructured Cyber Threat Intelligence: An Experimental Study,” 
+        in Proceedings of the 33rd IEEE International Symposium on Software Reliability Engineering (ISSRE), 2022.
+        https://ieeexplore.ieee.org/abstract/document/9978947
+        
     """
 
     # Names of the tasks we support

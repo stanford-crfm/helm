@@ -52,6 +52,12 @@ class NewsHeadlineScenario(Scenario):
     }
 
     def __init__(self, category: str):
+        """ The initialization of an instance.
+
+        Args:
+            category: str: The category of the news data. This must be one of the strings in PROMPT_CATEGORIES.keys() (see above).
+
+        """
         super().__init__()
         assert category in NewsHeadlineScenario.PROMPT_CATEGORIES.keys(), f"Invalid category: {category}"
         self.category: str = category

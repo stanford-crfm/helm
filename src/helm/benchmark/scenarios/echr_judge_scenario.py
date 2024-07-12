@@ -50,6 +50,14 @@ class EchrJudgeScenario(Scenario):
 
     - <TEXT> parts are often too long, resulting in zero-shot predictions in many cases.
       Therefore, we have added two trivial cases to the instructions part.
+    
+    Reference:
+        Ilias Chalkidis, Ion Androutsopoulos, and Nikolaos Aletras. 2019. 
+        Neural Legal Judgment Prediction in English. 
+        In Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics, 
+        pages 4317–4323, Florence, Italy. Association for Computational Linguistics.
+        https://aclanthology.org/P19-1424/
+        
     """
 
     # Names of the tasks we support

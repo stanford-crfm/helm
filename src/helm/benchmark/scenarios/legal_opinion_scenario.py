@@ -32,17 +32,10 @@ class LegalOpinionScenario(Scenario):
             - label = 2 means positive sentiment
 
     Prompt:
-        ------
-        Classify the following legal phrases as positive, neutral or negative.  (Instructions)
-        ...
-        ...
-        Phrase <Example_TEXT>           (Example phrase)
-        Sentiment <Example_OUTPUT>      (Correct sentiment for the example phrase)
-        ...
-        ...
-        Phrase: <TEXT>                  (Target phrase)
-        Sentiment: <OUTPUT>             (Output ::= negative | neutral | positive)
-        ----
+Classify the sentences into one of the 3 sentiment categories. Possible labels: positive, neutral, negative.
+{Sentence}
+Label: {positive/neutral/negative}
+
     """
 
     # Names of the tasks we support

@@ -10,8 +10,21 @@ from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CO
 
 
 class LegalContractScenario(Scenario):
-    """
-    Plain English Summarization of Contracts ([paper](https://arxiv.org/abs/1906.00424))
+    """Legal Contracts (Summarization)
+
+    Description:
+    Plain English Summarization of Contracts [(Manor et al., 2019)](https://aclanthology.org/W19-2201.pdf).
+    
+    Data source:
+    https://github.com/lauramanor/legal_summarization/
+    
+    Reference:
+    Laura Manor and Junyi Jessy Li. 2019. 
+    Plain English Summarization of Contracts. 
+    In Proceedings of the Natural Legal Language Processing Workshop 2019, pages 1–11, 
+    Minneapolis, Minnesota. Association for Computational Linguistics.
+    https://aclanthology.org/W19-2201/
+
     """
 
     TRAIN_RATIO: float = 0.2

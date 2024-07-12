@@ -28,6 +28,12 @@ class FinancialPhrasebankScenario(Scenario):
     to define a majority vote based gold standard. To provide an objective comparison, we have formed 4 alternative
     reference datasets based on the strength of majority agreement:
 
+    Data source:
+    https://huggingface.co/datasets/takala/financial_phrasebank
+
+    Reference:
+    P. Malo, A. Sinha, P. Korhonen, J. Wallenius, and P. Takala, “Good debt or bad debt: Detecting semantic orientations in economic texts,” Journal of the Association for Information Science and Technology, vol. 65, 2014.
+
     """
 
     name = "financial_phrasebank"
@@ -36,6 +42,14 @@ class FinancialPhrasebankScenario(Scenario):
     tags = ["finance", "sentiment analysis", "classification"]
 
     def __init__(self, subset: str, random_seed: int = 121):
+        """The initialization of an instance.
+
+        Args:
+            subset: str: This argument is used to specify the ratio of annotators who agreed on the ground truth label. 
+            The value must be one of the strings defined in 
+            SUBSETS = ["sentences_allagree", "sentences_75agree", "sentences_66agree", "sentences_50agree"].
+            random_seed: int = 121: The random seed for sampling the train/test splits.
+        """
         super().__init__()
         assert subset in SUBSETS, "Unknown subset: {}".format(subset)
         self.subset = subset

@@ -51,30 +51,31 @@ def float_equiv(str1: Optional[str], str2: Optional[str], eps: float = 1e-6) -> 
 
 
 class ConvFinQAScenario(Scenario):
-    """
-    TODO: edit the discription
+    """ ConvFinQA Financial Conversations (Numerical Reasoning)
 
-    FiQA-2018 Financial Opinion Mining and Question Answering Task 2: https://sites.google.com/view/fiqa/home
+    Description:
+    ConvFinQA - Exploring the Chain of Numerical Reasoning in Conversational Finance Question Answering.
 
-    The data description from the original site:
-    " Given a corpus of structured and unstructured text documents from different financial data
-    sources in English (microblogs, reports, news) build a Question Answering system that answers
-    natural language questions. For this challenge, part of the questions will be opinionated,
-    targeting mined opinions and their respective entities, aspects, sentiment polarity and
-    opinion holder. "
+    Prompt:
+Passage: Table: 
+{Table}
+Text: 
+Questions:  Question: {Question}? The answer is {Answer} 
+{Question}? The answer is {Answer}
+{Question}? The answer is {Answer}
+{Question}? The answer is 
+Answer:
 
-    The data is organized in the format of question pool and answer pool, and the task is to rank
-    relevant documents from the reference knowledge base with regard to a natural language question.
-    In order to make the problem more tractable, we make it a multi choice question with the correct
-    answer included in the options mixed with other random selected answers.
+    Data source:
+    https://github.com/czyssrs/ConvFinQA
 
-
-    {
-      "question": "What is considered a business expense on a business trip?",
-      "answer": "The IRS Guidance pertaining to the subject.  In general the best I can say is your business expense may be deductible.  But it depends on the circumstances and what it is you want to deduct. Travel Taxpayers who travel away from home on business may deduct related   expenses, including the cost of reaching their destination, the cost   of lodging and meals and other ordinary and necessary expenses.   Taxpayers are considered “traveling away from home” if their duties   require them to be away from home substantially longer than an   ordinary day’s work and they need to sleep or rest to meet the demands   of their work. The actual cost of meals and incidental expenses may be   deducted or the taxpayer may use a standard meal allowance and reduced   record keeping requirements. Regardless of the method used, meal   deductions are generally limited to 50 percent as stated earlier.    Only actual costs for lodging may be claimed as an expense and   receipts must be kept for documentation. Expenses must be reasonable   and appropriate; deductions for extravagant expenses are not   allowable. More information is available in Publication 463, Travel,   Entertainment, Gift, and Car Expenses. Entertainment Expenses for entertaining clients, customers or employees may be   deducted if they are both ordinary and necessary and meet one of the   following tests: Directly-related test: The main purpose of the entertainment activity is the conduct of business, business was actually conducted   during the activity and the taxpayer had more than a general   expectation of getting income or some other specific business benefit   at some future time.   Associated test: The entertainment was associated with the active conduct of the taxpayer’s trade or business and occurred directly   before or after a substantial business discussion. Publication 463 provides more extensive explanation of these tests as   well as other limitations and requirements for deducting entertainment   expenses. Gifts Taxpayers may deduct some or all of the cost of gifts given in the   course of their trade or business. In general, the deduction is   limited to $25 for gifts given directly or indirectly to any one   person during the tax year. More discussion of the rules and   limitations can be found in Publication 463. If your LLC reimburses you for expenses outside of this guidance it should be treated as Income for tax purposes. Edit for Meal Expenses: Amount of standard meal allowance.   The standard meal allowance is   the federal M&IE rate. For travel in 2010, the rate for most small   localities in the United States is $46 a day. Source IRS P463 Alternately you could reimburse at a per diem rate",
-      "meta_info": "step2&3",
-      "answer_idx": "A"
-    }
+    Reference:
+    Zhiyu Chen, Shiyang Li, Charese Smiley, Zhiqiang Ma, Sameena Shah, and William Yang Wang. 2022. 
+    ConvFinQA: Exploring the Chain of Numerical Reasoning in Conversational Finance Question Answering. 
+    In Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing, 
+    pages 6279–6292, Abu Dhabi, United Arab Emirates. Association for Computational Linguistics.
+    https://aclanthology.org/2022.emnlp-main.421
+    
     """  # noqa
 
     """ Information on this class"""

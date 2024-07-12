@@ -10,7 +10,18 @@ from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CO
 
 class SUMOSumScenario(Scenario):
     """
-    Generating Fact Checking Summaries for Web Claims ([paper](https://arxiv.org/abs/2010.08570))
+    Generating Fact Checking Summaries for Web Claims ([paper](https://aclanthology.org/2020.wnut-1.12/))
+
+    Data source:
+    https://github.com/rahulOmishra/SUMO/
+    
+    Reference:
+    Rahul Mishra, Dhruv Gupta, and Markus Leippold. 2020. 
+    Generating Fact Checking Summaries for Web Claims. 
+    In Proceedings of the Sixth Workshop on Noisy User-generated Text (W-NUT 2020), pages 81–90, Online. 
+    Association for Computational Linguistics.
+    https://aclanthology.org/2020.wnut-1.12/
+
     """
 
     TRAIN_RATIO: float = 0.2
