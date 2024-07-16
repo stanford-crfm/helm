@@ -31,3 +31,23 @@ def get_ci_mcqa_spec() -> RunSpec:
         metric_specs=get_exact_match_metric_specs(),
         groups=["CIMCQA"],
     )
+
+
+@run_spec_function("ewok")
+def get_ewok_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.ewok_scenario.EWoKScenario", args={})
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        instructions="Answer with the more plausible target sentence given the context.",
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        input_noun="Context",
+        output_noun="Answer",
+    )
+
+    return RunSpec(
+        name="ewok",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["ewok"],
+    )
