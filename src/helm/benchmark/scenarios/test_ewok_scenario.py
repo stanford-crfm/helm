@@ -8,7 +8,7 @@ from helm.benchmark.scenarios.scenario import CORRECT_TAG
 
 
 # @pytest.mark.scenarios
-def test_legalbench_scenario():
+def test_ewok_scenario():
     scenario = EWoKScenario()
     with TemporaryDirectory() as tmpdir:
         try:
