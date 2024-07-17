@@ -232,3 +232,62 @@ class TestMultipleChoiceJointAdapter(TestAdapter):
             "C. Third\n"
             "Output:"
         )
+
+    def test_reference_prefix(self):
+        adapter_spec = AdapterSpec(
+            method=ADAPT_MULTIPLE_CHOICE_JOINT,
+            model="openai/gpt2",
+            model_deployment="huggingface/gpt2",
+            max_train_instances=10,
+            sample_train=False,
+            reference_prefix="  1: ",
+        )
+        adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
+        train_instances = [
+            Instance(
+                Input(text="Second reference is correct"),
+                references=[
+                    Reference(Output(text="First"), tags=[]),
+                    Reference(Output(text="Second"), tags=[CORRECT_TAG]),
+                    Reference(Output(text="Third"), tags=[]),
+                ],
+                split=TRAIN_SPLIT,
+            ),
+            Instance(
+                Input(text="Third reference is correct"),
+                references=[
+                    Reference(Output(text="First"), tags=[]),
+                    Reference(Output(text="Second"), tags=[]),
+                    Reference(Output(text="Third"), tags=[CORRECT_TAG]),
+                ],
+                split=TRAIN_SPLIT,
+            ),
+        ]
+        eval_instance = Instance(
+            Input(text="First reference is correct"),
+            references=[
+                Reference(Output(text="First"), tags=[CORRECT_TAG]),
+                Reference(Output(text="Second"), tags=[]),
+                Reference(Output(text="Third"), tags=[]),
+            ],
+            split=TEST_SPLIT,
+        )
+        request_states = adapter.adapt(train_instances + [eval_instance], parallelism=1)
+        assert len(request_states) == 1
+        assert request_states[0].request.prompt == (
+            "Input: Second reference is correct\n"
+            "  1: First\n"
+            "  2: Second\n"
+            "  3: Third\n"
+            "Output: 2\n\n"
+            "Input: Third reference is correct\n"
+            "  1: First\n"
+            "  2: Second\n"
+            "  3: Third\n"
+            "Output: 3\n\n"
+            "Input: First reference is correct\n"
+            "  1: First\n"
+            "  2: Second\n"
+            "  3: Third\n"
+            "Output:"
+        )
