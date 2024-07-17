@@ -236,8 +236,8 @@ class TestMultipleChoiceJointAdapter(TestAdapter):
     def test_reference_prefix(self):
         adapter_spec = AdapterSpec(
             method=ADAPT_MULTIPLE_CHOICE_JOINT,
-            model="openai/ada",
-            model_deployment="openai/ada",
+            model="openai/gpt2",
+            model_deployment="huggingface/gpt2",
             max_train_instances=10,
             sample_train=False,
             reference_prefix="  1: ",
