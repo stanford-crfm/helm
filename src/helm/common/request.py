@@ -78,15 +78,15 @@ class Request:
             or (self.messages and self.multimodal_prompt)
             or (self.prompt and self.multimodal_prompt)
         ):
-            raise ValueError("Only one of the variables messages, prompt, multimodal_prompt should be set")
+            raise ValueError("Exactly one of the messages, prompt, multimodal_prompt fields should be set")
 
         if self.multimodal_prompt:
             for media_object in self.multimodal_prompt.media_objects:
                 if media_object.content_type == "text" and media_object.text is None:
-                    raise ValueError("Text content type must have text")
+                    raise ValueError("Media object with text content type must have text set")
 
-                if media_object.content_type != "image" and media_object.location is None:
-                    raise ValueError("image content type must have location")
+                if media_object.content_type == "image" and media_object.location is None:
+                    raise ValueError("Media object with image content type must have location set")
 
     @property
     def model_host(self) -> str:

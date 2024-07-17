@@ -284,7 +284,8 @@ class AnthropicMessagesClient(CachingClient):
                         resize_image_to_max_file_size,
                     )
 
-                    image_location: Optional[str] = media_object.location
+                    assert media_object.location
+                    image_location: str = media_object.location
                     base64_image: str
 
                     image_width, image_height = get_dimensions(media_object.location)
@@ -334,6 +335,7 @@ class AnthropicMessagesClient(CachingClient):
                     }
                     blocks.append(image_block)
                 if media_object.is_type(TEXT_TYPE):
+                    assert media_object.text
                     text_block: TextBlockParam = {
                         "type": "text",
                         "text": media_object.text,
