@@ -6,4 +6,5 @@ export default interface HeaderValue {
   metadata: {
     [key: string]: unknown;
   };
+  name?: string;
 }

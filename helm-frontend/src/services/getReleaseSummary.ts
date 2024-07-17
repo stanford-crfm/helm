@@ -13,7 +13,9 @@ export default async function getReleaseSummary(
 
     return (await summary.json()) as ReleaseSummary;
   } catch (error) {
-    console.log(error);
+    if (error.name !== "AbortError") {
+      console.log(error);
+    }
     return {
       release: undefined,
       suites: undefined,
