@@ -11,7 +11,7 @@ from helm.common.tokenization_request import (
 from helm.tokenizers.caching_tokenizer import CachingTokenizer
 
 
-class CohereTokenizer(CachingTokenizer):
+class CohereLocalTokenizer(CachingTokenizer):
     """Cohere tokenizer using the Cohere Python library."""
 
     def __init__(self, api_key: Optional[str], cache_config: CacheConfig) -> None:
