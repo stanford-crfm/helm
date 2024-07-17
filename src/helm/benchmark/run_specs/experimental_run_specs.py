@@ -2,6 +2,7 @@
 
 These run specs are not intended for use with public leaderboards."""
 
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_MULTIPLE_CHOICE_JOINT
 from helm.benchmark.adaptation.common_adapter_specs import get_multiple_choice_adapter_spec
 from helm.benchmark.metrics.common_metric_specs import get_exact_match_metric_specs
@@ -37,11 +38,39 @@ def get_ci_mcqa_spec() -> RunSpec:
 def get_ewok_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.ewok_scenario.EWoKScenario", args={})
 
-    adapter_spec = get_multiple_choice_adapter_spec(
-        instructions="Answer with the more plausible target sentence given the context.",
+    instructions = """# INSTRUCTIONS
+
+In this study, you will see multiple examples. In each example, you will be given two contexts and a scenario. Your task is to read the two contexts and the subsequent scenario, and pick the context that makes more sense considering the scenario that follows. The contexts will be numbered "1" or "2". You must answer using "1" or "2" in your response.
+"""
+    input_prefix = """# TEST EXAMPLE
+
+## Scenario
+\""""
+    input_suffix = """\"
+
+## Contexts
+"""
+    output_prefix = """
+## Task
+Which context makes more sense given the scenario? Please answer using either "1" or "2".
+
+## Response
+"""
+
+    adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        input_noun="Context",
-        output_noun="Answer",
+        instructions=instructions,
+        input_prefix=input_prefix,
+        input_suffix=input_suffix,
+        reference_prefix = "1. \"",
+        reference_suffix = "\"\n",
+        output_prefix=output_prefix,
+        output_suffix="\n",
+        num_outputs=1,
+        max_tokens=1,
+        temperature=0.0,
+        stop_sequences=["\n"],
+        sample_train=True,
     )
 
     return RunSpec(

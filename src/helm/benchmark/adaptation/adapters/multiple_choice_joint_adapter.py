@@ -43,14 +43,16 @@ class MultipleChoiceJointAdapter(InContextLearningAdapter):
         """
         Example: prefix = "\nA. ", i = 2, return "\nC. "
         """
-        return prefix.replace("A", chr(ord("A") + i))
+        prefix_char = prefix[0]
+        return prefix.replace(prefix_char, chr(ord(prefix_char) + i))
 
     def generate_requests(
         self, eval_instance: Instance, train_trial_index: int, training_instances: List[Instance]
     ) -> List[RequestState]:
+        prefix_char = self.adapter_spec.reference_prefix[0]
         prompt = self.construct_prompt(training_instances, eval_instance, include_output=False, reference_index=None)
         output_mapping: Dict[str, str] = dict(
-            (self.get_reference_prefix("A", reference_index), reference.output.text)
+            (self.get_reference_prefix(prefix_char, reference_index), reference.output.text)
             for reference_index, reference in enumerate(eval_instance.references)
         )
         request = Request(
@@ -85,20 +87,21 @@ class MultipleChoiceJointAdapter(InContextLearningAdapter):
         # Include the references
         delimiter = ", "
         no_correct_references = "n/a"
+        prefix_char = self.adapter_spec.reference_prefix[0]
         output = no_correct_references
         for reference_index, reference in enumerate(instance.references):
             prefix = self.get_reference_prefix(self.adapter_spec.reference_prefix, reference_index)
             result += prefix + reference.output.text + self.adapter_spec.reference_suffix
             if reference.is_correct:
                 if output == no_correct_references:
-                    output = self.get_reference_prefix("A", reference_index)
+                    output = self.get_reference_prefix(prefix_char, reference_index)
                 elif self.adapter_spec.multi_label:
                     output += delimiter
-                    output += self.get_reference_prefix("A", reference_index)
+                    output += self.get_reference_prefix(prefix_char, reference_index)
 
         if include_output:
             result += self.adapter_spec.output_prefix + output + self.adapter_spec.output_suffix
         else:
-            result += self.adapter_spec.output_prefix.rstrip()
+            result += self.adapter_spec.output_prefix
 
         return result
