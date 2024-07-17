@@ -2749,7 +2749,7 @@ models:
     num_parameters: 30000000000
     release_date: 2023-02-16
     # Does not support echo
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: writer/palmyra-e
     display_name: Palmyra E (30B)
@@ -2759,7 +2759,7 @@ models:
     num_parameters: 30000000000
     release_date: 2023-03-03
     # Does not support echo
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: writer/silk-road
     display_name: Silk Road (35B)

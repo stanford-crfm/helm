@@ -2104,22 +2104,6 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.palmyra_client.PalmyraClient"
 
-  - name: writer/palmyra-instruct-30
-    model_name: writer/palmyra-instruct-30
-    tokenizer_name: writer/gpt2
-    max_sequence_length: 2048
-    max_sequence_and_generated_tokens_length: 2048
-    client_spec:
-      class_name: "helm.clients.palmyra_client.PalmyraClient"
-
-  - name: writer/palmyra-e
-    model_name: writer/palmyra-e
-    tokenizer_name: writer/gpt2
-    max_sequence_length: 2048
-    max_sequence_and_generated_tokens_length: 2048
-    client_spec:
-      class_name: "helm.clients.palmyra_client.PalmyraClient"
-
   - name: writer/silk-road
     model_name: writer/silk-road
     tokenizer_name: writer/gpt2
