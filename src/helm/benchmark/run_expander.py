@@ -343,16 +343,6 @@ class AnthropicClaude3RunExpander(RunExpander):
             run_spec,
             adapter_spec=replace(run_spec.adapter_spec, stop_sequences=stop_sequences_with_non_whitespace),
         )
-        if run_spec.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
-            instructions = "Answer with only a single letter."
-            if run_spec.adapter_spec.instructions:
-                instructions = f"{instructions}\n\n{run_spec.adapter_spec.instructions}"
-            return [
-                replace(
-                    run_spec,
-                    adapter_spec=replace(run_spec.adapter_spec, instructions=instructions),
-                ),
-            ]
         return [run_spec]
 
 
