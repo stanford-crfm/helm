@@ -101,12 +101,6 @@ tokenizer_configs:
     prefix_token: ""
 
   # Cohere
-  - name: cohere/cohere
-    tokenizer_spec:
-      class_name: "helm.tokenizers.cohere_tokenizer.CohereTokenizer"
-    end_of_text_token: ""
-    prefix_token: ":"
-
   - name: cohere/command
     tokenizer_spec:
       class_name: "helm.tokenizers.cohere_tokenizer.CohereLocalTokenizer"
