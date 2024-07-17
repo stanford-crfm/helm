@@ -84,7 +84,7 @@ class AzureLlama3Client(CachingClient):
         try:
             def do_it() -> Dict[str, Any]:
                 response = urllib.request.urlopen(req)
-                response_data = json.loads(response.read())
+                response_data = json.loads(response.read().decode('utf-8')) # Ensure UTF-8 decoding (to fix encoding errors in prediction output)
                 return response_data
 
             if self.do_cache:
