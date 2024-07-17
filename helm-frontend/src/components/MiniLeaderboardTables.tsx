@@ -101,101 +101,90 @@ export default function MiniLeaderboardTables({
     return numRowsToDisplay > 0 ? rows.slice(0, numRowsToDisplay) : rows;
   };
 
-  // Add extra divs to align GitHub diff
   return (
-    <div>
-      <div>
-        <div
-          className="rounded-2xl overflow-hidden border-2 bg-white p-1 mx-2 my-0 overflow-x-auto"
-          style={{ overflow: "auto", justifyContent: "space-between" }}
-        >
-          <table className="table w-full">
-            <thead>
-              <tr>
-                {groupTable.header
-                  .filter(
-                    (_, cellIdx) =>
-                      displayColumnIndexes.length === 0 ||
-                      displayColumnIndexes.includes(cellIdx),
-                  )
-                  .map((headerValue, idx) => (
-                    <th
-                      key={`${idx}`}
-                      className={`${
-                        idx === sortColumnIndex ? "bg-gray-100" : ""
-                      } ${
-                        headerValue.description
-                          ? "underline decoration-dashed"
+    <div
+      className="rounded-2xl overflow-hidden border-2 bg-white p-1 mx-2 my-0 overflow-x-auto"
+      style={{ overflow: "auto", justifyContent: "space-between" }}
+    >
+      <table className="table w-full">
+        <thead>
+          <tr>
+            {groupTable.header
+              .filter(
+                (_, cellIdx) =>
+                  displayColumnIndexes.length === 0 ||
+                  displayColumnIndexes.includes(cellIdx),
+              )
+              .map((headerValue, idx) => (
+                <th
+                  key={`${idx}`}
+                  className={`${idx === sortColumnIndex ? "bg-gray-100" : ""} ${
+                    headerValue.description ? "underline decoration-dashed" : ""
+                  } whitespace-nowrap px-4 `}
+                  title={headerValue.description ? headerValue.description : ""}
+                >
+                  <div className="flex gap-2 items-center">
+                    <span>{getHeaderValue(headerValue)}</span>
+                  </div>
+                </th>
+              ))}
+          </tr>
+        </thead>
+        <tbody>
+          {getSortedRows().map((row, idx) => (
+            <tr
+              key={`${idx}`}
+              className={`${idx % 2 === 0 ? "bg-gray-50" : ""}`}
+            >
+              {row
+                .filter(
+                  (_, cellIdx) =>
+                    displayColumnIndexes.length === 0 ||
+                    displayColumnIndexes.includes(cellIdx),
+                )
+                .map((rowValue, cellIdx) => (
+                  <td
+                    key={`${cellIdx}`}
+                    className={`${cellIdx === 0 ? "text-lg" : ""}`}
+                  >
+                    <div
+                      className={
+                        rowValue &&
+                        rowValue.style &&
+                        rowValue.style["font-weight"] &&
+                        rowValue.style["font-weight"] === "bold"
+                          ? "font-bold"
                           : ""
-                      } whitespace-nowrap px-4 `}
-                      title={
-                        headerValue.description ? headerValue.description : ""
                       }
                     >
-                      <div className="flex gap-2 items-center">
-                        <span>{getHeaderValue(headerValue)}</span>
-                      </div>
-                    </th>
-                  ))}
-              </tr>
-            </thead>
-            <tbody>
-              {getSortedRows().map((row, idx) => (
-                <tr
-                  key={`${idx}`}
-                  className={`${idx % 2 === 0 ? "bg-gray-50" : ""}`}
-                >
-                  {row
-                    .filter(
-                      (_, cellIdx) =>
-                        displayColumnIndexes.length === 0 ||
-                        displayColumnIndexes.includes(cellIdx),
-                    )
-                    .map((rowValue, cellIdx) => (
-                      <td
-                        key={`${cellIdx}`}
-                        className={`${cellIdx === 0 ? "text-lg" : ""}`}
-                      >
-                        <div
-                          className={
-                            rowValue &&
-                            rowValue.style &&
-                            rowValue.style["font-weight"] &&
-                            rowValue.style["font-weight"] === "bold"
-                              ? "font-bold"
-                              : ""
-                          }
-                        >
-                          {cellIdx === 0 ? (
-                            <RowValue
-                              value={{
-                                ...rowValue,
-                              }}
-                              title={getModelDesc(String(row[0].value))}
-                              hideIcon
-                            />
-                          ) : (
-                            <RowValue
-                              value={{
-                                ...rowValue,
-                                href:
-                                  "/runs/?q=" +
-                                  getModelForRunName(String(row[0].value)),
-                              }}
-                              title={`Click value to see all predictions for: ${getModelForRunName(
-                                String(row[0].value),
-                              )}`}
-                            />
-                          )}
-                        </div>
-                      </td>
-                    ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                      {cellIdx === 0 ? (
+                        <RowValue
+                          value={{
+                            ...rowValue,
+                          }}
+                          title={getModelDesc(String(row[0].value))}
+                          hideIcon
+                        />
+                      ) : (
+                        <RowValue
+                          value={{
+                            ...rowValue,
+                            href:
+                              "/runs/?q=" +
+                              getModelForRunName(String(row[0].value)),
+                          }}
+                          title={`Click value to see all predictions for: ${getModelForRunName(
+                            String(row[0].value),
+                          )}`}
+                        />
+                      )}
+                    </div>
+                  </td>
+                ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
