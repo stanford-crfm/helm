@@ -41,7 +41,7 @@ def get_ewok_spec() -> RunSpec:
     instructions = """# INSTRUCTIONS
 
 In this study, you will see multiple examples. In each example, you will be given two contexts and a scenario. Your task is to read the two contexts and the subsequent scenario, and pick the context that makes more sense considering the scenario that follows. The contexts will be numbered "1" or "2". You must answer using "1" or "2" in your response.
-"""
+"""  # noqa: E501
     input_prefix = """# TEST EXAMPLE
 
 ## Scenario
@@ -62,8 +62,8 @@ Which context makes more sense given the scenario? Please answer using either "1
         instructions=instructions,
         input_prefix=input_prefix,
         input_suffix=input_suffix,
-        reference_prefix = "1. \"",
-        reference_suffix = "\"\n",
+        reference_prefix='1. "',
+        reference_suffix='"\n',
         output_prefix=output_prefix,
         output_suffix="\n",
         num_outputs=1,

@@ -35,21 +35,25 @@ class MultipleChoiceJointAdapter(InContextLearningAdapter):
 
     In general, each example is:
 
-        <input_prefix><input><reference_prefixes[0]><reference><output_prefix><output>
+        <input_prefix><input><reference_prefixes[index]><reference><output_prefix><output>
     """
+
+    @staticmethod
+    def get_prefix_char(prefix: str) -> str:
+        return prefix.lstrip()[0]
 
     @staticmethod
     def get_reference_prefix(prefix: str, i: int) -> str:
         """
         Example: prefix = "\nA. ", i = 2, return "\nC. "
         """
-        prefix_char = prefix[0]
+        prefix_char = MultipleChoiceJointAdapter.get_prefix_char(prefix)
         return prefix.replace(prefix_char, chr(ord(prefix_char) + i))
 
     def generate_requests(
         self, eval_instance: Instance, train_trial_index: int, training_instances: List[Instance]
     ) -> List[RequestState]:
-        prefix_char = self.adapter_spec.reference_prefix[0]
+        prefix_char = MultipleChoiceJointAdapter.get_prefix_char(self.adapter_spec.reference_prefix)
         prompt = self.construct_prompt(training_instances, eval_instance, include_output=False, reference_index=None)
         output_mapping: Dict[str, str] = dict(
             (self.get_reference_prefix(prefix_char, reference_index), reference.output.text)
@@ -87,7 +91,7 @@ class MultipleChoiceJointAdapter(InContextLearningAdapter):
         # Include the references
         delimiter = ", "
         no_correct_references = "n/a"
-        prefix_char = self.adapter_spec.reference_prefix[0]
+        prefix_char = MultipleChoiceJointAdapter.get_prefix_char(self.adapter_spec.reference_prefix)
         output = no_correct_references
         for reference_index, reference in enumerate(instance.references):
             prefix = self.get_reference_prefix(self.adapter_spec.reference_prefix, reference_index)
