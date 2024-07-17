@@ -2,6 +2,7 @@ import InstructLanding from "@/components/Landing/InstructLanding";
 import LiteLanding from "@/components/Landing/LiteLanding";
 import MMLULanding from "@/components/Landing/MMLULanding";
 import AIRBenchLanding from "@/components/Landing/AIRBenchLanding";
+import ThaiExamLanding from "@/components/Landing/ThaiExamLanding";
 import HEIMLanding from "@/components/Landing/HEIMLanding";
 import VHELMLanding from "@/components/VHELMLanding";
 import HomeLanding from "@/components/Landing/HomeLanding";
@@ -23,6 +24,8 @@ export default function Home() {
     return <VHELMLanding />;
   } else if (window.PROJECT_ID === "air-bench") {
     return <AIRBenchLanding />;
+  } else if (window.PROJECT_ID === "thaiexam") {
+    return <ThaiExamLanding />;
   } else if (window.PROJECT_ID === "home") {
     return <HomeLanding />;
   } else {

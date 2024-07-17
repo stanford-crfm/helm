@@ -97,6 +97,13 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
 
+  - name: ai21/jamba-instruct
+    model_name: ai21/jamba-instruct
+    tokenizer_name: ai21/jamba-instruct-tokenizer
+    max_sequence_length: 256000
+    client_spec:
+      class_name: "helm.clients.ai21_client.AI21ChatClient"
+
   # Aleph Alpha
   - name: AlephAlpha/luminous-base
     model_name: AlephAlpha/luminous-base
@@ -211,6 +218,13 @@ model_deployments:
 
   - name: anthropic/claude-3-opus-20240229
     model_name: anthropic/claude-3-opus-20240229
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.anthropic_client.AnthropicMessagesClient"
+
+  - name: anthropic/claude-3-5-sonnet-20240620
+    model_name: anthropic/claude-3-5-sonnet-20240620
     tokenizer_name: anthropic/claude
     max_sequence_length: 200000
     client_spec:
@@ -807,6 +821,47 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
 
+  ## Google
+  - name: huggingface/gemma-2-9b
+    model_name: google/gemma-2-9b
+    tokenizer_name: google/gemma-2-9b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/gemma-2-9b-it
+    model_name: google/gemma-2-9b-it
+    tokenizer_name: google/gemma-2-9b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/gemma-2-27b
+    model_name: google/gemma-2-27b
+    tokenizer_name: google/gemma-2-9b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/gemma-2-27b-it
+    model_name: google/gemma-2-27b-it
+    tokenizer_name: google/gemma-2-9b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
   ## LMSYS
   - name: huggingface/vicuna-7b-v1.3
     model_name: lmsys/vicuna-7b-v1.3
@@ -992,42 +1047,134 @@ model_deployments:
       args:
         pretrained_model_name_or_path: openai-community/gpt2
 
+  ## OpenThaiGPT
+  - name: huggingface/openthaigpt-1.0.0-7b-chat
+    model_name: openthaigpt/openthaigpt-1.0.0-7b-chat
+    tokenizer_name: openthaigpt/openthaigpt-1.0.0-7b-chat
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/openthaigpt-1.0.0-13b-chat
+    model_name: openthaigpt/openthaigpt-1.0.0-13b-chat
+    tokenizer_name: openthaigpt/openthaigpt-1.0.0-7b-chat
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+
+  - name: huggingface/openthaigpt-1.0.0-70b-chat
+    model_name: openthaigpt/openthaigpt-1.0.0-70b-chat
+    tokenizer_name: huggingface/openthaigpt-1.0.0-7b-chat
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+
   ## SAIL (SEA AI Lab)
-  - name: sail/sailor-7b
+  - name: huggingface/sailor-7b
     model_name: sail/sailor-7b
     tokenizer_name: qwen/qwen1.5-7b
     max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
 
-  - name: sail/sailor-7b-chat
+  - name: huggingface/sailor-7b-chat
     model_name: sail/sailor-7b-chat
     tokenizer_name: qwen/qwen1.5-7b
     max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
 
-  - name: sail/sailor-14b
+  - name: huggingface/sailor-14b
     model_name: sail/sailor-14b
     tokenizer_name: qwen/qwen1.5-7b
     max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
 
-  - name: sail/sailor-14b-chat
+  - name: huggingface/sailor-14b-chat
     model_name: sail/sailor-14b-chat
     tokenizer_name: qwen/qwen1.5-7b
     max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+
+  # SambaNova
+  - name: huggingface/sambalingo-thai-base
+    model_name: sambanova/sambalingo-thai-base
+    tokenizer_name: sambanova/sambalingo-thai-base
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: sambanovasystems/SambaLingo-Thai-Base
+
+  - name: huggingface/sambalingo-thai-chat
+    model_name: sambanova/sambalingo-thai-chat
+    tokenizer_name: sambanova/sambalingo-thai-base
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: sambanovasystems/SambaLingo-Thai-Base
+
+  - name: huggingface/sambalingo-thai-base-70b
+    model_name: sambanova/sambalingo-thai-base-70b
+    tokenizer_name: sambanova/sambalingo-thai-base
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: sambanovasystems/SambaLingo-Thai-Base-70B
+        device_map: auto
+
+  - name: huggingface/sambalingo-thai-chat-70b
+    model_name: sambanova/sambalingo-thai-chat-70b
+    tokenizer_name: sambanova/sambalingo-thai-base
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: sambanovasystems/SambaLingo-Thai-Base-70B
+        device_map: auto
 
   ## SCB10X
+  - name: huggingface/typhoon-7b
+    model_name: scb10x/typhoon-7b
+    tokenizer_name: scb10x/typhoon-7b
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/typhoon-v1.5-8b
+    model_name: scb10x/typhoon-v1.5-8b
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/typhoon-v1.5-8b-instruct
+    model_name: scb10x/typhoon-v1.5-8b-instruct
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
   - name: huggingface/typhoon-v1.5-72b
     model_name: scb10x/typhoon-v1.5-72b
     tokenizer_name: qwen/qwen1.5-7b
     max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
 
   - name: huggingface/typhoon-v1.5-72b-instruct
     model_name: scb10x/typhoon-v1.5-72b-instruct
@@ -1035,6 +1182,43 @@ model_deployments:
     max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+
+  - name: huggingface/llama-3-typhoon-v1.5x-8b-instruct
+    model_name: scb10x/llama-3-typhoon-v1.5x-8b-instruct
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/llama-3-typhoon-v1.5x-70b-instruct
+    model_name: scb10x/llama-3-typhoon-v1.5x-70b-instruct
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+
+  # Alibaba DAMO Academy
+  - name: huggingface/seallm-7b-v2
+    model_name: damo/seallm-7b-v2
+    tokenizer_name: damo/seallm-7b-v2
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: SeaLLMs/SeaLLM-7B-v2
+
+  - name: huggingface/seallm-7b-v2.5
+    model_name: damo/seallm-7b-v2.5
+    tokenizer_name: damo/seallm-7b-v2.5
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: SeaLLMs/SeaLLM-7B-v2.5
 
   ## StabilityAI
   - name: huggingface/stablelm-base-alpha-3b
@@ -1884,7 +2068,7 @@ model_deployments:
       class_name: "helm.clients.together_client.TogetherChatClient"
       args:
         together_model: meta-llama/Llama-3-70b-chat-hf
-
+        
   - name: together/llama-guard-7b
     model_name: meta/llama-guard-7b
     tokenizer_name: meta-llama/Llama-2-7b-hf

@@ -66,16 +66,17 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
+
       # Installs dependencies and performs static code checks
-      - run: python3 -m pip install virtualenv && python3 -m virtualenv -p python3 venv
-      - run: source venv/bin/activate && ./install-dev.sh
-      - run: source venv/bin/activate && ./pre-commit.sh
+      - run: pip install --upgrade pip
+      - run: ./install-dev.sh
+      - run: ./pre-commit.sh
       - name: Run tests
-        run: source venv/bin/activate && pytest --durations=20
+        run: pytest --durations=20
         env:
           TEST: ${{ matrix.test }}
           VERSION: ${{ github.head_ref || 'main' }}
       - name: Run entire pipeline quickly without any data
         # Checking RunSpecs with openai/davinci should be comprehensive enough
-        run: source venv/bin/activate && helm-run --suite test -m 100 --skip-instances --models-to-run openai/davinci --exit-on-error
+        run: helm-run --suite test -m 100 --skip-instances --models-to-run openai/davinci --exit-on-error
         
