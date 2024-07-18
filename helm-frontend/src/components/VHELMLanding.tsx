@@ -56,7 +56,7 @@ export default function VHELMLanding() {
           />
         </div>
         <div className="flex-1">
-          <MiniLeaderboard numModelsToAutoFilter={10} />
+          <MiniLeaderboard />
           <Link
             to="leaderboard"
             className="px-4 mx-3 mt-1 btn bg-white rounded-md"
