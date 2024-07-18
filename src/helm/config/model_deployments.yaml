@@ -887,7 +887,6 @@ model_deployments:
       args:
         device_map: auto
         torch_dtype: auto
-        trust_remote_code: true
       
   ## Mistral AI
   - name: huggingface/bakLlava-v1-hf

@@ -349,14 +349,16 @@ tokenizer_configs:
 
   - name: microsoft/phi-3-small-8k-instruct
     tokenizer_spec:  
-      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"  
-    end_of_text_token: "<|endoftext|>"  
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        trust_remote_code: true
+    end_of_text_token: "<|endoftext|>"
     prefix_token: "<|endoftext|>"
 
   - name: microsoft/phi-3-medium-4k-instruct
     tokenizer_spec:  
-      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"  
-    end_of_text_token: "<|endoftext|>"  
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|endoftext|>"
     prefix_token: "<s>"
 
   # Mistralai
