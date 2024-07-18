@@ -875,6 +875,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
+        torch_dtype: auto
         trust_remote_code: true
 
   - name: huggingface/phi-3-medium-4k-instruct
@@ -884,8 +885,9 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
-        trust_remote_code: true
         device_map: auto
+        torch_dtype: auto
+        trust_remote_code: true
       
   ## Mistral AI
   - name: huggingface/bakLlava-v1-hf
