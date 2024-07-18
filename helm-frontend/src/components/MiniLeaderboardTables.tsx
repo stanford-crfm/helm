@@ -75,7 +75,7 @@ export default function MiniLeaderboardTables({
 
   const getSortedRows = (): RowValueType[][] => {
     const lowerIsBetter = groupTable.header[sortColumnIndex].lower_is_better;
-    let sortSign = lowerIsBetter ? 1 : -1;
+    const sortSign = lowerIsBetter ? 1 : -1;
     const rows = groupTable.rows.slice();
     rows.sort((a, b) => {
       const av = a[sortColumnIndex]?.value;
