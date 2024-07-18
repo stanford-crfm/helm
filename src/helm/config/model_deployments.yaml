@@ -881,7 +881,7 @@ model_deployments:
   - name: huggingface/phi-3-medium-4k-instruct
     model_name: microsoft/phi-3-medium-4k-instruct
     tokenizer_name: microsoft/phi-3-medium-4k-instruct
-    max_sequence_length: 8192
+    max_sequence_length: 4096
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
