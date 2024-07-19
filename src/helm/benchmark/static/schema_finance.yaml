@@ -73,6 +73,10 @@ metrics:
     display_name: Execution Accuracy
     description: Accuracy of the final result of the generated program
     lower_is_better: false
+  - name: annotation_financebench_label_correct_answer
+    display_name: Correct Answer
+    description: Whether the final result was correct, as judged by a GPT-4o
+    lower_is_better: false
 
 ############################################################
 perturbations: []
@@ -114,6 +118,7 @@ run_groups:
     category: All scenarios
     subgroups:
       - fin_qa
+      - financebench
 
   - name: fin_qa
     display_name: FinQA
@@ -140,7 +145,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: exact_match
+      main_name: annotation_financebench_label_correct_answer
       main_split: test
     taxonomy:
       task: question answering with numeric reasoning

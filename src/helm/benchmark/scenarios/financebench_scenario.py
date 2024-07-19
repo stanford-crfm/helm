@@ -29,7 +29,7 @@ class FinanceBenchScenario(Scenario):
         ensure_directory_exists(cache_dir)
         target_path = os.path.join(cache_dir, "financebench_open_source.jsonl")
         url: str = (
-            f"https://raw.githubusercontent.com/patronus-ai/financebench/d7beebe5e739e0b806ab4443c1b3e23f51804acf/data/financebench_open_source.jsonl"  # noqa: E501
+            "https://raw.githubusercontent.com/patronus-ai/financebench/d7beebe5e739e0b806ab4443c1b3e23f51804acf/data/financebench_open_source.jsonl"  # noqa: E501
         )
         ensure_file_downloaded(source_url=url, target_path=target_path)
 
@@ -46,6 +46,7 @@ class FinanceBenchScenario(Scenario):
                 references = [Reference(output=Output(text=answer), tags=[CORRECT_TAG])]
                 instance = Instance(id=instance_id, input=input, references=references, split=TEST_SPLIT)
                 instances.append(instance)
+        random.seed(0)
         train_indexes = random.sample(list(range(len(instances))), k=10)
         for train_index in train_indexes:
             instances[train_index] = dataclasses.replace(instances[train_index], split=TRAIN_SPLIT)

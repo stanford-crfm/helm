@@ -1,11 +1,8 @@
-import datasets
-import os
-import re
 import json
+from json.decoder import JSONDecodeError
 from typing import Any
 
 from helm.benchmark.scenarios.scenario import CORRECT_TAG
-from helm.common.general import ensure_directory_exists
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
 from helm.clients.auto_client import AutoClient
@@ -16,7 +13,9 @@ class FinanceBenchAnnotator(Annotator):
     """FinanceBenchAnnotator."""
 
     name = "financebench"
-    _PROMPT_TEMPLATE = """Classify the model's response as one of three categories: "correct_answer", "incorrect_answer", or "failure_to_answer".
+    _PROMPT_TEMPLATE = """Classify the model's response as one of three categories: "correct_answer", "incorrect_answer", or "failure_to_answer". Additionally, provide a short, one-sentence explanation for your classification.
+
+Categories:
 
 correct_answer: Allow minor deviations, such as giving the answer in billions when the unit was given in the question as millions.
 
@@ -24,37 +23,29 @@ incorrect_answer: This includes calculations that are off by small margins to se
 
 failure_to_answer: If the model explicitly states that it cannot answer because it does not have access to the right information then it is a failure to answer.
 
-Additionally, provide a short, one-sentence explanation for your classification. Respond in the following JSON format (do not use Markdown):
-
-{"explanation": "<one sentence explanation>", "label": "<classification>"}
-
 Question: {{QUESTION}}
 
 Gold answer: {{GOLD_ANSWER}}
 
-Model response: {{MODEL_RESPONSE}}"""
+Model's response: {{MODEL_RESPONSE}}
+
+Respond with only a raw JSON object in the following format, without using Markdown formatting:
+
+{"explanation": "<one sentence explanation>", "label": "<category>"}
+"""  # noqa: E501
 
     def __init__(self, auto_client: AutoClient, file_storage_path: str):
         super().__init__()
         self._auto_client = auto_client
-        # cache_dir = os.path.join(file_storage_path, "data")
-        # ensure_directory_exists(cache_dir)
-        # dataset = datasets.load_dataset(
-        #     "stanford-crfm/air-bench-2024", "judge_prompts", split="test", cache_dir=cache_dir
-        # )
-        # self._category_id_to_judge_prompt = {row["cate-idx"]: row["judge_prompt"] for row in dataset}
-        # # Regex pattern is lenient to allow for typos e.g. extra whitespace
-        # self._pattern = re.compile("##\s*short_reasoning\s*:(.*)##\s*the_score\s*:(.*)", re.DOTALL)
 
     def annotate(self, request_state: RequestState) -> Any:
-
         assert request_state.result
         assert len(request_state.result.completions) == 1
         assert len(request_state.instance.references[0].tags) == 1
         assert request_state.instance.references[0].tags[0] == CORRECT_TAG
-        question = request_state.instance.input.text
-        gold_answer = request_state.instance.references[0].output.text
-        model_response = request_state.result.completions[0].text
+        question = request_state.instance.input.text.split("\nQuestion: ")[-1].strip()
+        gold_answer = request_state.instance.references[0].output.text.strip()
+        model_response = request_state.result.completions[0].text.strip()
         if not model_response.strip():
             return {"reasoning": "BLOCKED_REQUEST_OR_EMPTY_RESPONSE", "label": "failure_to_answer"}
         annotator_prompt = (
@@ -74,8 +65,15 @@ Model response: {{MODEL_RESPONSE}}"""
             raise Exception(f"Annotation request failed: {annotator_response.error}")
         assert len(annotator_response.completions) == 1
         annotator_response_text = annotator_response.completions[0].text
+        # OpenAI models like to surround JSON objects with ```json and ``` Markdown formatting.
+        # This strips everything outside the outermost {} brackets.
+        json_start_index = annotator_response_text.find("{")
+        json_end_index = annotator_response_text.rfind("}")
+        if json_start_index < 0 or json_end_index < 0:
+            raise Exception(f"Malformed annotator response: {annotator_response_text}")
+        annotator_response_json = annotator_response_text[json_start_index : json_end_index + 1]
         try:
-            annotator_response_parsed = json.loads(annotator_response_text)
-        except:
+            annotator_response_parsed = json.loads(annotator_response_json)
+        except JSONDecodeError:
             raise Exception(f"Malformed annotator response: {annotator_response_text}")
         return annotator_response_parsed
