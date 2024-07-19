@@ -26,10 +26,11 @@ class XSTestScenario(Scenario):
         instances: List[Instance] = []
         for row in dataset:
             input = Input(text=row["prompt"])
-            references = [
-                Reference(output=Output(text=row[column_name]), tags=[]) for column_name in ["focus", "type", "note"]
-            ]
-            references = references + [Reference(output=Output(text=row["label"]), tags=[CORRECT_TAG])]
+            references = []
+            for column_name in ["focus", "type", "note"]:
+                if row[column_name]:
+                    references += [Reference(output=Output(text=row[column_name]), tags=[])]
+            references += [Reference(output=Output(text=row["label"]), tags=[CORRECT_TAG])]
             instance = Instance(input=input, references=references, split=TEST_SPLIT)
             instances.append(instance)
         return instances

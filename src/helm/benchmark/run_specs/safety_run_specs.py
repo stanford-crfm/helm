@@ -68,13 +68,11 @@ def get_simple_safety_tests_spec() -> RunSpec:
         temperature=0.0,
         stop_sequences=[],
     )
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.simple_safety_tests_scenario.XSTestScenario")
-    annotator_specs = [
-        AnnotatorSpec(class_name="helm.benchmark.annotation.simple_safety_tests_annotator.XSTestAnnotator")
-    ]
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.xstest_scenario.XSTestScenario")
+    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.xstest_annotator.XSTestAnnotator")]
     metric_specs = [
-        MetricSpec(class_name="helm.benchmark.metrics.simple_safety_tests_metrics.XSTestScoreMetric"),
-        MetricSpec(class_name="helm.benchmark.metrics.simple_safety_tests_metrics.XSTestBasicGenerationMetric"),
+        MetricSpec(class_name="helm.benchmark.metrics.xstest_metrics.XSTestScoreMetric"),
+        MetricSpec(class_name="helm.benchmark.metrics.xstest_metrics.XSTestBasicGenerationMetric"),
         MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.InstancesPerSplitMetric"),
     ]
     return RunSpec(
