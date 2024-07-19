@@ -139,7 +139,7 @@ run_groups:
 
   - name: financebench
     display_name: FinanceBench
-    description: FinanceBench
+    description: FinanceBench is a benchmark for open book financial question answering. It comprises 10,231 questions about publicly traded companies, with corresponding answers and evidence strings
     metric_groups:
       - accuracy
       - efficiency
@@ -151,7 +151,7 @@ run_groups:
       task: question answering with numeric reasoning
       what: financial reports
       who: financial experts
-      when: 1999 to 2019
+      when: 2015 to 2023
       language: English
 
   - name: financial_scenarios_ablations

@@ -10,7 +10,7 @@ from helm.common.request import Request
 
 
 class FinanceBenchAnnotator(Annotator):
-    """FinanceBenchAnnotator."""
+    """Annoator for FinanceBench that uses GPT-4o to determine if the model response is correct."""
 
     name = "financebench"
     _PROMPT_TEMPLATE = """Classify the model's response as one of three categories: "correct_answer", "incorrect_answer", or "failure_to_answer". Additionally, provide a short, one-sentence explanation for your classification.
