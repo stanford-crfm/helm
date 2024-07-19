@@ -1438,6 +1438,11 @@ class OutputFormatInstructions(RunExpander):
                 instructions = (
                     "Answer with only the classification of the last statement, either 'refuted' or 'entailed'."
                 )
+            elif self.scenario == "wikitq":
+                instructions = (
+                    "Answer only the last question with a short answer. "
+                    "Avoid extra, unnecessary information in the answer."
+                )
             else:
                 raise ValueError(f"Unknown scenario {self.scenario}")
 
