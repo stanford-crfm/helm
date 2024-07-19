@@ -1434,13 +1434,12 @@ class OutputFormatInstructions(RunExpander):
                 instructions = "Answer with the English translation."
             elif self.scenario == "math":
                 instructions = "Wrap the final answer with the \\boxed{} command."
+            elif self.scenario == "tab_fact":
+                instructions = (
+                    "Answer with only the classification of the last statement, either 'refuted' or 'entailed'."
+                )
             else:
                 raise ValueError(f"Unknown scenario {self.scenario}")
-
-            if run_spec.adapter_spec.output_prefix:
-                instructions = (
-                    f"{instructions} Do not include '{run_spec.adapter_spec.output_prefix.strip()}' in your answer."
-                )
 
             if run_spec.adapter_spec.instructions:
                 instructions = f"{instructions}\n\n{run_spec.adapter_spec.instructions}"
