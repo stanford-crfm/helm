@@ -143,6 +143,10 @@ metrics:
     display_name: Micro F1
     short_display_name: Micro F1
     description: Micro F1
+  - name: unsorted_list_exact_match
+    display_name: Unsorted List Exact Match
+    short_display_name: Exact Match
+    description: Unsorted List Exact Match
 
 perturbations: []
 
@@ -211,6 +215,7 @@ run_groups:
     subgroups:
       - unitxt_cards.numeric_nlg
       - unitxt_cards.tab_fact
+      - unitxt_cards.wikitq
 
   - name: unitxt_cards.numeric_nlg
     display_name: NumericNLG
@@ -242,6 +247,25 @@ run_groups:
       - general_information
     environment:
       main_name: accuracy
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: unitxt_cards.wikitq
+    display_name: WikiTableQuestions
+    short_display_name: WikiTableQuestions
+    description: "This WikiTableQuestions dataset is a large-scale dataset for the task of question answering on semi-structured tables."
+    metric_groups:
+      - main_metrics
+      - classification_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: unsorted_list_exact_match
       main_split: test
     taxonomy:
       task: "?"
