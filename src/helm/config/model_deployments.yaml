@@ -860,6 +860,7 @@ model_deployments:
         tokenizer_name: "anas-awadalla-2/mpt-7b"
         cross_attn_every_n_layers: 4
 
+  ## Microsoft
   - name: together/phi-2
     model_name: microsoft/phi-2
     tokenizer_name: microsoft/phi-2
@@ -867,6 +868,26 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient" 
 
+  - name: huggingface/phi-3-small-8k-instruct
+    model_name: microsoft/phi-3-small-8k-instruct
+    tokenizer_name: microsoft/phi-3-small-8k-instruct
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        torch_dtype: auto
+        trust_remote_code: true
+
+  - name: huggingface/phi-3-medium-4k-instruct
+    model_name: microsoft/phi-3-medium-4k-instruct
+    tokenizer_name: microsoft/phi-3-medium-4k-instruct
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: auto
+      
   ## Mistral AI
   - name: huggingface/bakLlava-v1-hf
     model_name: mistralai/bakLlava-v1-hf
