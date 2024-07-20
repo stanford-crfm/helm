@@ -1406,6 +1406,10 @@ class OutputFormatInstructions(RunExpander):
         if run_spec.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
             if self.scenario == "mmlu_only_last_question":
                 instructions = "Answer only the last question with only a single letter."
+            elif self.scenario == "mmlu":
+                instructions = "Answer with only a single letter."
+            elif self.scenario == "mcqa":
+                instructions = "Answer with only a single letter."
             else:
                 instructions = "Answer with only a single letter."
             if run_spec.adapter_spec.instructions:
@@ -1434,6 +1438,8 @@ class OutputFormatInstructions(RunExpander):
                 instructions = "Answer with the English translation."
             elif self.scenario == "math":
                 instructions = "Wrap the final answer with the \\boxed{} command."
+            elif self.scenario == "numeric_nlg":
+                instructions = "Answer with only description of the last table as a single paragraph on a single line."
             elif self.scenario == "tab_fact":
                 instructions = (
                     "Answer with only the classification of the last statement, either 'refuted' or 'entailed'."
