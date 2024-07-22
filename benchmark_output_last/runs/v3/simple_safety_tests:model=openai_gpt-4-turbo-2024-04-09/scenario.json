@@ -1,8 +1,0 @@
-{
-  "name": "SimpleSafetyTests",
-  "description": "SimpleSafetyTests dataset",
-  "tags": [
-    "safety"
-  ],
-  "definition_path": "https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/scenarios/simple_safety_tests_scenario.py"
-}
