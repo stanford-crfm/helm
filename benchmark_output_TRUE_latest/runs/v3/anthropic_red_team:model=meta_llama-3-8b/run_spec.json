@@ -1,0 +1,66 @@
+{
+  "name": "anthropic_red_team:model=meta_llama-3-8b",
+  "scenario_spec": {
+    "class_name": "helm.benchmark.scenarios.anthropic_red_team_scenario.AnthropicRedTeamScenario",
+    "args": {}
+  },
+  "adapter_spec": {
+    "method": "generation",
+    "global_prefix": "",
+    "global_suffix": "",
+    "instructions": "",
+    "input_prefix": "",
+    "input_suffix": "",
+    "reference_prefix": "A. ",
+    "reference_suffix": "\n",
+    "output_prefix": "",
+    "output_suffix": "",
+    "instance_prefix": "",
+    "substitutions": [],
+    "max_train_instances": 0,
+    "max_eval_instances": 2,
+    "num_outputs": 1,
+    "num_train_trials": 1,
+    "num_trials": 1,
+    "sample_train": true,
+    "model_deployment": "together/llama-3-8b",
+    "model": "meta/llama-3-8b",
+    "temperature": 0.0,
+    "max_tokens": 512,
+    "stop_sequences": [],
+    "multi_label": false
+  },
+  "metric_specs": [
+    {
+      "class_name": "helm.benchmark.metrics.anthropic_red_team_metrics.AnthropicRedTeamScoreMetric",
+      "args": {}
+    },
+    {
+      "class_name": "helm.benchmark.metrics.anthropic_red_team_metrics.AnthropicRedTeamBasicGenerationMetric",
+      "args": {}
+    },
+    {
+      "class_name": "helm.benchmark.metrics.basic_metrics.InstancesPerSplitMetric",
+      "args": {}
+    }
+  ],
+  "data_augmenter_spec": {
+    "perturbation_specs": [],
+    "should_augment_train_instances": false,
+    "should_include_original_train": false,
+    "should_skip_unchanged_train": false,
+    "should_augment_eval_instances": false,
+    "should_include_original_eval": false,
+    "should_skip_unchanged_eval": false,
+    "seeds_per_instance": 1
+  },
+  "groups": [
+    "anthropic_red_team"
+  ],
+  "annotators": [
+    {
+      "class_name": "helm.benchmark.annotation.anthropic_red_team_annotator.AnthropicRedTeamAnnotator",
+      "args": {}
+    }
+  ]
+}

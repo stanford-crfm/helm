@@ -1,0 +1,20 @@
+\begin{table*}[htp]
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lrrrrrrrrrrrrrrrrrrrrrrrrr}
+\toprule
+Model/adapter & HarmBench - # eval & HarmBench - # train & HarmBench - truncated & HarmBench - # prompt tokens & HarmBench - # output tokens & SimpleSafetyTests - # eval & SimpleSafetyTests - # train & SimpleSafetyTests - truncated & SimpleSafetyTests - # prompt tokens & SimpleSafetyTests - # output tokens & BBQ - # eval & BBQ - # train & BBQ - truncated & BBQ - # prompt tokens & BBQ - # output tokens & Anthropic Red Team - # eval & Anthropic Red Team - # train & Anthropic Red Team - truncated & Anthropic Red Team - # prompt tokens & Anthropic Red Team - # output tokens & XSTest - # eval & XSTest - # train & XSTest - truncated & XSTest - # prompt tokens & XSTest - # output tokens \\
+\midrule
+Llama 3 Instruct (70B) & 100.0 &  &  & 95.23 & 180.21 & 100.0 &  &  & 12.54 & 74.19 & 100.0 &  &  & 85.36 & 1.0 & 100.0 &  &  & 13.64 & 186.44 & 100.0 &  &  & 10.48 & 251.61 \\
+Llama 3 Instruct (8B) & 100.0 &  &  & 95.23 & 146.06 & 100.0 &  &  & 12.54 & 41.25 & 100.0 &  &  & 85.36 & 1.0 & 100.0 &  &  & 13.64 & 120.17 & 100.0 &  &  & 10.48 & 232.82 \\
+Mixtral Instruct (8x22B) & 100.0 &  &  & 114.45 & 347.09 & 100.0 &  &  & 13.48 & 167.95 & 100.0 &  &  & 96.37 & 1.0 & 100.0 &  &  & 14.56 & 161.29 & 100.0 &  &  & 11.39 & 219.6 \\
+Qwen2 Instruct (72B) & 100.0 &  &  & 98.98 & 218.28 & 100.0 &  &  & 12.54 & 147.19 & 100.0 &  &  & 85.55 & 1.0 & 100.0 &  &  & 13.66 & 148.71 & 100.0 &  &  & 10.48 & 239.43 \\
+Claude 3 Opus (20240229) & 100.0 &  &  & 97.63 & 115.7 & 100.0 &  &  & 12.75 & 90.08 & 100.0 &  &  & 100.27 & 1.0 & 100.0 &  &  & 13.97 & 112.7 & 100.0 &  &  & 10.69 & 159.19 \\
+Claude 3.5 Sonnet (20240620) & 100.0 &  &  & 97.63 & 103.37 & 100.0 &  &  & 12.75 & 69.81 & 100.0 &  &  & 100.27 & 1.0 & 100.0 &  &  & 13.97 & 92.99 & 100.0 &  &  & 10.69 & 168.17 \\
+Gemini 1.5 Pro (001) & 100.0 &  &  & 98.54 &  & 100.0 &  &  & 12.54 &  & 100.0 &  &  & 95.34 &  & 100.0 &  &  & 13.71 &  & 100.0 &  &  & 10.37 &  \\
+GPT-4 Turbo (2024-04-09) & 100.0 &  &  & 95.25 & 81.56 & 100.0 &  &  & 12.54 & 73.62 & 100.0 &  &  & 85.36 & 1.0 & 100.0 &  &  & 13.64 & 137.32 & 100.0 &  &  & 10.48 & 245.19 \\
+GPT-4o (2024-05-13) & 100.0 &  &  & 94.13 & 129.5 & 100.0 &  &  & 12.48 & 58.21 & 100.0 &  &  & 84.31 & 1.0 & 100.0 &  &  & 13.47 & 136.41 & 100.0 &  &  & 10.42 & 233.0 \\
+\bottomrule
+\end{tabular}}
+\caption{Results for general_information (safety_scenarios)}
+\label{fig:general_information (safety_scenarios)}
+\end{table*}

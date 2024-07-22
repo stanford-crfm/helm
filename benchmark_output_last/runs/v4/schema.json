@@ -1,0 +1,623 @@
+{
+  "metrics": [
+    {
+      "name": "num_perplexity_tokens",
+      "display_name": "# tokens",
+      "description": "Average number of tokens in the predicted output (for language modeling, the input too)."
+    },
+    {
+      "name": "num_bytes",
+      "display_name": "# bytes",
+      "description": "Average number of bytes in the predicted output (for language modeling, the input too)."
+    },
+    {
+      "name": "num_references",
+      "display_name": "# ref",
+      "description": "Number of references."
+    },
+    {
+      "name": "num_train_trials",
+      "display_name": "# trials",
+      "description": "Number of trials, where in each trial we choose an independent, random set of training instances."
+    },
+    {
+      "name": "estimated_num_tokens_cost",
+      "display_name": "cost",
+      "description": "An estimate of the number of tokens (including prompt and output completions) needed to perform the request."
+    },
+    {
+      "name": "num_prompt_tokens",
+      "display_name": "# prompt tokens",
+      "description": "Number of tokens in the prompt."
+    },
+    {
+      "name": "num_prompt_characters",
+      "display_name": "# prompt chars",
+      "description": "Number of characters in the prompt."
+    },
+    {
+      "name": "num_completion_tokens",
+      "display_name": "# completion tokens",
+      "description": "Actual number of completion tokens (over all completions)."
+    },
+    {
+      "name": "num_output_tokens",
+      "display_name": "# output tokens",
+      "description": "Actual number of output tokens."
+    },
+    {
+      "name": "max_num_output_tokens",
+      "display_name": "Max output tokens",
+      "description": "Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences)."
+    },
+    {
+      "name": "num_requests",
+      "display_name": "# requests",
+      "description": "Number of distinct API requests."
+    },
+    {
+      "name": "num_instances",
+      "display_name": "# eval",
+      "description": "Number of evaluation instances."
+    },
+    {
+      "name": "num_train_instances",
+      "display_name": "# train",
+      "description": "Number of training instances (e.g., in-context examples)."
+    },
+    {
+      "name": "prompt_truncated",
+      "display_name": "truncated",
+      "description": "Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples)."
+    },
+    {
+      "name": "finish_reason_length",
+      "display_name": "finish b/c length",
+      "description": "Fraction of instances where the the output was terminated because of the max tokens limit."
+    },
+    {
+      "name": "finish_reason_stop",
+      "display_name": "finish b/c stop",
+      "description": "Fraction of instances where the the output was terminated because of the stop sequences."
+    },
+    {
+      "name": "finish_reason_endoftext",
+      "display_name": "finish b/c endoftext",
+      "description": "Fraction of instances where the the output was terminated because the end of text token was generated."
+    },
+    {
+      "name": "finish_reason_unknown",
+      "display_name": "finish b/c unknown",
+      "description": "Fraction of instances where the the output was terminated for unknown reasons."
+    },
+    {
+      "name": "num_completions",
+      "display_name": "# completions",
+      "description": "Number of completions."
+    },
+    {
+      "name": "predicted_index",
+      "display_name": "Predicted index",
+      "description": "Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice)."
+    },
+    {
+      "name": "exact_match",
+      "display_name": "Exact match",
+      "short_display_name": "EM",
+      "description": "Fraction of instances that the predicted output matches a correct reference exactly.",
+      "lower_is_better": false
+    },
+    {
+      "name": "f1_score",
+      "display_name": "F1",
+      "description": "Average F1 score in terms of word overlap between the model output and correct reference.",
+      "lower_is_better": false
+    },
+    {
+      "name": "art_score",
+      "display_name": "Anthropic Red Team - Model Evaluated Safety score",
+      "description": "Anthropic Red Team - Model Evaluated Safety score",
+      "lower_is_better": false
+    },
+    {
+      "name": "harm_bench_score",
+      "display_name": "HarmBench - Model Evaluated Safety score",
+      "description": "HarmBench - Model Evaluated Safety score",
+      "lower_is_better": false
+    },
+    {
+      "name": "sst_score",
+      "display_name": "SimpleSafetyTests - Model Evaluated Safety score",
+      "description": "SimpleSafetyTests - Model Evaluated Safety score",
+      "lower_is_better": false
+    },
+    {
+      "name": "bbq_accuracy",
+      "display_name": "BBQ accuracy",
+      "description": "BBQ accuracy",
+      "lower_is_better": false
+    },
+    {
+      "name": "expected_max_toxicity",
+      "display_name": "Average max toxicity",
+      "short_display_name": "Avg. max toxicity",
+      "description": "Average max toxicity score across all completions (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).",
+      "lower_is_better": true
+    },
+    {
+      "name": "max_toxicity_probability",
+      "display_name": "max toxicity",
+      "description": "Fraction of instances where most toxic completion is above 0.5 toxicity (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).",
+      "lower_is_better": true
+    },
+    {
+      "name": "toxic_frac",
+      "display_name": "Toxic fraction",
+      "description": "Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).",
+      "lower_is_better": true
+    }
+  ],
+  "perturbations": [],
+  "metric_groups": [
+    {
+      "name": "accuracy",
+      "display_name": "Accuracy",
+      "metrics": [
+        {
+          "name": "${main_name}",
+          "split": "${main_split}"
+        }
+      ]
+    },
+    {
+      "name": "efficiency",
+      "display_name": "Efficiency",
+      "metrics": [
+        {
+          "name": "inference_runtime",
+          "split": "${main_split}"
+        }
+      ]
+    },
+    {
+      "name": "general_information",
+      "display_name": "General information",
+      "metrics": [
+        {
+          "name": "num_instances",
+          "split": "${main_split}"
+        },
+        {
+          "name": "num_train_instances",
+          "split": "${main_split}"
+        },
+        {
+          "name": "prompt_truncated",
+          "split": "${main_split}"
+        },
+        {
+          "name": "num_prompt_tokens",
+          "split": "${main_split}"
+        },
+        {
+          "name": "num_output_tokens",
+          "split": "${main_split}"
+        }
+      ],
+      "hide_win_rates": true
+    },
+    {
+      "name": "toxicity",
+      "display_name": "Toxicity",
+      "metrics": [
+        {
+          "name": "toxic_frac",
+          "split": "${main_split}"
+        }
+      ]
+    },
+    {
+      "name": "bbq_metrics",
+      "display_name": "BBQ metrics",
+      "description": "Metrics used for the BBQ bias benchmark.",
+      "metrics": [
+        {
+          "name": "bbq_metric_ambiguous_bias",
+          "split": "${main_split}"
+        },
+        {
+          "name": "bbq_metric_unambiguous_bias",
+          "split": "${main_split}"
+        }
+      ]
+    }
+  ],
+  "run_groups": [
+    {
+      "name": "safety_scenarios",
+      "display_name": "Safety Scenarios",
+      "description": "Scenarios for the model safety",
+      "metric_groups": [],
+      "subgroups": [
+        "harm_bench",
+        "simple_safety_tests",
+        "bbq",
+        "anthropic_red_team"
+      ],
+      "subgroup_display_mode": "by_metric",
+      "subgroup_metric_groups_hidden": [],
+      "environment": {},
+      "category": "All scenarios",
+      "visibility": "all_groups",
+      "todo": false,
+      "adapter_keys_shown": [
+        "model_deployment",
+        "model"
+      ]
+    },
+    {
+      "name": "harm_bench",
+      "display_name": "HarmBench",
+      "description": "HarmBench",
+      "metric_groups": [
+        "accuracy",
+        "efficiency",
+        "general_information"
+      ],
+      "subgroups": [],
+      "subgroup_display_mode": "by_metric",
+      "subgroup_metric_groups_hidden": [],
+      "environment": {
+        "main_name": "harm_bench_score",
+        "main_split": "test"
+      },
+      "category": "Scenarios",
+      "visibility": "all_groups",
+      "taxonomy": {
+        "task": "question answering",
+        "what": "n/a",
+        "when": "n/a",
+        "who": "n/a",
+        "language": "English"
+      },
+      "todo": false,
+      "adapter_keys_shown": [
+        "model_deployment",
+        "model"
+      ]
+    },
+    {
+      "name": "simple_safety_tests",
+      "display_name": "SimpleSafetyTests",
+      "description": "SimpleSafetyTests",
+      "metric_groups": [
+        "accuracy",
+        "efficiency",
+        "general_information"
+      ],
+      "subgroups": [],
+      "subgroup_display_mode": "by_metric",
+      "subgroup_metric_groups_hidden": [],
+      "environment": {
+        "main_name": "sst_score",
+        "main_split": "test"
+      },
+      "category": "Scenarios",
+      "visibility": "all_groups",
+      "taxonomy": {
+        "task": "question answering",
+        "what": "n/a",
+        "when": "n/a",
+        "who": "n/a",
+        "language": "English"
+      },
+      "todo": false,
+      "adapter_keys_shown": [
+        "model_deployment",
+        "model"
+      ]
+    },
+    {
+      "name": "bbq",
+      "display_name": "BBQ",
+      "description": "The Bias Benchmark for Question Answering (BBQ) for measuring social bias in question answering in ambiguous and unambigous context [(Parrish et al., 2022)](https://aclanthology.org/2022.findings-acl.165/).",
+      "metric_groups": [
+        "accuracy",
+        "efficiency",
+        "general_information",
+        "bbq_metrics"
+      ],
+      "subgroups": [],
+      "subgroup_display_mode": "by_metric",
+      "subgroup_metric_groups_hidden": [],
+      "environment": {
+        "main_name": "bbq_accuracy",
+        "main_split": "test"
+      },
+      "category": "Scenarios",
+      "visibility": "all_groups",
+      "taxonomy": {
+        "task": "question answering",
+        "what": "n/a",
+        "when": "n/a",
+        "who": "n/a",
+        "language": "English"
+      },
+      "todo": false,
+      "adapter_keys_shown": [
+        "model_deployment",
+        "model"
+      ]
+    },
+    {
+      "name": "anthropic_red_team",
+      "display_name": "Anthropic Red Team",
+      "short_display_name": "Anthropic Red Team",
+      "description": "Anthropic Red Team",
+      "metric_groups": [
+        "accuracy",
+        "efficiency",
+        "general_information"
+      ],
+      "subgroups": [],
+      "subgroup_display_mode": "by_metric",
+      "subgroup_metric_groups_hidden": [],
+      "environment": {
+        "main_name": "art_score",
+        "main_split": "test"
+      },
+      "category": "Scenarios",
+      "visibility": "all_groups",
+      "taxonomy": {
+        "task": "question answering",
+        "what": "?",
+        "when": "?",
+        "who": "?",
+        "language": "English"
+      },
+      "todo": false,
+      "adapter_keys_shown": [
+        "model_deployment",
+        "model"
+      ]
+    }
+  ],
+  "adapter": [
+    {
+      "name": "method",
+      "description": "The high-level strategy for converting instances into a prompt for the language model."
+    },
+    {
+      "name": "global_prefix",
+      "description": "The string that is prepended to the entire prompt."
+    },
+    {
+      "name": "global_suffix",
+      "description": "The string that is appended to the entire prompt."
+    },
+    {
+      "name": "instructions",
+      "description": "The description of the task that is included at the very beginning of the prompt."
+    },
+    {
+      "name": "input_prefix",
+      "description": "The string that is included before each input (e.g., 'Question:')."
+    },
+    {
+      "name": "input_suffix",
+      "description": "The string that is included after each input (e.g., '\\n')."
+    },
+    {
+      "name": "reference_prefix",
+      "description": "The string that is included before each reference (for multiple-choice questions)."
+    },
+    {
+      "name": "reference_suffix",
+      "description": "The string that is included after each reference (for multiple-choice questions)."
+    },
+    {
+      "name": "output_prefix",
+      "description": "The string that is included before the correct answer/predicted output (e.g., 'Answer:')."
+    },
+    {
+      "name": "output_suffix",
+      "description": "The string that is included after the correct answer/predicted output (e.g., '\\n')."
+    },
+    {
+      "name": "instance_prefix",
+      "description": "The string that is included before each instance (e.g., '\\n\\n')."
+    },
+    {
+      "name": "substitutions",
+      "description": "A list of regular expression substitutions (e.g., replacing '\\n' with ';\\n') to perform at the very end on the prompt."
+    },
+    {
+      "name": "max_train_instances",
+      "description": "Maximum number of training instances to include in the prompt (currently by randomly sampling)."
+    },
+    {
+      "name": "max_eval_instances",
+      "description": "Maximum number of instances to evaluate on (over all splits - test, valid, etc.)."
+    },
+    {
+      "name": "num_outputs",
+      "description": "Maximum number of possible outputs to generate by sampling multiple outputs."
+    },
+    {
+      "name": "num_train_trials",
+      "description": "Number of trials, where in each trial we choose an independent, random set of training instances. Used to compute variance."
+    },
+    {
+      "name": "num_trials",
+      "description": "Number of trials, where we query the model with the same requests, but different random seeds."
+    },
+    {
+      "name": "sample_train",
+      "description": "If true, randomly sample N training examples; if false, select N consecutive training examples"
+    },
+    {
+      "name": "model_deployment",
+      "description": "Name of the language model deployment (<host_organization>/<model name>) to send requests to."
+    },
+    {
+      "name": "model",
+      "description": "Name of the language model (<creator_organization>/<model name>) to send requests to."
+    },
+    {
+      "name": "temperature",
+      "description": "Temperature parameter used in generation."
+    },
+    {
+      "name": "max_tokens",
+      "description": "Maximum number of tokens to generate."
+    },
+    {
+      "name": "stop_sequences",
+      "description": "List of stop sequences. Output generation will be stopped if any stop sequence is encountered."
+    },
+    {
+      "name": "random",
+      "description": "Random seed (string), which guarantees reproducibility."
+    },
+    {
+      "name": "multi_label",
+      "description": "If true, for instances with multiple correct reference, the gold answer should be considered to be all of the correct references rather than any of the correct references."
+    },
+    {
+      "name": "image_generation_parameters",
+      "description": "Parameters for image generation."
+    },
+    {
+      "name": "eval_splits",
+      "description": "The splits from which evaluation instances will be drawn."
+    }
+  ],
+  "models": [
+    {
+      "name": "anthropic/claude-3-opus-20240229",
+      "display_name": "Claude 3 Opus (20240229)",
+      "short_display_name": "Claude 3 Opus (20240229)",
+      "description": "Claude 3 is a a family of models that possess vision and multilingual capabilities. They were trained with various methods such as unsupervised learning and Constitutional AI ([blog](https://www.anthropic.com/news/claude-3-family)).",
+      "creator_organization": "Anthropic",
+      "access": "limited",
+      "todo": false,
+      "release_date": "2024-03-04"
+    },
+    {
+      "name": "anthropic/claude-3-5-sonnet-20240620",
+      "display_name": "Claude 3.5 Sonnet (20240620)",
+      "short_display_name": "Claude 3.5 Sonnet (20240620)",
+      "description": "Claude 3.5 Sonnet is a Claude 3 family model which outperforms Claude 3 Opus while operating faster and at a lower cost. ([blog](https://www.anthropic.com/news/claude-3-5-sonnet))",
+      "creator_organization": "Anthropic",
+      "access": "limited",
+      "todo": false,
+      "release_date": "2024-06-20"
+    },
+    {
+      "name": "google/gemini-1.5-pro-001",
+      "display_name": "Gemini 1.5 Pro (001)",
+      "short_display_name": "Gemini 1.5 Pro (001)",
+      "description": "Gemini 1.5 Pro is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. This model is accessed through Vertex AI and has all safety thresholds set to `BLOCK_NONE`. ([paper](https://arxiv.org/abs/2403.05530))",
+      "creator_organization": "Google",
+      "access": "limited",
+      "todo": false,
+      "release_date": "2024-05-24"
+    },
+    {
+      "name": "meta/llama-3-8b",
+      "display_name": "Llama 3 (8B)",
+      "short_display_name": "Llama 3 (8B)",
+      "description": "Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability.",
+      "creator_organization": "Meta",
+      "access": "open",
+      "todo": false,
+      "release_date": "2024-04-18",
+      "num_parameters": 8000000000
+    },
+    {
+      "name": "meta/llama-3-70b",
+      "display_name": "Llama 3 (70B)",
+      "short_display_name": "Llama 3 (70B)",
+      "description": "Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability.",
+      "creator_organization": "Meta",
+      "access": "open",
+      "todo": false,
+      "release_date": "2024-04-18",
+      "num_parameters": 70000000000
+    },
+    {
+      "name": "meta/llama-3-8b-chat",
+      "display_name": "Llama 3 Instruct (8B)",
+      "short_display_name": "Llama 3 Instruct (8B)",
+      "description": "Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. It used SFT, rejection sampling, PPO and DPO for post-training.",
+      "creator_organization": "Meta",
+      "access": "open",
+      "todo": false,
+      "release_date": "2024-04-18",
+      "num_parameters": 8000000000
+    },
+    {
+      "name": "meta/llama-3-70b-chat",
+      "display_name": "Llama 3 Instruct (70B)",
+      "short_display_name": "Llama 3 Instruct (70B)",
+      "description": "Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. It used SFT, rejection sampling, PPO and DPO for post-training.",
+      "creator_organization": "Meta",
+      "access": "open",
+      "todo": false,
+      "release_date": "2024-04-18",
+      "num_parameters": 70000000000
+    },
+    {
+      "name": "mistralai/mixtral-8x22b",
+      "display_name": "Mixtral (8x22B)",
+      "short_display_name": "Mixtral (8x22B)",
+      "description": "Mistral AI's mixture-of-experts model that uses 39B active parameters out of 141B ([blog post](https://mistral.ai/news/mixtral-8x22b/)).",
+      "creator_organization": "Mistral AI",
+      "access": "open",
+      "todo": false,
+      "release_date": "2024-04-10",
+      "num_parameters": 176000000000
+    },
+    {
+      "name": "mistralai/mixtral-8x22b-instruct-v0.1",
+      "display_name": "Mixtral Instruct (8x22B)",
+      "short_display_name": "Mixtral Instruct (8x22B)",
+      "description": "Mistral AI's mixture-of-experts model that uses 39B active parameters out of 141B ([blog post](https://mistral.ai/news/mixtral-8x22b/)).",
+      "creator_organization": "Mistral AI",
+      "access": "open",
+      "todo": false,
+      "release_date": "2024-04-10",
+      "num_parameters": 176000000000
+    },
+    {
+      "name": "openai/gpt-4-turbo-2024-04-09",
+      "display_name": "GPT-4 Turbo (2024-04-09)",
+      "short_display_name": "GPT-4 Turbo (2024-04-09)",
+      "description": "GPT-4 Turbo (2024-04-09) is a large multimodal model that is optimized for chat but works well for traditional completions tasks. The model is cheaper and faster than the original GPT-4 model. Snapshot from 2024-04-09.",
+      "creator_organization": "OpenAI",
+      "access": "limited",
+      "todo": false,
+      "release_date": "2024-04-09"
+    },
+    {
+      "name": "openai/gpt-4o-2024-05-13",
+      "display_name": "GPT-4o (2024-05-13)",
+      "short_display_name": "GPT-4o (2024-05-13)",
+      "description": "GPT-4o (2024-05-13) is a large multimodal model that accepts as input any combination of text, audio, and image and generates any combination of text, audio, and image outputs.",
+      "creator_organization": "OpenAI",
+      "access": "limited",
+      "todo": false,
+      "release_date": "2024-04-09"
+    },
+    {
+      "name": "qwen/qwen2-72b-instruct",
+      "display_name": "Qwen2 Instruct (72B)",
+      "short_display_name": "Qwen2 Instruct (72B)",
+      "description": "72B-parameter chat version of the large language model series, Qwen2. Qwen2 uses Group Query Attention (GQA) and has extended context length support up to 128K tokens. ([blog](https://qwenlm.github.io/blog/qwen2/))",
+      "creator_organization": "Qwen",
+      "access": "open",
+      "todo": false,
+      "release_date": "2024-06-07"
+    }
+  ]
+}

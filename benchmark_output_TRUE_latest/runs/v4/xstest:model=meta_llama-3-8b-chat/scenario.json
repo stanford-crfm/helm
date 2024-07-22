@@ -1,0 +1,8 @@
+{
+  "name": "XSTest",
+  "description": "XSTest dataset - safety benchmark",
+  "tags": [
+    "safety"
+  ],
+  "definition_path": "https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/scenarios/xstest_scenario.py"
+}

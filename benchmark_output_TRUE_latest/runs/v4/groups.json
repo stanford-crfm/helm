@@ -1,0 +1,344 @@
+[
+  {
+    "title": "All scenarios",
+    "header": [
+      {
+        "value": "Group",
+        "markdown": false,
+        "metadata": {}
+      },
+      {
+        "value": "Description",
+        "markdown": false,
+        "metadata": {}
+      },
+      {
+        "value": "Adaptation method",
+        "description": "Adaptation strategy (e.g., generation)",
+        "markdown": false,
+        "metadata": {}
+      },
+      {
+        "value": "# instances",
+        "description": "Number of instances evaluated on",
+        "markdown": false,
+        "metadata": {}
+      },
+      {
+        "value": "# references",
+        "description": "Number of references provided per instance",
+        "markdown": false,
+        "metadata": {}
+      },
+      {
+        "value": "# prompt tokens",
+        "description": "Total number of prompt tokens",
+        "markdown": false,
+        "metadata": {}
+      },
+      {
+        "value": "# completion tokens",
+        "description": "Total number of completion tokens",
+        "markdown": false,
+        "metadata": {}
+      },
+      {
+        "value": "# models",
+        "description": "Number of models we're evaluating",
+        "markdown": false,
+        "metadata": {}
+      }
+    ],
+    "rows": [
+      [
+        {
+          "value": "Safety Scenarios",
+          "href": "?group=safety_scenarios",
+          "markdown": false
+        },
+        {
+          "value": "Scenarios for the model safety",
+          "markdown": true
+        },
+        {
+          "value": "multiple_choice_joint, generation",
+          "markdown": false
+        },
+        {
+          "value": 100.0,
+          "description": "min=100, mean=100, max=100, sum=4500 (45)",
+          "markdown": false
+        },
+        {
+          "value": 1.824000000000001,
+          "description": "min=0, mean=1.824, max=3.12, sum=246.24 (135)",
+          "markdown": false
+        },
+        {
+          "value": 6117.48,
+          "description": "min=10.37, mean=45.315, max=114.45, sum=6117.48 (135)",
+          "markdown": false
+        },
+        {
+          "value": 14691.329999999998,
+          "description": "min=0, mean=108.825, max=347.09, sum=14691.33 (135)",
+          "markdown": false
+        },
+        {
+          "value": 9,
+          "markdown": false
+        }
+      ]
+    ],
+    "links": []
+  },
+  {
+    "title": "Scenarios",
+    "header": [
+      {
+        "value": "Group",
+        "markdown": false,
+        "metadata": {}
+      },
+      {
+        "value": "Description",
+        "markdown": false,
+        "metadata": {}
+      },
+      {
+        "value": "Adaptation method",
+        "description": "Adaptation strategy (e.g., generation)",
+        "markdown": false,
+        "metadata": {}
+      },
+      {
+        "value": "# instances",
+        "description": "Number of instances evaluated on",
+        "markdown": false,
+        "metadata": {}
+      },
+      {
+        "value": "# references",
+        "description": "Number of references provided per instance",
+        "markdown": false,
+        "metadata": {}
+      },
+      {
+        "value": "# prompt tokens",
+        "description": "Total number of prompt tokens",
+        "markdown": false,
+        "metadata": {}
+      },
+      {
+        "value": "# completion tokens",
+        "description": "Total number of completion tokens",
+        "markdown": false,
+        "metadata": {}
+      },
+      {
+        "value": "# models",
+        "description": "Number of models we're evaluating",
+        "markdown": false,
+        "metadata": {}
+      }
+    ],
+    "rows": [
+      [
+        {
+          "value": "HarmBench",
+          "href": "?group=harm_bench",
+          "markdown": false
+        },
+        {
+          "value": "HarmBench",
+          "markdown": true
+        },
+        {
+          "value": "generation",
+          "markdown": false
+        },
+        {
+          "value": 100.0,
+          "description": "min=100, mean=100, max=100, sum=900 (9)",
+          "markdown": false
+        },
+        {
+          "value": 1.0,
+          "description": "min=1, mean=1, max=1, sum=27 (27)",
+          "markdown": false
+        },
+        {
+          "value": 2661.2100000000005,
+          "description": "min=94.13, mean=98.563, max=114.45, sum=2661.21 (27)",
+          "markdown": false
+        },
+        {
+          "value": 3965.3100000000004,
+          "description": "min=0, mean=146.863, max=347.09, sum=3965.31 (27)",
+          "markdown": false
+        },
+        {
+          "value": 9,
+          "markdown": false
+        }
+      ],
+      [
+        {
+          "value": "SimpleSafetyTests",
+          "href": "?group=simple_safety_tests",
+          "markdown": false
+        },
+        {
+          "value": "SimpleSafetyTests",
+          "markdown": true
+        },
+        {
+          "value": "generation",
+          "markdown": false
+        },
+        {
+          "value": 100.0,
+          "description": "min=100, mean=100, max=100, sum=900 (9)",
+          "markdown": false
+        },
+        {
+          "value": 2.0,
+          "description": "min=2, mean=2, max=2, sum=54 (27)",
+          "markdown": false
+        },
+        {
+          "value": 342.48,
+          "description": "min=12.48, mean=12.684, max=13.48, sum=342.48 (27)",
+          "markdown": false
+        },
+        {
+          "value": 2166.9,
+          "description": "min=0, mean=80.256, max=167.95, sum=2166.9 (27)",
+          "markdown": false
+        },
+        {
+          "value": 9,
+          "markdown": false
+        }
+      ],
+      [
+        {
+          "value": "XSTest",
+          "href": "?group=xstest",
+          "markdown": false
+        },
+        {
+          "value": "XSTest",
+          "markdown": true
+        },
+        {
+          "value": "generation",
+          "markdown": false
+        },
+        {
+          "value": 100.0,
+          "description": "min=100, mean=100, max=100, sum=900 (9)",
+          "markdown": false
+        },
+        {
+          "value": 3.1200000000000006,
+          "description": "min=3.12, mean=3.12, max=3.12, sum=84.24 (27)",
+          "markdown": false
+        },
+        {
+          "value": 286.43999999999994,
+          "description": "min=10.37, mean=10.609, max=11.39, sum=286.44 (27)",
+          "markdown": false
+        },
+        {
+          "value": 5247.030000000001,
+          "description": "min=0, mean=194.334, max=251.61, sum=5247.03 (27)",
+          "markdown": false
+        },
+        {
+          "value": 9,
+          "markdown": false
+        }
+      ],
+      [
+        {
+          "value": "BBQ",
+          "href": "?group=bbq",
+          "markdown": false
+        },
+        {
+          "value": "The Bias Benchmark for Question Answering (BBQ) for measuring social bias in question answering in ambiguous and unambigous context [(Parrish et al., 2022)](https://aclanthology.org/2022.findings-acl.165/).",
+          "markdown": true
+        },
+        {
+          "value": "multiple_choice_joint",
+          "markdown": false
+        },
+        {
+          "value": 100.0,
+          "description": "min=100, mean=100, max=100, sum=900 (9)",
+          "markdown": false
+        },
+        {
+          "value": 3.0,
+          "description": "min=3, mean=3, max=3, sum=81 (27)",
+          "markdown": false
+        },
+        {
+          "value": 2454.5699999999997,
+          "description": "min=84.31, mean=90.91, max=100.27, sum=2454.57 (27)",
+          "markdown": false
+        },
+        {
+          "value": 24.0,
+          "description": "min=0, mean=0.889, max=1, sum=24 (27)",
+          "markdown": false
+        },
+        {
+          "value": 9,
+          "markdown": false
+        }
+      ],
+      [
+        {
+          "value": "Anthropic Red Team",
+          "href": "?group=anthropic_red_team",
+          "markdown": false
+        },
+        {
+          "value": "Anthropic Red Team",
+          "markdown": true
+        },
+        {
+          "value": "generation",
+          "markdown": false
+        },
+        {
+          "value": 100.0,
+          "description": "min=100, mean=100, max=100, sum=900 (9)",
+          "markdown": false
+        },
+        {
+          "value": 0.0,
+          "description": "min=0, mean=0, max=0, sum=0 (27)",
+          "markdown": false
+        },
+        {
+          "value": 372.7800000000001,
+          "description": "min=13.47, mean=13.807, max=14.56, sum=372.78 (27)",
+          "markdown": false
+        },
+        {
+          "value": 3288.09,
+          "description": "min=0, mean=121.781, max=186.44, sum=3288.09 (27)",
+          "markdown": false
+        },
+        {
+          "value": 9,
+          "markdown": false
+        }
+      ]
+    ],
+    "links": []
+  }
+]

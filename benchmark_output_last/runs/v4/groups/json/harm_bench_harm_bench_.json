@@ -1,0 +1,644 @@
+{
+  "title": "",
+  "header": [
+    {
+      "value": "Model/adapter",
+      "markdown": false,
+      "metadata": {}
+    },
+    {
+      "value": "HarmBench - Model Evaluated Safety score",
+      "description": "HarmBench\n\nHarmBench - Model Evaluated Safety score: HarmBench - Model Evaluated Safety score",
+      "markdown": false,
+      "lower_is_better": false,
+      "metadata": {
+        "metric": "HarmBench - Model Evaluated Safety score",
+        "run_group": "HarmBench"
+      }
+    },
+    {
+      "value": "# eval",
+      "description": "HarmBench\n\n# eval: Number of evaluation instances.",
+      "markdown": false,
+      "metadata": {
+        "metric": "# eval",
+        "run_group": "HarmBench"
+      }
+    },
+    {
+      "value": "# train",
+      "description": "HarmBench\n\n# train: Number of training instances (e.g., in-context examples).",
+      "markdown": false,
+      "metadata": {
+        "metric": "# train",
+        "run_group": "HarmBench"
+      }
+    },
+    {
+      "value": "truncated",
+      "description": "HarmBench\n\ntruncated: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).",
+      "markdown": false,
+      "metadata": {
+        "metric": "truncated",
+        "run_group": "HarmBench"
+      }
+    },
+    {
+      "value": "# prompt tokens",
+      "description": "HarmBench\n\n# prompt tokens: Number of tokens in the prompt.",
+      "markdown": false,
+      "metadata": {
+        "metric": "# prompt tokens",
+        "run_group": "HarmBench"
+      }
+    },
+    {
+      "value": "# output tokens",
+      "description": "HarmBench\n\n# output tokens: Actual number of output tokens.",
+      "markdown": false,
+      "metadata": {
+        "metric": "# output tokens",
+        "run_group": "HarmBench"
+      }
+    }
+  ],
+  "rows": [
+    [
+      {
+        "value": "Llama 3 (70B)",
+        "description": "",
+        "href": "?group=harm_bench&subgroup=&runSpecs=%5B%22harm_bench%3Amodel%3Dmeta_llama-3-70b%22%5D",
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=meta_llama-3-70b"
+        ]
+      },
+      {
+        "value": 0.3725,
+        "description": "min=0.372, mean=0.372, max=0.372, sum=0.372 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 100.0,
+        "description": "min=100, mean=100, max=100, sum=100 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 95.23,
+        "description": "min=95.23, mean=95.23, max=95.23, sum=95.23 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 1.0,
+        "description": "min=1, mean=1, max=1, sum=1 (1)",
+        "style": {},
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Llama 3 Instruct (70B)",
+        "description": "",
+        "href": "?group=harm_bench&subgroup=&runSpecs=%5B%22harm_bench%3Amodel%3Dmeta_llama-3-70b-chat%22%5D",
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=meta_llama-3-70b-chat"
+        ]
+      },
+      {
+        "value": 0.7125,
+        "description": "min=0.713, mean=0.713, max=0.713, sum=0.713 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 100.0,
+        "description": "min=100, mean=100, max=100, sum=100 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 95.23,
+        "description": "min=95.23, mean=95.23, max=95.23, sum=95.23 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 180.21,
+        "description": "min=180.21, mean=180.21, max=180.21, sum=180.21 (1)",
+        "style": {},
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Llama 3 (8B)",
+        "description": "",
+        "href": "?group=harm_bench&subgroup=&runSpecs=%5B%22harm_bench%3Amodel%3Dmeta_llama-3-8b%22%5D",
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=meta_llama-3-8b"
+        ]
+      },
+      {
+        "value": 0.3375,
+        "description": "min=0.338, mean=0.338, max=0.338, sum=0.338 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 100.0,
+        "description": "min=100, mean=100, max=100, sum=100 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 95.23,
+        "description": "min=95.23, mean=95.23, max=95.23, sum=95.23 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 1.0,
+        "description": "min=1, mean=1, max=1, sum=1 (1)",
+        "style": {},
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Llama 3 Instruct (8B)",
+        "description": "",
+        "href": "?group=harm_bench&subgroup=&runSpecs=%5B%22harm_bench%3Amodel%3Dmeta_llama-3-8b-chat%22%5D",
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=meta_llama-3-8b-chat"
+        ]
+      },
+      {
+        "value": 0.815,
+        "description": "min=0.815, mean=0.815, max=0.815, sum=0.815 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 100.0,
+        "description": "min=100, mean=100, max=100, sum=100 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 95.23,
+        "description": "min=95.23, mean=95.23, max=95.23, sum=95.23 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 146.06,
+        "description": "min=146.06, mean=146.06, max=146.06, sum=146.06 (1)",
+        "style": {},
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Mixtral (8x22B)",
+        "description": "",
+        "href": "?group=harm_bench&subgroup=&runSpecs=%5B%22harm_bench%3Amodel%3Dmistralai_mixtral-8x22b%22%5D",
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=mistralai_mixtral-8x22b"
+        ]
+      },
+      {
+        "value": 0.5225,
+        "description": "min=0.522, mean=0.522, max=0.522, sum=0.522 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 100.0,
+        "description": "min=100, mean=100, max=100, sum=100 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 114.45,
+        "description": "min=114.45, mean=114.45, max=114.45, sum=114.45 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 1.0,
+        "description": "min=1, mean=1, max=1, sum=1 (1)",
+        "style": {},
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Mixtral Instruct (8x22B)",
+        "description": "",
+        "href": "?group=harm_bench&subgroup=&runSpecs=%5B%22harm_bench%3Amodel%3Dmistralai_mixtral-8x22b-instruct-v0.1%22%5D",
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=mistralai_mixtral-8x22b-instruct-v0.1"
+        ]
+      },
+      {
+        "value": 0.5775,
+        "description": "min=0.578, mean=0.578, max=0.578, sum=0.578 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 100.0,
+        "description": "min=100, mean=100, max=100, sum=100 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 114.45,
+        "description": "min=114.45, mean=114.45, max=114.45, sum=114.45 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 347.09,
+        "description": "min=347.09, mean=347.09, max=347.09, sum=347.09 (1)",
+        "style": {},
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Qwen2 Instruct (72B)",
+        "description": "",
+        "href": "?group=harm_bench&subgroup=&runSpecs=%5B%22harm_bench%3Amodel%3Dqwen_qwen2-72b-instruct%22%5D",
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=qwen_qwen2-72b-instruct"
+        ]
+      },
+      {
+        "value": 0.83,
+        "description": "min=0.83, mean=0.83, max=0.83, sum=0.83 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 100.0,
+        "description": "min=100, mean=100, max=100, sum=100 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 98.98,
+        "description": "min=98.98, mean=98.98, max=98.98, sum=98.98 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 218.28,
+        "description": "min=218.28, mean=218.28, max=218.28, sum=218.28 (1)",
+        "style": {},
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Claude 3 Opus (20240229)",
+        "description": "",
+        "href": "?group=harm_bench&subgroup=&runSpecs=%5B%22harm_bench%3Amodel%3Danthropic_claude-3-opus-20240229%22%5D",
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=anthropic_claude-3-opus-20240229"
+        ]
+      },
+      {
+        "value": 0.935,
+        "description": "min=0.935, mean=0.935, max=0.935, sum=0.935 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 100.0,
+        "description": "min=100, mean=100, max=100, sum=100 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 97.63,
+        "description": "min=97.63, mean=97.63, max=97.63, sum=97.63 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 115.7,
+        "description": "min=115.7, mean=115.7, max=115.7, sum=115.7 (1)",
+        "style": {},
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Claude 3.5 Sonnet (20240620)",
+        "description": "",
+        "href": "?group=harm_bench&subgroup=&runSpecs=%5B%22harm_bench%3Amodel%3Danthropic_claude-3-5-sonnet-20240620%22%5D",
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=anthropic_claude-3-5-sonnet-20240620"
+        ]
+      },
+      {
+        "value": 0.96,
+        "description": "min=0.96, mean=0.96, max=0.96, sum=0.96 (1)",
+        "style": {
+          "font-weight": "bold"
+        },
+        "markdown": false
+      },
+      {
+        "value": 100.0,
+        "description": "min=100, mean=100, max=100, sum=100 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 97.63,
+        "description": "min=97.63, mean=97.63, max=97.63, sum=97.63 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 103.37,
+        "description": "min=103.37, mean=103.37, max=103.37, sum=103.37 (1)",
+        "style": {},
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "Gemini 1.5 Pro (001)",
+        "description": "",
+        "href": "?group=harm_bench&subgroup=&runSpecs=%5B%22harm_bench%3Amodel%3Dgoogle_gemini-1.5-pro-001%22%5D",
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=google_gemini-1.5-pro-001"
+        ]
+      },
+      {
+        "value": 0.8725,
+        "description": "min=0.873, mean=0.873, max=0.873, sum=0.873 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 100.0,
+        "description": "min=100, mean=100, max=100, sum=100 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 98.54,
+        "description": "min=98.54, mean=98.54, max=98.54, sum=98.54 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "GPT-4 Turbo (2024-04-09)",
+        "description": "",
+        "href": "?group=harm_bench&subgroup=&runSpecs=%5B%22harm_bench%3Amodel%3Dopenai_gpt-4-turbo-2024-04-09%22%5D",
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=openai_gpt-4-turbo-2024-04-09"
+        ]
+      },
+      {
+        "value": 0.8625,
+        "description": "min=0.863, mean=0.863, max=0.863, sum=0.863 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 100.0,
+        "description": "min=100, mean=100, max=100, sum=100 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 95.25,
+        "description": "min=95.25, mean=95.25, max=95.25, sum=95.25 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 81.56,
+        "description": "min=81.56, mean=81.56, max=81.56, sum=81.56 (1)",
+        "style": {},
+        "markdown": false
+      }
+    ],
+    [
+      {
+        "value": "GPT-4o (2024-05-13)",
+        "description": "",
+        "href": "?group=harm_bench&subgroup=&runSpecs=%5B%22harm_bench%3Amodel%3Dopenai_gpt-4o-2024-05-13%22%5D",
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=openai_gpt-4o-2024-05-13"
+        ]
+      },
+      {
+        "value": 0.805,
+        "description": "min=0.805, mean=0.805, max=0.805, sum=0.805 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 100.0,
+        "description": "min=100, mean=100, max=100, sum=100 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 94.13,
+        "description": "min=94.13, mean=94.13, max=94.13, sum=94.13 (1)",
+        "style": {},
+        "markdown": false
+      },
+      {
+        "value": 129.5,
+        "description": "min=129.5, mean=129.5, max=129.5, sum=129.5 (1)",
+        "style": {},
+        "markdown": false
+      }
+    ]
+  ],
+  "links": [
+    {
+      "text": "LaTeX",
+      "href": "benchmark_output/runs/v4/groups/latex/harm_bench_harm_bench_.tex"
+    },
+    {
+      "text": "JSON",
+      "href": "benchmark_output/runs/v4/groups/json/harm_bench_harm_bench_.json"
+    }
+  ],
+  "name": "harm_bench_"
+}

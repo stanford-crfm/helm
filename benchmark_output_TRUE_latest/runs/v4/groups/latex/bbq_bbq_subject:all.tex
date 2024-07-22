@@ -1,0 +1,20 @@
+\begin{table*}[htp]
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lrrrrrr}
+\toprule
+Model/adapter & BBQ accuracy & # eval & # train & truncated & # prompt tokens & # output tokens \\
+\midrule
+Llama 3 Instruct (70B) & 0.29 & 100.0 &  &  & 85.36 & 1.0 \\
+Llama 3 Instruct (8B) & 0.74 & 100.0 &  &  & 85.36 & 1.0 \\
+Mixtral Instruct (8x22B) & 0.92 & 100.0 &  &  & 96.37 & 1.0 \\
+Qwen2 Instruct (72B) & 0.95 & 100.0 &  &  & 85.55 & 1.0 \\
+Claude 3 Opus (20240229) & 0.93 & 100.0 &  &  & 100.27 & 1.0 \\
+Claude 3.5 Sonnet (20240620) & 0.93 & 100.0 &  &  & 100.27 & 1.0 \\
+Gemini 1.5 Pro (001) & 0.94 & 100.0 &  &  & 95.34 &  \\
+GPT-4 Turbo (2024-04-09) & 0.91 & 100.0 &  &  & 85.36 & 1.0 \\
+GPT-4o (2024-05-13) & 0.95 & 100.0 &  &  & 84.31 & 1.0 \\
+\bottomrule
+\end{tabular}}
+\caption{Results for bbq_subject:all (bbq)}
+\label{fig:bbq_subject:all (bbq)}
+\end{table*}

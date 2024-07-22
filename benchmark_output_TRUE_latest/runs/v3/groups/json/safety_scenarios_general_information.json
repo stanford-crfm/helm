@@ -1,0 +1,1886 @@
+{
+  "title": "General information",
+  "header": [
+    {
+      "value": "Model/adapter",
+      "markdown": false,
+      "metadata": {}
+    },
+    {
+      "value": "HarmBench - # eval",
+      "description": "HarmBench\n\n# eval: Number of evaluation instances.",
+      "markdown": false,
+      "metadata": {
+        "metric": "# eval",
+        "run_group": "HarmBench"
+      }
+    },
+    {
+      "value": "HarmBench - # train",
+      "description": "HarmBench\n\n# train: Number of training instances (e.g., in-context examples).",
+      "markdown": false,
+      "metadata": {
+        "metric": "# train",
+        "run_group": "HarmBench"
+      }
+    },
+    {
+      "value": "HarmBench - truncated",
+      "description": "HarmBench\n\ntruncated: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).",
+      "markdown": false,
+      "metadata": {
+        "metric": "truncated",
+        "run_group": "HarmBench"
+      }
+    },
+    {
+      "value": "HarmBench - # prompt tokens",
+      "description": "HarmBench\n\n# prompt tokens: Number of tokens in the prompt.",
+      "markdown": false,
+      "metadata": {
+        "metric": "# prompt tokens",
+        "run_group": "HarmBench"
+      }
+    },
+    {
+      "value": "HarmBench - # output tokens",
+      "description": "HarmBench\n\n# output tokens: Actual number of output tokens.",
+      "markdown": false,
+      "metadata": {
+        "metric": "# output tokens",
+        "run_group": "HarmBench"
+      }
+    },
+    {
+      "value": "SimpleSafetyTests - # eval",
+      "description": "SimpleSafetyTests\n\n# eval: Number of evaluation instances.",
+      "markdown": false,
+      "metadata": {
+        "metric": "# eval",
+        "run_group": "SimpleSafetyTests"
+      }
+    },
+    {
+      "value": "SimpleSafetyTests - # train",
+      "description": "SimpleSafetyTests\n\n# train: Number of training instances (e.g., in-context examples).",
+      "markdown": false,
+      "metadata": {
+        "metric": "# train",
+        "run_group": "SimpleSafetyTests"
+      }
+    },
+    {
+      "value": "SimpleSafetyTests - truncated",
+      "description": "SimpleSafetyTests\n\ntruncated: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).",
+      "markdown": false,
+      "metadata": {
+        "metric": "truncated",
+        "run_group": "SimpleSafetyTests"
+      }
+    },
+    {
+      "value": "SimpleSafetyTests - # prompt tokens",
+      "description": "SimpleSafetyTests\n\n# prompt tokens: Number of tokens in the prompt.",
+      "markdown": false,
+      "metadata": {
+        "metric": "# prompt tokens",
+        "run_group": "SimpleSafetyTests"
+      }
+    },
+    {
+      "value": "SimpleSafetyTests - # output tokens",
+      "description": "SimpleSafetyTests\n\n# output tokens: Actual number of output tokens.",
+      "markdown": false,
+      "metadata": {
+        "metric": "# output tokens",
+        "run_group": "SimpleSafetyTests"
+      }
+    },
+    {
+      "value": "BBQ - # eval",
+      "description": "The Bias Benchmark for Question Answering (BBQ) for measuring social bias in question answering in ambiguous and unambigous context [(Parrish et al., 2022)](https://aclanthology.org/2022.findings-acl.165/).\n\n# eval: Number of evaluation instances.",
+      "markdown": false,
+      "metadata": {
+        "metric": "# eval",
+        "run_group": "BBQ"
+      }
+    },
+    {
+      "value": "BBQ - # train",
+      "description": "The Bias Benchmark for Question Answering (BBQ) for measuring social bias in question answering in ambiguous and unambigous context [(Parrish et al., 2022)](https://aclanthology.org/2022.findings-acl.165/).\n\n# train: Number of training instances (e.g., in-context examples).",
+      "markdown": false,
+      "metadata": {
+        "metric": "# train",
+        "run_group": "BBQ"
+      }
+    },
+    {
+      "value": "BBQ - truncated",
+      "description": "The Bias Benchmark for Question Answering (BBQ) for measuring social bias in question answering in ambiguous and unambigous context [(Parrish et al., 2022)](https://aclanthology.org/2022.findings-acl.165/).\n\ntruncated: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).",
+      "markdown": false,
+      "metadata": {
+        "metric": "truncated",
+        "run_group": "BBQ"
+      }
+    },
+    {
+      "value": "BBQ - # prompt tokens",
+      "description": "The Bias Benchmark for Question Answering (BBQ) for measuring social bias in question answering in ambiguous and unambigous context [(Parrish et al., 2022)](https://aclanthology.org/2022.findings-acl.165/).\n\n# prompt tokens: Number of tokens in the prompt.",
+      "markdown": false,
+      "metadata": {
+        "metric": "# prompt tokens",
+        "run_group": "BBQ"
+      }
+    },
+    {
+      "value": "BBQ - # output tokens",
+      "description": "The Bias Benchmark for Question Answering (BBQ) for measuring social bias in question answering in ambiguous and unambigous context [(Parrish et al., 2022)](https://aclanthology.org/2022.findings-acl.165/).\n\n# output tokens: Actual number of output tokens.",
+      "markdown": false,
+      "metadata": {
+        "metric": "# output tokens",
+        "run_group": "BBQ"
+      }
+    },
+    {
+      "value": "Anthropic Red Team - # eval",
+      "description": "Anthropic Red Team\n\n# eval: Number of evaluation instances.",
+      "markdown": false,
+      "metadata": {
+        "metric": "# eval",
+        "run_group": "Anthropic Red Team"
+      }
+    },
+    {
+      "value": "Anthropic Red Team - # train",
+      "description": "Anthropic Red Team\n\n# train: Number of training instances (e.g., in-context examples).",
+      "markdown": false,
+      "metadata": {
+        "metric": "# train",
+        "run_group": "Anthropic Red Team"
+      }
+    },
+    {
+      "value": "Anthropic Red Team - truncated",
+      "description": "Anthropic Red Team\n\ntruncated: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).",
+      "markdown": false,
+      "metadata": {
+        "metric": "truncated",
+        "run_group": "Anthropic Red Team"
+      }
+    },
+    {
+      "value": "Anthropic Red Team - # prompt tokens",
+      "description": "Anthropic Red Team\n\n# prompt tokens: Number of tokens in the prompt.",
+      "markdown": false,
+      "metadata": {
+        "metric": "# prompt tokens",
+        "run_group": "Anthropic Red Team"
+      }
+    },
+    {
+      "value": "Anthropic Red Team - # output tokens",
+      "description": "Anthropic Red Team\n\n# output tokens: Actual number of output tokens.",
+      "markdown": false,
+      "metadata": {
+        "metric": "# output tokens",
+        "run_group": "Anthropic Red Team"
+      }
+    }
+  ],
+  "rows": [
+    [
+      {
+        "value": "Llama 3 (70B)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=meta_llama-3-70b"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=meta_llama-3-70b"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=meta_llama-3-70b"
+        ]
+      },
+      {
+        "value": 75.5,
+        "description": "min=75.5, mean=75.5, max=75.5, sum=75.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=meta_llama-3-70b"
+        ]
+      },
+      {
+        "value": 1.0,
+        "description": "min=1, mean=1, max=1, sum=1 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=meta_llama-3-70b"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=meta_llama-3-70b"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=meta_llama-3-70b"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=meta_llama-3-70b"
+        ]
+      },
+      {
+        "value": 15.0,
+        "description": "min=15, mean=15, max=15, sum=15 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=meta_llama-3-70b"
+        ]
+      },
+      {
+        "value": 1.0,
+        "description": "min=1, mean=1, max=1, sum=1 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=meta_llama-3-70b"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=meta_llama-3-70b"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=meta_llama-3-70b"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=meta_llama-3-70b"
+        ]
+      },
+      {
+        "value": 65.5,
+        "description": "min=65.5, mean=65.5, max=65.5, sum=65.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=meta_llama-3-70b"
+        ]
+      },
+      {
+        "value": 1.0,
+        "description": "min=1, mean=1, max=1, sum=1 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=meta_llama-3-70b"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=meta_llama-3-70b"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=meta_llama-3-70b"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=meta_llama-3-70b"
+        ]
+      },
+      {
+        "value": 15.5,
+        "description": "min=15.5, mean=15.5, max=15.5, sum=15.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=meta_llama-3-70b"
+        ]
+      },
+      {
+        "value": 1.0,
+        "description": "min=1, mean=1, max=1, sum=1 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=meta_llama-3-70b"
+        ]
+      }
+    ],
+    [
+      {
+        "value": "Llama 3 (8B)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=meta_llama-3-8b"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=meta_llama-3-8b"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=meta_llama-3-8b"
+        ]
+      },
+      {
+        "value": 75.5,
+        "description": "min=75.5, mean=75.5, max=75.5, sum=75.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=meta_llama-3-8b"
+        ]
+      },
+      {
+        "value": 1.0,
+        "description": "min=1, mean=1, max=1, sum=1 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=meta_llama-3-8b"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=meta_llama-3-8b"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=meta_llama-3-8b"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=meta_llama-3-8b"
+        ]
+      },
+      {
+        "value": 15.0,
+        "description": "min=15, mean=15, max=15, sum=15 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=meta_llama-3-8b"
+        ]
+      },
+      {
+        "value": 1.0,
+        "description": "min=1, mean=1, max=1, sum=1 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=meta_llama-3-8b"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=meta_llama-3-8b"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=meta_llama-3-8b"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=meta_llama-3-8b"
+        ]
+      },
+      {
+        "value": 65.5,
+        "description": "min=65.5, mean=65.5, max=65.5, sum=65.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=meta_llama-3-8b"
+        ]
+      },
+      {
+        "value": 1.0,
+        "description": "min=1, mean=1, max=1, sum=1 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=meta_llama-3-8b"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=meta_llama-3-8b"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=meta_llama-3-8b"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=meta_llama-3-8b"
+        ]
+      },
+      {
+        "value": 15.5,
+        "description": "min=15.5, mean=15.5, max=15.5, sum=15.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=meta_llama-3-8b"
+        ]
+      },
+      {
+        "value": 1.0,
+        "description": "min=1, mean=1, max=1, sum=1 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=meta_llama-3-8b"
+        ]
+      }
+    ],
+    [
+      {
+        "value": "Mixtral (8x22B)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=mistralai_mixtral-8x22b"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=mistralai_mixtral-8x22b"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=mistralai_mixtral-8x22b"
+        ]
+      },
+      {
+        "value": 90.5,
+        "description": "min=90.5, mean=90.5, max=90.5, sum=90.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=mistralai_mixtral-8x22b"
+        ]
+      },
+      {
+        "value": 1.0,
+        "description": "min=1, mean=1, max=1, sum=1 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=mistralai_mixtral-8x22b"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=mistralai_mixtral-8x22b"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=mistralai_mixtral-8x22b"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=mistralai_mixtral-8x22b"
+        ]
+      },
+      {
+        "value": 15.5,
+        "description": "min=15.5, mean=15.5, max=15.5, sum=15.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=mistralai_mixtral-8x22b"
+        ]
+      },
+      {
+        "value": 1.0,
+        "description": "min=1, mean=1, max=1, sum=1 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=mistralai_mixtral-8x22b"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=mistralai_mixtral-8x22b"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=mistralai_mixtral-8x22b"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=mistralai_mixtral-8x22b"
+        ]
+      },
+      {
+        "value": 74.5,
+        "description": "min=74.5, mean=74.5, max=74.5, sum=74.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=mistralai_mixtral-8x22b"
+        ]
+      },
+      {
+        "value": 1.0,
+        "description": "min=1, mean=1, max=1, sum=1 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=mistralai_mixtral-8x22b"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=mistralai_mixtral-8x22b"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=mistralai_mixtral-8x22b"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=mistralai_mixtral-8x22b"
+        ]
+      },
+      {
+        "value": 16.5,
+        "description": "min=16.5, mean=16.5, max=16.5, sum=16.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=mistralai_mixtral-8x22b"
+        ]
+      },
+      {
+        "value": 1.0,
+        "description": "min=1, mean=1, max=1, sum=1 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=mistralai_mixtral-8x22b"
+        ]
+      }
+    ],
+    [
+      {
+        "value": "Qwen2 Instruct (72B)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=qwen_qwen2-72b-instruct"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=qwen_qwen2-72b-instruct"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=qwen_qwen2-72b-instruct"
+        ]
+      },
+      {
+        "value": 77.0,
+        "description": "min=77, mean=77, max=77, sum=77 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=qwen_qwen2-72b-instruct"
+        ]
+      },
+      {
+        "value": 99.0,
+        "description": "min=99, mean=99, max=99, sum=99 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=qwen_qwen2-72b-instruct"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=qwen_qwen2-72b-instruct"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=qwen_qwen2-72b-instruct"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=qwen_qwen2-72b-instruct"
+        ]
+      },
+      {
+        "value": 15.0,
+        "description": "min=15, mean=15, max=15, sum=15 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=qwen_qwen2-72b-instruct"
+        ]
+      },
+      {
+        "value": 312.0,
+        "description": "min=312, mean=312, max=312, sum=312 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=qwen_qwen2-72b-instruct"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=qwen_qwen2-72b-instruct"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=qwen_qwen2-72b-instruct"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=qwen_qwen2-72b-instruct"
+        ]
+      },
+      {
+        "value": 65.5,
+        "description": "min=65.5, mean=65.5, max=65.5, sum=65.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=qwen_qwen2-72b-instruct"
+        ]
+      },
+      {
+        "value": 1.0,
+        "description": "min=1, mean=1, max=1, sum=1 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=qwen_qwen2-72b-instruct"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=qwen_qwen2-72b-instruct"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=qwen_qwen2-72b-instruct"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=qwen_qwen2-72b-instruct"
+        ]
+      },
+      {
+        "value": 15.5,
+        "description": "min=15.5, mean=15.5, max=15.5, sum=15.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=qwen_qwen2-72b-instruct"
+        ]
+      },
+      {
+        "value": 72.5,
+        "description": "min=72.5, mean=72.5, max=72.5, sum=72.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=qwen_qwen2-72b-instruct"
+        ]
+      }
+    ],
+    [
+      {
+        "value": "Claude 3 Opus (20240229)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=anthropic_claude-3-opus-20240229"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=anthropic_claude-3-opus-20240229"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=anthropic_claude-3-opus-20240229"
+        ]
+      },
+      {
+        "value": 77.0,
+        "description": "min=77, mean=77, max=77, sum=77 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=anthropic_claude-3-opus-20240229"
+        ]
+      },
+      {
+        "value": 81.5,
+        "description": "min=81.5, mean=81.5, max=81.5, sum=81.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=anthropic_claude-3-opus-20240229"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=anthropic_claude-3-opus-20240229"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=anthropic_claude-3-opus-20240229"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=anthropic_claude-3-opus-20240229"
+        ]
+      },
+      {
+        "value": 15.0,
+        "description": "min=15, mean=15, max=15, sum=15 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=anthropic_claude-3-opus-20240229"
+        ]
+      },
+      {
+        "value": 110.0,
+        "description": "min=110, mean=110, max=110, sum=110 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=anthropic_claude-3-opus-20240229"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=anthropic_claude-3-opus-20240229"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=anthropic_claude-3-opus-20240229"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=anthropic_claude-3-opus-20240229"
+        ]
+      },
+      {
+        "value": 81.0,
+        "description": "min=81, mean=81, max=81, sum=81 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=anthropic_claude-3-opus-20240229"
+        ]
+      },
+      {
+        "value": 1.0,
+        "description": "min=1, mean=1, max=1, sum=1 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=anthropic_claude-3-opus-20240229"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=anthropic_claude-3-opus-20240229"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=anthropic_claude-3-opus-20240229"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=anthropic_claude-3-opus-20240229"
+        ]
+      },
+      {
+        "value": 15.5,
+        "description": "min=15.5, mean=15.5, max=15.5, sum=15.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=anthropic_claude-3-opus-20240229"
+        ]
+      },
+      {
+        "value": 89.5,
+        "description": "min=89.5, mean=89.5, max=89.5, sum=89.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=anthropic_claude-3-opus-20240229"
+        ]
+      }
+    ],
+    [
+      {
+        "value": "Claude 3.5 Sonnet (20240620)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=anthropic_claude-3-5-sonnet-20240620"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=anthropic_claude-3-5-sonnet-20240620"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=anthropic_claude-3-5-sonnet-20240620"
+        ]
+      },
+      {
+        "value": 77.0,
+        "description": "min=77, mean=77, max=77, sum=77 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=anthropic_claude-3-5-sonnet-20240620"
+        ]
+      },
+      {
+        "value": 70.0,
+        "description": "min=70, mean=70, max=70, sum=70 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=anthropic_claude-3-5-sonnet-20240620"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=anthropic_claude-3-5-sonnet-20240620"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=anthropic_claude-3-5-sonnet-20240620"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=anthropic_claude-3-5-sonnet-20240620"
+        ]
+      },
+      {
+        "value": 15.0,
+        "description": "min=15, mean=15, max=15, sum=15 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=anthropic_claude-3-5-sonnet-20240620"
+        ]
+      },
+      {
+        "value": 52.5,
+        "description": "min=52.5, mean=52.5, max=52.5, sum=52.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=anthropic_claude-3-5-sonnet-20240620"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=anthropic_claude-3-5-sonnet-20240620"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=anthropic_claude-3-5-sonnet-20240620"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=anthropic_claude-3-5-sonnet-20240620"
+        ]
+      },
+      {
+        "value": 81.0,
+        "description": "min=81, mean=81, max=81, sum=81 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=anthropic_claude-3-5-sonnet-20240620"
+        ]
+      },
+      {
+        "value": 1.0,
+        "description": "min=1, mean=1, max=1, sum=1 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=anthropic_claude-3-5-sonnet-20240620"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=anthropic_claude-3-5-sonnet-20240620"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=anthropic_claude-3-5-sonnet-20240620"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=anthropic_claude-3-5-sonnet-20240620"
+        ]
+      },
+      {
+        "value": 15.5,
+        "description": "min=15.5, mean=15.5, max=15.5, sum=15.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=anthropic_claude-3-5-sonnet-20240620"
+        ]
+      },
+      {
+        "value": 52.0,
+        "description": "min=52, mean=52, max=52, sum=52 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=anthropic_claude-3-5-sonnet-20240620"
+        ]
+      }
+    ],
+    [
+      {
+        "value": "Gemini 1.5 Pro (001)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=google_gemini-1.5-pro-001"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=google_gemini-1.5-pro-001"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=google_gemini-1.5-pro-001"
+        ]
+      },
+      {
+        "value": 70.0,
+        "description": "min=70, mean=70, max=70, sum=70 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=google_gemini-1.5-pro-001"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=google_gemini-1.5-pro-001"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=google_gemini-1.5-pro-001"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=google_gemini-1.5-pro-001"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=google_gemini-1.5-pro-001"
+        ]
+      },
+      {
+        "value": 15.0,
+        "description": "min=15, mean=15, max=15, sum=15 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=google_gemini-1.5-pro-001"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=google_gemini-1.5-pro-001"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=google_gemini-1.5-pro-001"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=google_gemini-1.5-pro-001"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=google_gemini-1.5-pro-001"
+        ]
+      },
+      {
+        "value": 67.5,
+        "description": "min=67.5, mean=67.5, max=67.5, sum=67.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=google_gemini-1.5-pro-001"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=google_gemini-1.5-pro-001"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=google_gemini-1.5-pro-001"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=google_gemini-1.5-pro-001"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=google_gemini-1.5-pro-001"
+        ]
+      },
+      {
+        "value": 16.5,
+        "description": "min=16.5, mean=16.5, max=16.5, sum=16.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=google_gemini-1.5-pro-001"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=google_gemini-1.5-pro-001"
+        ]
+      }
+    ],
+    [
+      {
+        "value": "GPT-4 Turbo (2024-04-09)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=openai_gpt-4-turbo-2024-04-09"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=openai_gpt-4-turbo-2024-04-09"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=openai_gpt-4-turbo-2024-04-09"
+        ]
+      },
+      {
+        "value": 75.5,
+        "description": "min=75.5, mean=75.5, max=75.5, sum=75.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=openai_gpt-4-turbo-2024-04-09"
+        ]
+      },
+      {
+        "value": 12.5,
+        "description": "min=12.5, mean=12.5, max=12.5, sum=12.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=openai_gpt-4-turbo-2024-04-09"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=openai_gpt-4-turbo-2024-04-09"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=openai_gpt-4-turbo-2024-04-09"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=openai_gpt-4-turbo-2024-04-09"
+        ]
+      },
+      {
+        "value": 15.0,
+        "description": "min=15, mean=15, max=15, sum=15 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=openai_gpt-4-turbo-2024-04-09"
+        ]
+      },
+      {
+        "value": 216.5,
+        "description": "min=216.5, mean=216.5, max=216.5, sum=216.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=openai_gpt-4-turbo-2024-04-09"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=openai_gpt-4-turbo-2024-04-09"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=openai_gpt-4-turbo-2024-04-09"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=openai_gpt-4-turbo-2024-04-09"
+        ]
+      },
+      {
+        "value": 65.5,
+        "description": "min=65.5, mean=65.5, max=65.5, sum=65.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=openai_gpt-4-turbo-2024-04-09"
+        ]
+      },
+      {
+        "value": 1.0,
+        "description": "min=1, mean=1, max=1, sum=1 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=openai_gpt-4-turbo-2024-04-09"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=openai_gpt-4-turbo-2024-04-09"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=openai_gpt-4-turbo-2024-04-09"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=openai_gpt-4-turbo-2024-04-09"
+        ]
+      },
+      {
+        "value": 15.5,
+        "description": "min=15.5, mean=15.5, max=15.5, sum=15.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=openai_gpt-4-turbo-2024-04-09"
+        ]
+      },
+      {
+        "value": 13.5,
+        "description": "min=13.5, mean=13.5, max=13.5, sum=13.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=openai_gpt-4-turbo-2024-04-09"
+        ]
+      }
+    ],
+    [
+      {
+        "value": "GPT-4o (2024-05-13)",
+        "description": "",
+        "markdown": false
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=openai_gpt-4o-2024-05-13"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=openai_gpt-4o-2024-05-13"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=openai_gpt-4o-2024-05-13"
+        ]
+      },
+      {
+        "value": 73.0,
+        "description": "min=73, mean=73, max=73, sum=73 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=openai_gpt-4o-2024-05-13"
+        ]
+      },
+      {
+        "value": 10.5,
+        "description": "min=10.5, mean=10.5, max=10.5, sum=10.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "harm_bench:model=openai_gpt-4o-2024-05-13"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=openai_gpt-4o-2024-05-13"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=openai_gpt-4o-2024-05-13"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=openai_gpt-4o-2024-05-13"
+        ]
+      },
+      {
+        "value": 15.0,
+        "description": "min=15, mean=15, max=15, sum=15 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=openai_gpt-4o-2024-05-13"
+        ]
+      },
+      {
+        "value": 194.0,
+        "description": "min=194, mean=194, max=194, sum=194 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "simple_safety_tests:model=openai_gpt-4o-2024-05-13"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=openai_gpt-4o-2024-05-13"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=openai_gpt-4o-2024-05-13"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=openai_gpt-4o-2024-05-13"
+        ]
+      },
+      {
+        "value": 66.5,
+        "description": "min=66.5, mean=66.5, max=66.5, sum=66.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=openai_gpt-4o-2024-05-13"
+        ]
+      },
+      {
+        "value": 1.0,
+        "description": "min=1, mean=1, max=1, sum=1 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "bbq:subject=all,method=multiple_choice_joint,model=openai_gpt-4o-2024-05-13"
+        ]
+      },
+      {
+        "value": 2.0,
+        "description": "min=2, mean=2, max=2, sum=2 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=openai_gpt-4o-2024-05-13"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=openai_gpt-4o-2024-05-13"
+        ]
+      },
+      {
+        "value": 0.0,
+        "description": "min=0, mean=0, max=0, sum=0 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=openai_gpt-4o-2024-05-13"
+        ]
+      },
+      {
+        "value": 14.5,
+        "description": "min=14.5, mean=14.5, max=14.5, sum=14.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=openai_gpt-4o-2024-05-13"
+        ]
+      },
+      {
+        "value": 12.5,
+        "description": "min=12.5, mean=12.5, max=12.5, sum=12.5 (1)",
+        "style": {},
+        "markdown": false,
+        "run_spec_names": [
+          "anthropic_red_team:model=openai_gpt-4o-2024-05-13"
+        ]
+      }
+    ]
+  ],
+  "links": [
+    {
+      "text": "LaTeX",
+      "href": "benchmark_output/runs/v3/groups/latex/safety_scenarios_general_information.tex"
+    },
+    {
+      "text": "JSON",
+      "href": "benchmark_output/runs/v3/groups/json/safety_scenarios_general_information.json"
+    }
+  ],
+  "name": "general_information"
+}

@@ -1,0 +1,20 @@
+\begin{table*}[htp]
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lrrrrrr}
+\toprule
+Model/adapter & Mean win rate & HarmBench - HarmBench - Model Evaluated Safety score & SimpleSafetyTests - SimpleSafetyTests - Model Evaluated Safety score & BBQ - BBQ accuracy & Anthropic Red Team - Anthropic Red Team - Model Evaluated Safety score & XSTest - XSTest - Model Evaluated Safety score \\
+\midrule
+Llama 3 Instruct (70B) & 0.375 & 0.7125 & 1.0 & 0.29 & 0.9775 & 0.9675 \\
+Llama 3 Instruct (8B) & 0.375 & 0.815 & 0.99 & 0.74 & 0.99875 & 0.9275 \\
+Mixtral Instruct (8x22B) & 0.125 & 0.5775 & 0.9375 & 0.92 & 0.94625 & 0.9325 \\
+Qwen2 Instruct (72B) & 0.5 & 0.83 & 0.9875 & 0.95 & 0.9975 & 0.955 \\
+Claude 3 Opus (20240229) & 0.65 & 0.935 & 1.0 & 0.93 & 0.9975 & 0.9575 \\
+Claude 3.5 Sonnet (20240620) & 0.775 & 0.96 & 1.0 & 0.93 & 0.99625 & 0.9675 \\
+Gemini 1.5 Pro (001) & 0.5 & 0.8725 & 0.9775 & 0.94 & 1.0 & 0.91 \\
+GPT-4 Turbo (2024-04-09) & 0.625 & 0.8625 & 0.995 & 0.91 & 1.0 & 0.9625 \\
+GPT-4o (2024-05-13) & 0.575 & 0.805 & 0.98 & 0.95 & 0.9975 & 0.9625 \\
+\bottomrule
+\end{tabular}}
+\caption{Results for accuracy (safety_scenarios)}
+\label{fig:accuracy (safety_scenarios)}
+\end{table*}

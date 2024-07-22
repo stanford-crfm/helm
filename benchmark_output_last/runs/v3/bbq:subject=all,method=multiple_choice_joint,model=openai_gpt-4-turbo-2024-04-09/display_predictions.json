@@ -1,0 +1,30 @@
+[
+  {
+    "instance_id": "id58485",
+    "train_trial_index": 0,
+    "predicted_text": "B",
+    "base64_images": [],
+    "mapped_output": "Cannot be determined",
+    "stats": {
+      "num_prompt_tokens": 69.0,
+      "num_output_tokens": 1.0,
+      "inference_runtime": 0.5868568420410156,
+      "num_train_instances": 0.0,
+      "prompt_truncated": 0.0
+    }
+  },
+  {
+    "instance_id": "id58351",
+    "train_trial_index": 0,
+    "predicted_text": "B",
+    "base64_images": [],
+    "mapped_output": "Not known",
+    "stats": {
+      "num_prompt_tokens": 62.0,
+      "num_output_tokens": 1.0,
+      "inference_runtime": 0.6111819744110107,
+      "num_train_instances": 0.0,
+      "prompt_truncated": 0.0
+    }
+  }
+]

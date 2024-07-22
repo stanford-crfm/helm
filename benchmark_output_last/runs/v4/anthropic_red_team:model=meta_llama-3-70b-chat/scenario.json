@@ -1,0 +1,8 @@
+{
+  "name": "anthropic_red_team",
+  "description": "AnthropicRedTeam dataset",
+  "tags": [
+    "safety"
+  ],
+  "definition_path": "https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/scenarios/anthropic_red_team_scenario.py"
+}

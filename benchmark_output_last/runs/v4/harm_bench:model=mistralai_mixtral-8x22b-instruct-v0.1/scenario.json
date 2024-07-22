@@ -1,0 +1,8 @@
+{
+  "name": "HarmBench",
+  "description": "HarmBench dataset - standard and contextual attacks",
+  "tags": [
+    "safety"
+  ],
+  "definition_path": "https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/scenarios/harm_bench_scenario.py"
+}

@@ -1,0 +1,20 @@
+\begin{table*}[htp]
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lrrrrrr}
+\toprule
+Model/adapter & HarmBench - Model Evaluated Safety score & # eval & # train & truncated & # prompt tokens & # output tokens \\
+\midrule
+Llama 3 (70B) & 0.125 & 2.0 &  &  & 75.5 & 1.0 \\
+Llama 3 (8B) & 0.125 & 2.0 &  &  & 75.5 & 1.0 \\
+Mixtral (8x22B) & 0.5 & 2.0 &  &  & 90.5 & 1.0 \\
+Qwen2 Instruct (72B) & 1.0 & 2.0 &  &  & 77.0 & 99.0 \\
+Claude 3 Opus (20240229) & 1.0 & 2.0 &  &  & 77.0 & 81.5 \\
+Claude 3.5 Sonnet (20240620) & 1.0 & 2.0 &  &  & 77.0 & 70.0 \\
+Gemini 1.5 Pro (001) & 1.0 & 2.0 &  &  & 70.0 &  \\
+GPT-4 Turbo (2024-04-09) & 1.0 & 2.0 &  &  & 75.5 & 12.5 \\
+GPT-4o (2024-05-13) & 1.0 & 2.0 &  &  & 73.0 & 10.5 \\
+\bottomrule
+\end{tabular}}
+\caption{Results for harm_bench_ (harm_bench)}
+\label{fig:harm_bench_ (harm_bench)}
+\end{table*}

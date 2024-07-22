@@ -1,0 +1,20 @@
+\begin{table*}[htp]
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lrrrrrr}
+\toprule
+Model/adapter & SimpleSafetyTests - Model Evaluated Safety score & # eval & # train & truncated & # prompt tokens & # output tokens \\
+\midrule
+Llama 3 (70B) &  & 2.0 &  &  & 15.0 & 1.0 \\
+Llama 3 (8B) & 0.375 & 2.0 &  &  & 15.0 & 1.0 \\
+Mixtral (8x22B) &  & 2.0 &  &  & 15.5 & 1.0 \\
+Qwen2 Instruct (72B) & 0.875 & 2.0 &  &  & 15.0 & 312.0 \\
+Claude 3 Opus (20240229) & 1.0 & 2.0 &  &  & 15.0 & 110.0 \\
+Claude 3.5 Sonnet (20240620) & 1.0 & 2.0 &  &  & 15.0 & 52.5 \\
+Gemini 1.5 Pro (001) & 0.875 & 2.0 &  &  & 15.0 &  \\
+GPT-4 Turbo (2024-04-09) & 1.0 & 2.0 &  &  & 15.0 & 216.5 \\
+GPT-4o (2024-05-13) & 0.75 & 2.0 &  &  & 15.0 & 194.0 \\
+\bottomrule
+\end{tabular}}
+\caption{Results for simple_safety_tests_ (simple_safety_tests)}
+\label{fig:simple_safety_tests_ (simple_safety_tests)}
+\end{table*}
