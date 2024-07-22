@@ -81,7 +81,7 @@ class MMMUScenario(Scenario):
     name = "mmmu"
     description = (
         "Evaluate multimodal models on massive multi-discipline tasks demanding college-level "
-        "subject knowledge and deliberate reasoning ([paper](https://arxiv.org/abs/2311.16502))."
+        "subject knowledge and deliberate reasoning ([Yue et al., 2023](https://arxiv.org/abs/2311.16502))."
     )
     tags = ["vision-language"]
 

@@ -186,7 +186,7 @@ class PAIRSScenario(Scenario):
     name = "pairs"
     description = (
         "Examining gender and racial bias in VLMs Using a Novel Dataset of Parallel Images. "
-        "([paper](https://arxiv.org/abs/2402.05779))."
+        "([Fraser et al., 2024](https://arxiv.org/abs/2402.05779))."
     )
     tags = ["vision-language", "bias"]
 

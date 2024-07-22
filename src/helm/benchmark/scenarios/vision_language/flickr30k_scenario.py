@@ -41,7 +41,7 @@ class Flickr30KScenario(Scenario):
     name = "flickr30k"
     description = (
         "An image caption corpus consisting of 158,915 crowd-sourced captions describing 31,783 Flickr "
-        "images ([paper](https://shannon.cs.illinois.edu/DenotationGraph/TACLDenotationGraph.pdf))."
+        "images ([Young et al., 2014](https://shannon.cs.illinois.edu/DenotationGraph/TACLDenotationGraph.pdf))."
     )
     tags = ["vision-language"]
 
