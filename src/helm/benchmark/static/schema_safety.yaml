@@ -86,6 +86,10 @@ metrics:
     display_name: SimpleSafetyTests - Model Evaluated Safety score
     description: SimpleSafetyTests - Model Evaluated Safety score
     lower_is_better: false
+  - name: xst_score
+    display_name: XSTest - Model Evaluated Safety score
+    description: XSTest - Model Evaluated Safety score
+    lower_is_better: false
   - name: bbq_accuracy
     display_name: BBQ accuracy
     description: BBQ accuracy
@@ -165,6 +169,7 @@ run_groups:
       - simple_safety_tests
       - bbq
       - anthropic_red_team
+      - xstest
 
   - name: harm_bench
     display_name: HarmBench
@@ -192,6 +197,23 @@ run_groups:
       - general_information
     environment:
       main_name: sst_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+  
+  - name: xstest
+    display_name: XSTest
+    description: XSTest
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: xst_score
       main_split: test
     taxonomy:
       task: question answering
