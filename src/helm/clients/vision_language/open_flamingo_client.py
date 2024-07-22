@@ -82,13 +82,12 @@ class OpenFlamingoClient(CachingClient):
         # Build the prompt
         prompt_text: str = ""
         images: List[Image.Image] = []
+        request.validate()
         for media_object in request.multimodal_prompt.media_objects:
             if media_object.is_type("image") and media_object.location:
                 images.append(open_image(media_object.location))
                 prompt_text += self.IMAGE_TOKEN
             elif media_object.is_type(TEXT_TYPE):
-                if media_object.text is None:
-                    raise ValueError("MediaObject of text type has missing text field value")
                 prompt_text += media_object.text
             else:
                 raise ValueError(f"Unrecognized MediaObject type {media_object.type}")

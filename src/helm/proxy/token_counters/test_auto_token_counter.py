@@ -13,8 +13,8 @@ class TestAutoTokenCounter:
         )
         # The following prompt has 51 tokens according to the GPT-2 tokenizer
         request = Request(
-            model="openai/text-davinci-002",
-            model_deployment="openai/text-davinci-002",
+            model="openai/gpt2",
+            model_deployment="huggingface/gpt2",
             prompt="The Center for Research on Foundation Models (CRFM) is "
             "an interdisciplinary initiative born out of the Stanford "
             "Institute for Human-Centered Artificial Intelligence (HAI) "

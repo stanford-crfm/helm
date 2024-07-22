@@ -251,9 +251,8 @@ def _process_huggingface_client_kwargs(raw_kwargs: Dict[str, Any]):
     # e.g. the string "torch.bfloat16" is converted to torch.bfloat16
     torch_dtype = processed_kwargs.get(TORCH_DTYPE_KEY)
     if torch_dtype and isinstance(torch_dtype, str):
-        if not torch_dtype.startswith(TORCH_DTYPE_VALUE_PREFIX):
-            raise ValueError(f'Unknown dtype "{torch_dtype}"; expected a string such as "torch.bfloat16"')
-        processed_kwargs[TORCH_DTYPE_KEY] = getattr(torch, torch_dtype[len(TORCH_DTYPE_VALUE_PREFIX) :])
+        if torch_dtype.startswith(TORCH_DTYPE_VALUE_PREFIX):
+            processed_kwargs[TORCH_DTYPE_KEY] = getattr(torch, torch_dtype[len(TORCH_DTYPE_VALUE_PREFIX) :])
 
     return processed_kwargs
 

@@ -8,6 +8,7 @@ import SimpleHero from "@/components/SimpleHero";
 //import scenariosByMetrics from "@/assets/scenarios-by-metrics.png";
 //import taxonomyScenarios from "@/assets/taxonomy-scenarios.png";
 import ai21 from "@/assets/logos/ai21.png";
+import aisingapore from "@/assets/logos/aisingapore.png";
 import alephAlpha from "@/assets/logos/aleph-alpha.png";
 import anthropic from "@/assets/logos/anthropic.png";
 import bigscience from "@/assets/logos/bigscience.png";
@@ -28,6 +29,7 @@ import zeroOne from "@/assets/logos/01.png";
 
 const logos = [
   ai21,
+  aisingapore,
   alephAlpha,
   anthropic,
   bigscience,

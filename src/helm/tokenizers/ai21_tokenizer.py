@@ -1,9 +1,11 @@
+import threading
 from typing import Any, Dict, List
 import requests
 
 from dacite import from_dict
 
 from helm.common.cache import Cache, CacheConfig
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -13,7 +15,14 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
 )
 from helm.clients.ai21_utils import AI21RequestError, handle_failed_request
-from .tokenizer import Tokenizer
+from helm.tokenizers.caching_tokenizer import CachingTokenizer
+from helm.tokenizers.tokenizer import Tokenizer
+
+try:
+    from ai21_tokenizer import Tokenizer as SDKTokenizer, PreTrainedTokenizers
+    from ai21_tokenizer.base_tokenizer import BaseTokenizer
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["ai21"])
 
 
 class AI21Tokenizer(Tokenizer):
@@ -58,3 +67,53 @@ class AI21Tokenizer(Tokenizer):
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
         raise NotImplementedError("Not supported")
+
+
+class AI21LocalTokenizer(CachingTokenizer):
+    """AI21 tokenizer using the AI21 Python library."""
+
+    _KNOWN_TOKENIZERS = [
+        PreTrainedTokenizers.J2_TOKENIZER,
+        PreTrainedTokenizers.JAMBA_TOKENIZER,
+        PreTrainedTokenizers.JAMBA_INSTRUCT_TOKENIZER,
+    ]
+
+    def __init__(self, cache_config: CacheConfig) -> None:
+        super().__init__(cache_config)
+        self._tokenizers_lock = threading.Lock()
+        self.tokenizers: Dict[str, BaseTokenizer] = {}
+
+    def _get_tokenizer(self, tokenizer_name: str) -> BaseTokenizer:
+        if tokenizer_name not in AI21LocalTokenizer._KNOWN_TOKENIZERS:
+            raise ValueError(
+                f"Unknown tokenizer: {tokenizer_name} - " f"valid values are {AI21LocalTokenizer._KNOWN_TOKENIZERS}"
+            )
+        with self._tokenizers_lock:
+            if tokenizer_name not in self.tokenizers:
+                self.tokenizers[tokenizer_name] = SDKTokenizer.get_tokenizer(tokenizer_name)
+            return self.tokenizers[tokenizer_name]
+
+    def _tokenize_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        tokenizer_name = request["tokenizer"].split("/")[1]
+        tokenizer = self._get_tokenizer(tokenizer_name)
+        if request["truncation"]:
+            token_ids = tokenizer.encode(
+                text=request["text"],
+                truncation=request["truncation"],
+                max_length=request["max_length"],
+                add_special_tokens=False,
+            )
+        else:
+            token_ids = tokenizer.encode(
+                text=request["text"],
+                add_special_tokens=False,
+            )
+        if request["encode"]:
+            return {"tokens": token_ids}
+        else:
+            return {"tokens": tokenizer.convert_ids_to_tokens(token_ids)}
+
+    def _decode_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        tokenizer_name = request["tokenizer"].split("/")[1]
+        tokenizer = self._get_tokenizer(tokenizer_name)
+        return {"text": tokenizer.decode(request["tokens"])}

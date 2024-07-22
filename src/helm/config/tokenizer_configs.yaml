@@ -23,6 +23,12 @@ tokenizer_configs:
     end_of_text_token: " "
     prefix_token: ""
 
+  - name: ai21/jamba-instruct-tokenizer
+    tokenizer_spec:
+      class_name: "helm.tokenizers.ai21_tokenizer.AI21Tokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|startoftext|>"
+
   # AlephAlpha
   - name: AlephAlpha/luminous-base
     tokenizer_spec:
@@ -95,12 +101,6 @@ tokenizer_configs:
     prefix_token: ""
 
   # Cohere
-  - name: cohere/cohere
-    tokenizer_spec:
-      class_name: "helm.tokenizers.cohere_tokenizer.CohereTokenizer"
-    end_of_text_token: ""
-    prefix_token: ":"
-
   - name: cohere/command
     tokenizer_spec:
       class_name: "helm.tokenizers.cohere_tokenizer.CohereLocalTokenizer"
@@ -213,6 +213,11 @@ tokenizer_configs:
     end_of_text_token: "</s>"
     prefix_token: ""
   - name: google/gemma-2b
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<eos>"
+    prefix_token: "<bos>"
+  - name: google/gemma-2-9b
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "<eos>"
@@ -341,6 +346,20 @@ tokenizer_configs:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"  
     end_of_text_token: "<|endoftext|>"  
     prefix_token: "<|endoftext|>"
+
+  - name: microsoft/phi-3-small-8k-instruct
+    tokenizer_spec:  
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        trust_remote_code: true
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|endoftext|>"
+
+  - name: microsoft/phi-3-medium-4k-instruct
+    tokenizer_spec:  
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<s>"
 
   # Mistralai
   - name: mistralai/Mistral-7B-v0.1

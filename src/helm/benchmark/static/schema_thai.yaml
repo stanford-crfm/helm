@@ -78,6 +78,7 @@ perturbations: []
 metric_groups:
   - name: accuracy
     display_name: Accuracy
+    hide_win_rates: true
     metrics:
       - name: ${main_name}
         split: ${main_split}
@@ -111,11 +112,31 @@ run_groups:
     description: Thai-language scenarios
     category: All scenarios
     subgroups:
+      - thai_exam
       - thai_exam_onet
       - thai_exam_ic
       - thai_exam_tgat
       - thai_exam_tpat1
       - thai_exam_a_level
+
+
+  - name: thai_exam
+    display_name: ThaiExam
+    description: >
+      Macro-averaged accuracy on all ThaiExam examinations.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: "?"
+      language: Thai and English
 
   - name: thai_exam_onet
     display_name: ONET
