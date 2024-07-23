@@ -12,8 +12,8 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
-from .client import CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
 from helm.tokenizers.tokenizer import Tokenizer
+from .client import CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
 
 try:
     import openai
@@ -42,11 +42,13 @@ class OpenAIClient(CachingClient):
         api_key: Optional[str] = None,
         org_id: Optional[str] = None,
         base_url: Optional[str] = None,
+        model_name: Optional[str] = None,
     ):
         super().__init__(cache_config=cache_config)
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
         self.client = OpenAI(api_key=api_key, organization=org_id, base_url=base_url)
+        self.model_name = model_name
 
     def _is_chat_model_engine(self, model_engine: str) -> bool:
         if model_engine == "gpt-3.5-turbo-instruct":
@@ -56,7 +58,7 @@ class OpenAIClient(CachingClient):
         return False
 
     def _get_model_for_request(self, request: Request) -> str:
-        return request.model_engine
+        return self.model_name
 
     def _get_cache_key(self, raw_request: Dict, request: Request):
         cache_key = CachingClient.make_cache_key(raw_request, request)
@@ -234,7 +236,7 @@ class OpenAIClient(CachingClient):
             "temperature": request.temperature,
             "n": request.num_completions,
             "max_tokens": request.max_tokens,
-            "best_of": request.top_k_per_token,
+            # "best_of" request.top_k_per_token,
             "logprobs": request.top_k_per_token,
             "stop": request.stop_sequences or None,  # API doesn't like empty list
             "top_p": request.top_p,
@@ -242,10 +244,10 @@ class OpenAIClient(CachingClient):
             "frequency_penalty": request.frequency_penalty,
             "echo": request.echo_prompt,
         }
-
+        
         # OpenAI doesn't let you ask for more completions than the number of
         # per-token candidates.
-        raw_request["best_of"] = max(raw_request["best_of"], raw_request["n"])
+        # raw_request["best_of"] = max(raw_request["best_of"], raw_request["n"])
         raw_request["logprobs"] = max(raw_request["logprobs"], raw_request["n"])
 
         return raw_request

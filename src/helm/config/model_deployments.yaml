@@ -2363,3 +2363,23 @@ model_deployments:
     max_sequence_length: 64000
     client_spec:
       class_name: "helm.clients.reka_client.RekaClient"
+
+  - name: fireworks/llama3-405fp16
+    model_name: fireworks/llama3-405fp16
+    tokenizer_name: meta/llama-3.1-8b
+    max_sequence_length: 32767
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+      args:
+        base_url: "https://api.fireworks.ai/inference/v1/"
+        model_name: "accounts/fireworks/models/llama-v3p1-405b-instruct-fp16"
+
+  - name: fireworks/llama3-405fp8
+    model_name: fireworks/llama3-4058
+    tokenizer_name: meta/llama-3.1-8b
+    max_sequence_length: 32767
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+      args:
+        base_url: "https://api.fireworks.ai/inference/v1/"
+        model_name: "accounts/fireworks/models/llama-v3p1-405b-instruct"
