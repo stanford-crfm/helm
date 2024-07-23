@@ -1817,7 +1817,7 @@ model_deployments:
       args:
         together_model: meta-llama/Meta-Llama-3-70B-Instruct-Turbo
 
-  - name: together/llama-3-8b-instruct-turbo
+  - name: together/llama-3.1-8b-instruct-turbo
     model_name: meta/llama-3.1-8b-instruct-turbo
     tokenizer_name: meta/llama-3.1-8b
     max_sequence_length: 8192
