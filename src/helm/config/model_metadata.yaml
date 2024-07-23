@@ -1418,9 +1418,27 @@ models:
     num_parameters: 70000000000
     release_date: 2024-04-18
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+ 
+  - name: meta/llama-3-8b-instruct-turbo
+    display_name: Llama 3 Instruct Turbo (8B)
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability.
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-04-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    
+  - name: meta/llama-3-70b-instruct-turbo
+    display_name: Llama 3 Instruct Turbo (70B)
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability.
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-04-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
     
   - name: meta/llama-3.1-8b-instruct-turbo
-    display_name: Llama 3.1 (8B)
+    display_name: Llama 3.1 Instruct Turbo (8B)
     description: Llama 3.1 is a family of language models.
     creator_organization_name: Meta
     access: open
@@ -1429,7 +1447,7 @@ models:
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: meta/llama-3.1-70b-instruct-turbo
-    display_name: Llama 3.1 (70B)
+    display_name: Llama 3.1 Instruct Turbo (70B)
     description: Llama 3.1 is a family of language models.
     creator_organization_name: Meta
     access: open
@@ -1438,7 +1456,7 @@ models:
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: meta/llama-3.1-405b-instruct-turbo
-    display_name: Llama 3.1 (405B)
+    display_name: Llama 3.1 Instruct Turbo(405B)
     description: Llama 3.1 is a family of language models.
     creator_organization_name: Meta
     access: open
