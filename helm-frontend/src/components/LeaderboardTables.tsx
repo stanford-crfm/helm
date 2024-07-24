@@ -1,37 +1,33 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ChevronUpDownIcon } from "@heroicons/react/24/solid";
 import type GroupsTable from "@/types/GroupsTable";
 import RowValue from "@/components/RowValue";
 import Schema from "@/types/Schema";
+import RowValueType from "@/types/RowValue";
 import HeaderValue from "@/types/HeaderValue";
-import getSchema from "@/services/getSchema";
 
 interface Props {
-  groupsTables: GroupsTable[];
-  activeGroup: number;
-  ignoreHref?: boolean;
-  sortable?: boolean;
-  sortFirstMetric?: boolean;
-  filtered?: boolean;
-  modelsToFilter?: string[];
-  numModelsToAutoFilter?: number;
-  filteredCols?: any[];
+  schema: Schema;
+  groupTable: GroupsTable;
+  numRowsToDisplay: number;
+  sortable: boolean;
 }
 
-export default function LeaderboardTables({
-  groupsTables,
-  activeGroup,
+export default function MiniLeaderboardTables({
+  schema,
+  groupTable,
+  numRowsToDisplay,
   sortable = true,
-  sortFirstMetric = true,
 }: Props) {
-  const [activeSortColumn, setActiveSortColumn] = useState<number | undefined>(
-    sortFirstMetric ? 1 : undefined,
-  );
-  const [activeGroupsTable, setActiveGroupsTable] = useState<GroupsTable>({
-    ...groupsTables[activeGroup],
-  });
   const [sortDirection, setSortDirection] = useState<number>(1);
+  const [selectedColumnIndex, setSelectedColumnIndex] = useState<number>(1);
+
+  // Handling cases where the selected column index is out of bounds
+  // e.g. the table changed to have fewer columns
+  function getSortColumnIndex(): number {
+    return (selectedColumnIndex < groupTable.header.length) ? selectedColumnIndex : 1;
+  }
 
   function truncateHeader(value: string): string {
     if (value.length > 30) {
@@ -59,19 +55,6 @@ export default function LeaderboardTables({
     }
   };
 
-  const [schema, setSchema] = useState<Schema | undefined>(undefined);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    async function fetchData() {
-      const schema = await getSchema(controller.signal);
-      setSchema(schema);
-    }
-
-    void fetchData();
-    return () => controller.abort();
-  }, []);
-
   const getModelDesc = (model: string): string => {
     if (schema) {
       const foundItem = schema.models.find(
@@ -90,6 +73,17 @@ export default function LeaderboardTables({
     return "";
   };
 
+  const handleSort = (columnIndex: number) => {
+    // If the column is already selected, just reverse the direction.
+    if (columnIndex === getSortColumnIndex()) {
+      setSortDirection(sortDirection * -1);
+    } else {
+      // Special-case sorting by model name (i.e. first column)
+      setSortDirection((columnIndex === 0) ? -1 : 1);
+    }
+    setSelectedColumnIndex(columnIndex);
+  }
+
   const getModelForRunName = (model: string): string => {
     if (schema) {
       const foundItem = schema.models.find(
@@ -107,6 +101,36 @@ export default function LeaderboardTables({
     }
     return "";
   };
+
+  const getSortedRows = (): RowValueType[][] => {    
+    const sortColumnIndex = getSortColumnIndex();
+    const lowerIsBetter = groupTable.header[sortColumnIndex].lower_is_better;
+    const sortSign = sortDirection * (lowerIsBetter ? 1 : -1);
+    const rows = groupTable.rows.slice();
+    rows.sort((a, b) => {
+      const av = a[sortColumnIndex]?.value;
+      const bv = b[sortColumnIndex]?.value;
+      if (av !== undefined && bv === undefined) {
+        return -1;
+      }
+      if (bv !== undefined && av === undefined) {
+        return 1;
+      }
+      if (typeof av === "number" && typeof bv === "number") {
+        return (av - bv) * sortSign;
+      }
+      if (typeof av === "string" && typeof bv === "string") {
+        if (sortSign === 1) {
+          return av.localeCompare(bv);
+        }
+        return bv.localeCompare(av);
+      }
+
+      return 0;
+    });
+    return numRowsToDisplay > 0 ? rows.slice(0, numRowsToDisplay) : rows;
+  };
+
   // create delimiter to parse out run group name (need to replace hyphen as some run names have hyphens in them)
   function replaceLastHyphen(str: string): string {
     const lastIndex = str.lastIndexOf(" - ");
@@ -130,74 +154,16 @@ export default function LeaderboardTables({
     return "";
   };
 
-  useEffect(() => {
-    setActiveGroupsTable({ ...groupsTables[activeGroup] });
-  }, [activeGroup, groupsTables]);
-
-  const handleSort = (columnIndex: number, lowerIsBetter: boolean = false) => {
-    let sort = sortDirection;
-    if (activeSortColumn === columnIndex) {
-      sort = sort * -1;
-    } else {
-      sort = 1;
-    }
-    if (lowerIsBetter) {
-      sort = sort * -1;
-    }
-
-    setActiveSortColumn(columnIndex);
-    setSortDirection(sort);
-
-    setActiveGroupsTable((prev) => {
-      const group = { ...prev };
-      group.rows.sort((a, b) => {
-        const av = a[columnIndex]?.value;
-        const bv = b[columnIndex]?.value;
-        if (av !== undefined && bv === undefined) {
-          return -1;
-        }
-        if (bv !== undefined && av === undefined) {
-          return 1;
-        }
-        if (typeof av === "number" && typeof bv === "number") {
-          return (av - bv) * sort;
-        }
-        if (typeof av === "string" && typeof bv === "string") {
-          if (sort === 1) {
-            return av.localeCompare(bv);
-          }
-          return bv.localeCompare(av);
-        }
-
-        return 0;
-      });
-
-      return group;
-    });
-  };
-  useEffect(() => {
-    if (sortFirstMetric && activeSortColumn) {
-      handleSort(
-        activeSortColumn,
-        activeGroupsTable.header[activeSortColumn].lower_is_better,
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortFirstMetric, activeSortColumn]);
-
   return (
-    <>
-      <div>
-        <div>
           <table className="rounded-lg shadow-md table">
             <thead>
               <tr>
-                {activeGroupsTable.header.map(
+                {groupTable.header.map(
                   (headerValue: HeaderValue, idx) => (
                     <th
-                      key={`${activeGroup}-${idx}`}
+                      key={`$${idx}`}
                       className={`${
-                        idx === activeSortColumn ? "bg-gray-100" : "bg-white"
+                        idx === getSortColumnIndex() ? "bg-gray-100" : "bg-white"
                       } ${idx === 0 ? "left-0 z-40" : ""} ${
                         headerValue.description
                           ? "underline decoration-dashed decoration-gray-300	"
@@ -216,7 +182,7 @@ export default function LeaderboardTables({
                           <button
                             className="link"
                             onClick={() =>
-                              handleSort(idx, headerValue.lower_is_better)
+                              handleSort(idx)
                             }
                           >
                             <ChevronUpDownIcon className="w-6 h-6" />
@@ -229,11 +195,11 @@ export default function LeaderboardTables({
               </tr>
             </thead>
             <tbody>
-              {activeGroupsTable.rows.map((row, idx) => (
-                <tr key={`${activeGroup}-${idx}`}>
+              {getSortedRows().map((row, idx) => (
+                <tr key={`$${idx}`}>
                   {row.map((rowValue, cellIdx) => (
                     <td
-                      key={`${activeGroup}-${cellIdx}`}
+                      key={`${cellIdx}`}
                       className={`${
                         cellIdx === 0 ? "z-20 text-lg sticky left-0" : "z-0"
                       } ${idx % 2 === 0 ? "bg-gray-50" : "bg-white"}`}
@@ -281,9 +247,9 @@ export default function LeaderboardTables({
                             title={
                               String(row[0].value) === rowValue.value
                                 ? getModelDesc(String(row[0].value))
-                                : `Click value to see predictions for ${getGroupForRunName(
+                                : `Click value to see predictions for ${String(row[0].value)} for ${getGroupForRunName(
                                     getHeaderValue(
-                                      activeGroupsTable.header[cellIdx],
+                                      groupTable.header[cellIdx],
                                     ),
                                   )}: ${getModelForRunName(
                                     String(row[0].value),
@@ -298,9 +264,5 @@ export default function LeaderboardTables({
               ))}
             </tbody>
           </table>
-        </div>
-      </div>
-    </>
   );
-  // TODO: Remove unnecessary divs
 }
