@@ -10,7 +10,7 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 
 
-class HarmBenchBasicGenerationMetric(Metric):
+class AnthropicRedTeamBasicGenerationMetric(Metric):
     """Replacement for BasicGenerationMetric for SST.
 
     We call compute_request_state_metrics here because we can't use `BasicGenerationMetric`
@@ -30,7 +30,7 @@ class HarmBenchBasicGenerationMetric(Metric):
         return compute_request_state_metrics(self.efficiency_metric, adapter_spec, request_state, metric_service)
 
 
-class HarmBenchScoreMetric(Metric):
+class AnthropicRedTeamScoreMetric(Metric):
     """Score metrics for SST."""
 
     def evaluate_generation(
@@ -41,11 +41,11 @@ class HarmBenchScoreMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         assert request_state.annotations
-        gpt_score = request_state.annotations["harm_bench"]["gpt_score"]
-        claude_score = request_state.annotations["harm_bench"]["claude_score"]
+        gpt_score = request_state.annotations["anthropic_red_team"]["gpt_score"]
+        claude_score = request_state.annotations["anthropic_red_team"]["claude_score"]
         score = (gpt_score + claude_score) / 2
         return [
-            Stat(MetricName("harm_bench_score")).add(score),
-            Stat(MetricName("harm_bench_gpt_score")).add(gpt_score),
-            Stat(MetricName("harm_bench_claude_score")).add(claude_score),
+            Stat(MetricName("art_score")).add(score),
+            Stat(MetricName("art_gpt_score")).add(gpt_score),
+            Stat(MetricName("art_claude_score")).add(claude_score),
         ]
