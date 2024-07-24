@@ -26,6 +26,22 @@ export default function Leaderboard() {
     return () => controller.abort();
   }, []);
 
+  if (schema && schema.run_groups.length === 0) {
+    return (
+      <>
+        <PageTitle
+          title={"HELM Leaderboard"}
+          subtitle={
+            "The HELM leaderboard shows how the various models perform across different scenarios and metrics."
+          }
+          markdown={true}
+        />
+        <div className="divider"></div>
+        <p className="text-center mt-8">Group currently has no results.</p>
+      </>
+    );
+  }
+
   if (schema === undefined || activeRunGroupName === undefined) {
     return <Loading />;
   }
