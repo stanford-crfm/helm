@@ -1799,24 +1799,6 @@ model_deployments:
       args:
         together_model: meta-llama/Meta-Llama-3-70B
 
-  - name: together/llama-3-8b-chat
-    model_name: meta/llama-3-8b-chat
-    tokenizer_name: meta/llama-3-8b
-    max_sequence_length: 8182
-    client_spec:
-      class_name: "helm.clients.together_client.TogetherChatClient"
-      args:
-        together_model: meta-llama/Llama-3-8b-chat-hf
-
-  - name: together/llama-3-70b-chat
-    model_name: meta/llama-3-70b-chat
-    tokenizer_name: meta/llama-3-8b
-    max_sequence_length: 8182
-    client_spec:
-      class_name: "helm.clients.together_client.TogetherChatClient"
-      args:
-        together_model: meta-llama/Llama-3-70b-chat-hf
-
   - name: together/llama-3.1-8b-instruct-turbo
     model_name: meta/llama-3.1-8b-instruct-turbo
     tokenizer_name: meta/llama-3.1-8b
@@ -1843,6 +1825,24 @@ model_deployments:
       class_name: "helm.clients.together_client.TogetherChatClient"
       args:
         together_model: meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo
+
+  - name: together/llama-3-8b-chat
+    model_name: meta/llama-3-8b-chat
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8182
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        together_model: meta-llama/Llama-3-8b-chat-hf
+
+  - name: together/llama-3-70b-chat
+    model_name: meta/llama-3-70b-chat
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8182
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        together_model: meta-llama/Llama-3-70b-chat-hf
 
   - name: together/llama-guard-7b
     model_name: meta/llama-guard-7b
