@@ -1403,7 +1403,7 @@ models:
 
   - name: meta/llama-3-8b
     display_name: Llama 3 (8B)
-    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability.
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/)
     creator_organization_name: Meta
     access: open
     num_parameters: 8000000000
@@ -1412,16 +1412,16 @@ models:
     
   - name: meta/llama-3-70b
     display_name: Llama 3 (70B)
-    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability.
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/)
     creator_organization_name: Meta
     access: open
     num_parameters: 70000000000
     release_date: 2024-04-18
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
-    
+
   - name: meta/llama-3.1-8b-instruct-turbo
     display_name: Llama 3.1 (8B)
-    description: Llama 3.1 is a family of language models.
+    description: Llama 3.1 (8B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/), [blog](https://ai.meta.com/blog/meta-llama-3-1/))
     creator_organization_name: Meta
     access: open
     num_parameters: 8000000000
@@ -1430,7 +1430,7 @@ models:
 
   - name: meta/llama-3.1-70b-instruct-turbo
     display_name: Llama 3.1 (70B)
-    description: Llama 3.1 is a family of language models.
+    description: Llama 3.1 (70B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/), [blog](https://ai.meta.com/blog/meta-llama-3-1/))
     creator_organization_name: Meta
     access: open
     num_parameters: 70000000000
@@ -1439,7 +1439,7 @@ models:
 
   - name: meta/llama-3.1-405b-instruct-turbo
     display_name: Llama 3.1 (405B)
-    description: Llama 3.1 is a family of language models.
+    description: Llama 3.1 (405B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/), [blog](https://ai.meta.com/blog/meta-llama-3-1/))
     creator_organization_name: Meta
     access: open
     num_parameters: 405000000000
@@ -1448,7 +1448,7 @@ models:
 
   - name: meta/llama-3-8b-chat
     display_name: Llama 3 Instruct (8B)
-    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. It used SFT, rejection sampling, PPO and DPO for post-training.
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. It used SFT, rejection sampling, PPO and DPO for post-training. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/)
     creator_organization_name: Meta
     access: open
     num_parameters: 8000000000
@@ -1457,7 +1457,7 @@ models:
 
   - name: meta/llama-3-70b-chat
     display_name: Llama 3 Instruct (70B)
-    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. It used SFT, rejection sampling, PPO and DPO for post-training.
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. It used SFT, rejection sampling, PPO and DPO for post-training. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/)
     creator_organization_name: Meta
     access: open
     num_parameters: 70000000000
