@@ -6,10 +6,11 @@ import GroupLeaderboard from "@/components/GroupLeaderboard";
 import getSchema from "@/services/getSchema";
 import type Schema from "@/types/Schema";
 
-
 export default function Leaderboard() {
   const [schema, setSchema] = useState<Schema | undefined>(undefined);
-  const [activeRunGroupName, setActiveRunGroupName] = useState<string | undefined>(undefined);
+  const [activeRunGroupName, setActiveRunGroupName] = useState<
+    string | undefined
+  >(undefined);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -17,9 +18,9 @@ export default function Leaderboard() {
       const schemaResult = await getSchema(controller.signal);
       setSchema(schemaResult);
       if (schemaResult.run_groups.length > 0) {
-        setActiveRunGroupName(schemaResult.run_groups[0].name)
+        setActiveRunGroupName(schemaResult.run_groups[0].name);
       }
-      console.log(schemaResult.run_groups)
+      console.log(schemaResult.run_groups);
     }
     void fetchData();
     return () => controller.abort();
