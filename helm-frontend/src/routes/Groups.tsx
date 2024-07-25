@@ -33,6 +33,19 @@ export default function Groups() {
     return <Loading />;
   }
 
+  if (tables.length === 0) {
+    return (
+      <div>
+        <PageTitle
+          title="Results"
+          subtitle="Groupings of the processes, methods, and metrics involved in evaluating models, particularly in the context of natural language understanding and question answering."
+          className="mb-16"
+        />
+        <div>No groups found.</div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <PageTitle
