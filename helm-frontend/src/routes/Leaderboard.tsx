@@ -3,11 +3,20 @@ import { useEffect, useState } from "react";
 import PageTitle from "@/components/PageTitle";
 import Loading from "@/components/Loading";
 import GroupLeaderboard from "@/components/GroupLeaderboard";
+import getGroupsTables from "@/services/getGroupsTables";
 import getSchema from "@/services/getSchema";
 import type Schema from "@/types/Schema";
 
+interface GroupEntry {
+  title: string;
+  name: string;
+}
+
 export default function Leaderboard() {
   const [schema, setSchema] = useState<Schema | undefined>(undefined);
+  const [groupEntries, setGroupEntries] = useState<GroupEntry[] | undefined>(
+    undefined,
+  );
   const [activeRunGroupName, setActiveRunGroupName] = useState<
     string | undefined
   >(undefined);
@@ -15,18 +24,29 @@ export default function Leaderboard() {
   useEffect(() => {
     const controller = new AbortController();
     async function fetchData() {
-      const schemaResult = await getSchema(controller.signal);
+      const schemaPromise = getSchema(controller.signal);
+      const groupsTablesPromise = getGroupsTables(controller.signal);
+
+      const schemaResult = await schemaPromise;
       setSchema(schemaResult);
-      if (schemaResult.run_groups.length > 0) {
-        setActiveRunGroupName(schemaResult.run_groups[0].name);
-      }
-      console.log(schemaResult.run_groups);
+
+      const groupsTables = await groupsTablesPromise;
+      const groupEntriesResult: GroupEntry[] = [];
+      groupsTables.forEach((groupTable) => {
+        groupTable.rows.forEach((row) => {
+          groupEntriesResult.push({
+            title: String(row[0].value),
+            name: row[0].href.replace("?group=", ""),
+          });
+        });
+      });
+      setGroupEntries(groupEntriesResult);
     }
     void fetchData();
     return () => controller.abort();
   }, []);
 
-  if (schema && schema.run_groups.length === 0) {
+  if (groupEntries !== undefined && groupEntries.length === 0) {
     return (
       <>
         <PageTitle
@@ -42,9 +62,14 @@ export default function Leaderboard() {
     );
   }
 
-  if (schema === undefined || activeRunGroupName === undefined) {
+  if (schema === undefined || groupEntries === undefined) {
     return <Loading />;
   }
+
+  const runGroupName =
+    activeRunGroupName !== undefined
+      ? activeRunGroupName
+      : groupEntries[0].name;
 
   return (
     <div className="flex flex-row justify-between">
@@ -75,7 +100,11 @@ export default function Leaderboard() {
           ))}
         </select>
       </div>
-      <GroupLeaderboard schema={schema} runGroupName={activeRunGroupName} />
+      <GroupLeaderboard
+        key={runGroupName}
+        schema={schema}
+        runGroupName={runGroupName}
+      />
     </div>
   );
 }

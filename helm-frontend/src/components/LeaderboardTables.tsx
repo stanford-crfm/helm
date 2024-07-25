@@ -22,14 +22,6 @@ export default function MiniLeaderboardTables({
   const [sortDirection, setSortDirection] = useState<number>(1);
   const [selectedColumnIndex, setSelectedColumnIndex] = useState<number>(1);
 
-  // Handling cases where the selected column index is out of bounds
-  // e.g. the table changed to have fewer columns
-  function getSortColumnIndex(): number {
-    return selectedColumnIndex < groupTable.header.length
-      ? selectedColumnIndex
-      : 1;
-  }
-
   function truncateHeader(value: string): string {
     if (value.length > 30) {
       return value.substring(0, 27) + "...";
@@ -76,7 +68,7 @@ export default function MiniLeaderboardTables({
 
   const handleSort = (columnIndex: number) => {
     // If the column is already selected, just reverse the direction.
-    if (columnIndex === getSortColumnIndex()) {
+    if (columnIndex === selectedColumnIndex) {
       setSortDirection(sortDirection * -1);
     } else {
       // Special-case sorting by model name (i.e. first column)
@@ -104,7 +96,7 @@ export default function MiniLeaderboardTables({
   };
 
   const getSortedRows = (): RowValueType[][] => {
-    const sortColumnIndex = getSortColumnIndex();
+    const sortColumnIndex = selectedColumnIndex;
     const lowerIsBetter = groupTable.header[sortColumnIndex].lower_is_better;
     const sortSign = sortDirection * (lowerIsBetter ? 1 : -1);
     const rows = groupTable.rows.slice();
@@ -163,7 +155,7 @@ export default function MiniLeaderboardTables({
             <th
               key={`$${idx}`}
               className={`${
-                idx === getSortColumnIndex() ? "bg-gray-100" : "bg-white"
+                idx === selectedColumnIndex ? "bg-gray-100" : "bg-white"
               } ${idx === 0 ? "left-0 z-40" : ""} ${
                 headerValue.description
                   ? "underline decoration-dashed decoration-gray-300	"
