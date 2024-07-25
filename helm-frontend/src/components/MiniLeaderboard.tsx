@@ -49,13 +49,19 @@ export default function MiniLeaderboard({
   }
 
   return (
-    <LeaderboardTables
-      schema={schema}
-      groupTable={groupTable}
-      numRowsToDisplay={numRowsToDisplay}
-      sortColumnIndex={sortColumnIndex}
-      displayColumnIndexes={[0, 1]}
-      sortable={false}
-    />
+    <div
+      className="rounded-2xl overflow-hidden border-2 bg-white p-1 mx-2 my-0 overflow-x-auto"
+      style={{ overflow: "auto", justifyContent: "space-between" }}
+    >
+      <LeaderboardTables
+        schema={schema}
+        groupTable={groupTable}
+        numRowsToDisplay={numRowsToDisplay}
+        sortColumnIndex={sortColumnIndex}
+        displayColumnIndexes={[0, 1]}
+        sortable={false}
+        miniStyle={true}
+      />
+    </div>
   );
 }
