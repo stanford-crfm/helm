@@ -46,7 +46,11 @@ export default function Leaderboard() {
     return () => controller.abort();
   }, []);
 
-  if (groupEntries !== undefined && groupEntries.length === 0) {
+  if (schema === undefined || groupEntries === undefined) {
+    return <Loading />;
+  }
+
+  if (groupEntries.length === 0) {
     return (
       <>
         <PageTitle
@@ -60,10 +64,6 @@ export default function Leaderboard() {
         <p className="text-center mt-8">Group currently has no results.</p>
       </>
     );
-  }
-
-  if (schema === undefined || groupEntries === undefined) {
-    return <Loading />;
   }
 
   const runGroupName =
