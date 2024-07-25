@@ -72,39 +72,41 @@ export default function Leaderboard() {
       : groupEntries[0].name;
 
   return (
-    <div className="flex flex-row justify-between">
-      <PageTitle
-        title={"HELM Leaderboard"}
-        subtitle={
-          "The HELM leaderboard shows how the various models perform across different scenarios and metrics."
-        }
-        markdown={true}
-      />
-      <div className="w-64 pt-8">
-        <label
-          htmlFor="group"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Select a group:
-        </label>
-        <select
-          id="group"
-          name="group"
-          onChange={(e) => setActiveRunGroupName(e.target.value)}
-          className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring focus:border-blue-300 rounded-md"
-        >
-          {schema.run_groups.map((group, index) => (
-            <option key={index} value={group.name}>
-              {group.short_display_name || group.display_name}
-            </option>
-          ))}
-        </select>
+    <>
+      <div className="flex flex-row justify-between">
+        <PageTitle
+          title={"HELM Leaderboard"}
+          subtitle={
+            "The HELM leaderboard shows how the various models perform across different scenarios and metrics."
+          }
+          markdown={true}
+        />
+        <div className="w-64 pt-8">
+          <label
+            htmlFor="group"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Select a group:
+          </label>
+          <select
+            id="group"
+            name="group"
+            onChange={(e) => setActiveRunGroupName(e.target.value)}
+            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring focus:border-blue-300 rounded-md"
+          >
+            {groupEntries.map((group, index) => (
+              <option key={index} value={group.name}>
+                {group.title}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
       <GroupLeaderboard
         key={runGroupName}
         schema={schema}
         runGroupName={runGroupName}
       />
-    </div>
+    </>
   );
 }
