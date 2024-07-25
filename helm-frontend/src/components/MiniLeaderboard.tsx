@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import getSchema from "@/services/getSchema";
 import type Schema from "@/types/Schema";
-import LeaderboardTables from "@/components/LeaderboardTable";
+import LeaderboardTable from "@/components/LeaderboardTable";
 import type GroupsTable from "@/types/GroupsTable";
 import getGroupsTablesByName from "@/services/getGroupTablesByName";
 import Loading from "@/components/Loading";
@@ -53,7 +53,7 @@ export default function MiniLeaderboard({
       className="rounded-2xl overflow-hidden border-2 bg-white p-1 mx-2 my-0 overflow-x-auto"
       style={{ overflow: "auto", justifyContent: "space-between" }}
     >
-      <LeaderboardTables
+      <LeaderboardTable
         schema={schema}
         groupTable={groupTable}
         numRowsToDisplay={numRowsToDisplay}
