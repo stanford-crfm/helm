@@ -1420,7 +1420,7 @@ models:
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: meta/llama-3.1-8b-instruct-turbo
-    display_name: Llama 3.1 (8B)
+    display_name: Llama 3.1 Instruct Turbo (8B)
     description: Llama 3.1 (8B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/), [blog](https://ai.meta.com/blog/meta-llama-3-1/))
     creator_organization_name: Meta
     access: open
@@ -1429,7 +1429,7 @@ models:
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: meta/llama-3.1-70b-instruct-turbo
-    display_name: Llama 3.1 (70B)
+    display_name: Llama 3.1 Instruct Turbo(70B)
     description: Llama 3.1 (70B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/), [blog](https://ai.meta.com/blog/meta-llama-3-1/))
     creator_organization_name: Meta
     access: open
@@ -1438,7 +1438,7 @@ models:
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: meta/llama-3.1-405b-instruct-turbo
-    display_name: Llama 3.1 (405B)
+    display_name: Llama 3.1 Instruct Turbo (405B)
     description: Llama 3.1 (405B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/), [blog](https://ai.meta.com/blog/meta-llama-3-1/))
     creator_organization_name: Meta
     access: open
