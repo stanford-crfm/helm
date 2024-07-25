@@ -148,6 +148,16 @@ metrics:
     short_display_name: Exact Match
     description: Unsorted List Exact Match
 
+  # FinQA Accuracy
+  - name: program_accuracy
+    display_name: Program Accuracy
+    short_display_name: Program Accuracy
+    description: Program Accuracy
+  - name: execution_accuracy
+    display_name: Execution Accuracy
+    short_display_name: Execution Accuracy
+    description: Execution Accuracy
+
 perturbations: []
 
 metric_groups:
@@ -216,6 +226,7 @@ run_groups:
       - unitxt_cards.numeric_nlg
       - unitxt_cards.tab_fact
       - unitxt_cards.wikitq
+      - unitxt_cards.fin_qa
 
   - name: unitxt_cards.numeric_nlg
     display_name: NumericNLG
@@ -272,4 +283,21 @@ run_groups:
       what: "?"
       who: "?"
       when: "?"
+      language: English
+
+  - name: unitxt_cards.fin_qa
+    display_name: FinQA
+    description: The FinQA benchmark for numeric reasoning over financial data, with question answering pairs written by financial experts over financial reports [(Chen et al., 2021)](https://arxiv.org/abs/2109.00122/).
+    metric_groups:
+      - main_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: program_accuracy
+      main_split: test
+    taxonomy:
+      task: question answering with numeric reasoning
+      what: financial reports
+      who: financial experts
+      when: 1999 to 2019
       language: English
