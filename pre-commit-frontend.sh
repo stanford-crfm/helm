@@ -2,6 +2,14 @@
 
 set -e
 
+yarn --version || (
+  echo ""
+  echo "Failed: yarn not found"
+  echo "Please install yarn (see: https://classic.yarnpkg.com/lang/en/docs/install/) "
+  echo "and then run 'yarn install' from helm-frontend/ to fix this."
+  exit 1
+)
+
 cd "$(dirname "$0")/helm-frontend"
 yarn format:check || (
   echo ""
