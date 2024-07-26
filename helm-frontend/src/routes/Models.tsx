@@ -10,7 +10,7 @@ import {
 import type Model from "@/types/Model";
 import getSchema from "@/services/getSchema";
 import PageTitle from "@/components/PageTitle";
-import AccessBadge from "@/components/AccessBadge";
+import AccessBadge from "@/components/AccessBadge"; 
 import MarkdownValue from "@/components/MarkdownValue";
 import Loading from "@/components/Loading";
 
@@ -23,6 +23,8 @@ export default function Models() {
       const schema = await getSchema(controller.signal);
       setModels(schema.models);
     }
+    const x = 1;
+    console.log(x);
 
     void fetchData();
     return () => controller.abort();
