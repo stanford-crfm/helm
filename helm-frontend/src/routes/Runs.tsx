@@ -30,7 +30,6 @@ export default function Runs() {
 
     void fetchData();
     return () => controller.abort();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSearch = (e: SyntheticEvent) => {
