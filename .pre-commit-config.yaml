@@ -1,16 +1,17 @@
 repos:
 - repo: local
   hooks:
-    - id: run-pre-commit
-      name: run-pre-commit
+    - id: run-pre-commit-python
+      name: Python pre-commit
       entry: ./pre-commit.sh
       language: script
       pass_filenames: false
       require_serial: true
       types_or: [python]
-- repo: https://github.com/pre-commit/mirrors-prettier
-  rev: 'fc260393cc4ec09f8fc0a5ba4437f481c8b55dc1'
-  hooks:
-    - id: prettier
-      files: "helm-frontend"
-      types_or: [tsx, javascript]
+    - id: run-pre-commit-frontend
+      name: Frontend pre-commit
+      entry: ./pre-commit-frontend.sh
+      language: script
+      pass_filenames: false
+      require_serial: true
+      types_or: [javascript, jsx, ts, tsx]
