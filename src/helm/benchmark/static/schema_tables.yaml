@@ -166,17 +166,18 @@ metrics:
     display_name: Program Accuracy
     short_display_name: Program Accuracy
     description: Program Accuracy
+    lower_is_better: false
   - name: execution_accuracy
     display_name: Execution Accuracy
     short_display_name: Execution Accuracy
     description: Execution Accuracy
+    lower_is_better: false
 
 perturbations: []
 
 metric_groups:
   - name: main_metrics
     display_name: Main Metrics
-    hide_win_rates: true
     metrics:
     - name: ${main_name}
       split: __all__
