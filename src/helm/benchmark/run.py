@@ -1,9 +1,11 @@
 import argparse
 from dataclasses import replace
 import os
+import re
 from typing import List, Optional
 
 
+from helm.benchmark import model_metadata_registry
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
 from helm.common.cache_backend_config import MongoCacheBackendConfig, SqliteCacheBackendConfig
 from helm.common.general import ensure_directory_exists
@@ -313,6 +315,19 @@ def main():
     # because run spec functions can use the benchmark output directory for caching.
     ensure_directory_exists(args.output_path)
     set_benchmark_output_path(args.output_path)
+
+    # Validate the --models-to-run flag
+    if args.models_to_run:
+        all_models = set(model_metadata_registry.get_all_models())
+        for model_to_run in args.models_to_run:
+            if model_to_run not in all_models:
+                raise Exception(f"Unknown model '{model_to_run}' passed to --models-to-run")
+    else:
+        model_expander_pattern = re.compile(
+            r"\bmodel=(?:all|text_code|text|code|instruction_following|full_functionality_text|limited_functionality_text)\b"  # noqa: E501
+        )
+        if any(model_expander_pattern.search(run_entry.description) for run_entry in run_entries):
+            raise Exception("--models-to-run must be set if the `models=` run expander expands to multiple models")
 
     run_specs = run_entries_to_run_specs(
         run_entries=run_entries,
