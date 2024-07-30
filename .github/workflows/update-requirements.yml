@@ -27,8 +27,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
-      - name: Upgrade pip
-        run: pip install --upgrade pip setuptools
       - name: Install PyTorch manually
         # PyTorch has to be installed manually in a separate step with --no-cache-dir
         # to avoid pip getting killed because PyTorch is too big
