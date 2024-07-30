@@ -68,7 +68,6 @@ jobs:
           cache: pip
 
       # Installs dependencies and performs static code checks
-      - run: pip install --upgrade pip~=24.1.2
       - run: ./install-dev.sh
       - run: ./pre-commit.sh
       - name: Run tests
