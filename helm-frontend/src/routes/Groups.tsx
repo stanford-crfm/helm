@@ -1,77 +1,81 @@
 import { useEffect, useState } from "react";
-import { ArrowDownTrayIcon } from "@heroicons/react/24/solid";
 import type GroupsTable from "@/types/GroupsTable";
-import getGroupsTables, {
-  getGroupsTablesJsonUrl,
-} from "@/services/getGroupsTables";
+import getGroupsTables from "@/services/getGroupsTables";
 import PageTitle from "@/components/PageTitle";
 import Tabs from "@/components/Tabs";
 import Tab from "@/components/Tab";
-import GroupsTables from "@/components/GroupsTables";
 import Loading from "@/components/Loading";
+import LeaderboardTable from "@/components/LeaderboardTable";
+import Schema from "@/types/Schema";
+import getSchema from "@/services/getSchema";
 
 export default function Groups() {
-  const [activeGroup, setActiveGroup] = useState<number>(0);
-  const [tabs, setTabs] = useState<string[]>([]);
-  const [groupsTables, setGroupsTables] = useState<GroupsTable[]>(
-    [] as GroupsTable[],
-  );
+  const [activeTableIndex, setActiveTableIndex] = useState<number>(0);
+  const [tables, setTables] = useState<GroupsTable[] | undefined>();
+  const [schema, setSchema] = useState<Schema | undefined>();
 
   useEffect(() => {
     const controller = new AbortController();
     async function fetchData() {
-      const groups = await getGroupsTables(controller.signal);
-      setGroupsTables(groups);
-      setTabs(groups.map((group) => group.title));
-    }
+      const schemaPromise = getSchema(controller.signal);
+      const groupsPromise = getGroupsTables(controller.signal);
 
+      const schemaResult = await schemaPromise;
+      setSchema(schemaResult);
+      const groups = await groupsPromise;
+      setTables(groups);
+    }
     void fetchData();
     return () => controller.abort();
   }, []);
 
-  if (groupsTables.length === 0) {
+  if (tables === undefined || schema === undefined) {
     return <Loading />;
   }
 
-  return (
-    <>
-      <div className="flex justify-between">
+  if (tables.length === 0) {
+    return (
+      <div>
         <PageTitle
           title="Results"
           subtitle="Groupings of the processes, methods, and metrics involved in evaluating models, particularly in the context of natural language understanding and question answering."
           className="mb-16"
         />
+        <div>No groups found.</div>
+      </div>
+    );
+  }
 
-        <a
-          className="flex link-primary space-between items-center self-end link link-hover block"
-          href={getGroupsTablesJsonUrl()}
-          download="true"
-          target="_blank"
-        >
-          <ArrowDownTrayIcon className="w-6 h-6 mr-2" /> JSON
-        </a>
-      </div>
+  return (
+    <div>
+      <PageTitle
+        title="Results"
+        subtitle="Groupings of the processes, methods, and metrics involved in evaluating models, particularly in the context of natural language understanding and question answering."
+        className="mb-16"
+      />
       <div>
-        <Tabs>
-          {tabs.map((tab, idx) => (
-            <Tab
-              onClick={() => setActiveGroup(idx)}
-              key={idx}
-              active={activeGroup === idx}
-              size="lg"
-            >
-              {tab}
-            </Tab>
-          ))}
-        </Tabs>
-      </div>
-      <div className="mt-8">
-        <GroupsTables
-          sortable={false}
-          groupsTables={groupsTables}
-          activeGroup={activeGroup}
+        {tables.length > 1 ? (
+          <Tabs>
+            {tables.map((table, idx) => (
+              <Tab
+                key={idx}
+                active={idx === activeTableIndex}
+                onClick={() => setActiveTableIndex(idx)}
+              >
+                {table.title}
+              </Tab>
+            ))}
+          </Tabs>
+        ) : null}
+        <LeaderboardTable
+          key={`${activeTableIndex}`}
+          schema={schema}
+          groupTable={tables[activeTableIndex]}
+          numRowsToDisplay={-1}
+          sortColumnIndex={1}
+          sortable={true}
         />
       </div>
-    </>
+    </div>
   );
 }
