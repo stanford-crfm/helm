@@ -70,8 +70,10 @@ class LilypondCompilerAnnotator(ImageCompilerAnnotator):
 
             # Crop the image to remove the white space around the music sheet
             (w, h) = image.size
-            image = image.crop((0, 0, w, h - int(h * 0.2)))  # Remove pagination
-            image = image.crop(ImageOps.invert(image).getbbox())  # Remove white border
+            # Remove pagination
+            image = image.crop((0, 0, w, h - int(h * 0.2)))  # type: ignore
+            # Remove white border
+            image = image.crop(ImageOps.invert(image).getbbox())  # type: ignore
         except (AssertionError, RuntimeError) as e:
             raise CompilationError(str(e)) from e
         finally:
