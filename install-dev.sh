@@ -3,7 +3,6 @@
 # This script installs pinned dependencies, then install CRFM-HELM in edit mode
 
 set -e
-set -x
 
 # On Mac OS, skip installing pytorch with CUDA because CUDA is not supported
 if [[ $OSTYPE != 'darwin'* ]]; then
