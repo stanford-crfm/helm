@@ -475,6 +475,20 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient"
 
+  - name: together/gemma-2-9b-it
+    model_name: google/gemma-2-9b-it
+    tokenizer_name: google/gemma-2-9b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+
+  - name: together/gemma-2-27b-it
+    model_name: google/gemma-2-27b-it
+    tokenizer_name: google/gemma-2-9b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+
   ## MedLM
   - name: google/medlm-medium
     model_name: google/medlm-medium
