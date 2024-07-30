@@ -12,12 +12,10 @@ const PAGE_SIZE = 100;
 
 export default function Runs() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [runSpecs, setRunSpecs] = useState<RunSpec[]>([]);
+  const [runSpecs, setRunSpecs] = useState<RunSpec[] | undefined>();
   const [currentPage, setCurrentPage] = useState<number>(
     Number(searchParams.get("page") || 1),
   );
-  const [totalPages, setTotalPages] = useState<number>(1);
-  const [filteredRunSpecs, setFilteredRunSpecs] = useState<RunSpec[]>([]);
   const [useRegex, setUseRegex] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>(
     searchParams.get("q") || "",
@@ -28,27 +26,11 @@ export default function Runs() {
     async function fetchData() {
       const runSpecs = await getRunSpecs(controller.signal);
       setRunSpecs(runSpecs);
-      filterRunSpecs(searchQuery, runSpecs);
     }
 
     void fetchData();
     return () => controller.abort();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery]);
-
-  useEffect(() => {
-    filterRunSpecs(searchQuery, runSpecs);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [runSpecs, searchQuery]);
-
-  function filterRunSpecs(query: string, runSpecs: RunSpec[]) {
-    const regex = useRegex ? new RegExp(query) : null;
-    const filtered = runSpecs.filter((runSpec) =>
-      regex ? regex.test(runSpec.name) : runSpec.name.includes(query),
-    );
-    setFilteredRunSpecs(filtered);
-    setTotalPages(Math.ceil(filtered.length / PAGE_SIZE));
-  }
+  }, []);
 
   const handleSearch = (e: SyntheticEvent) => {
     e.preventDefault();
@@ -59,17 +41,21 @@ export default function Runs() {
     const newQuery = target.q.value;
     setSearchQuery(newQuery);
     setSearchParams({ q: newQuery, page: "1" });
-    filterRunSpecs(newQuery, runSpecs);
   };
 
+  if (runSpecs === undefined) {
+    return <Loading />;
+  }
+
+  const regex = useRegex ? new RegExp(searchQuery) : null;
+  const filteredRunSpecs = runSpecs.filter((runSpec) =>
+    regex ? regex.test(runSpec.name) : runSpec.name.includes(searchQuery),
+  );
   const pagedRunSpecs = filteredRunSpecs.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE,
   );
-
-  if (runSpecs.length === 0) {
-    return <Loading />;
-  }
+  const totalPages = Math.ceil(filteredRunSpecs.length / PAGE_SIZE);
 
   return (
     <>
