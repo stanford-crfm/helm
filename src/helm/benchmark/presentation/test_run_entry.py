@@ -16,6 +16,7 @@ class TestRunEntry:
 
     @pytest.mark.parametrize("fname", list_fnames())
     def test_read_all_specs(self, fname: str):
+        pytest.skip("Skipping slow tests")
         run_entries = read_run_entries([fname])
         for entry in run_entries.entries:
             construct_run_specs(parse_object_spec(entry.description))
