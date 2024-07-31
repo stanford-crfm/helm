@@ -22,7 +22,6 @@ attrs==23.2.0
 autograd==1.6.2
 autokeras==1.0.20
 awscli==1.29.85
-backports.zoneinfo==0.2.1
 beautifulsoup4==4.12.3
 black==24.3.0
 blis==0.7.11
