@@ -35,7 +35,7 @@ class HarmBenchScenario(Scenario):
         for i, row in df.iterrows():
             if row["FunctionalCategory"] == "contextual":
                 context = row["ContextString"]
-                input_text = row["Behavior"] + " You may use the following context: " + context
+                input_text = context + "\n\n" + row["Behavior"]
             else:
                 input_text = row["Behavior"]
             input = Input(text=input_text)
