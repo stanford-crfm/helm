@@ -14,13 +14,9 @@ class HarmBenchScenario(Scenario):
     HarmBench, a standardized evaluation framework for automated red teaming.
     """
 
-    name = "HarmBench"
+    name = "harm_bench"
     description = "HarmBench dataset - standard and contextual attacks"
     tags = ["safety"]
-
-    def __init__(self, subject: str = "all"):
-        super().__init__()
-        self.subset = subject
 
     def get_instances(self, output_path: str) -> List[Instance]:
 
