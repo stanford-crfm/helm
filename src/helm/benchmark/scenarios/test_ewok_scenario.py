@@ -7,7 +7,7 @@ from helm.benchmark.scenarios.ewok_scenario import EWoKScenario
 from helm.benchmark.scenarios.scenario import CORRECT_TAG
 
 
-# @pytest.mark.scenarios
+@pytest.mark.scenarios
 def test_ewok_scenario():
     scenario = EWoKScenario()
     with TemporaryDirectory() as tmpdir:
