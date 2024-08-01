@@ -34,10 +34,8 @@ def get_simple_safety_tests_spec() -> RunSpec:
         AnnotatorSpec(class_name="helm.benchmark.annotation.simple_safety_tests_annotator.SimpleSafetyTestsAnnotator")
     ]
     metric_specs = [
-        MetricSpec(class_name="helm.benchmark.metrics.simple_safety_tests_metrics.SimpleSafetyTestsScoreMetric"),
-        MetricSpec(
-            class_name="helm.benchmark.metrics.simple_safety_tests_metrics.SimpleSafetyTestsBasicGenerationMetric"
-        ),
+        MetricSpec(class_name="helm.benchmark.metrics.safety_metrics.SafetyScoreMetric"),
+        MetricSpec(class_name="helm.benchmark.metrics.safety_metrics.SafetyBasicGenerationMetric"),
         MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.InstancesPerSplitMetric"),
     ]
     return RunSpec(

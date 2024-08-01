@@ -17,10 +17,6 @@ class SimpleSafetyTestsScenario(Scenario):
     description = "SimpleSafetyTests dataset"
     tags = ["safety"]
 
-    def __init__(self, subject: str = "all"):
-        super().__init__()
-        self.subset = subject
-
     def get_instances(self, output_path: str) -> List[Instance]:
         # read explicit data
         dataset = load_dataset("Bertievidgen/SimpleSafetyTests", split="test")
