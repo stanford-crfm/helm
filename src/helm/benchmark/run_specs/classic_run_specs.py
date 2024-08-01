@@ -59,7 +59,6 @@ def get_bbq_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Run
         instructions="The following are multiple choice questions (with answers).",
         input_noun="Passage",
         output_noun="Answer",
-        max_train_instances=0,
     )
     metric_specs = [
         MetricSpec(class_name="helm.benchmark.metrics.bbq_metrics.BBQMetric", args={})
