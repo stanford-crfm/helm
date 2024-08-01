@@ -14,11 +14,6 @@ from helm.common.request import Request
 class ModelAsJudgeAnnotator(Annotator):
     """Model as judge autograder."""
 
-    def __init__(self, auto_client: AutoClient, file_storage_path: str):
-        self._auto_client = auto_client
-        cache_dir = os.path.join(file_storage_path, "data")
-        ensure_directory_exists(cache_dir)
-
     # expects a prompt that includes a user request that ensures the model needs to return a score and reasoning
     def autograde_with_reasoning(
         self,
