@@ -32,10 +32,15 @@ class HarmBenchScenario(Scenario):
 
         # Read all the instances
         instances: List[Instance] = []
+
+        # we take the direct_request template from HarmBench for simplicity
+        # see the example here https://github.com/centerforaisafety/HarmBench/blob/main/baselines/direct_request/direct_request.py
+        #
+        # in the future we can use other types of templates including various red team attacks
         for i, row in df.iterrows():
             if row["FunctionalCategory"] == "contextual":
                 context = row["ContextString"]
-                input_text = context + "\n\n" + row["Behavior"]
+                input_text = context + "\n\n---\n\n" + row["Behavior"]
             else:
                 input_text = row["Behavior"]
             input = Input(text=input_text)
