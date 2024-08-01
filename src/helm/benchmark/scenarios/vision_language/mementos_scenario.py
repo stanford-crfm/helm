@@ -56,7 +56,7 @@ class MementosScenario(Scenario):
     name = "mementos"
     description = (
         "A Comprehensive Benchmark for Multimodal Large Language Model Reasoning over Image Sequences"
-        " ([paper](https://arxiv.org/abs/2401.10529))."
+        " ([Wang et al., 2024](https://arxiv.org/abs/2401.10529))."
     )
     tags = ["vision-language"]
 

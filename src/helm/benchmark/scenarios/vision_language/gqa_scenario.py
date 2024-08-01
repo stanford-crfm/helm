@@ -31,7 +31,7 @@ class GQAScenario(Scenario):
     }
 
     Paper: https://arxiv.org/abs/1902.09506
-    Website: https://github.com/stanford-crfm/helm/issues/1951
+    Website: https://cs.stanford.edu/people/dorarad/gqa/about.html
     """
 
     QUESTIONS_URL: str = "https://downloads.cs.stanford.edu/nlp/data/gqa/questions1.2.zip"
@@ -40,7 +40,7 @@ class GQAScenario(Scenario):
     name = "gqa"
     description = (
         "Questions about real-world visual reasoning and compositional QA "
-        "([paper](https://arxiv.org/abs/1902.09506))."
+        "([Hudson and Manning, 2019](https://arxiv.org/abs/1902.09506))."
     )
     tags = ["vision-language", "reasoning"]
 

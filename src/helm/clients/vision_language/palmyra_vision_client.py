@@ -6,13 +6,19 @@ import requests
 from helm.common.cache import CacheConfig
 from helm.common.images_utils import encode_base64
 from helm.common.media_object import TEXT_TYPE
-from helm.common.request import Request, RequestResult, GeneratedOutput
+from helm.common.request import Request, RequestResult, GeneratedOutput, ErrorFlags
 from helm.common.request import wrap_request_time
 from helm.clients.client import CachingClient, generate_uid_for_multimodal_prompt, truncate_and_tokenize_response_text
 from helm.tokenizers.tokenizer import Tokenizer
 
 
+class PalmyraVisionContentBlockedError(Exception):
+    pass
+
+
 class PalmyraVisionClient(CachingClient):
+    CONTENT_BLOCKED_ERROR: str = "fail.input.content.moderation"
+
     def __init__(self, tokenizer: Tokenizer, tokenizer_name: str, endpoint: str, cache_config: CacheConfig):
         super().__init__(cache_config)
         self.tokenizer: Tokenizer = tokenizer
@@ -49,17 +55,19 @@ class PalmyraVisionClient(CachingClient):
                 response = requests.post(
                     self.endpoint, headers={"Content-Type": "application/json"}, data=json.dumps({"parts": prompt})
                 )
-                if response.status_code != 200:
-                    curl_command: str = (
-                        f"curl --location '{self.endpoint}' --header 'Content-Type: application/json' "
-                        f"--data '{json.dumps({'parts': prompt})}'"
-                    )
-                    assert False, f"Got status code {response.status_code}. Try {curl_command}"
-
                 json_response = json.loads(response.text)
-                assert (
-                    "choices" in json_response and "errors" not in json_response
-                ), f"Invalid response: {response.text}"
+
+                # Check for content blocked error
+                if (
+                    "errors" in json_response
+                    and "tpe" in json_response
+                    and json_response["tpe"] == self.CONTENT_BLOCKED_ERROR
+                ):
+                    raise PalmyraVisionContentBlockedError(json_response["errors"])
+
+                # Hard fail if the `choices` is missing from the response
+                assert "choices" in json_response, f"Invalid response: {response.text}"
+
                 return json_response
 
             cache_key = CachingClient.make_cache_key(
@@ -67,8 +75,15 @@ class PalmyraVisionClient(CachingClient):
                 request=request,
             )
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-        except RuntimeError as ex:
-            return RequestResult(success=False, cached=False, error=str(ex), completions=[], embedding=[])
+        except PalmyraVisionContentBlockedError as ex:
+            return RequestResult(
+                success=False,
+                cached=False,
+                error=f"Content blocked: {str(ex)}",
+                completions=[],
+                embedding=[],
+                error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+            )
 
         # The internal endpoint doesn't support any other parameters, so we have to truncate ourselves
         completions: List[GeneratedOutput] = [

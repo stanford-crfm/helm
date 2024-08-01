@@ -836,6 +836,75 @@ def get_pairs_spec(subset: str, person: str) -> RunSpec:
     )
 
 
+@run_spec_function("fair_face")
+def get_fair_face_spec(attribute: str, subgroup: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.fair_face_scenario.FairFaceScenario",
+        args={"attribute": attribute, "subgroup": subgroup},
+    )
+    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
+        input_noun=None,
+        output_noun="Answer",
+        num_outputs=1,
+        max_train_instances=0,
+    )
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+
+    run_spec_name: str = "fair_face"
+    return RunSpec(
+        name=f"{run_spec_name}:attribute={attribute},subgroup={subgroup}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("real_world_qa")
+def get_real_world_qa_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.real_world_qa_scenario.RealWorldQAScenario",
+    )
+
+    # Leave the instructions blank because the questions of the dataset already contain the instructions
+    adapter_spec: AdapterSpec = _get_short_answer_generation_adapter_spec(instructions="")
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
+
+    run_spec_name: str = "real_world_qa"
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("exams_v")
+def get_exams_v_spec(language: str, subject_grouped: str, type: str = "image_text") -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.exams_v_scenario.ExamsVScenario",
+        args={"language": language, "subject_grouped": subject_grouped, "type": type},
+    )
+
+    # Slightly modified the instructions from the paper https://arxiv.org/abs/2403.10378
+    adapter_spec: AdapterSpec = _get_short_answer_generation_adapter_spec(
+        instructions="The image has a multiple-choice question with four options. Answer the multiple choice question "
+        "by just giving the corresponding letter: 'A' for the first choice, 'B' for the second choice, "
+        "'C' for the third choice, 'D' for the fourth choice."
+    )
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+
+    run_spec_name: str = "exams_v"
+    return RunSpec(
+        name=f"{run_spec_name}:language={language},subject_grouped={subject_grouped},type={type}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
 @run_spec_function("mementos")
 def get_mementos_spec(subject: str, num_respondents: int) -> RunSpec:
     scenario_spec = ScenarioSpec(

@@ -51,8 +51,8 @@ class BingoScenario(Scenario):
 
     name = "bingo"
     description = (
-        "Evaluate multimodal models on biased and inference-challenging scenarios with five subjects"
-        " ([paper](https://arxiv.org/abs/2311.03287))."
+        "Evaluate multimodal models on biased and inference-challenging scenarios with five subjects "
+        "([Cui et al., 2023](https://arxiv.org/abs/2311.03287))."
     )
     tags = ["vision-language"]
 
