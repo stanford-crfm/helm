@@ -2,7 +2,7 @@ import json
 import datasets
 import os
 import re
-from typing import Any
+from typing import Dict
 
 from helm.common.general import ensure_directory_exists
 from helm.benchmark.adaptation.request_state import RequestState
@@ -14,24 +14,19 @@ from helm.common.request import Request
 class ModelAsJudgeAnnotator(Annotator):
     """Model as judge autograder."""
 
-    def __init__(self, auto_client: AutoClient, file_storage_path: str):
-        self._auto_client = auto_client
-        cache_dir = os.path.join(file_storage_path, "data")
-        ensure_directory_exists(cache_dir)
-
     # expects a prompt that includes a user request that ensures the model needs to return a score and reasoning
     def autograde_with_reasoning(
         self,
         annotator_prompt: str,
         annotator_model: str = "openai/gpt-4o-2024-05-13",
         annotator_model_deployment: str = "openai/gpt-4o-2024-05-13",
-    ) -> Any:
+    ) -> Dict:
         annotator_request = Request(
             model=annotator_model,
             model_deployment=annotator_model_deployment,
             prompt=annotator_prompt,
             temperature=0.0,
-            max_tokens=64,
+            max_tokens=256,
         )
         annotator_response = self._auto_client.make_request(annotator_request)
         if not annotator_response.success:
