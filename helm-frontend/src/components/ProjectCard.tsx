@@ -8,7 +8,7 @@ interface CardProps {
 }
 
 const ProjectCard: React.FC<CardProps> = ({ id, title, text }) => {
-  if (!title.includes("HE")) {
+  if (title === "Classic" || title === "Lite" || title === "Instruct") {
     title = "HELM " + title;
   }
   return (
