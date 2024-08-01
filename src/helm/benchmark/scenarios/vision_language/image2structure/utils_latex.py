@@ -103,8 +103,9 @@ def strip_unnecessary_latex_parts(latex_code: str) -> str:
     minimal_latex_code = re.sub(r"%.*?\n", "\n", latex_code)
 
     # Remove \documentclass and any \usepackage lines
-    minimal_latex_code = re.sub(r"\\documentclass\{.*?\}\n", "", latex_code)
-    minimal_latex_code = re.sub(r"\\usepackage(\[.*?\])?\{.*?\}\n", "", minimal_latex_code)
+    minimal_latex_code = re.sub(r"\\documentclass(\[.*?\])?\{.*?\}", "", latex_code)
+    minimal_latex_code = re.sub(r"\\documentstyle(\[.*?\])?\{.*?\}", "", minimal_latex_code)
+    minimal_latex_code = re.sub(r"\\usepackage(\[.*?\])?\{.*?\}", "", minimal_latex_code)
 
     # Remove everything before \begin{document} and including it, and everything after \end{document}
     minimal_latex_code = re.sub(r"\\begin\{document\}\n*", "", minimal_latex_code, flags=re.DOTALL)
