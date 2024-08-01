@@ -22,9 +22,6 @@ class AnthropicRedTeamScenario(Scenario):
     description = "AnthropicRedTeam dataset"
     tags = ["safety"]
 
-    def __init__(self):
-        super().__init__()
-
     def get_instances(self, output_path: str) -> List[Instance]:
         split_to_tag: Dict[str, str] = {"train": TRAIN_SPLIT, "test": TEST_SPLIT}
 
