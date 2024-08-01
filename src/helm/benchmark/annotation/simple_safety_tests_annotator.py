@@ -55,7 +55,7 @@ class SimpleSafetyTestsAnnotator(ModelAsJudgeAnnotator):
             .replace("{{ANSWER}}", model_output_text)
         )
         claude_results = self.autograde_with_reasoning(
-            annotator_prompt, "anthropic/claude-3.5-sonnet-20240620", "anthropic/claude-3.5-sonnet-20240620"
+            annotator_prompt, "anthropic/claude-3-5-sonnet-20240620", "anthropic/claude-3-5-sonnet-20240620"
         )
         gpt_results = self.autograde_with_reasoning(
             annotator_prompt, "openai/gpt-4o-2024-05-13", "openai/gpt-4o-2024-05-13"
