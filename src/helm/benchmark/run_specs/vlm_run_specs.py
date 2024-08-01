@@ -527,7 +527,7 @@ def get_image2webpage_spec(
         generation_type="webpage",
         args=args,
         include_edit_similarity=("wild" not in subset),  # No ground truth for "wild" subset
-        size_handling_method="none",
+        size_handling_method="none" if "wild" not in subset else "resize",
     )
     annotator_specs: List[AnnotatorSpec] = [
         AnnotatorSpec(

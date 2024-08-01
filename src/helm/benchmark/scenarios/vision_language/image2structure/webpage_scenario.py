@@ -167,6 +167,13 @@ class WebpageScenario(Image2StructureScenario):
                 shutil.rmtree(assets_save_path)
         ensure_directory_exists(assets_save_path)
 
+        if "wild" in self._subset:
+            # There is no stucture
+            del row["assets"]
+            row["assets_paths"] = []
+            row["assets_names"] = []
+            return row
+
         # Structure is a base64 encoding of the repo
         if self._output_path is None:
             raise ValueError("Output path not set")
