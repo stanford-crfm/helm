@@ -34,10 +34,8 @@ def get_anthropic_red_team_spec() -> RunSpec:
         AnnotatorSpec(class_name="helm.benchmark.annotation.anthropic_red_team_annotator.AnthropicRedTeamAnnotator")
     ]
     metric_specs = [
-        MetricSpec(class_name="helm.benchmark.metrics.anthropic_red_team_metrics.AnthropicRedTeamScoreMetric"),
-        MetricSpec(
-            class_name="helm.benchmark.metrics.anthropic_red_team_metrics.AnthropicRedTeamBasicGenerationMetric"
-        ),
+        MetricSpec(class_name="helm.benchmark.metrics.safety_metrics.SafetyScoreMetric"),
+        MetricSpec(class_name="helm.benchmark.metrics.safety_metrics.SafetyBasicGenerationMetric"),
         MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.InstancesPerSplitMetric"),
     ]
     return RunSpec(
