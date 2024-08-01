@@ -183,13 +183,13 @@ run_groups:
       - image2webpage
       - image2musicsheet
 
-  - name: image2structure_real
+  - name: image2structure_wild
     display_name: Image2Struct (Wild)
     description: Scenarios for evaluating the ability of Vision-Language models to generate structured outputs from images. These scenarios contain images that do not have a ground truth.
     category: All scenarios
     subgroups:
-      - image2latex_real
-      - image2webpage_real
+      - image2latex_wild
+      - image2webpage_wild
 
   - name: image2latex
     display_name: Image2LaTeX
@@ -266,7 +266,7 @@ run_groups:
       when: "2024"
       language: English
 
-  - name: image2latex_real
+  - name: image2latex_wild
     display_name: Image2LaTeX (Wild)
     description: Images of mathematical equations gathered from Wikipedia that do not have a LaTeX ground truth.
     metric_groups:
@@ -358,7 +358,7 @@ run_groups:
       when: "2024"
       language: English
 
-  - name: image2webpage_real
+  - name: image2webpage_wild
     display_name: Image2webpage (Wild)
     description: Images of webpages gathered from the internet by taking sceenshots and so on that do not have a HTML/CSS/Javascript ground truth.
     metric_groups:

@@ -483,7 +483,7 @@ def get_image2latex_spec(
     metric_specs: List[MetricSpec] = _get_image2structure_metric_specs(
         generation_type="latex",
         args=args,
-        include_edit_similarity=(subset != "real"),
+        include_edit_similarity=("wild" not in subset),  # No ground truth for "wild" subset
         size_handling_method="padding",
     )
     annotator_specs: List[AnnotatorSpec] = [
@@ -494,8 +494,8 @@ def get_image2latex_spec(
 
     run_spec_name: str = f"image2latex:subset={subset}:difficulty={difficulty}"
     groups: List[str]
-    if subset == "real":
-        groups = ["image2latex_real"]
+    if "wild" in subset:
+        groups = ["image2latex_wild"]
     else:
         groups = ["image2latex", f"image2latex_{difficulty}"]
     return RunSpec(
@@ -526,7 +526,7 @@ def get_image2webpage_spec(
     metric_specs: List[MetricSpec] = _get_image2structure_metric_specs(
         generation_type="webpage",
         args=args,
-        include_edit_similarity=(subset != "real"),
+        include_edit_similarity=("wild" not in subset),  # No ground truth for "wild" subset
         size_handling_method="none",
     )
     annotator_specs: List[AnnotatorSpec] = [
@@ -537,8 +537,8 @@ def get_image2webpage_spec(
 
     run_spec_name: str = f"image2webpage:subset={subset}:difficulty={difficulty}"
     groups: List[str]
-    if subset == "real":
-        groups = ["image2webpage_real"]
+    if "wild" in subset:
+        groups = ["image2webpage_wild"]
     else:
         groups = ["image2webpage", f"image2webpage_{difficulty}"]
     return RunSpec(
