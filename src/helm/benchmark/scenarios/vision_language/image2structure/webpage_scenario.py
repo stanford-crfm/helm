@@ -129,7 +129,7 @@ class WebpageScenario(Image2StructureScenario):
     )
 
     HUGGINGFACE_DATASET_NAME = "stanford-crfm/i2s-webpage"
-    SUBSETS = ["css", "html", "javascript", "real"]
+    SUBSETS = ["css", "html", "javascript", "wild", "wild_legacy"]
     MAX_TRIES: int = 5
     ASSETS_EXTENSIONS: List[str] = ["png", "jpg", "jpeg", "gif", "svg", "webp", "ico", "bmp", "tiff"]
 
@@ -166,6 +166,13 @@ class WebpageScenario(Image2StructureScenario):
                 # There was an issue when loading the assets, reprocess
                 shutil.rmtree(assets_save_path)
         ensure_directory_exists(assets_save_path)
+
+        if "wild" in self._subset:
+            # There is no stucture
+            del row["assets"]
+            row["assets_paths"] = []
+            row["assets_names"] = []
+            return row
 
         # Structure is a base64 encoding of the repo
         if self._output_path is None:
