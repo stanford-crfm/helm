@@ -2,7 +2,7 @@ import json
 import datasets
 import os
 import re
-from typing import Any
+from typing import Dict
 
 from helm.common.general import ensure_directory_exists
 from helm.benchmark.adaptation.request_state import RequestState
@@ -25,13 +25,13 @@ class ModelAsJudgeAnnotator(Annotator):
         annotator_prompt: str,
         annotator_model: str = "openai/gpt-4o-2024-05-13",
         annotator_model_deployment: str = "openai/gpt-4o-2024-05-13",
-    ) -> Any:
+    ) -> Dict:
         annotator_request = Request(
             model=annotator_model,
             model_deployment=annotator_model_deployment,
             prompt=annotator_prompt,
             temperature=0.0,
-            max_tokens=64,
+            max_tokens=256,
         )
         annotator_response = self._auto_client.make_request(annotator_request)
         if not annotator_response.success:
