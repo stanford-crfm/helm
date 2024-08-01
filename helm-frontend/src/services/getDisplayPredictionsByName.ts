@@ -19,7 +19,9 @@ export default async function getDisplayPredictionsByName(
 
     return (await displayPrediction.json()) as DisplayPrediction[];
   } catch (error) {
-    console.log(error);
+    if (error.name === "AbortError") {
+      console.log(error);
+    }
     return [];
   }
 }

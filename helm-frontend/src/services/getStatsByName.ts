@@ -17,7 +17,9 @@ export default async function getStatsByName(
 
     return (await stats.json()) as Stat[];
   } catch (error) {
-    console.log(error);
+    if (error.name !== "AbortError") {
+      console.log(error);
+    }
     return [];
   }
 }
