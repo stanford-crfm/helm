@@ -7,7 +7,7 @@ from .scenario import Scenario, Instance, Input, CORRECT_TAG, TEST_SPLIT, Refere
 
 class XSTestScenario(Scenario):
     """
-    HarmBench, a standardized evaluation framework for automated red teaming.
+    XSTest, a simple standardized evaluation for safety refusals.
     """
 
     name = "XSTest"
