@@ -14,7 +14,7 @@ export default async function getRunsToRunSuites(
 
     return (await runsToRunSuites.json()) as Record<string, string>;
   } catch (error) {
-    if (error.name !== "AbortError") {
+    if (error instanceof Error && error.name !== "AbortError") {
       console.log(error);
     }
     return {};

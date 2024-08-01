@@ -11,7 +11,7 @@ export default async function getSchema(signal: AbortSignal): Promise<Schema> {
 
     return (await resp.json()) as Schema;
   } catch (error) {
-    if (error.name !== "AbortError") {
+    if (error instanceof Error && error.name !== "AbortError") {
       console.log(error);
     }
     return {

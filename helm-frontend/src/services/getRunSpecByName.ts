@@ -16,7 +16,7 @@ export default async function getRunSpecByName(
 
     return (await runSpec.json()) as RunSpec;
   } catch (error) {
-    if (error.name !== "AbortError") {
+    if (error instanceof Error && error.name !== "AbortError") {
       console.log(error);
     }
     return undefined;
