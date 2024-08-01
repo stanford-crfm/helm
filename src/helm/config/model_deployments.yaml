@@ -1823,7 +1823,7 @@ model_deployments:
   - name: together/llama-3.1-8b-instruct-turbo
     model_name: meta/llama-3.1-8b-instruct-turbo
     tokenizer_name: meta/llama-3.1-8b
-    max_sequence_length: 8192
+    max_sequence_length: 128000
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
       args:
@@ -1832,7 +1832,7 @@ model_deployments:
   - name: together/llama-3.1-70b-instruct-turbo
     model_name: meta/llama-3.1-70b-instruct-turbo
     tokenizer_name: meta/llama-3.1-8b
-    max_sequence_length: 8192
+    max_sequence_length: 128000
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
       args:
