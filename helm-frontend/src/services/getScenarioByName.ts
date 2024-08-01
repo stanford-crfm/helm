@@ -17,7 +17,7 @@ export default async function getScenarioByName(
 
     return (await scenario.json()) as Scenario;
   } catch (error) {
-    if (error.name !== "AbortError") {
+    if (error instanceof Error && error.name !== "AbortError") {
       console.log(error);
     }
     return undefined;
