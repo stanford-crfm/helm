@@ -1,24 +1,24 @@
 from typing import Dict, List, Any
 
 from helm.benchmark.scenarios.scenario import VALID_SPLIT
-from helm.benchmark.scenarios.vision_language.image2structure.image2structure_scenario import (
+from helm.benchmark.scenarios.vision_language.image2struct.image2struct_scenario import (
     Image2StructureScenario,
     PROCESSED,
     DIFFICULTY_ALL,
 )
-from helm.benchmark.scenarios.vision_language.image2structure.webpage.jekyll_server import JekyllServer
-from helm.benchmark.scenarios.vision_language.image2structure.webpage.driver import (
+from helm.benchmark.scenarios.vision_language.image2struct.webpage.jekyll_server import JekyllServer
+from helm.benchmark.scenarios.vision_language.image2struct.webpage.driver import (
     save_random_screenshot,
     ScreenshotOptions,
 )
-from helm.benchmark.scenarios.vision_language.image2structure.webpage.utils import convert_html_to_text
+from helm.benchmark.scenarios.vision_language.image2struct.webpage.utils import convert_html_to_text
 from helm.common.general import ensure_directory_exists
 from helm.common.optional_dependencies import handle_module_not_found_error
 
 try:
     from html2text import HTML2Text
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, suggestions=["image2structure"])
+    handle_module_not_found_error(e, suggestions=["image2struct"])
 
 
 import base64

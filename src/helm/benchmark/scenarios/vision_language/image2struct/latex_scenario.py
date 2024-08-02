@@ -1,8 +1,8 @@
-from helm.benchmark.scenarios.vision_language.image2structure.utils_latex import (
+from helm.benchmark.scenarios.vision_language.image2struct.utils_latex import (
     latex_to_image,
     strip_unnecessary_latex_parts,
 )
-from helm.benchmark.scenarios.vision_language.image2structure.image2structure_scenario import Image2StructureScenario
+from helm.benchmark.scenarios.vision_language.image2struct.image2struct_scenario import Image2StructureScenario
 
 
 class LatexScenario(Image2StructureScenario):

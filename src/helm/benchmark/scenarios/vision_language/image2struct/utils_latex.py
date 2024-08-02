@@ -12,13 +12,12 @@ try:
     from PIL import ImageOps
     from PIL.Image import Image
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, suggestions=["image2structure"])
+    handle_module_not_found_error(e, suggestions=["image2struct"])
 
 # LaTeX preamble
 # Make sure to install "latex-full".
 TEX_INCLUDES = r"""
 \usepackage{amsmath,amssymb,amsfonts}
-\usepackage{graphicx}
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{xcolor}
@@ -98,24 +97,19 @@ def pdf_to_image(
 
 def strip_unnecessary_latex_parts(latex_code: str) -> str:
     """Strip unnecessary parts of the LaTeX code."""
-
     # Remove comments
     minimal_latex_code = re.sub(r"%.*?\n", "\n", latex_code)
-
     # Remove \documentclass and any \usepackage lines
     minimal_latex_code = re.sub(r"\\documentclass(\[.*?\])?\{.*?\}", "", latex_code)
     minimal_latex_code = re.sub(r"\\documentstyle(\[.*?\])?\{.*?\}", "", minimal_latex_code)
     minimal_latex_code = re.sub(r"\\usepackage(\[.*?\])?\{.*?\}", "", minimal_latex_code)
-
     # Remove everything before \begin{document} and including it, and everything after \end{document}
     minimal_latex_code = re.sub(r"\\begin\{document\}\n*", "", minimal_latex_code, flags=re.DOTALL)
     minimal_latex_code = re.sub(r"\\end\{document\}.*", "", minimal_latex_code, flags=re.DOTALL)
-
     # Ensure \begin{...} is followed by a \n
     minimal_latex_code = re.sub(r"(\\begin\{.*?\}(\[.*?\])?)(?!\n)", r"\1\n", minimal_latex_code)
     # Ensure \end{...} has a \n before it
     minimal_latex_code = re.sub(r"(\\end\{.*?\})(?!\n)", r"\1\n", minimal_latex_code)
-
     # Normalize space sequences to a single space globally
     minimal_latex_code = re.sub(r" +", " ", minimal_latex_code)
     # Replace tabs with a single space
@@ -124,7 +118,6 @@ def strip_unnecessary_latex_parts(latex_code: str) -> str:
     minimal_latex_code = re.sub(r"^[ \t]+|[ \t]+$", "", minimal_latex_code, flags=re.MULTILINE)
     # Remove unnecessary whitespace - multiple empty lines and tabulations
     minimal_latex_code = re.sub(r"\n\s*\n", "\n", minimal_latex_code)
-
     return minimal_latex_code.strip()
 
 
@@ -314,21 +307,21 @@ def latex_to_image(
 
     # 2. Add preamble
     # 2.1. Remove \documentclass if present to make sure we use our own
-    documentclass_search = re.search(r"\\documentclass\{(.*)\}", original_latex_code)
+    documentclass_search = re.search(r"\\documentclass(\[.*?\])?\{.*?\}", original_latex_code)
+    documentstyle_search = re.search(r"\\documentstyle(\[.*?\])?\{.*?\}", original_latex_code)
     if documentclass_search:
         documentclass: str = documentclass_search.group(1)
         original_latex_code = original_latex_code.replace(f"\\documentclass{{{documentclass}}}", TEX_BEGIN_FILE)
+    elif documentstyle_search:
+        documentstyle: str = documentstyle_search.group(1)
+        original_latex_code = original_latex_code.replace(f"\\documentstyle{{{documentstyle}}}", TEX_BEGIN_FILE)
     else:
         # If there is no \documentclass, we add our own
         original_latex_code = TEX_BEGIN_FILE + "\n\n" + original_latex_code
 
-    # 2.2. Add includes. In this first step, we only add includes if none are present.
-    # We do this because if some are present, we might define them twice which can cause errors
-    # and this section should not make the original LaTeX code fail if it was compilable.
-    # If there are missing packages, in handle_latex_error, we will add TEX_INCLUDES after the begin document,
-    # which might define some packages twice, but often solves the problem.
-    if not re.search(r"\\usepackage\{.*\}", original_latex_code):
-        original_latex_code = original_latex_code.replace(TEX_BEGIN_FILE, TEX_BEGIN_FILE + "\n" + TEX_INCLUDES + "\n")
+    # 2.2. Add includes. In this ste we remove lal includes for the default ones.
+    original_latex_code = re.sub(r"\\usepackage(\[.*?\])?\{.*\}", "", original_latex_code)
+    original_latex_code = original_latex_code.replace(TEX_BEGIN_FILE, TEX_BEGIN_FILE + "\n" + TEX_INCLUDES + "\n")
 
     latex_code: str = original_latex_code
     try:
@@ -346,3 +339,11 @@ def latex_to_image(
             return handle_latex_error(e, original_latex_code, assets_path, crop, resize_to, num_try_remaining)
     except Exception as e:
         return handle_latex_error(e, original_latex_code, assets_path, crop, resize_to, num_try_remaining)
+
+
+if __name__ == "__main__":
+    with open("/home/josselin/helm/test.txt", "r") as file:
+        latex_code = file.read()
+    image, infos = latex_to_image(latex_code, assets_path=".", crop=True)
+    image.save("test.png")
+    print(infos)

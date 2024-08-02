@@ -183,7 +183,7 @@ run_groups:
       - image2webpage
       - image2musicsheet
 
-  - name: image2structure_wild
+  - name: image2struct_wild
     display_name: Image2Struct (Wild)
     description: Scenarios for evaluating the ability of Vision-Language models to generate structured outputs from images. These scenarios contain images that do not have a ground truth.
     category: All scenarios
