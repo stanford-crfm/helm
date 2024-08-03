@@ -6,7 +6,7 @@ try:
     from selenium import webdriver
     import selenium.common.exceptions
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, suggestions=["image2structure"])
+    handle_module_not_found_error(e, suggestions=["image2struct"])
 
 
 def init_driver(url: str, resolution: Tuple[int, int] = (1920, 1080)) -> webdriver.Chrome:

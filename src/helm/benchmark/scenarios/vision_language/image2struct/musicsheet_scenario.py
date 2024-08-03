@@ -1,4 +1,4 @@
-from helm.benchmark.scenarios.vision_language.image2structure.image2structure_scenario import Image2StructureScenario
+from helm.benchmark.scenarios.vision_language.image2struct.image2struct_scenario import Image2StructureScenario
 
 
 class MusicSheetScenario(Image2StructureScenario):

@@ -5,7 +5,7 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 try:
     from html2text import HTML2Text
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, suggestions=["image2structure"])
+    handle_module_not_found_error(e, suggestions=["image2struct"])
 
 
 def convert_html_to_text(handler: HTML2Text, html: str) -> str:
