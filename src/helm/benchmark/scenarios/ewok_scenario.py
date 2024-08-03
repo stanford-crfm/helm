@@ -57,6 +57,7 @@ class EWoKScenario(Scenario):
                 ]
                 instance = Instance(input=input, references=references, split=TEST_SPLIT)
                 instances.append(instance)
+        random.seed(0)
         train_indexes = random.sample(list(range(len(instances))), k=10)
         for train_index in train_indexes:
             instances[train_index] = dataclasses.replace(instances[train_index], split=TRAIN_SPLIT)
