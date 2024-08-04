@@ -339,11 +339,3 @@ def latex_to_image(
             return handle_latex_error(e, original_latex_code, assets_path, crop, resize_to, num_try_remaining)
     except Exception as e:
         return handle_latex_error(e, original_latex_code, assets_path, crop, resize_to, num_try_remaining)
-
-
-if __name__ == "__main__":
-    with open("/home/josselin/helm/test.txt", "r") as file:
-        latex_code = file.read()
-    image, infos = latex_to_image(latex_code, assets_path=".", crop=True)
-    image.save("test.png")
-    print(infos)
