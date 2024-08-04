@@ -1,4 +1,4 @@
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
 from helm.benchmark.scenarios.scenario import VALID_SPLIT
 from helm.benchmark.scenarios.vision_language.image2struct.image2struct_scenario import (
@@ -77,15 +77,17 @@ def serve_and_take_screenshot(
 
     # Take a screenshot of a random page
     success = False
-    error: Exception
+    error: Optional[Exception] = None
+
     for _ in range(max_tries):
         try:
             infos: Dict[str, Any] = save_random_screenshot(destination_path, port=port, options=screenshot_options)
             success = True
             break
         except Exception as e:
+            error = e
+
             if "net::ERR_CONNECTION_REFUSED" in str(e):
-                error = e
                 server.stop()
                 time.sleep(0.5)
                 server.start()
@@ -93,6 +95,7 @@ def serve_and_take_screenshot(
             else:
                 # Do not retry
                 break
+
     if not success:
         raise ValueError(f"Failed to take a screenshot: {error}")
 
