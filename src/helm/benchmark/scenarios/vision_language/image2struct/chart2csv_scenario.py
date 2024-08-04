@@ -20,7 +20,7 @@ class Chart2CSVScenario(Scenario):
 
     name = "chart2csv"
     description = "Convert a chart to CSV."
-    tags = ["vision-language", "image2structure"]
+    tags = ["vision-language", "image2struct"]
 
     def get_instances(self, output_path: str) -> List[Instance]:
         assert os.path.exists(output_path), f"Dataset does not exist at {output_path}"

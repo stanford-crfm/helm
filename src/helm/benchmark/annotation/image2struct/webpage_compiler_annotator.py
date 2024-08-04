@@ -4,12 +4,12 @@ import os
 import shutil
 import threading
 
-from helm.benchmark.annotation.image2structure.image_compiler_annotator import ImageCompilerAnnotator, CompilationError
+from helm.benchmark.annotation.image2struct.image_compiler_annotator import ImageCompilerAnnotator, CompilationError
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.benchmark.scenarios.vision_language.image2structure.webpage.driver import ScreenshotOptions
-from helm.benchmark.scenarios.vision_language.image2structure.webpage.utils import convert_html_to_text
-from helm.benchmark.scenarios.vision_language.image2structure.webpage_scenario import serve_and_take_screenshot
+from helm.benchmark.scenarios.vision_language.image2struct.webpage.driver import ScreenshotOptions
+from helm.benchmark.scenarios.vision_language.image2struct.webpage.utils import convert_html_to_text
+from helm.benchmark.scenarios.vision_language.image2struct.webpage_scenario import serve_and_take_screenshot
 from helm.benchmark.scenarios.scenario import ASSET_NAME_TAG, ASSET_PATH_TAG
 from helm.common.general import ensure_directory_exists
 from helm.common.cache import CacheConfig
@@ -18,7 +18,7 @@ try:
     from PIL import Image
     from html2text import HTML2Text
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, suggestions=["image2structure"])
+    handle_module_not_found_error(e, suggestions=["image2struct"])
 
 
 class WebpageCompilerAnnotator(ImageCompilerAnnotator):

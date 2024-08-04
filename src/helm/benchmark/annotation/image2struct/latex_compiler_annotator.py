@@ -1,9 +1,9 @@
 from typing import List, Tuple, Dict, Any
 
-from helm.benchmark.annotation.image2structure.image_compiler_annotator import ImageCompilerAnnotator, CompilationError
+from helm.benchmark.annotation.image2struct.image_compiler_annotator import ImageCompilerAnnotator, CompilationError
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.benchmark.scenarios.vision_language.image2structure.utils_latex import (
+from helm.benchmark.scenarios.vision_language.image2struct.utils_latex import (
     latex_to_image,
     strip_unnecessary_latex_parts,
 )

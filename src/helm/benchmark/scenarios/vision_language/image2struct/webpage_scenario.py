@@ -1,24 +1,24 @@
 from typing import Dict, List, Any
 
 from helm.benchmark.scenarios.scenario import VALID_SPLIT
-from helm.benchmark.scenarios.vision_language.image2structure.image2structure_scenario import (
+from helm.benchmark.scenarios.vision_language.image2struct.image2struct_scenario import (
     Image2StructureScenario,
     PROCESSED,
     DIFFICULTY_ALL,
 )
-from helm.benchmark.scenarios.vision_language.image2structure.webpage.jekyll_server import JekyllServer
-from helm.benchmark.scenarios.vision_language.image2structure.webpage.driver import (
+from helm.benchmark.scenarios.vision_language.image2struct.webpage.jekyll_server import JekyllServer
+from helm.benchmark.scenarios.vision_language.image2struct.webpage.driver import (
     save_random_screenshot,
     ScreenshotOptions,
 )
-from helm.benchmark.scenarios.vision_language.image2structure.webpage.utils import convert_html_to_text
+from helm.benchmark.scenarios.vision_language.image2struct.webpage.utils import convert_html_to_text
 from helm.common.general import ensure_directory_exists
 from helm.common.optional_dependencies import handle_module_not_found_error
 
 try:
     from html2text import HTML2Text
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, suggestions=["image2structure"])
+    handle_module_not_found_error(e, suggestions=["image2struct"])
 
 
 import base64
@@ -129,7 +129,7 @@ class WebpageScenario(Image2StructureScenario):
     )
 
     HUGGINGFACE_DATASET_NAME = "stanford-crfm/i2s-webpage"
-    SUBSETS = ["css", "html", "javascript", "real"]
+    SUBSETS = ["css", "html", "javascript", "wild", "wild_legacy"]
     MAX_TRIES: int = 5
     ASSETS_EXTENSIONS: List[str] = ["png", "jpg", "jpeg", "gif", "svg", "webp", "ico", "bmp", "tiff"]
 
@@ -166,6 +166,13 @@ class WebpageScenario(Image2StructureScenario):
                 # There was an issue when loading the assets, reprocess
                 shutil.rmtree(assets_save_path)
         ensure_directory_exists(assets_save_path)
+
+        if "wild" in self._subset:
+            # There is no stucture
+            del row["assets"]
+            row["assets_paths"] = []
+            row["assets_names"] = []
+            return row
 
         # Structure is a base64 encoding of the repo
         if self._output_path is None:

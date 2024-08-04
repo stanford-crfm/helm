@@ -1,14 +1,14 @@
-from helm.benchmark.scenarios.vision_language.image2structure.utils_latex import (
+from helm.benchmark.scenarios.vision_language.image2struct.utils_latex import (
     latex_to_image,
     strip_unnecessary_latex_parts,
 )
-from helm.benchmark.scenarios.vision_language.image2structure.image2structure_scenario import Image2StructureScenario
+from helm.benchmark.scenarios.vision_language.image2struct.image2struct_scenario import Image2StructureScenario
 
 
 class LatexScenario(Image2StructureScenario):
     BASE_PROMPT = "Please provide the LaTeX code used to generate this image. Only generate the code relevant to what you see. Your code will be surrounded by all the imports necessary as well as the begin and end document delimiters."  # noqa: E501
     HUGGINGFACE_DATASET_NAME = "stanford-crfm/i2s-latex"
-    SUBSETS = ["equation", "table", "plot", "algorithm", "real"]
+    SUBSETS = ["equation", "table", "plot", "algorithm", "wild", "wild_legacy"]
 
     name = "image2latex"
     description = "Evaluate multimodal models on Latex generation to recreate a provided image"
