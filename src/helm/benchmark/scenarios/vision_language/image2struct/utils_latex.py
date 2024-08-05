@@ -307,16 +307,16 @@ def latex_to_image(
     documentclass_search = re.search(r"\\documentclass(\[.*?\])?\{.*?\}", original_latex_code)
     documentstyle_search = re.search(r"\\documentstyle(\[.*?\])?\{.*?\}", original_latex_code)
     if documentclass_search:
-        documentclass: str = documentclass_search.group(1)
-        original_latex_code = original_latex_code.replace(f"\\documentclass{{{documentclass}}}", TEX_BEGIN_FILE)
+        matching_string = documentclass_search.group()
+        original_latex_code = original_latex_code.replace(matching_string, TEX_BEGIN_FILE)
     elif documentstyle_search:
-        documentstyle: str = documentstyle_search.group(1)
-        original_latex_code = original_latex_code.replace(f"\\documentstyle{{{documentstyle}}}", TEX_BEGIN_FILE)
+        matching_string = documentstyle_search.group()
+        original_latex_code = original_latex_code.replace(matching_string, TEX_BEGIN_FILE)
     else:
         # If there is no \documentclass, we add our own
         original_latex_code = TEX_BEGIN_FILE + "\n\n" + original_latex_code
 
-    # 2.2. Add includes. In this ste we remove lal includes for the default ones.
+    # 2.2. Add includes. In this ste we remove all includes for the default ones.
     original_latex_code = re.sub(r"\\usepackage(\[.*?\])?\{.*\}", "", original_latex_code)
     original_latex_code = original_latex_code.replace(TEX_BEGIN_FILE, TEX_BEGIN_FILE + "\n" + TEX_INCLUDES + "\n")
 
