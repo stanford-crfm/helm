@@ -14,12 +14,18 @@ from helm.common.request import Request
 class ModelAsJudgeAnnotator(Annotator):
     """Model as judge autograder."""
 
+    def __init__(self, auto_client: AutoClient, file_storage_path: str):
+        self._auto_client = auto_client
+        cache_dir = os.path.join(file_storage_path, "data")
+        ensure_directory_exists(cache_dir)
+        super().__init__()
+
     # expects a prompt that includes a user request that ensures the model needs to return a score and reasoning
-    def autograde_with_reasoning(
+    def score_with_reasoning(
         self,
         annotator_prompt: str,
-        annotator_model: str = "openai/gpt-4o-2024-05-13",
-        annotator_model_deployment: str = "openai/gpt-4o-2024-05-13",
+        annotator_model: str,
+        annotator_model_deployment: str,
     ) -> Dict:
         annotator_request = Request(
             model=annotator_model,
@@ -33,11 +39,14 @@ class ModelAsJudgeAnnotator(Annotator):
             raise Exception(f"Annotation request failed: {annotator_response.error}")
         assert len(annotator_response.completions) == 1
         annotator_response_text = annotator_response.completions[0].text
-        parsed_response = json.loads(annotator_response_text)
+        try:
+            parsed_response = json.loads(annotator_response_text)
+        except Exception as e:
+            raise Exception(f"Malformed annotator response: {annotator_response_text}") from e
 
         if not parsed_response:
             raise Exception(f"Malformed annotator response: {annotator_response_text}")
-        reasoning = parsed_response.get("short_reasoning", "").strip()
+        reasoning = parsed_response.get("reasoning", "").strip()
         try:
             score = float(parsed_response.get("score", ""))
         except ValueError as e:

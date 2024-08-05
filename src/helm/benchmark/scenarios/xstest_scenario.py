@@ -20,7 +20,7 @@ class XSTestScenario(Scenario):
 
     def get_instances(self, output_path: str) -> List[Instance]:
         # read explicit data
-        dataset = load_dataset("walledai/XSTest", split="test")
+        dataset = load_dataset("walledai/XSTest", split="test", revision="f1d713187c61b6ae64e602d74f0b3d812cc2e8e8")
 
         # Read all the instances
         instances: List[Instance] = []
