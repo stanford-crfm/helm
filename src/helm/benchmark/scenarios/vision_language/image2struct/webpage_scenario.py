@@ -75,6 +75,7 @@ def serve_and_take_screenshot(
     if not success:
         # This runs on examples that are not expected to fail
         server.stop()
+        hlog(f"Failed to start the Jekyll server: {repo_path} on port {port}. Will raise a ValueError.")
         raise ValueError(f"Jekyll server failed to start: {repo_path}")
 
     # Take a screenshot of a random page
