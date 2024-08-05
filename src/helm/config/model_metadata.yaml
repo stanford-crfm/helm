@@ -74,7 +74,7 @@ models:
     access: limited
     num_parameters: 7500000000
     release_date: 2023-03-09
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: ai21/j2-grande
     display_name: Jurassic-2 Grande (17B)
@@ -83,7 +83,7 @@ models:
     access: limited
     num_parameters: 17000000000
     release_date: 2023-03-09
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: ai21/j2-jumbo
     display_name: Jurassic-2 Jumbo (178B)
@@ -92,7 +92,7 @@ models:
     access: limited
     num_parameters: 178000000000
     release_date: 2023-03-09
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # TODO(1524): Change AI21 model names
   # - j2-jumbo -> j2-ultra
