@@ -413,6 +413,16 @@ tokenizer_configs:
     end_of_text_token: "<|endoftext|>"
     prefix_token: "<|endoftext|>"
 
+  # NVIDIA
+  - name: nvidia/nemotron-4-340b-instruct
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: Xenova/Nemotron-4-340B-Instruct-Tokenizer
+        revision: b7aa0de92cda9f9e722d58d6ca90f46ae17d4701
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|endoftext|>"
+
   # OpenAI
   - name: openai/cl100k_base
     tokenizer_spec:

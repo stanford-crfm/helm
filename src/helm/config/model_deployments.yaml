@@ -1438,6 +1438,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.megatron_client.MegatronClient"
 
+  - name: nvidia/nemotron-4-340b-instruct
+    model_name: nvidia/nemotron-4-340b-instruct
+    tokenizer_name: nvidia/nemotron-4-340b-instruct
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.nvidia_nim_client.NvidiaNimClient"
+
   # OpenAI
 
   ## GPT 3 Models
