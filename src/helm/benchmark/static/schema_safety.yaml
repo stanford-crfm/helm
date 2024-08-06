@@ -74,21 +74,9 @@ metrics:
     display_name: F1
     description: Average F1 score in terms of word overlap between the model output and correct reference.
     lower_is_better: false
-  - name: art_score
-    display_name: Anthropic Red Team - Model Evaluated Safety score
-    description: Anthropic Red Team - Model Evaluated Safety score
-    lower_is_better: false
-  - name: harm_bench_score
-    display_name: HarmBench - Model Evaluated Safety score
-    description: HarmBench - Model Evaluated Safety score
-    lower_is_better: false
-  - name: sst_score
-    display_name: SimpleSafetyTests - Model Evaluated Safety score
-    description: SimpleSafetyTests - Model Evaluated Safety score
-    lower_is_better: false
-  - name: xst_score
-    display_name: XSTest - Model Evaluated Safety score
-    description: XSTest - Model Evaluated Safety score
+  - name: safety_score
+    display_name: LM Evaluated Safety score
+    description: LM Evaluated Safety score (mean of Claude Sonnet3.5 and GPT4o ratings)
     lower_is_better: false
   - name: bbq_accuracy
     display_name: BBQ accuracy
@@ -179,7 +167,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: harm_bench_score
+      main_name: safety_score
       main_split: test
     taxonomy:
       task: question answering
@@ -196,7 +184,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: sst_score
+      main_name: safety_score
       main_split: test
     taxonomy:
       task: question answering
@@ -213,7 +201,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: xst_score
+      main_name: safety_score
       main_split: test
     taxonomy:
       task: question answering
@@ -249,7 +237,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: art_score
+      main_name: safety_score
       main_split: test
     taxonomy:
       task: question answering
