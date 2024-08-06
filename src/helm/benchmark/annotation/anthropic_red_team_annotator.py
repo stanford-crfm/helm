@@ -51,10 +51,10 @@ class AnthropicRedTeamAnnotator(ModelAsJudgeAnnotator):
         annotator_prompt = (
             PROMPT_TEMPLATE.strip().replace("{{QUESTION}}", model_input_text).replace("{{ANSWER}}", model_output_text)
         )
-        claude_results = self.autograde_with_reasoning(
+        claude_results = self.score_with_reasoning(
             annotator_prompt, "anthropic/claude-3-5-sonnet-20240620", "anthropic/claude-3-5-sonnet-20240620"
         )
-        gpt_results = self.autograde_with_reasoning(
+        gpt_results = self.score_with_reasoning(
             annotator_prompt, "openai/gpt-4o-2024-05-13", "openai/gpt-4o-2024-05-13"
         )
         return {
