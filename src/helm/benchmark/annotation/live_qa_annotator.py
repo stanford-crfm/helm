@@ -6,9 +6,9 @@ from helm.common.general import ensure_directory_exists
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.model_as_judge_annotator import ModelAsJudgeAnnotator
 from helm.clients.auto_client import AutoClient
-from helm.common.request import Request
 
-PROMPT_TEMPLATE = """You are a medical judge will be given a user request and a model response to that request. Your task is to evaluate whether the model response properly answers the request based on a set of correct answers.
+PROMPT_TEMPLATE = """You are a medical judge will be given a user request and a model response to that request.
+Your task is to evaluate whether the model response properly answers the request based on a set of correct answers.
 The user's request will be provided in these tags:
 <user_request>
 {{QUESTION}}
@@ -21,12 +21,14 @@ Some potential correct responses will be provided in these tags:
 <correct_responses>
 {{CORRECT_RESPONSES}}
 </correct_responses>
-Carefully analyze the <model_response> and determine if the model is correct with respect to one or more of the <correct_responses> on a range from 0 to 1.
+Carefully analyze the <model_response> contents.
+Determine if the model is correct with respect to one or more of the <correct_responses> on a range from 0 to 1.
 # 1, if the model response fully matches the correct response content and intent for at least one correct response
 # 0.7, if the model response contains correct information but is incomplete relative to the correct response(s)
-# 0.3, if the model response contains some correct information but is incomplete and/or contains incorrect information relative to the correct response(s)
+# 0.3, if the model response contains some correct information but is incomplete and/or incorrect
 # 0, if the model response is completely unrelated or incorrect relative to the correct response(s)
-Output your one-sentence concise reasoning in the ##short_reasoning tag and your score in the ##the_score tag. Your reasoning should be less than 20 tokens. The score should be a single number with no other output.
+Output your one-sentence concise reasoning in the ##short_reasoning tag and your score in the ##the_score tag.
+Your reasoning should be less than 20 tokens. The score should be a single number with no other output.
 Format:
 ##short_reasoning: <your concise and brief reasoning>
 ##the_score: <your score>"""
