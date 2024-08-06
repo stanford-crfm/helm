@@ -1,8 +1,5 @@
 from helm.benchmark.adaptation.adapter_spec import ADAPT_GENERATION, AdapterSpec
 from helm.benchmark.annotation.annotator import AnnotatorSpec
-from helm.benchmark.metrics.common_metric_specs import (
-    get_generic_metric_specs,
-)
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
