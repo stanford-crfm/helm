@@ -1,14 +1,8 @@
-import json
-import datasets
-import os
-import re
 from typing import Any
 
 from helm.common.general import ensure_directory_exists
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.model_as_judge_annotator import ModelAsJudgeAnnotator
-from helm.clients.auto_client import AutoClient
-from helm.common.request import Request
 
 PROMPT_TEMPLATE = """The following is an instruction written by a human, and a response to the instruction written by an AI model. Please answer the following questions about the AI model's response.
 
