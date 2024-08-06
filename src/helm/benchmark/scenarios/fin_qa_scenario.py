@@ -18,6 +18,8 @@ from helm.benchmark.scenarios.scenario import (
 DATASET_URL_PREFIX = "https://github.com/czyssrs/FinQA/raw/0f16e2867befa6840783e58be38c9efb9229d742/dataset/"
 INSTRUCTIONS = """Presented with a financial report consisting of textual contents and a structured table, given a question, generate the reasoning program in the domain specific langauge (DSL) that will be executed to get the answer.
 
+Respond with only the program in the DSL for the last question, without any preamble, elaboration, or working steps. Do not respond with anything that is not part of the DSL.
+
 The DSL consists of mathematical operations and table operations as executable programs. The program consists of a sequence of operations. Each operation takes a list of arguments.
 
 There are 6 mathematical operations: add, subtract, multiply, divide, greater, exp, and 4 table aggregation operations table-max, table-min, table-sum, table-average, that apply aggregation operations on table rows. The mathematical operations take arguments of either numbers from the given reports, or a numerical result from a previous step.
