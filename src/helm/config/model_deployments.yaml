@@ -659,6 +659,13 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
 
   ## EleutherAI
+  - name: huggingface/pythia-70m-v0
+    model_name: eleutherai/pythia-70m-v0
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
   - name: huggingface/pythia-1b-v0
     model_name: eleutherai/pythia-1b-v0
     tokenizer_name: EleutherAI/gpt-neox-20b
