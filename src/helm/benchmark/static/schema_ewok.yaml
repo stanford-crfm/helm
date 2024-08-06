@@ -150,10 +150,21 @@ run_groups:
     category: All scenarios
     subgroups:
       - ewok
+      - ewok_agent_properties
+      - ewok_material_dynamics
+      - ewok_material_properties
+      - ewok_physical_dynamics
+      - ewok_physical_interactions
+      - ewok_physical_relations
+      - ewok_quantitative_properties
+      - ewok_social_interactions
+      - ewok_social_properties
+      - ewok_social_relations
+      - ewok_spatial_relations
 
   - name: ewok
-    display_name: EWoK-Core 1.0
-    description: Elements of World Knowledge
+    display_name: Elements of World Knowledge
+    description: Elements of World Knowledge (EWoK) is a benchmark for evaluating world modeling by testing their ability to use knowledge of a concept to match a target text with a plausible/implausible context.
     metric_groups:
       - accuracy
       - efficiency
@@ -170,7 +181,7 @@ run_groups:
 
   - name: ewok_agent_properties
     display_name: Agent Properties
-    description: Elements of World Knowledge
+    description: The Agent Properties domain from Elements of World Knowledge (EWoK).
     metric_groups:
       - accuracy
       - efficiency
@@ -187,7 +198,7 @@ run_groups:
 
   - name: ewok_material_dynamics
     display_name: Material Dynamics
-    description: Elements of World Knowledge
+    description: The Material Dynamics domain from Elements of World Knowledge (EWoK).
     metric_groups:
       - accuracy
       - efficiency
@@ -204,7 +215,7 @@ run_groups:
 
   - name: ewok_material_properties
     display_name: Material Properties
-    description: Elements of World Knowledge
+    description: The Material Properties domain from Elements of World Knowledge (EWoK).
     metric_groups:
       - accuracy
       - efficiency
@@ -221,7 +232,7 @@ run_groups:
 
   - name: ewok_physical_dynamics
     display_name: Physical Dynamics
-    description: Elements of World Knowledge
+    description: The Physical Dynamics domain from Elements of World Knowledge (EWoK).
     metric_groups:
       - accuracy
       - efficiency
@@ -238,7 +249,7 @@ run_groups:
 
   - name: ewok_physical_interactions
     display_name: Physical Interactions
-    description: Elements of World Knowledge
+    description: The Physical Interactions domain from Elements of World Knowledge (EWoK).
     metric_groups:
       - accuracy
       - efficiency
@@ -255,7 +266,7 @@ run_groups:
 
   - name: ewok_physical_relations
     display_name: Physical Relations
-    description: Elements of World Knowledge
+    description: The Physical Relations domain from Elements of World Knowledge (EWoK).
     metric_groups:
       - accuracy
       - efficiency
@@ -272,7 +283,7 @@ run_groups:
 
   - name: ewok_quantitative_properties
     display_name: Quantitative Properties
-    description: Elements of World Knowledge
+    description: The Quantitative Properties domain from Elements of World Knowledge (EWoK).
     metric_groups:
       - accuracy
       - efficiency
@@ -289,7 +300,7 @@ run_groups:
 
   - name: ewok_social_interactions
     display_name: Social Interactions
-    description: Elements of World Knowledge
+    description: The Social Interactions domain from Elements of World Knowledge (EWoK).
     metric_groups:
       - accuracy
       - efficiency
@@ -306,7 +317,7 @@ run_groups:
 
   - name: ewok_social_properties
     display_name: Social Properties
-    description: Elements of World Knowledge
+    description: The Social Properties domain from Elements of World Knowledge (EWoK).
     metric_groups:
       - accuracy
       - efficiency
@@ -323,7 +334,7 @@ run_groups:
 
   - name: ewok_social_relations
     display_name: Social Relations
-    description: Elements of World Knowledge
+    description: The Social Relations domain from Elements of World Knowledge (EWoK).
     metric_groups:
       - accuracy
       - efficiency
@@ -340,7 +351,7 @@ run_groups:
 
   - name: ewok_spatial_relations
     display_name: Spatial Relations
-    description: Elements of World Knowledge
+    description: The Spatial Relations domain from Elements of World Knowledge (EWoK).
     metric_groups:
       - accuracy
       - efficiency

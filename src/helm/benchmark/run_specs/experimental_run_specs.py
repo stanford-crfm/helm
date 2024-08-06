@@ -77,7 +77,7 @@ Which context makes more sense given the scenario? Please answer using either "1
     )
 
     return RunSpec(
-        name="ewok",
+        name=f"ewok:domain={domain}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
