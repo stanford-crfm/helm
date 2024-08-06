@@ -2,11 +2,10 @@ import os
 import re
 from typing import Any
 
+from helm.benchmark.annotation.model_as_judge_annotator import ModelAsJudgeAnnotator
 from helm.common.general import ensure_directory_exists
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.annotation.annotator import Annotator
 from helm.clients.auto_client import AutoClient
-from helm.common.request import Request
 
 PROMPT_TEMPLATE = """You are a medical judge will be given a user request and a model response to that request. Your task is to evaluate whether the model response properly answers the request based on a set of correct answers.
 The user's request will be provided in these tags:
@@ -31,7 +30,7 @@ Format:
 ##the_score: <your score>"""
 
 
-class MedicationQAAnnotator(Annotator):
+class MedicationQAAnnotator(ModelAsJudgeAnnotator):
     """The LiveQA autograder."""
 
     name = "medication_qa"
@@ -52,13 +51,12 @@ class MedicationQAAnnotator(Annotator):
             return {"prompt_text": "", "reasoning": "BLOCKED_REQUEST_OR_EMPTY_RESPONSE", "score": 0.0}
         correct_response = request_state.instance.references[0].output.text
         annotator_prompt = (
-            PROMPT_TEMPLATE.strip('"')
-            .strip()
+            PROMPT_TEMPLATE.strip()
             .replace("{{QUESTION}}", model_input_text)
             .replace("{{ANSWER}}", model_output_text)
             .replace("{{CORRECT_RESPONSE}}", correct_response)
         )
-        result = self.autograde_with_reasoning(annotator_prompt)
+        result = self.score_with_reasoning(annotator_prompt)
         reasoning = result["reasoning"]
         score = result["score"]
         return {"prompt_text": annotator_prompt, "reasoning": reasoning, "score": score}

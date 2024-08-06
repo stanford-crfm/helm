@@ -55,15 +55,12 @@ class LiveQAAnnotator(ModelAsJudgeAnnotator):
         for i, reference in enumerate(request_state.instance.references):
             correct_responses += "Correct Response #" + str(i) + ": " + reference.output.text + "\n"
         annotator_prompt = (
-            PROMPT_TEMPLATE.strip('"')
-            .strip()
+            PROMPT_TEMPLATE.strip()
             .replace("{{QUESTION}}", model_input_text)
             .replace("{{ANSWER}}", model_output_text)
             .replace("{{CORRECT_RESPONSES}}", correct_responses)
         )
-        results = self.autograde_with_reasoning(
-            annotator_prompt, "openai/gpt-4o-2024-05-13", "openai/gpt-4o-2024-05-13"
-        )
+        results = self.score_with_reasoning(annotator_prompt, "openai/gpt-4o-2024-05-13", "openai/gpt-4o-2024-05-13")
         reasoning = results.get("reasoning")
         score = results.get("score")
         return {"prompt_text": annotator_prompt, "reasoning": reasoning, "score": score}
