@@ -26,10 +26,11 @@ export default function FinanceLanding() {
               Wells Fargo
             </a>
             , we introduce the <span className="font-bold">HELM Finance</span>{" "}
-            leaderboard for ecologicall-valid evaluations of leading language
+            leaderboard for ecologically-valid evaluations of leading language
             models in the financial domain. The leaderboard evaluates the
-            ability of language models on financial tasks on real publicly
-            financial documents.
+            ability of language models to perform tasks from financial
+            professions on publicly financial documents across a range of
+            scenarios.
           </p>
           <div className="flex flex-row justify-center my-4">
             <Link to="leaderboard" className="px-10 btn rounded-md mx-4">
