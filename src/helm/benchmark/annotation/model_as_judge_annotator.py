@@ -36,8 +36,13 @@ class ModelAsJudgeAnnotator(Annotator):
             raise Exception(f"Annotation request failed: {annotator_response.error}")
         assert len(annotator_response.completions) == 1
         annotator_response_text = annotator_response.completions[0].text
+        json_start_index = annotator_response_text.find("{")
+        json_end_index = annotator_response_text.rfind("}")
+        if json_start_index < 0 or json_end_index < 0:
+            raise Exception(f"Malformed annotator response: {annotator_response_text}")
+        annotator_response_json = annotator_response_text[json_start_index : json_end_index + 1]
         try:
-            parsed_response = json.loads(annotator_response_text)
+            parsed_response = json.loads(annotator_response_json)
         except Exception as e:
             raise Exception(f"Malformed annotator response: {annotator_response_text}") from e
 
