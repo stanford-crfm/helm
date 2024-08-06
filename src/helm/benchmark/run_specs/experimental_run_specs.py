@@ -35,7 +35,7 @@ def get_ci_mcqa_spec() -> RunSpec:
 
 
 @run_spec_function("ewok")
-def get_ewok_spec(domain: str) -> RunSpec:
+def get_ewok_spec(domain: str = "all") -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.ewok_scenario.EWoKScenario", args={"domain": domain}
     )
