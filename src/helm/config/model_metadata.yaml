@@ -1897,7 +1897,7 @@ models:
     release_date: 2019-09-17 # paper date
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, BUGGY_TEMP_0_TAG]
 
-  - name: nvidia/nemotron-4-340b Instruct
+  - name: nvidia/nemotron-4-340b-instruct
     display_name: Nemotron-4 Instruct (340B)
     description: Nemotron-4 Instruct (340B) is an open weights model sized to fit on a single DGX H100 with 8 GPUs when deployed in FP8 precision. 98% of the data used for model alignment was synthetically generated ([paper](https://arxiv.org/abs/2406.11704)).
     creator_organization_name: NVIDIA
