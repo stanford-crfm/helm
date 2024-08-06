@@ -74,7 +74,7 @@ metrics:
     display_name: F1
     description: Average F1 score in terms of word overlap between the model output and correct reference.
     lower_is_better: false
-  - name: safety_mean_score
+  - name: safety_score
     display_name: LM Evaluated Safety score
     description: LM Evaluated Safety score (mean of Claude Sonnet3.5 and GPT4o ratings)
     lower_is_better: false
@@ -167,7 +167,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: safety_mean_score
+      main_name: safety_score
       main_split: test
     taxonomy:
       task: question answering
@@ -184,7 +184,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: safety_mean_score
+      main_name: safety_score
       main_split: test
     taxonomy:
       task: question answering
@@ -201,7 +201,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: safety_mean_score
+      main_name: safety_score
       main_split: test
     taxonomy:
       task: question answering
@@ -237,7 +237,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: safety_mean_score
+      main_name: safety_score
       main_split: test
     taxonomy:
       task: question answering
