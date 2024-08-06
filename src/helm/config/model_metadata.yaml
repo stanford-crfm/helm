@@ -1421,7 +1421,7 @@ models:
 
   - name: meta/llama-3.1-8b-instruct-turbo
     display_name: Llama 3.1 Instruct Turbo (8B)
-    description: Llama 3.1 (8B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/), [blog](https://ai.meta.com/blog/meta-llama-3-1/))
+    description: Llama 3.1 (8B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/), [blog](https://ai.meta.com/blog/meta-llama-3-1/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
     creator_organization_name: Meta
     access: open
     num_parameters: 8000000000
@@ -1430,7 +1430,7 @@ models:
 
   - name: meta/llama-3.1-70b-instruct-turbo
     display_name: Llama 3.1 Instruct Turbo (70B)
-    description: Llama 3.1 (70B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/), [blog](https://ai.meta.com/blog/meta-llama-3-1/))
+    description: Llama 3.1 (70B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/), [blog](https://ai.meta.com/blog/meta-llama-3-1/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
     creator_organization_name: Meta
     access: open
     num_parameters: 70000000000
@@ -1439,7 +1439,7 @@ models:
 
   - name: meta/llama-3.1-405b-instruct-turbo
     display_name: Llama 3.1 Instruct Turbo (405B)
-    description: Llama 3.1 (405B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/), [blog](https://ai.meta.com/blog/meta-llama-3-1/))
+    description: Llama 3.1 (405B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/), [blog](https://ai.meta.com/blog/meta-llama-3-1/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
     creator_organization_name: Meta
     access: open
     num_parameters: 405000000000
