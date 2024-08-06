@@ -146,7 +146,7 @@ metric_groups:
 run_groups:
   - name: world_knowledge_scenarios
     display_name: World Knowledge Scenarios
-    description: Scenarios for the world knowledge
+    description: Scenarios the world knowledge
     category: All scenarios
     subgroups:
       - ewok
@@ -163,7 +163,7 @@ run_groups:
       - ewok_spatial_relations
 
   - name: ewok
-    display_name: Elements of World Knowledge
+    display_name: EWoK
     description: Elements of World Knowledge (EWoK) is a benchmark for evaluating world modeling by testing their ability to use knowledge of a concept to match a target text with a plausible/implausible context.
     metric_groups:
       - accuracy
