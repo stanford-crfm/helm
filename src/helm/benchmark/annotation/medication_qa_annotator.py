@@ -59,7 +59,7 @@ class MedicationQAAnnotator(ModelAsJudgeAnnotator):
             .replace("{{ANSWER}}", model_output_text)
             .replace("{{CORRECT_RESPONSE}}", correct_response)
         )
-        result = self.score_with_reasoning(annotator_prompt)
+        result = self.score_with_reasoning(annotator_prompt, "openai/gpt-4o-2024-05-13", "openai/gpt-4o-2024-05-13")
         reasoning = result["reasoning"]
         score = result["score"]
         return {"prompt_text": annotator_prompt, "reasoning": reasoning, "score": score}
