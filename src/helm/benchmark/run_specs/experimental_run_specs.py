@@ -35,8 +35,10 @@ def get_ci_mcqa_spec() -> RunSpec:
 
 
 @run_spec_function("ewok")
-def get_ewok_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.ewok_scenario.EWoKScenario", args={})
+def get_ewok_spec(domain: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.ewok_scenario.EWoKScenario", args={"domain": domain}
+    )
 
     instructions = """# INSTRUCTIONS
 
@@ -79,5 +81,5 @@ Which context makes more sense given the scenario? Please answer using either "1
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["ewok"],
+        groups=["ewok", f"ewok_{domain}"],
     )

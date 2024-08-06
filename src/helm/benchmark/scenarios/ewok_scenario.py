@@ -1,7 +1,5 @@
 import datasets
-import dataclasses
 import os
-import random
 from typing import List
 
 from helm.benchmark.scenarios.scenario import (
@@ -37,15 +35,43 @@ class EWoKScenario(Scenario):
     )
     tags = ["world knowledge"]
 
+    DOMAINS = [
+        "agent_properties",
+        "material_dynamics",
+        "material_properties",
+        "physical_dynamics",
+        "physical_interactions",
+        "physical_relations",
+        "quantitative_properties",
+        "social_interactions",
+        "social_properties",
+        "social_relations",
+        "spatial_relations",
+    ]
+
+    def __init__(self, domain: str = "all"):
+        super().__init__()
+        if domain != "all" and domain not in EWoKScenario.DOMAINS:
+            raise Exception(f"Unknown domain '{domain}', valid domains are {EWoKScenario.DOMAINS}")
+        self.domain = domain.replace("_", "-")
+
     def get_instances(self, output_path: str) -> List[Instance]:
         cache_dir = os.path.join(output_path, "data")
         ensure_directory_exists(cache_dir)
 
         # TODO: Switch this to the production dataset when available.
-        dataset = datasets.load_dataset("ewok-core/ewok-core-1.0", split="test", cache_dir=cache_dir)
-        instances: List[Instance] = []
+        dataset = datasets.load_dataset(
+            "ewok-core/ewok-core-1.0",
+            split="test",
+            revision="34d912a608066c92e2990a0328ffc3bd9a716042",
+            cache_dir=cache_dir,
+        )
+
         # TODO: Allow users to filter by category
-        for row in dataset:
+        instances: List[Instance] = []
+        for row_index, row in enumerate(dataset):
+            if self.domain != "all" and self.domain != row["Domain"]:
+                continue
             contexts = [row["Context1"], row["Context2"]]
             targets = [row["Target1"], row["Target2"]]
             # References are category ID, followed by level 2, 3 and 4 category names.
@@ -55,10 +81,28 @@ class EWoKScenario(Scenario):
                     Reference(output=Output(text=context), tags=[CORRECT_TAG] if context_index == target_index else [])
                     for context_index, context in enumerate(contexts)
                 ]
-                instance = Instance(input=input, references=references, split=TEST_SPLIT)
+                instance = Instance(id=f"id{row_index}", input=input, references=references, split=TEST_SPLIT)
                 instances.append(instance)
-        random.seed(0)
-        train_indexes = random.sample(list(range(len(instances))), k=10)
-        for train_index in train_indexes:
-            instances[train_index] = dataclasses.replace(instances[train_index], split=TRAIN_SPLIT)
+        instances.extend(
+            [
+                Instance(
+                    id=f"id{len(dataset)}",
+                    input=Input(text="I drew a ball from the bag."),
+                    references=[
+                        Reference(output=Output(text="The bag is full of blocks."), tags=[]),
+                        Reference(output=Output(text="The bag is full of balls."), tags=[CORRECT_TAG]),
+                    ],
+                    split=TRAIN_SPLIT,
+                ),
+                Instance(
+                    id=f"id{len(dataset) + 1}",
+                    input=Input(text="The boy chose to eat a cookie."),
+                    references=[
+                        Reference(output=Output(text="The boy likes cookies."), tags=[CORRECT_TAG]),
+                        Reference(output=Output(text="The boy does not like cookies."), tags=[]),
+                    ],
+                    split=TRAIN_SPLIT,
+                ),
+            ]
+        )
         return instances

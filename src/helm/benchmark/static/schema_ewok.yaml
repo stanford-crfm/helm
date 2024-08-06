@@ -167,3 +167,190 @@ run_groups:
       who: n/a
       when: n/a
       language: English
+
+  - name: ewok_agent_properties
+    display_name: Agent Properties
+    description: Elements of World Knowledge
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple choice question answering
+      what: world knowledge
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: ewok_material_dynamics
+    display_name: Material Dynamics
+    description: Elements of World Knowledge
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple choice question answering
+      what: world knowledge
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: ewok_material_properties
+    display_name: Material Properties
+    description: Elements of World Knowledge
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple choice question answering
+      what: world knowledge
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: ewok_physical_dynamics
+    display_name: Physical Dynamics
+    description: Elements of World Knowledge
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple choice question answering
+      what: world knowledge
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: ewok_physical_interactions
+    display_name: Physical Interactions
+    description: Elements of World Knowledge
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple choice question answering
+      what: world knowledge
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: ewok_physical_relations
+    display_name: Physical Relations
+    description: Elements of World Knowledge
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple choice question answering
+      what: world knowledge
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: ewok_quantitative_properties
+    display_name: Quantitative Properties
+    description: Elements of World Knowledge
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple choice question answering
+      what: world knowledge
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: ewok_social_interactions
+    display_name: Social Interactions
+    description: Elements of World Knowledge
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple choice question answering
+      what: world knowledge
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: ewok_social_properties
+    display_name: Social Properties
+    description: Elements of World Knowledge
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple choice question answering
+      what: world knowledge
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: ewok_social_relations
+    display_name: Social Relations
+    description: Elements of World Knowledge
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple choice question answering
+      what: world knowledge
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: ewok_spatial_relations
+    display_name: Spatial Relations
+    description: Elements of World Knowledge
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple choice question answering
+      what: world knowledge
+      who: n/a
+      when: n/a
+      language: English
