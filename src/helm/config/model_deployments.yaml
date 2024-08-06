@@ -28,32 +28,26 @@ model_deployments:
 
   # AI21 Labs
 
-  - name: ai21/j2-jumbo
-    model_name: ai21/j2-jumbo
-    tokenizer_name: ai21/j1
-    max_sequence_length: 6000
-    client_spec:
-      class_name: "helm.clients.ai21_client.AI21Client"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
-
   - name: ai21/j2-large
     model_name: ai21/j2-large
-    tokenizer_name: ai21/j1
+    tokenizer_name: ai21/j2-tokenizer
     max_sequence_length: 2047
     client_spec:
       class_name: "helm.clients.ai21_client.AI21Client"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
 
   - name: ai21/j2-grande
     model_name: ai21/j2-grande
-    tokenizer_name: ai21/j1
+    tokenizer_name: ai21/j2-tokenizer
     max_sequence_length: 2047
     client_spec:
       class_name: "helm.clients.ai21_client.AI21Client"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
+
+  - name: ai21/j2-jumbo
+    model_name: ai21/j2-jumbo
+    tokenizer_name: ai21/j2-tokenizer
+    max_sequence_length: 6000
+    client_spec:
+      class_name: "helm.clients.ai21_client.AI21Client"
 
   - name: ai21/jamba-instruct
     model_name: ai21/jamba-instruct
