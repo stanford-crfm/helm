@@ -1,8 +1,7 @@
 import os
 import re
 import pandas as pd
-from typing import List, Any, Dict
-from datasets import load_dataset
+from typing import List
 
 from helm.common.general import ensure_file_downloaded
 
@@ -22,8 +21,9 @@ class HarmBenchScenario(Scenario):
 
         data_path = os.path.join(output_path, "data")
         os.makedirs(data_path, exist_ok=True)
+        url_prefix = "https://raw.githubusercontent.com/centerforaisafety/HarmBench/main/data/"
         ensure_file_downloaded(
-            source_url="https://raw.githubusercontent.com/centerforaisafety/HarmBench/main/data/behavior_datasets/harmbench_behaviors_text_all.csv",
+            source_url=url_prefix + "behavior_datasets/harmbench_behaviors_text_all.csv",
             target_path=data_path,
             unpack=False,
         )
@@ -34,7 +34,8 @@ class HarmBenchScenario(Scenario):
         instances: List[Instance] = []
 
         # we take the direct_request template from HarmBench for simplicity
-        # see the example here https://github.com/centerforaisafety/HarmBench/blob/main/baselines/direct_request/direct_request.py
+        # see the example here
+        # https://github.com/centerforaisafety/HarmBench/blob/main/baselines/direct_request/direct_request.py
         #
         # in the future we can use other types of templates including various red team attacks
         for i, row in df.iterrows():
