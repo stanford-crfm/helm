@@ -47,3 +47,40 @@ class AnnotationLabelMetric(Metric):
                 )
             )
         return stats
+
+
+class AnnotationLikertScaleMetric(Metric):
+    """Numeric metric for labels produced by annotators.
+
+    Expects the annotation with the given annotator name and key to be a string label.
+
+    For each possible label in the list of possible labels, produces a
+    corresponding stat with a value of 1 or 0 indicating if the actual label
+    in the annoation."""
+
+    def __init__(self, annotator_name: str, key: str, labels: List[str], min_score: int, max_score: int):
+        super().__init__()
+        self.annotator_name = annotator_name
+        self.key = key
+        self.labels = labels
+        self.min_score = min_score
+        self.max_score = max_score
+
+    def evaluate_generation(
+        self,
+        adapter_spec: AdapterSpec,
+        request_state: RequestState,
+        metric_service: MetricService,
+        eval_cache_path: str,
+    ) -> List[Stat]:
+        assert request_state.annotations
+        likert_score = request_state.annotations[self.annotator_name][self.key]
+        if likert_score < self.min_score or likert_score > self.max_score:
+            raise ValueError(
+                f"Likert score {likert_score} "
+                f"out of bounds {self.min_score} to {self.max_score} "
+                f"under key {self.key} and annotator {self.annotator_name} "
+                f"in annotation {request_state.annotations[self.annotator_name]} "
+                f"for instance id {request_state.instance.id}"
+            )
+        return [Stat(MetricName(f"annotation_{self.annotator_name}_{self.key}")).add(likert_score)]
