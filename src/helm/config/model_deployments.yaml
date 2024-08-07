@@ -1435,7 +1435,7 @@ model_deployments:
   - name: nvidia/nemotron-4-340b-instruct
     model_name: nvidia/nemotron-4-340b-instruct
     tokenizer_name: nvidia/nemotron-4-340b-instruct
-    max_sequence_length: 4096
+    max_sequence_length: 4085
     client_spec:
       class_name: "helm.clients.nvidia_nim_client.NvidiaNimClient"
 
