@@ -1436,6 +1436,8 @@ class OutputFormatInstructions(RunExpander):
                     instructions = "Answer yes or no."
             elif self.scenario == "wmt_14":
                 instructions = "Answer with the English translation."
+            elif self.scenario == "wmt_14_only_last_sentence":
+                instructions = "Answer with only the English translation for the last sentence."
             elif self.scenario == "math":
                 instructions = "Wrap the final answer with the \\boxed{} command."
             elif self.scenario == "numeric_nlg":
