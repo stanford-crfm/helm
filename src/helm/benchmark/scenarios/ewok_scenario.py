@@ -30,7 +30,7 @@ class EWoKScenario(Scenario):
 
     name = "ewok"
     description = (
-        "EWoK is a benchmark for evaluating world modeling by testing their ability to "
+        "Elements of World Knowledge (EWoK) is a benchmark for evaluating world modeling by testing their ability to "
         "use knowledge of a concept to match a target text with a plausible/implausible context."
     )
     tags = ["world knowledge"]
@@ -75,7 +75,6 @@ class EWoKScenario(Scenario):
             cache_dir=cache_dir,
         )
 
-        # TODO: Allow users to filter by category
         instances: List[Instance] = [
             Instance(
                 id=generate_instance_id(),
@@ -97,7 +96,7 @@ class EWoKScenario(Scenario):
             ),
         ]
 
-        for row_index, row in enumerate(dataset):
+        for row in dataset:
             contexts = [row["Context1"], row["Context2"]]
             targets = [row["Target1"], row["Target2"]]
             # References are category ID, followed by level 2, 3 and 4 category names.
