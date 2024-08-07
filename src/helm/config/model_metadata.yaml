@@ -2151,7 +2151,7 @@ models:
 
   - name: openai/gpt-4o-2024-05-13
     display_name: GPT-4o (2024-05-13)
-    description: GPT-4o (2024-05-13) is a large multimodal model that accepts as input any combination of text, audio, and image and generates any combination of text, audio, and image outputs.
+    description: GPT-4o (2024-05-13) is a large multimodal model that accepts as input any combination of text, audio, and image and generates any combination of text, audio, and image outputs. ([blog](https://openai.com/index/hello-gpt-4o/))
     creator_organization_name: OpenAI
     access: limited
     release_date: 2024-04-09
@@ -2159,7 +2159,7 @@ models:
 
   - name: openai/gpt-4o-2024-08-06
     display_name: GPT-4o (2024-08-06)
-    description: GPT-4o (2024-08-06) is a large multimodal model that accepts as input any combination of text, audio, and image and generates any combination of text, audio, and image outputs.
+    description: GPT-4o (2024-08-06) is a large multimodal model that accepts as input any combination of text, audio, and image and generates any combination of text, audio, and image outputs. ([blog](https://openai.com/index/introducing-structured-outputs-in-the-api/))
     creator_organization_name: OpenAI
     access: limited
     release_date: 2024-08-06
