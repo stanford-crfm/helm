@@ -5,12 +5,15 @@ These run specs are not intended for use with public leaderboards."""
 from helm.benchmark.adaptation.adapter_spec import ADAPT_GENERATION, AdapterSpec
 from helm.benchmark.annotation.annotator import AnnotatorSpec
 from helm.benchmark.metrics.common_metric_specs import get_basic_metric_specs
+from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 
 @run_spec_function("call_center_summarization")
 def get_xsum_summarization_spec(revision: str = "main") -> RunSpec:
+    from helm.benchmark.annotation.call_center_annotator import CallCenterSummarizationAnnotator
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.call_center_scenario.CallCenterSummarizationScenario",
         args={"revision": revision},
@@ -34,19 +37,20 @@ def get_xsum_summarization_spec(revision: str = "main") -> RunSpec:
     annotator_specs = annotator_specs = [
         AnnotatorSpec(class_name="helm.benchmark.annotation.call_center_annotator.CallCenterSummarizationAnnotator")
     ]
-    # annotation_metric_specs = [
-    #     MetricSpec(
-    #         class_name="helm.benchmark.metrics.annotation_metrics.AnnotationLabelMetric",
-    #         args={
-    #             "annotator_name": "financebench",
-    #             "key": "label",
-    #             "labels": ["correct_answer", "incorrect_answer", "failure_to_answer"],
-    #         },
-    #     )
-    #     for key in [keys]
-    # ]
+    annotation_metric_specs = [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.annotation_metrics.AnnotationLikertScaleMetric",
+            args={
+                "annotator_name": CallCenterSummarizationAnnotator.name,
+                "key": criterion,
+                "min_score": 1,
+                "max_score": 5,
+            },
+        )
+        for criterion in CallCenterSummarizationAnnotator.CRITERIA
+    ]
 
-    metric_specs = get_basic_metric_specs([]) + []
+    metric_specs = get_basic_metric_specs([]) + annotation_metric_specs
 
     return RunSpec(
         name="call_center_summarization",

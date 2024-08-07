@@ -6,6 +6,7 @@ from typing import Any
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
 from helm.clients.auto_client import AutoClient
+from helm.common.hierarchical_logger import hlog
 from helm.common.request import Request
 
 
@@ -15,12 +16,12 @@ class CallCenterSummarizationAnnotator(Annotator):
     name = "call_center_summarization"
 
     PROMPT_TEMPLATE = """\
-    Score the summary by scoring it on a five-point scale using three criteria: Faithfulness, Relevance, and Coherence.
+    Score the summary by scoring it on a five-point scale between 1 and 5 using three criteria: Faithfulness, Relevance, and Coherence.
 
     ### Criteria
-    Faithfulness: Can all the information expressed by the summary can be inferred from the article?
-    Relevance: To what extent the summary include only important information from the source document?
-    Coherence: Does the summary organize the relevant information into a well-structured summary?
+    Faithfulness: Can all the information expressed by the summary can be inferred from the article? (1 = not at all, 5 = very much)
+    Relevance: To what extent the summary include only important information from the source document? (1 = not at all, 5 = very much)
+    Coherence: Does the summary organize the relevant information into a well-structured summary? (1 = not at all, 5 = very much)
 
     ### Call Transcript
     {{CALL_TRANSCRIPT}}
@@ -31,15 +32,12 @@ class CallCenterSummarizationAnnotator(Annotator):
     ### Task
     Respond with only a raw JSON object in the following format, without using Markdown formatting:
 
-    {"faithfulness_explanation": "<one sentence explanation>", "faithfulness": <score>, "relevance_explanation": "<one sentence explanation>", "relevance": <score>, "coherence_explanation": "<one sentence explanation>", "coherence": <score>}
+    {"faithfulness": <score>, "relevance": <score>, "coherence": <score>}
     """  # noqa: E501
 
-    EXPECTED_KEYS = [
-        "faithfulness_explanation",
+    CRITERIA = [
         "faithfulness",
-        "relevance_explanation",
         "relevance",
-        "coherence_explanation",
         "coherence",
     ]
 
@@ -52,8 +50,9 @@ class CallCenterSummarizationAnnotator(Annotator):
         assert len(request_state.result.completions) == 1
         call_transcript = request_state.instance.input.text
         summary = request_state.result.completions[0].text.strip()
-        # if not model_summary.strip():
-        #     # return {"reasoning": "BLOCKED_REQUEST_OR_EMPTY_RESPONSE", "label": "failure_to_answer"}
+        if not summary.strip():
+            hlog("Returning 0 scores due to empty response")
+            return {"faithfulness": 0, "relevance": 0, "coherence": 0}
         annotator_prompt = (
             textwrap.dedent(CallCenterSummarizationAnnotator.PROMPT_TEMPLATE)
             .replace("{{CALL_TRANSCRIPT}}", call_transcript)
@@ -82,7 +81,7 @@ class CallCenterSummarizationAnnotator(Annotator):
             annotator_response_parsed = json.loads(annotator_response_json)
         except JSONDecodeError:
             raise Exception(f"Malformed annotator response: {annotator_response_text}")
-        for expected_key in CallCenterSummarizationAnnotator.EXPECTED_KEYS:
+        for expected_key in CallCenterSummarizationAnnotator.CRITERIA:
             if expected_key not in annotator_response_parsed:
                 raise Exception(f"Malformed annotator response: {annotator_response_text}")
         return annotator_response_parsed

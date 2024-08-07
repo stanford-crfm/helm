@@ -71,16 +71,35 @@ metrics:
     description: Fraction of instances that the predicted output matches a correct reference exactly.
     lower_is_better: false
 
+  # Summarization metrics:
+  - name: annotation_call_center_summarization_faithfulness
+    display_name: Faithfulness
+    short_display_name: Faithfulness
+    description: Whether all the information expressed by the summary can be inferred from the source transcript.
+    lower_is_better: false
+  - name: annotation_call_center_summarization_relevance
+    display_name: Relevance
+    short_display_name: Relevance
+    description: Whether the summary includes only important information from the source.
+    lower_is_better: false
+  - name: annotation_call_center_summarization_coherence
+    display_name: Coherence
+    short_display_name: Coherence
+    description: Whether the summary organizes the relevant information into a well-structured summary.
+    lower_is_better: false
 ############################################################
 perturbations: []
 
 ############################################################
 metric_groups:
-  - name: accuracy
-    display_name: Accuracy
-    hide_win_rates: true
+  - name: summarization_metrics
+    display_name: Summarization
     metrics:
-      - name: ${main_name}
+      - name: annotation_call_center_summarization_faithfulness
+        split: ${main_split}
+      - name: annotation_call_center_summarization_relevance
+        split: ${main_split}
+      - name: annotation_call_center_summarization_coherence
         split: ${main_split}
 
   - name: efficiency
@@ -109,20 +128,20 @@ metric_groups:
 run_groups:
   - name: call_center_scenarios
     display_name: Call Center Scenarios
-    description: Call Center scenarios
+    description: Scenarios representating realistic tasks from the call center.
     category: All scenarios
     subgroups:
       - call_center_summarization
 
   - name: call_center_summarization
-    display_name: Call Center Summarization
-    description: Call center summarization
+    display_name: Summarization
+    description: summarization
     metric_groups:
       # - accuracy
+      - summarization_metrics
       - efficiency
       - general_information
     environment:
-      main_name: exact_match
       main_split: test
     taxonomy:
       task: summarization
