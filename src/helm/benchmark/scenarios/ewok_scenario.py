@@ -16,21 +16,21 @@ from helm.common.general import ensure_directory_exists
 
 
 class EWoKScenario(Scenario):
-    """Elements of World Knowledge (EWOK)
+    """Elements of World Knowledge (EWoK)
 
-    Elements of World Knowledge (EWOK) is a framework for evaluating world modeling in
+    Elements of World Knowledge (EWoK) is a framework for evaluating world modeling in
     language models by testing their ability to use knowledge of a concept to match a
-    target text with a plausible/implausible context. EWOK targets specific concepts
+    target text with a plausible/implausible context. EWoK targets specific concepts
     from multiple knowledge domains known to be vital for world modeling in humans.
     Domains range from social interactions (help/hinder) to spatial relations (left/right).
     Both, contexts and targets are minimal pairs. Objects, agents, and locations in the items
     can be flexibly filled in enabling easy generation of multiple controlled datasets.
 
-    EWOK-CORE-1.0 is a dataset of 4,374 items covering 11 world knowledge domains."""
+    EWoK-CORE-1.0 is a dataset of 4,374 items covering 11 world knowledge domains."""
 
     name = "ewok"
     description = (
-        "EWOK is a benchmark for evaluating world modeling by testing their ability to "
+        "EWoK is a benchmark for evaluating world modeling by testing their ability to "
         "use knowledge of a concept to match a target text with a plausible/implausible context."
     )
     tags = ["world knowledge"]
@@ -56,6 +56,14 @@ class EWoKScenario(Scenario):
         self.domain = domain.replace("_", "-")
 
     def get_instances(self, output_path: str) -> List[Instance]:
+        next_instance_index = 0
+
+        def generate_instance_id() -> str:
+            nonlocal next_instance_index
+            instance_id = f"id{next_instance_index}"
+            next_instance_index += 1
+            return instance_id
+
         cache_dir = os.path.join(output_path, "data")
         ensure_directory_exists(cache_dir)
 
@@ -70,8 +78,6 @@ class EWoKScenario(Scenario):
         # TODO: Allow users to filter by category
         instances: List[Instance] = []
         for row_index, row in enumerate(dataset):
-            if self.domain != "all" and self.domain != row["Domain"]:
-                continue
             contexts = [row["Context1"], row["Context2"]]
             targets = [row["Target1"], row["Target2"]]
             # References are category ID, followed by level 2, 3 and 4 category names.
@@ -81,12 +87,15 @@ class EWoKScenario(Scenario):
                     Reference(output=Output(text=context), tags=[CORRECT_TAG] if context_index == target_index else [])
                     for context_index, context in enumerate(contexts)
                 ]
-                instance = Instance(id=f"id{row_index}", input=input, references=references, split=TEST_SPLIT)
-                instances.append(instance)
+                instance = Instance(id=generate_instance_id(), input=input, references=references, split=TEST_SPLIT)
+                # Filtering by domain after generate instance IDs,
+                # so that instance IDs for an item is invariant regardless of domain filtering.
+                if self.domain == "all" or self.domain == row["Domain"]:
+                    instances.append(instance)
         instances.extend(
             [
                 Instance(
-                    id=f"id{len(dataset)}",
+                    id=generate_instance_id(),
                     input=Input(text="I drew a ball from the bag."),
                     references=[
                         Reference(output=Output(text="The bag is full of blocks."), tags=[]),
@@ -95,7 +104,7 @@ class EWoKScenario(Scenario):
                     split=TRAIN_SPLIT,
                 ),
                 Instance(
-                    id=f"id{len(dataset) + 1}",
+                    id=generate_instance_id(),
                     input=Input(text="The boy chose to eat a cookie."),
                     references=[
                         Reference(output=Output(text="The boy likes cookies."), tags=[CORRECT_TAG]),
