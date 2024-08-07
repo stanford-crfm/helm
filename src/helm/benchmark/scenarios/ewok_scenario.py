@@ -75,27 +75,7 @@ class EWoKScenario(Scenario):
             cache_dir=cache_dir,
         )
 
-        instances: List[Instance] = [
-            Instance(
-                id=generate_instance_id(),
-                input=Input(text="I drew a ball from the bag."),
-                references=[
-                    Reference(output=Output(text="The bag is full of blocks."), tags=[]),
-                    Reference(output=Output(text="The bag is full of balls."), tags=[CORRECT_TAG]),
-                ],
-                split=TRAIN_SPLIT,
-            ),
-            Instance(
-                id=generate_instance_id(),
-                input=Input(text="The boy chose to eat a cookie."),
-                references=[
-                    Reference(output=Output(text="The boy likes cookies."), tags=[CORRECT_TAG]),
-                    Reference(output=Output(text="The boy does not like cookies."), tags=[]),
-                ],
-                split=TRAIN_SPLIT,
-            ),
-        ]
-
+        instances: List[Instance] = []
         for row in dataset:
             contexts = [row["Context1"], row["Context2"]]
             targets = [row["Target1"], row["Target2"]]
@@ -111,4 +91,26 @@ class EWoKScenario(Scenario):
                 # so that instance IDs for an item is invariant regardless of domain filtering.
                 if self.domain == "all" or self.domain == row["Domain"]:
                     instances.append(instance)
+        instances.extend(
+            [
+                Instance(
+                    id=generate_instance_id(),
+                    input=Input(text="I drew a ball from the bag."),
+                    references=[
+                        Reference(output=Output(text="The bag is full of blocks."), tags=[]),
+                        Reference(output=Output(text="The bag is full of balls."), tags=[CORRECT_TAG]),
+                    ],
+                    split=TRAIN_SPLIT,
+                ),
+                Instance(
+                    id=generate_instance_id(),
+                    input=Input(text="The boy chose to eat a cookie."),
+                    references=[
+                        Reference(output=Output(text="The boy likes cookies."), tags=[CORRECT_TAG]),
+                        Reference(output=Output(text="The boy does not like cookies."), tags=[]),
+                    ],
+                    split=TRAIN_SPLIT,
+                ),
+            ]
+        )
         return instances
