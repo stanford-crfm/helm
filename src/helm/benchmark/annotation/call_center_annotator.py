@@ -19,8 +19,8 @@ class CallCenterSummarizationAnnotator(Annotator):
     Score the summary by scoring it on a five-point scale between 1 and 5 using three criteria: Faithfulness, Relevance, and Coherence.
 
     ### Criteria
-    Faithfulness: Can all the information expressed by the summary can be inferred from the article? (1 = not at all, 5 = very much)
-    Relevance: To what extent the summary include only important information from the source document? (1 = not at all, 5 = very much)
+    Faithfulness: Can all the information expressed by the summary can be inferred from the source? (1 = not at all, 5 = very much)
+    Relevance: To what extent the summary include only important information from the source? (1 = not at all, 5 = very much)
     Coherence: Does the summary organize the relevant information into a well-structured summary? (1 = not at all, 5 = very much)
 
     ### Call Transcript
@@ -59,8 +59,8 @@ class CallCenterSummarizationAnnotator(Annotator):
             .replace("{{SUMMARY}}", summary)
         )
         annotator_request = Request(
-            model="anthropic/claude-3-5-sonnet-20240620",
-            model_deployment="anthropic/claude-3-5-sonnet-20240620",
+            model="openai/gpt-4o-mini-2024-07-18",
+            model_deployment="openai/gpt-4o-mini-2024-07-18",
             prompt=annotator_prompt,
             temperature=0.0,
             max_tokens=256,
