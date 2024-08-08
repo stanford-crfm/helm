@@ -1408,6 +1408,17 @@ class OutputFormatInstructions(RunExpander):
                 instructions = "Answer only the last question with only a single letter."
             elif self.scenario == "mmlu":
                 instructions = "Answer with only a single letter."
+            elif self.scenario == "mmlu_suffix":
+                instructions = "Answer with only a single letter."
+                return [
+                    replace(
+                        run_spec,
+                        adapter_spec=replace(
+                            run_spec.adapter_spec,
+                            global_suffix=f"{run_spec.adapter_spec.global_suffix}\n\n{instructions}",
+                        ),
+                    ),
+                ]
             elif self.scenario == "mcqa":
                 instructions = "Answer with only a single letter."
             else:
