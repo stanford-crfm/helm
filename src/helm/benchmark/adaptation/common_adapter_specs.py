@@ -6,6 +6,7 @@ from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_MULTIPLE_CHOICE_JOINT,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
+    ADAPT_MULTIPLE_CHOICE_LANGUAGE_MODELING,
     ADAPT_RANKING_BINARY,
     AdapterSpec,
 )
@@ -220,6 +221,7 @@ def get_generation_adapter_spec(
     stop_sequences: Optional[List] = None,  # default value of `stop_sequences` is ["\n"]
     temperature: float = 0.0,
     multi_label: bool = False,
+    sample_train: bool = True,
 ) -> AdapterSpec:
     """
     [instructions]
@@ -261,6 +263,7 @@ def get_generation_adapter_spec(
         temperature=temperature,
         stop_sequences=stop_sequences,
         multi_label=multi_label,
+        sample_train=sample_train,
     )
 
 
@@ -320,6 +323,26 @@ def get_language_modeling_adapter_spec() -> AdapterSpec:
         instructions="",
         input_prefix="",
         input_suffix="",
+        output_prefix="",
+        output_suffix="",
+        max_train_instances=0,
+        num_outputs=1,
+        max_tokens=0,
+        temperature=0.0,
+    )
+
+
+def get_multiple_choice_language_modeling_adapter_spec() -> AdapterSpec:
+    """
+    Used for minimal pairs scenarios.
+    """
+    return AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE_LANGUAGE_MODELING,
+        instructions="",
+        input_prefix="",
+        input_suffix="",
+        reference_prefix="",
+        reference_suffix="",
         output_prefix="",
         output_suffix="",
         max_train_instances=0,
