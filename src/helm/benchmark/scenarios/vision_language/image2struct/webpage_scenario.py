@@ -1,5 +1,6 @@
 from typing import Dict, List, Any, Optional
 
+from helm.benchmark.annotation.image2struct.image_compiler_annotator import CompilationError
 from helm.benchmark.scenarios.scenario import VALID_SPLIT
 from helm.benchmark.scenarios.vision_language.image2struct.image2struct_scenario import (
     Image2StructureScenario,
@@ -14,6 +15,7 @@ from helm.benchmark.scenarios.vision_language.image2struct.webpage.driver import
 from helm.benchmark.scenarios.vision_language.image2struct.webpage.utils import convert_html_to_text
 from helm.common.general import ensure_directory_exists
 from helm.common.optional_dependencies import handle_module_not_found_error
+from helm.common.hierarchical_logger import hlog
 
 try:
     from html2text import HTML2Text
@@ -73,13 +75,17 @@ def serve_and_take_screenshot(
     if not success:
         # This runs on examples that are not expected to fail
         server.stop()
+        hlog(f"Failed to start the Jekyll server: {repo_path} on port {port}. Will raise a ValueError.")
         raise ValueError(f"Jekyll server failed to start: {repo_path}")
 
     # Take a screenshot of a random page
     success = False
     error: Optional[Exception] = None
 
-    for _ in range(max_tries):
+    MAX_TRIES_ALL_ERRORS = 3
+    MAX_TRIES_CONNECTION_REFUSED = 5
+    MAX_TRIES = max(MAX_TRIES_ALL_ERRORS, MAX_TRIES_CONNECTION_REFUSED)
+    for compilation_attempt in range(MAX_TRIES):
         try:
             infos: Dict[str, Any] = save_random_screenshot(destination_path, port=port, options=screenshot_options)
             success = True
@@ -87,17 +93,30 @@ def serve_and_take_screenshot(
         except Exception as e:
             error = e
 
-            if "net::ERR_CONNECTION_REFUSED" in str(e):
+            if "net::ERR_CONNECTION_REFUSED" in str(e) and compilation_attempt < MAX_TRIES_CONNECTION_REFUSED:
+                hlog(
+                    f"Failed to take a screenshot: ERR_CONNECTION_REFUSED [Attempt {compilation_attempt + 1}/"
+                    f"{MAX_TRIES_CONNECTION_REFUSED}]. Error: {e}. Retrying..."
+                )
                 server.stop()
                 time.sleep(0.5)
                 server.start()
                 time.sleep(0.5)
+            elif compilation_attempt < MAX_TRIES_ALL_ERRORS:
+                hlog(
+                    f"Failed to take a screenshot: Unknown [Attempt {compilation_attempt + 1}/{MAX_TRIES_ALL_ERRORS}]."
+                    f" Error: {e}. Retrying..."
+                )
             else:
                 # Do not retry
+                hlog(
+                    f"Failed to take a screenshot: Unknown [Attempt {compilation_attempt + 1}/{MAX_TRIES_ALL_ERRORS}]."
+                    f" Error: {e}. Raising CompilationError."
+                )
                 break
 
     if not success:
-        raise ValueError(f"Failed to take a screenshot: {error}")
+        raise CompilationError(f"Failed to take a screenshot: {error}")
 
     # Stop the server
     server.stop()

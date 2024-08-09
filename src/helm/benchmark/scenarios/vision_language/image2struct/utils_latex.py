@@ -5,6 +5,7 @@ import os
 import re
 
 from helm.common.optional_dependencies import handle_module_not_found_error, OptionalDependencyNotInstalled
+from helm.common.hierarchical_logger import hlog
 
 try:
     from latex import build_pdf
@@ -220,25 +221,21 @@ def handle_latex_error(
         # Error format: "LaTeX Error: Environment <env> undefined."
         undefined_search = re.search(r"LaTeX Error: Environment (.*) undefined", str_e)
         if undefined_search:
-            # If a package is missing and this is our first retry, then simply include TEX_INCLUDES
-            if num_try_remaining == MAX_NUM_TRIES:
-                fixed_code = fixed_code.replace(TEX_BEGIN_FILE, TEX_BEGIN_FILE + "\n" + TEX_INCLUDES + "\n")
-            if num_try_remaining < MAX_NUM_TRIES or fixed_code == original_latex_code:
-                # Here we try to manually solve the missing environment.
-                # This is either executed on the second rety or the first if no changements
-                # were made in the first retry.
-                assert TEX_INCLUDES in fixed_code, "TEX_INCLUDES should be present in the code"
-                # TEX_INCLUDES is already present, so we add the missing package
-                # Since we cannot know the name of the package that contains the missing environment,
-                # we simply hope that they are named the same way.
-                env_undefined: str = undefined_search.group(1)
+            # Here we try to manually solve the missing environment.
+            # This is either executed on the second rety or the first if no changements
+            # were made in the first retry.
+            assert TEX_INCLUDES in fixed_code, f"TEX_INCLUDES should be present in the code. code={fixed_code}"
+            # TEX_INCLUDES is already present, so we add the missing package
+            # Since we cannot know the name of the package that contains the missing environment,
+            # we simply hope that they are named the same way.
+            env_undefined: str = undefined_search.group(1)
 
-                if f"\\usepackage{{{env_undefined}}}" in fixed_code:
-                    # We already tried to include the missing package, but it probably
-                    # does not exist, so we raise an error
-                    raise RuntimeError(str(e)) from e
+            if f"\\usepackage{{{env_undefined}}}" in fixed_code:
+                # We already tried to include the missing package, but it probably
+                # does not exist, so we raise an error
+                raise RuntimeError(str(e)) from e
 
-                fixed_code = fixed_code.replace(TEX_BEGIN_FILE, TEX_BEGIN_FILE + f"\n\\usepackage{{{env_undefined}}}\n")
+            fixed_code = fixed_code.replace(TEX_BEGIN_FILE, TEX_BEGIN_FILE + f"\n\\usepackage{{{env_undefined}}}\n")
 
         # Try again with the fixed code (if the fixed code is different from the original code)
         if fixed_code != original_latex_code:
@@ -310,20 +307,21 @@ def latex_to_image(
     documentclass_search = re.search(r"\\documentclass(\[.*?\])?\{.*?\}", original_latex_code)
     documentstyle_search = re.search(r"\\documentstyle(\[.*?\])?\{.*?\}", original_latex_code)
     if documentclass_search:
-        documentclass: str = documentclass_search.group(1)
-        original_latex_code = original_latex_code.replace(f"\\documentclass{{{documentclass}}}", TEX_BEGIN_FILE)
+        matching_string = documentclass_search.group()
+        original_latex_code = original_latex_code.replace(matching_string, TEX_BEGIN_FILE)
     elif documentstyle_search:
-        documentstyle: str = documentstyle_search.group(1)
-        original_latex_code = original_latex_code.replace(f"\\documentstyle{{{documentstyle}}}", TEX_BEGIN_FILE)
+        matching_string = documentstyle_search.group()
+        original_latex_code = original_latex_code.replace(matching_string, TEX_BEGIN_FILE)
     else:
         # If there is no \documentclass, we add our own
         original_latex_code = TEX_BEGIN_FILE + "\n\n" + original_latex_code
 
-    # 2.2. Add includes. In this ste we remove lal includes for the default ones.
+    # 2.2. Add includes. In this ste we remove all includes for the default ones.
     original_latex_code = re.sub(r"\\usepackage(\[.*?\])?\{.*\}", "", original_latex_code)
     original_latex_code = original_latex_code.replace(TEX_BEGIN_FILE, TEX_BEGIN_FILE + "\n" + TEX_INCLUDES + "\n")
 
     latex_code: str = original_latex_code
+    hlog(f"Compiling LaTeX code:\n{latex_code}")
     try:
         pdf_stream = latex_to_pdf(latex_code, assets_path=assets_path)
         image = pdf_to_image(pdf_stream, crop=crop, resize_to=resize_to)
