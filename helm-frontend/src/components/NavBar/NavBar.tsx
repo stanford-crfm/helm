@@ -41,9 +41,9 @@ export default function NavBar() {
         </div>
       </div>
       <div className="flex-1 items-center">
-        <Link to="https://crfm.stanford.edu/" className="w-24">
+        <a href="https://crfm.stanford.edu/" className="w-24">
           <img src={crfmLogo} className="object-contain" />
-        </Link>
+        </a>
         <Link to="/" className="mx-2 w-32">
           <img src={helmLogo} className="object-contain" />
         </Link>
