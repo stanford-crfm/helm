@@ -137,27 +137,27 @@ run_groups:
       - thaitoxicitytweets
 
   - name: bhasa_nlg
-  display_name: BHASA natural language generation (NLG)
-  description: BHASA natural language generation (NLG) scenarios
-  category: BHASA scenarios
-  subgroups:
+    display_name: BHASA natural language generation (NLG)
+    description: BHASA natural language generation (NLG) scenarios
+    category: BHASA scenarios
+    subgroups:
     - flores
 
   - name: bhasa_nlr
-  display_name: BHASA natural language reasoning (NLR)
-  description: BHASA natural language reasoning (NLR) scenarios
-  category: BHASA scenarios
-  subgroups:
+    display_name: BHASA natural language reasoning (NLR)
+    description: BHASA natural language reasoning (NLR) scenarios
+    category: BHASA scenarios
+    subgroups:
     - indonli
     - xnli
     - indicxnli
     - xcopa
 
   - name: bhasa_lindsea
-  display_name: BHASA Linguistic Diagnostics for Southeast Asian Languages (LINDSEA)
-  description: BHASA Linguistic Diagnostics for Southeast Asian Languages (LINDSEA) scenarios
-  category: BHASA scenarios
-  subgroups:
+    display_name: BHASA Linguistic Diagnostics for Southeast Asian Languages (LINDSEA)
+    description: BHASA Linguistic Diagnostics for Southeast Asian Languages (LINDSEA) scenarios
+    category: BHASA scenarios
+    subgroups:
     - lindsea_syntax_minimal_pairs
     - lindsea_pragmatics_pragmatic_reasoning_single
     - lindsea_pragmatics_pragmatic_reasoning_pair
