@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import accenture from "@/assets/logos/accenture.png";
 import cresta from "@/assets/logos/cresta.png";
 
-export default function MMLULanding() {
+export default function CallCenterLanding() {
   return (
     <div className="container mx-auto px-16">
       <h1 className="text-3xl my-8 font-bold text-center">HELM Call Center</h1>
