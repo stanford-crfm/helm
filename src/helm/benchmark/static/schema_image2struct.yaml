@@ -485,22 +485,22 @@ run_groups:
   #     when: "2024"
   #     language: English
 
-  # - name: image2webpage_wild
-  #   display_name: Image2webpage (Wild)
-  #   description: Images of webpages gathered from the internet by taking sceenshots and so on that do not have a HTML/CSS/Javascript ground truth.
-  #   metric_groups:
-  #     - accuracy
-  #     - generation_image
-  #     - general_information
-  #   environment:
-  #     main_name: earth_mover_similarity
-  #     main_split: valid
-  #   taxonomy:
-  #     task: image-to-text
-  #     what: css, html, javascript
-  #     who: dataset authors
-  #     when: "2024"
-  #     language: English
+  - name: image2webpage_wild
+    display_name: Image2webpage (Wild)
+    description: Images of webpages gathered from the internet by taking sceenshots and so on that do not have a HTML/CSS/Javascript ground truth.
+    metric_groups:
+      - accuracy
+      - generation_image
+      - general_information
+    environment:
+      main_name: earth_mover_similarity
+      main_split: valid
+    taxonomy:
+      task: image-to-text
+      what: css, html, javascript
+      who: dataset authors
+      when: "2024"
+      language: English
 
   - name: image2musicsheet
     display_name: Image2musicsheet
