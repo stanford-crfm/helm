@@ -209,9 +209,9 @@ run_groups:
       when: "2024"
       language: English
 
-  - name: image2latex_easy
-    display_name: I2LaTeX (Easy)
-    description: The 1/3 easiest examples of the Image2LaTeX benchmark according to a simple heuristic counting the number of characters in the ground truth LaTeX code.
+  - name: image2latex_equation
+    display_name: I2LaTeX (Equation)
+    description: The Image2LaTeX benchmark subset for converting images of mathematical equations to LaTeX.
     metric_groups:
       - accuracy_simple
       - compilation
@@ -223,14 +223,14 @@ run_groups:
       main_split: valid
     taxonomy:
       task: image-to-text
-      what: mathematical equations, tables, algorithms, tikz
+      what: mathematical equations
       who: dataset authors
       when: "2024"
       language: English
 
-  - name: image2latex_medium
-    display_name: I2LaTeX (Medium)
-    description: The 1/3 examples with medium diffulty of the Image2LaTeX benchmark according to a simple heuristic counting the number of characters in the ground truth LaTeX code.
+  - name: image2latex_table
+    display_name: I2LaTeX (Table)
+    description: The Image2LaTeX benchmark subset for converting images of tables to LaTeX.
     metric_groups:
       - accuracy_simple
       - compilation
@@ -242,14 +242,13 @@ run_groups:
       main_split: valid
     taxonomy:
       task: image-to-text
-      what: mathematical equations, tables, algorithms, tikz
+      what: tables
       who: dataset authors
       when: "2024"
-      language: English
 
-  - name: image2latex_hard
-    display_name: I2LaTeX (Hard)
-    description: The 1/3 hardest examples of the Image2LaTeX benchmark according to a simple heuristic counting the number of characters in the ground truth LaTeX code.
+  - name: image2latex_algorithm
+    display_name: I2LaTeX (Algorithm)
+    description: The Image2LaTeX benchmark subset for converting images of algorithms to LaTeX.
     metric_groups:
       - accuracy_simple
       - compilation
@@ -261,10 +260,84 @@ run_groups:
       main_split: valid
     taxonomy:
       task: image-to-text
-      what: mathematical equations, tables, algorithms, tikz
+      what: algorithms
       who: dataset authors
       when: "2024"
-      language: English
+
+  - name: image2latex_plot
+    display_name: I2LaTeX (Tikz)
+    description: The Image2LaTeX benchmark subset for converting images of tikz to LaTeX.
+    metric_groups:
+      - accuracy_simple
+      - compilation
+      - generation_image
+      - generation_text
+      - general_information
+    environment:
+      main_name: earth_mover_similarity
+      main_split: valid
+    taxonomy:
+      task: image-to-text
+      what: tikz (plots)
+      who: dataset authors
+      when: "2024"
+
+  # - name: image2latex_easy
+  #   display_name: I2LaTeX (Easy)
+  #   description: The 1/3 easiest examples of the Image2LaTeX benchmark according to a simple heuristic counting the number of characters in the ground truth LaTeX code.
+  #   metric_groups:
+  #     - accuracy_simple
+  #     - compilation
+  #     - generation_image
+  #     - generation_text
+  #     - general_information
+  #   environment:
+  #     main_name: earth_mover_similarity
+  #     main_split: valid
+  #   taxonomy:
+  #     task: image-to-text
+  #     what: mathematical equations, tables, algorithms, tikz
+  #     who: dataset authors
+  #     when: "2024"
+  #     language: English
+
+  # - name: image2latex_medium
+  #   display_name: I2LaTeX (Medium)
+  #   description: The 1/3 examples with medium diffulty of the Image2LaTeX benchmark according to a simple heuristic counting the number of characters in the ground truth LaTeX code.
+  #   metric_groups:
+  #     - accuracy_simple
+  #     - compilation
+  #     - generation_image
+  #     - generation_text
+  #     - general_information
+  #   environment:
+  #     main_name: earth_mover_similarity
+  #     main_split: valid
+  #   taxonomy:
+  #     task: image-to-text
+  #     what: mathematical equations, tables, algorithms, tikz
+  #     who: dataset authors
+  #     when: "2024"
+  #     language: English
+
+  # - name: image2latex_hard
+  #   display_name: I2LaTeX (Hard)
+  #   description: The 1/3 hardest examples of the Image2LaTeX benchmark according to a simple heuristic counting the number of characters in the ground truth LaTeX code.
+  #   metric_groups:
+  #     - accuracy_simple
+  #     - compilation
+  #     - generation_image
+  #     - generation_text
+  #     - general_information
+  #   environment:
+  #     main_name: earth_mover_similarity
+  #     main_split: valid
+  #   taxonomy:
+  #     task: image-to-text
+  #     what: mathematical equations, tables, algorithms, tikz
+  #     who: dataset authors
+  #     when: "2024"
+  #     language: English
 
   - name: image2latex_wild
     display_name: Image2LaTeX (Wild)
@@ -301,9 +374,9 @@ run_groups:
       when: "2024"
       language: English
 
-  - name: image2webpage_easy
-    display_name: I2webpage (Easy)
-    description: The 1/3 easiest examples of the Image2webpage benchmark according to a simple heuristic counting the number of characters in the ground truth HTML/CSS/Javascript code.
+  - name: image2webpage_css
+    display_name: I2webpage (CSS)
+    description: The Image2webpage benchmark subset for converting images of webpages to code repo containing mostly CSS.
     metric_groups:
       - accuracy_simple
       - compilation
@@ -315,14 +388,13 @@ run_groups:
       main_split: valid
     taxonomy:
       task: image-to-text
-      what: css, html, javascript
+      what: code (mostly CSS)
       who: dataset authors
       when: "2024"
-      language: English
 
-  - name: image2webpage_medium
-    display_name: I2webpage (Medium)
-    description: The 1/3 examples with medium diffulty of the Image2webpage benchmark according to a simple heuristic counting the number of characters in the ground truth HTML/CSS/Javascript code.
+  - name: image2webpage_html
+    display_name: I2webpage (HTML)
+    description: The Image2webpage benchmark subset for converting images of webpages to code repo containing mostly HTML.
     metric_groups:
       - accuracy_simple
       - compilation
@@ -334,14 +406,13 @@ run_groups:
       main_split: valid
     taxonomy:
       task: image-to-text
-      what: css, html, javascript
+      what: code (mostly HTML)
       who: dataset authors
       when: "2024"
-      language: English
 
-  - name: image2webpage_hard
-    display_name: I2webpage (Hard)
-    description: The 1/3 hardest examples of the Image2webpage benchmark according to a simple heuristic counting the number of characters in the ground truth HTML/CSS/Javascript code.
+  - name: image2webpage_javascript
+    display_name: I2webpage (Javascript)
+    description: The Image2webpage benchmark subset for converting images of webpages to code repo containing mostly Javascript.
     metric_groups:
       - accuracy_simple
       - compilation
@@ -353,10 +424,66 @@ run_groups:
       main_split: valid
     taxonomy:
       task: image-to-text
-      what: css, html, javascript
+      what: code (mostly Javascript)
       who: dataset authors
       when: "2024"
-      language: English
+
+  # - name: image2webpage_easy
+  #   display_name: I2webpage (Easy)
+  #   description: The 1/3 easiest examples of the Image2webpage benchmark according to a simple heuristic counting the number of characters in the ground truth HTML/CSS/Javascript code.
+  #   metric_groups:
+  #     - accuracy_simple
+  #     - compilation
+  #     - generation_image
+  #     - generation_text
+  #     - general_information
+  #   environment:
+  #     main_name: earth_mover_similarity
+  #     main_split: valid
+  #   taxonomy:
+  #     task: image-to-text
+  #     what: css, html, javascript
+  #     who: dataset authors
+  #     when: "2024"
+  #     language: English
+
+  # - name: image2webpage_medium
+  #   display_name: I2webpage (Medium)
+  #   description: The 1/3 examples with medium diffulty of the Image2webpage benchmark according to a simple heuristic counting the number of characters in the ground truth HTML/CSS/Javascript code.
+  #   metric_groups:
+  #     - accuracy_simple
+  #     - compilation
+  #     - generation_image
+  #     - generation_text
+  #     - general_information
+  #   environment:
+  #     main_name: earth_mover_similarity
+  #     main_split: valid
+  #   taxonomy:
+  #     task: image-to-text
+  #     what: css, html, javascript
+  #     who: dataset authors
+  #     when: "2024"
+  #     language: English
+
+  # - name: image2webpage_hard
+  #   display_name: I2webpage (Hard)
+  #   description: The 1/3 hardest examples of the Image2webpage benchmark according to a simple heuristic counting the number of characters in the ground truth HTML/CSS/Javascript code.
+  #   metric_groups:
+  #     - accuracy_simple
+  #     - compilation
+  #     - generation_image
+  #     - generation_text
+  #     - general_information
+  #   environment:
+  #     main_name: earth_mover_similarity
+  #     main_split: valid
+  #   taxonomy:
+  #     task: image-to-text
+  #     what: css, html, javascript
+  #     who: dataset authors
+  #     when: "2024"
+  #     language: English
 
   - name: image2webpage_wild
     display_name: Image2webpage (Wild)
@@ -392,56 +519,56 @@ run_groups:
       when: "2024"
       language: English
 
-  - name: image2musicsheet_easy
-    display_name: I2musicsheet (Easy)
-    description: The 1/3 easiest examples of the Image2musicsheet benchmark according to a simple heuristic counting the number of black pixels in the target image.
-    metric_groups:
-      - accuracy_simple
-      - compilation
-      - generation_image
-      - general_information
-    environment:
-      main_name: earth_mover_similarity
-      main_split: valid
-    taxonomy:
-      task: image-to-text
-      what: music sheets
-      who: dataset authors
-      when: "2024"
-      language: English
+  # - name: image2musicsheet_easy
+  #   display_name: I2musicsheet (Easy)
+  #   description: The 1/3 easiest examples of the Image2musicsheet benchmark according to a simple heuristic counting the number of black pixels in the target image.
+  #   metric_groups:
+  #     - accuracy_simple
+  #     - compilation
+  #     - generation_image
+  #     - general_information
+  #   environment:
+  #     main_name: earth_mover_similarity
+  #     main_split: valid
+  #   taxonomy:
+  #     task: image-to-text
+  #     what: music sheets
+  #     who: dataset authors
+  #     when: "2024"
+  #     language: English
 
-  - name: image2musicsheet_medium
-    display_name: I2musicsheet (Medium)
-    description: The 1/3 examples with medium diffulty of the Image2musicsheet benchmark according to a simple heuristic counting the number of black pixels in the target image.
-    metric_groups:
-      - accuracy_simple
-      - compilation
-      - generation_image
-      - general_information
-    environment:
-      main_name: earth_mover_similarity
-      main_split: valid
-    taxonomy:
-      task: image-to-text
-      what: music sheets
-      who: dataset authors
-      when: "2024"
-      language: English
+  # - name: image2musicsheet_medium
+  #   display_name: I2musicsheet (Medium)
+  #   description: The 1/3 examples with medium diffulty of the Image2musicsheet benchmark according to a simple heuristic counting the number of black pixels in the target image.
+  #   metric_groups:
+  #     - accuracy_simple
+  #     - compilation
+  #     - generation_image
+  #     - general_information
+  #   environment:
+  #     main_name: earth_mover_similarity
+  #     main_split: valid
+  #   taxonomy:
+  #     task: image-to-text
+  #     what: music sheets
+  #     who: dataset authors
+  #     when: "2024"
+  #     language: English
 
-  - name: image2musicsheet_hard
-    display_name: I2musicsheet (Hard)
-    description: The 1/3 hardest examples of the Image2musicsheet benchmark according to a simple heuristic counting the number of black pixels in the target image.
-    metric_groups:
-      - accuracy_simple
-      - compilation
-      - generation_image
-      - general_information
-    environment:
-      main_name: earth_mover_similarity
-      main_split: valid
-    taxonomy:
-      task: image-to-text
-      what: music sheets
-      who: dataset authors
-      when: "2024"
-      language: English
+  # - name: image2musicsheet_hard
+  #   display_name: I2musicsheet (Hard)
+  #   description: The 1/3 hardest examples of the Image2musicsheet benchmark according to a simple heuristic counting the number of black pixels in the target image.
+  #   metric_groups:
+  #     - accuracy_simple
+  #     - compilation
+  #     - generation_image
+  #     - general_information
+  #   environment:
+  #     main_name: earth_mover_similarity
+  #     main_split: valid
+  #   taxonomy:
+  #     task: image-to-text
+  #     what: music sheets
+  #     who: dataset authors
+  #     when: "2024"
+  #     language: English
