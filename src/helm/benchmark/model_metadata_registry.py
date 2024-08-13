@@ -22,9 +22,6 @@ CHATML_MODEL_TAG: str = "CHATML_MODEL_TAG"
 # OpenAI Chat format
 OPENAI_CHATGPT_MODEL_TAG: str = "OPENAI_CHATGPT_MODEL_TAG"
 
-# Mistral instruction-following format
-MISTRAL_MODEL_TAG: str = "MISTRAL_MODEL_TAG"
-
 # For Anthropic models
 ANTHROPIC_CLAUDE_1_MODEL_TAG: str = "ANTHROPIC_CLAUDE_1_MODEL_TAG"
 ANTHROPIC_CLAUDE_2_MODEL_TAG: str = "ANTHROPIC_CLAUDE_2_MODEL_TAG"
@@ -69,6 +66,9 @@ OPEN_FLAMINGO_MODEL_TAG: str = "OPEN_FLAMINGO_MODEL_TAG"
 LIMITED_FUNCTIONALITY_VLM_TAG: str = "LIMITED_FUNCTIONALITY_VLM_TAG"
 FULL_FUNCTIONALITY_VLM_TAG: str = "FULL_FUNCTIONALITY_VLM_TAG"
 
+# Deprecated models that are no longer available.
+# These are usually closed API models that have been permanently removed
+DEPRECATED_MODEL_TAG: str = "DEPRECATED_MODEL_TAG"
 
 # Frozen is set to false as the model_deployment_registry.py file
 # might populate the deployment_names field.

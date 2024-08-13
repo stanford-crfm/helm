@@ -6,7 +6,7 @@ try:
     import cv2
     from PIL.Image import Image
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, suggestions=["image2structure"])
+    handle_module_not_found_error(e, suggestions=["image2struct"])
 
 
 def preprocess_image(image: Image) -> np.ndarray:

@@ -52,7 +52,7 @@ export default function MMLULanding() {
           className="py-2 pb-6 rounded-3xl bg-gray-100 h-full" // Stretched to full height
           style={{ maxWidth: "100%" }}
         >
-          <MiniLeaderboard numModelsToAutoFilter={10} />
+          <MiniLeaderboard />
           <div className="flex justify-end">
             <Link to="leaderboard">
               <button className="px-4 mx-3 mt-1 btn bg-white rounded-md">

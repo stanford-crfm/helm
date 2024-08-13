@@ -35,7 +35,7 @@ try:
     from PIL import Image
     import imagehash
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, suggestions=["image2structure"])
+    handle_module_not_found_error(e, suggestions=["image2struct"])
 
 
 def pad(small_image: Image.Image, large_image: Image.Image, axis: int) -> Image.Image:

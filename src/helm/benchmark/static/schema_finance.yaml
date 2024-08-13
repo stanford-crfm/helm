@@ -73,6 +73,10 @@ metrics:
     display_name: Execution Accuracy
     description: Accuracy of the final result of the generated program
     lower_is_better: false
+  - name: annotation_financebench_label_correct_answer
+    display_name: Correct Answer
+    description: Whether the final result was correct, as judged by a GPT-4o
+    lower_is_better: false
 
 ############################################################
 perturbations: []
@@ -114,6 +118,7 @@ run_groups:
     category: All scenarios
     subgroups:
       - fin_qa
+      - financebench
 
   - name: fin_qa
     display_name: FinQA
@@ -130,6 +135,23 @@ run_groups:
       what: financial reports
       who: financial experts
       when: 1999 to 2019
+      language: English
+
+  - name: financebench
+    display_name: FinanceBench
+    description: FinanceBench is a benchmark for open book financial question answering. It comprises 10,231 questions about publicly traded companies, with corresponding answers and evidence strings
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: annotation_financebench_label_correct_answer
+      main_split: test
+    taxonomy:
+      task: question answering with numeric reasoning
+      what: financial reports
+      who: financial experts
+      when: 2015 to 2023
       language: English
 
   - name: financial_scenarios_ablations

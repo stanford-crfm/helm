@@ -179,9 +179,9 @@ class SummaCImager:
                     model_outputs = self.model(**batch_tokens)
 
                 batch_probs = torch.nn.functional.softmax(model_outputs["logits"], dim=-1)
-                batch_evids = batch_probs[:, self.entailment_idx].tolist()
-                batch_conts = batch_probs[:, self.contradiction_idx].tolist()
-                batch_neuts = batch_probs[:, self.neutral_idx].tolist()
+                batch_evids = batch_probs[:, self.entailment_idx].tolist()  # type: ignore
+                batch_conts = batch_probs[:, self.contradiction_idx].tolist()  # type: ignore
+                batch_neuts = batch_probs[:, self.neutral_idx].tolist()  # type: ignore
 
             for b, evid, cont, neut in zip(batch, batch_evids, batch_conts, batch_neuts):
                 image[0, b["doc_i"], b["gen_i"]] = evid

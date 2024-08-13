@@ -49,7 +49,7 @@ class HatefulMemesScenario(Scenario):
     QUESTION: str = "Is this meme mean?"
 
     name = "hateful_memes"
-    description = "Identify if a meme is hateful or not ([paper](https://arxiv.org/abs/2005.04790))."
+    description = "Identify if a meme is hateful or not ([Kiela et al., 2020](https://arxiv.org/abs/2005.04790))."
     tags = ["vision-language"]
 
     def get_instances(self, output_path: str) -> List[Instance]:

@@ -309,6 +309,7 @@ run_groups:
       - gqa
       - seed_bench
       - mementos
+      - real_world_qa
   - name: knowledge
     display_name: Knowledge
     description: Does the model have knowledge about the world and common sense?
@@ -318,6 +319,7 @@ run_groups:
       - mmmu
       - mme
       - vibe_eval
+      - real_world_qa
   - name: bias
     display_name: Bias
     description: Are the generations biased in demographic representation? We focus on gender and skin tone bias.
@@ -332,6 +334,7 @@ run_groups:
       - vqa_dialect
       - a_okvqa_dialect
       - crossmodal_3600
+      - fair_face
   - name: toxicity
     display_name: Toxicity
     description: Does the model generate toxic or inappropriate content? Can the model identify toxic or inappropriate content?
@@ -358,10 +361,11 @@ run_groups:
       - a_okvqa_hindi
       - a_okvqa_spanish
       - a_okvqa_swahili
+      - exams_v
 
   - name: a_okvqa_base
     display_name: A-OKVQA
-    description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
+    description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([Schwenk et al., 2022](https://arxiv.org/abs/2206.01718)).
     metric_groups:
       - accuracy
       - general_information
@@ -377,7 +381,7 @@ run_groups:
 
   - name: a_okvqa_dialect
     display_name: A-OKVQA (AAE)
-    description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
+    description: African-American English Perturbation + A-OKVQA ([Schwenk et al., 2022](https://arxiv.org/abs/2206.01718)).
     metric_groups:
       - fairness
       - general_information
@@ -393,7 +397,7 @@ run_groups:
 
   - name: a_okvqa_robustness
     display_name: A-OKVQA (robustness)
-    description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
+    description: Robustness Typos Perturbation + A-OKVQA ([Schwenk et al., 2022](https://arxiv.org/abs/2206.01718)).
     metric_groups:
       - robustness
       - general_information
@@ -409,7 +413,7 @@ run_groups:
 
   - name: a_okvqa_chinese
     display_name: A-OKVQA (chinese)
-    description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
+    description: Chinese Translation Perturbation + A-OKVQA ([Schwenk et al., 2022](https://arxiv.org/abs/2206.01718)).
     metric_groups:
       - translate
       - general_information
@@ -425,7 +429,7 @@ run_groups:
 
   - name: a_okvqa_hindi
     display_name: A-OKVQA (hindi)
-    description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
+    description: Hindi Translation Perturbation + A-OKVQA ([Schwenk et al., 2022](https://arxiv.org/abs/2206.01718)).
     metric_groups:
       - translate
       - general_information
@@ -441,7 +445,7 @@ run_groups:
 
   - name: a_okvqa_spanish
     display_name: A-OKVQA (spanish)
-    description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
+    description: Spanish Translation Perturbation + A-OKVQA ([Schwenk et al., 2022](https://arxiv.org/abs/2206.01718)).
     metric_groups:
       - translate
       - general_information
@@ -457,7 +461,7 @@ run_groups:
 
   - name: a_okvqa_swahili
     display_name: A-OKVQA (swahili)
-    description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718)).
+    description: Swahili Translation Perturbation + A-OKVQA ([Schwenk et al., 2022](https://arxiv.org/abs/2206.01718)).
     metric_groups:
       - translate
       - general_information
@@ -473,7 +477,7 @@ run_groups:
 
   - name: crossmodal_3600
     display_name: Crossmodal 3600
-    description: Crossmodal-3600 dataset (XM3600 in short), a geographically-diverse set of 3600 images annotated with human-generated reference captions in 36 languages. ([paper](https://arxiv.org/abs/2205.12522))
+    description: Crossmodal-3600 dataset (XM3600 in short), a geographically-diverse set of 3600 images annotated with human-generated reference captions in 36 languages. ([Thapliyal et al., 2022](https://arxiv.org/abs/2205.12522))
     metric_groups:
       - accuracy
       - general_information
@@ -489,7 +493,7 @@ run_groups:
 
   - name: flickr30k
     display_name: Flickr30k
-    description: An image caption corpus consisting of 158,915 crowd-sourced captions describing 31,783 Flickr images. ([paper](https://shannon.cs.illinois.edu/DenotationGraph/TACLDenotationGraph.pdf))
+    description: An image caption corpus consisting of 158,915 crowd-sourced captions describing 31,783 Flickr images. ([Young et al., 2014](https://shannon.cs.illinois.edu/DenotationGraph/TACLDenotationGraph.pdf))
     metric_groups:
       - accuracy
       - general_information
@@ -505,7 +509,7 @@ run_groups:
 
   - name: gqa
     display_name: GQA
-    description: Questions about real-world visual reasoning and compositional QA
+    description: Questions about real-world visual reasoning and compositional QA ([Hudson and Manning, 2019](https://arxiv.org/abs/1902.09506)).
     metric_groups:
       - accuracy
       - general_information
@@ -513,7 +517,7 @@ run_groups:
       main_name: quasi_exact_match
       main_split: valid
     taxonomy:
-      task: short answer question answering
+      task: short-answer question answering
       what: Real-world images
       who: Human experts
       when: "2019"
@@ -521,7 +525,7 @@ run_groups:
 
   - name: hateful_memes
     display_name: Hateful Memes
-    description: The Hateful Memes benchmark for multimodal hate speech detection [(Dwibedi et al., 2020)](https://arxiv.org/pdf/2005.04790.pdf).
+    description: Multimodal hate speech detection in memes ([Kiela et al., 2020](https://arxiv.org/abs/2005.04790)).
     metric_groups:
       - accuracy
       - general_information
@@ -529,15 +533,15 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: multimodal classification
-      what: images and text
-      who: annotators from Amazon Mechanical Turk
+      task: toxicity identification
+      what: Memes
+      who: Human experts
       when: "2020"
       language: English
 
   - name: mm_safety_bench
     display_name: MM-SafetyBench
-    description: Expose the vulnerability of open-source VLMs with toxic and biased content ([paper](https://arxiv.org/abs/2311.17600))
+    description: Exposes the vulnerability of open-source VLMs with toxic and biased content ([Liu et al., 2023](https://arxiv.org/abs/2311.17600)).
     metric_groups:
       - accuracy
       - toxicity
@@ -546,22 +550,23 @@ run_groups:
       main_name: toxic_frac
       main_split: test
     taxonomy:
-      task: safety
-      what: safety images
+      task: toxicity mitigation
+      what: Jail-break images
       who: Human experts
       when: "2023"
       language: English
 
   - name: viz_wiz
     display_name: VizWiz
-    description: A benchmark for visual question answering with images and questions created by visually impaired people [(Gurari et al., 2018)](https://arxiv.org/abs/1802.08218).
+    description: A benchmark for visual question answering with images and questions created by visually impaired people ([Gurari et al., 2018](https://arxiv.org/abs/1802.08218)).
     metric_groups:
       - accuracy
+      - general_information
     environment:
       main_name: quasi_exact_match
       main_split: valid
     taxonomy:
-      task: multimodal short answer question answering
+      task: short-answer question answering
       what: Real-world images
       who: Visually impaired people
       when: "2018"
@@ -569,7 +574,7 @@ run_groups:
 
   - name: vqa_base
     display_name: VQAv2
-    description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
+    description: Open-ended questions about real-world images ([Goyal et al., 2017](https://arxiv.org/abs/1612.00837)).
     metric_groups:
       - accuracy
       - general_information
@@ -577,7 +582,7 @@ run_groups:
       main_name: quasi_exact_match
       main_split: valid
     taxonomy:
-      task: multimodal short answer question answering
+      task: short-answer question answering
       what: Real-world images
       who: Human experts
       when: "2017"
@@ -585,7 +590,7 @@ run_groups:
 
   - name: vqa_dialect
     display_name: VQAv2 (AAE)
-    description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
+    description: African-American English Perturbation + Open-ended questions about real-world images ([Goyal et al., 2017](https://arxiv.org/abs/1612.00837)).
     metric_groups:
       - fairness
       - general_information
@@ -593,7 +598,7 @@ run_groups:
       main_name: quasi_exact_match
       main_split: valid
     taxonomy:
-      task: multimodal short answer question answering
+      task: short-answer question answering
       what: Real-world images
       who: Human experts
       when: "2017"
@@ -601,7 +606,7 @@ run_groups:
 
   - name: vqa_robustness
     display_name: VQAv2 (robustness)
-    description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
+    description: Robustness Typos Perturbation + Open-ended questions about real-world images ([Goyal et al., 2017](https://arxiv.org/abs/1612.00837)).
     metric_groups:
       - robustness
       - general_information
@@ -609,63 +614,15 @@ run_groups:
       main_name: quasi_exact_match
       main_split: valid
     taxonomy:
-      task: multimodal short answer question answering
+      task: short-answer question answering
       what: Real-world images
       who: Human experts
       when: "2017"
       language: English
 
-  - name: vqa_chinese
-    display_name: VQAv2 (chinese)
-    description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
-    metric_groups:
-      - translate
-      - general_information
-    environment:
-      main_name: quasi_exact_match
-      main_split: valid
-    taxonomy:
-      task: multimodal short answer question answering
-      what: Real-world images
-      who: Human experts
-      when: "2017"
-      language: Chinese
-
-  - name: vqa_hindi
-    display_name: VQAv2 (hindi)
-    description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
-    metric_groups:
-      - translate
-      - general_information
-    environment:
-      main_name: quasi_exact_match
-      main_split: valid
-    taxonomy:
-      task: multimodal short answer question answering
-      what: Real-world images
-      who: Human experts
-      when: "2017"
-      language: Hindi
-
-  - name: vqa_spanish
-    display_name: VQAv2 (spanish)
-    description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
-    metric_groups:
-      - translate
-      - general_information
-    environment:
-      main_name: quasi_exact_match
-      main_split: valid
-    taxonomy:
-      task: multimodal short answer question answering
-      what: Real-world images
-      who: Human experts
-      when: "2017"
-      language: Spanish
-
   - name: math_vista
     display_name: MathVista
-    description: Evaluating Math Reasoning in Visual Contexts
+    description: A benchmark designed to combine challenges from diverse mathematical and visual tasks ([Lu et al., 2024](https://arxiv.org/abs/2310.02255)).
     metric_groups:
       - accuracy
       - general_information
@@ -681,7 +638,7 @@ run_groups:
 
   - name: mmmu
     display_name: MMMU
-    description: A benchmark designed to evaluate multimodal models on massive multi-discipline tasks demanding college-level subject knowledge and deliberate reasoning [(Yue et al., 2023)](https://arxiv.org/abs/2311.16502).
+    description: A benchmark designed to evaluate multimodal models on massive multi-discipline tasks demanding college-level subject knowledge and deliberate reasoning ([Yue et al., 2023](https://arxiv.org/abs/2311.16502)).
     metric_groups:
       - accuracy
       - general_information
@@ -689,7 +646,7 @@ run_groups:
       main_name: exact_match
       main_split: valid
     taxonomy:
-      task: multimodal multiple-choice question answering
+      task: multiple-choice question answering
       what: Art & Design, Business, Science, Health & Medicine, Humanities & Social Science, and Tech & Engineering
       who: Human experts
       when: "2023"
@@ -697,7 +654,7 @@ run_groups:
   
   - name: unicorn
     display_name: Unicorn
-    description: Safety Evaluation Benchmark for Evaluating on Out-of-Distribution and Sketch Images
+    description: Safety Evaluation Benchmark for Evaluating on Out-of-Distribution and Sketch Images ([Tu et al., 2023](https://arxiv.org/abs/2311.16101)).
     metric_groups:
       - accuracy
       - general_information
@@ -705,7 +662,7 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: short answer question answering
+      task: short-answer question answering
       what: OOD images and sketch images
       who: Human experts
       when: "2023"
@@ -713,7 +670,7 @@ run_groups:
   
   - name: bingo
     display_name: Bingo
-    description: Open-ended questions about biased images
+    description: Open-ended questions about biased images and hallucinations-inducing images ([Cui et al., 2023](https://arxiv.org/abs/2311.03287)).
     metric_groups:
       - accuracy
       - general_information
@@ -721,7 +678,7 @@ run_groups:
       main_name: prometheus_vision
       main_split: test
     taxonomy:
-      task: short answer question answering
+      task: short-answer question answering
       what: Biased images about Region, OCR, Factual, Text-to-Image and Image-to-Image inference challenges
       who: Human experts
       when: "2023"
@@ -729,7 +686,7 @@ run_groups:
 
   - name: pope
     display_name: POPE
-    description: Open-ended questions about object appearance in real-world images for evaluating hallucination behaviour
+    description: Open-ended questions about object appearance in real-world images for evaluating hallucination behaviour ([Li et al., 2023](https://aclanthology.org/2023.emnlp-main.20)).
     metric_groups:
       - accuracy
       - general_information
@@ -737,7 +694,7 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: short answer question answering
+      task: short-answer question answering
       what: Real-world images
       who: Human experts
       when: "2023"
@@ -745,7 +702,7 @@ run_groups:
 
   - name: seed_bench
     display_name: Seed Bench 
-    description: A massive multiple-choice question-answering benchmark that spans 9 evaluation aspects with the image input including the comprehension of both the image and video modality
+    description: A massive multiple-choice question-answering benchmark that spans 9 evaluation aspects with the image input including the comprehension of both the image and video modality ([Li et al., 2023](https://arxiv.org/abs/2307.16125)).
     metric_groups:
       - accuracy
       - general_information
@@ -761,7 +718,7 @@ run_groups:
 
   - name: mme
     display_name: MME
-    description: A comprehensive MLLM Evaluation benchmark with perception and cognition evaluations on 14 subtasks
+    description: A comprehensive MLLM Evaluation benchmark with perception and cognition evaluations on 14 subtasks ([Fu et al., 2023](https://arxiv.org/abs/2306.13394)).
     metric_groups:
       - accuracy
       - general_information
@@ -777,7 +734,7 @@ run_groups:
 
   - name: vibe_eval
     display_name: Vibe Eval
-    description: hard evaluation suite for measuring progress of multimodal language models
+    description: A difficult evaluation suite for measuring progress of multimodal language models with day-to-day tasks ([Padlewski et al., 2024](https://arxiv.org/abs/2405.02287)).
     metric_groups:
       - accuracy
       - general_information
@@ -785,7 +742,7 @@ run_groups:
       main_name: prometheus_vision
       main_split: test
     taxonomy:
-      task: short answer question answering
+      task: short-answer question answering
       what: Knowledge intensive
       who: Human experts
       when: "2024"
@@ -793,7 +750,7 @@ run_groups:
 
   - name: mementos
     display_name: Mementos
-    description: A Comprehensive Benchmark for Multimodal Large Language Model Reasoning over Image Sequences
+    description: A Comprehensive Benchmark for Multimodal Large Language Model Reasoning over Image Sequences ([Wang et al., 2024](https://arxiv.org/abs/2401.10529)).
     metric_groups:
       - accuracy
       - general_information
@@ -801,15 +758,15 @@ run_groups:
       main_name: prometheus_vision
       main_split: test
     taxonomy:
-      task: short answer question answering
-      what: Image sequences of comics, dailylife and robotics
+      task: short-answer question answering
+      what: Image sequences of comics, daily life and robotics
       who: Human experts
       when: "2024"
       language: English
 
   - name: pairs
     display_name: PAIRS
-    description: Examining Gender and Racial Bias in Large Vision-Language Models Using a Novel Dataset of Parallel Images.
+    description: Examining gender and racial bias using parallel images ([Fraser et al., 2024](https://arxiv.org/abs/2402.05779)).
     metric_groups:
       - accuracy
       - general_information
@@ -822,3 +779,51 @@ run_groups:
       who: Human experts
       when: "2024"
       language: English
+
+  - name: fair_face
+    display_name: FairFace
+    description: Identify the race, gender or age of a photo of a person ([Karkkainen et al., 2019](https://arxiv.org/abs/1908.04913)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: multiple-choice question answering
+      what: Fairness
+      who: Human experts
+      when: "2019"
+      language: English
+
+  - name: real_world_qa
+    display_name: RealWorldQA
+    description: A benchmark designed to to evaluate real-world spatial understanding capabilities of multimodal models ([xAI, 2024](https://x.ai/blog/grok-1.5v)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: short-answer question answering
+      what: Real world images
+      who: Human experts
+      when: "2024"
+      language: English
+
+  - name: exams_v
+    display_name: Exams-V
+    description: A multimodal and multilingual benchmark with knowledge-intensive exam questions covering natural science, social science, and other miscellaneous studies ([Das et al., 2024]( https://arxiv.org/abs/2403.10378)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: Exam questions
+      who: Human experts
+      when: "2024"
+      language: English, Chinese, Croation, Hungarian, Arabic, Serbian, Bulgarian, English, German, French, Spanish, Polish

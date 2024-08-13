@@ -8,7 +8,7 @@ To add a new model you need to define 3 objects:
 
 In some cases you might have to define additionally:
 * a `Client` if your query method differ from any clients we have implemented. This will be then referenced in the `ModelDeployment`. We recommend checking `HTTPModelClient` and `HuggingFaceClient` which can be used in a lot of cases. If you identify the need for a new client, a good starting to point is to have a look at `SimpleClient`.
-* a `WindowService`. First have a look at `DefaultWindowService` to check if this is not enough for your use case. If you need you own `truncate_from_right` function, then you might need to create your own `WindowService`. In that case, a good starting point is to have a look at `AI21WindowService`.
+* a `WindowService`. First have a look at `DefaultWindowService` to check if this is not enough for your use case. If you need you own `truncate_from_right` function, then you might need to create your own `WindowService`. In that case, a good starting point is to have a look at `YaLMWindowService`.
 
 
 ## Where to create the objects

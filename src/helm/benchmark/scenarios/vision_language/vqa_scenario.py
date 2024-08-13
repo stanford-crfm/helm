@@ -55,7 +55,9 @@ class VQAScenario(Scenario):
     }
 
     name = "vqa"
-    description = "Open-ended questions about images ([paper](https://arxiv.org/abs/1612.00837))."
+    description = (
+        "Open-ended questions about real-world images " "([Goyal et al., 2017](https://arxiv.org/abs/1612.00837))."
+    )
     tags = ["vision-language", "visual question answering"]
 
     def get_instances(self, output_path: str) -> List[Instance]:

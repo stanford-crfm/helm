@@ -32,7 +32,7 @@ export default function MMLULanding() {
           </div>
         </div>
         <div className="flex-1">
-          <MiniLeaderboard numModelsToAutoFilter={10} />
+          <MiniLeaderboard />
         </div>
       </div>
     </div>

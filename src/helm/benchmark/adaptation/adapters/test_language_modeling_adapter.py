@@ -15,8 +15,8 @@ class TestLanguageModelingAdapter(TestAdapter):
         adapter_spec = AdapterSpec(
             method=ADAPT_LANGUAGE_MODELING,
             input_prefix="",
-            model="openai/davinci",
-            model_deployment="openai/davinci",
+            model="openai/gpt2",
+            model_deployment="huggingface/gpt2",
             output_prefix="",
             max_tokens=0,
         )
@@ -39,8 +39,8 @@ class TestLanguageModelingAdapter(TestAdapter):
         adapter_spec = AdapterSpec(
             method=ADAPT_LANGUAGE_MODELING,
             input_prefix="",
-            model="openai/curie",
-            model_deployment="openai/curie",
+            model="openai/gpt2",
+            model_deployment="huggingface/gpt2",
             output_prefix="",
             max_tokens=0,
         )
@@ -56,10 +56,10 @@ class TestLanguageModelingAdapter(TestAdapter):
         )
 
         # Ensure the prompt is correct
-        assert prompt == "<|endoftext|>The" + " the" * 2047
+        assert prompt == "<|endoftext|>The" + " the" * 1023
 
         # Ensure the pred_tokens are correct
-        assert pred_tokens == [TokenizationToken(464)] + [TokenizationToken(262)] * 2047
+        assert pred_tokens == [TokenizationToken(464)] + [TokenizationToken(262)] * 1023
 
     def test_prompt_truncated(self):
         # Step 1. Test that the prompt is trucanted correctly when it is too long
@@ -139,8 +139,8 @@ class TestLanguageModelingAdapter(TestAdapter):
         adapter_spec = AdapterSpec(
             method=ADAPT_LANGUAGE_MODELING,
             input_prefix="",
-            model="openai/code-davinci-002",
-            model_deployment="openai/code-davinci-002",
+            model="openai/gpt2",
+            model_deployment="huggingface/gpt2",
             output_prefix="",
             max_tokens=0,
         )

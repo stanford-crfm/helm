@@ -10,6 +10,7 @@ from helm.benchmark.model_metadata_registry import (
     get_all_text_models,
     get_model_metadata,
     get_model_names_with_tag,
+    DEPRECATED_MODEL_TAG,
     FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
     LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
     ABLATION_MODEL_TAG,
@@ -343,16 +344,6 @@ class AnthropicClaude3RunExpander(RunExpander):
             run_spec,
             adapter_spec=replace(run_spec.adapter_spec, stop_sequences=stop_sequences_with_non_whitespace),
         )
-        if run_spec.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
-            instructions = "Answer with only a single letter."
-            if run_spec.adapter_spec.instructions:
-                instructions = f"{instructions}\n\n{run_spec.adapter_spec.instructions}"
-            return [
-                replace(
-                    run_spec,
-                    adapter_spec=replace(run_spec.adapter_spec, instructions=instructions),
-                ),
-            ]
         return [run_spec]
 
 
@@ -610,6 +601,12 @@ class ModelRunExpander(ReplaceValueRunExpander):
                 values_dict["ablation"] = models
             else:
                 values_dict[family_name] = models
+
+        # For each of the keys above, filter out deprecated models.
+        deprecated_models = set(get_model_names_with_tag(DEPRECATED_MODEL_TAG))
+        for family_name in values_dict.keys():
+            values_dict[family_name] = [model for model in values_dict[family_name] if model not in deprecated_models]
+
         return values_dict
 
 
@@ -1409,6 +1406,21 @@ class OutputFormatInstructions(RunExpander):
         if run_spec.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
             if self.scenario == "mmlu_only_last_question":
                 instructions = "Answer only the last question with only a single letter."
+            elif self.scenario == "mmlu":
+                instructions = "Answer with only a single letter."
+            elif self.scenario == "mmlu_suffix":
+                instructions = "Answer with only a single letter."
+                return [
+                    replace(
+                        run_spec,
+                        adapter_spec=replace(
+                            run_spec.adapter_spec,
+                            global_suffix=f"{run_spec.adapter_spec.global_suffix}\n\n{instructions}",
+                        ),
+                    ),
+                ]
+            elif self.scenario == "mcqa":
+                instructions = "Answer with only a single letter."
             else:
                 instructions = "Answer with only a single letter."
             if run_spec.adapter_spec.instructions:
@@ -1435,13 +1447,23 @@ class OutputFormatInstructions(RunExpander):
                     instructions = "Answer yes or no."
             elif self.scenario == "wmt_14":
                 instructions = "Answer with the English translation."
+            elif self.scenario == "wmt_14_only_last_sentence":
+                instructions = "Answer with only the English translation for the last sentence."
+            elif self.scenario == "math":
+                instructions = "Wrap the final answer with the \\boxed{} command."
+            elif self.scenario == "numeric_nlg":
+                instructions = "Answer with only description of the last table as a single paragraph on a single line."
+            elif self.scenario == "tab_fact":
+                instructions = (
+                    "Answer with only the classification of the last statement, either 'refuted' or 'entailed'."
+                )
+            elif self.scenario == "wikitq":
+                instructions = (
+                    "Answer only the last question with a short answer. "
+                    "Avoid extra, unnecessary information in the answer."
+                )
             else:
                 raise ValueError(f"Unknown scenario {self.scenario}")
-
-            if run_spec.adapter_spec.output_prefix:
-                instructions = (
-                    f"{instructions} Do not include '{run_spec.adapter_spec.output_prefix.strip()}' in your answer."
-                )
 
             if run_spec.adapter_spec.instructions:
                 instructions = f"{instructions}\n\n{run_spec.adapter_spec.instructions}"

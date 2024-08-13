@@ -28,81 +28,30 @@ model_deployments:
 
   # AI21 Labs
 
-  # J1 models are Deprecated by AI21 Labs
-  # API returns: Detail: Jurassic J1 models are deprecated
-  - name: ai21/j1-jumbo
-    deprecated: true
-    model_name: ai21/j1-jumbo
-    tokenizer_name: ai21/j1
-    max_sequence_length: 2047
-    client_spec:
-      class_name: "helm.clients.ai21_client.AI21Client"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
-
-  - name: ai21/j1-large
-    deprecated: true
-    model_name: ai21/j1-large
-    tokenizer_name: ai21/j1
-    max_sequence_length: 2047
-    client_spec:
-      class_name: "helm.clients.ai21_client.AI21Client"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
-
-  - name: ai21/j1-grande
-    deprecated: true
-    model_name: ai21/j1-grande
-    tokenizer_name: ai21/j1
-    max_sequence_length: 2047
-    client_spec:
-      class_name: "helm.clients.ai21_client.AI21Client"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
-
-  - name: ai21/j1-grande-v2-beta
-    deprecated: true
-    model_name: ai21/j1-grande-v2-beta
-    tokenizer_name: ai21/j1
-    max_sequence_length: 2047
-    client_spec:
-      class_name: "helm.clients.ai21_client.AI21Client"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
-
-  - name: ai21/j2-jumbo
-    model_name: ai21/j2-jumbo
-    tokenizer_name: ai21/j1
-    max_sequence_length: 6000
-    client_spec:
-      class_name: "helm.clients.ai21_client.AI21Client"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
-
   - name: ai21/j2-large
     model_name: ai21/j2-large
-    tokenizer_name: ai21/j1
+    tokenizer_name: ai21/j2-tokenizer
     max_sequence_length: 2047
     client_spec:
       class_name: "helm.clients.ai21_client.AI21Client"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
 
   - name: ai21/j2-grande
     model_name: ai21/j2-grande
-    tokenizer_name: ai21/j1
+    tokenizer_name: ai21/j2-tokenizer
     max_sequence_length: 2047
     client_spec:
       class_name: "helm.clients.ai21_client.AI21Client"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
+
+  - name: ai21/j2-jumbo
+    model_name: ai21/j2-jumbo
+    tokenizer_name: ai21/j2-tokenizer
+    max_sequence_length: 6000
+    client_spec:
+      class_name: "helm.clients.ai21_client.AI21Client"
 
   - name: ai21/jamba-instruct
     model_name: ai21/jamba-instruct
-    # Temporary substitute tokenizer because AI21's local tokenizer is not implemented yet.
-    # The tokenizer is unneeded anyway because max_sequence_length is very long.
-    # TODO: Implement AI21's local tokenizer
-    tokenizer_name: openai/cl100k_base
+    tokenizer_name: ai21/jamba-instruct-tokenizer
     max_sequence_length: 256000
     client_spec:
       class_name: "helm.clients.ai21_client.AI21ChatClient"
@@ -242,86 +191,6 @@ model_deployments:
       class_name: "helm.clients.anthropic_client.AnthropicLegacyClient"
 
   # Cohere
-  - name: cohere/xlarge-20220609
-    model_name: cohere/xlarge-20220609
-    tokenizer_name: cohere/cohere
-    max_sequence_length: 2047
-    max_request_length: 2048
-    client_spec:
-      class_name: "helm.clients.cohere_client.CohereClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
-
-  - name: cohere/large-20220720
-    model_name: cohere/large-20220720
-    tokenizer_name: cohere/cohere
-    max_sequence_length: 2047
-    max_request_length: 2048
-    client_spec:
-      class_name: "helm.clients.cohere_client.CohereClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
-
-  - name: cohere/medium-20220720
-    model_name: cohere/medium-20220720
-    tokenizer_name: cohere/cohere
-    max_sequence_length: 2047
-    max_request_length: 2048
-    client_spec:
-      class_name: "helm.clients.cohere_client.CohereClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
-
-  - name: cohere/small-20220720
-    model_name: cohere/small-20220720
-    tokenizer_name: cohere/cohere
-    max_sequence_length: 2047
-    max_request_length: 2048
-    client_spec:
-      class_name: "helm.clients.cohere_client.CohereClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
-
-  - name: cohere/xlarge-20221108
-    model_name: cohere/xlarge-20221108
-    tokenizer_name: cohere/cohere
-    max_sequence_length: 2047
-    max_request_length: 2048
-    client_spec:
-      class_name: "helm.clients.cohere_client.CohereClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
-
-  - name: cohere/medium-20221108
-    model_name: cohere/medium-20221108
-    tokenizer_name: cohere/cohere
-    max_sequence_length: 2047
-    max_request_length: 2048
-    client_spec:
-      class_name: "helm.clients.cohere_client.CohereClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
-
-  - name: cohere/command-medium-beta
-    model_name: cohere/command-medium-beta
-    tokenizer_name: cohere/cohere
-    max_sequence_length: 2019
-    max_request_length: 2020
-    client_spec:
-      class_name: "helm.clients.cohere_client.CohereClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
-
-  - name: cohere/command-xlarge-beta
-    model_name: cohere/command-xlarge-beta
-    tokenizer_name: cohere/cohere
-    max_sequence_length: 2019
-    max_request_length: 2020
-    client_spec:
-      class_name: "helm.clients.cohere_client.CohereClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
-
   - name: cohere/command
     model_name: cohere/command
     tokenizer_name: cohere/command
@@ -329,8 +198,6 @@ model_deployments:
     max_request_length: 2020 # TODO: verify this
     client_spec:
       class_name: "helm.clients.cohere_client.CohereClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
 
   - name: cohere/command-light
     model_name: cohere/command-light
@@ -339,8 +206,6 @@ model_deployments:
     max_request_length: 2020 # TODO: verify this
     client_spec:
       class_name: "helm.clients.cohere_client.CohereClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
 
   - name: cohere/command-r
     model_name: cohere/command-r
@@ -604,6 +469,20 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient"
 
+  - name: together/gemma-2-9b-it
+    model_name: google/gemma-2-9b-it
+    tokenizer_name: google/gemma-2-9b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+
+  - name: together/gemma-2-27b-it
+    model_name: google/gemma-2-27b-it
+    tokenizer_name: google/gemma-2-9b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+
   ## MedLM
   - name: google/medlm-medium
     model_name: google/medlm-medium
@@ -824,6 +703,47 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
 
+  ## Google
+  - name: huggingface/gemma-2-9b
+    model_name: google/gemma-2-9b
+    tokenizer_name: google/gemma-2-9b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/gemma-2-9b-it
+    model_name: google/gemma-2-9b-it
+    tokenizer_name: google/gemma-2-9b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/gemma-2-27b
+    model_name: google/gemma-2-27b
+    tokenizer_name: google/gemma-2-9b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/gemma-2-27b-it
+    model_name: google/gemma-2-27b-it
+    tokenizer_name: google/gemma-2-9b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
   ## LMSYS
   - name: huggingface/vicuna-7b-v1.3
     model_name: lmsys/vicuna-7b-v1.3
@@ -948,6 +868,7 @@ model_deployments:
         tokenizer_name: "anas-awadalla-2/mpt-7b"
         cross_attn_every_n_layers: 4
 
+  ## Microsoft
   - name: together/phi-2
     model_name: microsoft/phi-2
     tokenizer_name: microsoft/phi-2
@@ -955,6 +876,26 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient" 
 
+  - name: huggingface/phi-3-small-8k-instruct
+    model_name: microsoft/phi-3-small-8k-instruct
+    tokenizer_name: microsoft/phi-3-small-8k-instruct
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        torch_dtype: auto
+        trust_remote_code: true
+
+  - name: huggingface/phi-3-medium-4k-instruct
+    model_name: microsoft/phi-3-medium-4k-instruct
+    tokenizer_name: microsoft/phi-3-medium-4k-instruct
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: auto
+      
   ## Mistral AI
   - name: huggingface/bakLlava-v1-hf
     model_name: mistralai/bakLlava-v1-hf
@@ -1095,8 +1036,7 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         pretrained_model_name_or_path: sambanovasystems/SambaLingo-Thai-Base-70B
-        args:
-          device_map: auto
+        device_map: auto
 
   - name: huggingface/sambalingo-thai-chat-70b
     model_name: sambanova/sambalingo-thai-chat-70b
@@ -1106,8 +1046,7 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         pretrained_model_name_or_path: sambanovasystems/SambaLingo-Thai-Base-70B
-        args:
-          device_map: auto
+        device_map: auto
 
   ## SCB10X
   - name: huggingface/typhoon-7b
@@ -1463,6 +1402,20 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.mistral_client.MistralAIClient"
 
+  - name: mistralai/mistral-large-2407
+    model_name: mistralai/mistral-large-2407
+    tokenizer_name: mistralai/Mistral-Large-Instruct-2407
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.mistral_client.MistralAIClient"
+
+  - name: mistralai/open-mistral-nemo-2407
+    model_name: mistralai/open-mistral-nemo-2407
+    tokenizer_name: mistralai/Mistral-Nemo-Base-2407
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.mistral_client.MistralAIClient"
+
   # Neurips
   - name: neurips/local
     model_name: neurips/local
@@ -1478,6 +1431,13 @@ model_deployments:
     max_sequence_length: 1024
     client_spec:
       class_name: "helm.clients.megatron_client.MegatronClient"
+
+  - name: nvidia/nemotron-4-340b-instruct
+    model_name: nvidia/nemotron-4-340b-instruct
+    tokenizer_name: nvidia/nemotron-4-340b-instruct
+    max_sequence_length: 4085
+    client_spec:
+      class_name: "helm.clients.nvidia_nim_client.NvidiaNimClient"
 
   # OpenAI
 
@@ -1498,99 +1458,6 @@ model_deployments:
     # Claimed sequence length is 16,384 tokens but we round down to 16,000 tokens
     # to provide a margin of error.
     max_sequence_length: 16000
-    client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
-
-  # The list of models can be found here: https://beta.openai.com/docs/engines/gpt-3
-  # DEPRECATED: Announced on July 06 2023 that these models will be shut down on January 04 2024.
-
-  - name: openai/davinci
-    deprecated: true
-    model_name: openai/davinci
-    tokenizer_name: huggingface/gpt2
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
-
-  - name: openai/curie
-    deprecated: true
-    model_name: openai/curie
-    tokenizer_name: huggingface/gpt2
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
-
-  - name: openai/babbage
-    deprecated: true
-    model_name: openai/babbage
-    tokenizer_name: huggingface/gpt2
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
-
-  - name: openai/ada
-    deprecated: true
-    model_name: openai/ada
-    tokenizer_name: huggingface/gpt2
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
-
-  - name: openai/text-davinci-003
-    deprecated: true
-    model_name: openai/text-davinci-003
-    tokenizer_name: huggingface/gpt2
-    max_sequence_length: 4000
-    max_request_length: 4001
-    client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
-
-  - name: openai/text-davinci-002
-    deprecated: true
-    model_name: openai/text-davinci-002
-    tokenizer_name: huggingface/gpt2
-    max_sequence_length: 4000
-    max_request_length: 4001
-    client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
-
-  - name: openai/text-davinci-001
-    deprecated: true
-    model_name: openai/text-davinci-001
-    tokenizer_name: huggingface/gpt2
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
-
-  - name: openai/text-curie-001
-    deprecated: true
-    model_name: openai/text-curie-001
-    tokenizer_name: huggingface/gpt2
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
-
-  - name: openai/text-babbage-001
-    deprecated: true
-    model_name: openai/text-babbage-001
-    tokenizer_name: huggingface/gpt2
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
-
-  - name: openai/text-ada-001
-    deprecated: true
-    model_name: openai/text-ada-001
-    tokenizer_name: huggingface/gpt2
-    max_sequence_length: 2048
-    max_request_length: 2049
     client_spec:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
@@ -1728,6 +1595,20 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
+  - name: openai/gpt-4o-2024-08-06
+    model_name: openai/gpt-4o-2024-08-06
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
+  - name: openai/gpt-4o-mini-2024-07-18
+    model_name: openai/gpt-4o-mini-2024-07-18
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
   - name: openai/gpt-4-vision-preview
     model_name: openai/gpt-4-vision-preview
     tokenizer_name: openai/cl100k_base
@@ -1746,78 +1627,10 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
-  ## Codex Models
-  # DEPRECATED: Codex models have been shut down on March 23 2023.
-
-  - name: openai/code-davinci-002
-    deprecated: true
-    model_name: openai/code-davinci-002
-    tokenizer_name: huggingface/gpt2
-    max_sequence_length: 4000
-    max_request_length: 4001
-    client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
-
-  - name: openai/code-davinci-001
-    deprecated: true
-    model_name: openai/code-davinci-001
-    tokenizer_name: huggingface/gpt2
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
-
-  - name: openai/code-cushman-001
-    deprecated: true
-    model_name: openai/code-cushman-001
-    tokenizer_name: huggingface/gpt2
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
-
   ## Text Similarity Models
   # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
   # The number of parameters is guessed based on the number of parameters of the
   # corresponding GPT-3 model.
-  # DEPRECATED: Announced on July 06 2023 that first generation embeddings models
-  #  will be shut down on January 04 2024.
-
-  - name: openai/text-similarity-davinci-001
-    deprecated: true
-    model_name: openai/text-similarity-davinci-001
-    tokenizer_name: huggingface/gpt2
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
-
-  - name: openai/text-similarity-curie-001
-    deprecated: true
-    model_name: openai/text-similarity-curie-001
-    tokenizer_name: huggingface/gpt2
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
-
-  - name: openai/text-similarity-babbage-001
-    deprecated: true
-    model_name: openai/text-similarity-babbage-001
-    tokenizer_name: huggingface/gpt2
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
-
-  - name: openai/text-similarity-ada-001
-    deprecated: true
-    model_name: openai/text-similarity-ada-001
-    tokenizer_name: huggingface/gpt2
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
 
   # As of 2023-11-07, text-embedding-ada-002 is not deprecated:
   # "We recommend using text-embedding-ada-002 for nearly all use cases."
@@ -2015,10 +1828,37 @@ model_deployments:
       args:
         together_model: meta-llama/Meta-Llama-3-70B
 
+  - name: together/llama-3.1-8b-instruct-turbo
+    model_name: meta/llama-3.1-8b-instruct-turbo
+    tokenizer_name: meta/llama-3.1-8b
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        together_model: meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo
+
+  - name: together/llama-3.1-70b-instruct-turbo
+    model_name: meta/llama-3.1-70b-instruct-turbo
+    tokenizer_name: meta/llama-3.1-8b
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        together_model: meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo
+
+  - name: together/llama-3.1-405b-instruct-turbo
+    model_name: meta/llama-3.1-405b-instruct-turbo
+    tokenizer_name: meta/llama-3.1-8b
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        together_model: meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo
+
   - name: together/llama-3-8b-chat
     model_name: meta/llama-3-8b-chat
     tokenizer_name: meta/llama-3-8b
-    max_sequence_length: 8191
+    max_sequence_length: 8182
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
       args:
@@ -2027,12 +1867,12 @@ model_deployments:
   - name: together/llama-3-70b-chat
     model_name: meta/llama-3-70b-chat
     tokenizer_name: meta/llama-3-8b
-    max_sequence_length: 8191
+    max_sequence_length: 8182
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
       args:
         together_model: meta-llama/Llama-3-70b-chat-hf
-        
+
   - name: together/llama-guard-7b
     model_name: meta/llama-guard-7b
     tokenizer_name: meta-llama/Llama-2-7b-hf
@@ -2177,7 +2017,7 @@ model_deployments:
   - name: together/mixtral-8x7b-instruct-v0.1
     model_name: mistralai/mixtral-8x7b-instruct-v0.1
     tokenizer_name: mistralai/Mistral-7B-v0.1
-    max_sequence_length: 4095 # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
+    max_sequence_length: 32767
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
 
@@ -2313,18 +2153,6 @@ model_deployments:
       args:
         together_model: togethercomputer/RedPajama-INCITE-7B-Instruct
 
-  ## Tsinghua
-  - name: together/glm
-    deprecated: true  # Removed from Together
-    model_name: tsinghua/glm
-    tokenizer_name: TsinghuaKEG/ice
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.clients.together_client.TogetherClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.ice_window_service.ICEWindowService"
-
   - name: thudm/cogview2
     model_name: thudm/cogview2
     tokenizer_name: openai/clip-vit-large-patch14
@@ -2357,22 +2185,6 @@ model_deployments:
 
   - name: writer/palmyra-large
     model_name: writer/palmyra-large
-    tokenizer_name: writer/gpt2
-    max_sequence_length: 2048
-    max_sequence_and_generated_tokens_length: 2048
-    client_spec:
-      class_name: "helm.clients.palmyra_client.PalmyraClient"
-
-  - name: writer/palmyra-instruct-30
-    model_name: writer/palmyra-instruct-30
-    tokenizer_name: writer/gpt2
-    max_sequence_length: 2048
-    max_sequence_and_generated_tokens_length: 2048
-    client_spec:
-      class_name: "helm.clients.palmyra_client.PalmyraClient"
-
-  - name: writer/palmyra-e
-    model_name: writer/palmyra-e
     tokenizer_name: writer/gpt2
     max_sequence_length: 2048
     max_sequence_and_generated_tokens_length: 2048

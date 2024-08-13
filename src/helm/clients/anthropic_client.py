@@ -266,29 +266,17 @@ class AnthropicMessagesClient(CachingClient):
         system_message: Optional[MessageParam] = None
 
         if request.messages is not None:
-            # TODO(#2439): Refactor out Request validation
-            if request.multimodal_prompt is not None or request.prompt:
-                raise AnthropicMessagesRequestError(
-                    "Exactly one of Request.messages, Request.prompt or Request.multimodel_prompt should be set"
-                )
+            request.validate()
             messages = cast(List[MessageParam], request.messages)
             if messages[0]["role"] == "system":
                 system_message = messages[0]
                 messages = messages[1:]
 
         elif request.multimodal_prompt is not None:
-            # TODO(#2439): Refactor out Request validation
-            if request.messages is not None or request.prompt:
-                raise AnthropicMessagesRequestError(
-                    "Exactly one of Request.messages, Request.prompt or Request.multimodal_prompt should be set"
-                )
+            request.validate()
             blocks: List[Union[TextBlockParam, ImageBlockParam]] = []
             for media_object in request.multimodal_prompt.media_objects:
                 if media_object.is_type(IMAGE_TYPE):
-                    # TODO(#2439): Refactor out Request validation
-                    if not media_object.location:
-                        raise Exception("MediaObject of image type has missing location field value")
-
                     from helm.common.images_utils import (
                         encode_base64,
                         get_dimensions,
@@ -296,6 +284,7 @@ class AnthropicMessagesClient(CachingClient):
                         resize_image_to_max_file_size,
                     )
 
+                    assert media_object.location
                     image_location: str = media_object.location
                     base64_image: str
 
@@ -346,16 +335,15 @@ class AnthropicMessagesClient(CachingClient):
                     }
                     blocks.append(image_block)
                 if media_object.is_type(TEXT_TYPE):
-                    # TODO(#2439): Refactor out Request validation
-                    if media_object.text is None:
-                        raise ValueError("MediaObject of text type has missing text field value")
+                    assert media_object.text
                     text_block: TextBlockParam = {
                         "type": "text",
                         "text": media_object.text,
                     }
                     # Anthropic does not support empty text blocks
-                    if media_object.text.strip():
-                        blocks.append(text_block)
+                    if media_object.text:
+                        if media_object.text.strip():
+                            blocks.append(text_block)
             messages = [{"role": "user", "content": blocks}]
 
         else:
