@@ -19,7 +19,9 @@ export default async function getDisplayRequestsByName(
 
     return (await displayRequest.json()) as DisplayRequest[];
   } catch (error) {
-    console.log(error);
+    if (error instanceof Error && error.name !== "AbortError") {
+      console.log(error);
+    }
     return [];
   }
 }

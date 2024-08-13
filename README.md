@@ -17,39 +17,6 @@ Welcome! The **`crfm-helm`** Python package contains code used in the **Holistic
 
 To get started, refer to [the documentation on Read the Docs](https://crfm-helm.readthedocs.io/) for how to install and run the package.
 
-## Directory Structure
-
-The directory structure for this repo is as follows
-
-```
-├── docs # MD used to generate readthedocs
-│
-├── scripts # Python utility scripts for HELM
-│ ├── cache
-│ ├── data_overlap # Calculate train test overlap
-│ │ ├── common
-│ │ ├── scenarios
-│ │ └── test
-│ ├── efficiency
-│ ├── fact_completion
-│ ├── offline_eval
-│ └── scale
-└── src
-├── helm # Benchmarking Scripts for HELM
-│ │
-│ ├── benchmark # Main Python code for running HELM
-│ │ │
-│ │ └── static # Current JS (Jquery) code for rendering front-end
-│ │ │
-│ │ └── ...
-│ │
-│ ├── common # Additional Python code for running HELM
-│ │
-│ └── proxy # Python code for external web requests
-│
-└── helm-frontend # New React Front-end
-```
-
 # Holistic Evaluation of Text-To-Image Models
 
 <img src="https://github.com/stanford-crfm/helm/raw/heim/src/helm/benchmark/static/heim/images/heim-logo.png" alt=""  width="800"/>

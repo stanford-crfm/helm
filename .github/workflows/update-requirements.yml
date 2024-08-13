@@ -27,15 +27,13 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
-      - name: Upgrade pip
-        run: pip install --upgrade pip
       - name: Install PyTorch manually
         # PyTorch has to be installed manually in a separate step with --no-cache-dir
         # to avoid pip getting killed because PyTorch is too big
         # See: https://stackoverflow.com/a/54329850
-        run: pip install torch==2.1.2 torchvision==0.16.2 --index-url https://download.pytorch.org/whl/cu121 --no-cache-dir
+        run: pip install torch==2.2.2 torchvision==0.17.2 --index-url https://download.pytorch.org/whl/cu121 --no-cache-dir
       - name: Upgrade dependencies for Dependabot alerts
-        run: pip install -e .[all,dev] urllib3==1.26.18 requests==2.31.0 Jinja2==3.1.3 certifi==2024.2.2 aiohttp==3.9.3
+        run: pip install -e .[all,dev]
       - name: Verify dependencies
         run: pip check
       - name: Write header to requirements.txt

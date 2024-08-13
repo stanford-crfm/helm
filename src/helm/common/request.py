@@ -72,6 +72,22 @@ class Request:
     image_generation_parameters: Optional[ImageGenerationParameters] = None
     """Parameters for image generation."""
 
+    def validate(self):
+        if (
+            (self.messages and self.prompt)
+            or (self.messages and self.multimodal_prompt)
+            or (self.prompt and self.multimodal_prompt)
+        ):
+            raise ValueError("Exactly one of the messages, prompt, multimodal_prompt fields should be set")
+
+        if self.multimodal_prompt:
+            for media_object in self.multimodal_prompt.media_objects:
+                if media_object.content_type == "text" and media_object.text is None:
+                    raise ValueError("Media object with text content type must have text set")
+
+                if media_object.content_type == "image" and media_object.location is None:
+                    raise ValueError("Media object with image content type must have location set")
+
     @property
     def model_host(self) -> str:
         """Returns the model host (referring to the deployment).

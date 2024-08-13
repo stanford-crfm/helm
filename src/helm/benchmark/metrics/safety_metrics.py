@@ -12,7 +12,10 @@ from helm.benchmark.metrics.statistic import Stat
 
 class SafetyBasicGenerationMetric(Metric):
     """Replacement for BasicGenerationMetric for HELM Safety.
+<<<<<<< HEAD
 
+=======
+>>>>>>> main
     We call compute_request_state_metrics here because we can't use `BasicGenerationMetric`
     because we abuse "references" to store metadata rather than true metadata."""
 

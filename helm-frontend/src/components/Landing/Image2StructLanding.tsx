@@ -42,7 +42,7 @@ export default function Image2StructLanding() {
       <div className="flex flex-col lg:flex-row items-center gap-8">
         <div className="flex-1 text-xl">
           <p>
-            <strong>Image2struct</strong> is a benchmark for evaluating
+            <strong>Image2Struct</strong> is a benchmark for evaluating
             vision-language models in practical tasks of extracting structured
             information from images.
           </p>
@@ -85,7 +85,7 @@ export default function Image2StructLanding() {
           </div>
         </div>
         <div className="flex-1">
-          <MiniLeaderboard numModelsToAutoFilter={12} />
+          <MiniLeaderboard numRowsToDisplay={12} />
         </div>
       </div>
       <br />

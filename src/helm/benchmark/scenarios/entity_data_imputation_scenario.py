@@ -41,8 +41,14 @@ class EntityDataImputationScenario(Scenario):
     def __init__(self, dataset: str, seed: int = 1234):
         super().__init__()
         self.datasets_paths = {
-            "Buy": "https://dbs.uni-leipzig.de/file/Abt-Buy.zip",
-            "Restaurant": "https://www.cs.utexas.edu/users/ml/riddle/data/restaurant.tar.gz",
+            "Buy": (
+                "https://storage.googleapis.com/crfm-helm-public/source_datasets/scenarios/"
+                "entity_data_imputation/Abt-Buy.zip"
+            ),
+            "Restaurant": (
+                "https://storage.googleapis.com/crfm-helm-public/source_datasets/scenarios/"
+                "entity_data_imputation/restaurant.tar.gz"
+            ),
         }
         # Columns to impute
         self.datasets_impute_col = {

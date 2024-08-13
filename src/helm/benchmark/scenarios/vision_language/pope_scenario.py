@@ -42,7 +42,8 @@ class POPEScenario(Scenario):
 
     name = "pope"
     description = (
-        "Open-ended questions about hallucination images ([paper](https://aclanthology.org/2023.emnlp-main.20/))."
+        "Open-ended questions about hallucination images "
+        "([Li et al., 2023](https://aclanthology.org/2023.emnlp-main.20/))."
     )
     tags = ["vision-language", "visual question answering"]
     options: List[str] = ["Yes", "No"]

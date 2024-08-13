@@ -51,7 +51,7 @@ class MathVistaScenario(Scenario):
     name = "math_vista"
     description = (
         "A benchmark designed to combine challenges from diverse mathematical and visual tasks. "
-        "([paper](https://arxiv.org/abs/2310.02255))."
+        "([Lu et al., 2024](https://arxiv.org/abs/2310.02255))."
     )
     tags = ["vision-language", "reasoning", "math"]
 

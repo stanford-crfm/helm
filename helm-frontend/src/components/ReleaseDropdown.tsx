@@ -94,7 +94,7 @@ function ReleaseDropdown() {
         role="menu"
       >
         {releases.map((release) => (
-          <li>
+          <li key={release}>
             <a
               href={getReleaseUrl(
                 release,

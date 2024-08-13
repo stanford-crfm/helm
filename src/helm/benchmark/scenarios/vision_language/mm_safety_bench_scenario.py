@@ -48,14 +48,14 @@ class MMSafetyBenchScenario(Scenario):
     }
 
     QUESTIONS_URL_TEMPLATE: str = (
-        "https://raw.githubusercontent.com/isXinLiu/MM-SafetyBench/main/data/" "processed_questions/{dataset}.json"
+        "https://raw.githubusercontent.com/isXinLiu/MM-SafetyBench/main/data/processed_questions/{dataset}.json"
     )
     IMAGES_URL: str = "https://drive.google.com/uc?export=download&id=1xjW9k-aGkmwycqGCXbru70FaSKhSDcR_"
 
     name = "mm_safety_bench"
     description = (
         "Expose the vulnerability of open-source VLMs with toxic and biased content "
-        "([paper](https://arxiv.org/abs/2311.17600))."
+        "([Liu et al., 2023](https://arxiv.org/abs/2311.17600))."
     )
     tags = ["vision-language", "bias", "toxicity"]
 

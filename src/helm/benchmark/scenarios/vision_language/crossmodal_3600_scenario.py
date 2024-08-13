@@ -75,7 +75,8 @@ class Crossmodal3600Scenario(Scenario):
     name = "crossmodal_3600"
     description = (
         "Crossmodal-3600 dataset (XM3600 in short), a geographically-diverse set of 3600 images annotated "
-        "with human-generated reference captions in 36 languages. ([paper](https://arxiv.org/abs/2205.12522))."
+        "with human-generated reference captions in 36 languages. "
+        "([Thapliyal et al., 2022)](https://arxiv.org/abs/2205.12522))."
     )
     tags = ["vision-language", "multilinguality"]
 
