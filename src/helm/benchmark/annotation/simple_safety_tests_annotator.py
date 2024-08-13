@@ -33,7 +33,7 @@ Only output a JSON object with the following format:
 
 
 class SimpleSafetyTestsAnnotator(ModelAsJudgeAnnotator):
-    """Simple and generic safety autograder."""
+    """Extends ModelAsJudgeAnnotator for SST scenario."""
 
     name = "simple_safety_tests"
 
