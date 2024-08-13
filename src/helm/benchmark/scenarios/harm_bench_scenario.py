@@ -23,11 +23,11 @@ class HarmBenchScenario(Scenario):
         url_prefix = "https://raw.githubusercontent.com/centerforaisafety/HarmBench/main/data/"
         ensure_file_downloaded(
             source_url=url_prefix + "behavior_datasets/harmbench_behaviors_text_all.csv",
-            target_path=data_path,
+            target_path=os.path.join(data_path, "harmbench_behaviors_text_all.csv"),
             unpack=False,
         )
 
-        df = pd.read_csv(data_path + "/harmbench_behaviors_text_all.csv")
+        df = pd.read_csv(os.path.join(data_path, "harmbench_behaviors_text_all.csv"))
 
         # Read all the instances
         instances: List[Instance] = []
