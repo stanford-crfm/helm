@@ -1,7 +1,7 @@
 import json
 import os
 from typing import List, Dict
-from .scenario import Scenario, Instance, Input
+from .scenario import Scenario, Instance, Input, TEST_SPLIT
 from helm.common.general import ensure_file_downloaded
 from helm.benchmark.scenarios.scenario import Reference, Output
 
@@ -61,6 +61,7 @@ class DecodingTrustStereotypeBiasScenario(Scenario):
                             tags=[stereotype_topic_tag, demographic_group_tag, sys_prompt_type_tag],
                         )
                     ],
+                    split=TEST_SPLIT,
                 )
                 instances.append(instance)
 

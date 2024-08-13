@@ -17,11 +17,23 @@ tokenizer_configs:
     prefix_token: "<s>"
 
   # AI21
-  - name: ai21/j1
+  - name: ai21/j2-tokenizer
     tokenizer_spec:
-      class_name: "helm.tokenizers.ai21_tokenizer.AI21Tokenizer"
-    end_of_text_token: " "
-    prefix_token: ""
+      class_name: "helm.tokenizers.ai21_tokenizer.AI21LocalTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|startoftext|>"
+
+  - name: ai21/jamba-tokenizer
+    tokenizer_spec:
+      class_name: "helm.tokenizers.ai21_tokenizer.AI21LocalTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|startoftext|>"
+
+  - name: ai21/jamba-instruct-tokenizer
+    tokenizer_spec:
+      class_name: "helm.tokenizers.ai21_tokenizer.AI21LocalTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|startoftext|>"
 
   # AlephAlpha
   - name: AlephAlpha/luminous-base
@@ -44,6 +56,24 @@ tokenizer_configs:
       class_name: "helm.tokenizers.aleph_alpha_tokenizer.AlephAlphaTokenizer"
     end_of_text_token: ""
     prefix_token: ""
+
+  # Alibaba DAMO Academy
+
+  - name: damo/seallm-7b-v2
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: SeaLLMs/SeaLLM-7B-v2
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+
+  - name: damo/seallm-7b-v2.5
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: SeaLLMs/SeaLLM-7B-v2.5
+    end_of_text_token: "<eos>"
+    prefix_token: "<bos>"
 
   # Anthropic
   - name: anthropic/claude
@@ -77,12 +107,6 @@ tokenizer_configs:
     prefix_token: ""
 
   # Cohere
-  - name: cohere/cohere
-    tokenizer_spec:
-      class_name: "helm.tokenizers.cohere_tokenizer.CohereTokenizer"
-    end_of_text_token: ""
-    prefix_token: ":"
-
   - name: cohere/command
     tokenizer_spec:
       class_name: "helm.tokenizers.cohere_tokenizer.CohereLocalTokenizer"
@@ -199,6 +223,11 @@ tokenizer_configs:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "<eos>"
     prefix_token: "<bos>"
+  - name: google/gemma-2-9b
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<eos>"
+    prefix_token: "<bos>"
 
   # Hf-internal-testing
 
@@ -280,6 +309,14 @@ tokenizer_configs:
     prefix_token: "<|begin_of_text|>"
     end_of_text_token: "<|end_of_text|>"
 
+  - name: meta/llama-3.1-8b
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: meta-llama/Meta-Llama-3.1-8B-Instruct
+    prefix_token: "<|begin_of_text|>"
+    end_of_text_token: "<|end_of_text|>"
+
   # 01-ai
   - name: 01-ai/Yi-6B
     tokenizer_spec:
@@ -324,6 +361,20 @@ tokenizer_configs:
     end_of_text_token: "<|endoftext|>"  
     prefix_token: "<|endoftext|>"
 
+  - name: microsoft/phi-3-small-8k-instruct
+    tokenizer_spec:  
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        trust_remote_code: true
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|endoftext|>"
+
+  - name: microsoft/phi-3-medium-4k-instruct
+    tokenizer_spec:  
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<s>"
+
   # Mistralai
   - name: mistralai/Mistral-7B-v0.1
     tokenizer_spec:
@@ -349,6 +400,18 @@ tokenizer_configs:
     end_of_text_token: "</s>"
     prefix_token: "<s>"
 
+  - name: mistralai/Mistral-Nemo-Base-2407
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+
+  - name: mistralai/Mistral-Large-Instruct-2407
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+
   # Neurips
   - name: neurips/local
     tokenizer_spec:
@@ -356,7 +419,17 @@ tokenizer_configs:
     end_of_text_token: "<|endoftext|>"
     prefix_token: "<|endoftext|>"
 
-  # Openai
+  # NVIDIA
+  - name: nvidia/nemotron-4-340b-instruct
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: Xenova/Nemotron-4-340B-Instruct-Tokenizer
+        revision: b7aa0de92cda9f9e722d58d6ca90f46ae17d4701
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|endoftext|>"
+
+  # OpenAI
   - name: openai/cl100k_base
     tokenizer_spec:
       class_name: "helm.tokenizers.tiktoken_tokenizer.TiktokenTokenizer"
@@ -375,6 +448,14 @@ tokenizer_configs:
     end_of_text_token: ""
     prefix_token: ""
 
+  # OpenThaiGPT
+  - name: openthaigpt/openthaigpt-1.0.0-7b-chat
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+
+  # Qwen
   - name: qwen/qwen-7b
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
@@ -420,6 +501,15 @@ tokenizer_configs:
     end_of_text_token: "<|endoftext|>"
     prefix_token: ""
 
+  # SambaLingo
+  - name: sambanova/sambalingo-thai-base
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: sambanovasystems/SambaLingo-Thai-Base
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+
   # Snowflake
   - name: snowflake/snowflake-arctic-instruct
     tokenizer_spec:
@@ -443,6 +533,13 @@ tokenizer_configs:
       class_name: "helm.tokenizers.ice_tokenizer.ICETokenizer"
     end_of_text_token: "</s>"
     prefix_token: ""
+
+  # Typhoon
+  - name: scb10x/typhoon-7b
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
 
   # Writer
   - name: writer/gpt2

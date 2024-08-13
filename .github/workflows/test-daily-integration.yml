@@ -1,0 +1,23 @@
+name: Daily Integration Tests
+on:
+  schedule:
+    - cron: "30 15 * * *"
+
+jobs:
+  test_openvino:
+    name: Test OpenVINO on Optimum Intel
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - run: python3 -m pip install --upgrade build
+      - run: python3 -m build
+      - run: python3 -m pip install "$(ls dist/crfm_helm-*.whl)[openvino]"
+      - run: helm-run --run-entries boolq:model=hf-internal-testing/tiny-random-MistralForCausalLM --enable-huggingface-models hf-internal-testing/tiny-random-MistralForCausalLM --suite v1 --max-eval-instances 10 --openvino

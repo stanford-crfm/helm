@@ -1,6 +1,8 @@
 from typing import Dict, List, Optional
 import re
 
+from tqdm import tqdm
+
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
@@ -85,7 +87,7 @@ ASSISTANT:
 
         all_stats: Dict[MetricName, Stat] = {}
         per_instance_stats: List[PerInstanceStats] = []
-        for request_state in request_states:
+        for request_state in tqdm(request_states):
             context = MetricContext.from_instance(request_state.instance)
             stats_without_context = self.evaluate_generation(
                 scenario_state.adapter_spec,

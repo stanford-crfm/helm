@@ -55,8 +55,8 @@ class UnicornScenario(Scenario):
 
     name = "unicorn"
     description = (
-        "Evaluate multimodal models on two out-of-distribution scenarios with four subjects"
-        " ([paper](https://arxiv.org/abs/2311.16101))."
+        "Evaluate multimodal models on two out-of-distribution scenarios with four subjects "
+        "([Tu et al., 2023](https://arxiv.org/abs/2311.16101))."
     )
     tags = ["vision-language"]
 

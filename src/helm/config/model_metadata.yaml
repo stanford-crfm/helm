@@ -31,50 +31,41 @@ models:
 
 
   # AI21 Labs
-  - name: ai21/j1-jumbo # DEPRECATED
+  - name: ai21/j1-jumbo
     display_name: J1-Jumbo v1 (178B)
     description: Jurassic-1 Jumbo (178B parameters) ([docs](https://studio.ai21.com/docs/jurassic1-language-models/), [tech report](https://uploads-ssl.webflow.com/60fd4503684b466578c0d307/61138924626a6981ee09caf6_jurassic_tech_paper.pdf)).
     creator_organization_name: AI21 Labs
     access: limited
     num_parameters: 178000000000
     release_date: 2021-08-11
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: ai21/j1-large # DEPRECATED
+  - name: ai21/j1-large
     display_name: J1-Large v1 (7.5B)
     description: Jurassic-1 Large (7.5B parameters) ([docs](https://studio.ai21.com/docs/jurassic1-language-models/), [tech report](https://uploads-ssl.webflow.com/60fd4503684b466578c0d307/61138924626a6981ee09caf6_jurassic_tech_paper.pdf)).
     creator_organization_name: AI21 Labs
     access: limited
     num_parameters: 7500000000
     release_date: 2021-08-11
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: ai21/j1-grande # DEPRECATED
+  - name: ai21/j1-grande
     display_name: J1-Grande v1 (17B)
     description: Jurassic-1 Grande (17B parameters) with a "few tweaks" to the training process ([docs](https://studio.ai21.com/docs/jurassic1-language-models/), [tech report](https://uploads-ssl.webflow.com/60fd4503684b466578c0d307/61138924626a6981ee09caf6_jurassic_tech_paper.pdf)).
     creator_organization_name: AI21 Labs
     access: limited
     num_parameters: 17000000000
     release_date: 2022-05-03
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: ai21/j1-grande-v2-beta # DEPRECATED
+  - name: ai21/j1-grande-v2-beta
     display_name: J1-Grande v2 beta (17B)
     description: Jurassic-1 Grande v2 beta (17B parameters)
     creator_organization_name: AI21 Labs
     access: limited
     num_parameters: 17000000000
     release_date: 2022-10-28
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
-
-  - name: ai21/j2-jumbo
-    display_name: Jurassic-2 Jumbo (178B)
-    description: Jurassic-2 Jumbo (178B parameters) ([docs](https://www.ai21.com/blog/introducing-j2))
-    creator_organization_name: AI21 Labs
-    access: limited
-    num_parameters: 178000000000
-    release_date: 2023-03-09
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: ai21/j2-large
     display_name: Jurassic-2 Large (7.5B)
@@ -83,7 +74,7 @@ models:
     access: limited
     num_parameters: 7500000000
     release_date: 2023-03-09
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: ai21/j2-grande
     display_name: Jurassic-2 Grande (17B)
@@ -92,13 +83,30 @@ models:
     access: limited
     num_parameters: 17000000000
     release_date: 2023-03-09
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: ai21/j2-jumbo
+    display_name: Jurassic-2 Jumbo (178B)
+    description: Jurassic-2 Jumbo (178B parameters) ([docs](https://www.ai21.com/blog/introducing-j2))
+    creator_organization_name: AI21 Labs
+    access: limited
+    num_parameters: 178000000000
+    release_date: 2023-03-09
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # TODO(1524): Change AI21 model names
   # - j2-jumbo -> j2-ultra
   # - j2-grande -> j2-mid
   # - j2-large -> j2-light
 
+  - name: ai21/jamba-instruct
+    display_name: Jamba Instruct
+    description: Jamba Instruct is an instruction tuned version of Jamba, which uses a hybrid Transformer-Mamba mixture-of-experts (MoE) architecture that interleaves blocks of Transformer and Mamba layers. ([blog](https://www.ai21.com/blog/announcing-jamba-instruct))
+    creator_organization_name: AI21 Labs
+    access: limited
+    num_parameters: 52000000000
+    release_date: 2024-05-02
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # AI Singapore
   - name: aisingapore/sea-lion-7b
@@ -117,7 +125,7 @@ models:
     access: open
     num_parameters: 7000000000
     release_date: 2023-02-24
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
 
   # Aleph Alpha
@@ -272,7 +280,14 @@ models:
     release_date: 2024-03-04  # https://www.anthropic.com/news/claude-3-family
     tags: [ANTHROPIC_CLAUDE_3_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  # DEPRECATED: Please do not use.
+  - name: anthropic/claude-3-5-sonnet-20240620
+    display_name: Claude 3.5 Sonnet (20240620)
+    description: Claude 3.5 Sonnet is a Claude 3 family model which outperforms Claude 3 Opus while operating faster and at a lower cost. ([blog](https://www.anthropic.com/news/claude-3-5-sonnet))
+    creator_organization_name: Anthropic
+    access: limited
+    release_date: 2024-06-20
+    tags: [ANTHROPIC_CLAUDE_3_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: anthropic/stanford-online-all-v4-s3
     display_name: Anthropic-LM v4-s3 (52B)
     description: A 52B parameter language model, trained using reinforcement learning from human feedback [paper](https://arxiv.org/pdf/2204.05862.pdf).
@@ -280,7 +295,7 @@ models:
     access: closed
     num_parameters: 52000000000
     release_date: 2021-12-01
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG]
 
 
 
@@ -401,16 +416,16 @@ models:
     access: limited
     num_parameters: 52400000000
     release_date: 2022-06-09
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: cohere/large-20220720 # DEPRECATED
+  - name: cohere/large-20220720
     display_name: Cohere large v20220720 (13.1B)
     description: Cohere large v20220720 (13.1B parameters), which is deprecated by Cohere as of December 2, 2022.
     creator_organization_name: Cohere
     access: limited
     num_parameters: 13100000000
     release_date: 2022-07-20
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: cohere/medium-20220720
     display_name: Cohere medium v20220720 (6.1B)
@@ -419,16 +434,16 @@ models:
     access: limited
     num_parameters: 6100000000
     release_date: 2022-07-20
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: cohere/small-20220720 # DEPRECATED
+  - name: cohere/small-20220720
     display_name: Cohere small v20220720 (410M)
     description: Cohere small v20220720 (410M parameters), which is deprecated by Cohere as of December 2, 2022.
     creator_organization_name: Cohere
     access: limited
     num_parameters: 410000000
     release_date: 2022-07-20
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: cohere/xlarge-20221108
     display_name: Cohere xlarge v20221108 (52.4B)
@@ -437,34 +452,34 @@ models:
     access: limited
     num_parameters: 52400000000
     release_date: 2022-11-08
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: cohere/medium-20221108 # DEPRECATED
+  - name: cohere/medium-20221108
     display_name: Cohere medium v20221108 (6.1B)
     description: Cohere medium v20221108 (6.1B parameters)
     creator_organization_name: Cohere
     access: limited
     num_parameters: 6100000000
     release_date: 2022-11-08
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: cohere/command-medium-beta # DEPRECATED
+  - name: cohere/command-medium-beta
     display_name: Command beta (6.1B)
-    description: Cohere Command beta (6.1B parameters) is fine-tuned from the medium model to respond well with instruction-like prompts ([details](https://docs.cohere.ai/docs/command-beta)).
+    description: Command beta (6.1B parameters) is fine-tuned from the medium model to respond well with instruction-like prompts ([details](https://docs.cohere.ai/docs/command-beta)).
     creator_organization_name: Cohere
     access: limited
     num_parameters: 6100000000
     release_date: 2022-11-08
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  - name: cohere/command-xlarge-beta # DEPRECATED
+  - name: cohere/command-xlarge-beta
     display_name: Command beta (52.4B)
-    description: Cohere Command beta (52.4B parameters) is fine-tuned from the XL model to respond well with instruction-like prompts ([details](https://docs.cohere.ai/docs/command-beta)).
+    description: Command beta (52.4B parameters) is fine-tuned from the XL model to respond well with instruction-like prompts ([details](https://docs.cohere.ai/docs/command-beta)).
     creator_organization_name: Cohere
     access: limited
     num_parameters: 52400000000
     release_date: 2022-11-08
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: cohere/command
     display_name: Command
@@ -837,8 +852,7 @@ models:
 
   - name: google/gemma-2b
     display_name: Gemma (2B)
-    # TODO: Fill in Gemma description.
-    description: TBD
+    description: Gemma is a family of lightweight, open models built from the research and technology that Google used to create the Gemini models. ([model card](https://www.kaggle.com/models/google/gemma), [blog post](https://blog.google/technology/developers/gemma-open-models/))
     creator_organization_name: Google
     access: open
     release_date: 2024-02-21
@@ -846,8 +860,7 @@ models:
 
   - name: google/gemma-2b-it
     display_name: Gemma Instruct (2B)
-    # TODO: Fill in Gemma description.
-    description: TBD
+    description: Gemma is a family of lightweight, open models built from the research and technology that Google used to create the Gemini models. ([model card](https://www.kaggle.com/models/google/gemma), [blog post](https://blog.google/technology/developers/gemma-open-models/))
     creator_organization_name: Google
     access: open
     release_date: 2024-02-21
@@ -855,8 +868,7 @@ models:
 
   - name: google/gemma-7b
     display_name: Gemma (7B)
-    # TODO: Fill in Gemma description.
-    description: TBD
+    description: Gemma is a family of lightweight, open models built from the research and technology that Google used to create the Gemini models. ([model card](https://www.kaggle.com/models/google/gemma), [blog post](https://blog.google/technology/developers/gemma-open-models/))
     creator_organization_name: Google
     access: open
     release_date: 2024-02-21
@@ -864,17 +876,47 @@ models:
 
   - name: google/gemma-7b-it
     display_name: Gemma Instruct (7B)
-    # TODO: Fill in Gemma description.
-    description: TBD
+    description: Gemma is a family of lightweight, open models built from the research and technology that Google used to create the Gemini models. ([model card](https://www.kaggle.com/models/google/gemma), [blog post](https://blog.google/technology/developers/gemma-open-models/))
     creator_organization_name: Google
     access: open
     release_date: 2024-02-21
-    # TODO: Add OUTPUT_FORMAT_INSTRUCTIONS_TAG tag
+    tags: [TEXT_MODEL_TAG, GOOGLE_GEMMA_INSTRUCT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemma-2-9b
+    display_name: Gemma 2 (9B)
+    description: Gemma is a family of lightweight, open models built from the research and technology that Google used to create the Gemini models. ([model card](https://www.kaggle.com/models/google/gemma), [blog post](https://blog.google/technology/developers/google-gemma-2/))
+    creator_organization_name: Google
+    access: open
+    release_date: 2024-06-27
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: google/gemma-2-9b-it
+    display_name: Gemma 2 Instruct (9B)
+    description: Gemma is a family of lightweight, open models built from the research and technology that Google used to create the Gemini models. ([model card](https://www.kaggle.com/models/google/gemma), [blog post](https://blog.google/technology/developers/google-gemma-2/))
+    creator_organization_name: Google
+    access: open
+    release_date: 2024-06-27
+    tags: [TEXT_MODEL_TAG, GOOGLE_GEMMA_INSTRUCT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemma-2-27b
+    display_name: Gemma 2 (27B)
+    description: Gemma is a family of lightweight, open models built from the research and technology that Google used to create the Gemini models. ([model card](https://www.kaggle.com/models/google/gemma), [blog post](https://blog.google/technology/developers/google-gemma-2/))
+    creator_organization_name: Google
+    access: open
+    release_date: 2024-06-27
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: google/gemma-2-27b-it
+    display_name: Gemma 2 Instruct (27B)
+    description: Gemma is a family of lightweight, open models built from the research and technology that Google used to create the Gemini models. ([model card](https://www.kaggle.com/models/google/gemma), [blog post](https://blog.google/technology/developers/google-gemma-2/))
+    creator_organization_name: Google
+    access: open
+    release_date: 2024-06-27
     tags: [TEXT_MODEL_TAG, GOOGLE_GEMMA_INSTRUCT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/paligemma-3b-mix-224
     display_name: PaliGemma (3B) Mix 224
-    description: PaliGemma is a versatile and lightweight vision-language model (VLM) inspired by PaLI-3 and based on open components such as the SigLIP vision model and the Gemma language model. ([blog](https://developers.googleblog.com/en/gemma-family-and-toolkit-expansion-io-2024/))
+    description: PaliGemma is a versatile and lightweight vision-language model (VLM) inspired by PaLI-3 and based on open components such as the SigLIP vision model and the Gemma language model. Pre-trained with 224x224 input images and 128 token input/output text sequences. Finetuned on a mixture of downstream academic datasets. ([blog](https://developers.googleblog.com/en/gemma-family-and-toolkit-expansion-io-2024/))
     creator_organization_name: Google
     access: open
     release_date: 2024-05-12
@@ -882,7 +924,7 @@ models:
 
   - name: google/paligemma-3b-mix-448
     display_name: PaliGemma (3B) Mix 448
-    description: PaliGemma is a versatile and lightweight vision-language model (VLM) inspired by PaLI-3 and based on open components such as the SigLIP vision model and the Gemma language model. ([blog](https://developers.googleblog.com/en/gemma-family-and-toolkit-expansion-io-2024/))
+    description: PaliGemma is a versatile and lightweight vision-language model (VLM) inspired by PaLI-3 and based on open components such as the SigLIP vision model and the Gemma language model. Pre-trained with 448x448 input images and 512 token input/output text sequences. Finetuned on a mixture of downstream academic datasets. ([blog](https://developers.googleblog.com/en/gemma-family-and-toolkit-expansion-io-2024/))
     creator_organization_name: Google
     access: open
     release_date: 2024-05-12
@@ -1361,7 +1403,7 @@ models:
 
   - name: meta/llama-3-8b
     display_name: Llama 3 (8B)
-    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability.
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/)
     creator_organization_name: Meta
     access: open
     num_parameters: 8000000000
@@ -1370,16 +1412,43 @@ models:
     
   - name: meta/llama-3-70b
     display_name: Llama 3 (70B)
-    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability.
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/)
     creator_organization_name: Meta
     access: open
     num_parameters: 70000000000
     release_date: 2024-04-18
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: meta/llama-3.1-8b-instruct-turbo
+    display_name: Llama 3.1 Instruct Turbo (8B)
+    description: Llama 3.1 (8B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/), [blog](https://ai.meta.com/blog/meta-llama-3-1/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-07-23
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: meta/llama-3.1-70b-instruct-turbo
+    display_name: Llama 3.1 Instruct Turbo (70B)
+    description: Llama 3.1 (70B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/), [blog](https://ai.meta.com/blog/meta-llama-3-1/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-07-23
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: meta/llama-3.1-405b-instruct-turbo
+    display_name: Llama 3.1 Instruct Turbo (405B)
+    description: Llama 3.1 (405B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/), [blog](https://ai.meta.com/blog/meta-llama-3-1/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 405000000000
+    release_date: 2024-07-23
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
   - name: meta/llama-3-8b-chat
     display_name: Llama 3 Instruct (8B)
-    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. It used SFT, rejection sampling, PPO and DPO for post-training.
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. It used SFT, rejection sampling, PPO and DPO for post-training. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/)
     creator_organization_name: Meta
     access: open
     num_parameters: 8000000000
@@ -1388,7 +1457,7 @@ models:
 
   - name: meta/llama-3-70b-chat
     display_name: Llama 3 Instruct (70B)
-    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. It used SFT, rejection sampling, PPO and DPO for post-training.
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. It used SFT, rejection sampling, PPO and DPO for post-training. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/)
     creator_organization_name: Meta
     access: open
     num_parameters: 70000000000
@@ -1424,7 +1493,7 @@ models:
     access: closed
     num_parameters: 530000000000
     release_date: 2022-01-28
-    tags: []  # deprecated text model
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: microsoft/TNLGv2_7B
     display_name: TNLG v2 (6.7B)
@@ -1433,7 +1502,7 @@ models:
     access: closed
     num_parameters: 6700000000
     release_date: 2022-01-28
-    tags: []  # deprecated text model
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: microsoft/llava-1.5-7b-hf
     display_name: LLaVA 1.5 (7B)
@@ -1506,6 +1575,24 @@ models:
     num_parameters: 13000000000
     release_date: 2023-10-05
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: microsoft/phi-3-small-8k-instruct
+    display_name: Phi-3 (7B)
+    description: Phi-3-Small-8K-Instruct is a lightweight model trained with synthetic data and filtered publicly available website data with a focus on high-quality and reasoning dense properties. ([paper](https://arxiv.org/abs/2404.14219), [blog](https://azure.microsoft.com/en-us/blog/new-models-added-to-the-phi-3-family-available-on-microsoft-azure/))
+    creator_organization_name: Microsoft
+    access: open
+    num_parameters: 7000000000
+    release_date: 2024-05-21
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: microsoft/phi-3-medium-4k-instruct
+    display_name: Phi-3 (14B)
+    description: Phi-3-Medium-4K-Instruct is a lightweight model trained with synthetic data and filtered publicly available website data with a focus on high-quality and reasoning dense properties. ([paper](https://arxiv.org/abs/2404.14219), [blog](https://azure.microsoft.com/en-us/blog/new-models-added-to-the-phi-3-family-available-on-microsoft-azure/))
+    creator_organization_name: Microsoft
+    access: open
+    num_parameters: 14000000000
+    release_date: 2024-05-21
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # KAIST AI
   - name: kaistai/prometheus-vision-13b-v1.0-hf
@@ -1663,7 +1750,7 @@ models:
     num_parameters: 46700000000
     # Blog post: https://mistral.ai/news/mixtral-of-experts/
     release_date: 2023-12-11
-    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG, MISTRAL_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: mistralai/mixtral-8x22b
     display_name: Mixtral (8x22B)
@@ -1694,13 +1781,11 @@ models:
 
   - name: mistralai/mistral-small-2402
     display_name: Mistral Small (2402)
-    # TODO: Fill in description
-    description: TBD
+    description: Mistral Small is a multilingual model with a 32K tokens context window and function-calling capabilities. ([blog](https://mistral.ai/news/mistral-large/))
     creator_organization_name: Mistral AI
     access: limited
-    # Blog post: https://mistral.ai/news/mistral-large/
     release_date: 2023-02-26
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG, MISTRAL_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: mistralai/mistral-medium-2312
     display_name: Mistral Medium (2312)
@@ -1708,18 +1793,32 @@ models:
     creator_organization_name: Mistral AI
     access: limited
     release_date: 2023-12-11
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG, MISTRAL_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: mistralai/mistral-large-2402
     display_name: Mistral Large (2402)
-    # TODO: Fill in description
-    description: TBD
+    description: Mistral Large is a multilingual model with a 32K tokens context window and function-calling capabilities. ([blog](https://mistral.ai/news/mistral-large/))
     creator_organization_name: Mistral AI
     access: limited
-    # Blog post: https://mistral.ai/news/mistral-large/
     release_date: 2023-02-26
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG, MISTRAL_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: mistralai/mistral-large-2407
+    display_name: Mistral Large 2 (2407)
+    description: Mistral Large 2 is a 123 billion parameter model that has a 128k context window and supports dozens of languages and 80+ coding languages. ([blog](https://mistral.ai/news/mistral-large-2407/))
+    creator_organization_name: Mistral AI
+    access: open
+    num_parameters: 123000000000
+    release_date: 2023-07-24
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/open-mistral-nemo-2407
+    display_name: Mistral NeMo (2402)
+    description: Mistral NeMo is a multilingual 12B model with a large context window of 128K tokens. ([blog](https://mistral.ai/news/mistral-nemo/))
+    creator_organization_name: Mistral AI
+    access: open
+    release_date: 2024-07-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # MosaicML
   - name: mosaicml/mpt-7b
@@ -1798,7 +1897,13 @@ models:
     release_date: 2019-09-17 # paper date
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, BUGGY_TEMP_0_TAG]
 
-
+  - name: nvidia/nemotron-4-340b-instruct
+    display_name: Nemotron-4 Instruct (340B)
+    description: Nemotron-4 Instruct (340B) is an open weights model sized to fit on a single DGX H100 with 8 GPUs when deployed in FP8 precision. 98% of the data used for model alignment was synthetically generated ([paper](https://arxiv.org/abs/2406.11704)).
+    creator_organization_name: NVIDIA
+    access: open
+    release_date: 2024-06-17
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # OpenAI
 
@@ -1836,97 +1941,95 @@ models:
 
   # DEPRECATED: Announced on July 06 2023 that these models will be shut down on January 04 2024.
 
-  - name: openai/davinci # DEPRECATED
+  - name: openai/davinci
     display_name: davinci (175B)
     description: Original GPT-3 (175B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 175000000000
     release_date: 2020-05-28
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: openai/curie # DEPRECATED
+  - name: openai/curie
     display_name: curie (6.7B)
     description: Original GPT-3 (6.7B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 6700000000
     release_date: 2020-05-28
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
     
-  - name: openai/babbage # DEPRECATED
+  - name: openai/babbage
     display_name: babbage (1.3B)
     description: Original GPT-3 (1.3B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 1300000000
     release_date: 2020-05-28
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
     
-  - name: openai/ada # DEPRECATED
+  - name: openai/ada
     display_name: ada (350M)
     description: Original GPT-3 (350M parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 350000000
     release_date: 2020-05-28
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: openai/text-davinci-003 # DEPRECATED
+  - name: openai/text-davinci-003
     display_name: GPT-3.5 (text-davinci-003)
     description: text-davinci-003 model that involves reinforcement learning (PPO) with reward models. Derived from text-davinci-002 ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 175000000000
     release_date: 2022-11-28
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  # TODO: text-davinci-002 supports insertion. Support insertion in our framework.
-  #       https://github.com/stanford-crfm/benchmarking/issues/359
-  - name: openai/text-davinci-002 # DEPRECATED
+  - name: openai/text-davinci-002
     display_name: GPT-3.5 (text-davinci-002)
     description: text-davinci-002 model that involves supervised fine-tuning on human-written demonstrations. Derived from code-davinci-002 ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 175000000000
     release_date: 2022-01-27
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: openai/text-davinci-001 # DEPRECATED
+  - name: openai/text-davinci-001
     display_name: GPT-3.5 (text-davinci-001)
     description: text-davinci-001 model that involves supervised fine-tuning on human-written demonstrations ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 175000000000
     release_date: 2022-01-27
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: openai/text-curie-001 # DEPRECATED
+  - name: openai/text-curie-001
     display_name: text-curie-001
     description: text-curie-001 model that involves supervised fine-tuning on human-written demonstrations ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 6700000000
     release_date: 2022-01-27
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
     
-  - name: openai/text-babbage-001 # DEPRECATED
+  - name: openai/text-babbage-001
     display_name: text-babbage-001
     description: text-babbage-001 model that involves supervised fine-tuning on human-written demonstrations ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 1300000000
     release_date: 2022-01-27
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
     
-  - name: openai/text-ada-001 # DEPRECATED
+  - name: openai/text-ada-001
     display_name: text-ada-001
     description: text-ada-001 model that involves supervised fine-tuning on human-written demonstrations ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 350000000
     release_date: 2022-01-27
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
 
   ## GPT 3.5 Turbo Models
@@ -2044,14 +2147,30 @@ models:
     creator_organization_name: OpenAI
     access: limited
     release_date: 2024-04-09
-    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: openai/gpt-4o-2024-05-13
     display_name: GPT-4o (2024-05-13)
-    description: GPT-4o (2024-05-13) is a large multimodal model that accepts as input any combination of text, audio, and image and generates any combination of text, audio, and image outputs.
+    description: GPT-4o (2024-05-13) is a large multimodal model that accepts as input any combination of text, audio, and image and generates any combination of text, audio, and image outputs. ([blog](https://openai.com/index/hello-gpt-4o/))
     creator_organization_name: OpenAI
     access: limited
     release_date: 2024-04-09
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/gpt-4o-2024-08-06
+    display_name: GPT-4o (2024-08-06)
+    description: GPT-4o (2024-08-06) is a large multimodal model that accepts as input any combination of text, audio, and image and generates any combination of text, audio, and image outputs. ([blog](https://openai.com/index/introducing-structured-outputs-in-the-api/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2024-08-06
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/gpt-4o-mini-2024-07-18
+    display_name: GPT-4o mini (2024-07-18)
+    description: GPT-4o mini (2024-07-18) is a multimodal model with a context window of 128K tokens and improved handling of non-English text. ([blog](https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2024-07-18
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: openai/gpt-4-vision-preview
@@ -2074,30 +2193,30 @@ models:
   ## Codex Models
   # DEPRECATED: Codex models have been shut down on March 23 2023.
 
-  - name: openai/code-davinci-002 # DEPRECATED
+  - name: openai/code-davinci-002
     display_name: code-davinci-002
     description: Codex-style model that is designed for pure code-completion tasks ([docs](https://beta.openai.com/docs/models/codex)).
     creator_organization_name: OpenAI
     access: limited
     release_date: 2021-07-01 # TODO: Find correct date (this is for v1)
-    tags: [CODE_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, CODE_MODEL_TAG]
 
-  - name: openai/code-davinci-001 # DEPRECATED
+  - name: openai/code-davinci-001
     display_name: code-davinci-001
     description: code-davinci-001 model
     creator_organization_name: OpenAI
     access: limited
     release_date: 2021-07-01 # Paper date
-    tags: [CODE_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, CODE_MODEL_TAG]
 
-  - name: openai/code-cushman-001 # DEPRECATED
+  - name: openai/code-cushman-001
     display_name: code-cushman-001 (12B)
     description: Codex-style model that is a stronger, multilingual version of the Codex (12B) model in the [Codex paper](https://arxiv.org/pdf/2107.03374.pdf).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 12000000000
     release_date: 2021-07-01 # Paper date
-    tags: [CODE_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, CODE_MODEL_TAG]
 
 
   ## Text Similarity Models
@@ -2107,41 +2226,41 @@ models:
   # DEPRECATED: Announced on July 06 2023 that first generation embeddings models
   #  will be shut down on January 04 2024.
 
-  - name: openai/text-similarity-davinci-001 # DEPRECATED
+  - name: openai/text-similarity-davinci-001
     display_name: text-similarity-davinci-001
     description: Embedding model that is designed for text similarity tasks ([docs](https://openai.com/blog/introducing-text-and-code-embeddings)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 175000000000
     release_date: 2022-01-25 # Blog post date
-    tags: [TEXT_SIMILARITY_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_SIMILARITY_MODEL_TAG]
 
-  - name: openai/text-similarity-curie-001 # DEPRECATED
+  - name: openai/text-similarity-curie-001
     display_name: text-similarity-curie-001
     description: Embedding model that is designed for text similarity tasks ([docs](https://openai.com/blog/introducing-text-and-code-embeddings)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 6700000000
     release_date: 2022-01-25 # Blog post date
-    tags: [TEXT_SIMILARITY_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_SIMILARITY_MODEL_TAG]
 
-  - name: openai/text-similarity-babbage-001 # DEPRECATED
+  - name: openai/text-similarity-babbage-001
     display_name: text-similarity-babbage-001
     description: Embedding model that is designed for text similarity tasks ([docs](https://openai.com/blog/introducing-text-and-code-embeddings)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 1300000000
     release_date: 2022-01-25 # Blog post date
-    tags: [TEXT_SIMILARITY_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_SIMILARITY_MODEL_TAG]
 
-  - name: openai/text-similarity-ada-001 # DEPRECATED
+  - name: openai/text-similarity-ada-001
     display_name: text-similarity-ada-001
     description: Embedding model that is designed for text similarity tasks ([docs](https://openai.com/blog/introducing-text-and-code-embeddings)).
     creator_organization_name: OpenAI
     access: limited
     num_parameters: 350000000
     release_date: 2022-01-25 # Blog post date
-    tags: [TEXT_SIMILARITY_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_SIMILARITY_MODEL_TAG]
 
   - name: openai/text-embedding-ada-002
     display_name: text-embedding-ada-002
@@ -2196,6 +2315,34 @@ models:
     num_parameters: 0
     release_date: 2023-11-06
     tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  # OpenThaiGPT
+  - name: openthaigpt/openthaigpt-1.0.0-7b-chat
+    display_name: OpenThaiGPT v1.0.0 (7B)
+    description: OpenThaiGPT v1.0.0 (7B) is a Thai language chat model based on Llama 2 that has been specifically fine-tuned for Thai instructions and enhanced by incorporating over 10,000 of the most commonly used Thai words into the dictionary. ([blog post](https://openthaigpt.aieat.or.th/openthaigpt-1.0.0-less-than-8-apr-2024-greater-than))
+    creator_organization_name: OpenThaiGPT
+    access: open
+    num_parameters: 7000000000
+    release_date: 2024-04-08
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openthaigpt/openthaigpt-1.0.0-13b-chat
+    display_name: OpenThaiGPT v1.0.0 (13B)
+    description: OpenThaiGPT v1.0.0 (13B) is a Thai language chat model based on Llama 2 that has been specifically fine-tuned for Thai instructions and enhanced by incorporating over 10,000 of the most commonly used Thai words into the dictionary. ([blog post](https://openthaigpt.aieat.or.th/openthaigpt-1.0.0-less-than-8-apr-2024-greater-than))
+    creator_organization_name: OpenThaiGPT
+    access: open
+    num_parameters: 13000000000
+    release_date: 2024-04-08
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openthaigpt/openthaigpt-1.0.0-70b-chat
+    display_name: OpenThaiGPT v1.0.0 (70B)
+    description: OpenThaiGPT v1.0.0 (70B) is a Thai language chat model based on Llama 2 that has been specifically fine-tuned for Thai instructions and enhanced by incorporating over 10,000 of the most commonly used Thai words into the dictionary. ([blog post](https://openthaigpt.aieat.or.th/openthaigpt-1.0.0-less-than-8-apr-2024-greater-than))
+    creator_organization_name: OpenThaiGPT
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-04-08
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # Qwen
 
@@ -2311,7 +2458,7 @@ models:
     access: open
     num_parameters: 7000000000
     release_date: 2024-04-04
-    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: sail/sailor-7b-chat
     display_name: Sailor Chat (7B)
@@ -2329,7 +2476,7 @@ models:
     access: open
     num_parameters: 14000000000
     release_date: 2024-04-04
-    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: sail/sailor-14b-chat
     display_name: Sailor Chat (14B)
@@ -2350,10 +2497,74 @@ models:
     release_date: 2022-03-25
     tags: [] # TODO: add tags
 
+  # SambaNova
+  - name: sambanova/sambalingo-thai-base
+    display_name: SambaLingo-Thai-Base
+    description: SambaLingo-Thai-Base is a pretrained bi-lingual Thai and English model that adapts Llama 2 (7B) to Thai by training on 38 billion tokens from the Thai split of the Cultura-X dataset. ([paper](https://arxiv.org/abs/2404.05829))
+    creator_organization_name: SambaLingo
+    access: open
+    num_parameters: 7000000000
+    release_date: 2024-04-08
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: sambanova/sambalingo-thai-chat
+    display_name: SambaLingo-Thai-Chat
+    description: SambaLingo-Thai-Chat is a chat model trained using direct preference optimization on SambaLingo-Thai-Base. SambaLingo-Thai-Base adapts Llama 2 (7B) to Thai by training on 38 billion tokens from the Thai split of the Cultura-X dataset. ([paper](https://arxiv.org/abs/2404.05829))
+    creator_organization_name: SambaLingo
+    access: open
+    num_parameters: 7000000000
+    release_date: 2024-04-08
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: sambanova/sambalingo-thai-base-70b
+    display_name: SambaLingo-Thai-Base-70B
+    description: SambaLingo-Thai-Base-70B is a pretrained bi-lingual Thai and English model that adapts Llama 2 (70B) to Thai by training on 26 billion tokens from the Thai split of the Cultura-X dataset. ([paper](https://arxiv.org/abs/2404.05829))
+    creator_organization_name: SambaLingo
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-04-08
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: sambanova/sambalingo-thai-chat-70b
+    display_name: SambaLingo-Thai-Chat-70B
+    description: SambaLingo-Thai-Chat-70B is a chat model trained using direct preference optimization on SambaLingo-Thai-Base-70B. SambaLingo-Thai-Base-70B adapts Llama 2 (7B) to Thai by training on 26 billion tokens from the Thai split of the Cultura-X dataset. ([paper](https://arxiv.org/abs/2404.05829))
+    creator_organization_name: SambaLingo
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-04-08
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   # SCB10X
+  - name: scb10x/typhoon-7b
+    display_name: Typhoon (7B)
+    description: Typhoon (7B) is pretrained Thai large language model with 7 billion parameters based on Mistral 7B. ([paper](https://arxiv.org/abs/2312.13951))
+    creator_organization_name: SCB10X
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-12-21
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: scb10x/typhoon-v1.5-8b
+    display_name: Typhoon v1.5 (8B)
+    description: Typhoon v1.5 (8B) is a pretrained Thai large language model with 8 billion parameters based on Llama 3 8B. ([blog](https://blog.opentyphoon.ai/typhoon-1-5-release-a9364cb8e8d7))
+    creator_organization_name: SCB10X
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-05-08
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: scb10x/typhoon-v1.5-8b-instruct
+    display_name: Typhoon v1.5 Instruct (8B)
+    description: Typhoon v1.5 Instruct (8B) is a pretrained Thai large language model with 8 billion parameters based on Llama 3 8B. ([blog](https://blog.opentyphoon.ai/typhoon-1-5-release-a9364cb8e8d7))
+    creator_organization_name: SCB10X
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-05-08
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: scb10x/typhoon-v1.5-72b
     display_name: Typhoon v1.5 (72B)
-    description: Typhoon v1.5 (72B) is pretrained Thai large language model with 72 billion parameters based on Qwen1.5-72B. ([blog](https://blog.opentyphoon.ai/typhoon-1-5-release-a9364cb8e8d7))
+    description: Typhoon v1.5 (72B) is a pretrained Thai large language model with 72 billion parameters based on Qwen1.5-72B. ([blog](https://blog.opentyphoon.ai/typhoon-1-5-release-a9364cb8e8d7))
     creator_organization_name: SCB10X
     access: open
     num_parameters: 72000000000
@@ -2362,12 +2573,49 @@ models:
 
   - name: scb10x/typhoon-v1.5-72b-instruct
     display_name: Typhoon v1.5 Instruct (72B)
-    description: Typhoon v1.5 Instruct (72B) is pretrained Thai large language model with 72 billion parameters based on Qwen1.5-72B. ([blog](https://blog.opentyphoon.ai/typhoon-1-5-release-a9364cb8e8d7))
+    description: Typhoon v1.5 Instruct (72B) is a pretrained Thai large language model with 72 billion parameters based on Qwen1.5-72B. ([blog](https://blog.opentyphoon.ai/typhoon-1-5-release-a9364cb8e8d7))
     creator_organization_name: SCB10X
     access: open
     num_parameters: 72000000000
     release_date: 2024-05-08
     tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: scb10x/llama-3-typhoon-v1.5x-8b-instruct
+    display_name: Typhoon 1.5X instruct (8B)
+    description: Llama-3-Typhoon-1.5X-8B-instruct is a 8 billion parameter instruct model designed for the Thai language based on Llama 3 Instruct. It utilizes the task-arithmetic model editing technique. ([blog](https://blog.opentyphoon.ai/typhoon-1-5x-our-experiment-designed-for-application-use-cases-7b85d9e9845c))
+    creator_organization_name: SCB10X
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-05-29
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: scb10x/llama-3-typhoon-v1.5x-70b-instruct
+    display_name: Typhoon 1.5X instruct (70B)
+    description: Llama-3-Typhoon-1.5X-70B-instruct is a 70 billion parameter instruct model designed for the Thai language based on Llama 3 Instruct. It utilizes the task-arithmetic model editing technique. ([blog](https://blog.opentyphoon.ai/typhoon-1-5x-our-experiment-designed-for-application-use-cases-7b85d9e9845c))
+    creator_organization_name: SCB10X
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-05-29
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  # Alibaba DAMO Academy
+  - name: damo/seallm-7b-v2
+    display_name: SeaLLM v2 (7B)
+    description: SeaLLM v2 is a multilingual LLM for Southeast Asian (SEA) languages trained from Mistral (7B). ([website](https://damo-nlp-sg.github.io/SeaLLMs/))
+    creator_organization_name: Alibaba DAMO Academy
+    access: open
+    num_parameters: 7000000000
+    release_date: 2024-02-02
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: damo/seallm-7b-v2.5
+    display_name: SeaLLM v2.5 (7B)
+    description: SeaLLM is a multilingual LLM for Southeast Asian (SEA) languages trained from Gemma (7B). ([website](https://damo-nlp-sg.github.io/SeaLLMs/))
+    creator_organization_name: Alibaba DAMO Academy
+    access: open
+    num_parameters: 7000000000
+    release_date: 2024-04-12
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   # Snowflake
   - name: snowflake/snowflake-arctic-instruct
@@ -2538,7 +2786,7 @@ models:
     release_date: 2022-08-04
     # Inference with echo=True is not feasible -- in the prompt encoding phase, they use
     # bidirectional attention and do not perform predictions on them.
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG]
 
   - name: tsinghua/codegeex # NOT SUPPORTED
     display_name: CodeGeeX (13B)
@@ -2573,7 +2821,6 @@ models:
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: writer/palmyra-instruct-30
-    deprecated: true # Internal error
     display_name: InstructPalmyra (30B)
     description: InstructPalmyra (30B parameters) is trained using reinforcement learning techniques based on feedback from humans.
     creator_organization_name: Writer
@@ -2581,10 +2828,9 @@ models:
     num_parameters: 30000000000
     release_date: 2023-02-16
     # Does not support echo
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: writer/palmyra-e
-    deprecated: true # Internal error
     display_name: Palmyra E (30B)
     description: Palmyra E (30B)
     creator_organization_name: Writer
@@ -2592,7 +2838,7 @@ models:
     num_parameters: 30000000000
     release_date: 2023-03-03
     # Does not support echo
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: writer/silk-road
     display_name: Silk Road (35B)

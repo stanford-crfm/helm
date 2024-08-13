@@ -13,7 +13,9 @@ export default async function getRunSpecs(
 
     return (await runSpecs.json()) as RunSpec[];
   } catch (error) {
-    console.log(error);
+    if (error instanceof Error && error.name !== "AbortError") {
+      console.log(error);
+    }
     return [];
   }
 }

@@ -17,7 +17,9 @@ export default async function getInstancesByRunName(
 
     return (await instances.json()) as Instance[];
   } catch (error) {
-    console.log(error);
+    if (error instanceof Error && error.name !== "AbortError") {
+      console.log(error);
+    }
     return [];
   }
 }

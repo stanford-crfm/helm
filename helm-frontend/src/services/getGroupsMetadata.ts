@@ -13,7 +13,9 @@ export default async function getGroupsMetadata(
 
     return (await groups.json()) as GroupsMetadata;
   } catch (error) {
-    console.log(error);
+    if (error instanceof Error && error.name !== "AbortError") {
+      console.log(error);
+    }
     return {} as GroupsMetadata;
   }
 }

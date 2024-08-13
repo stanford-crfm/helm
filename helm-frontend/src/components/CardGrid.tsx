@@ -22,7 +22,7 @@ export default function CardGrid() {
 
   return (
     <div className="p-10 mb-20">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         {projectEntries &&
           projectEntries.map((project, index) =>
             project.id === "home" ? null : (

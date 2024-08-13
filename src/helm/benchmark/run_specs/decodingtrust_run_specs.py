@@ -56,7 +56,7 @@ def get_decodingtrust_stereotype_bias_spec(task: str) -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_stereotype_bias_metric_specs(),
-        groups=["decodingtrust", "stereotype_bias"],
+        groups=["decodingtrust_stereotype_bias", "stereotype_bias"],
     )
 
 
@@ -74,7 +74,7 @@ def get_decodingtrust_adv_robustness_spec(task: str) -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["decodingtrust", "adv_robustness"],
+        groups=["decodingtrust_adv_robustness", "adv_robustness"],
     )
 
 
@@ -92,7 +92,7 @@ def get_decodingtrust_adv_demonstration_spec(perspective: str, data: str, demo_n
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["decodingtrust", "adv_demonstration"],
+        groups=["decodingtrust_adv_demonstration", "adv_demonstration"],
     )
 
 
@@ -137,7 +137,7 @@ def get_decodingtrust_ood_robustness_spec(
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() if ood_type == "style" else get_ood_knowledge_metric_specs(),
-        groups=["decodingtrust", "ood_robustness"],
+        groups=["decodingtrust_ood_robustness", "ood_robustness"],
     )
 
 
@@ -163,7 +163,7 @@ def get_decodingtrust_fairness_spec(
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_fairness_metric_specs() + get_exact_match_metric_specs(),
-        groups=["decodingtrust", "fairness"],
+        groups=["decodingtrust_fairness", "fairness"],
     )
 
 
@@ -192,7 +192,7 @@ def get_decodingtrust_privacy_spec(
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_privacy_metric_specs(),
-        groups=["decodingtrust", "privacy"],
+        groups=["decodingtrust_privacy", "privacy"],
     )
 
 
@@ -280,7 +280,7 @@ def get_decodingtrust_machine_ethics_spec(
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["decodingtrust", "machine_ethics"],
+        groups=["decodingtrust_machine_ethics", "machine_ethics"],
     )
 
 
@@ -312,5 +312,5 @@ def get_decodingtrust_toxicity_prompts_spec(subject) -> RunSpec:
         metric_specs=get_generative_harms_metric_specs(
             include_basic_metrics=True, include_generative_harms_metrics=True
         ),
-        groups=["decodingtrust", "toxicity_prompts"],
+        groups=["decodingtrust_toxicity_prompts", "toxicity_prompts"],
     )

@@ -35,10 +35,10 @@ class SEEDBenchScenario(Scenario):
     the multiple-choice metric for evaluating the performance of models.
 
     @article{li2023seed,
-    title={Seed-bench: Benchmarking multimodal llms with generative comprehension},
-    author={Li, Bohao and Wang, Rui and Wang, Guangzhi and Ge, Yuying and Ge, Yixiao and Shan, Ying},
-    journal={arXiv preprint arXiv:2307.16125},
-    year={2023}
+        title={Seed-bench: Benchmarking multimodal llms with generative comprehension},
+        author={Li, Bohao and Wang, Rui and Wang, Guangzhi and Ge, Yuying and Ge, Yixiao and Shan, Ying},
+        journal={arXiv preprint arXiv:2307.16125},
+        year={2023}
     }
 
     Paper: https://arxiv.org/abs/2307.16125
@@ -59,7 +59,9 @@ class SEEDBenchScenario(Scenario):
     }
 
     name = "seed_bench"
-    description = "Evaluate multimodal models on  ([paper](https://arxiv.org/abs/2307.16125))."
+    description = (
+        "Evaluate multimodal models on 9 evaluation aspects " "([Li et al., 2023](https://arxiv.org/abs/2307.16125))."
+    )
     tags = ["vision-language"]
 
     def __init__(self, subject: str):

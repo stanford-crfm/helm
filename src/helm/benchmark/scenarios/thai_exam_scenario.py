@@ -86,9 +86,9 @@ class ThaiExamScenario(Scenario):
         super().__init__()
         self.exam = exam
 
-    def download_thai_exam(self, path: str):
+    def download_thai_exam(self, path: str, revision: str):
         ensure_file_downloaded(
-            "https://storage.googleapis.com/thai_dataset/thai_exam.tar.gz",
+            f"https://huggingface.co/datasets/scb10x/thai_exam/resolve/{revision}/thai_exam.tar.gz",
             target_path=path,
             unpack=True,
         )
@@ -118,8 +118,8 @@ class ThaiExamScenario(Scenario):
 
     def get_instances(self, output_path) -> List[Instance]:
         data_path: str = os.path.join(output_path, "data")
-        self.download_thai_exam(data_path)
-
+        # ThaiExam (v1.0) revision = d78aef04ea3cc5095545e6951cb39e17c64e26a1
+        self.download_thai_exam(data_path, revision="d78aef04ea3cc5095545e6951cb39e17c64e26a1")
         instances: List[Instance] = []
         splits: Dict[str, str] = {
             "train": TRAIN_SPLIT,

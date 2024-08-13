@@ -42,7 +42,7 @@ class AOKVQAScenario(Scenario):
     name = "a_okvqa"
     description = (
         "A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of "
-        "commonsense and world knowledge to answer ([paper](https://arxiv.org/abs/2206.01718))."
+        "commonsense and world knowledge to answer ([Schwenk et al., 2022](https://arxiv.org/abs/2206.01718))."
     )
     tags = ["vision-language", "knowledge", "reasoning"]
 

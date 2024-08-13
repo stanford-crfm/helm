@@ -53,7 +53,7 @@ class VizWizScenario(Scenario):
     name = "viz_wiz"
     description = (
         "Real-world VQA dataset consisting of questions asked by "
-        "people who are blind ([paper](https://arxiv.org/abs/1802.08218))."
+        "people who are blind ([Gurari et al., 2018](https://arxiv.org/abs/1802.08218))."
     )
     tags = ["vision-language", "visual question answering"]
 

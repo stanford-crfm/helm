@@ -1,7 +1,8 @@
-from typing import Dict, Optional
+from typing import Dict, List, Optional, TypedDict
 import requests
 
 from helm.common.cache import CacheConfig
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import (
     wrap_request_time,
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
@@ -12,6 +13,12 @@ from helm.common.request import (
 )
 from .client import CachingClient, truncate_sequence, cleanup_str
 from .ai21_utils import AI21RequestError, handle_failed_request
+
+try:
+    from ai21 import AI21Client as AISDKClient
+    from ai21.models.chat import ChatMessage as SDKChatMessage, ChatCompletionResponse
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["ai21"])
 
 
 class AI21Client(CachingClient):
@@ -123,6 +130,69 @@ class AI21Client(CachingClient):
             cached=cached,
             request_time=response["request_time"],
             request_datetime=response.get("request_datetime"),
+            completions=completions,
+            embedding=[],
+        )
+
+
+class AI21ChatRequest(TypedDict):
+    """Data passed between make_request and _send_request. Used as the cache key."""
+
+    model: str
+    messages: List[Dict[str, str]]
+    max_tokens: int
+    temperature: float
+    stop: List[str]
+    n: int
+    top_p: float
+
+
+class AI21ChatClient(CachingClient):
+    def __init__(self, api_key: str, cache_config: CacheConfig):
+        super().__init__(cache_config=cache_config)
+        self.client = AISDKClient(api_key=api_key)
+
+    def make_request(self, request: Request) -> RequestResult:
+        if request.embedding:
+            return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
+        # TODO: Support messages
+        assert not request.messages, "AI21ChatClient currently does not support the messages API"
+
+        raw_request: AI21ChatRequest = {
+            "model": request.model_engine,
+            "messages": [{"role": "user", "content": request.prompt}],
+            "max_tokens": request.max_tokens,
+            "temperature": request.temperature,
+            "stop": request.stop_sequences,
+            "n": request.num_completions,
+            "top_p": request.top_p,
+        }
+
+        def do_it():
+            chat_completion_response: ChatCompletionResponse = self.client.chat.completions.create(
+                model=raw_request["model"],
+                messages=[SDKChatMessage.from_dict(m) for m in raw_request["messages"]],
+                max_tokens=raw_request["max_tokens"],
+                temperature=raw_request["temperature"],
+                stop=raw_request["stop"],
+                n=raw_request["n"],
+                top_p=raw_request["top_p"],
+            )
+            return chat_completion_response.to_dict()
+
+        cache_key = CachingClient.make_cache_key(raw_request, request)
+        response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+
+        completions: List[GeneratedOutput] = []
+
+        for choice in response["choices"]:
+            completions.append(GeneratedOutput(text=choice["message"]["content"], logprob=0.0, tokens=[]))
+
+        return RequestResult(
+            success=True,
+            cached=cached,
+            request_time=response["request_time"],
+            request_datetime=response["request_datetime"],
             completions=completions,
             embedding=[],
         )
