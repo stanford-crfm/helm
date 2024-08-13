@@ -7,7 +7,7 @@ from helm.benchmark.metrics.metric import MetricSpec
 
 
 @run_spec_function("harm_bench")
-def get_simple_safety_tests_spec() -> RunSpec:
+def get_harm_bench_spec() -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         global_prefix="",
@@ -42,7 +42,7 @@ def get_simple_safety_tests_spec() -> RunSpec:
 
 
 @run_spec_function("xstest")
-def get_simple_safety_tests_spec() -> RunSpec:
+def get_xstest_spec() -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         global_prefix="",
