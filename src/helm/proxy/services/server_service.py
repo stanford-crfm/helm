@@ -25,7 +25,6 @@ from helm.common.hierarchical_logger import hlog
 from helm.proxy.accounts import Accounts, Account
 from helm.clients.auto_client import AutoClient
 from helm.clients.moderation_api_client import ModerationAPIClient
-from helm.clients.perspective_api_client import PerspectiveAPIClient
 from helm.clients.image_generation.nudity_check_client import NudityCheckClient
 from helm.clients.gcs_client import GCSClient
 from helm.clients.clip_score_client import CLIPScoreClient
@@ -75,7 +74,7 @@ class ServerService(Service):
         # Lazily instantiate the following clients
         self.moderation_api_client: Optional[ModerationAPIClient] = None
         self.toxicity_classifier_client: Optional[ToxicityClassifierClient] = None
-        self.perspective_api_client: Optional[PerspectiveAPIClient] = None
+        self.perspective_api_client: Optional[ToxicityClassifierClient] = None
         self.nudity_check_client: Optional[NudityCheckClient] = None
         self.clip_score_client: Optional[CLIPScoreClient] = None
         self.gcs_client: Optional[GCSClient] = None
