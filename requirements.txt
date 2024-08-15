@@ -225,7 +225,7 @@ pydantic==2.8.2
 pydantic_core==2.20.1
 pydload==1.0.9
 pydot==2.0.0
-pyext==0.7
+pyext==0.6
 pyflakes==2.5.0
 Pygments==2.18.0
 pyhocon==0.3.61
