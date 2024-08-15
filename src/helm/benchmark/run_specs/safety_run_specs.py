@@ -5,6 +5,7 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 from helm.benchmark.metrics.metric import MetricSpec
 
+
 @run_spec_function("simple_safety_tests")
 def get_simple_safety_tests_spec() -> RunSpec:
     adapter_spec = AdapterSpec(
