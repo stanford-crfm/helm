@@ -52,7 +52,7 @@ class AnthropicRedTeamScenario(Scenario):
         dataset = load_dataset(
             "Anthropic/hh-rlhf", data_dir="red-team-attempts", revision="09be8c5bbc57cb3887f3a9732ad6aa7ec602a1fa"
         )
-        # Note that we are using the original "train" split as our test split.
+        # We use the "train" split as our test split as there is no test for the red-team subset
         dialogue_splits["test"] = []
         for example in dataset["train"]:
             dialogue_splits["test"].append(example["transcript"])
