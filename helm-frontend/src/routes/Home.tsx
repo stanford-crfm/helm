@@ -8,6 +8,7 @@ import HEIMLanding from "@/components/Landing/HEIMLanding";
 import VHELMLanding from "@/components/VHELMLanding";
 import CallCenterLanding from "@/components/Landing/CallCenterLanding";
 import CLEVALanding from "@/components/Landing/CLEVALanding";
+import TablesLanding from "@/components/Landing/TablesLanding";
 import HomeLanding from "@/components/Landing/HomeLanding";
 import Image2StructLanding from "@/components/Landing/Image2StructLanding";
 
@@ -35,6 +36,8 @@ export default function Home() {
     return <CallCenterLanding />;
   } else if (window.PROJECT_ID === "cleva") {
     return <CLEVALanding />;
+  } else if (window.PROJECT_ID === "tables") {
+    return <TablesLanding />;
   } else if (window.PROJECT_ID === "home") {
     return <HomeLanding />;
   } else {
