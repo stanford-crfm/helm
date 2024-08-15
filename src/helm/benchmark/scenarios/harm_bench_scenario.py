@@ -9,9 +9,9 @@ from .scenario import Scenario, Instance, Input, TEST_SPLIT, Reference, Output
 
 class HarmBenchScenario(Scenario):
     """
-    HarmBench, a standardized evaluation framework for automated red teaming.
+    HarmBench is a standardized evaluation framework for automated red teaming.
     HarmBench identifies key considerations previously unaccounted for in red teaming
-    evaluations and systematically design HarmBench to meet these criteria
+    evaluations and systematically designed prompts that meet these criteria.
 
     https://arxiv.org/abs/2402.04249
     """
