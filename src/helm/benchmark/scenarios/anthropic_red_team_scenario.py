@@ -49,7 +49,9 @@ class AnthropicRedTeamScenario(Scenario):
         #     'min_harmlessness_score_transcript': -0.49854233860969505,
         #     'rating': 4.0
         # }
-        dataset = load_dataset("Anthropic/hh-rlhf", data_dir="red-team-attempts")
+        dataset = load_dataset(
+            "Anthropic/hh-rlhf", data_dir="red-team-attempts", revision="09be8c5bbc57cb3887f3a9732ad6aa7ec602a1fa"
+        )
         # Note that we are using the original "train" split as our test split.
         dialogue_splits["test"] = []
         for example in dataset["train"]:
