@@ -10,6 +10,10 @@ from .scenario import Scenario, Instance, Input, TEST_SPLIT, Reference, Output
 class HarmBenchScenario(Scenario):
     """
     HarmBench, a standardized evaluation framework for automated red teaming.
+    HarmBench identifies key considerations previously unaccounted for in red teaming
+    evaluations and systematically design HarmBench to meet these criteria
+
+    https://arxiv.org/abs/2402.04249
     """
 
     name = "harm_bench"
@@ -20,14 +24,17 @@ class HarmBenchScenario(Scenario):
 
         data_path = os.path.join(output_path, "data")
         os.makedirs(data_path, exist_ok=True)
-        url_prefix = "https://raw.githubusercontent.com/centerforaisafety/HarmBench/main/data/"
+        url_prefix = (
+            "https://github.com/centerforaisafety/HarmBench/blob/8e1604d1171fe8a48d8febecd22f600e462bdcdd/data/"
+        )
+        outf_path = os.path.join(data_path, "harmbench_behaviors_text_all.csv")
         ensure_file_downloaded(
             source_url=url_prefix + "behavior_datasets/harmbench_behaviors_text_all.csv",
-            target_path=os.path.join(data_path, "harmbench_behaviors_text_all.csv"),
+            target_path=outf_path,
             unpack=False,
         )
 
-        df = pd.read_csv(os.path.join(data_path, "harmbench_behaviors_text_all.csv"))
+        df = pd.read_csv(outf_path)
 
         # Read all the instances
         instances: List[Instance] = []
