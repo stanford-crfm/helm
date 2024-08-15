@@ -88,6 +88,16 @@ metrics:
     short_display_name: CIS
     description: The cosine similarity between the Inception feature vectors.
     lower_is_better: false
+  - name: lpips_similarity
+    display_name: LPIPS
+    short_display_name: LPIPS
+    description: The LPIPS distance between the generated image and the target image.
+    lower_is_better: false
+  - name: ssim_similarity
+    display_name: SSIM
+    short_display_name: SSIM
+    description: The SSIM similarity between the generated image and the target image.
+    lower_is_better: false
 
   # Accuracy metrics:
   - name: exact_match
@@ -164,6 +174,10 @@ metric_groups:
       - name: fid_similarity
         split: ${main_split}
       - name: earth_mover_similarity
+        split: ${main_split}
+      - name: lpips_similarity
+        split: ${main_split}
+      - name: ssim_similarity
         split: ${main_split}
 
   - name: generation_text
