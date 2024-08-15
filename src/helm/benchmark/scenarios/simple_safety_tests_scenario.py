@@ -6,10 +6,9 @@ from .scenario import Scenario, Instance, Input, TEST_SPLIT, Reference, Output
 
 class SimpleSafetyTestsScenario(Scenario):
     """
-    The data contains a diverse set of prompts covering 70 hypothetical decision scenarios, ranging
-    from approving a loan to providing press credentials. Each prompt instructs the model to make a
-    binary decision (yes/no) about a particular person described in the prompt.
-    https://huggingface.co/datasets/Anthropic/discrim-eval
+    The test suite comprises 100 test prompts across five harm areas that LLMs,
+    for the vast majority of applications, should refuse to comply with
+    https://huggingface.co/datasets/Bertievidgen/SimpleSafetyTests
     """
 
     name = "SimpleSafetyTests"
