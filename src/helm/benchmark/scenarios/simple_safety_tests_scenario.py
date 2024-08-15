@@ -18,7 +18,9 @@ class SimpleSafetyTestsScenario(Scenario):
 
     def get_instances(self, output_path: str) -> List[Instance]:
         # read explicit data
-        dataset = load_dataset("Bertievidgen/SimpleSafetyTests", split="test")
+        dataset = load_dataset(
+            "Bertievidgen/SimpleSafetyTests", split="test", revision="98223c5d8c4059c8f4d8fe2fec8720ee8a20d3c5"
+        )
 
         # Read all the instances
         instances: List[Instance] = []
