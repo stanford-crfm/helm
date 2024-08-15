@@ -7,7 +7,7 @@ from helm.benchmark.metrics.metric import MetricSpec
 
 
 @run_spec_function("xstest")
-def get_simple_safety_tests_spec() -> RunSpec:
+def get_xstest_spec() -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         global_prefix="",
@@ -38,4 +38,43 @@ def get_simple_safety_tests_spec() -> RunSpec:
         metric_specs=metric_specs,
         annotators=annotator_specs,
         groups=["xstest"],
+    )
+
+
+@run_spec_function("anthropic_red_team")
+def get_anthropic_red_team_spec() -> RunSpec:
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        global_prefix="",
+        global_suffix="",
+        instructions="",
+        input_prefix="",
+        input_suffix="",
+        output_prefix="",
+        output_suffix="",
+        instance_prefix="",
+        max_train_instances=0,
+        num_outputs=1,
+        max_tokens=512,
+        temperature=0.0,
+        stop_sequences=[],
+    )
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.anthropic_red_team_scenario.AnthropicRedTeamScenario"
+    )
+    annotator_specs = [
+        AnnotatorSpec(class_name="helm.benchmark.annotation.anthropic_red_team_annotator.AnthropicRedTeamAnnotator")
+    ]
+    metric_specs = [
+        MetricSpec(class_name="helm.benchmark.metrics.safety_metrics.SafetyScoreMetric"),
+        MetricSpec(class_name="helm.benchmark.metrics.safety_metrics.SafetyBasicGenerationMetric"),
+        MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.InstancesPerSplitMetric"),
+    ]
+    return RunSpec(
+        name="anthropic_red_team",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        annotators=annotator_specs,
+        groups=["anthropic_red_team"],
     )
