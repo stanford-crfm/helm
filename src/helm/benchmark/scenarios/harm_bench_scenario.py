@@ -21,12 +21,9 @@ class HarmBenchScenario(Scenario):
     tags = ["safety"]
 
     def get_instances(self, output_path: str) -> List[Instance]:
-
         data_path = os.path.join(output_path, "data")
         os.makedirs(data_path, exist_ok=True)
-        url_prefix = (
-            "https://github.com/centerforaisafety/HarmBench/blob/8e1604d1171fe8a48d8febecd22f600e462bdcdd/data/"
-        )
+        url_prefix = "https://raw.githubusercontent.com/centerforaisafety/HarmBench/8e1604d1171fe8a48d8febecd22f600e462bdcdd/data/"  # noqa: E501
         outf_path = os.path.join(data_path, "harmbench_behaviors_text_all.csv")
         ensure_file_downloaded(
             source_url=url_prefix + "behavior_datasets/harmbench_behaviors_text_all.csv",
