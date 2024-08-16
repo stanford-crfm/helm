@@ -1651,7 +1651,7 @@ class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
     def __init__(self, language: str, subset: str):
         super().__init__()
         self.language = language
-        s = [subset] if subset != "all" else ["single", "pair"]
+        self.subsets = [subset] if subset != "all" else ["single", "pair"]
         self.prompt = {
             "id": {
                 "single": {
@@ -1716,7 +1716,7 @@ class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
                 )
                 
                 references.append(
-                    Reference(Output(text=self.prompt[self.language][row["label"]]), tags=[CORRECT_TAG]),
+                    Reference(Output(text=self.prompt[self.language]["pair"][row["label"]]), tags=[CORRECT_TAG]),
                 )
 
             input = Input(text=passage)
@@ -1780,7 +1780,7 @@ class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
     def __init__(self, language: str, subset: str):
         super().__init__()
         self.language = language
-        self.subset = subset
+        self.subsets = [subset] if subset != "all" else ["single", "pair"]
         self.prompt = {
             "id": {
                 "single": {
@@ -1798,29 +1798,57 @@ class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
 
     def download_dataset(self, output_path: str):
         BASE_URL = "https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/"
-        URL = f"{BASE_URL}{self.language}/pragmatics/pragmatic_reasoning_pair.jsonl"
-        file = "pragmatic_reasoning_pair"
-        target_path_file = os.path.join(output_path, file)
-        ensure_file_downloaded(source_url=URL, target_path=target_path_file)
-        dataset = pd.read_json(target_path_file, lines=True)
-        if self.subset != "all":
-            dataset = dataset[dataset["linguistic_phenomenon"] == self.subset]
+        datasets = []
+        for subset in self.subsets:
+            URL = f"{BASE_URL}{self.language}/pragmatics/pragmatic_reasoning_{subset}.jsonl"
+            file = f"pragmatic_reasoning_{subset}"
+            target_path_file = os.path.join(output_path, file)
+            ensure_file_downloaded(source_url=URL, target_path=target_path_file)
+            data = pd.read_json(target_path_file, lines=True)
+            data['subset'] = subset
+            data = data[data["linguistic_phenomenon"] == "scalar_implicatures"]
+            datasets.append(data)
+        dataset = pd.concat(datasets)
         return dataset
 
     def get_instances(self, output_path) -> List[Instance]:
         data = self.download_dataset(output_path)
         outputs = []
         for _, row in data.iterrows():
-            passage = "Situasi: {premise}\n{question}\nPernyataan: {conclusion}\n{instruction}".format(
-                premise=row["text"],
-                question=self.prompt[self.language]["question"],
-                conclusion=row["conclusion"],
-                instruction=self.prompt[self.language]["instruction"],
-            )
+            
+            passage = None
+            references = []
+
+            if row['subset'] == "single":
+                passage = "{question}\nPernyataan: {text}\n{instruction}".format(
+                    question=self.prompt[self.language]["single"]["question"].format(row["question_translated"]),
+                    text=row["text"],
+                    instruction=self.prompt[self.language]["single"]["instruction"].format(row["choices_translated"]),
+                )
+                # Split "True or False" into ["True", "or", "False"]
+                choices = row["choices"].split()
+                choices_translated = row["choices_translated"].split()
+                label2choice = {
+                    choices[0]: choices_translated[0],
+                    choices[2]: choices_translated[2],
+                }
+                references.append(
+                    Reference(Output(text=label2choice[row["label"].strip()]), tags=[CORRECT_TAG]),
+                )
+
+            elif row['subset'] == "pair":
+                passage = "Situasi: {premise}\n{question}\nPernyataan: {conclusion}\n{instruction}".format(
+                    premise=row["text"],
+                    question=self.prompt[self.language]["pair"]["question"],
+                    conclusion=row["conclusion"],
+                    instruction=self.prompt[self.language]["pair"]["instruction"],
+                )
+                
+                references.append(
+                    Reference(Output(text=self.prompt[self.language]["pair"][row["label"]]), tags=[CORRECT_TAG]),
+                )
+
             input = Input(text=passage)
-            references = [
-                Reference(Output(text=self.prompt[self.language][row["label"]]), tags=[CORRECT_TAG]),
-            ]
             instance = Instance(
                 input=input,
                 references=references,
