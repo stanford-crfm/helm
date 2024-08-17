@@ -1605,9 +1605,9 @@ class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
     """
     The LINDSEA Presuppositions dataset is a linguistic diagnostic scenario targeting pragmatics.
     The data is manually handcrafted by linguists and native speakers and verified through multiple rounds
-    of quality control. 
+    of quality control.
 
-    The presuppositions dataset involves two formats: single and pair sentences. 
+    The presuppositions dataset involves two formats: single and pair sentences.
     For single sentence questions, the system under test needs to determine if the sentence is true/false.
     For pair sentence questions, the system under test needs to determine whether a conclusion can be drawn
     from another sentence.
@@ -1676,7 +1676,7 @@ class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
             target_path_file = os.path.join(output_path, file)
             ensure_file_downloaded(source_url=URL, target_path=target_path_file)
             data = pd.read_json(target_path_file, lines=True)
-            data['subset'] = subset
+            data["subset"] = subset
             data = data[data["linguistic_phenomenon"] == "presuppositions"]
             datasets.append(data)
         dataset = pd.concat(datasets)
@@ -1686,11 +1686,11 @@ class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
         data = self.download_dataset(output_path)
         outputs = []
         for _, row in data.iterrows():
-            
+
             passage = None
             references = []
 
-            if row['subset'] == "single":
+            if row["subset"] == "single":
                 passage = "{question}\nPernyataan: {text}\n{instruction}".format(
                     question=self.prompt[self.language]["single"]["question"].format(row["question_translated"]),
                     text=row["text"],
@@ -1707,14 +1707,14 @@ class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
                     Reference(Output(text=label2choice[row["label"].strip()]), tags=[CORRECT_TAG]),
                 )
 
-            elif row['subset'] == "pair":
+            elif row["subset"] == "pair":
                 passage = "Situasi: {premise}\n{question}\nPernyataan: {conclusion}\n{instruction}".format(
                     premise=row["text"],
                     question=self.prompt[self.language]["pair"]["question"],
                     conclusion=row["conclusion"],
                     instruction=self.prompt[self.language]["pair"]["instruction"],
                 )
-                
+
                 references.append(
                     Reference(Output(text=self.prompt[self.language]["pair"][row["label"]]), tags=[CORRECT_TAG]),
                 )
@@ -1736,7 +1736,7 @@ class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
     The data is manually handcrafted by linguists and native speakers and verified through multiple rounds
     of quality control.
 
-    The scalar implicatures dataset involves two formats: single and pair sentences. 
+    The scalar implicatures dataset involves two formats: single and pair sentences.
     For single sentence questions, the system under test needs to determine if the sentence is true/false.
     For pair sentence questions, the system under test needs to determine whether a conclusion can be drawn
     from another sentence.
@@ -1805,7 +1805,7 @@ class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
             target_path_file = os.path.join(output_path, file)
             ensure_file_downloaded(source_url=URL, target_path=target_path_file)
             data = pd.read_json(target_path_file, lines=True)
-            data['subset'] = subset
+            data["subset"] = subset
             data = data[data["linguistic_phenomenon"] == "scalar_implicatures"]
             datasets.append(data)
         dataset = pd.concat(datasets)
@@ -1815,11 +1815,11 @@ class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
         data = self.download_dataset(output_path)
         outputs = []
         for _, row in data.iterrows():
-            
+
             passage = None
             references = []
 
-            if row['subset'] == "single":
+            if row["subset"] == "single":
                 passage = "{question}\nPernyataan: {text}\n{instruction}".format(
                     question=self.prompt[self.language]["single"]["question"].format(row["question_translated"]),
                     text=row["text"],
@@ -1836,14 +1836,14 @@ class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
                     Reference(Output(text=label2choice[row["label"].strip()]), tags=[CORRECT_TAG]),
                 )
 
-            elif row['subset'] == "pair":
+            elif row["subset"] == "pair":
                 passage = "Situasi: {premise}\n{question}\nPernyataan: {conclusion}\n{instruction}".format(
                     premise=row["text"],
                     question=self.prompt[self.language]["pair"]["question"],
                     conclusion=row["conclusion"],
                     instruction=self.prompt[self.language]["pair"]["instruction"],
                 )
-                
+
                 references.append(
                     Reference(Output(text=self.prompt[self.language]["pair"][row["label"]]), tags=[CORRECT_TAG]),
                 )
