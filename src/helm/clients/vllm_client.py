@@ -1,9 +1,18 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
+from dataclasses import replace
 
-from helm.common.cache import CacheConfig
-from helm.common.request import Request
 from helm.clients.openai_client import OpenAIClient
+from helm.common.cache import CacheConfig
+from helm.common.optional_dependencies import handle_module_not_found_error
+from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
+from .client import truncate_sequence
 from helm.tokenizers.tokenizer import Tokenizer
+
+try:
+    import openai
+    from openai import OpenAI
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["openai"])
 
 
 class VLLMClient(OpenAIClient):
@@ -48,3 +57,47 @@ class VLLMClient(OpenAIClient):
         raw_request.pop("logprobs", None)
 
         return raw_request
+
+    def _make_completion_request(self, request: Request) -> RequestResult:
+        raw_request = self._to_raw_completion_request(request)
+
+        def do_it() -> Dict[str, Any]:
+            return self.client.completions.create(**raw_request).model_dump(mode="json")
+
+        try:
+            cache_key = self._get_cache_key(raw_request, request)
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+        except openai.OpenAIError as e:
+            error: str = f"OpenAI error: {e}"
+            return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
+
+        completions: List[GeneratedOutput] = []
+        for raw_completion in response["choices"]:
+            sequence_logprob = 0
+            tokens: List[Token] = []
+
+            raw_data = raw_completion["logprobs"]
+            for text in raw_data["tokens"]:
+                tokens.append(Token(text=text, logprob=0))
+            completion = GeneratedOutput(
+                text=raw_completion["text"],
+                logprob=sequence_logprob,
+                tokens=tokens,
+                finish_reason={"reason": raw_completion["finish_reason"]},
+            )
+            # OpenAI sends us back tokens past the end of text token,
+            # so we need to manually truncate the list of tokens.
+            # TODO: filed an issue with their support to check what the expected behavior here is.
+            completion = truncate_sequence(
+                completion, replace(request, stop_sequences=request.stop_sequences + [OpenAIClient.END_OF_TEXT])
+            )
+            completions.append(completion)
+
+        return RequestResult(
+            success=True,
+            cached=cached,
+            request_time=response["request_time"],
+            request_datetime=response.get("request_datetime"),
+            completions=completions,
+            embedding=[],
+        )
