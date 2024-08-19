@@ -43,4 +43,8 @@ class VLLMClient(OpenAIClient):
         # This avoids the error: best_of must be 1 when using greedy sampling
         if "best_of" in raw_request and raw_request["best_of"] > 1:
             raw_request["best_of"] = 1
+
+        # logprobs is not supported by TPUs
+        raw_request.pop("logprobs", None)
+
         return raw_request
