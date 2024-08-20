@@ -28,32 +28,26 @@ model_deployments:
 
   # AI21 Labs
 
-  - name: ai21/j2-jumbo
-    model_name: ai21/j2-jumbo
-    tokenizer_name: ai21/j1
-    max_sequence_length: 6000
-    client_spec:
-      class_name: "helm.clients.ai21_client.AI21Client"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
-
   - name: ai21/j2-large
     model_name: ai21/j2-large
-    tokenizer_name: ai21/j1
+    tokenizer_name: ai21/j2-tokenizer
     max_sequence_length: 2047
     client_spec:
       class_name: "helm.clients.ai21_client.AI21Client"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
 
   - name: ai21/j2-grande
     model_name: ai21/j2-grande
-    tokenizer_name: ai21/j1
+    tokenizer_name: ai21/j2-tokenizer
     max_sequence_length: 2047
     client_spec:
       class_name: "helm.clients.ai21_client.AI21Client"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
+
+  - name: ai21/j2-jumbo
+    model_name: ai21/j2-jumbo
+    tokenizer_name: ai21/j2-tokenizer
+    max_sequence_length: 6000
+    client_spec:
+      class_name: "helm.clients.ai21_client.AI21Client"
 
   - name: ai21/jamba-instruct
     model_name: ai21/jamba-instruct
@@ -1438,6 +1432,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.megatron_client.MegatronClient"
 
+  - name: nvidia/nemotron-4-340b-instruct
+    model_name: nvidia/nemotron-4-340b-instruct
+    tokenizer_name: nvidia/nemotron-4-340b-instruct
+    max_sequence_length: 4085
+    client_spec:
+      class_name: "helm.clients.nvidia_nim_client.NvidiaNimClient"
+
   # OpenAI
 
   ## GPT 3 Models
@@ -1589,6 +1590,13 @@ model_deployments:
 
   - name: openai/gpt-4o-2024-05-13
     model_name: openai/gpt-4o-2024-05-13
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
+  - name: openai/gpt-4o-2024-08-06
+    model_name: openai/gpt-4o-2024-08-06
     tokenizer_name: openai/o200k_base
     max_sequence_length: 128000
     client_spec:
@@ -1841,7 +1849,7 @@ model_deployments:
   - name: together/llama-3.1-405b-instruct-turbo
     model_name: meta/llama-3.1-405b-instruct-turbo
     tokenizer_name: meta/llama-3.1-8b
-    max_sequence_length: 4086
+    max_sequence_length: 128000
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
       args:
@@ -2009,7 +2017,7 @@ model_deployments:
   - name: together/mixtral-8x7b-instruct-v0.1
     model_name: mistralai/mixtral-8x7b-instruct-v0.1
     tokenizer_name: mistralai/Mistral-7B-v0.1
-    max_sequence_length: 4095 # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
+    max_sequence_length: 32767
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
 

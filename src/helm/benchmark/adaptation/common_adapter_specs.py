@@ -220,6 +220,7 @@ def get_generation_adapter_spec(
     stop_sequences: Optional[List] = None,  # default value of `stop_sequences` is ["\n"]
     temperature: float = 0.0,
     multi_label: bool = False,
+    sample_train: bool = True,
 ) -> AdapterSpec:
     """
     [instructions]
@@ -261,6 +262,7 @@ def get_generation_adapter_spec(
         temperature=temperature,
         stop_sequences=stop_sequences,
         multi_label=multi_label,
+        sample_train=sample_train,
     )
 
 

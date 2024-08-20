@@ -67,15 +67,6 @@ models:
     release_date: 2022-10-28
     tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: ai21/j2-jumbo
-    display_name: Jurassic-2 Jumbo (178B)
-    description: Jurassic-2 Jumbo (178B parameters) ([docs](https://www.ai21.com/blog/introducing-j2))
-    creator_organization_name: AI21 Labs
-    access: limited
-    num_parameters: 178000000000
-    release_date: 2023-03-09
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
-
   - name: ai21/j2-large
     display_name: Jurassic-2 Large (7.5B)
     description: Jurassic-2 Large (7.5B parameters) ([docs](https://www.ai21.com/blog/introducing-j2))
@@ -83,7 +74,7 @@ models:
     access: limited
     num_parameters: 7500000000
     release_date: 2023-03-09
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: ai21/j2-grande
     display_name: Jurassic-2 Grande (17B)
@@ -92,7 +83,16 @@ models:
     access: limited
     num_parameters: 17000000000
     release_date: 2023-03-09
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: ai21/j2-jumbo
+    display_name: Jurassic-2 Jumbo (178B)
+    description: Jurassic-2 Jumbo (178B parameters) ([docs](https://www.ai21.com/blog/introducing-j2))
+    creator_organization_name: AI21 Labs
+    access: limited
+    num_parameters: 178000000000
+    release_date: 2023-03-09
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # TODO(1524): Change AI21 model names
   # - j2-jumbo -> j2-ultra
@@ -1421,7 +1421,7 @@ models:
 
   - name: meta/llama-3.1-8b-instruct-turbo
     display_name: Llama 3.1 Instruct Turbo (8B)
-    description: Llama 3.1 (8B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/), [blog](https://ai.meta.com/blog/meta-llama-3-1/))
+    description: Llama 3.1 (8B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/), [blog](https://ai.meta.com/blog/meta-llama-3-1/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
     creator_organization_name: Meta
     access: open
     num_parameters: 8000000000
@@ -1430,7 +1430,7 @@ models:
 
   - name: meta/llama-3.1-70b-instruct-turbo
     display_name: Llama 3.1 Instruct Turbo (70B)
-    description: Llama 3.1 (70B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/), [blog](https://ai.meta.com/blog/meta-llama-3-1/))
+    description: Llama 3.1 (70B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/), [blog](https://ai.meta.com/blog/meta-llama-3-1/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
     creator_organization_name: Meta
     access: open
     num_parameters: 70000000000
@@ -1439,7 +1439,7 @@ models:
 
   - name: meta/llama-3.1-405b-instruct-turbo
     display_name: Llama 3.1 Instruct Turbo (405B)
-    description: Llama 3.1 (405B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/), [blog](https://ai.meta.com/blog/meta-llama-3-1/))
+    description: Llama 3.1 (405B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/), [blog](https://ai.meta.com/blog/meta-llama-3-1/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
     creator_organization_name: Meta
     access: open
     num_parameters: 405000000000
@@ -1897,7 +1897,13 @@ models:
     release_date: 2019-09-17 # paper date
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, BUGGY_TEMP_0_TAG]
 
-
+  - name: nvidia/nemotron-4-340b-instruct
+    display_name: Nemotron-4 Instruct (340B)
+    description: Nemotron-4 Instruct (340B) is an open weights model sized to fit on a single DGX H100 with 8 GPUs when deployed in FP8 precision. 98% of the data used for model alignment was synthetically generated ([paper](https://arxiv.org/abs/2406.11704)).
+    creator_organization_name: NVIDIA
+    access: open
+    release_date: 2024-06-17
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # OpenAI
 
@@ -2145,10 +2151,18 @@ models:
 
   - name: openai/gpt-4o-2024-05-13
     display_name: GPT-4o (2024-05-13)
-    description: GPT-4o (2024-05-13) is a large multimodal model that accepts as input any combination of text, audio, and image and generates any combination of text, audio, and image outputs.
+    description: GPT-4o (2024-05-13) is a large multimodal model that accepts as input any combination of text, audio, and image and generates any combination of text, audio, and image outputs. ([blog](https://openai.com/index/hello-gpt-4o/))
     creator_organization_name: OpenAI
     access: limited
     release_date: 2024-04-09
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/gpt-4o-2024-08-06
+    display_name: GPT-4o (2024-08-06)
+    description: GPT-4o (2024-08-06) is a large multimodal model that accepts as input any combination of text, audio, and image and generates any combination of text, audio, and image outputs. ([blog](https://openai.com/index/introducing-structured-outputs-in-the-api/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2024-08-06
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: openai/gpt-4o-mini-2024-07-18

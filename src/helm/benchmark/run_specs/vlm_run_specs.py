@@ -126,6 +126,8 @@ def _get_image2struct_metric_specs(
             AnnotatedImageMetrics.FID_SIMILARITY,
             AnnotatedImageMetrics.BLOCK_EMD,
             AnnotatedImageMetrics.EARTH_MOVER_SIMILARITY,
+            AnnotatedImageMetrics.LPIPS_SIMILARITY,
+            AnnotatedImageMetrics.SSIM_SIMILARITY,
         ]
     if include_edit_similarity:
         metric_names.append(AnnotatedImageMetrics.EDIT_SIMILARITY)
@@ -497,7 +499,7 @@ def get_image2latex_spec(
     if "wild" in subset:
         groups = ["image2latex_wild"]
     else:
-        groups = ["image2latex", f"image2latex_{difficulty}"]
+        groups = ["image2latex", f"image2latex_{difficulty}", f"image2latex_{subset}"]
     return RunSpec(
         name=run_spec_name,
         scenario_spec=scenario_spec,
@@ -540,7 +542,7 @@ def get_image2webpage_spec(
     if "wild" in subset:
         groups = ["image2webpage_wild"]
     else:
-        groups = ["image2webpage", f"image2webpage_{difficulty}"]
+        groups = ["image2webpage", f"image2webpage_{difficulty}", f"image2webpage_{subset}"]
     return RunSpec(
         name=run_spec_name,
         scenario_spec=scenario_spec,

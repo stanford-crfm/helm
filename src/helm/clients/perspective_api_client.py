@@ -4,16 +4,21 @@ from dataclasses import asdict
 from typing import Any, List, Dict, Optional
 
 from dacite import from_dict
-from googleapiclient import discovery
-from googleapiclient.errors import BatchError, HttpError
-from googleapiclient.http import BatchHttpRequest
-from httplib2 import HttpLib2Error
-from helm.clients.toxicity_classifier_client import ToxicityClassifierClient
-from helm.proxy.retry import NonRetriableException
 
+from helm.clients.toxicity_classifier_client import ToxicityClassifierClient
+from helm.common.optional_dependencies import handle_module_not_found_error
+from helm.proxy.retry import NonRetriableException
 from helm.common.cache import Cache, CacheConfig
 from helm.common.perspective_api_request import ToxicityAttributes, PerspectiveAPIRequest, PerspectiveAPIRequestResult
-from google.auth.exceptions import DefaultCredentialsError
+
+try:
+    from googleapiclient import discovery
+    from googleapiclient.errors import BatchError, HttpError
+    from googleapiclient.http import BatchHttpRequest
+    from httplib2 import HttpLib2Error
+    from google.auth.exceptions import DefaultCredentialsError
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["metrics"])
 
 
 class PerspectiveAPIClientCredentialsError(NonRetriableException):

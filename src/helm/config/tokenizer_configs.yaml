@@ -17,15 +17,21 @@ tokenizer_configs:
     prefix_token: "<s>"
 
   # AI21
-  - name: ai21/j1
+  - name: ai21/j2-tokenizer
     tokenizer_spec:
-      class_name: "helm.tokenizers.ai21_tokenizer.AI21Tokenizer"
-    end_of_text_token: " "
-    prefix_token: ""
+      class_name: "helm.tokenizers.ai21_tokenizer.AI21LocalTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|startoftext|>"
+
+  - name: ai21/jamba-tokenizer
+    tokenizer_spec:
+      class_name: "helm.tokenizers.ai21_tokenizer.AI21LocalTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|startoftext|>"
 
   - name: ai21/jamba-instruct-tokenizer
     tokenizer_spec:
-      class_name: "helm.tokenizers.ai21_tokenizer.AI21Tokenizer"
+      class_name: "helm.tokenizers.ai21_tokenizer.AI21LocalTokenizer"
     end_of_text_token: "<|endoftext|>"
     prefix_token: "<|startoftext|>"
 
@@ -410,6 +416,16 @@ tokenizer_configs:
   - name: neurips/local
     tokenizer_spec:
       class_name: "helm.tokenizers.http_model_tokenizer.HTTPModelTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|endoftext|>"
+
+  # NVIDIA
+  - name: nvidia/nemotron-4-340b-instruct
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: Xenova/Nemotron-4-340B-Instruct-Tokenizer
+        revision: b7aa0de92cda9f9e722d58d6ca90f46ae17d4701
     end_of_text_token: "<|endoftext|>"
     prefix_token: "<|endoftext|>"
 

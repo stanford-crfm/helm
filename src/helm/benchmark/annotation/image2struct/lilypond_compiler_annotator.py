@@ -3,7 +3,7 @@ import os
 import subprocess
 import tempfile
 
-from helm.benchmark.annotation.image2structure.image_compiler_annotator import ImageCompilerAnnotator, CompilationError
+from helm.benchmark.annotation.image2struct.image_compiler_annotator import ImageCompilerAnnotator, CompilationError
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.cache import CacheConfig
 from helm.common.optional_dependencies import handle_module_not_found_error, OptionalDependencyNotInstalled
