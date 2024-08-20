@@ -48,9 +48,10 @@ class ModelAsJudgeAnnotator(Annotator):
 
         if not parsed_response:
             raise Exception(f"Malformed annotator response: {annotator_response_text}")
-        reasoning = parsed_response.get("reasoning", "").strip()
+
         try:
-            score = float(parsed_response.get("score", ""))
+            score = float(parsed_response.get("score"))
+            reasoning = parsed_response.get("reasoning").strip()
         except ValueError as e:
             raise Exception(f"Malformed annotator response: {annotator_response_text}") from e
 
