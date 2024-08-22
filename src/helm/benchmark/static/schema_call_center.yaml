@@ -132,10 +132,28 @@ run_groups:
     category: All scenarios
     subgroups:
       - call_center_summarization
+      - call_center_summarization_real_call_transcripts
 
   - name: call_center_summarization
     display_name: Summarization
     description: summarization
+    metric_groups:
+      # - accuracy
+      - summarization_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_split: test
+    taxonomy:
+      task: summarization
+      what: n/a
+      who: n/a
+      when: "?"
+      language: English
+
+  - name: call_center_summarization_real_call_transcripts
+    display_name: Summarization (Real)
+    description: Summarization with real call transcripts
     metric_groups:
       # - accuracy
       - summarization_metrics

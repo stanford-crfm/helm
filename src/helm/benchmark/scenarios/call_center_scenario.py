@@ -18,14 +18,14 @@ class CallCenterSummarizationScenario(Scenario):
     description = "Call center summarization."
     tags = ["call_center"]
 
-    def __init__(self, revision: str):
+    def __init__(self, subset: str):
         super().__init__()
-        self.revision = revision
+        self.subset = subset
 
     def get_instances(self, output_path: str) -> List[Instance]:
         cache_dir = os.path.join(output_path, "data")
         ensure_directory_exists(cache_dir)
-        dataset = datasets.load_dataset("yifanmai/call-center", "summarization", split="test", cache_dir=cache_dir)
+        dataset = datasets.load_dataset("yifanmai/call-center", self.subset, split="test", cache_dir=cache_dir)
         instances: List[Instance] = []
         for row in dataset:
             input = Input(text=row["transcript"])
