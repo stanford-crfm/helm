@@ -11,12 +11,12 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 
 @run_spec_function("call_center_summarization")
-def get_xsum_summarization_spec(revision: str = "main") -> RunSpec:
+def get_call_center_summarization_spec(subset: str = "summarization") -> RunSpec:
     from helm.benchmark.annotation.call_center_annotator import CallCenterSummarizationAnnotator
 
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.call_center_scenario.CallCenterSummarizationScenario",
-        args={"revision": revision},
+        args={"subset": subset},
     )
 
     instructions = "Summarize the call transcript in under 10 sentences."
@@ -52,11 +52,13 @@ def get_xsum_summarization_spec(revision: str = "main") -> RunSpec:
 
     metric_specs = get_basic_metric_specs([]) + annotation_metric_specs
 
+    group = "call_center_summarization" if subset == "summarization" else f"call_center_summarization_{subset}"
+
     return RunSpec(
         name="call_center_summarization",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
         annotators=annotator_specs,
-        groups=["call_center_summarization"],
+        groups=[group],
     )
