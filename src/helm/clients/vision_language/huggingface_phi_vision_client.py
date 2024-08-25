@@ -3,9 +3,10 @@ from typing import Dict, Optional, List
 
 from dataclasses import dataclass
 from transformers import AutoProcessor, AutoModelForCausalLM
+import torch
 
 from helm.common.cache import CacheConfig
-from helm.common.gpu_utils import get_torch_device_name
+from helm.common.gpu_utils import get_torch_device_name, is_cuda_available
 from helm.common.hierarchical_logger import hlog
 from helm.common.images_utils import open_image
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -56,7 +57,7 @@ class HuggingFacePhiVisionClient(CachingClient):
                     checkpoint,
                     device_map=self._device,
                     trust_remote_code=True,
-                    torch_dtype="auto",
+                    torch_dtype=torch.float16 if is_cuda_available() else torch.float32,
                     _attn_implementation="eager",
                 )
                 processor = AutoProcessor.from_pretrained(checkpoint, trust_remote_code=True, num_crops=4)
