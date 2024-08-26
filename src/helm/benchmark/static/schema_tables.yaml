@@ -101,9 +101,9 @@ metrics:
     description: METEOR
     lower_is_better: false
   - name: f1
-    display_name: F1
-    short_display_name: F1
-    description: F1
+    display_name: BERTScore F1
+    short_display_name: BERTScore F1
+    description: BERTScore F1
     lower_is_better: false
   - name: precision
     display_name: Precision
@@ -183,10 +183,10 @@ metric_groups:
       split: __all__
 
   - name: generation_metrics
-    display_name: Generation Metrics
+    display_name: Other Generation Metrics
     hide_win_rates: true
     metrics:
-    - name: meteor
+    - name: f1
       split: __all__
     - name: rouge1
       split: __all__
