@@ -124,7 +124,7 @@ run_groups:
     subgroups:
       - fin_qa
       - financebench
-      - raft
+      - banking77
 
   - name: fin_qa
     display_name: FinQA
@@ -160,10 +160,10 @@ run_groups:
       when: 2015 to 2023
       language: English
 
-  - name: raft
+  - name: banking77
     display_name: BANKING77
     short_display_name: BANKING77
-    description: BANKING77 is a benchmark for intent classification of customer service queries in the banking domain [(Casanueva et al., 2020)](https://aclanthology.org/2020.nlp4convai-1.5/)). We use the implementation from the the Real-world annotated few-shot (RAFT) meta-benchmark [(Alex et al., 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/ca46c1b9512a7a8315fa3c5a946e8265-Abstract-round2.html).
+    description: BANKING77 is a benchmark for intent classification of customer service queries in the banking domain [(Casanueva et al., 2020)](https://aclanthology.org/2020.nlp4convai-1.5/)).
     metric_groups:
       - accuracy
       - efficiency
