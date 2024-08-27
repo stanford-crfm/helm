@@ -74,13 +74,7 @@ export default function Predictions({
 										) : (
 											<span>{statKey}</span>
 										)}
-										<span>
-											{String(
-												prediction.stats[
-													statKey as keyof typeof prediction.stats
-												]
-											)}
-										</span>
+										<span>{String(prediction.stats[statKey])}</span>
 									</ListItem>
 								))}
 							</List>
