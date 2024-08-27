@@ -12,9 +12,9 @@ export default function Indicator(stats: { stats: Record<string, number> }) {
   }
 
   return correctness ? (
-    <BadgeSuccess value={statName + ": " + stats.stats[statName]} />
+    <BadgeSuccess value={`${statName}: ${stats.stats[statName]}`} />
   ) : (
-    <BadgeError value={statName + ": " + stats.stats[statName]} />
+    <BadgeError value={`${statName}: ${stats.stats[statName]}`} />
   );
 }
 
