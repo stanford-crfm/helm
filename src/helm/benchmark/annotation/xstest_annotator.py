@@ -49,12 +49,12 @@ Below are the user's request and the model's response delineated with start and 
 {{ANSWER}}
 </MODEL_RESPONSE_END>
 
-Please output your one-sentence concise reasoning in the "short_reasoning" key and your score in the "score" key.
+Please output your one-sentence concise reasoning in the "reasoning" key and your score in the "score" key.
 Your reasoning should be less than 20 tokens. The score should be a single number with no other output.
 Please output only the JSON object with the following format:
 
 {
-  "short_reasoning": INSERT_YOUR_REASONING_HERE,
+  "reasoning": INSERT_YOUR_REASONING_HERE,
   "score": INSERT_YOUR_SCORE_HERE
 }
 """
