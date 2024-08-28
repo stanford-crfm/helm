@@ -1445,6 +1445,20 @@ class OutputFormatInstructions(RunExpander):
                     instructions = f"Answer with the {output_noun.lower()}."
                 else:
                     instructions = "Answer yes or no."
+            elif self.scenario == "legalbench_only_suffix":
+                if output_noun != "Answer":
+                    instructions = f"Answer with only the {output_noun.lower()}."
+                else:
+                    instructions = "Answer only yes or no."
+                return [
+                    replace(
+                        run_spec,
+                        adapter_spec=replace(
+                            run_spec.adapter_spec,
+                            global_suffix=f"{run_spec.adapter_spec.global_suffix}\n\n{instructions}",
+                        ),
+                    ),
+                ]
             elif self.scenario == "wmt_14":
                 instructions = "Answer with the English translation."
             elif self.scenario == "wmt_14_only_last_sentence":
@@ -1462,6 +1476,17 @@ class OutputFormatInstructions(RunExpander):
                 ]
             elif self.scenario == "math":
                 instructions = "Wrap the final answer with the \\boxed{} command."
+            elif self.scenario == "math_suffix":
+                instructions = "Wrap the final answer with the \\boxed{} command."
+                return [
+                    replace(
+                        run_spec,
+                        adapter_spec=replace(
+                            run_spec.adapter_spec,
+                            global_suffix=f"{run_spec.adapter_spec.global_suffix}\n\n{instructions}",
+                        ),
+                    ),
+                ]
             elif self.scenario == "numeric_nlg":
                 instructions = "Answer with only description of the last table as a single paragraph on a single line."
             elif self.scenario == "tab_fact":
