@@ -108,6 +108,24 @@ models:
     release_date: 2024-05-02
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: ai21/jamba-1.5-mini
+    display_name: Jamba 1.5 Mini
+    description: Jamba 1.5 Mini is a long-context, hybrid SSM-Transformer instruction following foundation model that is optimized for function calling, structured output, and grounded generation. ([blog](https://www.ai21.com/blog/announcing-jamba-model-family))
+    creator_organization_name: AI21 Labs
+    access: open
+    num_parameters: 51600000000
+    release_date: 2024-08-22
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: ai21/jamba-1.5-large
+    display_name: Jamba 1.5 Large
+    description: Jamba 1.5 Large is a long-context, hybrid SSM-Transformer instruction following foundation model that is optimized for function calling, structured output, and grounded generation. ([blog](https://www.ai21.com/blog/announcing-jamba-model-family))
+    creator_organization_name: AI21 Labs
+    access: open
+    num_parameters: 399000000000
+    release_date: 2024-08-22
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   # AI Singapore
   - name: aisingapore/sea-lion-7b
     display_name: SEA-LION (7B)

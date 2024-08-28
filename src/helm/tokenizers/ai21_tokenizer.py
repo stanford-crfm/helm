@@ -6,7 +6,7 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.tokenizers.caching_tokenizer import CachingTokenizer
 
 try:
-    from ai21_tokenizer import Tokenizer as SDKTokenizer, PreTrainedTokenizers
+    from ai21_tokenizer import Tokenizer as SDKTokenizer
     from ai21_tokenizer.base_tokenizer import BaseTokenizer
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["ai21"])
@@ -15,22 +15,12 @@ except ModuleNotFoundError as e:
 class AI21LocalTokenizer(CachingTokenizer):
     """AI21 tokenizer using the AI21 Python library."""
 
-    _KNOWN_TOKENIZERS = [
-        PreTrainedTokenizers.J2_TOKENIZER,
-        PreTrainedTokenizers.JAMBA_TOKENIZER,
-        PreTrainedTokenizers.JAMBA_INSTRUCT_TOKENIZER,
-    ]
-
     def __init__(self, cache_config: CacheConfig) -> None:
         super().__init__(cache_config)
         self._tokenizers_lock = threading.Lock()
         self.tokenizers: Dict[str, BaseTokenizer] = {}
 
     def _get_tokenizer(self, tokenizer_name: str) -> BaseTokenizer:
-        if tokenizer_name not in AI21LocalTokenizer._KNOWN_TOKENIZERS:
-            raise ValueError(
-                f"Unknown tokenizer: {tokenizer_name} - " f"valid values are {AI21LocalTokenizer._KNOWN_TOKENIZERS}"
-            )
         with self._tokenizers_lock:
             if tokenizer_name not in self.tokenizers:
                 self.tokenizers[tokenizer_name] = SDKTokenizer.get_tokenizer(tokenizer_name)
