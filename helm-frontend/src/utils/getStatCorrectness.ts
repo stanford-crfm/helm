@@ -5,16 +5,25 @@ export default function getStatCorrectness(
   stats: Record<string, number>,
 ): [string, boolean] {
   // the order of this implicitly defines priority of which we consider to be a main metric
-  const statKeys = [
-    "quasi_exact_match",
-    "toxic_frac",
-    "safety_score",
-    "exact_match",
-  ];
+  const threshold = 0.5;
+
+  const lowerIsBetterMap: Record<string, boolean> = {
+    quasi_exact_match: false,
+    toxic_frac: true,
+    safety_score: false,
+    exact_match: false,
+  };
+  const statKeys = Object.keys(stats);
 
   for (const statKey of statKeys) {
     if (stats[statKey] !== undefined) {
-      if (stats[statKey] > 0) {
+      if (lowerIsBetterMap[statKey]) {
+        if (stats[statKey] < threshold) {
+          return [statKey, true];
+        }
+        return [statKey, false];
+      }
+      if (stats[statKey] >= threshold) {
         return [statKey, true];
       }
       return [statKey, false];

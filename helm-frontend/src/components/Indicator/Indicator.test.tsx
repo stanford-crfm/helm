@@ -11,7 +11,7 @@ it("renders quasi_exact_match success correctly", () => {
     />,
   );
 
-  expect(screen.getByText("quasi exact match: 0.5"));
+  expect(screen.getByText("quasi_exact_match: 0.5"));
   expect(container.getElementsByClassName("bg-green-100").length).toBe(1);
 });
 
@@ -25,7 +25,7 @@ it("renders quasi_exact_match fail correctly", () => {
   );
 
   expect(container.getElementsByClassName("bg-red-100").length).toBe(1);
-  expect(screen.getByText("quasi exact match: 0"));
+  expect(screen.getByText("quasi_exact_match: 0"));
 });
 
 it("renders toxic_frac success correctly", () => {
