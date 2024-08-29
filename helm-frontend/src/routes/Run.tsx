@@ -45,10 +45,10 @@ export default function Run() {
   const [instances, setInstances] = useState<Instance[]>([]);
   const [stats, setStats] = useState<Stat[]>([]);
   const [displayPredictionsMap, setDisplayPredictionsMap] = useState<
-    undefined | { [key: string]: { [key: string]: DisplayPrediction[] } }
+    undefined | Record<string, Record<string, DisplayPrediction[]>>
   >();
   const [displayRequestsMap, setDisplayRequestsMap] = useState<
-    undefined | { [key: string]: { [key: string]: DisplayRequest[] } }
+    undefined | Record<string, Record<string, DisplayRequest[]>>
   >();
   const [currentInstancesPage, setCurrentInstancesPage] = useState<number>(1);
   const [totalInstancesPages, setTotalInstancesPages] = useState<number>(1);
