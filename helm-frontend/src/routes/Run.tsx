@@ -13,9 +13,7 @@ import type Instance from "@/types/Instance";
 import getStatsByName from "@/services/getStatsByName";
 import type Stat from "@/types/Stat";
 import getDisplayRequestsByName from "@/services/getDisplayRequestsByName";
-import type DisplayRequestsMap from "@/types/DisplayRequestsMap";
 import getDisplayPredictionsByName from "@/services/getDisplayPredictionsByName";
-import type DisplayPredictionsMap from "@/types/DisplayPredictionsMap";
 import getScenarioByName from "@/services/getScenarioByName";
 import type Scenario from "@/types/Scenario";
 import type AdapterFieldMap from "@/types/AdapterFieldMap";
@@ -32,6 +30,8 @@ import MarkdownValue from "@/components/MarkdownValue";
 import StatNameDisplay from "@/components/StatNameDisplay";
 import getRunsToRunSuites from "@/services/getRunsToRunSuites";
 import getSuiteForRun from "@/services/getSuiteForRun";
+import DisplayPrediction from "@/types/DisplayPrediction";
+import DisplayRequest from "@/types/DisplayRequest";
 
 const INSTANCES_PAGE_SIZE = 10;
 const METRICS_PAGE_SIZE = 50;
@@ -45,10 +45,10 @@ export default function Run() {
   const [instances, setInstances] = useState<Instance[]>([]);
   const [stats, setStats] = useState<Stat[]>([]);
   const [displayPredictionsMap, setDisplayPredictionsMap] = useState<
-    DisplayPredictionsMap | undefined
+    undefined | Record<string, Record<string, DisplayPrediction[]>>
   >();
   const [displayRequestsMap, setDisplayRequestsMap] = useState<
-    DisplayRequestsMap | undefined
+    undefined | Record<string, Record<string, DisplayRequest[]>>
   >();
   const [currentInstancesPage, setCurrentInstancesPage] = useState<number>(1);
   const [totalInstancesPages, setTotalInstancesPages] = useState<number>(1);
@@ -81,6 +81,7 @@ export default function Run() {
         scenario,
         displayPredictions,
         displayRequests,
+        schema,
       ] = await Promise.all([
         getRunSpecs(signal),
         getInstances(runName, signal, suite),
@@ -88,6 +89,7 @@ export default function Run() {
         getScenarioByName(runName, signal, suite),
         getDisplayPredictionsByName(runName, signal, suite),
         getDisplayRequestsByName(runName, signal, suite),
+        getSchema(signal),
       ]);
 
       setRunSpec(runSpecs.find((rs) => rs.name === runName));
@@ -110,25 +112,42 @@ export default function Run() {
       setCurrentMetricsPage(
         Math.max(Math.min(metricPage, totalMetricsPages), 1),
       );
-      setDisplayPredictionsMap(
-        displayPredictions.reduce((acc, cur) => {
-          if (acc[cur.instance_id] === undefined) {
-            acc[cur.instance_id] = [];
-          }
-          acc[cur.instance_id].push(cur);
-          return acc;
-        }, {} as DisplayPredictionsMap),
-      );
-      setDisplayRequestsMap(
-        displayRequests.reduce((acc, cur) => {
-          if (acc[cur.instance_id] === undefined) {
-            acc[cur.instance_id] = [];
-          }
-          acc[cur.instance_id].push(cur);
-          return acc;
-        }, {} as DisplayRequestsMap),
-      );
-      const schema = await getSchema(signal);
+
+      const displayRequestsArgh: {
+        [key: string]: { [key: string]: DisplayRequest[] };
+      } = {};
+      displayRequests.forEach((displayRequest) => {
+        const instanceId = displayRequest.instance_id;
+        const perturbationName = displayRequest.perturbation?.name || "";
+        if (displayRequestsArgh[instanceId] === undefined) {
+          displayRequestsArgh[instanceId] = {};
+        }
+        if (displayRequestsArgh[instanceId][perturbationName] === undefined) {
+          displayRequestsArgh[instanceId][perturbationName] = [];
+        }
+        displayRequestsArgh[instanceId][perturbationName].push(displayRequest);
+      });
+      setDisplayRequestsMap(displayRequestsArgh);
+
+      const displayPredictionsArgh: {
+        [key: string]: { [key: string]: DisplayPrediction[] };
+      } = {};
+      displayPredictions.forEach((displayPrediction) => {
+        const instanceId = displayPrediction.instance_id;
+        const perturbationName = displayPrediction.perturbation?.name || "";
+        if (displayPredictionsArgh[instanceId] === undefined) {
+          displayPredictionsArgh[instanceId] = {};
+        }
+        if (
+          displayPredictionsArgh[instanceId][perturbationName] === undefined
+        ) {
+          displayPredictionsArgh[instanceId][perturbationName] = [];
+        }
+        displayPredictionsArgh[instanceId][perturbationName].push(
+          displayPrediction,
+        );
+      });
+      setDisplayPredictionsMap(displayPredictionsArgh);
 
       setMetricFieldMap(
         schema.metrics.reduce((acc, cur) => {
@@ -268,8 +287,16 @@ export default function Run() {
               <InstanceData
                 key={`${instance.id}-${idx}`}
                 instance={instance}
-                requests={displayRequestsMap[instance.id]}
-                predictions={displayPredictionsMap[instance.id]}
+                requests={
+                  displayRequestsMap[instance.id][
+                    instance.perturbation?.name || ""
+                  ]
+                }
+                predictions={
+                  displayPredictionsMap[instance.id][
+                    instance.perturbation?.name || ""
+                  ]
+                }
                 metricFieldMap={metricFieldMap}
               />
             ))}

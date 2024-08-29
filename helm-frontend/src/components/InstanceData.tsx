@@ -20,11 +20,14 @@ export default function InstanceData({
   predictions,
   metricFieldMap,
 }: Props) {
+  const renderInstanceId = (instance: Instance): string => {
+    return instance.perturbation === undefined
+      ? `Instance id: ${instance.id} [split: ${instance.split}]`
+      : `Instance id: ${instance.id} [split: ${instance.split}][perturbation: ${instance.perturbation.name}]`;
+  };
   return (
     <div className="border p-4">
-      <h3 className="text-xl mb-4">
-        {`Instance id: ${instance.id} [split:  ${instance.split}]`}
-      </h3>
+      <h3 className="text-xl mb-4">{renderInstanceId(instance)}</h3>
       <h3>Input</h3>
       {instance.input.multimedia_content !== undefined ? (
         <MultimediaObjectDisplay
