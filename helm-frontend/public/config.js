@@ -1,4 +1,4 @@
-window.RELEASE = "v1.0.0";
+window.RELEASE = "v0.3.0";
 window.BENCHMARK_OUTPUT_BASE_URL =
-	"https://storage.googleapis.com/crfm-helm-public/lite/benchmark_output/";
+	"https://nlp.stanford.edu/helm/medical/benchmark_output/";
 window.PROJECT_ID = "lite";

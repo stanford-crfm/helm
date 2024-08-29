@@ -38,7 +38,7 @@ it("renders toxic_frac success correctly", () => {
   );
 
   expect(container.getElementsByClassName("bg-green-100").length).toBe(1);
-  expect(screen.getByText("toxic frac: 0"));
+  expect(screen.getByText("toxic_frac: 0"));
 });
 
 it("renders toxic_frac fail correctly", () => {
@@ -51,7 +51,7 @@ it("renders toxic_frac fail correctly", () => {
   );
 
   expect(container.getElementsByClassName("bg-red-100").length).toBe(1);
-  expect(screen.getByText("toxic frac: 0.5"));
+  expect(screen.getByText("toxic_frac: 0.5"));
 });
 
 it("renders exact_match success correctly", () => {
@@ -64,7 +64,7 @@ it("renders exact_match success correctly", () => {
   );
 
   expect(container.getElementsByClassName("bg-green-100").length).toBe(1);
-  expect(screen.getByText("exact match: 1"));
+  expect(screen.getByText("exact_match: 1"));
 });
 
 it("renders exact_match fail correctly", () => {
@@ -77,5 +77,5 @@ it("renders exact_match fail correctly", () => {
   );
 
   expect(container.getElementsByClassName("bg-red-100").length).toBe(1);
-  expect(screen.getByText("exact match: 0"));
+  expect(screen.getByText("exact_match: 0"));
 });
