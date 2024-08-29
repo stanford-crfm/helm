@@ -11,6 +11,7 @@ import CLEVALanding from "@/components/Landing/CLEVALanding";
 import TablesLanding from "@/components/Landing/TablesLanding";
 import HomeLanding from "@/components/Landing/HomeLanding";
 import Image2StructLanding from "@/components/Landing/Image2StructLanding";
+import EWoKLanding from "@/components/Landing/EWoKLanding";
 
 export default function Home() {
   // TODO consider a more streamlined way to do this?
@@ -38,6 +39,8 @@ export default function Home() {
     return <CLEVALanding />;
   } else if (window.PROJECT_ID === "tables") {
     return <TablesLanding />;
+  } else if (window.PROJECT_ID === "ewok") {
+    return <EWoKLanding />;
   } else if (window.PROJECT_ID === "home") {
     return <HomeLanding />;
   } else {
