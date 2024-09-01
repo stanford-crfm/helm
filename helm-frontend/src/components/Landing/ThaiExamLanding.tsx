@@ -23,7 +23,7 @@ export default function ThaiExamLanding() {
               href="https://www.scbx.com/"
               className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
             >
-              SCB X
+              SCBX
             </a>{" "}
             and{" "}
             <a
