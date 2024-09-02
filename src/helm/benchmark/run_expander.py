@@ -1438,7 +1438,7 @@ class OutputFormatInstructions(RunExpander):
             elif self.scenario == "legalbench_function_of_decision_section":
                 instructions = "Answer with only 'Facts', 'Procedural History', 'Issue', 'Rule', 'Analysis', 'Conclusion' or 'Decree'."  # noqa: E501
             elif self.scenario == "legalbench_yes_or_no":
-                instructions = "Answer with only 'yes' or 'no'."
+                instructions = "Answer with only 'Yes' or 'No'."
             elif self.scenario == "wmt_14":
                 instructions = "Answer with the English translation."
             elif self.scenario == "wmt_14_only_last_sentence":
