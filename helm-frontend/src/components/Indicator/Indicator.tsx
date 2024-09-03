@@ -12,9 +12,13 @@ export default function Indicator(stats: { stats: Record<string, number> }) {
   }
 
   return correctness ? (
-    <BadgeSuccess value={`${statName}: ${stats.stats[statName]}`} />
+    <BadgeSuccess
+      value={`${statName.replace(/_/g, " ")}: ${stats.stats[statName]}`}
+    />
   ) : (
-    <BadgeError value={`${statName}: ${stats.stats[statName]}`} />
+    <BadgeError
+      value={`${statName.replace(/_/g, " ")}: ${stats.stats[statName]}`}
+    />
   );
 }
 
