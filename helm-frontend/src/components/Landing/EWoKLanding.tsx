@@ -10,26 +10,14 @@ export default function EWoKLanding() {
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 text-l">
           <p>
-            In collaboration with{" "}
-            <a
-              className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
-              href="https://www.language-intelligence-thought.net/"
-            >
-              Language, Intelligence & Thought (LIT) Lab
-            </a>{" "}
-            at{" "}
-            <a
-              href="https://www.gatech.edu/"
-              className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
-            >
-              Georgia Tech
-            </a>
-            , we present the EWoK leaderboard. EWoK is a benchmark for
-            evaluating world modeling in language models by testing their
-            ability to use knowledge of a concept to match a target text with a
-            plausible/implausible context. EWOK targets specific concepts from
-            multiple knowledge domains known to be vital for world modeling in
-            humans, including social interactions and spatial relations.
+            In collaboration with the [Elements of World Knowledge
+            (EWoK)](https://arxiv.org/abs/2405.09605) team, we present the EWoK
+            leaderboard. EWoK is a benchmark for evaluating world modeling in
+            language models by testing their ability to use knowledge of a
+            concept to match a target text with a plausible/implausible context.
+            EWoK targets specific concepts from multiple knowledge domains known
+            to be vital for world modeling in humans, including social
+            interactions and spatial relations.
           </p>
           <div className="flex flex-row justify-center my-4">
             <Link to="leaderboard" className="px-10 btn rounded-md mx-4">
