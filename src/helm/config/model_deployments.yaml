@@ -105,27 +105,60 @@ model_deployments:
 
 
   # Amazon
-  - name: amazon/titan-text-lite-v1
-    model_name: amazon/titan-text-lite-v1
+  # Titan on Amazon Bedrock
+
+  - name: amazon/amazon.titan-text-lite-v1
+    model_name: amazon/amazon.titan-text-lite-v1
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 4000
     client_spec:
       class_name: "helm.clients.bedrock_client.BedrockTitanClient"
 
-  - name: amazon/titan-tg1-large
-    model_name: amazon/titan-tg1-large
+  - name: amazon/amazon.titan-tg1-large
+    model_name: amazon/amazon.titan-tg1-large
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 8000
     client_spec:
       class_name: "helm.clients.bedrock_client.BedrockTitanClient"
 
-  - name: amazon/titan-text-express-v1
-    model_name: amazon/titan-text-express-v1
-    tokenizer_name: huggingface/gpt2
+  - name: amazon/amazon.titan-text-express-v1
+    model_name: amazon/amazon.titan-text-express-v1
+    tokenizer_name: amazon/titan
     max_sequence_length: 8000
     client_spec:
       class_name: "helm.clients.bedrock_client.BedrockTitanClient"
+  
+  # Mistral on Amazon Bedrock
 
+  - name: amazon/mistral.mistral-7b-instruct-v0:2
+    model_name: amazon/mistral.mistral-7b-instruct-v0:2
+    tokenizer_name: amazon/mistral
+    max_sequence_length: 8000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockMistralClient"
+  
+  - name: amazon/mistral.mixtral-8x7b-instruct-v0:1
+    model_name: amazon/mistral.mixtral-8x7b-instruct-v0:1
+    tokenizer_name: amazon/mistral
+    max_sequence_length: 4000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockMistralClient"
+  
+  - name: amazon/mistral.mistral-large-2402-v1:0
+    model_name: amazon/mistral.mistral-large-2402-v1:0
+    tokenizer_name: amazon/mistral
+    max_sequence_length: 8000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockMistralClient"
+  
+  - name: amazon/mistral.mistral-small-2402-v1:0
+    model_name: amazon/mistral.mistral-small-2402-v1:0
+    tokenizer_name: amazon/mistral
+    max_sequence_length: 8000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockMistralClient"
+  
+  
 
   # Anthropic
   - name: anthropic/claude-v1.3

@@ -203,11 +203,12 @@ models:
 
 
   # Amazon
+  # Titan Models
   # References for Amazon Titan models:
   # - https://aws.amazon.com/bedrock/titan/
   # - https://community.aws/content/2ZUVD3fkNtqEOYIa2iUJAFArS7c/family-of-titan-text-models---cli-demo
   # - https://aws.amazon.com/about-aws/whats-new/2023/11/amazon-titan-models-express-lite-bedrock/
-  - name: amazon/titan-text-lite-v1
+  - name: amazon/amazon.titan-text-lite-v1
     display_name: Amazon Titan Text Lite
     description: Amazon Titan Text Lite is a lightweight, efficient model perfect for fine-tuning English-language tasks like summarization and copywriting. It caters to customers seeking a smaller, cost-effective, and highly customizable model. It supports various formats, including text generation, code generation, rich text formatting, and orchestration (agents). Key model attributes encompass fine-tuning, text generation, code generation, and rich text formatting.
     creator_organization_name: Amazon
@@ -215,7 +216,7 @@ models:
     release_date: 2023-11-29
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: amazon/titan-tg1-large
+  - name: amazon/amazon.titan-tg1-large
     display_name: Amazon Titan Large
     description: Amazon Titan Large is efficient model perfect for fine-tuning English-language tasks like summarization, create article, marketing campaign.
     creator_organization_name: Amazon
@@ -223,13 +224,50 @@ models:
     release_date: 2023-11-29
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: amazon/titan-text-express-v1
+  - name: amazon/amazon.titan-text-express-v1
     display_name: Amazon Titan Text Express
     description: Amazon Titan Text Express, with a context length of up to 8,000 tokens, excels in advanced language tasks like open-ended text generation and conversational chat. It's also optimized for Retrieval Augmented Generation (RAG). Initially designed for English, the model offers preview multilingual support for over 100 additional languages.
     creator_organization_name: Amazon
     access: limited
     release_date: 2023-11-29
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+# Mistral Models on Bedrock
+# References for Mistral on Amazon Bedrock
+# https://aws.amazon.com/bedrock/mistral/
+
+  - name: amazon/mistral.mistral-7b-instruct-v0:2
+    display_name: Amazon Bedrock - Mistral 7B Instruct
+    description: A 7B dense Transformer, fast-deployed and easily customisable. Small, yet powerful for a variety of use cases. Supports English and code, and a 32k context window.
+    creator_organization_name: Mistral
+    access: limited
+    release_date: 2023-07-11
+    tags: [BEDROCK_MISTRAL_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: amazon/mistral.mixtral-8x7b-instruct-v0:1
+    display_name: Amazon Bedrock - Mixtral 8x7B Instruct
+    description: A 7B sparse Mixture-of-Experts model with stronger capabilities than Mistral 7B. Uses 12B active parameters out of 45B total. Supports multiple languages, code and 32k context window.
+    creator_organization_name: Mistral
+    access: limited
+    release_date: 2023-07-11
+    tags: [BEDROCK_MISTRAL_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: amazon/mistral.mistral-large-2402-v1:0
+    display_name: Amazon Bedrock - Mistral Large
+    description: The most advanced Mistral AI Large Language model capable of handling any language task including complex multilingual reasoning, text understanding, transformation, and code generation.
+    creator_organization_name: Mistral
+    access: limited
+    release_date: 2023-07-11
+    tags: [BEDROCK_MISTRAL_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  
+  - name: amazon/mistral.mistral-small-2402-v1:0
+    display_name: Amazon Bedrock - Mistral Small
+    description: Mistral Small is perfectly suited for straightforward tasks that can be performed in bulk, such as classification, customer support, or text generation. It provides outstanding performance at a cost-effective price point.
+    creator_organization_name: Mistral
+    access: limited
+    release_date: 2023-07-11
+    tags: [BEDROCK_MISTRAL_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
 
   # Anthropic
