@@ -1905,6 +1905,15 @@ model_deployments:
       args:
         together_model: meta-llama/llamaguard-2-8b
 
+  - name: together/llama-guard-3-8b
+    model_name: meta/llama-guard-3-8b
+    tokenizer_name: meta/llama-3.1-8b
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: meta-llama/Meta-Llama-Guard-3-8B
+
   # 01.AI
   - name: together/yi-6b
     model_name: 01-ai/yi-6b
