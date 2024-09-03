@@ -4,7 +4,8 @@ from typing import Any
 
 from helm.common.general import ensure_directory_exists
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.annotation.model_as_judge_annotator import ModelAsJudgeAnnotator
+from helm.benchmark.annotation.annotator import Annotator
+from helm.benchmark.annotation.score_util import score_with_reasoning
 from helm.clients.auto_client import AutoClient
 
 PROMPT_TEMPLATE = """You are a medical judge will be given a user request and a model response to that request.
@@ -34,7 +35,7 @@ Format:
 ##the_score: <your score>"""
 
 
-class LiveQAAnnotator(ModelAsJudgeAnnotator):
+class LiveQAAnnotator(Annotator):
     """The LiveQA autograder."""
 
     name = "live_qa"
@@ -62,7 +63,9 @@ class LiveQAAnnotator(ModelAsJudgeAnnotator):
             .replace("{{ANSWER}}", model_output_text)
             .replace("{{CORRECT_RESPONSES}}", correct_responses)
         )
-        results = self.score_with_reasoning(annotator_prompt, "openai/gpt-4o-2024-05-13", "openai/gpt-4o-2024-05-13")
+        results = score_with_reasoning(
+            self._auto_client, annotator_prompt, "openai/gpt-4o-2024-05-13", "openai/gpt-4o-2024-05-13"
+        )
         reasoning = results.get("reasoning")
         score = results.get("score")
         return {"prompt_text": annotator_prompt, "reasoning": reasoning, "score": score}
