@@ -11,7 +11,10 @@ export default function EWoKLanding() {
         <div className="flex-1 text-l">
           <p>
             We present the{" "}
-            <a href="https://arxiv.org/abs/2405.09605">
+            <a
+              className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+              href="https://arxiv.org/abs/2405.09605"
+            >
               Elements of World Knowledge (EWoK)
             </a>{" "}
             leaderboard in collaboration with the EWoK team. EWoK is a benchmark
