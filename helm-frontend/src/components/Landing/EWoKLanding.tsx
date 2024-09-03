@@ -10,14 +10,16 @@ export default function EWoKLanding() {
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 text-l">
           <p>
-            In collaboration with the [Elements of World Knowledge
-            (EWoK)](https://arxiv.org/abs/2405.09605) team, we present the EWoK
-            leaderboard. EWoK is a benchmark for evaluating world modeling in
-            language models by testing their ability to use knowledge of a
-            concept to match a target text with a plausible/implausible context.
-            EWoK targets specific concepts from multiple knowledge domains known
-            to be vital for world modeling in humans, including social
-            interactions and spatial relations.
+            We present the{" "}
+            <a href="https://arxiv.org/abs/2405.09605">
+              Elements of World Knowledge (EWoK)
+            </a>{" "}
+            leaderboard in collaboration with the EWoK team. EWoK is a benchmark
+            for evaluating world modeling in language models by testing their
+            ability to use knowledge of a concept to match a target text with a
+            plausible/implausible context. EWoK targets specific concepts from
+            multiple knowledge domains known to be vital for world modeling in
+            humans, including social interactions and spatial relations.
           </p>
           <div className="flex flex-row justify-center my-4">
             <Link to="leaderboard" className="px-10 btn rounded-md mx-4">
