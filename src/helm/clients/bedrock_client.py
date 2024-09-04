@@ -45,7 +45,6 @@ class BedrockClient(CachingClient):
         # model_id should be something like "amazon.titan-tg1-large", strip out the amazon/ prefix
         model_id = self.bedrock_model_id if self.bedrock_model_id else request.model.replace("amazon/", "")
         raw_request = self.convert_request_to_raw_request(request)
-    
 
         # modelId isn't part of raw_request, so it must be explicitly passed into the input to
         raw_request_for_cache: Dict = {"modelId": model_id, **deepcopy(raw_request)}
@@ -59,7 +58,7 @@ class BedrockClient(CachingClient):
 
         try:
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-          
+
         except Exception as error:
             return RequestResult(
                 success=False,
@@ -82,6 +81,7 @@ class BedrockClient(CachingClient):
         )
 
 
+# Amazon Bedrock Client for Titan Models
 class BedrockTitanClient(BedrockClient):
     _COMPLETION_REASON_TO_FINISH_REASON = {
         "LENGTH": "length",
@@ -131,6 +131,8 @@ class BedrockTitanClient(BedrockClient):
             completions.append(completion)
         return completions
 
+
+# Amazon Bedrock Client for Mistral Models
 class BedrockMistralClient(BedrockClient):
     _COMPLETION_REASON_TO_FINISH_REASON = {
         "length": "length",
@@ -143,20 +145,19 @@ class BedrockMistralClient(BedrockClient):
         # - echo_prompt
         # - num_completions
         return {
-            "prompt":f"[INST]{request.prompt}[/INST]", 
+            "prompt": f"[INST]{request.prompt}[/INST]",
             "temperature": request.temperature,
             "top_p": request.top_p,
             "max_tokens": request.max_tokens,
-                
         }
 
     def convert_raw_response_to_completions(self, response: Dict, request: Request) -> List[GeneratedOutput]:
-            # - logprob
+        # - logprob
         completions: List[GeneratedOutput] = []
         print(response)
         for raw_completion in response["outputs"]:
             output_text = raw_completion["text"]
-         
+
             finish_reason = BedrockMistralClient._COMPLETION_REASON_TO_FINISH_REASON.get(
                 raw_completion["stop_reason"], raw_completion["stop_reason"].lower()
             )
@@ -164,5 +165,40 @@ class BedrockMistralClient(BedrockClient):
                 output_text.lstrip(), request, self.tokenizer, self.tokenizer_name, finish_reason
             )
             completions.append(completion)
-     
+
+        return completions
+
+
+# Amazon Bedrock Client for LLAMA Models
+class BedrockLlamaClient(BedrockClient):
+    _COMPLETION_REASON_TO_FINISH_REASON = {
+        "length": "length",
+        "stop": "endoftext",
+    }
+
+    def convert_request_to_raw_request(self, request: Request) -> Dict:
+        # TODO: Support the following:
+        # - top_k_per_token
+        # - echo_prompt
+        # - num_completions
+        return {
+            "prompt": f"[INST]{request.prompt}[/INST]",
+            "temperature": request.temperature,
+            "top_p": request.top_p,
+            "max_gen_len": request.max_tokens,
+        }
+
+    def convert_raw_response_to_completions(self, response: Dict, request: Request) -> List[GeneratedOutput]:
+        # - logprob
+        completions: List[GeneratedOutput] = []
+        output_text = response["generation"]
+
+        finish_reason = BedrockLlamaClient._COMPLETION_REASON_TO_FINISH_REASON.get(
+            response["stop_reason"], response["stop_reason"].lower()
+        )
+        completion = truncate_and_tokenize_response_text(
+            output_text.lstrip(), request, self.tokenizer, self.tokenizer_name, finish_reason
+        )
+        completions.append(completion)
+
         return completions

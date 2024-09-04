@@ -215,15 +215,7 @@ models:
     access: limited
     release_date: 2023-11-29
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
-
-  - name: amazon/amazon.titan-tg1-large
-    display_name: Amazon Titan Large
-    description: Amazon Titan Large is efficient model perfect for fine-tuning English-language tasks like summarization, create article, marketing campaign.
-    creator_organization_name: Amazon
-    access: limited
-    release_date: 2023-11-29
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
-
+ 
   - name: amazon/amazon.titan-text-express-v1
     display_name: Amazon Titan Text Express
     description: Amazon Titan Text Express, with a context length of up to 8,000 tokens, excels in advanced language tasks like open-ended text generation and conversational chat. It's also optimized for Retrieval Augmented Generation (RAG). Initially designed for English, the model offers preview multilingual support for over 100 additional languages.
@@ -269,7 +261,26 @@ models:
     release_date: 2023-07-11
     tags: [BEDROCK_MISTRAL_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+# Llama3 on Amazon Bedrock
+# References for Llama3 on Amazon Bedrock
+# https://aws.amazon.com/bedrock/llama/
 
+  - name: amazon/meta.llama3-8b-instruct-v1:0
+    display_name: Amazon Bedrock - Llama 3 8B Instruct
+    description: Meta Llama 3 is an accessible, open large language model (LLM) designed for developers, researchers, and businesses to build, experiment, and responsibly scale their generative AI ideas. Part of a foundational system, it serves as a bedrock for innovation in the global community. Ideal for limited computational power and resources, edge devices, and faster training times.
+    creator_organization_name: Meta
+    access: limited
+    release_date: 2023-07-11
+    tags: [BEDROCK_LLAMA3_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: amazon/meta.llama3-70b-instruct-v1:0
+    display_name: Amazon Bedrock - Llama 3 70B Instruct
+    description: Meta Llama 3 is an accessible, open large language model (LLM) designed for developers, researchers, and businesses to build, experiment, and responsibly scale their generative AI ideas. Part of a foundational system, it serves as a bedrock for innovation in the global community. Ideal for content creation, conversational AI, language understanding, R&D, and Enterprise applications.
+    creator_organization_name: Meta
+    access: limited
+    release_date: 2023-07-11
+    tags: [BEDROCK_LLAMA3_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+ 
   # Anthropic
   - name: anthropic/claude-v1.3
     display_name: Claude v1.3
