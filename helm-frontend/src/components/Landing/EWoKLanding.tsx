@@ -24,10 +24,16 @@ export default function EWoKLanding() {
             multiple knowledge domains known to be vital for world modeling in
             humans, including social interactions and spatial relations.
           </p>
-          <div className="flex flex-row justify-center my-4">
-            <Link to="leaderboard" className="px-10 btn rounded-md mx-4">
+          <div className="flex flex-row justify-center mt-4">
+            <a
+              className="px-10 btn rounded-md mx-4"
+              href="https://arxiv.org/abs/2405.09605"
+            >
+              Paper
+            </a>
+            <a className="px-10 btn rounded-md mx-4" href="#/leaderboard">
               Full Leaderboard
-            </Link>
+            </a>
           </div>
         </div>
         <div
