@@ -2,7 +2,7 @@ from typing import Any
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
-from helm.benchmark.annotation.score_util import score_with_reasoning
+from helm.benchmark.annotation.model_as_judge import score_with_reasoning
 from helm.clients.auto_client import AutoClient
 
 # prompt inspiration available at the end of https://arxiv.org/pdf/2402.04249
