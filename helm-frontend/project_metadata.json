@@ -50,7 +50,7 @@
 	{
 		"title": "CLEVA",
 		"description": "Chinese-language benchmark for holistic evaluation of Chinese language models",
-		"id": "air-bench",
+		"id": "cleva",
 		"releases": ["v1.0.0"]
 	},
 	{
