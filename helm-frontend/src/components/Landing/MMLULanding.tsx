@@ -25,8 +25,14 @@ export default function MMLULanding() {
             <li>Accuracy breakdown for each of the 57 subjects</li>
             <li>Full transparency of all raw prompts and predictions</li>
           </ul>
-          <div className="flex flex-row justify-center mt-8">
-            <a className="px-10 btn rounded-md" href="#/leaderboard">
+          <div className="flex flex-row justify-center mt-4">
+            <a
+              className="px-10 btn rounded-md mx-4"
+              href="https://crfm.stanford.edu/2024/05/01/helm-mmlu.html"
+            >
+              Blog Post
+            </a>
+            <a className="px-10 btn rounded-md mx-4" href="#/leaderboard">
               Full Leaderboard
             </a>
           </div>
