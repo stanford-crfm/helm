@@ -37,13 +37,19 @@
 	},
 	{
 		"title": "Image2Struct",
-		"description": "Evaluations of Vision-Language Models on extracting structured information (LaTeX, webpages, sheet music) from images",
+		"description": "Evaluations of Vision-Language Models on extracting structured information from images",
 		"id": "image2struct",
 		"releases": ["v1.0.1", "v1.0.0"]
 	},
 	{
 		"title": "AIR-Bench",
 		"description": "Safety benchmark based on emerging government regulations and company policies",
+		"id": "air-bench",
+		"releases": ["v1.0.0"]
+	},
+	{
+		"title": "CLEVA",
+		"description": "Chinese-language benchmark for holistic evaluation of Chinese language models",
 		"id": "air-bench",
 		"releases": ["v1.0.0"]
 	},
