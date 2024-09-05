@@ -48,6 +48,7 @@
 - Add Nemotron-4-Instruct (#2892, #2896, #2901)
 - Add GPT-4o (2024-08-06) (#2900)
 - Add Jamba 1.5 models (#2957)
+- Add Llama Guard 3 (#2968)
 
 ### Frontend
 
