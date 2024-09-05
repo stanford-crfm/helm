@@ -54,6 +54,12 @@
 		"releases": ["v1.0.0"]
 	},
 	{
+		"title": "ThaiExam",
+		"description": "Thai-language evaluations of language models on standardized examinations in Thailand",
+		"id": "thaiexam",
+		"releases": ["v1.0.0"]
+	},
+	{
 		"title": "All Leaderboards",
 		"description": "Home page for all HELM leaderboards",
 		"id": "home",
