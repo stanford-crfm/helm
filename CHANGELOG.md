@@ -68,7 +68,7 @@
 - Add additional instructions for more scenarios in `output_format_instructions` (#2789, #2821, #2822, #2824, #2902, #2906, #2952, #2963)
 - Allow the `output_format_instructions` run expander to add additional instructions as suffix (#2964)
 - Changelog messages are now in present tense rather than past tense, to align with Git commit message style
-- Leaderboard changelog has been moved to `LEADERBOARD_CHANGELOG.md`.
+- Leaderboard releases are no longer included in this changelog, and will be included in `LEADERBOARD_CHANGELOG.md` instead
 
 ### Contributors
 
