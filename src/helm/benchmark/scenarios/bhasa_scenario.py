@@ -1555,12 +1555,13 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
         super().__init__()
         self.method = method
         self.language = language
-        self.prompt = {
+        self.prompts = {
             "id": {
                 "instructions": "Kalimat mana yang lebih mungkin?",
                 "output_prefix": "Jawablah dengan satu huruf saja, A atau B.",
             }
         }
+        self.prompt_components = self.prompts[self.language]
 
     def download_dataset(self, output_path: str):
         BASE_URL = "https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/"
@@ -1585,7 +1586,6 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
 
         outputs = []
         if self.method == "mcq":
-            prompt_components = self.prompt[self.language]
             category_list = data["category"].value_counts().keys()
 
             hlog("MCQ method for LINDSEA Minimal Pairs chosen. Shuffling options...")
@@ -1596,8 +1596,8 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
                     options = [(row["correct"], 1), (row["wrong"], 2)]
                     random.shuffle(options)
                     options_reversed = True if options[0][1] == 2 else False
-                    instructions = prompt_components["instructions"]
-                    output_prefix = prompt_components["output_prefix"]
+                    instructions = self.prompt_components["instructions"]
+                    output_prefix = self.prompt_components["output_prefix"]
                     prompt = f"{instructions}\nA: {options[0][0]}\nB: {options[1][0]}\n{output_prefix}"
                     input = Input(text=prompt)
                     # Determine correct option based on whether shuffling reversed the options
@@ -1678,7 +1678,7 @@ class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
         super().__init__()
         self.language = language
         self.subsets = [subset] if subset != "all" else ["single", "pair"]
-        self.prompt = {
+        self.prompts = {
             "id": {
                 "single": {
                     "question": "Apakah pernyataan berikut ini {}?",
@@ -1692,6 +1692,9 @@ class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
                 },
             },
         }
+        self.prompt = self.prompts[self.language]
+        self.prompt_single_components = self.prompt["single"]
+        self.prompt_pair_components = self.prompt["pair"]
 
     def download_dataset(self, output_path: str):
         BASE_URL = "https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/"
@@ -1712,16 +1715,18 @@ class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
         data = self.download_dataset(output_path)
         outputs = []
         for _, row in data.iterrows():
-            prompt = self.prompt[self.language]
+            
             passage = None
             references = []
 
             if row["subset"] == "single":
-                prompt_components = prompt["single"]
+                question = self.prompt_single_components["question"]
+                instruction = self.prompt_single_components["instruction"]
+
                 passage = "{question}\nPernyataan: {text}\n{instruction}".format(
-                    question=prompt_components["question"].format(row["question_translated"]),
+                    question=question.format(row["question_translated"]),
                     text=row["text"],
-                    instruction=prompt_components["instruction"].format(row["choices_translated"]),
+                    instruction=instruction.format(row["choices_translated"]),
                 )
                 # Split "True or False" into ["True", "or", "False"]
                 choices = row["choices"].split()
@@ -1735,16 +1740,19 @@ class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
                 )
 
             elif row["subset"] == "pair":
-                prompt_components = prompt["pair"]
+                question = self.prompt_pair_components["question"]
+                instruction = self.prompt_pair_components["instruction"]
+                label = self.prompt_pair_components[row["label"]]
+
                 passage = "Situasi: {premise}\n{question}\nPernyataan: {conclusion}\n{instruction}".format(
                     premise=row["text"],
-                    question=prompt_components["question"],
+                    question=question,
                     conclusion=row["conclusion"],
-                    instruction=prompt_components["instruction"],
+                    instruction=instruction,
                 )
 
                 references.append(
-                    Reference(Output(text=prompt_components[row["label"]]), tags=[CORRECT_TAG]),
+                    Reference(Output(text=label), tags=[CORRECT_TAG]),
                 )
 
             input = Input(text=str(passage))
@@ -1809,7 +1817,7 @@ class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
         super().__init__()
         self.language = language
         self.subsets = [subset] if subset != "all" else ["single", "pair"]
-        self.prompt = {
+        self.prompts = {
             "id": {
                 "single": {
                     "question": "Apakah pernyataan berikut ini {}?",
@@ -1823,6 +1831,9 @@ class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
                 },
             },
         }
+        self.prompt = self.prompts[self.language]
+        self.prompt_single_components = self.prompt["single"]
+        self.prompt_pair_components = self.prompt["pair"]
 
     def download_dataset(self, output_path: str):
         BASE_URL = "https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/"
@@ -1848,11 +1859,13 @@ class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
             references = []
 
             if row["subset"] == "single":
-                prompt_components = prompt["single"]
+                question = self.prompt_single_components["question"]
+                instruction = self.prompt_single_components["instruction"]
+
                 passage = "{question}\nPernyataan: {text}\n{instruction}".format(
-                    question=prompt_components["question"].format(row["question_translated"]),
+                    question=question.format(row["question_translated"]),
                     text=row["text"],
-                    instruction=prompt_components["instruction"].format(row["choices_translated"]),
+                    instruction=instruction.format(row["choices_translated"]),
                 )
                 # Split "True or False" into ["True", "or", "False"]
                 choices = row["choices"].split()
@@ -1866,16 +1879,19 @@ class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
                 )
 
             elif row["subset"] == "pair":
-                prompt_components = prompt["pair"]
+                question = self.prompt_pair_components["question"]
+                instruction = self.prompt_pair_components["instruction"]
+                label = self.prompt_pair_components[row["label"]]
+
                 passage = "Situasi: {premise}\n{question}\nPernyataan: {conclusion}\n{instruction}".format(
                     premise=row["text"],
-                    question=prompt_components["question"],
+                    question=question,
                     conclusion=row["conclusion"],
-                    instruction=prompt_components["instruction"],
+                    instruction=instruction,
                 )
 
                 references.append(
-                    Reference(Output(text=prompt_components[row["label"]]), tags=[CORRECT_TAG]),
+                    Reference(Output(text=label), tags=[CORRECT_TAG]),
                 )
 
             input = Input(text=str(passage))
