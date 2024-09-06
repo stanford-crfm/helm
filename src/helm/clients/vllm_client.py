@@ -3,7 +3,6 @@ from dataclasses import replace
 
 from helm.clients.openai_client import OpenAIClient
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import htrack_block, hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
 from .client import truncate_sequence
@@ -73,26 +72,23 @@ class VLLMClient(OpenAIClient):
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[GeneratedOutput] = []
+        for raw_completion in response["choices"]:
+            sequence_logprob = 0
+            tokens: List[Token] = []
+            completion = GeneratedOutput(
+                text=raw_completion["text"],
+                logprob=sequence_logprob,
+                tokens=tokens,
+                finish_reason={"reason": raw_completion["finish_reason"]},
+            )
 
-        with htrack_block(f"Prompt: {request.prompt}"):
-            for raw_completion in response["choices"]:
-                sequence_logprob = 0
-                tokens: List[Token] = []
-                completion = GeneratedOutput(
-                    text=raw_completion["text"],
-                    logprob=sequence_logprob,
-                    tokens=tokens,
-                    finish_reason={"reason": raw_completion["finish_reason"]},
-                )
-                hlog(completion.text)
-
-                # OpenAI sends us back tokens past the end of text token,
-                # so we need to manually truncate the list of tokens.
-                # TODO: filed an issue with their support to check what the expected behavior here is.
-                completion = truncate_sequence(
-                    completion, replace(request, stop_sequences=request.stop_sequences + [OpenAIClient.END_OF_TEXT])
-                )
-                completions.append(completion)
+            # OpenAI sends us back tokens past the end of text token,
+            # so we need to manually truncate the list of tokens.
+            # TODO: filed an issue with their support to check what the expected behavior here is.
+            completion = truncate_sequence(
+                completion, replace(request, stop_sequences=request.stop_sequences + [OpenAIClient.END_OF_TEXT])
+            )
+            completions.append(completion)
 
         return RequestResult(
             success=True,
