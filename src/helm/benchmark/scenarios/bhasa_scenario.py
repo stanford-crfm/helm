@@ -1715,7 +1715,6 @@ class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
         data = self.download_dataset(output_path)
         outputs = []
         for _, row in data.iterrows():
-            
             passage = None
             references = []
 
@@ -1854,7 +1853,6 @@ class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
         data = self.download_dataset(output_path)
         outputs = []
         for _, row in data.iterrows():
-            prompt = self.prompt[self.language]
             passage = None
             references = []
 
