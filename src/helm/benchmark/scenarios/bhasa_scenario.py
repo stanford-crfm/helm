@@ -1717,10 +1717,11 @@ class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
             references = []
 
             if row["subset"] == "single":
+                prompt_components = self.prompt[self.language]["single"]
                 passage = "{question}\nPernyataan: {text}\n{instruction}".format(
-                    question=self.prompt[self.language]["single"]["question"].format(row["question_translated"]),
+                    question=prompt_components["question"].format(row["question_translated"]),
                     text=row["text"],
-                    instruction=self.prompt[self.language]["single"]["instruction"].format(row["choices_translated"]),
+                    instruction=prompt_components["instruction"].format(row["choices_translated"]),
                 )
                 # Split "True or False" into ["True", "or", "False"]
                 choices = row["choices"].split()
@@ -1734,18 +1735,19 @@ class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
                 )
 
             elif row["subset"] == "pair":
+                prompt_components = self.prompt[self.language]["pair"]
                 passage = "Situasi: {premise}\n{question}\nPernyataan: {conclusion}\n{instruction}".format(
                     premise=row["text"],
-                    question=self.prompt[self.language]["pair"]["question"],
+                    question=prompt_components["question"],
                     conclusion=row["conclusion"],
-                    instruction=self.prompt[self.language]["pair"]["instruction"],
+                    instruction=prompt_components["instruction"],
                 )
 
                 references.append(
-                    Reference(Output(text=self.prompt[self.language]["pair"][row["label"]]), tags=[CORRECT_TAG]),
+                    Reference(Output(text=prompt_components[row["label"]]), tags=[CORRECT_TAG]),
                 )
 
-            input = Input(text=passage)
+            input = Input(text=str(passage))
             instance = Instance(
                 input=input,
                 references=references,
@@ -1846,10 +1848,11 @@ class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
             references = []
 
             if row["subset"] == "single":
+                prompt_components = self.prompt[self.language]["single"]
                 passage = "{question}\nPernyataan: {text}\n{instruction}".format(
-                    question=self.prompt[self.language]["single"]["question"].format(row["question_translated"]),
+                    question=prompt_components["question"].format(row["question_translated"]),
                     text=row["text"],
-                    instruction=self.prompt[self.language]["single"]["instruction"].format(row["choices_translated"]),
+                    instruction=prompt_components["instruction"].format(row["choices_translated"]),
                 )
                 # Split "True or False" into ["True", "or", "False"]
                 choices = row["choices"].split()
@@ -1863,18 +1866,19 @@ class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
                 )
 
             elif row["subset"] == "pair":
+                prompt_components = self.prompt[self.language]["pair"]
                 passage = "Situasi: {premise}\n{question}\nPernyataan: {conclusion}\n{instruction}".format(
                     premise=row["text"],
-                    question=self.prompt[self.language]["pair"]["question"],
+                    question=prompt_components["question"],
                     conclusion=row["conclusion"],
-                    instruction=self.prompt[self.language]["pair"]["instruction"],
+                    instruction=prompt_components["instruction"],
                 )
 
                 references.append(
-                    Reference(Output(text=self.prompt[self.language]["pair"][row["label"]]), tags=[CORRECT_TAG]),
+                    Reference(Output(text=prompt_components[row["label"]]), tags=[CORRECT_TAG]),
                 )
 
-            input = Input(text=passage)
+            input = Input(text=str(passage))
             instance = Instance(
                 input=input,
                 references=references,
