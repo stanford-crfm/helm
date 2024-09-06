@@ -1523,7 +1523,7 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
 
     name = "lindsea_minimal_pairs"
     description = "LINDSEA minimal pairs task"
-    tags = ["minimal_pairs", "linguistic_diagnostic", "syntax"]
+    tags = ["linguistic_diagnostic", "syntax", "minimal_pairs"]
 
     def __init__(self, method: str, language: str):
         super().__init__()
