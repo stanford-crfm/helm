@@ -1555,7 +1555,7 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
         super().__init__()
         self.method = method
         self.language = language
-        self.prompts = {
+        self.prompt = {
             "id": {
                 "instructions": "Kalimat mana yang lebih mungkin?",
                 "output_prefix": "Jawablah dengan satu huruf saja, A atau B.",
@@ -1585,7 +1585,9 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
 
         outputs = []
         if self.method == "mcq":
+            prompt_components = self.prompt[self.language]
             category_list = data["category"].value_counts().keys()
+            
             hlog("MCQ method for LINDSEA Minimal Pairs chosen. Shuffling options...")
             for category in category_list:
                 # Fix shuffling within each category
@@ -1594,8 +1596,6 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
                     options = [(row["correct"], 1), (row["wrong"], 2)]
                     random.shuffle(options)
                     options_reversed = True if options[0][1] == 2 else False
-
-                    prompt_components = self.prompts[self.language]
                     instructions = prompt_components["instructions"]
                     output_prefix = prompt_components["output_prefix"]
                     prompt = f"{instructions}\nA: {options[0][0]}\nB: {options[1][0]}\n{output_prefix}"
@@ -1712,12 +1712,12 @@ class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
         data = self.download_dataset(output_path)
         outputs = []
         for _, row in data.iterrows():
-
+            prompt = self.prompt[self.language]
             passage = None
             references = []
 
             if row["subset"] == "single":
-                prompt_components = self.prompt[self.language]["single"]
+                prompt_components = prompt["single"]
                 passage = "{question}\nPernyataan: {text}\n{instruction}".format(
                     question=prompt_components["question"].format(row["question_translated"]),
                     text=row["text"],
@@ -1735,7 +1735,7 @@ class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
                 )
 
             elif row["subset"] == "pair":
-                prompt_components = self.prompt[self.language]["pair"]
+                prompt_components = prompt["pair"]
                 passage = "Situasi: {premise}\n{question}\nPernyataan: {conclusion}\n{instruction}".format(
                     premise=row["text"],
                     question=prompt_components["question"],
@@ -1843,12 +1843,12 @@ class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
         data = self.download_dataset(output_path)
         outputs = []
         for _, row in data.iterrows():
-
+            prompt = self.prompt[self.language]
             passage = None
             references = []
 
             if row["subset"] == "single":
-                prompt_components = self.prompt[self.language]["single"]
+                prompt_components = prompt["single"]
                 passage = "{question}\nPernyataan: {text}\n{instruction}".format(
                     question=prompt_components["question"].format(row["question_translated"]),
                     text=row["text"],
@@ -1866,7 +1866,7 @@ class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
                 )
 
             elif row["subset"] == "pair":
-                prompt_components = self.prompt[self.language]["pair"]
+                prompt_components = prompt["pair"]
                 passage = "Situasi: {premise}\n{question}\nPernyataan: {conclusion}\n{instruction}".format(
                     premise=row["text"],
                     question=prompt_components["question"],
