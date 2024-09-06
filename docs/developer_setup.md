@@ -2,7 +2,7 @@
 
 ## Set up the Python virtual environment
 
-First, create a Python virtual environment with Python version >= 3.8 and activate it.
+First, create a Python virtual environment with Python version >= 3.9 and activate it.
 
 Using [Virtualenv](https://docs.python.org/3/library/venv.html#creating-virtual-environments):
 
@@ -18,7 +18,7 @@ Using [Anaconda](https://conda.io/projects/conda/en/latest/user-guide/tasks/mana
 
     # Create a virtual environment.
     # Only run this the first time.
-    conda create -n crfm-helm python=3.8 pip
+    conda create -n crfm-helm python=3.9 pip
 
     # Activate the virtual environment.
     conda activate crfm-helm
