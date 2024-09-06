@@ -60,7 +60,7 @@ class HuggingFacePhiVisionClient(CachingClient):
                     torch_dtype=torch.float16 if is_cuda_available() else torch.float32,
                     _attn_implementation="eager",
                 )
-                processor = AutoProcessor.from_pretrained(checkpoint, trust_remote_code=True, num_crops=4)
+                processor = AutoProcessor.from_pretrained(checkpoint, trust_remote_code=True, num_crops=16)
 
                 _phi_models[checkpoint] = PhiVisionModelProcessor(model, processor)
                 loaded_model_processor = _phi_models[checkpoint]
