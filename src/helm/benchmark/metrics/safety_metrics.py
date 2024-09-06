@@ -48,10 +48,10 @@ class SafetyScoreMetric(Metric):
         if curr_scenario is None:
             raise ValueError("No safety scenario found in annotations")
         gpt_score = request_state.annotations[curr_scenario]["gpt_score"]
-        claude_score = request_state.annotations[curr_scenario]["claude_score"]
-        score = (gpt_score + claude_score) / 2
+        llama_score = request_state.annotations[curr_scenario]["llama_score"]
+        score = (gpt_score + llama_score) / 2
         return [
             Stat(MetricName("safety_score")).add(score),
             Stat(MetricName("safety_gpt_score")).add(gpt_score),
-            Stat(MetricName("safety_claude_score")).add(claude_score),
+            Stat(MetricName("safety_llama_score")).add(llama_score),
         ]

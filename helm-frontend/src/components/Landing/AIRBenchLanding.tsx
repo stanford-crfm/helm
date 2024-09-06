@@ -38,13 +38,12 @@ export default function MMLULanding() {
           <div className="flex flex-row justify-center mt-4">
             <a
               className="px-10 btn rounded-md mx-4"
-              href="#/leaderboard"
-              style={{ display: "none" }}
+              href="https://arxiv.org/abs/2407.17436"
             >
-              Paper (TBD)
+              Paper
             </a>
             <a className="px-10 btn rounded-md mx-4" href="#/leaderboard">
-              Leaderboard
+              Full Leaderboard
             </a>
           </div>
         </div>

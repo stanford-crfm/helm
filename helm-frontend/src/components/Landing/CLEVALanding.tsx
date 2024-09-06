@@ -40,10 +40,16 @@ export default function CLEVALanding() {
             employs a standardized workflow to assess LLMs' performance across
             various dimensions.
           </p>
-          <div className="flex flex-row justify-center my-4">
-            <Link to="leaderboard" className="px-10 btn rounded-md mx-4">
+          <div className="flex flex-row justify-center mt-4">
+            <a
+              className="px-10 btn rounded-md mx-4"
+              href="https://arxiv.org/abs/2308.04813"
+            >
+              Paper
+            </a>
+            <a className="px-10 btn rounded-md mx-4" href="#/leaderboard">
               Full Leaderboard
-            </Link>
+            </a>
           </div>
         </div>
         <div
