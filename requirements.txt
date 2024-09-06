@@ -93,7 +93,7 @@ google-cloud-aiplatform==1.60.0
 google-cloud-bigquery==3.25.0
 google-cloud-core==2.4.1
 google-cloud-resource-manager==1.12.3
-google-cloud-storage==2.9.0
+google-cloud-storage==2.18.2
 google-cloud-translate==3.11.3
 google-crc32c==1.6.0
 google-pasta==0.2.0
@@ -102,7 +102,7 @@ googleapis-common-protos==1.63.1
 grapheme==0.6.0
 grpc-google-iam-v1==0.13.0
 grpcio==1.66.1
-grpcio-status==1.48.2
+grpcio-status==1.62.3
 gunicorn==20.1.0
 h11==0.14.0
 h5py==3.11.0
@@ -172,14 +172,14 @@ nncf==2.12.0
 nodeenv==1.9.1
 NudeNet==2.0.9
 numba==0.59.1
-numpy==1.23.5
+numpy==1.26.4
 oauthlib==3.2.2
 omegaconf==2.3.0
 onnx==1.16.2
 onnxruntime==1.19.2
 open_clip_torch==2.26.1
 openai==1.44.0
-OpenCC==1.1.6
+OpenCC==1.1.7
 opencv-python==4.7.0.72
 opencv-python-headless==4.10.0.84
 openvino==2024.3.0
@@ -207,7 +207,7 @@ pre-commit==2.20.0
 preshed==3.0.9
 progressbar2==4.5.0
 proto-plus==1.24.0
-protobuf==3.20.3
+protobuf==4.25.4
 psutil==6.0.0
 pyarrow==17.0.0
 pyarrow-hotfix==0.6
