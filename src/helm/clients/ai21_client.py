@@ -2,6 +2,7 @@ from typing import Dict, List, Optional, TypedDict
 import requests
 
 from helm.common.cache import CacheConfig
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import (
     wrap_request_time,
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
@@ -13,8 +14,11 @@ from helm.common.request import (
 from .client import CachingClient, truncate_sequence, cleanup_str
 from .ai21_utils import AI21RequestError, handle_failed_request
 
-from ai21 import AI21Client as AISDKClient
-from ai21.models.chat import ChatMessage as SDKChatMessage, ChatCompletionResponse
+try:
+    from ai21 import AI21Client as AISDKClient
+    from ai21.models.chat import ChatMessage as SDKChatMessage, ChatCompletionResponse
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["ai21"])
 
 
 class AI21Client(CachingClient):
@@ -163,7 +167,6 @@ class AI21ChatClient(CachingClient):
             "n": request.num_completions,
             "top_p": request.top_p,
         }
-        print(raw_request)
 
         def do_it():
             chat_completion_response: ChatCompletionResponse = self.client.chat.completions.create(

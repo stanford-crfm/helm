@@ -22,7 +22,6 @@ example_queries = [
             temperature: 0.5  # Medium amount of randomness
             stop_sequences: [.]  # Stop when you hit a period
             model: openai/gpt-3.5-turbo-0613
-            model_deployment: openai/gpt-3.5-turbo-0613
             """
         ),
         environments="",
@@ -35,24 +34,24 @@ example_queries = [
             stop_sequences: [\\n]  # Stop when you hit a newline
             num_completions: 5  # Generate many samples
             model: openai/gpt-3.5-turbo-0613
-            model_deployment: openai/gpt-3.5-turbo-0613
             """
         ),
         environments="",
     ),
-    Query(
-        prompt="The quick brown fox jumps over the lazy dog.",
-        settings=dedent(
-            """
-            echo_prompt: true  # Analyze the prompt
-            max_tokens: 0  # Don't generate any more
-            top_k_per_token: 5  # Show alternatives for each position
-            model: openai/davinci-002
-            model_deployment: openai/davinci-002
-            """
-        ),
-        environments=dedent(""),
-    ),
+    # Disabled because `max_tokens: 0` no longer works on the OpenAI API
+    # Query(
+    #     prompt="The quick brown fox jumps over the lazy dog.",
+    #     settings=dedent(
+    #         """
+    #         echo_prompt: true  # Analyze the prompt
+    #         max_tokens: 0  # Don't generate any more
+    #         top_k_per_token: 5  # Show alternatives for each position
+    #         model: openai/text-davinci-002
+    #         model_deployment: openai/text-davinci-002
+    #         """
+    #     ),
+    #     environments=dedent(""),
+    # ),
     Query(
         prompt="Odd numbers: 1 -> 3 -> 5",
         settings=dedent(
@@ -60,7 +59,6 @@ example_queries = [
             temperature: 0  # Deterministic
             max_tokens: 50
             model: openai/gpt-3.5-turbo-0613
-            model_deployment: openai/gpt-3.5-turbo-0613
             """
         ),
         environments="",
@@ -73,7 +71,6 @@ example_queries = [
             stop_sequences: [.]
             # Try out multiple models
             model: ${model}
-            model_deployment: ${model}
             """
         ),
         environments=dedent(
@@ -100,7 +97,6 @@ example_queries = [
             num_completions: 5
             # Try out multiple models
             model: ${model}
-            model_deployment: ${model}
             """
         ),
         environments=dedent(
@@ -136,7 +132,6 @@ example_queries = [
             top_k_per_token: 4
             # Try out multiple models
             model: ${model}
-            model_deployment: ${model}
             """
         ),
         environments=dedent(
@@ -150,7 +145,6 @@ example_queries = [
         settings=dedent(
             """
             model: openai/gpt-3.5-turbo-0613
-            model_deployment: openai/gpt-3.5-turbo-0613
             """
         ),
         environments="",
@@ -163,7 +157,6 @@ example_queries = [
             stop_sequences: [\\n]
             # Try out multiple models
             model: ${model}
-            model_deployment: ${model}
             """
         ),
         environments=dedent(

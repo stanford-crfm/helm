@@ -19,22 +19,22 @@ from helm.common.general import ensure_directory_exists
 
 class MMEScenario(Scenario):
     """
-        MME: A Comprehensive Evaluation Benchmark for Multimodal Large Language Models
+    MME: A Comprehensive Evaluation Benchmark for Multimodal Large Language Models
 
-        Multimodal Large Language Model (MLLM) relies on the powerful LLM to perform
-        multimodal tasks, showing amazing emergent abilities in recent studies. However,
-        it is difficult for these case studies to fully reflect the performance of MLLM,
-        lacking a comprehensive evaluation. In MME, we fill in this blank, presenting
-        the first comprehensive MLLM Evaluation benchmark MME. It measures both perception
-        and cognition abilities on a total of 14 subtasks. In order to avoid data leakage
-        that may arise from direct use of public datasets for evaluation, the annotations
-        of instruction-answer pairs are all manually designed. The concise instruction design
-        allows us to fairly compare MLLMs, instead of struggling in prompt engineering.
-        Besides, with such an instruction, we can also easily carry out quantitative
-        statistics. We rephrase the answer type of MME to multiple-choice question-answering.
-        We use the multiple-choice metrics for 14 different evaluation tasks.
+    Multimodal Large Language Model (MLLM) relies on the powerful LLM to perform
+    multimodal tasks, showing amazing emergent abilities in recent studies. However,
+    it is difficult for these case studies to fully reflect the performance of MLLM,
+    lacking a comprehensive evaluation. In MME, we fill in this blank, presenting
+    the first comprehensive MLLM Evaluation benchmark MME. It measures both perception
+    and cognition abilities on a total of 14 subtasks. In order to avoid data leakage
+    that may arise from direct use of public datasets for evaluation, the annotations
+    of instruction-answer pairs are all manually designed. The concise instruction design
+    allows us to fairly compare MLLMs, instead of struggling in prompt engineering.
+    Besides, with such an instruction, we can also easily carry out quantitative
+    statistics. We rephrase the answer type of MME to multiple-choice question-answering.
+    We use the multiple-choice metrics for 14 different evaluation tasks.
 
-        @article{fu2023mme,
+    @article{fu2023mme,
         title={MME: A Comprehensive Evaluation Benchmark for Multimodal Large Language Models},
         author={Fu, Chaoyou and Chen, Peixian and Shen, Yunhang and Qin, Yulei and
         Zhang, Mengdan and Lin, Xu and Yang, Jinrui and Zheng, Xiawu and Li, Ke and
@@ -43,7 +43,7 @@ class MMEScenario(Scenario):
         year={2023}
     }
 
-        Paper: https://arxiv.org/abs/2306.13394
+    Paper: https://arxiv.org/abs/2306.13394
     """
 
     MME_HUGGINGFACE_DATASET_NAME: str = "lmms-lab/MME"
@@ -66,7 +66,10 @@ class MMEScenario(Scenario):
     ]
 
     name = "mme"
-    description = "Evaluate multimodal models on  ([paper](https://arxiv.org/abs/2306.13394))."
+    description = (
+        "Evaluate multimodal models on their perception and cognition abilities on a total of 14 subtasks "
+        "([Fu et al., 2023](https://arxiv.org/abs/2306.13394))."
+    )
     tags = ["vision-language"]
     options: List[str] = ["Yes", "No"]
 

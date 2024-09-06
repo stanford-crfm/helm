@@ -113,11 +113,6 @@ def main():
         default=None,
         help="Experimental: The release to serve. If unset, don't serve a release, and serve the latest suite instead.",
     )
-    parser.add_argument(
-        "--jquery",
-        action="store_true",
-        help="Whether to serve the legacy jQuery frontend instead of the React frontend.",
-    )
     args = parser.parse_args()
 
     if args.suite and args.release:
@@ -126,7 +121,7 @@ def main():
     # Determine the location of the static directory.
     # This is a hack: it assumes that the static directory has a physical location,
     # which is not always the case (e.g. when using zipimport).
-    static_package_name = "helm.benchmark.static" if args.jquery else "helm.benchmark.static_build"
+    static_package_name = "helm.benchmark.static_build"
     resource_path = resources.files(static_package_name).joinpath("index.html")
     with resources.as_file(resource_path) as resource_filename:
         static_path = str(resource_filename.parent)

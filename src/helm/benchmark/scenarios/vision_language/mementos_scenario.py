@@ -38,10 +38,10 @@ class MementosScenario(Scenario):
     Paper: https://arxiv.org/abs/2401.10529
     """
 
-    MEMENTOS_HUGGINGFACE_DATASET_NAME: str = "shenmishajing/unofficial_mementos_dataset"
+    MEMENTOS_HUGGINGFACE_DATASET_NAME: str = "RussWang96/unofficial_mementos_dataset"
 
     IMAGE_URL: str = (
-        "https://huggingface.co/datasets/shenmishajing/unofficial_mementos_dataset/resolve/main/"
+        "https://huggingface.co/datasets/RussWang96/unofficial_mementos_dataset/resolve/main/"
         + "{subject}/{split}/{file_name}?download=true"
     )
 
@@ -56,7 +56,7 @@ class MementosScenario(Scenario):
     name = "mementos"
     description = (
         "A Comprehensive Benchmark for Multimodal Large Language Model Reasoning over Image Sequences"
-        " ([paper](https://arxiv.org/abs/2401.10529))."
+        " ([Wang et al., 2024](https://arxiv.org/abs/2401.10529))."
     )
     tags = ["vision-language"]
 

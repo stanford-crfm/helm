@@ -285,7 +285,13 @@ class IndicQAScenario(Scenario):
         self.splits = {"train": TRAIN_SPLIT, "test": TEST_SPLIT}
 
     def get_instances(self, output_path) -> List[Instance]:
-        dataset = datasets.load_dataset("ai4bharat/IndicQA", "indicqa.ta", split="test")
+        dataset = datasets.load_dataset(
+            "ai4bharat/IndicQA",
+            "indicqa.ta",
+            split="test",
+            revision="78ee8d58e880c72f324e176c989dfefa55427af4",
+            trust_remote_code=True,
+        )
         df = dataset.to_pandas()
 
         # Remove unanswerable questions (answer is an empty string)
@@ -683,7 +689,12 @@ class IndicSentimentScenario(Scenario):
         }
 
     def get_instances(self, output_path) -> List[Instance]:
-        dataset = datasets.load_dataset("ai4bharat/IndicSentiment", "translation-ta")
+        dataset = datasets.load_dataset(
+            "ai4bharat/IndicSentiment",
+            "translation-ta",
+            revision="dc8f3f66886531c6897fedffca1e938a68fc5013",
+            trust_remote_code=True,
+        )
 
         outputs = []
         for split in self.splits.keys():
@@ -954,7 +965,12 @@ class ThaiToxicityTweetsScenario(Scenario):
         }
 
     def get_instances(self, output_path) -> List[Instance]:
-        dataset = datasets.load_dataset("thai_toxicity_tweet", split="train")
+        dataset = datasets.load_dataset(
+            "tmu-nlp/thai_toxicity_tweet",
+            split="train",
+            revision="aa021e41d0ee6dbee2975fbed620ec8c586bdaf6",
+            trust_remote_code=True,
+        )
         df = dataset.to_pandas()
 
         # Drop instances where there are no labels or text is "TWEET_NOT_FOUND"
@@ -1053,8 +1069,18 @@ class FloresScenario(Scenario):
         }
 
     def get_instances(self, output_path) -> List[Instance]:
-        source_dataset = datasets.load_dataset("facebook/flores", self.languages[self.source])
-        target_dataset = datasets.load_dataset("facebook/flores", self.languages[self.target])
+        source_dataset = datasets.load_dataset(
+            "facebook/flores",
+            self.languages[self.source],
+            revision="2db78afdeaccaedc3b33a95442a4e55766887e17",
+            trust_remote_code=True,
+        )
+        target_dataset = datasets.load_dataset(
+            "facebook/flores",
+            self.languages[self.target],
+            revision="2db78afdeaccaedc3b33a95442a4e55766887e17",
+            trust_remote_code=True,
+        )
 
         outputs = []
         for split in self.splits.keys():

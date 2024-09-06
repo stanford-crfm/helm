@@ -7,4 +7,5 @@ export default interface GroupsTable {
   links: LinkValue[];
   header: HeaderValue[];
   rows: RowValue[][];
+  name: string | undefined;
 }

@@ -1,3 +1,4 @@
+from hashlib import md5
 import base64
 import io
 import os
@@ -42,6 +43,11 @@ def encode_base64(image_location: str, format="JPEG") -> str:
     image: Image.Image = open_image(image_location)
     image.save(image_file, format=format)
     return base64.b64encode(image_file.getvalue()).decode("ascii")
+
+
+def generate_hash(image: Image.Image) -> str:
+    """Generates a hash for the image."""
+    return md5(image.tobytes()).hexdigest()
 
 
 def copy_image(src: str, dest: str, width: Optional[int] = None, height: Optional[int] = None) -> None:

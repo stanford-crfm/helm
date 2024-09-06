@@ -85,7 +85,7 @@ export default function Image2StructLanding() {
           </div>
         </div>
         <div className="flex-1">
-          <MiniLeaderboard numModelsToAutoFilter={12} />
+          <MiniLeaderboard numRowsToDisplay={12} />
         </div>
       </div>
       <br />

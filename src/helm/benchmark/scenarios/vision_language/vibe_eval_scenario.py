@@ -39,7 +39,7 @@ class VibeEvalScenario(Scenario):
     year={2024}
     }
 
-    Paper: https://arxiv.org/abs/2306.13394
+    Paper: https://arxiv.org/abs/2405.02287
     """
 
     VIBE_EVAL_HUGGINGFACE_DATASET_NAME: str = "RekaAI/VibeEval"
@@ -50,8 +50,11 @@ class VibeEvalScenario(Scenario):
     ]
 
     name = "vibe_eval"
-    description = "Evaluate multimodal models on  ([paper](https://arxiv.org/abs/2405.02287))."
-    tags = ["vision-language"]
+    description = (
+        "Evaluate multimodal models on day-to-day tasks "
+        "([Padlewski et al., 2024](https://arxiv.org/abs/2405.02287))."
+    )
+    tags = ["vision-language", "knowledge", "reasoning"]
 
     def __init__(self, subject: str):
         super().__init__()

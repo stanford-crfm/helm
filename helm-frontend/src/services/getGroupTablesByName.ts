@@ -14,7 +14,9 @@ export default async function getGroupsTablesByName(
 
     return (await group.json()) as GroupsTable[];
   } catch (error) {
-    console.log(error);
+    if (error instanceof Error && error.name !== "AbortError") {
+      console.log(error);
+    }
     return [];
   }
 }
