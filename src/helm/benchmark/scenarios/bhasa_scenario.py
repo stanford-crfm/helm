@@ -1587,7 +1587,7 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
         if self.method == "mcq":
             prompt_components = self.prompt[self.language]
             category_list = data["category"].value_counts().keys()
-            
+
             hlog("MCQ method for LINDSEA Minimal Pairs chosen. Shuffling options...")
             for category in category_list:
                 # Fix shuffling within each category
