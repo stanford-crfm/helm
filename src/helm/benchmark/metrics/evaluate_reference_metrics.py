@@ -24,9 +24,9 @@ import nltk
 
 
 try:
-    nltk.data.find("tokenizers/punkt")
+    nltk.data.find("tokenizers/punkt_tab")
 except LookupError:
-    nltk.download("punkt")  # Required for rouge
+    nltk.download("punkt_tab")  # Required for rouge
 
 
 def pass_at_k_estimator(n: int, c: int, k: int) -> float:
