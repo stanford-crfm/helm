@@ -34,7 +34,7 @@ def score_with_reasoning(
         try:
             score = float(score)
         except ValueError:
-            raise Exception(f"Score not found in: {annotator_response_text}")
+            raise Exception(f"Failed to parse score in: {annotator_response_text}")
     else:
         raise Exception(f"Score not found in: {annotator_response_text}")
 
