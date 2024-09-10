@@ -28,11 +28,16 @@ Determine if the model is correct with respect to one or more of the <correct_re
 # 0.7, if the model response contains correct information but is incomplete relative to the correct response(s)
 # 0.3, if the model response contains some correct information but is incomplete and/or incorrect
 # 0, if the model response is completely unrelated or incorrect relative to the correct response(s)
-Output your one-sentence concise reasoning in the ##short_reasoning tag and your score in the ##the_score tag.
+Please output your one-sentence concise reasoning within the "reasoning" tags and your score within the "score" tags.
 Your reasoning should be less than 20 tokens. The score should be a single number with no other output.
-Format:
-##short_reasoning: <your concise and brief reasoning>
-##the_score: <your score>"""
+Only output a tag-delimited object with the following format:
+<reasoning>
+INSERT_YOUR_REASONING_HERE
+</reasoning>
+<score>
+INSERT_YOUR_SCORE_HERE
+</score>
+"""
 
 
 class LiveQAAnnotator(Annotator):
