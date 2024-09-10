@@ -30,7 +30,12 @@ def score_with_reasoning(
     reasoning = reasoning_match.group(1).strip() if reasoning_match else "Reasoning not found"
     score = score_match.group(1).strip() if score_match else None
 
-    if score == None:
+    if isinstance(score, (float, int, str)):
+        try:
+            score = float(score)
+        except ValueError:
+            raise Exception(f"Score not found in: {annotator_response_text}")
+    else:
         raise Exception(f"Score not found in: {annotator_response_text}")
 
-    return {"reasoning": reasoning, "score": float(score)}
+    return {"reasoning": reasoning, "score": score}
