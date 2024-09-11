@@ -118,7 +118,7 @@ class BedrockTitanClient(BedrockClient):
         # - tokens
         # - logprob
         completions: List[GeneratedOutput] = []
-        print(response)
+        
         for raw_completion in response["results"]:
             output_text = raw_completion["outputText"]
             # Call lstrip() Titan has the tendency to emit "\n" as the first token in the generated text output.
@@ -154,7 +154,7 @@ class BedrockMistralClient(BedrockClient):
     def convert_raw_response_to_completions(self, response: Dict, request: Request) -> List[GeneratedOutput]:
         # - logprob
         completions: List[GeneratedOutput] = []
-        print(response)
+        
         for raw_completion in response["outputs"]:
             output_text = raw_completion["text"]
 
