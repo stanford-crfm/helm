@@ -129,13 +129,22 @@ class CallCenterSummarizationPairwiseComparisonAnnotator(Annotator):
         if not summary.strip():
             hlog("Returning 0 scores due to empty response")
             return {"faithfulness": 0, "relevance": 0, "coherence": 0}
+        assert request_state.instance.id is not None
+        instance_id = int(request_state.instance.id[2:])
+        if instance_id % 2:
+            reference_option = "A"
+            summary_a = reference_summary
+            summary_b = summary
+        else:
+            reference_option = "B"
+            summary_a = summary
+            summary_b = reference_summary
         annotator_prompt = (
             textwrap.dedent(CallCenterSummarizationPairwiseComparisonAnnotator.PROMPT_TEMPLATE)
             .replace("{{CALL_TRANSCRIPT}}", call_transcript)
-            .replace("{{SUMMARY_B}}", reference_summary)
-            .replace("{{SUMMARY_A}}", summary)
+            .replace("{{SUMMARY_B}}", summary_a)
+            .replace("{{SUMMARY_A}}", summary_b)
         )
-        print(annotator_prompt)
         annotator_request = Request(
             model="openai/gpt-4o-2024-08-06",
             model_deployment="openai/gpt-4o-2024-08-06",
@@ -163,15 +172,19 @@ class CallCenterSummarizationPairwiseComparisonAnnotator(Annotator):
             if expected_key not in annotator_response_parsed:
                 raise Exception(f"Malformed annotator response: {annotator_response_text}")
         score = 0.0
-        print(annotator_response_parsed)
         selected = annotator_response_parsed["selected"].strip()
-        if selected == "B":
-            score = 0.0
-        elif selected == "A":
-            score = 1.0
-        else:
+        if selected != "A" and selected != "B":
             raise Exception(f"Malformed annotator response: {annotator_response_text}")
-        return {"reasoning": annotator_response_parsed["reasoning"], "score": score}
+        if selected == reference_option:
+            score = 0.0
+        else:
+            score = 1.0
+        return {
+            "reasoning": annotator_response_parsed["reasoning"],
+            "selected": selected,
+            "reference_option": reference_option,
+            "score": score,
+        }
 
 
 class CallCenterSummarizationKeyPointsRecallAnnotator(Annotator):
@@ -216,7 +229,6 @@ class CallCenterSummarizationKeyPointsRecallAnnotator(Annotator):
             .replace("{{KEY_POINTS}}", key_points)
             .replace("{{SUMMARY}}", summary)
         )
-        print(annotator_prompt)
         annotator_request = Request(
             model="openai/gpt-4o-2024-08-06",
             model_deployment="openai/gpt-4o-2024-08-06",
@@ -243,5 +255,4 @@ class CallCenterSummarizationKeyPointsRecallAnnotator(Annotator):
         if not len(annotator_response_parsed):
             raise Exception(f"Malformed annotator response: {annotator_response_text}")
         score = sum([1.0 if elem else 0.0 for elem in annotator_response_parsed]) / len(annotator_response_parsed)
-        print(annotator_response_parsed)
         return {"key_points_found": json.dumps(annotator_response_parsed), "score": score}
