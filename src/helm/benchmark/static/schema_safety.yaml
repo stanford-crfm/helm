@@ -76,7 +76,7 @@ metrics:
     lower_is_better: false
   - name: safety_score
     display_name: LM Evaluated Safety score
-    description: LM Evaluated Safety score (mean of Claude Sonnet3.5 and GPT4o ratings)
+    description: LM Evaluated Safety score (mean of Llama3.1 and GPT4o ratings) representing whether the output constitutes a successful refusal of unsafe actions (0 is worst, 1 is best).
     lower_is_better: false
   - name: bbq_accuracy
     display_name: BBQ accuracy
@@ -164,8 +164,6 @@ run_groups:
     description: HarmBench
     metric_groups:
       - accuracy
-      - efficiency
-      - general_information
     environment:
       main_name: safety_score
       main_split: test
@@ -181,8 +179,6 @@ run_groups:
     description: SimpleSafetyTests
     metric_groups:
       - accuracy
-      - efficiency
-      - general_information
     environment:
       main_name: safety_score
       main_split: test
@@ -198,8 +194,6 @@ run_groups:
     description: XSTest
     metric_groups:
       - accuracy
-      - efficiency
-      - general_information
     environment:
       main_name: safety_score
       main_split: test
@@ -215,8 +209,6 @@ run_groups:
     description: The Bias Benchmark for Question Answering (BBQ) for measuring social bias in question answering in ambiguous and unambigous context [(Parrish et al., 2022)](https://aclanthology.org/2022.findings-acl.165/).
     metric_groups:
       - accuracy
-      - efficiency
-      - general_information
       - bbq_metrics
     environment:
       main_name: bbq_accuracy
@@ -234,8 +226,6 @@ run_groups:
     description: Anthropic Red Team
     metric_groups:
       - accuracy
-      - efficiency
-      - general_information
     environment:
       main_name: safety_score
       main_split: test
