@@ -43,7 +43,7 @@ class BedrockClient(CachingClient):
 
     def make_request(self, request: Request) -> RequestResult:
         # model_id should be something like "amazon.titan-tg1-large", strip out the amazon/ prefix
-        model_id = self.bedrock_model_id if self.bedrock_model_id else request.model.replace("amazon/", "")
+        model_id = request.model.replace("amazon/", "")
         raw_request = self.convert_request_to_raw_request(request)
 
         # modelId isn't part of raw_request, so it must be explicitly passed into the input to
@@ -69,7 +69,7 @@ class BedrockClient(CachingClient):
             )
 
         completions = self.convert_raw_response_to_completions(response, request)
-        print(completions)
+       
 
         return RequestResult(
             success=True,
