@@ -1561,7 +1561,10 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
                 "output_prefix": "Jawablah dengan satu huruf saja, A atau B.",
             }
         }
-        self.prompt_components = self.prompts[self.language]
+        try:
+            self.prompt_components = self.prompts[self.language]
+        except:
+            hlog(f"Unsupported language {self.language} - supported languages are {self.prompts.keys()}")
 
     def download_dataset(self, output_path: str):
         BASE_URL = "https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/"
@@ -1688,7 +1691,10 @@ class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
                 "False": "Salah",
             },
         }
-        self.prompt_components = self.prompts[self.language]
+        try:
+            self.prompt_components = self.prompts[self.language]
+        except:
+            hlog(f"Unsupported language {self.language} - supported languages are {self.prompts.keys()}")
 
     def download_dataset(self, output_path: str):
         BASE_URL = "https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/"
@@ -1820,7 +1826,10 @@ class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
                 "False": "Salah",
             },
         }
-        self.prompt_components = self.prompts[self.language]
+        try:
+            self.prompt_components = self.prompts[self.language]
+        except:
+            hlog(f"Unsupported language {self.language} - supported languages are {self.prompts.keys()}")
 
     def download_dataset(self, output_path: str):
         BASE_URL = "https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/"

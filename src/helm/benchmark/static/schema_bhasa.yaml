@@ -164,8 +164,8 @@ run_groups:
     category: BHASA scenarios
     subgroups:
     - lindsea_syntax_minimal_pairs_id
-    - lindsea_pragmatics_pragmatic_reasoning_single_id
-    - lindsea_pragmatics_pragmatic_reasoning_pair_id
+    - lindsea_pragmatics_presuppositions_id
+    - lindsea_pragmatics_scalar_implicatures_id
 
   - name: tydiqa
     display_name: TyDiQA
@@ -672,10 +672,10 @@ run_groups:
       when: "?"
       language: Indonesian
 
-  - name: lindsea_pragmatics_pragmatic_reasoning_single_id
-    display_name: LINDSEA Pragmatics Pragmatic Reasoning (single sentence)
+  - name: lindsea_pragmatics_presuppositions_id
+    display_name: LINDSEA Pragmatics Presuppositions
     description: >
-      LINDSEA pragmatic reasoning (single sentence) is a linguistic diagnostic for pragmatics dataset from BHASA [(Leong, 2023)](https://arxiv.org/abs/2309.06085), involving scalar implicatures and presuppositions.
+      LINDSEA Pragmatics Presuppositions is a linguistic diagnostic for pragmatics dataset from BHASA [(Leong, 2023)](https://arxiv.org/abs/2309.06085), involving two formats: single and pair sentences. For single sentence questions, the system under test needs to determine if the sentence is true/false. For pair sentence questions, the system under test needs to determine whether a conclusion can be drawn from another sentence.
     metric_groups:
       - accuracy
       - efficiency
@@ -685,15 +685,15 @@ run_groups:
       main_split: test
     taxonomy:
       task: pragmatic reasoning
-      what: scalar implicatures and presuppositions
+      what: presuppositions
       who: "?"
       when: "?"
       language: Indonesian
 
-  - name: lindsea_pragmatics_pragmatic_reasoning_pair_id
-    display_name: LINDSEA Pragmatics Pragmatic Reasoning (sentence pair)
+  - name: lindsea_pragmatics_scalar_implicatures_id
+    display_name: LINDSEA Pragmatics Scalar Implicatures
     description: >
-      LINDSEA pragmatic reasoning (sentence pair) is a linguistic diagnostic for pragmatics dataset from BHASA [(Leong, 2023)](https://arxiv.org/abs/2309.06085), involving scalar implicatures and presuppositions.
+      LINDSEA Pragmatics Scalar Implicatures is a linguistic diagnostic for pragmatics dataset from BHASA [(Leong, 2023)](https://arxiv.org/abs/2309.06085), , involving two formats: single and pair sentences. For single sentence questions, the system under test needs to determine if the sentence is true/false. For pair sentence questions, the system under test needs to determine whether a conclusion can be drawn from another sentence.
     metric_groups:
       - accuracy
       - efficiency
@@ -703,7 +703,7 @@ run_groups:
       main_split: test
     taxonomy:
       task: pragmatic reasoning
-      what: scalar implicatures and presuppositions
+      what: scalar implicatures
       who: "?"
       when: "?"
       language: Indonesian
