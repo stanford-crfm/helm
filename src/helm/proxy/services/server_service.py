@@ -120,8 +120,12 @@ class ServerService(Service):
                 return "dall_e"
             elif model_deployment.startswith("openai/gpt-4"):
                 return "gpt4"
-            else:
+            elif model_deployment.startswith("openai/gpt-3"):
                 return "gpt3"
+            elif model_deployment.startswith("openai/o1"):
+                return "o1"
+            else:
+                return "openai"
         elif model_deployment.startswith("ai21/"):
             return "jurassic"
         else:

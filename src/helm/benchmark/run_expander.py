@@ -1271,6 +1271,30 @@ class IncreaseMaxTokensRunExpander(RunExpander):
         ]
 
 
+class TemperatureRunExpander(RunExpander):
+    """
+    Run expander for setting the temperature.
+    """
+
+    name = "temperature"
+
+    def __init__(self, value: float):
+        """
+        Args:
+            value (float): The amount to set temperature to
+        """
+        self.value = value
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        adapter_spec = replace(run_spec.adapter_spec, temperature=self.value)
+        return [
+            replace(
+                run_spec,
+                adapter_spec=adapter_spec,
+            ),
+        ]
+
+
 class IncreaseTemperatureRunExpander(RunExpander):
     """
     Run expander for increasing the temperature.
@@ -1505,6 +1529,9 @@ RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     ChatMLRunExpander,
     EvalSplitRunExpander,
     OutputFormatInstructions,
+    TemperatureRunExpander,
+    IncreaseTemperatureRunExpander,
+    IncreaseMaxTokensRunExpander,
 ]
 
 
