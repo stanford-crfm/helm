@@ -2262,6 +2262,15 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.vision_language.palmyra_vision_client.PalmyraVisionClient"
 
+  - name: writer/palmyra-x-004
+    model_name: writer/palmyra-x-004
+    # Actual tokenizer is Llama 2, but it cannot be used in HELM due to this issue:
+    # https://github.com/stanford-crfm/helm/issues/2467
+    # Work around by using Llama 3 tokenizer for now.
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.palmyra_client.PalmyraChatClient"
 
   # Qwen
 

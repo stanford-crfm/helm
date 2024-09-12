@@ -2928,6 +2928,13 @@ models:
     # Does not support echo
     tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_VLM_TAG]
 
+  - name: writer/palmyra-x-004
+    display_name: Palmyra-X-004
+    description: Palmyra-X-004 language model with a large context window of up to 128,000 tokens that excels in processing and understanding complex tasks.
+    creator_organization_name: Writer
+    access: limited
+    release_date: 2024-09-12
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # Yandex
   - name: yandex/yalm
