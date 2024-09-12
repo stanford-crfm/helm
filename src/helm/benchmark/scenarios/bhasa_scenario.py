@@ -1628,8 +1628,7 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
         return outputs
 
 
-# 2. Pragmatics
-# 2.1 LINDSEA Presuppositions
+# 2.1 Pragmatics: LINDSEA Presuppositions
 class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
     """
     The LINDSEA Presuppositions dataset is a linguistic diagnostic scenario targeting pragmatics.
@@ -1764,7 +1763,7 @@ class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
         return outputs
 
 
-# 2.2 Pragmatics: LINDSEA Scalar Implicatures Scenario
+# 2.2 Pragmatics: LINDSEA Scalar Implicatures
 class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
     """
     The LINDSEA Scalar Implicatures Scenario dataset is a linguistic diagnostic scenario targeting pragmatics.
