@@ -1701,7 +1701,7 @@ class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
         datasets = []
         for subset in self.subsets:
             URL = f"{BASE_URL}{self.language}/pragmatics/pragmatic_reasoning_{subset}.jsonl"
-            file = f"pragmatic_reasoning_{subset}"
+            file = f"pragmatic_reasoning_{subset}.jsonl"
             target_path_file = os.path.join(output_path, file)
             ensure_file_downloaded(source_url=URL, target_path=target_path_file)
             data = pd.read_json(target_path_file, lines=True)
@@ -1836,7 +1836,7 @@ class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
         datasets = []
         for subset in self.subsets:
             URL = f"{BASE_URL}{self.language}/pragmatics/pragmatic_reasoning_{subset}.jsonl"
-            file = f"pragmatic_reasoning_{subset}"
+            file = f"pragmatic_reasoning_{subset}.jsonl"
             target_path_file = os.path.join(output_path, file)
             ensure_file_downloaded(source_url=URL, target_path=target_path_file)
             data = pd.read_json(target_path_file, lines=True)
