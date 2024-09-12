@@ -169,7 +169,9 @@ class OpenAIClient(CachingClient):
         if is_vlm(request.model) and raw_request["stop"] is None:
             raw_request.pop("stop")
 
-        # Special handling for o1 models
+        # Special handling for o1 models.
+        # Refer to the "Reasoning models" documentation further discussion of o1 model limitations:
+        # https://platform.openai.com/docs/guides/reasoning
         if request.model_engine.startswith("o1"):
             # Avoid error:
             # "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead."  # noqa: E501
