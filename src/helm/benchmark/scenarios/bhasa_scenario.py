@@ -171,7 +171,7 @@ class XQuADScenario(Scenario):
         super().__init__()
         self.language = language
         self.splits = {"train": TRAIN_SPLIT, "test": TEST_SPLIT}
-        self.map = {
+        self.prompts = {
             "th": {
                 "passage_prefix": "ข้อความ: ",
                 "question_prefix": "คำถาม: ",
@@ -183,13 +183,17 @@ class XQuADScenario(Scenario):
                 "random_state": 4502,
             },
         }
+        if self.language not in self.prompts.keys():
+            raise (Exception(f"Unsupported language {self.language} - supported languages are {self.prompts.keys()}"))
+        else:
+            self.prompt_componets = self.prompts[self.language]
 
     def get_instances(self, output_path) -> List[Instance]:
         dataset = datasets.load_dataset("xquad", f"xquad.{self.language}", split="validation")
         df = dataset.to_pandas()
 
         # Sample 1000 examples for test
-        df_test = df.sample(n=1000, random_state=self.map[self.language]["random_state"])
+        df_test = df.sample(n=1000, random_state=self.prompt_componets["random_state"])
 
         # In-context examples to be drawn from remaining examples (since there is no train data)
         df_train = df[~df.index.isin(df_test.index)]
@@ -210,8 +214,8 @@ class XQuADScenario(Scenario):
                 input = PassageQuestionInput(
                     passage=passage,
                     question=question,
-                    passage_prefix=str(self.map[self.language]["passage_prefix"]),
-                    question_prefix=str(self.map[self.language]["question_prefix"]),
+                    passage_prefix=str(self.prompt_componets["passage_prefix"]),
+                    question_prefix=str(self.prompt_componets["question_prefix"]),
                 )
                 references = []
                 for answer in row["answers"]["text"]:
@@ -1068,6 +1072,9 @@ class FloresScenario(Scenario):
             "ta": "tam_Taml",
         }
 
+        if self.source not in self.languages.keys() or self.target not in self.languages.keys():
+            raise (Exception(f"Unsupported language/s - supported languages are {self.languages.keys()}"))
+
     def get_instances(self, output_path) -> List[Instance]:
         source_dataset = datasets.load_dataset(
             "facebook/flores",
@@ -1259,6 +1266,9 @@ class XNLIScenario(Scenario):
             "test": TEST_SPLIT,
         }
         self.id2label = {0: "A", 2: "B", 1: "C"}
+        self.valid_languages = ["th", "vi"]
+        if self.language not in self.valid_languages:
+            raise (Exception(f"Unsupported language {self.language} - supported languages are {self.valid_languages}"))
 
     def get_instances(self, output_path) -> List[Instance]:
         dataset = datasets.load_dataset("xnli", self.language)
@@ -1449,7 +1459,7 @@ class XCOPAScenario(Scenario):
             0: "A",
             1: "B",
         }
-        self.prompt = {
+        self.prompts = {
             "id": {
                 "cause": "sebab",
                 "effect": "akibat",
@@ -1476,6 +1486,10 @@ class XCOPAScenario(Scenario):
                 "instruction2": "Trả lời với một chữ cái duy nhất A hoặc B.",
             },
         }
+        if self.language not in self.prompts.keys():
+            raise (Exception(f"Unsupported language {self.language} - supported languages are {self.prompts.keys()}"))
+        else:
+            self.prompt_components = self.prompts[self.language]
 
     def get_instances(self, output_path) -> List[Instance]:
         language_dataset = datasets.load_dataset("xcopa", self.language)
@@ -1489,15 +1503,13 @@ class XCOPAScenario(Scenario):
                 language_df, tamil_df[["question", "idx"]], on="idx"
             )  # Use the Tamil split's question column
             for _, row in data.iterrows():
-                instruction1 = self.prompt[self.language]["instruction1"].format(
-                    self.prompt[self.language][row["question_y"]]
-                )
+                instruction1 = self.prompt_components["instruction1"].format(self.prompt_components[row["question_y"]])
                 passage = "{premise}\n{instruction1}\nA: {choice1}\nB: {choice2}\n{instruction2}".format(
                     premise=row["premise"].strip(),
                     instruction1=instruction1,
                     choice1=row["choice1"].strip(),
                     choice2=row["choice2"].strip(),
-                    instruction2=self.prompt[self.language]["instruction2"],
+                    instruction2=self.prompt_components["instruction2"],
                 )
                 input = Input(passage)
                 output = Output(self.id2label[int(row["label"])])
@@ -1561,10 +1573,10 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
                 "output_prefix": "Jawablah dengan satu huruf saja, A atau B.",
             }
         }
-        try:
+        if self.language not in self.prompts.keys():
+            raise (Exception(f"Unsupported language {self.language} - supported languages are {self.prompts.keys()}"))
+        else:
             self.prompt_components = self.prompts[self.language]
-        except:
-            hlog(f"Unsupported language {self.language} - supported languages are {self.prompts.keys()}")
 
     def download_dataset(self, output_path: str):
         BASE_URL = "https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/"
@@ -1690,10 +1702,10 @@ class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
                 "False": "Salah",
             },
         }
-        try:
+        if self.language not in self.prompts.keys():
+            raise (Exception(f"Unsupported language {self.language} - supported languages are {self.prompts.keys()}"))
+        else:
             self.prompt_components = self.prompts[self.language]
-        except:
-            hlog(f"Unsupported language {self.language} - supported languages are {self.prompts.keys()}")
 
     def download_dataset(self, output_path: str):
         BASE_URL = "https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/"
@@ -1825,10 +1837,10 @@ class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
                 "False": "Salah",
             },
         }
-        try:
+        if self.language not in self.prompts.keys():
+            raise (Exception(f"Unsupported language {self.language} - supported languages are {self.prompts.keys()}"))
+        else:
             self.prompt_components = self.prompts[self.language]
-        except:
-            hlog(f"Unsupported language {self.language} - supported languages are {self.prompts.keys()}")
 
     def download_dataset(self, output_path: str):
         BASE_URL = "https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/"
