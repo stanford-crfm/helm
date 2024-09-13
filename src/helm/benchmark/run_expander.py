@@ -1271,6 +1271,30 @@ class IncreaseMaxTokensRunExpander(RunExpander):
         ]
 
 
+class TemperatureRunExpander(RunExpander):
+    """
+    Run expander for setting the temperature.
+    """
+
+    name = "temperature"
+
+    def __init__(self, value: float):
+        """
+        Args:
+            value (float): The amount to set temperature to
+        """
+        self.value = value
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        adapter_spec = replace(run_spec.adapter_spec, temperature=self.value)
+        return [
+            replace(
+                run_spec,
+                adapter_spec=adapter_spec,
+            ),
+        ]
+
+
 class IncreaseTemperatureRunExpander(RunExpander):
     """
     Run expander for increasing the temperature.
@@ -1399,8 +1423,15 @@ class OutputFormatInstructions(RunExpander):
 
     name = "output_format_instructions"
 
+    _SUFFIX_SUFFIX = "_suffix"
+
     def __init__(self, scenario: str):
-        self.scenario = scenario
+        if scenario.endswith(OutputFormatInstructions._SUFFIX_SUFFIX):
+            self.scenario = scenario[: -len(OutputFormatInstructions._SUFFIX_SUFFIX)]
+            self.suffix = True
+        else:
+            self.scenario = scenario
+            self.suffix = False
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         if run_spec.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
@@ -1408,29 +1439,10 @@ class OutputFormatInstructions(RunExpander):
                 instructions = "Answer only the last question with only a single letter."
             elif self.scenario == "mmlu":
                 instructions = "Answer with only a single letter."
-            elif self.scenario == "mmlu_suffix":
-                instructions = "Answer with only a single letter."
-                return [
-                    replace(
-                        run_spec,
-                        adapter_spec=replace(
-                            run_spec.adapter_spec,
-                            global_suffix=f"{run_spec.adapter_spec.global_suffix}\n\n{instructions}",
-                        ),
-                    ),
-                ]
             elif self.scenario == "mcqa":
                 instructions = "Answer with only a single letter."
             else:
                 instructions = "Answer with only a single letter."
-            if run_spec.adapter_spec.instructions:
-                instructions = f"{instructions}\n\n{run_spec.adapter_spec.instructions}"
-            return [
-                replace(
-                    run_spec,
-                    adapter_spec=replace(run_spec.adapter_spec, instructions=instructions),
-                ),
-            ]
         elif run_spec.adapter_spec.method == ADAPT_GENERATION:
             output_noun = run_spec.adapter_spec.output_prefix.split(":")[0]
             if self.scenario == "narrative_qa":
@@ -1445,6 +1457,12 @@ class OutputFormatInstructions(RunExpander):
                     instructions = f"Answer with the {output_noun.lower()}."
                 else:
                     instructions = "Answer yes or no."
+            elif self.scenario == "legalbench_abercrombie":
+                instructions = "Answer with only 'generic', 'descriptive', 'suggestive', 'arbitrary' or 'fanciful'."
+            elif self.scenario == "legalbench_function_of_decision_section":
+                instructions = "Answer with only 'Facts', 'Procedural History', 'Issue', 'Rule', 'Analysis', 'Conclusion' or 'Decree'."  # noqa: E501
+            elif self.scenario == "legalbench_yes_or_no":
+                instructions = "Answer with only 'Yes' or 'No'."
             elif self.scenario == "wmt_14":
                 instructions = "Answer with the English translation."
             elif self.scenario == "wmt_14_only_last_sentence":
@@ -1465,17 +1483,27 @@ class OutputFormatInstructions(RunExpander):
             else:
                 raise ValueError(f"Unknown scenario {self.scenario}")
 
-            if run_spec.adapter_spec.instructions:
-                instructions = f"{instructions}\n\n{run_spec.adapter_spec.instructions}"
-            else:
-                instructions = f"{instructions}\n"
+        if self.suffix:
             return [
                 replace(
                     run_spec,
-                    adapter_spec=replace(run_spec.adapter_spec, instructions=instructions),
+                    adapter_spec=replace(
+                        run_spec.adapter_spec,
+                        global_suffix=f"{run_spec.adapter_spec.global_suffix}\n\n{instructions}",
+                    ),
                 ),
             ]
-        raise ValueError(f"Unknown scenario {self.scenario}")
+
+        if run_spec.adapter_spec.instructions:
+            instructions = f"{instructions}\n\n{run_spec.adapter_spec.instructions}"
+        else:
+            instructions = f"{instructions}\n"
+        return [
+            replace(
+                run_spec,
+                adapter_spec=replace(run_spec.adapter_spec, instructions=instructions),
+            ),
+        ]
 
 
 RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
@@ -1501,6 +1529,9 @@ RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     ChatMLRunExpander,
     EvalSplitRunExpander,
     OutputFormatInstructions,
+    TemperatureRunExpander,
+    IncreaseTemperatureRunExpander,
+    IncreaseMaxTokensRunExpander,
 ]
 
 

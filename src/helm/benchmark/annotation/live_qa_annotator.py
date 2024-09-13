@@ -5,8 +5,39 @@ from typing import Any
 from helm.common.general import ensure_directory_exists
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
+from helm.benchmark.annotation.score_util import score_with_reasoning
 from helm.clients.auto_client import AutoClient
-from helm.common.request import Request
+
+PROMPT_TEMPLATE = """You are a medical judge will be given a user request and a model response to that request.
+Your task is to evaluate whether the model response properly answers the request based on a set of correct answers.
+The user's request will be provided in these tags:
+<user_request>
+{{QUESTION}}
+</user_request>
+The model's response will be provided in these tags:
+<model_response>
+{{ANSWER}}
+</model_response>
+Some potential correct responses will be provided in these tags:
+<correct_responses>
+{{CORRECT_RESPONSES}}
+</correct_responses>
+Carefully analyze the <model_response> contents.
+Determine if the model is correct with respect to one or more of the <correct_responses> on a range from 0 to 1.
+# 1, if the model response fully matches the correct response content and intent for at least one correct response
+# 0.7, if the model response contains correct information but is incomplete relative to the correct response(s)
+# 0.3, if the model response contains some correct information but is incomplete and/or incorrect
+# 0, if the model response is completely unrelated or incorrect relative to the correct response(s)
+Please output your one-sentence concise reasoning within the "reasoning" tags and your score within the "score" tags.
+Your reasoning should be less than 20 tokens. The score should be a single number with no other output.
+Only output a tag-delimited object with the following format:
+<reasoning>
+INSERT_YOUR_REASONING_HERE
+</reasoning>
+<score>
+INSERT_YOUR_SCORE_HERE
+</score>
+"""
 
 
 class LiveQAAnnotator(Annotator):
@@ -31,54 +62,15 @@ class LiveQAAnnotator(Annotator):
         correct_responses = ""
         for i, reference in enumerate(request_state.instance.references):
             correct_responses += "Correct Response #" + str(i) + ": " + reference.output.text + "\n"
-        prompt_template = """You are a medical judge will be given a user request and a model response to that request. Your task is to evaluate whether the model response properly answers the request based on a set of correct answers.
-The user's request will be provided in these tags:
-<user_request>
-{{QUESTION}}
-</user_request>
-The model's response will be provided in these tags:
-<model_response>
-{{ANSWER}}
-</model_response>
-Some potential correct responses will be provided in these tags:
-<correct_responses>
-{{CORRECT_RESPONSES}}
-</correct_responses>
-Carefully analyze the <model_response> and determine if the model is correct with respect to one or more of the <correct_responses> on a range from 0 to 1.
-# 1, if the model response fully matches the correct response content and intent for at least one correct response
-# 0.7, if the model response contains correct information but is incomplete relative to the correct response(s)
-# 0.3, if the model response contains some correct information but is incomplete and/or contains incorrect information relative to the correct response(s)
-# 0, if the model response is completely unrelated or incorrect relative to the correct response(s)
-Output your one-sentence concise reasoning in the ##short_reasoning tag and your score in the ##the_score tag. Your reasoning should be less than 20 tokens. The score should be a single number with no other output.
-Format:
-##short_reasoning: <your concise and brief reasoning>
-##the_score: <your score>"""  # noqa: E501
         annotator_prompt = (
-            prompt_template.strip('"')
-            .strip()
+            PROMPT_TEMPLATE.strip()
             .replace("{{QUESTION}}", model_input_text)
             .replace("{{ANSWER}}", model_output_text)
             .replace("{{CORRECT_RESPONSES}}", correct_responses)
         )
-        annotator_request = Request(
-            model="openai/gpt-4-turbo-2024-04-09",
-            model_deployment="openai/gpt-4-turbo-2024-04-09",
-            prompt=annotator_prompt,
-            temperature=0.0,
-            max_tokens=64,
+        results = score_with_reasoning(
+            self._auto_client, annotator_prompt, "openai/gpt-4o-2024-05-13", "openai/gpt-4o-2024-05-13"
         )
-        annotator_response = self._auto_client.make_request(annotator_request)
-        if not annotator_response.success:
-            raise Exception(f"Annotation request failed: {annotator_response.error}")
-        assert len(annotator_response.completions) == 1
-        annotator_response_text = annotator_response.completions[0].text
-        annotator_response_parts = self._pattern.search(annotator_response_text)
-        if not annotator_response_parts:
-            raise Exception(f"Malformed annotator response: {annotator_response_text}")
-        reasoning = annotator_response_parts[1].strip()
-        try:
-            score = float(annotator_response_parts[2].strip())
-        except ValueError as e:
-            raise Exception(f"Malformed annotator response: {annotator_response_text}") from e
-
+        reasoning = results.get("reasoning")
+        score = results.get("score")
         return {"prompt_text": annotator_prompt, "reasoning": reasoning, "score": score}

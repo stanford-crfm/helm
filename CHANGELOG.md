@@ -2,6 +2,93 @@
 
 ## [Upcoming]
 
+## [v0.5.3] - 2024-09-06
+
+### Breaking Changes
+
+- The `--models-to-run` flag in `helm-run` must now be set if a models run expander such as `models=text` is used (#2852)
+- The `--jquery` flag has been removed from `helm-server` because the legacy frontend is no longer supported (#2852)
+
+### Scenarios
+
+- Improve DecodingTrust scenario (#2734, #2600)
+- Add BHASA scenarios (#2648, #2914, #2913, #2937)
+- Add BHASA LINDSEA scenarios (#2694)
+- Change AIR-Bench main score to refusal rate (#2788, #2802, #2873)
+- Add EWoK scenario (#2812, #2850, #2882, #2897, #2899)
+- Add FinanceBench scenario (#2798)
+- Add XSTest Scenario (#2831)
+- Add AnthropicRedTeam scenario (#2830)
+- Add SimpleSafetyTests Scenario(#2828)
+- Add HarmBench Scenario (#2829, #2935)
+- Add BANKING77 scenario (#2947)
+- Change source dataset URL for Momentos scenario for VHELM (#2823)
+- Add RealWorldQA, EXAMS-V, and FairFace scenarios for VHELM (#2825)
+- Update Image2Struct scenarios (#2879, #2878, #2888, #2890, #2891, #2919, #2920)
+
+### Models
+
+- Add SambaLingo Thai models (#2747, #2757)
+- Add more Typhoon family models (#2745, #2768)
+- Add SeaLLM models (#2744)
+- Add OpenThaiGPT models (#2743)
+- Add SambaLingo-Thai-Base-70B and SambaLingo-Thai-Chat-70B (#2758, #2757, #2782)
+- Add Claude 3.5 Sonnet (20240620) (#2763)
+- Add multi-GPU support to HuggingFaceClient (#2762)
+- Add AI21 Jamba Instruct (#2766)
+- Add Gemma 2 and Gemma 2 Instruct models (#2796, #2862)
+- Deleted many deprecated models (#2668, #2814)
+- Deleted many deprecated window services (#2669)
+- Add Phi-3 models (#2815)
+- Switched AI21 models to use local tokenizer (#2775)
+- Add GPT-4o mini (#2827)
+- Add Mistral NeMo (#2826)
+- Add Llama 3.1 Instruct Turbo (#2835, #2840, #2844, #2880, #2898)
+- Add Mistral Large 2 (#2839)
+- Add Nemotron-4-Instruct (#2892, #2896, #2901)
+- Add GPT-4o (2024-08-06) (#2900)
+- Add Jamba 1.5 models (#2957)
+- Add Llama Guard 3 (#2968)
+
+### Frontend
+
+- Fix bug causing repeated renders and excessive CPU usage on some HELM landing pages (#2816)
+- Fix bug causing Predictions page to repeatedly download schema.json (#2847)
+- Fix spurious AbortError warnings in console logs (#2811)
+- Fix incorrect handling perturbations in run predictions frontend (#2950)
+
+### Framework
+
+- Support other reference prefixes in MultipleChoiceJointAdapter (#2809)
+- Add validation for --models-to-run (#2852)
+- Remove pyext from dependencies (#2921)
+- Make Perspective API dependencies optional (#2924)
+
+### Misc
+
+- Add additional instructions for more scenarios in `output_format_instructions` (#2789, #2821, #2822, #2824, #2902, #2906, #2952, #2963)
+- Allow the `output_format_instructions` run expander to add additional instructions as suffix (#2964)
+- Changelog messages are now in present tense rather than past tense, to align with Git commit message style
+- Leaderboard releases are no longer included in this changelog, and will be included in `LEADERBOARD_CHANGELOG.md` instead
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @andyzorigin
+- @benediktstroebl
+- @danielz02
+- @farzaank
+- @JosselinSomervilleRoberts
+- @percyliang
+- @potsawee
+- @raileymontalan
+- @SathvikNapa
+- @shenmishajing
+- @teetone
+- @weiqipedia
+- @yifanmai
+
 ## [v0.5.2] - 2024-06-17
 
 ### Scenarios
@@ -540,7 +627,8 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.2...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.3...HEAD
+[v0.5.3]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.3
 [v0.5.2]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.2
 [v0.5.1]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.1
 [v0.5.0]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.0

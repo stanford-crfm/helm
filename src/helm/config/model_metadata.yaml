@@ -108,6 +108,24 @@ models:
     release_date: 2024-05-02
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: ai21/jamba-1.5-mini
+    display_name: Jamba 1.5 Mini
+    description: Jamba 1.5 Mini is a long-context, hybrid SSM-Transformer instruction following foundation model that is optimized for function calling, structured output, and grounded generation. ([blog](https://www.ai21.com/blog/announcing-jamba-model-family))
+    creator_organization_name: AI21 Labs
+    access: open
+    num_parameters: 51600000000
+    release_date: 2024-08-22
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: ai21/jamba-1.5-large
+    display_name: Jamba 1.5 Large
+    description: Jamba 1.5 Large is a long-context, hybrid SSM-Transformer instruction following foundation model that is optimized for function calling, structured output, and grounded generation. ([blog](https://www.ai21.com/blog/announcing-jamba-model-family))
+    creator_organization_name: AI21 Labs
+    access: open
+    num_parameters: 399000000000
+    release_date: 2024-08-22
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   # AI Singapore
   - name: aisingapore/sea-lion-7b
     display_name: SEA-LION (7B)
@@ -1482,6 +1500,16 @@ models:
     release_date: 2024-04-18
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: meta/llama-guard-3-8b
+    display_name: Llama Guard 3 (8B)
+    description: Llama Guard 3 is an 8B parameter Llama 3.1-based LLM safeguard model. Similar to Llama Guard, it can be used for classifying content in both LLM inputs (prompt classification) and in LLM responses (response classification). It acts as an LLM – it generates text in its output that indicates whether a given prompt or response is safe or unsafe, and if unsafe, it also lists the content categories violated.
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-07-23
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+
   
 
 
@@ -2189,6 +2217,23 @@ models:
     access: limited
     release_date: 2023-11-06
     tags: [VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
+
+  ## o1 Models
+  - name: openai/o1-preview-2024-09-12
+    display_name: o1-preview (2024-09-12)
+    description: o1-preview is a language model trained with reinforcement learning to perform complex reasoning that can produce a long internal chain of thought before responding to the user. ([model card](https://openai.com/index/openai-o1-system-card/), [blog post](https://openai.com/index/learning-to-reason-with-llms/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2024-09-12
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/o1-mini-2024-09-12
+    display_name: o1-mini (2024-09-12)
+    description: o1-mini is a cost-effective reasoning model for applications that require reasoning without broad world knowledge. ([model card](https://openai.com/index/openai-o1-system-card/), [blog post](https://openai.com/index/openai-o1-mini-advancing-cost-efficient-reasoning/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2024-09-12
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   ## Codex Models
   # DEPRECATED: Codex models have been shut down on March 23 2023.
@@ -2900,6 +2945,13 @@ models:
     # Does not support echo
     tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_VLM_TAG]
 
+  - name: writer/palmyra-x-004
+    display_name: Palmyra-X-004
+    description: Palmyra-X-004 language model with a large context window of up to 128,000 tokens that excels in processing and understanding complex tasks.
+    creator_organization_name: Writer
+    access: limited
+    release_date: 2024-09-12
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # Yandex
   - name: yandex/yalm

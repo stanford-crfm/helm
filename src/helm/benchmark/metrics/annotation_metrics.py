@@ -49,6 +49,28 @@ class AnnotationLabelMetric(Metric):
         return stats
 
 
+class AnnotationNumericMetric(Metric):
+    """Numeric metric for numbers produced by annotators.
+
+    Expects the annotation with the given annotator name and key to be a number."""
+
+    def __init__(self, annotator_name: str, key: str):
+        super().__init__()
+        self.annotator_name = annotator_name
+        self.key = key
+
+    def evaluate_generation(
+        self,
+        adapter_spec: AdapterSpec,
+        request_state: RequestState,
+        metric_service: MetricService,
+        eval_cache_path: str,
+    ) -> List[Stat]:
+        assert request_state.annotations
+        score = request_state.annotations[self.annotator_name][self.key]
+        return [Stat(MetricName(f"annotation_{self.annotator_name}_{self.key}")).add(score)]
+
+
 class AnnotationLikertScaleMetric(Metric):
     """Numeric metric for labels produced by annotators.
 

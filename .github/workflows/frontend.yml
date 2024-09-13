@@ -33,6 +33,9 @@ jobs:
     - name: Run check format
       working-directory: ./helm-frontend
       run: yarn format:check
+    - name: Build
+      working-directory: ./helm-frontend
+      run: yarn build
     - name: Run tests
       working-directory: ./helm-frontend
       run: yarn test

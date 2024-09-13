@@ -30,7 +30,9 @@ export default function Predictions({
       <div className="flex flex-wrap justify-start items-start">
         {predictions.map((prediction, idx) => (
           <div className="w-full" key={idx}>
-            {predictions.length > 1 ? <h2>Trial {idx}</h2> : null}
+            {predictions.length > 1 ? (
+              <h2>Trial {prediction.train_trial_index}</h2>
+            ) : null}
             <div className="mt-2 w-full">
               {prediction.base64_images &&
               prediction.base64_images.length > 0 ? (
@@ -74,13 +76,7 @@ export default function Predictions({
                     ) : (
                       <span>{statKey}</span>
                     )}
-                    <span>
-                      {String(
-                        prediction.stats[
-                          statKey as keyof typeof prediction.stats
-                        ],
-                      )}
-                    </span>
+                    <span>{String(prediction.stats[statKey])}</span>
                   </ListItem>
                 ))}
               </List>

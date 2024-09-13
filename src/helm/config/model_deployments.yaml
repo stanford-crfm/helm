@@ -56,6 +56,20 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.ai21_client.AI21ChatClient"
 
+  - name: ai21/jamba-1.5-mini
+    model_name: ai21/jamba-1.5-mini
+    tokenizer_name: ai21/jamba-1.5-mini-tokenizer
+    max_sequence_length: 256000
+    client_spec:
+      class_name: "helm.clients.ai21_client.AI21ChatClient"
+
+  - name: ai21/jamba-1.5-large
+    model_name: ai21/jamba-1.5-large
+    tokenizer_name: ai21/jamba-1.5-large-tokenizer
+    max_sequence_length: 256000
+    client_spec:
+      class_name: "helm.clients.ai21_client.AI21ChatClient"
+
   # Aleph Alpha
   - name: AlephAlpha/luminous-base
     model_name: AlephAlpha/luminous-base
@@ -1627,6 +1641,21 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
+  ## o1 Models
+  - name: openai/o1-preview-2024-09-12
+    model_name: openai/o1-preview-2024-09-12
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
+  - name: openai/o1-mini-2024-09-12
+    model_name: openai/o1-mini-2024-09-12
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
   ## Text Similarity Models
   # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
   # The number of parameters is guessed based on the number of parameters of the
@@ -1890,6 +1919,15 @@ model_deployments:
       class_name: "helm.clients.together_client.TogetherClient"
       args:
         together_model: meta-llama/llamaguard-2-8b
+
+  - name: together/llama-guard-3-8b
+    model_name: meta/llama-guard-3-8b
+    tokenizer_name: meta/llama-3.1-8b
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: meta-llama/Meta-Llama-Guard-3-8B
 
   # 01.AI
   - name: together/yi-6b
@@ -2239,6 +2277,15 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.vision_language.palmyra_vision_client.PalmyraVisionClient"
 
+  - name: writer/palmyra-x-004
+    model_name: writer/palmyra-x-004
+    # Actual tokenizer is Llama 2, but it cannot be used in HELM due to this issue:
+    # https://github.com/stanford-crfm/helm/issues/2467
+    # Work around by using Llama 3 tokenizer for now.
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.palmyra_client.PalmyraChatClient"
 
   # Qwen
 

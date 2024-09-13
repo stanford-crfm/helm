@@ -87,6 +87,18 @@ metrics:
     short_display_name: Coherence
     description: Whether the summary organizes the relevant information into a well-structured summary.
     lower_is_better: false
+
+  - name: annotation_call_center_summarization_pairwise_comparison_score
+    display_name: Pairwise
+    short_display_name: Pairwise
+    description: Whether the model's summary was preferred by the evaluator model
+    lower_is_better: false
+    
+  - name: annotation_call_center_summarization_key_points_recall_score
+    display_name: Recall
+    short_display_name: Recall
+    description: How many key items were recalled
+    lower_is_better: false
 ############################################################
 perturbations: []
 
@@ -94,12 +106,27 @@ perturbations: []
 metric_groups:
   - name: summarization_metrics
     display_name: Summarization
+    hide_win_rates: true
     metrics:
       - name: annotation_call_center_summarization_faithfulness
         split: ${main_split}
       - name: annotation_call_center_summarization_relevance
         split: ${main_split}
       - name: annotation_call_center_summarization_coherence
+        split: ${main_split}
+
+  - name: pairwise_comparison_metrics
+    display_name: Pairwise Comparison
+    hide_win_rates: true
+    metrics:
+      - name: annotation_call_center_summarization_pairwise_comparison_score
+        split: ${main_split}
+
+  - name: key_points_recall_metrics
+    display: Key Points Recall
+    hide_win_rates: true
+    metrics:
+      - name: annotation_call_center_summarization_key_points_recall_score
         split: ${main_split}
 
   - name: efficiency
@@ -132,6 +159,9 @@ run_groups:
     category: All scenarios
     subgroups:
       - call_center_summarization
+      - call_center_summarization_real_call_transcripts
+      - call_center_summarization_pairwise_comparison
+      - call_center_summarization_key_points_recall
 
   - name: call_center_summarization
     display_name: Summarization
@@ -139,6 +169,57 @@ run_groups:
     metric_groups:
       # - accuracy
       - summarization_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_split: test
+    taxonomy:
+      task: summarization
+      what: n/a
+      who: n/a
+      when: "?"
+      language: English
+
+  - name: call_center_summarization_real_call_transcripts
+    display_name: Summarization (Real)
+    description: Summarization with real call transcripts
+    metric_groups:
+      # - accuracy
+      - summarization_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_split: test
+    taxonomy:
+      task: summarization
+      what: n/a
+      who: n/a
+      when: "?"
+      language: English
+
+  - name: call_center_summarization_pairwise_comparison
+    display_name: Summarization (Pairwise)
+    description: summarization
+    metric_groups:
+      # - accuracy
+      - pairwise_comparison_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_split: test
+    taxonomy:
+      task: summarization
+      what: n/a
+      who: n/a
+      when: "?"
+      language: English
+
+  - name: call_center_summarization_key_points_recall
+    display_name: Summarization (Key Points Recall)
+    description: summarization
+    metric_groups:
+      # - accuracy
+      - key_points_recall_metrics
       - efficiency
       - general_information
     environment:

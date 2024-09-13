@@ -3,7 +3,7 @@
 		"title": "Lite",
 		"description": "Lightweight, broad evaluation of the capabilities of language models using in-context learning",
 		"id": "lite",
-		"releases": ["v1.7.0", "v1.6.0", "v1.5.0", "v1.4.0", "v1.3.0", "v1.2.0", "v1.1.0", "v1.0.0"]
+		"releases": ["v1.8.0", "v1.7.0", "v1.6.0", "v1.5.0", "v1.4.0", "v1.3.0", "v1.2.0", "v1.1.0", "v1.0.0"]
 	},
 	{
 		"title": "Classic",
@@ -27,7 +27,7 @@
 		"title": "MMLU",
 		"description": "Massive Multitask Language Understanding (MMLU) evaluations using standardized prompts",
 		"id": "mmlu",
-		"releases": ["v1.7.0", "v1.6.0", "v1.5.0", "v1.4.0", "v1.3.0", "v1.2.0", "v1.1.0", "v1.0.0"]
+		"releases": ["v1.8.0", "v1.7.0", "v1.6.0", "v1.5.0", "v1.4.0", "v1.3.0", "v1.2.0", "v1.1.0", "v1.0.0"]
 	},
 	{
 		"title": "VHELM",
@@ -37,7 +37,7 @@
 	},
 	{
 		"title": "Image2Struct",
-		"description": "Evaluations of Vision-Language Models on extracting structured information (LaTeX, webpages, sheet music) from images",
+		"description": "Evaluations of Vision-Language Models on extracting structured information from images",
 		"id": "image2struct",
 		"releases": ["v1.0.1", "v1.0.0"]
 	},
@@ -45,6 +45,18 @@
 		"title": "AIR-Bench",
 		"description": "Safety benchmark based on emerging government regulations and company policies",
 		"id": "air-bench",
+		"releases": ["v1.0.0"]
+	},
+	{
+		"title": "CLEVA",
+		"description": "Chinese-language benchmark for holistic evaluation of Chinese language models",
+		"id": "cleva",
+		"releases": ["v1.0.0"]
+	},
+	{
+		"title": "ThaiExam",
+		"description": "Thai-language evaluations of language models on standardized examinations in Thailand",
+		"id": "thaiexam",
 		"releases": ["v1.0.0"]
 	},
 	{

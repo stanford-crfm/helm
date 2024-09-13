@@ -22,14 +22,22 @@ tokenizer_configs:
       class_name: "helm.tokenizers.ai21_tokenizer.AI21LocalTokenizer"
     end_of_text_token: "<|endoftext|>"
     prefix_token: "<|startoftext|>"
-
   - name: ai21/jamba-tokenizer
     tokenizer_spec:
       class_name: "helm.tokenizers.ai21_tokenizer.AI21LocalTokenizer"
     end_of_text_token: "<|endoftext|>"
     prefix_token: "<|startoftext|>"
-
   - name: ai21/jamba-instruct-tokenizer
+    tokenizer_spec:
+      class_name: "helm.tokenizers.ai21_tokenizer.AI21LocalTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|startoftext|>"
+  - name: ai21/jamba-1.5-mini-tokenizer
+    tokenizer_spec:
+      class_name: "helm.tokenizers.ai21_tokenizer.AI21LocalTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|startoftext|>"
+  - name: ai21/jamba-1.5-large-tokenizer
     tokenizer_spec:
       class_name: "helm.tokenizers.ai21_tokenizer.AI21LocalTokenizer"
     end_of_text_token: "<|endoftext|>"
