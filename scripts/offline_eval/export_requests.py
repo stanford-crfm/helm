@@ -8,7 +8,7 @@ from dacite import from_dict
 
 from helm.common.request import Request
 from helm.common.cache import (
-    CacheConfig,
+    KeyValueStoreCacheConfig,
     MongoCacheConfig,
     SqliteCacheConfig,
     create_key_value_store,
@@ -38,7 +38,7 @@ SUPPORTED_ORGS: List[str] = ["together", "google", "microsoft"]
 
 
 @htrack("Generating jsonl file with list of raw requests")
-def export_requests(cache_config: CacheConfig, organization: str, run_suite_path: str, output_path: str):
+def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, run_suite_path: str, output_path: str):
     """
     Given a run suite folder, generates a jsonl file at `output_path` with raw queries
     where each line represents a single request.
@@ -155,7 +155,7 @@ if __name__ == "__main__":
 
     if (args.cache_dir and args.mongo_uri) or (not args.cache_dir and not args.mongo_uri):
         raise ValueError("Exactly one of --cache-dir or --mongo-uri should be specified")
-    cache_config: CacheConfig
+    cache_config: KeyValueStoreCacheConfig
     if args.cache_dir:
         cache_config = SqliteCacheConfig(os.path.join(args.cache_dir, f"{args.organization}.sqlite"))
     elif args.mongo_uri:

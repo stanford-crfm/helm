@@ -35,8 +35,18 @@ class CacheConfig:
         return "unknown"
 
 
+class KeyValueStoreCacheConfig(CacheConfig):
+    """Configuration for a cache backed by a key-value store."""
+
+    # This was originally to distinguish between "primitive" cache configs
+    # and "compound" cache configs. But we don't have any "compound" cache configs currently.
+    # Hypthetical "compound" example: ReadOnlyCacheConfig(SqliteCacheConfig("path"))
+    # TODO: Maybe remove this eventually?
+    pass
+
+
 @dataclass(frozen=True)
-class SqliteCacheConfig(CacheConfig):
+class SqliteCacheConfig(KeyValueStoreCacheConfig):
     """Configuration for a cache backed by SQLite."""
 
     # Path for the Sqlite file that backs the cache.
@@ -48,7 +58,7 @@ class SqliteCacheConfig(CacheConfig):
 
 
 @dataclass(frozen=True)
-class BlackHoleCacheConfig(CacheConfig):
+class BlackHoleCacheConfig(KeyValueStoreCacheConfig):
     """Configuration for a cache that does not save any data."""
 
     @property
@@ -58,7 +68,7 @@ class BlackHoleCacheConfig(CacheConfig):
 
 
 @dataclass(frozen=True)
-class MongoCacheConfig(CacheConfig):
+class MongoCacheConfig(KeyValueStoreCacheConfig):
     """Configuration for a cache backed by a MongoDB collection."""
 
     # URL for the MongoDB database that contains the collection.
@@ -92,7 +102,7 @@ def get_all_from_sqlite(path: str) -> Generator[Tuple[Dict, Dict], None, None]:
         yield (key, value)
 
 
-def create_key_value_store(config: CacheConfig) -> KeyValueStore:
+def create_key_value_store(config: KeyValueStoreCacheConfig) -> KeyValueStore:
     """Create a key value store from the given configuration."""
     # TODO: Support creating _MongoKeyValueStore
     if isinstance(config, MongoCacheConfig):
@@ -167,7 +177,10 @@ class Cache(object):
 
     def __init__(self, config: CacheConfig):
         hlog(f"Created cache with config: {config}")
-        self.config = config
+        if isinstance(config, KeyValueStoreCacheConfig):
+            self.config = config
+        else:
+            raise ValueError(f"CacheConfig with unknown type: {config}")
 
     def get(self, request: Mapping, compute: Callable[[], Dict]) -> Tuple[Dict, bool]:
         """Get the result of `request` (by calling `compute` as needed)."""

@@ -12,7 +12,7 @@ import torch
 
 from helm.common.cache import (
     KeyValueStore,
-    CacheConfig,
+    KeyValueStoreCacheConfig,
     MongoCacheConfig,
     SqliteCacheConfig,
     create_key_value_store,
@@ -96,13 +96,13 @@ class DeepFloyd:
             stage_3.enable_model_cpu_offload()
             return stage_1, stage_2, stage_3
 
-    def __init__(self, model_name: str, file_cache_path: str, cache_config: CacheConfig):
+    def __init__(self, model_name: str, file_cache_path: str, key_value_cache_config: KeyValueStoreCacheConfig):
         stage1_model, stage2_model = self.MODEL_NAME_TO_MODELS[model_name]
         self._model_engine: str = model_name
         self._stage_1, self._stage_2, self._stage_3 = self.initialize_model(stage1_model, stage2_model)
 
         self._file_cache = LocalFileCache(file_cache_path, "png")
-        self._key_value_cache_config: CacheConfig = cache_config
+        self._key_value_cache_config: KeyValueStoreCacheConfig = key_value_cache_config
 
     def _run_inference_single_image(self, prompt: str, file_path: str, seed: int) -> None:
         # Generating text embeddings
@@ -201,7 +201,7 @@ if __name__ == "__main__":
     parser.add_argument("run_suite_path", type=str, help="Path to run path.")
     args = parser.parse_args()
 
-    cache_config: CacheConfig
+    cache_config: KeyValueStoreCacheConfig
     if args.mongo_uri:
         hlog(f"Initialized MongoDB cache with URI: {args.mongo_uri}")
         cache_config = MongoCacheConfig(args.mongo_uri, ORGANIZATION)
@@ -214,7 +214,7 @@ if __name__ == "__main__":
     deep_floyd = DeepFloyd(
         model_name=args.model_name,
         file_cache_path=os.path.join(args.cache_dir, "output", ORGANIZATION),
-        cache_config=cache_config,
+        key_value_cache_config=cache_config,
     )
     deep_floyd.run_all(args.run_suite_path)
     hlog("Done.")
