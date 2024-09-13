@@ -5,7 +5,7 @@ import os
 from typing import Dict
 
 from helm.common.cache import (
-    KeyValueStoreCacheConfig,
+    CacheConfig,
     MongoCacheConfig,
     SqliteCacheConfig,
     create_key_value_store,
@@ -29,7 +29,7 @@ Usage:
 
 
 @htrack("Updating cache with requests and results")
-def import_results(cache_config: KeyValueStoreCacheConfig, organization: str, request_results_path: str, dry_run: bool):
+def import_results(cache_config: CacheConfig, organization: str, request_results_path: str, dry_run: bool):
     """
     Given a jsonl file with request and results, uploads request/result pairs to the cache at `cache_path`.
     We assume each line of the input jsonl file is structured {request: ..., result: ...}.
@@ -98,7 +98,7 @@ if __name__ == "__main__":
 
     if (args.cache_dir and args.mongo_uri) or (not args.cache_dir and not args.mongo_uri):
         raise ValueError("Exactly one of --cache-dir or --mongo-uri should be specified")
-    cache_config: KeyValueStoreCacheConfig
+    cache_config: CacheConfig
     if args.cache_dir:
         cache_config = SqliteCacheConfig(os.path.join(args.cache_dir, f"{args.organization}.sqlite"))
     elif args.mongo_uri:
