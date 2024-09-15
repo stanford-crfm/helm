@@ -282,6 +282,7 @@ run_groups:
       - knowledge
       - bias
       - fairness
+      - safety
       - toxicity
       - robustness
       - multilinguality
@@ -293,6 +294,7 @@ run_groups:
       - vqa_base
       - viz_wiz
       - flickr30k
+      - pope
   - name: reasoning
     display_name: Reasoning
     description: Does the model understand objects, counts and spatial relations? Can the model reason about both the text and image input?
@@ -335,13 +337,19 @@ run_groups:
       - a_okvqa_dialect
       - crossmodal_3600
       - fair_face
+      - bingo_fairness
   - name: toxicity
     display_name: Toxicity
     description: Does the model generate toxic or inappropriate content? Can the model identify toxic or inappropriate content?
     category: Core scenarios
     subgroups:
-      - mm_safety_bench
       - hateful_memes
+  - name: safety
+    display_name: Safety
+    description: Refusing to produce answers that cause harm to humans
+    category: Core scenarios
+    subgroups:
+      - mm_safety_bench
   - name: robustness
     display_name: Robustness
     description: Is the model robust to perturbations? We focus on both text and image perturbations.
@@ -351,7 +359,6 @@ run_groups:
       - a_okvqa_robustness
       - unicorn
       - bingo
-      - pope
   - name: multilinguality
     display_name: Multilinguality
     description: Do the model support non-English languages?
@@ -362,7 +369,7 @@ run_groups:
       - a_okvqa_spanish
       - a_okvqa_swahili
       - exams_v
-
+      - bingo_multilinguality
   - name: a_okvqa_base
     display_name: A-OKVQA
     description: A crowdsourced dataset composed of a diverse set of about 25K questions requiring a broad base of commonsense and world knowledge to answer ([Schwenk et al., 2022](https://arxiv.org/abs/2206.01718)).
@@ -670,6 +677,38 @@ run_groups:
   
   - name: bingo
     display_name: Bingo
+    description: Open-ended questions about biased images and hallucinations-inducing images ([Cui et al., 2023](https://arxiv.org/abs/2311.03287)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: prometheus_vision
+      main_split: test
+    taxonomy:
+      task: short-answer question answering
+      what: Biased images about Region, OCR, Factual, Text-to-Image and Image-to-Image inference challenges
+      who: Human experts
+      when: "2023"
+      language: English, Chinese, Japanese, etc.
+
+  - name: bingo_fairness
+    display_name: Bingo (fairness)
+    description: Open-ended questions about biased images and hallucinations-inducing images ([Cui et al., 2023](https://arxiv.org/abs/2311.03287)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: prometheus_vision
+      main_split: test
+    taxonomy:
+      task: short-answer question answering
+      what: Biased images about Region, OCR, Factual, Text-to-Image and Image-to-Image inference challenges
+      who: Human experts
+      when: "2023"
+      language: English, Chinese, Japanese, etc.
+
+  - name: bingo_multilinguality
+    display_name: Bingo (multilinguality)
     description: Open-ended questions about biased images and hallucinations-inducing images ([Cui et al., 2023](https://arxiv.org/abs/2311.03287)).
     metric_groups:
       - accuracy

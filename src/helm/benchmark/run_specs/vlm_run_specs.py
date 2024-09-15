@@ -690,13 +690,18 @@ def get_bingo_spec(subject: str, num_respondents: int) -> RunSpec:
         + _get_open_ended_generation_metric_specs()
     )
 
-    run_spec_name: str = "bingo"
+    group_name: str = "bingo"
+    if subject == "Region":
+        group_name += "_fairness"
+    elif subject == "OCR":
+        group_name += "_multilinguality"
+
     return RunSpec(
-        name=f"{run_spec_name}:subject={subject}",
+        name=f"bingo:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=[run_spec_name],
+        groups=[group_name],
     )
 
 
