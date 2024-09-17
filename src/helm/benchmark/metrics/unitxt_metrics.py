@@ -1,9 +1,11 @@
+import numbers
 import re
-from typing import Dict, List
+from typing import Dict, List, Set
 
 from datasets import load_dataset
 import evaluate
 
+from helm.common.general import hlog
 from helm.benchmark.metrics.metric import MetricInterface, MetricResult, PerInstanceStats
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.metrics.metric_name import MetricName
@@ -42,6 +44,7 @@ class UnitxtMetric(MetricInterface):
         )
 
         # Extract instance metrics
+        non_number_instance_metric_names: Set[str] = set()
         per_instance_stats: List[PerInstanceStats] = []
         for request_state, evaluate_result in zip(scenario_state.request_states, evaluate_results):
             instance = request_state.instance
@@ -60,9 +63,15 @@ class UnitxtMetric(MetricInterface):
                 )
                 if isinstance(metric_score, list):
                     for metric_score_element in metric_score:
-                        stat = stat.add(metric_score_element)
+                        if isinstance(metric_score_element, numbers.Number):
+                            stat = stat.add(metric_score_element)
+                        else:
+                            non_number_instance_metric_names.add(metric_name)
                 else:
-                    stat = stat.add(metric_score)
+                    if isinstance(metric_score, numbers.Number):
+                        stat = stat.add(metric_score)
+                    else:
+                        non_number_instance_metric_names.add(metric_name)
                 instance_stats.append(stat)
             assert instance.id
             per_instance_stats.append(
@@ -72,6 +81,11 @@ class UnitxtMetric(MetricInterface):
                     train_trial_index=request_state.train_trial_index,
                     stats=instance_stats,
                 )
+            )
+        if non_number_instance_metric_names:
+            hlog(
+                "WARNING: Ignored Unitxt instance metrics because "
+                f"they were not numbers: {non_number_instance_metric_names}"
             )
 
         # Extract global metrics
