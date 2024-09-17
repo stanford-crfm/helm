@@ -11,15 +11,15 @@ def request_to_key(request: Mapping) -> str:
     return json.dumps(request, sort_keys=True)
 
 
-class KeyValueStore(contextlib.AbstractContextManager):
+class KeyValueStore(contextlib.AbstractContextManager["KeyValueStore"]):
     """Key value store that persists writes."""
 
     @abstractmethod
-    def contains(self, key: Dict) -> bool:
+    def contains(self, key: Mapping) -> bool:
         pass
 
     @abstractmethod
-    def get(self, key: Dict) -> Optional[Dict]:
+    def get(self, key: Mapping) -> Optional[Dict]:
         pass
 
     @abstractmethod
@@ -35,7 +35,7 @@ class KeyValueStore(contextlib.AbstractContextManager):
         pass
 
     @abstractmethod
-    def remove(self, key: Dict) -> None:
+    def remove(self, key: Mapping) -> None:
         pass
 
 
@@ -53,10 +53,10 @@ class SqliteKeyValueStore(KeyValueStore):
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         self._sqlite_dict.__exit__(exc_type, exc_value, traceback)
 
-    def contains(self, key: Dict) -> bool:
+    def contains(self, key: Mapping) -> bool:
         return request_to_key(key) in self._sqlite_dict
 
-    def get(self, key: Dict) -> Optional[Dict]:
+    def get(self, key: Mapping) -> Optional[Dict]:
         key_string = request_to_key(key)
         result = self._sqlite_dict.get(key_string)
         if result is not None:
@@ -77,7 +77,7 @@ class SqliteKeyValueStore(KeyValueStore):
         for key, value in pairs:
             self.put(key, value)
 
-    def remove(self, key: Dict) -> None:
+    def remove(self, key: Mapping) -> None:
         del self._sqlite_dict[key]
         self._sqlite_dict.commit()
 
@@ -91,10 +91,10 @@ class BlackHoleKeyValueStore(KeyValueStore):
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         pass
 
-    def contains(self, key: Dict) -> bool:
+    def contains(self, key: Mapping) -> bool:
         return False
 
-    def get(self, key: Dict) -> Optional[Dict]:
+    def get(self, key: Mapping) -> Optional[Dict]:
         return None
 
     def get_all(self) -> Generator[Tuple[Dict, Dict], None, None]:
@@ -109,5 +109,5 @@ class BlackHoleKeyValueStore(KeyValueStore):
     def multi_put(self, pairs: Iterable[Tuple[Dict, Dict]]) -> None:
         return None
 
-    def remove(self, key: Dict) -> None:
+    def remove(self, key: Mapping) -> None:
         return None
