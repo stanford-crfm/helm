@@ -119,6 +119,8 @@ class MetricGroup(Field):
     hide_win_rates: Optional[bool] = None
     """If set to true, do not compute win rates."""
 
+    add_mean_col: Optional[bool] = None
+
 
 BY_METRIC = "by_metric"
 BY_GROUP = "by_group"
