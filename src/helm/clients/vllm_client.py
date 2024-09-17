@@ -1,11 +1,14 @@
+from threading import Lock
 from typing import Any, Dict, List, Optional
 from dataclasses import replace
+import time
 
 from helm.clients.openai_client import OpenAIClient
 from helm.common.cache import CacheConfig
+from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
-from .client import truncate_sequence
+from .client import truncate_sequence, CachingClient
 from helm.tokenizers.tokenizer import Tokenizer
 
 try:
@@ -95,6 +98,90 @@ class VLLMClient(OpenAIClient):
             cached=cached,
             request_time=response["request_time"],
             request_datetime=response.get("request_datetime"),
+            completions=completions,
+            embedding=[],
+        )
+
+
+_models_lock: Lock = Lock()
+_models: Dict[str, Any] = {}
+
+
+class LocalVLLMClient(CachingClient):
+    @staticmethod
+    def get_model(request: Request) -> Dict:
+        from vllm import LLM
+
+        if request.model not in _models:
+            with _models_lock:
+                if request.model not in _models:
+                    with htrack_block(f"Loading model {request.model}"):
+                        _models[request.model] = LLM(model=request.model, enforce_eager=False, trust_remote_code=True)
+        return _models[request.model]
+
+    def __init__(self, cache_config: CacheConfig):
+        super().__init__(cache_config=cache_config)
+
+    def make_request(self, request: Request) -> RequestResult:
+        raw_request = {
+            "prompt": request.prompt,
+            "echo": request.echo_prompt,
+            "max_tokens": request.max_tokens,
+            "model": request.model_engine,
+            "n": request.num_completions,
+            "stop": request.stop_sequences or None,
+            "temperature": request.temperature,
+            "top_p": request.top_p,
+        }
+        cache_key = CachingClient.make_cache_key(raw_request, request)
+        model = self.get_model(request)
+
+        try:
+
+            def do_it():
+                from vllm import SamplingParams
+
+                sampling_params = SamplingParams(
+                    n=request.num_completions,
+                    presence_penalty=request.presence_penalty,
+                    frequency_penalty=request.frequency_penalty,
+                    stop=request.stop_sequences,
+                    temperature=request.temperature,
+                    max_tokens=request.max_tokens,
+                    # Currently, top-p sampling is disabled. `top_p` should be 1.0.
+                    top_p=1.0,
+                )
+                outputs = model.generate(request.prompt, sampling_params)
+                print(outputs)
+
+                completions: List[str] = []
+                for output in outputs:
+                    prompt = output.prompt
+                    generated_text = output.outputs[0].text
+                    print(f"Prompt: {prompt!r}, Generated text: {generated_text!r}")
+                    completions.append(generated_text)
+                return {"completions": completions}
+
+            response, cached = self.cache.get(cache_key, do_it)
+        except RuntimeError as e:
+            error: str = f"vLLM inference error: {e}"
+            return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
+
+        completions: List[GeneratedOutput] = []
+        for completion in response["completions"]:
+            completion = GeneratedOutput(
+                text=completion,
+                logprob=0,
+                tokens=[],
+                finish_reason={"reason": "unknown"},
+            )
+            completion = truncate_sequence(completion, request)
+            completions.append(completion)
+
+        return RequestResult(
+            success=True,
+            cached=cached,
+            request_time=response["request_time"],
             completions=completions,
             embedding=[],
         )
