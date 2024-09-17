@@ -1088,18 +1088,18 @@ class Summarizer:
         table = Table(title=title, header=header, rows=rows, links=links, name=name)
 
         if add_mean_col:
-            means = compute_aggregate_row_means(table, aggregation=WIN_RATE_AGGREGATION)
+            means = compute_aggregate_row_means(table)
             description = "An average over columns representing the mean performance"
             table.header.insert(
                 AGGREGATE_WIN_RATE_COLUMN,
                 HeaderCell(
-                    f"Mean Performance",
+                    "Mean Performance",
                     description=description,
                     lower_is_better=False,
                 ),
             )
-            for row, win_rate in zip(table.rows, win_rates):
-                row.insert(AGGREGATE_WIN_RATE_COLUMN, Cell(win_rate))
+            for row, row_mean in zip(table.rows, means):
+                row.insert(AGGREGATE_WIN_RATE_COLUMN, Cell(row_mean))
         elif add_win_rate:
             # add overall win rate as the second column
             WIN_RATE_AGGREGATION = "mean"
