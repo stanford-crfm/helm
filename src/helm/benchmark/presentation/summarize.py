@@ -262,7 +262,7 @@ def compute_aggregate_row_means(table: Table) -> List[Optional[float]]:
     for row in table.rows:
         total = 0
         count = 0
-        for cell in enumerate(row):
+        for cell in row:
             if cell.value:
                 total += cell.value
                 count += 1
