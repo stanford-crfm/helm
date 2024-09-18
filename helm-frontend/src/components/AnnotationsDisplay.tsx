@@ -48,7 +48,7 @@ function dictAnnotationDisplay(
       {Object.entries(dictAnnotation).map(([key, value]) => (
         <div>
           <h3 className="ml-1">{key}</h3>
-          <Preview value={value.toString()} />
+          <Preview value={value === null ? "null" : value.toString()} />
         </div>
       ))}
     </div>
