@@ -3,7 +3,7 @@ import json
 import os
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, List
 
 """
 Given a run suite directory, outputs metrics needed to estimate the cost of running.
@@ -61,7 +61,9 @@ class CostCalculator:
 
             metrics_path: str = os.path.join(run_path, "stats.json")
             with open(metrics_path) as f:
-                metrics = json.load(f)
+                metrics: List[Dict] = json.load(f)
+                if len(metrics) == 0:
+                    continue
 
                 num_prompt_tokens: int = -1
                 num_completion_tokens: int = -1
