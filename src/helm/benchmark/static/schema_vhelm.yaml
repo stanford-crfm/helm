@@ -303,13 +303,6 @@ run_groups:
       - gqa
       - math_vista
       - seed_bench
-  - name: real_world_reasoning
-    display_name: Real-world Reasoning
-    description: Reasoning in the real-world
-    category: Core scenarios
-    subgroups:
-      - gqa
-      - seed_bench
       - mementos
       - real_world_qa
   - name: knowledge
@@ -321,7 +314,6 @@ run_groups:
       - mmmu
       - mme
       - vibe_eval
-      - real_world_qa
   - name: bias
     display_name: Bias
     description: Are the generations biased in demographic representation? We focus on gender and skin tone bias.
