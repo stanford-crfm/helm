@@ -17,17 +17,22 @@ Usage:
 class ModelCost:
     total_num_prompt_tokens: int = 0
 
-    total_max_num_completion_tokens: int = 0
+    total_num_completion_tokens: int = 0
+
+    total_num_instances: int = 0
 
     @property
     def total_tokens(self) -> int:
-        return self.total_num_prompt_tokens + self.total_max_num_completion_tokens
+        return self.total_num_prompt_tokens + self.total_num_completion_tokens
 
     def add_prompt_tokens(self, num_tokens: int):
         self.total_num_prompt_tokens += num_tokens
 
     def add_num_completion_tokens(self, num_tokens: int):
-        self.total_max_num_completion_tokens += num_tokens
+        self.total_num_completion_tokens += num_tokens
+
+    def add_num_instances(self, num_instances: int):
+        self.total_num_instances += num_instances
 
 
 class CostCalculator:
@@ -60,10 +65,17 @@ class CostCalculator:
                 for metric in metrics:
                     cost: ModelCost = models_to_costs[model]
                     metric_name: str = metric["name"]["name"]
+
+                    # Don't count perturbations
+                    if "perturbation" in metric["name"]:
+                        continue
+
                     if metric_name == "num_prompt_tokens":
                         cost.add_prompt_tokens(metric["sum"])
-                    elif metric_name == "max_num_completion_tokens":
+                    elif metric_name == "num_completion_tokens":
                         cost.add_num_completion_tokens(metric["sum"])
+                    elif metric_name == "num_instances":
+                        cost.add_num_instances(metric["sum"])
 
         return models_to_costs
 
@@ -78,6 +90,6 @@ if __name__ == "__main__":
     for model_name, model_cost in model_costs.items():
         print(
             f"{model_name}: Total prompt tokens={model_cost.total_num_prompt_tokens} + "
-            f"Total max completion tokens={model_cost.total_max_num_completion_tokens} = "
-            f"{model_cost.total_tokens}"
+            f"Total completion tokens={model_cost.total_num_completion_tokens} = "
+            f"{model_cost.total_tokens} for {model_cost.total_num_instances} instances."
         )
