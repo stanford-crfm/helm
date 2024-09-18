@@ -1170,7 +1170,7 @@ class Summarizer:
                     columns=[(subgroup, metric_group) for subgroup in subgroups],
                     is_scenario_table=False,
                     add_win_rate=not self.schema.name_to_metric_group[metric_group].hide_win_rates,
-                    add_mean_col=self.schema.name_to_metric_group[metric_group].add_mean_col,
+                    add_mean_col=bool(self.schema.name_to_metric_group[metric_group].add_mean_col),
                 )
                 tables.append(table)
         return tables
