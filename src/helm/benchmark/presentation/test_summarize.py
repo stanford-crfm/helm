@@ -43,6 +43,10 @@ def test_summarize_release():
 
 
 def test_compute_win_rates_one_scenario():
+    header = [
+        HeaderCell(value="Model"),
+        HeaderCell(value="Scenario A", lower_is_better=False),
+    ]
     values = [
         ["Model A", 1],
         ["Model B", 2],
@@ -50,27 +54,23 @@ def test_compute_win_rates_one_scenario():
         ["Model D", 4],
         ["Model E", 5],
     ]
-    header = [
-        HeaderCell(value="Model"),
-        HeaderCell(value="Scenario A", lower_is_better=False),
-    ]
     rows = [[Cell(value) for value in row_values] for row_values in values]
     table = Table(title="Test Table", header=header, rows=rows)
     assert compute_aggregate_row_win_rates(table) == [0, 0.25, 0.5, 0.75, 1]
 
 
 def test_compute_win_rates_two_scenarios():
+    header = [
+        HeaderCell(value="Model"),
+        HeaderCell(value="Scenario A", lower_is_better=False),
+        HeaderCell(value="Scenario B", lower_is_better=False),
+    ]
     values = [
         ["Model A", 1, 3],
         ["Model B", 2, 1],
         ["Model C", 3, 2],
         ["Model D", 4, 5],
         ["Model E", 5, 4],
-    ]
-    header = [
-        HeaderCell(value="Model"),
-        HeaderCell(value="Scenario A", lower_is_better=False),
-        HeaderCell(value="Scenario B", lower_is_better=False),
     ]
     rows = [[Cell(value) for value in row_values] for row_values in values]
     table = Table(title="Test Table", header=header, rows=rows)
@@ -78,6 +78,11 @@ def test_compute_win_rates_two_scenarios():
 
 
 def test_compute_win_rates_incomplete_values():
+    header = [
+        HeaderCell(value="Model"),
+        HeaderCell(value="Scenario A", lower_is_better=False),
+        HeaderCell(value="Scenario B", lower_is_better=False),
+    ]
     values = [
         ["Model A", 1, 3],
         ["Model B", 2, 1],
@@ -85,17 +90,18 @@ def test_compute_win_rates_incomplete_values():
         ["Model D", 4, None],
         ["Model E", 5, None],
     ]
-    header = [
-        HeaderCell(value="Model"),
-        HeaderCell(value="Scenario A", lower_is_better=False),
-        HeaderCell(value="Scenario B", lower_is_better=False),
-    ]
     rows = [[Cell(value) for value in row_values] for row_values in values]
     table = Table(title="Test Table", header=header, rows=rows)
     assert compute_aggregate_row_win_rates(table) == [0.5, 0.125, 0.5, 0.75, 1]
 
 
 def test_compute_win_rates_ignore_nones():
+    header = [
+        HeaderCell(value="Model"),
+        HeaderCell(value="Scenario A", lower_is_better=False),
+        HeaderCell(value="Scenario B", lower_is_better=False),
+        HeaderCell(value="Scenario C", lower_is_better=False),
+    ]
     values = [
         ["Model A", 1, None, None],
         ["Model B", 2, None, 1],
@@ -103,18 +109,17 @@ def test_compute_win_rates_ignore_nones():
         ["Model D", 4, None, None],
         ["Model E", 5, None, None],
     ]
-    header = [
-        HeaderCell(value="Model"),
-        HeaderCell(value="Scenario A", lower_is_better=False),
-        HeaderCell(value="Scenario B", lower_is_better=False),
-        HeaderCell(value="Scenario C", lower_is_better=False),
-    ]
     rows = [[Cell(value) for value in row_values] for row_values in values]
     table = Table(title="Test Table", header=header, rows=rows)
     assert compute_aggregate_row_win_rates(table) == [0, 0.25, 0.5, 0.75, 1]
 
 
 def test_compute_win_rates_ignore_unset_lower_is_better():
+    header = [
+        HeaderCell(value="Model"),
+        HeaderCell(value="Scenario A", lower_is_better=False),
+        HeaderCell(value="Scenario B"),
+    ]
     values = [
         ["Model A", 1, 3],
         ["Model B", 2, 1],
@@ -122,17 +127,16 @@ def test_compute_win_rates_ignore_unset_lower_is_better():
         ["Model D", 4, 5],
         ["Model E", 5, 4],
     ]
-    header = [
-        HeaderCell(value="Model"),
-        HeaderCell(value="Scenario A", lower_is_better=False),
-        HeaderCell(value="Scenario B"),
-    ]
     rows = [[Cell(value) for value in row_values] for row_values in values]
     table = Table(title="Test Table", header=header, rows=rows)
     assert compute_aggregate_row_win_rates(table) == [0, 0.25, 0.5, 0.75, 1]
 
 
 def test_compute_win_rates_no_win_rate():
+    header = [
+        HeaderCell(value="Model"),
+        HeaderCell(value="Scenario A", lower_is_better=False),
+    ]
     values = [
         ["Model A", None],
         ["Model B", None],
@@ -140,26 +144,22 @@ def test_compute_win_rates_no_win_rate():
         ["Model D", None],
         ["Model E", None],
     ]
-    header = [
-        HeaderCell(value="Model"),
-        HeaderCell(value="Scenario A", lower_is_better=False),
-    ]
     rows = [[Cell(value) for value in row_values] for row_values in values]
     table = Table(title="Test Table", header=header, rows=rows)
     assert compute_aggregate_row_win_rates(table) == [None, None, None, None, None]
 
 
 def test_compute_win_rates_ties():
+    header = [
+        HeaderCell(value="Model"),
+        HeaderCell(value="Scenario A", lower_is_better=False),
+    ]
     values = [
         ["Model A", 1],
         ["Model B", 1],
         ["Model C", 1],
         ["Model D", 4],
         ["Model E", 5],
-    ]
-    header = [
-        HeaderCell(value="Model"),
-        HeaderCell(value="Scenario A", lower_is_better=False),
     ]
     rows = [[Cell(value) for value in row_values] for row_values in values]
     table = Table(title="Test Table", header=header, rows=rows)
