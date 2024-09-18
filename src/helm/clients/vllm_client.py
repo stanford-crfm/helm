@@ -1,11 +1,10 @@
 from threading import Lock
 from typing import Any, Dict, List, Optional
 from dataclasses import replace
-import time
 
 from helm.clients.openai_client import OpenAIClient
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import hlog, htrack_block
+from helm.common.hierarchical_logger import htrack_block
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
 from .client import truncate_sequence, CachingClient
@@ -152,17 +151,13 @@ class LocalVLLMClient(CachingClient):
                     top_p=1.0,
                 )
                 outputs = model.generate(request.prompt, sampling_params)
-                print(outputs)
-
                 completions: List[str] = []
                 for output in outputs:
-                    prompt = output.prompt
-                    generated_text = output.outputs[0].text
-                    print(f"Prompt: {prompt!r}, Generated text: {generated_text!r}")
+                    generated_text: str = output.outputs[0].text
                     completions.append(generated_text)
                 return {"completions": completions}
 
-            response, cached = self.cache.get(cache_key, do_it)
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except RuntimeError as e:
             error: str = f"vLLM inference error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
