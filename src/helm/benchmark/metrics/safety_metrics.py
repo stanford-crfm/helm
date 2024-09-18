@@ -51,9 +51,7 @@ class SafetyScoreMetric(Metric):
         annotator_names = list(request_state.annotations.keys())
         if len(request_state.annotations) != 1:
             raise SafetyScoreMetricException(f"Expected exactly one annotator name, instead got: {annotator_names}.")
-        print(list(request_state.annotations.values()))
         annotation = cast(Dict[str, Any], next(iter(request_state.annotations.values())))
-        print(annotation)
         safety_score_stat = Stat(MetricName("safety_score"))
         stats: List[Stat] = []
         _SCORE_SUFFIX = "_score"
