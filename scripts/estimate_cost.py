@@ -100,9 +100,23 @@ if __name__ == "__main__":
 
     calculator = CostCalculator(args.run_suite_path)
     model_costs: Dict[str, ModelCost] = calculator.aggregate()
+
+    grand_total_prompt_tokens: int = 0
+    grand_total_completion_tokens: int = 0
+    grand_total_num_instances: int = 0
     for model_name, model_cost in model_costs.items():
         print(
             f"{model_name}: Total prompt tokens={model_cost.total_num_prompt_tokens} + "
             f"Total completion tokens={model_cost.total_num_completion_tokens} = "
             f"{model_cost.total_tokens} for {model_cost.total_num_instances} instances."
         )
+
+        grand_total_prompt_tokens += model_cost.total_num_prompt_tokens
+        grand_total_completion_tokens += model_cost.total_num_completion_tokens
+        grand_total_num_instances += model_cost.total_num_instances
+
+    print(
+        f"Grand total prompt tokens={grand_total_prompt_tokens} + "
+        f"Grand total completion tokens={grand_total_completion_tokens} = "
+        f"{grand_total_prompt_tokens + grand_total_completion_tokens} for {grand_total_num_instances} instances."
+    )
