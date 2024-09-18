@@ -258,7 +258,7 @@ def compute_aggregate_row_means(table: Table) -> List[Optional[float]]:
     non-null values of the row are in columns we skip).
     """
 
-    means_per_row: List[List[float]] = [[] for _ in table.rows]
+    means_per_row: List[Optional[float]] = []
     for row in table.rows:
         total = 0
         count = 0
