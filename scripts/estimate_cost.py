@@ -57,13 +57,17 @@ class CostCalculator:
             with open(run_spec_path) as f:
                 run_spec = json.load(f)
                 model: str = run_spec["adapter_spec"]["model"]
+                cost: ModelCost = models_to_costs[model]
 
             metrics_path: str = os.path.join(run_path, "stats.json")
             with open(metrics_path) as f:
                 metrics = json.load(f)
 
+                num_prompt_tokens: int = -1
+                num_completion_tokens: int = -1
+                num_instances: int = -1
+
                 for metric in metrics:
-                    cost: ModelCost = models_to_costs[model]
                     metric_name: str = metric["name"]["name"]
 
                     # Don't count perturbations
@@ -71,11 +75,16 @@ class CostCalculator:
                         continue
 
                     if metric_name == "num_prompt_tokens":
-                        cost.add_prompt_tokens(metric["sum"])
+                        num_prompt_tokens = metric["sum"]
                     elif metric_name == "num_completion_tokens":
-                        cost.add_num_completion_tokens(metric["sum"])
+                        num_completion_tokens = metric["sum"]
                     elif metric_name == "num_instances":
-                        cost.add_num_instances(metric["sum"])
+                        num_instances = metric["sum"]
+
+                assert num_prompt_tokens >= 0 and num_completion_tokens >= 0 and num_instances >= 0
+                cost.add_prompt_tokens(num_prompt_tokens * num_instances)
+                cost.add_num_completion_tokens(num_completion_tokens * num_instances)
+                cost.add_num_instances(num_instances)
 
         return models_to_costs
 
