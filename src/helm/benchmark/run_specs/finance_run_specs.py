@@ -89,10 +89,14 @@ def get_banking77_spec() -> RunSpec:
 
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.banking77_scenario.Banking77Scenario", args={})
 
-    # Use same AdapterSpec and instruction prompts as the RAFT implementation of BANKING77
+    # Use same AdapterSpec and instruction prompts as the RAFT implementation of BANKING77,
+    # with a slight modification to the instruction prompt for instruction-following models.
     scenario_cache_path = get_scenario_cache_path(get_benchmark_output_path(), Banking77Scenario.name)
+    instructions = get_raft_instructions("banking_77", scenario_cache_path).replace(
+        "\n", " Answer with only the label for the last query.\n", 1
+    )
     adapter_spec = get_generation_adapter_spec(
-        instructions=get_raft_instructions("banking_77", scenario_cache_path),
+        instructions=instructions,
         input_noun=None,
         output_noun="Label",
         max_tokens=30,  # at most ~50 characters per label
