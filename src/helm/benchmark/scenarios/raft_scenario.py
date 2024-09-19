@@ -40,7 +40,7 @@ def get_raft_prompt_settings(subset: str, cache_dir: str):
     return field_ordering[subset], instructions[subset]
 
 
-def get_raft_instructions(subset: str, cache_dir: str):
+def get_raft_instructions(subset: str, cache_dir: str) -> str:
     return get_raft_prompt_settings(subset, cache_dir)[1]
 
 
