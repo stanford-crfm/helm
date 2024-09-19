@@ -169,7 +169,7 @@ def test_compute_win_rates_ties():
 def test_compute_win_rates_lower_is_better():
     header = [
         HeaderCell(value="Model"),
-        HeaderCell(value="Scenario A", lower_is_better=False),
+        HeaderCell(value="Scenario A", lower_is_better=True),
     ]
     values = [
         ["Model A", 1],
@@ -180,4 +180,4 @@ def test_compute_win_rates_lower_is_better():
     ]
     rows = [[Cell(value) for value in row_values] for row_values in values]
     table = Table(title="Test Table", header=header, rows=rows)
-    assert compute_aggregate_row_win_rates(table) == [0, 0.25, 0.5, 0.75, 1]
+    assert compute_aggregate_row_win_rates(table) == [1, 0.75, 0.5, 0.25, 0]
