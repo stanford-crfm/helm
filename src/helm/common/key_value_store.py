@@ -11,7 +11,7 @@ def request_to_key(request: Mapping) -> str:
     return json.dumps(request, sort_keys=True)
 
 
-class KeyValueStore(contextlib.AbstractContextManager["KeyValueStore"]):
+class KeyValueStore(contextlib.AbstractContextManager):
     """Key value store that persists writes."""
 
     @abstractmethod
