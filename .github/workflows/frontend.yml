@@ -30,6 +30,7 @@ jobs:
     - name: Run pre-commit
       run: ./pre-commit-frontend.sh
     - name: Build
+      working-directory: ./helm-frontend
       run: yarn build
     - name: Run tests
       working-directory: ./helm-frontend
