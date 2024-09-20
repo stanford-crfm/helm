@@ -29,7 +29,7 @@ jobs:
       run: yarn install
     - name: Run pre-commit
       run: ./pre-commit-frontend.sh
-    - name: Run build
+    - name: Build
       run: yarn build
     - name: Run tests
       working-directory: ./helm-frontend

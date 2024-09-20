@@ -3,6 +3,23 @@
 set -e
 
 cd "$(dirname "$0")/helm-frontend"
+
+if ! yarn --version &> /dev/null; then
+  echo ""
+  echo "Failed: Yarn is not installed"
+  echo "Follow the instructions at https://yarnpkg.com/getting-started/install to install Yarn."
+  echo ""
+  exit 1
+fi
+
+if [ ! -f "yarn.lock" ]; then
+  echo ""
+  echo "Failed: Frontend is not installed."
+  echo "Run \`yarn install\` to install the frontend."
+  echo ""
+  exit 1
+fi
+
 yarn format:check || (
   echo ""
   echo "Failed: 'yarn format:check'"
