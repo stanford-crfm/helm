@@ -12,9 +12,5 @@ if [[ $OSTYPE != 'darwin'* ]]; then
 fi
 # Install all pinned dependencies
 pip install -r requirements.txt
-# upgrade pip to install in edit mode without setup.py
-pip install --upgrade pip~=24.1.2
 # Install HELM in edit mode
 pip install -e .[all]
-# Check dependencies
-pip check
