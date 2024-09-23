@@ -27,12 +27,8 @@ jobs:
     - name: Install dependencies
       working-directory: ./helm-frontend
       run: yarn install
-    - name: Run lint
-      working-directory: ./helm-frontend
-      run: yarn lint
-    - name: Run check format
-      working-directory: ./helm-frontend
-      run: yarn format:check
+    - name: Run pre-commit
+      run: ./pre-commit-frontend.sh
     - name: Build
       working-directory: ./helm-frontend
       run: yarn build
