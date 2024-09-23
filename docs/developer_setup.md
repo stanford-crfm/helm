@@ -56,7 +56,27 @@ pyenv activate crfm-helm
 To install any dependencies:
 
 ```bash
-pip install -e .[dev]
+pip install --force-reinstall -e .[dev]
+```
+
+## Run Python tests
+
+Currently, running all the unit tests takes about 10 minutes. To run all unit tests:
+
+```bash
+python -m pytest
+```
+
+Append `-vv` to output the full diff and results:
+
+```bash
+python -m pytest -vv
+```
+
+When modifying the Python code, you usually want to only run certain relevant tests. To run a specific test file, specify the file path as follows:
+
+```bash
+python -m pytest path/to/test_file.py -vv
 ```
 
 ## Run linter and type-checker
@@ -84,24 +104,4 @@ flake8 src scripts
 
 # Type checker
 mypy src scripts
-```
-
-## Run Python tests
-
-Currently, running all the unit tests takes about 10 minutes. To run all unit tests:
-
-```bash
-python -m pytest
-```
-
-Append `-vv` to output the full diff and results:
-
-```bash
-python -m pytest -vv
-```
-
-When modifying the Python code, you usually want to only run certain relevant tests. To run a specific test file, specify the file path as follows:
-
-```bash
-python -m pytest path/to/test_file.py -vv
 ```
