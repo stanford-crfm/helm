@@ -1090,8 +1090,12 @@ class Summarizer:
 
         table = Table(title=title, header=header, rows=rows, links=links, name=name)
 
-        add_mean_col = aggregation_strategy >= 2
-        add_mwr = aggregation_strategy % 2 != 0 or add_win_rate  # values 1 or 3 say to include mwr
+        add_mean_col = (
+            aggregation_strategy >= 2
+        )  # values 2 or 3 indicate we should include mean (see AggregationStrategy enum)
+        add_mwr = (
+            aggregation_strategy % 2 != 0 or add_win_rate
+        )  # values 1 or 3 say to include mwr (see AggregationStrategy enum)
 
         if add_mwr:
             # add overall win rate as the second column
