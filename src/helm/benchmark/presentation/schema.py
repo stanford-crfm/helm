@@ -1,7 +1,8 @@
 import ast
 import dataclasses
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict
+from enum import IntEnum
+from typing import List, Optional, Dict, Union
 import dacite
 from inspect import cleandoc
 import mako.template
@@ -109,6 +110,14 @@ class MetricNameMatcher:
 
 
 @dataclass(frozen=True)
+class AggregationStrategy(IntEnum):
+    USE_NONE = 0
+    USE_MWR = 1
+    USE_MEAN = 2
+    USE_BOTH = 3
+
+
+@dataclass(frozen=True)
 class MetricGroup(Field):
     """
     A list of metrics (which are presumably logically grouped).
@@ -119,7 +128,7 @@ class MetricGroup(Field):
     hide_win_rates: Optional[bool] = None
     """If set to true, do not compute win rates."""
 
-    add_mean_col: Optional[bool] = None
+    aggregation_strategy: Optional[Union[AggregationStrategy, int]] = 1
 
 
 BY_METRIC = "by_metric"

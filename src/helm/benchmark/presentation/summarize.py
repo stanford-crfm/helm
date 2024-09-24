@@ -263,9 +263,12 @@ def compute_aggregate_row_means(table: Table) -> List[Optional[float]]:
         total = 0
         count = 0
         for cell in row:
-            if cell.value:
-                total += cell.value
-                count += 1
+            try:
+                if cell.value:
+                    total += float(cell.value)
+                    count += 1
+            except Exception:
+                print("failed")
         if count == 0:
             means_per_row.append(None)
         else:
@@ -904,7 +907,7 @@ class Summarizer:
         sub_split: Optional[str] = None,
         bold_columns: bool = True,
         add_win_rate: bool = False,
-        add_mean_col: bool = False,
+        aggregation_strategy: int = 0,
     ) -> Table:
         """
         Create a table for where each row is an adapter (for which we have a set of runs) and columns are pairs of
@@ -1087,20 +1090,10 @@ class Summarizer:
 
         table = Table(title=title, header=header, rows=rows, links=links, name=name)
 
-        if add_mean_col:
-            means = compute_aggregate_row_means(table)
-            description = "An average over columns representing the mean performance"
-            table.header.insert(
-                AGGREGATE_WIN_RATE_COLUMN,
-                HeaderCell(
-                    "Mean Performance",
-                    description=description,
-                    lower_is_better=False,
-                ),
-            )
-            for row, row_mean in zip(table.rows, means):
-                row.insert(AGGREGATE_WIN_RATE_COLUMN, Cell(row_mean))
-        elif add_win_rate:
+        add_mean_col = aggregation_strategy >= 2
+        add_mwr = aggregation_strategy % 2 != 0 or add_win_rate  # values 1 or 3 say to include mwr
+
+        if add_mwr:
             # add overall win rate as the second column
             WIN_RATE_AGGREGATION = "mean"
             win_rates = compute_aggregate_row_win_rates(table, aggregation=WIN_RATE_AGGREGATION)
@@ -1115,6 +1108,22 @@ class Summarizer:
             )
             for row, win_rate in zip(table.rows, win_rates):
                 row.insert(AGGREGATE_WIN_RATE_COLUMN, Cell(win_rate))
+        if add_mean_col:
+            means = compute_aggregate_row_means(table)
+            description = "An average over columns representing the mean performance"
+            insertion_column = AGGREGATE_WIN_RATE_COLUMN
+            if add_mwr:
+                insertion_column += 1
+            table.header.insert(
+                insertion_column,
+                HeaderCell(
+                    "Mean Performance",
+                    description=description,
+                    lower_is_better=False,
+                ),
+            )
+            for row, row_mean in zip(table.rows, means):
+                row.insert(insertion_column, Cell(row_mean))
 
         if bold_columns:
             for i, header_cell in enumerate(table.header):
@@ -1170,7 +1179,7 @@ class Summarizer:
                     columns=[(subgroup, metric_group) for subgroup in subgroups],
                     is_scenario_table=False,
                     add_win_rate=not self.schema.name_to_metric_group[metric_group].hide_win_rates,
-                    add_mean_col=bool(self.schema.name_to_metric_group[metric_group].add_mean_col),
+                    aggregation_strategy=self.schema.name_to_metric_group[metric_group].aggregation_strategy,
                 )
                 tables.append(table)
         return tables

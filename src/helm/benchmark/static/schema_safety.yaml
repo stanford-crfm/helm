@@ -106,6 +106,7 @@ perturbations: []
 metric_groups:
   - name: accuracy
     display_name: Accuracy
+    aggregation_strategy: 3
     metrics:
       - name: ${main_name}
         split: ${main_split}
