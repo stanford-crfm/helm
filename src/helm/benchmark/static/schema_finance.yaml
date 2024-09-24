@@ -77,6 +77,11 @@ metrics:
     display_name: Correct Answer
     description: Whether the final result was correct, as judged by a GPT-4o
     lower_is_better: false
+  - name: quasi_exact_match
+    display_name: Quasi-exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+    lower_is_better: false
 
 ############################################################
 perturbations: []
@@ -119,6 +124,7 @@ run_groups:
     subgroups:
       - fin_qa
       - financebench
+      - banking77
 
   - name: fin_qa
     display_name: FinQA
@@ -154,12 +160,30 @@ run_groups:
       when: 2015 to 2023
       language: English
 
-  - name: financial_scenarios_ablations
-    display_name: Financial Scenarios Ablations
-    description: Scenarios for the financial domain with ablations
-    category: All scenarios
-    subgroups:
-      - fin_qa
-    adapter_keys_shown:
-      - model
-      - max_train_instances
+  - name: banking77
+    display_name: BANKING77
+    short_display_name: BANKING77
+    description: BANKING77 is a benchmark for intent classification of customer service queries in the banking domain [(Casanueva et al., 2020)](https://aclanthology.org/2020.nlp4convai-1.5/)).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: text classification
+      what: customer service queries in the banking domain
+      who: banking customers
+      when: During or before 2020
+      language: English
+
+  # - name: financial_scenarios_ablations
+  #   display_name: Financial Scenarios Ablations
+  #   description: Scenarios for the financial domain with ablations
+  #   category: All scenarios
+  #   subgroups:
+  #     - fin_qa
+  #   adapter_keys_shown:
+  #     - model
+  #     - max_train_instances

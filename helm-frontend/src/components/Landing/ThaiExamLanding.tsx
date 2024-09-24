@@ -1,38 +1,47 @@
 import MiniLeaderboard from "@/components/MiniLeaderboard";
 import { Link } from "react-router-dom";
 import scb10x from "@/assets/logos/scb10x.png";
+import scbx from "@/assets/logos/scbx.jpg";
 
-export default function MMLULanding() {
+export default function ThaiExamLanding() {
   return (
     <div className="container mx-auto px-16">
       <h1 className="text-3xl my-8 font-bold text-center">ThaiExam</h1>
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 text-l">
-          <div>
+          <div className="text-center">
+            <a href="https://scbx.com/">
+              <img src={scbx} alt="Logo" className="inline h-32 mx-4 my-4" />
+            </a>
             <a href="https://scb10x.com/">
-              <img
-                src={scb10x}
-                alt="Logo"
-                className="mx-auto block my-4 w-48"
-              />
+              <img src={scb10x} alt="Logo" className="inline h-32 mx-4 my-4" />
             </a>
           </div>
           <p>
             In collaboration with{" "}
+            <a
+              href="https://www.scbx.com/"
+              className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+            >
+              SCBX
+            </a>{" "}
+            and{" "}
             <a
               href="https://www.scb10x.com/"
               className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
             >
               SCB 10X
             </a>
-            , we introduce the HELM <span className="font-bold">ThaiExam</span>{" "}
-            leaderboard. ThaiExam is a Thai language benchmark based on
-            examinations for high-school students and investment professionals
-            in Thailand. We present a leaderbaord of evaluations of leading
-            language models on ThaiExam, which provide insights into the Thai
-            language competency of these models. We hope that this leaderboard
-            will encourage further work in multi-lingual language model
-            developmpent and evaluation.
+            , we introduce the ThaiExam HELM leaderboard. ThaiExam is a Thai
+            language benchmark based on examinations for high school students
+            and investment professionals in Thailand. The ThaiExam leaderboard
+            is the first public leaderboard for large language models on Thai
+            language scenarios, and features evaluations of leading language
+            models. Like all other HELM leaderboards, the ThaiExam leaderboard
+            provides full prompt-level transparency, and the results can be
+            fully reproduced using the HELM framework. We hope that this
+            leaderboard will encourage further work in multilingual language
+            model evaluation.
           </p>
           <div className="flex flex-row justify-center my-4">
             <Link to="leaderboard" className="px-10 btn rounded-md mx-4">

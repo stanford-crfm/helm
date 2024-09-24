@@ -39,11 +39,11 @@ class MongoKeyValueStore(KeyValueStore):
         serialized = json.dumps(key, sort_keys=True)
         return json.loads(serialized, object_pairs_hook=SON)
 
-    def contains(self, key: Dict) -> bool:
+    def contains(self, key: Mapping) -> bool:
         query = {self._REQUEST_KEY: self._canonicalize_key(key)}
         return self._collection.find_one(query) is not None
 
-    def get(self, key: Dict) -> Optional[Dict]:
+    def get(self, key: Mapping) -> Optional[Dict]:
         query = {self._REQUEST_KEY: self._canonicalize_key(key)}
         document = self._collection.find_one(query)
         if document is not None:
@@ -84,6 +84,6 @@ class MongoKeyValueStore(KeyValueStore):
         # Note: unlike put, multi_put does not support documents with null bytes in keys.
         self._collection.bulk_write(operations)
 
-    def remove(self, key: Dict) -> None:
+    def remove(self, key: Mapping) -> None:
         query = {self._REQUEST_KEY: self._canonicalize_key(key)}
         self._collection.delete_one(query)

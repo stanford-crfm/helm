@@ -101,9 +101,9 @@ metrics:
     description: METEOR
     lower_is_better: false
   - name: f1
-    display_name: F1
-    short_display_name: F1
-    description: F1
+    display_name: BERTScore F1
+    short_display_name: BERTScore F1
+    description: BERTScore F1
     lower_is_better: false
   - name: precision
     display_name: Precision
@@ -173,6 +173,13 @@ metrics:
     description: Execution Accuracy
     lower_is_better: false
 
+  # SciGen Accuracy
+  - name: llama_3_8b_chat_hf_together_ai_template_table2text_single_turn_with_reference
+    display_name: Rating
+    short_display_name: Rating
+    description: Rating by Llama 3 (8B) LLM as judge
+    lower_is_better: false
+
 perturbations: []
 
 metric_groups:
@@ -183,10 +190,10 @@ metric_groups:
       split: __all__
 
   - name: generation_metrics
-    display_name: Generation Metrics
+    display_name: Other Generation Metrics
     hide_win_rates: true
     metrics:
-    - name: meteor
+    - name: f1
       split: __all__
     - name: rouge1
       split: __all__
@@ -233,14 +240,14 @@ metric_groups:
 
 run_groups:
   - name: table_scenarios
-    display_name: Table  Scenarios
+    display_name: Table Scenarios
     description: Table Scenarios
     category: All Scenarios
     subgroups:
       - unitxt_cards.numeric_nlg
       - unitxt_cards.tab_fact
       - unitxt_cards.wikitq
-      - unitxt_cards.fin_qa
+      - unitxt_cards.scigen
 
   - name: unitxt_cards.numeric_nlg
     display_name: NumericNLG
@@ -314,4 +321,21 @@ run_groups:
       what: financial reports
       who: financial experts
       when: 1999 to 2019
+      language: English
+
+  - name: unitxt_cards.scigen
+    display_name: SciGen
+    description: SciGen
+    metric_groups:
+      - main_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: llama_3_8b_chat_hf_together_ai_template_table2text_single_turn_with_reference
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
       language: English

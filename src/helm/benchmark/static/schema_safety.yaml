@@ -74,21 +74,9 @@ metrics:
     display_name: F1
     description: Average F1 score in terms of word overlap between the model output and correct reference.
     lower_is_better: false
-  - name: art_score
-    display_name: Anthropic Red Team - Model Evaluated Safety score
-    description: Anthropic Red Team - Model Evaluated Safety score
-    lower_is_better: false
-  - name: harm_bench_score
-    display_name: HarmBench - Model Evaluated Safety score
-    description: HarmBench - Model Evaluated Safety score
-    lower_is_better: false
-  - name: sst_score
-    display_name: SimpleSafetyTests - Model Evaluated Safety score
-    description: SimpleSafetyTests - Model Evaluated Safety score
-    lower_is_better: false
-  - name: xst_score
-    display_name: XSTest - Model Evaluated Safety score
-    description: XSTest - Model Evaluated Safety score
+  - name: safety_score
+    display_name: LM Evaluated Safety score
+    description: LM Evaluated Safety score (mean of Llama3.1 and GPT4o ratings) representing whether the output constitutes a successful refusal of unsafe actions (0 is worst, 1 is best).
     lower_is_better: false
   - name: bbq_accuracy
     display_name: BBQ accuracy
@@ -110,6 +98,13 @@ metrics:
     lower_is_better: true
     description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).
 
+  # Annotation metrics
+  - name: safety_llama_annotator_success
+    display_name: Llama Annotator Success Rate
+    description: Fraction of annotator requests to Llama that succeeded.
+  - name: safety_gpt_annotator_success
+    display_name: GPT Annotator Success Rate
+    description: Fraction of annotator requests to GPT that succeeded.
 
 ############################################################
 perturbations: []
@@ -141,6 +136,15 @@ metric_groups:
     - name: num_prompt_tokens
       split: ${main_split}
     - name: num_output_tokens
+      split: ${main_split}
+
+  - name: annotation_metrics
+    display_name: Annotation
+    hide_win_rates: true
+    metrics:
+    - name: safety_llama_annotator_success
+      split: ${main_split}
+    - name: safety_gpt_annotator_success
       split: ${main_split}
 
   - name: toxicity
@@ -176,10 +180,10 @@ run_groups:
     description: HarmBench
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
+      - annotation_metrics
     environment:
-      main_name: harm_bench_score
+      main_name: safety_score
       main_split: test
     taxonomy:
       task: question answering
@@ -193,10 +197,10 @@ run_groups:
     description: SimpleSafetyTests
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
+      - annotation_metrics
     environment:
-      main_name: sst_score
+      main_name: safety_score
       main_split: test
     taxonomy:
       task: question answering
@@ -210,10 +214,10 @@ run_groups:
     description: XSTest
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
+      - annotation_metrics
     environment:
-      main_name: xst_score
+      main_name: safety_score
       main_split: test
     taxonomy:
       task: question answering
@@ -227,9 +231,9 @@ run_groups:
     description: The Bias Benchmark for Question Answering (BBQ) for measuring social bias in question answering in ambiguous and unambigous context [(Parrish et al., 2022)](https://aclanthology.org/2022.findings-acl.165/).
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
       - bbq_metrics
+      - annotation_metrics
     environment:
       main_name: bbq_accuracy
       main_split: test
@@ -246,10 +250,10 @@ run_groups:
     description: Anthropic Red Team
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
+      - annotation_metrics
     environment:
-      main_name: art_score
+      main_name: safety_score
       main_split: test
     taxonomy:
       task: question answering

@@ -30,7 +30,9 @@ export default function Predictions({
       <div className="flex flex-wrap justify-start items-start">
         {predictions.map((prediction, idx) => (
           <div className="w-full" key={idx}>
-            {predictions.length > 1 ? <h2>Trial {idx}</h2> : null}
+            {predictions.length > 1 ? (
+              <h2>Trial {prediction.train_trial_index}</h2>
+            ) : null}
             <div className="mt-2 w-full">
               {prediction.base64_images &&
               prediction.base64_images.length > 0 ? (
@@ -62,27 +64,23 @@ export default function Predictions({
             <AnnotationsDisplay
               predictionAnnotations={prediction.annotations}
             />
-            <h3>Metrics</h3>
-            <List>
-              {Object.keys(prediction.stats).map((statKey, idx) => (
-                <ListItem key={idx}>
-                  {metricFieldMap[statKey] ? (
-                    <span title={metricFieldMap[statKey].description}>
-                      {metricFieldMap[statKey].display_name}
-                    </span>
-                  ) : (
-                    <span>{statKey}</span>
-                  )}
-                  <span>
-                    {String(
-                      prediction.stats[
-                        statKey as keyof typeof prediction.stats
-                      ],
+            <div className="mx-1">
+              <h3>Metrics</h3>
+              <List>
+                {Object.keys(prediction.stats).map((statKey, idx) => (
+                  <ListItem key={idx}>
+                    {metricFieldMap[statKey] ? (
+                      <span title={metricFieldMap[statKey].description}>
+                        {metricFieldMap[statKey].display_name}
+                      </span>
+                    ) : (
+                      <span>{statKey}</span>
                     )}
-                  </span>
-                </ListItem>
-              ))}
-            </List>
+                    <span>{String(prediction.stats[statKey])}</span>
+                  </ListItem>
+                ))}
+              </List>
+            </div>
             <details className="collapse collapse-arrow border rounded-md bg-white">
               <summary className="collapse-title">Request details</summary>
               <div className="collapse-content">

@@ -7,7 +7,7 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_GENERATION_MULTIMODAL,
     ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
 )
-from helm.benchmark.scenarios.vision_language.image2structure.image2structure_scenario import DIFFICULTY_ALL
+from helm.benchmark.scenarios.vision_language.image2struct.image2struct_scenario import DIFFICULTY_ALL
 from helm.benchmark.metrics.common_metric_specs import (
     get_exact_match_metric_specs,
     get_generative_harms_metric_specs,
@@ -111,7 +111,7 @@ def _get_open_ended_generation_metric_specs() -> List[MetricSpec]:
     )
 
 
-def _get_image2structure_metric_specs(
+def _get_image2struct_metric_specs(
     generation_type: str,
     metric_names: Optional[List[str]] = None,
     args: Optional[Dict] = None,
@@ -126,6 +126,8 @@ def _get_image2structure_metric_specs(
             AnnotatedImageMetrics.FID_SIMILARITY,
             AnnotatedImageMetrics.BLOCK_EMD,
             AnnotatedImageMetrics.EARTH_MOVER_SIMILARITY,
+            AnnotatedImageMetrics.LPIPS_SIMILARITY,
+            AnnotatedImageMetrics.SSIM_SIMILARITY,
         ]
     if include_edit_similarity:
         metric_names.append(AnnotatedImageMetrics.EDIT_SIMILARITY)
@@ -209,7 +211,7 @@ def get_a_okvqa_spec() -> RunSpec:
 @run_spec_function("chart2csv")
 def get_chart2csv_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.vision_language.image2structure.chart2csv_scenario.Chart2CSVScenario",
+        class_name="helm.benchmark.scenarios.vision_language.image2struct.chart2csv_scenario.Chart2CSVScenario",
         args={},
     )
     adapter_spec: AdapterSpec = _get_generation_adapter_spec(
@@ -473,14 +475,14 @@ def get_image2latex_spec(
     subset: str, recompile_prompt: bool = False, difficulty: str = DIFFICULTY_ALL, args: Optional[Dict] = None
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.vision_language.image2structure.latex_scenario.LatexScenario",
+        class_name="helm.benchmark.scenarios.vision_language.image2struct.latex_scenario.LatexScenario",
         args={"subset": subset, "recompile_prompt": recompile_prompt, "difficulty": difficulty},
     )
     adapter_spec: AdapterSpec = _get_generation_adapter_spec(
         instructions="Just give a short answer without answering in a complete sentence.",
         max_tokens=2000,
     )
-    metric_specs: List[MetricSpec] = _get_image2structure_metric_specs(
+    metric_specs: List[MetricSpec] = _get_image2struct_metric_specs(
         generation_type="latex",
         args=args,
         include_edit_similarity=("wild" not in subset),  # No ground truth for "wild" subset
@@ -488,7 +490,7 @@ def get_image2latex_spec(
     )
     annotator_specs: List[AnnotatorSpec] = [
         AnnotatorSpec(
-            class_name="helm.benchmark.annotation.image2structure.latex_compiler_annotator.LatexCompilerAnnotator",
+            class_name="helm.benchmark.annotation.image2struct.latex_compiler_annotator.LatexCompilerAnnotator",
         )
     ]
 
@@ -497,7 +499,7 @@ def get_image2latex_spec(
     if "wild" in subset:
         groups = ["image2latex_wild"]
     else:
-        groups = ["image2latex", f"image2latex_{difficulty}"]
+        groups = ["image2latex", f"image2latex_{difficulty}", f"image2latex_{subset}"]
     return RunSpec(
         name=run_spec_name,
         scenario_spec=scenario_spec,
@@ -516,14 +518,14 @@ def get_image2webpage_spec(
     args: Optional[Dict] = None,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.vision_language.image2structure.webpage_scenario.WebpageScenario",
+        class_name="helm.benchmark.scenarios.vision_language.image2struct.webpage_scenario.WebpageScenario",
         args={"subset": subset, "recompile_prompt": recompile_prompt, "difficulty": difficulty},
     )
     adapter_spec: AdapterSpec = _get_generation_adapter_spec(
         instructions="Just give a short answer without answering in a complete sentence.",
         max_tokens=2000,
     )
-    metric_specs: List[MetricSpec] = _get_image2structure_metric_specs(
+    metric_specs: List[MetricSpec] = _get_image2struct_metric_specs(
         generation_type="webpage",
         args=args,
         include_edit_similarity=("wild" not in subset),  # No ground truth for "wild" subset
@@ -531,7 +533,7 @@ def get_image2webpage_spec(
     )
     annotator_specs: List[AnnotatorSpec] = [
         AnnotatorSpec(
-            class_name="helm.benchmark.annotation.image2structure.webpage_compiler_annotator.WebpageCompilerAnnotator",
+            class_name="helm.benchmark.annotation.image2struct.webpage_compiler_annotator.WebpageCompilerAnnotator",
         )
     ]
 
@@ -540,7 +542,7 @@ def get_image2webpage_spec(
     if "wild" in subset:
         groups = ["image2webpage_wild"]
     else:
-        groups = ["image2webpage", f"image2webpage_{difficulty}"]
+        groups = ["image2webpage", f"image2webpage_{difficulty}", f"image2webpage_{subset}"]
     return RunSpec(
         name=run_spec_name,
         scenario_spec=scenario_spec,
@@ -584,7 +586,7 @@ def get_math_vista_spec(grade: str, question_type: str) -> RunSpec:
 @run_spec_function("image2musicsheet")
 def get_image2musicsheet_spec(difficulty: str = DIFFICULTY_ALL, args: Optional[Dict] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.vision_language.image2structure.musicsheet_scenario.MusicSheetScenario",
+        class_name="helm.benchmark.scenarios.vision_language.image2struct.musicsheet_scenario.MusicSheetScenario",
         # There os only one subset for music sheets
         args={"subset": "music", "recompile_prompt": False, "difficulty": difficulty},
     )
@@ -592,7 +594,7 @@ def get_image2musicsheet_spec(difficulty: str = DIFFICULTY_ALL, args: Optional[D
         instructions="Just give a short answer without answering in a complete sentence.",
         max_tokens=2000,
     )
-    metric_specs: List[MetricSpec] = _get_image2structure_metric_specs(
+    metric_specs: List[MetricSpec] = _get_image2struct_metric_specs(
         generation_type="lilypond",
         args=args,
         include_edit_similarity=False,  # No ground truth for music sheets
@@ -600,7 +602,7 @@ def get_image2musicsheet_spec(difficulty: str = DIFFICULTY_ALL, args: Optional[D
     )
     annotator_specs: List[AnnotatorSpec] = [
         AnnotatorSpec(
-            class_name="helm.benchmark.annotation.image2structure.lilypond_compiler_annotator.LilypondCompilerAnnotator",  # noqa: E501
+            class_name="helm.benchmark.annotation.image2struct.lilypond_compiler_annotator.LilypondCompilerAnnotator",  # noqa: E501
         )
     ]
 
@@ -688,13 +690,18 @@ def get_bingo_spec(subject: str, num_respondents: int) -> RunSpec:
         + _get_open_ended_generation_metric_specs()
     )
 
-    run_spec_name: str = "bingo"
+    group_name: str = "bingo"
+    if subject == "Region":
+        group_name += "_fairness"
+    elif subject == "OCR":
+        group_name += "_multilinguality"
+
     return RunSpec(
-        name=f"{run_spec_name}:subject={subject}",
+        name=f"bingo:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=[run_spec_name],
+        groups=[group_name],
     )
 
 

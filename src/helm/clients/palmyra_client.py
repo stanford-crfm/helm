@@ -3,6 +3,7 @@ import json
 import requests
 from typing import Any, Dict, List
 
+from helm.clients.openai_client import OpenAIClient
 from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token, ErrorFlags
@@ -142,3 +143,26 @@ class PalmyraClient(CachingClient):
             completions=completions,
             embedding=[],
         )
+
+
+class PalmyraChatClient(OpenAIClient):
+    """Sends request to a Palmyra model using a OpenAI-compatible Chat API."""
+
+    def __init__(
+        self,
+        tokenizer: Tokenizer,
+        tokenizer_name: str,
+        cache_config: CacheConfig,
+        api_key: str,
+    ):
+        super().__init__(
+            tokenizer=tokenizer,
+            tokenizer_name=tokenizer_name,
+            cache_config=cache_config,
+            api_key=api_key,
+            org_id=None,
+            base_url="https://api.writer.com/v1/chat",
+        )
+
+    def _is_chat_model_engine(self, model_engine: str) -> bool:
+        return True

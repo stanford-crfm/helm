@@ -48,7 +48,7 @@ function dictAnnotationDisplay(
       {Object.entries(dictAnnotation).map(([key, value]) => (
         <div>
           <h3 className="ml-1">{key}</h3>
-          <Preview value={value.toString()} />
+          <Preview value={value === null ? "null" : value.toString()} />
         </div>
       ))}
     </div>
@@ -60,14 +60,19 @@ export default function AnnotationDisplay({ predictionAnnotations }: Props) {
     <div>
       {predictionAnnotations && predictionAnnotations !== undefined
         ? Object.entries(predictionAnnotations).map(([key, value]) => (
-            <div key={key}>
-              <h3>
-                <strong>{key}</strong>
-              </h3>
-              {Array.isArray(value)
-                ? listAnnotationDisplay(value)
-                : dictAnnotationDisplay(value)}
-            </div>
+            <details
+              key={key}
+              className="collapse collapse-arrow border rounded-md bg-white my-2"
+            >
+              <summary className="collapse-title">
+                <>{"View " + key + " annotations"}</>
+              </summary>
+              <div className="collapse-content">
+                {Array.isArray(value)
+                  ? listAnnotationDisplay(value)
+                  : dictAnnotationDisplay(value)}
+              </div>
+            </details>
           ))
         : null}
     </div>

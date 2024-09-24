@@ -374,6 +374,7 @@ def get_flores_spec(source="en", target="id") -> RunSpec:
         output_noun=TRANSLATION_PROMPTS[pair]["output_noun"],
         stop_sequences=["\n"],
         max_tokens=256,
+        sample_train=False,
     )
 
     scenario_spec = ScenarioSpec(

@@ -1,4 +1,5 @@
 import MultimediaObject from "@/types/MultimediaObject";
+import Perturbation from "./Perturbation";
 
 export default interface DisplayRequest {
   instance_id: string;
@@ -18,4 +19,5 @@ export default interface DisplayRequest {
     top_p: number;
     multimodal_prompt: MultimediaObject | undefined;
   };
+  perturbation?: Perturbation | undefined;
 }
