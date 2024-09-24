@@ -259,6 +259,15 @@ def compute_aggregate_row_means(table: Table) -> List[Optional[float]]:
     """
 
     means_per_row: List[Optional[float]] = []
+
+    # check for all header cells where specified, that lower_is_better is consistent
+    orderings = []
+    for elem in table.header:
+        if elem.lower_is_better is not None:
+            orderings.append(elem.lower_is_better)
+    if not (all(orderings) or not any(orderings)):
+        raise Exception("Cannot mean columns with different values for lower_is_better")
+
     for row in table.rows:
         total: float = 0.0
         count = 0
@@ -278,6 +287,7 @@ def compute_aggregate_row_means(table: Table) -> List[Optional[float]]:
 
 
 AGGREGATE_WIN_RATE_COLUMN = 1
+AGGREGATION_STRATEGIES = ["mean", "win_rate"]
 
 
 class Summarizer:
@@ -907,7 +917,7 @@ class Summarizer:
         sub_split: Optional[str] = None,
         bold_columns: bool = True,
         add_win_rate: bool = False,
-        selected_agg_strat: int = 0,
+        selected_agg_strats: List[str] = [],
     ) -> Table:
         """
         Create a table for where each row is an adapter (for which we have a set of runs) and columns are pairs of
@@ -1090,44 +1100,49 @@ class Summarizer:
 
         table = Table(title=title, header=header, rows=rows, links=links, name=name)
 
-        add_mean_col = (
-            selected_agg_strat >= 2
-        )  # values 2 or 3 indicate we should include mean (see AggregationStrategy enum)
-        add_mwr = (
-            selected_agg_strat % 2 != 0 or add_win_rate
-        )  # values 1 or 3 say to include mwr (see AggregationStrategy enum)
+        selected_agg_strats = selected_agg_strats if selected_agg_strats is not None else ["win_rate"]
 
-        if add_mwr:
-            # add overall win rate as the second column
-            WIN_RATE_AGGREGATION = "mean"
-            win_rates = compute_aggregate_row_win_rates(table, aggregation=WIN_RATE_AGGREGATION)
-            description = "How many models this model outperform on average (over columns)."
-            table.header.insert(
-                AGGREGATE_WIN_RATE_COLUMN,
-                HeaderCell(
-                    f"{WIN_RATE_AGGREGATION.capitalize()} win rate",
-                    description=description,
-                    lower_is_better=False,
-                ),
-            )
-            for row, win_rate in zip(table.rows, win_rates):
-                row.insert(AGGREGATE_WIN_RATE_COLUMN, Cell(win_rate))
-        if add_mean_col:
-            means = compute_aggregate_row_means(table)
-            description = "An average over columns representing the mean performance"
-            insertion_column = AGGREGATE_WIN_RATE_COLUMN
-            if add_mwr:
+        # this preserves backwards compatibility for self.schema.name_to_metric_group[metric_group].hide_win_rates
+        # hide_win_rate is the inverse of add_win_rate here (see the function call for create_group_table)
+        hide_aggregation = not add_win_rate
+        if hide_aggregation:
+            selected_agg_strats = []
+        insertion_column = AGGREGATE_WIN_RATE_COLUMN
+        for strategy in selected_agg_strats:
+            if strategy == "win_rate":
+                # add overall win rate as the second column
+                WIN_RATE_AGGREGATION = "mean"
+                win_rates = compute_aggregate_row_win_rates(table, aggregation=WIN_RATE_AGGREGATION)
+                description = "How many models this model outperform on average (over columns)."
+                table.header.insert(
+                    insertion_column,
+                    HeaderCell(
+                        f"{WIN_RATE_AGGREGATION.capitalize()} win rate",
+                        description=description,
+                        lower_is_better=False,
+                    ),
+                )
+                for row, win_rate in zip(table.rows, win_rates):
+                    row.insert(insertion_column, Cell(win_rate))
                 insertion_column += 1
-            table.header.insert(
-                insertion_column,
-                HeaderCell(
-                    "Mean Performance",
-                    description=description,
-                    lower_is_better=False,
-                ),
-            )
-            for row, row_mean in zip(table.rows, means):
-                row.insert(insertion_column, Cell(row_mean))
+            elif strategy == "mean":
+                means = compute_aggregate_row_means(table)
+                description = "An average over columns representing the mean performance"
+                table.header.insert(
+                    insertion_column,
+                    HeaderCell(
+                        "Mean Performance",
+                        description=description,
+                        lower_is_better=False,
+                    ),
+                )
+                for row, row_mean in zip(table.rows, means):
+                    row.insert(insertion_column, Cell(row_mean))
+                insertion_column += 1
+            else:
+                raise Exception(
+                    f"Improper aggregation strategy found: {strategy}. Please use one of: {AGGREGATION_STRATEGIES}"
+                )
 
         if bold_columns:
             for i, header_cell in enumerate(table.header):
@@ -1176,7 +1191,7 @@ class Summarizer:
         if len(adapter_to_runs) > 0:
             for metric_group in all_metric_groups:
                 display_name = self.schema.name_to_metric_group[metric_group].get_short_display_name()
-                agg_strat = self.schema.name_to_metric_group[metric_group].aggregation_strategy or 1
+                agg_strats: List[str] = self.schema.name_to_metric_group[metric_group].aggregation_strategies or []
                 table = self.create_group_table(
                     name=metric_group,
                     title=display_name,
@@ -1184,7 +1199,7 @@ class Summarizer:
                     columns=[(subgroup, metric_group) for subgroup in subgroups],
                     is_scenario_table=False,
                     add_win_rate=not self.schema.name_to_metric_group[metric_group].hide_win_rates,
-                    selected_agg_strat=int(agg_strat),
+                    selected_agg_strats=agg_strats,
                 )
                 tables.append(table)
         return tables

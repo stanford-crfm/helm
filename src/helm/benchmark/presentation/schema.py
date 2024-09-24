@@ -110,14 +110,6 @@ class MetricNameMatcher:
 
 
 @dataclass(frozen=True)
-class AggregationStrategy(IntEnum):
-    USE_NONE = 0
-    USE_MWR = 1
-    USE_MEAN = 2
-    USE_BOTH = 3
-
-
-@dataclass(frozen=True)
 class MetricGroup(Field):
     """
     A list of metrics (which are presumably logically grouped).
@@ -128,7 +120,7 @@ class MetricGroup(Field):
     hide_win_rates: Optional[bool] = None
     """If set to true, do not compute win rates."""
 
-    aggregation_strategy: Optional[Union[AggregationStrategy, int]] = 1
+    aggregation_strategies: Optional[List[str]] = field(default_factory=list)
 
 
 BY_METRIC = "by_metric"
