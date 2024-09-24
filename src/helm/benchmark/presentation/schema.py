@@ -120,6 +120,7 @@ class MetricGroup(Field):
     """If set to true, do not compute win rates."""
 
     aggregation_strategies: Optional[List[str]] = field(default_factory=list)
+    """List with values in {'win_rate','mean'} that correspond to aggregations"""
 
 
 BY_METRIC = "by_metric"
