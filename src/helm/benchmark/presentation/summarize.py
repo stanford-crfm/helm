@@ -258,32 +258,28 @@ def compute_aggregate_row_means(table: Table) -> List[Optional[float]]:
     non-null values of the row are in columns we skip).
     """
 
-    means_per_row: List[Optional[float]] = []
+    row_means: List[Optional[float]] = []
 
     # check for all header cells where specified, that lower_is_better is consistent
     orderings = []
     for elem in table.header:
-        if elem.lower_is_better is not None:
-            orderings.append(elem.lower_is_better)
-    if not (all(orderings) or not any(orderings)):
+        orderings.append(elem.lower_is_better)
+    if len(set(orderings)) != 1:
         raise Exception("Cannot mean columns with different values for lower_is_better")
 
     for row in table.rows:
-        total: float = 0.0
+        total = 0.0
         count = 0
         for cell in row:
-            try:
-                if cell.value:
-                    total += float(cell.value)
-                    count += 1
-            except Exception:
-                print("failed")
+            if cell.value is not None:
+                total += float(cell.value)
+                count += 1
         if count == 0:
-            means_per_row.append(None)
+            row_means.append(None)
         else:
-            means_per_row.append(total / count)
+            row_means.append(total / count)
 
-    return means_per_row
+    return row_means
 
 
 AGGREGATE_WIN_RATE_COLUMN = 1
@@ -917,7 +913,7 @@ class Summarizer:
         sub_split: Optional[str] = None,
         bold_columns: bool = True,
         add_win_rate: bool = False,
-        selected_agg_strats: List[str] = [],
+        aggregation_strategies: List[str] = [],
     ) -> Table:
         """
         Create a table for where each row is an adapter (for which we have a set of runs) and columns are pairs of
@@ -1100,15 +1096,16 @@ class Summarizer:
 
         table = Table(title=title, header=header, rows=rows, links=links, name=name)
 
-        selected_agg_strats = selected_agg_strats if selected_agg_strats is not None else ["win_rate"]
+        if aggregation_strategies is None:
+            aggregation_strategies = ["win_rate"]
 
         # this preserves backwards compatibility for self.schema.name_to_metric_group[metric_group].hide_win_rates
         # hide_win_rate is the inverse of add_win_rate here (see the function call for create_group_table)
         hide_aggregation = not add_win_rate
         if hide_aggregation:
-            selected_agg_strats = []
+            aggregation_strategies = []
         insertion_column = AGGREGATE_WIN_RATE_COLUMN
-        for strategy in selected_agg_strats:
+        for strategy in aggregation_strategies:
             if strategy == "win_rate":
                 # add overall win rate as the second column
                 WIN_RATE_AGGREGATION = "mean"
@@ -1191,7 +1188,9 @@ class Summarizer:
         if len(adapter_to_runs) > 0:
             for metric_group in all_metric_groups:
                 display_name = self.schema.name_to_metric_group[metric_group].get_short_display_name()
-                agg_strats: List[str] = self.schema.name_to_metric_group[metric_group].aggregation_strategies or []
+                aggregate_strategies: List[str] = (
+                    self.schema.name_to_metric_group[metric_group].aggregation_strategies or []
+                )
                 table = self.create_group_table(
                     name=metric_group,
                     title=display_name,
@@ -1199,7 +1198,7 @@ class Summarizer:
                     columns=[(subgroup, metric_group) for subgroup in subgroups],
                     is_scenario_table=False,
                     add_win_rate=not self.schema.name_to_metric_group[metric_group].hide_win_rates,
-                    selected_agg_strats=agg_strats,
+                    aggregation_strategies=aggregate_strategies,
                 )
                 tables.append(table)
         return tables
