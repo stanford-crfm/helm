@@ -1176,6 +1176,11 @@ class Summarizer:
         if len(adapter_to_runs) > 0:
             for metric_group in all_metric_groups:
                 display_name = self.schema.name_to_metric_group[metric_group].get_short_display_name()
+                agg_strat = (
+                    self.schema.name_to_metric_group[metric_group].aggregation_strategy
+                    if self.schema.name_to_metric_group[metric_group].aggregation_strategy != None
+                    else 1
+                )
                 table = self.create_group_table(
                     name=metric_group,
                     title=display_name,
@@ -1183,7 +1188,7 @@ class Summarizer:
                     columns=[(subgroup, metric_group) for subgroup in subgroups],
                     is_scenario_table=False,
                     add_win_rate=not self.schema.name_to_metric_group[metric_group].hide_win_rates,
-                    aggregation_strategy=self.schema.name_to_metric_group[metric_group].aggregation_strategy,
+                    aggregation_strategy=agg_strat,
                 )
                 tables.append(table)
         return tables
