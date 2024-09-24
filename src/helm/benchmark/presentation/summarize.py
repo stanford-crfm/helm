@@ -1104,42 +1104,45 @@ class Summarizer:
         hide_aggregation = not add_win_rate
         if hide_aggregation:
             aggregation_strategies = []
-        insertion_column = AGGREGATE_WIN_RATE_COLUMN
+
+        aggregate_header_cells: List[HeaderCell] = []
+        aggregate_row_values: List[List[float]] = []
+
         for strategy in aggregation_strategies:
             if strategy == "win_rate":
-                # add overall win rate as the second column
                 WIN_RATE_AGGREGATION = "mean"
                 win_rates = compute_aggregate_row_win_rates(table, aggregation=WIN_RATE_AGGREGATION)
                 description = "How many models this model outperform on average (over columns)."
-                table.header.insert(
-                    insertion_column,
+                aggregate_header_cells.append(
                     HeaderCell(
                         f"{WIN_RATE_AGGREGATION.capitalize()} win rate",
                         description=description,
                         lower_is_better=False,
-                    ),
+                    )
                 )
-                for row, win_rate in zip(table.rows, win_rates):
-                    row.insert(insertion_column, Cell(win_rate))
-                insertion_column += 1
+                aggregate_row_values.append(win_rates)
             elif strategy == "mean":
                 means = compute_aggregate_row_means(table)
-                description = "An average over columns representing the mean performance"
-                table.header.insert(
-                    insertion_column,
+                description = "An average over columns representing the mean performance."
+                aggregate_header_cells.append(
                     HeaderCell(
-                        "Mean Performance",
+                        "Mean performance",
                         description=description,
                         lower_is_better=table.header[0].lower_is_better,
-                    ),
+                    )
                 )
-                for row, row_mean in zip(table.rows, means):
-                    row.insert(insertion_column, Cell(row_mean))
-                insertion_column += 1
+                aggregate_row_values.append(means)
             else:
                 raise Exception(
                     f"Unknown aggregation strategy found: {strategy}. Please use one of: {AGGREGATION_STRATEGIES}"
                 )
+
+        for i in range(len(aggregate_header_cells)):
+            aggregate_header_cell = aggregate_header_cells[i]
+            aggregate_rows = aggregate_row_values[i]
+            table.header.insert(i + 1, aggregate_header_cell)
+            for row, row_val in zip(table.rows, aggregate_rows):
+                row.insert(i + 1, Cell(row_val))
 
         if bold_columns:
             for i, header_cell in enumerate(table.header):
