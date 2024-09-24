@@ -1178,7 +1178,7 @@ class Summarizer:
                 display_name = self.schema.name_to_metric_group[metric_group].get_short_display_name()
                 agg_strat: int = (
                     self.schema.name_to_metric_group[metric_group].aggregation_strategy
-                    if self.schema.name_to_metric_group[metric_group].aggregation_strategy != None
+                    if self.schema.name_to_metric_group[metric_group].aggregation_strategy is not None
                     else 1
                 )
                 table = self.create_group_table(
