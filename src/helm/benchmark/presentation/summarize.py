@@ -18,7 +18,7 @@ import yaml
 from collections import defaultdict
 from dataclasses import dataclass, replace
 from statistics import mean, median
-from typing import List, Optional, Dict, Any, Tuple, Set, Union
+from typing import List, Optional, Dict, Any, Tuple, Set
 
 from tqdm import tqdm
 from helm.benchmark.model_deployment_registry import get_model_deployment
