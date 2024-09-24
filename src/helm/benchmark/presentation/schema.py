@@ -1,8 +1,7 @@
 import ast
 import dataclasses
 from dataclasses import dataclass, field
-from enum import IntEnum
-from typing import List, Optional, Dict, Union
+from typing import List, Optional, Dict
 import dacite
 from inspect import cleandoc
 import mako.template
