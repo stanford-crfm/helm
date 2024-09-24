@@ -18,7 +18,7 @@ import yaml
 from collections import defaultdict
 from dataclasses import dataclass, replace
 from statistics import mean, median
-from typing import List, Optional, Dict, Any, Tuple, Set
+from typing import List, Optional, Dict, Any, Tuple, Set, Union
 
 from tqdm import tqdm
 from helm.benchmark.model_deployment_registry import get_model_deployment
@@ -907,7 +907,7 @@ class Summarizer:
         sub_split: Optional[str] = None,
         bold_columns: bool = True,
         add_win_rate: bool = False,
-        aggregation_strategy: int = 0,
+        aggregation_strategy: Union[int,None] = 0,
     ) -> Table:
         """
         Create a table for where each row is an adapter (for which we have a set of runs) and columns are pairs of
