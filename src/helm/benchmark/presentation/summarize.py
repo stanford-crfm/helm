@@ -1130,7 +1130,7 @@ class Summarizer:
                     HeaderCell(
                         "Mean Performance",
                         description=description,
-                        lower_is_better=False,
+                        lower_is_better=table.header[0].lower_is_better,
                     ),
                 )
                 for row, row_mean in zip(table.rows, means):
@@ -1138,7 +1138,7 @@ class Summarizer:
                 insertion_column += 1
             else:
                 raise Exception(
-                    f"Improper aggregation strategy found: {strategy}. Please use one of: {AGGREGATION_STRATEGIES}"
+                    f"Unknown aggregation strategy found: {strategy}. Please use one of: {AGGREGATION_STRATEGIES}"
                 )
 
         if bold_columns:
