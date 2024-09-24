@@ -1106,7 +1106,7 @@ class Summarizer:
             aggregation_strategies = []
 
         aggregate_header_cells: List[HeaderCell] = []
-        aggregate_row_values: List[List[float]] = []
+        aggregate_row_values: List[List[Optional[float]]] = []
 
         for strategy in aggregation_strategies:
             if strategy == "win_rate":
