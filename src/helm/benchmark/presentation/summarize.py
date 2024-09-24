@@ -260,7 +260,7 @@ def compute_aggregate_row_means(table: Table) -> List[Optional[float]]:
 
     means_per_row: List[Optional[float]] = []
     for row in table.rows:
-        total = 0
+        total: float = 0.0
         count = 0
         for cell in row:
             try:
@@ -907,7 +907,7 @@ class Summarizer:
         sub_split: Optional[str] = None,
         bold_columns: bool = True,
         add_win_rate: bool = False,
-        aggregation_strategy: int = 0,
+        selected_agg_strat: int = 0,
     ) -> Table:
         """
         Create a table for where each row is an adapter (for which we have a set of runs) and columns are pairs of
@@ -1091,10 +1091,10 @@ class Summarizer:
         table = Table(title=title, header=header, rows=rows, links=links, name=name)
 
         add_mean_col = (
-            aggregation_strategy >= 2
+            selected_agg_strat >= 2
         )  # values 2 or 3 indicate we should include mean (see AggregationStrategy enum)
         add_mwr = (
-            aggregation_strategy % 2 != 0 or add_win_rate
+            selected_agg_strat % 2 != 0 or add_win_rate
         )  # values 1 or 3 say to include mwr (see AggregationStrategy enum)
 
         if add_mwr:
@@ -1176,7 +1176,7 @@ class Summarizer:
         if len(adapter_to_runs) > 0:
             for metric_group in all_metric_groups:
                 display_name = self.schema.name_to_metric_group[metric_group].get_short_display_name()
-                agg_strat: int = int(
+                agg_strat: int = (
                     self.schema.name_to_metric_group[metric_group].aggregation_strategy
                     if self.schema.name_to_metric_group[metric_group].aggregation_strategy != None
                     else 1
@@ -1188,7 +1188,7 @@ class Summarizer:
                     columns=[(subgroup, metric_group) for subgroup in subgroups],
                     is_scenario_table=False,
                     add_win_rate=not self.schema.name_to_metric_group[metric_group].hide_win_rates,
-                    aggregation_strategy=agg_strat,
+                    selected_agg_strat=int(agg_strat),
                 )
                 tables.append(table)
         return tables
