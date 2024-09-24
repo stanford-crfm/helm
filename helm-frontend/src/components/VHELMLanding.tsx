@@ -46,15 +46,17 @@ export default function VHELMLanding() {
               </a>
           </div>
           <p className="my-4">
-              To better understand VLMs, we introduce {" "}
-              <em>Holistic Evaluation of Vision-Language Models (VHELM)</em> by
-              extending the <a href="https://arxiv.org/abs/2211.09110">HELM</a>{" "}
-              framework with the necessary adaptation methods to assess the
-              performance of many prominent VLMs on across 9 aspects (see below).
+              Current benchmarks for assessing vision-language models (VLMs) often focus on their perception or problem-solving capabilities and neglect other critical aspects such as fairness, multilinguality, or toxicity.
+              Furthermore, they differ in their evaluation procedures and the scope of the evaluation, making it difficult to compare models.
+              To address these issues, we extend the HELM framework to VLMs to present the Holistic Evaluation of Vision Language Models (VHELM). To address these issues, we introduce VHELM, built on HELM for language models.
+              VHELM aggregates various datasets to cover one or more of the 9 aspects: <b>visual perception</b>, <b>bias</b>, <b>fairness</b>, <b>knowledge</b>, <b>multilinguality</b>, <b>reasoning</b>, <b>robustness</b>, <b>safety</b>, and <b>toxicity</b>.
+              In doing so, we produce a comprehensive, multi-dimensional view of the capabilities of the VLMs across these important factors.
+              In addition, we standardize the standard inference parameters, methods of prompting, and evaluation metrics to enable fair comparisons across models.
+              Our framework is designed to be lightweight and automatic so that evaluation runs are cheap and fast.
+              For transparency, we release the raw model generations and complete results on this website.
           </p>
           <p className="my-4 font-bold">
-              We will continue to incorporate new scenarios, models and metrics to the VHELM leaderboard
-              to achieve holistic evaluation for vision-language models, so please stay tuned!
+              VHELM is intended to be a living benchmark. We hope to continue adding new datasets, models and metrics over time, so please stay tuned!
           </p>
 
           <div className="my-16 flex flex-col lg:flex-row items-center gap-8">
