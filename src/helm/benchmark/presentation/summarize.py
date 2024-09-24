@@ -907,7 +907,7 @@ class Summarizer:
         sub_split: Optional[str] = None,
         bold_columns: bool = True,
         add_win_rate: bool = False,
-        aggregation_strategy: Union[int, None] = 0,
+        aggregation_strategy: int = 0,
     ) -> Table:
         """
         Create a table for where each row is an adapter (for which we have a set of runs) and columns are pairs of
@@ -1176,7 +1176,7 @@ class Summarizer:
         if len(adapter_to_runs) > 0:
             for metric_group in all_metric_groups:
                 display_name = self.schema.name_to_metric_group[metric_group].get_short_display_name()
-                agg_strat: int = (
+                agg_strat: int = int(
                     self.schema.name_to_metric_group[metric_group].aggregation_strategy
                     if self.schema.name_to_metric_group[metric_group].aggregation_strategy != None
                     else 1
