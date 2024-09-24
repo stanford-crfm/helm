@@ -119,7 +119,7 @@ class MetricGroup(Field):
     hide_win_rates: Optional[bool] = None
     """If set to true, do not compute win rates."""
 
-    aggregation_strategies: Optional[List[str]] = field(default_factory=list)
+    aggregation_strategies: Optional[List[str]] = None
     """List with values in {'win_rate','mean'} that correspond to aggregations"""
 
 
