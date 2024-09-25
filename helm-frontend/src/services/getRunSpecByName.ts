@@ -13,7 +13,9 @@ export default async function getRunSpecByName(
   suite?: string,
 ): Promise<RunSpec | undefined> {
   try {
-    const runSpec = await fetch(getRunSpecByNameUrl(runName, suite), { signal });
+    const runSpec = await fetch(getRunSpecByNameUrl(runName, suite), {
+      signal,
+    });
 
     return (await runSpec.json()) as RunSpec;
   } catch (error) {

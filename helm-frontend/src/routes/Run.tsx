@@ -17,7 +17,9 @@ import getScenarioByName from "@/services/getScenarioByName";
 import type Scenario from "@/types/Scenario";
 import type AdapterFieldMap from "@/types/AdapterFieldMap";
 import type MetricFieldMap from "@/types/MetricFieldMap";
-import getRunSpecByName, { getRunSpecByNameUrl } from "@/services/getRunSpecByName";
+import getRunSpecByName, {
+  getRunSpecByNameUrl,
+} from "@/services/getRunSpecByName";
 import { getScenarioStateByNameUrl } from "@/services/getScenarioStateByName";
 import Tab from "@/components/Tab";
 import Tabs from "@/components/Tabs";
