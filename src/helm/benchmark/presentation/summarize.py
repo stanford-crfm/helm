@@ -922,7 +922,6 @@ class Summarizer:
         sort_by_model_order: bool = True,
         sub_split: Optional[str] = None,
         bold_columns: bool = True,
-        add_win_rate: bool = False,
         aggregation_strategies: List[str] = [],
     ) -> Table:
         """
@@ -1106,15 +1105,6 @@ class Summarizer:
 
         table = Table(title=title, header=header, rows=rows, links=links, name=name)
 
-        if aggregation_strategies is None:
-            aggregation_strategies = ["win_rate"]
-
-        # this preserves backwards compatibility for self.schema.name_to_metric_group[metric_group].hide_win_rates
-        # hide_win_rate is the inverse of add_win_rate here (see the function call for create_group_table)
-        hide_aggregation = not add_win_rate
-        if hide_aggregation:
-            aggregation_strategies = []
-
         aggregate_header_cells: List[HeaderCell] = []
         aggregate_row_values: List[List[Optional[float]]] = []
 
@@ -1201,16 +1191,19 @@ class Summarizer:
         if len(adapter_to_runs) > 0:
             for metric_group in all_metric_groups:
                 display_name = self.schema.name_to_metric_group[metric_group].get_short_display_name()
-                aggregate_strategies: List[str] = (
-                    self.schema.name_to_metric_group[metric_group].aggregation_strategies or []
-                )
+                aggregate_strategies: List[str]
+                if self.schema.name_to_metric_group[metric_group].aggregation_strategies is not None:
+                    aggregate_strategies = self.schema.name_to_metric_group[metric_group].aggregation_strategies
+                elif self.schema.name_to_metric_group[metric_group].hide_win_rates:
+                    aggregate_strategies = []
+                else:
+                    aggregate_strategies = ["win_rate"]
                 table = self.create_group_table(
                     name=metric_group,
                     title=display_name,
                     adapter_to_runs=adapter_to_runs,
                     columns=[(subgroup, metric_group) for subgroup in subgroups],
                     is_scenario_table=False,
-                    add_win_rate=not self.schema.name_to_metric_group[metric_group].hide_win_rates,
                     aggregation_strategies=aggregate_strategies,
                 )
                 tables.append(table)
