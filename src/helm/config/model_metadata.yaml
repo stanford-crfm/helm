@@ -1469,7 +1469,7 @@ models:
     description: The Meta Llama 3.2 collection of multilingual large language models (LLMs) is a collection of pretrained and instruction-tuned text-only generative models in 1B and 3B sizes. ([blog](https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
     creator_organization_name: Meta
     access: open
-    num_parameters: 70000000000
+    num_parameters: 3210000000
     release_date: 2024-09-25
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
@@ -1478,7 +1478,7 @@ models:
     description: The Llama 3.2 Vision collection of multimodal large language models (LLMs) is a collection of pretrained and instruction-tuned image reasoning generative models in 11B and 90B sizes. ([blog](https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
     creator_organization_name: Meta
     access: open
-    num_parameters: 70000000000
+    num_parameters: 10700000000
     release_date: 2024-09-25
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG. LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
@@ -1487,7 +1487,7 @@ models:
     description: The Llama 3.2 Vision collection of multimodal large language models (LLMs) is a collection of pretrained and instruction-tuned image reasoning generative models in 11B and 90B sizes. ([blog](https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
     creator_organization_name: Meta
     access: open
-    num_parameters: 70000000000
+    num_parameters: 88600000000
     release_date: 2024-09-25
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG. LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
