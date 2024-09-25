@@ -333,6 +333,22 @@ tokenizer_configs:
     prefix_token: "<|begin_of_text|>"
     end_of_text_token: "<|end_of_text|>"
 
+  - name: meta/llama-3.2-3b-instruct
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: meta-llama/Llama-3.2-3B-Instruct
+    prefix_token: "<|begin_of_text|>"
+    end_of_text_token: "<|eot_id|>"
+
+  - name: meta/llama-3.2-11b-vision-instruct
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: meta-llama/Llama-3.2-11B-Vision-Instruct
+    prefix_token: "<|begin_of_text|>"
+    end_of_text_token: "<|eot_id|>"
+
   # 01-ai
   - name: 01-ai/Yi-6B
     tokenizer_spec:
