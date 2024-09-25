@@ -292,8 +292,13 @@ def compute_aggregate_row_means(table: Table) -> List[Optional[float]]:
     return row_means
 
 
-AGGREGATE_WIN_RATE_COLUMN = 1
-AGGREGATION_STRATEGIES = ["mean", "win_rate"]
+class AggregationStrategy:
+    # TODO: Convert to StrEnum after upgrading to Python 3.11
+    WIN_RATE = "win_rate"
+    MEAN = "mean"
+
+
+ALL_AGGREGATION_STRATEGIES = [AggregationStrategy.WIN_RATE, AggregationStrategy.MEAN]
 
 
 class Summarizer:
@@ -1109,7 +1114,7 @@ class Summarizer:
         aggregate_row_values: List[List[Optional[float]]] = []
 
         for strategy in aggregation_strategies:
-            if strategy == "win_rate":
+            if strategy == AggregationStrategy.WIN_RATE:
                 WIN_RATE_AGGREGATION = "mean"
                 win_rates = compute_aggregate_row_win_rates(table, aggregation=WIN_RATE_AGGREGATION)
                 description = "How many models this model outperforms on average (over columns)."
@@ -1121,7 +1126,7 @@ class Summarizer:
                     )
                 )
                 aggregate_row_values.append(win_rates)
-            elif strategy == "mean":
+            elif strategy == AggregationStrategy.MEAN:
                 means = compute_aggregate_row_means(table)
                 description = "An average over columns representing the mean performance."
                 aggregate_header_cells.append(
@@ -1198,7 +1203,7 @@ class Summarizer:
                 elif metric_group_config.hide_win_rates:
                     aggregate_strategies = []
                 else:
-                    aggregate_strategies = ["win_rate"]
+                    aggregate_strategies = [AggregationStrategy.WIN_RATE]
                 table = self.create_group_table(
                     name=metric_group,
                     title=display_name,
