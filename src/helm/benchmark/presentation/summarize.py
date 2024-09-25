@@ -1190,11 +1190,12 @@ class Summarizer:
 
         if len(adapter_to_runs) > 0:
             for metric_group in all_metric_groups:
-                display_name = self.schema.name_to_metric_group[metric_group].get_short_display_name()
+                metric_group_config = self.schema.name_to_metric_group[metric_group]
+                display_name = metric_group_config.get_short_display_name()
                 aggregate_strategies: List[str]
-                if self.schema.name_to_metric_group[metric_group].aggregation_strategies is not None:
-                    aggregate_strategies = self.schema.name_to_metric_group[metric_group].aggregation_strategies
-                elif self.schema.name_to_metric_group[metric_group].hide_win_rates:
+                if metric_group_config.aggregation_strategies is not None:
+                    aggregate_strategies = metric_group_config.aggregation_strategies
+                elif metric_group_config.hide_win_rates:
                     aggregate_strategies = []
                 else:
                     aggregate_strategies = ["win_rate"]
