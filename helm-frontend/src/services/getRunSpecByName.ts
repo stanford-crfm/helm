@@ -10,9 +10,10 @@ export function getRunSpecByNameUrl(runName: string, suite?: string): string {
 export default async function getRunSpecByName(
   runName: string,
   signal: AbortSignal,
+  suite?: string,
 ): Promise<RunSpec | undefined> {
   try {
-    const runSpec = await fetch(getRunSpecByNameUrl(runName), { signal });
+    const runSpec = await fetch(getRunSpecByNameUrl(runName, suite), { signal });
 
     return (await runSpec.json()) as RunSpec;
   } catch (error) {
