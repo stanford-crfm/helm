@@ -286,7 +286,7 @@ tensorboard==2.17.1
 tensorboard-data-server==0.7.2
 tensorflow==2.17.0
 tensorflow-io-gcs-filesystem==0.37.1
-tensorstore==0.1.6
+tensorstore==0.1.65
 termcolor==2.4.0
 thinc==8.2.5
 threadpoolctl==3.5.0
