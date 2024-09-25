@@ -1112,7 +1112,7 @@ class Summarizer:
             if strategy == "win_rate":
                 WIN_RATE_AGGREGATION = "mean"
                 win_rates = compute_aggregate_row_win_rates(table, aggregation=WIN_RATE_AGGREGATION)
-                description = "How many models this model outperform on average (over columns)."
+                description = "How many models this model outperforms on average (over columns)."
                 aggregate_header_cells.append(
                     HeaderCell(
                         f"{WIN_RATE_AGGREGATION.capitalize()} win rate",
