@@ -167,7 +167,7 @@ export default function Run() {
         schema.models.find(
           (m) =>
             m.name ===
-            runSpecs.find((rs) => rs.name === runName)?.adapter_spec.model,
+            runSpecResp?.adapter_spec.model,
         ),
       );
     }
