@@ -101,7 +101,7 @@ grapheme==0.6.0
 grpc-google-iam-v1==0.13.1
 grpcio==1.66.1
 grpcio-status==1.62.3
-gunicorn==20.1.0
+gunicorn==22.0.0
 h11==0.14.0
 h5py==3.11.0
 html2text==2024.2.26
