@@ -1435,7 +1435,7 @@ models:
     access: open
     num_parameters: 70000000000
     release_date: 2024-04-18
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: meta/llama-3.1-8b-instruct-turbo
     display_name: Llama 3.1 Instruct Turbo (8B)
@@ -1444,7 +1444,7 @@ models:
     access: open
     num_parameters: 8000000000
     release_date: 2024-07-23
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: meta/llama-3.1-70b-instruct-turbo
     display_name: Llama 3.1 Instruct Turbo (70B)
@@ -1453,7 +1453,7 @@ models:
     access: open
     num_parameters: 70000000000
     release_date: 2024-07-23
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: meta/llama-3.1-405b-instruct-turbo
     display_name: Llama 3.1 Instruct Turbo (405B)
@@ -1462,7 +1462,7 @@ models:
     access: open
     num_parameters: 405000000000
     release_date: 2024-07-23
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: meta/llama-3.2-3b-instruct-turbo
     display_name: Llama 3.2 Instruct Turbo (3B)
@@ -1535,9 +1535,6 @@ models:
     num_parameters: 8000000000
     release_date: 2024-07-23
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-
-
-  
 
 
   # Microsoft/NVIDIA
