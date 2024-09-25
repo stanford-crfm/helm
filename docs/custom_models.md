@@ -1,12 +1,12 @@
 # Custom Models
 
-HELM comes with more than a hundred built-in models. If you want to run a HELM evaluation on a model that is not built-in, you can configure HELM to add your own model. This also allows you to evaluate private models that not publicly accessible, such as a model checkpoint on local disk, or a model server on a private network
+HELM comes with more than a hundred built-in models. If you want to run a HELM evaluation on a model that is not built-in, you can configure HELM to add your own model. This also allows you to evaluate private models that are not publicly accessible, such as a model checkpoint on local disk, or a model server on a private network
 
-HELM comes with many built-in `Client` classes (i.e. model API clients) and `Tokenizer` clients. If there is already an existing `Client` and `Tokenizer` class for your use case, you can simply add it to your local configuration.
+HELM comes with many built-in `Client` classes (i.e. model API clients) and `Tokenizer` clients. If there is already an existing `Client` and `Tokenizer` class for your use case, you can simply add it to your local configuration. You would only need to implement a new class if you are adding a model with a API format or inference platform that is currently not supported by HELM.
 
 If you wish to evaluate a model not covered by an existing `Client` and `Tokenizer`, you can implement your own `Client` and `Tokenizer` subclasses. Instructions for adding custom `Client` and `Tokenizer` subclasses will be added to the documentation in the future.
 
-## Creating a model deployments configuration
+## Add a Model Deployment
 
 To create a local model deployments configuration file, determine the location of your local configuration folder. If you are using the `--local-path` flag with `helm-run`, the specified folder of the flag is the local configuration folder. Otherwise, the local configuration folder is `./prod_env/` under your current working directory by default.
 
@@ -44,6 +44,8 @@ Examples of common arguments:
 - Revision: `revision: my_revision`
 - Quantization: `load_in_8bit: true`
 - Model precision: `torch_dtype: torch.float16`
+- Running remote code: `trust_remote_code: true`
+- Multi-GPU: `device_map: auto`
 
 Then run:
 
@@ -51,7 +53,7 @@ Then run:
 helm-run --run-entries mmlu:subject=anatomy,model=eleutherai/pythia-70m --suite my_suite --max-eval-instances 5
 ```
 
-Note: This uses Hugging Face local inference. It will attempt to use GPU inference if available, and use CPU inference otherwise. It is only able to use the first GPU. Multi-GPU inference is not supported. Every model needed by `helm-run` will be loaded on the same GPU - if evaluating multiple models, it is prudent to evaluate each model with a separate `helm-run` invocation.
+Note: This uses local inference with Hugging Face. It will attempt to use GPU inference if available, and use CPU inference otherwise. It is only able to use the first GPU. Multi-GPU inference is not supported. Every model needed by `helm-run` will be loaded on the same GPU - if evaluating multiple models, it is prudent to evaluate each model with a separate `helm-run` invocation.
 
 ### vLLM
 
@@ -99,6 +101,8 @@ Then run:
 helm-run --run-entries mmlu:subject=anatomy,model=meta/llama-2-7b --suite my_suite --max-eval-instances 5
 ```
 
-Note: If `together_model` is omitted, the Together model with `model_name` (_not_ `name`) will be used by default.
+Notes:
 
-Note: This model may not be currently available on Together AI. Consult [Together AI's Inference Models documentation](https://docs.together.ai/docs/inference-models) for a list of currently available models and corresponding model strings.
+- You will need to add Together AI credentials to your credentials file e.g. add `togetherApiKey: your-api-key` to `./prod_env/credentials.conf`.
+- If `together_model` is omitted, the Together model with `model_name` (_not_ `name`) will be used by default.
+- This above `together_model` (`togethercomputer/llama-2-7b`) may not be currently available on Together AI. Consult [Together AI's Inference Models documentation](https://docs.together.ai/docs/inference-models) for a list of currently available models and corresponding model strings.
