@@ -1139,7 +1139,7 @@ class Summarizer:
                 aggregate_row_values.append(means)
             else:
                 raise Exception(
-                    f"Unknown aggregation strategy found: {strategy}. Please use one of: {AGGREGATION_STRATEGIES}"
+                    f"Unknown aggregation strategy found: {strategy}. Please use one of: {ALL_AGGREGATION_STRATEGIES}"
                 )
 
         for i in range(len(aggregate_header_cells)):
