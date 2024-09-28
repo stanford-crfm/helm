@@ -303,7 +303,10 @@ class AnnotatedImageMetrics(Metric):
         if self._lpips_metric is None:
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=UserWarning)
-                self._lpips_metric = LearnedPerceptualImagePatchSimilarity(net_type="vgg").to(self._device)
+                # https://lightning.ai/docs/torchmetrics/stable/image/learned_perceptual_image_patch_similarity.html
+                self._lpips_metric = LearnedPerceptualImagePatchSimilarity(net_type="vgg", normalize=True).to(
+                    self._device
+                )
 
         preprocessing = transforms.Compose(
             [
@@ -400,7 +403,8 @@ class AnnotatedImageMetrics(Metric):
 
     def compute_ssim(self, generated_image: np.ndarray, reference_image: np.ndarray) -> float:
         """Compute the Structural Similarity Index (SSIM) between the generated and reference images."""
-        return ssim(generated_image, reference_image)
+        # Add 1 and divide by 2 to get a normalized score between 0 and 1, where 1 is the most similar
+        return (ssim(generated_image, reference_image) + 1) / 2
 
     def compute_edit_sim(self, completion: str, reference: str) -> float:
         # `reference` is the entire remaining book for each instance.

@@ -1493,7 +1493,7 @@ models:
     access: open
     num_parameters: 8000000000
     release_date: 2024-07-23
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: meta/llama-3.1-70b-instruct-turbo
     display_name: Llama 3.1 Instruct Turbo (70B)
@@ -1502,7 +1502,7 @@ models:
     access: open
     num_parameters: 70000000000
     release_date: 2024-07-23
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: meta/llama-3.1-405b-instruct-turbo
     display_name: Llama 3.1 Instruct Turbo (405B)
@@ -1511,7 +1511,34 @@ models:
     access: open
     num_parameters: 405000000000
     release_date: 2024-07-23
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: meta/llama-3.2-3b-instruct-turbo
+    display_name: Llama 3.2 Instruct Turbo (3B)
+    description: The Meta Llama 3.2 collection of multilingual large language models (LLMs) is a collection of pretrained and instruction-tuned text-only generative models in 1B and 3B sizes. ([blog](https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 3210000000
+    release_date: 2024-09-25
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: meta/llama-3.2-11b-vision-instruct-turbo
+    display_name: Llama 3.2 Vision Instruct Turbo (11B)
+    description: The Llama 3.2 Vision collection of multimodal large language models (LLMs) is a collection of pretrained and instruction-tuned image reasoning generative models in 11B and 90B sizes. ([blog](https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 10700000000
+    release_date: 2024-09-25
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG. LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: meta/llama-3.2-90b-vision-instruct-turbo
+    display_name: Llama 3.2 Vision Instruct Turbo (90B)
+    description: The Llama 3.2 Vision collection of multimodal large language models (LLMs) is a collection of pretrained and instruction-tuned image reasoning generative models in 11B and 90B sizes. ([blog](https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 88600000000
+    release_date: 2024-09-25
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG. LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: meta/llama-3-8b-chat
     display_name: Llama 3 Instruct (8B)
@@ -1557,9 +1584,6 @@ models:
     num_parameters: 8000000000
     release_date: 2024-07-23
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-
-
-  
 
 
   # Microsoft/NVIDIA
@@ -2266,6 +2290,23 @@ models:
     access: limited
     release_date: 2023-11-06
     tags: [VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
+
+  ## o1 Models
+  - name: openai/o1-preview-2024-09-12
+    display_name: o1-preview (2024-09-12)
+    description: o1-preview is a language model trained with reinforcement learning to perform complex reasoning that can produce a long internal chain of thought before responding to the user. ([model card](https://openai.com/index/openai-o1-system-card/), [blog post](https://openai.com/index/learning-to-reason-with-llms/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2024-09-12
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/o1-mini-2024-09-12
+    display_name: o1-mini (2024-09-12)
+    description: o1-mini is a cost-effective reasoning model for applications that require reasoning without broad world knowledge. ([model card](https://openai.com/index/openai-o1-system-card/), [blog post](https://openai.com/index/openai-o1-mini-advancing-cost-efficient-reasoning/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2024-09-12
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   ## Codex Models
   # DEPRECATED: Codex models have been shut down on March 23 2023.
@@ -2977,6 +3018,40 @@ models:
     # Does not support echo
     tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_VLM_TAG]
 
+  - name: writer/palmyra-x-004
+    display_name: Palmyra-X-004
+    description: Palmyra-X-004 language model with a large context window of up to 128,000 tokens that excels in processing and understanding complex tasks.
+    creator_organization_name: Writer
+    access: limited
+    release_date: 2024-09-12
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: writer/palmyra-med-32k
+    display_name: Palmyra-Med 32K (70B)
+    description: Palmyra-Med 32K (70B) is a model finetuned from Palmyra-X-003 intended for medical applications.
+    creator_organization_name: Writer
+    access: open
+    num_parameters: 70600000000
+    release_date: 2024-07-31
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: writer/palmyra-med
+    display_name: Palmyra-Med (70B)
+    description: Palmyra-Med (70B) is a model finetuned from Palmyra-X-003 intended for medical applications.
+    creator_organization_name: Writer
+    access: open
+    num_parameters: 70600000000
+    release_date: 2024-07-31
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: writer/palmyra-fin-32k
+    display_name: Palmyra-Fin 32K (70B)
+    description: Palmyra-Fin 32K (70B) is a model finetuned from Palmyra-X-003 intended for financial applications.
+    creator_organization_name: Writer
+    access: open
+    num_parameters: 70600000000
+    release_date: 2024-07-31
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # Yandex
   - name: yandex/yalm

@@ -37,9 +37,10 @@ nav:
   - 'User Guide':
     - 'installation.md'
     - 'quick_start.md'
+    - 'tutorial.md'
+    - 'adding_new_models.md'
     - 'heim.md'
     - 'get_helm_rank.md'
-    - 'tutorial.md'
     - 'benchmark.md'
     - 'huggingface_models.md'
     - 'proxy-server.md'
@@ -52,4 +53,4 @@ nav:
   - 'Developer Guide':
     - 'developer_setup.md'
     - 'code.md'
-    - 'adding_new_models.md'
+    - 'developer_adding_new_models.md'

@@ -3,7 +3,7 @@ import json
 import os
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, List
 
 """
 Given a run suite directory, outputs metrics needed to estimate the cost of running.
@@ -17,17 +17,22 @@ Usage:
 class ModelCost:
     total_num_prompt_tokens: int = 0
 
-    total_max_num_completion_tokens: int = 0
+    total_num_completion_tokens: int = 0
+
+    total_num_instances: int = 0
 
     @property
     def total_tokens(self) -> int:
-        return self.total_num_prompt_tokens + self.total_max_num_completion_tokens
+        return self.total_num_prompt_tokens + self.total_num_completion_tokens
 
     def add_prompt_tokens(self, num_tokens: int):
         self.total_num_prompt_tokens += num_tokens
 
     def add_num_completion_tokens(self, num_tokens: int):
-        self.total_max_num_completion_tokens += num_tokens
+        self.total_num_completion_tokens += num_tokens
+
+    def add_num_instances(self, num_instances: int):
+        self.total_num_instances += num_instances
 
 
 class CostCalculator:
@@ -52,18 +57,38 @@ class CostCalculator:
             with open(run_spec_path) as f:
                 run_spec = json.load(f)
                 model: str = run_spec["adapter_spec"]["model"]
+                cost: ModelCost = models_to_costs[model]
 
             metrics_path: str = os.path.join(run_path, "stats.json")
             with open(metrics_path) as f:
-                metrics = json.load(f)
+                metrics: List[Dict] = json.load(f)
+                if len(metrics) == 0:
+                    continue
+
+                num_prompt_tokens: int = -1
+                num_completion_tokens: int = -1
+                num_instances: int = -1
 
                 for metric in metrics:
-                    cost: ModelCost = models_to_costs[model]
                     metric_name: str = metric["name"]["name"]
+
+                    # Don't count perturbations
+                    if "perturbation" in metric["name"]:
+                        continue
+
                     if metric_name == "num_prompt_tokens":
-                        cost.add_prompt_tokens(metric["sum"])
-                    elif metric_name == "max_num_completion_tokens":
-                        cost.add_num_completion_tokens(metric["sum"])
+                        num_prompt_tokens = metric["sum"]
+                    elif metric_name == "num_completion_tokens":
+                        num_completion_tokens = metric["sum"]
+                    elif metric_name == "num_instances":
+                        num_instances = metric["sum"]
+
+                assert (
+                    num_prompt_tokens >= 0 and num_completion_tokens >= 0 and num_instances >= 0
+                ), f"invalid metrics: {metrics}"
+                cost.add_prompt_tokens(num_prompt_tokens * num_instances)
+                cost.add_num_completion_tokens(num_completion_tokens * num_instances)
+                cost.add_num_instances(num_instances)
 
         return models_to_costs
 
@@ -75,9 +100,23 @@ if __name__ == "__main__":
 
     calculator = CostCalculator(args.run_suite_path)
     model_costs: Dict[str, ModelCost] = calculator.aggregate()
+
+    grand_total_prompt_tokens: int = 0
+    grand_total_completion_tokens: int = 0
+    grand_total_num_instances: int = 0
     for model_name, model_cost in model_costs.items():
         print(
             f"{model_name}: Total prompt tokens={model_cost.total_num_prompt_tokens} + "
-            f"Total max completion tokens={model_cost.total_max_num_completion_tokens} = "
-            f"{model_cost.total_tokens}"
+            f"Total completion tokens={model_cost.total_num_completion_tokens} = "
+            f"{model_cost.total_tokens} for {model_cost.total_num_instances} instances."
         )
+
+        grand_total_prompt_tokens += model_cost.total_num_prompt_tokens
+        grand_total_completion_tokens += model_cost.total_num_completion_tokens
+        grand_total_num_instances += model_cost.total_num_instances
+
+    print(
+        f"Grand total prompt tokens={grand_total_prompt_tokens} + "
+        f"Grand total completion tokens={grand_total_completion_tokens} = "
+        f"{grand_total_prompt_tokens + grand_total_completion_tokens} for {grand_total_num_instances} instances."
+    )

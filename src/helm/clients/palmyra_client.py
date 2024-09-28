@@ -154,7 +154,6 @@ class PalmyraChatClient(OpenAIClient):
         tokenizer_name: str,
         cache_config: CacheConfig,
         api_key: str,
-        base_url: str,
     ):
         super().__init__(
             tokenizer=tokenizer,
@@ -162,7 +161,7 @@ class PalmyraChatClient(OpenAIClient):
             cache_config=cache_config,
             api_key=api_key,
             org_id=None,
-            base_url=base_url,
+            base_url="https://api.writer.com/v1/chat",
         )
 
     def _is_chat_model_engine(self, model_engine: str) -> bool:

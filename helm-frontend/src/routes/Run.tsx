@@ -6,7 +6,6 @@ import {
   ArrowTopRightOnSquareIcon,
 } from "@heroicons/react/24/solid";
 import getSchema from "@/services/getSchema";
-import getRunSpecs from "@/services/getRunSpecs";
 import type RunSpec from "@/types/RunSpec";
 import getInstances from "@/services/getInstances";
 import type Instance from "@/types/Instance";
@@ -18,7 +17,9 @@ import getScenarioByName from "@/services/getScenarioByName";
 import type Scenario from "@/types/Scenario";
 import type AdapterFieldMap from "@/types/AdapterFieldMap";
 import type MetricFieldMap from "@/types/MetricFieldMap";
-import { getRunSpecByNameUrl } from "@/services/getRunSpecByName";
+import getRunSpecByName, {
+  getRunSpecByNameUrl,
+} from "@/services/getRunSpecByName";
 import { getScenarioStateByNameUrl } from "@/services/getScenarioStateByName";
 import Tab from "@/components/Tab";
 import Tabs from "@/components/Tabs";
@@ -75,7 +76,7 @@ export default function Run() {
       setRunSuite(suite);
 
       const [
-        runSpecs,
+        runSpecResp,
         instancesResp,
         statsResp,
         scenario,
@@ -83,7 +84,7 @@ export default function Run() {
         displayRequests,
         schema,
       ] = await Promise.all([
-        getRunSpecs(signal),
+        getRunSpecByName(runName, signal, suite),
         getInstances(runName, signal, suite),
         getStatsByName(runName, signal, suite),
         getScenarioByName(runName, signal, suite),
@@ -92,7 +93,7 @@ export default function Run() {
         getSchema(signal),
       ]);
 
-      setRunSpec(runSpecs.find((rs) => rs.name === runName));
+      setRunSpec(runSpecResp);
       setInstances(instancesResp);
       const totalInstancesPages = Math.ceil(
         instancesResp.length / INSTANCES_PAGE_SIZE,
@@ -163,11 +164,7 @@ export default function Run() {
       );
 
       setModel(
-        schema.models.find(
-          (m) =>
-            m.name ===
-            runSpecs.find((rs) => rs.name === runName)?.adapter_spec.model,
-        ),
+        schema.models.find((m) => m.name === runSpecResp?.adapter_spec.model),
       );
     }
 

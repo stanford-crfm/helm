@@ -1,57 +1,69 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import getSchema from "@/services/getSchema";
-import type Schema from "@/types/Schema";
-
-import ModelsList from "@/components/ModelsList";
 import MiniLeaderboard from "@/components/MiniLeaderboard";
-import ScenariosList from "@/components/ScenariosList";
 
 import vhelmFrameworkImage from "@/assets/vhelm/vhelm-framework.png";
 import vhelmModelImage from "@/assets/vhelm/vhelm-model.png";
+import vhelmAspectsImage from "@/assets/vhelm/vhelm-aspects.png";
 
 export default function VHELMLanding() {
-  const [schema, setSchema] = useState<Schema | undefined>(undefined);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    async function fetchData() {
-      const schema = await getSchema(controller.signal);
-      setSchema(schema);
-    }
-
-    void fetchData();
-    return () => controller.abort();
-  }, []);
-
   return (
     <div className="container mx-auto px-16">
       <h1 className="text-3xl mt-16 my-8 font-bold text-center">
-        The First Steps to Holistic Evaluation of Vision-Language Models
+        Holistic Evaluation of Vision-Language Models
       </h1>
+
+      <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-8 md:gap-32 my-8">
+        <a
+          className="px-10 btn rounded-md"
+          // TODO: update with VHELM paper link
+          href="https://arxiv.org/abs/2311.04287"
+        >
+          Paper
+        </a>
+        <a
+          className="px-10 btn rounded-md"
+          href="https://github.com/stanford-crfm/helm"
+        >
+          Github
+        </a>
+      </div>
       <p className="my-4">
-        To better understand VLMs, we introduce the first version of{" "}
-        <em>Holistic Evaluation of Vision-Language Models (VHELM)</em> by
-        extending the <a href="https://arxiv.org/abs/2211.09110">HELM</a>{" "}
-        framework with the necessary adaptation methods to assess the
-        performance of 6 prominent VLMs on 3 standard VLM benchmarks.
+        Current benchmarks for assessing vision-language models (VLMs) often
+        focus on their perception or problem-solving capabilities and neglect
+        other critical aspects such as fairness, multilinguality, or toxicity.
+        Furthermore, they differ in their evaluation procedures and the scope of
+        the evaluation, making it difficult to compare models. To address these
+        issues, we extend the HELM framework to VLMs to present the Holistic
+        Evaluation of Vision Language Models (VHELM). To address these issues,
+        we introduce VHELM, built on HELM for language models. VHELM aggregates
+        various datasets to cover one or more of the 9 aspects:{" "}
+        <b>visual perception</b>, <b>bias</b>, <b>fairness</b>, <b>knowledge</b>
+        , <b>multilinguality</b>, <b>reasoning</b>, <b>robustness</b>,{" "}
+        <b>safety</b>, and <b>toxicity</b>. In doing so, we produce a
+        comprehensive, multi-dimensional view of the capabilities of the VLMs
+        across these important factors. In addition, we standardize the standard
+        inference parameters, methods of prompting, and evaluation metrics to
+        enable fair comparisons across models. Our framework is designed to be
+        lightweight and automatic so that evaluation runs are cheap and fast.
+        For transparency, we release the raw model generations and complete
+        results on this website.
       </p>
       <p className="my-4 font-bold">
-        This is ongoing work to achieve holistic evaluation for vision-language
-        models, so please stay tuned!
+        VHELM is intended to be a living benchmark. We hope to continue adding
+        new datasets, models and metrics over time, so please stay tuned!
       </p>
 
       <div className="my-16 flex flex-col lg:flex-row items-center gap-8">
         <div className="flex-1 text-xl">
           <img
-            src={vhelmFrameworkImage}
-            alt="An image of a helm and the text 'This helm is a' is sent to a Vision-Language Model, which produces the text 'wheel for steering a ship...'"
+            src={vhelmModelImage}
+            alt="A vision-lanuage model (VLM) takes in an image and a text prompt and generates text."
             className=""
           />
           <img
-            src={vhelmModelImage}
-            alt="An example of an evaluation for an Aspect (Knowledge) - a Scenario (MMMU) undergoes Adaptation (multimodal multiple choice) for a Model (GPT-4 Vision), then Metrics (Exact match) are computed"
+            src={vhelmFrameworkImage}
+            alt="An example of an evaluation for an Aspect (Knowledge) - a Scenario (MMMU) undergoes Adaptation (multimodal multiple choice) for a Model (GPT-4 Omni), then Metrics (Exact match) are computed"
             className=""
           />
         </div>
@@ -65,12 +77,13 @@ export default function VHELMLanding() {
           </Link>
         </div>
       </div>
-      {schema === undefined ? null : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-          <ModelsList models={schema.models} />
-          <ScenariosList runGroups={schema.run_groups} />
-        </div>
-      )}
+      <div className="container max-w-screen-lg mx-auto my-8">
+        <img
+          src={vhelmAspectsImage}
+          alt="An example of each aspect in VHELM: Visual Perception, Bias, Fairness, Knowledge, Multilinguality, Reasoning, Robustness, Toxicity Mitigation and Safety. "
+          className=""
+        />
+      </div>
     </div>
   );
 }
