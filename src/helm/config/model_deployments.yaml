@@ -1848,6 +1848,24 @@ model_deployments:
       args:
         together_model: meta-llama/Meta-Llama-3-8B
 
+  - name: together/llama-3-8b-instruct-turbo
+    model_name: meta/llama-3-8b-instruct-turbo
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: meta-llama/Meta-Llama-3-8B-Instruct-Turbo
+
+  - name: together/llama-3-8b-instruct-lite
+    model_name: meta/llama-3-8b-instruct-lite
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: meta-llama/Meta-Llama-3-8B-Instruct-Lite
+
   - name: together/llama-3-70b
     model_name: meta/llama-3-70b
     tokenizer_name: meta/llama-3-8b
@@ -1856,6 +1874,24 @@ model_deployments:
       class_name: "helm.clients.together_client.TogetherClient"
       args:
         together_model: meta-llama/Meta-Llama-3-70B
+
+  - name: together/llama-3-70b-instruct-turbo
+    model_name: meta/llama-3-70b-instruct-turbo
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: meta-llama/Meta-Llama-3-70B-Instruct-Turbo
+
+  - name: together/llama-3-70b-instruct-lite
+    model_name: meta/llama-3-70b-instruct-lite
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: meta-llama/Meta-Llama-3-70B-Instruct-Lite
 
   - name: together/llama-3.1-8b-instruct-turbo
     model_name: meta/llama-3.1-8b-instruct-turbo

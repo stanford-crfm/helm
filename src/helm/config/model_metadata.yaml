@@ -1427,6 +1427,24 @@ models:
     num_parameters: 8000000000
     release_date: 2024-04-18
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: meta/llama-3-8b-instruct-turbo
+    display_name: Llama 3 Instruct Turbo (8B)
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/) Turbo is Together's implementation, providing fast FP8 performance while maintaining quality, closely matching FP16 reference models. ([blog](https://www.together.ai/blog/together-inference-engine-2))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-07-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: meta/llama-3-8b-instruct-lite
+    display_name: Llama 3 Instruct Lite (8B)
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/) Lite is Together's implementation, it leverages a number of optimizations including INT4 quantization, provides the most cost-efficient and scalable Llama 3 models available anywhere, while maintaining excellent quality relative to full precision reference implementations ([blog](https://www.together.ai/blog/together-inference-engine-2))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-07-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
     
   - name: meta/llama-3-70b
     display_name: Llama 3 (70B)
@@ -1435,6 +1453,24 @@ models:
     access: open
     num_parameters: 70000000000
     release_date: 2024-04-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    
+  - name: meta/llama-3-70b-instruct-turbo
+    display_name: Llama 3 Instruct Turbo (70B)
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/) Turbo is Together's implementation, providing fast FP8 performance while maintaining quality, closely matching FP16 reference models. ([blog](https://www.together.ai/blog/together-inference-engine-2))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-07-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    
+  - name: meta/llama-3-70b-instruct-lite
+    display_name: Llama 3 Instruct Lite (70B)
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/) Lite is Together's implementation, it leverages a number of optimizations including INT4 quantization, provides the most cost-efficient and scalable Llama 3 models available anywhere, while maintaining excellent quality relative to full precision reference implementations ([blog](https://www.together.ai/blog/together-inference-engine-2))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-07-18
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: meta/llama-3.1-8b-instruct-turbo
