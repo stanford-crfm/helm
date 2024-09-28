@@ -22,7 +22,16 @@ class BedrockClient(CachingClient):
     @abstractmethod
     def convert_raw_response_to_completions(self, response: Dict, request: Request) -> List[GeneratedOutput]:
         raise NotImplementedError()
-
+    
+    '''
+    Amazon Bedrock is a fully managed service that provides s selection of leading foundation models (FMs) from Amazon 
+    and other partner model providers.
+    '''
+    @property
+    @abstractmethod
+    def model_provider(self) -> str:
+        raise NotImplementedError()
+    
     def __init__(
         self,
         cache_config: CacheConfig,
@@ -42,8 +51,9 @@ class BedrockClient(CachingClient):
         )
 
     def make_request(self, request: Request) -> RequestResult:
-        # model_id should be something like "amazon.titan-tg1-large", strip out the amazon/ prefix
-        model_id = request.model.replace("amazon/", "")
+        # model_id should be something like "amazon.titan-tg1-large", replace amazon/ prefix with model creator name
+        model_id =request.model.replace('amazon/',f"{self.model_provider}.")
+     
         raw_request = self.convert_request_to_raw_request(request)
 
         # modelId isn't part of raw_request, so it must be explicitly passed into the input to
@@ -87,6 +97,9 @@ class BedrockTitanClient(BedrockClient):
         "LENGTH": "length",
         "FINISH": "endoftext",
     }
+
+    #creator org for titan
+    model_provider = "amazon"
 
     def convert_request_to_raw_request(self, request: Request) -> Dict:
         # TODO: Support the following:
@@ -139,6 +152,8 @@ class BedrockMistralClient(BedrockClient):
         "stop": "endoftext",
     }
 
+    model_provider = "mistral"
+
     def convert_request_to_raw_request(self, request: Request) -> Dict:
         # TODO: Support the following:
         # - top_k_per_token
@@ -175,6 +190,8 @@ class BedrockLlamaClient(BedrockClient):
         "length": "length",
         "stop": "endoftext",
     }
+
+    model_provider = "meta"
 
     def convert_request_to_raw_request(self, request: Request) -> Dict:
         # TODO: Support the following:

@@ -208,7 +208,7 @@ models:
   # - https://aws.amazon.com/bedrock/titan/
   # - https://community.aws/content/2ZUVD3fkNtqEOYIa2iUJAFArS7c/family-of-titan-text-models---cli-demo
   # - https://aws.amazon.com/about-aws/whats-new/2023/11/amazon-titan-models-express-lite-bedrock/
-  - name: amazon/amazon.titan-text-lite-v1
+  - name: amazon/titan-text-lite-v1
     display_name: Amazon Titan Text Lite
     description: Amazon Titan Text Lite is a lightweight, efficient model perfect for fine-tuning English-language tasks like summarization and copywriting. It caters to customers seeking a smaller, cost-effective, and highly customizable model. It supports various formats, including text generation, code generation, rich text formatting, and orchestration (agents). Key model attributes encompass fine-tuning, text generation, code generation, and rich text formatting.
     creator_organization_name: Amazon
@@ -216,7 +216,7 @@ models:
     release_date: 2023-11-29
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
  
-  - name: amazon/amazon.titan-text-express-v1
+  - name: amazon/titan-text-express-v1
     display_name: Amazon Titan Text Express
     description: Amazon Titan Text Express, with a context length of up to 8,000 tokens, excels in advanced language tasks like open-ended text generation and conversational chat. It's also optimized for Retrieval Augmented Generation (RAG). Initially designed for English, the model offers preview multilingual support for over 100 additional languages.
     creator_organization_name: Amazon
@@ -228,7 +228,7 @@ models:
 # References for Mistral on Amazon Bedrock
 # https://aws.amazon.com/bedrock/mistral/
 
-  - name: amazon/mistral.mistral-7b-instruct-v0:2
+  - name: amazon/mistral-7b-instruct-v0:2
     display_name: Amazon Bedrock - Mistral 7B Instruct
     description: A 7B dense Transformer, fast-deployed and easily customisable. Small, yet powerful for a variety of use cases. Supports English and code, and a 32k context window.
     creator_organization_name: Mistral
@@ -236,7 +236,7 @@ models:
     release_date: 2023-07-11
     tags: [BEDROCK_MISTRAL_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  - name: amazon/mistral.mixtral-8x7b-instruct-v0:1
+  - name: amazon/mixtral-8x7b-instruct-v0:1
     display_name: Amazon Bedrock - Mixtral 8x7B Instruct
     description: A 7B sparse Mixture-of-Experts model with stronger capabilities than Mistral 7B. Uses 12B active parameters out of 45B total. Supports multiple languages, code and 32k context window.
     creator_organization_name: Mistral
@@ -244,7 +244,7 @@ models:
     release_date: 2023-07-11
     tags: [BEDROCK_MISTRAL_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  - name: amazon/mistral.mistral-large-2402-v1:0
+  - name: amazon/mistral-large-2402-v1:0
     display_name: Amazon Bedrock - Mistral Large
     description: The most advanced Mistral AI Large Language model capable of handling any language task including complex multilingual reasoning, text understanding, transformation, and code generation.
     creator_organization_name: Mistral
@@ -253,7 +253,7 @@ models:
     tags: [BEDROCK_MISTRAL_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   
-  - name: amazon/mistral.mistral-small-2402-v1:0
+  - name: amazon/mistral-small-2402-v1:0
     display_name: Amazon Bedrock - Mistral Small
     description: Mistral Small is perfectly suited for straightforward tasks that can be performed in bulk, such as classification, customer support, or text generation. It provides outstanding performance at a cost-effective price point.
     creator_organization_name: Mistral
@@ -265,7 +265,7 @@ models:
 # References for Llama3 on Amazon Bedrock
 # https://aws.amazon.com/bedrock/llama/
 
-  - name: amazon/meta.llama3-8b-instruct-v1:0
+  - name: amazon/llama3-8b-instruct-v1:0
     display_name: Amazon Bedrock - Llama 3 8B Instruct
     description: Meta Llama 3 is an accessible, open large language model (LLM) designed for developers, researchers, and businesses to build, experiment, and responsibly scale their generative AI ideas. Part of a foundational system, it serves as a bedrock for innovation in the global community. Ideal for limited computational power and resources, edge devices, and faster training times.
     creator_organization_name: Meta
@@ -273,7 +273,7 @@ models:
     release_date: 2023-07-11
     tags: [BEDROCK_LLAMA3_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  - name: amazon/meta.llama3-70b-instruct-v1:0
+  - name: amazon/llama3-70b-instruct-v1:0
     display_name: Amazon Bedrock - Llama 3 70B Instruct
     description: Meta Llama 3 is an accessible, open large language model (LLM) designed for developers, researchers, and businesses to build, experiment, and responsibly scale their generative AI ideas. Part of a foundational system, it serves as a bedrock for innovation in the global community. Ideal for content creation, conversational AI, language understanding, R&D, and Enterprise applications.
     creator_organization_name: Meta
