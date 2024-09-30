@@ -578,7 +578,11 @@ def get_lindsea_syntax_minimal_pairs_spec(language: str = "id", method: str = "m
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["bhasa_linguistic", f"lindsea_syntax_minimal_pairs_{language}"],
+        groups=[
+            "bhasa_linguistic",
+            f"lindsea_syntax_minimal_pairs_{language}",
+            f"lindsea_syntax_minimal_pairs_{method}_{language}",
+        ],
     )
 
 
@@ -607,7 +611,11 @@ def get_lindsea_pragmatics_presuppositions_spec(language: str = "id", subset: st
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["bhasa_linguistic", f"lindsea_pragmatics_presuppositions_{subset}_{language}"],
+        groups=[
+            "bhasa_linguistic",
+            f"lindsea_pragmatics_presuppositions_{language}",
+            f"lindsea_pragmatics_presuppositions_{subset}_{language}",
+        ],
     )
 
 
@@ -636,5 +644,9 @@ def get_lindsea_pragmatics_scalar_implicatures_spec(language: str = "id", subset
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["bhasa_linguistic", f"lindsea_pragmatics_scalar_implicatures_{subset}_{language}"],
+        groups=[
+            "bhasa_linguistic",
+            f"lindsea_pragmatics_scalar_implicatures_{language}",
+            f"lindsea_pragmatics_scalar_implicatures_{subset}_{language}",
+        ],
     )
