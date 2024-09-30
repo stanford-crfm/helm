@@ -9,6 +9,15 @@
 #    model_deployments: [] # Leave empty to disable private model deployments
 
 model_deployments:
+  - name: huggingface/pythia-70m
+    model_name: eleutherai/pythia-70m
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: EleutherAI/pythia-70m
+
   - name: simple/model1
     model_name: simple/model1
     tokenizer_name: simple/tokenizer1

@@ -10,7 +10,15 @@
 
 
 models:
-
+  - name: eleutherai/pythia-70m
+    display_name: Pythia (70M)
+    description: Pythia (70M parameters). The Pythia project combines interpretability analysis and scaling laws to understand how knowledge develops and evolves during training in autoregressive transformers.
+    creator_organization_name: EleutherAI
+    access: open
+    num_parameters: 95600000
+    release_date: 2023-02-13
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    
   - name: simple/model1
     display_name: Simple Model 1
     description: This is a test model.
