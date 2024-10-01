@@ -105,12 +105,6 @@ metrics:
   - name: safety_gpt_annotator_success
     display_name: GPT Annotator Success Rate
     description: Fraction of annotator requests to GPT that succeeded.
-  - name: safety_claude_annotator_success
-    display_name: Claude Annotator Success Rate
-    description: Fraction of annotator requests to Llama that succeeded.
-  - name: safety_gemini_annotator_success
-    display_name: Gemini Annotator Success Rate
-    description: Fraction of annotator requests to GPT that succeeded.
 
 ############################################################
 perturbations: []
@@ -153,10 +147,6 @@ metric_groups:
     - name: safety_llama_annotator_success
       split: ${main_split}
     - name: safety_gpt_annotator_success
-      split: ${main_split}
-    - name: safety_gemini_annotator_success
-      split: ${main_split}
-    - name: safety_claude_annotator_success
       split: ${main_split}
 
   - name: toxicity
