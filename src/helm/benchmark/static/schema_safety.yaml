@@ -105,6 +105,12 @@ metrics:
   - name: safety_gpt_annotator_success
     display_name: GPT Annotator Success Rate
     description: Fraction of annotator requests to GPT that succeeded.
+  - name: safety_claude_annotator_success
+    display_name: Claude Annotator Success Rate
+    description: Fraction of annotator requests to Llama that succeeded.
+  - name: safety_gemini_annotator_success
+    display_name: Gemini Annotator Success Rate
+    description: Fraction of annotator requests to GPT that succeeded.
 
 ############################################################
 perturbations: []
@@ -115,7 +121,6 @@ metric_groups:
     display_name: Accuracy
     aggregation_strategies: 
       - win_rate
-      - mean
     metrics:
       - name: ${main_name}
         split: ${main_split}
@@ -149,6 +154,10 @@ metric_groups:
       split: ${main_split}
     - name: safety_gpt_annotator_success
       split: ${main_split}
+    - name: safety_gemini_annotator_success
+      split: ${main_split}
+    - name: safety_claude_annotator_success
+      split: ${main_split}
 
   - name: toxicity
     display_name: Toxicity
@@ -172,6 +181,7 @@ run_groups:
     description: Scenarios for the model safety
     category: All scenarios
     subgroups:
+      - harm_bench_gcg
       - harm_bench
       - simple_safety_tests
       - bbq
@@ -181,6 +191,23 @@ run_groups:
   - name: harm_bench
     display_name: HarmBench
     description: HarmBench
+    metric_groups:
+      - accuracy
+      - general_information
+      - annotation_metrics
+    environment:
+      main_name: safety_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: harm_bench_gcg
+    display_name: HarmBenchGCG
+    description: HarmBenchGCG
     metric_groups:
       - accuracy
       - general_information

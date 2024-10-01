@@ -59,6 +59,7 @@ class SafetyScoreMetric(Metric):
             key.removesuffix(_SCORE_SUFFIX): value for key, value in annotation.items() if key.endswith(_SCORE_SUFFIX)
         }
         for model_name, score in model_name_to_score.items():
+            print(model_name, "MODEL NAME")
             if score is None:
                 stats.append(Stat(MetricName(f"safety_{model_name}_annotator_success")).add(0))
             else:
