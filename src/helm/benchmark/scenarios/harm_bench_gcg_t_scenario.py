@@ -7,7 +7,7 @@ from helm.common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, Input, TEST_SPLIT, Reference, Output
 
 
-class HarmBenchGCGScenario(Scenario):
+class HarmBenchGCGTScenario(Scenario):
     """
     HarmBenchGCG-T is a standardized evaluation framework for automated red teaming.
     HarmBench identifies key considerations previously unaccounted for in red teaming
@@ -16,7 +16,7 @@ class HarmBenchGCGScenario(Scenario):
     https://arxiv.org/abs/2402.04249
     """
 
-    name = "harm_bench_gcg"
+    name = "harm_bench_gcg_t"
     description = "HarmBench GCG-T dataset - standard and contextual attacks"
     tags = ["safety"]
 
