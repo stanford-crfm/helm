@@ -31,12 +31,6 @@ def score_with_reasoning_with_gpt_and_llama(
         "llama": _AnnotatorModelInfo(
             model_name="meta/llama-3.1-405b-instruct-turbo", model_deployment="together/llama-3.1-405b-instruct-turbo"
         ),
-        "claude": _AnnotatorModelInfo(
-            model_name="meta/llama-3.1-405b-instruct-turbo", model_deployment="together/llama-3.1-405b-instruct-turbo"
-        ),
-        "gemini": _AnnotatorModelInfo(
-            model_name="anthropic/claude-3-5-sonnet-20240620", model_deployment="anthropic/claude-3-5-sonnet-20240620"
-        ),
     }
     result: Dict[str, Optional[Union[str, float]]] = {"prompt_text": annotator_prompt}
     for short_name, model_info in SHORT_NAME_TO_MODEL_INFO.items():
