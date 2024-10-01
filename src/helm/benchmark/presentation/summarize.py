@@ -292,8 +292,13 @@ def compute_aggregate_row_means(table: Table) -> List[Optional[float]]:
     return row_means
 
 
-AGGREGATE_WIN_RATE_COLUMN = 1
-AGGREGATION_STRATEGIES = ["mean", "win_rate"]
+class AggregationStrategy:
+    # TODO: Convert to StrEnum after upgrading to Python 3.11
+    WIN_RATE = "win_rate"
+    MEAN = "mean"
+
+
+ALL_AGGREGATION_STRATEGIES = [AggregationStrategy.WIN_RATE, AggregationStrategy.MEAN]
 
 
 class Summarizer:
@@ -922,7 +927,6 @@ class Summarizer:
         sort_by_model_order: bool = True,
         sub_split: Optional[str] = None,
         bold_columns: bool = True,
-        add_win_rate: bool = False,
         aggregation_strategies: List[str] = [],
     ) -> Table:
         """
@@ -1106,20 +1110,11 @@ class Summarizer:
 
         table = Table(title=title, header=header, rows=rows, links=links, name=name)
 
-        if aggregation_strategies is None:
-            aggregation_strategies = ["win_rate"]
-
-        # this preserves backwards compatibility for self.schema.name_to_metric_group[metric_group].hide_win_rates
-        # hide_win_rate is the inverse of add_win_rate here (see the function call for create_group_table)
-        hide_aggregation = not add_win_rate
-        if hide_aggregation:
-            aggregation_strategies = []
-
         aggregate_header_cells: List[HeaderCell] = []
         aggregate_row_values: List[List[Optional[float]]] = []
 
         for strategy in aggregation_strategies:
-            if strategy == "win_rate":
+            if strategy == AggregationStrategy.WIN_RATE:
                 WIN_RATE_AGGREGATION = "mean"
                 win_rates = compute_aggregate_row_win_rates(table, aggregation=WIN_RATE_AGGREGATION)
                 description = "How many models this model outperforms on average (over columns)."
@@ -1131,7 +1126,7 @@ class Summarizer:
                     )
                 )
                 aggregate_row_values.append(win_rates)
-            elif strategy == "mean":
+            elif strategy == AggregationStrategy.MEAN:
                 means = compute_aggregate_row_means(table)
                 description = "An average over columns representing the mean performance."
                 aggregate_header_cells.append(
@@ -1144,7 +1139,7 @@ class Summarizer:
                 aggregate_row_values.append(means)
             else:
                 raise Exception(
-                    f"Unknown aggregation strategy found: {strategy}. Please use one of: {AGGREGATION_STRATEGIES}"
+                    f"Unknown aggregation strategy found: {strategy}. Please use one of: {ALL_AGGREGATION_STRATEGIES}"
                 )
 
         for i in range(len(aggregate_header_cells)):
@@ -1200,17 +1195,21 @@ class Summarizer:
 
         if len(adapter_to_runs) > 0:
             for metric_group in all_metric_groups:
-                display_name = self.schema.name_to_metric_group[metric_group].get_short_display_name()
-                aggregate_strategies: List[str] = (
-                    self.schema.name_to_metric_group[metric_group].aggregation_strategies or []
-                )
+                metric_group_config = self.schema.name_to_metric_group[metric_group]
+                display_name = metric_group_config.get_short_display_name()
+                aggregate_strategies: List[str]
+                if metric_group_config.aggregation_strategies is not None:
+                    aggregate_strategies = metric_group_config.aggregation_strategies
+                elif metric_group_config.hide_win_rates:
+                    aggregate_strategies = []
+                else:
+                    aggregate_strategies = [AggregationStrategy.WIN_RATE]
                 table = self.create_group_table(
                     name=metric_group,
                     title=display_name,
                     adapter_to_runs=adapter_to_runs,
                     columns=[(subgroup, metric_group) for subgroup in subgroups],
                     is_scenario_table=False,
-                    add_win_rate=not self.schema.name_to_metric_group[metric_group].hide_win_rates,
                     aggregation_strategies=aggregate_strategies,
                 )
                 tables.append(table)
