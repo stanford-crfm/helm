@@ -1887,7 +1887,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient"
       args:
-        together_model: meta-llama/Meta-Llama-3-8B
+        together_model: meta-llama/Llama-3-8b-hf
 
   - name: together/llama-3-70b
     model_name: meta/llama-3-70b

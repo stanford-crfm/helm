@@ -14,7 +14,6 @@ from helm.benchmark.config_registry import register_builtin_configs_from_helm_pa
 from helm.common.hierarchical_logger import hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.benchmark.model_metadata_registry import MODEL_NAME_TO_MODEL_METADATA
-from helm.benchmark.presentation.summarize import AGGREGATE_WIN_RATE_COLUMN
 
 try:
     import colorcet
@@ -39,6 +38,7 @@ metric_group_to_label = {
     "Efficiency": f"Inference time (s) {DOWN_ARROW}",
 }
 all_metric_groups = list(metric_group_to_label.keys())
+AGGREGATE_WIN_RATE_COLUMN = 1
 
 
 @dataclass
