@@ -171,7 +171,7 @@ class XQuADScenario(Scenario):
         super().__init__()
         self.language = language
         self.splits = {"train": TRAIN_SPLIT, "test": TEST_SPLIT}
-        self.map = {
+        self.language_to_prompt_components = {
             "th": {
                 "passage_prefix": "ข้อความ: ",
                 "question_prefix": "คำถาม: ",
@@ -183,13 +183,19 @@ class XQuADScenario(Scenario):
                 "random_state": 4502,
             },
         }
+        if self.language not in self.language_to_prompt_components.keys():
+            raise Exception(
+                f"{self.language} not supported. Supported languages are {self.language_to_prompt_components.keys()}."
+            )
+        else:
+            self.prompt_components = self.language_to_prompt_components[self.language]
 
     def get_instances(self, output_path) -> List[Instance]:
         dataset = datasets.load_dataset("xquad", f"xquad.{self.language}", split="validation")
         df = dataset.to_pandas()
 
         # Sample 1000 examples for test
-        df_test = df.sample(n=1000, random_state=self.map[self.language]["random_state"])
+        df_test = df.sample(n=1000, random_state=self.prompt_components["random_state"])
 
         # In-context examples to be drawn from remaining examples (since there is no train data)
         df_train = df[~df.index.isin(df_test.index)]
@@ -210,8 +216,8 @@ class XQuADScenario(Scenario):
                 input = PassageQuestionInput(
                     passage=passage,
                     question=question,
-                    passage_prefix=str(self.map[self.language]["passage_prefix"]),
-                    question_prefix=str(self.map[self.language]["question_prefix"]),
+                    passage_prefix=str(self.prompt_components["passage_prefix"]),
+                    question_prefix=str(self.prompt_components["question_prefix"]),
                 )
                 references = []
                 for answer in row["answers"]["text"]:
@@ -1068,6 +1074,9 @@ class FloresScenario(Scenario):
             "ta": "tam_Taml",
         }
 
+        if self.source not in self.languages.keys() or self.target not in self.languages.keys():
+            raise Exception(f"Unsupported language/s - supported languages are {self.languages.keys()}")
+
     def get_instances(self, output_path) -> List[Instance]:
         source_dataset = datasets.load_dataset(
             "facebook/flores",
@@ -1259,6 +1268,9 @@ class XNLIScenario(Scenario):
             "test": TEST_SPLIT,
         }
         self.id2label = {0: "A", 2: "B", 1: "C"}
+        self.supported_languages = ["th", "vi"]
+        if self.language not in self.supported_languages:
+            raise Exception(f"{self.language} not supported. Supported languages are {self.supported_languages}.")
 
     def get_instances(self, output_path) -> List[Instance]:
         dataset = datasets.load_dataset("xnli", self.language)
@@ -1449,7 +1461,7 @@ class XCOPAScenario(Scenario):
             0: "A",
             1: "B",
         }
-        self.prompt = {
+        self.language_to_prompt_components = {
             "id": {
                 "cause": "sebab",
                 "effect": "akibat",
@@ -1476,6 +1488,12 @@ class XCOPAScenario(Scenario):
                 "instruction2": "Trả lời với một chữ cái duy nhất A hoặc B.",
             },
         }
+        if self.language not in self.language_to_prompt_components.keys():
+            raise Exception(
+                f"{self.language} not supported. Supported languages are {self.language_to_prompt_components.keys()}."
+            )
+        else:
+            self.prompt_components = self.language_to_prompt_components[self.language]
 
     def get_instances(self, output_path) -> List[Instance]:
         language_dataset = datasets.load_dataset("xcopa", self.language)
@@ -1489,15 +1507,13 @@ class XCOPAScenario(Scenario):
                 language_df, tamil_df[["question", "idx"]], on="idx"
             )  # Use the Tamil split's question column
             for _, row in data.iterrows():
-                instruction1 = self.prompt[self.language]["instruction1"].format(
-                    self.prompt[self.language][row["question_y"]]
-                )
+                instruction1 = self.prompt_components["instruction1"].format(self.prompt_components[row["question_y"]])
                 passage = "{premise}\n{instruction1}\nA: {choice1}\nB: {choice2}\n{instruction2}".format(
                     premise=row["premise"].strip(),
                     instruction1=instruction1,
                     choice1=row["choice1"].strip(),
                     choice2=row["choice2"].strip(),
-                    instruction2=self.prompt[self.language]["instruction2"],
+                    instruction2=self.prompt_components["instruction2"],
                 )
                 input = Input(passage)
                 output = Output(self.id2label[int(row["label"])])
@@ -1549,18 +1565,24 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
 
     name = "lindsea_minimal_pairs"
     description = "LINDSEA minimal pairs task"
-    tags = ["minimal_pairs", "linguistic_diagnostic", "syntax"]
+    tags = ["linguistic_diagnostic", "syntax", "minimal_pairs"]
 
     def __init__(self, method: str, language: str):
         super().__init__()
         self.method = method
         self.language = language
-        self.prompts = {
+        self.language_to_prompt_components = {
             "id": {
                 "instructions": "Kalimat mana yang lebih mungkin?",
                 "output_prefix": "Jawablah dengan satu huruf saja, A atau B.",
             }
         }
+        if self.language not in self.language_to_prompt_components.keys():
+            raise Exception(
+                f"{self.language} not supported. Supported languages are {self.language_to_prompt_components.keys()}."
+            )
+        else:
+            self.prompt_components = self.language_to_prompt_components[self.language]
 
     def download_dataset(self, output_path: str):
         BASE_URL = "https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/"
@@ -1586,6 +1608,7 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
         outputs = []
         if self.method == "mcq":
             category_list = data["category"].value_counts().keys()
+
             hlog("MCQ method for LINDSEA Minimal Pairs chosen. Shuffling options...")
             for category in category_list:
                 # Fix shuffling within each category
@@ -1594,10 +1617,8 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
                     options = [(row["correct"], 1), (row["wrong"], 2)]
                     random.shuffle(options)
                     options_reversed = True if options[0][1] == 2 else False
-
-                    prompt_components = self.prompts[self.language]
-                    instructions = prompt_components["instructions"]
-                    output_prefix = prompt_components["output_prefix"]
+                    instructions = self.prompt_components["instructions"]
+                    output_prefix = self.prompt_components["output_prefix"]
                     prompt = f"{instructions}\nA: {options[0][0]}\nB: {options[1][0]}\n{output_prefix}"
                     input = Input(text=prompt)
                     # Determine correct option based on whether shuffling reversed the options
@@ -1625,106 +1646,25 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
         return outputs
 
 
-# 2. Pragmatics
-# 2.1 LINDSEA Pragmatic Reasoning (single sentence)
-class LINDSEAPragmaticsPragmaticReasoningSingleScenario(Scenario):
+# 2.1 Pragmatics: LINDSEA Presuppositions
+class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
     """
-    The LINDSEA Pragmatic Reasoning dataset is a linguistic diagnostic scenario targeting pragmatics.
+    The LINDSEA Presuppositions dataset is a linguistic diagnostic scenario targeting pragmatics.
     The data is manually handcrafted by linguists and native speakers and verified through multiple rounds
-    of quality control. The high-level categories tested for include scalar implicatures and presuppositions.
+    of quality control.
 
-    The single-sentence pragmatic reasoning dataset involves questions targeting the truth value of a single sentence.
-    The system under test needs to determine if the sentence is true/false or if the proposition is possible/impossible.
+    The presuppositions dataset involves two formats: single and pair sentences.
+    For single sentence questions, the system under test needs to determine if the sentence is true/false.
+    For pair sentence questions, the system under test needs to determine whether a conclusion can be drawn
+    from another sentence.
 
-    The models are prompted using the following general format:
+    For the single format, the models are prompted using the following general format:
 
         Is the following statement true or false?
         Statement: <sentence>
         Answer only with True or False.
 
-    Target completion:
-        <answer>
-
-    @misc{leong2023bhasa,
-        title={BHASA: A Holistic Southeast Asian Linguistic and Cultural Evaluation Suite for Large Language Models},
-        author={Wei Qi Leong
-            and Jian Gang Ngui
-            and Yosephine Susanto
-            and Hamsawardhini Rengarajan
-            and Kengatharaiyer Sarveswaran
-            and William Chandra Tjhi
-        },
-        year={2023},
-        eprint={2309.06085},
-        archivePrefix={arXiv},
-        primaryClass={cs.CL}
-    }
-    """
-
-    name = "lindsea_pragmatic_reasoning_single"
-    description = "LINDSEA pragmatic reasoning single sentence task"
-    tags = ["pragmatic_reasoning", "linguistic_diagnostic", "pragmatics"]
-
-    def __init__(self, language: str):
-        super().__init__()
-        self.language = language
-        self.prompt = {
-            "id": {
-                "question": "Apakah pernyataan berikut ini {}?",
-                "instruction": "Jawablah dengan {} saja.",
-            },
-        }
-
-    def download_dataset(self, output_path: str):
-        BASE_URL = "https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/"
-        URL = f"{BASE_URL}{self.language}/pragmatics/pragmatic_reasoning_single.jsonl"
-        file = "pragmatic_reasoning_single"
-        target_path_file = os.path.join(output_path, file)
-        ensure_file_downloaded(source_url=URL, target_path=target_path_file)
-        dataset = pd.read_json(target_path_file, lines=True)
-        return dataset
-
-    def get_instances(self, output_path) -> List[Instance]:
-        data = self.download_dataset(output_path)
-        outputs = []
-        for _, row in data.iterrows():
-            passage = "{question}\nPernyataan: {text}\n{instruction}".format(
-                question=self.prompt[self.language]["question"].format(row["question_translated"]),
-                text=row["text"],
-                instruction=self.prompt[self.language]["instruction"].format(row["choices_translated"]),
-            )
-            input = Input(text=passage)
-
-            # Split "True or False" into ["True", "or", "False"]
-            choices = row["choices"].split()
-            choices_translated = row["choices_translated"].split()
-            label2choice = {
-                choices[0]: choices_translated[0],
-                choices[2]: choices_translated[2],
-            }
-            references = [
-                Reference(Output(text=label2choice[row["label"].strip()]), tags=[CORRECT_TAG]),
-            ]
-            instance = Instance(
-                input=input,
-                references=references,
-                split=TEST_SPLIT,
-            )
-            outputs.append(instance)
-        return outputs
-
-
-# 2.2 Pragmatics: LINDSEA Pragmatic Reasoning (sentence pair)
-class LINDSEAPragmaticsPragmaticReasoningPairScenario(Scenario):
-    """
-    The LINDSEA Pragmatic Reasoning dataset is a linguistic diagnostic scenario targeting pragmatics.
-    The data is manually handcrafted by linguists and native speakers and verified through multiple rounds
-    of quality control. The high-level categories tested for include scalar implicatures and presuppositions.
-
-    The sentence-pair pragmatic reasoning dataset involves questions targeting whether a conclusion can be drawn
-    from another sentence.
-
-    The models are prompted using the following general format:
+    For the pair format, the models are prompted using the following general format:
 
         Situation: <premise>
         Given this situation, is the following statement true or false?
@@ -1750,45 +1690,249 @@ class LINDSEAPragmaticsPragmaticReasoningPairScenario(Scenario):
     }
     """
 
-    name = "lindsea_pragmatic_reasoning_pair"
-    description = "LINDSEA pragmatic reasoning sentence pair task"
-    tags = ["pragmatic_reasoning", "linguistic_diagnostic", "pragmatics"]
+    name = "lindsea_pragmatics_presuppositions"
+    description = "LINDSEA presuppositions task"
+    tags = ["linguistic_diagnostic", "pragmatics", "presuppositions"]
 
-    def __init__(self, language: str):
+    def __init__(self, language: str, subset: str):
         super().__init__()
         self.language = language
-        self.prompt = {
+        self.subsets = [subset] if subset != "all" else ["single", "pair"]
+        self.language_to_prompt_components = {
             "id": {
-                "question": "Berdasarkan situasi ini, apakah pernyataan berikut ini benar atau salah?",
-                "instruction": "Jawablah dengan Benar atau Salah saja.",
-                True: "Benar",
-                False: "Salah",
+                "text_noun": "Pernyataan",
+                "premise_noun": "Situasi",
+                "conclusion_noun": "Pernyataan",
+                "single_question": "Apakah pernyataan berikut ini {}?",
+                "single_instruction": "Jawablah dengan {} saja.",
+                "pair_question": "Berdasarkan situasi ini, apakah pernyataan berikut ini benar atau salah?",
+                "pair_instruction": "Jawablah dengan Benar atau Salah saja.",
+                "True": "Benar",
+                "False": "Salah",
             },
         }
+        if self.language not in self.language_to_prompt_components.keys():
+            raise Exception(
+                f"{self.language} not supported. Supported languages are {self.language_to_prompt_components.keys()}."
+            )
+        else:
+            self.prompt_components = self.language_to_prompt_components[self.language]
 
     def download_dataset(self, output_path: str):
         BASE_URL = "https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/"
-        URL = f"{BASE_URL}{self.language}/pragmatics/pragmatic_reasoning_pair.jsonl"
-        file = "pragmatic_reasoning_pair"
-        target_path_file = os.path.join(output_path, file)
-        ensure_file_downloaded(source_url=URL, target_path=target_path_file)
-        dataset = pd.read_json(target_path_file, lines=True)
+        datasets = []
+        for subset in self.subsets:
+            URL = f"{BASE_URL}{self.language}/pragmatics/pragmatic_reasoning_{subset}.jsonl"
+            file = f"pragmatic_reasoning_{subset}.jsonl"
+            target_path_file = os.path.join(output_path, file)
+            ensure_file_downloaded(source_url=URL, target_path=target_path_file)
+            data = pd.read_json(target_path_file, lines=True)
+            data["subset"] = subset
+            data = data[data["linguistic_phenomenon"] == "presuppositions"]
+            datasets.append(data)
+        dataset = pd.concat(datasets)
         return dataset
 
     def get_instances(self, output_path) -> List[Instance]:
         data = self.download_dataset(output_path)
         outputs = []
         for _, row in data.iterrows():
-            passage = "Situasi: {premise}\n{question}\nPernyataan: {conclusion}\n{instruction}".format(
-                premise=row["text"],
-                question=self.prompt[self.language]["question"],
-                conclusion=row["conclusion"],
-                instruction=self.prompt[self.language]["instruction"],
+            passage = None
+            references = []
+
+            if row["subset"] == "single":
+                question = self.prompt_components["single_question"]
+                text_noun = self.prompt_components["text_noun"]
+                instruction = self.prompt_components["single_instruction"]
+
+                passage = "{question}\{text_noun}: {text}\n{instruction}".format(
+                    question=question.format(row["question_translated"]),
+                    text_noun=text_noun,
+                    text=row["text"],
+                    instruction=instruction.format(row["choices_translated"]),
+                )
+                # Split "True or False" into ["True", "or", "False"]
+                choices = row["choices"].split()
+                choices_translated = row["choices_translated"].split()
+                label2choice = {
+                    choices[0]: choices_translated[0],
+                    choices[2]: choices_translated[2],
+                }
+                references.append(
+                    Reference(Output(text=label2choice[row["label"].strip()]), tags=[CORRECT_TAG]),
+                )
+
+            elif row["subset"] == "pair":
+                premise_noun = self.prompt_components["premise_noun"]
+                question = self.prompt_components["pair_question"]
+                conclusion_noun = self.prompt_components["conclusion_noun"]
+                instruction = self.prompt_components["pair_instruction"]
+                label = self.prompt_components[str(row["label"])]
+
+                passage = (
+                    "{premise_noun}: {premise}\n{question}\n{conclusion_noun}: {conclusion}\n{instruction}".format(
+                        premise_noun=premise_noun,
+                        premise=row["text"],
+                        question=question,
+                        conclusion_noun=conclusion_noun,
+                        conclusion=row["conclusion"],
+                        instruction=instruction,
+                    )
+                )
+
+                references.append(
+                    Reference(Output(text=label), tags=[CORRECT_TAG]),
+                )
+
+            input = Input(text=str(passage))
+            instance = Instance(
+                input=input,
+                references=references,
+                split=TEST_SPLIT,
             )
-            input = Input(text=passage)
-            references = [
-                Reference(Output(text=self.prompt[self.language][row["label"]]), tags=[CORRECT_TAG]),
-            ]
+            outputs.append(instance)
+        return outputs
+
+
+# 2.2 Pragmatics: LINDSEA Scalar Implicatures
+class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
+    """
+    The LINDSEA Scalar Implicatures Scenario dataset is a linguistic diagnostic scenario targeting pragmatics.
+    The data is manually handcrafted by linguists and native speakers and verified through multiple rounds
+    of quality control.
+
+    The scalar implicatures dataset involves two formats: single and pair sentences.
+    For single sentence questions, the system under test needs to determine if the sentence is true/false.
+    For pair sentence questions, the system under test needs to determine whether a conclusion can be drawn
+    from another sentence.
+
+    For the single format, the models are prompted using the following general format:
+
+        Is the following statement true or false?
+        Statement: <sentence>
+        Answer only with True or False.
+
+    For the pair format, the models are prompted using the following general format:
+
+        Situation: <premise>
+        Given this situation, is the following statement true or false?
+        Statement: <hypothesis>
+        Answer only with True or False.
+
+    Target completion:
+        <answer>
+
+    @misc{leong2023bhasa,
+        title={BHASA: A Holistic Southeast Asian Linguistic and Cultural Evaluation Suite for Large Language Models},
+        author={Wei Qi Leong
+            and Jian Gang Ngui
+            and Yosephine Susanto
+            and Hamsawardhini Rengarajan
+            and Kengatharaiyer Sarveswaran
+            and William Chandra Tjhi
+        },
+        year={2023},
+        eprint={2309.06085},
+        archivePrefix={arXiv},
+        primaryClass={cs.CL}
+    }
+    """
+
+    name = "lindsea_pragmatics_scalar_implicatures"
+    description = "LINDSEA scalar implicatures task"
+    tags = ["linguistic_diagnostic", "pragmatics", "scalar_implicatures"]
+
+    def __init__(self, language: str, subset: str):
+        super().__init__()
+        self.language = language
+        self.subsets = [subset] if subset != "all" else ["single", "pair"]
+        self.language_to_prompt_components = {
+            "id": {
+                "text_noun": "Pernyataan",
+                "premise_noun": "Situasi",
+                "conclusion_noun": "Pernyataan",
+                "single_question": "Apakah pernyataan berikut ini {}?",
+                "single_instruction": "Jawablah dengan {} saja.",
+                "pair_question": "Berdasarkan situasi ini, apakah pernyataan berikut ini benar atau salah?",
+                "pair_instruction": "Jawablah dengan Benar atau Salah saja.",
+                "True": "Benar",
+                "False": "Salah",
+            },
+        }
+        if self.language not in self.language_to_prompt_components.keys():
+            raise Exception(
+                f"{self.language} not supported. Supported languages are {self.language_to_prompt_components.keys()}."
+            )
+        else:
+            self.prompt_components = self.language_to_prompt_components[self.language]
+
+    def download_dataset(self, output_path: str):
+        BASE_URL = "https://raw.githubusercontent.com/aisingapore/BHASA/main/lindsea/"
+        datasets = []
+        for subset in self.subsets:
+            URL = f"{BASE_URL}{self.language}/pragmatics/pragmatic_reasoning_{subset}.jsonl"
+            file = f"pragmatic_reasoning_{subset}.jsonl"
+            target_path_file = os.path.join(output_path, file)
+            ensure_file_downloaded(source_url=URL, target_path=target_path_file)
+            data = pd.read_json(target_path_file, lines=True)
+            data["subset"] = subset
+            data = data[data["linguistic_phenomenon"] == "scalar_implicatures"]
+            datasets.append(data)
+        dataset = pd.concat(datasets)
+        return dataset
+
+    def get_instances(self, output_path) -> List[Instance]:
+        data = self.download_dataset(output_path)
+        outputs = []
+        for _, row in data.iterrows():
+            passage = None
+            references = []
+
+            if row["subset"] == "single":
+                question = self.prompt_components["single_question"]
+                text_noun = self.prompt_components["text_noun"]
+                instruction = self.prompt_components["single_instruction"]
+
+                passage = "{question}\{text_noun}: {text}\n{instruction}".format(
+                    question=question.format(row["question_translated"]),
+                    text_noun=text_noun,
+                    text=row["text"],
+                    instruction=instruction.format(row["choices_translated"]),
+                )
+                # Split "True or False" into ["True", "or", "False"]
+                choices = row["choices"].split()
+                choices_translated = row["choices_translated"].split()
+                label2choice = {
+                    choices[0]: choices_translated[0],
+                    choices[2]: choices_translated[2],
+                }
+                references.append(
+                    Reference(Output(text=label2choice[row["label"].strip()]), tags=[CORRECT_TAG]),
+                )
+
+            elif row["subset"] == "pair":
+                premise_noun = self.prompt_components["premise_noun"]
+                question = self.prompt_components["pair_question"]
+                conclusion_noun = self.prompt_components["conclusion_noun"]
+                instruction = self.prompt_components["pair_instruction"]
+                label = self.prompt_components[str(row["label"])]
+
+                passage = (
+                    "{premise_noun}: {premise}\n{question}\n{conclusion_noun}: {conclusion}\n{instruction}".format(
+                        premise_noun=premise_noun,
+                        premise=row["text"],
+                        question=question,
+                        conclusion_noun=conclusion_noun,
+                        conclusion=row["conclusion"],
+                        instruction=instruction,
+                    )
+                )
+
+                references.append(
+                    Reference(Output(text=label), tags=[CORRECT_TAG]),
+                )
+
+            input = Input(text=str(passage))
             instance = Instance(
                 input=input,
                 references=references,
