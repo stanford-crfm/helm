@@ -16,7 +16,7 @@ class HarmBenchGCGScenario(Scenario):
     https://arxiv.org/abs/2402.04249
     """
 
-    name = "harm_bench"
+    name = "harm_bench_gcg"
     description = "HarmBench GCG-T dataset - standard and contextual attacks"
     tags = ["safety"]
 
