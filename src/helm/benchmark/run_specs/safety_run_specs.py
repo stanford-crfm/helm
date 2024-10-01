@@ -59,7 +59,9 @@ def get_harm_bench_gcg_transfer_spec() -> RunSpec:
         temperature=0.0,
         stop_sequences=[],
     )
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.harm_bench_gcg_t_scenario.HarmBenchGCGTScenario")
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.harm_bench_gcg_transfer_scenario.HarmBenchGCGTransferScenario"
+    )
     annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.harm_bench_annotator.HarmBenchAnnotator")]
     metric_specs = [
         MetricSpec(class_name="helm.benchmark.metrics.safety_metrics.SafetyScoreMetric"),
