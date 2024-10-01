@@ -42,7 +42,7 @@ def get_harm_bench_spec() -> RunSpec:
 
 
 @run_spec_function("harm_bench_gcg_t")
-def get_harm_bench_spec() -> RunSpec:
+def get_harm_bench_gcg_t_spec() -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         global_prefix="",
