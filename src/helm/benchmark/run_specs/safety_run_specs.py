@@ -41,8 +41,8 @@ def get_harm_bench_spec() -> RunSpec:
     )
 
 
-@run_spec_function("harm_bench_gcg_t")
-def get_harm_bench_gcg_t_spec() -> RunSpec:
+@run_spec_function("harm_bench_gcg_transfer")
+def get_harm_bench_gcg_transfer_spec() -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         global_prefix="",
@@ -67,12 +67,12 @@ def get_harm_bench_gcg_t_spec() -> RunSpec:
         MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.InstancesPerSplitMetric"),
     ]
     return RunSpec(
-        name="harm_bench_gcg",
+        name="harm_bench_gcg_transfer",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
         annotators=annotator_specs,
-        groups=["harm_bench_gcg"],
+        groups=["harm_bench_gcg_transfer"],
     )
 
 
