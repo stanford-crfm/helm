@@ -1,4 +1,5 @@
 from helm.benchmark.adaptation.adapter_spec import (
+    ADAPT_EHR_INSTRUCTION,
     ADAPT_GENERATION,
     ADAPT_GENERATION_MULTIMODAL,
     ADAPT_LANGUAGE_MODELING,
@@ -21,6 +22,7 @@ from helm.benchmark.adaptation.adapters.multiple_choice_calibrated_adapter impor
 from helm.benchmark.adaptation.adapters.multiple_choice_joint_adapter import MultipleChoiceJointAdapter
 from helm.benchmark.adaptation.adapters.multiple_choice_separate_adapter import MultipleChoiceSeparateAdapter
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
+from helm.benchmark.adaptation.adapters.ehr_instruction_adapter import EHRInstructionAdapter
 
 
 class AdapterFactory:
@@ -31,8 +33,10 @@ class AdapterFactory:
         """
         method: str = adapter_spec.method
         adapter: Adapter
-
-        if method == ADAPT_GENERATION:
+        
+        if method == ADAPT_EHR_INSTRUCTION:
+            adapter = EHRInstructionAdapter(adapter_spec, tokenizer_service)
+        elif method == ADAPT_GENERATION:
             adapter = GenerationAdapter(adapter_spec, tokenizer_service)
         elif method == ADAPT_LANGUAGE_MODELING:
             adapter = LanguageModelingAdapter(adapter_spec, tokenizer_service)
