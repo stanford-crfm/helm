@@ -626,6 +626,26 @@ model_deployments:
       args:
         trust_remote_code: true
 
+  - name: huggingface/llama3-8b-cpt-sea-lionv2-base
+    model_name: aisingapore/llama3-8b-cpt-sea-lionv2-base
+    tokenizer_name: meta/llama-3-8b-instruct
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/llama3-8b-cpt-sea-lionv2.1-instruct
+    model_name: aisingapore/llama3-8b-cpt-sea-lionv2.1-instruct
+    tokenizer_name: meta/llama-3-8b-instruct
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
   ## Bigcode
   - name: huggingface/santacoder
     model_name: bigcode/santacoder
