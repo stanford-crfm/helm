@@ -14,7 +14,7 @@ from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_RANKING_BINARY,
     AdapterSpec,
-    ADAPT_EHR_INSTRUCTION
+    ADAPT_EHR_INSTRUCTION,
 )
 from helm.benchmark.adaptation.adapters.binary_ranking_adapter import BinaryRankingAdapter
 from helm.benchmark.adaptation.common_adapter_specs import (
@@ -1218,6 +1218,7 @@ def get_medication_qa_spec() -> RunSpec:
         groups=["medication_qa"],
     )
 
+
 def get_medalign_adapter_spec() -> AdapterSpec:
     return AdapterSpec(
         method=ADAPT_EHR_INSTRUCTION,
@@ -1226,11 +1227,16 @@ def get_medalign_adapter_spec() -> AdapterSpec:
         num_outputs=1,
         max_tokens=256,  # MedAlign default number of generation tokens
     )
+
+
 def get_comet_metric_specs(args: Dict[str, Any]) -> List[MetricSpec]:
     return [MetricSpec(class_name="helm.benchmark.metrics.comet_metric.CometMetric", args=args)]
+
+
 @run_spec_function("medalign")
 def get_medalign_spec(prompt_template: str = "generic.txt") -> RunSpec:
     from helm.common.gpu_utils import get_torch_device_name
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.medalign_scenario.MedAlignScenario",
         args={"prompt_template": prompt_template},
@@ -1246,6 +1252,7 @@ def get_medalign_spec(prompt_template: str = "generic.txt") -> RunSpec:
         metric_specs=get_summarization_metric_specs(metric_args) + get_comet_metric_specs(metric_args),
         groups=["medalign", "med_helm"],
     )
+
 
 @run_spec_function("lextreme")
 def get_lextreme_spec(subset: str) -> RunSpec:

@@ -83,6 +83,8 @@ class PassageQuestionInput(Input):
         separator: str = "\n",
     ):
         super().__init__(f"{passage_prefix}{passage}{separator}{question_prefix}{question}")
+
+
 @dataclass(frozen=True)
 class EHRInstructionInput(Input):
     """
@@ -99,7 +101,7 @@ class EHRInstructionInput(Input):
 
     ehr: str = ""
     """The EHR context that the model should refer to in answering the question"""
-    
+
 
 @dataclass(frozen=True)
 class Output:

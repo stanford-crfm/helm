@@ -87,6 +87,10 @@ metrics:
     short_display_name: comet
     description: A model-based score of similarity of a machine translation based on a source, predicted translation, and reference translation.
     lower_is_better: false
+  - name: BERTScore-F
+    display_name: BERTScore F1
+    description: BERTScore F1 score.
+    lower_is_better: false
 
   # Toxicity metrics
   - name: expected_max_toxicity
@@ -266,7 +270,7 @@ run_groups:
     metric_groups:
       - accuracy
     environment:
-      main_name: comet
+      main_name: BERTScore-F
       main_split: test
     taxonomy:
       task: question answering

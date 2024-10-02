@@ -58,18 +58,18 @@ import pandas as pd
 from .scenario import (
     CORRECT_TAG,
     TEST_SPLIT,
-    EHRInputInstance,
     EHRInstructionInput,
     Instance,
     Output,
     Reference,
     Scenario,
 )
-#/share/pi/nigam/data/MedAlign on Carina
+
+# /share/pi/nigam/data/MedAlign on Carina
 EHR_BASE_PATH = "/local-scratch/shahlab/aunell/helm/medalign_data/ehr_unzipped/full_ehrs"
 INSTRUCTIONS_PATH = "/local-scratch/shahlab/aunell/helm/medalign_data/ehr-relevance-labels.csv"
 CLINICIAN_RESPONSES_PATH = "/local-scratch/shahlab/aunell/helm/medalign_data/clinician-instruction-responses.csv"
-PROMPT_TEMPLATES_BASE_PATH = "/local-scratch/shahlab/aunell/helm/medalign_data/prompt_templates/" 
+PROMPT_TEMPLATES_BASE_PATH = "/local-scratch/shahlab/aunell/helm/medalign_data/prompt_templates/"
 
 
 def extract_patient_id_from_fname(fname: str) -> Optional[int]:
@@ -186,8 +186,6 @@ class MedAlignScenario(Scenario):
     description = "MedAlign clinical instruction following task and dataset"
     tags = ["instruction_following", "generation"]
 
-    instance_cls = EHRInputInstance  # indicate we specifically use this type of instance
-
     def __init__(self, prompt_template: str = "generic.txt"):
         super().__init__()
         self.prompt_template = prompt_template
@@ -229,7 +227,7 @@ class MedAlignScenario(Scenario):
             )[1].clinician_response
 
             instances.append(
-                self.instance_cls(
+                Instance(
                     input=EHRInstructionInput(
                         prompt_template=prompt_template,
                         question=instruction,  # type: ignore

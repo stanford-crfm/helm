@@ -33,7 +33,7 @@ class AdapterFactory:
         """
         method: str = adapter_spec.method
         adapter: Adapter
-        
+
         if method == ADAPT_EHR_INSTRUCTION:
             adapter = EHRInstructionAdapter(adapter_spec, tokenizer_service)
         elif method == ADAPT_GENERATION:
