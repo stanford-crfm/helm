@@ -85,21 +85,6 @@ class ServerService(Service):
         all_models = [dataclasses.replace(model_metadata, release_date=None) for model_metadata in ALL_MODELS_METADATA]
         return GeneralInfo(version=VERSION, example_queries=example_queries, all_models=all_models)
 
-    def get_window_service_info(self, model_name) -> WindowServiceInfo:
-        # The import statement is placed here to avoid two problems, please refer to the link for details
-        # https://github.com/stanford-crfm/helm/pull/1430#discussion_r1156686624
-        from helm.benchmark.window_services.tokenizer_service import TokenizerService
-        from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
-
-        token_service = TokenizerService(self, Authentication(""))
-        window_service = WindowServiceFactory.get_window_service(model_name, token_service)
-        return WindowServiceInfo(
-            tokenizer_name=window_service.tokenizer_name,
-            max_sequence_length=window_service.max_sequence_length,
-            max_request_length=window_service.max_request_length,
-            end_of_text_token=window_service.end_of_text_token,
-            prefix_token=window_service.prefix_token,
-        )
 
     def expand_query(self, query: Query) -> QueryResult:
         """Turn the `query` into requests."""

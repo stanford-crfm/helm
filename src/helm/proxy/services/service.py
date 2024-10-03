@@ -86,11 +86,6 @@ class Service(ABC):
         pass
 
     @abstractmethod
-    def get_window_service_info(self, model_name: str) -> WindowServiceInfo:
-        """Get window service info."""
-        pass
-
-    @abstractmethod
     def expand_query(self, query: Query) -> QueryResult:
         """Turn the `query` into requests."""
         pass

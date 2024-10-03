@@ -51,11 +51,6 @@ class RemoteService(Service):
         response = requests.get(f"{self.base_url}/api/general_info").json()
         return from_dict(GeneralInfo, response)
 
-    def get_window_service_info(self, model_name) -> WindowServiceInfo:
-        params = {"model_name": model_name}
-        response = requests.get(f"{self.base_url}/api/window_service_info?{urllib.parse.urlencode(params)}").json()
-        return from_dict(WindowServiceInfo, response)
-
     def expand_query(self, query: Query) -> QueryResult:
         params = asdict(query)
         response = requests.get(f"{self.base_url}/api/query?{urllib.parse.urlencode(params)}").json()
