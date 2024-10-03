@@ -15,7 +15,6 @@ from helm.common.file_upload_request import FileUploadRequest, FileUploadResult
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from helm.common.clip_score_request import CLIPScoreRequest, CLIPScoreResult
 from helm.common.tokenization_request import (
-    WindowServiceInfo,
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequestResult,

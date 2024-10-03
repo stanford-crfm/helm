@@ -1,6 +1,5 @@
 from helm.common.authentication import Authentication
 from helm.common.tokenization_request import (
-    WindowServiceInfo,
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequest,

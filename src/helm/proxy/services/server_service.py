@@ -14,7 +14,6 @@ from helm.common.file_upload_request import FileUploadRequest, FileUploadResult
 from helm.common.general import ensure_directory_exists, parse_hocon, get_credentials
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from helm.common.tokenization_request import (
-    WindowServiceInfo,
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequest,

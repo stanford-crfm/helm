@@ -11,7 +11,6 @@ from helm.common.nudity_check_request import NudityCheckRequest, NudityCheckResu
 from helm.common.perspective_api_request import PerspectiveAPIRequestResult, PerspectiveAPIRequest
 from helm.common.moderations_api_request import ModerationAPIRequest, ModerationAPIRequestResult
 from helm.common.tokenization_request import (
-    WindowServiceInfo,
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequest,
