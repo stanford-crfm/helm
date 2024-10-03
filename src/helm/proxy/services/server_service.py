@@ -85,7 +85,6 @@ class ServerService(Service):
         all_models = [dataclasses.replace(model_metadata, release_date=None) for model_metadata in ALL_MODELS_METADATA]
         return GeneralInfo(version=VERSION, example_queries=example_queries, all_models=all_models)
 
-
     def expand_query(self, query: Query) -> QueryResult:
         """Turn the `query` into requests."""
         prompt = query.prompt
