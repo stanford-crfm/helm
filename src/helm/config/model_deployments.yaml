@@ -667,6 +667,26 @@ model_deployments:
       args:
         trust_remote_code: true
 
+  - name: huggingface/llama3-8b-cpt-sea-lionv2-base
+    model_name: aisingapore/llama3-8b-cpt-sea-lionv2-base
+    tokenizer_name: meta/llama-3-8b-instruct
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/llama3-8b-cpt-sea-lionv2.1-instruct
+    model_name: aisingapore/llama3-8b-cpt-sea-lionv2.1-instruct
+    tokenizer_name: meta/llama-3-8b-instruct
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
   ## Bigcode
   - name: huggingface/santacoder
     model_name: bigcode/santacoder
@@ -1889,6 +1909,24 @@ model_deployments:
       args:
         together_model: meta-llama/Llama-3-8b-hf
 
+  - name: together/llama-3-8b-instruct-turbo
+    model_name: meta/llama-3-8b-instruct-turbo
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: meta-llama/Meta-Llama-3-8B-Instruct-Turbo
+
+  - name: together/llama-3-8b-instruct-lite
+    model_name: meta/llama-3-8b-instruct-lite
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: meta-llama/Meta-Llama-3-8B-Instruct-Lite
+
   - name: together/llama-3-70b
     model_name: meta/llama-3-70b
     tokenizer_name: meta/llama-3-8b
@@ -1897,6 +1935,24 @@ model_deployments:
       class_name: "helm.clients.together_client.TogetherClient"
       args:
         together_model: meta-llama/Meta-Llama-3-70B
+
+  - name: together/llama-3-70b-instruct-turbo
+    model_name: meta/llama-3-70b-instruct-turbo
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: meta-llama/Meta-Llama-3-70B-Instruct-Turbo
+
+  - name: together/llama-3-70b-instruct-lite
+    model_name: meta/llama-3-70b-instruct-lite
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: meta-llama/Meta-Llama-3-70B-Instruct-Lite
 
   - name: together/llama-3.1-8b-instruct-turbo
     model_name: meta/llama-3.1-8b-instruct-turbo

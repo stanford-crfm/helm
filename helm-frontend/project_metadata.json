@@ -57,7 +57,7 @@
 		"title": "ThaiExam",
 		"description": "Thai-language evaluations of language models on standardized examinations in Thailand",
 		"id": "thaiexam",
-		"releases": ["v1.0.0"]
+		"releases": ["v1.1.0", "v1.0.0"]
 	},
 	{
 		"title": "All Leaderboards",
