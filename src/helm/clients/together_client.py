@@ -334,6 +334,7 @@ class TogetherChatClient(CachingClient):
                     assert media_object.location
                     if media_object.is_local_file:
                         from helm.common.images_utils import encode_base64
+
                         base64_image: str = encode_base64(media_object.location)
                         image_url = f"data:image/jpeg;base64,{base64_image}"
                     else:
