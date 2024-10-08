@@ -51,9 +51,14 @@ class BedrockClient(CachingClient):
         )
 
     def make_request(self, request: Request) -> RequestResult:
-        # model_id should be something like "amazon.titan-tg1-large", replace amazon/ prefix with model creator name
-        model_id =request.model.replace('amazon/',f"{self.model_provider}.")
-     
+        # model_id should be something like "amazon.titan-tg1-large", replace amazon- prefix with model creator name
+        model_name=request.model.split("/")[-1]
+        #check if model_name starts with "amazon-"
+        if self.model_provider=="amazon":
+            model_id=f"{self.model_provider}.{model_name}"          
+        else:
+            model_id=model_name.replace("amazon-", f"{self.model_provider}.")
+      
         raw_request = self.convert_request_to_raw_request(request)
 
         # modelId isn't part of raw_request, so it must be explicitly passed into the input to
