@@ -1,4 +1,4 @@
-# HEIM Quick Start (text-to-image evaluation)
+# HEIM (Text-to-image Model Evaluation)
 
 To run HEIM, follow these steps:
 

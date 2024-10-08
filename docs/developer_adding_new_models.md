@@ -1,4 +1,6 @@
-# Adding new models
+# Adding New Clients
+
+**Warning** &mdash; The document is stale. The information below may be outdated and incorrect. Please proceed with caution!
 
 ## Overview of the process
 To add a new model you need to define 3 objects:
