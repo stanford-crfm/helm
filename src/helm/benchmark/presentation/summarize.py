@@ -1203,7 +1203,7 @@ class Summarizer:
             os.unlink(symlink_path)
         os.symlink(os.path.basename(self.run_release_path), symlink_path)
 
-    def run_pipeline(self, skip_completed: bool, num_instances: int) -> None:
+    def run_pipeline(self, skip_completed: bool) -> None:
         """Run the entire summarization pipeline."""
         self.read_runs()
         self.group_runs()
@@ -1311,7 +1311,7 @@ def main():
         num_threads=args.num_threads,
         allow_unknown_models=args.allow_unknown_models,
     )
-    summarizer.run_pipeline(skip_completed=args.skip_completed_run_display_json, num_instances=args.num_instances)
+    summarizer.run_pipeline(skip_completed=args.skip_completed_run_display_json)
     hlog("Done.")
 
 
