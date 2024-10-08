@@ -1,4 +1,6 @@
-# Proxy Access to Language Models
+# Proxy Server
+
+**Warning** &mdash; The document is stale. The information below may be outdated and incorrect. Please proceed with caution!
 
 We provide a single unified entry point into accessing large language models
 (e.g., GPT-3, Jurassic).  This provides both a web interface and a REST API.
