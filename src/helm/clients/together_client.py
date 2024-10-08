@@ -324,6 +324,7 @@ class TogetherChatClient(CachingClient):
         self._together_model = together_model
 
     def convert_to_raw_chat_request(self, request: Request) -> TogetherRawChatRequest:
+        request.validate()
         messages: List[Dict[str, Any]]
         if request.messages:
             messages = request.messages
