@@ -35,7 +35,7 @@ demonstrating strengths in different aspects.
 ## References
 
 - [Leaderboard](https://crfm.stanford.edu/helm/heim/latest/)
-- Paper (TBD)
+- [Paper](https://arxiv.org/abs/2311.04287)
 
 ## Installation
 
