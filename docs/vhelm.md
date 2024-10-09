@@ -40,4 +40,4 @@ Then go to http://localhost:8000/ in your browser.
 
 ## Reproducing the Leaderboard
 
-To reproduce the [entire HEIM leaderboard](https://crfm.stanford.edu/helm/heim/latest/), refer to the instructions on the [Reproducing Leaderboards](reproducing_leaderboards.md) documentation.
+To reproduce the [entire VHELM leaderboard](https://crfm.stanford.edu/helm/vhelm/latest/), refer to the instructions for VHELM on the [Reproducing Leaderboards](reproducing_leaderboards.md) documentation.
