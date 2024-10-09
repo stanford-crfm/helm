@@ -4,6 +4,8 @@
 
 VHELM aggregates various datasets to cover one or more of the 9 aspects: visual perception, bias, fairness, knowledge, multilinguality, reasoning, robustness, safety, and toxicity. In doing so, we produce a comprehensive, multi-dimensional view of the capabilities of the VLMs across these important factors. In addition, we standardize the standard inference parameters, methods of prompting, and evaluation metrics to enable fair comparisons across models.
 
+## References
+
 - [Leaderboard](https://crfm.stanford.edu/helm/vhelm/v2.0.1/)
 - Paper (TBD)
 
@@ -20,7 +22,7 @@ pip install "crfm-helm[vlm]"
 ## Quick Start
 
 ```sh
-# Download schema_vhelm
+# Download schema_vhelm.yaml
 wget https://raw.githubusercontent.com/stanford-crfm/helm/refs/heads/main/src/helm/benchmark/static/schema_vhelm.yaml
 
 # Run benchmark
