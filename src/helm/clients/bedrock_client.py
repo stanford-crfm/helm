@@ -181,6 +181,8 @@ class BedrockMistralClient(BedrockClient):
             finish_reason = BedrockMistralClient._COMPLETION_REASON_TO_FINISH_REASON.get(
                 raw_completion["stop_reason"], raw_completion["stop_reason"].lower()
             )
+            # Work around generated outputs with leading whitespace due to issue #2467
+            # TODO(#2467): Remove workaround
             completion = truncate_and_tokenize_response_text(
                 output_text.lstrip(), request, self.tokenizer, self.tokenizer_name, finish_reason
             )
@@ -218,6 +220,8 @@ class BedrockLlamaClient(BedrockClient):
         finish_reason = BedrockLlamaClient._COMPLETION_REASON_TO_FINISH_REASON.get(
             response["stop_reason"], response["stop_reason"].lower()
         )
+        # Work around generated outputs with leading whitespace due to issue #2467
+        # TODO(#2467): Remove workaround
         completion = truncate_and_tokenize_response_text(
             output_text.lstrip(), request, self.tokenizer, self.tokenizer_name, finish_reason
         )
