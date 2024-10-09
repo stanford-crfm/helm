@@ -17,7 +17,16 @@ Welcome! The **`crfm-helm`** Python package contains code used in the **Holistic
 
 To get started, refer to [the documentation on Read the Docs](https://crfm-helm.readthedocs.io/) for how to install and run the package.
 
-# Holistic Evaluation of Text-To-Image Models
+## Papers
+
+This repository contains code used to produce results for the following papers:
+
+- Holistic Evaluation of Text-To-Image Models (HEIM) - [paper](https://arxiv.org/abs/2311.04287), [leaderboard](https://crfm.stanford.edu/helm/heim/latest/), [documentation](https://crfm-helm.readthedocs.io/en/latest/heim/)
+- Holistic Evaluation of Vision-Language Models (VHELM) - paper (TBD), [leaderboard](https://crfm.stanford.edu/helm/vhelm/latest/), [documentation](https://crfm-helm.readthedocs.io/en/latest/vhelm/)
+
+The HELM Python package can be used to reproduce the published model evaluation results from these paper. To get started, refer to the documentation links above for the corresponding paper, or the [main Reproducing Leaderboards documentation](https://crfm-helm.readthedocs.io/en/latest/reproducing_leaderboards/).
+
+## Holistic Evaluation of Text-To-Image Models
 
 <img src="https://github.com/stanford-crfm/helm/raw/heim/src/helm/benchmark/static/heim/images/heim-logo.png" alt=""  width="800"/>
 
@@ -47,8 +56,6 @@ Unlike previous evaluations that focused on alignment and quality, HEIM signific
 models across all aspects. Our results reveal that no single model excels in all aspects, with different models 
 demonstrating strengths in different aspects.
 
-This repository contains the code used to produce the [results on the website](https://crfm.stanford.edu/heim/latest/) 
-and [paper](https://arxiv.org/abs/2311.04287).
 
 ## Citation
 
