@@ -12,6 +12,7 @@
 
 - Fix prompt for BANKING77 (#3009)
 - Split up LINDSEA scenario (#2938)
+- Normalize lpips and ssim for image2struct (#3020)
 
 ### Models
 
