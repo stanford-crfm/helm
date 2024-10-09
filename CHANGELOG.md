@@ -6,7 +6,7 @@
 
 ### Breaking Changes
 
-- Python 3.8 is no longer supported (#2978)
+- Python 3.8 is no longer supported - please use Python 3.9 to 3.11 instead.(#2978)
 
 ### Scenarios
 
@@ -29,6 +29,7 @@
 
 ### Framework
 
+- Add support for Python 3.11 (#2922)
 - Fix incorrect handling of ties in win rate computation (#3001, #2008)
 - Add mean row aggregation to HELM summarize (#2997, #3030)
 
