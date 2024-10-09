@@ -60,7 +60,7 @@ bash install-heim-extras.sh
 The following is an example of evaluating [Stable Diffusion v1.4](https://huggingface.co/CompVis/stable-diffusion-v1-4) on the [MS-COCO scenario](https://github.com/stanford-crfm/heim/blob/main/src/helm/benchmark/scenarios/image_generation/mscoco_scenario.py) using 10 instances.
 
 ```sh
-helm-run --run-entries mscoco:model=huggingface/stable-diffusion-v1-4 --suite heim_v1 --max-eval-instances 10
+helm-run --run-entries mscoco:model=huggingface/stable-diffusion-v1-4 --suite my-heim-suite --max-eval-instances 10
 ```
 
 ## Reproducing the Leaderboard
