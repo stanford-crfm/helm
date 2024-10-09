@@ -1,5 +1,9 @@
 # Code Structure
 
+**Warning** &mdash; The document is stale and was last modified more than ten months ago. The information below may be outdated and incorrect. Please proceed with caution!
+
+## Birds-Eye View
+
 Here's a birds-eye view of how the benchmarking process interacts with the main
 classes (see `benchmark`):
 

@@ -1,4 +1,4 @@
-# Custom Tokenizers
+# Adding New Tokenizers
 
 HELM comes with many built-in tokenizers, but in some cases, you may need to add your own custom tokenizer for your custom model.
 
