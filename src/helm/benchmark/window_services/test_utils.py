@@ -1,6 +1,7 @@
 from typing import List
 
 from helm.common.authentication import Authentication
+from helm.common.cache_backend_config import CacheBackendConfig
 from helm.proxy.services.server_service import ServerService
 from helm.benchmark.metrics.metric_service import MetricService
 from .tokenizer_service import TokenizerService
@@ -227,6 +228,6 @@ GPT4_TEST_TOKENS: List[str] = [
 ]
 
 
-def get_tokenizer_service(local_path: str) -> TokenizerService:
-    service = ServerService(base_path=local_path, root_mode=True)
+def get_tokenizer_service(local_path: str, cache_backend_config: CacheBackendConfig) -> TokenizerService:
+    service = ServerService(base_path=local_path, root_mode=True, cache_backend_config=cache_backend_config)
     return MetricService(service, Authentication("test"))

@@ -1,9 +1,11 @@
+import ast
+import dataclasses
 from dataclasses import dataclass, field
-from datetime import date
 from typing import List, Optional, Dict
 import dacite
+from inspect import cleandoc
 import mako.template
-import yaml  # type: ignore
+import yaml
 import importlib_resources as resources
 
 from helm.common.general import hlog
@@ -11,8 +13,16 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.augmentations.perturbation_description import PERTURBATION_WORST
 
 
+# TODO: change to `helm.benchmark.config`
 SCHEMA_YAML_PACKAGE: str = "helm.benchmark.static"
-SCHEMA_YAML_FILENAME: str = "schema.yaml"
+
+# TODO: add heim, vhelm, etc.
+SCHEMA_CLASSIC_YAML_FILENAME: str = "schema_classic.yaml"
+
+
+_ADAPTER_SPEC_PACKAGE = "helm.benchmark.adaptation"
+_ADAPTER_SPEC_FILENAME = "adapter_spec.py"
+_ADAPTER_SPEC_CLASS_NAME = "AdapterSpec"
 
 
 @dataclass(frozen=True)
@@ -43,34 +53,6 @@ class Field:
         return name
 
 
-# Note: also see Model from `models.py`.
-@dataclass(frozen=True)
-class ModelField(Field):
-    # Organization that originally created the model (e.g. "EleutherAI")
-    #   Note that this may be different from group or the prefix of the model `name`
-    #   ("together" in "together/gpt-j-6b") as the hosting organization
-    #   may be different from the creator organization. We also capitalize
-    #   this field properly to later display in the UI.
-    # TODO: in the future, we want to cleanup the naming in the following ways:
-    # - make the creator_organization an identifier with a separate display name
-    # - have a convention like <hosting_organization><creator_organization>/<model_name>
-    creator_organization: Optional[str] = None
-
-    # How this model is available (e.g., limited)
-    access: Optional[str] = None
-
-    # Whether we have yet to evaluate this model
-    todo: bool = False
-
-    # When was the model released
-    release_date: Optional[date] = None
-
-    # The number of parameters
-    # This should be a string as the number of parameters is usually a round number (175B),
-    # but we set it as an int for plotting purposes.
-    num_parameters: Optional[int] = None
-
-
 @dataclass(frozen=True)
 class MetricNameMatcher:
     """
@@ -97,7 +79,7 @@ class MetricNameMatcher:
         if self.name != metric_name.name:
             return False
 
-        if self.split != metric_name.split:
+        if self.split != "__all__" and self.split != metric_name.split:
             return False
 
         # Optional
@@ -118,9 +100,11 @@ class MetricNameMatcher:
         return MetricNameMatcher(
             name=mako.template.Template(self.name).render(**environment),
             split=mako.template.Template(self.split).render(**environment),
-            perturbation_name=mako.template.Template(self.perturbation_name).render(**environment)
-            if self.perturbation_name is not None
-            else None,
+            perturbation_name=(
+                mako.template.Template(self.perturbation_name).render(**environment)
+                if self.perturbation_name is not None
+                else None
+            ),
         )
 
 
@@ -131,6 +115,12 @@ class MetricGroup(Field):
     """
 
     metrics: List[MetricNameMatcher] = field(default_factory=list)
+
+    hide_win_rates: Optional[bool] = None
+    """If set to true, do not compute win rates."""
+
+    aggregation_strategies: Optional[List[str]] = None
+    """List with values in {'win_rate','mean'} that correspond to aggregations"""
 
 
 BY_METRIC = "by_metric"
@@ -207,20 +197,17 @@ class RunGroup(Field):
 
     # Which adapter_spec fields we should preserve when displaying methods for this group
     # When we are constructing a table where the rows are methods, what constitutes a "method" is given by the set of
-    # adapter keys. By default, this should just be "model" (e.g., BLOOM), where details like "num_train_instances" are
-    # "marginalized out". However, for ablations, we want to include both "model" and "num_train_instances".
-    adapter_keys_shown: List[str] = field(default_factory=lambda: ["model"])
+    # adapter keys. By default, this should just be "model_deployment" (e.g., BLOOM), where details like
+    # "num_train_instances" are "marginalized out". However, for ablations, we want to include both "model_deployment"
+    # and "num_train_instances".
+    # NOTE: "model" is kept for backward compatibility reason.
+    # TODO: remove when we don't want helm-summarize to support runs before November 2023 anymore.
+    adapter_keys_shown: List[str] = field(default_factory=lambda: ["model_deployment", "model"])
 
 
 @dataclass
 class Schema:
     """Specifies information about what to display on the frontend."""
-
-    # Models
-    models: List[ModelField]
-
-    # Adapter fields (e.g., temperature)
-    adapter: List[Field]
 
     # Information about each field
     metrics: List[Field]
@@ -234,17 +221,65 @@ class Schema:
     # Group the scenarios
     run_groups: List[RunGroup]
 
+    # Adapter fields (e.g., temperature)
+    # Automatically populated from the docstrings in the AdapterSpec class definition.
+    # Should not be specified in the user's YAML file.
+    adapter: Optional[List[Field]] = None
+
     def __post_init__(self):
-        self.name_to_model = {model.name: model for model in self.models}
         self.name_to_metric = {metric.name: metric for metric in self.metrics}
         self.name_to_perturbation = {perturbation.name: perturbation for perturbation in self.perturbations}
         self.name_to_metric_group = {metric_group.name: metric_group for metric_group in self.metric_groups}
         self.name_to_run_group = {run_group.name: run_group for run_group in self.run_groups}
 
 
-def read_schema() -> Schema:
-    hlog(f"Reading schema from {SCHEMA_YAML_FILENAME}...")
-    schema_path = resources.files(SCHEMA_YAML_PACKAGE).joinpath(SCHEMA_YAML_FILENAME)
-    with schema_path.open("r") as f:
+def get_adapter_fields() -> List[Field]:
+    """Generate the adapter fields from the docstrings in the AdapterSpec class definition."""
+    # Unfortunately there is no standard library support for getting docstrings of class fields,
+    # so we have to do the parsing outselves. Fortunately, the parsing is quite straightforward.
+    adapter_spec_path = resources.files(_ADAPTER_SPEC_PACKAGE).joinpath(_ADAPTER_SPEC_FILENAME)
+    with open(adapter_spec_path, "r") as f:
+        contents = f.read()
+    module_node = ast.parse(contents)
+    adapter_spec_node = [
+        node
+        for node in ast.iter_child_nodes(module_node)
+        if isinstance(node, ast.ClassDef) and node.name == _ADAPTER_SPEC_CLASS_NAME
+    ][0]
+    metadata_fields: List[Field] = []
+    field_name: str = ""
+    for node in ast.iter_child_nodes(adapter_spec_node):
+        if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            # This node is a field definition.
+            # Save the name of the field for later.
+            field_name = node.target.id
+        else:
+            # If this is a docstring that immediately follows a field definition,
+            # output an adapter field with the name set to  the field definition and
+            # the description set to the docstring.
+            if (
+                field_name
+                and isinstance(node, ast.Expr)
+                and isinstance(node.value, ast.Constant)
+                and isinstance(node.value.value, str)
+            ):
+                description = cleandoc(node.value.value).replace("\n", " ")
+                metadata_fields.append(Field(name=field_name, description=description))
+            field_name = ""
+
+    return metadata_fields
+
+
+def get_default_schema_path() -> str:
+    return resources.files(SCHEMA_YAML_PACKAGE).joinpath(SCHEMA_CLASSIC_YAML_FILENAME)
+
+
+def read_schema(schema_path: str) -> Schema:
+    # TODO: merge in model metadata from `model_metadata.yaml`
+    hlog(f"Reading schema file {schema_path}...")
+    with open(schema_path, "r") as f:
         raw = yaml.safe_load(f)
-    return dacite.from_dict(Schema, raw)
+    schema = dacite.from_dict(Schema, raw)
+    if schema.adapter:
+        hlog(f"WARNING: The `adapter` field is deprecated and should be removed from schema file {schema_path}")
+    return dataclasses.replace(schema, adapter=get_adapter_fields())

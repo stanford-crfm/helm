@@ -32,6 +32,10 @@ nav
 tags
 notes.otl
 
+# HELM config files
+/run_entries*.conf
+/schema*.yaml
+
 # For Macs
 .DS_Store
 
@@ -44,3 +48,5 @@ notes.otl
 
 # Miscellaneous
 .nfs*
+
+node_modules

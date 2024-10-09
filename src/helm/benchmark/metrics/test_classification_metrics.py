@@ -7,7 +7,7 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.classification_metrics import ClassificationMetric
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.scenarios.scenario import Input, Instance, Output, Reference, CORRECT_TAG
-from helm.common.request import Request, RequestResult, Sequence
+from helm.common.request import Request, RequestResult, GeneratedOutput
 
 
 class _Option(NamedTuple):
@@ -26,9 +26,12 @@ def _request_state(prediction: str, options: List[_Option]):
         request_mode=None,
         train_trial_index=0,
         output_mapping=None,
-        request=Request(),
+        request=Request(model="openai/text-davinci-002", model_deployment="openai/text-davinci-002"),
         result=RequestResult(
-            success=True, embedding=[], completions=[Sequence(text=prediction, logprob=0.0, tokens=[])], cached=False
+            success=True,
+            embedding=[],
+            completions=[GeneratedOutput(text=prediction, logprob=0.0, tokens=[])],
+            cached=False,
         ),
         num_train_instances=0,
         prompt_truncated=False,
@@ -76,7 +79,7 @@ def test_evaluate_instances_binary_generation():
     ]
 
     assert_stats_equal(
-        metric.evaluate_instances(request_states),
+        metric.evaluate_instances(request_states, ""),
         _expected_stats(
             {
                 "yes": {"tp": 3, "fp": 1, "tn": 2, "fn": 1},
@@ -106,7 +109,7 @@ def test_evaluate_instances_multi_class():
         _request_state("invalid", _options("c")),
     ]
     assert_stats_equal(
-        metric.evaluate_instances(request_states),
+        metric.evaluate_instances(request_states, ""),
         _expected_stats(
             {
                 "d": {"tp": 3, "fp": 1, "tn": 5, "fn": 1},
@@ -139,7 +142,7 @@ def test_evaluate_instances_multilabel():
     ]
 
     assert_stats_equal(
-        metric.evaluate_instances(request_states),
+        metric.evaluate_instances(request_states, ""),
         _expected_stats(
             {
                 "d": {"tp": 5, "fp": 1, "tn": 5, "fn": 0},

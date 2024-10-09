@@ -5,18 +5,22 @@ from typing import Dict, List, Tuple, Any
 
 from helm.common.general import parse_hocon
 from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
+from helm.common.clip_score_request import CLIPScoreRequest, CLIPScoreResult
+from helm.common.file_upload_request import FileUploadResult, FileUploadRequest
+from helm.common.nudity_check_request import NudityCheckRequest, NudityCheckResult
 from helm.common.perspective_api_request import PerspectiveAPIRequestResult, PerspectiveAPIRequest
+from helm.common.moderations_api_request import ModerationAPIRequest, ModerationAPIRequestResult
 from helm.common.tokenization_request import (
-    WindowServiceInfo,
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequest,
     DecodeRequestResult,
 )
 from helm.common.request import Request, RequestResult
-from helm.proxy.models import Model
+from helm.benchmark.model_metadata_registry import ModelMetadata
 from helm.proxy.query import Query, QueryResult
 from helm.proxy.accounts import Authentication, Account
+from helm.common.cache import CacheConfig
 
 VERSION = "1.0"
 ACCOUNTS_FILE = "accounts.sqlite"
@@ -29,7 +33,7 @@ MAX_EXPANSION = 1000
 class GeneralInfo:
     version: str
     example_queries: List[Query]
-    all_models: List[Model]
+    all_models: List[ModelMetadata]
 
 
 def expand_environments(environments: Dict[str, List[str]]):
@@ -69,6 +73,8 @@ def synthesize_request(prompt: str, settings: str, environment: Dict[str, str]) 
     request: Dict[str, Any] = {}
     request["prompt"] = substitute_text(prompt, environment)
     request.update(parse_hocon(substitute_text(settings, environment)))
+    if "model_deployment" not in request and "model" not in request:
+        request["model_deployment"] = "openai/text-davinci-002"
     return Request(**request)
 
 
@@ -76,11 +82,6 @@ class Service(ABC):
     @abstractmethod
     def get_general_info(self) -> GeneralInfo:
         """Get general info."""
-        pass
-
-    @abstractmethod
-    def get_window_service_info(self, model_name: str) -> WindowServiceInfo:
-        """Get window service info."""
         pass
 
     @abstractmethod
@@ -104,8 +105,28 @@ class Service(ABC):
         pass
 
     @abstractmethod
+    def upload(self, auth: Authentication, request: FileUploadRequest) -> FileUploadResult:
+        """Uploads a file to external storage."""
+        pass
+
+    @abstractmethod
+    def check_nudity(self, auth: Authentication, request: NudityCheckRequest) -> NudityCheckResult:
+        """Check for nudity for a batch of images."""
+        pass
+
+    @abstractmethod
+    def compute_clip_score(self, auth: Authentication, request: CLIPScoreRequest) -> CLIPScoreResult:
+        """Computes CLIPScore for a given caption and image."""
+        pass
+
+    @abstractmethod
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         """Get toxicity scores for a batch of text."""
+        pass
+
+    @abstractmethod
+    def get_moderation_results(self, auth: Authentication, request: ModerationAPIRequest) -> ModerationAPIRequestResult:
+        """Get OpenAI's moderation results for some text."""
         pass
 
     @abstractmethod
@@ -146,4 +167,9 @@ class Service(ABC):
     @abstractmethod
     def shutdown(self, auth: Authentication):
         """Shutdown server."""
+        pass
+
+    @abstractmethod
+    def get_cache_config(self, shard_name: str) -> CacheConfig:
+        """Returns a CacheConfig"""
         pass

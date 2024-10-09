@@ -1,16 +1,19 @@
+import dataclasses
 import os
 import signal
 from typing import List, Optional
 
-from helm.benchmark.model_metadata_registry import maybe_register_model_metadata_from_base_path
-from helm.benchmark.model_deployment_registry import maybe_register_model_deployments_from_base_path
-from helm.benchmark.tokenizer_config_registry import maybe_register_tokenizer_configs_from_base_path
+from helm.common.cache import CacheConfig
+from helm.common.cache_backend_config import CacheBackendConfig, BlackHoleCacheBackendConfig
 from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
 from helm.common.authentication import Authentication
+from helm.common.moderations_api_request import ModerationAPIRequest, ModerationAPIRequestResult
+from helm.common.clip_score_request import CLIPScoreRequest, CLIPScoreResult
+from helm.common.nudity_check_request import NudityCheckRequest, NudityCheckResult
+from helm.common.file_upload_request import FileUploadRequest, FileUploadResult
 from helm.common.general import ensure_directory_exists, parse_hocon, get_credentials
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from helm.common.tokenization_request import (
-    WindowServiceInfo,
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequest,
@@ -19,13 +22,19 @@ from helm.common.tokenization_request import (
 from helm.common.request import Request, RequestResult
 from helm.common.hierarchical_logger import hlog
 from helm.proxy.accounts import Accounts, Account
-from helm.proxy.clients.auto_client import AutoClient
-from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
+from helm.clients.auto_client import AutoClient
+from helm.clients.moderation_api_client import ModerationAPIClient
+from helm.clients.image_generation.nudity_check_client import NudityCheckClient
+from helm.clients.gcs_client import GCSClient
+from helm.clients.clip_score_client import CLIPScoreClient
+from helm.clients.toxicity_classifier_client import ToxicityClassifierClient
 from helm.proxy.example_queries import example_queries
-from helm.proxy.models import ALL_MODELS, get_model_group
+from helm.benchmark.model_metadata_registry import ALL_MODELS_METADATA
+from helm.benchmark.model_deployment_registry import get_model_deployment_host_organization
 from helm.proxy.query import Query, QueryResult
 from helm.proxy.retry import retry_request
 from helm.proxy.token_counters.auto_token_counter import AutoTokenCounter
+from helm.tokenizers.auto_tokenizer import AutoTokenizer
 from .service import (
     Service,
     CACHE_DIR,
@@ -42,40 +51,38 @@ class ServerService(Service):
     Main class that supports various functionality for the server.
     """
 
-    def __init__(self, base_path: str = "prod_env", root_mode=False, mongo_uri: str = ""):
+    def __init__(
+        self,
+        base_path: str = "prod_env",
+        root_mode: bool = False,
+        cache_backend_config: CacheBackendConfig = BlackHoleCacheBackendConfig(),
+    ):
+        ensure_directory_exists(base_path)
+        client_file_storage_path = os.path.join(base_path, CACHE_DIR)
+        ensure_directory_exists(client_file_storage_path)
+
         credentials = get_credentials(base_path)
-        cache_path = os.path.join(base_path, CACHE_DIR)
-        ensure_directory_exists(cache_path)
         accounts_path = os.path.join(base_path, ACCOUNTS_FILE)
 
-        maybe_register_model_metadata_from_base_path(base_path)
-        maybe_register_model_deployments_from_base_path(base_path)
-        maybe_register_tokenizer_configs_from_base_path(base_path)
-
-        self.client = AutoClient(credentials, cache_path, mongo_uri)
-        self.token_counter = AutoTokenCounter(self.client.get_huggingface_client())
+        self.cache_backend_config = cache_backend_config
+        self.client = AutoClient(credentials, client_file_storage_path, cache_backend_config)
+        self.tokenizer = AutoTokenizer(credentials, cache_backend_config)
+        self.token_counter = AutoTokenCounter(self.tokenizer)
         self.accounts = Accounts(accounts_path, root_mode=root_mode)
-        # Lazily instantiated by get_toxicity_scores()
+
+        # Lazily instantiate the following clients
+        self.moderation_api_client: Optional[ModerationAPIClient] = None
         self.toxicity_classifier_client: Optional[ToxicityClassifierClient] = None
+        self.perspective_api_client: Optional[ToxicityClassifierClient] = None
+        self.nudity_check_client: Optional[NudityCheckClient] = None
+        self.clip_score_client: Optional[CLIPScoreClient] = None
+        self.gcs_client: Optional[GCSClient] = None
 
     def get_general_info(self) -> GeneralInfo:
-        return GeneralInfo(version=VERSION, example_queries=example_queries, all_models=ALL_MODELS)
-
-    def get_window_service_info(self, model_name) -> WindowServiceInfo:
-        # The import statement is placed here to avoid two problems, please refer to the link for details
-        # https://github.com/stanford-crfm/helm/pull/1430#discussion_r1156686624
-        from helm.benchmark.window_services.tokenizer_service import TokenizerService
-        from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
-
-        token_service = TokenizerService(self, Authentication(""))
-        window_service = WindowServiceFactory.get_window_service(model_name, token_service)
-        return WindowServiceInfo(
-            tokenizer_name=window_service.tokenizer_name,
-            max_sequence_length=window_service.max_sequence_length,
-            max_request_length=window_service.max_request_length,
-            end_of_text_token=window_service.end_of_text_token,
-            prefix_token=window_service.prefix_token,
-        )
+        # Can't send release_dates in ModelMetadata bacause dates cannot be round-tripped to and from JSON easily.
+        # TODO(#2158): Either fix this or delete get_general_info.
+        all_models = [dataclasses.replace(model_metadata, release_date=None) for model_metadata in ALL_MODELS_METADATA]
+        return GeneralInfo(version=VERSION, example_queries=example_queries, all_models=all_models)
 
     def expand_query(self, query: Query) -> QueryResult:
         """Turn the `query` into requests."""
@@ -88,6 +95,25 @@ class ServerService(Service):
             requests.append(request)
         return QueryResult(requests=requests)
 
+    def _get_model_group_for_model_deployment(self, model_deployment: str) -> str:
+        if model_deployment.startswith("openai/"):
+            if model_deployment.startswith("openai/code-"):
+                return "codex"
+            elif model_deployment.startswith("openai/dall-e-"):
+                return "dall_e"
+            elif model_deployment.startswith("openai/gpt-4"):
+                return "gpt4"
+            elif model_deployment.startswith("openai/gpt-3"):
+                return "gpt3"
+            elif model_deployment.startswith("openai/o1"):
+                return "o1"
+            else:
+                return "openai"
+        elif model_deployment.startswith("ai21/"):
+            return "jurassic"
+        else:
+            return get_model_deployment_host_organization(model_deployment)
+
     def make_request(self, auth: Authentication, request: Request) -> RequestResult:
         """Actually make a request to an API."""
         # TODO: try to invoke the API even if we're not authenticated, and if
@@ -95,7 +121,7 @@ class ServerService(Service):
         #       https://github.com/stanford-crfm/benchmarking/issues/56
 
         self.accounts.authenticate(auth)
-        model_group: str = get_model_group(request.model)
+        model_group: str = self._get_model_group_for_model_deployment(request.model_deployment)
         # Make sure we can use
         self.accounts.check_can_use(auth.api_key, model_group)
 
@@ -113,12 +139,42 @@ class ServerService(Service):
     def tokenize(self, auth: Authentication, request: TokenizationRequest) -> TokenizationRequestResult:
         """Tokenize via an API."""
         self.accounts.authenticate(auth)
-        return self.client.tokenize(request)
+        return self.tokenizer.tokenize(request)
 
     def decode(self, auth: Authentication, request: DecodeRequest) -> DecodeRequestResult:
         """Decodes to text."""
         self.accounts.authenticate(auth)
-        return self.client.decode(request)
+        return self.tokenizer.decode(request)
+
+    def upload(self, auth: Authentication, request: FileUploadRequest) -> FileUploadResult:
+        """Uploads a file to external storage."""
+        self.accounts.authenticate(auth)
+
+        if not self.gcs_client:
+            self.gcs_client = self.client.get_gcs_client()
+
+        assert self.gcs_client
+        return self.gcs_client.upload(request)
+
+    def check_nudity(self, auth: Authentication, request: NudityCheckRequest) -> NudityCheckResult:
+        """Check for nudity."""
+        self.accounts.authenticate(auth)
+
+        if not self.nudity_check_client:
+            self.nudity_check_client = self.client.get_nudity_check_client()
+
+        assert self.nudity_check_client
+        return self.nudity_check_client.check_nudity(request)
+
+    def compute_clip_score(self, auth: Authentication, request: CLIPScoreRequest) -> CLIPScoreResult:
+        """Computes CLIPScore for a given caption and image."""
+        self.accounts.authenticate(auth)
+
+        if not self.clip_score_client:
+            self.clip_score_client = self.client.get_clip_score_client()
+
+        assert self.clip_score_client
+        return self.clip_score_client.compute_score(request)
 
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         @retry_request
@@ -129,6 +185,16 @@ class ServerService(Service):
 
         self.accounts.authenticate(auth)
         return get_toxicity_scores_with_retry(request)
+
+    def get_moderation_results(self, auth: Authentication, request: ModerationAPIRequest) -> ModerationAPIRequestResult:
+        @retry_request
+        def get_moderation_results_with_retry(request: ModerationAPIRequest) -> ModerationAPIRequestResult:
+            if not self.moderation_api_client:
+                self.moderation_api_client = self.client.get_moderation_api_client()
+            return self.moderation_api_client.get_moderation_results(request)
+
+        self.accounts.authenticate(auth)
+        return get_moderation_results_with_retry(request)
 
     def make_critique_request(self, auth: Authentication, request: CritiqueRequest) -> CritiqueRequestResult:
         self.accounts.authenticate(auth)
@@ -165,3 +231,6 @@ class ServerService(Service):
         hlog(f"Shutting down server by killing its own process {pid}...")
         os.kill(pid, signal.SIGTERM)
         hlog("Done.")
+
+    def get_cache_config(self, shard_name: str) -> CacheConfig:
+        return self.cache_backend_config.get_cache_config(shard_name)

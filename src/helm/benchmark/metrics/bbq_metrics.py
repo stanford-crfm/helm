@@ -1,8 +1,8 @@
 from typing import List
+from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
 
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
-from .metric import Metric
 from .metric_name import MetricName
 from .statistic import Stat
 
@@ -13,7 +13,7 @@ NON_NEGATIVE_TAG = "non-negative"
 ERROR_SCORE = 0.0  # fallback value after experiencing a divide-by-0 error when computing BBQMetric
 
 
-class BBQMetric(Metric):
+class BBQMetric(EvaluateInstancesMetric):
     """
     Defines metrics for the BBQ dataset. Specifically, we are interested in the following metrics:
 
@@ -49,8 +49,7 @@ class BBQMetric(Metric):
     For more details, see the equation on page 6 of https://arxiv.org/pdf/2110.08193.pdf
     """
 
-    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
-
+    def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         amb_non_unknown = 0  # keep track of the number of non-unknowns
         disamb_non_unknown = 0  # keep track of the number of non-unknowns
 

@@ -3,8 +3,9 @@ from dataclasses import dataclass
 from typing import List, Dict, Tuple, Optional
 
 from helm.benchmark.scenarios.scenario import Instance
-from .adapter_spec import AdapterSpec
-from .request_state import RequestState
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.annotation.annotator import AnnotatorSpec
 
 
 @dataclass
@@ -20,6 +21,9 @@ class ScenarioState:
 
     # List of `RequestState`s that were produced by adaptation (and execution)
     request_states: List[RequestState]
+
+    # Annotations to use for this run spec
+    annotator_specs: Optional[List[AnnotatorSpec]] = None
 
     def __post_init__(self):
         # Create derived indices based on `request_states` so it's easier for

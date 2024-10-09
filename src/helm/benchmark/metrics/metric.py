@@ -1,7 +1,7 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 from collections import defaultdict
-from typing import List, Dict, Tuple, Optional, Iterable, Set
+from typing import List, Dict, Tuple, Optional, Iterable
 
 from helm.common.object_spec import ObjectSpec, create_object
 from helm.common.general import singleton, parallel_map
@@ -67,35 +67,36 @@ class Processor:
     eval_cache_path: str
     adapter_spec: AdapterSpec
 
-    def process(self, request_state_set: RequestStateSet) -> List[Stat]:
+    def process(self, generation_states: List[RequestState]) -> List[Stat]:
         instance_stats: List[Stat] = []
 
         # Evaluate generated request_state
-        generation_states = request_state_set.generation_states
-        if len(generation_states) != 0:
-            instance_stats.extend(
-                self.metric.evaluate_generation(
-                    self.adapter_spec, singleton(generation_states), self.metric_service, self.eval_cache_path
-                )
+        if len(generation_states) == 0:
+            return instance_stats
+        instance_stats.extend(
+            self.metric.evaluate_generation(
+                self.adapter_spec, singleton(generation_states), self.metric_service, self.eval_cache_path
             )
-
-        # Evaluate the references
-        references_states = request_state_set.references_states
-        if len(references_states) != 0:
-            instance_stats.extend(
-                self.metric.evaluate_references(
-                    self.adapter_spec, references_states, self.metric_service, self.eval_cache_path
-                )
-            )
+        )
 
         # Add instance-related context (e.g., split, perturbation) to the metrics
         for i, stat in enumerate(instance_stats):
-            instance_stats[i] = add_context(stat, MetricContext.from_instance(request_state_set.instance))
+            instance_stats[i] = add_context(stat, MetricContext.from_instance(generation_states[0].instance))
 
         return instance_stats
 
 
-class Metric(ABC):
+class MetricInterface(ABC):
+    """Interface for all Metrics."""
+
+    @abstractmethod
+    def evaluate(
+        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
+    ) -> MetricResult:
+        pass
+
+
+class Metric(MetricInterface, ABC):
     """
     A `Metric` takes the results of execution and produces `Stat`s for a
     scenario.
@@ -116,8 +117,11 @@ class Metric(ABC):
         Any logic that doesn't decompose along instances should go here, such
         as robustness.
         """
-        if scenario_state.adapter_spec.method == ADAPT_LANGUAGE_MODELING:
-            return self.evaluate_language_modeling(scenario_state, metric_service, eval_cache_path)
+        assert scenario_state.adapter_spec.method != ADAPT_LANGUAGE_MODELING, (
+            "Metric no longer knows how to handle the language modeling adapter. "
+            + "All run_specs with that adapter should use LanguageModelingMetric. "
+            + "If you are seeing this issue, please file a Github issue."
+        )
 
         adapter_spec = scenario_state.adapter_spec
         global_stats: Dict[MetricName, Stat] = {}
@@ -125,18 +129,9 @@ class Metric(ABC):
 
         for train_trial_index in range(adapter_spec.num_train_trials):
             # Construct inputs
-            request_state_sets: List[RequestStateSet] = []
+            generation_state_sets: List[List[RequestState]] = []
             for instance in scenario_state.instances:
-                generation_states = scenario_state.get_request_states(train_trial_index, instance, None)
-                references_states = []
-                for reference_index in range(len(instance.references)):
-                    references_states.extend(
-                        scenario_state.get_request_states(train_trial_index, instance, reference_index)
-                    )
-                request_state_set = RequestStateSet(
-                    instance=instance, generation_states=generation_states, references_states=references_states
-                )
-                request_state_sets.append(request_state_set)
+                generation_state_sets.append(scenario_state.get_request_states(train_trial_index, instance, None))
 
             # Do it!
             processor = Processor(
@@ -147,7 +142,7 @@ class Metric(ABC):
             )
             results: List[List[Stat]] = parallel_map(
                 processor.process,
-                request_state_sets,
+                generation_state_sets,
                 parallelism=parallelism,
             )
 
@@ -194,22 +189,10 @@ class Metric(ABC):
                 for stat in self.derive_per_instance_stats(instance_dict):
                     merge_stat(trial_stats, add_context(stat, context))
 
-            # Compute statistics that depend on all the `RequestStates` (e.g., bias metrics).
-            # Aggregate request states and call evaluate_instances in case the metric needs it.
-            grouped_request_states: Dict[MetricContext, List[RequestState]] = defaultdict(list)
-            for instance in scenario_state.instances:
-                # TODO: do we need to support reference_index that is not None?
-                grouped_request_states[MetricContext.from_instance(instance)].extend(
-                    scenario_state.get_request_states(train_trial_index, instance, None)
-                )
-            for context, request_states in grouped_request_states.items():
-                for stat in self.evaluate_instances(request_states):
-                    merge_stat(trial_stats, add_context(stat, context))
-
             # Compute worst-case metrics.
             # This is here since we want these stats for all metrics and they
             # aggregate across contexts (perturbations).
-            worst_case_stats = self.compute_worst_case_metrics(dict(zip(scenario_state.instances, results)))
+            worst_case_stats = compute_worst_case_metrics(dict(zip(scenario_state.instances, results)))
             for stat in worst_case_stats:
                 merge_stat(trial_stats, stat)
 
@@ -222,6 +205,7 @@ class Metric(ABC):
         # Wrap aggregated and per-instance stats in a MetricResult.
         return MetricResult(list(global_stats.values()), all_per_instance_stats)
 
+    @abstractmethod
     def evaluate_generation(
         self,
         adapter_spec: AdapterSpec,
@@ -230,21 +214,7 @@ class Metric(ABC):
         eval_cache_path: str,
     ) -> List[Stat]:
         """Evaluate free-form generation.  Override me!"""
-        return []
-
-    def evaluate_references(
-        self,
-        adapter_spec: AdapterSpec,
-        reference_request_states: List[RequestState],
-        metric_service: MetricService,
-        eval_cache_path: str,
-    ) -> List[Stat]:
-        """Evaluate the references.  Override me!"""
-        return []
-
-    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
-        """Evaluate all request states directly. Use only if nothing else works.  Override me!"""
-        return []
+        pass
 
     def derive_stats(self, stats_dict: Dict[MetricName, Stat]) -> List[Stat]:
         """Derive stats based on existing stats, e.g., for perplexity. Override me!"""
@@ -254,119 +224,70 @@ class Metric(ABC):
         """Derive stats based on existing per-instance stats, e.g., for calibration. Override me!"""
         return []
 
-    def evaluate_language_modeling(
-        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str
-    ) -> MetricResult:
-        global_stats: Dict[MetricName, Stat] = {}
-        # The first and only trial
-        trial_stats: Dict[MetricName, Stat] = {}
-        # Per-instance stats
-        all_per_instance_stats: List[PerInstanceStats] = []
-        instance_ids_per_context: Dict[MetricContext, Set[str]] = defaultdict(set)
 
-        for request_state in scenario_state.request_states:
-            # Evaluate request_state
-            request_stats = self.evaluate_generation(
-                scenario_state.adapter_spec, request_state, metric_service, eval_cache_path
-            )
+def compute_worst_case_metrics(per_instance_stats: Dict[Instance, List[Stat]]) -> List[Stat]:
+    """
+    For each instance, we compute the worst case perfomance between each perturbation and the non-perturbed input
+    (perturbation=None). This allows us to reason about the invariances of a model as opposed to just looking
+    at its performance on perturbed inputs. We also compute the worst case performance across all robustness-related
+    and fairness-related perturbations (including the original input in both).
 
-            # Add instance-related context (e.g., split, perturbation) to the metrics
-            for i, stat in enumerate(request_stats):
-                context = MetricContext.from_instance(request_state.instance)
-                request_stats[i] = add_context(stat, context)
-                assert request_state.instance.id is not None
-                instance_ids_per_context[context].add(request_state.instance.id)
+    For each such worst-case metric, we record a `before_` metric that aggregates the performance on the
+    non-perturbed version of the corresponding inputs.
 
-            # Use trial index of 0 here since we run only one trial for LM
-            assert request_state.instance.id is not None
-            all_per_instance_stats.append(
-                PerInstanceStats(request_state.instance.id, request_state.instance.perturbation, 0, request_stats)
-            )
+    We return the aggregate metrics across instances. Note that none of these metrics make a lot of sense if the
+    original, un-perturbed version of an Instance is not included in a scenario (i.e., we want
+    `include_original=True`).
+    """
+    # Collect statistics per input-metric pair across perturbations
+    per_instance_perturbation_stats: Dict[Tuple[MetricName, str], List[Stat]] = defaultdict(list)
+    for instance, stats in per_instance_stats.items():
+        for stat in stats:
+            assert instance.id is not None
+            # Group all perturbations for a specific metric name together
+            per_instance_perturbation_stats[(replace(stat.name, perturbation=None), instance.id)].append(stat)
 
-            for stat in request_stats:
-                merge_stat(trial_stats, stat)
+    # Compute worst perturbation stats
+    derived_stats_dict: Dict[MetricName, Stat] = {}
+    for (metric_name, instance_id), stats in per_instance_perturbation_stats.items():
+        original_stat: Optional[Stat] = None
+        robustness_stat = Stat(
+            replace(metric_name, perturbation=PerturbationDescription(name="robustness", robustness=True))
+        )
+        fairness_stat = Stat(replace(metric_name, perturbation=PerturbationDescription(name="fairness", fairness=True)))
+        individual_perturbation_stats: Dict[PerturbationDescription, Stat] = {}
 
-        # group stats according to the context (e.g., split, perturbation) and call derive_stats on each grouping
-        grouped_trial_stats: Dict[MetricContext, Dict[MetricName, Stat]] = defaultdict(dict)
-        for metric_name, stat in trial_stats.items():
-            grouped_trial_stats[MetricContext.from_metric_name(metric_name)][metric_name] = stat  # group by context
+        for stat in stats:  # go through all the perturbations of the instance and merge relevant stats
+            perturbation = stat.name.perturbation
+            if perturbation is None:
+                assert (
+                    original_stat is None
+                ), f"For {metric_name} got both {original_stat} and {stat}"  # we should only have one original stat
+                original_stat = stat
+            else:
+                if perturbation.robustness:
+                    robustness_stat.merge(stat)
+                if perturbation.fairness:
+                    fairness_stat.merge(stat)
+                assert perturbation not in individual_perturbation_stats, perturbation
+                individual_perturbation_stats[perturbation] = Stat(stat.name).merge(stat)  # copy
 
-        for context, stats_dict in grouped_trial_stats.items():
-            for stat in self.derive_stats(stats_dict):
-                merge_stat(trial_stats, add_context(stat, context))
-            # keep track of how many instances are in each subset
-            num_instances_stat = Stat(MetricName("num_instances")).add(len(instance_ids_per_context[context]))
-            merge_stat(trial_stats, add_context(num_instances_stat, context))
+        for stat in [robustness_stat, fairness_stat, *individual_perturbation_stats.values()]:
+            perturbation = stat.name.perturbation
+            assert perturbation is not None
 
-        for stat in trial_stats.values():
-            merge_stat(global_stats, stat.take_mean())
-        return MetricResult(list(global_stats.values()), all_per_instance_stats)
+            if original_stat is not None:
+                stat.merge(original_stat)
+                if perturbation.name not in ["robustness", "fairness"]:
+                    before = replace(perturbation, computed_on=PERTURBATION_ORIGINAL)
+                    merge_stat(derived_stats_dict, Stat(replace(stat.name, perturbation=before)).merge(original_stat))
 
-    def compute_worst_case_metrics(self, per_instance_stats: Dict[Instance, List[Stat]]) -> List[Stat]:
-        """
-        For each instance, we compute the worst case perfomance between each perturbation and the non-perturbed input
-        (perturbation=None). This allows us to reason about the invariances of a model as opposed to just looking
-        at its performance on perturbed inputs. We also compute the worst case performance across all robustness-related
-        and fairness-related perturbations (including the original input in both).
-
-        For each such worst-case metric, we record a `before_` metric that aggregates the performance on the
-        non-perturbed version of the corresponding inputs.
-
-        We return the aggregate metrics across instances. Note that none of these metrics make a lot of sense if the
-        original, un-perturbed version of an Instance is not included in a scenario (i.e., we want
-        `include_original=True`).
-        """
-        # Collect statistics per input-metric pair across perturbations
-        per_instance_perturbation_stats: Dict[Tuple[MetricName, str], List[Stat]] = defaultdict(list)
-        for instance, stats in per_instance_stats.items():
-            for stat in stats:
-                assert instance.id is not None
-                # Group all perturbations for a specific metric name together
-                per_instance_perturbation_stats[(replace(stat.name, perturbation=None), instance.id)].append(stat)
-
-        # Compute worst perturbation stats
-        derived_stats_dict: Dict[MetricName, Stat] = {}
-        for (metric_name, instance_id), stats in per_instance_perturbation_stats.items():
-            original_stat: Optional[Stat] = None
-            robustness_stat = Stat(
-                replace(metric_name, perturbation=PerturbationDescription(name="robustness", robustness=True))
-            )
-            fairness_stat = Stat(
-                replace(metric_name, perturbation=PerturbationDescription(name="fairness", fairness=True))
-            )
-            individual_perturbation_stats: Dict[PerturbationDescription, Stat] = {}
-
-            for stat in stats:  # go through all the perturbations of the instance and merge relevant stats
-                perturbation = stat.name.perturbation
-                if perturbation is None:
-                    assert original_stat is None  # we should only have one original stat
-                    original_stat = stat
-                else:
-                    if perturbation.robustness:
-                        robustness_stat.merge(stat)
-                    if perturbation.fairness:
-                        fairness_stat.merge(stat)
-                    assert perturbation not in individual_perturbation_stats, perturbation
-                    individual_perturbation_stats[perturbation] = Stat(stat.name).merge(stat)  # copy
-
-            for stat in [robustness_stat, fairness_stat, *individual_perturbation_stats.values()]:
-                perturbation = stat.name.perturbation
-                assert perturbation is not None
-
-                if original_stat is not None:
-                    stat.merge(original_stat)
-                    if perturbation.name not in ["robustness", "fairness"]:
-                        before = replace(perturbation, computed_on=PERTURBATION_ORIGINAL)
-                        merge_stat(
-                            derived_stats_dict, Stat(replace(stat.name, perturbation=before)).merge(original_stat)
-                        )
-
-                # keep the minimum performance for each input
-                worst = replace(perturbation, computed_on=PERTURBATION_WORST)
-                if stat.count > 0:
-                    # TODO: take stat.max if lower_is_better = True
-                    merge_stat(derived_stats_dict, Stat(replace(stat.name, perturbation=worst)).add(stat.min))
-        return list(derived_stats_dict.values())
+            # keep the minimum performance for each input
+            worst = replace(perturbation, computed_on=PERTURBATION_WORST)
+            if stat.count > 0:
+                # TODO: take stat.max if lower_is_better = True
+                merge_stat(derived_stats_dict, Stat(replace(stat.name, perturbation=worst)).add(stat.min))
+    return list(derived_stats_dict.values())
 
 
 class MetricSpec(ObjectSpec):

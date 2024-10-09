@@ -12,7 +12,7 @@ try:
     # pd.read_excel() uses xlrd
     import xlrd  # noqa
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e)
+    handle_module_not_found_error(e, ["scenarios"])
 
 
 class ICESubset(Enum):

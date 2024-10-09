@@ -1,14 +1,14 @@
 from random import Random
 
 from .perturbation_description import PerturbationDescription
-from .perturbation import Perturbation
+from .perturbation import TextPerturbation
 from .lowercase_perturbation import LowerCasePerturbation
 from .contraction_expansion_perturbation import ContractionPerturbation
 from .space_perturbation import SpacePerturbation
 from .misspelling_perturbation import MisspellingPerturbation
 
 
-class MildMixPerturbation(Perturbation):
+class MildMixPerturbation(TextPerturbation):
     """
     Canonical robustness perturbation that composes several perturbations.
     These perturbations are chosen to be reasonable.

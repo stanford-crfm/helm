@@ -50,7 +50,6 @@ class SummaCImager:
     def __init__(
         self, model_name="mnli", granularity="paragraph", use_cache=True, max_doc_sents=100, device="cuda", **kwargs
     ):
-
         self.grans = granularity.split("-")
 
         assert (
@@ -154,7 +153,6 @@ class SummaCImager:
             for j in range(N_gen)
         ]
         for batch in utils_misc.batcher(dataset, batch_size=20):
-
             if self.model_name == "decomp":
                 batch_evids, batch_conts, batch_neuts = [], [], []
                 batch_json = [{"premise": d["premise"], "hypothesis": d["hypothesis"]} for d in batch]
@@ -181,9 +179,9 @@ class SummaCImager:
                     model_outputs = self.model(**batch_tokens)
 
                 batch_probs = torch.nn.functional.softmax(model_outputs["logits"], dim=-1)
-                batch_evids = batch_probs[:, self.entailment_idx].tolist()
-                batch_conts = batch_probs[:, self.contradiction_idx].tolist()
-                batch_neuts = batch_probs[:, self.neutral_idx].tolist()
+                batch_evids = batch_probs[:, self.entailment_idx].tolist()  # type: ignore
+                batch_conts = batch_probs[:, self.contradiction_idx].tolist()  # type: ignore
+                batch_neuts = batch_probs[:, self.neutral_idx].tolist()  # type: ignore
 
             for b, evid, cont, neut in zip(batch, batch_evids, batch_conts, batch_neuts):
                 image[0, b["doc_i"], b["gen_i"]] = evid

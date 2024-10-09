@@ -1,4 +1,3 @@
-import os
 from typing import Dict, Optional, List
 from dataclasses import dataclass
 
@@ -7,9 +6,6 @@ import yaml
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import ObjectSpec
-
-
-TOKENIEZR_CONFIGS_FILE = "tokenizer_configs.yaml"
 
 
 class TokenizerSpec(ObjectSpec):
@@ -26,7 +22,11 @@ class TokenizerConfig:
     tokenizer_spec: TokenizerSpec
     """Specification for instantiating the client for this tokenizer."""
 
-    # TODO: Add `end_of_text_token`` and `prefix_token``
+    end_of_text_token: Optional[str] = None
+    """The end of text token."""
+
+    prefix_token: Optional[str] = None
+    """The prefix token."""
 
 
 @dataclass(frozen=True)
@@ -34,11 +34,13 @@ class TokenizerConfigs:
     tokenizer_configs: List[TokenizerConfig]
 
 
-_name_to_tokenizer_config: Dict[str, TokenizerConfig] = {}
+ALL_TOKENIZER_CONFIGS: List[TokenizerConfig] = []
+TOKENIZER_NAME_TO_CONFIG: Dict[str, TokenizerConfig] = {config.name: config for config in ALL_TOKENIZER_CONFIGS}
 
 
 def register_tokenizer_config(tokenizer_config: TokenizerConfig) -> None:
-    _name_to_tokenizer_config[tokenizer_config.name] = tokenizer_config
+    ALL_TOKENIZER_CONFIGS.append(tokenizer_config)
+    TOKENIZER_NAME_TO_CONFIG[tokenizer_config.name] = tokenizer_config
 
 
 def register_tokenizer_configs_from_path(path: str) -> None:
@@ -50,11 +52,5 @@ def register_tokenizer_configs_from_path(path: str) -> None:
         register_tokenizer_config(tokenizer_config)
 
 
-def maybe_register_tokenizer_configs_from_base_path(base_path: str) -> None:
-    path = os.path.join(base_path, TOKENIEZR_CONFIGS_FILE)
-    if os.path.exists(path):
-        register_tokenizer_configs_from_path(path)
-
-
 def get_tokenizer_config(name: str) -> Optional[TokenizerConfig]:
-    return _name_to_tokenizer_config.get(name)
+    return TOKENIZER_NAME_TO_CONFIG.get(name)

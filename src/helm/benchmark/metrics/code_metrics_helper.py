@@ -27,12 +27,22 @@ import signal
 import sys
 import tempfile
 from typing import List, Union, Dict, Optional
+from types import ModuleType
 from unittest.mock import patch, mock_open
 
 import numpy as np
-from pyext import RuntimeModule
 
 from helm.common.hierarchical_logger import hlog
+
+
+class RuntimeModule(ModuleType):
+    """crfm-helm's replacement for pyext.RuntimeModule, since pyext is not supported by Python >=3.11"""
+
+    @staticmethod
+    def from_string(module_name: str, module_doc: str, module_contents: str) -> "RuntimeModule":
+        module = RuntimeModule(module_name, module_doc)
+        exec(module_contents, module.__dict__)
+        return module
 
 
 # === APPS evaluation below ===
@@ -448,9 +458,7 @@ def check_correctness(problem: Dict, completion: str, timeout: float, completion
     """
 
     def unsafe_execute():
-
         with create_tempdir():
-
             # These system calls are needed when cleaning up tempdir.
             import os
             import shutil

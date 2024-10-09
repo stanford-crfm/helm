@@ -17,15 +17,29 @@ Examples:
 ```bash
 # Run boolq on stanford-crfm/BioMedLM at the default main revision
 helm-run \
-    --run-specs boolq:model=stanford-crfm/BioMedLM \
+    --run-entries boolq:model=stanford-crfm/BioMedLM \
     --enable-huggingface-models stanford-crfm/BioMedLM \
     --suite v1 \
     --max-eval-instances 10
 
 # Run boolq on stanford-crfm/BioMedLM at revision main
 helm-run \
-    --run-specs boolq:model=stanford-crfm/BioMedLM@main \
+    --run-entries boolq:model=stanford-crfm/BioMedLM@main \
     --enable-huggingface-models stanford-crfm/BioMedLM@main \
     --suite v1 \
     --max-eval-instances 10
+```
+
+To use Optimum Intel, add `--openvino` flag to `helm-run`. Optimum Intel provides a simple interface to optimize Transformer models and convert them to OpenVINO™ Intermediate Representation format to accelerate end-to-end pipelines on Intel® architectures using OpenVINO™ runtime. It runs the model on the CPU.
+
+Examples:
+
+```bash
+# Run boolq on stanford-crfm/BioMedLM optimized by Optimum Intel OpenNIVO
+helm-run \
+    --run-entries boolq:model=stanford-crfm/BioMedLM \
+    --enable-huggingface-models stanford-crfm/BioMedLM \
+    --suite v1 \
+    --max-eval-instances 10 \
+    --openvino 
 ```

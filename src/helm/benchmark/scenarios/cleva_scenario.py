@@ -10,14 +10,29 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_GENERATION,
 )
-from helm.common.general import ensure_file_downloaded, ensure_directory_exists
+from helm.benchmark.runner import get_benchmark_output_path
+from helm.common.general import (
+    assert_is_str,
+    assert_is_str_list,
+    ensure_file_downloaded,
+    ensure_directory_exists,
+)
 from helm.common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
+from .scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TRAIN_SPLIT,
+    TEST_SPLIT,
+    CORRECT_TAG,
+    Input,
+    Output,
+    get_scenario_cache_path,
+)
 from .code_scenario import CodeReference, CodeInstance
 
 
 CLEVA_DATA_URL = "http://39.108.215.175/data"
-CLEVA_DATA_PATH = "benchmark_output/scenarios/cleva"
 
 
 @dataclass(frozen=True)
@@ -69,26 +84,17 @@ class Converter:
         """Convert a data point in CLEVA format to a HELM instance according to a given CLEVA prompt template."""
         transformed_data = self._apply_all(copy.deepcopy(data), templates)
 
-        prompt: str = transformed_data["input"]  # type: ignore
-        assert isinstance(prompt, str)
+        prompt = assert_is_str(transformed_data["input"])
         if "choices" in transformed_data:
             # This is a multiple-choice task
-            choices: List[str] = transformed_data["choices"]  # type: ignore
-            # Gurantee `choices` must be `List[str]`
-            assert isinstance(choices, list)
-            for c in choices:
-                assert isinstance(c, str)
+            choices = assert_is_str_list(transformed_data["choices"])
             references: List[Reference] = [
                 Reference(Output(text=text), tags=[CORRECT_TAG] if idx in transformed_data["label"] else [])
                 for idx, text in enumerate(choices)
             ]
         else:
             # This is a generation task
-            correct_answer: List[str] = transformed_data["label"]  # type: ignore
-            # Gurantee `label` must be `List[str]`
-            assert isinstance(correct_answer, list)
-            for a in correct_answer:
-                assert isinstance(a, str)
+            correct_answer = assert_is_str_list(transformed_data["label"])
             references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
 
         instance = Instance(
@@ -109,15 +115,12 @@ class Converter:
         to a HELM CodeInstance according to a given CLEVA prompt template.
         """
 
-        assert isinstance(templates["input"], str)
-        data["prompt"] = templates["input"].format(**data)
-        assert isinstance(data["prompt"], str)
-        assert isinstance(data["canonical_solution"], str)
+        data["prompt"] = assert_is_str(templates["input"]).format(**data)
         instance = CodeInstance(
-            input=Input(text=data["prompt"]),
+            input=Input(text=assert_is_str(data["prompt"])),
             references=[
                 CodeReference(
-                    output=Output(text=data["canonical_solution"]),
+                    output=Output(text=assert_is_str(data["canonical_solution"])),
                     test_cases=data,
                     tags=[CORRECT_TAG],
                 )
@@ -211,27 +214,18 @@ class Converter:
                 transformed_data[k] = self._apply(data[k], template, **data)
 
         # We then merge all other fields into the `input`
-        assert isinstance(templates["input"], str), "The input field of a template should be a string"
-        data["input"] = templates["input"].format(**transformed_data)
+        data["input"] = assert_is_str(templates["input"]).format(**transformed_data)
         if "choices" in data:
             # We take the corresponding choices and apply the `label` template
             # Note: we do not allow `label` template to access other fields in multi-choice tasks
             # Overwrite `choices` to the actual continuations
-            choices: List[str] = data["choices"]  # type: ignore
-            # Gurantee `choices` must be `List[str]`
-            assert isinstance(choices, list)
-            for c in choices:
-                assert isinstance(c, str)
+            choices = assert_is_str_list(data["choices"])
             data["choices"] = [self._apply(c, templates.get("label", None), label=c) for c in choices]
         else:
             # For generation tasks, we allow it to access to other stringified fields
             kwargs = transformed_data
             del kwargs["label"]
-            labels: List[str] = data["label"]  # type: ignore
-            # Gurantee `label` must be `List[str]`
-            assert isinstance(labels, list)
-            for label in labels:
-                assert isinstance(label, str)
+            labels = assert_is_str_list(data["label"])
             data["label"] = [self._apply(x, templates.get("label", None), **kwargs, label=x) for x in labels]
         return data
 
@@ -402,7 +396,10 @@ class CLEVAScenario(Scenario):
         self.subtask = subtask
         self.version = version
         self.converter = Converter()
-        self.prompt_template, _ = CLEVAScenario.get_prompt_setting(self.task, subtask, version, prompt_id)
+        scenario_cache_path = get_scenario_cache_path(get_benchmark_output_path(), CLEVAScenario.name)
+        self.prompt_template, _ = CLEVAScenario.get_prompt_setting(
+            self.task, subtask, version, prompt_id, scenario_cache_path
+        )
 
     @property
     @abstractmethod
@@ -410,14 +407,14 @@ class CLEVAScenario(Scenario):
         pass
 
     @classmethod
-    def download_dataset(cls, task: str, version: str):
+    def download_dataset(cls, task: str, version: str, cache_dir: str):
         source_url: str = CLEVA_DATA_URL + f"/{version}/{task}.zip"
-        target_dir: str = os.path.join(CLEVA_DATA_PATH, "data", version)
+        target_dir: str = os.path.join(cache_dir, "data", version)
         ensure_directory_exists(target_dir)
         ensure_file_downloaded(source_url=source_url, target_path=os.path.join(target_dir, task), unpack=True)
 
-    def load_dataset(self) -> Dict[str, List[Dict[str, Any]]]:
-        data_dir: str = os.path.join(CLEVA_DATA_PATH, "data", self.version, self.task)
+    def load_dataset(self, cache_dir: str) -> Dict[str, List[Dict[str, Any]]]:
+        data_dir: str = os.path.join(cache_dir, "data", self.version, self.task)
         if self.subtask:
             data_dir = os.path.join(data_dir, self.subtask)
 
@@ -434,8 +431,8 @@ class CLEVAScenario(Scenario):
         return dataset
 
     @staticmethod
-    def load_prompt_templates(task: str, subtask: Optional[str], version: str) -> List[Dict[str, Any]]:
-        prompt_dir: str = os.path.join(CLEVA_DATA_PATH, "data", version, task)
+    def load_prompt_templates(task: str, subtask: Optional[str], version: str, cache_dir: str) -> List[Dict[str, Any]]:
+        prompt_dir: str = os.path.join(cache_dir, "data", version, task)
         if subtask:
             prompt_dir = os.path.join(prompt_dir, subtask)
         file_path = os.path.join(prompt_dir, "prompts.json")
@@ -448,7 +445,7 @@ class CLEVAScenario(Scenario):
 
     def get_instances(self, output_path: str) -> List[Instance]:
         # Download the raw data
-        dataset = self.load_dataset()
+        dataset = self.load_dataset(output_path)
 
         # Read all the instances
         instances: List[Instance] = []
@@ -465,9 +462,9 @@ class CLEVAScenario(Scenario):
 
     @classmethod
     def get_prompt_setting(
-        cls, task: str, subtask: Optional[str], version: str, prompt_id: int
+        cls, task: str, subtask: Optional[str], version: str, prompt_id: int, output_path: str
     ) -> Tuple[Dict[str, Any], PromptSetting]:
-        prompt_templates = cls.load_prompt_templates(task, subtask, version)
+        prompt_templates = cls.load_prompt_templates(task, subtask, version, output_path)
         if prompt_id >= len(prompt_templates):
             raise ValueError(
                 f"You want to use prompt template with prompt_id {prompt_id}, but there is only"
@@ -519,10 +516,10 @@ class CLEVAScenario(Scenario):
 
     @classmethod
     def load_inference_parameters(
-        cls, task: str, subtask: Optional[str], version: str, prompt_id: int
+        cls, task: str, subtask: Optional[str], version: str, prompt_id: int, cache_dir: str
     ) -> Dict[str, Any]:
         # We use a dict instead of dataclass to store hyperparameters such that we can set different default values
-        params_dir: str = os.path.join(CLEVA_DATA_PATH, "data", version, task)
+        params_dir: str = os.path.join(cache_dir, "data", version, task)
         if subtask:
             params_dir = os.path.join(params_dir, subtask)
         file_path = os.path.join(params_dir, "infer_params.json")
@@ -932,7 +929,7 @@ class CLEVADialogueGenerationScenario(CLEVAScenario):
 
     def get_instances(self, output_path: str) -> List[Instance]:
         # Download the raw data
-        dataset = self.load_dataset()
+        dataset = self.load_dataset(output_path)
 
         # Read all the instances
         instances: List[Instance] = []

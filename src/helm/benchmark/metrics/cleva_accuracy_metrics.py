@@ -3,12 +3,13 @@ from typing import List
 import numpy as np
 
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.metrics.metric import Metric, MetricName
+from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
+from helm.benchmark.metrics.metric import MetricName
 from helm.benchmark.metrics.statistic import Stat
-from helm.common.request import Sequence
+from helm.common.request import GeneratedOutput
 
 
-class CLEVATopKAccuracyMetric(Metric):
+class CLEVATopKAccuracyMetric(EvaluateInstancesMetric):
     """Defines metrics for CLEVA conceptual generalization task.
 
     This is not a conventional accuracy@k metric but rather a special one taken from
@@ -36,14 +37,16 @@ class CLEVATopKAccuracyMetric(Metric):
                             return True
         return False
 
-    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
+    def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         per_instance_accuracy: List[bool] = []
         for request_state in request_states:  # one request state per instance
             assert request_state.result is not None
             references = request_state.instance.all_correct_references
             correct_ref_texts = [ref.output.text for ref in references if ref.output.text]
 
-            sorted_completions: List[Sequence] = sorted(request_state.result.completions, key=lambda x: -x.logprob)
+            sorted_completions: List[GeneratedOutput] = sorted(
+                request_state.result.completions, key=lambda x: -x.logprob
+            )
             sorted_completions_text: List[str] = [completion.text for completion in sorted_completions]
             correct = self.correct_or_not(sorted_completions_text, correct_ref_texts)
             per_instance_accuracy.append(correct)

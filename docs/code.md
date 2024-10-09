@@ -1,5 +1,9 @@
 # Code Structure
 
+**Warning** &mdash; The document is stale and was last modified more than ten months ago. The information below may be outdated and incorrect. Please proceed with caution!
+
+## Birds-Eye View
+
 Here's a birds-eye view of how the benchmarking process interacts with the main
 classes (see `benchmark`):
 
@@ -8,7 +12,7 @@ classes (see `benchmark`):
   an input (e.g., question) and a set of `Reference` outputs (e.g., multiple
   choice answers).
 
-- A `DataPreprocessor` takes in a `Scenario` and produces a list of `Instance`s
+- A `DataPreprocessor` takes in a `Scenario` and produces a list of `Instance`s.
   Each `Instance` is given a unique ID. The set of `Instance`s is augmented
   according to `DataAugmenterSpec`.
 
@@ -45,9 +49,9 @@ There are three types of classes:
 
 In order to implement new scenarios:
 
-1. Create a new file as a new Python scenario file in the `scenarios` folder.
-2. Within the scenario file, create a `Scenario` class, e.g. `YourScenario`.
-3. `YourScenario` should implement `get_instances`, a method that downloads the 
+1. Create a new Python file in the `scenarios` folder.
+1. Within the scenario file, create a `Scenario` class, e.g. `YourScenario`.
+1. `YourScenario` should implement `get_instances`, a method that downloads the 
    dataset files if they don't already exist and returns a list of `Instance`s. 
    Each `Instance` must have a list of (potentially one)
    `Reference` answers: a correct answer may be indicated with a `CORRECT_TAG` in 
@@ -57,48 +61,52 @@ In order to implement new scenarios:
    1. For `Scenario`s with datasets that cannot be publicly shared, place a copy of the
       dataset at path `restricted/<Name of the Scenario>` and read from that path.
       See `NewsQAScenario` and `ICEScenario` for some examples.
-4. Note that you need not enumerate every possible correct answer (nor must
+1. Note that you need not enumerate every possible correct answer (nor must
    there even necessarily be a correct answer). 
-5. Make sure to document your scenario well with a clear docstring. 
-6. In addition, specify its `name`, `description`, and `tags`.
-7. Define a function `get_specname_spec` in `run_specs.py` to retrieve a `ScenarioSpec` 
+1. Make sure to document your scenario well with a clear docstring. 
+1. In addition, specify its `name`, `description`, and `tags`.
+1. Identify the appropriate metric for your task in one of the `*_metrics.py` files.
+   If the metric you'd like to use does not exist, follow the directions in [Adding new metrics](#adding-new-metrics).
+   Many will be in `basic_metrics.py`.
+1. Define a function in `run_specs.py` annotated with `run_spec_function` to:
+   1. Construct a `ScenarioSpec` 
    for your scenario using a class name corresponding to the Python path of 
    the class (e.g. `helm.benchmark.scenarios.your_scenario.YourScenario`) and any 
    arguments which must be passed as a dictionary of `args`.
-8. Have the `get_specname_spec` function retrieve an `AdapterSpec` for your
+   1. Construct an `AdapterSpec` for your
    scenario specifying the type of language model generation which must be 
    performed for the task.
-9. Identify the appropriate metric for your task in one of the `*_metrics.py` files.
-   If the metric you'd like to use does not exist, follow the directions in [Adding new metrics](#adding-new-metrics).
-   Many will be in `basic_metrics.py`.
-10. Have a `get_metric_spec` function retrieve one or more `MetricSpec`
+   1. Construct one or more `MetricSpec`
    objects for your task, specifying the classname with the Python path of
    the object, with the same arguments as the `ScenarioSpec` constructor.
-11. Have the `get_specname_spec` function return a `RunSpec` object, with a 
+   1. Construct and return `RunSpec` object, with a 
    `name` corresponding to the scenario name and any patterns to match in 
    curly braces, a `scenario_spec`, an `adapter_spec`, `metric_specs`, 
    and `groups`. 
-12. Attempt to run your task with
-    `venv/bin/helm-run -r yourscenarioname:arg=value` where 
-    `yourscenarioname` matches the `name` specified in YourScenario
-13. Add the spec to dictionary `CANONICAL_RUN_SPEC_FUNCS` in `src/helm/benchmark/run_specs.py`.
-14. Update `src/helm/proxy/static/contamination.yaml` with models that we trained on your scenario (i.e. contaminated).
-15. Add a schema to `src/helm/benchmark/static/schema.yaml` and add the scenario to `subgroups` as needed.
+1. Attempt to run your task with
+   `venv/bin/helm-run -r yourscenarioname:arg=value` where 
+   `yourscenarioname` matches the `name` specified in YourScenario
+1. Update `src/helm/benchmark/static/contamination.yaml` with models that were trained on your scenario (i.e. contaminated).
+1. Add a schema to `src/helm/benchmark/static/schema.yaml` and add the scenario to `subgroups` as needed.
 
 ## Adding new metrics
 
-To add a new metric:
+To add a new metric, first determine if your metric is generic and likely to be widely used, or specific to your task.
 
-1. If the metric is task-specific, create a new `yourtask_metrics.py` file. 
-   Otherwise, if the metric is generic and likely to be widely used, add it
-   to `basic_metrics.py`.
-2. If you are creating a task-specific metric, create a `YourTaskMetric` 
+*  For generic metrics:
+   1. Add a method to `basic_metrics.py` which takes two arguments: the `gold` answer and the model's `pred`iction.
+   1. Add your method to the `metric_fn_mapping` lookup.
+*  For task specific metrics:
+   1. Create a new `yourtask_metrics.py` file for class `YourTaskMetric` 
    which inherits from `Metric` in `metric.py`.
-3. Define methods `__init__` and `evaluate_generation` returning a list of `Stat` objects.
-4. Each `Stat` should correspond to a distinct aggregate measurement over the generated examples. 
+   1. Define methods `__init__` and `evaluate_generation` returning a list of `Stat` objects.
+
+Your metric is responsible for producing `Stat` objects:
+
+*  Each `Stat` should correspond to a distinct aggregate measurement over the generated examples. 
    Some may have one metric (e.g. accuracy), while others may quantify multiple aspects
    (e.g. multiple distance metrics). 
-5. For each `value` generated for a `Stat`, add it to `yourstat` using `yourstat.add(value)`. 
+*  For each `value` generated for a `Stat`, add it to `yourstat` using `yourstat.add(value)`. 
    Usually, there will only be one value for each `Stat`, but multiple can be used, e.g. to show variance.
 
 ## Data augmentations
@@ -152,3 +160,11 @@ multiple perturbations and applying it onto a single instance.
 4. Add a new class `<Name of tokenizer>WindowService` in file `<Name of tokenizer>_window_service.py`.
    Follow what we did for `GPTJWindowService`.
 5. Import the new `WindowService` and map the model(s) to it in `WindowServiceFactory`.
+
+
+## HEIM (text-to-image evaluation)
+
+The overall code structure is the same as HELM's.
+
+When adding new scenarios and metrics for image generation, place the Python files under the `image_generation` package 
+(e.g., `src/helm/benchmark/scenarios/image_generation`).

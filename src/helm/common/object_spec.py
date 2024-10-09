@@ -1,6 +1,6 @@
 import importlib
 import dataclasses
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import inspect
 from typing import Any, Callable, Dict, Optional, Tuple, Hashable, Type, TypeVar
 
@@ -13,7 +13,7 @@ class ObjectSpec:
     class_name: str
 
     # Arguments used to construct the scenario
-    args: Dict[str, Any]
+    args: Dict[str, Any] = field(default_factory=dict)
 
     def __hash__(self):
         def get_arg_value(key: str) -> Any:

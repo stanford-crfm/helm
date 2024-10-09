@@ -79,7 +79,6 @@ class EmpatheticDialoguesScenario(Scenario):
             # Group rows by prompts, each group corresponds to an instance
             grouped_data_df = data_df.groupby(by=["prompt", "context"])
             for prompt_cols, prompt_df in grouped_data_df:
-
                 # Group rows by conversations, each group corresponds to a reference
                 grouped_prompt_df = prompt_df.groupby(["conv_id", "selfeval"])
                 references = []

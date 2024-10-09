@@ -2,7 +2,7 @@ import unittest
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.run_expander import IncreaseMaxTokensRunExpander
-from helm.benchmark.runner import RunSpec
+from helm.benchmark.run_spec import RunSpec
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 

@@ -2,6 +2,7 @@
 from typing import List
 import unittest
 
+from helm.common.media_object import MediaObject, MultimediaObject
 from helm.benchmark.scenarios.scenario import Input, Instance, Output, Reference
 from .data_augmenter import DataAugmenter
 from .extra_space_perturbation import ExtraSpacePerturbation
@@ -15,6 +16,7 @@ from .space_perturbation import SpacePerturbation
 from .dialect_perturbation import DialectPerturbation
 from .person_name_perturbation import PersonNamePerturbation
 from .gender_perturbation import GenderPerturbation
+from .suffix_perturbation import SuffixPerturbation
 
 
 def test_extra_space_perturbation():
@@ -30,6 +32,35 @@ def test_extra_space_perturbation():
     assert instances[1].perturbation.num_spaces == 2
     assert instances[1].input.text == "Hello  my  name  is"
     assert instances[1].references[0].output.text == "some name"
+
+
+def test_multimodal_text_perturbation():
+    data_augmenter = DataAugmenter(perturbations=[ExtraSpacePerturbation(num_spaces=3)])
+    input: Input = Input(
+        multimedia_content=MultimediaObject(
+            [
+                MediaObject(text="Hello what is", content_type="text/plain"),
+                MediaObject(text="your name", content_type="text/plain"),
+            ]
+        )
+    )
+    instance: Instance = Instance(id="id0", input=input, references=[Reference(Output(text="some name"), tags=[])])
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
+
+    assert len(instances) == 2
+
+    # Test that the first instance is unperturbed
+    assert instances[0].id == "id0"
+    assert instances[0].perturbation is None
+    media_objects = instances[0].input.multimedia_content.media_objects
+    assert media_objects[0].text == "Hello what is"
+    assert media_objects[1].text == "your name"
+
+    assert instances[1].id == "id0"
+    assert instances[1].perturbation.name == "extra_space"
+    media_objects = instances[1].input.multimedia_content.media_objects
+    assert media_objects[0].text == "Hello   what   is"
+    assert media_objects[1].text == "your   name"
 
 
 def test_misspelling_perturbation():
@@ -145,7 +176,6 @@ def test_space_perturbation():
     instance: Instance = Instance(id="id0", input=Input(text="Hello World!\nQuite a day, huh?"), references=[])
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
-    print(instances)
     assert len(instances) == 2
     assert instances[1].perturbation.name == "space"
     assert instances[1].input.text == "Hello   World!\nQuite a  day,   huh?"
@@ -162,7 +192,6 @@ def test_dialect_perturbation():
     )
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
-    print(instances)
     assert len(instances) == 2
     assert instances[1].perturbation.name == "dialect"
     assert instances[1].input.text == "I gon remember dis day to b the best day of mah life."
@@ -188,7 +217,6 @@ def test_person_name_perturbation():
     )
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
-    print(instances)
     assert len(instances) == 2
     assert instances[1].perturbation.name == "person_name"
     assert (
@@ -209,7 +237,6 @@ def test_gender_pronoun_perturbation():
     )
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
-    print(instances)
     assert len(instances) == 2
     assert instances[1].perturbation.mode == "pronouns"
     assert instances[1].input.text == "Did she mention that she was coming with her parents and their friends?"
@@ -227,11 +254,20 @@ def test_gender_term_perturbation():
     )
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
-    print(instances)
     assert len(instances) == 2
     assert instances[1].perturbation.mode == "terms"
     assert instances[1].input.text == "His granddaughters looked a lot like their mom."
     assert instances[1].references[0].output.text == "How did their mother look like?"
+
+
+def test_suffix_perturbation():
+    data_augmenter = DataAugmenter(perturbations=[SuffixPerturbation(suffix="pixel art")])
+    instance: Instance = Instance(id="id0", input=Input(text="A blue dog"), references=[])
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
+
+    assert len(instances) == 2
+    assert instances[1].perturbation.suffix == "pixel art"
+    assert instances[1].input.text == "A blue dog, pixel art"
 
 
 # TODO(#1958) Fix the logic to renable this test
@@ -247,7 +283,6 @@ def test_gender_term_perturbation_edge_word():
     )
     instances: List[Instance] = data_augmenter.generate([instance], include_original=False)
 
-    print(instances)
     assert len(instances) == 1
     assert instances[0].input.text == "mom said it is okay"
     assert instances[0].references[0].output.text == "Sure he did daughter"
@@ -266,6 +301,5 @@ def test_gender_term_perturbation_consequtive_words():
     )
     instances: List[Instance] = data_augmenter.generate([instance], include_original=False)
 
-    print(instances)
     assert len(instances) == 1
     assert instances[0].input.text == "I'm a mom mom: my daughter has a daughter."

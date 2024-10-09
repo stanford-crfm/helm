@@ -1,0 +1,444 @@
+---
+############################################################
+metrics:
+  # Infrastructure metrics:
+  - name: num_perplexity_tokens
+    display_name: '# tokens'
+    description: Average number of tokens in the predicted output (for language modeling, the input too).
+  - name: num_bytes
+    display_name: '# bytes'
+    description: Average number of bytes in the predicted output (for language modeling, the input too).
+
+  - name: num_references
+    display_name: '# ref'
+    description: Number of references.
+  - name: num_train_trials
+    display_name: '# trials'
+    description: Number of trials, where in each trial we choose an independent, random set of training instances.
+  - name: estimated_num_tokens_cost
+    display_name: 'cost'
+    description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
+  - name: num_prompt_tokens
+    display_name: '# prompt tokens'
+    description: Number of tokens in the prompt.
+  - name: num_prompt_characters
+    display_name: '# prompt chars'
+    description: Number of characters in the prompt.
+  - name: num_completion_tokens
+    display_name: '# completion tokens'
+    description: Actual number of completion tokens (over all completions).
+  - name: num_output_tokens
+    display_name: '# output tokens'
+    description: Actual number of output tokens.
+  - name: max_num_output_tokens
+    display_name: 'Max output tokens'
+    description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
+  - name: num_requests
+    display_name: '# requests'
+    description: Number of distinct API requests.
+  - name: num_instances
+    display_name: '# eval'
+    description: Number of evaluation instances.
+  - name: num_train_instances
+    display_name: '# train'
+    description: Number of training instances (e.g., in-context examples).
+  - name: prompt_truncated
+    display_name: truncated
+    description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
+  - name: finish_reason_length
+    display_name: finish b/c length
+    description: Fraction of instances where the the output was terminated because of the max tokens limit.
+  - name: finish_reason_stop
+    display_name: finish b/c stop
+    description: Fraction of instances where the the output was terminated because of the stop sequences.
+  - name: finish_reason_endoftext
+    display_name: finish b/c endoftext
+    description: Fraction of instances where the the output was terminated because the end of text token was generated.
+  - name: finish_reason_unknown
+    display_name: finish b/c unknown
+    description: Fraction of instances where the the output was terminated for unknown reasons.
+  - name: num_completions
+    display_name: '# completions'
+    description: Number of completions.
+  - name: predicted_index
+    display_name: Predicted index
+    description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
+
+  # Accuracy metrics:
+  - name: exact_match
+    display_name: Exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_exact_match
+    display_name: Quasi-exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+    lower_is_better: false
+  - name: prefix_exact_match
+    display_name: Prefix exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_prefix_exact_match
+    # TODO: should call this prefix_quasi_exact_match
+    display_name: Prefix quasi-exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
+    lower_is_better: false
+
+  - name: rouge_1
+    display_name: ROUGE-1
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 1-gram overlap.
+    lower_is_better: false
+  - name: rouge_2
+    display_name: ROUGE-2
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 2-gram overlap.
+    lower_is_better: false
+  - name: rouge_l
+    display_name: ROUGE-L
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on longest common subsequence overlap.
+    lower_is_better: false
+  - name: bleu_1
+    display_name: BLEU-1
+    description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 1-gram overlap.
+    lower_is_better: false
+  - name: bleu_4
+    display_name: BLEU-4
+    description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 4-gram overlap.
+    lower_is_better: false
+  - name: f1_set_match
+    display_name: F1 (set match)
+    short_display_name: F1
+    description: Average F1 score in terms of set overlap between the model predicted set and correct reference set.
+    lower_is_better: false
+  - name: f1_score
+    display_name: F1
+    description: Average F1 score in terms of word overlap between the model output and correct reference.
+    lower_is_better: false
+
+  # Toxicity metrics
+  - name: expected_max_toxicity
+    display_name: Average max toxicity
+    short_display_name: Avg. max toxicity
+    lower_is_better: true
+    description: Average max toxicity score across all completions (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
+  - name: max_toxicity_probability
+    display_name: max toxicity
+    lower_is_better: true
+    description: Fraction of instances where most toxic completion is above 0.5 toxicity (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
+  - name: toxic_frac
+    display_name: Toxic fraction
+    lower_is_better: true
+    description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).
+
+  # Efficiency metrics:
+  - name: training_co2_cost
+    display_name: Estimated training emissions (kg CO2)
+    short_display_name: Training emissions (kg CO2)
+    lower_is_better: true
+    description: Estimate of the CO2 emissions from training the model.
+  - name: training_energy_cost
+    display_name: Estimated training energy cost (MWh)
+    short_display_name: Training energy (MWh)
+    lower_is_better: true
+    description: Estimate of the amount of energy used to train the model.
+  - name: inference_runtime
+    display_name: Observed inference runtime (s)
+    short_display_name: Observed inference time (s)
+    lower_is_better: true
+    description: Average observed time to process a request to the model (via an API, and thus depends on particular deployment).
+  - name: inference_idealized_runtime
+    display_name: Idealized inference runtime (s)
+    short_display_name: Idealized inference time (s)
+    lower_is_better: true
+    description: Average time to process a request to the model based solely on the model architecture (using Megatron-LM).
+  - name: inference_denoised_runtime
+    display_name: Denoised inference runtime (s)
+    short_display_name: Denoised inference time (s)
+    lower_is_better: true
+    description: Average time to process a request to the model minus performance contention by using profiled runtimes from multiple trials of SyntheticEfficiencyScenario.
+  - name: batch_size
+    display_name: Batch size
+    description: For batch jobs, how many requests are in a batch.
+
+
+  # DecodingTrust Fairness Metrics
+  - name: equalized_odds_difference
+    display_name: Equalized Odds Difference
+    short_display_name: Equalized Odds
+    description: The rate at which the model refuses to answer an OoD question.
+    lower_is_better: true
+
+  - name: demographic_parity_difference
+    display_name: Demographic Parity Difference
+    short_display_name: demographic parity
+    description: The demographic parity difference measures the difference between the probability of positive predictions conditioned on sensitive attribute A = 1 and that conditioned on A = 0
+    lower_is_better: true
+
+
+  # DecodingTrust OoD Metrics
+  - name: ood_knowledge_rr
+    display_name: OOD Knowledge Refusal Rate
+    short_display_name: OoD-RR
+    description: The rate at which the model refuses to answer an OoD question.
+    lower_is_better: false
+
+  - name: ood_knowledge_macc
+    display_name: OOD Meaningful Answer Accuracy (Exclude Refusal)
+    short_display_name: OoD-MACC
+    description: MACC indicates the percentage of correct answers when the model successfully generates meaningful responses by excluding outputs that are refused to answer
+    lower_is_better: false
+
+
+  # DecodingTrust Stereotype Bias Metrics
+  - name: decodingtrust_stereotype_bias
+    display_name: DecodingTrust Bias Score
+    short_display_name: Bias Score
+    description: 1 - agreementIndex (Section 4.2 of DecodingTrust)
+    lower_is_better: false
+
+  - name: decodingtrust_stereotype_bias_rejection_rate
+    display_name: Accuracy at 10% coverage
+    short_display_name: Bias Rejection Rate
+    description: Rejection rate of stereotype prompts
+    lower_is_better: false
+
+    
+  # DecodingTrust Privacy Metrics
+  - name: decodingtrust_privacy_leakage_rate
+    display_name: Privacy Leakage Rate
+    short_display_name: Privacy Leakage Rate
+    description: TBD
+    lower_is_better: true
+
+############################################################
+perturbations: []
+
+############################################################
+metric_groups:
+  - name: accuracy
+    display_name: Accuracy
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+
+  - name: toxicity
+    display_name: Toxicity
+    metrics:
+    - name: toxic_frac
+      split: ${main_split}
+
+  - name: efficiency
+    display_name: Efficiency
+    metrics:
+    - name: inference_denoised_runtime
+      split: ${main_split}
+
+  - name: general_information
+    display_name: General information
+    metrics:
+    - name: num_instances
+      split: ${main_split}
+    - name: num_train_instances
+      split: ${main_split}
+    - name: prompt_truncated
+      split: ${main_split}
+    - name: num_prompt_tokens
+      split: ${main_split}
+    - name: num_output_tokens
+      split: ${main_split}
+    - name: num_train_trials
+      split: ${main_split}
+
+  - name: decodingtrust_fairness_metrics
+    display_name: Fairness
+    metrics:
+      - name: equalized_odds_difference
+        split: ${main_split}
+      - name: demographic_parity_difference
+        split: ${main_split}
+
+  - name: decodingtrust_ood_metrics
+    display_name: OOD Accuracy
+    metrics:
+      - name: ood_knowledge_rr
+        split: ${main_split}
+      - name: ood_knowledge_macc
+        split: ${main_split}
+
+  - name: decodingtrust_stereotype_bias_metrics
+    display_name: Stereotype Bias
+    metrics:
+      - name: decodingtrust_stereotype_bias
+        split: ${main_split}
+      - name: decodingtrust_stereotype_bias_rejection_rate
+        split: ${main_split}
+
+  - name: decodingtrust_privacy_metrics
+    display_name: Privacy
+    metrics:
+      - name: decodingtrust_privacy_leakage_rate
+        split: ${main_split}
+
+############################################################
+run_groups:
+
+  - name: decodingtrust
+    display_name: DecodingTrust
+    description: A comprehensive benchmark of the trustworthiness of large language models [(Wang et. al. 2023)](https://decodingtrust.github.io/)
+    category: Trustworthiness
+    subgroups:
+      - adv_robustness
+      - adv_demonstration
+      - ood_robustness
+      - fairness
+      - privacy
+      - machine_ethics
+      - toxicity_prompts
+      - stereotype_bias
+
+  - name: adv_robustness
+    display_name: DecodingTrust - AdvGLUE++
+    short_display_name: AdvGLUE++
+    description: Adversarial perturbations of the GLUE dataset generated against open-source LLMs including Alpaca, Vicuna, and Stable-Vicuna
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: valid
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+    todo: true
+
+  - name: adv_demonstration
+    display_name: DecodingTrust - Adversarial Demonstrations
+    short_display_name: AdvDemo
+    description: Robustness analysis of LM generations when facing adversarial demonstrations
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: valid
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: ood_robustness
+    display_name: DecodingTrust - OoD Robustness
+    short_display_name: OoD
+    description: Style perturbations of GLUE datasets (OoD styles) and out-of-scope OoD knowledge evaluations
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+      - decodingtrust_ood_metrics
+    environment:
+      main_name: quasi_exact_match
+      main_split: valid
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: fairness
+    display_name: DecodingTrust - Fairness
+    short_display_name: Fairness
+    description: Fairness analysis of LLMs
+    metric_groups:
+      - accuracy
+      - decodingtrust_fairness_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: valid
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: privacy
+    display_name: DecodingTrust - Privacy
+    short_display_name: Privacy
+    description: Evaluation of the privacy understanding and privacy preserving properties of LLMs
+    metric_groups:
+      - decodingtrust_privacy_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: machine_ethics
+    display_name: DecodingTrust - Ethics
+    short_display_name: Ethics
+    description: Evaluation of the understanding of ethical behaviors of LLMs
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: toxicity_prompts
+    display_name: DecodingTrust - Toxicity
+    short_display_name: Toxicity
+    description: Evaluation of the privacy understanding and privacy preserving properties of LLMs
+    metric_groups:
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_split: valid
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: stereotype_bias
+    display_name: DecodingTrust - Stereotype Bias
+    short_display_name: Stereotype
+    description: Manually crafted stereotype user prompts from DecodingTrust
+    metric_groups:
+      - decodingtrust_stereotype_bias_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_split: valid
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English

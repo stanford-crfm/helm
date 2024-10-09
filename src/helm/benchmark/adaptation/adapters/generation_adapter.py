@@ -39,12 +39,14 @@ class GenerationAdapter(InContextLearningAdapter):
         )
         request = Request(
             model=self.adapter_spec.model,
+            model_deployment=self.adapter_spec.model_deployment,
             prompt=prompt.text,
             num_completions=self.adapter_spec.num_outputs,
             temperature=self.adapter_spec.temperature,
             max_tokens=self.adapter_spec.max_tokens,
             stop_sequences=self.adapter_spec.stop_sequences,
             random=self.adapter_spec.random,
+            image_generation_parameters=self.adapter_spec.image_generation_parameters,
         )
         request_state = RequestState(
             instance=eval_instance,

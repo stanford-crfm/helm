@@ -1,0 +1,3011 @@
+---
+############################################################
+# For backwards compatibility with older versions of HELM.
+# TODO: Remove this after 2024-09-01.
+adapter: []
+############################################################
+metrics:
+  # Infrastructure metrics:
+  - name: num_perplexity_tokens
+    display_name: '# tokens'
+    description: Average number of tokens in the predicted output (for language modeling, the input too).
+  - name: num_bytes
+    display_name: '# bytes'
+    description: Average number of bytes in the predicted output (for language modeling, the input too).
+
+  - name: num_references
+    display_name: '# ref'
+    description: Number of references.
+  - name: num_train_trials
+    display_name: '# trials'
+    description: Number of trials, where in each trial we choose an independent, random set of training instances.
+  - name: estimated_num_tokens_cost
+    display_name: 'cost'
+    description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
+  - name: num_prompt_tokens
+    display_name: '# prompt tokens'
+    description: Number of tokens in the prompt.
+  - name: num_prompt_characters
+    display_name: '# prompt chars'
+    description: Number of characters in the prompt.
+  - name: num_completion_tokens
+    display_name: '# completion tokens'
+    description: Actual number of completion tokens (over all completions).
+  - name: num_output_tokens
+    display_name: '# output tokens'
+    description: Actual number of output tokens.
+  - name: max_num_output_tokens
+    display_name: 'Max output tokens'
+    description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
+  - name: num_requests
+    display_name: '# requests'
+    description: Number of distinct API requests.
+  - name: num_instances
+    display_name: '# eval'
+    description: Number of evaluation instances.
+  - name: num_train_instances
+    display_name: '# train'
+    description: Number of training instances (e.g., in-context examples).
+  - name: prompt_truncated
+    display_name: truncated
+    description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
+  - name: finish_reason_length
+    display_name: finish b/c length
+    description: Fraction of instances where the the output was terminated because of the max tokens limit.
+  - name: finish_reason_stop
+    display_name: finish b/c stop
+    description: Fraction of instances where the the output was terminated because of the stop sequences.
+  - name: finish_reason_endoftext
+    display_name: finish b/c endoftext
+    description: Fraction of instances where the the output was terminated because the end of text token was generated.
+  - name: finish_reason_unknown
+    display_name: finish b/c unknown
+    description: Fraction of instances where the the output was terminated for unknown reasons.
+  - name: num_completions
+    display_name: '# completions'
+    description: Number of completions.
+  - name: predicted_index
+    display_name: Predicted index
+    description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
+
+  # Accuracy metrics:
+  - name: exact_match
+    display_name: Exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_exact_match
+    display_name: Quasi-exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+    lower_is_better: false
+  - name: prefix_exact_match
+    display_name: Prefix exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_prefix_exact_match
+    # TODO: should call this prefix_quasi_exact_match
+    display_name: Prefix quasi-exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
+    lower_is_better: false
+
+  - name: exact_match@5
+    display_name: Exact match @5
+    short_display_name: EM@5
+    description: Fraction of instances where at least one predicted output among the top 5 matches a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_exact_match@5
+    display_name: Quasi-exact match @5
+    short_display_name: EM@5
+    description: Fraction of instances where at least one predicted output among the top 5 matches a correct reference up to light processing.
+    lower_is_better: false
+  - name: prefix_exact_match@5
+    display_name: Prefix exact match @5
+    short_display_name: PEM@5
+    description: Fraction of instances that the predicted output among the top 5 matches the prefix of a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_prefix_exact_match@5
+    display_name: Prefix quasi-exact match @5
+    short_display_name: PEM@5
+    description: Fraction of instances that the predicted output among the top 5 matches the prefix of a correct reference up to light processing.
+    lower_is_better: false
+
+  - name: logprob
+    display_name: Log probability
+    short_display_name: Logprob
+    description: Predicted output's average log probability (input's log prob for language modeling).
+    lower_is_better: false
+  - name: logprob_per_byte
+    display_name: Log probability / byte
+    short_display_name: Logprob/byte
+    description: Predicted output's average log probability normalized by the number of bytes.
+    lower_is_better: false
+  - name: bits_per_byte
+    display_name: Bits/byte
+    short_display_name: BPB
+    lower_is_better: true
+    description: Average number of bits per byte according to model probabilities.
+  - name: perplexity
+    display_name: Perplexity
+    short_display_name: PPL
+    lower_is_better: true
+    description: Perplexity of the output completion (effective branching factor per output token).
+  - name: rouge_1
+    display_name: ROUGE-1
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 1-gram overlap.
+    lower_is_better: false
+  - name: rouge_2
+    display_name: ROUGE-2
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 2-gram overlap.
+    lower_is_better: false
+  - name: rouge_l
+    display_name: ROUGE-L
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on longest common subsequence overlap.
+    lower_is_better: false
+  - name: bleu_1
+    display_name: BLEU-1
+    description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 1-gram overlap.
+    lower_is_better: false
+  - name: bleu_4
+    display_name: BLEU-4
+    description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 4-gram overlap.
+    lower_is_better: false
+  - name: f1_set_match
+    display_name: F1 (set match)
+    short_display_name: F1
+    description: Average F1 score in terms of set overlap between the model predicted set and correct reference set.
+    lower_is_better: false
+  - name: f1_score
+    display_name: F1
+    description: Average F1 score in terms of word overlap between the model output and correct reference.
+    lower_is_better: false
+  - name: classification_macro_f1
+    display_name: Macro-F1
+    description: Population-level macro-averaged F1 score.
+    lower_is_better: false
+  - name: classification_micro_f1
+    display_name: Micro-F1
+    description: Population-level micro-averaged F1 score.
+    lower_is_better: false
+  - name: absolute_value_difference
+    display_name: Absolute difference
+    short_display_name: Diff.
+    lower_is_better: true
+    description: Average absolute difference between the model output (converted to a number) and the correct reference.
+  - name: distance
+    display_name: Geometric distance
+    short_display_name: Dist.
+    lower_is_better: true
+    description: Average gometric distance between the model output (as a point) and the correct reference (as a curve).
+  - name: percent_valid
+    display_name: Valid fraction
+    short_display_name: Valid
+    description: Fraction of valid model outputs (as a number).
+    lower_is_better: false
+  - name: NDCG@10
+    display_name: NDCG@10
+    description: Normalized discounted cumulative gain at 10 in information retrieval.
+    lower_is_better: false
+  - name: RR@10
+    display_name: RR@10
+    description: Mean reciprocal rank at 10 in information retrieval.
+    lower_is_better: false
+  - name: NDCG@20
+    display_name: NDCG@20
+    description: Normalized discounted cumulative gain at 20 in information retrieval.
+    lower_is_better: false
+  - name: RR@20
+    display_name: RR@20
+    description: Mean reciprocal rank at 20 in information retrieval.
+    lower_is_better: false
+  - name: math_equiv
+    display_name: Equivalent
+    description: Fraction of model outputs that are mathematically equivalent to the correct reference.
+    lower_is_better: false
+  - name: math_equiv_chain_of_thought
+    display_name: Equivalent (chain of thought)
+    description: Fraction of model outputs that are mathematically equivalent to the correct reference when using chain-of-thought prompting.
+    lower_is_better: false
+  - name: exact_match_indicator
+    display_name: Exact match (final)
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly, ignoring text preceding the specified indicator (e.g., space).
+    lower_is_better: false
+  - name: final_number_exact_match
+    display_name: Exact match (final number)
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly, ignoring text preceding the specified indicator.
+    lower_is_better: false
+  - name: exact_set_match
+    display_name: Exact match (at sets)
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly as sets.
+    lower_is_better: false
+  - name: iou_set_match
+    display_name: Intersection over union (as sets)
+    short_display_name: IoU
+    description: Intersection over union in terms of set overlap between the model predicted set and correct reference set.
+    lower_is_better: false
+
+  # Summarization metrics
+  - name: summac
+    display_name: SummaC
+    description: Faithfulness scores based on the SummaC method of [Laban et al. (2022)](https://aclanthology.org/2022.tacl-1.10/).
+    lower_is_better: false
+  - name: QAFactEval
+    display_name: QAFactEval
+    description: Faithfulness scores based on the SummaC method of [Laban et al. (2022)](https://aclanthology.org/2022.tacl-1.10/).
+    lower_is_better: false
+  - name: summarization_coverage
+    display_name: Coverage
+    description: Extent to which the model-generated summaries are extractive fragments from the source document [(Grusky et al., 2018)](https://aclanthology.org/N18-1065/).
+  - name: summarization_density
+    display_name: Density
+    description: Extent to which the model-generated summaries are extractive summaries based on the source document [(Grusky et al., 2018)](https://aclanthology.org/N18-1065/).
+  - name: summarization_compression
+    display_name: Compression
+    description: Extent to which the model-generated summaries are compressed relative to the source document [(Grusky et al., 2018)](https://aclanthology.org/N18-1065/).
+  - name: BERTScore-P
+    display_name: BERTScore (P)
+    description: Average BERTScore precision [(Zhang et al., 2020)](https://openreview.net/pdf?id=SkeHuCVFDr) between model generation and reference summary.
+    lower_is_better: false
+  - name: BERTScore-R
+    display_name: BERTScore (R)
+    description: Average BERTScore recall [(Zhang et al., 2020)](https://openreview.net/pdf?id=SkeHuCVFDr) between model generation and reference summary.
+    lower_is_better: false
+  - name: BERTScore-F
+    display_name: BERTScore (F1)
+    description: Average BERTScore F1 [(Zhang et al., 2020)](https://openreview.net/pdf?id=SkeHuCVFDr) between model generation and reference summary.
+    lower_is_better: false
+  - name: HumanEval-faithfulness
+    display_name: HumanEval-faithfulness
+    description: Human evaluation score for faithfulness.
+    lower_is_better: false
+  - name: HumanEval-relevance
+    display_name: HumanEval-relevance
+    description: Human evaluation score for relevance.
+    lower_is_better: false
+  - name: HumanEval-coherence
+    display_name: HumanEval-coherence
+    description: Human evaluation score for coherence.
+    lower_is_better: false
+
+  #  Code metrics
+  - name: code_eval_acc
+    display_name: Correctness
+    short_display_name: Correctness
+    description: Fraction of instances that the model output evaluates to the correct answer.
+    lower_is_better: false
+  - name: pass
+    display_name: pass@1
+    description: Fraction of model outputs that pass the associated test cases.
+    lower_is_better: false
+  - name: test_avg
+    display_name: 'Avg. # tests passed'
+    description: Average number of tests passed by model outputs.
+    lower_is_better: false
+  - name: strict_acc
+    display_name: Strict correctness
+    short_display_name: Strict correctness
+    description: Fraction of models outputs that pass all associated test cases.
+    lower_is_better: false
+
+  # Disinformation metrics (measure diversity):
+  - name: self_bleu
+    display_name: Self-BLEU
+    description: Self-BLEU metric of [Zhu et al. (2018)](https://arxiv.org/pdf/1802.01886.pdf) as a measure of diversity in model generations.
+  - name: monte_carlo_entropy
+    display_name: Entropy (Monte Carlo)
+    short_display_name: Entropy
+    description: Monte Carlo estimate of the entropy as a measure of diversity in model generations.
+  # Disinformation wedging metrics (measure quality of disinformation):
+  - name: wedging_eval_address_intended_audience
+    display_name: Address intended audience (human)
+    short_display_name: Intended audience (human)
+    description: Human judgment of fraction of model generations that target the intended audience.
+  - name: wedging_eval_include_intended_goal
+    display_name: Include intended goal (human)
+    short_display_name: Intended goal (human)
+    description: Human judgment of fraction of model generations that support the intended goal.
+  - name: wedging_eval_style
+    display_name: Correct style (human)
+    short_display_name: Style (human)
+    description: Average human judgment of whether model generations are of the specified style.
+  - name: wedging_eval_divisiveness
+    display_name: Divisiveness (human)
+    description: Average human judgment of the extent to which model generations are divisive.
+  - name: wedging_eval_toxicity
+    display_name: Toxicity (human)
+    description: Average human judgment of the extent to which model generations are toxicity.
+  # Disinformation reiteration metrics (measure quality of disinformation):
+  - name: reiteration_eval_support_thesis
+    display_name: Support thesis (human)
+    description: Average human judgment of the extent to which model generations support the stated thesis.
+  - name: reiteration_eval_style
+    display_name: Style (human)
+    description: Average human judgment of whether model generations are of the specified style.
+
+  # Copyright metrics (measure copying/overlap):
+  - name: longest_common_prefix_length
+    display_name: Longest common prefix length
+    short_display_name: LCS
+    lower_is_better: true
+    description: Average length of longest common prefix between model generation and reference.
+  - name: edit_distance
+    display_name: Edit distance (Levenshtein)
+    short_display_name: Edit dist.
+    description: Average Levenshtein edit distance between model generation and reference.
+    lower_is_better: false
+  - name: edit_similarity
+    display_name: Edit similarity (Levenshtein)
+    short_display_name: Edit sim.
+    lower_is_better: true
+    description: Average Levenshtein edit similarity (1 - distance normalized by length of longer sequence) between model generation and reference.
+
+  # Bias metrics:
+  - name: bias_metric:mode=associations,demographic_category=race,target_category=profession
+    display_name: Stereotypical associations (race, profession)
+    short_display_name: Stereotypes (race)
+    lower_is_better: true
+    description: Measures uneven association of racial groups (Asian, Hispanic, White) with target professions. This measurement is based on cooccurence statistics between the racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics) and the target professions (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+  - name: bias_metric:mode=associations,demographic_category=race,target_category=adjective
+    display_name: Stereotypical associations (race, adjectives)
+    short_display_name: Stereotypes (race)
+    lower_is_better: true
+    description: Measures uneven association of racial groups (Asian, Hispanic, White) with target adjectives. This measurement is based on cooccurence statistics between the racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics) and the target adjectives (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+
+  - name: bias_metric:mode=associations,demographic_category=gender,target_category=profession
+    display_name: Stereotypical associations (gender, profession)
+    short_display_name: Stereotypes (gender)
+    lower_is_better: true
+    description: Measures uneven association of gender groups (male, female) with target professions. This measurement is based on cooccurence statistics between the gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)) and the target professions (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+  - name: bias_metric:mode=associations,demographic_category=gender,target_category=adjective
+    display_name: Stereotypical associations (gender, adjectives)
+    short_display_name: Stereotypes (gender)
+    lower_is_better: true
+    description: Measures uneven association of gender groups (male, female) with target adjectives. This measurement is based on cooccurence statistics between the gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)) and the target adjectives (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+
+  - name: bias_metric:mode=representation,demographic_category=race
+    display_name: Demographic representation (race)
+    short_display_name: Representation (race)
+    lower_is_better: true
+    description: Measures uneven representation of racial groups (Asian, Hispanic, White). This measurement is based on disparities in the frequency statistics across racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics).
+  - name: bias_metric:mode=representation,demographic_category=gender
+    display_name: Demographic representation (gender)
+    short_display_name: Representation (gender)
+    lower_is_better: true
+    description: Measures uneven representation of gender groups (male, female). This measurement is based on disparities in the frequency statistics across gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+
+  - name: bbq_metric_ambiguous_bias
+    display_name: BBQ (ambiguous)
+    lower_is_better: true
+    description: Metric of [Parrish et al. (2022)](https://aclanthology.org/2022.findings-acl.165/) for BBQ on ambiguous examples.
+  - name: bbq_metric_unambiguous_bias
+    display_name: BBQ (unambiguous)
+    lower_is_better: true
+    description: Metric of [Parrish et al. (2022)](https://aclanthology.org/2022.findings-acl.165/) for BBQ on unambiguous examples.
+
+  # Toxicity metrics
+  - name: expected_max_toxicity
+    display_name: Average max toxicity
+    short_display_name: Avg. max toxicity
+    lower_is_better: true
+    description: Average max toxicity score across all completions (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
+  - name: max_toxicity_probability
+    display_name: max toxicity
+    lower_is_better: true
+    description: Fraction of instances where most toxic completion is above 0.5 toxicity (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
+  - name: toxic_frac
+    display_name: Toxic fraction
+    lower_is_better: true
+    description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).
+
+  # Efficiency metrics:
+  - name: training_co2_cost
+    display_name: Estimated training emissions (kg CO2)
+    short_display_name: Training emissions (kg CO2)
+    lower_is_better: true
+    description: Estimate of the CO2 emissions from training the model.
+  - name: training_energy_cost
+    display_name: Estimated training energy cost (MWh)
+    short_display_name: Training energy (MWh)
+    lower_is_better: true
+    description: Estimate of the amount of energy used to train the model.
+  - name: inference_runtime
+    display_name: Observed inference runtime (s)
+    short_display_name: Observed inference time (s)
+    lower_is_better: true
+    description: Average observed time to process a request to the model (via an API, and thus depends on particular deployment).
+  - name: inference_idealized_runtime
+    display_name: Idealized inference runtime (s)
+    short_display_name: Idealized inference time (s)
+    lower_is_better: true
+    description: Average time to process a request to the model based solely on the model architecture (using Megatron-LM).
+  - name: inference_denoised_runtime
+    display_name: Denoised inference runtime (s)
+    short_display_name: Denoised inference time (s)
+    lower_is_better: true
+    description: Average time to process a request to the model minus performance contention by using profiled runtimes from multiple trials of SyntheticEfficiencyScenario.
+  - name: batch_size
+    display_name: Batch size
+    description: For batch jobs, how many requests are in a batch.
+
+  # Calibration metrics:
+  - name: ece_1_bin
+    display_name: 1-bin expected calibration error
+    short_display_name: ECE (1-bin)
+    lower_is_better: true
+    description: The (absolute value) difference between the model's average confidence and accuracy (only computed for classification tasks).
+  - name: max_prob
+    display_name: Max prob
+    description: Model's average confidence in its prediction (only computed for classification tasks)
+    lower_is_better: false
+  - name: ece_10_bin
+    display_name: 10-bin expected calibration error
+    short_display_name: ECE (10-bin)
+    lower_is_better: true
+    description: The average difference between the model's confidence and accuracy, averaged across 10 bins where each bin contains an equal number of points (only computed for classification tasks). Warning - not reliable for small datasets (e.g., with < 300 examples) because each bin will have very few examples.
+  - name: platt_ece_1_bin
+    display_name: 1-bin expected calibration error (after Platt scaling)
+    short_display_name: Platt-scaled ECE (1-bin)
+    lower_is_better: true
+    description: 1-bin ECE computed after applying Platt scaling to recalibrate the model's predicted probabilities.
+  - name: platt_ece_10_bin
+    display_name: 10-bin Expected Calibration Error (after Platt scaling)
+    short_display_name: Platt-scaled ECE (10-bin)
+    lower_is_better: true
+    description: 10-bin ECE computed after applying Platt scaling to recalibrate the model's predicted probabilities.
+  - name: platt_coef
+    display_name: Platt Scaling Coefficient
+    short_display_name: Platt Coef
+    description: Coefficient of the Platt scaling classifier (can compare this across tasks).
+    lower_is_better: false
+  - name: platt_intercept
+    display_name: Platt Scaling Intercept
+    short_display_name: Platt Intercept
+    description: Intercept of the Platt scaling classifier (can compare this across tasks).
+    lower_is_better: false
+  - name: selective_cov_acc_area
+    display_name: Selective coverage-accuracy area
+    short_display_name: Selective Acc
+    description: The area under the coverage-accuracy curve, a standard selective classification metric (only computed for classification tasks).
+    lower_is_better: false
+  - name: selective_acc@10
+    display_name: Accuracy at 10% coverage
+    short_display_name: Acc@10%
+    description: The accuracy for the 10% of predictions that the model is most confident on (only computed for classification tasks).
+    lower_is_better: false
+
+  # CLEVA (Chinese) metrics:
+  # Accuracy metrics (Chinese)
+  - name: chinese_ibleu
+    display_name: Chinese iBLEU
+    short_display_name: iBLEU (Chinese)
+    description: A special BLEU score [(Sun and Zhou, 2008)](https://aclanthology.org/P12-2008.pdf) that balances the lexical similarity between references and hypotheses as well as the lexical diversity between raw inputs and hypotheses.
+    lower_is_better: false
+  - name: cleva_top1_accuracy
+    display_name: Chinese Top-1 Accuracy
+    short_display_name: Acc@Top-1 (Chinese)
+    description: A special accuracy [(Patel and Pavlick, 2022)](https://openreview.net/pdf?id=gJcEM8sxHK) that gives perfect precision as long as a substring of the answer appears in the most confident model prediction.
+    lower_is_better: false
+  - name: cleva_machine_translation_bleu
+    display_name: BLEU
+    short_display_name: BLEU
+    description: BLEU score based on [Post, (2018)](https://aclanthology.org/W18-6319/).
+    lower_is_better: false
+  - name: chinese_rouge_2
+    display_name: Chinese ROUGE-2 score
+    short_display_name: ROUGE-2 (Chinese)
+    description: ROUGE-2 score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on a Chinese tokenizer that segments Chinese strings by character.
+    lower_is_better: false
+  - name: chinese_bleu_1
+    display_name: Chinese BLEU-1 score
+    short_display_name: BLEU-1 (Chinese)
+    description: BLEU-1 score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on a Chinese tokenizer that segments Chinese strings by character.
+    lower_is_better: false
+  - name: cleva_math_result_match
+    display_name: CLEVA Math Exact Match
+    short_display_name: EM (Math)
+    description: Exact match that cares only the last math expression (numbers and fractions) in the model's prediction.
+    lower_is_better: false
+  # CLEVA Chinese bias, copyright and toxicity metrics share the same name as the original HELM metrics
+
+
+  # DecodingTrust Fairness Metrics
+  - name: equalized_odds_difference
+    display_name: Equalized Odds Difference
+    short_display_name: Equalized Odds
+    description: The rate at which the model refuses to answer an OoD question.
+    lower_is_better: true
+
+  - name: demographic_parity_difference
+    display_name: Demographic Parity Difference
+    short_display_name: demographic parity
+    description: The demographic parity difference measures the difference between the probability of positive predictions conditioned on sensitive attribute A = 1 and that conditioned on A = 0
+    lower_is_better: true
+
+
+  # DecodingTrust OoD Metrics
+  - name: ood_knowledge_rr
+    display_name: OOD Knowledge Refusal Rate
+    short_display_name: OoD-RR
+    description: The rate at which the model refuses to answer an OoD question.
+    lower_is_better: false
+
+  - name: ood_knowledge_macc
+    display_name: OOD Meaningful Answer Accuracy (Exclude Refusal)
+    short_display_name: OoD-MACC
+    description: MACC indicates the percentage of correct answers when the model successfully generates meaningful responses by excluding outputs that are refused to answer
+    lower_is_better: false
+
+
+  # DecodingTrust Stereotype Bias Metrics
+
+  - name: decodingtrust_stereotype_bias
+    display_name: DecodingTrust Bias Score
+    short_display_name: Bias Score
+    description: 1 - agreementIndex (Section 4.2 of DecodingTrust)
+    lower_is_better: false
+
+  - name: decodingtrust_stereotype_bias_rejection_rate
+    display_name: Accuracy at 10% coverage
+    short_display_name: Bias Rejection Rate
+    description: Rejection rate of stereotype prompts
+    lower_is_better: false
+
+
+############################################################
+perturbations:
+  - name: robustness
+    display_name: Robustness
+    description: Computes worst case over different robustness perturbations (misspellings, formatting, contrast sets).
+  - name: fairness
+    display_name: Fairness
+    description: Computes worst case over different fairness perturbations (changing dialect, race of names, gender).
+  - name: typos
+    display_name: Typos
+    description: >
+      Randomly adds typos to each token in the input with probability 0.05 and computes the per-instance worst-case
+      performance between perturbed and unperturbed versions.
+  - name: synonym
+    display_name: Synonyms
+    description: >
+      Randomly substitutes words in the input with WordNet synonyms with probability 0.5 and computes the per-instance
+      worst-case performance between perturbed and unperturbed versions.
+  - name: dialect
+    display_name: SAE -> AAE
+    short_display_name: Dialect
+    description: >
+      Deterministically substitutes SAE words in input with AAE counterparts using validated dictionary of [Ziems et al. (2022)](https://aclanthology.org/2022.acl-long.258/) and computes the per-instance worst-case performance between perturbed and unperturbed versions.
+  - name: race
+    display_name: First names by race (White -> Black)
+    short_display_name: Race
+    description: >
+      Deterministically substitutes White first names with Black first names sampled from the lists of [Caliskan et al. (2017)](https://www.science.org/doi/10.1126/science.aal4230) and computes the per-instance worst-case performance between perturbed and unperturbed versions.
+  - name: gender
+    display_name: Pronouns by gender (Male -> Female)
+    short_display_name: Gender
+    description: >
+      Deterministically substitutes male pronouns with female pronouns and computes the per-instance worst-case
+      performance between perturbed and unperturbed versions.
+
+############################################################
+metric_groups:
+  - name: accuracy
+    display_name: Accuracy
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+
+  - name: calibration
+    display_name: Calibration
+    metrics:
+      - name: ece_10_bin
+        split: ${main_split}
+
+  - name: calibration_detailed
+    display_name: Calibration (Detailed)
+    description: Measures how calibrated the model is (how meaningful its uncertainty estimates are).
+    metrics:
+      - name: max_prob
+        split: ${main_split}
+      - name: ece_1_bin
+        split: ${main_split}
+      - name: ece_10_bin
+        split: ${main_split}
+      - name: selective_cov_acc_area
+        split: ${main_split}
+      - name: selective_acc@10
+        split: ${main_split}
+      - name: platt_ece_1_bin
+        split: ${main_split}
+      - name: platt_ece_10_bin
+        split: ${main_split}
+      - name: platt_coef
+        split: ${main_split}
+      - name: platt_intercept
+        split: ${main_split}
+
+  - name: robustness
+    display_name: Robustness
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+        perturbation_name: robustness
+
+  # TODO: Add other robustness perturbations
+  - name: robustness_detailed
+    display_name: Robustness (Detailed)
+    description: Measures how robust the model is to invariances.
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+        perturbation_name: typos
+      - name: ${main_name}
+        split: ${main_split}
+        perturbation_name: synonyms
+
+  - name: fairness
+    display_name: Fairness
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+        perturbation_name: fairness
+
+  # TODO: Add other fairness perturbations
+  - name: fairness_detailed
+    display_name: Fairness (Detailed)
+    description: Measures how fair the model is.
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+        perturbation_name: dialect
+      - name: ${main_name}
+        split: ${main_split}
+        perturbation_name: race
+      - name: ${main_name}
+        split: ${main_split}
+        perturbation_name: gender
+
+  - name: bias
+    display_name: Bias
+    metrics:
+    - name: bias_metric:mode=associations,demographic_category=race,target_category=profession
+      split: ${main_split}
+    - name: bias_metric:mode=associations,demographic_category=gender,target_category=profession
+      split: ${main_split}
+    - name: bias_metric:mode=representation,demographic_category=race
+      split: ${main_split}
+    - name: bias_metric:mode=representation,demographic_category=gender
+      split: ${main_split}
+
+  - name: toxicity
+    display_name: Toxicity
+    metrics:
+    - name: toxic_frac
+      split: ${main_split}
+
+  - name: efficiency
+    display_name: Efficiency
+    metrics:
+    - name: inference_denoised_runtime
+      split: ${main_split}
+
+  - name: efficiency_detailed
+    display_name: Efficiency (Detailed)
+    description: The efficiency of the model across both training and inference.
+    metrics:
+      - name: inference_runtime
+        split: ${main_split}
+      - name: inference_idealized_runtime
+        split: ${main_split}
+      - name: inference_denoised_runtime
+        split: ${main_split}
+      - name: training_co2_cost
+        split: ${main_split}
+      - name: training_energy_cost
+        split: ${main_split}
+
+  - name: general_information
+    display_name: General information
+    metrics:
+    - name: num_instances
+      split: ${main_split}
+    - name: num_train_instances
+      split: ${main_split}
+    - name: prompt_truncated
+      split: ${main_split}
+    - name: num_prompt_tokens
+      split: ${main_split}
+    - name: num_output_tokens
+      split: ${main_split}
+    - name: num_train_trials
+      split: ${main_split}
+
+  # Special metrics for scenarios with more than 1 main metric
+  - name: summarization_metrics
+    display_name: Summarization metrics
+    metrics:
+      - name: summac
+        split: ${main_split}
+      - name: QAFactEval
+        split: ${main_split}
+      - name: BERTScore-F
+        split: ${main_split}
+      - name: summarization_coverage
+        split: ${main_split}
+      - name: summarization_density
+        split: ${main_split}
+      - name: summarization_compression
+        split: ${main_split}
+      - name: HumanEval-faithfulness
+        split: ${main_split}
+      - name: HumanEval-relevance
+        split: ${main_split}
+      - name: HumanEval-coherence
+        split: ${main_split}
+
+  - name: apps_metrics
+    display_name: APPS metrics
+    description: Metrics used for the APPS code generation benchmark.
+    metrics:
+      - name: test_avg
+        split: ${main_split}
+      - name: strict_acc
+        split: ${main_split}
+
+  - name: bbq_metrics
+    display_name: BBQ metrics
+    description: Metrics used for the BBQ bias benchmark.
+    metrics:
+      - name: bbq_metric_ambiguous_bias
+        split: ${main_split}
+      - name: bbq_metric_unambiguous_bias
+        split: ${main_split}
+
+  - name: copyright_metrics
+    display_name: Copyright metrics
+    metrics:
+      - name: longest_common_prefix_length
+        split: ${main_split}
+      - name: edit_distance
+        split: ${main_split}
+      - name: edit_similarity
+        split: ${main_split}
+
+  - name: disinformation_metrics
+    display_name: Disinformation metrics
+    metrics:
+      - name: self_bleu
+        split: ${main_split}
+      - name: monte_carlo_entropy
+        split: ${main_split}
+
+  - name: classification_metrics
+    display_name: Classification metrics
+    metrics:
+      - name: classification_macro_f1
+        split: ${main_split}
+      - name: classification_micro_f1
+        split: ${main_split}
+
+  - name: cleva_paraphrase_generation_metrics
+    display_name: CLEVA (Chinese) paraphrase generation metrics
+    metrics:
+      - name: chinese_ibleu
+        split: ${main_split}
+
+  - name: cleva_conceptual_generalization_metrics
+    display_name: CLEVA (Chinese) conceptual generalization metrics
+    metrics:
+      - name: cleva_top1_accuracy
+        split: ${main_split}
+
+  - name: cleva_translation_metrics
+    display_name: CLEVA (Chinese) translation metrics
+    metrics:
+      - name: bleu
+        split: ${main_split}
+
+  - name: cleva_summarization_metrics
+    display_name: CLEVA (Chinese) summarization metrics
+    metrics:
+      - name: chinese_rouge_2
+        split: ${main_split}
+
+  - name: cleva_pinyin_transliteration_metrics
+    display_name: CLEVA (Chinese) pinyin metrics
+    metrics:
+      - name: chinese_bleu_1
+        split: ${main_split}
+
+  - name: cleva_mathematical_reasoning_metrics
+    display_name: CLEVA (Chinese) mathematical reasoning metrics
+    metrics:
+      - name: cleva_math_result_match
+        split: ${main_split}
+
+  - name: cleva_dialogue_generation_metrics
+    display_name: CLEVA (Chinese) dialogue generation metrics
+    metrics:
+      - name: chinese_bleu_1
+        split: ${main_split}
+
+  - name: cleva_data_to_text_generation_metrics
+    display_name: CLEVA (Chinese) dialogue generation metrics
+    metrics:
+      - name: chinese_bleu_1
+        split: ${main_split}
+
+  - name: decodingtrust_fairness_metrics
+    display_name: DecodingTrust Fairness
+    metrics:
+      - name: equalized_odds_difference
+        split: ${main_split}
+      - name: demographic_parity_difference
+        split: ${main_split}
+
+  - name: decodingtrust_ood_metrics
+    display_name: DecodingTrust OOD Accuracy
+    metrics:
+      - name: ood_knowledge_rr
+        split: ${main_split}
+      - name: ood_knowledge_macc
+        split: ${main_split}
+
+  - name: decodingtrust_stereotype_bias_metrics
+    display_name: DecodingTrust Stereotype Bias
+    metrics:
+      - name: decodingtrust_stereotype_bias
+        split: ${main_split}
+      - name: decodingtrust_stereotype_bias_rejection_rate
+        split: ${main_split}
+
+
+############################################################
+run_groups:
+## Top-level
+  - name: core_scenarios
+    display_name: Core scenarios
+    description: The scenarios where we evaluate all the models.
+    # TODO: Could category just be supergroup everywhere?
+    category: All scenarios
+    subgroups:
+      - question_answering
+      - information_retrieval
+      - summarization
+      - sentiment_analysis
+      - toxicity_detection
+      - miscellaneous_text_classification
+
+  - name: targeted_evaluations
+    display_name: Targeted evaluations
+    description: Targeted evaluation of specific skills (e.g., knowledge, reasoning) and risks (e.g., disinformation, memorization/copyright).
+    category: All scenarios
+    subgroups:
+      - language
+      - knowledge
+      - reasoning
+      - harms
+      - efficiency
+
+## Core scenarios
+  - name: question_answering
+    display_name: Question answering
+    description: In question answering, given a question and (optionally, in open-book settings) a passage, the goal is to produce the answer.
+      QA is a general format that captures a wide range of tasks involving varying levels of world and commonsense knowledge and reasoning abilities.
+    category: Core scenarios
+    subgroups:
+      - mmlu
+      - boolq
+      - narrative_qa
+      - natural_qa_closedbook
+      - natural_qa_openbook_longans
+      - quac
+      - hellaswag
+      - openbookqa
+      - truthful_qa
+
+  - name: information_retrieval
+    display_name: Information retrieval
+    description: In information retrieval, given a query and a set of candidate documents, the goal is to produce a ranking of the documents.
+    category: Core scenarios
+    subgroups:
+      - msmarco_regular
+      - msmarco_trec
+
+  - name: summarization
+    display_name: Summarization
+    description: In text summarization, given a piece of text (paragraph or document), the goal is to produce a much shorter summary.
+    category: Core scenarios
+    subgroups:
+      - summarization_cnndm
+      - summarization_xsum
+
+  - name: sentiment_analysis
+    display_name: Sentiment analysis
+    description: In sentiment classification, given a text (e.g., movie review), the goal is to predict the sentiment (positive or negative).
+    category: Core scenarios
+    subgroups:
+      - imdb
+
+  - name: toxicity_detection
+    display_name: Toxicity detection
+    description: In toxicity detection, given a text, the goal is to predict whether the text has toxic content.
+    category: Core scenarios
+    subgroups:
+      - civil_comments
+
+  - name: miscellaneous_text_classification
+    display_name: Text classification
+    description: Text classification is a general format that aims to classify text into a set of categories. This includes a wide range of classification tasks where the input is text.
+    category: Core scenarios
+    subgroups:
+      - raft
+
+  - name: aspirational
+    display_name: Aspirational scenarios
+    description: Scenarios that we should support.
+    category: Core scenarios
+    subgroups:
+      - data_to_text_generation
+      - fact_verification
+      - copywriting
+      - story_generation
+      - biomedical_scenarios
+      - clinical_scenarios
+      - financial_scenarios
+      - customer_service_scenarios
+      - educational_scenarios
+      - very_recent_scenarios
+      - historical_scenarios
+      - not_native_English_speaker
+      - non_US_demographics
+      - user_facing_tasks_english_dialects
+
+  - name: language
+    display_name: Language
+    description: Targeted evaluation of linguistic capabilities.
+    category: Targeted evaluations
+    subgroups:
+      - the_pile
+      - twitter_aae
+      - ice
+      - blimp
+
+  - name: knowledge
+    display_name: Knowledge
+    description: Targeted evaluation of knowledge (e.g. factual, cultural, commonsense).
+    category: Targeted evaluations
+    subgroups:
+      - natural_qa_closedbook
+      - hellaswag
+      - openbookqa
+      - truthful_qa
+      - mmlu
+      - wikifact
+
+  - name: reasoning
+    display_name: Reasoning
+    description: Targeted evaluation of reasoning capabilities (e.g. mathematical, hierarchical).
+    category: Targeted evaluations
+    subgroups:
+      - synthetic_reasoning
+      - synthetic_reasoning_natural
+      - babi_qa
+      - dyck_language
+      - gsm
+      - math_regular
+      - math_chain_of_thought
+      - code_apps
+      - code_humaneval
+      - lsat_qa
+      - legal_support
+      - entity_data_imputation
+      - entity_matching
+
+  - name: harms
+    display_name: Harms
+    description: Targeted evaluation of social harms (e.g., copyright, disinformation, social bias, toxicity).
+    category: Targeted evaluations
+    subgroups:
+      - copyright_text
+      - copyright_code
+      - disinformation_reiteration
+      - disinformation_wedging
+      - bbq
+      - bold
+      - real_toxicity_prompts
+
+  - name: efficiency
+    display_name: Efficiency
+    description: Targeted evaluation of training and inference efficiency.
+    category: Targeted evaluations
+    subgroups:
+      - synthetic_efficiency
+    adapter_keys_shown:
+      - model
+      - model_deployment
+      - max_tokens
+
+  - name: calibration
+    display_name: Calibration
+    description: Extended calibration metrics.
+    category: Targeted evaluations
+    subgroups:
+      - mmlu
+      - imdb
+      - raft
+      - civil_comments
+    metric_groups:
+      - calibration_detailed
+      - accuracy
+    environment:  # need to specify an environment for metric placeholders ("none" won't match anything)
+      main_name: none
+      main_split: none
+
+  - name: decodingtrust
+    display_name: DecodingTrust
+    description: A comprehensive benchmark of the trustworthiness of large language models [(Wang et. al. 2023)](https://decodingtrust.github.io/)
+    category: Core scenarios
+    subgroups:
+      - decodingtrust_adv_robustness
+      - decodingtrust_adv_demonstration
+      - decodingtrust_ood_robustness
+      - decodingtrust_fairness
+      - decodingtrust_privacy
+      - decodingtrust_machine_ethics
+      - decodingtrust_toxicity_prompts
+      - decodingtrust_stereotype_bias
+
+### Ablations
+  - name: ablation_in_context
+    display_name: Vary number of in-context examples
+    description: Vary the number of in-context training examples.
+    category: Targeted evaluations
+    visibility: this_group_only
+    subgroups:
+      - natural_qa_openbook_longans
+      - summarization_cnndm
+      - imdb
+      - civil_comments
+    adapter_keys_shown:
+      - model
+      - model_deployment
+      - max_train_instances
+    subgroup_metric_groups_hidden:
+      - robustness
+      - fairness
+
+  - name: ablation_multiple_choice
+    display_name: Vary multiple-choice strategy
+    description: Vary the adapation strategy for multiple-choice questions.
+    category: Targeted evaluations
+    visibility: this_group_only
+    subgroups:
+      - hellaswag
+      - openbookqa
+      - truthful_qa
+      - mmlu
+      - blimp
+      - legal_support
+      - lsat_qa
+      - bbq
+    adapter_keys_shown:
+      - model
+      - model_deployment
+      - method
+
+  - name: ablation_prompts
+    display_name: Vary prompting
+    description: Vary the instructions and labels for input/output.
+    category: Targeted evaluations
+    visibility: this_group_only
+    subgroups:
+      - natural_qa_openbook_longans
+      - summarization_cnndm
+      - imdb
+      - civil_comments
+    adapter_keys_shown:
+      - model
+      - model_deployment
+      - instructions
+      - input_prefix
+      - input_suffix
+      - output_prefix
+      - output_suffix
+
+  - name: robustness_contrast_sets
+    display_name: Robustness to contrast sets
+    description: Evaluating equivariance to semantics-altering perturbations
+    category: Targeted evaluations
+    subgroup_display_mode: by_group
+    visibility: this_group_only
+    subgroups:
+      - imdb
+      - boolq
+
+  - name: robustness_individual
+    display_name: Robustness to single types of perturbations
+    description: Evaluating robsustness to a single perturbation at a time (e.g., typos, synonyms)
+    category: Targeted evaluations
+    visibility: this_group_only
+
+### Chinese
+  - name: chinese_cleva
+    display_name: CLEVA (Chinese) scenarios
+    description: Scenarios for evaluating Chinese language models
+    category: Targeted evaluations
+    subgroups:
+      - cleva_bias
+      - cleva_classical_chinese_understanding
+      - cleva_closed_book_question_answering
+      - cleva_code_synthesis
+      - cleva_commonsense_reasoning
+      - cleva_conceptual_generalization
+      - cleva_copyright
+      - cleva_coreference_resolution
+      - cleva_cultural_knowledge
+      - cleva_data_to_text_generation
+      - cleva_deductive_reasoning
+      - cleva_dialogue_generation
+      - cleva_fact_checking
+      - cleva_inductive_reasoning
+      - cleva_instruction_following
+      - cleva_intent_understanding
+      - cleva_language_modeling
+      - cleva_mathematical_calculation
+      - cleva_mathematical_reasoning
+      - cleva_opinion_mining
+      - cleva_paraphrase_generation
+      - cleva_paraphrase_identification
+      - cleva_pinyin_transliteration
+      - cleva_reading_comprehension
+      - cleva_reasoning_primitive
+      - cleva_sentiment_analysis
+      - cleva_subject_knowledge
+      - cleva_summarization
+      - cleva_text_classification
+      - cleva_toxicity_detection
+      - cleva_translation
+
+### Scenarios (the actual scenarios)
+
+# Question answering scenarios
+  - name: boolq
+    display_name: BoolQ
+    description: The BoolQ benchmark for binary (yes/no) question answering [(Clark et al., 2019)](https://aclanthology.org/N19-1300/).
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: valid
+    taxonomy:
+      task: question answering
+      what: passages from Wikipedia, questions from search queries
+      who: web users
+      when: 2010s
+      language: English
+
+  - name: narrative_qa
+    display_name: NarrativeQA
+    description: The NarrativeQA benchmark for reading comprehension over narratives [(Kočiský et al., 2017)](https://aclanthology.org/Q18-1023/).
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: passages are books and movie scripts, questions are unknown
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: natural_qa_closedbook
+    display_name: NaturalQuestions (closed-book)
+    description: The NaturalQuestions [(Kwiatkowski et al., 2019)](https://aclanthology.org/Q19-1026/) benchmark for question answering based on naturally-occurring queries through Google Search. The input does not include the Wikipedia page with the answer.
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: valid
+    taxonomy:
+      task: question answering
+      what: passages from Wikipedia, questions from search queries
+      who: web users
+      when: 2010s
+      language: English
+
+  - name: natural_qa_openbook_longans
+    display_name: NaturalQuestions (open-book)
+    description: The NaturalQuestions [(Kwiatkowski et al., 2019)](https://aclanthology.org/Q19-1026/) benchmark for question answering based on naturally-occurring queries through Google Search. The input includes the Wikipedia page with the answer.
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: valid
+    taxonomy:
+      task: question answering
+      what: passages from Wikipedia, questions from search queries
+      who: web users
+      when: 2010s
+      language: English
+
+  - name: quac
+    display_name: QuAC (Question Answering in Context)
+    short_display_name: QuAC
+    description: The QuAC benchmark for question answering in the context of dialogues [(Choi et al., 2018)](https://aclanthology.org/D18-1241/).
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: valid
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: hellaswag
+    display_name: HellaSwag
+    description: The HellaSwag benchmark for commonsense reasoning in question answering [(Zellers et al., 2019)](https://aclanthology.org/P19-1472/).
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: question answering
+      what: commonsense reasoning
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: openbookqa
+    display_name: OpenbookQA
+    description: The OpenbookQA benchmark for commonsense-intensive open book question answering [(Mihaylov et al., 2018)](https://aclanthology.org/D18-1260/).
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: truthful_qa
+    display_name: TruthfulQA
+    description: The TruthfulQA benchmarking for measuring model truthfulness and commonsense knowledge in question answering [(Lin et al., 2022)](https://aclanthology.org/2022.acl-long.229/).
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: mmlu
+    display_name: MMLU (Massive Multitask Language Understanding)
+    short_display_name: MMLU
+    description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intensive question answering across 57 domains [(Hendrycks et al., 2021)](https://openreview.net/forum?id=d7KBjmI3GmQ).
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+# Information retrieval scenarios
+  - name: msmarco_regular
+    display_name: MS MARCO (regular track)
+    short_display_name: MS MARCO (regular)
+    description: The MS MARCO benchmark's regular track for passage retrieval in information retrieval [(https://microsoft.github.io/msmarco/)](https://microsoft.github.io/msmarco/).
+    metric_groups:
+      - accuracy
+      - robustness
+      - fairness
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: RR@10
+      main_split: valid
+    taxonomy:
+      task: information retrieval
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: msmarco_trec
+    display_name: MS MARCO (TREC track)
+    short_display_name: MS MARCO (TREC)
+    description: The MS MARCO benchmark's deep learning TREC track for passage retrieval in information retrieval [(https://trec.nist.gov)](https://microsoft.github.io/msmarco/).
+    metric_groups:
+      - accuracy
+      - robustness
+      - fairness
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: NDCG@10
+      main_split: valid
+    taxonomy:
+      task: information retrieval
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+# Summarization scenarios
+  - name: summarization_cnndm
+    display_name: CNN/DailyMail
+    description: The CNN/DailyMail benchmark for text summarization ([Hermann et al., 2015](https://papers.nips.cc/paper/2015/hash/afdec7005cc9f14302cd0474fd0f3c96-Abstract.html); [Nallapati et al.,2016](https://aclanthology.org/K16-1028/)).
+    metric_groups:
+      - accuracy
+      - summarization_metrics
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: rouge_2
+      main_split: test
+    taxonomy:
+      task: summarization
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: summarization_xsum
+    display_name: XSUM
+    description: The XSUM benchmark for text summarization of BBC news articles [(Narayan et al., 2018)](https://aclanthology.org/D18-1206/).
+    metric_groups:
+      - accuracy
+      - summarization_metrics
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: rouge_2
+      main_split: test
+    taxonomy:
+      task: summarization
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+# Sentiment analysis scenarios
+  - name: imdb
+    display_name: IMDB
+    description: The IMDB benchmark for sentiment analysis in movie review [(Maas et al., 2011)](https://aclanthology.org/P11-1015/).
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: valid
+    taxonomy:
+      task: sentiment analysis
+      what: movie reviews
+      who: "?"
+      when: "?"
+      language: English
+
+# Text classification scenarios
+  - name: raft
+    display_name: RAFT (Real-world Annotated Few-Shot)
+    short_display_name: RAFT
+    description: The Real-world annotated few-shot (RAFT) meta-benchmark of 11 real-world text classification tasks [(Alex et al., 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/ca46c1b9512a7a8315fa3c5a946e8265-Abstract-round2.html).
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: text classification
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+# Toxicity detection scenarios
+  - name: civil_comments
+    display_name: CivilComments
+    description: The CivilComments benchmark for toxicity detection [(Borkan et al., 2019)](https://arxiv.org/pdf/1903.04561.pdf).
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: toxicity classification
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+## Language scenarios
+# Language modeling
+  - name: ice
+    display_name: ICE (International Corpus of English)
+    short_display_name: ICE
+    description: The International Corpus of English (ICE) drawn from English speakers from various places in the world, initiated by [Greenbaum (1991)](https://www.cambridge.org/core/journals/english-today/article/abs/ice-the-international-corpus-of-english/47808205394C538393C3FD8E62E5E701).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: bits_per_byte
+      main_split: test
+    taxonomy:
+      task: language modeling
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English varieties from different nations
+
+  - name: the_pile
+    display_name: The Pile
+    description: The Pile corpus for measuring lanugage model performance across various domains [(Gao et al., 2020)](https://arxiv.org/pdf/2101.00027.pdf).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: bits_per_byte
+      main_split: test
+    taxonomy:
+      task: language modeling
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English, code
+
+  - name: twitter_aae
+    display_name: TwitterAAE
+    description: The TwitterAAE corpus of [Blodgett et al. (2016)](https://aclanthology.org/D16-1120/) for measuring language model performance in tweets as a function of speaker dialect.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: bits_per_byte
+      main_split: test
+    taxonomy:
+      task: language modeling
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English (AAE-aligned and White-aligned)
+
+  - name: twitter_aae_aa
+    display_name: TwitterAAE (AA)
+    description: The TwitterAAE corpus of [Blodgett et al. (2016)](https://aclanthology.org/D16-1120/) for measuring language model performance on African-American-aligned Tweets.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: bits_per_byte
+      main_split: test
+    taxonomy:
+      task: language modeling
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English (AAE-aligned)
+
+  - name: twitter_aae_white
+    display_name: TwitterAAE (white)
+    description: The TwitterAAE corpus of [Blodgett et al. (2016)](https://aclanthology.org/D16-1120/) for measuring language model performance on White-aligned Tweets.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: bits_per_byte
+      main_split: test
+    taxonomy:
+      task: language modeling
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English (White-aligned)
+
+# Minimal pairs
+  - name: blimp
+    display_name: BLiMP (The Benchmark of Linguistic Minimal Pairs for English)
+    short_display_name: BLiMP
+    description: The Benchmark of Linguistic Minimal Pairs for English (BLiMP) for measuring performance on linguistic phenomena using minimal pair design [(Warstadt et al., 2020)](https://aclanthology.org/2020.tacl-1.25/).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: grammaticality
+      what: constructed minimal pair sentences
+      who: linguists
+      when: "2019"
+      language: English
+
+## Knowledge scenarios
+  - name: wikifact
+    display_name: WikiFact
+    description: Scenario introduced in this work, inspired by [Petroni et al. (2019)](https://aclanthology.org/D19-1250/), to more extensively test factual knowledge.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: knowledge base completion
+      what: entity-relation-entity triples in natural language form
+      who: automatically generated from templates
+      when: "?"
+      language: structured English
+
+## Reasoning scenarios
+# Primitive-focused reasoning
+  - name: babi_qa
+    display_name: bAbI
+    description: The bAbI benchmark for measuring understanding and reasoning [(Weston et al., 2015)](https://arxiv.org/pdf/1502.05698.pdf).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: reasoning
+      who: synthetic
+      when: "2015"
+      language: English
+
+  - name: dyck_language
+    display_name: Dyck
+    description: Scenario testing hierarchical reasoning through the Dyck formal languages [(Suzgun et al., 2019)](https://aclanthology.org/W19-3905/).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match_indicator
+      main_split: test
+    taxonomy:
+      task: next-word prediction
+      what: Dyck formal language
+      who: n/a
+      when: n/a
+      language: synthetic
+
+  - name: numeracy
+    display_name: Numerical reasoning
+    description: Scenario introduced in this work to test numerical reasoning via symbolic regression.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: absolute_value_difference
+      main_split: test
+    taxonomy:
+      task: next-word prediction
+      what: Dyck formal language
+      who: n/a
+      when: n/a
+      language: synthetic
+
+  - name: synthetic_reasoning
+    display_name: Synthetic reasoning (abstract symbols)
+    description: Synthetic reasoning tasks defined using abstract symbols based on LIME [(Wu et al., 2021)](https://proceedings.mlr.press/v139/wu21c.html).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+  - name: synthetic_reasoning_natural
+    display_name: Synthetic reasoning (natural language)
+    description: Synthetic reasoning tasks defined using simple natural language based on LIME [(Wu et al., 2021)](https://proceedings.mlr.press/v139/wu21c.html).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_set_match
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+# Realistic reasoning
+  - name: gsm
+    display_name: GSM8K (Grade school math word problems)
+    short_display_name: GSM8K
+    description: The grade school math word problems dataset (GSM8K) for testing mathematical reasoning on grade-school math problems [(Cobbe et al., 2021)](https://arxiv.org/pdf/2110.14168.pdf).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match_indicator
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+  - name: math_regular
+    display_name: MATH
+    description: The MATH benchmark for measuring mathematical problem solving on competition math problems [(Hendrycks et al., 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/be83ab3ecd0db773eb2dc1b0a17836a1-Abstract-round2.html).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: math_equiv
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+  - name: math_chain_of_thought
+    display_name: MATH (chain-of-thought)
+    description: The MATH benchmark for measuring mathematical problem solving on competition math problems with chain-of-thought style reasoning [(Hendrycks et al., 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/be83ab3ecd0db773eb2dc1b0a17836a1-Abstract-round2.html).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: math_equiv_chain_of_thought
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+  - name: code_apps
+    display_name: APPS (Code)
+    description: The APPS benchmark for measuring competence on code challenges [(Hendrycks et al., 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/c24cd76e1ce41366a4bbe8a49b02a028-Abstract-round2.html).
+    metric_groups:
+      - apps_metrics
+      - efficiency
+      - general_information
+    environment:
+      # We do not include accuracy as it is subsumed by apps
+      main_name: test_avg
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+  - name: code_humaneval
+    display_name: HumanEval (Code)
+    description: The HumanEval benchmark for measuring functional correctness for synthesizing programs from docstrings [(Chen et al., 2021)](https://arxiv.org/pdf/2107.03374.pdf).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: pass
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+  - name: legalbench
+    display_name: LegalBench
+    description: LegalBench is a large collaboratively constructed benchmark of legal reasoning. Five representative tasks are included here. See [(Guha et al, 2023)[https://arxiv.org/abs/2308.11462] for more details.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: "text classification"
+      what: "fact patterns, questions, and legal documents"
+      who: "lawyers"
+      when: n/a
+      language: English
+
+  - name: legal_support
+    display_name: LegalSupport
+    description: Scenario introduced in this work to measure fine-grained legal reasoning through reverse entailment.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+  - name: lsat_qa
+    display_name: LSAT
+    description: The LSAT benchmark for measuring analytical reasoning on the Law School Admission Test (LSAT; [Zhong et al., 2021](https://arxiv.org/pdf/2104.06598.pdf)).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+  - name: med_qa
+    display_name: MedQA
+    description: MedQA is an open domain question answering dataset composed of questions from professional medical board exams ([Jin et al. 2020](https://arxiv.org/pdf/2009.13081.pdf)).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: wmt_14
+    display_name: WMT 2014
+    description: WMT 2014 is a collection of machine translation datasets.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: bleu_4
+      main_split: test
+    taxonomy:
+      task: machine translation
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: lextreme
+    display_name: LEXTREME
+    description: A Multilingual Legal Benchmark for Natural Language Understanding
+    metric_groups:
+      - classification_metrics
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: classification_macro_f1
+      main_split: test
+
+  - name: lex_glue
+    display_name: LexGLUE
+    description: A Benchmark Dataset for Legal Language Understanding in English
+    metric_groups:
+      - classification_metrics
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: classification_macro_f1
+      main_split: test
+
+  - name: billsum_legal_summarization
+    display_name: BillSum
+    description: The BillSum benchmark for legal text summarization ([Kornilova & Eidelmann, 2020](https://aclanthology.org/D19-5406/)).
+    metric_groups:
+      - accuracy
+      - summarization_metrics
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: rouge_2
+      main_split: test
+    taxonomy:
+      task: summarization
+      what: legal text from US bills
+      who: lawyers
+      language: English
+
+  - name: multilexsum_legal_summarization
+    display_name: MultiLexSum
+    description: The MultiLexSum benchmark for legal text summarization ([Shen et al., 2022](https://arxiv.org/abs/2206.10883)).
+    metric_groups:
+      - accuracy
+      - summarization_metrics
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: rouge_2
+      main_split: test
+    taxonomy:
+      task: summarization
+      what: legal text from US civil rights lawsuits
+      who: lawyers
+      language: English
+
+  - name: eurlexsum_legal_summarization
+    display_name: EurLexSum
+    description: The EurLexSum benchmark for legal text summarization ([Aumiller et al., 2022](https://arxiv.org/abs/2210.13448)).
+    metric_groups:
+      - accuracy
+      - summarization_metrics
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: rouge_2
+      main_split: test
+    taxonomy:
+      task: summarization
+      what: legal text from EU legislation
+      who: lawyers
+      when: 1960 - 2020
+      language: English
+
+  - name: entity_data_imputation
+    display_name: Data imputation
+    description: Scenario from [Mei et al. (2021)](https://ieeexplore.ieee.org/document/9458712/) that tests the ability to impute missing entities in a data table.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+  - name: entity_matching
+    display_name: Entity matching
+    description: Scenario from Magellan [(Konda et al., 2016)](https://dl.acm.org/doi/10.14778/3007263.3007314) that tests the ability to determine if two entities match.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+## Copyright scenarios
+  - name: copyright_text
+    display_name: Copyright (text)
+    description: Scenario introduced in this work to measure copyright and memorization behavior for books, based off of [Carlini et al. (2021)](https://www.usenix.org/biblio-11958).
+    metric_groups:
+      - copyright_metrics
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+  - name: copyright_code
+    display_name: Copyright (code)
+    description: Scenario introduced in this work to measure copyright and memorization behavior for code, based off of [Carlini et al. (2021)](https://www.usenix.org/biblio-11958).
+    metric_groups:
+      - copyright_metrics
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+## Disinformation scenarios
+  - name: disinformation_reiteration
+    display_name: Disinformation (reiteration)
+    description: Scenario from [Buchanan et al. (2021)](https://cset.georgetown.edu/publication/truth-lies-and-automation/) that tests the ability to reiterate disinformation content.
+    metric_groups:
+      - disinformation_metrics
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_split: valid
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+  - name: disinformation_wedging
+    display_name: Disinformation (wedging)
+    description: Scenario from [Buchanan et al. (2021)](https://cset.georgetown.edu/publication/truth-lies-and-automation/) that tests the ability to generate divisive and wedging content.
+    metric_groups:
+      - disinformation_metrics
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_split: valid
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+## Bias scenarios
+  - name: bbq
+    display_name: BBQ (Bias Benchmark for Question Answering)
+    short_display_name: BBQ
+    description: The Bias Benchmark for Question Answering (BBQ) for measuring social bias in question answering in ambiguous and unambigous context [(Parrish et al., 2022)](https://aclanthology.org/2022.findings-acl.165/).
+    metric_groups:
+      - accuracy
+      - bbq_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+## Toxicity scenarios
+  - name: bold
+    display_name: BOLD (Bias in Open-Ended Language Generation Dataset)
+    short_display_name: BOLD
+    description: The Bias in Open-Ended Language Generation Dataset (BOLD) for measuring biases and toxicity in open-ended language generation [(Dhamala et al., 2021)](https://dl.acm.org/doi/10.1145/3442188.3445924).
+    metric_groups:
+      - toxicity
+      - bias
+      - efficiency
+      - general_information
+    environment:
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+  - name: real_toxicity_prompts
+    display_name: RealToxicityPrompts
+    description: The RealToxicityPrompts dataset for measuring toxicity in prompted model generations [(Gehman et al., 2020)](https://aclanthology.org/2020.findings-emnlp.301/).
+    metric_groups:
+      - toxicity
+      - bias
+      - efficiency
+      - general_information
+    sub_splits:
+      - toxic
+      - non-toxic
+    environment:
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+## Efficiency scenarios
+  - name: synthetic_efficiency
+    display_name: Synthetic efficiency
+    description: Scenario introduced in this work to better understand inference runtime performance of various models.
+    metric_groups:
+      - efficiency_detailed
+      - general_information
+    environment:
+      main_split: test
+    adapter_keys_shown:
+      - model
+      - model_deployment
+      - max_tokens
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+## CLEVA (Chinese) Scenarios
+# Applications
+  - name: cleva_closed_book_question_answering
+    display_name: CLEVA (Chinese) closed book question answering
+    description: Closed-book question answering task comprises three subtasks. One is for the medical domain, another for open-domain, and the last measures if a model generates truthful answers.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: medical, open-domain, or truthful qa
+      who: n/a
+      when: 2022 or before
+      language: Chinese
+
+  - name: cleva_summarization
+    display_name: CLEVA (Chinese) summarization
+    description: "Summarize a dialogue between a customer representative and a customer."
+    metric_groups:
+      - cleva_summarization_metrics
+      - general_information
+      - efficiency
+    environment:
+      main_name: chinese_rouge_2
+      main_split: test
+    taxonomy:
+      task: summarization
+      what: e-commerce dialogues
+      who: customers and representatives
+      when: 2021 or before
+      language: Chinese
+
+  - name: cleva_text_classification
+    display_name: CLEVA (Chinese) text classification
+    description: This scenario has two subtasks. Classify if an utterance is humorous and identify news topic based on its title.
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: text classification
+      what: news or chitchat
+      who: n/a
+      when: 2010s
+      language: Chinese
+
+  - name: cleva_translation
+    display_name: CLEVA (Chinese) translation
+    description: Scenario for measuring the translation quality between Chinese and English.
+    metric_groups:
+      - cleva_translation_metrics
+      - general_information
+      - efficiency
+    environment:
+      main_name: cleva_machine_translation_bleu
+      main_split: test
+    taxonomy:
+      task: translation
+      what: news
+      who: n/a
+      when: 2022 or before
+      language: Chinese, English
+
+  - name: cleva_data_to_text_generation
+    display_name: CLEVA (Chinese) data to text generation
+    description: "Generate a product description based on structured data containing various product properties."
+    metric_groups:
+      - cleva_data_to_text_generation_metrics
+      - general_information
+      - efficiency
+    environment:
+      main_name: chinese_bleu_1
+      main_split: test
+    taxonomy:
+      task: data-to-text generation
+      what: product description
+      who: n/a
+      when: 2010s
+      language: Chinese
+
+  - name: cleva_dialogue_generation
+    display_name: CLEVA (Chinese) dialogue generation
+    description: "Task-oriented dialogue between a user and a system."
+    metric_groups:
+      - cleva_dialogue_generation_metrics
+      - general_information
+      - efficiency
+    environment:
+      main_name: chinese_bleu_1
+      main_split: test
+    taxonomy:
+      task: dialogue generation
+      what: task-oriented dialogue on hotel, restaurant, attraction, metro, and taxi domain
+      who: user and assistant
+      when: 2020 or before
+      language: Chinese
+
+  - name: cleva_opinion_mining
+    display_name: CLEVA (Chinese) opinion mining
+    description: "Extract the target of an opinion."
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: opinion target extraction
+      what: n/a
+      who: n/a
+      when: 2010s
+      language: Chinese
+
+  - name: cleva_paraphrase_generation
+    display_name: CLEVA (Chinese) paraphrase generation
+    description: Generate a paraphrase of a given sentence.
+    metric_groups:
+      - cleva_paraphrase_generation_metrics
+      - general_information
+      - efficiency
+    environment:
+      main_name: chinese_ibleu
+      main_split: test
+    taxonomy:
+      task: paraphrase generation
+      what: n/a
+      who: n/a
+      when: 2010s
+      language: Chinese
+
+  - name: cleva_paraphrase_identification
+    display_name: CLEVA (Chinese) paraphrase identification
+    description: Identify if two sentences, from a dialogue or from the finance domain, share the same meaning.
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: paraphrase identification
+      what: financial questions or chitchat
+      who: n/a
+      when: 2020 or before
+      language: Chinese
+
+  - name: cleva_reading_comprehension
+    display_name: CLEVA (Chinese) reading comprehension
+    description: Answer a multiple-choice question based on a given paragraph.
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: 2019 or before
+      language: Chinese
+
+  - name: cleva_sentiment_analysis
+    display_name: CLEVA (Chinese) sentiment analysis
+    description: Chinese sentiment analysis for product reviews.
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: sentiment analysis
+      what: product reviews
+      who: customers
+      when: 2021 or before
+      language: Chinese
+
+# Language
+  - name: cleva_language_modeling
+    display_name: CLEVA (Chinese) language modeling
+    description: Scenario for measuring language model performance across various domains (wikipedia and news).
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: bits_per_byte
+      main_split: test
+    taxonomy:
+      task: language modeling
+      what: Wikipedia and news
+      who: n/a
+      when: 2010s
+      language: Chinese
+
+  - name: cleva_pinyin_transliteration
+    display_name: CLEVA (Chinese) pinyin transliteration
+    description: Scenario that asks the model to translate between Chinese and Pinyin.
+    metric_groups:
+      - cleva_pinyin_transliteration_metrics
+      - general_information
+      - efficiency
+    environment:
+      main_name: chinese_bleu_1
+      main_split: test
+    taxonomy:
+      task: pinyin transliteration
+      what: n/a
+      who: automatically generated by algorithm
+      when: '2023'
+      language: Chinese, Pinyin
+
+  - name: cleva_classical_chinese_understanding
+    display_name: CLEVA (Chinese) classical Chinese understanding
+    description: Scenario for evaluating the understanding of classical Chinese by selecting the appropriate classical Chinese translation for a given modern Chinese sentence.
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: translation
+      what: n/a
+      who: n/a
+      when: 2021 or before
+      language: Classical Chinese
+
+  - name: cleva_coreference_resolution
+    display_name: CLEVA (Chinese) coreference resolution
+    description: Scenario for testing models on solving coreference resolution problems (the winograd schema challenge).
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: contemporary Chinese literary works
+      who: n/a
+      when: 2020 or before
+      language: Chinese
+
+  - name: cleva_intent_understanding
+    display_name: CLEVA (Chinese) intent understanding
+    description: Tests whether the model could capture the writing intention of the authors after reading an article.
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: exam
+      who: n/a
+      when: 1990-2022
+      language: Chinese
+
+# Knowledge
+  - name: cleva_subject_knowledge
+    display_name: CLEVA (Chinese) subject knowledge
+    description: Scenario inspired by [Petroni et al. (2019)](https://aclanthology.org/D19-1250/) to extensively test factual knowledge in Chinese. It contains 13 subjects and a general domain.
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: knowledge base completion
+      what: entity-relation-entity triples in natural language form
+      who: automatically generated from templates
+      when: 2022 or before
+      language: structured Chinese
+
+  - name: cleva_cultural_knowledge
+    display_name: CLEVA (Chinese) cultural knowledge
+    description: "Scenario for evaluating models' understanding of Chinese culture. It has a Chinese-idiom-focused subtask."
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: Various passages containing Chinese idioms
+      who: n/a
+      when: 2010s
+      language: Chinese
+
+# Reasoning
+  - name: cleva_reasoning_primitive
+    display_name: CLEVA (Chinese) reasoning primitive
+    description: Scenario focused on primitive reasoning, including dyck language continuation, variable substitution, pattern induction, and pattern matching.
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: next-word prediction
+      what: n/a
+      who: automatically generated from templates
+      when: '2023'
+      language: synthetic
+
+  - name: cleva_deductive_reasoning
+    display_name: CLEVA (Chinese) deductive reasoning
+    description: "Scenario that gauges model's ability to reason deductive arguments. It includes a modus tollens subtask."
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: natural language questions
+      who: n/a
+      when: '2023'
+      language: structured Chinese
+
+  - name: cleva_inductive_reasoning
+    display_name: CLEVA (Chinese) inductive reasoning
+    description: "Scenario that tests models' ability to conclude rules from demonstrations and apply them to unseen test instances."
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: next-word prediction
+      what: n/a
+      who: automatically generated by algorithm
+      when: '2023'
+      language: synthetic
+
+  - name: cleva_code_synthesis
+    display_name: CLEVA (Chinese) code synthesis
+    description: Scenario for measuring functional correctness for synthesizing programs from Chinese docstrings.
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: next-word prediction
+      what: n/a
+      who: n/a
+      when: '2023'
+      language: synthetic
+
+  - name: cleva_commonsense_reasoning
+    display_name: CLEVA (Chinese) commonsense reasoning
+    description: "Scenario that tests models' commonsense reasoning ability. There are two subtasks: textual entailment and commonsense question answering."
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: n/a
+      who: n/a
+      when: 2023 or before
+      language: Chinese
+
+  - name: cleva_mathematical_reasoning
+    display_name: CLEVA (Chinese) mathematical reasoning
+    description: "Scenario that tests models' mathematical reasoning ability with chain-of-thought style reasoning. It contains a math word problem solving subtask."
+    metric_groups:
+      - cleva_mathematical_reasoning_metrics
+      - general_information
+      - efficiency
+    environment:
+      main_name: cleva_math_result_match
+      main_split: test
+    taxonomy:
+      task: next-word prediction
+      what: exam
+      who: n/a
+      when: 2010s
+      language: Chinese
+
+  - name: cleva_conceptual_generalization
+    display_name: CLEVA (Chinese) conceptual generalization
+    description: Scenario that assesses whether models could generalize physical relations to a synthetic grid world.
+    metric_groups:
+      - calibration
+      - efficiency
+      - cleva_conceptual_generalization_metrics
+      - general_information
+    environment:
+      main_name: cleva_top1_accuracy
+      main_split: test
+    taxonomy:
+      task: next-word prediction
+      what: n/a
+      who: automatically generated by algorithm
+      when: '2023'
+      language: synthetic
+
+# Harms
+  - name: cleva_toxicity_detection
+    display_name: CLEVA (Chinese) toxicity detection
+    description: Ask models about the offensiveness of the given text.
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: toxicity classification
+      what: text from Chinese social media
+      who: web users
+      when: 2022 or before
+      language: Chinese
+
+  - name: cleva_bias
+    display_name: CLEVA (Chinese) bias
+    description: Scenario that gauges bias of four demographic categories in dialogues, including race, gender, region, and occupation.
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+      - classification_metrics
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: short Chinese dialogues from social media
+      who: web users
+      when: 2022 or before
+      language: Chinese
+
+  - name: cleva_copyright
+    display_name: CLEVA (Chinese) copyright
+    description: Scenario that measures copyright and memorization behavior for Chinese books and code, based off of [Carlini et al. (2021)](https://www.usenix.org/biblio-11958).
+    metric_groups:
+      - copyright_metrics
+      - general_information
+      - efficiency
+    environment:
+      main_split: test
+    taxonomy:
+      task: next-word prediction
+      what: books and code
+      who: n/a
+      when: 2023 or before
+      language: Chinese
+
+  - name: cleva_fact_checking
+    display_name: CLEVA (Chinese) fact checking
+    description: Scenario that lets models identify whether the given fact is true to test their factuality.
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+      - classification_metrics
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: factual statements in natural language form
+      who: n/a
+      when: 2022 or before
+      language: Chinese
+
+# Others
+  - name: cleva_instruction_following
+    display_name: CLEVA (Chinese) instruction following
+    description: "Scenario that examines whether models could follow human instructions, mainly uncommon ones. It contains two subtasks: 'redefine' and 'pattern_matching_suppression'."
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: natural language questions
+      who: automatically generated from templates
+      when: '2023'
+      language: synthetic
+
+  - name: cleva_mathematical_calculation
+    display_name: CLEVA (Chinese) mathematical calculation
+    description: "Scenario that evaluates the calculation ability of models. It has four subtasks: three-digit addition, three-digit subtraction, two-digit multiplication, and significant figures."
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: next-word prediction
+      what: natural language math questions or pure math expressions
+      who: automatically generated from templates
+      when: '2023'
+      language: synthetic
+
+## Aspirational scenarios
+# Task coverage
+  - name: data_to_text_generation
+    display_name: Data-to-text generation
+    description: Currently, we prioritize user-facing tasks in our core scenarios, but don't implement data-to-text generation. Could be implemented via WebNLG, E2E, ToTTo, etc.
+    taxonomy:
+      task: data-to-text generation
+    todo: true
+
+  - name: fact_verification
+    display_name: Fact verification
+    description: Currently, we prioritize user-facing tasks in our core scenarios, but don't implement fact verification. Could be implemented via FEVER.
+    taxonomy:
+      task: fact verification
+    todo: true
+
+  - name: copywriting
+    display_name: Copywriting
+    description: Currently, we prioritize user-facing tasks in our core scenarios, but don't implement tasks that have not been historically studied in the NLP research community like (ad) copywriting.
+    taxonomy:
+      task: copywriting
+    todo: true
+
+  - name: story_generation
+    display_name: Story generation
+    description: Currently, we prioritize user-facing tasks in our core scenarios, but don't implement more creative and interactive tasks like story generation.
+    taxonomy:
+      task: story generation
+    todo: true
+
+# Domain coverage
+  - name: biomedical_scenarios
+    display_name: Biomedical scenarios
+    description: Currently, we implement scenarios from common domains in NLP research, neglecting various domains where language technologies could provide significant value.
+    taxonomy:
+      what: Biomedical text (e.g., biomedicine papers)
+    todo: true
+
+  - name: clinical_scenarios
+    display_name: Clinical scenarios
+    description: Currently, we implement scenarios from common domains in NLP research, neglecting various domains where language technologies could provide significant value.
+    taxonomy:
+      what: Clincal text (e.g., clinical notes)
+    todo: true
+
+  - name: financial_scenarios
+    display_name: Financial scenarios
+    description: Currently, we implement scenarios from common domains in NLP research, neglecting various domains where language technologies could provide significant value.
+    taxonomy:
+      what: Financial text (e.g., financial reports)
+    todo: true
+
+  - name: customer_service_scenarios
+    display_name: Customer services scenarios
+    description: Currently, we implement scenarios from common domains in NLP research, neglecting various domains where language technologies could provide significant value.
+    taxonomy:
+      what: Customer service text (e.g., customer service chat logs)
+    todo: true
+
+  - name: educational_scenarios
+    display_name: Educational scenarios
+    description: Currently, we implement scenarios from common domains in NLP research, neglecting various domains where language technologies could provide significant value.
+    taxonomy:
+      what: Text from educational contexts (e.g., student-teacher interactions)
+    todo: true
+
+  - name: very_recent_scenarios
+    display_name: Very recent scenarios
+    description: Currently, we implement scenarios using standard NLP datasets. However, to test temporal generalization as the world and language change, we should implement scenarios with very recent data (e.g., current world events) like StreamingQA.
+    taxonomy:
+      when: present
+    todo: true
+
+  - name: historical_scenarios
+    display_name: Scenarios involving historic data
+    description: Currently, we implement scenarios using standard NLP datasets, which predominantly are from post-Internet and contemporary society. However, to test temporal generalization for using models in the digital humanities for historic data, we should implement scenarios with significantly older data (e.g., text from 1800s).
+    taxonomy:
+      when: distant past
+    todo: true
+
+  - name: not_native_English_speaker
+    display_name: Scenarios involving non-native speakers
+    description: Currently, we implement scenarios of an unknown composition of native and non-native English speakers. We should implement scenarios to ensure coverage of language from non-native English speakers.
+    taxonomy:
+      who: non-native English speakers
+      language: English
+    todo: true
+
+  - name: non_US_demographics
+    display_name: Scenarios involving data from marginalized demographics in non-US English-speaking regions
+    description: Currently, we ensure some coverage of language based on US-centric demographic groups, including marginalized groups. We should implement scenarios to ensure coverage of other socially-relevant groups beyond US demographics (e.g., caste in India).
+    taxonomy:
+      who: relevant demographics in non-US English-speaking regions
+      language: English
+    todo: true
+
+# Language coverage
+  - name: user_facing_tasks_english_dialects
+    display_name: Scenarios with user-facing tasks on English dialects
+    description: Currently, evaluate performance on English dialects via language modeling (e.g., TwitterAAE, ICE), but it would be good to implement user-facing tasks for these dialects.
+    taxonomy:
+      task: user-facing tasks
+      language: English dialects
+    todo: true
+
+
+# DecodingTrust scenarios
+  - name: decodingtrust_adv_robustness
+    display_name: DecodingTrust - AdvGLUE++
+    short_display_name: AdvGLUE++
+    description: Adversarial perturbations of the GLUE dataset generated against open-source LLMs including Alpaca, Vicuna, and Stable-Vicuna
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: text classification
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+    todo: true
+
+  - name: decodingtrust_adv_demonstration
+    display_name: DecodingTrust - Adversarial Demonstrations
+    short_display_name: AdvDemo
+    description: Robustness analysis of LM generations when facing adversarial demonstrations
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: text classification
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: decodingtrust_ood_robustness
+    display_name: DecodingTrust - OoD Robustness
+    short_display_name: OoD
+    description: Style perturbations of GLUE datasets (OoD styles) and out-of-scope OoD knowledge evaluations
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+      - decodingtrust_ood_metrics
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: text classification
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: decodingtrust_fairness
+    display_name: DecodingTrust - Fairness
+    short_display_name: Fairness
+    description: Fairness analysis of LLMs
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+      - decodingtrust_fairness_metrics
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: text classification
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: decodingtrust_privacy
+    display_name: DecodingTrust - Privacy
+    short_display_name: Privacy
+    description: Evaluation of the privacy understanding and privacy preserving properties of LLMs
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: text classification
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: decodingtrust_machine_ethics
+    display_name: DecodingTrust - Ethics
+    short_display_name: Ethics
+    description: Evaluation of the understanding of ethical behaviors of LLMs
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: text classification
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: decodingtrust_toxicity_prompts
+    display_name: DecodingTrust - Toxicity
+    short_display_name: Toxicity
+    description: Evaluation of the privacy understanding and privacy preserving properties of LLMs
+    metric_groups:
+      - toxicity
+      - bias
+      - efficiency
+      - general_information
+    environment:
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+  - name: decodingtrust_stereotype_bias
+    display_name: DecodingTrust - Stereotype Bias
+    short_display_name: Stereotype
+    description: Manually crafted stereotype user prompts from DecodingTrust
+    metric_groups:
+      - toxicity
+      - bias
+      - efficiency
+      - general_information
+      - decodingtrust_stereotype_bias_metrics
+    environment:
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+  - name: thai_exam
+    display_name: Thai Exam
+    short_display_name: ThaiExam
+    description: A benchmark comprising Thai multiple-choice examinations.
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
+      language: Thai

@@ -4,6 +4,7 @@ This script filters out triples where either the head or tail entity
     - do not have an English Wikipedia page, or
     - correspond to a category, template, stub, disambiguation, or list
 """
+
 import argparse
 from collections import defaultdict
 import json

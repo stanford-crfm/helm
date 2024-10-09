@@ -23,6 +23,9 @@ DEFAULT_QUOTAS = {
     "jurassic": {"daily": 10000},
     "gooseai": {"daily": 10000},
     "cohere": {"daily": 10000},
+    "dall_e": {"daily": 5},  # In terms of the number of generated images
+    "together_vision": {"daily": 30},
+    "simple": {"daily": 10000},
 }
 
 
@@ -303,7 +306,7 @@ class Accounts:
             model_group: str,
             granularity: str,
             compute_period: Callable[[], str],
-        ):
+        ) -> None:
             """Helper that checks the usage at a certain granularity (e.g., daily, monthly, total)."""
 
             model_group_usages = account.usages.get(model_group)
@@ -321,14 +324,38 @@ class Accounts:
             if not usage.can_use():
                 raise InsufficientQuotaError(f"{granularity} quota ({usage.quota}) for {model_group} already used up")
 
+        def check_non_empty_quota(
+            account: Account,
+            model_group: str,
+        ) -> None:
+            """Helper that checks that the account has quota at some granularity.
+
+            At each granularity, a quota of None means unlimited quota.
+            However, if the quota is None at every granularity, it means that there is no quota.
+            To enforce this rule, this helper raises a InsufficientQuotaError if the quota is None
+            at every granularity."""
+            model_group_usages = account.usages.get(model_group)
+            if model_group_usages is None:
+                raise InsufficientQuotaError(f"No quota for {model_group}")
+            if all(
+                [
+                    granularity_usage.quota is None or granularity_usage.quota <= 0
+                    for granularity_usage in model_group_usages.values()
+                ]
+            ):
+                raise InsufficientQuotaError(f"No quota for {model_group}")
+
         if self.root_mode:
             return
 
         with SqliteDict(self.path) as cache:
             account: Account = from_dict(Account, cache[api_key])
-            granular_check_can_use(account, model_group, "daily", compute_daily_period)
-            granular_check_can_use(account, model_group, "monthly", compute_monthly_period)
-            granular_check_can_use(account, model_group, "total", compute_total_period)
+        if account.is_admin:
+            return
+        granular_check_can_use(account, model_group, "daily", compute_daily_period)
+        granular_check_can_use(account, model_group, "monthly", compute_monthly_period)
+        granular_check_can_use(account, model_group, "total", compute_total_period)
+        check_non_empty_quota(account, model_group)
 
     def use(self, api_key: str, model_group: str, delta: int):
         """

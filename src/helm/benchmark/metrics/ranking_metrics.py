@@ -4,11 +4,11 @@ from typing import Callable, Dict, List, Tuple, Optional
 from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_RANKING_BINARY
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark.metrics.reference_metric import ReferenceMetric
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.benchmark.scenarios.scenario import unpack_tag, CORRECT_TAG, Reference
 from helm.common.request import RequestResult
-from helm.common.general import binarize_dict
-from .metric import Metric
+from helm.common.general import assert_present, binarize_dict
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .statistic import Stat
@@ -16,7 +16,7 @@ from .statistic import Stat
 try:
     import pytrec_eval
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e)
+    handle_module_not_found_error(e, ["metrics"])
 
 
 @dataclass
@@ -58,7 +58,7 @@ class RankingObject:
     model_relevance: Optional[int] = None
 
 
-class RankingMetric(Metric):
+class RankingMetric(ReferenceMetric):
     """Ranking metric."""
 
     """ Methods supported by this metric.
@@ -205,14 +205,13 @@ class RankingMetric(Metric):
         relevance dictionary, which contains the ground truth relevance
         values for each document.
         """
-        assert all([r.model_relevance is not None for r in ranking_objs])
         if rank_limit:
             return {
-                self.get_query_string(r.reference_index): r.model_relevance  # type: ignore
+                self.get_query_string(r.reference_index): assert_present(r.model_relevance)
                 for r in ranking_objs
                 if r.rank and r.rank <= rank_limit
             }
-        return {self.get_query_string(r.reference_index): r.model_relevance for r in ranking_objs}  # type: ignore
+        return {self.get_query_string(r.reference_index): assert_present(r.model_relevance) for r in ranking_objs}
 
     def get_true_relevances(self, ranking_objects: List[RankingObject]) -> Dict[str, int]:
         """Get the true relevance dictionary."""
@@ -372,7 +371,7 @@ class RankingMetric(Metric):
         #   len(ranking_objects) minus its relevance.
         stats += [
             Stat(MetricName(f"ref{r.reference_index}_rank")).add(
-                len(ranking_objects) - r.model_relevance  # type: ignore
+                len(ranking_objects) - assert_present(r.model_relevance)
             )
             for r in ranking_objects
         ]

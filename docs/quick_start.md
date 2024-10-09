@@ -3,18 +3,14 @@
 Run the following:
 
 ```
-# Create a run specs configuration
-echo 'entries: [{description: "mmlu:subject=philosophy,model=huggingface/gpt2", priority: 1}]' > run_specs.conf
-
 # Run benchmark
-helm-run --conf-paths run_specs.conf --suite v1 --max-eval-instances 10
+helm-run --run-entries mmlu:subject=philosophy,model=openai/gpt2 --suite my-suite --max-eval-instances 10
 
 # Summarize benchmark results
-helm-summarize --suite v1
+helm-summarize --suite my-suite
 
 # Start a web server to display benchmark results
-helm-server
+helm-server --suite my-suite
 ```
 
 Then go to http://localhost:8000/ in your browser.
-

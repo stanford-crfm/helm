@@ -263,13 +263,6 @@ class PersonNamePerturbation(Perturbation):
         name = rng.choice(list(options))
         return name
 
-    def perturb(self, text: str, rng: Random) -> str:
-        """
-        Perturbing the text is handled in `perturb_with_persistency` to ensure that perturbed names
-        in `Instance`s and `Reference`s match.
-        """
-        raise NotImplementedError("Should never be called")
-
     def perturb_with_persistency(
         self, text: str, rng: Random, name_substitution_mapping: Dict[str, str], skipped_tokens: Set[str]
     ) -> str:

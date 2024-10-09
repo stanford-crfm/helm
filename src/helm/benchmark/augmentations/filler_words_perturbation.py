@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from .perturbation import Perturbation
+from .perturbation import TextPerturbation
 from .perturbation_description import PerturbationDescription
 
 from random import Random
@@ -31,7 +31,7 @@ UNCERTAIN_PHRASES = ["maybe", "perhaps", "probably", "possibly", "most likely"]
 FILL_PHRASE = ["uhm", "umm", "ahh", "err", "actually", "obviously", "naturally", "like", "you know"]
 
 
-class FillerWordsPerturbation(Perturbation):
+class FillerWordsPerturbation(TextPerturbation):
     """
     Randomly inserts filler words and phrases in the sentence.
     Perturbation example:

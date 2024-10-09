@@ -17,7 +17,7 @@ from .statistic import Stat
 try:
     import numba
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e)
+    handle_module_not_found_error(e, ["metrics"])
 
 
 def _longest_common_prefix_length(s1: np.ndarray, s2: np.ndarray, previous_best: Optional[float] = None) -> float:

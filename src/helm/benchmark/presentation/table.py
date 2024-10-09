@@ -4,26 +4,26 @@ from typing import Any, Optional, List, Dict
 
 @dataclass(frozen=True)
 class Cell:
-    # Semantic value (that can be used for sorting)
     value: Any
+    """Semantic value (that can be used for sorting)"""
 
-    # Optionally, if we want to render things specially (floating points to 3 decimal points)
     display_value: Optional[str] = None
+    """Optionally, if we want to render things specially (floating points to 3 decimal points)"""
 
-    # Detailed description if hover over the cell
     description: Optional[str] = None
+    """Detailed description if hover over the cell"""
 
-    # If we click on the link for this cell, it takes us somewhere
     href: Optional[str] = None
+    """If we click on the link for this cell, it takes us somewhere"""
 
-    # Styling
     style: Optional[Dict[str, Any]] = None
+    """Styling"""
 
-    # If the value or display_value is markdown that needs to be interpreted
     markdown: bool = False
+    """If the value or display_value is markdown that needs to be interpreted"""
 
-    # How much train-test contamination affects the cell's value (`contamination.CONTAMINATION_LEVEL_{WEAK/STRONG}`)
-    contamination_level: Optional[str] = None
+    run_spec_names: Optional[List[str]] = None
+    """The names of the runs that this cell's value was aggregated from, if the cell contains an aggregate value."""
 
 
 @dataclass(frozen=True)

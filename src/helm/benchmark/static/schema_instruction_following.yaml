@@ -1,0 +1,161 @@
+---
+############################################################
+# For backwards compatibility with older versions of HELM.
+# TODO: Remove this after 2024-09-01.
+adapter: []
+############################################################
+metrics:
+  - name: Helpfulness
+    display_name: Helpfulness
+    short_display_name: Helpfulness
+    description: Whether the model appears to do what it is instructed to.
+    lower_is_better: false
+  - name: Understandability
+    display_name: Understandability
+    short_display_name: Understandability
+    description: Whether the answer is easy to comprehend.
+    lower_is_better: false
+  - name: Completeness
+    display_name: Completeness
+    short_display_name: Completeness
+    description: Whether the response provides a comprehensive answer to the question or request.
+    lower_is_better: false
+  - name: Conciseness
+    display_name: Conciseness
+    short_display_name: Conciseness
+    description: Whether the response is concise and to the point, without unnecessary repetition or elaboration.
+    lower_is_better: false
+  - name: Harmlessness
+    display_name: Harmlessness
+    short_display_name: Harmlessness
+    description: Whether the response avoids using toxic language or helping the user with harmful goals.
+    lower_is_better: false
+
+############################################################
+metric_groups:
+  - name: instruction_following_metrics
+    display_name: Instruction Following
+    metrics:
+      - name: Helpfulness
+        split: ${main_split}
+      - name: Understandability
+        split: ${main_split}
+      - name: Completeness
+        split: ${main_split}
+      - name: Conciseness
+        split: ${main_split}
+      - name: Harmlessness
+        split: ${main_split}
+
+############################################################
+run_groups:
+  - name: instruction_following
+    display_name: Instruction Following
+    description: Given an open-ended instruction in natural language, the goal is to produce a text response that is helpful, understandable, complete, concise and harmless.
+    subgroups:
+      - anthropic_hh_rlhf
+      - grammar
+      - koala
+      - open_assistant
+      - self_instruct
+      - vicuna
+
+  - name: anthropic_hh_rlhf
+    display_name: Anthropic RLHF dataset
+    short_display_name: Anthropic RLHF dataset
+    description: The dialogue datasets released by Anthropic to facilitate research in model helpfulness and harmlessness ([Bai et al., 2022](https://arxiv.org/pdf/2204.05862.pdf); [Ganguli et al., 2022](https://arxiv.org/pdf/2209.07858.pdf)). We only use the first utterance of each dialogue.
+    metric_groups:
+      - instruction_following_metrics
+    environment:
+      main_name: Helpfulness
+      main_split: test
+    taxonomy:
+      task: open-ended instruction following
+      what: "Human-LM dialogues and preference labels"
+      who: "Workers from MTurk and Upwork, language models from Anthropic"
+      when: "2022"
+      language: English
+
+  # Ideally, the name should be "best_chatgpt_prompts".
+  # But unfortunately the group name in the results is "grammar",
+  # so the schema has to match the same group name.
+  # TODO: Change the group name in the "grammar" run spec, and then change this group name.
+  - name: grammar
+    display_name: Best ChatGPT Prompts
+    short_display_name: Best ChatGPT Prompts
+    description: A list of “best ChatGPT prompts to power your workflow” summarized by [GRIDFITI](https://gridfiti.com/best-chatgpt-prompts/).
+    metric_groups:
+      - instruction_following_metrics
+    environment:
+      main_name: Helpfulness
+      main_split: test
+    taxonomy:
+      task: open-ended instruction following
+      what: "Instructions for LLMs"
+      who: "Gridfiti Staff"
+      when: "2023"
+      language: English
+
+  - name: koala
+    display_name: Koala test dataset
+    short_display_name: Koala test dataset
+    description: The test dataset from the [Koala paper](https://bair.berkeley.edu/blog/2023/04/03/koala/) for evaluating instruction-following models.
+    metric_groups:
+      - instruction_following_metrics
+    environment:
+      main_name: Helpfulness
+      main_split: test
+    taxonomy:
+      task: open-ended instruction following
+      what: "Instructions for LLMs"
+      who: "Web users"
+      when: "Before 2023"
+      language: English
+
+  - name: open_assistant
+    display_name: Open Assistant
+    short_display_name: Open Assistant
+    description: LAION’s OpenAssistant Conversations Dataset (OASST1) that consists of 66,497 conversation trees ([Köpf et al., 2023](https://openreview.net/forum?id=VSJotgbPHF)). We only use the initial prompt in each conversation.
+    metric_groups:
+      - instruction_following_metrics
+    environment:
+      main_name: Helpfulness
+      main_split: valid
+    taxonomy:
+      task: open-ended instruction following
+      what: "Human-written dialogues and response rankings"
+      who: "Open Assistant participants"
+      when: "2023"
+      language: "35 languages"
+
+  - name: self_instruct
+    display_name: Self Instruct
+    short_display_name: Self Instruct
+    description: The manually-curated instructions from the Self-Instruct paper ([Wang et al., 2023](https://aclanthology.org/2023.acl-long.754.pdf)).
+    metric_groups:
+      - instruction_following_metrics
+    environment:
+      main_name: Helpfulness
+      main_split: test
+    taxonomy:
+      task: open-ended instruction following
+      what: "Instructions for LLMs"
+      who: "Authors of the research paper"
+      when: "2022"
+      language: English
+
+  - name: vicuna
+    display_name: Vicuna
+    short_display_name: Vicuna
+    description: The set of prompts used by the [Vicuna](https://lmsys.org/blog/2023-03-30-vicuna/) team to evaluate instruction-following models.
+    metric_groups:
+      - instruction_following_metrics
+    environment:
+      main_name: Helpfulness
+      main_split: test
+    taxonomy:
+      task: open-ended instruction following
+      what: "Instructions for LLMs"
+      who: "Unknown"
+      when: "Before 2023"
+      language: English

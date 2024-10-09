@@ -50,14 +50,13 @@ class ThePileScenario(Scenario):
         self.subset = subset
 
     @htrack(None)
-    def load_and_cache_all_subsets(self, output_path):
-        data_path = os.path.join(output_path, "data")
+    def load_and_cache_all_subsets(self, data_jsonl, output_path):
         subsets: Dict[str, List] = {subset: [] for subset in self.pile_subsets}
 
         # Load all data into memory
         with htrack_block("Loading"):
-            hlog(f"Loading all data from {data_path}")
-            with open(data_path) as f:
+            hlog(f"Loading all data from {data_jsonl}")
+            with open(data_jsonl) as f:
                 data = [json.loads(line) for line in f]
 
         # Classify the documents by subset
@@ -76,10 +75,10 @@ class ThePileScenario(Scenario):
 
     def get_instances(self, output_path: str) -> List[Instance]:
         # Download the raw data
-        data_path = os.path.join(output_path, "data")
+        data_jsonl = os.path.join(output_path, "data")
         ensure_file_downloaded(
             source_url="https://the-eye.eu/public/AI/pile/test.jsonl.zst",
-            target_path=data_path,
+            target_path=data_jsonl,
             unpack=True,
         )
 
@@ -87,7 +86,7 @@ class ThePileScenario(Scenario):
 
         # If the target subset does not exist, load and cache all subsets to the directory
         if not os.path.exists(subset_path):
-            self.load_and_cache_all_subsets(output_path)
+            self.load_and_cache_all_subsets(data_jsonl, output_path)
 
         # Read all the instances
         instances = []

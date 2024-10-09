@@ -2,6 +2,7 @@ from typing import Dict, List, Union, Optional
 import string
 import dataclasses
 
+from helm.benchmark.run_spec_factory import get_default_model_deployment_for_model
 from helm.common.critique_request import (
     CritiqueRequest,
     CritiqueRequestResult,
@@ -11,14 +12,10 @@ from helm.common.critique_request import (
 )
 from helm.common.hierarchical_logger import hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import Request, RequestResult, Sequence
-from helm.proxy.clients.client import Client
+from helm.common.request import Request, RequestResult, GeneratedOutput
+from helm.clients.client import Client
 from helm.proxy.critique.critique_client import CritiqueClient
-
-try:
-    import anthropic
-except ModuleNotFoundError as e:
-    handle_module_not_found_error(e)
+from helm.common.media_object import MultimediaObject, MediaObject
 
 
 class CritiqueParseError(Exception):
@@ -28,9 +25,20 @@ class CritiqueParseError(Exception):
 class ModelCritiqueClient(CritiqueClient):
     """A CritiqueClient that queries a Model to answer CritiqueRequests."""
 
+    VISION_LANGUAGE_MODELS = ["openai/gpt-4-vision", "reka/reka", "huggingface/prometheus-vision"]
+
     def __init__(self, client: Client, model_name):
         self._client = client
         self._model_name = model_name
+        self._model_deployment_name = (
+            get_default_model_deployment_for_model(model_name, warn_arg_deprecated=False, ignore_deprecated=True)
+            or self._model_name
+        )
+        self.vision_language = False
+        for vision_language_model_name in self.VISION_LANGUAGE_MODELS:
+            if model_name.startswith(vision_language_model_name):
+                self.vision_language = True
+                break
 
     def _interpolate_fields(self, text: str, fields: Dict[str, str]) -> str:
         for key, value in fields.items():
@@ -58,10 +66,15 @@ class ModelCritiqueClient(CritiqueClient):
 
         requests: List[Request] = []
         for question in task.questions:
-            prompt: str = base_prompt + "\n\n" + self._question_to_prompt(question, fields)
+            prompt: str
+            if len(question.text) > 0:
+                prompt = base_prompt + "\n\n" + self._question_to_prompt(question, fields)
+            else:
+                # We may don't want to add extra newlines and prompts
+                # if the question text is empty (e.g., the Vibe-Eval evaluator).
+                prompt = base_prompt
             if question.question_type == "free_response":
-                # TODO: Make max_tokens configurable
-                max_tokens = 100
+                max_tokens = 100 if task.max_tokens is None else task.max_tokens
             elif question.question_type == "checkbox":
                 # We multiply by 2 because the model will generate a comma after each option.
                 max_tokens = len(question.options) * 2
@@ -71,13 +84,28 @@ class ModelCritiqueClient(CritiqueClient):
             # Special case for Anthropic to handle prefix and suffix.
             # TODO(josselin): Fix this once refactor of HELM allows for automatic model prefix and suffix.
             if self._model_name.startswith("anthropic"):
+                try:
+                    import anthropic
+                except ModuleNotFoundError as e:
+                    handle_module_not_found_error(e, ["anthropic"])
+
                 prompt = anthropic.HUMAN_PROMPT + prompt + anthropic.AI_PROMPT
+
+            multimodal_prompt: Optional[MultimediaObject] = None
+            if self.vision_language:
+                assert question.media_object is not None, "Expect media_object for vision-language models"
+                image_media: MediaObject = question.media_object
+                text_media: MediaObject = MediaObject(text=prompt, content_type="text/plain")
+                multimodal_prompt = MultimediaObject(media_objects=[image_media, text_media])
+                prompt = ""  # set to empty string to avoid conflicts with multimodal_prompt
 
             request = Request(
                 model=self._model_name,
+                model_deployment=self._model_deployment_name,
                 prompt=prompt,
                 max_tokens=max_tokens,
                 echo_prompt=False,
+                multimodal_prompt=multimodal_prompt,
             )
             requests.append(request)
         return requests
@@ -108,7 +136,7 @@ class ModelCritiqueClient(CritiqueClient):
         return answers
 
     def _multiple_choice_completion_to_answer(
-        self, question: CritiqueQuestionTemplate, completion: Sequence
+        self, question: CritiqueQuestionTemplate, completion: GeneratedOutput
     ) -> Optional[str]:
         """Convert a multiple choice completion to an answer."""
         assert question.question_type == "multiple_choice"
@@ -118,14 +146,20 @@ class ModelCritiqueClient(CritiqueClient):
                 raise CritiqueParseError(
                     f"Invalid answer: {completion}. Multiple choice questions should have one answer."
                 )
-            return answers[0]
+            letter_answer = answers[0]
+            choice_rank = string.ascii_uppercase.index(letter_answer)
+            if choice_rank >= len(question.options):
+                raise CritiqueParseError(
+                    f"Invalid answer: {completion}. The answer is out of range of the options: {question.options}"
+                )
+            return letter_answer
         except CritiqueParseError as e:
             # If there was an error parsing the answer, we assume the user did not answer the question.
             hlog(f"Error parsing answer: {e}. Skipping question (and so the respondent entirely)")
             return None
 
     def _checkbox_completion_to_answer(
-        self, question: CritiqueQuestionTemplate, completion: Sequence
+        self, question: CritiqueQuestionTemplate, completion: GeneratedOutput
     ) -> Optional[List[str]]:
         """Convert a checkbox completion to an answer."""
         assert question.question_type == "checkbox"
@@ -141,7 +175,9 @@ class ModelCritiqueClient(CritiqueClient):
             hlog(f"Error parsing answer: {e}. Skipping question (and so the respondent entirely)")
             return None
 
-    def _free_response_completion_to_answer(self, question: CritiqueQuestionTemplate, completion: Sequence) -> str:
+    def _free_response_completion_to_answer(
+        self, question: CritiqueQuestionTemplate, completion: GeneratedOutput
+    ) -> str:
         """Convert a free response completion to an answer."""
         assert question.question_type == "free_response"
         return completion.text

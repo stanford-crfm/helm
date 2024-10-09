@@ -1,10 +1,10 @@
 from random import Random
 
-from .perturbation import Perturbation
+from .perturbation import TextPerturbation
 from .perturbation_description import PerturbationDescription
 
 
-class LowerCasePerturbation(Perturbation):
+class LowerCasePerturbation(TextPerturbation):
     """
     Simple perturbation turning input and references into lowercase.
     """

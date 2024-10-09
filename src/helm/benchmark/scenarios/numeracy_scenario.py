@@ -3,7 +3,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from itertools import combinations_with_replacement, product
 import math
-from math import comb  # type: ignore
+from math import comb
 import numpy as np
 import numpy.typing as npt
 import random
@@ -22,7 +22,7 @@ try:
     from sympy import Symbol, Poly, diff
     from sympy.parsing.sympy_parser import standard_transformations, implicit_multiplication_application
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e)
+    handle_module_not_found_error(e, ["scenarios"])
 
 
 # TODO: we shouldn't create an Adapter and TokenizerService in a scenario
@@ -358,7 +358,7 @@ def distance_paraboloid(point: List[int], rel_str: str, TOL: float = 1e-10):
         sols = []
         # Try each possible combined solution for x, y, z, λ
         for sol_xyz, val_λs in zip(sols_xyz, vals_λ):
-            val_λs = list(set(filter(lambda _: not _.is_symbol, val_λs)))  # get distinct values for λ if there are any
+            val_λs = tuple(set(filter(lambda _: not _.is_symbol, val_λs)))  # get distinct values for λ if there are any
             if len(val_λs) > 1:  # there can be at most one distinct value for λ
                 continue
             val_λ = val_λs[0] if val_λs else λ
@@ -544,7 +544,7 @@ def get_numeracy_adapter_spec(
                 "max_eval_instances": max_eval_instances,
                 "num_outputs": 1,
                 "num_train_trials": 1,
-                "model": "openai/davinci",
+                "model_deployment": "openai/davinci",
                 "temperature": 0,
                 "stop_sequences": ["\n"],
                 "max_tokens": 20,

@@ -1,55 +1,110 @@
 # Developer Setup
 
+## Check your system Python version
+
+Check your system verison of Python by running:
+
+```bash
+python --version
+```
+
+If your version of Python is older than 3.9, you _must_ use either **Conda** or **pyenv** to install a version of Python >=3.9 when setting up your virtual environment.
+
 ## Set up the Python virtual environment
 
-First, create a Python virtual environment with Python version >= 3.8 and activate it.
+First, create a Python virtual environment with Python version >= 3.9 and activate it.
 
-Using [Virtualenv](https://docs.python.org/3/library/venv.html#creating-virtual-environments):
+Using [**Virtualenv**](https://docs.python.org/3/library/venv.html#creating-virtual-environments) (*requires* system Python version >=3.9):
 
-    # Create a virtual environment.
-    # Only run this the first time.
-    python3 -m pip install virtualenv
-    python3 -m virtualenv -p python3 venv
+```bash
+# Create a virtual environment.
+# Only run this the first time.
+python3 -m pip install virtualenv
+python3 -m virtualenv -p python3 venv
 
-    # Activate the virtual environment.
-    source venv/bin/activate
+# Activate the virtual environment.
+# Run this every time you open your shell.
+source venv/bin/activate
+```
 
-Using [Anaconda](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html):
+Using [**Conda**](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html):
 
-    # Create a virtual environment.
-    # Only run this the first time.
-    conda create -n crfm-helm python=3.8 pip
+```bash
+# Create a virtual environment.
+# Only run this the first time.
+conda create -n crfm-helm python=3.10 pip
 
-    # Activate the virtual environment.
-    conda activate crfm-helm
+# Activate the virtual environment.
+# Run this every time you open your shell.
+conda activate crfm-helm
+```
 
-## Install dependencies
+Using [**pyenv**](https://github.com/pyenv/pyenv) and [**pyenv-virtualenv**](https://github.com/pyenv/pyenv-virtualenv):
+
+```bash
+# Create a virtual environment.
+# Only run this the first time.
+pyenv virtualenv 3.10 crfm-helm
+
+# Activate the virtual environment.
+# Run this every time you open your shell.
+pyenv activate crfm-helm
+```
+
+## Install Python dependencies
 
 To install any dependencies:
 
-    ./install-dev.sh
+```bash
+pip install --force-reinstall -e .[dev]
+```
 
-If you run into errors when installing dependencies, please create a new Python virtual environment using the previous instructions, and then try installing the dependencies again.
+## Run Python tests
 
-Optionally, install Git commit hooks:
+Currently, running all the unit tests takes about 10 minutes. To run all unit tests:
 
-    pre-commit install
-
-## Run tests
-
-First, follow the earlier instructions to activate the virtual environment.
-
-To run all unit tests:
-
-    python -m pytest
+```bash
+python -m pytest
+```
 
 Append `-vv` to output the full diff and results:
 
-    python -m pytest -vv
+```bash
+python -m pytest -vv
+```
 
-To run a specific file, simply specify the path:
+When modifying the Python code, you usually want to only run certain relevant tests. To run a specific test file, specify the file path as follows:
 
-    python -m pytest <path/to/file> -vv
+```bash
+python -m pytest path/to/test_file.py -vv
+```
+
+## Run linter and type-checker
+
+You should always ensure that your code is linted and type-checked before creating a pull request. This is typically enforced by our git pre-commit hooks. Install the pre-commit hooks by running:
+
+```bash
+pre-commit install
+```
+
+This will automatically run the linter and type-checker whenever you run `git push` to push a branch. To skip running the linter and type checker when pushing a branch, use the `--no-verify` flag with `git push`.
+
+To run the linter and type-checker manually:
+
+```bash
+./pre-commit.sh
+```
+
+Alternatively, you can run only the linter or only the type checker separately:
+
+```bash
+# Linters
+black src scripts
+flake8 src scripts
+
+# Type checker
+mypy src scripts
+```
 
 ## Executing helm commands with local modifications
 

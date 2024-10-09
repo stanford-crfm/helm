@@ -18,7 +18,7 @@ try:
     import surge
     from surge import questions as surge_questions
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e)
+    handle_module_not_found_error(e, ["human-evaluation"])
 
 
 _surge_cache_lock = threading.Lock()

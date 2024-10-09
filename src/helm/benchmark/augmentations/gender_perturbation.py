@@ -6,7 +6,7 @@ from typing import Dict, List, Optional, Tuple
 
 from helm.common.general import match_case
 from .perturbation_description import PerturbationDescription
-from .perturbation import Perturbation
+from .perturbation import TextPerturbation
 
 
 """ Gender term mappings """
@@ -62,7 +62,7 @@ GENDER_PRONOUN_MAPPINGS: List[Tuple[str, ...]] = [
 ]
 
 
-class GenderPerturbation(Perturbation):
+class GenderPerturbation(TextPerturbation):
     """Individual fairness perturbation for gender terms and pronouns."""
 
     """ Short unique identifier of the perturbation (e.g., extra_space) """
@@ -214,7 +214,7 @@ class GenderPerturbation(Perturbation):
     def perturb(self, text: str, rng: Random) -> str:
         """Perform the perturbations on the provided text."""
         # Substitute the words
-        for (word, synonym) in self.word_synonym_pairs:
+        for word, synonym in self.word_synonym_pairs:
             text = self.substitute_word(text, word, synonym, rng)
 
         return text

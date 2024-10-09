@@ -7,9 +7,9 @@ from typing import List, Dict, Optional
 
 from helm.benchmark.adaptation.prompt import Prompt
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.scenarios.scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS, Reference
 from helm.common.general import parallel_map
+from helm.common.request import Request
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from .adapter import Adapter
 
@@ -30,7 +30,7 @@ class InContextLearningAdapter(Adapter, ABC):
         pass
 
     @htrack(None)
-    def adapt(self, instances: List[Instance], parallelism: int) -> ScenarioState:
+    def adapt(self, instances: List[Instance], parallelism: int) -> List[RequestState]:
         """
         Takes a list of `Instance`s and builds a list of corresponding `RequestState`s.
         The reason we don't do this per eval instance is that we create a common set of
@@ -64,7 +64,7 @@ class InContextLearningAdapter(Adapter, ABC):
                 )
 
         hlog(f"{len(all_request_states)} requests")
-        return ScenarioState(self.adapter_spec, all_request_states)
+        return all_request_states
 
     def _adapt_trial_index(
         self,
@@ -101,7 +101,23 @@ class InContextLearningAdapter(Adapter, ABC):
                             hlog(line)
 
         # Flatten and return
-        return [request_state for result in results for request_state in result]
+        all_request_states: List[RequestState] = [request_state for result in results for request_state in result]
+        return self._add_trials(all_request_states)
+
+    def _add_trials(self, request_states: List[RequestState]) -> List[RequestState]:
+        """Expand the request states by adding trials."""
+        if self.adapter_spec.num_trials <= 1:
+            return request_states
+
+        all_request_states: List[RequestState] = request_states.copy()
+        for i in range(1, self.adapter_spec.num_trials):
+            seed: str = str(i)
+            for request_state in request_states:
+                request: Request = replace(request_state.request, random=seed)
+                all_request_states.append(replace(request_state, request=request))
+
+        assert len(all_request_states) == len(request_states) * self.adapter_spec.num_trials
+        return all_request_states
 
     def sample_examples(
         self, all_train_instances: List[Instance], seed: int, sample_train: bool = True
@@ -214,6 +230,7 @@ class InContextLearningAdapter(Adapter, ABC):
         # Prompt
         prompt = Prompt(
             global_prefix=self.adapter_spec.global_prefix,
+            global_suffix=self.adapter_spec.global_suffix,
             instructions_block=instructions_block,
             train_instance_blocks=train_instance_blocks,
             eval_instance_block=eval_instance_block,

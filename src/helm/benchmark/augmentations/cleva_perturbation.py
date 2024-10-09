@@ -10,13 +10,13 @@ from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.benchmark.scenarios.scenario import Input, Instance, Reference, Output
 from .perturbation_description import PerturbationDescription
-from .perturbation import Perturbation
+from .perturbation import Perturbation, TextPerturbation
 
 
 ############################################################
 
 
-class ChineseTyposPerturbation(Perturbation):
+class ChineseTyposPerturbation(TextPerturbation):
     """
     Chinese typos. For implementation details, see
     https://github.com/GEM-benchmark/NL-Augmenter/tree/main/nlaugmenter/transformations/chinese_butter_fingers_perturbation
@@ -114,7 +114,7 @@ class ChineseTyposPerturbation(Perturbation):
         try:
             import jieba
         except ModuleNotFoundError as e:
-            handle_module_not_found_error(e)
+            handle_module_not_found_error(e, ["cleva"])
         butter_text: str = ""
         output: List[str] = jieba.lcut(text)
         if self.word_level_perturb:
@@ -164,7 +164,7 @@ class ChineseTyposPerturbation(Perturbation):
         try:
             import pypinyin
         except ModuleNotFoundError as e:
-            handle_module_not_found_error(e)
+            handle_module_not_found_error(e, ["cleva"])
         pinyin_for_char_to_be_perturbed: str = "".join(
             [item for pinyin in pypinyin.pinyin(chinese_character) for item in pinyin]
         )
@@ -226,7 +226,7 @@ class ChineseTyposPerturbation(Perturbation):
             import unidecode
             import pypinyin
         except ModuleNotFoundError as e:
-            handle_module_not_found_error(e)
+            handle_module_not_found_error(e, ["cleva"])
         if len(original_word) == 1:
             similar_pinyins = self.get_characters_with_similar_pinyin(
                 original_word,
@@ -261,7 +261,7 @@ class ChineseTyposPerturbation(Perturbation):
         try:
             import unidecode
         except ModuleNotFoundError as e:
-            handle_module_not_found_error(e)
+            handle_module_not_found_error(e, ["cleva"])
         if not consider_tone:
             pinyin_for_char_to_be_perturbed = unidecode.unidecode(pinyin_for_char_to_be_perturbed)
         candidate_chars = chinese_character_database.get(pinyin_for_char_to_be_perturbed, [])
@@ -271,7 +271,7 @@ class ChineseTyposPerturbation(Perturbation):
         return chars_with_similar_pinyin
 
 
-class ChineseSynonymPerturbation(Perturbation):
+class ChineseSynonymPerturbation(TextPerturbation):
     """
     Chinese synonyms. For implementation details, see
     https://github.com/GEM-benchmark/NL-Augmenter/blob/main/nlaugmenter/transformations/chinese_antonym_synonym_substitution
@@ -319,7 +319,7 @@ class ChineseSynonymPerturbation(Perturbation):
         try:
             import jieba
         except ModuleNotFoundError as e:
-            handle_module_not_found_error(e)
+            handle_module_not_found_error(e, ["cleva"])
         words = jieba.lcut(text)
 
         for _ in range(self.trial_num):
@@ -340,7 +340,7 @@ class ChineseSynonymPerturbation(Perturbation):
         return sample_list[index]
 
 
-class CLEVAMildMixPerturbation(Perturbation):
+class CLEVAMildMixPerturbation(TextPerturbation):
     """
     CLEVA robustness perturbation that composes several perturbations.
     """
@@ -370,7 +370,7 @@ class CLEVAMildMixPerturbation(Perturbation):
 ############################################################
 
 
-class ChineseGenderPerturbation(Perturbation):
+class ChineseGenderPerturbation(TextPerturbation):
     """Individual fairness perturbation for Chinese gender terms and pronouns."""
 
     name: str = "chinese_gender"
@@ -468,7 +468,7 @@ class ChineseGenderPerturbation(Perturbation):
         try:
             import jieba
         except ModuleNotFoundError as e:
-            handle_module_not_found_error(e)
+            handle_module_not_found_error(e, ["cleva"])
         words = jieba.lcut(text)
 
         mapping_dict = self.term_dict[(self.source_class, self.target_class)]
@@ -601,13 +601,6 @@ class ChinesePersonNamePerturbation(Perturbation):
         name = rng.choice(list(options))
         return name
 
-    def perturb(self, text: str, rng: Random) -> str:
-        """
-        Perturbing the text is handled in `perturb_with_persistency` to ensure that perturbed names
-        in `Instance`s and `Reference`s match.
-        """
-        raise NotImplementedError("Should never be called")
-
     def perturb_with_persistency(
         self, text: str, rng: Random, name_substitution_mapping: Dict[str, str], skipped_tokens: Set[str]
     ) -> str:
@@ -675,7 +668,7 @@ class ChinesePersonNamePerturbation(Perturbation):
         try:
             import jieba.posseg as pseg
         except ModuleNotFoundError as e:
-            handle_module_not_found_error(e)
+            handle_module_not_found_error(e, ["cleva"])
         tokens: List[str] = []
         tags: List[str] = []
         output: Tuple[List[str], List[str]] = pseg.cut(text)
@@ -686,7 +679,7 @@ class ChinesePersonNamePerturbation(Perturbation):
         return tokens, tags
 
 
-class SimplifiedToTraditionalPerturbation(Perturbation):
+class SimplifiedToTraditionalPerturbation(TextPerturbation):
     """Individual fairness perturbation for Chinese simplified to Chinese traditional."""
 
     name: str = "simplified_to_traditional"
@@ -704,7 +697,7 @@ class SimplifiedToTraditionalPerturbation(Perturbation):
         try:
             import opencc
         except ModuleNotFoundError as e:
-            handle_module_not_found_error(e)
+            handle_module_not_found_error(e, ["cleva"])
         self.converter = opencc.OpenCC("s2t.json")
 
     def perturb(self, text: str, rng: Random) -> str:
@@ -713,7 +706,7 @@ class SimplifiedToTraditionalPerturbation(Perturbation):
         return perturbed_text
 
 
-class MandarinToCantonesePerturbation(Perturbation):
+class MandarinToCantonesePerturbation(TextPerturbation):
     """
     Individual fairness perturbation for Mandarin to Cantonese translation.
     The implementation is inspired by https://justyy.com/tools/chinese-converter/
@@ -739,7 +732,7 @@ class MandarinToCantonesePerturbation(Perturbation):
         try:
             import opencc
         except ModuleNotFoundError as e:
-            handle_module_not_found_error(e)
+            handle_module_not_found_error(e, ["cleva"])
         self.s2t_converter = opencc.OpenCC("s2t.json")
 
         target_path = os.path.join("benchmark_output", "perturbations", self.name, "conversion.json")

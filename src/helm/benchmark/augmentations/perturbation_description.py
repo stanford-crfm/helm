@@ -23,7 +23,7 @@ class PerturbationDescription:
     computed_on: str = PERTURBATION_PERTURBED
     """Which types of Instances we are evaluating, to be populated during metric evaluation. PERTURBATION_PERTURBED
     (default) means we are evaluating on perturbed instances, PERTURBATION_ORIGINAL means we are evaluating the
-    unperturbed version of instances where this perturbation appplies, and, PERTURBATION_WORST means the the minimum
+    unperturbed version of instances where this perturbation applies, and, PERTURBATION_WORST means the the minimum
     metric between the two."""
 
     seed: Optional[int] = None

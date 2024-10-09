@@ -7,6 +7,7 @@ div.doc-function {
 # Schemas
 
 ::: helm.benchmark.scenarios.scenario.Scenario
+::: helm.benchmark.adaptation.scenario_state.ScenarioState
 ::: helm.benchmark.adaptation.request_state.RequestState
 ::: helm.benchmark.scenarios.scenario.Instance
 ::: helm.benchmark.scenarios.scenario.Reference

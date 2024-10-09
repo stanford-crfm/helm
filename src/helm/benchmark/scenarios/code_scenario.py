@@ -48,6 +48,7 @@ APPS is a benchmark for code generation from natural language specifications.
 Each instance has 1) a problem description with examples (as what you get in
 programming competitions), 2) coding solutions, 3) test cases.
 """
+
 import io
 import json
 import os
@@ -139,8 +140,8 @@ def _read_and_preprocess_apps(target_path: str) -> List[CodeInstance]:
     # only if the version of Python has a default limit.
     #
     # See: https://docs.python.org/3/library/stdtypes.html#int-max-str-digits
-    if hasattr(sys, "set_int_max_str_digits"):  # type: ignore
-        sys.set_int_max_str_digits(100000)  # type: ignore
+    if hasattr(sys, "set_int_max_str_digits"):
+        sys.set_int_max_str_digits(100000)
 
     SINGLE_STR_LIMIT = 150000  # From original codebase.
 

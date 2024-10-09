@@ -1,6 +1,7 @@
 from tempfile import TemporaryDirectory
 from typing import List
 
+from helm.common.cache_backend_config import BlackHoleCacheBackendConfig
 from .tokenizer_service import TokenizerService
 from .window_service_factory import WindowServiceFactory
 from .test_utils import get_tokenizer_service, TEST_PROMPT
@@ -117,7 +118,7 @@ class TestPalmyraWindowService:
 
     def setup_method(self):
         self.temporary_directory = TemporaryDirectory()
-        service: TokenizerService = get_tokenizer_service(self.temporary_directory.name)
+        service: TokenizerService = get_tokenizer_service(self.temporary_directory.name, BlackHoleCacheBackendConfig())
         self.window_service = WindowServiceFactory.get_window_service("writer/palmyra-large", service)
 
     def teardown_method(self, method):

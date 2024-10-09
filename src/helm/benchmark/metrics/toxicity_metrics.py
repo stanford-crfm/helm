@@ -5,7 +5,7 @@ from helm.common.request import RequestResult
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.proxy.clients.perspective_api_client import PerspectiveAPIClientCredentialsError
+from helm.clients.perspective_api_client import PerspectiveAPIClientCredentialsError
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService

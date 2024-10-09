@@ -7,7 +7,8 @@ import urllib
 import uuid
 import zstandard
 from typing import Any, Callable, Dict, List, Optional, TypeVar
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from datetime import datetime, date
+from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm
 
 import pyhocon
@@ -62,7 +63,7 @@ def shell(args: List[str]):
     hlog(f"Executing: {cmd}")
     exit_code = subprocess.call(args)
     if exit_code != 0:
-        hlog(f"Failed with exit code {exit_code}: {cmd}")
+        raise Exception(f"Failed with exit code {exit_code}: {cmd}")
 
 
 @htrack(None)
@@ -87,7 +88,7 @@ def ensure_file_downloaded(
             try:
                 import gdown  # noqa
             except ModuleNotFoundError as e:
-                handle_module_not_found_error(e)
+                handle_module_not_found_error(e, ["scenarios"])
             downloader_executable = "gdown"
         tmp_path: str = f"{target_path}.tmp"
         shell([downloader_executable, source_url, "-O", tmp_path])
@@ -160,6 +161,13 @@ def asdict_without_nones(obj: Any) -> Dict[str, Any]:
     return asdict(obj, dict_factory=lambda x: {k: v for (k, v) in x if v is not None})
 
 
+def serialize_dates(obj):
+    """Serialize dates (pass deault=serialize_dates into json.dumps)."""
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    raise TypeError(f"Type {type(obj)} is not serializable")
+
+
 def binarize_dict(d: Dict[str, int]) -> Dict[str, int]:
     """Binarize the dict by setting the values that are 1 to 0.
 
@@ -214,20 +222,14 @@ InT = TypeVar("InT")
 OutT = TypeVar("OutT")
 
 
-def parallel_map(
-    process: Callable[[InT], OutT], items: List[InT], parallelism: int, multiprocessing: bool = False
-) -> List[OutT]:
+def parallel_map(process: Callable[[InT], OutT], items: List[InT], parallelism: int) -> List[OutT]:
     """
     A wrapper for applying `process` to all `items`.
     """
-    units = "processes" if multiprocessing else "threads"
-    with htrack_block(f"Parallelizing computation on {len(items)} items over {parallelism} {units}"):
+    with htrack_block(f"Parallelizing computation on {len(items)} items over {parallelism} threads"):
         results: List
         if parallelism == 1:
             results = list(tqdm(map(process, items), total=len(items), disable=None))
-        elif multiprocessing:
-            with ProcessPoolExecutor(max_workers=parallelism) as executor:
-                results = list(tqdm(executor.map(process, items), total=len(items), disable=None))
         else:
             with ThreadPoolExecutor(max_workers=parallelism) as executor:
                 results = list(tqdm(executor.map(process, items), total=len(items), disable=None))
@@ -320,3 +322,20 @@ def safe_symlink(src: str, dest: str) -> None:
 def is_url(location: str) -> bool:
     """Return True if `location` is a url. False otherwise."""
     return urllib.parse.urlparse(location).scheme in ["http", "https"]
+
+
+def assert_is_str(val: Any) -> str:
+    assert isinstance(val, str)
+    return val
+
+
+def assert_is_str_list(val: Any) -> List[str]:
+    assert isinstance(val, list)
+    for v in val:
+        assert isinstance(v, str)
+    return val
+
+
+def assert_present(val: Optional[InT]) -> InT:
+    assert val is not None
+    return val

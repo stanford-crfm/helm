@@ -4,6 +4,7 @@ import os
 from threading import Lock
 from typing import Dict, List, Optional, Tuple, Union
 import re
+import sys
 
 from helm.common.critique_request import (
     CritiqueRequest,
@@ -14,6 +15,8 @@ from helm.common.critique_request import (
 )
 from helm.common.hierarchical_logger import hlog
 from helm.proxy.critique.mechanical_turk_utils import replace_emoji_characters
+
+csv.field_size_limit(sys.maxsize)
 
 # A representation of fields that can be used as a dict key.
 _CritiqueRequestKey = Tuple[Tuple[str, str], ...]

@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 from random import Random
 
-from .perturbation import Perturbation
+from .perturbation import TextPerturbation
 from .perturbation_description import PerturbationDescription
 
 
-class ExtraSpacePerturbation(Perturbation):
+class ExtraSpacePerturbation(TextPerturbation):
     """
     A toy perturbation that replaces existing spaces in the text with
     `num_spaces` number of spaces.
