@@ -2,6 +2,54 @@
 
 ## [Upcoming]
 
+## [v0.5.4] - 2024-10-09
+
+### Breaking Changes
+
+- Python 3.8 is no longer supported (#2978)
+
+### Scenarios
+
+- Fix prompt for BANKING77 (#3009)
+- Split up LINDSEA scenario (#2938)
+
+### Models
+
+- Add o1 models (#2989)
+- Add Palmyra-X-004 model (#2990)
+- Add Palmyra-Med and Palmyra-Fin models (#3028)
+- Add Llama 3.2 Turbo models on Together AI (#3029)
+- Add Llama 3 Instruct Lite / Turbo on Together AI (#3031)
+- Add Llama 3 CPT SEA-Lion v2 models (#3036)
+- Add vision support to Together AI client (#3041)
+
+### Frontend
+
+- Display null annotator values correctly in the frontend (#3003)
+
+### Framework
+
+- Fix incorrect handling of ties in win rate computation (#3001, #2008)
+- Add mean row aggregation to HELM summarize (#2997, #3030)
+
+### Developer Workflow
+
+- Move pre-commit to pre-push (#3013)
+- Improve local frontend pre-commit (#3012)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @brianwgoldman
+- @chiheem
+- @farzaank
+- @JoelNiklaus
+- @liamjxu
+- @teetone
+- @weiqipedia
+- @yifanmai
+
 ## [v0.5.3] - 2024-09-06
 
 ### Breaking Changes
@@ -627,7 +675,8 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.3...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.4...HEAD
+[v0.5.3]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.4
 [v0.5.3]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.3
 [v0.5.2]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.2
 [v0.5.1]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.1
