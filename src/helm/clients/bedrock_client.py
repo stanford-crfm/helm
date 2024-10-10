@@ -22,16 +22,17 @@ class BedrockClient(CachingClient):
     @abstractmethod
     def convert_raw_response_to_completions(self, response: Dict, request: Request) -> List[GeneratedOutput]:
         raise NotImplementedError()
-    
-    '''
+
+    """
     Amazon Bedrock is a fully managed service that provides s selection of leading foundation models (FMs) from Amazon 
     and other partner model providers.
-    '''
+    """
+
     @property
     @abstractmethod
     def model_provider(self) -> str:
         raise NotImplementedError()
-    
+
     def __init__(
         self,
         cache_config: CacheConfig,
@@ -52,13 +53,13 @@ class BedrockClient(CachingClient):
 
     def make_request(self, request: Request) -> RequestResult:
         # model_id should be something like "amazon.titan-tg1-large", replace amazon- prefix with model creator name
-        model_name=request.model.split("/")[-1]
-        #check if model_name starts with "amazon-"
-        if self.model_provider=="amazon":
-            model_id=f"{self.model_provider}.{model_name}"          
+        model_name = request.model.split("/")[-1]
+        # check if model_name starts with "amazon-"
+        if self.model_provider == "amazon":
+            model_id = f"{self.model_provider}.{model_name}"
         else:
-            model_id=model_name.replace("amazon-", f"{self.model_provider}.")
-      
+            model_id = model_name.replace("amazon-", f"{self.model_provider}.")
+
         raw_request = self.convert_request_to_raw_request(request)
 
         # modelId isn't part of raw_request, so it must be explicitly passed into the input to
@@ -84,7 +85,6 @@ class BedrockClient(CachingClient):
             )
 
         completions = self.convert_raw_response_to_completions(response, request)
-       
 
         return RequestResult(
             success=True,
@@ -103,7 +103,7 @@ class BedrockTitanClient(BedrockClient):
         "FINISH": "endoftext",
     }
 
-    #creator org for titan
+    # creator org for titan
     model_provider = "amazon"
 
     def convert_request_to_raw_request(self, request: Request) -> Dict:
@@ -136,7 +136,7 @@ class BedrockTitanClient(BedrockClient):
         # - tokens
         # - logprob
         completions: List[GeneratedOutput] = []
-        
+
         for raw_completion in response["results"]:
             output_text = raw_completion["outputText"]
             # Call lstrip() Titan has the tendency to emit "\n" as the first token in the generated text output.
@@ -174,7 +174,7 @@ class BedrockMistralClient(BedrockClient):
     def convert_raw_response_to_completions(self, response: Dict, request: Request) -> List[GeneratedOutput]:
         # - logprob
         completions: List[GeneratedOutput] = []
-        
+
         for raw_completion in response["outputs"]:
             output_text = raw_completion["text"]
 
