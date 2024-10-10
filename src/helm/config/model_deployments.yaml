@@ -105,17 +105,12 @@ model_deployments:
 
 
   # Amazon
+  # Titan on Amazon Bedrock
+
   - name: amazon/titan-text-lite-v1
     model_name: amazon/titan-text-lite-v1
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 4000
-    client_spec:
-      class_name: "helm.clients.bedrock_client.BedrockTitanClient"
-
-  - name: amazon/titan-tg1-large
-    model_name: amazon/titan-tg1-large
-    tokenizer_name: huggingface/gpt2
-    max_sequence_length: 8000
     client_spec:
       class_name: "helm.clients.bedrock_client.BedrockTitanClient"
 
@@ -125,8 +120,54 @@ model_deployments:
     max_sequence_length: 8000
     client_spec:
       class_name: "helm.clients.bedrock_client.BedrockTitanClient"
+  
+  # Mistral on Amazon Bedrock
 
+  - name: amazon/mistral-7b-instruct-v0:2
+    model_name: mistralai/amazon-mistral-7b-instruct-v0:2
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 8000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockMistralClient"
+  
+  - name: amazon/mixtral-8x7b-instruct-v0:1
+    model_name: mistralai/amazon-mixtral-8x7b-instruct-v0:1
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 4000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockMistralClient"
+  
+  - name: amazon/mistral-large-2402-v1:0
+    model_name: mistralai/amazon-mistral-large-2402-v1:0
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 8000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockMistralClient"
+  
+  - name: amazon/mistral-small-2402-v1:0
+    model_name: mistralai/amazon-mistral-small-2402-v1:0
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 8000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockMistralClient"
 
+  # Llama 3 on Amazon Bedrock
+  
+  - name: amazon/llama3-8b-instruct-v1:0
+    model_name: meta/amazon-llama3-8b-instruct-v1:0
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockLlamaClient"
+
+  - name: amazon/llama3-70b-instruct-v1:0
+    model_name: meta/amazon-llama3-70b-instruct-v1:0
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockLlamaClient"
+
+  
   # Anthropic
   - name: anthropic/claude-v1.3
     model_name: anthropic/claude-v1.3
