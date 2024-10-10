@@ -304,7 +304,7 @@ class AnnotatedImageMetrics(Metric):
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=UserWarning)
                 # https://lightning.ai/docs/torchmetrics/stable/image/learned_perceptual_image_patch_similarity.html
-                self._lpips_metric = LearnedPerceptualImagePatchSimilarity(net_type="vgg", normalize=True).to(
+                self._lpips_metric = 1-LearnedPerceptualImagePatchSimilarity(net_type="vgg", normalize=True).to(
                     self._device
                 )
 
