@@ -18,6 +18,11 @@ To add new models and scenarios, refer to the Developer Guide's chapters:
 - [Developer Setup](developer_setup.md)
 - [Code Structure](code.md)
 
+## Papers
 
-We also support evaluating text-to-image models as introduced in **Holistic Evaluation of Text-to-Image Models (HEIM)**
-([paper](https://arxiv.org/abs/2311.04287), [website](https://crfm.stanford.edu/heim/latest)).
+This repository contains code used to produce results for the following papers:
+
+- **Holistic Evaluation of Vision-Language Models (VHELM)** - paper (TBD), [leaderboard](https://crfm.stanford.edu/helm/vhelm/latest/), [documentation](https://crfm-helm.readthedocs.io/en/latest/vhelm/)
+- **Holistic Evaluation of Text-To-Image Models (HEIM)** - [paper](https://arxiv.org/abs/2311.04287), [leaderboard](https://crfm.stanford.edu/helm/heim/latest/), [documentation](https://crfm-helm.readthedocs.io/en/latest/heim/)
+
+The HELM Python package can be used to reproduce the published model evaluation results from these papers. To get started, refer to the documentation links above for the corresponding paper, or the [main Reproducing Leaderboards documentation](https://crfm-helm.readthedocs.io/en/latest/reproducing_leaderboards/).

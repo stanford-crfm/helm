@@ -21,22 +21,23 @@ pip install "crfm-helm[vlm]"
 
 ## Quick Start
 
+The following is an example of evaluating `openai/gpt-4o-mini-2024-07-18` on 10 instance from the Accounting subset of MMMU.
+
 ```sh
 # Download schema_vhelm.yaml
 wget https://raw.githubusercontent.com/stanford-crfm/helm/refs/heads/main/src/helm/benchmark/static/schema_vhelm.yaml
 
 # Run benchmark
-helm-run --run-entries mmmu:subject=Accounting,model=openai/gpt-4o-mini-2024-07-18 --suite my-suite --max-eval-instances 10
+helm-run --run-entries mmmu:subject=Accounting,model=openai/gpt-4o-mini-2024-07-18 --suite my-vhelm-suite --max-eval-instances 10
 
 # Summarize benchmark results
-helm-summarize --suite my-suite --schema-path schema_vhelm.yaml
+helm-summarize --suite my-vhelm-suite --schema-path schema_vhelm.yaml
 
 # Start a web server to display benchmark results
-helm-server --suite my-suite
+helm-server --suite my-vhelm-suite
 ```
 
 Then go to http://localhost:8000/ in your browser.
-
 
 ## Reproducing the Leaderboard
 
