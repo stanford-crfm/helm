@@ -24,7 +24,7 @@ class BedrockClient(CachingClient):
         raise NotImplementedError()
 
     """
-    Amazon Bedrock is a fully managed service that provides s selection of leading foundation models (FMs) from Amazon 
+    Amazon Bedrock is a fully managed service that provides s selection of leading foundation models (FMs) from Amazon
     and other partner model providers.
     """
 
