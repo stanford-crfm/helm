@@ -23,6 +23,16 @@ class BedrockClient(CachingClient):
     def convert_raw_response_to_completions(self, response: Dict, request: Request) -> List[GeneratedOutput]:
         raise NotImplementedError()
 
+    """
+    Amazon Bedrock is a fully managed service that provides s selection of leading foundation models (FMs) from Amazon
+    and other partner model providers.
+    """
+
+    @property
+    @abstractmethod
+    def model_provider(self) -> str:
+        raise NotImplementedError()
+
     def __init__(
         self,
         cache_config: CacheConfig,
@@ -42,8 +52,14 @@ class BedrockClient(CachingClient):
         )
 
     def make_request(self, request: Request) -> RequestResult:
-        # model_id should be something like "amazon.titan-tg1-large"
-        model_id = self.bedrock_model_id if self.bedrock_model_id else request.model.replace("/", ".")
+        # model_id should be something like "amazon.titan-tg1-large", replace amazon- prefix with model creator name
+        model_name = request.model.split("/")[-1]
+        # check if model_name starts with "amazon-"
+        if self.model_provider == "amazon":
+            model_id = f"{self.model_provider}.{model_name}"
+        else:
+            model_id = model_name.replace("amazon-", f"{self.model_provider}.")
+
         raw_request = self.convert_request_to_raw_request(request)
 
         # modelId isn't part of raw_request, so it must be explicitly passed into the input to
@@ -58,6 +74,7 @@ class BedrockClient(CachingClient):
 
         try:
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+
         except Exception as error:
             return RequestResult(
                 success=False,
@@ -79,11 +96,15 @@ class BedrockClient(CachingClient):
         )
 
 
+# Amazon Bedrock Client for Titan Models
 class BedrockTitanClient(BedrockClient):
     _COMPLETION_REASON_TO_FINISH_REASON = {
         "LENGTH": "length",
         "FINISH": "endoftext",
     }
+
+    # creator org for titan
+    model_provider = "amazon"
 
     def convert_request_to_raw_request(self, request: Request) -> Dict:
         # TODO: Support the following:
@@ -115,6 +136,7 @@ class BedrockTitanClient(BedrockClient):
         # - tokens
         # - logprob
         completions: List[GeneratedOutput] = []
+
         for raw_completion in response["results"]:
             output_text = raw_completion["outputText"]
             # Call lstrip() Titan has the tendency to emit "\n" as the first token in the generated text output.
@@ -125,4 +147,84 @@ class BedrockTitanClient(BedrockClient):
                 output_text.lstrip(), request, self.tokenizer, self.tokenizer_name, finish_reason
             )
             completions.append(completion)
+        return completions
+
+
+# Amazon Bedrock Client for Mistral Models
+class BedrockMistralClient(BedrockClient):
+    _COMPLETION_REASON_TO_FINISH_REASON = {
+        "length": "length",
+        "stop": "endoftext",
+    }
+
+    model_provider = "mistral"
+
+    def convert_request_to_raw_request(self, request: Request) -> Dict:
+        # TODO: Support the following:
+        # - top_k_per_token
+        # - echo_prompt
+        # - num_completions
+        return {
+            "prompt": f"[INST]{request.prompt}[/INST]",
+            "temperature": request.temperature,
+            "top_p": request.top_p,
+            "max_tokens": request.max_tokens,
+        }
+
+    def convert_raw_response_to_completions(self, response: Dict, request: Request) -> List[GeneratedOutput]:
+        # - logprob
+        completions: List[GeneratedOutput] = []
+
+        for raw_completion in response["outputs"]:
+            output_text = raw_completion["text"]
+
+            finish_reason = BedrockMistralClient._COMPLETION_REASON_TO_FINISH_REASON.get(
+                raw_completion["stop_reason"], raw_completion["stop_reason"].lower()
+            )
+            # Work around generated outputs with leading whitespace due to issue #2467
+            # TODO(#2467): Remove workaround
+            completion = truncate_and_tokenize_response_text(
+                output_text.lstrip(), request, self.tokenizer, self.tokenizer_name, finish_reason
+            )
+            completions.append(completion)
+
+        return completions
+
+
+# Amazon Bedrock Client for LLAMA Models
+class BedrockLlamaClient(BedrockClient):
+    _COMPLETION_REASON_TO_FINISH_REASON = {
+        "length": "length",
+        "stop": "endoftext",
+    }
+
+    model_provider = "meta"
+
+    def convert_request_to_raw_request(self, request: Request) -> Dict:
+        # TODO: Support the following:
+        # - top_k_per_token
+        # - echo_prompt
+        # - num_completions
+        return {
+            "prompt": f"[INST]{request.prompt}[/INST]",
+            "temperature": request.temperature,
+            "top_p": request.top_p,
+            "max_gen_len": request.max_tokens,
+        }
+
+    def convert_raw_response_to_completions(self, response: Dict, request: Request) -> List[GeneratedOutput]:
+        # - logprob
+        completions: List[GeneratedOutput] = []
+        output_text = response["generation"]
+
+        finish_reason = BedrockLlamaClient._COMPLETION_REASON_TO_FINISH_REASON.get(
+            response["stop_reason"], response["stop_reason"].lower()
+        )
+        # Work around generated outputs with leading whitespace due to issue #2467
+        # TODO(#2467): Remove workaround
+        completion = truncate_and_tokenize_response_text(
+            output_text.lstrip(), request, self.tokenizer, self.tokenizer_name, finish_reason
+        )
+        completions.append(completion)
+
         return completions
