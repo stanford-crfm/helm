@@ -25,7 +25,7 @@ def open_image(image_location: str) -> Image.Image:
     """
     image: Image.Image
     if is_url(image_location):
-        image = Image.open(requests.get(image_location, stream=True).raw)
+        image = Image.open(requests.get(image_location, stream=True).raw)  # type: ignore
     else:
         image = Image.open(image_location)
     return image.convert("RGB")
