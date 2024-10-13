@@ -304,7 +304,7 @@ class AnnotatedImageMetrics(Metric):
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=UserWarning)
                 # https://lightning.ai/docs/torchmetrics/stable/image/learned_perceptual_image_patch_similarity.html
-                self._lpips_metric = 1 - LearnedPerceptualImagePatchSimilarity(net_type="vgg", normalize=True).to(
+                self._lpips_metric = LearnedPerceptualImagePatchSimilarity(net_type="vgg", normalize=True).to(
                     self._device
                 )
 
@@ -324,7 +324,7 @@ class AnnotatedImageMetrics(Metric):
 
         # Compute the LPIPS score
         assert self._lpips_metric is not None
-        score: float = self._lpips_metric(img1, img2).detach().item()
+        score: float = 1.0 - self._lpips_metric(img1, img2).detach().item()
         return score
 
     def _calculate_fid(self, act1, act2):
