@@ -6,9 +6,9 @@ from helm.benchmark.adaptation.adapter_spec import ADAPT_GENERATION, AdapterSpec
 from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_MULTIPLE_CHOICE_JOINT
 from helm.benchmark.adaptation.common_adapter_specs import get_multiple_choice_adapter_spec, get_generation_adapter_spec
 from helm.benchmark.annotation.annotator import AnnotatorSpec
-from helm.benchmark.metrics.common_metric_specs import get_exact_match_metric_specs
+from helm.benchmark.metrics.common_metric_specs import get_basic_metric_specs, get_exact_match_metric_specs
 from helm.benchmark.metrics.metric import MetricSpec
-from helm.benchmark.run_spec import RunSpec, run_spec_function
+from helm.benchmark.run_spec import AnnotatorSpec, RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 
@@ -87,6 +87,7 @@ Which context makes more sense given the scenario? Please answer using either "1
     )
 
 
+<<<<<<< HEAD
 @run_spec_function("autobencher_capabilities")
 def get_autobencher_capabilities_spec(subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -164,3 +165,28 @@ def get_autobencher_safety_spec() -> RunSpec:
         metric_specs=get_exact_match_metric_specs() + [annotator_metric_spec],
         groups=["autobencher_safety"],
     )
+=======
+@run_spec_function("czech_bank_qa")
+def get_czech_bank_qa_spec() -> RunSpec:
+    from helm.benchmark.scenarios.czech_bank_qa_scenario import CzechBankQAScenario
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.czech_bank_qa_scenario.CzechBankQAScenario", args={})
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=CzechBankQAScenario.INSTRUCTIONS,
+        input_noun="Instruction",
+        output_noun="SQL Query",
+        max_tokens=512,
+        stop_sequences=["\n\n"]
+    )
+
+    return RunSpec(
+        name="czech_bank_qa",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_basic_metric_specs([]) + [MetricSpec(class_name="helm.benchmark.metrics.czech_bank_qa_metrics.CzechBankQAMetrics", args={})],
+        annotators=[AnnotatorSpec("helm.benchmark.annotation.czech_bank_qa_annotator.CzechBankQAAnnotator")],
+        groups=["czech_bank_qa"],
+    )
+
+
+>>>>>>> Add CzechBankQA
