@@ -2625,7 +2625,7 @@ models:
     description: Qwen2.5 Instruct Turbo (7B) was trained on 18 trillion tokens and supports 29 languages, and shows improvements over Qwen2 in knowledge, coding, mathematics, instruction following, generating long texts, and processing structure data. ([blog](https://qwenlm.github.io/blog/qwen2.5/)) Turbo is Together's cost-efficient implementation, providing fast FP8 performance while maintaining quality, closely matching FP16 reference models. ([blog](https://www.together.ai/blog/together-inference-engine-2))
     creator_organization_name: Qwen
     access: open
-    release_date: 2024-06-07
+    release_date: 2024-09-19
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: qwen/qwen2.5-72b-instruct-turbo
@@ -2633,7 +2633,7 @@ models:
     description: Qwen2.5 Instruct Turbo (72B) was trained on 18 trillion tokens and supports 29 languages, and shows improvements over Qwen2 in knowledge, coding, mathematics, instruction following, generating long texts, and processing structure data. ([blog](https://qwenlm.github.io/blog/qwen2.5/)) Turbo is Together's cost-efficient implementation, providing fast FP8 performance while maintaining quality, closely matching FP16 reference models. ([blog](https://www.together.ai/blog/together-inference-engine-2))
     creator_organization_name: Qwen
     access: open
-    release_date: 2024-06-07
+    release_date: 2024-09-19
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: qwen/qwen-vl
