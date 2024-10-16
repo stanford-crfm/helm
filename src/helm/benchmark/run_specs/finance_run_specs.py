@@ -120,7 +120,7 @@ def get_news_headline_spec(category: str) -> RunSpec:
     from helm.benchmark.scenarios.gold_commodity_news_scenario import GoldCommodityNewsScenario
 
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.news_headline_scenario.NewsHeadlineScenario",
+        class_name="helm.benchmark.scenarios.gold_commodity_news_scenario.GoldCommodityNewsScenario",
         args={"category": category},
     )
 
