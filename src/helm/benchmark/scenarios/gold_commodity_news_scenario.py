@@ -64,16 +64,22 @@ class GoldCommodityNewsScenario(Scenario):
     def get_instructions(cls, category: str):
         if category not in GoldCommodityNewsScenario.CATEGORY_INSTRUCTIONS:
             raise ValueError(
-                f"Invalid category: '{category}' Valid categories are: {list(GoldCommodityNewsScenario.CATEGORY_INSTRUCTIONS.keys())}"
+                f"Invalid category: '{category}' "
+                f"Valid categories are: {list(GoldCommodityNewsScenario.CATEGORY_INSTRUCTIONS.keys())}"
             )
 
-        return f'The following are news headlines about the gold commodity. Classify whether the news headline discusses {GoldCommodityNewsScenario.CATEGORY_INSTRUCTIONS[category]}. Answer only "Yes" or "No".'
+        return (
+            "The following are news headlines about the gold commodity. "
+            "Classify whether the news headline discusses "
+            f'{GoldCommodityNewsScenario.CATEGORY_INSTRUCTIONS[category]}. Answer only "Yes" or "No".'
+        )
 
     def __init__(self, category: str):
         super().__init__()
         if category not in GoldCommodityNewsScenario.CATEGORY_INSTRUCTIONS:
             raise ValueError(
-                f"Invalid category: '{category}' Valid categories are: {list(GoldCommodityNewsScenario.CATEGORY_INSTRUCTIONS.keys())}"
+                f"Invalid category: '{category}' "
+                f"Valid categories are: {list(GoldCommodityNewsScenario.CATEGORY_INSTRUCTIONS.keys())}"
             )
         self.column_name = GoldCommodityNewsScenario.CATEGORY_COLUMN_NAMES[category]
 
@@ -82,7 +88,10 @@ class GoldCommodityNewsScenario(Scenario):
         data_path = os.path.join(output_path, "finalDataset_0208.csv")
 
         ensure_file_downloaded(
-            source_url="https://www.kaggle.com/api/v1/datasets/download/daittan/gold-commodity-news-and-dimensions?dataset_version_number=1",
+            source_url=(
+                "https://www.kaggle.com/api/v1/datasets/download/daittan/"
+                "gold-commodity-news-and-dimensions?dataset_version_number=1"
+            ),
             target_path=data_path,
             unpack=True,
             unpack_type="unzip",
