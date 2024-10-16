@@ -125,9 +125,7 @@ def get_news_headline_spec(category: str) -> RunSpec:
     )
 
     adapter_spec = get_generation_adapter_spec(
-        instructions = GoldCommodityNewsScenario.get_instructions(category),
-        input_noun="Headline",
-        output_noun="Answer"
+        instructions=GoldCommodityNewsScenario.get_instructions(category), input_noun="Headline", output_noun="Answer"
     )
 
     return RunSpec(
