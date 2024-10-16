@@ -11,7 +11,7 @@ def test_legalbench_scenario():
     with TemporaryDirectory() as tmpdir:
         instances = scenario.get_instances(tmpdir)
     assert len(instances) == 11412
-    assert instances[0].input == Input(text='april gold down 20 cents to settle at $1,116.10/oz')
+    assert instances[0].input == Input(text="april gold down 20 cents to settle at $1,116.10/oz")
     assert instances[0].references == [
         Reference(output=Output(text="Yes"), tags=[CORRECT_TAG]),
     ]
