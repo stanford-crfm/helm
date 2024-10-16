@@ -94,7 +94,7 @@ run_groups:
       - gold_commodity_news
 
   - name: gold_commodity_news
-    display_name: Gold Commodity News Headlines
+    display_name: Gold Commodity News
     description: A classification benchmark based on a dataset of human-annotated gold commodity news headlines ([Sinha & Khandait, 2019](https://arxiv.org/abs/2009.04202)).
     metric_groups:
       - accuracy
