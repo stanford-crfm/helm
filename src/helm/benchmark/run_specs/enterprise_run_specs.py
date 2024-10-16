@@ -13,6 +13,7 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 ## Finance
 
+
 @run_spec_function("gold_commodity_news")
 def get_news_headline_spec(category: str) -> RunSpec:
     from helm.benchmark.scenarios.gold_commodity_news_scenario import GoldCommodityNewsScenario
