@@ -16,7 +16,7 @@ from helm.benchmark.scenarios.scenario import (
 
 
 
-class NewsHeadlineScenario(Scenario):
+class GoldCommodityNewsScenario(Scenario):
     """Gold commodity news headline classification
 
     Context:
@@ -32,7 +32,7 @@ class NewsHeadlineScenario(Scenario):
     "Impact of News on the Commodity Market: Dataset and Results." arXiv preprint arXiv:2009.04202 (2020)
     https://arxiv.org/abs/2009.04202"""
 
-    name = "news_headline"
+    name = "gold_commodity_news"
     description = "The dataset is a collection of news items related to the gold commodities from various sources."
 
     tags = ["news headline", "classification"]
@@ -63,16 +63,16 @@ class NewsHeadlineScenario(Scenario):
 
     @classmethod
     def get_instructions(cls, category: str):
-        if category not in NewsHeadlineScenario.CATEGORY_INSTRUCTIONS:
-            raise ValueError(f"Invalid category: '{category}' Valid categories are: {list(NewsHeadlineScenario.CATEGORY_INSTRUCTIONS.keys())}")
+        if category not in GoldCommodityNewsScenario.CATEGORY_INSTRUCTIONS:
+            raise ValueError(f"Invalid category: '{category}' Valid categories are: {list(GoldCommodityNewsScenario.CATEGORY_INSTRUCTIONS.keys())}")
         
-        return f"The following are news headlines about the gold commodity. Classify whether the news headline discusses {NewsHeadlineScenario.CATEGORY_INSTRUCTIONS[category]}. Answer only \"Yes\" or \"No\"."
+        return f"The following are news headlines about the gold commodity. Classify whether the news headline discusses {GoldCommodityNewsScenario.CATEGORY_INSTRUCTIONS[category]}. Answer only \"Yes\" or \"No\"."
 
     def __init__(self, category: str):
         super().__init__()
-        if category not in NewsHeadlineScenario.CATEGORY_INSTRUCTIONS:
-            raise ValueError(f"Invalid category: '{category}' Valid categories are: {list(NewsHeadlineScenario.CATEGORY_INSTRUCTIONS.keys())}")
-        self.column_name = NewsHeadlineScenario.CATEGORY_COLUMN_NAMES[category]
+        if category not in GoldCommodityNewsScenario.CATEGORY_INSTRUCTIONS:
+            raise ValueError(f"Invalid category: '{category}' Valid categories are: {list(GoldCommodityNewsScenario.CATEGORY_INSTRUCTIONS.keys())}")
+        self.column_name = GoldCommodityNewsScenario.CATEGORY_COLUMN_NAMES[category]
 
     def get_instances(self, output_path: str) -> List[Instance]:
         ensure_directory_exists(output_path)
