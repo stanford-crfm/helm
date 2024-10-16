@@ -22,18 +22,16 @@ from helm.benchmark.scenarios.scenario import (
 class GoldCommodityNewsScenario(Scenario):
     """Gold commodity news headline classification
 
-    Context:
-    This dataset contains the gold commodity news annotated into various dimensions including information such as
-    past movements and expected directionality in prices, asset comparison and other general information that the
-    news is referring to.
-    url: https://www.kaggle.com/datasets/daittan/gold-commodity-news-and-dimensions
-    Content:
-    The dataset contains 12 columns.
+    This dataset contains gold commodity news headlines annotated by humans labeled by humans with regards to
+    whether the news headline discusses past movements and expected directionality in prices, asset comparison
+    and other general information. The task is to classify the news headlines using these labels.
+
+    Paper: https://arxiv.org/abs/2009.04202
+    Dataset: https://www.kaggle.com/datasets/daittan/gold-commodity-news-and-dimensions
 
     Citation:
-    Sinha, Ankur, and Tanmay Khandait.
-    "Impact of News on the Commodity Market: Dataset and Results." arXiv preprint arXiv:2009.04202 (2020)
-    https://arxiv.org/abs/2009.04202"""
+    Ankur Sinha, Tanmay Khandait
+    "Impact of News on the Commodity Market: Dataset and Results." arXiv preprint arXiv:2009.04202 (2020)"""
 
     name = "gold_commodity_news"
     description = "The dataset is a collection of news items related to the gold commodities from various sources."
@@ -123,6 +121,4 @@ class GoldCommodityNewsScenario(Scenario):
         train_indexes = random.sample(list(range(len(instances))), k=math.floor(len(instances) / 10))
         for train_index in train_indexes:
             instances[train_index] = dataclasses.replace(instances[train_index], split=TRAIN_SPLIT)
-        return instances
-
         return instances
