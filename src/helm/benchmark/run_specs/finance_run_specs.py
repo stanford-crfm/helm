@@ -115,9 +115,9 @@ def get_banking77_spec() -> RunSpec:
     )
 
 
-@run_spec_function("news_headline")
+@run_spec_function("gold_commodity_news")
 def get_news_headline_spec(category: str) -> RunSpec:
-    from helm.benchmark.scenarios.news_headline_scenario import NewsHeadlineScenario
+    from helm.benchmark.scenarios.gold_commodity_news_scenario import GoldCommodityNewsScenario
 
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.news_headline_scenario.NewsHeadlineScenario",
@@ -125,15 +125,15 @@ def get_news_headline_spec(category: str) -> RunSpec:
     )
 
     adapter_spec = get_generation_adapter_spec(
-        instructions = NewsHeadlineScenario.get_instructions(category),
+        instructions = GoldCommodityNewsScenario.get_instructions(category),
         input_noun="Headline",
         output_noun="Answer"
     )
 
     return RunSpec(
-        name=f"news_headline:category={category}",
+        name=f"gold_commodity_news:category={category}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
-        groups=["news_headline", f"news_headline_{category}"],
+        groups=["gold_commodity_news"],
     )
