@@ -114,7 +114,6 @@ class GoldCommodityNewsScenario(Scenario):
             instance = Instance(
                 input=Input(text=str(row["News"])),
                 references=[Reference(Output(text=expected_output), tags=[CORRECT_TAG])],
-                
                 split=str(TEST_SPLIT),
             )
             instances.append(instance)
