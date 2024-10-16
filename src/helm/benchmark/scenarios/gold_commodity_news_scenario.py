@@ -1,8 +1,12 @@
+import dataclasses
+import math
 import os
+import random
 from typing import List
 
 import pandas as pd
 
+from helm.benchmark.runner import TRAIN_SPLIT
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
@@ -110,8 +114,16 @@ class GoldCommodityNewsScenario(Scenario):
             instance = Instance(
                 input=Input(text=str(row["News"])),
                 references=[Reference(Output(text=expected_output), tags=[CORRECT_TAG])],
-                # no explicit train/test split, so treat all rows as test cases
+                
                 split=str(TEST_SPLIT),
             )
             instances.append(instance)
+
+        # no explicit train/test split, so randomly assign 10% of rows to train
+        random.seed(0)
+        train_indexes = random.sample(list(range(len(instances))), k=math.floor(len(instances) / 10))
+        for train_index in train_indexes:
+            instances[train_index] = dataclasses.replace(instances[train_index], split=TRAIN_SPLIT)
+        return instances
+
         return instances
