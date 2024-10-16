@@ -117,17 +117,23 @@ def get_banking77_spec() -> RunSpec:
 
 @run_spec_function("news_headline")
 def get_news_headline_spec(category: str) -> RunSpec:
+    from helm.benchmark.scenarios.news_headline_scenario import NewsHeadlineScenario
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.news_headline_scenario.NewsHeadlineScenario",
         args={"category": category},
     )
 
-    adapter_spec = get_generation_adapter_spec(input_noun="Passage", output_noun="Answer")
+    adapter_spec = get_generation_adapter_spec(
+        instructions = NewsHeadlineScenario.get_instructions(category),
+        input_noun="Headline",
+        output_noun="Answer"
+    )
 
     return RunSpec(
         name=f"news_headline:category={category}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
-        groups=["news_headline"],
+        groups=["news_headline", f"news_headline_{category}"],
     )
