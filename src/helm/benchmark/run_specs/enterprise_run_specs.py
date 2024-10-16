@@ -11,7 +11,7 @@ from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 
-## Finance
+# Finance
 
 
 @run_spec_function("gold_commodity_news")
