@@ -58,7 +58,9 @@ class NewsHeadlineScenario(Scenario):
 
     def get_instances(self, output_path: str) -> List[Instance]:
         # data_dir = os.path.join(output_path, "data")
-        restricted_dir = os.path.join(output_path, "restricted") # https://crfm-helm.readthedocs.io/en/latest/benchmark/#running-restricted-benchmarks
+        restricted_dir = os.path.join(
+            output_path, "restricted"
+        )  # https://crfm-helm.readthedocs.io/en/latest/benchmark/#running-restricted-benchmarks
         # ensure_directory_exists(data_dir)
         ensure_directory_exists(restricted_dir)
 
