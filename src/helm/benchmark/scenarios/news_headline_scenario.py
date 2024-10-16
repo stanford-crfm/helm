@@ -1,10 +1,10 @@
 import os
 from typing import List
+
 import pandas as pd
 
-from helm.common.general import ensure_directory_exists
-
-from .scenario import (
+from helm.common.general import ensure_directory_exists, ensure_file_downloaded
+from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TEST_SPLIT,
     TRAIN_SPLIT,
@@ -57,40 +57,34 @@ class NewsHeadlineScenario(Scenario):
         self.category: str = category
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        # data_dir = os.path.join(output_path, "data")
-        restricted_dir = os.path.join(
-            output_path, "restricted"
-        )  # https://crfm-helm.readthedocs.io/en/latest/benchmark/#running-restricted-benchmarks
-        # ensure_directory_exists(data_dir)
-        ensure_directory_exists(restricted_dir)
-
-        target_path = os.path.join(restricted_dir, "finalDataset_0208.csv")
+        ensure_directory_exists(output_path)
+        data_path = os.path.join(output_path, "finalDataset_0208.csv")
+        
+        ensure_file_downloaded(
+            source_url="https://www.kaggle.com/api/v1/datasets/download/daittan/gold-commodity-news-and-dimensions?dataset_version_number=1",
+            target_path=data_path,
+            unpack=True,
+            unpack_type="unzip",
+        )
 
         # read pandas dataframe from csv
-        df = pd.read_csv(target_path, index_col=0)
-
-        # no explicit train/test split, so treat all rows as test cases
-        df["split"] = TEST_SPLIT
-        df.loc[0:100, "split"] = TRAIN_SPLIT
+        df = pd.read_csv(data_path, index_col=0)
 
         prompt_question = "Is the passage above about " + NewsHeadlineScenario.PROMPT_CATEGORIES[self.category][0] + "?"
 
         instances: List[Instance] = []
         for _, row in df.iterrows():
             expected_output: str
-            # sub_split: str
             if row[self.category] == 1:
                 expected_output = "Yes"
-                # sub_split = NewsHeadlineScenario.PROMPT_CATEGORIES[self.category][1]
             else:
                 expected_output = "No"
-                # sub_split = NewsHeadlineScenario.PROMPT_CATEGORIES[self.category][2]
 
             instance = Instance(
                 input=PassageQuestionInput(str(row["News"]), prompt_question),
                 references=[Reference(Output(text=expected_output), tags=[CORRECT_TAG])],
-                split=str(row["split"]),
-                # sub_split=sub_split,
+                # no explicit train/test split, so treat all rows as test cases
+                split=str(TEST_SPLIT),
             )
             instances.append(instance)
         return instances
