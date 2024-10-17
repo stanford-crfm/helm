@@ -167,7 +167,7 @@ natsort==8.4.0
 nest-asyncio==1.6.0
 networkx==3.2.1
 ninja==1.11.1.1
-nltk==3.8.1
+nltk==3.9
 nncf==2.13.0
 nodeenv==1.9.1
 NudeNet==2.0.9
@@ -178,8 +178,7 @@ onnx==1.16.2
 onnxruntime==1.19.2
 open_clip_torch==2.26.1
 openai==1.48.0
-OpenCC==1.1.7
-opencv-python==4.7.0.72
+opencv-python==4.8.1.78
 opencv-python-headless==4.10.0.84
 openvino==2024.4.0
 openvino-telemetry==2024.1.0
@@ -274,7 +273,7 @@ soupsieve==2.6
 spacy==3.7.6
 spacy-legacy==3.0.12
 spacy-loggers==1.0.5
-sqlitedict==1.7.0
+sqlitedict==2.1.0
 srsly==2.4.8
 surge-api==1.1.4
 sympy==1.11.1
