@@ -178,7 +178,7 @@ onnx==1.16.2
 onnxruntime==1.19.2
 open_clip_torch==2.26.1
 openai==1.48.0
-OpenCC==1.1.6
+OpenCC==1.1.7
 opencv-python==4.7.0.72
 opencv-python-headless==4.10.0.84
 openvino==2024.4.0
