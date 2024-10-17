@@ -1,3 +1,4 @@
+import os
 import pytest
 from tempfile import TemporaryDirectory
 
@@ -10,7 +11,6 @@ from helm.benchmark.scenarios.scenario import CORRECT_TAG
 @pytest.mark.scenarios
 def test_ewok_scenario():
     scenario = EWoKScenario()
-    import os
     token = os.getenv("HF_TOKEN")
     if not token:
         raise Exception("Hugging Face Token not found")
