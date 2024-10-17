@@ -197,7 +197,6 @@ pandas==2.2.3
 param==2.1.1
 parameterized==0.9.0
 pathspec==0.12.1
-pathtools==0.1.2
 pdf2image==1.16.3
 pillow==10.4.0
 platformdirs==4.3.6
