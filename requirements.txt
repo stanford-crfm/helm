@@ -167,7 +167,7 @@ natsort==8.4.0
 nest-asyncio==1.6.0
 networkx==3.2.1
 ninja==1.11.1.1
-nltk==3.9
+nltk==3.9.1
 nncf==2.13.0
 nodeenv==1.9.1
 NudeNet==2.0.9
