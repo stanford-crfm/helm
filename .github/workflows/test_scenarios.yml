@@ -29,4 +29,6 @@ jobs:
       - name: Install HELM 
         run: ./install-dev.sh && ./pre-commit.sh
       - name: Run scenario tests
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: python3 -m pytest -m scenarios
