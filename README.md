@@ -1,4 +1,30 @@
 <!--intro-start-->
+# Notes on this forked version
+This is a fork from the original HELM for a study of enterprise benchmarking of LLMs using domain-specific datasets.
+
+The following scenarios are added. Please refer to the docstring of the source code of each scenario, or the page shown by `helm-server` for the details.
+- Finance
+    - financial_phrasebank
+    - kpi_edgar
+    - conv_fin_qa
+    - news_headline
+- Legal
+    - legal_opinion
+    - echr_judge
+    - casehold_qa
+    - legal_contract
+- Climate
+    - sumosum
+- Cyber security
+    - cti_mitre
+
+The following metrics are added or modified.
+- kpi_edgar_metrics
+- classification_metrics  (weighted_f1)
+- basic_metrics  (float_equiv, a bug fix for f1_score)
+
+This study will be published elsewhere.
+- Citation: TBD
 
 # Holistic Evaluation of Language Models
 
