@@ -33,7 +33,7 @@
 		"title": "VHELM",
 		"description": "Holistic Evaluation of Vision-Language Models",
 		"id": "vhelm",
-		"releases": ["v1.0.0"]
+		"releases": ["v2.0.1", "v2.0.0", "v1.0.0"]
 	},
 	{
 		"title": "Image2Struct",
@@ -45,7 +45,7 @@
 		"title": "AIR-Bench",
 		"description": "Safety benchmark based on emerging government regulations and company policies",
 		"id": "air-bench",
-		"releases": ["v1.0.0"]
+		"releases": ["v1.1.0", "v1.0.0"]
 	},
 	{
 		"title": "CLEVA",
@@ -57,7 +57,7 @@
 		"title": "ThaiExam",
 		"description": "Thai-language evaluations of language models on standardized examinations in Thailand",
 		"id": "thaiexam",
-		"releases": ["v1.0.0"]
+		"releases": ["v1.1.0", "v1.0.0"]
 	},
 	{
 		"title": "All Leaderboards",

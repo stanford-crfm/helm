@@ -145,6 +145,23 @@ models:
     release_date: 2023-02-24
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: aisingapore/llama3-8b-cpt-sea-lionv2-base
+    display_name: Llama 3 CPT SEA-Lion v2 (8B)
+    description: Llama 3 CPT SEA-Lion v2 (8B) is a multilingual model which was continued pre-trained on 48B additional tokens, including tokens in Southeast Asian languages.
+    creator_organization_name: AI Singapore
+    access: open
+    num_parameters: 80300000000
+    release_date: 2024-07-31
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: aisingapore/llama3-8b-cpt-sea-lionv2.1-instruct
+    display_name: Llama 3 CPT SEA-Lion v2.1 Instruct (8B)
+    description: Llama 3 CPT SEA-Lion v2.1 Instruct (8B) is a multilingual model which has been fine-tuned with around 100,000 English instruction-completion pairs alongside a smaller pool of around 50,000 instruction-completion pairs from other Southeast Asian languages, such as Indonesian, Thai and Vietnamese.
+    creator_organization_name: AI Singapore
+    access: open
+    num_parameters: 80300000000
+    release_date: 2024-08-21
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # Aleph Alpha
   # Aleph Alpha's Luminous models: https://docs.aleph-alpha.com/docs/introduction/luminous
@@ -203,6 +220,7 @@ models:
 
 
   # Amazon
+  # Titan Models
   # References for Amazon Titan models:
   # - https://aws.amazon.com/bedrock/titan/
   # - https://community.aws/content/2ZUVD3fkNtqEOYIa2iUJAFArS7c/family-of-titan-text-models---cli-demo
@@ -213,16 +231,8 @@ models:
     creator_organization_name: Amazon
     access: limited
     release_date: 2023-11-29
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
-
-  - name: amazon/titan-tg1-large
-    display_name: Amazon Titan Large
-    description: Amazon Titan Large is efficient model perfect for fine-tuning English-language tasks like summarization, create article, marketing campaign.
-    creator_organization_name: Amazon
-    access: limited
-    release_date: 2023-11-29
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
-
+    tags: [BEDROCK_MODEL_TAG,TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+ 
   - name: amazon/titan-text-express-v1
     display_name: Amazon Titan Text Express
     description: Amazon Titan Text Express, with a context length of up to 8,000 tokens, excels in advanced language tasks like open-ended text generation and conversational chat. It's also optimized for Retrieval Augmented Generation (RAG). Initially designed for English, the model offers preview multilingual support for over 100 additional languages.
@@ -231,7 +241,62 @@ models:
     release_date: 2023-11-29
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+# Mistral Models on Bedrock
+# References for Mistral on Amazon Bedrock
+# https://aws.amazon.com/bedrock/mistral/
 
+  - name: mistralai/amazon-mistral-7b-instruct-v0:2
+    display_name:  Mistral 7B Instruct on Amazon Bedrock
+    description: A 7B dense Transformer, fast-deployed and easily customisable. Small, yet powerful for a variety of use cases. Supports English and code, and a 32k context window.
+    creator_organization_name: Mistral
+    access: limited
+    release_date: 2023-07-11
+    tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/amazon-mixtral-8x7b-instruct-v0:1
+    display_name: Mixtral 8x7B Instruct on Amazon Bedrock
+    description: A 7B sparse Mixture-of-Experts model with stronger capabilities than Mistral 7B. Uses 12B active parameters out of 45B total. Supports multiple languages, code and 32k context window.
+    creator_organization_name: Mistral
+    access: limited
+    release_date: 2023-07-11
+    tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/amazon-mistral-large-2402-v1:0
+    display_name: Mistral Large on Amazon Bedrock
+    description: The most advanced Mistral AI Large Language model capable of handling any language task including complex multilingual reasoning, text understanding, transformation, and code generation.
+    creator_organization_name: Mistral
+    access: limited
+    release_date: 2023-07-11
+    tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/amazon-mistral-small-2402-v1:0
+    display_name: Mistral Small on Amazon Bedrock
+    description: Mistral Small is perfectly suited for straightforward tasks that can be performed in bulk, such as classification, customer support, or text generation. It provides outstanding performance at a cost-effective price point.
+    creator_organization_name: Mistral
+    access: limited
+    release_date: 2023-07-11
+    tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+# Llama3 on Amazon Bedrock
+# References for Llama3 on Amazon Bedrock
+# https://aws.amazon.com/bedrock/llama/
+
+  - name: meta/amazon-llama3-8b-instruct-v1:0
+    display_name: Llama 3 8B Instruct on Amazon Bedrock
+    description: Meta Llama 3 is an accessible, open large language model (LLM) designed for developers, researchers, and businesses to build, experiment, and responsibly scale their generative AI ideas. Part of a foundational system, it serves as a bedrock for innovation in the global community. Ideal for limited computational power and resources, edge devices, and faster training times.
+    creator_organization_name: Meta
+    access: limited
+    release_date: 2023-07-11
+    tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: meta/amazon-llama3-70b-instruct-v1:0
+    display_name: Llama 3 70B Instruct on Amazon Bedrock
+    description: Meta Llama 3 is an accessible, open large language model (LLM) designed for developers, researchers, and businesses to build, experiment, and responsibly scale their generative AI ideas. Part of a foundational system, it serves as a bedrock for innovation in the global community. Ideal for content creation, conversational AI, language understanding, R&D, and Enterprise applications.
+    creator_organization_name: Meta
+    access: limited
+    release_date: 2023-07-11
+    tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+ 
   # Anthropic
   - name: anthropic/claude-v1.3
     display_name: Claude v1.3
@@ -868,6 +933,22 @@ models:
     release_date: 2024-05-24
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: google/gemini-1.5-pro-002
+    display_name: Gemini 1.5 Pro (002)
+    description: Gemini 1.5 Pro is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. This model is accessed through Vertex AI and has all safety thresholds set to `BLOCK_NONE`. ([paper](https://arxiv.org/abs/2403.05530))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2024-09-24
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-1.5-flash-002
+    display_name: Gemini 1.5 Flash (002)
+    description: Gemini 1.5 Flash is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. This model is accessed through Vertex AI and has all safety thresholds set to `BLOCK_NONE`. ([paper](https://arxiv.org/abs/2403.05530))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2024-09-24
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: google/gemma-2b
     display_name: Gemma (2B)
     description: Gemma is a family of lightweight, open models built from the research and technology that Google used to create the Gemini models. ([model card](https://www.kaggle.com/models/google/gemma), [blog post](https://blog.google/technology/developers/gemma-open-models/))
@@ -1427,6 +1508,24 @@ models:
     num_parameters: 8000000000
     release_date: 2024-04-18
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: meta/llama-3-8b-instruct-turbo
+    display_name: Llama 3 Instruct Turbo (8B)
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/) Turbo is Together's implementation, providing fast FP8 performance while maintaining quality, closely matching FP16 reference models. ([blog](https://www.together.ai/blog/together-inference-engine-2))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-07-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: meta/llama-3-8b-instruct-lite
+    display_name: Llama 3 Instruct Lite (8B)
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/) Lite is Together's implementation, it leverages a number of optimizations including INT4 quantization, provides the most cost-efficient and scalable Llama 3 models available anywhere, while maintaining excellent quality relative to full precision reference implementations ([blog](https://www.together.ai/blog/together-inference-engine-2))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-07-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
     
   - name: meta/llama-3-70b
     display_name: Llama 3 (70B)
@@ -1436,6 +1535,24 @@ models:
     num_parameters: 70000000000
     release_date: 2024-04-18
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    
+  - name: meta/llama-3-70b-instruct-turbo
+    display_name: Llama 3 Instruct Turbo (70B)
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/) Turbo is Together's implementation, providing fast FP8 performance while maintaining quality, closely matching FP16 reference models. ([blog](https://www.together.ai/blog/together-inference-engine-2))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-07-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    
+  - name: meta/llama-3-70b-instruct-lite
+    display_name: Llama 3 Instruct Lite (70B)
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/) Lite is Together's implementation, it leverages a number of optimizations including INT4 quantization, provides the most cost-efficient and scalable Llama 3 models available anywhere, while maintaining excellent quality relative to full precision reference implementations ([blog](https://www.together.ai/blog/together-inference-engine-2))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-07-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: meta/llama-3.1-8b-instruct-turbo
     display_name: Llama 3.1 Instruct Turbo (8B)
@@ -1444,7 +1561,7 @@ models:
     access: open
     num_parameters: 8000000000
     release_date: 2024-07-23
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: meta/llama-3.1-70b-instruct-turbo
     display_name: Llama 3.1 Instruct Turbo (70B)
@@ -1453,7 +1570,7 @@ models:
     access: open
     num_parameters: 70000000000
     release_date: 2024-07-23
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: meta/llama-3.1-405b-instruct-turbo
     display_name: Llama 3.1 Instruct Turbo (405B)
@@ -1462,7 +1579,34 @@ models:
     access: open
     num_parameters: 405000000000
     release_date: 2024-07-23
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: meta/llama-3.2-3b-instruct-turbo
+    display_name: Llama 3.2 Instruct Turbo (3B)
+    description: The Meta Llama 3.2 collection of multilingual large language models (LLMs) is a collection of pretrained and instruction-tuned text-only generative models in 1B and 3B sizes. ([blog](https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 3210000000
+    release_date: 2024-09-25
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: meta/llama-3.2-11b-vision-instruct-turbo
+    display_name: Llama 3.2 Vision Instruct Turbo (11B)
+    description: The Llama 3.2 Vision collection of multimodal large language models (LLMs) is a collection of pretrained and instruction-tuned image reasoning generative models in 11B and 90B sizes. ([blog](https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 10700000000
+    release_date: 2024-09-25
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG. LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: meta/llama-3.2-90b-vision-instruct-turbo
+    display_name: Llama 3.2 Vision Instruct Turbo (90B)
+    description: The Llama 3.2 Vision collection of multimodal large language models (LLMs) is a collection of pretrained and instruction-tuned image reasoning generative models in 11B and 90B sizes. ([blog](https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 88600000000
+    release_date: 2024-09-25
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG. LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: meta/llama-3-8b-chat
     display_name: Llama 3 Instruct (8B)
@@ -1508,9 +1652,6 @@ models:
     num_parameters: 8000000000
     release_date: 2024-07-23
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-
-
-  
 
 
   # Microsoft/NVIDIA
@@ -2479,6 +2620,22 @@ models:
     release_date: 2024-06-07
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: qwen/qwen2.5-7b-instruct-turbo
+    display_name: Qwen2.5 Instruct Turbo (7B)
+    description: Qwen2.5 Instruct Turbo (7B) was trained on 18 trillion tokens and supports 29 languages, and shows improvements over Qwen2 in knowledge, coding, mathematics, instruction following, generating long texts, and processing structure data. ([blog](https://qwenlm.github.io/blog/qwen2.5/)) Turbo is Together's cost-efficient implementation, providing fast FP8 performance while maintaining quality, closely matching FP16 reference models. ([blog](https://www.together.ai/blog/together-inference-engine-2))
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2024-09-19
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: qwen/qwen2.5-72b-instruct-turbo
+    display_name: Qwen2.5 Instruct Turbo (72B)
+    description: Qwen2.5 Instruct Turbo (72B) was trained on 18 trillion tokens and supports 29 languages, and shows improvements over Qwen2 in knowledge, coding, mathematics, instruction following, generating long texts, and processing structure data. ([blog](https://qwenlm.github.io/blog/qwen2.5/)) Turbo is Together's cost-efficient implementation, providing fast FP8 performance while maintaining quality, closely matching FP16 reference models. ([blog](https://www.together.ai/blog/together-inference-engine-2))
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2024-09-19
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: qwen/qwen-vl
     display_name: Qwen-VL
     description: Visual multimodal version of the Qwen large language model series ([paper](https://arxiv.org/abs/2308.12966)).
@@ -2951,6 +3108,33 @@ models:
     creator_organization_name: Writer
     access: limited
     release_date: 2024-09-12
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: writer/palmyra-med-32k
+    display_name: Palmyra-Med 32K (70B)
+    description: Palmyra-Med 32K (70B) is a model finetuned from Palmyra-X-003 intended for medical applications.
+    creator_organization_name: Writer
+    access: open
+    num_parameters: 70600000000
+    release_date: 2024-07-31
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: writer/palmyra-med
+    display_name: Palmyra-Med (70B)
+    description: Palmyra-Med (70B) is a model finetuned from Palmyra-X-003 intended for medical applications.
+    creator_organization_name: Writer
+    access: open
+    num_parameters: 70600000000
+    release_date: 2024-07-31
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: writer/palmyra-fin-32k
+    display_name: Palmyra-Fin 32K (70B)
+    description: Palmyra-Fin 32K (70B) is a model finetuned from Palmyra-X-003 intended for financial applications.
+    creator_organization_name: Writer
+    access: open
+    num_parameters: 70600000000
+    release_date: 2024-07-31
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # Yandex

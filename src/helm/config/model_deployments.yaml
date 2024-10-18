@@ -105,17 +105,12 @@ model_deployments:
 
 
   # Amazon
+  # Titan on Amazon Bedrock
+
   - name: amazon/titan-text-lite-v1
     model_name: amazon/titan-text-lite-v1
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 4000
-    client_spec:
-      class_name: "helm.clients.bedrock_client.BedrockTitanClient"
-
-  - name: amazon/titan-tg1-large
-    model_name: amazon/titan-tg1-large
-    tokenizer_name: huggingface/gpt2
-    max_sequence_length: 8000
     client_spec:
       class_name: "helm.clients.bedrock_client.BedrockTitanClient"
 
@@ -125,8 +120,54 @@ model_deployments:
     max_sequence_length: 8000
     client_spec:
       class_name: "helm.clients.bedrock_client.BedrockTitanClient"
+  
+  # Mistral on Amazon Bedrock
 
+  - name: amazon/mistral-7b-instruct-v0:2
+    model_name: mistralai/amazon-mistral-7b-instruct-v0:2
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 8000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockMistralClient"
+  
+  - name: amazon/mixtral-8x7b-instruct-v0:1
+    model_name: mistralai/amazon-mixtral-8x7b-instruct-v0:1
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 4000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockMistralClient"
+  
+  - name: amazon/mistral-large-2402-v1:0
+    model_name: mistralai/amazon-mistral-large-2402-v1:0
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 8000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockMistralClient"
+  
+  - name: amazon/mistral-small-2402-v1:0
+    model_name: mistralai/amazon-mistral-small-2402-v1:0
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 8000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockMistralClient"
 
+  # Llama 3 on Amazon Bedrock
+  
+  - name: amazon/llama3-8b-instruct-v1:0
+    model_name: meta/amazon-llama3-8b-instruct-v1:0
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockLlamaClient"
+
+  - name: amazon/llama3-70b-instruct-v1:0
+    model_name: meta/amazon-llama3-70b-instruct-v1:0
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockLlamaClient"
+
+  
   # Anthropic
   - name: anthropic/claude-v1.3
     model_name: anthropic/claude-v1.3
@@ -454,6 +495,24 @@ model_deployments:
       args:
         safety_settings_preset: block_none
 
+  - name: google/gemini-1.5-pro-002
+    model_name: google/gemini-1.5-pro-002
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+    # TODO: Max output tokens: 8192
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+
+  - name: google/gemini-1.5-flash-002
+    model_name: google/gemini-1.5-flash-002
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+    # TODO: Max output tokens: 8192
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+      args:
+        safety_settings_preset: default
+
   ## Gemma
   - name: together/gemma-2b
     model_name: google/gemma-2b
@@ -625,6 +684,26 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         trust_remote_code: true
+
+  - name: huggingface/llama3-8b-cpt-sea-lionv2-base
+    model_name: aisingapore/llama3-8b-cpt-sea-lionv2-base
+    tokenizer_name: meta/llama-3-8b-instruct
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/llama3-8b-cpt-sea-lionv2.1-instruct
+    model_name: aisingapore/llama3-8b-cpt-sea-lionv2.1-instruct
+    tokenizer_name: meta/llama-3-8b-instruct
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
 
   ## Bigcode
   - name: huggingface/santacoder
@@ -1846,7 +1925,25 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient"
       args:
-        together_model: meta-llama/Meta-Llama-3-8B
+        together_model: meta-llama/Llama-3-8b-hf
+
+  - name: together/llama-3-8b-instruct-turbo
+    model_name: meta/llama-3-8b-instruct-turbo
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: meta-llama/Meta-Llama-3-8B-Instruct-Turbo
+
+  - name: together/llama-3-8b-instruct-lite
+    model_name: meta/llama-3-8b-instruct-lite
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: meta-llama/Meta-Llama-3-8B-Instruct-Lite
 
   - name: together/llama-3-70b
     model_name: meta/llama-3-70b
@@ -1856,6 +1953,24 @@ model_deployments:
       class_name: "helm.clients.together_client.TogetherClient"
       args:
         together_model: meta-llama/Meta-Llama-3-70B
+
+  - name: together/llama-3-70b-instruct-turbo
+    model_name: meta/llama-3-70b-instruct-turbo
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: meta-llama/Meta-Llama-3-70B-Instruct-Turbo
+
+  - name: together/llama-3-70b-instruct-lite
+    model_name: meta/llama-3-70b-instruct-lite
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: meta-llama/Meta-Llama-3-70B-Instruct-Lite
 
   - name: together/llama-3.1-8b-instruct-turbo
     model_name: meta/llama-3.1-8b-instruct-turbo
@@ -1886,7 +2001,7 @@ model_deployments:
 
   - name: together/llama-3-8b-chat
     model_name: meta/llama-3-8b-chat
-    tokenizer_name: meta/llama-3-8b
+    tokenizer_name: meta/llama-3-8b-instruct
     max_sequence_length: 8182
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
@@ -1895,12 +2010,39 @@ model_deployments:
 
   - name: together/llama-3-70b-chat
     model_name: meta/llama-3-70b-chat
-    tokenizer_name: meta/llama-3-8b
+    tokenizer_name: meta/llama-3-8b-instruct
     max_sequence_length: 8182
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
       args:
         together_model: meta-llama/Llama-3-70b-chat-hf
+
+  - name: together/llama-3.2-3b-instruct-turbo
+    model_name: meta/llama-3.2-3b-instruct-turbo
+    tokenizer_name: meta/llama-3.2-3b-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        together_model: meta-llama/Llama-3.2-3B-Instruct-Turbo
+
+  - name: together/llama-3.2-11b-vision-instruct-turbo
+    model_name: meta/llama-3.2-11b-vision-instruct-turbo
+    tokenizer_name: meta/llama-3.2-11b-vision-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        together_model: meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo
+
+  - name: together/llama-3.2-90b-vision-instruct-turbo
+    model_name: meta/llama-3.2-90b-vision-instruct-turbo
+    tokenizer_name: meta/llama-3.2-11b-vision-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        together_model: meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo
 
   - name: together/llama-guard-7b
     model_name: meta/llama-guard-7b
@@ -2287,6 +2429,31 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.palmyra_client.PalmyraChatClient"
 
+  - name: writer/palmyra-med-32k
+    model_name: writer/palmyra-med-32k
+    # Palmyra-Med uses the "<|end_of_text|>" as the end of text token, which is used by meta/llama-3-8b,
+    # rather than "<|eot_id|>", which is used by meta/llama-3-8b-instruct
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 32000
+    client_spec:
+      class_name: "helm.clients.palmyra_client.PalmyraChatClient"
+
+  - name: writer/palmyra-med
+    model_name: writer/palmyra-med
+    # Palmyra-Med uses the "<|end_of_text|>" as the end of text token, which is used by meta/llama-3-8b,
+    # rather than "<|eot_id|>", which is used by meta/llama-3-8b-instruct
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.palmyra_client.PalmyraChatClient"
+
+  - name: writer/palmyra-fin-32k
+    model_name: writer/palmyra-fin-32k
+    tokenizer_name: meta/llama-3-8b-instruct
+    max_sequence_length: 32000
+    client_spec:
+      class_name: "helm.clients.palmyra_client.PalmyraChatClient"
+
   # Qwen
 
   - name: together/qwen-7b
@@ -2372,6 +2539,20 @@ model_deployments:
   - name: together/qwen2-72b-instruct
     model_name: qwen/qwen2-72b-instruct
     tokenizer_name: qwen/qwen2-72b-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+
+  - name: together/qwen2.5-7b-instruct-turbo
+    model_name: qwen/qwen2.5-7b-instruct-turbo
+    tokenizer_name: qwen/qwen2.5-7b-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+
+  - name: together/qwen2.5-72b-instruct-turbo
+    model_name: qwen/qwen2.5-72b-instruct-turbo
+    tokenizer_name: qwen/qwen2.5-7b-instruct
     max_sequence_length: 128000
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
