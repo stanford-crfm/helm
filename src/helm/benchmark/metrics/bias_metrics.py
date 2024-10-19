@@ -11,7 +11,12 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.nltk_helper import install_nltk_resources
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.metrics.metric_name import MetricName
-from helm.benchmark.metrics.bias_word_lists import GENDER_TO_WORD_LISTS, RACE_TO_NAME_LISTS, ADJECTIVE_LIST, PROFESSION_LIST
+from helm.benchmark.metrics.bias_word_lists import (
+    GENDER_TO_WORD_LISTS,
+    RACE_TO_NAME_LISTS,
+    ADJECTIVE_LIST,
+    PROFESSION_LIST,
+)
 
 
 install_nltk_resources()
