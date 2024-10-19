@@ -1,5 +1,4 @@
 import nltk
-from nltk.tokenize.punkt import PunktSentenceTokenizer
 from importlib.metadata import version
 
 
