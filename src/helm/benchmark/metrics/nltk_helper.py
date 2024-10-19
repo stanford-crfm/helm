@@ -17,7 +17,7 @@ def install_nltk_resources():
     # TODO: Remove support for nltk<=3.8.1 and only install "punkt_tab"
     nltk_major_version, nltk_minor_version = [int(v) for v in version("nltk").split(".")[0:2]]
     if nltk_major_version < 3:
-        raise Exception("ntlk version <2 is not supported")
+        raise Exception("ntlk version <3 is not supported")
     if nltk_minor_version >= 9:
         try:
             nltk.data.find("tokenizers/punkt_tab")
