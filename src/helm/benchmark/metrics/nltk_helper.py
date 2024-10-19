@@ -4,7 +4,7 @@ from importlib.metadata import version
 
 def install_nltk_resources():
     """Install resources for nltk tokenizers, which is required for bleu and rouge scores."""
-    # Install "punkt_tab" for nltk>=3.9.1 and "punkt" for nltk<=3.8.1
+    # Install "punkt_tab" for nltk>=3.9.1 or "punkt" for nltk<=3.8.1
     #
     # "punkt" is not longer supported for newer versions of nltk due to a security issue
     # and has been replaced by "punkt_tab". For more information, see:
