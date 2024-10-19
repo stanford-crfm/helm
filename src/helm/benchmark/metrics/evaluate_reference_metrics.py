@@ -1,6 +1,5 @@
 from dataclasses import replace
 from functools import partial
-from importlib.metadata import version
 from typing import Callable, Dict, List, Optional, Set, Tuple, cast
 import re
 import string
