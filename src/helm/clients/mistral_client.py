@@ -10,8 +10,8 @@ from helm.tokenizers.tokenizer import Tokenizer
 from .client import CachingClient, truncate_and_tokenize_response_text
 
 try:
-    from mistralai.client import MistralClient
-    from mistralai.models.chat_completion import ChatMessage, ChatCompletionResponse
+    from mistralai import Mistral
+    from mistralai.models import ChatCompletionResponse
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["mistral"])
 
@@ -45,21 +45,20 @@ class MistralAIClient(CachingClient):
         self.api_key: str = api_key
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
-        self._client = MistralClient(api_key=self.api_key)
+        self._client = Mistral(api_key=self.api_key)
         self.mistral_model = mistral_model
 
     def _send_request(self, raw_request: MistralAIRequest) -> Dict[str, Any]:
-        messages = [ChatMessage(role="user", content=raw_request["prompt"])]
-
-        chat_response: ChatCompletionResponse = self._client.chat(
+        chat_response: Optional[ChatCompletionResponse] = self._client.chat.complete(
             model=raw_request["model"],
-            messages=messages,
+            messages=[{"role": "user", "content": raw_request["prompt"]}],  # type: ignore
             temperature=raw_request["temperature"],
             max_tokens=raw_request["max_tokens"],
             top_p=raw_request["top_p"],
             random_seed=raw_request["random_seed"],
             safe_prompt=False,  # Disable safe_prompt
         )
+        assert chat_response is not None
         # Documentation: "If mode is 'json', the output will only contain JSON serializable types."
         # Source: https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel.model_dump
         #
