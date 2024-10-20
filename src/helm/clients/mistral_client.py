@@ -1,8 +1,9 @@
 import requests
-from typing import Any, Dict, List, Optional, TypedDict
+from typing import Any, Dict, List, Optional, TypedDict, Union
 
 from helm.proxy.retry import NonRetriableException
 from helm.common.cache import CacheConfig
+from helm.common.media_object import IMAGE_TYPE, TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput
 from helm.tokenizers.tokenizer import Tokenizer
@@ -19,7 +20,8 @@ class MistralAIRequest(TypedDict):
     """Data passed between make_request and _send_request. Used as the cache key."""
 
     model: str
-    prompt: str
+    # The prompt can be either a string or a list of messages that can be multimodal
+    prompt: Union[str, List[Dict[str, str]]]
     max_tokens: int
     temperature: float
     top_p: float
@@ -86,12 +88,35 @@ class MistralAIClient(CachingClient):
         """Make a request"""
         completions: List[GeneratedOutput] = []
 
+        prompt: Union[str, List[Dict[str, str]]] = request.prompt
+        if request.multimodal_prompt:
+            # Following https://docs.mistral.ai/capabilities/vision
+            multimodal_content: List[Dict[str, str]] = []
+            for media_object in request.multimodal_prompt.media_objects:
+                if media_object.is_type(IMAGE_TYPE) and media_object.location:
+                    assert media_object.location
+                    if media_object.is_local_file:
+                        from helm.common.images_utils import encode_base64
+
+                        base64_image: str = encode_base64(media_object.location)
+                        image_url = f"data:image/jpeg;base64,{base64_image}"
+                    else:
+                        image_url = media_object.location
+                    multimodal_content.append({"type": "image_url", "image_url": image_url})
+                elif media_object.is_type(TEXT_TYPE):
+                    assert media_object.text
+                    multimodal_content.append({"type": "text", "text": media_object.text})
+                else:
+                    raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
+
+            prompt = multimodal_content
+
         # `num_completions` is not supported, so instead make `num_completions` separate requests.
         for completion_index in range(request.num_completions):
             try:
                 raw_request: MistralAIRequest = {
                     "model": self.mistral_model or request.model_engine,
-                    "prompt": request.prompt,
+                    "prompt": prompt,
                     "max_tokens": request.max_tokens,
                     "temperature": request.temperature,
                     "top_p": request.top_p,
