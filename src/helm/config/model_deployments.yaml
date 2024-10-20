@@ -2035,8 +2035,7 @@ model_deployments:
 
   - name: together/llama-3.2-11b-vision-instruct-turbo
     model_name: meta/llama-3.2-11b-vision-instruct-turbo
-    # tokenizer_name: meta/llama-3.2-11b-vision-instruct
-    tokenizer_name: openai/o200k_base
+    tokenizer_name: meta/llama-3.2-11b-vision-instruct
     max_sequence_length: 128000
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
@@ -2045,8 +2044,7 @@ model_deployments:
 
   - name: together/llama-3.2-90b-vision-instruct-turbo
     model_name: meta/llama-3.2-90b-vision-instruct-turbo
-    # tokenizer_name: meta/llama-3.2-11b-vision-instruct
-    tokenizer_name: openai/o200k_base
+    tokenizer_name: meta/llama-3.2-11b-vision-instruct
     max_sequence_length: 128000
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
