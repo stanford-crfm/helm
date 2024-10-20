@@ -346,13 +346,29 @@ class TogetherChatClient(CachingClient):
                     message_contents.append({"type": "text", "text": media_object.text})
                 else:
                     raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
+
+            if request.model_engine in ["llama-3.2-11b-vision-instruct-turbo", "llama-3.2-90b-vision-instruct-turbo"]:
+                # Only supports a single input image. Remove the excess images.
+                seen_image: bool = False
+                filtered_message_contents = []
+                for message in message_contents:
+                    if message["type"] == "image_url":
+                        if seen_image:
+                            continue
+                        seen_image = True
+                    filtered_message_contents.append(message)
+
+                message_contents = filtered_message_contents
+
             messages = [{"role": "user", "content": message_contents}]
         else:
             messages = [{"role": "user", "content": request.prompt}]
+
         if self._together_model is not None:
             model = self._together_model
         else:
             model = request.model
+
         return {
             "messages": messages,
             "model": model,
