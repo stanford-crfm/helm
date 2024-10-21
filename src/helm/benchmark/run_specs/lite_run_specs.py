@@ -110,7 +110,26 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
         metric_specs=get_exact_match_metric_specs(),
         groups=[dataset],
     )
+@run_spec_function("mmlu_pro")
+def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.mmlu_pro.MMLUPROScenario", args={"subject": subject}
+    )
 
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=method,
+        instructions=f"The following are multiple choice questions (with answers) about {subject.replace('_', ' ')}.",
+        input_noun="Question",
+        output_noun="Answer",
+    )
+
+    return RunSpec(
+        name=f"mmlu_pro:subject={subject},method={method}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["mmlu_pro"],
+    )
 
 @run_spec_function("mmlu")
 def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
