@@ -6,6 +6,7 @@ from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
     Reference,
+    TRAIN_SPLIT,
     TEST_SPLIT,
     CORRECT_TAG,
     Input,
@@ -54,8 +55,6 @@ class GPQAScenario(Scenario):
         random.seed(self.random_seed)
         instances: List[Instance] = []
         for idx, row in enumerate(dataset):
-            if idx in EXCLUDED_TRAIN_EXAMPLES[self.subset]:
-                continue
             input = Input(text=row["Question"].strip())
             references = [
                 Reference(Output(text=row["Correct Answer"].strip()), tags=[CORRECT_TAG]),
@@ -64,7 +63,8 @@ class GPQAScenario(Scenario):
                 Reference(Output(text=row["Incorrect Answer 3"].strip()), tags=[]),
             ]
             random.shuffle(references)
-            instance = Instance(input=input, references=references, split=TEST_SPLIT)
+            split = TRAIN_SPLIT if idx in EXCLUDED_TRAIN_EXAMPLES[self.subset] else TEST_SPLIT
+            instance = Instance(input=input, references=references, split=split)
             instances.append(instance)
 
         return instances
