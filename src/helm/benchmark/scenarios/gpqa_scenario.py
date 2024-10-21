@@ -1,12 +1,12 @@
 import datasets
 import os
+import random
 from typing import List
-
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
     Reference,
-    TRAIN_SPLIT,
+    TEST_SPLIT,
     CORRECT_TAG,
     Input,
     Output,
@@ -14,11 +14,14 @@ from helm.benchmark.scenarios.scenario import (
 from helm.common.general import ensure_directory_exists
 
 
-SUBSETS = [
-    "gpqa_main",
-    "gpqa_diamond",
-    "gpqa_extended"
-]
+SUBSETS = ["gpqa_main", "gpqa_diamond", "gpqa_extended"]
+
+# Train example indices below are found by indexing examples given in the original paper repo
+EXCLUDED_TRAIN_EXAMPLES = {
+    "gpqa_main": [339, 105],
+    "gpqa_diamond": [124, 39],
+    "gpqa_extended": [146, 330, 436],
+}
 
 
 class GPQAScenario(Scenario):
@@ -47,21 +50,21 @@ class GPQAScenario(Scenario):
         )
         assert isinstance(dataset, datasets.Dataset)
 
-        # Real all instances
+        # Read all instances
+        random.seed(self.random_seed)
         instances: List[Instance] = []
-        for row in dataset:
+        for idx, row in enumerate(dataset):
+            if idx in EXCLUDED_TRAIN_EXAMPLES[self.subset]:
+                continue
             input = Input(text=row["Question"].strip())
             references = [
                 Reference(Output(text=row["Correct Answer"].strip()), tags=[CORRECT_TAG]),
                 Reference(Output(text=row["Incorrect Answer 1"].strip()), tags=[]),
                 Reference(Output(text=row["Incorrect Answer 2"].strip()), tags=[]),
-                Reference(Output(text=row["Incorrect Answer 3"].strip()), tags=[])
+                Reference(Output(text=row["Incorrect Answer 3"].strip()), tags=[]),
             ]
-            instance = Instance(
-                input=input,
-                references=references,
-                split=TRAIN_SPLIT
-            )  # TODO: are they test?
+            random.shuffle(references)
+            instance = Instance(input=input, references=references, split=TEST_SPLIT)
             instances.append(instance)
 
         return instances
