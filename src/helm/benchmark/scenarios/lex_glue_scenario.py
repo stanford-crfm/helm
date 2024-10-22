@@ -6,7 +6,17 @@ import datasets
 from datasets import load_dataset
 
 from helm.benchmark.scenarios.lextreme_scenario import TaskType
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, Input, Output
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    CORRECT_TAG,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    TEST_SPLIT,
+    Input,
+    Output,
+)
 
 ECTHR_A = "ecthr_a"
 ECTHR_B = "ecthr_b"

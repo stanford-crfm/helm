@@ -10,7 +10,10 @@
 import torch
 from icetk import icetk as tokenizer
 
-from helm.clients.image_generation.cogview2.sr_pipeline.dsr_sampling import filling_sequence_dsr, IterativeEntfilterStrategy
+from helm.clients.image_generation.cogview2.sr_pipeline.dsr_sampling import (
+    filling_sequence_dsr,
+    IterativeEntfilterStrategy,
+)
 from helm.clients.image_generation.cogview2.sr_pipeline.dsr_model import DsrModel
 from helm.common.optional_dependencies import handle_module_not_found_error
 

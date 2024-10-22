@@ -7,7 +7,10 @@ from helm.benchmark.scenarios.scenario import Input, Instance, Output, Reference
 from helm.benchmark.augmentations.data_augmenter import DataAugmenter
 from helm.benchmark.augmentations.extra_space_perturbation import ExtraSpacePerturbation
 from helm.benchmark.augmentations.misspelling_perturbation import MisspellingPerturbation
-from helm.benchmark.augmentations.contraction_expansion_perturbation import ContractionPerturbation, ExpansionPerturbation
+from helm.benchmark.augmentations.contraction_expansion_perturbation import (
+    ContractionPerturbation,
+    ExpansionPerturbation,
+)
 from helm.benchmark.augmentations.typos_perturbation import TyposPerturbation
 from helm.benchmark.augmentations.filler_words_perturbation import FillerWordsPerturbation
 from helm.benchmark.augmentations.synonym_perturbation import SynonymPerturbation

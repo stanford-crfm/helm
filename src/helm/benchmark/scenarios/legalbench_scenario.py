@@ -6,7 +6,16 @@ from pathlib import Path
 from typing import List, Dict
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, TEST_SPLIT, Input, Output
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    CORRECT_TAG,
+    TRAIN_SPLIT,
+    TEST_SPLIT,
+    Input,
+    Output,
+)
 
 PROMPT_SETTINGS_URL = "https://raw.githubusercontent.com/HazyResearch/legalbench/main/helm_prompt_settings.jsonl"
 

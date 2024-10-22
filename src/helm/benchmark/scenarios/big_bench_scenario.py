@@ -5,7 +5,17 @@ from typing import List, Dict
 from urllib.parse import urljoin
 
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Reference, Input, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, Output
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    Input,
+    CORRECT_TAG,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    TEST_SPLIT,
+    Output,
+)
 
 
 class BIGBenchScenario(Scenario):

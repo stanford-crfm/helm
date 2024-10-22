@@ -3,7 +3,9 @@ from typing import List
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.scenarios.scenario import Instance
 from helm.common.request import Request
-from helm.benchmark.adaptation.adapters.multimodal.in_context_learning_multimodal_adapter import InContextLearningMultimodalAdapter
+from helm.benchmark.adaptation.adapters.multimodal.in_context_learning_multimodal_adapter import (
+    InContextLearningMultimodalAdapter,
+)
 from helm.benchmark.adaptation.adapters.multimodal.multimodal_prompt import MultimodalPrompt
 
 

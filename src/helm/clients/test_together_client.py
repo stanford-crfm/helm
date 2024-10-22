@@ -5,7 +5,12 @@ import tempfile
 from helm.common.cache import BlackHoleCacheConfig, SqliteCacheConfig
 from helm.common.request import Request
 
-from helm.clients.together_client import TogetherClient, TogetherChatClient, TogetherCompletionClient, TogetherClientError
+from helm.clients.together_client import (
+    TogetherClient,
+    TogetherChatClient,
+    TogetherCompletionClient,
+    TogetherClientError,
+)
 
 
 class TestTogetherClient:

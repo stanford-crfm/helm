@@ -3,7 +3,16 @@ import os
 from typing import List, Dict, Optional
 
 from helm.common.general import ensure_file_downloaded
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG, Input, Output
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    CORRECT_TAG,
+    Input,
+    Output,
+)
 
 REITERATION_DATA_URL = "https://drive.google.com/uc?export=download&id=1uVJbsgPCHFAvH43I6SVvU3Ayo8dh-y_N"
 WEDGING_DATA_URL = "https://drive.google.com/uc?export=download&id=1kWB3_F4Tobc_oVGC_T-a5DHEh-AB4GTc"

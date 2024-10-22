@@ -6,7 +6,17 @@ from typing import List, Any
 import datasets
 from datasets import load_dataset
 
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, Output, Input
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    CORRECT_TAG,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    TEST_SPLIT,
+    Output,
+    Input,
+)
 
 
 class TaskType:

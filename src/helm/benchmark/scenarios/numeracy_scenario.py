@@ -15,7 +15,16 @@ from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.common.authentication import Authentication
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.proxy.services.server_service import ServerService
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TRAIN_SPLIT,
+    TEST_SPLIT,
+    CORRECT_TAG,
+    Input,
+    Output,
+)
 
 try:
     import sympy

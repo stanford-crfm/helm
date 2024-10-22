@@ -1,7 +1,17 @@
 from typing import List, Any
 from datasets import load_dataset
 from helm.common.hierarchical_logger import htrack_block
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    TEST_SPLIT,
+    CORRECT_TAG,
+    Input,
+    Output,
+)
 
 
 MAX_TRAIN_INSTANCES = 20_000  # This is arbitrary, but 20,000 training examples should be enough.
