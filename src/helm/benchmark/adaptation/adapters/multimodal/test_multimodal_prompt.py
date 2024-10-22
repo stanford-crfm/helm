@@ -2,7 +2,7 @@ from typing import List
 import unittest
 
 from helm.common.media_object import MediaObject, MultimediaObject
-from .multimodal_prompt import MultimodalPrompt
+from helm.benchmark.adaptation.adapters.multimodal.multimodal_prompt import MultimodalPrompt
 
 
 class TestMultimodalContent(unittest.TestCase):

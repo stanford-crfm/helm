@@ -57,9 +57,19 @@ from typing import List, Dict, Iterable, Optional, cast
 
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog
-from .code_scenario_helper import run as run_reindent
-from .code_scenario_apps_pinned_file_order import apps_listdir_with_pinned_order
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
+from helm.benchmark.scenarios.code_scenario_helper import run as run_reindent
+from helm.benchmark.scenarios.code_scenario_apps_pinned_file_order import apps_listdir_with_pinned_order
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    TEST_SPLIT,
+    CORRECT_TAG,
+    Input,
+    Output,
+)
 
 
 class CodeReference(Reference):

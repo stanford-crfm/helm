@@ -131,7 +131,7 @@ class AutoClient(Client):
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
 
     def get_gcs_client(self):
-        from .gcs_client import GCSClient
+        from helm.clients.gcs_client import GCSClient
 
         bucket_name: str = self.credentials["gcsBucketName"]
         cache_config: CacheConfig = self.cache_backend_config.get_cache_config("gcs")
@@ -144,7 +144,7 @@ class AutoClient(Client):
         return NudityCheckClient(cache_config)
 
     def get_clip_score_client(self):
-        from .clip_score_client import CLIPScoreClient
+        from helm.clients.clip_score_client import CLIPScoreClient
 
         cache_config: CacheConfig = self.cache_backend_config.get_cache_config("clip_score")
         return CLIPScoreClient(cache_config)

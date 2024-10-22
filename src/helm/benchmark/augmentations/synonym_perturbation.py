@@ -10,8 +10,8 @@ from nltk.corpus import wordnet
 import spacy
 
 from helm.common.general import match_case, ensure_file_downloaded
-from .perturbation_description import PerturbationDescription
-from .perturbation import TextPerturbation
+from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
+from helm.benchmark.augmentations.perturbation import TextPerturbation
 
 
 class SynonymPerturbation(TextPerturbation):

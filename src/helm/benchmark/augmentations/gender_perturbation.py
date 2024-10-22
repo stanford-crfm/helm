@@ -5,8 +5,8 @@ import re
 from typing import Dict, List, Optional, Tuple
 
 from helm.common.general import match_case
-from .perturbation_description import PerturbationDescription
-from .perturbation import TextPerturbation
+from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
+from helm.benchmark.augmentations.perturbation import TextPerturbation
 
 
 """ Gender term mappings """

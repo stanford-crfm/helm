@@ -3,8 +3,8 @@ from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMe
 
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
-from .metric_name import MetricName
-from .statistic import Stat
+from helm.benchmark.metrics.metric_name import MetricName
+from helm.benchmark.metrics.statistic import Stat
 
 AMBIGUOUS_TAG = "ambiguous"
 NON_AMBIGUOUS_TAG = "non-ambiguous"

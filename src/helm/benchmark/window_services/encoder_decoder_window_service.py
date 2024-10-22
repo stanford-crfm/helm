@@ -1,7 +1,7 @@
 from abc import ABC
 
 from helm.common.hierarchical_logger import hlog
-from .local_window_service import LocalWindowService
+from helm.benchmark.window_services.local_window_service import LocalWindowService
 
 
 class EncoderDecoderWindowService(LocalWindowService, ABC):

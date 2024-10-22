@@ -6,9 +6,9 @@ from helm.benchmark.metrics.metric import MetricInterface, MetricResult, add_con
 
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.request_state import RequestState
-from .metric_name import MetricName, MetricContext
-from .metric_service import MetricService
-from .statistic import Stat, merge_stat
+from helm.benchmark.metrics.metric_name import MetricName, MetricContext
+from helm.benchmark.metrics.metric_service import MetricService
+from helm.benchmark.metrics.statistic import Stat, merge_stat
 
 
 class EvaluateInstancesMetric(MetricInterface, ABC):

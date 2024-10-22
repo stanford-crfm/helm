@@ -4,7 +4,7 @@ from helm.common.authentication import Authentication
 from helm.common.cache_backend_config import CacheBackendConfig
 from helm.proxy.services.server_service import ServerService
 from helm.benchmark.metrics.metric_service import MetricService
-from .tokenizer_service import TokenizerService
+from helm.benchmark.window_services.tokenizer_service import TokenizerService
 
 
 TEST_PROMPT: str = (

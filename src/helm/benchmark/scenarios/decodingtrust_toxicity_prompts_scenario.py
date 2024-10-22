@@ -4,7 +4,7 @@ import random
 from typing import List, Dict
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, TEST_SPLIT, Input
+from helm.benchmark.scenarios.scenario import Scenario, Instance, TEST_SPLIT, Input
 
 
 DATA_REPO_HASH = "38972f6ccbf376a8d0660babafb4d2b3b9cca3f4"

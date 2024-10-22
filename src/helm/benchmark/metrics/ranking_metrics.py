@@ -9,9 +9,9 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.benchmark.scenarios.scenario import unpack_tag, CORRECT_TAG, Reference
 from helm.common.request import RequestResult
 from helm.common.general import assert_present, binarize_dict
-from .metric_name import MetricName
-from .metric_service import MetricService
-from .statistic import Stat
+from helm.benchmark.metrics.metric_name import MetricName
+from helm.benchmark.metrics.metric_service import MetricService
+from helm.benchmark.metrics.statistic import Stat
 
 try:
     import pytrec_eval

@@ -3,7 +3,7 @@ from typing import List, Optional
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.scenarios.scenario import Instance, Reference, TRAIN_SPLIT, EVAL_SPLITS, CORRECT_TAG
 from helm.common.request import Request
-from .in_context_learning_adapter import InContextLearningAdapter
+from helm.benchmark.adaptation.adapters.in_context_learning_adapter import InContextLearningAdapter
 
 
 class BinaryRankingAdapter(InContextLearningAdapter):

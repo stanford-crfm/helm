@@ -4,7 +4,7 @@ import random
 from typing import List, Dict, Optional
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, TEST_SPLIT, Input
+from helm.benchmark.scenarios.scenario import Scenario, Instance, TEST_SPLIT, Input
 
 TOXIC_SUB_SPLIT: str = "toxic"
 NONTOXIC_SUB_SPLIT: str = "non-toxic"

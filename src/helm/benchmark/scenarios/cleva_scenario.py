@@ -18,7 +18,7 @@ from helm.common.general import (
     ensure_directory_exists,
 )
 from helm.common.hierarchical_logger import hlog
-from .scenario import (
+from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
     Reference,
@@ -29,7 +29,7 @@ from .scenario import (
     Output,
     get_scenario_cache_path,
 )
-from .code_scenario import CodeReference, CodeInstance
+from helm.benchmark.scenarios.code_scenario import CodeReference, CodeInstance
 
 
 CLEVA_DATA_URL = "http://39.108.215.175/data"

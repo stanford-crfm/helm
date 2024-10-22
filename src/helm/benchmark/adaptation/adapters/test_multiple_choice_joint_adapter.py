@@ -2,8 +2,8 @@
 from typing import List, Set
 from helm.benchmark.scenarios.scenario import TEST_SPLIT, TRAIN_SPLIT, Instance, Input, Output, Reference, CORRECT_TAG
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from .adapter_factory import AdapterFactory, ADAPT_MULTIPLE_CHOICE_JOINT
-from .test_adapter import TestAdapter
+from helm.benchmark.adaptation.adapters.adapter_factory import AdapterFactory, ADAPT_MULTIPLE_CHOICE_JOINT
+from helm.benchmark.adaptation.adapters.test_adapter import TestAdapter
 
 
 def _make_instance(

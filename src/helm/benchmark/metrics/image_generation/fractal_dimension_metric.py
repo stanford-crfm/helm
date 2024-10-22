@@ -10,7 +10,7 @@ from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.multimodal_request_utils import gather_generated_image_locations
-from .fractal_dimension.fractal_dimension_util import compute_fractal_dimension
+from helm.benchmark.metrics.image_generation.fractal_dimension.fractal_dimension_util import compute_fractal_dimension
 
 
 class FractalDimensionMetric(Metric):

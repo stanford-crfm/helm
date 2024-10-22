@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 from datasets import Dataset, load_dataset
 
-from .model.text import TextNormalizer
+from helm.clients.image_generation.dalle_mini.model.text import TextNormalizer
 from helm.common.optional_dependencies import handle_module_not_found_error
 
 try:

@@ -10,7 +10,7 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
-from .yalm_tokenizer import YaLMTokenizer
+from helm.tokenizers.yalm_tokenizer import YaLMTokenizer
 
 
 class TestYaLMTokenizer:

@@ -1,6 +1,6 @@
 from helm.common.cache_backend_config import BlackHoleCacheBackendConfig
 from helm.tokenizers.auto_tokenizer import AutoTokenizer
-from .client import truncate_sequence, truncate_and_tokenize_response_text
+from helm.clients.client import truncate_sequence, truncate_and_tokenize_response_text
 from typing import List
 from helm.common.request import Request, GeneratedOutput, Token
 

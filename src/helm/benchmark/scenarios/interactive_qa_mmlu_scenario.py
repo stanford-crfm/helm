@@ -2,8 +2,8 @@ import os
 from typing import List
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Instance, TRAIN_SPLIT, TEST_SPLIT
-from .mmlu_scenario import MMLUScenario
+from helm.benchmark.scenarios.scenario import Instance, TRAIN_SPLIT, TEST_SPLIT
+from helm.benchmark.scenarios.mmlu_scenario import MMLUScenario
 
 
 class InteractiveQAMMLUScenario(MMLUScenario):

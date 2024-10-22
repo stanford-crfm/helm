@@ -8,7 +8,7 @@ from helm.common.request import Request
 from helm.benchmark.adaptation.adapters.multimodal.in_context_learning_multimodal_adapter import (
     InContextLearningMultimodalAdapter,
 )
-from .multimodal_prompt import MultimodalPrompt
+from helm.benchmark.adaptation.adapters.multimodal.multimodal_prompt import MultimodalPrompt
 
 
 class MultipleChoiceJointMultimodalAdapter(InContextLearningMultimodalAdapter, ABC):

@@ -18,8 +18,8 @@ from helm.common.authentication import Authentication
 from helm.common.request import Request, RequestResult
 from helm.common.tokenization_request import TokenizationRequest, TokenizationRequestResult
 from helm.proxy.accounts import Account, set_default_quotas
-from .remote_service import RemoteService
-from .service import ACCOUNTS_FILE
+from helm.proxy.services.remote_service import RemoteService
+from helm.proxy.services.service import ACCOUNTS_FILE
 
 
 @dataclass(frozen=True)

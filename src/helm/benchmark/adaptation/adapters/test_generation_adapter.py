@@ -14,9 +14,9 @@ from helm.benchmark.scenarios.scenario import (
 from helm.benchmark.run_specs.simple_run_specs import get_simple1_spec
 from helm.benchmark.adaptation.prompt import Prompt
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from .adapter_factory import AdapterFactory, ADAPT_GENERATION
-from .generation_adapter import GenerationAdapter
-from .test_adapter import TestAdapter
+from helm.benchmark.adaptation.adapters.adapter_factory import AdapterFactory, ADAPT_GENERATION
+from helm.benchmark.adaptation.adapters.generation_adapter import GenerationAdapter
+from helm.benchmark.adaptation.adapters.test_adapter import TestAdapter
 
 
 class TestGenerationAdapter(TestAdapter):

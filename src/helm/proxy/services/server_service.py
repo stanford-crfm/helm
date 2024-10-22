@@ -35,7 +35,7 @@ from helm.proxy.query import Query, QueryResult
 from helm.proxy.retry import retry_request
 from helm.proxy.token_counters.auto_token_counter import AutoTokenCounter
 from helm.tokenizers.auto_tokenizer import AutoTokenizer
-from .service import (
+from helm.proxy.services.service import (
     Service,
     CACHE_DIR,
     ACCOUNTS_FILE,

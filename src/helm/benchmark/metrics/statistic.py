@@ -2,7 +2,7 @@ from dataclasses import dataclass, replace
 import math
 from typing import Dict, Optional
 
-from .metric_name import MetricName
+from helm.benchmark.metrics.metric_name import MetricName
 
 
 @dataclass

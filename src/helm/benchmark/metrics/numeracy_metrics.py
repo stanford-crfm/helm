@@ -12,10 +12,10 @@ from helm.benchmark.scenarios.numeracy_scenario import (  # noqa
     distance_plane,
     distance_paraboloid,
 )
-from .metric import Metric
-from .metric_name import MetricName
-from .metric_service import MetricService
-from .statistic import Stat
+from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric_name import MetricName
+from helm.benchmark.metrics.metric_service import MetricService
+from helm.benchmark.metrics.statistic import Stat
 
 
 class DistanceMetric(Metric):

@@ -1,7 +1,7 @@
 from typing import Any, Dict
 
 from helm.common.optional_dependencies import handle_module_not_found_error
-from .caching_tokenizer import CachingTokenizer
+from helm.tokenizers.caching_tokenizer import CachingTokenizer
 
 try:
     import tiktoken

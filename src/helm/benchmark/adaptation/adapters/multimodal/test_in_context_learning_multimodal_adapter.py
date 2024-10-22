@@ -8,8 +8,10 @@ from helm.benchmark.scenarios.scenario import Instance, Reference, Input, Output
 from helm.benchmark.window_services.test_utils import get_tokenizer_service
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION_MULTIMODAL, AdapterFactory
-from .in_context_learning_multimodal_adapter import InContextLearningMultimodalAdapter
-from .multimodal_prompt import MultimodalPrompt
+from helm.benchmark.adaptation.adapters.multimodal.in_context_learning_multimodal_adapter import (
+    InContextLearningMultimodalAdapter,
+)
+from helm.benchmark.adaptation.adapters.multimodal.multimodal_prompt import MultimodalPrompt
 
 
 class TestInContextLearningMultimodalAdapter(unittest.TestCase):

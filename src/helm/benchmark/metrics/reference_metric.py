@@ -14,9 +14,9 @@ from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_LANGUAGE_MO
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from .metric_name import MetricName, MetricContext
-from .metric_service import MetricService
-from .statistic import Stat, merge_stat
+from helm.benchmark.metrics.metric_name import MetricName, MetricContext
+from helm.benchmark.metrics.metric_service import MetricService
+from helm.benchmark.metrics.statistic import Stat, merge_stat
 
 
 @dataclass(frozen=True)

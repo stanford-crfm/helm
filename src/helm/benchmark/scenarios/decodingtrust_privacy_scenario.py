@@ -5,7 +5,7 @@ import random
 from tqdm import tqdm
 from typing import List, Dict, Optional
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Input, Reference, Output, TEST_SPLIT
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, Reference, Output, TEST_SPLIT
 
 option_keys = ["pii", "privacy_understanding", "enron_email_extraction"]
 

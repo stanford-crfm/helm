@@ -9,7 +9,7 @@ from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.multimodal_request_utils import gather_generated_image_locations
-from .watermark.watermark_detector import WatermarkDetector
+from helm.benchmark.metrics.image_generation.watermark.watermark_detector import WatermarkDetector
 
 
 class WatermarkMetric(Metric):

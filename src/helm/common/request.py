@@ -4,7 +4,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 from helm.common.media_object import MultimediaObject
 from helm.common.image_generation_parameters import ImageGenerationParameters
-from .general import indent_lines, format_text
+from helm.common.general import indent_lines, format_text
 
 
 @dataclass(frozen=True)

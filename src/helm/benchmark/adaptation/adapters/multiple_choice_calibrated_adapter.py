@@ -3,7 +3,7 @@ from typing import List
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.scenarios.scenario import Instance, Input
-from .multiple_choice_separate_adapter import MultipleChoiceSeparateAdapter
+from helm.benchmark.adaptation.adapters.multiple_choice_separate_adapter import MultipleChoiceSeparateAdapter
 
 
 class MultipleChoiceCalibratedAdapter(MultipleChoiceSeparateAdapter):

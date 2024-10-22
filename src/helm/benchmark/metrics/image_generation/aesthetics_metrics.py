@@ -9,7 +9,7 @@ from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
-from .aesthetics_scorer import AestheticsScorer
+from helm.benchmark.metrics.image_generation.aesthetics_scorer import AestheticsScorer
 from helm.common.multimodal_request_utils import gather_generated_image_locations
 
 

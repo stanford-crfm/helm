@@ -23,8 +23,8 @@ import sys
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.authentication import Authentication
-from .accounts import Usage, Account
-from .services.remote_service import RemoteService, add_service_args, create_authentication
+from helm.proxy.accounts import Usage, Account
+from helm.proxy.services.remote_service import RemoteService, add_service_args, create_authentication
 
 GRANULARITIES = ["daily", "monthly", "total"]
 UNLIMITED_QUOTA = "unlimited"

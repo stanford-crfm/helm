@@ -4,7 +4,7 @@ from random import Random
 from typing import List, Optional
 
 
-from .perturbation_description import PerturbationDescription
+from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
 from helm.benchmark.scenarios.scenario import Input, Instance, Reference, Output
 from helm.common.object_spec import ObjectSpec, create_object
 

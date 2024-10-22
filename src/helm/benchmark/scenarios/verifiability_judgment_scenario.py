@@ -4,7 +4,7 @@ import json
 from typing import Dict, List, Tuple
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import (
+from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
     Reference,
