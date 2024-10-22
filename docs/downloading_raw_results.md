@@ -1,6 +1,6 @@
 # Downloading Raw Results
 
-All of HELM's raw result data is stored in Google Cloud Storage (GCS) in the public `crfm-helm-public` bucket. If you wish to download the raw result data, you can use the Google Cloud Platform (GCP) tools to do so. The following walks through how to use the `gsutil` tool ([documentation](https://cloud.google.com/storage/docs/gsutil)) to download the data.
+All of HELM's raw result data is stored in Google Cloud Storage (GCS) in the public `crfm-helm-public` bucket. If you wish to download the raw result data, you can use the Google Cloud Platform (GCP) tools to do so. The following walks through how to use the `gcloud storage` command line tool ([documentation](https://cloud.google.com/sdk/gcloud/reference/storage)) to download the data.
 
 ## Setup
 
@@ -28,11 +28,11 @@ Locations of the `benchmark_output` folders for each project:
 
 Warning: Downloading a whole HELM project requires a very large amounts of disk space - a few hundred GB for most projects, and more than 1 TB for Classic. Ensure that you have enough local disk space before downloading these projects.
 
-1. (Optional) Use the `gcloud storage du` ([documentation](https://cloud.google.com/storage/docs/gsutil/commands/du)) command to compute the size of the download and ensure you have enough space on your local disk:
+1. (Optional) Use the `gcloud storage du` ([documentation](https://cloud.google.com/sdk/gcloud/reference/storage/du)) command to compute the size of the download and ensure you have enough space on your local disk:
 ```sh
 gcloud storage du -sh $GCS_BENCHMARK_OUTPUT_PATH
 ```
-2. Run `gcloud storage rsync` ([documentation](https://cloud.google.com/storage/docs/gsutil/commands/rsync)) to download the data to the folder created in the previous step:
+2. Run `gcloud storage rsync` ([documentation](https://cloud.google.com/sdk/gcloud/reference/storage/rsync)) to download the data to the folder created in the previous step:
 ```sh
 gcloud storage rsync -r $GCS_BENCHMARK_OUTPUT_PATH $LOCAL_BENCHMARK_OUTPUT_PATH
 ```
@@ -56,7 +56,7 @@ export RELEASE_VERSION=v1.0.0
 ```sh
 mkdir $LOCAL_BENCHMARK_OUTPUT_PATH/releases/$RELEASE_VERSION
 ```
-3. Run `gcloud storage rsync` ([documentation](https://cloud.google.com/storage/docs/gsutil/commands/rsync)) to download the data to the folder created in the previous step:
+3. Run `gcloud storage rsync` ([documentation](https://cloud.google.com/sdk/gcloud/reference/storage/du)) to download the data to the folder created in the previous step:
 ```sh
 gcloud storage rsync -r $GCS_BENCHMARK_OUTPUT_PATH/releases/$RELEASE_VERSION $LOCAL_BENCHMARK_OUTPUT_PATH/releases/$RELEASE_VERSION
 ```
@@ -72,10 +72,16 @@ export SUITE_VERSION=v1.0.0
 ```sh
 mkdir $LOCAL_BENCHMARK_OUTPUT_PATH/runs/$SUITE_VERSION
 ```
-3. Run `gcloud storage rsync` ([documentation](https://cloud.google.com/storage/docs/gsutil/commands/rsync)) to download the data to the folder created in the previous step:
+3. Run `gcloud storage rsync` ([documentation](https://cloud.google.com/sdk/gcloud/reference/storage/du)) to download the data to the folder created in the previous step:
 ```sh
 gcloud storage rsync -r $GCS_BENCHMARK_OUTPUT_PATH/runs/$SUITE_VERSION $LOCAL_BENCHMARK_OUTPUT_PATH/runs/$SUITE_VERSION
 ```
+
+## Troubleshooting
+
+If you are on an older version of `gcloud`, you may encounter the error messages `(gcloud) Invalid choice: 'du'.` or `(gcloud) Invalid choice: 'rsync'.`. If so, you should either upgrade your `gcloud` installation to the latest version, or you may use the deprecated `gsutil` CLI tool ([documentation](https://cloud.google.com/storage/docs/gsutil)) instead.
+
+To use `gsutil`, install gsutil following [Google's instructions](https://cloud.google.com/storage/docs/gsutil_install), then use the above command with `gcloud storage du` replaced with `gsutil du` ([documentation](https://cloud.google.com/storage/docs/gsutil/commands/du)) and `gcloud storage rsync` replaced with `gsutil rsync` ([documentation](https://cloud.google.com/storage/docs/gsutil/commands/rsync)).
 
 ## GCS browser
 
