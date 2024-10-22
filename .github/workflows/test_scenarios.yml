@@ -7,6 +7,8 @@ on:
   pull_request:
     paths:
       - 'src/helm/benchmark/scenarios/test_*_scenario.py'
+  schedule:
+    - cron: "30 15 * * *"
 
 jobs:
   test:
