@@ -9,7 +9,7 @@ def test_gpqa_scenario():
     with TemporaryDirectory() as tmpdir:
         scenario = GPQAScenario(subset="gpqa_main")
         instances = scenario.get_instances(tmpdir)
-        assert len(instances) == 446
+        assert len(instances) == 448
         assert instances[0].split == "test"
         assert len(instances[0].input.text) == 689
         references = instances[0].references
@@ -21,7 +21,7 @@ def test_gpqa_scenario():
 
         scenario = GPQAScenario(subset="gpqa_diamond")
         instances = scenario.get_instances(tmpdir)
-        assert len(instances) == 196
+        assert len(instances) == 198
         assert instances[0].split == "test"
         assert len(instances[0].input.text) == 262
         references = instances[0].references
@@ -33,7 +33,7 @@ def test_gpqa_scenario():
 
         scenario = GPQAScenario(subset="gpqa_extended")
         instances = scenario.get_instances(tmpdir)
-        assert len(instances) == 543
+        assert len(instances) == 546
         assert instances[0].split == "test"
         assert len(instances[0].input.text) == 689
         references = instances[0].references
