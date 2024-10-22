@@ -305,3 +305,26 @@ def get_wmt_14_spec(language_pair: str, max_train_instances: int = 1) -> RunSpec
         metric_specs=get_open_ended_generation_metric_specs(),
         groups=["wmt_14"],
     )
+
+
+@run_spec_function("gpqa")
+def get_gpqa_spec(subset: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.gpqa_scenario.GPQAScenario", args={"subset": subset}
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=method,
+        instructions="The following are multiple choice questions (with answers).",
+        input_noun="Question",
+        output_noun="Answer",
+    )
+
+    return RunSpec(
+        name=f"gpqa:subset={subset},method={method}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["gpqa"],
+    )
