@@ -3,7 +3,7 @@ import os
 from typing import List
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import CORRECT_TAG, Reference, Scenario, Instance, Input, TEST_SPLIT, Output
+from helm.benchmark.scenarios.scenario import CORRECT_TAG, Reference, Scenario, Instance, Input, TEST_SPLIT, Output
 
 
 class SelfInstructScenario(Scenario):

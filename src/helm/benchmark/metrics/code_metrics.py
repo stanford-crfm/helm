@@ -10,11 +10,11 @@ from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.scenarios.code_scenario import CodeReference
-from . import code_metrics_helper
-from .metric import Metric, MetricResult
-from .metric_service import MetricService
-from .metric_name import MetricName
-from .statistic import Stat
+from helm.benchmark.metrics import code_metrics_helper
+from helm.benchmark.metrics.metric import Metric, MetricResult
+from helm.benchmark.metrics.metric_service import MetricService
+from helm.benchmark.metrics.metric_name import MetricName
+from helm.benchmark.metrics.statistic import Stat
 
 MAXIMUM_MEMORY_BYTES = 8 * 1024 * 1024 * 1024  # 8GB.
 

@@ -11,7 +11,7 @@ from helm.benchmark.scenarios.scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
 from helm.common.general import parallel_map
 from helm.common.request import Request
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
-from .adapter import Adapter
+from helm.benchmark.adaptation.adapters.adapter import Adapter
 
 
 class InContextLearningAdapter(Adapter, ABC):

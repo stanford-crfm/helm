@@ -4,7 +4,7 @@ import transformers
 from helm.common.gpu_utils import get_torch_device, get_torch_device_name
 from helm.common.images_utils import open_image
 from helm.common.optional_dependencies import handle_module_not_found_error
-from .base_clip_scorer import BaseCLIPScorer
+from helm.clients.clip_scorers.base_clip_scorer import BaseCLIPScorer
 
 _ = torch.manual_seed(42)
 

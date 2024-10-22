@@ -4,8 +4,8 @@ from random import Random
 from typing import List, Optional
 
 from helm.benchmark.scenarios.scenario import Instance, Reference, Input
-from .perturbation_description import PerturbationDescription
-from .perturbation import Perturbation
+from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
+from helm.benchmark.augmentations.perturbation import Perturbation
 
 
 class ContrastSetsPerturbation(Perturbation):

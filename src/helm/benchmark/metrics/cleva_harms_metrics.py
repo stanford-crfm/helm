@@ -14,12 +14,12 @@ from helm.benchmark.metrics.cleva_metrics_helper import ChineseTokenizer
 from helm.clients.perspective_api_client import PerspectiveAPIClientCredentialsError
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.common.optional_dependencies import handle_module_not_found_error
-from .bias_metrics import BiasMetric
-from .toxicity_metrics import ToxicityMetric
-from .copyright_metrics import BasicCopyrightMetric
-from .metric_name import MetricName
-from .metric_service import MetricService
-from .statistic import Stat
+from helm.benchmark.metrics.bias_metrics import BiasMetric
+from helm.benchmark.metrics.toxicity_metrics import ToxicityMetric
+from helm.benchmark.metrics.copyright_metrics import BasicCopyrightMetric
+from helm.benchmark.metrics.metric_name import MetricName
+from helm.benchmark.metrics.metric_service import MetricService
+from helm.benchmark.metrics.statistic import Stat
 
 try:
     import jieba

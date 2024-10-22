@@ -2,7 +2,7 @@ import re
 from typing import List, Any, Dict
 from datasets import load_dataset
 
-from .scenario import Scenario, Instance, Input, TRAIN_SPLIT, TEST_SPLIT
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TRAIN_SPLIT, TEST_SPLIT
 
 
 class AnthropicHHRLHFScenario(Scenario):

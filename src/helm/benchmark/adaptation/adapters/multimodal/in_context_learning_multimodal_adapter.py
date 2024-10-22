@@ -8,7 +8,7 @@ from helm.common.hierarchical_logger import hlog
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.request import Request
 from helm.benchmark.adaptation.adapters.in_context_learning_adapter import InContextLearningAdapter
-from .multimodal_prompt import MultimodalPrompt
+from helm.benchmark.adaptation.adapters.multimodal.multimodal_prompt import MultimodalPrompt
 
 
 class InContextLearningMultimodalAdapter(InContextLearningAdapter, ABC):

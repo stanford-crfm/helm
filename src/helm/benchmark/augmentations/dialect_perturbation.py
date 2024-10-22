@@ -7,8 +7,8 @@ from pathlib import Path
 from typing import Dict, Optional, List
 
 from helm.common.general import match_case, ensure_file_downloaded
-from .perturbation_description import PerturbationDescription
-from .perturbation import TextPerturbation
+from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
+from helm.benchmark.augmentations.perturbation import TextPerturbation
 
 
 class DialectPerturbation(TextPerturbation):

@@ -1,3 +1,3 @@
 __version__ = "0.1.4"
 
-from .model import DalleBart, DalleBartProcessor
+from helm.clients.image_generation.dalle_mini.model import DalleBart, DalleBartProcessor

@@ -2,7 +2,7 @@ import numpy as np
 import random
 from typing import List, Tuple
 
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 
 
 class DyckLanguageScenario(Scenario):

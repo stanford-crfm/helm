@@ -6,7 +6,7 @@ from helm.common.cache import CacheConfig
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput
 from helm.tokenizers.tokenizer import Tokenizer
-from .client import CachingClient, truncate_and_tokenize_response_text
+from helm.clients.client import CachingClient, truncate_and_tokenize_response_text
 
 try:
     from mistralai.client import MistralClient

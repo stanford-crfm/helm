@@ -1,7 +1,7 @@
 from retrying import RetryError
 
 from helm.common.request import RequestResult
-from .retry import retry_request, get_retry_decorator, retry_if_request_failed
+from helm.proxy.retry import retry_request, get_retry_decorator, retry_if_request_failed
 
 
 def test_retry_for_successful_request():

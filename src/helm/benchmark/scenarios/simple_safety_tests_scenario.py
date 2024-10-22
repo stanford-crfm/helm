@@ -1,7 +1,7 @@
 from typing import List
 from datasets import load_dataset
 
-from .scenario import Scenario, Instance, Input, TEST_SPLIT, Reference, Output
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT, Reference, Output
 
 
 class SimpleSafetyTestsScenario(Scenario):

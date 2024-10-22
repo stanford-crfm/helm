@@ -6,7 +6,7 @@ import math
 
 from transformers.modeling_flax_utils import FlaxPreTrainedModel
 
-from .configuration_vqgan import VQGANConfig
+from helm.clients.image_generation.dalle_mini.vqgan_jax.configuration_vqgan import VQGANConfig
 from helm.common.optional_dependencies import handle_module_not_found_error
 
 try:

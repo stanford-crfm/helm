@@ -5,7 +5,7 @@ Source: https://github.com/mlfoundations/open_flamingo
 import torch
 from einops import rearrange
 from torch import nn
-from .helpers import PerceiverResampler
+from helm.clients.vision_language.open_flamingo.src.helpers import PerceiverResampler
 from torch.distributed.fsdp.wrap import (
     enable_wrap,
     wrap,
@@ -15,7 +15,7 @@ from torch.distributed.fsdp import (
     FullyShardedDataParallel as FSDP,
 )
 
-from .utils import apply_with_stopping_condition
+from helm.clients.vision_language.open_flamingo.src.utils import apply_with_stopping_condition
 
 
 class Flamingo(nn.Module):

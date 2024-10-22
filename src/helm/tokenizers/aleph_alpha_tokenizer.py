@@ -10,7 +10,7 @@ from helm.common.tokenization_request import (
     DecodeRequest,
     TokenizationToken,
 )
-from .caching_tokenizer import CachingTokenizer
+from helm.tokenizers.caching_tokenizer import CachingTokenizer
 
 try:
     from aleph_alpha_client import Client as AlephAlphaPythonClient

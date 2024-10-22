@@ -3,7 +3,7 @@ import shutil
 import tempfile
 import unittest
 
-from .local_file_cache import LocalFileCache
+from helm.common.file_caches.local_file_cache import LocalFileCache
 
 
 class TestLocalFileCache(unittest.TestCase):

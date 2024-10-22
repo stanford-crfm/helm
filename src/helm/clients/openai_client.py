@@ -12,7 +12,7 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
-from .client import CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
+from helm.clients.client import CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
 from helm.tokenizers.tokenizer import Tokenizer
 
 try:

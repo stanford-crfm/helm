@@ -5,7 +5,7 @@ from typing import List, Optional, Any
 import datasets
 from datasets import load_dataset
 
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 
 _ALL_LANGUAGES = {
     "bulgarian": "bg",

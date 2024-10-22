@@ -8,7 +8,7 @@ from helm.common.authentication import Authentication
 from helm.common.request import Request
 from helm.common.tokenization_request import TokenizationRequestResult, TokenizationToken
 from helm.proxy.services.remote_service import RemoteService
-from .openai_token_cost_estimator import OpenAITokenCostEstimator
+from helm.benchmark.metrics.tokens.openai_token_cost_estimator import OpenAITokenCostEstimator
 
 
 class TestOpenAITokenCostEstimator:

@@ -4,7 +4,7 @@ from xml.etree.ElementTree import Element
 import xml.etree.ElementTree as ET
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import CORRECT_TAG, TEST_SPLIT, Input, Instance, Output, Reference, Scenario
+from helm.benchmark.scenarios.scenario import CORRECT_TAG, TEST_SPLIT, Input, Instance, Output, Reference, Scenario
 
 
 class LiveQAScenario(Scenario):

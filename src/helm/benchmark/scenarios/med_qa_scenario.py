@@ -3,7 +3,7 @@ import os
 from typing import Dict, List
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, ALL_SPLITS, CORRECT_TAG, VALID_SPLIT, Input, Output
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Reference, ALL_SPLITS, CORRECT_TAG, VALID_SPLIT, Input, Output
 
 
 class MedQAScenario(Scenario):

@@ -1,7 +1,7 @@
 import json
 import os
 from typing import List, Dict
-from .scenario import Scenario, Instance, Input, TEST_SPLIT
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT
 from helm.common.general import ensure_file_downloaded
 from helm.benchmark.scenarios.scenario import Reference, Output
 

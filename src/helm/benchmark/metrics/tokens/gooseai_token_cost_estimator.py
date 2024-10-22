@@ -2,7 +2,7 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
 from helm.common.request import Request
-from .token_cost_estimator import TokenCostEstimator
+from helm.benchmark.metrics.tokens.token_cost_estimator import TokenCostEstimator
 
 
 class GooseAITokenCostEstimator(TokenCostEstimator):

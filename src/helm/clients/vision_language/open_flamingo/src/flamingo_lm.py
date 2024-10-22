@@ -3,8 +3,8 @@ Source: https://github.com/mlfoundations/open_flamingo
 """
 
 import torch.nn as nn
-from .helpers import GatedCrossAttentionBlock
-from .utils import getattr_recursive, setattr_recursive
+from helm.clients.vision_language.open_flamingo.src.helpers import GatedCrossAttentionBlock
+from helm.clients.vision_language.open_flamingo.src.utils import getattr_recursive, setattr_recursive
 
 
 class FlamingoLayer(nn.Module):

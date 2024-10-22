@@ -24,7 +24,7 @@ from helm.common.request import Request, RequestResult
 from dacite import from_dict
 from helm.proxy.accounts import Account
 from helm.proxy.query import Query, QueryResult
-from .service import Service, GeneralInfo
+from helm.proxy.services.service import Service, GeneralInfo
 
 
 class RemoteServiceError(Exception):
