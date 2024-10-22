@@ -517,8 +517,6 @@ model_deployments:
     # TODO: Max output tokens: 8192
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
-      args:
-        safety_settings_preset: default
 
   ## Gemma
   - name: together/gemma-2b
