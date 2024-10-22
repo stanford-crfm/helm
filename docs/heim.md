@@ -43,15 +43,15 @@ First, follow the [installation instructions](installation.md) to install the ba
 
 To install the additional dependencies to run HEIM, run:
 
-```
+```sh
 pip install "crfm-helm[heim]"
-```my-suite
+```
 
 Some models (e.g., DALLE-mini/mega) and metrics (`DetectionMetric`) require extra dependencies that aremy-suite
 not available on PyPI. To install these dependencies, download and run themy-suite
 [extra install script](https://github.com/stanford-crfm/helm/blob/main/install-heim-extras.sh):
 
-```
+```sh
 bash install-heim-extras.sh
 ```
 
