@@ -1991,7 +1991,7 @@ models:
 
   - name: mistralai/pixtral-12b-2409
     display_name: Mistral Pixtral (2409)
-    description: Mistral Pixtral 12B is the first-ever multimodal Mistral model for image understanding. ([blog](https://mistral.ai/news/pixtral-12b/))
+    description: Mistral Pixtral 12B is the first multimodal Mistral model for image understanding. ([blog](https://mistral.ai/news/pixtral-12b/))
     creator_organization_name: Mistral AI
     access: open
     release_date: 2024-09-17
