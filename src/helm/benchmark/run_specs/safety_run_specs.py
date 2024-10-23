@@ -41,6 +41,43 @@ def get_harm_bench_spec() -> RunSpec:
     )
 
 
+@run_spec_function("harm_bench_gcg_transfer")
+def get_harm_bench_gcg_transfer_spec() -> RunSpec:
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        global_prefix="",
+        global_suffix="",
+        instructions="",
+        input_prefix="",
+        input_suffix="",
+        output_prefix="",
+        output_suffix="",
+        instance_prefix="",
+        max_train_instances=0,
+        num_outputs=1,
+        max_tokens=512,
+        temperature=0.0,
+        stop_sequences=[],
+    )
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.harm_bench_gcg_transfer_scenario.HarmBenchGCGTransferScenario"
+    )
+    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.harm_bench_annotator.HarmBenchAnnotator")]
+    metric_specs = [
+        MetricSpec(class_name="helm.benchmark.metrics.safety_metrics.SafetyScoreMetric"),
+        MetricSpec(class_name="helm.benchmark.metrics.safety_metrics.SafetyBasicGenerationMetric"),
+        MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.InstancesPerSplitMetric"),
+    ]
+    return RunSpec(
+        name="harm_bench_gcg_transfer",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        annotators=annotator_specs,
+        groups=["harm_bench_gcg_transfer"],
+    )
+
+
 @run_spec_function("simple_safety_tests")
 def get_simple_safety_tests_spec() -> RunSpec:
     adapter_spec = AdapterSpec(
