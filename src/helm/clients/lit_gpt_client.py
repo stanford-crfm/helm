@@ -12,8 +12,8 @@ from helm.common.optional_dependencies import OptionalDependencyNotInstalled
 from helm.common.request import Request, RequestResult, GeneratedOutput, Token
 from helm.tokenizers.tokenizer import Tokenizer
 
-from .client import CachingClient
-from .lit_gpt_generate import generate  # type: ignore
+from helm.clients.client import CachingClient
+from helm.clients.lit_gpt_generate import generate  # type: ignore
 
 try:
     import lightning as L

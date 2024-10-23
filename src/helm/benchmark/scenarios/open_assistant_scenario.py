@@ -2,7 +2,16 @@ from typing import List, Dict, Any, DefaultDict
 from datasets import load_dataset, Dataset
 from collections import defaultdict
 
-from .scenario import CORRECT_TAG, Reference, Scenario, Instance, Input, TRAIN_SPLIT, VALID_SPLIT, Output
+from helm.benchmark.scenarios.scenario import (
+    CORRECT_TAG,
+    Reference,
+    Scenario,
+    Instance,
+    Input,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    Output,
+)
 
 
 class OpenAssistantScenario(Scenario):

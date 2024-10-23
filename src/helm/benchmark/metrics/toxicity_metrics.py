@@ -6,10 +6,10 @@ from helm.common.hierarchical_logger import hlog
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.clients.perspective_api_client import PerspectiveAPIClientCredentialsError
-from .metric import Metric
-from .metric_name import MetricName
-from .metric_service import MetricService
-from .statistic import Stat
+from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric_name import MetricName
+from helm.benchmark.metrics.metric_service import MetricService
+from helm.benchmark.metrics.statistic import Stat
 
 
 class ToxicityMetric(Metric):

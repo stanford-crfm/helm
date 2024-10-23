@@ -1,7 +1,7 @@
 from typing import List
 from helm.common.hierarchical_logger import htrack
-from .augmentations.data_augmenter import create_data_augmenter, DataAugmenterSpec, DataAugmenter
-from .scenarios.scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
+from helm.benchmark.augmentations.data_augmenter import create_data_augmenter, DataAugmenterSpec, DataAugmenter
+from helm.benchmark.scenarios.scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
 
 
 class DataPreprocessor:

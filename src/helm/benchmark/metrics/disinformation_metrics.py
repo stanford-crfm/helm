@@ -11,10 +11,10 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import RequestResult, GeneratedOutput
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from .metric import Metric
-from .metric_name import MetricName
-from .metric_service import MetricService
-from .statistic import Stat
+from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric_name import MetricName
+from helm.benchmark.metrics.metric_service import MetricService
+from helm.benchmark.metrics.statistic import Stat
 
 try:
     from sacrebleu.metrics import BLEU

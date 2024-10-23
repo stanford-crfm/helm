@@ -9,8 +9,8 @@ from typing import Dict, List, Optional, Set
 
 from helm.benchmark.scenarios.scenario import Input, Instance, Reference, Output
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists, match_case
-from .perturbation_description import PerturbationDescription
-from .perturbation import Perturbation
+from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
+from helm.benchmark.augmentations.perturbation import Perturbation
 
 
 # Pull this out so serialization works for multiprocessing

@@ -2,9 +2,9 @@ import shutil
 import tempfile
 
 from helm.common.cache_backend_config import BlackHoleCacheBackendConfig
-from .test_utils import get_tokenizer_service, TEST_PROMPT
-from .tokenizer_service import TokenizerService
-from .window_service_factory import WindowServiceFactory
+from helm.benchmark.window_services.test_utils import get_tokenizer_service, TEST_PROMPT
+from helm.benchmark.window_services.tokenizer_service import TokenizerService
+from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
 
 
 class TestYaLMWindowService:

@@ -18,7 +18,7 @@ import warnings
 from transformers.configuration_utils import PretrainedConfig
 from transformers.utils import logging
 
-from .utils import PretrainedFromWandbMixin
+from helm.clients.image_generation.dalle_mini.model.utils import PretrainedFromWandbMixin
 
 logger = logging.get_logger(__name__)
 

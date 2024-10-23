@@ -19,7 +19,7 @@ from helm.common.request import (
     Token,
 )
 from helm.tokenizers.tokenizer import Tokenizer
-from .client import CachingClient, truncate_sequence
+from helm.clients.client import CachingClient, truncate_sequence
 from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer, WrappedPreTrainedTokenizer
 from threading import Lock
 

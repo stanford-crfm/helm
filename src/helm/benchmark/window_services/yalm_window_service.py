@@ -1,4 +1,4 @@
-from .local_window_service import LocalWindowService
+from helm.benchmark.window_services.local_window_service import LocalWindowService
 
 
 class YaLMWindowService(LocalWindowService):

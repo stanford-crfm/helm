@@ -5,8 +5,8 @@ import re
 from random import Random
 
 from helm.common.general import match_case
-from .perturbation import TextPerturbation
-from .perturbation_description import PerturbationDescription
+from helm.benchmark.augmentations.perturbation import TextPerturbation
+from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
 
 
 CONTRACTION_MAP: Dict[str, str] = {

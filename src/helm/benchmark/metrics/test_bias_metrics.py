@@ -1,7 +1,11 @@
 from dataclasses import dataclass
 from typing import Callable, List, Optional
 
-from .bias_metrics import BiasMetric
+from helm.benchmark.metrics.bias_metrics import BiasMetric
+from helm.benchmark.metrics.nltk_helper import install_nltk_resources
+
+
+install_nltk_resources()
 
 
 @dataclass(frozen=True)

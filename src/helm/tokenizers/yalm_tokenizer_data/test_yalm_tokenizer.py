@@ -1,7 +1,7 @@
 from typing import List
 
 from helm.common.general import singleton
-from .yalm_tokenizer import YaLMTokenizer
+from helm.tokenizers.yalm_tokenizer_data.yalm_tokenizer import YaLMTokenizer
 
 
 class TestYaLMTokenizer:

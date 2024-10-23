@@ -20,7 +20,7 @@ from helm.common.tokenization_request import (
 )
 from helm.clients.client import Client, CachingClient
 from helm.clients.image_generation.cogview2.coglm_strategy import CoglmStrategy
-from .image_generation_client_utils import get_single_image_multimedia_object
+from helm.clients.image_generation.image_generation_client_utils import get_single_image_multimedia_object
 
 
 class CogView2Client(Client):

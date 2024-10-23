@@ -20,10 +20,10 @@ from helm.benchmark.model_metadata_registry import (
 )
 from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION
 from helm.benchmark.model_deployment_registry import get_model_names_with_tokenizer
-from .run_spec import RunSpec
+from helm.benchmark.run_spec import RunSpec
 from helm.benchmark.adaptation.adapter_spec import ADAPT_MULTIPLE_CHOICE_JOINT, AdapterSpec, Substitution
-from .augmentations.perturbation import PerturbationSpec
-from .augmentations.data_augmenter import DataAugmenterSpec
+from helm.benchmark.augmentations.perturbation import PerturbationSpec
+from helm.benchmark.augmentations.data_augmenter import DataAugmenterSpec
 from helm.benchmark.scenarios.scenario import TEST_SPLIT, VALID_SPLIT
 
 

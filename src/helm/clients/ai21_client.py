@@ -11,8 +11,8 @@ from helm.common.request import (
     GeneratedOutput,
     Token,
 )
-from .client import CachingClient, truncate_sequence, cleanup_str
-from .ai21_utils import AI21RequestError, handle_failed_request
+from helm.clients.client import CachingClient, truncate_sequence, cleanup_str
+from helm.clients.ai21_utils import AI21RequestError, handle_failed_request
 
 try:
     from ai21 import AI21Client as AISDKClient

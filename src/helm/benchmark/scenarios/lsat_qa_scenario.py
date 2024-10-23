@@ -3,7 +3,7 @@ import json
 from typing import Dict, List
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import (
+from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
     Reference,

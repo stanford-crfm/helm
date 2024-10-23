@@ -10,7 +10,7 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
-from .huggingface_tokenizer import HuggingFaceTokenizer
+from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 
 
 class TestHuggingFaceGPT2Tokenizer:

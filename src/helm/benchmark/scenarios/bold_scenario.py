@@ -4,7 +4,7 @@ import random
 from typing import List, Dict, Tuple
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import (
+from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
     TRAIN_SPLIT,

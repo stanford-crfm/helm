@@ -1,4 +1,4 @@
-from .clip_window_service import CLIPWindowService
+from helm.benchmark.window_services.image_generation.clip_window_service import CLIPWindowService
 
 
 class LexicaSearchWindowService(CLIPWindowService):

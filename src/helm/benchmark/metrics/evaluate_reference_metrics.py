@@ -1,32 +1,31 @@
 from dataclasses import replace
-from typing import Callable, Dict, List, Optional, Set, Tuple, cast
-import numpy as np
 from functools import partial
+from typing import Callable, Dict, List, Optional, Set, Tuple, cast
+import re
+import string
+
+from nltk.metrics.scores import f_measure
+from nltk.tokenize import word_tokenize
+from nltk.translate.bleu_score import sentence_bleu
+from rouge_score import rouge_scorer
+import numpy as np
+
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.metrics import code_metrics_helper
 from helm.benchmark.metrics.cleva_metrics_helper import ChineseTokenizer
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
+from helm.benchmark.metrics.nltk_helper import install_nltk_resources
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.scenarios.code_scenario import CodeReference
+from helm.benchmark.scenarios.math_scenario import is_equiv, is_equiv_chain_of_thought
 from helm.benchmark.scenarios.scenario import Reference
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import GeneratedOutput
-from helm.benchmark.scenarios.math_scenario import is_equiv, is_equiv_chain_of_thought
-from nltk.metrics.scores import f_measure
-from nltk.translate.bleu_score import sentence_bleu
-from nltk.tokenize import word_tokenize
-from rouge_score import rouge_scorer
-import re
-import string
-from . import code_metrics_helper
-import nltk
 
 
-try:
-    nltk.data.find("tokenizers/punkt")
-except LookupError:
-    nltk.download("punkt")  # Required for rouge
+install_nltk_resources()
 
 
 def pass_at_k_estimator(n: int, c: int, k: int) -> float:

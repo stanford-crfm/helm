@@ -2,7 +2,7 @@ import os
 from typing import Callable
 
 from helm.common.general import ensure_directory_exists, generate_unique_id
-from .file_cache import FileCache
+from helm.common.file_caches.file_cache import FileCache
 
 from helm.common.optional_dependencies import handle_module_not_found_error
 
