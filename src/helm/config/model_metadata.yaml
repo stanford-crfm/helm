@@ -2266,7 +2266,7 @@ models:
     tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
 
-  ## GPT 4 Models
+  ## GPT-4 and GPT-4 Turbo
 
   - name: openai/gpt-4-1106-preview
     display_name: GPT-4 Turbo (1106 preview)
@@ -2318,6 +2318,8 @@ models:
     release_date: 2024-01-25
     tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  ## GPT-4o
+
   - name: openai/gpt-4-turbo-2024-04-09
     display_name: GPT-4 Turbo (2024-04-09)
     description: GPT-4 Turbo (2024-04-09) is a large multimodal model that is optimized for chat but works well for traditional completions tasks. The model is cheaper and faster than the original GPT-4 model. Snapshot from 2024-04-09.
@@ -2349,6 +2351,16 @@ models:
     access: limited
     release_date: 2024-07-18
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/gpt-4o-audio-preview-2024-10-01
+    display_name: GPT-4o Audio (Preview 2024-10-01)
+    description: GPT-4o Audio (Preview 2024-10-01) is a preview model that allows using use audio inputs to prompt the model ([documentation](https://platform.openai.com/docs/guides/audio)).
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2024-10-17
+    tags: [AUDIO_MODEL_TAG, TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  # GPT-4V
 
   - name: openai/gpt-4-vision-preview
     # According to https://platform.openai.com/docs/models/gpt-4-turbo-and-gpt-4, this model has pointed gpt-4-1106-vision-preview.
