@@ -174,7 +174,7 @@ NudeNet==2.0.9
 numba==0.60.0
 numpy==1.26.3
 omegaconf==2.3.0
-onnx==1.16.2
+onnx==1.17.0
 onnxruntime==1.19.2
 open_clip_torch==2.26.1
 openai==1.48.0
