@@ -1,4 +1,4 @@
-"""Run spec functions for tutorials and for debugging."""
+"""Run spec functions for audio scenarios."""
 
 from typing import List, Optional
 from helm.benchmark.adaptation.adapter_spec import (
@@ -20,16 +20,6 @@ def _get_multimodal_generation_adapter_spec(
     temperature: float = 0.01,
     stop_sequences: Optional[List[str]] = None,
 ) -> AdapterSpec:
-    """
-    [instructions]
-
-    [input_noun]: [input]
-    [output_noun]: [output]
-
-    [input_noun]: [input]
-    [output_noun]:
-    """
-
     return AdapterSpec(
         method=ADAPT_GENERATION_MULTIMODAL,
         instructions=instructions,
