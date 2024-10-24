@@ -124,6 +124,13 @@ run_groups:
     subgroups:
       - sumosum
 
+  - name: cyber_security_scenarios
+    display_name: Cyber Security Scenarios
+    description: Scenarios for the cyber security domain
+    category: All scenarios
+    subgroups:
+      - cti_mitre
+
   - name: gold_commodity_news
     display_name: Gold Commodity News
     description: A classification benchmark based on a dataset of human-annotated gold commodity news headlines ([Sinha & Khandait, 2019](https://arxiv.org/abs/2009.04202)).
@@ -185,4 +192,16 @@ run_groups:
       what: Articles from climatefeedback.org
       who: Writers of news articles and web documents
       when: Before 2020
+      language: English
+      main_name: quasi_exact_match
+      main_split: test
+
+  - name: cti_mitre
+    display_name: CTI-to-MITRE Cyber Threat Intelligence (Classification)
+    description: Automatic Mapping of Unstructured Cyber Threat Intelligence - An Experimental Study [(Orbinato et al., 2022)](https://arxiv.org/pdf/2208.12144.pdf).
+    taxonomy:
+      task: text classification
+      what: "?"
+      who: "?"
+      when: "?"
       language: English

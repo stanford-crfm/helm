@@ -11,6 +11,15 @@ from helm.benchmark.metrics.common_metric_specs import (
     get_exact_match_metric_specs,
     get_f1_metric_specs,
 )
+from helm.benchmark.metrics.common_metric_specs import (
+    get_basic_generation_metric_specs,
+    get_basic_metric_specs,
+    get_exact_match_metric_specs,
+    get_f1_metric_specs,
+    get_generative_harms_metric_specs,
+    get_generic_metric_specs,
+    get_open_ended_generation_metric_specs,
+)
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
@@ -121,4 +130,34 @@ def get_sumosum_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_basic_metric_specs(["rouge_1", "rouge_2", "rouge_l"]),
         groups=["sumosum"],
+    )
+
+
+# Cyber Security
+
+
+@run_spec_function("cti_to_mitre")
+def get_cti_to_mitre_spec(num_options: int = 10, seed: int = 42, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.cti_to_mitre_scenario.CtiToMitreScenario",
+        args={
+            "num_options": num_options,
+            "seed": seed,
+        },
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=method,
+        instructions="Classify the following situation by the type of security attack. Answer with only a single letter.",  # noqa:
+        input_noun="Situation",
+        output_noun="Answer",
+        max_train_instances=10,
+    )
+
+    return RunSpec(
+        name=f"cti_to_mitre:num_options={num_options},seed={seed},method={method}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_basic_metric_specs(["exact_match", "quasi_exact_match", "f1_score"]),
+        groups=["cti_to_mitre"],
     )

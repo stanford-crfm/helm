@@ -1,11 +1,13 @@
 import os
 import json
-import random
+from random import Random
 from typing import List, Dict
+
 import pandas as pd
 from pandas import DataFrame
+
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import (
+from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
     Reference,
@@ -17,13 +19,13 @@ from .scenario import (
 )
 
 
-class CtiMitreScenario(Scenario):
+class CtiToMitreScenario(Scenario):
     """
     Original Task:
     - The original task is to classify the description of the situation regarding the system
       into the security threats in that situation.
     - The classification categories are the approximately 200 categories of attack techniques
-      in the enterprise as defined by MITRE ATT&CK v10.
+      in the enterprise as defined by MITRE ATT&CK v10.1.
 
     Implemented Task:
     - Since classification into so many classes is difficult to handle in a generative language model
@@ -31,7 +33,7 @@ class CtiMitreScenario(Scenario):
     - Each choice is the name of the attack technique category into which the description is classified.
     - The number of options is determined by the parameter (num_options).
         - The minimum number of options is 2 and the maximum is 199, the number of all categories of
-          attack methods defined in MITRE ATT&CK v10.
+          attack methods defined in MITRE ATT&CK v10.1.
     - From the 199 choices, num_options choices, including the correct answer and a default case,
       are randomly selected and used.
         - If num_options is not specified, all 199 category names will be used as choices.
@@ -39,7 +41,7 @@ class CtiMitreScenario(Scenario):
     Data:
     - dataset.csv
         - Target dataset
-        - https://github.com/dessertlab/cti-to-mitre-with-nlp/raw/main/data/dataset.csv
+        - https://github.com/dessertlab/cti-to-mitre-with-nlp/raw/a8cacf3185d098c686e0d88768a619a03a4d76d1/data/dataset.csv
         - This data is of the form [sentence, label_tec, label_subtec, tec_name]
             - sentence: the description
             - label_tec: label for attack technique category
@@ -112,9 +114,9 @@ class CtiMitreScenario(Scenario):
     """
 
     # Names of the tasks we support
-    name = "cti_mitre"
+    name = "cti_to_mitre"
     description = "Classification of security attack opportunities on system"
-    tags = ["classification", "MITRE ATT&CK", "cyber_security"]
+    tags = ["classification", "cyber_security"]
 
     # Constant for splitting target data into train and test data.
     train_ratio = 0.7
@@ -125,50 +127,24 @@ class CtiMitreScenario(Scenario):
     # Constant: the description for Others option
     OTHERS_OPTION = "Others"
 
-    # Methods
+    CTI_URL = "https://github.com/dessertlab/cti-to-mitre-with-nlp/raw/a8cacf3185d098c686e0d88768a619a03a4d76d1/data/dataset.csv"
+    MITRE_URL = "https://github.com/mitre/cti/raw/refs/tags/ATT&CK-v10.1/enterprise-attack/enterprise-attack.json"
 
-    def __init__(self, num_options=None, seed=None):
+    def __init__(self, num_options=None, seed=42):
         """
         num_options: int, number of choices in multiple-choice task
         seed: int, seed for random module. The seed is set to random if specified
         """
         super().__init__()
-        # dataset url
-        self.dataset_all_url = "https://github.com/dessertlab/cti-to-mitre-with-nlp/raw/main/data/dataset.csv"
-        self.dataset_all_name = "dataset.csv"
-        # MITRE ATT CK (v10) url
-        self.mitre_att_ck_v10_url = "https://github.com/mitre/cti/archive/refs/tags/ATT&CK-v10.1.zip"
-        self.mitre_dir = "mitre_v10"
-        self.enterprise_attack_dir = "enterprise-attack"
-        self.enterprise_attack_json = "enterprise-attack.json"
         # Number of options : if num_options is not specified, num_options=MAX_NUM_OPTIONS
-        if num_options is not None and 0 < num_options <= CtiMitreScenario.MAX_NUM_OPTIONS:
+        if num_options is not None and 0 < num_options <= CtiToMitreScenario.MAX_NUM_OPTIONS:
             self.num_options = num_options
         else:
-            self.num_options = CtiMitreScenario.MAX_NUM_OPTIONS
+            self.num_options = CtiToMitreScenario.MAX_NUM_OPTIONS
         # set seed to random
-        random.seed(seed)
-        self.rand = random
+        self.random_seed = seed
+        self.rand = Random(seed)
 
-    def download_dataset(self):
-        """Download dataset.csv"""
-        data_dir = self.data_dir
-        ensure_directory_exists(data_dir)
-        ensure_file_downloaded(
-            source_url=self.dataset_all_url,
-            target_path=os.path.join(data_dir, self.dataset_all_name),
-        )
-
-    def download_MITRE_info(self):
-        """Download zip file containing enterprise_attack.json"""
-        data_dir = self.data_dir
-        ensure_directory_exists(data_dir)
-        ensure_file_downloaded(
-            source_url=self.mitre_att_ck_v10_url,
-            target_path=os.path.join(data_dir, self.mitre_dir),
-            unpack=True,
-            unpack_type="unzip",
-        )
 
     @staticmethod
     def make_label_category_name_dict(jdata) -> Dict[str, str]:
@@ -177,24 +153,15 @@ class CtiMitreScenario(Scenario):
         (attack technique category name)
         - jdata is json object for enterprise_attack.json
         """
-        objs = jdata["objects"]
-        label_cname: Dict[str, str] = {}
-        if jdata is None:
-            return label_cname
-        for i in range(0, len(objs)):
-            obj = objs[i]
-            if obj["type"] == "attack-pattern":
-                if "x_mitre_is_subtechnique" in obj and not obj["x_mitre_is_subtechnique"]:
-                    extrefs = obj["external_references"]
-                    label = None
-                    for ref in extrefs:
-                        if ref["source_name"] == "mitre-attack":  # and "external_id" in ref:
-                            label = ref["external_id"]
-                            break
-                    if label is not None and "name" in obj:
-                        cname = obj["name"]
-                        label_cname[label] = cname
-        return label_cname
+
+        category_id_to_name: Dict[str, str] = {}
+        attacks = [o for o in jdata["objects"] if o["type"] == "attack-pattern" and not o.get("x_mitre_is_subtechnique", True)]
+        for attack in attacks:
+            ids = [ref["external_id"] for ref in attack["external_references"] if ref["source_name"] == "mitre-attack"]
+            assert len(ids) == 1
+            id = ids[0]
+            category_id_to_name[id] = attack["name"]
+        return category_id_to_name
 
     def select_option_cnames(self, k: int, excluded: str, cnames: List[str]) -> List[str]:
         """
@@ -210,10 +177,10 @@ class CtiMitreScenario(Scenario):
         if len(target_cnames) <= k:
             return target_cnames
         elif k - 1 <= 0:
-            return [CtiMitreScenario.OTHERS_OPTION]
+            return [CtiToMitreScenario.OTHERS_OPTION]
         else:
-            ops = self.rand.sample(target_cnames, k - 1)
-            ops.append(CtiMitreScenario.OTHERS_OPTION)
+            ops = self.random.sample(target_cnames, k - 1)
+            ops.append(CtiToMitreScenario.OTHERS_OPTION)
             return ops
 
     @staticmethod
@@ -222,7 +189,7 @@ class CtiMitreScenario(Scenario):
         newref_list: List[Reference] = []
         others_list: List[Reference] = []
         for ref in references:
-            if ref.output.text == CtiMitreScenario.OTHERS_OPTION:
+            if ref.output.text == CtiToMitreScenario.OTHERS_OPTION:
                 others_list.append(ref)
             else:
                 newref_list.append(ref)
@@ -250,7 +217,7 @@ class CtiMitreScenario(Scenario):
             # shuffle answer options
             self.rand.shuffle(references)
             # bring others_option to the end of the reference list
-            ord_references = CtiMitreScenario.bring_others_to_end(references)
+            ord_references = CtiToMitreScenario.bring_others_to_end(references)
             instance = Instance(input, ord_references, split=split)
             instances.append(instance)
         return instances
@@ -259,36 +226,38 @@ class CtiMitreScenario(Scenario):
         return self.create_multiple_choice_instances(df, split, label_cname)
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        self.data_dir = os.path.join(output_path, "data")
+        data_dir = os.path.join(output_path, "data")
+        ensure_directory_exists(data_dir)
 
-        # download dataset
-        self.download_dataset()
+        dataset_path = os.path.join(data_dir, "dataset.csv")
+        ensure_file_downloaded(
+            source_url="https://github.com/dessertlab/cti-to-mitre-with-nlp/raw/a8cacf3185d098c686e0d88768a619a03a4d76d1/data/dataset.csv",
+            target_path=dataset_path,
+        )
 
-        # download MITRE_ATT_CK_V10 information
-        self.download_MITRE_info()
+        labels_path = os.path.join(data_dir, "enterprise-attack.json")
+        ensure_file_downloaded(
+            source_url="https://github.com/mitre/cti/raw/refs/tags/ATT&CK-v10.1/enterprise-attack/enterprise-attack.json",
+            target_path=labels_path,
+        )
 
         # load dataset
-        all_data_dir = os.path.join(self.data_dir, self.dataset_all_name)
-        all_df = pd.read_csv(all_data_dir)
+        all_df = pd.read_csv(dataset_path)
 
         # split all_df into train and test data frames
-        train_df = all_df.sample(frac=CtiMitreScenario.train_ratio, random_state=0)
-        test_df = all_df.drop(train_df.index).sample(frac=1, random_state=0)
+        train_df = all_df.sample(frac=CtiToMitreScenario.train_ratio, random_state=self.random_seed)
+        test_df = all_df.drop(train_df.index).sample(frac=1, random_state=self.random_seed)
 
-        # load MITRE info json data
-        label_name_json = os.path.join(
-            self.data_dir, self.mitre_dir, self.enterprise_attack_dir, self.enterprise_attack_json
-        )
-        jdata = None
-        with open(label_name_json) as f:
+        # load labels
+        with open(labels_path) as f:
             jdata = json.load(f)
 
         # make mapping from label_tec to tec_category_name
         label_cname = self.make_label_category_name_dict(jdata)
 
         # create instances from each dataset
-        instances_train = self.create_instances(train_df, TRAIN_SPLIT, label_cname)
-        instances_test = self.create_instances(test_df, TEST_SPLIT, label_cname)
+        instances_train = self.create_multiple_choice_instances(train_df, TRAIN_SPLIT, label_cname)
+        instances_test = self.create_multiple_choice_instances(test_df, TEST_SPLIT, label_cname)
 
         # return all instances
         all_instances = []
