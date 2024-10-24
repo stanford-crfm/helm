@@ -7,7 +7,6 @@ import requests
 from retrying import retry
 
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import hlog
 from helm.common.media_object import IMAGE_TYPE, TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
@@ -347,30 +346,13 @@ class TogetherChatClient(CachingClient):
                     message_contents.append({"type": "text", "text": media_object.text})
                 else:
                     raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
-
-            if request.model_engine in ["llama-3.2-11b-vision-instruct-turbo", "llama-3.2-90b-vision-instruct-turbo"]:
-                # Only supports a single input image. Remove the excess images.
-                seen_image: bool = False
-                filtered_message_contents = []
-                for message in message_contents:
-                    if message["type"] == "image_url":
-                        if seen_image:
-                            hlog("Ignoring additional image input for model that only supports a single image input.")
-                            continue
-                        seen_image = True
-                    filtered_message_contents.append(message)
-
-                message_contents = filtered_message_contents
-
             messages = [{"role": "user", "content": message_contents}]
         else:
             messages = [{"role": "user", "content": request.prompt}]
-
         if self._together_model is not None:
             model = self._together_model
         else:
             model = request.model
-
         return {
             "messages": messages,
             "model": model,
