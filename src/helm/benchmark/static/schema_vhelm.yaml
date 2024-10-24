@@ -347,8 +347,6 @@ run_groups:
     description: Is the model robust to perturbations? We focus on both text and image perturbations.
     category: Core scenarios
     subgroups:
-      - vqa_robustness
-      - a_okvqa_robustness
       - unicorn
       - bingo
   - name: multilinguality
@@ -383,22 +381,6 @@ run_groups:
     description: African-American English Perturbation + A-OKVQA ([Schwenk et al., 2022](https://arxiv.org/abs/2206.01718)).
     metric_groups:
       - fairness
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: valid
-    taxonomy:
-      task: multiple-choice question answering
-      what: Real-world images
-      who: Human experts
-      when: "2023"
-      language: English
-
-  - name: a_okvqa_robustness
-    display_name: A-OKVQA (robustness)
-    description: Robustness Typos Perturbation + A-OKVQA ([Schwenk et al., 2022](https://arxiv.org/abs/2206.01718)).
-    metric_groups:
-      - robustness
       - general_information
     environment:
       main_name: exact_match
@@ -592,22 +574,6 @@ run_groups:
     description: African-American English Perturbation + Open-ended questions about real-world images ([Goyal et al., 2017](https://arxiv.org/abs/1612.00837)).
     metric_groups:
       - fairness
-      - general_information
-    environment:
-      main_name: quasi_exact_match
-      main_split: valid
-    taxonomy:
-      task: short-answer question answering
-      what: Real-world images
-      who: Human experts
-      when: "2017"
-      language: English
-
-  - name: vqa_robustness
-    display_name: VQAv2 (robustness)
-    description: Robustness Typos Perturbation + Open-ended questions about real-world images ([Goyal et al., 2017](https://arxiv.org/abs/1612.00837)).
-    metric_groups:
-      - robustness
       - general_information
     environment:
       main_name: quasi_exact_match
