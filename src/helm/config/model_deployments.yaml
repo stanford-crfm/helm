@@ -1514,6 +1514,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.mistral_client.MistralAIClient"
 
+  - name: mistralai/pixtral-12b-2409
+    model_name: mistralai/pixtral-12b-2409
+    tokenizer_name: mistralai/Mistral-7B-v0.1
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.mistral_client.MistralAIClient"
+
   # Neurips
   - name: neurips/local
     model_name: neurips/local
