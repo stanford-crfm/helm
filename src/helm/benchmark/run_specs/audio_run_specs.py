@@ -15,9 +15,9 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 def _get_multimodal_generation_adapter_spec(
     instructions: str = "",
-    max_train_instances: int = 0,
     max_tokens: int = 5,
-    temperature: float = 0.01,
+    max_train_instances: int = 0,
+    temperature: float = 0.0,
     stop_sequences: Optional[List[str]] = None,
 ) -> AdapterSpec:
     return AdapterSpec(
@@ -41,6 +41,7 @@ def get_audio_mnist_run_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.audio_scenarios.AudioMNISTScenario")
     adapter_spec = _get_multimodal_generation_adapter_spec(
         instructions="Classify the spoken digit. Respond with only a single digit."
+        max_tokens=5,
     )
     metric_specs = get_exact_match_metric_specs() + get_classification_metric_specs()
     return RunSpec(
