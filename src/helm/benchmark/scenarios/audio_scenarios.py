@@ -35,7 +35,7 @@ class AudioMNISTScenario(Scenario):
         author = {Sören Becker and Johanna Vielhaben and Marcel Ackermann and Klaus-Robert Müller and Sebastian Lapuschkin and Wojciech Samek},
         keywords = {Deep learning, Neural networks, Interpretability, Explainable artificial intelligence, Audio classification, Speech recognition},
     }
-    """
+    """  # noqa: E501
 
     NUM_SPEAKERS = 60
     NUM_TRIALS = 50
