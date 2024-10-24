@@ -157,23 +157,7 @@ class OpenAIClient(CachingClient):
                         raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
 
             else:
-                # Special handling for gpt-4o-audio-preview
-                # See: https://platform.openai.com/docs/guides/audio
-                if request.model_engine.startswith("gpt-4o-audio-preview"):
-                    content = [
-                        {"type": "text", "text": request.prompt},
-                        {
-                            "type": "input_audio",
-                            "input_audio": {
-                                "data": multimodal_request_utils.get_contents_as_base64(
-                                    "https://openaiassets.blob.core.windows.net/$web/API/docs/audio/alloy.wav"
-                                ),
-                                "format": "wav",
-                            },
-                        },
-                    ]
-                else:
-                    content = request.prompt
+                content = request.prompt
 
             messages = [{"role": "user", "content": content}]
 
@@ -190,7 +174,6 @@ class OpenAIClient(CachingClient):
             "presence_penalty": request.presence_penalty,
             "frequency_penalty": request.frequency_penalty,
         }
-        print(raw_request)
 
         # OpenAI's vision API doesn't allow None values for stop.
         # Fails with "body -> stop: none is not an allowed value" if None is passed.
