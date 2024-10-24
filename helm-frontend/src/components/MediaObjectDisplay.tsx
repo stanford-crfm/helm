@@ -21,6 +21,20 @@ export default function MediaObjectDisplay({ mediaObject }: Props) {
         <br />
       </div>
     );
+  } else if (mediaObject.content_type.includes("audio")) {
+    if (mediaObject.location === undefined) {
+      return null;
+    }
+    const url = getBenchmarkEndpoint(
+      mediaObject.location
+        .replace("benchmark_output/", "")
+        .replace("prod_env/", "../"),
+    );
+    return (
+      <div>
+        <audio controls src={url}></audio>
+      </div>
+    );
   } else {
     if (
       mediaObject.text &&
