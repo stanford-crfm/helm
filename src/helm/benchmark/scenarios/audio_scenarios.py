@@ -15,18 +15,27 @@ from helm.common.media_object import MediaObject, MultimediaObject
 
 
 class AudioMNISTScenario(Scenario):
-    """Simple multiple-choice question answering scenario for tutorials and debugging.
+    """AudioMNIST
 
-    The task is to answer questions about whether two-digit numbers are even or odd.
+    The AudioMNIST (Becker et al, 2023) dataset consists of a dataset of 30000 audio samples of
+    spoken digits (0-9) of 60 different speakers. The task is to classify the digit from the
+    audio sample.
 
-    Example:
+    Paper: https://arxiv.org/abs/1807.03418
+    Code: https://github.com/soerenab/AudioMNIST
 
-        Answer the following questions with a single letter only.
-
-        Question: Is 24 even or odd?
-        A. Even
-        B. Odd
-        Answer: A"""
+    Citation:
+    @article{audiomnist2023,
+        title = {AudioMNIST: Exploring Explainable Artificial Intelligence for audio analysis on a simple benchmark},
+        journal = {Journal of the Franklin Institute},
+        year = {2023},
+        issn = {0016-0032},
+        doi = {https://doi.org/10.1016/j.jfranklin.2023.11.038},
+        url = {https://www.sciencedirect.com/science/article/pii/S0016003223007536},
+        author = {Sören Becker and Johanna Vielhaben and Marcel Ackermann and Klaus-Robert Müller and Sebastian Lapuschkin and Wojciech Samek},
+        keywords = {Deep learning, Neural networks, Interpretability, Explainable artificial intelligence, Audio classification, Speech recognition},
+    }
+    """
 
     NUM_SPEAKERS = 60
     NUM_TRIALS = 50
