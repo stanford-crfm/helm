@@ -40,7 +40,7 @@ def _get_multimodal_generation_adapter_spec(
 def get_audio_mnist_run_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.audio_scenarios.AudioMNISTScenario")
     adapter_spec = _get_multimodal_generation_adapter_spec(
-        instructions="Classify the spoken digit. Respond with only a single digit."
+        instructions="Classify the spoken digit. Respond with only a single digit.",
         max_tokens=5,
     )
     metric_specs = get_exact_match_metric_specs() + get_classification_metric_specs()
