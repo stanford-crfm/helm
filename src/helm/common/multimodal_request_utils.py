@@ -8,15 +8,15 @@ from helm.benchmark.scenarios.scenario import Reference
 from helm.common.request import RequestResult
 
 
-def get_contents_as_base64(url: str) -> str:
-    return base64.b64encode(get_contents_as_base64(url)).decode('utf-8')
-
-
 def get_contents_as_bytes(url: str) -> bytes:
     # Fetch the audio file and convert it to a base64 encoded string
     response = requests.get(url)
     response.raise_for_status()
     return response.content
+
+
+def get_contents_as_base64(url: str) -> str:
+    return base64.b64encode(get_contents_as_bytes(url)).decode("utf-8")
 
 
 def gather_generated_image_locations(request_result: RequestResult) -> List[str]:
