@@ -3,6 +3,7 @@ from dataclasses import replace
 from typing import Any, Dict, List, Optional, cast, Union
 
 from helm.benchmark.model_metadata_registry import is_vlm
+from helm.common import multimodal_request_utils
 from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
@@ -140,6 +141,16 @@ class OpenAIClient(CachingClient):
                         base64_image: str = encode_base64(media_object.location)
                         image_object: Dict[str, str] = {"url": f"data:image/jpeg;base64,{base64_image}"}
                         content.append({"type": "image_url", "image_url": image_object})
+                    elif media_object.is_type("audio") and media_object.location:
+                        content.append(
+                            {
+                                "type": "input_audio",
+                                "input_audio": {
+                                    "data": multimodal_request_utils.get_contents_as_base64(media_object.location),
+                                    "format": media_object.content_type.split("/")[1],
+                                },
+                            }
+                        )
                     elif media_object.is_type(TEXT_TYPE):
                         content.append({"type": media_object.type, "text": media_object.text})
                     else:
@@ -181,6 +192,16 @@ class OpenAIClient(CachingClient):
                 raw_request.pop("max_tokens")
             # Avoid error:
             # "Invalid type for 'stop': expected an unsupported value, but got null instead."
+            if raw_request["stop"] is None:
+                raw_request.pop("stop")
+
+        # Special handling for gpt-4o-audio-preview
+        # See: https://platform.openai.com/docs/guides/audio
+        if request.model_engine.startswith("gpt-4o-audio-preview"):
+            raw_request["modalities"] = ["text"]
+
+            # Avoid error:
+            # OpenAI error: Error code: 400 - {'error': {'message': "[{'type': 'string_type', 'loc': ('body', 'stop', 'str'), 'msg': 'Input should be a valid string', 'input': None}, {'type': 'list_type', 'loc': ('body', 'stop', 'list[str]'), 'msg': 'Input should be a valid list', 'input': None}, {'type': 'list_type', 'loc': ('body', 'stop', 'list[list[int]]'), 'msg': 'Input should be a valid list', 'input': None}]", 'type': 'invalid_request_error', 'param': None, 'code': None}}  # noqa: 3501
             if raw_request["stop"] is None:
                 raw_request.pop("stop")
 
