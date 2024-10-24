@@ -14,8 +14,8 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 
 def _get_multimodal_generation_adapter_spec(
+    max_tokens: int,
     instructions: str = "",
-    max_tokens: int = 5,
     max_train_instances: int = 0,
     temperature: float = 0.0,
     stop_sequences: Optional[List[str]] = None,
