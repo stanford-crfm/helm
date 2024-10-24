@@ -66,8 +66,6 @@ class GPQAScenario(Scenario):
             if idx in TRAIN_EXAMPLE_INDICES[self.subset]:
                 extra_data = {
                     "chain_of_thought": row["Explanation"],
-                    "chain_of_thought_prefix": "Let's think step by step: ",
-                    "chain_of_thought_suffix": "The correct answer is ",
                 }
                 instance = Instance(input=input, references=references, split=TRAIN_SPLIT, extra_data=extra_data)
             else:
