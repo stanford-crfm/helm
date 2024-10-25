@@ -887,6 +887,50 @@ def get_real_world_qa_spec() -> RunSpec:
     )
 
 
+@run_spec_function("blink")
+def get_blink_spec(category: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.blink_scenario.BlinkScenario",
+        args={"category": category},
+    )
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(
+        instructions="Answer the multiple choice question by just giving the letter of the correct answer.",
+        max_tokens=1,
+    )
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
+
+    run_spec_name: str = "blink"
+    return RunSpec(
+        name=f"{run_spec_name}:category={category}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("mm_star")
+def get_mm_star_spec(category: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.mm_star_scenario.MMStarScenario",
+        args={"category": category},
+    )
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(
+        instructions="Answer the multiple choice question by just giving the letter of the correct answer.",
+        max_tokens=1,
+    )
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
+
+    run_spec_name: str = "mm_star"
+    return RunSpec(
+        name=f"{run_spec_name}:category={category}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
 @run_spec_function("exams_v")
 def get_exams_v_spec(language: str, subject_grouped: str, type: str = "image_text") -> RunSpec:
     scenario_spec = ScenarioSpec(

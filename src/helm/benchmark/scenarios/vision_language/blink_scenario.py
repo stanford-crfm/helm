@@ -36,20 +36,20 @@ class BlinkScenario(Scenario):
     HUGGINGFACE_DATASET_NAME: str = "BLINK-Benchmark/BLINK"
 
     VALID_CATEGORIES: List[str] = [
-        "Art Style",
+        "Art_Style",
         "Counting",
-        "Forensic Detection",
-        "Functional Correspondence",
-        "IQ Test",
+        "Forensic_Detection",
+        "Functional_Correspondence",
+        "IQ_Test",
         "Jigsaw",
-        "Multi-view Reasoning",
-        "Object Localization",
-        "Relative Depth",
-        "Relative Reflectance",
-        "Semantic Correspondence",
-        "Spatial Relation",
-        "Visual Correspondence",
-        "Visual Similarity",
+        "Multi-view_Reasoning",
+        "Object_Localization",
+        "Relative_Depth",
+        "Relative_Reflectance",
+        "Semantic_Correspondence",
+        "Spatial_Relation",
+        "Visual_Correspondence",
+        "Visual_Similarity",
     ]
 
     name = "blink"
@@ -62,7 +62,6 @@ class BlinkScenario(Scenario):
     def __init__(self, category: str):
         super().__init__()
 
-        category = category.replace("_", " ")
         if category not in self.VALID_CATEGORIES:
             raise ValueError(f"Invalid category: {category}. Valid categories are: {self.VALID_CATEGORIES}")
         self._category: str = category
@@ -84,14 +83,13 @@ class BlinkScenario(Scenario):
                 return "Third image:"
             elif image_index == 4:
                 return "Fourth image:"
+            else:
+                raise ValueError(f"Invalid image index: {image_index}")
 
         instances: List[Instance] = []
-        for row in tqdm(load_dataset(self.HUGGINGFACE_DATASET_NAME, split="val", cache_dir=output_path)):
-            # Filter by category
-            category: str = row["sub_task"]
-            if category != self._category:
-                continue
-
+        for row in tqdm(
+            load_dataset(self.HUGGINGFACE_DATASET_NAME, self._category, split="val", cache_dir=output_path)
+        ):
             # Save the image(s) to disk
             has_multiple_images: bool = row["image_2"] is not None
             content: List[MediaObject] = []
@@ -121,7 +119,10 @@ class BlinkScenario(Scenario):
                 content.append(MediaObject(location=image1_path, content_type="image/jpeg"))
 
             # Add the prompt that has both the question and the answer choices
-            content.append(MediaObject(text=row["prompt"], content_type="text/plain"))
+            prompt: str = row["prompt"]
+            # Replace (A), (B), (C), (D) with \nA. \nB. \nC. \nD. since we are just expecting the letter answer
+            prompt = prompt.replace("(A)", "\nA.").replace("(B)", "\nB.").replace("(C)", "\nC.").replace("(D)", "\nD.")
+            content.append(MediaObject(text=prompt, content_type="text/plain"))
 
             # The answer has the correct letter choices surrounded by parentheses
             paren_letter_answer: str = row["answer"]
@@ -129,10 +130,7 @@ class BlinkScenario(Scenario):
                 paren_letter_answer[0] == "(" and paren_letter_answer[-1] == ")"
             ), f"Unexpected answer format: {paren_letter_answer}"
             letter_answer: str = paren_letter_answer[1]
-
-            # Add both (A) and A as valid references
             references: List[Reference] = [
-                Reference(output=Output(text=paren_letter_answer), tags=[CORRECT_TAG]),
                 Reference(output=Output(text=letter_answer), tags=[CORRECT_TAG]),
             ]
             instances.append(

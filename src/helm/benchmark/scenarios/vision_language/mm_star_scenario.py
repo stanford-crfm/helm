@@ -59,6 +59,7 @@ class MMStarScenario(Scenario):
     def __init__(self, category: str):
         super().__init__()
 
+        category = category.replace("_", " ")
         if category not in self.VALID_CATEGORIES:
             raise ValueError(f"Invalid category: {category}. Valid categories are: {self.VALID_CATEGORIES}")
         self._category: str = category
