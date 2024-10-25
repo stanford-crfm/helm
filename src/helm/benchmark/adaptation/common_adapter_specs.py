@@ -4,6 +4,7 @@ from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_GENERATION,
     ADAPT_LANGUAGE_MODELING,
     ADAPT_MULTIPLE_CHOICE_JOINT,
+    ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_RANKING_BINARY,
@@ -43,13 +44,66 @@ def get_multiple_choice_joint_adapter_spec(
     [output_noun]:
     """
 
+    input_prefix = kwargs.pop("input_prefix", f"{input_noun}: " if input_noun is not None else "")
+    input_suffix = kwargs.pop("input_suffix", "\n" if input_noun is not None else "")
+    output_prefix = kwargs.pop("output_prefix", f"{output_noun}: ")
+    output_suffix = kwargs.pop("output_suffix", "\n")
+
     return AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions=format_instructions(instructions),
-        input_prefix=f"{input_noun}: " if input_noun is not None else "",
-        input_suffix="\n" if input_noun is not None else "",
-        output_prefix=f"{output_noun}: ",
-        output_suffix="\n",
+        input_prefix=input_prefix,
+        input_suffix=input_suffix,
+        output_prefix=output_prefix,
+        output_suffix=output_suffix,
+        max_train_instances=max_train_instances,
+        num_outputs=num_outputs,
+        max_tokens=max_tokens,
+        temperature=0.0,
+        stop_sequences=["\n"],
+        sample_train=sample_train,
+        **kwargs,
+    )
+
+
+def get_multiple_choice_joint_chain_of_thought_adapter_spec(
+    instructions: str,
+    input_noun: Optional[str],
+    output_noun: str,
+    num_outputs: int = 5,
+    max_train_instances: int = 5,
+    max_tokens: int = 5,
+    sample_train: bool = True,
+    **kwargs,
+) -> AdapterSpec:
+    """
+    [instructions]
+
+    [input_noun]: [input]
+    [reference_1]
+    ...
+    [reference_k]
+    [output_noun]: [output]
+
+    [input_noun]: [input]
+    [reference_1]
+    ...
+    [reference_k]
+    [output_noun]:
+    """
+
+    input_prefix = kwargs.pop("input_prefix", f"{input_noun}: " if input_noun is not None else "")
+    input_suffix = kwargs.pop("input_suffix", "\n" if input_noun is not None else "")
+    output_prefix = kwargs.pop("output_prefix", f"{output_noun}: ")
+    output_suffix = kwargs.pop("output_suffix", "\n")
+
+    return AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT,
+        instructions=format_instructions(instructions),
+        input_prefix=input_prefix,
+        input_suffix=input_suffix,
+        output_prefix=output_prefix,
+        output_suffix=output_suffix,
         max_train_instances=max_train_instances,
         num_outputs=num_outputs,
         max_tokens=max_tokens,
@@ -100,6 +154,17 @@ def get_multiple_choice_adapter_spec(
     """
     if method == ADAPT_MULTIPLE_CHOICE_JOINT:
         return get_multiple_choice_joint_adapter_spec(
+            instructions,
+            input_noun,
+            output_noun,
+            max_train_instances=max_train_instances,
+            num_outputs=num_outputs,
+            max_tokens=max_tokens,
+            sample_train=sample_train,
+            **kwargs,
+        )
+    elif method == ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT:
+        return get_multiple_choice_joint_chain_of_thought_adapter_spec(
             instructions,
             input_noun,
             output_noun,
