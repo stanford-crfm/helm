@@ -345,7 +345,7 @@ def get_gpqa_spec(
         adapter_spec = get_multiple_choice_adapter_spec(
             method=ADAPT_MULTIPLE_CHOICE_JOINT,
             instructions=(
-                "Here are some example questions from experts. "   
+                "Here are some example questions from experts. "
                 "An explanation is given before the final answer. "
                 "Answer the final question yourself, giving your reasoning beforehand."
             ),
