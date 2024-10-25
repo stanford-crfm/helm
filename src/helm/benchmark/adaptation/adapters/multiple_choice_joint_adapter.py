@@ -40,7 +40,7 @@ class MultipleChoiceJointAdapter(InContextLearningAdapter):
 
     @staticmethod
     def get_prefix_char(prefix: str) -> str:
-        return prefix.lstrip()[0]
+        return [char for char in prefix if char.isalnum()][0]
 
     @staticmethod
     def get_reference_prefix(prefix: str, i: int) -> str:
