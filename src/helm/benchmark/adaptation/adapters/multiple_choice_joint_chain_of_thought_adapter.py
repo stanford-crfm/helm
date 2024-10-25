@@ -76,7 +76,7 @@ class MultipleChoiceJointChainOfThoughtAdapter(MultipleChoiceJointAdapter):
         if include_output:
             chain_of_thought = (
                 self.adapter_spec.chain_of_thought_prefix
-                + instance.extra_data.get("chain_of_thought", "")
+                + instance.extra_data.get("chain_of_thought", "") if instance.extra_data else ""
                 + self.adapter_spec.chain_of_thought_suffix
             )
             result += self.adapter_spec.output_prefix + chain_of_thought + output + self.adapter_spec.output_suffix
