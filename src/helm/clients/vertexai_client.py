@@ -4,6 +4,7 @@ from threading import Lock
 from typing import Any, Dict, Mapping, Optional, List, Union
 
 from helm.common.cache import CacheConfig
+from helm.common.multimodal_request_utils import get_contents_as_bytes
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, ErrorFlags
@@ -338,6 +339,10 @@ class VertexAIChatClient(VertexAIClient):
         for media_object in request.multimodal_prompt.media_objects:
             if media_object.is_type("image") and media_object.location:
                 contents.append(Part.from_image(Image.load_from_file(media_object.location)))
+            elif media_object.is_type("audio") and media_object.location:
+                contents.append(
+                    Part.from_data(get_contents_as_bytes(media_object.location), mime_type=media_object.content_type)
+                )
             elif media_object.is_type(TEXT_TYPE):
                 if media_object.text is None:
                     raise ValueError("MediaObject of text type has missing text field value")
