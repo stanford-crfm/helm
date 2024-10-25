@@ -1,4 +1,6 @@
 ---
+# EXPERIMENTAL: DO NOT USE IN PROD
+# Temporary schema for prototyping HELM Lite v2
 ############################################################
 metrics:
   # Infrastructure metrics:
@@ -65,22 +67,26 @@ metrics:
     description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
 
   # Accuracy metrics:
-  - name: program_accuracy
-    display_name: Program Accuracy
-    description: Accuracy of the generated programs
-    lower_is_better: false
-  - name: execution_accuracy
-    display_name: Execution Accuracy
-    description: Accuracy of the final result of the generated program
-    lower_is_better: false
-  - name: annotation_financebench_label_correct_answer
-    display_name: Correct Answer
-    description: Whether the final result was correct, as judged by a GPT-4o
+  - name: exact_match
+    display_name: Exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
     lower_is_better: false
   - name: quasi_exact_match
     display_name: Quasi-exact match
     short_display_name: EM
     description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+    lower_is_better: false
+  - name: prefix_exact_match
+    display_name: Prefix exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_prefix_exact_match
+    # TODO: should call this prefix_quasi_exact_match
+    display_name: Prefix quasi-exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
     lower_is_better: false
 
 ############################################################
@@ -158,3 +164,4 @@ run_groups:
       who: "?"
       when: "?"
       language: English
+ 
