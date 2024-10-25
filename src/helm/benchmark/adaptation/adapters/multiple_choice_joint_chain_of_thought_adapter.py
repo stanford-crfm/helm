@@ -12,7 +12,7 @@ class MultipleChoiceJointChainOfThoughtAdapter(MultipleChoiceJointAdapter):
                    <reference2>
                    <reference3> [correct]
                    <reference4>
-        
+
         <instance_chain_of_thought>
 
     We can define a label (e.g., letter) for each reference:
