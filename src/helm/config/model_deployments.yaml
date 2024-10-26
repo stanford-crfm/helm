@@ -2590,6 +2590,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.vision_language.qwen_vlm_client.QwenVLMClient"
 
+  - name: huggingface/qwen-audio-chat
+    model_name: qwen/qwen-audio-chat
+    tokenizer_name: qwen/qwen-audio-chat
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.audio_language.qwen_audiolm_client.QwenAudioLMClient"
+
 # Reka
   - name: reka/reka-core
     model_name: reka/reka-core

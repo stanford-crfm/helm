@@ -16,6 +16,7 @@ from helm.benchmark.model_metadata_registry import (
     ABLATION_MODEL_TAG,
     TEXT_TO_IMAGE_MODEL_TAG,
     VISION_LANGUAGE_MODEL_TAG,
+    AUDIO_LANGUAGE_MODEL_TAG,
     INSTRUCTION_FOLLOWING_MODEL_TAG,
 )
 from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION
@@ -588,6 +589,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
             "opinions_qa_ai21": ["ai21/j1-grande", "ai21/j1-jumbo", "ai21/j1-grande-v2-beta"],
             "text_to_image": get_model_names_with_tag(TEXT_TO_IMAGE_MODEL_TAG),
             "vlm": get_model_names_with_tag(VISION_LANGUAGE_MODEL_TAG),
+            "audiolm": get_model_names_with_tag(AUDIO_LANGUAGE_MODEL_TAG),
         }
 
         # For each of the keys above (e.g., "text"), create a corresponding ablation (e.g., "ablation_text")

@@ -2680,6 +2680,14 @@ models:
     release_date: 2023-08-24
     tags: [VISION_LANGUAGE_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
 
+  - name: qwen/qwen-audio-chat
+    display_name: Qwen-Audio Chat
+    description: Auditory multimodal version of the Qwen large language model series ([paper](https://arxiv.org/abs/2311.07919)).
+    creator_organization_name: Alibaba Cloud
+    access: open
+    release_date: 2023-11-14
+    tags: [AUDIO_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG]
+
   # SAIL (Sea AI Lab)
   - name: sail/sailor-7b
     display_name: Sailor (7B)
