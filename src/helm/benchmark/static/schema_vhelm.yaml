@@ -295,6 +295,8 @@ run_groups:
       - viz_wiz
       - flickr30k
       - pope
+      - mm_star_perception
+      - blink_perception
   - name: reasoning
     display_name: Reasoning
     description: Does the model understand objects, counts and spatial relations? Can the model reason about both the text and image input?
@@ -305,6 +307,8 @@ run_groups:
       - seed_bench
       - mementos
       - real_world_qa
+      - mm_star_reasoning
+      - blink_reasoning
   - name: knowledge
     display_name: Knowledge
     description: Does the model have knowledge about the world and common sense?
@@ -314,6 +318,8 @@ run_groups:
       - mmmu
       - mme
       - vibe_eval
+      - mm_star_knowledge
+      - blink_knowledge
   - name: bias
     display_name: Bias
     description: Are the generations biased in demographic representation? We focus on gender and skin tone bias.
@@ -347,8 +353,6 @@ run_groups:
     description: Is the model robust to perturbations? We focus on both text and image perturbations.
     category: Core scenarios
     subgroups:
-      - vqa_robustness
-      - a_okvqa_robustness
       - unicorn
       - bingo
   - name: multilinguality
@@ -383,22 +387,6 @@ run_groups:
     description: African-American English Perturbation + A-OKVQA ([Schwenk et al., 2022](https://arxiv.org/abs/2206.01718)).
     metric_groups:
       - fairness
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: valid
-    taxonomy:
-      task: multiple-choice question answering
-      what: Real-world images
-      who: Human experts
-      when: "2023"
-      language: English
-
-  - name: a_okvqa_robustness
-    display_name: A-OKVQA (robustness)
-    description: Robustness Typos Perturbation + A-OKVQA ([Schwenk et al., 2022](https://arxiv.org/abs/2206.01718)).
-    metric_groups:
-      - robustness
       - general_information
     environment:
       main_name: exact_match
@@ -473,6 +461,102 @@ run_groups:
       who: Human experts
       when: "2023"
       language: Swahili
+
+  - name: mm_star_perception
+    display_name: MM-Star (Perception subsets)
+    description: MM-STAR is an elite vision-indispensable multi-modal benchmark comprising 1,500 challenge samples meticulously selected by humans. ([Chen et al., 2024](https://arxiv.org/abs/2403.20330)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: multiple-choice question answering
+      what: Real-world images
+      who: Human experts
+      when: "2024"
+      language: English
+
+  - name: mm_star_reasoning
+    display_name: MM-Star (Reasoning subsets)
+    description: MM-STAR is an elite vision-indispensable multi-modal benchmark comprising 1,500 challenge samples meticulously selected by humans. ([Chen et al., 2024](https://arxiv.org/abs/2403.20330)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: multiple-choice question answering
+      what: Real-world images
+      who: Human experts
+      when: "2024"
+      language: English
+
+  - name: mm_star_knowledge
+    display_name: MM-Star (Knowledge subsets)
+    description: MM-STAR is an elite vision-indispensable multi-modal benchmark comprising 1,500 challenge samples meticulously selected by humans. ([Chen et al., 2024](https://arxiv.org/abs/2403.20330)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: multiple-choice question answering
+      what: Real-world images
+      who: Human experts
+      when: "2024"
+      language: English
+
+  - name: blink_perception
+    display_name: BLINK (Perception subsets)
+    description: BLINK is a benchmark containing 14 visual perception tasks that can be solved by humans within a blink, but difficulty for VLMs. ([Fu, 2024](https://arxiv.org/abs/2404.12390)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: multiple-choice question answering
+      what: Real-world images
+      who: Human experts
+      when: "2024"
+      language: English
+
+  - name: blink_knowledge
+    display_name: BLINK (Knowledge subsets)
+    description: BLINK is a benchmark containing 14 visual perception tasks that can be solved by humans within a blink, but difficulty for VLMs. ([Fu, 2024](https://arxiv.org/abs/2404.12390)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: multiple-choice question answering
+      what: Real-world images
+      who: Human experts
+      when: "2024"
+      language: English
+
+  - name: blink_reasoning
+    display_name: BLINK (Reasoning subsets)
+    description: BLINK is a benchmark containing 14 visual perception tasks that can be solved by humans within a blink, but difficulty for VLMs. ([Fu, 2024](https://arxiv.org/abs/2404.12390)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: multiple-choice question answering
+      what: Real-world images
+      who: Human experts
+      when: "2024"
+      language: English
 
   - name: crossmodal_3600
     display_name: Crossmodal 3600
@@ -592,22 +676,6 @@ run_groups:
     description: African-American English Perturbation + Open-ended questions about real-world images ([Goyal et al., 2017](https://arxiv.org/abs/1612.00837)).
     metric_groups:
       - fairness
-      - general_information
-    environment:
-      main_name: quasi_exact_match
-      main_split: valid
-    taxonomy:
-      task: short-answer question answering
-      what: Real-world images
-      who: Human experts
-      when: "2017"
-      language: English
-
-  - name: vqa_robustness
-    display_name: VQAv2 (robustness)
-    description: Robustness Typos Perturbation + Open-ended questions about real-world images ([Goyal et al., 2017](https://arxiv.org/abs/1612.00837)).
-    metric_groups:
-      - robustness
       - general_information
     environment:
       main_name: quasi_exact_match
