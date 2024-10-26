@@ -1,10 +1,13 @@
 from threading import Lock
+from io import BytesIO
+import librosa
 from typing import Any, Dict, List, Optional
 
 from dataclasses import dataclass
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import Qwen2AudioForConditionalGeneration, AutoProcessor
 
 from helm.common.cache import CacheConfig
+from helm.common.multimodal_request_utils import get_contents_as_bytes
 from helm.common.gpu_utils import get_torch_device_name
 from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.media_object import TEXT_TYPE
@@ -17,26 +20,32 @@ from helm.clients.client import CachingClient, generate_uid_for_multimodal_promp
 class LoadedQwenModelProcessor:
     """Loaded model and processor for Qwen."""
 
-    model: AutoModelForCausalLM
-    tokenizer: AutoTokenizer
+    model: Qwen2AudioForConditionalGeneration
+    tokenizer: AutoProcessor
 
 
 _models_lock: Lock = Lock()
 _models: Dict[str, Optional[LoadedQwenModelProcessor]] = {
-    "Qwen/Qwen-Audio-Chat": None,
+    "Qwen/Qwen2-Audio-7B-Instruct": None,
 }
 
 
-class QwenAudioLMClient(CachingClient):
+class Qwen2AudioLMClient(CachingClient):
     """
-    From https://huggingface.co/Qwen/Qwen-Audio,
-    Qwen-Audio-Chat (Qwen Large Audio Language Model) is the audio multimodal version of the large model series,
-    Qwen (abbr. Tongyi Qianwen), proposed by Alibaba Cloud. Qwen-Audio-Chat accepts audio, text as inputs, outputs text.
-    Alibaba released Qwen-Audio and Qwen-Audio-Chat, which is a chatbot model based on Qwen-Audio.
-    We for now integrated Qwen-Audio-Chat for instruction-following tasks.
+    From https://huggingface.co/Qwen/Qwen2-Audio-7B-Instruct,
+    Qwen2-Audio-Instruct (Qwen2 Large Vision Language Model) is the audito multimodal version of the large model series,
+    Qwen2 (abbr. Tongyi Qianwen), proposed by Alibaba Cloud. Qwen2-Audio-Instruct accepts audio, text as inputs,
+    outputs text.
+    Alibaba released Qwen-Audio and Qwen-Audio-Instruct, which is a instruction-following model based on Qwen-Audio.
+    We for now integrated Qwen2-Audio-Instruct for instruction-following tasks.
 
-    Paper: https://arxiv.org/abs/2311.07919
+    Paper: https://arxiv.org/abs/2407.10759
     """
+
+    END_OF_TEXT_TOKEN: str = "<|im_end|>"
+    # The official recommendation is to set the prefix length to 256
+    # https://huggingface.co/Qwen/Qwen2-Audio-7B-Instruct
+    PREFIX_TOKEN_LENGTH: int = 100
 
     def __init__(self, cache_config: CacheConfig):
         super().__init__(cache_config=cache_config)
@@ -47,8 +56,8 @@ class QwenAudioLMClient(CachingClient):
         global _models
 
         model_name: str
-        if helm_model_name == "qwen-audio-chat":
-            model_name = "Qwen/Qwen-Audio-Chat"
+        if helm_model_name == "qwen2-audio-instruct":
+            model_name = "Qwen/Qwen2-Audio-7B-Instruct"
         else:
             raise ValueError(f"Unhandled model name: {helm_model_name}")
 
@@ -57,13 +66,13 @@ class QwenAudioLMClient(CachingClient):
             loaded_model_processor = _models[model_name]
             if loaded_model_processor is None:
                 hlog(f"Loading model {model_name} and caching in memory...")
-                model = AutoModelForCausalLM.from_pretrained(
+                model = Qwen2AudioForConditionalGeneration.from_pretrained(
                     model_name,
                     device_map=self._device,
-                    trust_remote_code=True,
-                    bf16=True,
                 ).eval()
-                tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+                tokenizer = AutoProcessor.from_pretrained(
+                    model_name,
+                )
                 _models[model_name] = LoadedQwenModelProcessor(model, tokenizer)
                 loaded_model_processor = _models[model_name]
 
@@ -77,25 +86,31 @@ class QwenAudioLMClient(CachingClient):
         model = loaded_model_processor.model
         tokenizer = loaded_model_processor.tokenizer
 
+        # Qwen2-Audio-Instruct counts input into the max_length, so we need to add the length of the prompt
         generation_args = {
-            "max_length": request.max_tokens,
+            "max_length": request.max_tokens + self.PREFIX_TOKEN_LENGTH,
         }
 
+        input_query: List[Dict[str, Any]] = []
         query: List[Dict[str, str]] = []
         prompt_text: str = ""
 
-        for media_object in request.multimodal_prompt.media_objects:
+        input_query.append({"role": "system", "content": "You are a helpful assistant."})
+        prompt_text += "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n"
+        for media_num, media_object in enumerate(request.multimodal_prompt.media_objects):
             if media_object.is_type("audio") and media_object.location:
-                query.append({"audio": media_object.location})
+                query.append({"type": "audio", "audio_url": media_object.location})
+                prompt_text += f"<|im_start|>user\nAudio {media_num+1}: <|audio_bos|><|AUDIO|><|audio_eos|>\n"
             elif media_object.is_type(TEXT_TYPE):
                 if media_object.text is None:
                     raise ValueError("MediaObject of text type has missing text field value")
-
-                query.append({"text": media_object.text})
+                query.append({"type": "text", "text": media_object.text})
                 prompt_text += media_object.text
             else:
                 raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
+        prompt_text += "<|im_end|>\n<|im_start|>assistant\n"
 
+        input_query.append({"role": "user", "content": query})
         completions: List[GeneratedOutput] = []
         request_time: float = 0
         request_datetime: Optional[int] = None
@@ -106,8 +121,33 @@ class QwenAudioLMClient(CachingClient):
                 try:
 
                     def do_it() -> Dict[str, Any]:
-                        completion, _ = model.chat(tokenizer, query=tokenizer.from_list_format(query), history=None)
-                        tokens: List[str] = tokenizer.tokenize(completion)
+                        inputs = tokenizer.apply_chat_template(input_query, add_generation_prompt=True, tokenize=False)
+                        audios: List[Any] = []
+                        # Refer to the official Qwen2-Audio documentation for the format of the input query
+                        # https://huggingface.co/Qwen/Qwen2-Audio-7B-Instruct
+                        for message in input_query:
+                            if isinstance(message["content"], list):
+                                for element in message["content"]:
+                                    if element["type"] == "audio":
+                                        audios.append(
+                                            librosa.load(
+                                                BytesIO(get_contents_as_bytes(element["audio_url"])),
+                                                sr=tokenizer.feature_extractor.sampling_rate,
+                                            )[0]
+                                        )
+                        inputs = tokenizer(
+                            text=inputs,
+                            audios=audios,
+                            sampling_rate=tokenizer.feature_extractor.sampling_rate,
+                            return_tensors="pt",
+                            padding=True,
+                        )
+                        inputs = inputs.to(self._device)
+                        pred = model.generate(**inputs, **generation_args)
+                        completion = tokenizer.decode(pred.cpu()[0], skip_special_tokens=False)
+
+                        # The processor of Qwen2-Audio-Instruct consists an AutoTokenizer and a WhisperFeatureExtractor
+                        tokens: List[str] = tokenizer.tokenizer.tokenize(completion)
                         return {"output": (completion, tokens)}
 
                     # Include the prompt and model name in the cache key
@@ -127,6 +167,11 @@ class QwenAudioLMClient(CachingClient):
                     )
 
                 text, tokens = result["output"]
+
+                # Truncate the output text as the original Qwen includes the prompt in the output sequence
+                text = text[len(prompt_text) :]
+                text = text.replace(self.END_OF_TEXT_TOKEN, "")
+                hlog(f"Truncated: {text}")
 
                 # Tokenize truncated text to get the list of tokens
                 completions.append(

@@ -2688,6 +2688,14 @@ models:
     release_date: 2023-11-14
     tags: [AUDIO_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG]
 
+  - name: qwen/qwen2-audio-instruct
+    display_name: Qwen2-Audio Instruct
+    description: The second version of auditory multimodal version of the Qwen large language model series ([paper](https://arxiv.org/abs/2407.10759)).
+    creator_organization_name: Alibaba Cloud
+    access: open
+    release_date: 2024-07-15
+    tags: [AUDIO_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG]
+
   # SAIL (Sea AI Lab)
   - name: sail/sailor-7b
     display_name: Sailor (7B)
