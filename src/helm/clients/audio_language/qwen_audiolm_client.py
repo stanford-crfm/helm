@@ -12,8 +12,6 @@ from helm.common.request import Request, RequestResult, GeneratedOutput, Token
 from helm.common.request import wrap_request_time
 from helm.clients.client import CachingClient, generate_uid_for_multimodal_prompt
 
-CACHE_DIR = "/data-2u-1/tuhq/hf_models"
-
 
 @dataclass(frozen=True)
 class LoadedQwenModelProcessor:
@@ -65,9 +63,8 @@ class QwenAudioLMClient(CachingClient):
                     device_map=self._device,
                     trust_remote_code=True,
                     bf16=True,
-                    cache_dir=CACHE_DIR,
                 ).eval()
-                tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True, cache_dir=CACHE_DIR)
+                tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
                 _models[model_name] = LoadedQwenModelProcessor(model, tokenizer)
                 loaded_model_processor = _models[model_name]
 
