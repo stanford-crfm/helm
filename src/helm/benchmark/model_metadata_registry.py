@@ -212,7 +212,7 @@ def is_vlm(model_name: str) -> bool:
 
 
 def is_audiolm(model_name: str) -> bool:
-    """Returns True if the model is a vision-language model (VLM). False otherwise."""
+    """Returns True if the model is a audio-language model (AudioLM). False otherwise."""
     return model_has_tag(model_name, AUDIO_LANGUAGE_MODEL_TAG)
 
 
