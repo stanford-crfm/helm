@@ -541,6 +541,25 @@ tokenizer_configs:
     end_of_text_token: "<|endoftext|>"
     prefix_token: ""
 
+  - name: qwen/qwen-audio-chat
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: Qwen/Qwen-Audio-Chat
+        trust_remote_code: true
+    # Source: https://github.com/QwenLM/Qwen-Audio
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: ""
+
+  - name: qwen/qwen2-audio-instruct
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: Qwen/Qwen2-Audio-7B-Instruct
+        trust_remote_code: false
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: ""
+
   # SambaLingo
   - name: sambanova/sambalingo-thai-base
     tokenizer_spec:

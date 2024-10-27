@@ -38,7 +38,9 @@ def _get_multimodal_generation_adapter_spec(
 
 @run_spec_function("audio_mnist")
 def get_audio_mnist_run_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.audio_scenarios.AudioMNISTScenario")
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.audio_mnist_scenario.AudioMNISTScenario"
+    )
     adapter_spec = _get_multimodal_generation_adapter_spec(
         instructions="Classify the spoken digit. Respond with only a single digit.",
         max_tokens=5,

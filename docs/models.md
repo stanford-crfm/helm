@@ -47,3 +47,18 @@
 
 {% endfor %}
 {% endfor %}
+
+## Audio-Language Models
+
+{% for organization, models in models_by_organization_with_tag("AUDIO_LANGUAGE_MODEL_TAG").items() %}
+
+### {{ organization }}
+
+{% for model in models %}
+
+#### {{ model.display_name }} &mdash; `{{ model.name }}`
+
+{{ model.description }}
+
+{% endfor %}
+{% endfor %}

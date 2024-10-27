@@ -164,12 +164,12 @@ class CohereRawChatRequest(TypedDict):
     message: str
     model: Optional[str]
     preamble: Optional[str]
-    chat_history: Optional[Sequence[cohere.ChatMessage]]
+    chat_history: Optional[Sequence[cohere.ChatbotMessage]]
     temperature: Optional[float]
     max_tokens: Optional[int]
     k: Optional[int]
     p: Optional[float]
-    seed: Optional[float]
+    seed: Optional[int]
     stop_sequences: Optional[Sequence[str]]
     frequency_penalty: Optional[float]
     presence_penalty: Optional[float]
@@ -188,7 +188,7 @@ def convert_to_raw_chat_request(request: Request) -> CohereRawChatRequest:
         "k": request.top_k_per_token,
         "p": request.top_p,
         "stop_sequences": request.stop_sequences,
-        "seed": float(request.random) if request.random is not None else None,
+        "seed": int(request.random) if request.random is not None else None,
         "frequency_penalty": request.frequency_penalty,
         "presence_penalty": request.presence_penalty,
     }
