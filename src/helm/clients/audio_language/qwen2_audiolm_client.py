@@ -45,7 +45,7 @@ class Qwen2AudioLMClient(CachingClient):
     END_OF_TEXT_TOKEN: str = "<|im_end|>"
     # The official recommendation is to set the prefix length to 256
     # https://huggingface.co/Qwen/Qwen2-Audio-7B-Instruct
-    PREFIX_TOKEN_LENGTH: int = 100
+    PREFIX_TOKEN_LENGTH: int = 256
 
     def __init__(self, cache_config: CacheConfig):
         super().__init__(cache_config=cache_config)
