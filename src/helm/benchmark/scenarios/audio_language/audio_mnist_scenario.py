@@ -42,7 +42,7 @@ class AudioMNISTScenario(Scenario):
     WAV_URL_TEMPLATE = r"https://github.com/soerenab/AudioMNIST/raw/544b0f4bc65227e54332e665d5e02c24be6732c2/data/{speaker_id}/{digit}_{speaker_id}_{trial_index}.wav"  # noqa: E501
 
     name = "audio_mnist"
-    description = "Classify an audio sample of a spoken digit"
+    description = "Classify an audio sample of a spoken digit ([Becker et al, 2023](https://arxiv.org/abs/1807.03418))."
     tags = ["audio", "classification"]
 
     def get_instances(self, output_path: str) -> List[Instance]:
