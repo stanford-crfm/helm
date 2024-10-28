@@ -40,20 +40,18 @@ class MMLUProScenario(Scenario):
         hlog(f"Processing data for {split} split")
         for row in data:
             question = row["question"]
-            answers = row["answers"][:10]  # Limit to 10 answers if necessary
-            correct_choice = row["correct_answer"]
-            explanation = row.get("explanation", "")
+            answers = row["options"][:10]  # Limit to 10 answers if necessary
+            correct_choice = row["answer"]
             answers_dict = dict(zip(["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"], answers))
             correct_answer = answers_dict[correct_choice]
 
             def answer_to_reference(answer: str) -> Reference:
                 return Reference(Output(text=answer), tags=[CORRECT_TAG] if answer == correct_answer else [])
-
+            
             instance = Instance(
                 input=Input(text=question),
                 references=list(map(answer_to_reference, answers)),
                 split=split,
-                explanation=Input(text=explanation) if explanation else None,
             )
             instances.append(instance)
         return instances
@@ -65,12 +63,12 @@ class MMLUProScenario(Scenario):
         # Process all the instances
         instances: List[Instance] = []
         splits: Dict[str, str] = {
-            "train": TRAIN_SPLIT,
-            "validation": VALID_SPLIT,
+            "validation": TRAIN_SPLIT,
             "test": TEST_SPLIT,
         }
         for hf_split, split in splits.items():
-            data = dataset[hf_split].filter(lambda x: x["subject"] == self.subject)
+            data = dataset[hf_split].filter(lambda x: x["category"] == self.subject)
+            print(f"Filtered instances in {hf_split}: {len(data)}")
             instances.extend(self.process_csv(data, split))
 
         return instances
