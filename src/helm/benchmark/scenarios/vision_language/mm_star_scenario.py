@@ -45,7 +45,7 @@ class MMStarScenario(Scenario):
         "instance reasoning",
         "logical reasoning",
         "math",
-        "science & technology",
+        "science technology",
     ]
 
     name = "mm_star"
@@ -62,6 +62,9 @@ class MMStarScenario(Scenario):
         category = category.replace("_", " ")
         if category not in self.VALID_CATEGORIES:
             raise ValueError(f"Invalid category: {category}. Valid categories are: {self.VALID_CATEGORIES}")
+        if category == "science technology":
+            category = "science & technology"
+
         self._category: str = category
 
     def get_instances(self, output_path: str) -> List[Instance]:
