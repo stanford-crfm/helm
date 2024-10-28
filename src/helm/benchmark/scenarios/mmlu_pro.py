@@ -1,10 +1,8 @@
-import csv
-import os
 from typing import Dict, List
 from datasets import load_dataset
 
 from helm.common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 
 
 class MMLUProScenario(Scenario):

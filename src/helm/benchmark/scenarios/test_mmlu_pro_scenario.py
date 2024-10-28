@@ -13,7 +13,7 @@ def test_mmlu_pro_scenario():
         instances = scenario.get_instances(tmpdir)
         # assert len(instances) == 116
         assert instances[1].input == Input(
-            text="Let V be the set of all real polynomials p(x). Let transformations T, S be defined on V by T:p(x) -> xp(x) and S:p(x) -> p'(x) = d/dx p(x), and interpret (ST)(p(x)) as S(T(p(x))). Which of the following is true?"
+            text="Let V be the set of all real polynomials p(x). Let transformations T, S be defined on V by T:p(x) -> xp(x) and S:p(x) -> p'(x) = d/dx p(x), and interpret (ST)(p(x)) as S(T(p(x))). Which of the following is true?"  # noqa: E501
         )
 
         # Ensure it handles up to 10 answer options
