@@ -151,6 +151,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.bedrock_client.BedrockMistralClient"
 
+  - name: amazon/mistral-large-2407-v1:0
+    model_name: mistralai/amazon-mistral-large-2407-v1:0
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 8000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockMistralClient"
+
   # Llama 3 on Amazon Bedrock
   
   - name: amazon/llama3-8b-instruct-v1:0
@@ -167,7 +174,28 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.bedrock_client.BedrockLlamaClient"
 
+  - name: amazon/llama3-1-405b-instruct-v1:0
+    model_name: meta/amazon-llama3-1-405b-instruct-v1:0
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockLlamaClient"
+
+  - name: amazon/llama3-1-70b-instruct-v1:0
+    model_name: meta/amazon-llama3-1-70b-instruct-v1:0
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockLlamaClient"
+
   
+  - name: amazon/llama3-1-8b-instruct-v1:0
+    model_name: meta/amazon-llama3-1-8b-instruct-v1:0
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockLlamaClient"
+
   # Anthropic
   - name: anthropic/claude-v1.3
     model_name: anthropic/claude-v1.3
