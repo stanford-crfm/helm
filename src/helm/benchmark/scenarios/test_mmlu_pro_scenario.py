@@ -11,8 +11,10 @@ def test_mmlu_pro_scenario():
         # Test for the "abstract_algebra" subject
         scenario = MMLUProScenario(subject="math")
         instances = scenario.get_instances(tmpdir)
-        #assert len(instances) == 116
-        assert instances[1].input == Input(text="Let V be the set of all real polynomials p(x). Let transformations T, S be defined on V by T:p(x) -> xp(x) and S:p(x) -> p'(x) = d/dx p(x), and interpret (ST)(p(x)) as S(T(p(x))). Which of the following is true?")
+        # assert len(instances) == 116
+        assert instances[1].input == Input(
+            text="Let V be the set of all real polynomials p(x). Let transformations T, S be defined on V by T:p(x) -> xp(x) and S:p(x) -> p'(x) = d/dx p(x), and interpret (ST)(p(x)) as S(T(p(x))). Which of the following is true?"
+        )
 
         # Ensure it handles up to 10 answer options
         assert instances[1].references == [
@@ -30,13 +32,15 @@ def test_mmlu_pro_scenario():
         assert instances[1].split == "train"
 
         # Optional: check if the explanation is properly included (if provided in the dataset)
-        #assert hasattr(instances[0], "explanation")
+        # assert hasattr(instances[0], "explanation")
 
         # Test for the "anatomy" subject
         scenario = MMLUProScenario(subject="health")
         instances = scenario.get_instances(tmpdir)
-       # assert len(instances) == 154
-        assert instances[0].input == Input(text="Which of the following is the body cavity that contains the pituitary gland?")
+        # assert len(instances) == 154
+        assert instances[0].input == Input(
+            text="Which of the following is the body cavity that contains the pituitary gland?"
+        )
 
         # Check references with more answer choices and correct tagging
         assert instances[0].references == [
@@ -54,4 +58,4 @@ def test_mmlu_pro_scenario():
         assert instances[0].split == "train"
 
         # Again, check for the presence of an explanation
-       # assert hasattr(instances[0], "explanation")
+    # assert hasattr(instances[0], "explanation")
