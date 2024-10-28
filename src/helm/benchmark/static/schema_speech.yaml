@@ -71,6 +71,13 @@ metrics:
     description: Fraction of instances that the predicted output matches a correct reference exactly.
     lower_is_better: false
 
+  # Machine Translation metrics
+  - name: bleu
+    display_name: BLEU
+    short_display_name: BLEU
+    description: BLEU score based on [Post, (2018)](https://aclanthology.org/W18-6319/).
+    lower_is_better: false
+
 ############################################################
 perturbations: []
 
@@ -117,9 +124,9 @@ run_groups:
   - name: audio_mnist
     display_name: AudioMNIST
     description: >
-      The AudioMNIST ([Becker et al, 2023](https://arxiv.org/abs/1807.03418)) dataset consists of a dataset of 30000 audio samples of
+      The AudioMNIST dataset consists of a dataset of 30000 audio samples of
       spoken digits (0-9) of 60 different speakers. The task is to classify the digit from the
-      audio sample.
+      audio sample ([Becker et al, 2023](https://arxiv.org/abs/1807.03418)).
     metric_groups:
       - accuracy
       - efficiency
@@ -133,3 +140,27 @@ run_groups:
       who: 60 different speakers
       when: "2018"
       language: English
+
+  - name: covost2
+    display_name: CoVost-2
+    description: >
+      CoVost-2 is a large-scale multilingual speech translation corpus covering translations from 21 languages
+      into English and from English into 15 languages.
+
+      The dataset contains the audio, transcriptions, and translations in the following languages:
+      French, German, Dutch, Russian, Spanish, Italian, Turkish, Persian, Swedish, Mongolian, Chinese,
+      Welsh, Catalan, Slovenian, Estonian, Indonesian, Arabic, Tamil, Portuguese, Latvian, and Japanese
+      ([Wang et al, 2020](https://arxiv.org/abs/2007.10310)).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: bleu
+      main_split: test
+    taxonomy:
+      task: audio machine translation
+      what: audio, transcriptions, and translations in 15 languages
+      who: real speakers
+      when: "2020"
+      language: 15 languages
