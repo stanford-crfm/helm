@@ -64,12 +64,19 @@ class HuggingFaceServer:
     ):
         self.device: Optional[str]
         if "device_map" in kwargs:
+            if "device" in kwargs:
+                raise ValueError("At most one of one of `device` and `device_map` may be specified.")
             try:
                 import accelerate  # noqa: F401
             except ModuleNotFoundError as e:
                 handle_module_not_found_error(e, ["accelerate"])
-            hlog(f'Hugging Face device_map set to "{kwargs["device_map"]}".')
+            hlog(f'Hugging Face device_map set to "{kwargs["device_map"]}" from kwargs.')
             self.device = None
+        elif "device" in kwargs:
+            if "device_map" in kwargs:
+                raise ValueError("At most one of one of `device` and `device_map` may be specified.")
+            hlog(f'Hugging Face device set to "{kwargs["device"]}" from kwargs.')
+            self.device = kwargs.pop("device")
         elif torch.cuda.is_available():
             hlog('Hugging Face device set to "cuda:0" because CUDA is available.')
             self.device = "cuda:0"

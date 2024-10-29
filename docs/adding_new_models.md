@@ -60,7 +60,8 @@ Examples of common arguments within `args`:
 - Revision: `revision: my_revision`
 - Quantization: `load_in_8bit: true`
 - Model precision: `torch_dtype: torch.float16`
-- Running remote code: `trust_remote_code: true`
+- Model device: `device: cpu` or `device: cuda:0`
+- Allow running remote code: `trust_remote_code: true`
 - Multi-GPU: `device_map: auto`
 
 
