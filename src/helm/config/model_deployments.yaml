@@ -1470,17 +1470,30 @@ model_deployments:
         precision: bf16-true
 
   # Mistral AI
-  - name: mistralai/mistral-tiny
-    model_name: mistralai/mistral-7b-v0.1
+
+  - name: mistralai/ministral-3b-2410
+    model_name: mistralai/ministral-3b-2410
+    tokenizer_name: mistralai/Ministral-8B-Instruct-2410
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.mistral_client.MistralAIClient"
+
+  - name: mistralai/ministral-8b-2410
+    model_name: mistralai/ministral-8b-2410
+    tokenizer_name: mistralai/Ministral-8B-Instruct-2410
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.mistral_client.MistralAIClient"
+
+  - name: mistralai/mistral-small-2402
+    model_name: mistralai/mistral-small-2402
     tokenizer_name: mistralai/Mistral-7B-v0.1
     max_sequence_length: 32000
     client_spec:
       class_name: "helm.clients.mistral_client.MistralAIClient"
-      args:
-        mistral_model: "mistral-tiny"
 
-  - name: mistralai/mistral-small-2402
-    model_name: mistralai/mistral-small-2402
+  - name: mistralai/mistral-small-2409
+    model_name: mistralai/mistral-small-2409
     tokenizer_name: mistralai/Mistral-7B-v0.1
     max_sequence_length: 32000
     client_spec:
