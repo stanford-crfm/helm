@@ -1988,12 +1988,36 @@ models:
     release_date: 2023-10-16
     tags: [VISION_LANGUAGE_MODEL_TAG, LLAVA_MODEL_TAG, LIMITED_FUNCTIONALITY_VLM_TAG]
 
+  - name: mistralai/ministral-3b-2410
+    display_name: Ministral 3B (2402)
+    description: Ministral 3B (2402) is a model for on-device computing and at-the-edge use cases ([blog](https://mistral.ai/news/ministraux/)).
+    creator_organization_name: Mistral AI
+    access: limited
+    release_date: 2024-10-16
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/ministral-8b-2410
+    display_name: Ministral 8B (2402)
+    description: Ministral 8B (2402) is a model for on-device computing and at-the-edge use cases a special interleaved sliding-window attention pattern for faster and memory-efficient inference ([blog](https://mistral.ai/news/ministraux/)).
+    creator_organization_name: Mistral AI
+    access: open
+    release_date: 2024-10-16
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: mistralai/mistral-small-2402
     display_name: Mistral Small (2402)
     description: Mistral Small is a multilingual model with a 32K tokens context window and function-calling capabilities. ([blog](https://mistral.ai/news/mistral-large/))
     creator_organization_name: Mistral AI
     access: limited
     release_date: 2023-02-26
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/mistral-small-2409
+    display_name: Mistral Small (2409)
+    description: Mistral Small is a multilingual model with a 32K tokens context window and function-calling capabilities. ([blog](https://mistral.ai/news/mistral-large/))
+    creator_organization_name: Mistral AI
+    access: limited
+    release_date: 2024-09-18
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: mistralai/mistral-medium-2312
