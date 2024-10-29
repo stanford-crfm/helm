@@ -108,9 +108,7 @@ CREATE TABLE "trans" (
 
     """CzechBankQA"""
     name = "czech_bank_qa"
-    description = (
-        "This is a list of SQL queries for a text-to-SQL task over the Czech Bank 1999 dataset."
-    )
+    description = "This is a list of SQL queries for a text-to-SQL task over the Czech Bank 1999 dataset."
     tags = ["text_to_sql"]
 
     def get_instances(self, output_path: str) -> List[Instance]:
@@ -120,9 +118,7 @@ CREATE TABLE "trans" (
         instances: List[Instance] = []
         for row in dataset:
             input = Input(text=row["description"])
-            references = [
-                Reference(output=Output(text=row["sql_query"]), tags=[CORRECT_TAG])
-            ]
+            references = [Reference(output=Output(text=row["sql_query"]), tags=[CORRECT_TAG])]
             instance = Instance(input=input, references=references, split=TEST_SPLIT)
             instances.append(instance)
         return instances

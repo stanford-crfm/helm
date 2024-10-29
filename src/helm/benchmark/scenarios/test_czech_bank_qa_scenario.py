@@ -11,9 +11,7 @@ def test_czech_bank_qa_scenario_get_instances():
     with TemporaryDirectory() as tmpdir:
         actual_instances = scenario.get_instances(tmpdir)
     assert len(actual_instances) == 30
-    assert actual_instances[0].input == Input(
-        text="Get the total number of accounts in the system"
-    )
+    assert actual_instances[0].input == Input(text="Get the total number of accounts in the system")
     assert len(actual_instances[0].references) == 1
     assert actual_instances[0].references[0].tags == [CORRECT_TAG]
     assert actual_instances[0].references[0].output.text == "SELECT COUNT(*) FROM ACCOUNT"

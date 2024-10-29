@@ -1,19 +1,14 @@
-import os
-import pandas as pd
 import sqlite3
 import threading
-from typing import Any, Optional
+from typing import Any, Optional, Tuple
 
-from helm.common.general import ensure_directory_exists
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
-from helm.clients.auto_client import AutoClient
-from helm.common.request import Request
 
 
 class CzechBankQAAnnotator(Annotator):
     """The CzechBankQA autograder.
-    
+
     MUST BE RUN WITH --num-threads 1 FOR SOME REASON"""
 
     name = "czech_bank_qa"
@@ -45,25 +40,28 @@ class CzechBankQAAnnotator(Annotator):
         self.lock = threading.Lock()
         print("done iwth init")
 
-    def annotate(self, request_state: RequestState) -> Any:
-        print("annotating")
-        assert request_state.result
-        assert len(request_state.result.completions) == 1
-
-        assert len(request_state.instance.references) == 1
-        # golden_query = request_state.instance.references[0].output.text
-        query = request_state.result.completions[0].text
-        query = query.replace("```sql", "").replace("```", "")
-        # TODO: Better pattern
-        
-        result: Any = None
+    def get_result(self, query: str) -> Tuple[Optional[str], Optional[str]]:
+        result: Optional[str] = None
         error: Optional[str] = None
         try:
             cursor = self.database.cursor()
             cursor.execute("PRAGMA query_only = TRUE")
             cursor.execute(query)
-            result = cursor.fetchall()
+            result = str(cursor.fetchall())
             cursor.close()
         except (sqlite3.DatabaseError, sqlite3.Warning) as e:
             error = str(e)
-        return {"query": query, "result": None if result is None else str(result), "error": error}
+        return (result, error)
+
+    def annotate(self, request_state: RequestState) -> Any:
+        assert request_state.result
+        assert len(request_state.result.completions) == 1
+
+        assert len(request_state.instance.references) == 1
+        gold_query = request_state.instance.references[0].output.text
+        query = request_state.result.completions[0].text
+        query = query.replace("```sql", "").replace("```", "")
+        result, error = self.get_result(query)
+        gold_result, gold_error = self.get_result(gold_query)
+
+        return {"query": query, "result": result, "error": error, "gold_result": gold_result, "gold_error": gold_error}
