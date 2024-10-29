@@ -26,7 +26,6 @@ class MistralAIRequest(TypedDict):
     temperature: float
     top_p: float
     random_seed: Optional[int]
-    stop: Optional[List[str]]
 
 
 class MistralAIClient(CachingClient):
@@ -121,7 +120,6 @@ class MistralAIClient(CachingClient):
                     "temperature": request.temperature,
                     "top_p": request.top_p,
                     "random_seed": self._get_random_seed(request, completion_index),
-                    "stop": request.stop_sequences or None,
                 }
 
                 def do_it() -> Dict[str, Any]:
