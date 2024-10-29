@@ -76,7 +76,7 @@ class HuggingFaceServer:
             if "device_map" in kwargs:
                 raise ValueError("At most one of one of `device` and `device_map` may be specified.")
             hlog(f'Hugging Face device set to "{kwargs["device"]}" from kwargs.')
-            self.device = kwargs["device"]
+            self.device = kwargs.pop("device")
         elif torch.cuda.is_available():
             hlog('Hugging Face device set to "cuda:0" because CUDA is available.')
             self.device = "cuda:0"
