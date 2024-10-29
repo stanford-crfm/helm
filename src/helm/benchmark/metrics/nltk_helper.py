@@ -18,13 +18,13 @@ def install_nltk_resources():
     nltk_major_version, nltk_minor_version = [int(v) for v in version("nltk").split(".")[0:2]]
     if nltk_major_version < 3:
         raise Exception("ntlk version <3 is not supported")
-    if nltk_minor_version >= 9:
-        try:
-            nltk.data.find("tokenizers/punkt_tab")
-        except LookupError:
-            nltk.download("punkt_tab")
-    else:
+    if nltk_major_version == 3 and nltk_minor_version < 9:
         try:
             nltk.data.find("tokenizers/punkt")
         except LookupError:
             nltk.download("punkt")
+    else:
+        try:
+            nltk.data.find("tokenizers/punkt_tab")
+        except LookupError:
+            nltk.download("punkt_tab")
