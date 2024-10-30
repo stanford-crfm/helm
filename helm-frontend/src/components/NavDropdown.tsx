@@ -10,7 +10,11 @@ function NavDropdown() {
   >();
 
   useEffect(() => {
-    if (currProjectMetadata && currProjectMetadata.title && currProjectMetadata.title !== "All Leaderboards") {
+    if (
+      currProjectMetadata &&
+      currProjectMetadata.title &&
+      currProjectMetadata.title !== "All Leaderboards"
+    ) {
       const titlePrefix =
         currProjectMetadata.title === "Lite" ||
         currProjectMetadata.title === "Classic"
