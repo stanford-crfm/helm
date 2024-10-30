@@ -21,6 +21,7 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.metrics.summac.model_summac import SummaCZS
+from bert_score import BERTScorer
 
 
 QAFACTEVAL_URL: str = (
@@ -42,7 +43,7 @@ class SummarizationMetric(Metric):
     4. Faithfulness (SummaC)
     """
 
-    def __init__(self, task: str = "", device: str = "cpu"):
+    def __init__(self, task: str, device: str = "cpu"):
         self.rouge_fns = {
             "rouge_1": get_rouge_function("rouge1"),
             "rouge_2": get_rouge_function("rouge2"),
@@ -68,8 +69,6 @@ class SummarizationMetric(Metric):
             self.compute_faithfulness = False
             self.compute_bertscore = False
         else:
-            from bert_score import BERTScorer
-
             self.compute_bertscore = True
             self.bert_scorer = BERTScorer(
                 model_type="microsoft/deberta-large-mnli", lang="en", rescale_with_baseline=True, device=device
