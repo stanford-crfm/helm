@@ -1,14 +1,20 @@
-import csv
 import os
 import re
-from typing import Dict, List, Mapping, Optional
+from typing import Dict, List, Optional
 
-from datasets import Dataset, load_dataset
 import pandas as pd
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
-from helm.common.optional_dependencies import handle_module_not_found_error
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TRAIN_SPLIT,
+    TEST_SPLIT,
+    CORRECT_TAG,
+    Input,
+    Output,
+)
 
 
 class SUMOSumScenario(Scenario):
@@ -37,7 +43,7 @@ class SUMOSumScenario(Scenario):
         pages = "81--90",
         abstract = "We present SUMO, a neural attention-based approach that learns to establish correctness of textual claims based on evidence in the form of text documents (e.g., news articles or web documents). SUMO further generates an extractive summary by presenting a diversified set of sentences from the documents that explain its decision on the correctness of the textual claim. Prior approaches to address the problem of fact checking and evidence extraction have relied on simple concatenation of claim and document word embeddings as an input to claim driven attention weight computation. This is done so as to extract salient words and sentences from the documents that help establish the correctness of the claim. However this design of claim-driven attention fails to capture the contextual information in documents properly. We improve on the prior art by using improved claim and title guided hierarchical attention to model effective contextual cues. We show the efficacy of our approach on political, healthcare, and environmental datasets.",
     }
-    """
+    """  # noqa: E501
 
     name = "sumosum"
     description = "Text summarization with climate corpus"
@@ -108,9 +114,7 @@ class SUMOSumScenario(Scenario):
         # Split randomly (works better than split by order)
         train_df = target_df.sample(frac=SUMOSumScenario.TRAIN_RATIO, random_state=0)
         test_df = target_df.drop(train_df.index).sample(frac=1, random_state=0)
-        return {
-            TRAIN_SPLIT: train_df, TEST_SPLIT: test_df
-        }
+        return {TRAIN_SPLIT: train_df, TEST_SPLIT: test_df}
 
     def get_instances(self, output_path: str) -> List[Instance]:
         dataset_dict = self._load_dataset(output_path)
