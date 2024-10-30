@@ -131,7 +131,7 @@ run_groups:
 
   - name: sumosum
     display_name: SUMO Web Claims Summarization
-    description: A summarization benchmark based on the climate subset of the SUMO dataset from [Mishra et al., 2020](https://aclanthology.org/2020.wnut-1.12/).
+    description: A summarization benchmark based on the climate subset of the SUMO dataset ([Mishra et al., 2020](https://aclanthology.org/2020.wnut-1.12/)).
     metric_groups:
       - accuracy
       - efficiency

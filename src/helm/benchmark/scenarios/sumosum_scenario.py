@@ -18,14 +18,24 @@ class SUMOSumScenario(Scenario):
     The task is to write a title based on the article contents.
 
     Citation:
-    @misc{mishra2020generatingfactcheckingsummaries,
-      title={Generating Fact Checking Summaries for Web Claims}, 
-      author={Rahul Mishra and Dhruv Gupta and Markus Leippold},
-      year={2020},
-      eprint={2010.08570},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL},
-      url={https://arxiv.org/abs/2010.08570}, 
+    @inproceedings{mishra-etal-2020-generating,
+        title = "Generating Fact Checking Summaries for Web Claims",
+        author = "Mishra, Rahul  and
+        Gupta, Dhruv  and
+        Leippold, Markus",
+        editor = "Xu, Wei  and
+        Ritter, Alan  and
+        Baldwin, Tim  and
+        Rahimi, Afshin",
+        booktitle = "Proceedings of the Sixth Workshop on Noisy User-generated Text (W-NUT 2020)",
+        month = nov,
+        year = "2020",
+        address = "Online",
+        publisher = "Association for Computational Linguistics",
+        url = "https://aclanthology.org/2020.wnut-1.12",
+        doi = "10.18653/v1/2020.wnut-1.12",
+        pages = "81--90",
+        abstract = "We present SUMO, a neural attention-based approach that learns to establish correctness of textual claims based on evidence in the form of text documents (e.g., news articles or web documents). SUMO further generates an extractive summary by presenting a diversified set of sentences from the documents that explain its decision on the correctness of the textual claim. Prior approaches to address the problem of fact checking and evidence extraction have relied on simple concatenation of claim and document word embeddings as an input to claim driven attention weight computation. This is done so as to extract salient words and sentences from the documents that help establish the correctness of the claim. However this design of claim-driven attention fails to capture the contextual information in documents properly. We improve on the prior art by using improved claim and title guided hierarchical attention to model effective contextual cues. We show the efficacy of our approach on political, healthcare, and environmental datasets.",
     }
     """
 
