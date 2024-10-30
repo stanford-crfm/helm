@@ -1,11 +1,20 @@
+import csv
 import os
+from typing import List, Optional
+
 from datasets import load_dataset
 import pandas as pd
-import csv
 
-from typing import List, Optional
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+
+try:
+    # pd.read_excel() uses xlrd
+    import xlrd  # noqa
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["scenarios"])
 
 
 class SUMOSumScenario(Scenario):
