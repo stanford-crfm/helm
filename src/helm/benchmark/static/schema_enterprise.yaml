@@ -130,8 +130,8 @@ run_groups:
       language: English
 
   - name: sumosum
-    display_name: SUMO Web Claims (Summarization)
-    description: Generating Fact Checking Summaries for Web Claims [(Mishra et al., 2020)](https://aclanthology.org/2020.wnut-1.12/).
+    display_name: SUMO Web Claims Summarization
+    description: A summarization benchmark based on the climate subset of the SUMO dataset from [Mishra et al., 2020](https://aclanthology.org/2020.wnut-1.12/).
     metric_groups:
       - accuracy
       - efficiency
@@ -141,7 +141,7 @@ run_groups:
       main_split: test
     taxonomy:
       task: summarization
-      what: "?"
-      who: "?"
-      when: "?"
+      what: Articles from climatefeedback.org
+      who: Writers of news articles and web documents
+      when: Before 2020
       language: English

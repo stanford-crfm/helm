@@ -46,10 +46,10 @@ def get_sumosum_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.sumosum_scenario.SUMOSumScenario",
         args={
-            # # A too-short article could be garbage.
-            "sampling_min_length": 100,
+            # A too-short article could be garbage.
+            "test_filter_min_length": 100,
             # A too-long article doesn't fit in a prompt.
-            "truncate_to_length": 3700,
+            "test_filter_max_length": 3700,
         },
     )
 

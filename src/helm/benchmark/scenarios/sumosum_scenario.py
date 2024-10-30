@@ -12,8 +12,21 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 
 
 class SUMOSumScenario(Scenario):
-    """
-    Generating Fact Checking Summaries for Web Claims ([paper](https://arxiv.org/abs/2010.08570))
+    """SUMO Web Claims Summarization
+
+    SUMO Web Claims Summarization is a summarization task over the climate subset from the SUMO dataset.
+    The task is to write a title based on the article contents.
+
+    Citation:
+    @misc{mishra2020generatingfactcheckingsummaries,
+      title={Generating Fact Checking Summaries for Web Claims}, 
+      author={Rahul Mishra and Dhruv Gupta and Markus Leippold},
+      year={2020},
+      eprint={2010.08570},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2010.08570}, 
+    }
     """
 
     name = "sumosum"
@@ -26,39 +39,45 @@ class SUMOSumScenario(Scenario):
 
     def __init__(
         self,
-        filter_min_length: Optional[int] = None,
-        filter_max_length: Optional[int] = None,
-        truncate_to_length: Optional[int] = None,
+        train_filter_min_length: Optional[int] = None,
+        train_filter_max_length: Optional[int] = None,
+        test_filter_min_length: Optional[int] = None,
+        test_filter_max_length: Optional[int] = None,
+        truncate_length: Optional[int] = None,
     ):
         """
         Initializes the scenario.
         Args:
-            sampling_min_length: Int indicating minimum length for training
-                                 documents. Training examples smaller than
-                                 sampling_min_length tokens will be filtered out.
-                                 Useful for preventing the adapter from sampling
-                                 really small documents.
-            sampling_max_length: Int indicating maximum length for training
-                                 documents. Training examples larger than
-                                 sampling_max_length tokens will be filtered out.
-                                 Useful for preventing the adapter from
-                                 sampling really large documents.
-            truncate_to_length: Int indicating the maximum length in tokens to
+            train_sampling_min_length: Int indicating minimum length for training
+                                       documents. Train examples smaller than
+                                       sampling_min_length tokens will be filtered out.
+            train_sampling_max_length: Int indicating maximum length for training
+                                       documents. Train examples larger than
+                                       sampling_max_length tokens will be filtered out.
+            test_sampling_min_length: Int indicating minimum length for training
+                                      documents. Test examples smaller than
+                                      sampling_min_length tokens will be filtered out.
+            test_sampling_max_length: Int indicating maximum length for training
+                                      documents. Test examples larger than
+                                      sampling_max_length tokens will be filtered out.
+            truncate_length: Int indicating the maximum length in tokens to
                             truncate documents. Documents in all splits will be
                             truncated to doc_max_length tokens.
                             NOTE: Whitespace tokenization is used to compute tokens.
         """
         super().__init__()
-        self.sampling_min_length = filter_min_length
-        self.sampling_max_length = filter_max_length
-        self.truncate_to_length = truncate_to_length
+        self.train_filter_min_length = train_filter_min_length
+        self.train_filter_max_length = train_filter_max_length
+        self.test_filter_min_length = test_filter_min_length
+        self.test_filter_max_length = test_filter_max_length
+        self.truncate_length = truncate_length
 
     @staticmethod
     def _clean_and_truncate(text: str, max_length: Optional[int] = None) -> str:
         text = re.sub(r"\s+", " ", text)
         return " ".join(text.split()[:max_length])
 
-    def _load_dataset(self, output_path: str) -> Dict[str, Dataset]:
+    def _load_dataset(self, output_path: str) -> Dict[str, pd.DataFrame]:
         data_dir = os.path.join(output_path, "data")
         ensure_directory_exists(data_dir)
 
@@ -70,7 +89,7 @@ class SUMOSumScenario(Scenario):
             target_path=target_path,
         )
 
-        # Claim_id(int),Claim,Title,Doc_text,Label(bool)
+        # Column headers: Claim_id(int),Claim,Title,Doc_text,Label(bool)
         target_df = pd.read_excel(target_path, skiprows=1)
         target_df = target_df.dropna(subset=[SUMOSumScenario.TITLE_KEY, SUMOSumScenario.DOCUMENT_KEY])
         # Remove carriage return _x000D_ in Excel string
@@ -79,11 +98,8 @@ class SUMOSumScenario(Scenario):
         # Split randomly (works better than split by order)
         train_df = target_df.sample(frac=SUMOSumScenario.TRAIN_RATIO, random_state=0)
         test_df = target_df.drop(train_df.index).sample(frac=1, random_state=0)
-
-        train_ds = Dataset.from_pandas(train_df, split="train")
-        test_ds = Dataset.from_pandas(test_df, split="test")
         return {
-            "train": train_ds, "test": test_ds
+            TRAIN_SPLIT: train_df, TEST_SPLIT: test_df
         }
 
     def get_instances(self, output_path: str) -> List[Instance]:
@@ -92,16 +108,23 @@ class SUMOSumScenario(Scenario):
         instances: List[Instance] = []
 
         for split, split_data in dataset_dict.items():
-            for example in split_data:
-                document = SUMOSumScenario._clean_and_truncate(example[SUMOSumScenario.DOCUMENT_KEY], self.truncate_to_length)
-                title = SUMOSumScenario._clean_and_truncate(example[SUMOSumScenario.TITLE_KEY])
-
+            for example in split_data.itertuples():
+                document = getattr(example, SUMOSumScenario.DOCUMENT_KEY)
+                title = getattr(example, SUMOSumScenario.TITLE_KEY)
+                art_len = len(document.split())
+                if split == TEST_SPLIT:
+                    if self.test_filter_max_length and art_len > self.test_filter_max_length:
+                        continue
+                    if self.test_filter_min_length and art_len < self.test_filter_min_length:
+                        continue
                 if split == TRAIN_SPLIT:
-                    art_len = len(document.split())
-                    if self.sampling_max_length and art_len > self.sampling_max_length:
+                    if self.train_filter_max_length and art_len > self.train_filter_max_length:
                         continue
-                    if self.sampling_min_length and art_len < self.sampling_min_length:
+                    if self.train_filter_min_length and art_len < self.train_filter_min_length:
                         continue
+
+                document = SUMOSumScenario._clean_and_truncate(document, self.truncate_length)
+                title = SUMOSumScenario._clean_and_truncate(title)
 
                 instance = Instance(
                     input=Input(text=document),
