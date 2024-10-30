@@ -188,6 +188,46 @@ run_groups:
       when: "2018"
       language: English
 
+  - name: iemocap_audio
+    display_name: IEMOCAP
+    description: >
+      The AudioMNIST dataset consists of a dataset of 30000 audio samples of
+      spoken digits (0-9) of 60 different speakers. The task is to classify the digit from the
+      audio sample ([Becker et al, 2023](https://arxiv.org/abs/1807.03418)).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: audio samples of spoken digits (0-9)
+      who: 60 different speakers
+      when: "2018"
+      language: English
+
+  - name: meld
+    display_name: MELD
+    description: >
+      The AudioMNIST dataset consists of a dataset of 30000 audio samples of
+      spoken digits (0-9) of 60 different speakers. The task is to classify the digit from the
+      audio sample ([Becker et al, 2023](https://arxiv.org/abs/1807.03418)).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: audio samples of spoken digits (0-9)
+      who: 60 different speakers
+      when: "2018"
+      language: English
+
   - name: covost2
     display_name: CoVost-2
     description: >

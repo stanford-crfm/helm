@@ -82,8 +82,9 @@ class OpenAIClient(CachingClient):
             cache_key = self._get_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except openai.OpenAIError as e:
-            error: str = f"OpenAI error: {e}"
-            return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
+            # error: str = f"OpenAI error: {e}"
+            raise e
+            # return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         # If the user is requesting completions instead of an embedding, then `completions`
         # needs to be populated, and `embedding` should be an empty list and vice-versa.
@@ -231,8 +232,9 @@ class OpenAIClient(CachingClient):
                     embedding=[],
                 )
 
-            error: str = f"OpenAI error: {e}"
-            return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
+            raise e
+            # error: str = f"OpenAI error: {e}"
+            # return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[GeneratedOutput] = []
         for raw_completion in response["choices"]:
@@ -299,8 +301,9 @@ class OpenAIClient(CachingClient):
             cache_key = self._get_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except openai.OpenAIError as e:
-            error: str = f"OpenAI error: {e}"
-            return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
+            # error: str = f"OpenAI error: {e}"
+            raise e
+            # return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[GeneratedOutput] = []
         for raw_completion in response["choices"]:
