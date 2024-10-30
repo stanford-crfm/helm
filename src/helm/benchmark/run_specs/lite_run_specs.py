@@ -324,6 +324,7 @@ def get_gpqa_spec(
     if use_chain_of_thought_bool:
         adapter_spec = get_multiple_choice_adapter_spec(
             method=ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT,
+            max_tokens=1000,  # following original repo
             instructions=(
                 "Here are some example questions from experts. "
                 "An explanation is given before the final answer. "
