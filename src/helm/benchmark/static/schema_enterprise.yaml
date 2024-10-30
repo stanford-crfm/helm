@@ -51,6 +51,18 @@ metrics:
     short_display_name: EM
     description: Fraction of instances that the predicted output matches a correct reference up to light processing.
     lower_is_better: false
+  - name: rouge_1
+    display_name: ROUGE-1
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 1-gram overlap.
+    lower_is_better: false
+  - name: rouge_2
+    display_name: ROUGE-2
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 2-gram overlap.
+    lower_is_better: false
+  - name: rouge_l
+    display_name: ROUGE-L
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on longest common subsequence overlap.
+    lower_is_better: false
 
 ############################################################
 perturbations: []
@@ -93,6 +105,13 @@ run_groups:
     subgroups:
       - gold_commodity_news
 
+  - name: climate_scenarios
+    display_name: Climate Scenarios
+    description: Scenarios for the climate domain
+    category: All scenarios
+    subgroups:
+      - sumosum
+
   - name: gold_commodity_news
     display_name: Gold Commodity News
     description: A classification benchmark based on a dataset of human-annotated gold commodity news headlines ([Sinha & Khandait, 2019](https://arxiv.org/abs/2009.04202)).
@@ -108,4 +127,21 @@ run_groups:
       what: gold commodity news headlines
       who: financial journalists
       when: 2000-2019
+      language: English
+
+  - name: sumosum
+    display_name: SUMO Web Claims (Summarization)
+    description: Generating Fact Checking Summaries for Web Claims [(Mishra et al., 2020)](https://aclanthology.org/2020.wnut-1.12/).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: rouge_2
+      main_split: test
+    taxonomy:
+      task: summarization
+      what: "?"
+      who: "?"
+      when: "?"
       language: English
