@@ -15,9 +15,7 @@ export default function Hero() {
       </div>
 
       {/* Container for Image and Leaderboard */}
-      <div
-        className="flex flex-col md:flex-col lg:flex-row lg:justify-center"
-      >
+      <div className="flex flex-col md:flex-col lg:flex-row lg:justify-center">
         {/* Image section */}
         <div className="w-full lg:w-1/2 flex justify-center mb-4 lg:mb-0 h-full py-10">
           <img
@@ -28,17 +26,15 @@ export default function Hero() {
         </div>
 
         {/* Leaderboard section */}
-          <div
-            className="py-2 rounded-xl bg-gray-100 h-full"
-          >
-            <MiniLeaderboard />
-            <div className="flex justify-end">
-              <Link to="leaderboard">
-                <button className="px-4 mx-3 mt-2 btn bg-white rounded-md">
-                  <span>See More</span>
-                </button>
-              </Link>
-            </div>
+        <div className="py-2 rounded-xl bg-gray-100 h-full">
+          <MiniLeaderboard />
+          <div className="flex justify-end">
+            <Link to="leaderboard">
+              <button className="px-4 mx-3 mt-2 btn bg-white rounded-md">
+                <span>See More</span>
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
     </div>
