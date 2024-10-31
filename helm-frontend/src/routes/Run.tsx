@@ -62,34 +62,6 @@ export default function Run() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  // Handle scrolling to anchored instance
-  useEffect(() => {
-    const anchoredInstance = searchParams.get("instance");
-    if (anchoredInstance && isInitialLoad && instances.length > 0) {
-      // Find the index of the anchored instance
-      const instanceIndex = pagedInstances.findIndex(
-        (i) => i.id === anchoredInstance,
-      );
-      if (instanceIndex === -1) return;
-
-      // Wait for the DOM to be updated with the correct page
-      requestAnimationFrame(() => {
-        const element = document.getElementById(`instance-${anchoredInstance}`);
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth" });
-        }
-      });
-
-      setIsInitialLoad(false);
-    }
-  }, [
-    instances,
-    isInitialLoad,
-    searchParams,
-    currentInstancesPage,
-    setSearchParams,
-  ]);
-
   useEffect(() => {
     const controller = new AbortController();
     async function fetchData() {
@@ -203,15 +175,6 @@ export default function Run() {
     return () => controller.abort();
   }, [runName, searchParams]);
 
-  if (
-    runSpec === undefined ||
-    displayPredictionsMap === undefined ||
-    displayRequestsMap === undefined ||
-    scenario === undefined
-  ) {
-    return <Loading />;
-  }
-
   const pagedInstances = instances.slice(
     (currentInstancesPage - 1) * INSTANCES_PAGE_SIZE,
     (currentInstancesPage - 1) * INSTANCES_PAGE_SIZE + INSTANCES_PAGE_SIZE,
@@ -221,6 +184,43 @@ export default function Run() {
     (currentMetricsPage - 1) * METRICS_PAGE_SIZE,
     (currentMetricsPage - 1) * METRICS_PAGE_SIZE + METRICS_PAGE_SIZE,
   );
+
+  // Handle scrolling to anchored instance
+  useEffect(() => {
+    const anchoredInstance = searchParams.get("instance");
+    if (anchoredInstance && isInitialLoad && pagedInstances.length > 0) {
+      // Find the index of the anchored instance
+      const instanceIndex = pagedInstances.findIndex(
+        (i) => i.id === anchoredInstance,
+      );
+      if (instanceIndex === -1) return;
+
+      // Wait for the DOM to be updated with the correct page
+      requestAnimationFrame(() => {
+        const element = document.getElementById(`instance-${anchoredInstance}`);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      });
+
+      setIsInitialLoad(false);
+    }
+  }, [
+    isInitialLoad,
+    searchParams,
+    currentInstancesPage,
+    setSearchParams,
+    pagedInstances,
+  ]);
+
+  if (
+    runSpec === undefined ||
+    displayPredictionsMap === undefined ||
+    displayRequestsMap === undefined ||
+    scenario === undefined
+  ) {
+    return <Loading />;
+  }
 
   return (
     <>
