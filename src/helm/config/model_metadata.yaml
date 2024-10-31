@@ -3308,3 +3308,12 @@ models:
     release_date: 2024-04-18
     tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
   
+# LLaMA-Omni
+  - name: ictnlp/llama-3.1-8b-omni
+    display_name: LLaMA-Omni (8B)
+    description: The audio-visual multimodal version of the LLaMA 3.1 model ([paper](https://arxiv.org/abs/2409.06666)).
+    creator_organization_name: ICTNLP
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-09-10
+    tags: [AUDIO_LANGUAGE_MODEL_TAG]
