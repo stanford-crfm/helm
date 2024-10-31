@@ -1,3 +1,8 @@
+# flake8: noqa
+# type: ignore
+# The following code was reproduced with minor modifications to `import` statements from the following URL:
+# https://github.com/google-research/google-research/blob/c7f60c013623e613732a096e2a0c2872491ec912/instruction_following_eval/instructions_registry.py
+
 # coding=utf-8
 # Copyright 2023 The Google Research Authors.
 #
@@ -14,7 +19,7 @@
 # limitations under the License.
 
 """Registry of all instructions."""
-import src.helm.benchmark.metrics.ifeval_instructions as instructions
+import helm.benchmark.metrics.ifeval.instructions as instructions
 
 _KEYWORD = "keywords:"
 

@@ -18,7 +18,7 @@ class IFEvalScenario(Scenario):
 
     name = "ifeval"
     description = "Instruction-Following Evaluation for Large Language Models"
-    tags = ["question answering"]
+    tags = ["instruction following"]
 
     def __init__(self):
         super().__init__()
@@ -38,7 +38,7 @@ class IFEvalScenario(Scenario):
                 input=input,
                 references=[],
                 split=TEST_SPLIT,
-                extra_data={"instruction_id_list": row["instruction_id_list"], "question_kwargs": row["kwargs"]},
+                extra_data={"instruction_ids": row["instruction_id_list"], "instruction_kwargs": row["kwargs"]},
             )
             instances.append(instance)
 

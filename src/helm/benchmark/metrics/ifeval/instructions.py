@@ -1,3 +1,8 @@
+# flake8: noqa
+# type: ignore
+# The following code was reproduced with minor modifications to `import` statements from the following URL:
+# https://github.com/google-research/google-research/blob/c7f60c013623e613732a096e2a0c2872491ec912/instruction_following_eval/instructions.py
+
 # coding=utf-8
 # Copyright 2023 The Google Research Authors.
 #
@@ -24,9 +29,9 @@ from typing import Dict, Optional, Sequence, Union
 from absl import logging
 import langdetect
 
-import src.helm.benchmark.metrics.ifeval_instructions_util as instructions_util
+import helm.benchmark.metrics.ifeval.instructions_util as instructions_util
 
-from src.helm.benchmark.metrics.ifeval_instructions_util import LANGUAGE_CODES
+from helm.benchmark.metrics.ifeval.instructions_util import LANGUAGE_CODES
 
 
 _InstructionArgsDtype = Optional[Dict[str, Union[int, str, Sequence[str]]]]

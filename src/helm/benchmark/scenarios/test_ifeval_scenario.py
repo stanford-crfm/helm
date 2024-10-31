@@ -21,12 +21,12 @@ def test_ifeval_scenario_get_instances():
         )
     )
     assert instances[0].split == TEST_SPLIT
-    assert instances[0].extra_data["instruction_id_list"] == [
+    assert instances[0].extra_data["instruction_ids"] == [
         "punctuation:no_comma",
         "detectable_format:number_highlighted_sections",
         "length_constraints:number_words",
     ]
-    kwargs_groups = instances[0].extra_data["question_kwargs"]
+    kwargs_groups = instances[0].extra_data["instruction_kwargs"]
     assert all(_ is None for _ in kwargs_groups[0].values())
     assert kwargs_groups[1]["num_highlights"] == 3
     assert all(kwargs_groups[1][key] is None for key in kwargs_groups[1] if key != "num_highlights")
