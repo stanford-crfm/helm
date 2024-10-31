@@ -1,5 +1,6 @@
 # flake8: noqa
 # type: ignore
+# fmt: off
 # The following code was reproduced with minor modifications to `import` statements from the following URL:
 # https://github.com/google-research/google-research/blob/c7f60c013623e613732a096e2a0c2872491ec912/instruction_following_eval/instructions_registry.py
 

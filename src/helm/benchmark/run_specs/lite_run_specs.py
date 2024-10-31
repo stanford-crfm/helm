@@ -21,7 +21,7 @@ from helm.benchmark.metrics.common_metric_specs import (
     get_generative_harms_metric_specs,
     get_generic_metric_specs,
     get_open_ended_generation_metric_specs,
-    MetricSpec
+    MetricSpec,
 )
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.runner import get_benchmark_output_path
