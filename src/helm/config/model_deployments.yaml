@@ -2694,3 +2694,11 @@ model_deployments:
     max_sequence_length: 64000
     client_spec:
       class_name: "helm.clients.reka_client.RekaClient"
+
+# LLaMA-Omni
+  - name: ictnlp/llama-3.1-8b-omni
+    model_name: ictnlp/llama-3.1-8b-omni
+    tokenizer_name: ictnlp/llama-3.1-8b-omni
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.audio_language.llama_omni_client.LlamaOmniAudioLMClient"
