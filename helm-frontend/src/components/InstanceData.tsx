@@ -8,51 +8,45 @@ import Preview from "@/components/Preview";
 import MultimediaObjectDisplay from "./MultimediaObjectDisplay";
 
 interface Props {
-  instance: Instance;
-  requests: DisplayRequest[];
-  predictions: DisplayPrediction[];
-  metricFieldMap: MetricFieldMap;
+	instance: Instance;
+	requests: DisplayRequest[];
+	predictions: DisplayPrediction[];
+	metricFieldMap: MetricFieldMap;
 }
 
 export default function InstanceData({
-  instance,
-  requests,
-  predictions,
-  metricFieldMap,
+	instance,
+	requests,
+	predictions,
+	metricFieldMap,
 }: Props) {
-  const renderInstanceId = (instance: Instance): string => {
-    return instance.perturbation === undefined
-      ? `Instance id: ${instance.id} [split: ${instance.split}]`
-      : `Instance id: ${instance.id} [split: ${instance.split}][perturbation: ${instance.perturbation.name}]`;
-  };
-  return (
-    <div className="border p-4">
-      <h3 className="text-xl mb-4">{renderInstanceId(instance)}</h3>
-      <h3>Input</h3>
-      {instance.input.multimedia_content !== undefined ? (
-        <MultimediaObjectDisplay
-          multimediaObject={instance.input.multimedia_content}
-        />
-      ) : instance.input.text.includes(`<br><img src="data:image;base64`) ? (
-        <div dangerouslySetInnerHTML={{ __html: instance.input.text }} />
-      ) : (
-        <Preview value={instance.input.text} />
-      )}
+	return (
+		<div>
+			<h3>Input</h3>
+			{instance.input.multimedia_content !== undefined ? (
+				<MultimediaObjectDisplay
+					multimediaObject={instance.input.multimedia_content}
+				/>
+			) : instance.input.text.includes(`<br><img src="data:image;base64`) ? (
+				<div dangerouslySetInnerHTML={{ __html: instance.input.text }} />
+			) : (
+				<Preview value={instance.input.text} />
+			)}
 
-      <div>
-        {instance.references && instance.references.length > 0 ? (
-          <References references={instance.references} />
-        ) : null}
-      </div>
-      <div>
-        {predictions && requests ? (
-          <Predictions
-            predictions={predictions}
-            requests={requests}
-            metricFieldMap={metricFieldMap}
-          />
-        ) : null}
-      </div>
-    </div>
-  );
+			<div>
+				{instance.references && instance.references.length > 0 ? (
+					<References references={instance.references} />
+				) : null}
+			</div>
+			<div>
+				{predictions && requests ? (
+					<Predictions
+						predictions={predictions}
+						requests={requests}
+						metricFieldMap={metricFieldMap}
+					/>
+				) : null}
+			</div>
+		</div>
+	);
 }
