@@ -168,8 +168,4 @@ def get_open_ended_generation_metric_specs() -> List[MetricSpec]:
 
 
 def get_ifeval_metric_specs() -> List[MetricSpec]:
-    return [
-        MetricSpec(
-            class_name="helm.benchmark.metrics.ifeval_metrics.IFEvalMetric"
-        )
-    ]
+    return [MetricSpec(class_name="helm.benchmark.metrics.ifeval_metrics.IFEvalMetric")]

@@ -9,6 +9,7 @@ from helm.benchmark.metrics.statistic import Stat
 
 import src.helm.benchmark.metrics.ifeval_instructions_registry as instructions_registry
 
+
 class IFEvalMetric(Metric):
     def evaluate_generation(
         self,
@@ -24,7 +25,7 @@ class IFEvalMetric(Metric):
         assert request_state.result
         assert len(request_state.result.completions) == 1, len(request_state.result.completions)
         response = request_state.result.completions[0].text.strip()
-    
+
         is_following_list = []
         for index, instruction_id in enumerate(instruction_id_list):
             instruction_cls = instructions_registry.INSTRUCTION_DICT[instruction_id]
@@ -40,6 +41,4 @@ class IFEvalMetric(Metric):
             else:
                 is_following_list.append(0)
 
-        return [
-            Stat(MetricName("strict_accuracy")).add(sum(is_following_list)/len(is_following_list))
-        ]
+        return [Stat(MetricName("strict_accuracy")).add(sum(is_following_list) / len(is_following_list))]

@@ -13,8 +13,8 @@ from helm.common.general import ensure_directory_exists
 class IFEvalScenario(Scenario):
     """IFEval
 
-    IFEval contains around 500 "verifiable instructions" such as "write in more than 400 words" 
-    and "mention the keyword of AI at least 3 times" which can be verified by heuristics. """
+    IFEval contains around 500 "verifiable instructions" such as "write in more than 400 words"
+    and "mention the keyword of AI at least 3 times" which can be verified by heuristics."""
 
     name = "ifeval"
     description = "Instruction-Following Evaluation for Large Language Models"
@@ -27,9 +27,7 @@ class IFEvalScenario(Scenario):
         # Get GPQA from HuggingFace
         cache_dir = os.path.join(output_path, "data")
         ensure_directory_exists(cache_dir)
-        dataset = datasets.load_dataset(
-            "google/IFEval", trust_remote_code=True, cache_dir=cache_dir, split='train'
-        )
+        dataset = datasets.load_dataset("google/IFEval", trust_remote_code=True, cache_dir=cache_dir, split="train")
         assert isinstance(dataset, datasets.Dataset)
 
         # Read all instances
@@ -40,10 +38,7 @@ class IFEvalScenario(Scenario):
                 input=input,
                 references=[],
                 split=TEST_SPLIT,
-                extra_data={
-                    'instruction_id_list': row["instruction_id_list"],
-                    'question_kwargs': row['kwargs']
-                }
+                extra_data={"instruction_id_list": row["instruction_id_list"], "question_kwargs": row["kwargs"]},
             )
             instances.append(instance)
 
