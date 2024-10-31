@@ -10,7 +10,10 @@ export default function Image2StructLanding() {
         Extracting Structured Information from Images
       </h1>
       <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-2 md:gap-8 my-8">
-        <a className="px-10 btn rounded-md" href="https://arxiv.org/abs/2410.22456">
+        <a
+          className="px-10 btn rounded-md"
+          href="https://arxiv.org/abs/2410.22456"
+        >
           Paper
         </a>
         <a
@@ -74,9 +77,7 @@ export default function Image2StructLanding() {
               Webpages: pages from GitHub written in HTML, CSS and Javascript.
               ...
             </li>
-            <li>
-              Music sheets: crops of measures from IMSLP music sheets.
-            </li>
+            <li>Music sheets: crops of measures from IMSLP music sheets.</li>
           </ul>
           <div className="flex flex-row justify-center mt-8">
             <a className="px-10 btn rounded-md" href="#/leaderboard">
