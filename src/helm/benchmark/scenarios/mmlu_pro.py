@@ -47,7 +47,9 @@ class MMLUProScenario(Scenario):
                 return Reference(Output(text=answer), tags=[CORRECT_TAG] if answer == correct_answer else [])
 
             instance = Instance(
-                input=Input(text=question), references=list(map(answer_to_reference, answers)), split=split
+                input=Input(text=question),
+                references=list(map(answer_to_reference, answers)),
+                split=split,
             )
             instances.append(instance)
         return instances

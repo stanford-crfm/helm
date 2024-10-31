@@ -4,7 +4,7 @@ All of HELM's raw result data is stored in Google Cloud Storage (GCS) in the pub
 
 ## Setup
 
-1. Follow [Google's installation instructions](https://cloud.google.com/sdk/docs/install) to install `gcloud`. If the installer prompts you to log in, you can may this step because the HELM GCS bucket allows public unauthenticated access.
+1. Follow [Google's installation instructions](https://cloud.google.com/sdk/docs/install) to install `gcloud`. If the installer prompts you to log in, you may skip this step because the HELM GCS bucket allows public unauthenticated access.
 2. Create a local directory to store the data:
 ```sh
 export LOCAL_BENCHMARK_OUTPUT_PATH=./benchmark_output

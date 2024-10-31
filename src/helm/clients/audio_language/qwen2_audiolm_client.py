@@ -1,5 +1,4 @@
 from threading import Lock
-from io import BytesIO
 import librosa
 from typing import Any, Dict, List, Optional
 
@@ -7,7 +6,6 @@ from dataclasses import dataclass
 from transformers import Qwen2AudioForConditionalGeneration, AutoProcessor
 
 from helm.common.cache import CacheConfig
-from helm.common.multimodal_request_utils import get_contents_as_bytes
 from helm.common.gpu_utils import get_torch_device_name
 from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.media_object import TEXT_TYPE
@@ -99,7 +97,9 @@ class Qwen2AudioLMClient(CachingClient):
         prompt_text += "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n"
         for media_num, media_object in enumerate(request.multimodal_prompt.media_objects):
             if media_object.is_type("audio") and media_object.location:
-                query.append({"type": "audio", "audio_url": media_object.location})
+                assert media_object.is_local_file, "Only local audio files are supported"
+                query.append({"type": "audio", "audio_loc": media_object.location})
+
                 prompt_text += f"<|im_start|>user\nAudio {media_num+1}: <|audio_bos|><|AUDIO|><|audio_eos|>\n"
             elif media_object.is_type(TEXT_TYPE):
                 if media_object.text is None:
@@ -131,7 +131,7 @@ class Qwen2AudioLMClient(CachingClient):
                                     if element["type"] == "audio":
                                         audios.append(
                                             librosa.load(
-                                                BytesIO(get_contents_as_bytes(element["audio_url"])),
+                                                element["audio_loc"],
                                                 sr=tokenizer.feature_extractor.sampling_rate,
                                             )[0]
                                         )

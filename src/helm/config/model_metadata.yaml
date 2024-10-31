@@ -250,7 +250,7 @@ models:
     description: A 7B dense Transformer, fast-deployed and easily customisable. Small, yet powerful for a variety of use cases. Supports English and code, and a 32k context window.
     creator_organization_name: Mistral
     access: limited
-    release_date: 2023-07-11
+    release_date: 2024-03-23
     tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: mistralai/amazon-mixtral-8x7b-instruct-v0:1
@@ -258,15 +258,15 @@ models:
     description: A 7B sparse Mixture-of-Experts model with stronger capabilities than Mistral 7B. Uses 12B active parameters out of 45B total. Supports multiple languages, code and 32k context window.
     creator_organization_name: Mistral
     access: limited
-    release_date: 2023-07-11
+    release_date: 2023-12-11
     tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: mistralai/amazon-mistral-large-2402-v1:0
-    display_name: Mistral Large on Amazon Bedrock
+    display_name: Mistral Large(2402) on Amazon Bedrock
     description: The most advanced Mistral AI Large Language model capable of handling any language task including complex multilingual reasoning, text understanding, transformation, and code generation.
     creator_organization_name: Mistral
     access: limited
-    release_date: 2023-07-11
+    release_date: 2023-07-26
     tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: mistralai/amazon-mistral-small-2402-v1:0
@@ -274,7 +274,15 @@ models:
     description: Mistral Small is perfectly suited for straightforward tasks that can be performed in bulk, such as classification, customer support, or text generation. It provides outstanding performance at a cost-effective price point.
     creator_organization_name: Mistral
     access: limited
-    release_date: 2023-07-11
+    release_date: 2023-02-26
+    tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/amazon-mistral-large-2407-v1:0
+    display_name: Mistral Large(2407) on Amazon Bedrock
+    description: Mistral Large 2407 is an advanced Large Language Model (LLM) that supports dozens of languages and is trained on 80+ coding languages. It has best-in-class agentic capabilities with native function calling JSON outputting and reasoning capabilities.
+    creator_organization_name: Mistral
+    access: limited
+    release_date: 2024-07-24
     tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
 # Llama3 on Amazon Bedrock
@@ -286,7 +294,7 @@ models:
     description: Meta Llama 3 is an accessible, open large language model (LLM) designed for developers, researchers, and businesses to build, experiment, and responsibly scale their generative AI ideas. Part of a foundational system, it serves as a bedrock for innovation in the global community. Ideal for limited computational power and resources, edge devices, and faster training times.
     creator_organization_name: Meta
     access: limited
-    release_date: 2023-07-11
+    release_date: 2024-04-23
     tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: meta/amazon-llama3-70b-instruct-v1:0
@@ -294,9 +302,33 @@ models:
     description: Meta Llama 3 is an accessible, open large language model (LLM) designed for developers, researchers, and businesses to build, experiment, and responsibly scale their generative AI ideas. Part of a foundational system, it serves as a bedrock for innovation in the global community. Ideal for content creation, conversational AI, language understanding, R&D, and Enterprise applications.
     creator_organization_name: Meta
     access: limited
-    release_date: 2023-07-11
+    release_date: 2024-04-23
     tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
- 
+
+  - name: meta/amazon-llama3-1-405b-instruct-v1:0
+    display_name: Llama 3.1 405b Instruct on Amazon Bedrock.
+    description: Meta's Llama 3.1 offers multilingual models (8B, 70B, 405B) with 128K context, improved reasoning, and optimization for dialogue. It outperforms many open-source chat models and is designed for commercial and research use in multiple languages.
+    creator_organization_name: Meta
+    access: limited
+    release_date: 2024-07-26
+    tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: meta/amazon-llama3-1-70b-instruct-v1:0
+    display_name: Llama 3.1 70b Instruct on Amazon Bedrock.
+    description: Meta's Llama 3.1 offers multilingual models (8B, 70B, 405B) with 128K context, improved reasoning, and optimization for dialogue. It outperforms many open-source chat models and is designed for commercial and research use in multiple languages.
+    creator_organization_name: Meta
+    access: limited
+    release_date: 2024-07-26
+    tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: meta/amazon-llama3-1-8b-instruct-v1:0
+    display_name: Llama 3.1 8b Instruct on Amazon Bedrock.
+    description: Meta's Llama 3.1 offers multilingual models (8B, 70B, 405B) with 128K context, improved reasoning, and optimization for dialogue. It outperforms many open-source chat models and is designed for commercial and research use in multiple languages.
+    creator_organization_name: Meta
+    access: limited
+    release_date: 2024-07-26
+    tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   # Anthropic
   - name: anthropic/claude-v1.3
     display_name: Claude v1.3
@@ -1956,12 +1988,36 @@ models:
     release_date: 2023-10-16
     tags: [VISION_LANGUAGE_MODEL_TAG, LLAVA_MODEL_TAG, LIMITED_FUNCTIONALITY_VLM_TAG]
 
+  - name: mistralai/ministral-3b-2410
+    display_name: Ministral 3B (2402)
+    description: Ministral 3B (2402) is a model for on-device computing and at-the-edge use cases ([blog](https://mistral.ai/news/ministraux/)).
+    creator_organization_name: Mistral AI
+    access: limited
+    release_date: 2024-10-16
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/ministral-8b-2410
+    display_name: Ministral 8B (2402)
+    description: Ministral 8B (2402) is a model for on-device computing and at-the-edge use cases a special interleaved sliding-window attention pattern for faster and memory-efficient inference ([blog](https://mistral.ai/news/ministraux/)).
+    creator_organization_name: Mistral AI
+    access: open
+    release_date: 2024-10-16
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: mistralai/mistral-small-2402
     display_name: Mistral Small (2402)
     description: Mistral Small is a multilingual model with a 32K tokens context window and function-calling capabilities. ([blog](https://mistral.ai/news/mistral-large/))
     creator_organization_name: Mistral AI
     access: limited
     release_date: 2023-02-26
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/mistral-small-2409
+    display_name: Mistral Small (2409)
+    description: Mistral Small is a multilingual model with a 32K tokens context window and function-calling capabilities. ([blog](https://mistral.ai/news/mistral-large/))
+    creator_organization_name: Mistral AI
+    access: limited
+    release_date: 2024-09-18
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: mistralai/mistral-medium-2312
@@ -3252,3 +3308,12 @@ models:
     release_date: 2024-04-18
     tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
   
+# LLaMA-Omni
+  - name: ictnlp/llama-3.1-8b-omni
+    display_name: LLaMA-Omni (8B)
+    description: The audio-visual multimodal version of the LLaMA 3.1 model ([paper](https://arxiv.org/abs/2409.06666)).
+    creator_organization_name: ICTNLP
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-09-10
+    tags: [AUDIO_LANGUAGE_MODEL_TAG]

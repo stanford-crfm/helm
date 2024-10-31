@@ -30,9 +30,9 @@ def test_mmlu_pro_scenario():
         ]
         assert instances[1].split == "train"
 
-        # Test for the "anatomy" subject
         scenario = MMLUProScenario(subject="health")
         instances = scenario.get_instances(tmpdir)
+
         assert instances[0].input == Input(
             text="Which of the following is the body cavity that contains the pituitary gland?"
         )

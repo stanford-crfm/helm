@@ -1,6 +1,7 @@
 """Scenarios for audio models"""
 
 from typing import List
+import os
 
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -11,7 +12,11 @@ from helm.benchmark.scenarios.scenario import (
     Input,
     Output,
 )
+from tqdm import tqdm
+from datasets import load_dataset
 from helm.common.media_object import MediaObject, MultimediaObject
+from helm.common.general import ensure_directory_exists
+from helm.common.audio_utils import ensure_audio_file_exists
 
 
 class AudioMNISTScenario(Scenario):
@@ -37,28 +42,21 @@ class AudioMNISTScenario(Scenario):
     }
     """  # noqa: E501
 
-    NUM_SPEAKERS = 60
-    NUM_TRIALS = 50
-    WAV_URL_TEMPLATE = r"https://github.com/soerenab/AudioMNIST/raw/544b0f4bc65227e54332e665d5e02c24be6732c2/data/{speaker_id}/{digit}_{speaker_id}_{trial_index}.wav"  # noqa: E501
-
     name = "audio_mnist"
-    description = "Classify an audio sample of a spoken digit"
+    description = "Classify an audio sample of a spoken digit ([Becker et al, 2023](https://arxiv.org/abs/1807.03418))."
     tags = ["audio", "classification"]
 
     def get_instances(self, output_path: str) -> List[Instance]:
         instances: List[Instance] = []
-        for digit in range(10):
-            for speaker_index in range(AudioMNISTScenario.NUM_SPEAKERS):
-                speaker_id = str(speaker_index).zfill(2)
-                for trial_index in range(AudioMNISTScenario.NUM_TRIALS):
-                    wav_url = AudioMNISTScenario.WAV_URL_TEMPLATE.format(
-                        digit=digit, speaker_id=speaker_id, trial_index=trial_index
-                    )
-                    input = Input(
-                        multimedia_content=MultimediaObject([MediaObject(content_type="audio/wav", location=wav_url)])
-                    )
-                    references = [Reference(Output(text=str(digit)), tags=[CORRECT_TAG])]
-                    # Don't need train split because we're using zero-shot
-                    instance = Instance(input=input, references=references, split=TEST_SPLIT)
-                    instances.append(instance)
+        wav_save_dir: str = os.path.join(output_path, "wav_files")
+        ensure_directory_exists(wav_save_dir)
+        for row in tqdm(load_dataset("flexthink/audiomnist", cache_dir=output_path, split=TEST_SPLIT)):
+            local_audio_path = os.path.join(wav_save_dir, row["audio"]["path"])
+            audio_array = row["audio"]["array"]
+            ensure_audio_file_exists(local_audio_path, audio_array, row["audio"]["sampling_rate"])
+            input = Input(
+                multimedia_content=MultimediaObject([MediaObject(content_type="audio/mpeg", location=local_audio_path)])
+            )
+            references = [Reference(Output(text=str(row["digit"])), tags=[CORRECT_TAG])]
+            instances.append(Instance(input=input, references=references, split=TEST_SPLIT))
         return instances

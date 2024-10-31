@@ -119,7 +119,7 @@ class OpenAssistantScenario(Scenario):
             return instances
 
         # Download the raw data from Huggingface
-        dataset: Any = load_dataset("OpenAssistant/oasst1")
+        dataset: Any = load_dataset("OpenAssistant/oasst1", revision="fdf72ae0827c1cda404aff25b6603abec9e3399b")
 
         # Get the instances for each split
         train_instances = get_split_instances(dataset["train"], TRAIN_SPLIT)

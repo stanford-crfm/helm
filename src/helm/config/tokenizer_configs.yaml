@@ -444,6 +444,12 @@ tokenizer_configs:
     end_of_text_token: "</s>"
     prefix_token: "<s>"
 
+  - name: mistralai/Ministral-8B-Instruct-2410
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+
   # Neurips
   - name: neurips/local
     tokenizer_spec:
@@ -615,3 +621,13 @@ tokenizer_configs:
       class_name: "helm.tokenizers.yalm_tokenizer.YaLMTokenizer"
     end_of_text_token: "</s>"
     prefix_token: "</s>"
+
+  # LLaMA-Omni
+  - name: ictnlp/llama-3.1-8b-omni
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: ICTNLP/Llama-3.1-8B-Omni
+        trust_remote_code: false
+    end_of_text_token: "<|eot_id|>"
+    prefix_token: "<|begin_of_text|>"
