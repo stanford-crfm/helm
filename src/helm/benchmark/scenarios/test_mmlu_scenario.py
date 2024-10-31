@@ -11,8 +11,8 @@ def test_mmlu_scenario():
         scenario = MMLUScenario(subject="abstract_algebra")
         instances = scenario.get_instances(tmpdir)
         assert len(instances) == 116
-        assert instances[0].input == Input(text="Find all c in Z_3 such that Z_3[x]/(x^2 + c) is a field.")
-        assert instances[0].references == [
+        assert instances[1].input == Input(text="Find all c in Z_3 such that Z_3[x]/(x^2 + c) is a field.")
+        assert instances[1].references == [
             Reference(output=Output(text="0"), tags=[]),
             Reference(output=Output(text="1"), tags=[CORRECT_TAG]),
             Reference(output=Output(text="2"), tags=[]),
