@@ -38,7 +38,7 @@ class MMLUProScenario(Scenario):
         hlog(f"Processing data for {split} split")
         for row in data:
             question = row["question"]
-            answers = row["options"] 
+            answers = row["options"]
             correct_choice = row["answer"]
             answers_dict = dict(zip(["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"], answers))
             correct_answer = answers_dict[correct_choice]
@@ -47,9 +47,7 @@ class MMLUProScenario(Scenario):
                 return Reference(Output(text=answer), tags=[CORRECT_TAG] if answer == correct_answer else [])
 
             instance = Instance(
-                input=Input(text=question),
-                references=list(map(answer_to_reference, answers)),
-                split=split
+                input=Input(text=question), references=list(map(answer_to_reference, answers)), split=split
             )
             instances.append(instance)
         return instances

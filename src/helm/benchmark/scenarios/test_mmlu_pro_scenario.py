@@ -51,4 +51,3 @@ def test_mmlu_pro_scenario():
             Reference(output=Output(text="Cranial"), tags=[CORRECT_TAG]),
         ]
         assert instances[0].split == "train"
-
