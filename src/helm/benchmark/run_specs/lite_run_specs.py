@@ -309,11 +309,7 @@ def get_wmt_14_spec(language_pair: str, max_train_instances: int = 1) -> RunSpec
 
 
 @run_spec_function("gpqa")
-def get_gpqa_spec(
-    subset: str,
-    use_chain_of_thought: str = "False",
-    use_few_shot: str = "False"
-) -> RunSpec:
+def get_gpqa_spec(subset: str, use_chain_of_thought: str = "False", use_few_shot: str = "False") -> RunSpec:
     # Convert to bools and remove the str versions
     use_chain_of_thought_bool: bool = use_chain_of_thought == "True"
     use_few_shot_bool: bool = use_few_shot == "True"
@@ -376,8 +372,8 @@ def get_gpqa_spec(
                 global_suffix=(
                     "Let’s think step by step. Based on your reasoning, what is the single, "
                     "most likely answer choice? Format your response as follows: "
-                    "\"The correct answer is (insert answer here)\"."
-                )
+                    '"The correct answer is (insert answer here)".'
+                ),
             )
         else:
             adapter_spec = AdapterSpec(
@@ -388,12 +384,8 @@ def get_gpqa_spec(
                 input_suffix="\nChoices:\n",
                 output_prefix="",
                 reference_prefix="(A) ",
-                global_suffix=(
-                    "Format your response as follows: "
-                    "\"The correct answer is (insert answer here)\"."
-                )
+                global_suffix=("Format your response as follows: " '"The correct answer is (insert answer here)".'),
             )
-
 
     return RunSpec(
         name=f"gpqa:subset={subset},use_chain_of_thought={use_chain_of_thought_bool}",
