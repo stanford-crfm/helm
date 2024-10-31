@@ -1,7 +1,6 @@
 """Scenarios for audio models"""
 
 from typing import List
-from scipy.io.wavfile import write
 import os
 
 from helm.benchmark.scenarios.scenario import (
@@ -17,6 +16,7 @@ from tqdm import tqdm
 from datasets import load_dataset
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_directory_exists
+from helm.common.audio_utils import ensure_audio_file_exists
 
 
 class AudioMNISTScenario(Scenario):
@@ -53,8 +53,7 @@ class AudioMNISTScenario(Scenario):
         for row in tqdm(load_dataset("flexthink/audiomnist", cache_dir=output_path, split=TEST_SPLIT)):
             local_audio_path = os.path.join(wav_save_dir, row["audio"]["path"])
             audio_array = row["audio"]["array"]
-            if not os.path.exists(local_audio_path):
-                write(local_audio_path, row["audio"]["sampling_rate"], audio_array)
+            ensure_audio_file_exists(local_audio_path, audio_array, row["audio"]["sampling_rate"])
             input = Input(
                 multimedia_content=MultimediaObject([MediaObject(content_type="audio/mpeg", location=local_audio_path)])
             )
