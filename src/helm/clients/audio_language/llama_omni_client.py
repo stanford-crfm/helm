@@ -35,14 +35,11 @@ _models: Dict[str, Optional[LoadedLlamaOmniModelProcessor]] = {
 
 class LlamaOmniAudioLMClient(CachingClient):
     """
-    From https://huggingface.co/Qwen/Qwen2-Audio-7B-Instruct,
-    Qwen2-Audio-Instruct (Qwen2 Large Vision Language Model) is the audito multimodal version of the large model series,
-    Qwen2 (abbr. Tongyi Qianwen), proposed by Alibaba Cloud. Qwen2-Audio-Instruct accepts audio, text as inputs,
-    outputs text.
-    Alibaba released Qwen-Audio and Qwen-Audio-Instruct, which is a instruction-following model based on Qwen-Audio.
-    We for now integrated Qwen2-Audio-Instruct for instruction-following tasks.
+    From https://github.com/ictnlp/LLaMA-Omni,
+    LLaMA-Omni is the audio multimodal version based on the LLaMA-3.1-8B large language model,
+    developed by ICTNLP group. LLaMA-Omni accepts audio, text as inputs, and outputs text.
 
-    Paper: https://arxiv.org/abs/2407.10759
+    Paper: https://arxiv.org/abs/2409.06666
     """
 
     END_OF_TEXT_TOKEN: str = "<|im_end|>"
