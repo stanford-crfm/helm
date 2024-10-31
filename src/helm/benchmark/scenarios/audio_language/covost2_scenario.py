@@ -148,6 +148,7 @@ class CoVoST2Scenario(Scenario):
                 data_dir=data_dir,
                 split=split,
                 trust_remote_code=True,
+                revision="369b47c4c20aff1193b8edeeedc37d14ae28226b",
             )
         ):
             audio_path: str = row["file"]

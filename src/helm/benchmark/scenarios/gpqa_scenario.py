@@ -47,7 +47,12 @@ class GPQAScenario(Scenario):
         cache_dir = os.path.join(output_path, "data")
         ensure_directory_exists(cache_dir)
         dataset = datasets.load_dataset(
-            "Idavidrein/gpqa", self.subset, trust_remote_code=True, cache_dir=cache_dir, split="train"
+            "Idavidrein/gpqa",
+            self.subset,
+            trust_remote_code=True,
+            cache_dir=cache_dir,
+            split="train",
+            revision="90b8e5be2b1d3d2dbfe016cdab47981150600c4a",
         )
         assert isinstance(dataset, datasets.Dataset)
 
