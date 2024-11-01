@@ -266,7 +266,7 @@ def compute_aggregate_row_means(table: Table) -> List[Optional[float]]:
 
     row_means: List[Optional[float]] = []
     # if the first column contains the names of models, do not treat it like a value column
-    skip_first_column = table.header and table.header[0] == MODEL_HEADER_CELL_VALUE
+    skip_first_column = table.header and table.header[0].value == MODEL_HEADER_CELL_VALUE
 
     # check for all header cells where specified, that lower_is_better is consistent
     orderings = []
