@@ -54,6 +54,9 @@ from helm.benchmark.presentation.run_display import write_run_display_json
 from helm.benchmark.model_metadata_registry import ModelMetadata, get_model_metadata, get_all_models
 
 
+MODEL_HEADER_CELL_VALUE = "Model"
+
+
 @dataclass(frozen=True)
 class ExecutiveSummary:
     """
@@ -262,18 +265,22 @@ def compute_aggregate_row_means(table: Table) -> List[Optional[float]]:
     """
 
     row_means: List[Optional[float]] = []
+    # if the first column contains the names of models, do not treat it like a value column
+    skip_first_column = table.header and table.header[0] == MODEL_HEADER_CELL_VALUE
 
     # check for all header cells where specified, that lower_is_better is consistent
     orderings = []
-    for elem in table.header:
-        orderings.append(elem.lower_is_better)
+    header_cells = table.header[1:] if skip_first_column else table.header
+    for header_cell in header_cells:
+        orderings.append(header_cell.lower_is_better)
     if len(set(orderings)) != 1:
         raise Exception("Cannot mean columns with different values for lower_is_better")
 
     for row in table.rows:
         total = 0.0
         count = 0
-        for cell in row:
+        row_cells = row[1:] if skip_first_column else row
+        for cell in row_cells:
             if cell.value is not None:
                 total += float(cell.value)
                 count += 1
@@ -811,7 +818,7 @@ class Summarizer:
         num_groups = len(set(run_group.name for run_group, _ in columns))  # number of unique groups, determines headers
 
         # Column headers
-        header.append(HeaderCell("Model/adapter"))
+        header.append(HeaderCell(MODEL_HEADER_CELL_VALUE))
         for run_group, metric_group_name in columns:
             # check if at least the basic version of a metric group is evaluated (e.g., "bias" for "bias_detailed")
             if metric_group_name.replace("_detailed", "") not in run_group.metric_groups:
