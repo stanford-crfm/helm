@@ -1,16 +1,13 @@
 import os
-from typing import Any
 from filelock import FileLock
+
+import numpy as np
+from scipy.io import wavfile
 
 from helm.common.optional_dependencies import handle_module_not_found_error
 
-try:
-    import soundfile as sf
-except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, ["audiolm"])
 
-
-def ensure_wav_file_exists_from_array(path: str, array: Any, sample_rate: int) -> None:
+def ensure_wav_file_exists_from_array(path: str, array: np.array, sample_rate: int) -> None:
     """Write the array to the wav file if it does not already exist.
 
     Uses file locking and an atomic rename to avoid file corruption due to incomplete writes and
@@ -23,5 +20,5 @@ def ensure_wav_file_exists_from_array(path: str, array: Any, sample_rate: int) -
             return
         path_prefix = path.removesuffix(".wav")
         tmp_path = f"{path_prefix}.tmp.wav"
-        sf.write(tmp_path, array, samplerate=sample_rate)
+        wavfile.write(tmp_path, array, samplerate=sample_rate)
         os.rename(tmp_path, path)
