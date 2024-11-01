@@ -70,13 +70,16 @@ function ReleaseDropdown() {
     return <div>{releaseInfo}</div>;
   }
 
-  const badge =
-    releases.length > 0 && currentVersion != releases[0] ? (
-      <Badge color="yellow">stale</Badge>
-    ) : (
-      <Badge color="blue">latest</Badge>
-    );
+  const indexOfCurrentVersion = releases.indexOf(currentVersion);
 
+  const badge =
+    indexOfCurrentVersion < 0 ? (
+      <Badge color="blue">preview</Badge>
+    ) : indexOfCurrentVersion === 0 ? (
+      <Badge color="blue">latest</Badge>
+    ) : (
+      <Badge color="yellow">stale</Badge>
+    );
   return (
     <div className="dropdown">
       <div
