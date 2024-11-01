@@ -7,7 +7,7 @@ from scipy.io import wavfile
 from helm.common.optional_dependencies import handle_module_not_found_error
 
 
-def ensure_wav_file_exists_from_array(path: str, array: np.array, sample_rate: int) -> None:
+def ensure_wav_file_exists_from_array(path: str, array: np.ndarray, sample_rate: int) -> None:
     """Write the array to the wav file if it does not already exist.
 
     Uses file locking and an atomic rename to avoid file corruption due to incomplete writes and
