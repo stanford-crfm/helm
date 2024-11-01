@@ -1,17 +1,27 @@
-import base64
 import os
-from scipy.io.wavfile import write
-import numpy as np
+from typing import Any
+from filelock import FileLock
+
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+try:
+    import soundfile as sf
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["audiolm"])
 
 
-def encode_base64(audio_path: str) -> str:
-    """Returns the base64 representation of an audio file."""
-    with open(audio_path, "rb") as audio_file:
-        audio_data = audio_file.read()
-        return base64.b64encode(audio_data).decode("utf-8")
+def ensure_wav_file_exists_from_array(path: str, array: Any, sample_rate: int) -> None:
+    """Write the array to the wav file if it does not already exist.
 
-
-def ensure_audio_file_exists(audio_path: str, audio_array: np.ndarray, audio_sampling_rate: int) -> None:
-    """Ensures that the audio file exists locally."""
-    if not os.path.exists(audio_path):
-        write(audio_path, audio_sampling_rate, audio_array)
+    Uses file locking and an atomic rename to avoid file corruption due to incomplete writes and
+    concurrent writes."""
+    if not path.endswith(".wav"):
+        raise ValueError(f"Path must end with .wav: {path}")
+    with FileLock(f"{path}.lock"):
+        if os.path.exists(path):
+            # Skip because file already exists
+            return
+        path_prefix = path.removesuffix(".wav")
+        tmp_path = f"{path_prefix}.tmp.wav"
+        sf.write(tmp_path, array, samplerate=sample_rate)
+        os.rename(tmp_path, path)
