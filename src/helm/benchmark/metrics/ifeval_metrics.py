@@ -9,6 +9,8 @@ from helm.benchmark.metrics.statistic import Stat
 
 from helm.benchmark.metrics.ifeval.instructions_registry import INSTRUCTION_DICT
 
+assert "INSTRUCTION_DICT" in globals()
+
 
 class IFEvalMetric(Metric):
     def evaluate_generation(
