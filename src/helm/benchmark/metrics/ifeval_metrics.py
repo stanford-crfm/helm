@@ -19,6 +19,7 @@ class IFEvalMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         prompt = request_state.instance.input.text
+        assert request_state.instance.extra_data
         instruction_ids = request_state.instance.extra_data["instruction_ids"]
         instruction_kwargs = request_state.instance.extra_data["instruction_kwargs"]
         assert len(instruction_ids) > 0
