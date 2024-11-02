@@ -22,6 +22,7 @@ def test_ifeval_scenario_get_instances():
         )
     )
     assert instances[0].split == TEST_SPLIT
+    assert instances[0].extra_data is not None
     assert instances[0].extra_data["instruction_ids"] == [
         "punctuation:no_comma",
         "detectable_format:number_highlighted_sections",
