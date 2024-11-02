@@ -431,7 +431,7 @@ def get_ifeval_spec() -> RunSpec:
     metric_specs = [MetricSpec(class_name="helm.benchmark.metrics.ifeval_metrics.IFEvalMetric")]
 
     return RunSpec(
-        name=f"ifeval",
+        name="ifeval",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
