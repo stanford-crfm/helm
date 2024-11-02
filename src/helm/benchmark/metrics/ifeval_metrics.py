@@ -7,7 +7,7 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 
-import helm.benchmark.metrics.ifeval.instructions_registry as instructions_registry
+from helm.benchmark.metrics.ifeval.instructions_registry import INSTRUCTION_DICT
 
 
 class IFEvalMetric(Metric):
@@ -31,7 +31,7 @@ class IFEvalMetric(Metric):
         # instruction_following_eval/evaluation_main.py#L96-L125
         is_following_list = []
         for index, instruction_id in enumerate(instruction_ids):
-            instruction_cls = instructions_registry.INSTRUCTION_DICT[instruction_id]
+            instruction_cls = INSTRUCTION_DICT[instruction_id]
             instruction = instruction_cls(instruction_id)
 
             instruction.build_description(**{k: v for k, v in instruction_kwargs[index].items() if v is not None})

@@ -11,6 +11,7 @@ def test_ifeval_scenario_get_instances():
     with TemporaryDirectory() as tmpdir:
         instances = ifeval_scenario.get_instances(tmpdir)
     assert len(instances) == 541
+    assert all(instance.extra_data is not None for instance in instances)
     assert instances[0].input == Input(
         text=(
             "Write a 300+ word summary of the wikipedia page "
