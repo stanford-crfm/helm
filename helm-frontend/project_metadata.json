@@ -3,7 +3,18 @@
 		"title": "Lite",
 		"description": "Lightweight, broad evaluation of the capabilities of language models using in-context learning",
 		"id": "lite",
-		"releases": ["v1.9.0", "v1.8.0", "v1.7.0", "v1.6.0", "v1.5.0", "v1.4.0", "v1.3.0", "v1.2.0", "v1.1.0", "v1.0.0"]
+		"releases": [
+			"v1.9.0",
+			"v1.8.0",
+			"v1.7.0",
+			"v1.6.0",
+			"v1.5.0",
+			"v1.4.0",
+			"v1.3.0",
+			"v1.2.0",
+			"v1.1.0",
+			"v1.0.0"
+		]
 	},
 	{
 		"title": "Classic",
@@ -27,7 +38,18 @@
 		"title": "MMLU",
 		"description": "Massive Multitask Language Understanding (MMLU) evaluations using standardized prompts",
 		"id": "mmlu",
-		"releases": ["v1.9.0", "v1.8.0", "v1.7.0", "v1.6.0", "v1.5.0", "v1.4.0", "v1.3.0", "v1.2.0", "v1.1.0", "v1.0.0"]
+		"releases": [
+			"v1.9.0",
+			"v1.8.0",
+			"v1.7.0",
+			"v1.6.0",
+			"v1.5.0",
+			"v1.4.0",
+			"v1.3.0",
+			"v1.2.0",
+			"v1.1.0",
+			"v1.0.0"
+		]
 	},
 	{
 		"title": "VHELM",
@@ -46,6 +68,12 @@
 		"description": "Safety benchmark based on emerging government regulations and company policies",
 		"id": "air-bench",
 		"releases": ["v1.1.0", "v1.0.0"]
+	},
+	{
+		"title": "Safety",
+		"description": "Safety benchmark that aggregates popular safety benchmarks across 6 risk vectors",
+		"id": "safety",
+		"releases": ["v1.0.0"]
 	},
 	{
 		"title": "CLEVA",
