@@ -134,6 +134,28 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
     )
 
 
+@run_spec_function("mmlu_pro")
+def get_mmlu_pro_spec(subject: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.mmlu_pro.MMLUProScenario", args={"subject": subject}
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions=f"The following are multiple choice questions (with answers) about {subject.replace('_', ' ')}.",
+        input_noun="Question",
+        output_noun="Answer",
+    )
+
+    return RunSpec(
+        name=f"mmlu_pro:subject={subject}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["mmlu_pro"],
+    )
+
+
 @run_spec_function("gsm")
 def get_gsm_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.gsm_scenario.GSM8KScenario", args={})

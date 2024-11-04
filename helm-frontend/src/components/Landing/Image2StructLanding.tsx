@@ -10,7 +10,10 @@ export default function Image2StructLanding() {
         Extracting Structured Information from Images
       </h1>
       <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-2 md:gap-8 my-8">
-        <a className="px-10 btn rounded-md" href="TODO">
+        <a
+          className="px-10 btn rounded-md"
+          href="https://arxiv.org/abs/2410.22456"
+        >
           Paper
         </a>
         <a
@@ -68,15 +71,13 @@ export default function Image2StructLanding() {
           <p>We introduce 3 tasks:</p>
           <ul className="my-2 list-disc list-inside">
             <li>
-              LaTex: equations, tables, plots and algorithms form ArXiV papers
+              LaTex: equations, tables, plots and algorithms from ArXiV papers.
             </li>
             <li>
-              Webpages: pages from GitHub written in HTML, CSS and Javascript,
+              Webpages: pages from GitHub written in HTML, CSS and Javascript.
               ...
             </li>
-            <li>
-              Music sheets: crops of measures from music sheets from IMSLP
-            </li>
+            <li>Music sheets: crops of measures from IMSLP music sheets.</li>
           </ul>
           <div className="flex flex-row justify-center mt-8">
             <a className="px-10 btn rounded-md" href="#/leaderboard">
