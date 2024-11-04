@@ -38,7 +38,7 @@ class MMLUProScenario(Scenario):
         hlog(f"Processing data for {split} split")
         for row in data:
             question = row["question"]
-            answers = row["options"][:10]  # Limit to 10 answers if necessary
+            answers = row["options"]
             correct_choice = row["answer"]
             answers_dict = dict(zip(["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"], answers))
             correct_answer = answers_dict[correct_choice]
@@ -66,7 +66,6 @@ class MMLUProScenario(Scenario):
         }
         for hf_split, split in splits.items():
             data = dataset[hf_split].filter(lambda x: x["category"] == self.subject)
-            print(f"Filtered instances in {hf_split}: {len(data)}")
             instances.extend(self.process_csv(data, split))
 
         return instances
