@@ -46,7 +46,7 @@ class LegalContractSummarizationScenario(Scenario):
     ID_COLUMN_NAME = "uid"
 
     name = "legal_contract_summarization"
-    description = "Text summarization with legislative corpus"
+    description = "Plain English Summarization of Contracts [(Manor et al., 2019)](https://aclanthology.org/W19-2201.pdf)."
     tags = ["summarization", "legal"]
 
     def __init__(self):
