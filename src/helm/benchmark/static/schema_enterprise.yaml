@@ -129,7 +129,6 @@ run_groups:
     subgroups:
       - legal_contract_summarization
 
-# enterprise_benchmark_legal
   - name: legal_contract_summarization
     display_name: Legal Contract Summarization
     description: Plain English Summarization of Contracts [(Manor et al., 2019)](https://aclanthology.org/W19-2201.pdf).
