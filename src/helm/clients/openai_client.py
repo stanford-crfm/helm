@@ -142,13 +142,7 @@ class OpenAIClient(CachingClient):
                         image_object: Dict[str, str] = {"url": f"data:image/jpeg;base64,{base64_image}"}
                         content.append({"type": "image_url", "image_url": image_object})
                     elif media_object.is_type("audio") and media_object.location:
-                        from helm.common.audio_utils import encode_base64  # type: ignore
-
-                        base64_audio: str = (
-                            encode_base64(media_object.location)
-                            if media_object.is_local_file
-                            else multimodal_request_utils.get_contents_as_base64(media_object.location)
-                        )
+                        base64_audio: str = multimodal_request_utils.get_contents_as_base64(media_object.location)
                         format: str = media_object.content_type.split("/")[1]
                         if format == "mpeg":
                             # OpenAI expects "mp3" for mpeg audio

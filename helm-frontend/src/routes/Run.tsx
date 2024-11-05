@@ -60,6 +60,7 @@ export default function Run() {
   const [adapterFieldMap, setAdapterFieldMap] = useState<AdapterFieldMap>({});
   const [metricFieldMap, setMetricFieldMap] = useState<MetricFieldMap>({});
   const [searchTerm, setSearchTerm] = useState("");
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -103,6 +104,7 @@ export default function Run() {
       setCurrentInstancesPage(
         Math.max(Math.min(instancePage, totalInstancesPages), 1),
       );
+
       setStats(statsResp);
       setScenario(scenario);
       const totalMetricsPages = Math.floor(
@@ -173,15 +175,6 @@ export default function Run() {
     return () => controller.abort();
   }, [runName, searchParams]);
 
-  if (
-    runSpec === undefined ||
-    displayPredictionsMap === undefined ||
-    displayRequestsMap === undefined ||
-    scenario === undefined
-  ) {
-    return <Loading />;
-  }
-
   const pagedInstances = instances.slice(
     (currentInstancesPage - 1) * INSTANCES_PAGE_SIZE,
     (currentInstancesPage - 1) * INSTANCES_PAGE_SIZE + INSTANCES_PAGE_SIZE,
@@ -191,6 +184,49 @@ export default function Run() {
     (currentMetricsPage - 1) * METRICS_PAGE_SIZE,
     (currentMetricsPage - 1) * METRICS_PAGE_SIZE + METRICS_PAGE_SIZE,
   );
+
+  // Handle scrolling to anchored instance
+  useEffect(() => {
+    const anchoredInstance = searchParams.get("instance");
+    if (anchoredInstance && isInitialLoad && pagedInstances.length > 0) {
+      // Find the index of the anchored instance
+      const instanceIndex = pagedInstances.findIndex(
+        (i) => i.id === anchoredInstance,
+      );
+      if (instanceIndex === -1) return;
+
+      // Wait for the DOM to be updated with the correct page
+      requestAnimationFrame(() => {
+        const element = document.getElementById(`instance-${anchoredInstance}`);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      });
+
+      setIsInitialLoad(false);
+    }
+  }, [
+    isInitialLoad,
+    searchParams,
+    currentInstancesPage,
+    setSearchParams,
+    pagedInstances,
+  ]);
+
+  if (
+    runSpec === undefined ||
+    displayPredictionsMap === undefined ||
+    displayRequestsMap === undefined ||
+    scenario === undefined
+  ) {
+    return <Loading />;
+  }
+
+  const renderInstanceId = (instance: Instance): string => {
+    return instance.perturbation === undefined
+      ? `Instance id: ${instance.id} [split: ${instance.split}]`
+      : `Instance id: ${instance.id} [split: ${instance.split}][perturbation: ${instance.perturbation.name}]`;
+  };
 
   return (
     <>
@@ -281,21 +317,40 @@ export default function Run() {
         <>
           <div className="grid gap-8">
             {pagedInstances.map((instance, idx) => (
-              <InstanceData
-                key={`${instance.id}-${idx}`}
-                instance={instance}
-                requests={
-                  displayRequestsMap[instance.id][
-                    instance.perturbation?.name || ""
-                  ]
-                }
-                predictions={
-                  displayPredictionsMap[instance.id][
-                    instance.perturbation?.name || ""
-                  ]
-                }
-                metricFieldMap={metricFieldMap}
-              />
+              <div id={"instance-" + instance.id} className="border p-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl mb-4">{renderInstanceId(instance)}</h3>
+                  <button
+                    className="btn btn-sm normal-case px-2 py-1"
+                    onClick={() => {
+                      const url =
+                        window.location.href +
+                        (window.location.href.includes("?")
+                          ? "&instance="
+                          : "?instance=") +
+                        instance.id;
+                      void navigator.clipboard.writeText(url);
+                    }}
+                  >
+                    Copy Link
+                  </button>
+                </div>
+                <InstanceData
+                  key={`${instance.id}-${idx}`}
+                  instance={instance}
+                  requests={
+                    displayRequestsMap[instance.id][
+                      instance.perturbation?.name || ""
+                    ]
+                  }
+                  predictions={
+                    displayPredictionsMap[instance.id][
+                      instance.perturbation?.name || ""
+                    ]
+                  }
+                  metricFieldMap={metricFieldMap}
+                />
+              </div>
             ))}
           </div>
           <Pagination
