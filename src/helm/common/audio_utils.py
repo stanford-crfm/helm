@@ -1,17 +1,22 @@
-import base64
 import os
-from scipy.io.wavfile import write
+from filelock import FileLock
+
 import numpy as np
+from scipy.io import wavfile
 
 
-def encode_base64(audio_path: str) -> str:
-    """Returns the base64 representation of an audio file."""
-    with open(audio_path, "rb") as audio_file:
-        audio_data = audio_file.read()
-        return base64.b64encode(audio_data).decode("utf-8")
+def ensure_wav_file_exists_from_array(path: str, array: np.ndarray, sample_rate: int) -> None:
+    """Write the array to the wav file if it does not already exist.
 
-
-def ensure_audio_file_exists(audio_path: str, audio_array: np.ndarray, audio_sampling_rate: int) -> None:
-    """Ensures that the audio file exists locally."""
-    if not os.path.exists(audio_path):
-        write(audio_path, audio_sampling_rate, audio_array)
+    Uses file locking and an atomic rename to avoid file corruption due to incomplete writes and
+    concurrent writes."""
+    if not path.endswith(".wav"):
+        raise ValueError(f"Path must end with .wav: {path}")
+    with FileLock(f"{path}.lock"):
+        if os.path.exists(path):
+            # Skip because file already exists
+            return
+        path_prefix = path.removesuffix(".wav")
+        tmp_path = f"{path_prefix}.tmp.wav"
+        wavfile.write(tmp_path, array, samplerate=sample_rate)
+        os.rename(tmp_path, path)
