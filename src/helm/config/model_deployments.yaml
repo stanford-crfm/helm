@@ -2702,3 +2702,13 @@ model_deployments:
     max_sequence_length: 8192
     client_spec:
       class_name: "helm.clients.audio_language.llama_omni_client.LlamaOmniAudioLMClient"
+
+# IBM - GRANITE 2B BASE
+  - name: huggingface/granite-3.0-2b-base
+    model_name: ibm-granite/granite-3.0-2b-base
+    tokenizer_name: ibm-granite/granite-3.0-2b-base
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: ibm-granite/granite-3.0-2b-base 

@@ -224,7 +224,7 @@ models:
   # References for Amazon Titan models:
   # - https://aws.amazon.com/bedrock/titan/
   # - https://community.aws/content/2ZUVD3fkNtqEOYIa2iUJAFArS7c/family-of-titan-text-models---cli-demo
-  # - https://aws.amazon.com/about-aws/whats-new/2023/11/amazon-titan-models-express-lite-bedrock/
+  # - https://aws.amazon.com/about-aws/whats-new/2023/11/amamodelszon-titan-models-express-lite-bedrock/
   - name: amazon/titan-text-lite-v1
     display_name: Amazon Titan Text Lite
     description: Amazon Titan Text Lite is a lightweight, efficient model perfect for fine-tuning English-language tasks like summarization and copywriting. It caters to customers seeking a smaller, cost-effective, and highly customizable model. It supports various formats, including text generation, code generation, rich text formatting, and orchestration (agents). Key model attributes encompass fine-tuning, text generation, code generation, and rich text formatting.
@@ -3317,3 +3317,15 @@ models:
     num_parameters: 8000000000
     release_date: 2024-09-10
     tags: [AUDIO_LANGUAGE_MODEL_TAG]
+
+# Granite - IBM
+# https://www.ibm.com/granite
+# https://github.com/ibm-granite/granite-3.0-language-models
+  - name: ibm-granite/granite-3.0-2b-base
+    display_name: Granite 3.0 base (2B)
+    description: Granite-3.0-2B-Base is a decoder-only language model to support a variety of text-to-text generation tasks.
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 2530000000
+    release: 2024-10-21
+    tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
