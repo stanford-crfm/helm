@@ -20,3 +20,20 @@ def ensure_wav_file_exists_from_array(path: str, array: np.ndarray, sample_rate:
         tmp_path = f"{path_prefix}.tmp.wav"
         wavfile.write(tmp_path, array, samplerate=sample_rate)
         os.rename(tmp_path, path)
+
+
+def ensure_mp3_file_exists_from_array(path: str, array: np.ndarray, sample_rate: int) -> None:
+    """Write the array to the mp3 file if it does not already exist.
+
+    Uses file locking and an atomic rename to avoid file corruption due to incomplete writes and
+    concurrent writes."""
+    if not path.endswith(".mp3"):
+        raise ValueError(f"Path must end with .mp3: {path}")
+    with FileLock(f"{path}.lock"):
+        if os.path.exists(path):
+            # Skip because file already exists
+            return
+        path_prefix = path.removesuffix(".mp3")
+        tmp_path = f"{path_prefix}.tmp.mp3"
+        wavfile.write(tmp_path, array, samplerate=sample_rate)
+        os.rename(tmp_path, path)
