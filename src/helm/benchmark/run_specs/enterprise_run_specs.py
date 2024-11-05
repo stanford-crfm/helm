@@ -39,7 +39,7 @@ def get_news_headline_spec(category: str) -> RunSpec:
 @run_spec_function("legal_contract_summarization")
 def get_legal_contract_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.legal_contract_summarization_scenario.LegalContractSummzarizationScenario",
+        class_name="helm.benchmark.scenarios.legal_contract_summarization_scenario.LegalContractSummarizationScenario",
         args={},
     )
 
