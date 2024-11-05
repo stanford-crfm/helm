@@ -142,7 +142,7 @@ run_groups:
       main_split: test
     taxonomy:
       task: summarization
-      what: legal documents
-      who: "?"
-      when: "?"
+      what: legal contracts (e.g. terms of service, license agreements)
+      who: lawyers
+      when: before 2019
       language: English
