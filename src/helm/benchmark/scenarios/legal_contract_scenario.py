@@ -15,6 +15,7 @@ class LegalContractScenario(Scenario):
     TRAIN_RATIO: float = 0.2
     ARTICLE_COLUMN_NAME = "original_text"
     SUMMARY_COLUMN_NAME = "reference_summary"
+    ID_COLUMN_NAME = "uid"
 
     name = "legal_contract"
     description = "Text summarization with legislative corpus"
@@ -47,8 +48,8 @@ class LegalContractScenario(Scenario):
         target_df = pd.DataFrame()
         with open(target_path) as f:
             json_data = json.load(f)
-            target_df = pd.DataFrame.from_records(json_data)
-            target_df = target_df.dropna(subset=[LegalContractScenario.ARTICLE_COLUMN_NAME, LegalContractScenario.SUMMARY_COLUMN_NAME])
+            target_df = pd.DataFrame.from_records(list(json_data.values()))
+            target_df = target_df.dropna(subset=[LegalContractScenario.ARTICLE_COLUMN_NAME, LegalContractScenario.SUMMARY_COLUMN_NAME, LegalContractScenario.ID_COLUMN_NAME])
             # Split randomly (works better than split by order)
             train_df = target_df.sample(frac=LegalContractScenario.TRAIN_RATIO, random_state=0)
             test_df = target_df.drop(train_df.index).sample(frac=1, random_state=0)
@@ -68,6 +69,7 @@ class LegalContractScenario(Scenario):
 
         for split, split_data in dataset.items():
             for example in split_data.itertuples():
+                id = getattr(example, LegalContractScenario.ID_COLUMN_NAME)
                 article = LegalContractScenario._clean(getattr(example, LegalContractScenario.ARTICLE_COLUMN_NAME))
                 summary = LegalContractScenario._clean(getattr(example, LegalContractScenario.SUMMARY_COLUMN_NAME))
                 input = PassageQuestionInput(
@@ -78,6 +80,7 @@ class LegalContractScenario(Scenario):
                 )
                 output = Output(text=summary)
                 instance = Instance(
+                    id=id,
                     input=input,
                     references=[Reference(output=output, tags=[CORRECT_TAG])],
                     split=split,
