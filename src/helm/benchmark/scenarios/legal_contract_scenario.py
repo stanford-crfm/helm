@@ -9,8 +9,35 @@ from helm.benchmark.scenarios.scenario import Input, Scenario, Instance, Referen
 
 
 class LegalContractScenario(Scenario):
-    """
-    Plain English Summarization of Contracts ([paper](https://arxiv.org/abs/1906.00424))
+    """Legal Contract Summarization
+
+    A legal contract summarization benchmark based on the paper
+    Plain English Summarization of Contracts (Manor & Li, NAACL 2019),
+    which presented a dataset of legal text snippets paired with summaries
+    written in plain English.
+
+    @inproceedings{manor-li-2019-plain,
+        title = "Plain {E}nglish Summarization of Contracts",
+        author = "Manor, Laura  and
+        Li, Junyi Jessy",
+        editor = "Aletras, Nikolaos  and
+        Ash, Elliott  and
+        Barrett, Leslie  and
+        Chen, Daniel  and
+        Meyers, Adam  and
+        Preotiuc-Pietro, Daniel  and
+        Rosenberg, David  and
+        Stent, Amanda",
+        booktitle = "Proceedings of the Natural Legal Language Processing Workshop 2019",
+        month = jun,
+        year = "2019",
+        address = "Minneapolis, Minnesota",
+        publisher = "Association for Computational Linguistics",
+        url = "https://aclanthology.org/W19-2201",
+        doi = "10.18653/v1/W19-2201",
+        pages = "1--11",
+        abstract = "Unilateral legal contracts, such as terms of service, play a substantial role in modern digital life. However, few read these documents before accepting the terms within, as they are too long and the language too complicated. We propose the task of summarizing such legal documents in plain English, which would enable users to have a better understanding of the terms they are accepting. We propose an initial dataset of legal text snippets paired with summaries written in plain English. We verify the quality of these summaries manually, and show that they involve heavy abstraction, compression, and simplification. Initial experiments show that unsupervised extractive summarization methods do not perform well on this task due to the level of abstraction and style differences. We conclude with a call for resource and technique development for simplification and style transfer for legal language.",
+    }
     """
 
     TRAIN_RATIO: float = 0.2

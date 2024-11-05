@@ -131,7 +131,7 @@ run_groups:
 
 # enterprise_benchmark_legal
   - name: legal_contract
-    display_name: Legal Contracts (Summarization)
+    display_name: Legal Contract Summarization
     description: Plain English Summarization of Contracts [(Manor et al., 2019)](https://aclanthology.org/W19-2201.pdf).
     metric_groups:
       - accuracy
@@ -142,7 +142,7 @@ run_groups:
       main_split: test
     taxonomy:
       task: summarization
-      what: "?"
+      what: legal documents
       who: "?"
       when: "?"
       language: English

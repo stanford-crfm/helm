@@ -44,8 +44,8 @@ def get_legal_contract_spec() -> RunSpec:
     )
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="Summarize the article in a few sentences.",
-        input_noun="Article"
+        instructions="Summarize the legal document in plain English.",
+        input_noun="Document",
         output_noun="Summary",
         max_tokens=100,
         stop_sequences=["\n\n"],
