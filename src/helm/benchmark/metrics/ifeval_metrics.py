@@ -24,7 +24,7 @@ class IFEvalMetric(Metric):
         instruction_kwargs = request_state.instance.extra_data["instruction_kwargs"]
         assert len(instruction_ids) > 0
         assert request_state.result
-        assert len(request_state.result.completions) == 1, len(request_state.result.completions)
+        assert len(request_state.result.completions) == 1, f"Got {len(request_state.result.completions)} completions"
         response = request_state.result.completions[0].text.strip()
 
         # The following logic was reproduced with minor modifications from the following URL:
