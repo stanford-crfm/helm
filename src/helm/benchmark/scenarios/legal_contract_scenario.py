@@ -20,37 +20,15 @@ class LegalContractScenario(Scenario):
     description = "Text summarization with legislative corpus"
     tags = ["summarization", "legal"]
 
-    def __init__(
-        self,
-        sampling_min_length: Optional[int] = None,
-        sampling_max_length: Optional[int] = None,
-        doc_max_length: Optional[int] = None,
-    ):
+    def __init__(self):
         """
         Initializes the scenario.
-        Args:
-            sampling_min_length: Int indicating minimum length for training
-                                 documents. Training examples smaller than
-                                 sampling_min_length will be filtered out.
-                                 Useful for preventing the adapter from sampling
-                                 really small documents.
-            sampling_max_length: Int indicating maximum length for training
-                                 documents. Training examples larger than
-                                 sampling_max_length will be filtered out.
-                                 Useful for preventing the adapter from
-                                 sampling really large documents.
-            doc_max_length: Int indicating the maximum length to truncate
-                            documents. Documents in all splits will be
-                            truncated to doc_max_length tokens.
-                            NOTE: Currently uses whitespace tokenization.
+
         """
         super().__init__()
-        self.sampling_min_length = sampling_min_length
-        self.sampling_max_length = sampling_max_length
-        self.doc_max_length = doc_max_length
 
     @staticmethod
-    def _clean_and_truncate(text: str, max_length: Optional[int] = None) -> str:
+    def _clean(text: str, max_length: Optional[int] = None) -> str:
         text = text.replace("\n", " ")
         return " ".join(text.split()[:max_length])
 
@@ -66,12 +44,10 @@ class LegalContractScenario(Scenario):
             target_path=target_path,
         )
 
-        source_file_noext = os.path.splitext(source_file)[0]
         target_df = pd.DataFrame()
         with open(target_path) as f:
-            orig_df = json.load(f)
-            for _, dict in orig_df.items():
-                target_df = pd.concat([target_df, pd.DataFrame([dict])], ignore_index=True)
+            json_data = json.load(f)
+            target_df = pd.DataFrame.from_records(json_data)
             target_df = target_df.dropna(subset=[LegalContractScenario.ARTICLE_COLUMN_NAME, LegalContractScenario.SUMMARY_COLUMN_NAME])
             # Split randomly (works better than split by order)
             train_df = target_df.sample(frac=LegalContractScenario.TRAIN_RATIO, random_state=0)
@@ -92,17 +68,8 @@ class LegalContractScenario(Scenario):
 
         for split, split_data in dataset.items():
             for example in split_data.itertuples():
-                article: str = LegalContractScenario._clean_and_truncate(getattr(example, LegalContractScenario.ARTICLE_COLUMN_NAME), self.doc_max_length)
-
-                if split == TRAIN_SPLIT:
-                    art_len = len(article.split())
-                    if self.sampling_max_length and art_len > self.sampling_max_length:
-                        continue
-                    if self.sampling_min_length and art_len < self.sampling_min_length:
-                        continue
-
-                summary: str = LegalContractScenario._clean_and_truncate(getattr(example, LegalContractScenario.SUMMARY_COLUMN_NAME))
-
+                article = LegalContractScenario._clean(getattr(example, LegalContractScenario.ARTICLE_COLUMN_NAME))
+                summary = LegalContractScenario._clean(getattr(example, LegalContractScenario.SUMMARY_COLUMN_NAME))
                 input = PassageQuestionInput(
                     passage=article,
                     question=QUESTION,
@@ -110,7 +77,6 @@ class LegalContractScenario(Scenario):
                     question_prefix=QUESTION_PREFIX,
                 )
                 output = Output(text=summary)
-
                 instance = Instance(
                     input=input,
                     references=[Reference(output=output, tags=[CORRECT_TAG])],
