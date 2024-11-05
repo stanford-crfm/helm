@@ -36,10 +36,10 @@ def get_news_headline_spec(category: str) -> RunSpec:
         groups=["gold_commodity_news"],
     )
 
-@run_spec_function("legal_contract")
+@run_spec_function("legal_contract_summarization")
 def get_legal_contract_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.legal_contract_scenario.LegalContractScenario",
+        class_name="helm.benchmark.scenarios.legal_contract_summarization_scenario.LegalContractSummzarizationScenario",
         args={},
     )
 
@@ -52,9 +52,9 @@ def get_legal_contract_spec() -> RunSpec:
     )
 
     return RunSpec(
-        name="legal_contract",
+        name="legal_contract_summarization",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_basic_metric_specs(["rouge_1", "rouge_2"]),
-        groups=["legal_contract"],
+        groups=["legal_contract_summarization"],
     )

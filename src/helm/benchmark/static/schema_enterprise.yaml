@@ -127,10 +127,10 @@ run_groups:
     description: Scenarios for the legal domain
     category: All scenarios
     subgroups:
-      - legal_contract
+      - legal_contract_summarization
 
 # enterprise_benchmark_legal
-  - name: legal_contract
+  - name: legal_contract_summarization
     display_name: Legal Contract Summarization
     description: Plain English Summarization of Contracts [(Manor et al., 2019)](https://aclanthology.org/W19-2201.pdf).
     metric_groups:
