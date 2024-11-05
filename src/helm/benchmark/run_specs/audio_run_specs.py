@@ -50,10 +50,8 @@ def get_machine_translation_metric_specs() -> List[MetricSpec]:
     return [MetricSpec(class_name="helm.benchmark.metrics.machine_translation_metrics.MachineTranslationMetric")]
 
 
-def _get_open_ended_generation_metric_specs() -> List[MetricSpec]:
-    return get_basic_metric_specs(
-        ["exact_match", "quasi_exact_match", "f1_score", "rouge_l", "bleu_1", "bleu_4", "cider"]
-    )
+def _get_audio_recognition_metric_specs() -> List[MetricSpec]:
+    return get_basic_metric_specs(["wa_score", "ma_score", "wip_score", "ca_score"])
 
 
 ########################################################################################################################
@@ -105,8 +103,8 @@ def get_vocal_sound_run_spec() -> RunSpec:
         class_name="helm.benchmark.scenarios.audio_language.vocal_sound_scenario.VocalSoundScenario",
     )
     adapter_spec = _get_generation_adapter_spec(
-        instructions='Listen to the audio and classify the speaker behavior. Choose only from these options: \
-            "Cough", "Laughter", "Sigh", "Sneeze", "Sniff", or "Throatclearing". Respond with just the behavior.',
+        instructions="Listen to the audio and classify the speaker behavior. Choose only from these options:"
+        '"Cough", "Laughter", "Sigh", "Sneeze", "Sniff", or "Throat clearing". Respond with just the behavior.',
         max_tokens=5,
     )
     metric_specs = get_exact_match_metric_specs() + get_classification_metric_specs()
@@ -122,16 +120,16 @@ def get_vocal_sound_run_spec() -> RunSpec:
 @run_spec_function("multilingual_librispeech")
 def get_multilingual_librispeech_run_spec(language: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.audio_language.multilingual_librispeech_scenario.\
-            MultilingualLibriSpeechScenario",
+        class_name="helm.benchmark.scenarios.audio_language.multilingual_librispeech_scenario."
+        "MultilingualLibriSpeechScenario",
         args={"language": language},
     )
     adapter_spec = _get_generation_adapter_spec(
-        instructions="Listen to the audio and generate an accurate transcript of the spoken content. \
-            Respond with only the transcript text.",
+        instructions="Listen to the audio and generate an accurate transcript of the spoken content. "
+        "Respond with only the transcript text.",
         max_tokens=100,
     )
-    metric_specs = _get_open_ended_generation_metric_specs()
+    metric_specs = _get_audio_recognition_metric_specs()
     return RunSpec(
         name="multilingual_librispeech",
         scenario_spec=scenario_spec,
@@ -148,9 +146,9 @@ def get_fleurs_run_spec(language: str) -> RunSpec:
         args={"language": language},
     )
     adapter_spec = _get_generation_adapter_spec(
-        instructions='Listen to the audio and identify the language spoken. Choose from these \
-            options only: "Finnish", "Bulgarian", "Hebrew", "Zulu", "Bengali", "Thai", \
-                "Mandarin Chinese". Respond with just the language name.',
+        instructions="Listen to the audio and identify the language spoken. Choose from these"
+        'options only: "Finnish", "Bulgarian", "Hebrew", "Zulu", "Bengali", "Thai",'
+        '"Mandarin Chinese". Respond with just the language name.',
         max_tokens=5,
     )
     metric_specs = get_exact_match_metric_specs() + get_classification_metric_specs()
