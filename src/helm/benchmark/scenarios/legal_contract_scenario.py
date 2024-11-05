@@ -1,10 +1,11 @@
 import os
 import pandas as pd
 import json
+import re
 
 from typing import List, Optional
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, PassageQuestionInput, Output
+from helm.benchmark.scenarios.scenario import Input, Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, PassageQuestionInput, Output
 
 
 class LegalContractScenario(Scenario):
@@ -30,8 +31,7 @@ class LegalContractScenario(Scenario):
 
     @staticmethod
     def _clean(text: str, max_length: Optional[int] = None) -> str:
-        text = text.replace("\n", " ")
-        return " ".join(text.split()[:max_length])
+        return re.sub(r"\s+", " ", text)
 
     def _load_dataset(self, output_path: str):
         data_dir = os.path.join(output_path, "data")
@@ -62,21 +62,13 @@ class LegalContractScenario(Scenario):
 
         instances: List[Instance] = []
 
-        PASSAGE_SYNONYM = "text"
-        PASSAGE_PREFIX = f"{PASSAGE_SYNONYM.capitalize()}: "
-        QUESTION_PREFIX = ""
-        QUESTION = f"Write the summary of the above {PASSAGE_SYNONYM}."
-
         for split, split_data in dataset.items():
             for example in split_data.itertuples():
                 id = getattr(example, LegalContractScenario.ID_COLUMN_NAME)
                 article = LegalContractScenario._clean(getattr(example, LegalContractScenario.ARTICLE_COLUMN_NAME))
                 summary = LegalContractScenario._clean(getattr(example, LegalContractScenario.SUMMARY_COLUMN_NAME))
-                input = PassageQuestionInput(
-                    passage=article,
-                    question=QUESTION,
-                    passage_prefix=PASSAGE_PREFIX,
-                    question_prefix=QUESTION_PREFIX,
+                input = Input(
+                    text=article,
                 )
                 output = Output(text=summary)
                 instance = Instance(
