@@ -51,6 +51,18 @@ metrics:
     short_display_name: EM
     description: Fraction of instances that the predicted output matches a correct reference up to light processing.
     lower_is_better: false
+  - name: rouge_1
+    display_name: ROUGE-1
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 1-gram overlap.
+    lower_is_better: false
+  - name: rouge_2
+    display_name: ROUGE-2
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 2-gram overlap.
+    lower_is_better: false
+  - name: rouge_l
+    display_name: ROUGE-L
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on longest common subsequence overlap.
+    lower_is_better: false
 
 ############################################################
 perturbations: []
@@ -108,4 +120,29 @@ run_groups:
       what: gold commodity news headlines
       who: financial journalists
       when: 2000-2019
+      language: English
+
+  - name: legal_scenarios
+    display_name: Legal Scenarios
+    description: Scenarios for the legal domain
+    category: All scenarios
+    subgroups:
+      - legal_contract
+
+# enterprise_benchmark_legal
+  - name: legal_contract
+    display_name: Legal Contracts (Summarization)
+    description: Plain English Summarization of Contracts [(Manor et al., 2019)](https://aclanthology.org/W19-2201.pdf).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: rouge_2
+      main_split: test
+    taxonomy:
+      task: summarization
+      what: "?"
+      who: "?"
+      when: "?"
       language: English
