@@ -2,7 +2,7 @@ import os
 import urllib
 from copy import deepcopy
 from dataclasses import dataclass, field, replace
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 
 IMAGE_TYPE = "image"
@@ -27,7 +27,7 @@ class MediaObject:
     location: Optional[str] = None
     """When the media object is a file, specify the location of the media object, which can be a local path or URL."""
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> Dict[str, Any]:
         """Converts the media object to a dictionary."""
         return {key: value for key, value in self.__dict__.items() if value is not None}
 

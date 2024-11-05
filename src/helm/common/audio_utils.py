@@ -1,6 +1,6 @@
 from io import BytesIO
 import os
-from typing import Optional
+from typing import Optional, Union
 from filelock import FileLock
 
 import librosa
@@ -49,6 +49,7 @@ def get_array_from_audio_file(path: str, sample_rate: Optional[int]) -> np.ndarr
     audio_file = (
         BytesIO(get_contents_as_bytes(path)) if path.startswith("http://") or path.startswith("https://") else path
     )
+
     # librosa accepts a local file path or a file-like object
     audio_array, _ = librosa.load(audio_file, sr=sample_rate)
     return audio_array
