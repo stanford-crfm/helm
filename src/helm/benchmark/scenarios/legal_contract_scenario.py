@@ -15,6 +15,8 @@ class LegalContractScenario(Scenario):
     """
 
     TRAIN_RATIO: float = 0.2
+    ARTICLE_COLUMN_NAME = "original_text"
+    SUMMARY_COLUMN_NAME = "reference_summary"
 
     name = "legal_contract"
     description = "Text summarization with legislative corpus"
@@ -69,14 +71,12 @@ class LegalContractScenario(Scenario):
         source_file_noext = os.path.splitext(source_file)[0]
         train_file = f"{source_file_noext}-{TRAIN_SPLIT}.csv"
         test_file = f"{source_file_noext}-{TEST_SPLIT}.csv"
-        article_key = "original_text"
-        summary_key = "reference_summary"
         target_df = pd.DataFrame()
         with open(target_path) as f:
             orig_df = json.load(f)
             for _, dict in orig_df.items():
                 target_df = pd.concat([target_df, pd.DataFrame([dict])], ignore_index=True)
-            target_df = target_df.dropna(subset=[article_key, summary_key])
+            target_df = target_df.dropna(subset=[LegalContractScenario.ARTICLE_COLUMN_NAME, LegalContractScenario.SUMMARY_COLUMN_NAME])
             # Split randomly (works better than split by order)
             train_df = target_df.sample(frac=LegalContractScenario.TRAIN_RATIO, random_state=0)
             test_df = target_df.drop(train_df.index).sample(frac=1, random_state=0)
@@ -88,10 +88,10 @@ class LegalContractScenario(Scenario):
         data_files[TEST_SPLIT] = test_file
         dataset = load_dataset(data_dir, data_files=data_files)
 
-        return dataset, article_key, summary_key
+        return dataset
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        dataset, article_key, summary_key = self._load_dataset(output_path)
+        dataset = self._load_dataset(output_path)
 
         instances: List[Instance] = []
 
@@ -102,7 +102,7 @@ class LegalContractScenario(Scenario):
 
         for split, split_data in dataset.items():
             for example in split_data:
-                article: str = LegalContractScenario._clean_and_truncate(example[article_key], self.doc_max_length)
+                article: str = LegalContractScenario._clean_and_truncate(example[LegalContractScenario.ARTICLE_COLUMN_NAME], self.doc_max_length)
 
                 if split == TRAIN_SPLIT:
                     art_len = len(article.split())
@@ -111,7 +111,7 @@ class LegalContractScenario(Scenario):
                     if self.sampling_min_length and art_len < self.sampling_min_length:
                         continue
 
-                summary: str = LegalContractScenario._clean_and_truncate(example[summary_key])
+                summary: str = LegalContractScenario._clean_and_truncate(example[LegalContractScenario.SUMMARY_COLUMN_NAME])
 
                 input = PassageQuestionInput(
                     passage=article,
