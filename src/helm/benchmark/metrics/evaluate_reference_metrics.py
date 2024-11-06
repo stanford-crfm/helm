@@ -9,6 +9,7 @@ from nltk.tokenize import word_tokenize
 from nltk.translate.bleu_score import sentence_bleu
 from rouge_score import rouge_scorer
 import numpy as np
+from jiwer import wer, mer, wip, cer
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
@@ -202,6 +203,45 @@ def cider(gold: str, pred: str) -> float:
     return average_score
 
 
+def wa_score(gold: str, pred: str) -> float:
+    # Word Accuracy (WA) equals to 1 - word error rate (WER), which is a common
+    # metric used to evaluate the accuracy of speech recognition systems.
+    # Note that this metric could be negative because the WER might be greater than 1.
+    # https://huggingface.co/learn/audio-course/en/chapter5/evaluation#word-error-rate
+    if not pred:
+        return 0
+
+    wer_ret = 1 - wer(gold, pred)
+    return wer_ret
+
+
+def ma_score(gold: str, pred: str) -> float:
+    # Match Accuracy (MA) equals to 1 - match error rate (MER), which is for evaluating the accuracy of
+    # speech recognition systems.
+    if not pred:
+        return 0
+    mer_ret = mer(gold, pred)
+    return mer_ret
+
+
+def wip_score(gold: str, pred: str) -> float:
+    # Word information preservation (WIP) for evaluating the preserved information of speech
+    # recognition systems.
+    if not pred:
+        return 0
+    wip_ret = wip(gold, pred)
+    return wip_ret
+
+
+def ca_score(gold: str, pred: str) -> float:
+    # Character accuracy (CA) equals to character error rate (CER) for evaluating the accuracy
+    # of speech recognition systems.
+    if not pred:
+        return 0
+    cer_ret = cer(gold, pred)
+    return cer_ret
+
+
 def extract_set_from_text(
     set_str: str,
     set_start_str: str = " is ",
@@ -351,6 +391,10 @@ def compute_reference_metrics(
         "chinese_rouge_2": get_chinese_rouge_function("rouge2"),
         "cleva_math_result_match": cleva_math_result_match,
         "absolute_value_difference": absolute_value_difference,
+        "wa_score": wa_score,
+        "ma_score": ma_score,
+        "wip_score": wip_score,
+        "ca_score": ca_score,
     }
 
     stats: List[Stat] = []

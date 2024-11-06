@@ -70,6 +70,51 @@ metrics:
     short_display_name: EM
     description: Fraction of instances that the predicted output matches a correct reference exactly.
     lower_is_better: false
+  - name: quasi_exact_match
+    display_name: Quasi-exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+    lower_is_better: false
+  - name: prefix_exact_match
+    display_name: Prefix exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_prefix_exact_match
+    # TODO: should call this prefix_quasi_exact_match
+    display_name: Prefix quasi-exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
+    lower_is_better: false
+
+  - name: rouge_1
+    display_name: ROUGE-1
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 1-gram overlap.
+    lower_is_better: false
+  - name: rouge_2
+    display_name: ROUGE-2
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 2-gram overlap.
+    lower_is_better: false
+  - name: rouge_l
+    display_name: ROUGE-L
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on longest common subsequence overlap.
+    lower_is_better: false
+  - name: bleu_1
+    display_name: BLEU-1
+    description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 1-gram overlap.
+    lower_is_better: false
+  - name: bleu_4
+    display_name: BLEU-4
+    description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 4-gram overlap.
+    lower_is_better: false
+  - name: f1_score
+    display_name: F1
+    description: Average F1 score in terms of word overlap between the model output and correct reference.
+    lower_is_better: false
+  - name: cider
+    display_name: CIDEr
+    description: Evaluates the quality of generated caption by measuring the weighted similarity of n-grams between the captions and a set of human-written reference captions, emphasizing informativeness and consensus.
+    lower_is_better: false
 
   # Machine Translation metrics
   - name: bleu
@@ -120,6 +165,8 @@ run_groups:
     category: All scenarios
     subgroups:
       - audio_mnist
+      - covost2
+      - vocal_sound
 
   - name: audio_mnist
     display_name: AudioMNIST
@@ -164,3 +211,72 @@ run_groups:
       who: real speakers
       when: "2020"
       language: 15 languages
+
+  - name: vocal_sound
+    display_name: VocalSound
+    description: >
+      VocalSound dataset consisting of over 21,000 crowdsourced recordings of laughter, sighs, coughs, throat 
+      clearing, sneezes, and sniffs from 3,365 unique subjects. 
+      
+      Different from previous datasets, the VocalSound dataset contains meta information such as speaker 
+      age, gender, native language, country, and health condition ([Gong et al, 2022](https://arxiv.org/abs/2205.03433)).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: audio samples of behaviours ("cough", "laughter", "sigh", "sneeze", "sniff", "throatclearing")
+      who: real speakers
+      when: "2022"
+      language: English
+
+  - name: multilingual_librispeech
+    display_name: Multilingual Librispeech
+    description: >
+      Multilingual Librispeech is derived from read audiobooks from LibriVox and consists of 8 languages, 
+      including about 44.5K hours of English and a total of about 6K hours for other languages. 
+
+      The dataset contains the audio and transcriptions in the following languages:
+      Dutch, German, French, Spanish, Italian, Portuguese", Polish ([Pratap et al, 2022](https://arxiv.org/abs/2012.03411)).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: audio captioning
+      what: audio and transcriptions in 8 languages
+      who: real speakers
+      when: "2020"
+      language: 8 languages
+
+  - name: fleurs
+    display_name: FLEURS
+    description: >
+      FLEURS is an n-way parallel speech dataset in 102 languages built on top of the machine translation FLoRes-101 
+      benchmark, with approximately 12 hours of speech supervision per language. FLEURS can be used for a variety of 
+      speech tasks, including Automatic Speech Recognition (ASR), Speech Language Identification (Speech LangID), 
+      Translation and Retrieval.
+
+      The dataset contains the audio, transcriptions, and language in 102 different languages, which are divided into
+      7 language groups: Western European, Eastern European, Central Asia Middle North African, Sub Saharan African, 
+      South Asian, South East Asian, Chinese Japanase Korean ([Conneau et al, 2022](https://arxiv.org/abs/2205.12446)).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: audio, transcripts, and language names in 102 languages
+      who: real speakers
+      when: "2022"
+      language: 102 languages
