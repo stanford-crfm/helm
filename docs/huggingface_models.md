@@ -4,7 +4,7 @@ HELM can be used to evaluate `AutoModelForCausalLM` models (e.g. [`BioMedLM`](ht
 
 ## Using `model_deployments.yaml`
 
-You can add Hugging Face models using the method discussed in [Adding New Models](adding_new_models.md). This can be used for both models from Hugging Face Hub and from local disk. Please refer to the page for instructions for how to do so.
+You can add Hugging Face models using the method discussed in [Adding New Models](adding_new_models.md). This can be used for both models on Hugging Face Hub and local disk. Please refer to that page for instructions for how to do so.
 
 ## Using command-line flags
 
@@ -19,7 +19,7 @@ Current restrictions with command-line flags:
 - Models without a namespace are not supported (e.g. `bert-base-uncased`).
 - The model must have `model_max_length` set in the tokenizer configuration.
 
-Example model from Hugging Face Hub:
+Example model on Hugging Face Hub:
 
 ```bash
 # Run boolq on stanford-crfm/BioMedLM at the default main revision
@@ -37,7 +37,7 @@ helm-run \
     --max-eval-instances 10
 ```
 
-Example model from local disk:
+Example model on local disk:
 
 ```bash
 # Run boolq on stanford-crfm/BioMedLM at the default main revision
