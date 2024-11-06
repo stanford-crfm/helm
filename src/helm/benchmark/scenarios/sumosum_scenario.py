@@ -5,6 +5,7 @@ from typing import Dict, List, Optional
 import pandas as pd
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -15,6 +16,12 @@ from helm.benchmark.scenarios.scenario import (
     Input,
     Output,
 )
+
+try:
+    # Needed for pandas.read_excel
+    import openpyxl  # noqa
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["ibm-enterprise-scenarios"])
 
 
 class SUMOSumScenario(Scenario):
