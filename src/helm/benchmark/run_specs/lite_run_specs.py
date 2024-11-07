@@ -425,7 +425,7 @@ def get_ifeval_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.ifeval_scenario.IFEvalScenario")
 
     adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION, input_prefix="", output_prefix="", max_tokens=1000, num_outputs=1
+        method=ADAPT_GENERATION, input_prefix="", output_prefix="", max_tokens=1000, num_outputs=1, temperature=0.0
     )
 
     metric_specs = [MetricSpec(class_name="helm.benchmark.metrics.ifeval_metrics.IFEvalMetric")]
