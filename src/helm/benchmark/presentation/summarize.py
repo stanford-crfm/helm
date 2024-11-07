@@ -976,22 +976,20 @@ class Summarizer:
             if strategy == AggregationStrategy.WIN_RATE:
                 WIN_RATE_AGGREGATION = "mean"
                 win_rates = compute_aggregate_row_win_rates(table, aggregation=WIN_RATE_AGGREGATION)
-                description = "How many models this model outperforms on average (over columns)."
                 aggregate_header_cells.append(
                     HeaderCell(
                         f"{WIN_RATE_AGGREGATION.capitalize()} win rate",
-                        description=description,
+                        description="How many models this model outperforms on average (over columns).",
                         lower_is_better=False,
                     )
                 )
                 aggregate_row_values.append(win_rates)
             elif strategy == AggregationStrategy.MEAN:
                 means = compute_aggregate_row_means(table)
-                description = "An average over columns representing the mean performance."
                 aggregate_header_cells.append(
                     HeaderCell(
-                        "Mean performance",
-                        description=description,
+                        "Mean score",
+                        description="The mean of the scores from all columns.",
                         lower_is_better=table.header[0].lower_is_better,
                     )
                 )
