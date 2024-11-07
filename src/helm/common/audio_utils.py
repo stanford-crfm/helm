@@ -37,3 +37,7 @@ def ensure_mp3_file_exists_from_array(path: str, array: np.ndarray, sample_rate:
         tmp_path = f"{path_prefix}.tmp.mp3"
         wavfile.write(tmp_path, array, samplerate=sample_rate)
         os.rename(tmp_path, path)
+
+
+def get_array_from_audio_file():
+    pass
