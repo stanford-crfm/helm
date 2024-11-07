@@ -102,6 +102,23 @@ def get_iemocap_audio_run_spec() -> RunSpec:
     )
 
 
+@run_spec_function("meld")
+def get_meld_run_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.audio_language.meld_scenario.MELDScenario")
+    adapter_spec = _get_generation_adapter_spec(
+        instructions='Classify the emotion of the speaker in the audio as "anger", "disgust", "fear", "joy", "neutral", "sadness", or "surprise". Answer with only the emotion.',  # noqa: E501
+        max_tokens=5,
+    )
+    metric_specs = get_exact_match_metric_specs() + get_classification_metric_specs()
+    return RunSpec(
+        name="meld",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["meld"],
+    )
+
+
 @run_spec_function("covost2")
 def get_covost2_run_spec(source_language: str, target_language: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
