@@ -47,7 +47,6 @@ class AudioCapsScenario(Scenario):
         instances: List[Instance] = []
         data_dir: str = os.path.join(output_path, "wav_files")
         ensure_file_downloaded(source_url=AudioCapsScenario.DOWNLOADING_URL, target_path=data_dir, unpack=True)
-        assert os.path.exists(data_dir), f"Download the wav_files from {AudioCapsScenario.DOWNLOADING_URL}"
         for _, row in tqdm(pd.read_csv(AudioCapsScenario.REFERENCE_URL, sep=",").iterrows()):
             audiocap_id = row["audiocap_id"]
             audio_path: str = os.path.join(data_dir, f"{audiocap_id}.wav")
