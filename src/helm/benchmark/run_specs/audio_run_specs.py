@@ -54,6 +54,12 @@ def _get_audio_recognition_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(["wa_score", "ma_score", "wip_score", "ca_score"])
 
 
+def _get_open_ended_generation_metric_specs() -> List[MetricSpec]:
+    return get_basic_metric_specs(
+        ["exact_match", "quasi_exact_match", "f1_score", "rouge_l", "bleu_1", "bleu_4", "cider"]
+    )
+
+
 ########################################################################################################################
 # RunSpecs
 
@@ -158,4 +164,24 @@ def get_fleurs_run_spec(language: str) -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
         groups=["fleurs"],
+    )
+
+
+@run_spec_function("audiocaps")
+def get_audiocaps_run_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.audiocaps_senario.AudioCapsScenario"
+    )
+    adapter_spec = _get_generation_adapter_spec(
+        instructions="Generate a caption for the following audio. The caption should be short and does "
+        "not need to be a complete sentence.",
+        max_tokens=50,
+    )
+    metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
+    return RunSpec(
+        name="audiocaps",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["audiocaps"],
     )
