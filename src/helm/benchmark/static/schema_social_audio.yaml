@@ -165,6 +165,7 @@ run_groups:
     category: All scenarios
     subgroups:
       - audio_mnist
+      - iemocap_audio
 
   - name: audio_mnist
     display_name: AudioMNIST
