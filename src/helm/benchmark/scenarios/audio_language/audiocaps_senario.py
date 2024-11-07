@@ -11,9 +11,9 @@ from helm.benchmark.scenarios.scenario import (
     Output,
 )
 from tqdm import tqdm
-from datasets import load_dataset
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_file_downloaded
+import pandas as pd
 
 
 class AudioCapsScenario(Scenario):
@@ -35,28 +35,23 @@ class AudioCapsScenario(Scenario):
         }
     """
 
+    DOWNLOADING_URL = "https://huggingface.co/datasets/Olivia714/audiocaps/resolve/main/wav_files.zip"
+    REFERENCE_URL = "https://huggingface.co/datasets/Olivia714/audiocaps/resolve/main/test.csv"
+
     name = "audiocaps"
     description = "A large-scale dataset of about 46K audio clips to human-written text pairs \
         ([Kim et al, 2019](https://aclanthology.org/N19-1011.pdf))."
-    tags = ["audio", "captioning"]
+    tags: List[str] = ["audio", "captioning"]
 
     def get_instances(self, output_path: str) -> List[Instance]:
         instances: List[Instance] = []
         data_dir: str = os.path.join(output_path, "wav_files")
-
-        ensure_file_downloaded(
-            source_url="https://huggingface.co/datasets/Olivia714/audiocaps/resolve/main/wav_files.zip",
-            target_path=data_dir,
-            unpack=True,
-        )
-
-        assert os.path.exists(data_dir), "Download the wav_files from Olivia714/audiocaps"
-
-        for row in tqdm(load_dataset("Olivia714/audiocaps", cache_dir=output_path, split=TEST_SPLIT)):
+        ensure_file_downloaded(source_url=AudioCapsScenario.DOWNLOADING_URL, target_path=data_dir, unpack=True)
+        assert os.path.exists(data_dir), f"Download the wav_files from {AudioCapsScenario.DOWNLOADING_URL}"
+        for _, row in tqdm(pd.read_csv(AudioCapsScenario.REFERENCE_URL, sep=",").iterrows()):
             audiocap_id = row["audiocap_id"]
             audio_path: str = os.path.join(data_dir, f"{audiocap_id}.wav")
             assert os.path.exists(audio_path), f"Audio file does not exist at path: {audio_path}"
-
             input = Input(
                 multimedia_content=MultimediaObject([MediaObject(content_type="audio/wav", location=audio_path)])
             )
