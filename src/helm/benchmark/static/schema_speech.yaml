@@ -297,6 +297,6 @@ run_groups:
     taxonomy:
       task: audio captioning
       what: audio clips in the wild
-      who: sound and human voices from real-life scenes
+      who: real speakers
       when: "2019"
       language: English
