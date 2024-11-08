@@ -24,7 +24,7 @@ class IFEvalScenario(Scenario):
         super().__init__()
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        # Get GPQA from HuggingFace
+        # Get IFEval from HuggingFace
         cache_dir = os.path.join(output_path, "data")
         ensure_directory_exists(cache_dir)
         dataset = datasets.load_dataset("google/IFEval", trust_remote_code=True, cache_dir=cache_dir, split="train")
