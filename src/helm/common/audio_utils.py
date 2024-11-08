@@ -1,13 +1,18 @@
 from io import BytesIO
 import os
-from typing import Optional, Union
+from typing import Optional
 from filelock import FileLock
 
-import librosa
 import numpy as np
 from scipy.io import wavfile
 
 from helm.common.multimodal_request_utils import get_contents_as_bytes
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+try:
+    import librosa
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["audiolm"])
 
 
 def ensure_wav_file_exists_from_array(path: str, array: np.ndarray, sample_rate: int) -> None:
