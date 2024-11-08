@@ -44,7 +44,7 @@ def ensure_mp3_file_exists_from_array(path: str, array: np.ndarray, sample_rate:
         os.rename(tmp_path, path)
 
 
-def get_array_from_audio_file(path: str, sample_rate: Optional[int]) -> None:
+def get_array_from_audio_file(path: str, sample_rate: Optional[int]) -> np.ndarray:
     """Get an array from an audio file"""
     audio_file = (
         BytesIO(get_contents_as_bytes(path)) if path.startswith("http://") or path.startswith("https://") else path
