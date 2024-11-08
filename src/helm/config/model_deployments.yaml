@@ -1596,7 +1596,7 @@ model_deployments:
     # to provide a margin of error.
     max_sequence_length: 16000
     client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
+      class_name: "helm.clients.openai_client.OpenAILegacyCompletionsClient"
 
   - name: openai/babbage-002
     model_name: openai/babbage-002
@@ -1605,7 +1605,7 @@ model_deployments:
     # to provide a margin of error.
     max_sequence_length: 16000
     client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
+      class_name: "helm.clients.openai_client.OpenAILegacyCompletionsClient"
 
   ## GPT 3.5 Turbo Models
   # ChatGPT: https://openai.com/blog/chatgpt
@@ -1616,7 +1616,7 @@ model_deployments:
     max_sequence_length: 4096
     max_request_length: 4097
     client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
+      class_name: "helm.clients.openai_client.OpenAILegacyCompletionsClient"
 
   # The claimed sequence length is 4096, but as of 2023-03-07, the empirical usable
   # sequence length is smaller at 4087 with one user input message and one assistant
