@@ -2514,6 +2514,19 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.palmyra_client.PalmyraChatClient"
 
+  # xAI
+
+  - name: xai/grok-beta
+    model_name: xai/grok-beta
+    # No public information on tokenizer, so just pick an arbitrary one.
+    # It shouldn't matter since the context is long.
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+      args:
+        base_url: https://api.x.ai/v1
+
   # Qwen
 
   - name: together/qwen-7b
