@@ -70,7 +70,6 @@ class DivaLlamaClient(CachingClient):
                 raise NonRetriableException(f"Unsupported media content type type: {media_object.content_type}")
         return generate_input
 
-
     def make_request(self, request: Request) -> RequestResult:
         assert request.multimodal_prompt is not None
         raw_request: DivaLlamaRequest = {
@@ -79,6 +78,7 @@ class DivaLlamaClient(CachingClient):
         }
 
         try:
+
             def do_it() -> Dict[str, Any]:
                 return self.pre_trained_model.generate(DivaLlamaClient._get_generate_input(request))
 
