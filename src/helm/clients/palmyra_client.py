@@ -163,6 +163,3 @@ class PalmyraChatClient(OpenAIClient):
             org_id=None,
             base_url="https://api.writer.com/v1/chat",
         )
-
-    def _is_chat_model_engine(self, model_engine: str) -> bool:
-        return True
