@@ -15,7 +15,7 @@ from helm.benchmark.scenarios.scenario import (
 from tqdm import tqdm
 from datasets import load_dataset
 from helm.common.media_object import MediaObject, MultimediaObject
-from helm.common.audio_utils import ensure_mp3_file_exists_from_array
+from helm.common.audio_utils import ensure_audio_file_exists_from_array
 
 
 class MultilingualLibriSpeechScenario(Scenario):
@@ -70,7 +70,7 @@ class MultilingualLibriSpeechScenario(Scenario):
         ):
             local_audio_path = os.path.join(audio_save_dir, row["original_path"].split("/")[-1])
             # download to the local path
-            ensure_mp3_file_exists_from_array(local_audio_path, row["audio"]["array"], row["audio"]["sampling_rate"])
+            ensure_audio_file_exists_from_array(local_audio_path, row["audio"]["array"], row["audio"]["sampling_rate"])
             answer = row["transcript"]
             input = Input(
                 multimedia_content=MultimediaObject([MediaObject(content_type="audio/mpeg", location=local_audio_path)])

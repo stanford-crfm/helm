@@ -15,7 +15,7 @@ from helm.benchmark.scenarios.scenario import (
     Input,
     Output,
 )
-from helm.common.audio_utils import ensure_wav_file_exists_from_array, get_array_from_audio_file
+from helm.common.audio_utils import ensure_audio_file_exists_from_array, get_array_from_audio_file
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded
 
@@ -98,7 +98,7 @@ class MELDAudioScenario(Scenario):
                 flac_file_name = f"dia{row.Dialogue_ID}_utt{row.Utterance_ID}.flac"
                 flac_file_path = os.path.join(flac_dir, flac_file_name)
                 audio_array = get_array_from_audio_file(flac_file_path, MELDAudioScenario.SAMPLE_RATE)
-                ensure_wav_file_exists_from_array(wav_file_path, audio_array, MELDAudioScenario.SAMPLE_RATE)
+                ensure_audio_file_exists_from_array(wav_file_path, audio_array, MELDAudioScenario.SAMPLE_RATE)
             input = Input(
                 multimedia_content=MultimediaObject(
                     media_objects=[MediaObject(location=wav_file_path, content_type="audio/wav")]
