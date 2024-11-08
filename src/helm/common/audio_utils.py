@@ -1,8 +1,13 @@
+from io import BytesIO
 import os
+from typing import Optional
 from filelock import FileLock
 
+import librosa
 import numpy as np
 from scipy.io import wavfile
+
+from helm.common.multimodal_request_utils import get_contents_as_bytes
 
 
 def ensure_wav_file_exists_from_array(path: str, array: np.ndarray, sample_rate: int) -> None:
@@ -39,5 +44,11 @@ def ensure_mp3_file_exists_from_array(path: str, array: np.ndarray, sample_rate:
         os.rename(tmp_path, path)
 
 
-def get_array_from_audio_file():
-    pass
+def get_array_from_audio_file(path: str, sample_rate: Optional[int]) -> None:
+    """Get an array from an audio file"""
+    audio_file = (
+        BytesIO(get_contents_as_bytes(path)) if path.startswith("http://") or path.startswith("https://")
+        else path)
+    # librosa accepts a local file path or a file-like object
+    audio_array, _ = librosa.load(audio_file, sr=sample_rate)
+    return audio_array
