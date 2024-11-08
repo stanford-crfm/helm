@@ -47,8 +47,8 @@ def ensure_mp3_file_exists_from_array(path: str, array: np.ndarray, sample_rate:
 def get_array_from_audio_file(path: str, sample_rate: Optional[int]) -> None:
     """Get an array from an audio file"""
     audio_file = (
-        BytesIO(get_contents_as_bytes(path)) if path.startswith("http://") or path.startswith("https://")
-        else path)
+        BytesIO(get_contents_as_bytes(path)) if path.startswith("http://") or path.startswith("https://") else path
+    )
     # librosa accepts a local file path or a file-like object
     audio_array, _ = librosa.load(audio_file, sr=sample_rate)
     return audio_array
