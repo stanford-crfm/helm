@@ -165,6 +165,7 @@ run_groups:
     category: All scenarios
     subgroups:
       - audio_mnist
+      - meld_audio
       - iemocap_audio
 
   - name: audio_mnist
@@ -185,6 +186,23 @@ run_groups:
       what: audio samples of spoken digits (0-9)
       who: 60 different speakers
       when: "2018"
+      language: English
+
+  - name: meld_audio
+    display_name: MELD Audio
+    description: Classify emotions in audio clips from the television series Friends ([Poria et al, 2018](https://arxiv.org/abs/1810.02508)).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: audio clips from the television series Friends
+      who: television actors
+      when: "1994-2004"
       language: English
 
   - name: iemocap_audio
