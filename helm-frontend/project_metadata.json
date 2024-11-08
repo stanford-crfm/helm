@@ -48,6 +48,12 @@
 		"releases": ["v1.2.0", "v1.1.0", "v1.0.0"]
 	},
 	{
+		"title": "Safety",
+		"description": "Safety benchmark that aggregates popular safety benchmarks across 6 risk vectors",
+		"id": "safety",
+		"releases": ["v1.0.0"]
+	},
+	{
 		"title": "CLEVA",
 		"description": "Chinese-language benchmark for holistic evaluation of Chinese language models",
 		"id": "cleva",
