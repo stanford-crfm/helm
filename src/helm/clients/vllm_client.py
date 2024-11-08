@@ -2,12 +2,14 @@ from typing import Any, Dict, Optional
 
 from helm.common.cache import CacheConfig
 from helm.common.request import Request
-from helm.clients.openai_client import OpenAIClient
+from helm.clients.openai_client import OpenAILegacyCompletionsClient
 from helm.tokenizers.tokenizer import Tokenizer
 
 
-class VLLMClient(OpenAIClient):
+class VLLMClient(OpenAILegacyCompletionsClient):
     """Sends request to a vLLM server using the OpenAI-compatible API.
+
+    Only supports the legacy Text Completions API, rather than the Chat Completions API.
 
     See: https://docs.vllm.ai/en/latest/getting_started/quickstart.html#openai-compatible-server"""
 
@@ -28,10 +30,6 @@ class VLLMClient(OpenAIClient):
         )
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
-
-    def _is_chat_model_engine(self, model_engine: str) -> bool:
-        # Only support vLLM completion models for now.
-        return False
 
     def _get_model_for_request(self, request: Request) -> str:
         # The `model` parameter for vLLM should be the whole model name including the creator organization,
