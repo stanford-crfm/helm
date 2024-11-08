@@ -123,6 +123,19 @@ metrics:
     description: BLEU score based on [Post, (2018)](https://aclanthology.org/W18-6319/).
     lower_is_better: false
 
+  # Speech Recognition metrics
+  - name: wa
+    display_name: WA
+    short_display_name: WA
+    description: Word Accuracy based on the Word Error Rate.
+    lower_is_better: true
+
+  - name: CA
+    display_name: WA
+    short_display_name: WA
+    description: Word Accuracy based on the Word Error Rate.
+    lower_is_better: true
+
 ############################################################
 perturbations: []
 
@@ -167,6 +180,11 @@ run_groups:
       - audio_mnist
       - covost2
       - vocal_sound
+      - multilingual_librispeech
+      - fleurs
+      - audiocaps
+      - common_voice_15
+      - speech_robust_bench
 
   - name: audio_mnist
     display_name: AudioMNIST
@@ -300,3 +318,52 @@ run_groups:
       who: real speakers
       when: "2019"
       language: English
+
+  - name: common_voice_15
+    display_name: Common Voice 15
+    description: >
+      The most recent release of CommonVoice15 (Ardila et al, 2019) includes 114 languages. Over 50,000 
+      individuals have participated so far, resulting in 2,500 hours of collected audio. This is the largest 
+      audio corpus in the public domain for speech recognition, both in terms of number of hours and number 
+      of languages. The task is to recognize the speech from the audio sample.
+
+      The dataset contains the audio, transcriptions, location, speaker's gender, age, and accent 
+      ([Ardila et al, 2020](https://arxiv.org/abs/1912.06670)).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: word_accuracy
+      main_split: test
+    taxonomy:
+      task: audio recognition
+      what: audio, transcripts, location, speaker's information in 114 languages
+      who: real speakers
+      when: "2019"
+      language: 114 languages
+
+  - name: robust_speech_bench
+    display_name: Robust Speech Bench
+    description: >
+      Speech Robust Bench (Shah et al, 2024) is a comprehensive benchmark for evaluating 
+      the robustness of ASR models to diverse corruptions. SRB is composed of 114 input 
+      perturbations which simulate an heterogeneous range of corruptions that ASR models 
+      may encounter when deployed in the wild. In this scenario, we select 4 subsets: 
+      accent_cv, accent_cv_es, chinme, and AIM for evaluation.
+
+      The dataset contains the audio, transcriptions for all subsets 
+      ([Shah et al, 2024](https://arxiv.org/abs/2403.07937)).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: word_accuracy
+      main_split: test
+    taxonomy:
+      task: audio recognition
+      what: audio, transcripts of audio samples in a wide range of perturbations 
+      who: real speakers
+      when: "2024"
+      language: English, Spanish
