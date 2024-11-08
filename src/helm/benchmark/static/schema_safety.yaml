@@ -114,7 +114,6 @@ metric_groups:
   - name: accuracy
     display_name: Accuracy
     aggregation_strategies: 
-      - win_rate
       - mean
     metrics:
       - name: ${main_name}

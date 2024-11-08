@@ -18,7 +18,7 @@ from helm.common.general import ensure_directory_exists
 SUBSETS = ["gpqa_main", "gpqa_diamond", "gpqa_extended"]
 
 # Train example indices below are found by indexing examples given in the original paper repo
-EXCLUDED_TRAIN_EXAMPLES = {
+TRAIN_EXAMPLE_INDICES = {
     "gpqa_main": [339, 105],
     "gpqa_diamond": [124, 39],
     "gpqa_extended": [146, 330, 436],
@@ -68,8 +68,13 @@ class GPQAScenario(Scenario):
                 Reference(Output(text=row["Incorrect Answer 3"].strip()), tags=[]),
             ]
             random.shuffle(references)
-            split = TRAIN_SPLIT if idx in EXCLUDED_TRAIN_EXAMPLES[self.subset] else TEST_SPLIT
-            instance = Instance(input=input, references=references, split=split)
+            if idx in TRAIN_EXAMPLE_INDICES[self.subset]:
+                extra_data = {
+                    "chain_of_thought": row["Explanation"],
+                }
+                instance = Instance(input=input, references=references, split=TRAIN_SPLIT, extra_data=extra_data)
+            else:
+                instance = Instance(input=input, references=references, split=TEST_SPLIT)
             instances.append(instance)
 
         return instances

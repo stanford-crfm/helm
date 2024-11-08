@@ -165,8 +165,8 @@ run_groups:
     category: All scenarios
     subgroups:
       - audio_mnist
-      - covost2
-      - vocal_sound
+      - meld_audio
+      - iemocap_audio
 
   - name: audio_mnist
     display_name: AudioMNIST
@@ -188,115 +188,37 @@ run_groups:
       when: "2018"
       language: English
 
-  - name: covost2
-    display_name: CoVost-2
-    description: >
-      CoVost-2 is a large-scale multilingual speech translation corpus covering translations from 21 languages
-      into English and from English into 15 languages.
-
-      The dataset contains the audio, transcriptions, and translations in the following languages:
-      French, German, Dutch, Russian, Spanish, Italian, Turkish, Persian, Swedish, Mongolian, Chinese,
-      Welsh, Catalan, Slovenian, Estonian, Indonesian, Arabic, Tamil, Portuguese, Latvian, and Japanese
-      ([Wang et al, 2020](https://arxiv.org/abs/2007.10310)).
+  - name: meld_audio
+    display_name: MELD Audio
+    description: Classify emotions in audio clips from the television series Friends ([Poria et al, 2018](https://arxiv.org/abs/1810.02508)).
     metric_groups:
       - accuracy
       - efficiency
       - general_information
     environment:
-      main_name: bleu
-      main_split: test
-    taxonomy:
-      task: audio machine translation
-      what: audio, transcriptions, and translations in 15 languages
-      who: real speakers
-      when: "2020"
-      language: 15 languages
-
-  - name: vocal_sound
-    display_name: VocalSound
-    description: >
-      VocalSound dataset consisting of over 21,000 crowdsourced recordings of laughter, sighs, coughs, throat 
-      clearing, sneezes, and sniffs from 3,365 unique subjects. 
-      
-      Different from previous datasets, the VocalSound dataset contains meta information such as speaker 
-      age, gender, native language, country, and health condition ([Gong et al, 2022](https://arxiv.org/abs/2205.03433)).
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: exact_match
+      main_name: quasi_exact_match
       main_split: test
     taxonomy:
       task: audio classification
-      what: audio samples of behaviours ("cough", "laughter", "sigh", "sneeze", "sniff", "throatclearing")
-      who: real speakers
-      when: "2022"
+      what: audio clips from the television series Friends
+      who: television actors
+      when: "1994-2004"
       language: English
 
-  - name: multilingual_librispeech
-    display_name: Multilingual Librispeech
+  - name: iemocap_audio
+    display_name: IEMOCAP Audio
     description: >
-      Multilingual Librispeech is derived from read audiobooks from LibriVox and consists of 8 languages, 
-      including about 44.5K hours of English and a total of about 6K hours for other languages. 
-
-      The dataset contains the audio and transcriptions in the following languages:
-      Dutch, German, French, Spanish, Italian, Portuguese", Polish ([Pratap et al, 2022](https://arxiv.org/abs/2012.03411)).
+      A classification scenario based on audio data from the Interactive emotional dyadic motion capture database (IEMOCAP) ([Busso et al, 2008](https://sail.usc.edu/iemocap/Busso_2008_iemocap.pdf)). The task is to classify the emotion of the speaker(s) in the audio sample.
     metric_groups:
       - accuracy
       - efficiency
       - general_information
     environment:
-      main_name: f1_score
-      main_split: test
-    taxonomy:
-      task: audio captioning
-      what: audio and transcriptions in 8 languages
-      who: real speakers
-      when: "2020"
-      language: 8 languages
-
-  - name: fleurs
-    display_name: FLEURS
-    description: >
-      FLEURS is an n-way parallel speech dataset in 102 languages built on top of the machine translation FLoRes-101 
-      benchmark, with approximately 12 hours of speech supervision per language. FLEURS can be used for a variety of 
-      speech tasks, including Automatic Speech Recognition (ASR), Speech Language Identification (Speech LangID), 
-      Translation and Retrieval.
-
-      The dataset contains the audio, transcriptions, and language in 102 different languages, which are divided into
-      7 language groups: Western European, Eastern European, Central Asia Middle North African, Sub Saharan African, 
-      South Asian, South East Asian, Chinese Japanase Korean ([Conneau et al, 2022](https://arxiv.org/abs/2205.12446)).
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: exact_match
+      main_name: quasi_exact_match
       main_split: test
     taxonomy:
       task: audio classification
-      what: audio, transcripts, and language names in 102 languages
-      who: real speakers
-      when: "2022"
-      language: 102 languages
-
-  - name: audiocaps
-    display_name: AudioCaps
-    description: >
-      AudioCaps is a large-scale dataset of about 46K audio clips to human-written text pairs collected 
-      via crowdsourcing on the AudioSet dataset, which covers a wide range of human and animal sounds, 
-      musical instruments and genres, and common everyday environmental sounds. 
-      ([Kim et al, 2019](https://aclanthology.org/N19-1011.pdf)).
-    metric_groups:
-      - accuracy
-      - general_information
-    environment:
-      main_name: cider
-      main_split: test
-    taxonomy:
-      task: audio captioning
-      what: audio clips in the wild
-      who: real speakers
-      when: "2019"
+      what: audio recordings improvisations or scripted scenarios
+      who: 10 professional actors
+      when: "2007"
       language: English

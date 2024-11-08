@@ -2,21 +2,33 @@ import base64
 from typing import List, Optional
 
 import requests
+import urllib.parse
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.scenarios.scenario import Reference
 from helm.common.request import RequestResult
 
 
-def get_contents_as_bytes(url: str) -> bytes:
+def get_contents_as_bytes(path: str) -> bytes:
+    """Get the contents at the location as bytes.
+
+    The location can be a local path or a URL."""
     # Fetch the audio file and convert it to a base64 encoded string
-    response = requests.get(url)
-    response.raise_for_status()
-    return response.content
+    is_remote = urllib.parse.urlparse(path).scheme in ["http", "https"]
+    if is_remote:
+        response = requests.get(path)
+        response.raise_for_status()
+        return response.content
+    else:
+        with open(path, "rb") as f:
+            return f.read()
 
 
-def get_contents_as_base64(url: str) -> str:
-    return base64.b64encode(get_contents_as_bytes(url)).decode("utf-8")
+def get_contents_as_base64(path: str) -> str:
+    """Get the contents at the location as a base64-encoded string.
+
+    The location can be a local path or a URL."""
+    return base64.b64encode(get_contents_as_bytes(path)).decode("utf-8")
 
 
 def gather_generated_image_locations(request_result: RequestResult) -> List[str]:
