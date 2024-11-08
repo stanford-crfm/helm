@@ -9,6 +9,7 @@ from nltk.tokenize import word_tokenize
 from nltk.translate.bleu_score import sentence_bleu
 from rouge_score import rouge_scorer
 import numpy as np
+import jieba
 from jiwer import wer, mer, wip, cer
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
@@ -242,6 +243,22 @@ def ca_score(gold: str, pred: str) -> float:
     return cer_ret
 
 
+def chinese_wa_score(gold: str, pred: str) -> float:
+    return wa_score(" ".join(jieba.cut(gold)), " ".join(jieba.cut(pred)))
+
+
+def chinese_ma_score(gold: str, pred: str) -> float:
+    return ma_score(" ".join(jieba.cut(gold)), " ".join(jieba.cut(pred)))
+
+
+def chinese_wip_score(gold: str, pred: str) -> float:
+    return wip_score(" ".join(jieba.cut(gold)), " ".join(jieba.cut(pred)))
+
+
+def chinese_ca_score(gold: str, pred: str) -> float:
+    return ca_score(" ".join(jieba.cut(gold)), " ".join(jieba.cut(pred)))
+
+
 def extract_set_from_text(
     set_str: str,
     set_start_str: str = " is ",
@@ -395,6 +412,10 @@ def compute_reference_metrics(
         "ma_score": ma_score,
         "wip_score": wip_score,
         "ca_score": ca_score,
+        "chinese_wa_score": chinese_wa_score,
+        "chinese_ma_score": chinese_ma_score,
+        "chinese_wip_score": chinese_wip_score,
+        "chinese_ca_score": chinese_ca_score,
     }
 
     stats: List[Stat] = []
