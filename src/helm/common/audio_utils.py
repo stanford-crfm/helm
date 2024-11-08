@@ -23,7 +23,7 @@ def ensure_wav_file_exists_from_array(path: str, array: np.ndarray, sample_rate:
             return
         path_prefix = path.removesuffix(".wav")
         tmp_path = f"{path_prefix}.tmp.wav"
-        wavfile.write(tmp_path, array, samplerate=sample_rate)
+        wavfile.write(filename=tmp_path, rate=sample_rate, data=array)
         os.rename(tmp_path, path)
 
 
@@ -40,7 +40,7 @@ def ensure_mp3_file_exists_from_array(path: str, array: np.ndarray, sample_rate:
             return
         path_prefix = path.removesuffix(".mp3")
         tmp_path = f"{path_prefix}.tmp.mp3"
-        wavfile.write(tmp_path, array, samplerate=sample_rate)
+        wavfile.write(filename=tmp_path, rate=sample_rate, data=array)
         os.rename(tmp_path, path)
 
 

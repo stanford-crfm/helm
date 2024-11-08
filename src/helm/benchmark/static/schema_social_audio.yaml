@@ -165,7 +165,7 @@ run_groups:
     category: All scenarios
     subgroups:
       - audio_mnist
-      - meld
+      - meld_audio
       - iemocap_audio
 
   - name: audio_mnist
@@ -188,8 +188,8 @@ run_groups:
       when: "2018"
       language: English
 
-  - name: meld
-    display_name: MELD
+  - name: meld_audio
+    display_name: MELD Audio
     description: Classify emotions in audio clips from the television series Friends ([Poria et al, 2018](https://arxiv.org/abs/1810.02508)).
     metric_groups:
       - accuracy
