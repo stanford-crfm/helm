@@ -625,7 +625,7 @@ tokenizer_configs:
   # Diva Llama
   - name: stanford/diva-llama
     tokenizer_spec:
-      class_name: "helm.tokenizers.yalm_tokenizer.YaLMTokenizer"
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
       args:
         pretrained_model_name_or_path: WillHeld/DiVA-llama-3-v0-8b
     prefix_token: "<|begin_of_text|>"
