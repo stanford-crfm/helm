@@ -1,5 +1,5 @@
 import threading
-from typing import Any, Dict, List, Optional, TypedDict, Union
+from typing import Any, Dict, List, Optional, Tuple, TypedDict
 
 import numpy as np
 from transformers import AutoModel, PreTrainedModel
@@ -49,7 +49,7 @@ class DivaLlamaClient(CachingClient):
         self.pre_trained_model = _get_pre_trained_model("WillHeld/DiVA-llama-3-v0-8b", trust_remote_code=True, **kwargs)
 
     @staticmethod
-    def _get_generate_input(request: Request) -> List[Union[List[str], List[np.ndarray]]]:
+    def _get_generate_input(request: Request) -> Tuple[np.ndarray, Optional[str]]:
         if request.prompt:
             raise NonRetriableException("request.prompt must be empty for DivaLlamaClient")
         if request.embedding:
@@ -81,10 +81,7 @@ class DivaLlamaClient(CachingClient):
             raise NonRetriableException(
                 "Expected a single audio object allowed in request.multimodal_prompt.media_objects"
             )
-        if text_input is not None:
-            return [[audio_input], [text_input]]
-        else:
-            return [[audio_input]]
+        return audio_input, text_input
 
     def make_request(self, request: Request) -> RequestResult:
         assert request.multimodal_prompt is not None
@@ -96,7 +93,12 @@ class DivaLlamaClient(CachingClient):
         try:
 
             def do_it() -> Dict[str, Any]:
-                return self.pre_trained_model.generate(DivaLlamaClient._get_generate_input(request))
+                with _LOCK:
+                    audio_input, text_input = DivaLlamaClient._get_generate_input(request)
+                    if text_input is None:
+                        return {"completions": self.pre_trained_model.generate([audio_input])}
+                    else:
+                        return {"completions": self.pre_trained_model.generate([audio_input], [text_input])}
 
             cache_key = CachingClient.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
@@ -104,7 +106,7 @@ class DivaLlamaClient(CachingClient):
             error: str = f"HuggingFace error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
-        generated_output = GeneratedOutput(text=response[0], logprob=0, tokens=[])
+        generated_output = GeneratedOutput(text=response["completions"][0], logprob=0, tokens=[])
 
         return RequestResult(
             success=True,
