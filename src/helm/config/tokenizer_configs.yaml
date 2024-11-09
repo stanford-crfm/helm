@@ -628,6 +628,7 @@ tokenizer_configs:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
       args:
         pretrained_model_name_or_path: WillHeld/DiVA-llama-3-v0-8b
+        trust_remote_code: true
     prefix_token: "<|begin_of_text|>"
     end_of_text_token: "<|eot_id|>"
 

@@ -2711,7 +2711,8 @@ model_deployments:
 # Diva Llama
   - name: huggingface/diva-llama
     model_name: stanford/diva-llama
-    tokenizer_name: stanford/diva-llama
+    # TODO: Set the right tokenizer
+    tokenizer_name: meta/llama-3-8b-instruct
     max_sequence_length: 8192
     client_spec:
       class_name: "helm.clients.audio_language.diva_llama_client.DivaLlamaClient"
