@@ -2722,4 +2722,4 @@ model_deployments:
     tokenizer_name: ictnlp/llama-3.1-8b-omni
     max_sequence_length: 8192
     client_spec:
-      class_name: "helm.clients.audio_language.llama_omni_client.LlamaOmniAudioLMClient"m
+      class_name: "helm.clients.audio_language.llama_omni_client.LlamaOmniAudioLMClient"
