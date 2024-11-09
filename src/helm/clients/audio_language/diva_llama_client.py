@@ -49,7 +49,7 @@ class DivaLlamaClient(CachingClient):
         self.pre_trained_model = _get_pre_trained_model("WillHeld/DiVA-llama-3-v0-8b", trust_remote_code=True, **kwargs)
 
     @staticmethod
-    def _get_generate_input(request: Request) -> List[Union[str, np.ndarray]]:
+    def _get_generate_input(request: Request) -> List[Union[List[str], List[np.ndarray]]]:
         if request.prompt:
             raise NonRetriableException("request.prompt must be empty for DivaLlamaClient")
         if request.embedding:
@@ -58,17 +58,28 @@ class DivaLlamaClient(CachingClient):
             raise NonRetriableException("request.messages must be empty for DivaLlamaClient")
         if request.multimodal_prompt is None:
             raise NonRetriableException("request.multimodal_prompt must not be None for DivaLlamaClient")
-        generate_input: List[Union[str, np.ndarray]] = []
+        text_input: Optional[str] = None
+        audio_input: Optional[np.ndarray] = None
         for media_object in request.multimodal_prompt.media_objects:
             if media_object.is_type("audio"):
+                if audio_input is not None:
+                    raise NonRetriableException(f"Only one audio object allowed in request.multimodal_prompt.media_objects")
                 assert media_object.location
-                generate_input.append(get_array_from_audio_file(media_object.location, DivaLlamaClient.SAMPLE_RATE))
+                audio_input = get_array_from_audio_file(media_object.location, DivaLlamaClient.SAMPLE_RATE)
             elif media_object.is_type(TEXT_TYPE):
+                if text_input is not None:
+                    raise NonRetriableException(f"Only one text object allowed in request.multimodal_prompt.media_objects")
                 assert media_object.text is not None
-                generate_input.append(media_object.text)
+                text_input = media_object.text
             else:
                 raise NonRetriableException(f"Unsupported media content type type: {media_object.content_type}")
-        return generate_input
+        if audio_input is None:
+            raise NonRetriableException(f"Expected a single audio object allowed in request.multimodal_prompt.media_objects")
+        if text_input is not None:
+            return [[audio_input], [text_input]]
+        else:
+            return [[audio_input]]
+
 
     def make_request(self, request: Request) -> RequestResult:
         assert request.multimodal_prompt is not None
