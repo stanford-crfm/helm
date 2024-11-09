@@ -63,23 +63,28 @@ class DivaLlamaClient(CachingClient):
         for media_object in request.multimodal_prompt.media_objects:
             if media_object.is_type("audio"):
                 if audio_input is not None:
-                    raise NonRetriableException(f"Only one audio object allowed in request.multimodal_prompt.media_objects")
+                    raise NonRetriableException(
+                        "Only one audio object allowed in request.multimodal_prompt.media_objects"
+                    )
                 assert media_object.location
                 audio_input = get_array_from_audio_file(media_object.location, DivaLlamaClient.SAMPLE_RATE)
             elif media_object.is_type(TEXT_TYPE):
                 if text_input is not None:
-                    raise NonRetriableException(f"Only one text object allowed in request.multimodal_prompt.media_objects")
+                    raise NonRetriableException(
+                        "Only one text object allowed in request.multimodal_prompt.media_objects"
+                    )
                 assert media_object.text is not None
                 text_input = media_object.text
             else:
                 raise NonRetriableException(f"Unsupported media content type type: {media_object.content_type}")
         if audio_input is None:
-            raise NonRetriableException(f"Expected a single audio object allowed in request.multimodal_prompt.media_objects")
+            raise NonRetriableException(
+                "Expected a single audio object allowed in request.multimodal_prompt.media_objects"
+            )
         if text_input is not None:
             return [[audio_input], [text_input]]
         else:
             return [[audio_input]]
-
 
     def make_request(self, request: Request) -> RequestResult:
         assert request.multimodal_prompt is not None
