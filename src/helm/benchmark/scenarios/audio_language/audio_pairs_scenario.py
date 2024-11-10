@@ -19,7 +19,7 @@ import json
 class AudioPAIRSScenario(Scenario):
     """Audio PAIRS
 
-    Audio PAIRS is an audio extension of the PAIRS dataset (Fraser et al, 2024) to exame gender and
+    Audio PAIRS is an audio extension of the PAIRS dataset (Fraser et al, 2024) to examine gender and
     racial bias in audio large language models. We convert the questions in the PAIRS dataset to audio
     clips using OpenAI's TTS-1-HD API.
 
