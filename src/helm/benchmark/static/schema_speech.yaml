@@ -367,3 +367,26 @@ run_groups:
       who: real speakers
       when: "2024"
       language: English, Spanish
+
+  - name: audio_pairs
+    display_name: Audio PAIRS
+    description: >
+      Audio PAIRS is an audio extension of the PAIRS dataset (Fraser et al, 2024) to exame gender and 
+      racial bias in audio large language models. We convert the questions in the PAIRS dataset to audio
+      clips using OpenAI's TTS-1-HD API. This dataset is also modified to add an option to opt-out with 
+      "unclear" as a choice.
+
+      The dataset contains the audio and question for three subsets: occupation, status, and potential_crime.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: audio and question of audio samples to examine models' gender and racial bias
+      who: OpenAI's TTS-1-HD
+      when: "2024"
+      language: English

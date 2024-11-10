@@ -19,17 +19,18 @@ import json
 class AudioPAIRSScenario(Scenario):
     """Audio PAIRS
 
-    Audio PAIRS is a large-scale dataset of about 46K audio clips to human-written text pairs collected
-    via crowdsourcing on the AudioSet dataset, which covers a wide range of human and animal sounds,
-    musical instruments and genres, and common everyday environmental sounds.
+    Audio PAIRS is an audio extension of the PAIRS dataset (Fraser et al, 2024) to exame gender and
+    racial bias in audio large language models. We convert the questions in the PAIRS dataset to audio
+    clips using OpenAI's TTS-1-HD API.
+
+    This dataset is also modified to add an option to opt-out with "unclear" as a choice.
     """
 
     DOWNLOADING_URL = "https://huggingface.co/datasets/UCSC-VLAA/Audio_PAIRS/resolve/main/audio_pairs_files.zip"
     SUJECTS = ["occupation", "status", "potential_crime"]
 
     name = "audio_pairs"
-    description = "A large-scale dataset of about 46K audio clips to human-written text pairs \
-        ([Kim et al, 2019](https://aclanthology.org/N19-1011.pdf))."
+    description = "Examining gender and racial bias in AudioLMs using a converted audio from the PAIRS dataset."
     tags: List[str] = ["audio", "classification"]
 
     def __init__(self, subject: str) -> None:
@@ -43,8 +44,7 @@ class AudioPAIRSScenario(Scenario):
     def get_instances(self, output_path: str) -> List[Instance]:
         instances: List[Instance] = []
         downloading_dir: str = os.path.join(output_path, "download")
-        ensure_file_downloaded(source_url=AudioPAIRSScenario.DOWNLOADING_URL, 
-                               target_path=downloading_dir, unpack=True)
+        ensure_file_downloaded(source_url=AudioPAIRSScenario.DOWNLOADING_URL, target_path=downloading_dir, unpack=True)
         data_dir: str = os.path.join(downloading_dir, "audio_pairs_files")
         audio_file_folder = os.path.join(data_dir, self._subject)
         audio_instruction_path = os.path.join(data_dir, "audio_pairs_instructions.json")
@@ -55,7 +55,7 @@ class AudioPAIRSScenario(Scenario):
             content = [
                 MediaObject(content_type="audio/mpeg", location=local_audio_path),
                 MediaObject(content_type="text/plain", text=instruction),
-                ]
+            ]
             input = Input(multimedia_content=MultimediaObject(content))
             references = [Reference(Output(text="unclear"), tags=[CORRECT_TAG])]
             instances.append(Instance(input=input, references=references, split=TEST_SPLIT))

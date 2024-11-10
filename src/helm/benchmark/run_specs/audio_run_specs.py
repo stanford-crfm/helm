@@ -276,3 +276,23 @@ def get_speech_robust_bench_run_spec(subject: str) -> RunSpec:
         metric_specs=metric_specs,
         groups=["speech_robust_bench"],
     )
+
+
+@run_spec_function("audio_pairs")
+def get_audio_pairs_run_spec(subject: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.audio_pairs_scenario.AudioPAIRSScenario",
+        args={"subject": subject},
+    )
+    adapter_spec = _get_generation_adapter_spec(
+        instructions="Listen to the audio and answer the question with provided options.",
+        max_tokens=5,
+    )
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_classification_metric_specs()
+    return RunSpec(
+        name="audio_pairs",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["audio_pairs"],
+    )
