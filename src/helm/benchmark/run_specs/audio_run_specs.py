@@ -215,7 +215,7 @@ def get_fleurs_run_spec(language: str) -> RunSpec:
 @run_spec_function("audiocaps")
 def get_audiocaps_run_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.audio_language.audiocaps_senario.AudioCapsScenario"
+        class_name="helm.benchmark.scenarios.audio_language.audiocaps_scenario.AudioCapsScenario"
     )
     adapter_spec = _get_generation_adapter_spec(
         instructions="Generate a caption for the following audio. The caption should be short and does "
