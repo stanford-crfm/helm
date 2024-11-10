@@ -29,7 +29,15 @@ class FLEURSScenario(Scenario):
     Code: https://tensorflow.org/datasets/catalog/xtreme_s
 
     Citation:
-
+    @inproceedings{conneau2023fleurs,
+        title={Fleurs: Few-shot learning evaluation of universal representations of speech},
+        author={Conneau, Alexis and Ma, Min and Khanuja, Simran and Zhang, Yu and Axelrod,
+        Vera and Dalmia, Siddharth and Riesa, Jason and Rivera, Clara and Bapna, Ankur},
+        booktitle={2022 IEEE Spoken Language Technology Workshop (SLT)},
+        pages={798--805},
+        year={2023},
+        organization={IEEE}
+        }
     """
 
     HF_DATASET_NAME = "google/xtreme_s"

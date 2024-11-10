@@ -11,7 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     Input,
     Output,
 )
-from helm.common.audio_utils import ensure_wav_file_exists_from_array
+from helm.common.audio_utils import ensure_audio_file_exists_from_array
 from helm.common.general import ensure_directory_exists
 from helm.common.media_object import MediaObject, MultimediaObject
 
@@ -65,7 +65,7 @@ class IEMOCAPAudioScenario(Scenario):
                 wav_path = os.path.join(wav_dir, row["audio"]["path"])
                 print(len(row["audio"]["array"]))
                 print(list(row["audio"]["array"])[0:10])
-                ensure_wav_file_exists_from_array(
+                ensure_audio_file_exists_from_array(
                     wav_path, row["audio"]["array"], sample_rate=IEMOCAPAudioScenario.SAMPLE_RATE
                 )
                 input = Input(
