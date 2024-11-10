@@ -16,7 +16,7 @@ from tqdm import tqdm
 from datasets import load_dataset
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_directory_exists
-from helm.common.audio_utils import ensure_wav_file_exists_from_array
+from helm.common.audio_utils import ensure_audio_file_exists_from_array
 
 
 class AudioMNISTScenario(Scenario):
@@ -53,7 +53,7 @@ class AudioMNISTScenario(Scenario):
         for row in tqdm(load_dataset("flexthink/audiomnist", cache_dir=output_path, split=TEST_SPLIT)):
             local_audio_path = os.path.join(wav_save_dir, row["audio"]["path"])
             audio_array = row["audio"]["array"]
-            ensure_wav_file_exists_from_array(local_audio_path, audio_array, row["audio"]["sampling_rate"])
+            ensure_audio_file_exists_from_array(local_audio_path, audio_array, row["audio"]["sampling_rate"])
             input = Input(
                 multimedia_content=MultimediaObject([MediaObject(content_type="audio/wav", location=local_audio_path)])
             )
