@@ -181,7 +181,7 @@ class BasicGenerationMetric(Metric):
         return derived_stats
 
 
-class BasicReferenceMetric(ReferenceMetric):
+class BasicGenerationMetric(ReferenceMetric):
     """
     Defines basic metrics for Scenarios that use one Request per Reference instead of
     one per Instance.
