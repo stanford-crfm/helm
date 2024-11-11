@@ -88,6 +88,12 @@ metrics:
     short_display_name: PEM
     description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
     lower_is_better: false
+  - name: chain_of_thought_correct
+    # TODO: should call this prefix_quasi_exact_match
+    display_name: COT correct
+    short_display_name: COT correct
+    description: TBD.
+    lower_is_better: false
 
 ############################################################
 perturbations: []
@@ -156,7 +162,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: exact_match  # non-CoT
+      main_name: chain_of_thought_correct  # non-CoT
       main_split: test
     taxonomy:
       task: "?"
