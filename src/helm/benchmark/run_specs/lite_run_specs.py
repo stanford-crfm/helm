@@ -25,7 +25,7 @@ from helm.benchmark.metrics.common_metric_specs import (
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.runner import get_benchmark_output_path
 from helm.benchmark.scenarios.scenario import ScenarioSpec, get_scenario_cache_path
-from helm.benchmark.metrics.metric import MetricSpec;
+from helm.benchmark.metrics.metric import MetricSpec
 
 
 @run_spec_function("narrative_qa")
@@ -330,6 +330,7 @@ def get_wmt_14_spec(language_pair: str, max_train_instances: int = 1) -> RunSpec
         groups=["wmt_14"],
     )
 
+
 """ @run_spec_function("gpqa")
 def get_gpqa_spec(subset: str, use_chain_of_thought: str = "False", use_few_shot: str = "False") -> RunSpec:
     # Convert to bools and remove the str versions
@@ -417,6 +418,7 @@ def get_gpqa_spec(subset: str, use_chain_of_thought: str = "False", use_few_shot
         groups=["gpqa"],
     )"""
 
+
 @run_spec_function("gpqa")
 def get_gpqa_spec(subset: str, use_chain_of_thought: str = "False", use_few_shot: str = "False") -> RunSpec:
     # Convert to bools and remove the str versions
@@ -500,6 +502,9 @@ def get_gpqa_spec(subset: str, use_chain_of_thought: str = "False", use_few_shot
         name=f"gpqa:subset={subset},use_chain_of_thought={use_chain_of_thought_bool}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + [MetricSpec(class_name="helm.benchmark.metrics.chain_of_thought_metric.ChainOfThoughtMetric", args={}),],  # TODO: update this after cot metric is ready
+        metric_specs=get_exact_match_metric_specs()
+        + [
+            MetricSpec(class_name="helm.benchmark.metrics.chain_of_thought_metric.ChainOfThoughtMetric", args={}),
+        ],  # TODO: update this after cot metric is ready
         groups=["gpqa"],
     )
