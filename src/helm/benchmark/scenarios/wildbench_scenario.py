@@ -57,7 +57,7 @@ class WildBenchScenario(Scenario):
         # Read all instances
         instances: List[Instance] = []
         for idx, row in enumerate(dataset):
-            
+
             conversation = row["conversation_input"]
 
             # Following https://github.com/allenai/WildBench/blob/d6b8dcaf377d173d031980f97c16e1a82618c03d/src/eval.py
@@ -67,7 +67,7 @@ class WildBenchScenario(Scenario):
                 history.append(noun + round["content"])
             history_text = "\n\n".join(history)
             user_query_text = row["conversation_input"][-1]["content"]
-            checklist_text = "\n".join([f"- {checklist_item}" for checklist_item in row['checklist']])
+            checklist_text = "\n".join([f"- {checklist_item}" for checklist_item in row["checklist"]])
 
             input = Input(text="")  # placeholder, adapter actually uses the conversation for Request messages
             instance = Instance(
