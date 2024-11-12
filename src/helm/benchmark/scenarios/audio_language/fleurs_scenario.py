@@ -298,6 +298,7 @@ class FLEURSScenario(Scenario):
                 name=f"fleurs.{language_category}",
                 cache_dir=output_path,
                 split=TEST_SPLIT,
+                trust_remote_code=True,
             )
         ):
             local_audio_path = row["path"]
