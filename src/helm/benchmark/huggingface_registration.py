@@ -20,13 +20,10 @@ def register_huggingface_model(
     helm_model_name: str,
     pretrained_model_name_or_path: str,
     revision: Optional[str] = None,
-    openvino: Optional[bool] = False,
 ) -> None:
     object_spec_args: Dict[str, Union[str, bool]] = {"pretrained_model_name_or_path": pretrained_model_name_or_path}
     if revision:
         object_spec_args["revision"] = revision
-    if openvino:
-        object_spec_args["openvino"] = openvino
 
     # Auto-infer model properties from the tokenizer.
     create_tokenizer_args: Dict[str, str] = {"pretrained_model_name_or_path": pretrained_model_name_or_path}
@@ -79,7 +76,7 @@ def register_huggingface_model(
     register_tokenizer_config(tokenizer_config)
 
 
-def register_huggingface_hub_model_from_flag_value(raw_model_string: str, openvino=False) -> None:
+def register_huggingface_hub_model_from_flag_value(raw_model_string: str) -> None:
     raw_model_string_parts = raw_model_string.split("@")
     pretrained_model_name_or_path: str
     revision: Optional[str]
@@ -96,11 +93,10 @@ def register_huggingface_hub_model_from_flag_value(raw_model_string: str, openvi
         helm_model_name=raw_model_string,
         pretrained_model_name_or_path=pretrained_model_name_or_path,
         revision=revision,
-        openvino=openvino,
     )
 
 
-def register_huggingface_local_model_from_flag_value(path: str, openvino=False) -> None:
+def register_huggingface_local_model_from_flag_value(path: str) -> None:
     if not path:
         raise ValueError("Path to Hugging Face model must be non-empty")
     path_parts = os.path.split(path)
@@ -108,5 +104,4 @@ def register_huggingface_local_model_from_flag_value(path: str, openvino=False) 
     register_huggingface_model(
         helm_model_name=helm_model_name,
         pretrained_model_name_or_path=path,
-        openvino=openvino,
     )
