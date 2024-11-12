@@ -14,7 +14,9 @@ import getDisplayRequestsByName from "@/services/getDisplayRequestsByName";
 const INSTANCES_PAGE_SIZE = 10;
 
 declare global {
-  interface Window { helmHasScrolledToInstance: any; }
+  interface Window {
+    helmHasScrolledToInstance: boolean | undefined;
+  }
 }
 
 interface Props {
