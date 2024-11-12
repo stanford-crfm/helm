@@ -2,7 +2,6 @@ import pytest
 from tempfile import TemporaryDirectory
 
 from helm.benchmark.scenarios.wildbench_scenario import WildBenchScenario
-from helm.benchmark.scenarios.scenario import Input, TEST_SPLIT
 
 
 @pytest.mark.scenarios
