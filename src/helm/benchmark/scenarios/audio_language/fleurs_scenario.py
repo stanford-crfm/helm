@@ -278,9 +278,10 @@ class FLEURSScenario(Scenario):
     def __init__(self, language: str) -> None:
         super().__init__()
 
-        language = language.capitalize()
         if language not in FLEURSScenario._FLEURS_TEST_LANG_TO_ID.keys():
-            raise ValueError(f"Invalid language. Valid languages are: {FLEURSScenario._FLEURS_TEST_LANG_TO_ID.keys()}")
+            raise ValueError(
+                f"Invalid language: {language}. Valid languages are: {FLEURSScenario._FLEURS_TEST_LANG_TO_ID.keys()}"
+            )
 
         self._fleurs_lang_short_to_long = {v: k for k, v in FLEURSScenario._FLEURS_LANG_TO_ID.items()}
         self._fleurs_long_to_lang = {
