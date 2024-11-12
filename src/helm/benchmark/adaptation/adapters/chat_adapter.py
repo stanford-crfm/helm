@@ -1,6 +1,5 @@
 from typing import List
 
-from helm.benchmark.adaptation.prompt import Prompt
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.scenarios.scenario import Instance
 from helm.common.request import Request
