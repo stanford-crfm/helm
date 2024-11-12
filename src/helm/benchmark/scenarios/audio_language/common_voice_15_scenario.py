@@ -86,6 +86,7 @@ class CommonVoice15Scenario(Scenario):
                 name=language_category,
                 cache_dir=output_path,
                 split=TEST_SPLIT,
+                trust_remote_code=True,
             )
         ):
             local_audio_path = row["path"]
