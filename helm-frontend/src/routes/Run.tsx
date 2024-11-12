@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Badge, Card, List, ListItem } from "@tremor/react";
 import {
   ArrowDownTrayIcon,
@@ -7,8 +7,6 @@ import {
 } from "@heroicons/react/24/solid";
 import getSchema from "@/services/getSchema";
 import type RunSpec from "@/types/RunSpec";
-import getStatsByName from "@/services/getStatsByName";
-import type Stat from "@/types/Stat";
 import getScenarioByName from "@/services/getScenarioByName";
 import type Scenario from "@/types/Scenario";
 import type AdapterFieldMap from "@/types/AdapterFieldMap";
@@ -20,30 +18,24 @@ import { getScenarioStateByNameUrl } from "@/services/getScenarioStateByName";
 import Tab from "@/components/Tab";
 import Tabs from "@/components/Tabs";
 import Loading from "@/components/Loading";
-import Pagination from "@/components/Pagination";
 import Model from "@/types/Model";
 import MarkdownValue from "@/components/MarkdownValue";
-import StatNameDisplay from "@/components/StatNameDisplay";
 import getRunsToRunSuites from "@/services/getRunsToRunSuites";
 import getSuiteForRun from "@/services/getSuiteForRun";
 import Instances from "@/components/Instances";
-
-const METRICS_PAGE_SIZE = 50;
+import RunMetrics from "@/components/RunMetrics";
 
 export default function Run() {
   const { runName } = useParams();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<number>(0);
   const [runSpec, setRunSpec] = useState<RunSpec | undefined>();
   const [runSuite, setRunSuite] = useState<string | undefined>();
-  const [stats, setStats] = useState<Stat[]>([]);
-  const [currentMetricsPage, setCurrentMetricsPage] = useState<number>(1);
-  const [totalMetricsPages, setTotalMetricsPages] = useState<number>(1);
   const [model, setModel] = useState<Model | undefined>();
   const [scenario, setScenario] = useState<Scenario | undefined>();
   const [adapterFieldMap, setAdapterFieldMap] = useState<AdapterFieldMap>({});
-  const [metricFieldMap, setMetricFieldMap] = useState<MetricFieldMap>({});
-  const [searchTerm, setSearchTerm] = useState("");
+  const [metricFieldMap, setMetricFieldMap] = useState<
+    MetricFieldMap | undefined
+  >({});
 
   useEffect(() => {
     const controller = new AbortController();
@@ -59,24 +51,14 @@ export default function Run() {
         : getSuiteForRun(await getRunsToRunSuites(signal), runName);
       setRunSuite(suite);
 
-      const [runSpecResp, statsResp, scenario, schema] = await Promise.all([
+      const [runSpecResp, scenario, schema] = await Promise.all([
         getRunSpecByName(runName, signal, suite),
-        getStatsByName(runName, signal, suite),
         getScenarioByName(runName, signal, suite),
         getSchema(signal),
       ]);
 
       setRunSpec(runSpecResp);
-      setStats(statsResp);
       setScenario(scenario);
-      const totalMetricsPages = Math.floor(
-        statsResp.length / METRICS_PAGE_SIZE,
-      );
-      const metricPage = Number(searchParams.get("metricsPage") || 1);
-      setTotalMetricsPages(totalMetricsPages);
-      setCurrentMetricsPage(
-        Math.max(Math.min(metricPage, totalMetricsPages), 1),
-      );
 
       setMetricFieldMap(
         schema.metrics.reduce((acc, cur) => {
@@ -99,18 +81,14 @@ export default function Run() {
     void fetchData();
 
     return () => controller.abort();
-  }, [runName, searchParams]);
-
-  const pagedMetrics = stats.slice(
-    (currentMetricsPage - 1) * METRICS_PAGE_SIZE,
-    (currentMetricsPage - 1) * METRICS_PAGE_SIZE + METRICS_PAGE_SIZE,
-  );
+  }, [runName]);
 
   if (
     runSpec === undefined ||
     scenario === undefined ||
     runName === undefined ||
-    runSuite === undefined
+    runSuite === undefined ||
+    metricFieldMap === undefined
   ) {
     return <Loading />;
   }
@@ -207,75 +185,11 @@ export default function Run() {
           metricFieldMap={metricFieldMap}
         />
       ) : (
-        <div>
-          {/* Search bar */}
-          <div className="flex justify-start my-4">
-            <input
-              type="text"
-              className="input input-bordered w-full max-w-xs"
-              placeholder="Search for a metric"
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <div className="overflow-x-auto">
-            <table className="table">
-              <thead>
-                <tr>
-                  {Object.keys(stats[0]).map((key) => (
-                    <th key={key}>{key}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {pagedMetrics
-                  .filter(
-                    (stat) =>
-                      !searchTerm ||
-                      stat.name.name
-                        .toLowerCase()
-                        .includes(searchTerm.toLowerCase()),
-                  )
-                  .map((stat) => (
-                    <tr>
-                      {Object.entries(stat).map(([key, value]) => {
-                        if (key === "name") {
-                          return (
-                            <td key={key}>
-                              <StatNameDisplay
-                                stat={stat}
-                                metricFieldMap={metricFieldMap}
-                              />
-                            </td>
-                          );
-                        }
-                        return <td>{value}</td>;
-                      })}
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </div>
-          <Pagination
-            className="flex justify-center my-8"
-            onNextPage={() => {
-              const nextMetricsPage = Math.min(
-                currentMetricsPage + 1,
-                totalMetricsPages,
-              );
-              setCurrentMetricsPage(nextMetricsPage);
-              searchParams.set("metricsPage", String(nextMetricsPage));
-              setSearchParams(searchParams);
-            }}
-            onPrevPage={() => {
-              const prevMetricsPage = Math.max(currentMetricsPage - 1, 1);
-              setCurrentMetricsPage(prevMetricsPage);
-              searchParams.set("metricsPage", String(prevMetricsPage));
-              setSearchParams(searchParams);
-            }}
-            currentPage={currentMetricsPage}
-            totalPages={totalMetricsPages}
-          />
-        </div>
+        <RunMetrics
+          runName={runName}
+          suite={runSuite}
+          metricFieldMap={metricFieldMap}
+        />
       )}
     </>
   );
