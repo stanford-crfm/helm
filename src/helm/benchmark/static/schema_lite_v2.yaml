@@ -98,6 +98,11 @@ metrics:
     short_display_name: COT correct
     description: Allows to do evaluation using chain of thought for mmlu pro and gpqa.
     lower_is_better: false
+  - name: wildbench_score
+    display_name: WildBench Score
+    short_display_name: WB Score
+    description: Score of the AI output judged by GPT-4.
+    lower_is_better: false
 
 ############################################################
 perturbations: []
@@ -141,6 +146,7 @@ run_groups:
       - mmlu_pro
       - gpqa
       - ifeval
+      - wildbench
 
   - name: mmlu_pro
     display_name: MMLU-Pro
@@ -181,6 +187,23 @@ run_groups:
       - general_information
     environment:
       main_name: chain_of_thought_correct  # non-CoT
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+  
+  - name: wildbench
+    display_name: WildBench
+    description: WildBench
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: wildbench_score
       main_split: test
     taxonomy:
       task: "?"
