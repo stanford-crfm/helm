@@ -4,6 +4,7 @@ Website: https://crfm.stanford.edu/helm/lite/"""
 
 from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_GENERATION,
+    ADAPT_CHAT,
     ADAPT_MULTIPLE_CHOICE_JOINT,
     ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT,
     AdapterSpec,
@@ -460,7 +461,7 @@ def get_wildbench_spec(subset: str) -> RunSpec:
     )
 
     adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION, input_prefix="", output_prefix="", max_tokens=1000, num_outputs=1, temperature=0.0
+        method=ADAPT_CHAT, input_prefix="", output_prefix="", max_tokens=1000, num_outputs=1, temperature=0.0
     )
     annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.wildbench_annotator.WildBenchAnnotator")]
     metric_specs = [MetricSpec(class_name="helm.benchmark.metrics.wildbench_metrics.WildBenchScoreMetric")]

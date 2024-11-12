@@ -17,7 +17,7 @@ class WildBenchAnnotator(Annotator):
         with open("src/helm/benchmark/annotation/wildbench/eval_template.score.v2.md") as f:
             self._score_template = f.read()
         self._pattern = re.compile(
-            r'"strengths"\s*:\s*"(.*?)"\s*,\s*"weaknesses"\s*:\s*"(.*?)"\s*,\s*"score"\s*:\s*"(.*?)"', re.DOTALL
+            r'"strengths"\s*:\s*"(.*?)"\s*,\s*"weaknesses"\s*:\s*"(.*?)"\s*,\s*"score"\s*:\s*(".*?"|\d+)', re.DOTALL
         )
 
     def annotate(self, request_state: RequestState) -> Any:
@@ -40,7 +40,7 @@ class WildBenchAnnotator(Annotator):
             model_deployment="openai/gpt-4o-2024-05-13",
             prompt=annotator_prompt,
             temperature=0.0,
-            max_tokens=1000,
+            max_tokens=2000,
         )
         annotator_response = self._auto_client.make_request(annotator_request)
         if not annotator_response.success:
@@ -53,7 +53,7 @@ class WildBenchAnnotator(Annotator):
 
         strengths = annotator_response_parts[1].strip()
         weaknesses = annotator_response_parts[2].strip()
-        score_text = annotator_response_parts[3].strip()
+        score_text = annotator_response_parts[3].strip().strip('"')
         try:
             score = float(score_text)
         except ValueError:

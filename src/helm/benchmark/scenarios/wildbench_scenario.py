@@ -79,6 +79,7 @@ class WildBenchScenario(Scenario):
                         model: baseline_outputs[model][idx]["output"][0] for model in REFERENCE_MODELS
                     },
                     "history": "\n".join(history_text),
+                    "conversation": row["conversation_input"],
                     "user_query": user_query,
                     "checklist": "\n".join(row["checklist"]),
                 },
