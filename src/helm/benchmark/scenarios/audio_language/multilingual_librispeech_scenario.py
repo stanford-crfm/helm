@@ -46,7 +46,7 @@ class MultilingualLibriSpeechScenario(Scenario):
     description = (
         "Speech recognition in 7 different languages ([Pratap et al, 2022](https://arxiv.org/abs/2012.03411))."
     )
-    tags: List[str] = ["audio", "multilinguality", "regocnition"]
+    tags: List[str] = ["audio", "multilinguality", "recognition"]
 
     def __init__(self, language: str) -> None:
         super().__init__()

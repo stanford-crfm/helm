@@ -58,8 +58,8 @@ class FLEURSScenario(Scenario):
             ("Burmese", "my"),
             ("Catalan", "ca"),
             ("Cebuano", "ceb"),
-            ("Mandarin Chinese", "cmn_hans"),
-            ("Cantonese Chinese", "yue_hant"),
+            ("Mandarin_Chinese", "cmn_hans"),
+            ("Cantonese_Chinese", "yue_hant"),
             ("Croatian", "hr"),
             ("Czech", "cs"),
             ("Danish", "da"),
@@ -278,9 +278,10 @@ class FLEURSScenario(Scenario):
     def __init__(self, language: str) -> None:
         super().__init__()
 
-        language = language.capitalize()
         if language not in FLEURSScenario._FLEURS_TEST_LANG_TO_ID.keys():
-            raise ValueError(f"Invalid language. Valid languages are: {FLEURSScenario._FLEURS_TEST_LANG_TO_ID.keys()}")
+            raise ValueError(
+                f"Invalid language: {language}. Valid languages are: {FLEURSScenario._FLEURS_TEST_LANG_TO_ID.keys()}"
+            )
 
         self._fleurs_lang_short_to_long = {v: k for k, v in FLEURSScenario._FLEURS_LANG_TO_ID.items()}
         self._fleurs_long_to_lang = {
@@ -298,6 +299,7 @@ class FLEURSScenario(Scenario):
                 name=f"fleurs.{language_category}",
                 cache_dir=output_path,
                 split=TEST_SPLIT,
+                trust_remote_code=True,
             )
         ):
             local_audio_path = row["path"]
