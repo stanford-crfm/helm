@@ -7,12 +7,8 @@ import {
 } from "@heroicons/react/24/solid";
 import getSchema from "@/services/getSchema";
 import type RunSpec from "@/types/RunSpec";
-import getInstances from "@/services/getInstances";
-import type Instance from "@/types/Instance";
 import getStatsByName from "@/services/getStatsByName";
 import type Stat from "@/types/Stat";
-import getDisplayRequestsByName from "@/services/getDisplayRequestsByName";
-import getDisplayPredictionsByName from "@/services/getDisplayPredictionsByName";
 import getScenarioByName from "@/services/getScenarioByName";
 import type Scenario from "@/types/Scenario";
 import type AdapterFieldMap from "@/types/AdapterFieldMap";
@@ -23,7 +19,6 @@ import getRunSpecByName, {
 import { getScenarioStateByNameUrl } from "@/services/getScenarioStateByName";
 import Tab from "@/components/Tab";
 import Tabs from "@/components/Tabs";
-import InstanceData from "@/components/InstanceData";
 import Loading from "@/components/Loading";
 import Pagination from "@/components/Pagination";
 import Model from "@/types/Model";
@@ -31,10 +26,8 @@ import MarkdownValue from "@/components/MarkdownValue";
 import StatNameDisplay from "@/components/StatNameDisplay";
 import getRunsToRunSuites from "@/services/getRunsToRunSuites";
 import getSuiteForRun from "@/services/getSuiteForRun";
-import DisplayPrediction from "@/types/DisplayPrediction";
-import DisplayRequest from "@/types/DisplayRequest";
+import Instances from "@/components/Instances";
 
-const INSTANCES_PAGE_SIZE = 10;
 const METRICS_PAGE_SIZE = 50;
 
 export default function Run() {
@@ -43,16 +36,7 @@ export default function Run() {
   const [activeTab, setActiveTab] = useState<number>(0);
   const [runSpec, setRunSpec] = useState<RunSpec | undefined>();
   const [runSuite, setRunSuite] = useState<string | undefined>();
-  const [instances, setInstances] = useState<Instance[]>([]);
   const [stats, setStats] = useState<Stat[]>([]);
-  const [displayPredictionsMap, setDisplayPredictionsMap] = useState<
-    undefined | Record<string, Record<string, DisplayPrediction[]>>
-  >();
-  const [displayRequestsMap, setDisplayRequestsMap] = useState<
-    undefined | Record<string, Record<string, DisplayRequest[]>>
-  >();
-  const [currentInstancesPage, setCurrentInstancesPage] = useState<number>(1);
-  const [totalInstancesPages, setTotalInstancesPages] = useState<number>(1);
   const [currentMetricsPage, setCurrentMetricsPage] = useState<number>(1);
   const [totalMetricsPages, setTotalMetricsPages] = useState<number>(1);
   const [model, setModel] = useState<Model | undefined>();
@@ -60,7 +44,6 @@ export default function Run() {
   const [adapterFieldMap, setAdapterFieldMap] = useState<AdapterFieldMap>({});
   const [metricFieldMap, setMetricFieldMap] = useState<MetricFieldMap>({});
   const [searchTerm, setSearchTerm] = useState("");
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -76,35 +59,14 @@ export default function Run() {
         : getSuiteForRun(await getRunsToRunSuites(signal), runName);
       setRunSuite(suite);
 
-      const [
-        runSpecResp,
-        instancesResp,
-        statsResp,
-        scenario,
-        displayPredictions,
-        displayRequests,
-        schema,
-      ] = await Promise.all([
+      const [runSpecResp, statsResp, scenario, schema] = await Promise.all([
         getRunSpecByName(runName, signal, suite),
-        getInstances(runName, signal, suite),
         getStatsByName(runName, signal, suite),
         getScenarioByName(runName, signal, suite),
-        getDisplayPredictionsByName(runName, signal, suite),
-        getDisplayRequestsByName(runName, signal, suite),
         getSchema(signal),
       ]);
 
       setRunSpec(runSpecResp);
-      setInstances(instancesResp);
-      const totalInstancesPages = Math.ceil(
-        instancesResp.length / INSTANCES_PAGE_SIZE,
-      );
-      const instancePage = Number(searchParams.get("instancesPage") || 1);
-      setTotalInstancesPages(totalInstancesPages);
-      setCurrentInstancesPage(
-        Math.max(Math.min(instancePage, totalInstancesPages), 1),
-      );
-
       setStats(statsResp);
       setScenario(scenario);
       const totalMetricsPages = Math.floor(
@@ -115,42 +77,6 @@ export default function Run() {
       setCurrentMetricsPage(
         Math.max(Math.min(metricPage, totalMetricsPages), 1),
       );
-
-      const displayRequestsArgh: {
-        [key: string]: { [key: string]: DisplayRequest[] };
-      } = {};
-      displayRequests.forEach((displayRequest) => {
-        const instanceId = displayRequest.instance_id;
-        const perturbationName = displayRequest.perturbation?.name || "";
-        if (displayRequestsArgh[instanceId] === undefined) {
-          displayRequestsArgh[instanceId] = {};
-        }
-        if (displayRequestsArgh[instanceId][perturbationName] === undefined) {
-          displayRequestsArgh[instanceId][perturbationName] = [];
-        }
-        displayRequestsArgh[instanceId][perturbationName].push(displayRequest);
-      });
-      setDisplayRequestsMap(displayRequestsArgh);
-
-      const displayPredictionsArgh: {
-        [key: string]: { [key: string]: DisplayPrediction[] };
-      } = {};
-      displayPredictions.forEach((displayPrediction) => {
-        const instanceId = displayPrediction.instance_id;
-        const perturbationName = displayPrediction.perturbation?.name || "";
-        if (displayPredictionsArgh[instanceId] === undefined) {
-          displayPredictionsArgh[instanceId] = {};
-        }
-        if (
-          displayPredictionsArgh[instanceId][perturbationName] === undefined
-        ) {
-          displayPredictionsArgh[instanceId][perturbationName] = [];
-        }
-        displayPredictionsArgh[instanceId][perturbationName].push(
-          displayPrediction,
-        );
-      });
-      setDisplayPredictionsMap(displayPredictionsArgh);
 
       setMetricFieldMap(
         schema.metrics.reduce((acc, cur) => {
@@ -175,58 +101,19 @@ export default function Run() {
     return () => controller.abort();
   }, [runName, searchParams]);
 
-  const pagedInstances = instances.slice(
-    (currentInstancesPage - 1) * INSTANCES_PAGE_SIZE,
-    (currentInstancesPage - 1) * INSTANCES_PAGE_SIZE + INSTANCES_PAGE_SIZE,
-  );
-
   const pagedMetrics = stats.slice(
     (currentMetricsPage - 1) * METRICS_PAGE_SIZE,
     (currentMetricsPage - 1) * METRICS_PAGE_SIZE + METRICS_PAGE_SIZE,
   );
 
-  // Handle scrolling to anchored instance
-  useEffect(() => {
-    const anchoredInstance = searchParams.get("instance");
-    if (anchoredInstance && isInitialLoad && pagedInstances.length > 0) {
-      // Find the index of the anchored instance
-      const instanceIndex = pagedInstances.findIndex(
-        (i) => i.id === anchoredInstance,
-      );
-      if (instanceIndex === -1) return;
-
-      // Wait for the DOM to be updated with the correct page
-      requestAnimationFrame(() => {
-        const element = document.getElementById(`instance-${anchoredInstance}`);
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth" });
-        }
-      });
-
-      setIsInitialLoad(false);
-    }
-  }, [
-    isInitialLoad,
-    searchParams,
-    currentInstancesPage,
-    setSearchParams,
-    pagedInstances,
-  ]);
-
   if (
     runSpec === undefined ||
-    displayPredictionsMap === undefined ||
-    displayRequestsMap === undefined ||
-    scenario === undefined
+    scenario === undefined ||
+    runName === undefined ||
+    runSuite === undefined
   ) {
     return <Loading />;
   }
-
-  const renderInstanceId = (instance: Instance): string => {
-    return instance.perturbation === undefined
-      ? `Instance id: ${instance.id} [split: ${instance.split}]`
-      : `Instance id: ${instance.id} [split: ${instance.split}][perturbation: ${instance.perturbation.name}]`;
-  };
 
   return (
     <>
@@ -314,66 +201,11 @@ export default function Run() {
         </Tabs>
       </div>
       {activeTab === 0 ? (
-        <>
-          <div className="grid gap-8">
-            {pagedInstances.map((instance, idx) => (
-              <div id={"instance-" + instance.id} className="border p-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl mb-4">{renderInstanceId(instance)}</h3>
-                  <button
-                    className="btn btn-sm normal-case px-2 py-1"
-                    onClick={() => {
-                      const url =
-                        window.location.href +
-                        (window.location.href.includes("?")
-                          ? "&instance="
-                          : "?instance=") +
-                        instance.id;
-                      void navigator.clipboard.writeText(url);
-                    }}
-                  >
-                    Copy Link
-                  </button>
-                </div>
-                <InstanceData
-                  key={`${instance.id}-${idx}`}
-                  instance={instance}
-                  requests={
-                    displayRequestsMap[instance.id][
-                      instance.perturbation?.name || ""
-                    ]
-                  }
-                  predictions={
-                    displayPredictionsMap[instance.id][
-                      instance.perturbation?.name || ""
-                    ]
-                  }
-                  metricFieldMap={metricFieldMap}
-                />
-              </div>
-            ))}
-          </div>
-          <Pagination
-            className="flex justify-center my-8"
-            onNextPage={() => {
-              const nextInstancePage = Math.min(
-                currentInstancesPage + 1,
-                totalInstancesPages,
-              );
-              setCurrentInstancesPage(nextInstancePage);
-              searchParams.set("instancesPage", String(nextInstancePage));
-              setSearchParams(searchParams);
-            }}
-            onPrevPage={() => {
-              const prevInstancePage = Math.max(currentInstancesPage - 1, 1);
-              setCurrentInstancesPage(prevInstancePage);
-              searchParams.set("instancesPage", String(prevInstancePage));
-              setSearchParams(searchParams);
-            }}
-            currentPage={currentInstancesPage}
-            totalPages={totalInstancesPages}
-          />
-        </>
+        <Instances
+          runName={runName}
+          suite={runSuite}
+          metricFieldMap={metricFieldMap}
+        />
       ) : (
         <div>
           {/* Search bar */}
