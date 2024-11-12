@@ -40,7 +40,7 @@ class AdapterFactory:
 
         if method == ADAPT_GENERATION:
             adapter = GenerationAdapter(adapter_spec, tokenizer_service)
-        if method == ADAPT_CHAT:
+        elif method == ADAPT_CHAT:
             adapter = ChatAdapter(adapter_spec, tokenizer_service)
         elif method == ADAPT_LANGUAGE_MODELING:
             adapter = LanguageModelingAdapter(adapter_spec, tokenizer_service)
