@@ -29,7 +29,6 @@ export default function Instances({ runName, suite, metricFieldMap }: Props) {
     undefined | Record<string, Record<string, DisplayRequest[]>>
   >();
   const [currentInstancesPage, setCurrentInstancesPage] = useState<number>(1);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -99,7 +98,11 @@ export default function Instances({ runName, suite, metricFieldMap }: Props) {
   // Handle scrolling to anchored instance
   useEffect(() => {
     const anchoredInstance = searchParams.get("instance");
-    if (anchoredInstance && isInitialLoad && pagedInstances.length > 0) {
+    if (
+      anchoredInstance &&
+      !window["HELM_HAS_SCROLLED_TO_ANCHORED_INSTANCES"] &&
+      pagedInstances.length > 0
+    ) {
       // Find the index of the anchored instance
       const instanceIndex = pagedInstances.findIndex(
         (i) => i.id === anchoredInstance,
@@ -114,15 +117,9 @@ export default function Instances({ runName, suite, metricFieldMap }: Props) {
         }
       });
 
-      setIsInitialLoad(false);
+      window["HELM_HAS_SCROLLED_TO_ANCHORED_INSTANCES"] = true;
     }
-  }, [
-    isInitialLoad,
-    searchParams,
-    currentInstancesPage,
-    setSearchParams,
-    pagedInstances,
-  ]);
+  }, [searchParams, currentInstancesPage, setSearchParams, pagedInstances]);
 
   const renderInstanceId = (instance: Instance): string => {
     return instance.perturbation === undefined
