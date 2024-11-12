@@ -26,7 +26,8 @@ class WildBenchAnnotator(Annotator):
         assert request_state.instance.extra_data
         model_output_text = request_state.result.completions[0].text
         if not model_output_text.strip():
-            return {"prompt_text": "", "strengths": "", "weaknesses": "BLOCKED_REQUEST_OR_EMPTY_RESPONSE", "score": 0.0}
+            # Following https://github.com/allenai/WildBench/blob/d6b8dcaf377d173d031980f97c16e1a82618c03d/src/eval.py
+            return {"prompt_text": "", "strengths": "N/A", "weaknesses": "The model output is empty.", "score": 1.0}
         prompt_template = self._score_template
 
         annotator_prompt = (

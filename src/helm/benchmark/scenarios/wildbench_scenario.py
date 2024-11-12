@@ -57,31 +57,31 @@ class WildBenchScenario(Scenario):
         # Read all instances
         instances: List[Instance] = []
         for idx, row in enumerate(dataset):
-            input_text = []
-            history_text = []
+            
+            conversation = row["conversation_input"]
+
+            # Following https://github.com/allenai/WildBench/blob/d6b8dcaf377d173d031980f97c16e1a82618c03d/src/eval.py
+            history = []
             for round in row["conversation_input"][:-1]:
-                noun = "User: " if round["role"] == "user" else "Assistant: "
-                history_text.append(noun + round["content"])
-                input_text.append(noun + round["content"])
+                noun = "USER: " if round["role"] == "user" else "ASSISTANT: "
+                history.append(noun + round["content"])
+            history_text = "\n\n".join(history)
+            user_query_text = row["conversation_input"][-1]["content"]
+            checklist_text = "\n".join([f"- {checklist_item}" for checklist_item in row['checklist']])
 
-            round = row["conversation_input"][-1]
-            noun = "User: "
-            input_text.append(noun + round["content"])
-            user_query = round["content"]
-
-            input = Input(text="\n".join(input_text))
+            input = Input(text="")  # placeholder, adapter actually uses the conversation for Request messages
             instance = Instance(
                 input=input,
                 references=[],
                 split=TEST_SPLIT,
                 extra_data={
+                    "conversation": conversation,
                     "baseline_outputs": {
                         model: baseline_outputs[model][idx]["output"][0] for model in REFERENCE_MODELS
                     },
-                    "history": "\n".join(history_text),
-                    "conversation": row["conversation_input"],
-                    "user_query": user_query,
-                    "checklist": "\n".join(row["checklist"]),
+                    "history": history_text,
+                    "user_query": user_query_text,
+                    "checklist": checklist_text,
                 },
             )
             instances.append(instance)
