@@ -13,6 +13,10 @@ import getDisplayRequestsByName from "@/services/getDisplayRequestsByName";
 
 const INSTANCES_PAGE_SIZE = 10;
 
+declare global {
+  interface Window { helmHasScrolledToInstance: any; }
+}
+
 interface Props {
   runName: string;
   suite: string;
@@ -100,7 +104,7 @@ export default function Instances({ runName, suite, metricFieldMap }: Props) {
     const anchoredInstance = searchParams.get("instance");
     if (
       anchoredInstance &&
-      !window["HELM_HAS_SCROLLED_TO_ANCHORED_INSTANCES"] &&
+      !window.helmHasScrolledToInstance &&
       pagedInstances.length > 0
     ) {
       // Find the index of the anchored instance
@@ -117,7 +121,7 @@ export default function Instances({ runName, suite, metricFieldMap }: Props) {
         }
       });
 
-      window["HELM_HAS_SCROLLED_TO_ANCHORED_INSTANCES"] = true;
+      window.helmHasScrolledToInstance = true;
     }
   }, [searchParams, currentInstancesPage, setSearchParams, pagedInstances]);
 
