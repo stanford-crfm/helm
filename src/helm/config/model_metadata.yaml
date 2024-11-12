@@ -3348,3 +3348,11 @@ models:
     num_parameters: 8170000000
     release: 2024-10-21
     tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+    - name: ibm-granite/granite-3.0-8b-base
+    display_name: Granite 3.0 base (8B)
+    description: Granite-3.0-8B-Base is a decoder-only language model to support a variety of text-to-text generation tasks. 
+    access: open
+    num_parameters: 8170000000
+    release: 2024-10-21
+    tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
