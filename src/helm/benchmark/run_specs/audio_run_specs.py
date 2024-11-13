@@ -4,7 +4,10 @@ from typing import List, Optional
 from helm.benchmark.adaptation.adapter_spec import (
     AdapterSpec,
 )
-from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION_MULTIMODAL, ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL
+from helm.benchmark.adaptation.adapters.adapter_factory import (
+    ADAPT_GENERATION_MULTIMODAL,
+    ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
+)
 from helm.benchmark.metrics.common_metric_specs import (
     get_classification_metric_specs,
     get_exact_match_metric_specs,
@@ -41,6 +44,7 @@ def _get_generation_adapter_spec(
         stop_sequences=stop_sequences if stop_sequences is not None else [],
     )
 
+
 def _get_multiple_choice_joint_adapter_spec(
     input_noun: Optional[str],
     output_noun: str,
@@ -63,6 +67,7 @@ def _get_multiple_choice_joint_adapter_spec(
         temperature=0.0,
         random=None,
     )
+
 
 ########################################################################################################################
 # MetricSpecs
@@ -321,6 +326,27 @@ def get_audio_pairs_run_spec(subject: str) -> RunSpec:
     )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_classification_metric_specs()
     run_spec_name: str = "audio_pairs"
+    return RunSpec(
+        name=f"{run_spec_name}:subject={subject}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("casual_conversations2")
+def get_casual_conversations2_run_spec(subject: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.casual_conversations2_scenario."
+        "CasualConversations2Scenario",
+        args={"subject": subject},
+    )
+    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
+        input_noun=None, output_noun="Answer", max_train_instances=0
+    )
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+    run_spec_name: str = "casual_conversations2"
     return RunSpec(
         name=f"{run_spec_name}:subject={subject}",
         scenario_spec=scenario_spec,
