@@ -343,7 +343,7 @@ run_groups:
       when: "2019"
       language: 114 languages
 
-  - name: robust_speech_bench
+  - name: speech_robust_bench
     display_name: Robust Speech Bench
     description: >
       Speech Robust Bench (Shah et al, 2024) is a comprehensive benchmark for evaluating 
