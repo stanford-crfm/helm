@@ -87,7 +87,10 @@ export default function Run({ runName, suite, metricFieldMap }: Props) {
               .map((stat) => (
                 <tr>
                   {TABLE_COLUMN_NAMES.map((key) => {
-                    if (key === "name") {
+                    const value = stat[key as keyof Stat];
+                    if (typeof value === "number") {
+                      return <td>{value}</td>;
+                    } else {
                       return (
                         <td key={key}>
                           <StatNameDisplay
@@ -97,7 +100,6 @@ export default function Run({ runName, suite, metricFieldMap }: Props) {
                         </td>
                       );
                     }
-                    return <td>{stat[key]}</td>;
                   })}
                 </tr>
               ))}
