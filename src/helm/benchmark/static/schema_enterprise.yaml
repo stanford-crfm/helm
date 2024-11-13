@@ -129,6 +129,37 @@ run_groups:
       when: 2000-2019
       language: English
 
+  - name: legal_scenarios
+    display_name: Legal Scenarios
+    description: Scenarios for the legal domain
+    category: All scenarios
+    subgroups:
+      - legal_contract_summarization
+
+  - name: legal_contract_summarization
+    display_name: Legal Contract Summarization
+    description: Plain English Summarization of Contracts [(Manor et al., 2019)](https://aclanthology.org/W19-2201.pdf).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: rouge_2
+      main_split: test
+    taxonomy:
+      task: summarization
+      what: legal contracts (e.g. terms of service, license agreements)
+      who: lawyers
+      when: before 2019
+      language: English
+
+  - name: climate_scenarios
+    display_name: Climate Scenarios
+    description: Scenarios for the climate domain
+    category: All scenarios
+    subgroups:
+      - sumosum
+
   - name: sumosum
     display_name: SUMO Web Claims Summarization
     description: A summarization benchmark based on the climate subset of the SUMO dataset ([Mishra et al., 2020](https://aclanthology.org/2020.wnut-1.12/)).

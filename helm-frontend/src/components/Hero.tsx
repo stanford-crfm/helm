@@ -15,34 +15,25 @@ export default function Hero() {
       </div>
 
       {/* Container for Image and Leaderboard */}
-      <div
-        className="flex flex-col md:flex-col lg:flex-row lg:justify-center"
-        style={{ height: "525px", transform: "scale(0.9)" }} // Reduced height by 10%
-      >
+      <div className="flex flex-col md:flex-col lg:flex-row lg:justify-center">
         {/* Image section */}
         <div className="w-full lg:w-1/2 flex justify-center mb-4 lg:mb-0 h-full py-10">
           <img
             src={helmHero}
             alt="HELM Hero"
-            className="object-cover h-full" // Stretched to full height
-            style={{ maxWidth: "100%" }}
+            className="object-contain w-96" // Stretched to full height
           />
         </div>
 
         {/* Leaderboard section */}
-        <div className="w-full lg:w-1/2 flex justify-center h-full py-10">
-          <div
-            className="py-2 pb-6 rounded-3xl bg-gray-100 h-full" // Stretched to full height
-            style={{ maxWidth: "100%" }}
-          >
-            <MiniLeaderboard />
-            <div className="flex justify-end">
-              <Link to="leaderboard">
-                <button className="px-4 mx-3 mt-1 btn bg-white rounded-md">
-                  <span>See More</span>
-                </button>
-              </Link>
-            </div>
+        <div className="py-2 rounded-xl bg-gray-100 h-full">
+          <MiniLeaderboard />
+          <div className="flex justify-end">
+            <Link to="leaderboard">
+              <button className="px-4 mx-3 mt-2 btn bg-white rounded-md">
+                <span>See More</span>
+              </button>
+            </Link>
           </div>
         </div>
       </div>

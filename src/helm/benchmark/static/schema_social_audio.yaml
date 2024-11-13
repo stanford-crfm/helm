@@ -1,0 +1,224 @@
+---
+############################################################
+metrics:
+  # Infrastructure metrics:
+  - name: num_perplexity_tokens
+    display_name: '# tokens'
+    description: Average number of tokens in the predicted output (for language modeling, the input too).
+  - name: num_bytes
+    display_name: '# bytes'
+    description: Average number of bytes in the predicted output (for language modeling, the input too).
+
+  - name: num_references
+    display_name: '# ref'
+    description: Number of references.
+  - name: num_train_trials
+    display_name: '# trials'
+    description: Number of trials, where in each trial we choose an independent, random set of training instances.
+  - name: estimated_num_tokens_cost
+    display_name: 'cost'
+    description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
+  - name: num_prompt_tokens
+    display_name: '# prompt tokens'
+    description: Number of tokens in the prompt.
+  - name: num_prompt_characters
+    display_name: '# prompt chars'
+    description: Number of characters in the prompt.
+  - name: num_completion_tokens
+    display_name: '# completion tokens'
+    description: Actual number of completion tokens (over all completions).
+  - name: num_output_tokens
+    display_name: '# output tokens'
+    description: Actual number of output tokens.
+  - name: max_num_output_tokens
+    display_name: 'Max output tokens'
+    description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
+  - name: num_requests
+    display_name: '# requests'
+    description: Number of distinct API requests.
+  - name: num_instances
+    display_name: '# eval'
+    description: Number of evaluation instances.
+  - name: num_train_instances
+    display_name: '# train'
+    description: Number of training instances (e.g., in-context examples).
+  - name: prompt_truncated
+    display_name: truncated
+    description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
+  - name: finish_reason_length
+    display_name: finish b/c length
+    description: Fraction of instances where the the output was terminated because of the max tokens limit.
+  - name: finish_reason_stop
+    display_name: finish b/c stop
+    description: Fraction of instances where the the output was terminated because of the stop sequences.
+  - name: finish_reason_endoftext
+    display_name: finish b/c endoftext
+    description: Fraction of instances where the the output was terminated because the end of text token was generated.
+  - name: finish_reason_unknown
+    display_name: finish b/c unknown
+    description: Fraction of instances where the the output was terminated for unknown reasons.
+  - name: num_completions
+    display_name: '# completions'
+    description: Number of completions.
+  - name: predicted_index
+    display_name: Predicted index
+    description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
+
+  # Accuracy metrics:
+  - name: exact_match
+    display_name: Exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_exact_match
+    display_name: Quasi-exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+    lower_is_better: false
+  - name: prefix_exact_match
+    display_name: Prefix exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_prefix_exact_match
+    # TODO: should call this prefix_quasi_exact_match
+    display_name: Prefix quasi-exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
+    lower_is_better: false
+
+  - name: rouge_1
+    display_name: ROUGE-1
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 1-gram overlap.
+    lower_is_better: false
+  - name: rouge_2
+    display_name: ROUGE-2
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 2-gram overlap.
+    lower_is_better: false
+  - name: rouge_l
+    display_name: ROUGE-L
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on longest common subsequence overlap.
+    lower_is_better: false
+  - name: bleu_1
+    display_name: BLEU-1
+    description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 1-gram overlap.
+    lower_is_better: false
+  - name: bleu_4
+    display_name: BLEU-4
+    description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 4-gram overlap.
+    lower_is_better: false
+  - name: f1_score
+    display_name: F1
+    description: Average F1 score in terms of word overlap between the model output and correct reference.
+    lower_is_better: false
+  - name: cider
+    display_name: CIDEr
+    description: Evaluates the quality of generated caption by measuring the weighted similarity of n-grams between the captions and a set of human-written reference captions, emphasizing informativeness and consensus.
+    lower_is_better: false
+
+  # Machine Translation metrics
+  - name: bleu
+    display_name: BLEU
+    short_display_name: BLEU
+    description: BLEU score based on [Post, (2018)](https://aclanthology.org/W18-6319/).
+    lower_is_better: false
+
+############################################################
+perturbations: []
+
+############################################################
+metric_groups:
+  - name: accuracy
+    display_name: Accuracy
+    hide_win_rates: true
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+
+  - name: efficiency
+    display_name: Efficiency
+    metrics:
+    - name: inference_runtime
+      split: ${main_split}
+
+  - name: general_information
+    display_name: General information
+    hide_win_rates: true
+    metrics:
+    - name: num_instances
+      split: ${main_split}
+    - name: num_train_instances
+      split: ${main_split}
+    - name: prompt_truncated
+      split: ${main_split}
+    - name: num_prompt_tokens
+      split: ${main_split}
+    - name: num_output_tokens
+      split: ${main_split}
+
+############################################################
+
+run_groups:
+  - name: audio_scenarios
+    display_name: Audio Scenarios
+    description: Audio Scenarios
+    category: All scenarios
+    subgroups:
+      - audio_mnist
+      - meld_audio
+      - iemocap_audio
+
+  - name: audio_mnist
+    display_name: AudioMNIST
+    description: >
+      The AudioMNIST dataset consists of a dataset of 30000 audio samples of
+      spoken digits (0-9) of 60 different speakers. The task is to classify the digit from the
+      audio sample ([Becker et al, 2023](https://arxiv.org/abs/1807.03418)).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: audio samples of spoken digits (0-9)
+      who: 60 different speakers
+      when: "2018"
+      language: English
+
+  - name: meld_audio
+    display_name: MELD Audio
+    description: Classify emotions in audio clips from the television series Friends ([Poria et al, 2018](https://arxiv.org/abs/1810.02508)).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: audio clips from the television series Friends
+      who: television actors
+      when: "1994-2004"
+      language: English
+
+  - name: iemocap_audio
+    display_name: IEMOCAP Audio
+    description: >
+      A classification scenario based on audio data from the Interactive emotional dyadic motion capture database (IEMOCAP) ([Busso et al, 2008](https://sail.usc.edu/iemocap/Busso_2008_iemocap.pdf)). The task is to classify the emotion of the speaker(s) in the audio sample.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: audio recordings improvisations or scripted scenarios
+      who: 10 professional actors
+      when: "2007"
+      language: English

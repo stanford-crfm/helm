@@ -1,4 +1,5 @@
 import MiniLeaderboard from "@/components/MiniLeaderboard";
+import helmSafety from "@/assets/helm-safety.png";
 
 export default function SafetyLanding() {
   return (
@@ -7,6 +8,12 @@ export default function SafetyLanding() {
 
       <div className="flex flex-col lg:flex-row items-center gap-8">
         <div className="flex-1 text-xl">
+          <img
+            src={helmSafety}
+            alt="Logo"
+            className="mx-auto p-0 block"
+            style={{ width: "300px" }}
+          />
           <p>
             Language models demonstrate powerful capabilities and pose
             significant risks. Given their widespread deployment, standardized
@@ -20,12 +27,12 @@ export default function SafetyLanding() {
             closed models.
           </p>
           <div className="flex flex-row justify-center mt-4">
-            {/* <a
+            <a
               className="px-10 btn rounded-md mx-4"
-              href="https://crfm.stanford.edu/2024/05/01/helm-mmlu.html"
+              href="https://crfm.stanford.edu/2024/11/08/helm-safety.html"
             >
               Blog Post
-            </a> */}
+            </a>
             <a className="px-10 btn rounded-md mx-4" href="#/leaderboard">
               Full Leaderboard
             </a>

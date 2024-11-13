@@ -37,6 +37,33 @@ def get_news_headline_spec(category: str) -> RunSpec:
     )
 
 
+# Legal
+
+
+@run_spec_function("legal_contract_summarization")
+def get_legal_contract_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.legal_contract_summarization_scenario.LegalContractSummarizationScenario",
+        args={},
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Summarize the legal document in plain English.",
+        input_noun="Document",
+        output_noun="Summary",
+        max_tokens=100,
+        stop_sequences=["\n\n"],
+    )
+
+    return RunSpec(
+        name="legal_contract_summarization",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_basic_metric_specs(["rouge_1", "rouge_2"]),
+        groups=["legal_contract_summarization"],
+    )
+
+
 # Climate
 
 

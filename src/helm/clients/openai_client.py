@@ -49,13 +49,6 @@ class OpenAIClient(CachingClient):
         self.tokenizer_name = tokenizer_name
         self.client = OpenAI(api_key=api_key, organization=org_id, base_url=base_url)
 
-    def _is_chat_model_engine(self, model_engine: str) -> bool:
-        if model_engine == "gpt-3.5-turbo-instruct":
-            return False
-        elif model_engine.startswith("gpt-3.5") or model_engine.startswith("gpt-4") or model_engine.startswith("o1"):
-            return True
-        return False
-
     def _get_model_for_request(self, request: Request) -> str:
         return request.model_engine
 
@@ -142,13 +135,7 @@ class OpenAIClient(CachingClient):
                         image_object: Dict[str, str] = {"url": f"data:image/jpeg;base64,{base64_image}"}
                         content.append({"type": "image_url", "image_url": image_object})
                     elif media_object.is_type("audio") and media_object.location:
-                        from helm.common.audio_utils import encode_base64  # type: ignore
-
-                        base64_audio: str = (
-                            encode_base64(media_object.location)
-                            if media_object.is_local_file
-                            else multimodal_request_utils.get_contents_as_base64(media_object.location)
-                        )
+                        base64_audio: str = multimodal_request_utils.get_contents_as_base64(media_object.location)
                         format: str = media_object.content_type.split("/")[1]
                         if format == "mpeg":
                             # OpenAI expects "mp3" for mpeg audio
@@ -346,7 +333,10 @@ class OpenAIClient(CachingClient):
     def make_request(self, request: Request) -> RequestResult:
         if request.embedding:
             return self._make_embedding_request(request)
-        elif self._is_chat_model_engine(request.model_engine):
-            return self._make_chat_request(request)
         else:
-            return self._make_completion_request(request)
+            return self._make_chat_request(request)
+
+
+class OpenAILegacyCompletionsClient(OpenAIClient):
+    def make_request(self, request: Request) -> RequestResult:
+        return self._make_completion_request(request)

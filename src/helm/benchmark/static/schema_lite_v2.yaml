@@ -88,6 +88,11 @@ metrics:
     short_display_name: PEM
     description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
     lower_is_better: false
+  - name: ifeval_strict_accuracy
+    display_name: IFEval strict accuracy
+    short_display_name: IFEval Strict Acc
+    description: Fraction of instructions in the instance that are correctly followed.
+    lower_is_better: false
 
 ############################################################
 perturbations: []
@@ -130,6 +135,7 @@ run_groups:
     subgroups:
       - mmlu_pro
       - gpqa
+      - ifeval
 
   - name: mmlu_pro
     display_name: MMLU-Pro
@@ -157,6 +163,23 @@ run_groups:
       - general_information
     environment:
       main_name: exact_match  # non-CoT
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+  
+  - name: ifeval
+    display_name: IFEval
+    description: IFEval
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: ifeval_strict_accuracy
       main_split: test
     taxonomy:
       task: "?"

@@ -7,12 +7,8 @@ import {
 } from "@heroicons/react/24/solid";
 import getSchema from "@/services/getSchema";
 import type RunSpec from "@/types/RunSpec";
-import getInstances from "@/services/getInstances";
-import type Instance from "@/types/Instance";
 import getStatsByName from "@/services/getStatsByName";
 import type Stat from "@/types/Stat";
-import getDisplayRequestsByName from "@/services/getDisplayRequestsByName";
-import getDisplayPredictionsByName from "@/services/getDisplayPredictionsByName";
 import getScenarioByName from "@/services/getScenarioByName";
 import type Scenario from "@/types/Scenario";
 import type AdapterFieldMap from "@/types/AdapterFieldMap";
@@ -23,7 +19,6 @@ import getRunSpecByName, {
 import { getScenarioStateByNameUrl } from "@/services/getScenarioStateByName";
 import Tab from "@/components/Tab";
 import Tabs from "@/components/Tabs";
-import InstanceData from "@/components/InstanceData";
 import Loading from "@/components/Loading";
 import Pagination from "@/components/Pagination";
 import Model from "@/types/Model";
@@ -31,10 +26,8 @@ import MarkdownValue from "@/components/MarkdownValue";
 import StatNameDisplay from "@/components/StatNameDisplay";
 import getRunsToRunSuites from "@/services/getRunsToRunSuites";
 import getSuiteForRun from "@/services/getSuiteForRun";
-import DisplayPrediction from "@/types/DisplayPrediction";
-import DisplayRequest from "@/types/DisplayRequest";
+import Instances from "@/components/Instances";
 
-const INSTANCES_PAGE_SIZE = 10;
 const METRICS_PAGE_SIZE = 50;
 
 export default function Run() {
@@ -43,16 +36,7 @@ export default function Run() {
   const [activeTab, setActiveTab] = useState<number>(0);
   const [runSpec, setRunSpec] = useState<RunSpec | undefined>();
   const [runSuite, setRunSuite] = useState<string | undefined>();
-  const [instances, setInstances] = useState<Instance[]>([]);
   const [stats, setStats] = useState<Stat[]>([]);
-  const [displayPredictionsMap, setDisplayPredictionsMap] = useState<
-    undefined | Record<string, Record<string, DisplayPrediction[]>>
-  >();
-  const [displayRequestsMap, setDisplayRequestsMap] = useState<
-    undefined | Record<string, Record<string, DisplayRequest[]>>
-  >();
-  const [currentInstancesPage, setCurrentInstancesPage] = useState<number>(1);
-  const [totalInstancesPages, setTotalInstancesPages] = useState<number>(1);
   const [currentMetricsPage, setCurrentMetricsPage] = useState<number>(1);
   const [totalMetricsPages, setTotalMetricsPages] = useState<number>(1);
   const [model, setModel] = useState<Model | undefined>();
@@ -75,34 +59,14 @@ export default function Run() {
         : getSuiteForRun(await getRunsToRunSuites(signal), runName);
       setRunSuite(suite);
 
-      const [
-        runSpecResp,
-        instancesResp,
-        statsResp,
-        scenario,
-        displayPredictions,
-        displayRequests,
-        schema,
-      ] = await Promise.all([
+      const [runSpecResp, statsResp, scenario, schema] = await Promise.all([
         getRunSpecByName(runName, signal, suite),
-        getInstances(runName, signal, suite),
         getStatsByName(runName, signal, suite),
         getScenarioByName(runName, signal, suite),
-        getDisplayPredictionsByName(runName, signal, suite),
-        getDisplayRequestsByName(runName, signal, suite),
         getSchema(signal),
       ]);
 
       setRunSpec(runSpecResp);
-      setInstances(instancesResp);
-      const totalInstancesPages = Math.ceil(
-        instancesResp.length / INSTANCES_PAGE_SIZE,
-      );
-      const instancePage = Number(searchParams.get("instancesPage") || 1);
-      setTotalInstancesPages(totalInstancesPages);
-      setCurrentInstancesPage(
-        Math.max(Math.min(instancePage, totalInstancesPages), 1),
-      );
       setStats(statsResp);
       setScenario(scenario);
       const totalMetricsPages = Math.floor(
@@ -113,42 +77,6 @@ export default function Run() {
       setCurrentMetricsPage(
         Math.max(Math.min(metricPage, totalMetricsPages), 1),
       );
-
-      const displayRequestsArgh: {
-        [key: string]: { [key: string]: DisplayRequest[] };
-      } = {};
-      displayRequests.forEach((displayRequest) => {
-        const instanceId = displayRequest.instance_id;
-        const perturbationName = displayRequest.perturbation?.name || "";
-        if (displayRequestsArgh[instanceId] === undefined) {
-          displayRequestsArgh[instanceId] = {};
-        }
-        if (displayRequestsArgh[instanceId][perturbationName] === undefined) {
-          displayRequestsArgh[instanceId][perturbationName] = [];
-        }
-        displayRequestsArgh[instanceId][perturbationName].push(displayRequest);
-      });
-      setDisplayRequestsMap(displayRequestsArgh);
-
-      const displayPredictionsArgh: {
-        [key: string]: { [key: string]: DisplayPrediction[] };
-      } = {};
-      displayPredictions.forEach((displayPrediction) => {
-        const instanceId = displayPrediction.instance_id;
-        const perturbationName = displayPrediction.perturbation?.name || "";
-        if (displayPredictionsArgh[instanceId] === undefined) {
-          displayPredictionsArgh[instanceId] = {};
-        }
-        if (
-          displayPredictionsArgh[instanceId][perturbationName] === undefined
-        ) {
-          displayPredictionsArgh[instanceId][perturbationName] = [];
-        }
-        displayPredictionsArgh[instanceId][perturbationName].push(
-          displayPrediction,
-        );
-      });
-      setDisplayPredictionsMap(displayPredictionsArgh);
 
       setMetricFieldMap(
         schema.metrics.reduce((acc, cur) => {
@@ -173,24 +101,19 @@ export default function Run() {
     return () => controller.abort();
   }, [runName, searchParams]);
 
-  if (
-    runSpec === undefined ||
-    displayPredictionsMap === undefined ||
-    displayRequestsMap === undefined ||
-    scenario === undefined
-  ) {
-    return <Loading />;
-  }
-
-  const pagedInstances = instances.slice(
-    (currentInstancesPage - 1) * INSTANCES_PAGE_SIZE,
-    (currentInstancesPage - 1) * INSTANCES_PAGE_SIZE + INSTANCES_PAGE_SIZE,
-  );
-
   const pagedMetrics = stats.slice(
     (currentMetricsPage - 1) * METRICS_PAGE_SIZE,
     (currentMetricsPage - 1) * METRICS_PAGE_SIZE + METRICS_PAGE_SIZE,
   );
+
+  if (
+    runSpec === undefined ||
+    scenario === undefined ||
+    runName === undefined ||
+    runSuite === undefined
+  ) {
+    return <Loading />;
+  }
 
   return (
     <>
@@ -278,47 +201,11 @@ export default function Run() {
         </Tabs>
       </div>
       {activeTab === 0 ? (
-        <>
-          <div className="grid gap-8">
-            {pagedInstances.map((instance, idx) => (
-              <InstanceData
-                key={`${instance.id}-${idx}`}
-                instance={instance}
-                requests={
-                  displayRequestsMap[instance.id][
-                    instance.perturbation?.name || ""
-                  ]
-                }
-                predictions={
-                  displayPredictionsMap[instance.id][
-                    instance.perturbation?.name || ""
-                  ]
-                }
-                metricFieldMap={metricFieldMap}
-              />
-            ))}
-          </div>
-          <Pagination
-            className="flex justify-center my-8"
-            onNextPage={() => {
-              const nextInstancePage = Math.min(
-                currentInstancesPage + 1,
-                totalInstancesPages,
-              );
-              setCurrentInstancesPage(nextInstancePage);
-              searchParams.set("instancesPage", String(nextInstancePage));
-              setSearchParams(searchParams);
-            }}
-            onPrevPage={() => {
-              const prevInstancePage = Math.max(currentInstancesPage - 1, 1);
-              setCurrentInstancesPage(prevInstancePage);
-              searchParams.set("instancesPage", String(prevInstancePage));
-              setSearchParams(searchParams);
-            }}
-            currentPage={currentInstancesPage}
-            totalPages={totalInstancesPages}
-          />
-        </>
+        <Instances
+          runName={runName}
+          suite={runSuite}
+          metricFieldMap={metricFieldMap}
+        />
       ) : (
         <div>
           {/* Search bar */}
