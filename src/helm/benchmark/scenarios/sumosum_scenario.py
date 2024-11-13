@@ -71,21 +71,21 @@ class SUMOSumScenario(Scenario):
         """
         Initializes the scenario.
         Args:
-            train_sampling_min_length: Int indicating minimum length for training
-                                       documents. Train examples smaller than
-                                       sampling_min_length tokens will be filtered out.
-            train_sampling_max_length: Int indicating maximum length for training
-                                       documents. Train examples larger than
-                                       sampling_max_length tokens will be filtered out.
-            test_sampling_min_length: Int indicating minimum length for training
-                                      documents. Test examples smaller than
-                                      sampling_min_length tokens will be filtered out.
-            test_sampling_max_length: Int indicating maximum length for training
-                                      documents. Test examples larger than
-                                      sampling_max_length tokens will be filtered out.
+            train_filter_min_length: Int indicating minimum length for training
+                                     documents. Train examples smaller than
+                                     train_filter_min_length tokens will be filtered out.
+            train_filter_max_length: Int indicating maximum length for training
+                                     documents. Train examples larger than
+                                     train_filter_max_length tokens will be filtered out.
+            test_filter_min_length: Int indicating minimum length for training
+                                    documents. Test examples smaller than
+                                    test_filter_min_length tokens will be filtered out.
+            test_filter_max_length: Int indicating maximum length for training
+                                    documents. Test examples larger than
+                                    test_filter_max_length tokens will be filtered out.
             truncate_length: Int indicating the maximum length in tokens to
                             truncate documents. Documents in all splits will be
-                            truncated to doc_max_length tokens.
+                            truncated to truncate_length tokens.
                             NOTE: Whitespace tokenization is used to compute tokens.
         """
         super().__init__()
