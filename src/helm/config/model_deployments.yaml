@@ -2757,3 +2757,12 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         pretrained_model_name_or_path: ibm-granite/granite-3.0-3b-a800m-base
+
+    - name: huggingface/granite-3.0-1b-a400m-instruct
+    model_name: ibm-granite/granite-3.0-1b-a400m-instruct
+    tokenizer_name: ibm-granite/granite-3.0-1b-a400m-instruct
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: ibm-granite/granite-3.0-1b-a400m-instruct
