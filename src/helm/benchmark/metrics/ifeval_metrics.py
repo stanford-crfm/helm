@@ -41,7 +41,7 @@ class IFEvalMetric(Metric):
                 instruction.build_description(prompt=prompt)
 
             is_following = False
-            if response.strip(): 
+            if response.strip():
                 try:
                     is_following = instruction.check_following(response)
                 except Exception as e:
