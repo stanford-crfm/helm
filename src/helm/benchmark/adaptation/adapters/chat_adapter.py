@@ -23,10 +23,14 @@ class ChatAdapter(InContextLearningAdapter):
         self, eval_instance: Instance, train_trial_index: int, training_instances: List[Instance]
     ) -> List[RequestState]:
         assert eval_instance.extra_data
+        messages = [
+            {"role": message["role"], "content": message["content"]}
+            for message in eval_instance.extra_data["conversation"]
+        ]
         request = Request(
             model=self.adapter_spec.model,
             model_deployment=self.adapter_spec.model_deployment,
-            messages=eval_instance.extra_data["conversation"],
+            messages=messages,
             num_completions=self.adapter_spec.num_outputs,
             temperature=self.adapter_spec.temperature,
             max_tokens=self.adapter_spec.max_tokens,
