@@ -3318,6 +3318,17 @@ models:
     release_date: 2024-04-18
     tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
   
+# Diva Llama
+  - name: stanford/diva-llama
+    display_name: Diva Llama 3 (8B)
+    description: Diva Llama 3 is an end-to-end Voice Assistant Model which can handle speech and text as inputs. It was trained using distillation loss. ([paper](https://arxiv.org/abs/2410.02678))
+    creator_organization_name: Stanford
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-10-03
+    tags: [AUDIO_LANGUAGE_MODEL_TAG]
+
+
 # LLaMA-Omni
   - name: ictnlp/llama-3.1-8b-omni
     display_name: LLaMA-Omni (8B)

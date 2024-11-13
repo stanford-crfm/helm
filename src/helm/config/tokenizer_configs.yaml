@@ -622,6 +622,16 @@ tokenizer_configs:
     end_of_text_token: "</s>"
     prefix_token: "</s>"
 
+  # Diva Llama
+  - name: stanford/diva-llama
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: WillHeld/DiVA-llama-3-v0-8b
+        trust_remote_code: true
+    prefix_token: "<|begin_of_text|>"
+    end_of_text_token: "<|eot_id|>"
+
   # LLaMA-Omni
   - name: ictnlp/llama-3.1-8b-omni
     tokenizer_spec:

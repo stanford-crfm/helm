@@ -3,11 +3,16 @@ import os
 from typing import Optional
 from filelock import FileLock
 
-import librosa
 import numpy as np
 import soundfile as sf
 
 from helm.common.multimodal_request_utils import get_contents_as_bytes
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+try:
+    import librosa
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["audiolm"])
 
 
 def ensure_audio_file_exists_from_array(path: str, array: np.ndarray, sample_rate: int) -> None:
@@ -33,6 +38,7 @@ def get_array_from_audio_file(path: str, sample_rate: Optional[int]) -> np.ndarr
     audio_file = (
         BytesIO(get_contents_as_bytes(path)) if path.startswith("http://") or path.startswith("https://") else path
     )
+
     # librosa accepts a local file path or a file-like object
     audio_array, _ = librosa.load(audio_file, sr=sample_rate)
     return audio_array

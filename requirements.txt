@@ -180,9 +180,6 @@ open_clip_torch==2.26.1
 openai==1.48.0
 opencv-python==4.8.1.78
 opencv-python-headless==4.10.0.84
-openvino==2024.4.0
-openvino-telemetry==2024.1.0
-openvino-tokenizers==2024.4.0.0
 opt-einsum==3.3.0
 optax==0.2.3
 optimum==1.22.0

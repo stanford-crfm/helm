@@ -21,6 +21,7 @@ from helm.benchmark.metrics.common_metric_specs import (
     get_generative_harms_metric_specs,
     get_generic_metric_specs,
     get_open_ended_generation_metric_specs,
+    MetricSpec,
 )
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.runner import get_benchmark_output_path
@@ -415,4 +416,24 @@ def get_gpqa_spec(subset: str, use_chain_of_thought: str = "False", use_few_shot
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),  # TODO: update this after cot metric is ready
         groups=["gpqa"],
+    )
+
+
+@run_spec_function("ifeval")
+def get_ifeval_spec() -> RunSpec:
+
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.ifeval_scenario.IFEvalScenario")
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION, input_prefix="", output_prefix="", max_tokens=1000, num_outputs=1, temperature=0.0
+    )
+
+    metric_specs = [MetricSpec(class_name="helm.benchmark.metrics.ifeval_metrics.IFEvalMetric")]
+
+    return RunSpec(
+        name="ifeval",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["ifeval"],
     )
