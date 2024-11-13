@@ -172,6 +172,7 @@ metric_groups:
 ############################################################
 
 run_groups:
+  # TODO: further split by aspects
   - name: audio_scenarios
     display_name: Audio Scenarios
     description: Audio Scenarios
