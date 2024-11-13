@@ -40,7 +40,13 @@ class IFEvalMetric(Metric):
             if args and "prompt" in args:
                 instruction.build_description(prompt=prompt)
 
-            if response.strip() and instruction.check_following(response):
+            is_following = False
+            if response.strip(): 
+                try:
+                    is_following = instruction.check_following(response)
+                except Exception as e:
+                    print(f"Instruction following checking failed with error message {e}")
+            if is_following:
                 is_following_list.append(1)
             else:
                 is_following_list.append(0)
