@@ -201,7 +201,7 @@ class VertexAIChatClient(VertexAIClient):
 
     def make_request(self, request: Request) -> RequestResult:
         """Make a request"""
-        contents = request.prompt
+        contents = [request.prompt]
 
         # For the multimodal case, build up the content with the media objects of `request.multimodal_prompt`
         if request.multimodal_prompt is not None:
