@@ -215,7 +215,7 @@ class VertexAIChatClient(VertexAIClient):
                 contents.append(
                     Content(role=role_mapping.get(msg["role"], "user"), parts=[Part.from_text(msg["content"])])
                 )
-            content_key = '\n'.join([msg["content"] for msg in request.messages])
+            content_key = "\n".join([msg["content"] for msg in request.messages])
 
         parameters = {
             "temperature": request.temperature,
