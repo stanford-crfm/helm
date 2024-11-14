@@ -2724,3 +2724,13 @@ model_deployments:
     max_sequence_length: 8192
     client_spec:
       class_name: "helm.clients.audio_language.llama_omni_client.LlamaOmniAudioLMClient"
+
+# Sabiá (Maritaca AI)
+  - name: huggingface/sabia-7b
+    model_name: maritaca-ai/sabia-7b
+    tokenizer_name: maritaca-ai/sabia-7b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+    args:
+      pretrained_model_name_or_path: maritaca-ai/sabia-7b

@@ -641,3 +641,12 @@ tokenizer_configs:
         trust_remote_code: false
     end_of_text_token: "<|eot_id|>"
     prefix_token: "<|begin_of_text|>"
+
+# Sabiá (Maritaca AI)
+  - name: maritaca-ai/sabia-7b
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: maritaca-ai/sabia-7b
+    end_of_text_token: ""
+    prefix_token: ""
