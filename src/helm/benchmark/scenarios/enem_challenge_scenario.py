@@ -13,9 +13,10 @@ from helm.benchmark.scenarios.scenario import (
     Output,
 )
 
+
 class ENEMChallengeScenario(Scenario):
     """
-    This scenario is based on the National High School Exams that were applied throughout the years 
+    This scenario is based on the National High School Exams that were applied throughout the years
     of 2009 and 2023.
 
     The examples are questions about all types of intelectual fields such as mathemathics and grammar.
@@ -36,24 +37,21 @@ class ENEMChallengeScenario(Scenario):
         instances: List[Instance] = []
 
         dataset = load_dataset("eduagarcia/enem_challenge")
-        for example in dataset['train']:
-            question = example['question']
-            choices = example['choices']
-            answer = example['answerKey']
-            if answer == 'ANULADO': # Skipping every canceled question!
+        for example in dataset["train"]:
+            question = example["question"]
+            choices = example["choices"]
+            answer = example["answerKey"]
+            # Skipping every canceled question!
+            if answer == "ANULADO":
                 continue
-            answers_dict = dict(zip(choices['label'], choices['text']))
+            answers_dict = dict(zip(choices["label"], choices["text"]))
             correct_answer = answers_dict[answer]
 
             def answer_to_reference(answer: str) -> Reference:
                 return Reference(Output(text=answer), tags=[CORRECT_TAG] if answer == correct_answer else [])
-            
-            instance = Instance(
-                input=Input(text=question),
-                split=TEST_SPLIT,
-                references=list(map(answer_to_reference, choices['text']))
-            )
-    
-            instances.append(instance)
 
+            instance = Instance(
+                input=Input(text=question), split=TEST_SPLIT, references=list(map(answer_to_reference, choices["text"]))
+            )
+            instances.append(instance)
         return instances
