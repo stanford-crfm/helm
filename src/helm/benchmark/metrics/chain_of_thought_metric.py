@@ -8,7 +8,6 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 
 import re
-import random
 
 
 def extract_answer(output_text: str) -> str:
