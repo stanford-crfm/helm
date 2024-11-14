@@ -56,7 +56,7 @@ class CasualConversations2Scenario(Scenario):
         "([Porgali et al., 2023](https://arxiv.org/abs/2303.04838))."
     )
     tags = ["audio", "classification", "multilinguality"]
-    gender_options: List[str] = ["male", "female", "tansgender male", "tansgender female", "non-binary", "other"]
+    gender_options: List[str] = ["male", "female", "transgender male", "transgender female", "non-binary", "other"]
     age_options: List[str] = ["18-30", "31-50", "51+", "other"]
 
     def __init__(self, subject: str) -> None:
