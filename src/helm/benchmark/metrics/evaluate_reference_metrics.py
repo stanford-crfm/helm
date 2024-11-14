@@ -9,7 +9,6 @@ from nltk.tokenize import word_tokenize
 from nltk.translate.bleu_score import sentence_bleu
 from rouge_score import rouge_scorer
 import numpy as np
-from jiwer import wer, mer, wip, cer
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
@@ -208,6 +207,11 @@ def wa_score(gold: str, pred: str) -> float:
     # metric used to evaluate the accuracy of speech recognition systems.
     # Note that this metric could be negative because the WER might be greater than 1.
     # https://huggingface.co/learn/audio-course/en/chapter5/evaluation#word-error-rate
+    try:
+        from jiwer import wer
+    except ModuleNotFoundError as e:
+        handle_module_not_found_error(e, ["audiolm"])
+
     if not pred:
         return 0
 
@@ -218,6 +222,11 @@ def wa_score(gold: str, pred: str) -> float:
 def ma_score(gold: str, pred: str) -> float:
     # Match Accuracy (MA) equals to 1 - match error rate (MER), which is for evaluating the accuracy of
     # speech recognition systems.
+    try:
+        from jiwer import mer
+    except ModuleNotFoundError as e:
+        handle_module_not_found_error(e, ["audiolm"])
+
     if not pred:
         return 0
     mer_ret = mer(gold, pred)
@@ -227,6 +236,11 @@ def ma_score(gold: str, pred: str) -> float:
 def wip_score(gold: str, pred: str) -> float:
     # Word information preservation (WIP) for evaluating the preserved information of speech
     # recognition systems.
+    try:
+        from jiwer import wip
+    except ModuleNotFoundError as e:
+        handle_module_not_found_error(e, ["audiolm"])
+
     if not pred:
         return 0
     wip_ret = wip(gold, pred)
@@ -236,10 +250,51 @@ def wip_score(gold: str, pred: str) -> float:
 def ca_score(gold: str, pred: str) -> float:
     # Character accuracy (CA) equals to character error rate (CER) for evaluating the accuracy
     # of speech recognition systems.
+    try:
+        from jiwer import cer
+    except ModuleNotFoundError as e:
+        handle_module_not_found_error(e, ["audiolm"])
+
     if not pred:
         return 0
     cer_ret = cer(gold, pred)
     return cer_ret
+
+
+def chinese_wa_score(gold: str, pred: str) -> float:
+    try:
+        import jieba
+    except ModuleNotFoundError as e:
+        handle_module_not_found_error(e, ["audiolm"])
+
+    return wa_score(" ".join(jieba.cut(gold)), " ".join(jieba.cut(pred)))
+
+
+def chinese_ma_score(gold: str, pred: str) -> float:
+    try:
+        import jieba
+    except ModuleNotFoundError as e:
+        handle_module_not_found_error(e, ["audiolm"])
+
+    return ma_score(" ".join(jieba.cut(gold)), " ".join(jieba.cut(pred)))
+
+
+def chinese_wip_score(gold: str, pred: str) -> float:
+    try:
+        import jieba
+    except ModuleNotFoundError as e:
+        handle_module_not_found_error(e, ["audiolm"])
+
+    return wip_score(" ".join(jieba.cut(gold)), " ".join(jieba.cut(pred)))
+
+
+def chinese_ca_score(gold: str, pred: str) -> float:
+    try:
+        import jieba
+    except ModuleNotFoundError as e:
+        handle_module_not_found_error(e, ["audiolm"])
+
+    return ca_score(" ".join(jieba.cut(gold)), " ".join(jieba.cut(pred)))
 
 
 def extract_set_from_text(
@@ -395,6 +450,10 @@ def compute_reference_metrics(
         "ma_score": ma_score,
         "wip_score": wip_score,
         "ca_score": ca_score,
+        "chinese_wa_score": chinese_wa_score,
+        "chinese_ma_score": chinese_ma_score,
+        "chinese_wip_score": chinese_wip_score,
+        "chinese_ca_score": chinese_ca_score,
     }
 
     stats: List[Stat] = []

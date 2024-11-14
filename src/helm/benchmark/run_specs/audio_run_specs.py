@@ -60,6 +60,10 @@ def _get_open_ended_generation_metric_specs() -> List[MetricSpec]:
     )
 
 
+def _get_chinese_audio_recognition_metric_specs() -> List[MetricSpec]:
+    return get_basic_metric_specs(["chinese_wa_score", "chinese_ma_score", "chinese_wip_score", "chinese_ca_score"])
+
+
 ########################################################################################################################
 # RunSpecs
 
@@ -99,6 +103,25 @@ def get_iemocap_audio_run_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
         groups=["iemocap_audio"],
+    )
+
+
+@run_spec_function("meld_audio")
+def get_meld_audio_run_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.meld_audio_scenario.MELDAudioScenario"
+    )
+    adapter_spec = _get_generation_adapter_spec(
+        instructions='Classify the emotion of the speaker in the audio as "anger", "disgust", "fear", "joy", "neutral", "sadness", or "surprise". Answer with only the emotion.',  # noqa: E501
+        max_tokens=5,
+    )
+    metric_specs = get_exact_match_metric_specs() + get_classification_metric_specs()
+    return RunSpec(
+        name="meld_audio",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["meld_audio"],
     )
 
 
@@ -154,7 +177,10 @@ def get_multilingual_librispeech_run_spec(language: str) -> RunSpec:
         "Respond with only the transcript text.",
         max_tokens=100,
     )
-    metric_specs = _get_audio_recognition_metric_specs()
+    if "chinese" in language.lower():
+        metric_specs = _get_chinese_audio_recognition_metric_specs()
+    else:
+        metric_specs = _get_audio_recognition_metric_specs()
     return RunSpec(
         name="multilingual_librispeech",
         scenario_spec=scenario_spec,
@@ -189,7 +215,7 @@ def get_fleurs_run_spec(language: str) -> RunSpec:
 @run_spec_function("audiocaps")
 def get_audiocaps_run_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.audio_language.audiocaps_senario.AudioCapsScenario"
+        class_name="helm.benchmark.scenarios.audio_language.audiocaps_scenario.AudioCapsScenario"
     )
     adapter_spec = _get_generation_adapter_spec(
         instructions="Generate a caption for the following audio. The caption should be short and does "
@@ -203,4 +229,70 @@ def get_audiocaps_run_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
         groups=["audiocaps"],
+    )
+
+
+@run_spec_function("common_voice_15")
+def get_common_voice_15_run_spec(language: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.common_voice_15_scenario.CommonVoice15Scenario",
+        args={"language": language},
+    )
+    adapter_spec = _get_generation_adapter_spec(
+        instructions="Listen to the audio and generate an accurate transcript of the spoken content. "
+        "Respond with only the transcript text.",
+        max_tokens=100,
+    )
+    # Chinese characters are not supported in the default metrics
+    if "chinese" in language.lower():
+        metric_specs = _get_chinese_audio_recognition_metric_specs()
+    else:
+        metric_specs = _get_audio_recognition_metric_specs()
+    return RunSpec(
+        name="common_voice_15",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["common_voice_15"],
+    )
+
+
+@run_spec_function("speech_robust_bench")
+def get_speech_robust_bench_run_spec(subject: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.speech_robust_bench_scenario.SpeechRobustBenchScenario",
+        args={"subject": subject},
+    )
+    adapter_spec = _get_generation_adapter_spec(
+        instructions="Listen to the audio and generate an accurate transcript of the spoken content. "
+        "Respond with only the transcript text.",
+        max_tokens=100,
+    )
+    metric_specs = _get_audio_recognition_metric_specs()
+    return RunSpec(
+        name="speech_robust_bench",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["speech_robust_bench"],
+    )
+
+
+@run_spec_function("audio_pairs")
+def get_audio_pairs_run_spec(subject: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.audio_pairs_scenario.AudioPAIRSScenario",
+        args={"subject": subject},
+    )
+    adapter_spec = _get_generation_adapter_spec(
+        instructions="Listen to the audio and answer the question with provided options.",
+        max_tokens=5,
+    )
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_classification_metric_specs()
+    return RunSpec(
+        name="audio_pairs",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["audio_pairs"],
     )

@@ -59,7 +59,6 @@ class HuggingFaceServer:
         self,
         pretrained_model_name_or_path: str,
         wrapped_tokenizer: WrappedPreTrainedTokenizer,
-        openvino: bool = False,
         **kwargs,
     ):
         self.device: Optional[str]
@@ -92,20 +91,7 @@ class HuggingFaceServer:
 
         with htrack_block(f"Loading Hugging Face model {pretrained_model_name_or_path}"):
             # WARNING this may fail if your GPU does not have enough memory
-            if openvino:
-                # Optimum Intel provides a simple interface to optimize Transformer models and convert them to \
-                # OpenVINO™ Intermediate Representation (IR) format to accelerate end-to-end pipelines on \
-                # Intel® architectures using OpenVINO™ runtime.
-                try:
-                    from optimum.intel.openvino import OVModelForCausalLM
-                except ModuleNotFoundError as e:
-                    handle_module_not_found_error(e, ["openvino"])
-
-                self.device = "cpu"
-                self.model = OVModelForCausalLM.from_pretrained(
-                    pretrained_model_name_or_path, export=True, **kwargs
-                ).to(self.device)
-            elif self.device is None:
+            if self.device is None:
                 # kwargs contains device_map=auto
                 # Do not call to() because accelerate will take care of model device placement.
                 self.model = AutoModelForCausalLM.from_pretrained(pretrained_model_name_or_path, **kwargs)

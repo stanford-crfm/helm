@@ -29,7 +29,15 @@ class FLEURSScenario(Scenario):
     Code: https://tensorflow.org/datasets/catalog/xtreme_s
 
     Citation:
-
+    @inproceedings{conneau2023fleurs,
+        title={Fleurs: Few-shot learning evaluation of universal representations of speech},
+        author={Conneau, Alexis and Ma, Min and Khanuja, Simran and Zhang, Yu and Axelrod,
+        Vera and Dalmia, Siddharth and Riesa, Jason and Rivera, Clara and Bapna, Ankur},
+        booktitle={2022 IEEE Spoken Language Technology Workshop (SLT)},
+        pages={798--805},
+        year={2023},
+        organization={IEEE}
+        }
     """
 
     HF_DATASET_NAME = "google/xtreme_s"
@@ -50,8 +58,8 @@ class FLEURSScenario(Scenario):
             ("Burmese", "my"),
             ("Catalan", "ca"),
             ("Cebuano", "ceb"),
-            ("Mandarin Chinese", "cmn_hans"),
-            ("Cantonese Chinese", "yue_hant"),
+            ("Mandarin_Chinese", "cmn_hans"),
+            ("Cantonese_Chinese", "yue_hant"),
             ("Croatian", "hr"),
             ("Czech", "cs"),
             ("Danish", "da"),
@@ -270,9 +278,10 @@ class FLEURSScenario(Scenario):
     def __init__(self, language: str) -> None:
         super().__init__()
 
-        language = language.capitalize()
         if language not in FLEURSScenario._FLEURS_TEST_LANG_TO_ID.keys():
-            raise ValueError(f"Invalid language. Valid languages are: {FLEURSScenario._FLEURS_TEST_LANG_TO_ID.keys()}")
+            raise ValueError(
+                f"Invalid language: {language}. Valid languages are: {FLEURSScenario._FLEURS_TEST_LANG_TO_ID.keys()}"
+            )
 
         self._fleurs_lang_short_to_long = {v: k for k, v in FLEURSScenario._FLEURS_LANG_TO_ID.items()}
         self._fleurs_long_to_lang = {
@@ -290,6 +299,7 @@ class FLEURSScenario(Scenario):
                 name=f"fleurs.{language_category}",
                 cache_dir=output_path,
                 split=TEST_SPLIT,
+                trust_remote_code=True,
             )
         ):
             local_audio_path = row["path"]

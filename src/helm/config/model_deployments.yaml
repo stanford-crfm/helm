@@ -1596,7 +1596,7 @@ model_deployments:
     # to provide a margin of error.
     max_sequence_length: 16000
     client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
+      class_name: "helm.clients.openai_client.OpenAILegacyCompletionsClient"
 
   - name: openai/babbage-002
     model_name: openai/babbage-002
@@ -1605,7 +1605,7 @@ model_deployments:
     # to provide a margin of error.
     max_sequence_length: 16000
     client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
+      class_name: "helm.clients.openai_client.OpenAILegacyCompletionsClient"
 
   ## GPT 3.5 Turbo Models
   # ChatGPT: https://openai.com/blog/chatgpt
@@ -1616,7 +1616,7 @@ model_deployments:
     max_sequence_length: 4096
     max_request_length: 4097
     client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
+      class_name: "helm.clients.openai_client.OpenAILegacyCompletionsClient"
 
   # The claimed sequence length is 4096, but as of 2023-03-07, the empirical usable
   # sequence length is smaller at 4087 with one user input message and one assistant
@@ -2514,6 +2514,19 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.palmyra_client.PalmyraChatClient"
 
+  # xAI
+
+  - name: xai/grok-beta
+    model_name: xai/grok-beta
+    # No public information on tokenizer, so just pick an arbitrary one.
+    # It shouldn't matter since the context is long.
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+      args:
+        base_url: https://api.x.ai/v1
+
   # Qwen
 
   - name: together/qwen-7b
@@ -2694,6 +2707,15 @@ model_deployments:
     max_sequence_length: 64000
     client_spec:
       class_name: "helm.clients.reka_client.RekaClient"
+
+# Diva Llama
+  - name: huggingface/diva-llama
+    model_name: stanford/diva-llama
+    # TODO: Set the right tokenizer
+    tokenizer_name: meta/llama-3-8b-instruct
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.audio_language.diva_llama_client.DivaLlamaClient"
 
 # LLaMA-Omni
   - name: ictnlp/llama-3.1-8b-omni

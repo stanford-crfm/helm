@@ -26,6 +26,3 @@ class YiChatClient(OpenAIClient):
             org_id=None,
             base_url=YiChatClient.BASE_URL,
         )
-
-    def _is_chat_model_engine(self, model_engine: str) -> bool:
-        return True
