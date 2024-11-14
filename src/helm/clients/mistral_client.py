@@ -22,6 +22,7 @@ class MistralAIRequest(TypedDict):
     model: str
     # The prompt can be either a string or a list of messages that can be multimodal
     prompt: Union[str, List[Dict[str, str]]]
+    messages: List[Dict[str, str]]
     max_tokens: int
     temperature: float
     top_p: float
@@ -52,7 +53,7 @@ class MistralAIClient(CachingClient):
     def _send_request(self, raw_request: MistralAIRequest) -> Dict[str, Any]:
         chat_response: Optional[ChatCompletionResponse] = self._client.chat.complete(
             model=raw_request["model"],
-            messages=[{"role": "user", "content": raw_request["prompt"]}],  # type: ignore
+            messages=raw_request["messages"] if raw_request["messages"] else [{"role": "user", "content": raw_request["prompt"]}],  # type: ignore
             temperature=raw_request["temperature"],
             max_tokens=raw_request["max_tokens"],
             top_p=raw_request["top_p"],
@@ -114,15 +115,26 @@ class MistralAIClient(CachingClient):
         # `num_completions` is not supported, so instead make `num_completions` separate requests.
         for completion_index in range(request.num_completions):
             try:
-                raw_request: MistralAIRequest = {
-                    "model": self.mistral_model or request.model_engine,
-                    "prompt": prompt,
-                    "max_tokens": request.max_tokens,
-                    "temperature": request.temperature,
-                    "top_p": request.top_p,
-                    "random_seed": self._get_random_seed(request, completion_index),
-                    "stop": request.stop_sequences or None,
-                }
+                if request.messages:
+                    raw_request: MistralAIRequest = {
+                        "model": self.mistral_model or request.model_engine,
+                        "messages": request.messages,
+                        "max_tokens": request.max_tokens,
+                        "temperature": request.temperature,
+                        "top_p": request.top_p,
+                        "random_seed": self._get_random_seed(request, completion_index),
+                        "stop": request.stop_sequences or None,
+                    }
+                else:
+                    raw_request: MistralAIRequest = {
+                        "model": self.mistral_model or request.model_engine,
+                        "prompt": prompt,
+                        "max_tokens": request.max_tokens,
+                        "temperature": request.temperature,
+                        "top_p": request.top_p,
+                        "random_seed": self._get_random_seed(request, completion_index),
+                        "stop": request.stop_sequences or None,
+                    }
 
                 def do_it() -> Dict[str, Any]:
                     result: Dict[str, Any] = self._send_request(raw_request)
