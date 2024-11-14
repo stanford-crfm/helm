@@ -29,6 +29,7 @@ def extract_answer(output_text: str) -> str:
     # If neither regex matches, return "N/A"
     return "N/A"
 
+
 class ChainOfThoughtMetric(Metric):
     """Replacement for BasicGenerationMetric for AIRBench 2024."""
 
@@ -42,7 +43,7 @@ class ChainOfThoughtMetric(Metric):
         # Output from the model
         if request_state.result is not None and request_state.result.completions:
             output_text = request_state.result.completions[0].text
-        
+
         # Extract the answer using the updated logic
         extracted_answer = extract_answer(output_text)
 
