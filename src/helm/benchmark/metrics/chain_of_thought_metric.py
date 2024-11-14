@@ -28,7 +28,11 @@ class ChainOfThoughtMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         # Output from the model
-        output_text = request_state.result.completions[0].text
+        if request_state.result is not None and request_state.result.completions:
+            output_text = request_state.result.completions[0].text
+        else:
+            raise ValueError("Request result is None or completions is empty")
+
 
         # Initial regex pattern to match answer
         match = re.search(r"answer is \(?([A-J])\)?", output_text)
