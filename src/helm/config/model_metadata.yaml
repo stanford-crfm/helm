@@ -3329,7 +3329,7 @@ models:
     access: open
     num_parameters: 2530000000
     release: 2024-10-21
-    tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG]
 
   - name: ibm-granite/granite-3.0-2b-instruct
     display_name: Granite 3.0 Instruct (2B)
@@ -3356,7 +3356,7 @@ models:
     access: open
     num_parameters: 8170000000
     release: 2024-10-21
-    tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG]
 
   - name: ibm-granite/granite-3.0-3b-a800m-instruct
     display_name: Granite 3.0 A800M instruct (3B)
@@ -3374,7 +3374,7 @@ models:
     access: open
     num_parameters: 3370000000
     release: 2024-10-21
-    tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG]
 
   - name: ibm-granite/granite-3.0-1b-a400m-instruct
     display_name: Granite 3.0 A400M instruct (1B)
@@ -3392,4 +3392,4 @@ models:
     access: open
     num_parameters: 1380000000
     release: 2024-10-21
-    tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG]
