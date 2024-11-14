@@ -21,8 +21,8 @@ class MistralAIRequest(TypedDict):
 
     model: str
     # The prompt can be either a string or a list of messages that can be multimodal
-    prompt: Union[str, List[Dict[str, str]]]
-    messages: List[Dict[str, str]]
+    prompt: Optional[Union[str, List[Dict[str, str]]]]
+    messages: Optional[List[Dict[str, str]]]
     max_tokens: int
     temperature: float
     top_p: float
@@ -118,6 +118,7 @@ class MistralAIClient(CachingClient):
                 if request.messages:
                     raw_request: MistralAIRequest = {
                         "model": self.mistral_model or request.model_engine,
+                        "prompt": None,
                         "messages": request.messages,
                         "max_tokens": request.max_tokens,
                         "temperature": request.temperature,
@@ -129,6 +130,7 @@ class MistralAIClient(CachingClient):
                     raw_request: MistralAIRequest = {
                         "model": self.mistral_model or request.model_engine,
                         "prompt": prompt,
+                        "messages": None,
                         "max_tokens": request.max_tokens,
                         "temperature": request.temperature,
                         "top_p": request.top_p,
