@@ -33,7 +33,6 @@ class ChainOfThoughtMetric(Metric):
         else:
             raise ValueError("Request result is None or completions is empty")
 
-
         # Initial regex pattern to match answer
         match = re.search(r"answer is \(?([A-J])\)?", output_text)
 
