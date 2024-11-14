@@ -51,9 +51,10 @@ class MistralAIClient(CachingClient):
         self.mistral_model = mistral_model
 
     def _send_request(self, raw_request: MistralAIRequest) -> Dict[str, Any]:
+        messages = raw_request.get("messages", [{"role": "user", "content": raw_request["prompt"]}])
         chat_response: Optional[ChatCompletionResponse] = self._client.chat.complete(
             model=raw_request["model"],
-            messages=raw_request["messages"] if raw_request["messages"] else [{"role": "user", "content": raw_request["prompt"]}],  # type: ignore
+            messages=messages,
             temperature=raw_request["temperature"],
             max_tokens=raw_request["max_tokens"],
             top_p=raw_request["top_p"],
