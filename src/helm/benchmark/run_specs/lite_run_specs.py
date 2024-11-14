@@ -330,6 +330,7 @@ def get_wmt_14_spec(language_pair: str, max_train_instances: int = 1) -> RunSpec
         groups=["wmt_14"],
     )
 
+
 @run_spec_function("gpqa")
 def get_gpqa_spec(subset: str, use_chain_of_thought: str = "False", use_few_shot: str = "False") -> RunSpec:
     # Convert to bools and remove the str versions
