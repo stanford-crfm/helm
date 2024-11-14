@@ -127,7 +127,7 @@ class MistralAIClient(CachingClient):
                         "stop": request.stop_sequences or None,
                     }
                 else:
-                    raw_request: MistralAIRequest = {
+                    raw_request = {
                         "model": self.mistral_model or request.model_engine,
                         "prompt": prompt,
                         "messages": None,
