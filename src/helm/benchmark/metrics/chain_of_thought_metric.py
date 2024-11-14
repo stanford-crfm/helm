@@ -52,6 +52,8 @@ class ChainOfThoughtMetric(Metric):
             if option.is_correct:
                 correct_answer = chr(65 + index)  # Translate index (0 -> A, 1 -> B, etc.)
                 break
+        
+        print(request_state.instance.id, correct_answer, extracted_answer)
 
         score = 1 if extracted_answer == correct_answer else 0
         # Return the score in the specified format
