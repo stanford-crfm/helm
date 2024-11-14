@@ -21,8 +21,8 @@ class MistralAIRequest(TypedDict):
 
     model: str
     # The prompt can be either a string or a list of messages that can be multimodal
-    prompt: Optional[Union[str, List[Dict[str, str]]]]
-    messages: Optional[List[Dict[str, str]]]
+    prompt: Union[str, List[Dict[str, str]]]
+    messages: List[Dict[str, str]]
     max_tokens: int
     temperature: float
     top_p: float
@@ -51,7 +51,10 @@ class MistralAIClient(CachingClient):
         self.mistral_model = mistral_model
 
     def _send_request(self, raw_request: MistralAIRequest) -> Dict[str, Any]:
-        messages = raw_request.get("messages", [{"role": "user", "content": raw_request["prompt"]}])
+        if raw_request["messages"] is not None:
+            messages = raw_request["messages"]
+        else:
+            messages = [{"role": "user", "content": raw_request["prompt"]}]
         chat_response: Optional[ChatCompletionResponse] = self._client.chat.complete(
             model=raw_request["model"],
             messages=messages,
