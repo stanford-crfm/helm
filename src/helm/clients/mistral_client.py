@@ -21,8 +21,8 @@ class MistralAIRequest(TypedDict):
 
     model: str
     # The prompt can be either a string or a list of messages that can be multimodal
-    prompt: Union[str, List[Dict[str, str]]]
-    messages: List[Dict[str, str]]
+    prompt: Optional[Union[str, List[Dict[str, str]]]]
+    messages: Optional[List[Dict[str, str]]]
     max_tokens: int
     temperature: float
     top_p: float
