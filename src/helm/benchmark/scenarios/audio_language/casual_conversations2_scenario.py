@@ -56,13 +56,8 @@ class CasualConversations2Scenario(Scenario):
         "([Porgali et al., 2023](https://arxiv.org/abs/2303.04838))."
     )
     tags = ["audio", "classification", "multilinguality"]
-<<<<<<< HEAD
-    gender_options: List[str] = ["male", "female", "others"]
-    age_options: List[str] = ["18-30", "31-50", "51+", "others"]
-=======
     gender_options: List[str] = ["male", "female", "tansgender male", "tansgender female", "non-binary", "other"]
     age_options: List[str] = ["18-30", "31-50", "51+", "other"]
->>>>>>> ae98501c (fix)
 
     def __init__(self, subject: str) -> None:
         super().__init__()
@@ -78,14 +73,10 @@ class CasualConversations2Scenario(Scenario):
         self.instruction = self.AGE_INSTRUCTION if subject == "age" else self.GENDER_INSTRUCTION
 
     def _extract_audio_from_video(self, input_video_path: str, output_audio_path: str) -> None:
-<<<<<<< HEAD
-        os.system(f"ffmpeg -i {input_video_path} -q:a 0 -map a {output_audio_path}")
-=======
         try:
             os.system(f"ffmpeg -i {input_video_path} -q:a 0 -map a {output_audio_path}")
         except Exception:
             raise ValueError("Please install ffmpeg using `bash install-shelm-extras.sh` first to extract audio files.")
->>>>>>> ae98501c (fix)
 
     def _convert_age_to_label(self, age: str) -> str:
         if age != "prefer not to say":
@@ -107,12 +98,6 @@ class CasualConversations2Scenario(Scenario):
                 return "A"
             elif gender == "cis woman":
                 return "B"
-<<<<<<< HEAD
-            else:
-                return "C"
-        else:
-            return "C"
-=======
             elif gender == "transgender man":
                 return "C"
             elif gender == "transgender woman":
@@ -123,7 +108,6 @@ class CasualConversations2Scenario(Scenario):
                 raise ValueError(f"Invalid gender: {gender}")
         else:
             return "F"
->>>>>>> ae98501c (fix)
 
     def get_instances(self, output_path: str) -> List[Instance]:
         data_dir: str = os.path.join(output_path, "videos_files")
