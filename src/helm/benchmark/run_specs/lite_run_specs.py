@@ -226,6 +226,7 @@ def get_mmlu_pro_spec(subject: str, use_chain_of_thought: str = "False", use_few
         groups=["mmlu_pro"],
     )
 
+
 @run_spec_function("gsm")
 def get_gsm_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.gsm_scenario.GSM8KScenario", args={})
