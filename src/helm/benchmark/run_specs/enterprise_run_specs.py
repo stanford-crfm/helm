@@ -67,9 +67,9 @@ def get_legal_contract_spec() -> RunSpec:
     )
 
 
-@run_spec_function("casehold_qa")
-def get_casehold_qa_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.casehold_qa_scenario.CaseHOLDQAScenario", args={})
+@run_spec_function("casehold")
+def get_casehold_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.casehold_scenario.CaseHOLDScenario", args={})
 
     method = ADAPT_MULTIPLE_CHOICE_JOINT
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -83,9 +83,9 @@ def get_casehold_qa_spec() -> RunSpec:
     metric_specs = get_f1_metric_specs()
 
     return RunSpec(
-        name="casehold_qa",
+        name="casehold",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=["casehold_qa"],
+        groups=["casehold"],
     )

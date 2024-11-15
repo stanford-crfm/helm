@@ -17,7 +17,7 @@ from helm.benchmark.scenarios.scenario import (
 )
 
 
-class CaseHOLDQAScenario(Scenario):
+class CaseHOLDScenario(Scenario):
     """
      CaseHOLD QA
        CaseHOLD is a multiple choice question answering task derived from legal citations in judicial rulings.
@@ -40,7 +40,7 @@ class CaseHOLDQAScenario(Scenario):
 
     """  # noqa: E501
 
-    name = "casehold_qa"
+    name = "casehold"
     description = "CaseHOLD (Case Holdings On Legal Decisions) is a multiple choice question answering scenario where the task is to identify the relevant holding of a cited case [(Zheng et al, 2021)](https://arxiv.org/pdf/2104.08671.pdf)."  # noqa: E501
     tags = ["question_answering", "legal"]
 
