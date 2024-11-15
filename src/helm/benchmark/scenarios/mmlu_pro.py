@@ -13,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
 )
 
+
 class MMLUProScenario(Scenario):
     """
     The MMLU-Pro dataset is an advanced version of the Massive Multitask Language Understanding (MMLU)
@@ -90,4 +91,3 @@ class MMLUProScenario(Scenario):
             instances.extend(self.process_dataset(data, split))
 
         return instances
-

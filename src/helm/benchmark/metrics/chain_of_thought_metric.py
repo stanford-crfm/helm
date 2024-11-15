@@ -8,6 +8,7 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 
+
 def extract_answer(output_text: str) -> Optional[str]:
     """
     Extracts the answer from the output text using two exact regex patterns.
@@ -35,8 +36,8 @@ def extract_answer(output_text: str) -> Optional[str]:
 
 class ChainOfThoughtMetric(Metric):
     """
-    This metric focuses on structured reasoning and the accuracy of extracted answers. 
-    It compares model outputs against correct answers provided in a multiple-choice 
+    This metric focuses on structured reasoning and the accuracy of extracted answers.
+    It compares model outputs against correct answers provided in a multiple-choice
     format and returns a score indicating the correctness of the generated response.
     """
 
@@ -50,24 +51,25 @@ class ChainOfThoughtMetric(Metric):
         """
         Evaluate the generated output for chain-of-thought reasoning accuracy.
 
-        The method extracts the model's output, determines the correct answer 
+        The method extracts the model's output, determines the correct answer
         from the provided references, and compares the two to compute a binary score.
 
         Args:
             adapter_spec (AdapterSpec): Specification of the adapter used for the evaluation.
-            request_state (RequestState): The state of the current request, including 
+            request_state (RequestState): The state of the current request, including
                                           the input instance, output results, and references.
             metric_service (MetricService): A service used to compute metrics if needed.
             eval_cache_path (str): Path to the evaluation cache for storing or retrieving data.
 
         Returns:
-            List[Stat]: A list containing a single `Stat` object with the correctness 
-                        score (1 for correct, 0 for incorrect) under the metric 
+            List[Stat]: A list containing a single `Stat` object with the correctness
+                        score (1 for correct, 0 for incorrect) under the metric
                         name "chain_of_thought_correct".
         """
         # Assert that completions exist if the result is not None
-        assert request_state.result is not None and request_state.result.completions, \
-            "Request state result must have completions."
+        assert (
+            request_state.result is not None and request_state.result.completions
+        ), "Request state result must have completions."
 
         # Set output_text if the assertion passes
         output_text = request_state.result.completions[0].text
