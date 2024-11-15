@@ -57,7 +57,7 @@ class SpeechRobustBenchScenario(Scenario):
         "Speech recognition for 4 datasets with a wide range of corruptions"
         "([Shah et al, 2024](https://arxiv.org/abs/2403.07937))."
     )
-    tags: List[str] = ["audio", "recognition"]
+    tags: List[str] = ["audio", "recognition", "robustness", "multilinguality"]
 
     def __init__(self, subject: str) -> None:
         super().__init__()

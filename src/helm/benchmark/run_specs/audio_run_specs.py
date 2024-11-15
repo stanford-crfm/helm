@@ -4,7 +4,10 @@ from typing import List, Optional
 from helm.benchmark.adaptation.adapter_spec import (
     AdapterSpec,
 )
-from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION_MULTIMODAL
+from helm.benchmark.adaptation.adapters.adapter_factory import (
+    ADAPT_GENERATION_MULTIMODAL,
+    ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
+)
 from helm.benchmark.metrics.common_metric_specs import (
     get_classification_metric_specs,
     get_exact_match_metric_specs,
@@ -39,6 +42,30 @@ def _get_generation_adapter_spec(
         max_tokens=max_tokens,
         temperature=temperature,
         stop_sequences=stop_sequences if stop_sequences is not None else [],
+    )
+
+
+def _get_multiple_choice_joint_adapter_spec(
+    input_noun: Optional[str],
+    output_noun: str,
+    max_train_instances: int = 0,
+    num_outputs: int = 1,
+) -> AdapterSpec:
+    return AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
+        global_prefix="",
+        instructions="Answer the multiple choice question by just giving the letter of the correct answer.",
+        input_prefix=f"{input_noun}: " if input_noun is not None else "",
+        input_suffix="\n",
+        output_prefix=f"{output_noun}: ",
+        output_suffix="\n",
+        instance_prefix="\n",
+        max_train_instances=max_train_instances,
+        num_outputs=num_outputs,
+        max_tokens=1,
+        stop_sequences=["\n"],
+        temperature=0.0,
+        random=None,
     )
 
 
@@ -78,12 +105,13 @@ def get_audio_mnist_run_spec() -> RunSpec:
         max_tokens=5,
     )
     metric_specs = get_exact_match_metric_specs() + get_classification_metric_specs()
+    run_spec_name: str = "audio_mnist"
     return RunSpec(
-        name="audio_mnist",
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=["audio_mnist"],
+        groups=[run_spec_name],
     )
 
 
@@ -97,12 +125,13 @@ def get_iemocap_audio_run_spec() -> RunSpec:
         max_tokens=5,
     )
     metric_specs = get_exact_match_metric_specs() + get_classification_metric_specs()
+    run_spec_name: str = "iemocap_audio"
     return RunSpec(
-        name="iemocap_audio",
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=["iemocap_audio"],
+        groups=[run_spec_name],
     )
 
 
@@ -116,12 +145,13 @@ def get_meld_audio_run_spec() -> RunSpec:
         max_tokens=5,
     )
     metric_specs = get_exact_match_metric_specs() + get_classification_metric_specs()
+    run_spec_name: str = "meld_audio"
     return RunSpec(
-        name="meld_audio",
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=["meld_audio"],
+        groups=[run_spec_name],
     )
 
 
@@ -156,12 +186,13 @@ def get_vocal_sound_run_spec() -> RunSpec:
         max_tokens=5,
     )
     metric_specs = get_exact_match_metric_specs() + get_classification_metric_specs()
+    run_spec_name: str = "vocal_sound"
     return RunSpec(
-        name="vocal_sound",
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=["vocal_sound"],
+        groups=[run_spec_name],
     )
 
 
@@ -181,12 +212,13 @@ def get_multilingual_librispeech_run_spec(language: str) -> RunSpec:
         metric_specs = _get_chinese_audio_recognition_metric_specs()
     else:
         metric_specs = _get_audio_recognition_metric_specs()
+    run_spec_name: str = "multilingual_librispeech"
     return RunSpec(
-        name="multilingual_librispeech",
+        name=f"{run_spec_name}:language={language}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=["multilingual_librispeech"],
+        groups=[run_spec_name],
     )
 
 
@@ -203,12 +235,13 @@ def get_fleurs_run_spec(language: str) -> RunSpec:
         max_tokens=5,
     )
     metric_specs = get_exact_match_metric_specs() + get_classification_metric_specs()
+    run_spec_name: str = "fleurs"
     return RunSpec(
-        name="fleurs",
+        name=f"{run_spec_name}:language={language}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=["fleurs"],
+        groups=[run_spec_name],
     )
 
 
@@ -223,12 +256,13 @@ def get_audiocaps_run_spec() -> RunSpec:
         max_tokens=50,
     )
     metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
+    run_spec_name: str = "audiocaps"
     return RunSpec(
-        name="audiocaps",
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=["audiocaps"],
+        groups=[run_spec_name],
     )
 
 
@@ -248,12 +282,13 @@ def get_common_voice_15_run_spec(language: str) -> RunSpec:
         metric_specs = _get_chinese_audio_recognition_metric_specs()
     else:
         metric_specs = _get_audio_recognition_metric_specs()
+    run_spec_name: str = "common_voice_15"
     return RunSpec(
-        name="common_voice_15",
+        name=f"{run_spec_name}:language={language}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=["common_voice_15"],
+        groups=[run_spec_name],
     )
 
 
@@ -269,12 +304,13 @@ def get_speech_robust_bench_run_spec(subject: str) -> RunSpec:
         max_tokens=100,
     )
     metric_specs = _get_audio_recognition_metric_specs()
+    run_spec_name: str = "speech_robust_bench"
     return RunSpec(
-        name="speech_robust_bench",
+        name=f"{run_spec_name}:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=["speech_robust_bench"],
+        groups=[run_spec_name],
     )
 
 
@@ -289,10 +325,32 @@ def get_audio_pairs_run_spec(subject: str) -> RunSpec:
         max_tokens=5,
     )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_classification_metric_specs()
+    run_spec_name: str = "audio_pairs"
     return RunSpec(
-        name="audio_pairs",
+        name=f"{run_spec_name}:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=["audio_pairs"],
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("casual_conversations2")
+def get_casual_conversations2_run_spec(subject: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.casual_conversations2_scenario."
+        "CasualConversations2Scenario",
+        args={"subject": subject},
+    )
+    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
+        input_noun=None, output_noun="Answer", max_train_instances=0
+    )
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+    run_spec_name: str = "casual_conversations2"
+    return RunSpec(
+        name=f"{run_spec_name}:subject={subject}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
     )
