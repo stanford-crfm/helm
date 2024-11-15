@@ -57,4 +57,4 @@ class ChainOfThoughtMetric(Metric):
 
         score = 1 if extracted_answer == correct_answer else 0
         # Return the score in the specified format
-        return [Stat(MetricName("chain_of_thought_correct"), score)]
+        return [Stat(MetricName("chain_of_thought_correct")).add(score)]
