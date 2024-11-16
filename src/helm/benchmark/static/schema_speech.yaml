@@ -391,3 +391,29 @@ run_groups:
       who: OpenAI's TTS-1-HD
       when: "2024"
       language: English
+
+  - name: casual_conversations2
+    display_name: Casual Conversations 2
+    description: >
+      Casual Conversation v2 (Porgali et al, 2023) is composed of over 5,567 participants (26,467 videos). 
+      The videos feature paid individuals who agreed to participate in the project and explicitly provided 
+      Age, Gender, Language/Dialect, Geo-location, Disability, Physical adornments, Physical attributes labels 
+      themselves. The videos were recorded in Brazil, India, Indonesia, Mexico, Philippines, United States, 
+      and Vietnam with a diverse set of adults in various categories.
+
+      The dataset contains two classification tasks: age and gender classification
+      ([Porgali et al., 2023](https://arxiv.org/abs/2303.04838)). We phrase these two tasks as the multi-choice
+      questions answering task.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: audio, spoken language, speaker's gender, age information of audio samples
+      who: real speakers
+      when: "2023"
+      language: 10 languages

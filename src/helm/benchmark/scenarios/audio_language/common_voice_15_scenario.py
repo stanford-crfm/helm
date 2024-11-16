@@ -60,7 +60,7 @@ class CommonVoice15Scenario(Scenario):
     name = "common_voice_15"
     description = "Speech recognition for 4 languages from 114 different languages in Common Voice 15 \
         ([Ardila et al, 2019](https://arxiv.org/abs/1912.06670))."
-    tags: List[str] = ["audio", "recognition"]
+    tags: List[str] = ["audio", "recognition", "multilinguality"]
 
     def __init__(self, language: str) -> None:
         super().__init__()
