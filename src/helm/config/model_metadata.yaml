@@ -2146,6 +2146,15 @@ models:
     release_date: 2024-06-17
     tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: nvidia/llama-3.1-nemotron-70b-instruct
+    display_name: Nemotron-4 Instruct (70B)
+    description: Llama-3.1-Nemotron-70B-Instruct is a large language model customized by NVIDIA to improve the helpfulness of LLM generated responses to user queries. It was trained using RLHF (specifically, REINFORCE), Llama-3.1-Nemotron-70B-Reward and HelpSteer2-Preference prompts on a Llama-3.1-70B-Instruct model. ([paper](https://arxiv.org/abs/2410.01257))
+    creator_organization_name: NVIDIA
+    access: open
+    release_date: 2024-10-02
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+
   # OpenAI
 
   ## GPT 2 Models
