@@ -46,6 +46,11 @@ metrics:
     display_name: finish b/c unknown
     description: Fraction of instances where the the output was terminated for unknown reasons.
   # Accuracy metrics:
+  - name: exact_match
+    display_name: Exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
+    lower_is_better: false
   - name: quasi_exact_match
     display_name: Quasi-exact match
     short_display_name: EM
@@ -151,6 +156,18 @@ run_groups:
       what: legal contracts (e.g. terms of service, license agreements)
       who: lawyers
       when: before 2019
+      language: English
+
+  - name: casehold
+    display_name: CaseHOLD
+    description: CaseHOLD (Case Holdings On Legal Decisions) is a multiple choice question answering scenario where the task is to identify the relevant holding of a cited case [(Zheng et al, 2021)](https://arxiv.org/pdf/2104.08671.pdf).
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: Harvard Law Library case law corpus
+      who: legal professionals
+      when: before 2021
       language: English
 
   - name: sumosum
