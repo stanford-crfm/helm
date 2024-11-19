@@ -641,3 +641,68 @@ tokenizer_configs:
         trust_remote_code: false
     end_of_text_token: "<|eot_id|>"
     prefix_token: "<|begin_of_text|>"
+
+  # IBM - Granite 3.0
+  - name: ibm-granite/granite-3.0-2b-base
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: ibm-granite/granite-3.0-2b-base
+    end_of_text_token: ""
+    prefix_token: ""
+
+  - name: ibm-granite/granite-3.0-2b-instruct
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: ibm-granite/granite-3.0-2b-instruct
+    end_of_text_token: ""
+    prefix_token: ""
+  
+  - name: ibm-granite/granite-3.0-8b-instruct
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: ibm-granite/granite-3.0-8b-instruct
+    end_of_text_token: ""
+    prefix_token: ""
+
+  - name: ibm-granite/granite-3.0-8b-base
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: ibm-granite/granite-3.0-8b-base
+    end_of_text_token: ""
+    prefix_token: ""
+
+  - name: ibm-granite/granite-3.0-3b-a800m-instruct
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: ibm-granite/granite-3.0-3b-a800m-instruct
+    end_of_text_token: ""
+    prefix_token: ""
+
+  - name: ibm-granite/granite-3.0-3b-a800m-base
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: ibm-granite/granite-3.0-3b-a800m-base
+    end_of_text_token: ""
+    prefix_token: ""
+
+  - name: ibm-granite/granite-3.0-1b-a400m-instruct
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: ibm-granite/granite-3.0-1b-a400m-instruct
+    end_of_text_token: ""
+    prefix_token: ""
+
+  - name: ibm-granite/granite-3.0-1b-a400m-base
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: ibm-granite/granite-3.0-1b-a400m-base
+    end_of_text_token: ""
+    prefix_token: ""
