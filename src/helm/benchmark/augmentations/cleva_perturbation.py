@@ -11,6 +11,7 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.benchmark.scenarios.scenario import Input, Instance, Reference, Output
 from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
 from helm.benchmark.augmentations.perturbation import Perturbation, TextPerturbation
+from helm.benchmark.runner import get_benchmark_output_path
 
 
 ############################################################
@@ -69,7 +70,7 @@ class ChineseTyposPerturbation(TextPerturbation):
         self.word_level_perturb: bool = word_level_perturb  # Whether we perturb text on the character or word level
 
         # Ensure all necessary data are downloaded
-        output_dir = os.path.join("benchmark_output", "perturbations", self.name)
+        output_dir = os.path.join(get_benchmark_output_path(), "perturbations", self.name)
         ensure_directory_exists(output_dir)
         for filename in self.FILE_NAMES:
             target_path = os.path.join(output_dir, filename)
@@ -303,7 +304,7 @@ class ChineseSynonymPerturbation(TextPerturbation):
         self.prob: float = prob
         self.trial_num: int = trial_num  # Number of trial to get a 100% perturbed text
 
-        target_dir = os.path.join("benchmark_output", "perturbations", self.name, "synonyms.json")
+        target_dir = os.path.join(get_benchmark_output_path(), "perturbations", self.name, "synonyms.json")
         ensure_directory_exists(os.path.dirname(target_dir))
         ensure_file_downloaded(source_url=self.SOURCE_URL, target_path=target_dir)
         with open(os.path.join(target_dir)) as f:
@@ -433,7 +434,7 @@ class ChineseGenderPerturbation(TextPerturbation):
         if self.mode == self.GENDER_TERM:
             self.term_dict: Dict[Tuple[str, str], Dict[str, str]] = defaultdict(dict)
 
-            target_path = os.path.join("benchmark_output", "perturbations", self.name, "gender_term.txt")
+            target_path = os.path.join(get_benchmark_output_path(), "perturbations", self.name, "gender_term.txt")
             ensure_directory_exists(os.path.dirname(target_path))
             ensure_file_downloaded(source_url=self.SOURCE_URL, target_path=target_path)
             with open(target_path) as fin:
@@ -492,7 +493,7 @@ class ChinesePersonNamePerturbation(Perturbation):
 
     """ Resources """
     SOURCE_URL: str = "http://39.108.215.175/assets/chinese_name_gender.json"
-    OUTPUT_PATH = os.path.join("benchmark_output", "perturbations", name)
+    OUTPUT_PATH = os.path.join(get_benchmark_output_path(), "perturbations", name)
 
     """ Gender categories """
     GENDER_CATEGORY = "gender"
@@ -554,7 +555,7 @@ class ChinesePersonNamePerturbation(Perturbation):
 
         self.preserve_gender: bool = preserve_gender
 
-        target_path = os.path.join("benchmark_output", "perturbations", self.name, "chinese_name_gender.json")
+        target_path = os.path.join(get_benchmark_output_path(), "perturbations", self.name, "chinese_name_gender.json")
         ensure_directory_exists(os.path.dirname(target_path))
         ensure_file_downloaded(source_url=self.SOURCE_URL, target_path=target_path)
         with open(os.path.join(target_path), "r", encoding="utf-8") as f:
@@ -735,7 +736,7 @@ class MandarinToCantonesePerturbation(TextPerturbation):
             handle_module_not_found_error(e, ["cleva"])
         self.s2t_converter = opencc.OpenCC("s2t.json")
 
-        target_path = os.path.join("benchmark_output", "perturbations", self.name, "conversion.json")
+        target_path = os.path.join(get_benchmark_output_path(), "perturbations", self.name, "conversion.json")
         ensure_directory_exists(os.path.dirname(target_path))
         ensure_file_downloaded(source_url=self.SOURCE_URL, target_path=target_path)
         with open(target_path) as fin:

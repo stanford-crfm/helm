@@ -9,6 +9,7 @@ from typing import Dict, Optional, List
 from helm.common.general import match_case, ensure_file_downloaded
 from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
 from helm.benchmark.augmentations.perturbation import TextPerturbation
+from helm.benchmark.runner import get_benchmark_output_path
 
 
 class DialectPerturbation(TextPerturbation):
@@ -20,7 +21,7 @@ class DialectPerturbation(TextPerturbation):
     should_perturb_references: bool = True
 
     """ Output path to store external files and folders """
-    OUTPUT_PATH = os.path.join("benchmark_output", "perturbations", name)
+    OUTPUT_PATH = os.path.join(get_benchmark_output_path(), "perturbations", name)
 
     """ Dictionary mapping dialects to one another """
     SAE = "SAE"
