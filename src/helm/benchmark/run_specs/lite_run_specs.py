@@ -416,7 +416,7 @@ def get_gpqa_spec(subset: str, use_chain_of_thought: str = "False", use_few_shot
         name=f"gpqa:subset={subset},use_chain_of_thought={use_chain_of_thought_bool}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs(),  # TODO: update this after cot metric is ready
+        metric_specs=[MetricSpec(class_name="helm.benchmark.metrics.chain_of_thought_metric.ChainOfThoughtMetric")],
         groups=["gpqa"],
     )
 
