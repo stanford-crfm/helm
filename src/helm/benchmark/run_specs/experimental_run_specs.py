@@ -88,7 +88,7 @@ Which context makes more sense given the scenario? Please answer using either "1
 
 
 @run_spec_function("autobencher_capabilities")
-def get_ci_mcqa_spec(subject: str) -> RunSpec:
+def get_autobencher_capabilities_spec(subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.autobencher_capabilities_scenario.AutoBencherCapabilitiesScenario",
         args={"subject": subject},

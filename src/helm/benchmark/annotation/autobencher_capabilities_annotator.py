@@ -23,7 +23,7 @@ class AutoBencherCapabilitiesAnnotator(Annotator):
 
 If the model's response is correct, score it as 1. If the model's response is incorrect, score it as 0.
 
-We'd still consider the prediction to be correct if 
+We'd still consider the prediction to be correct if
 1. the prediction is semantically the same as the gold answer: formating or different way of reference shouldn't affect correctness. For example, if the gold answer is Jan 21, and the test taker output is 01/21, we would still consider the prediction to be correct. For example, United States and USA refer to the same entity.
 2. the prediction refers a broader entity that contains the gold answer. For example, if the gold answer is Beijing, and the test taker output is Asia, we will then consider correctness based on the question.
 3. If the question is slightly ambiguous, such that there are multiple correct answers: For example, if the question asks for reasons why something happens, and it could be caused by multiple reasons, we will consider the prediction to be correct if the prediction contains one of the correct answers.
@@ -49,7 +49,8 @@ INSERT_YOUR_REASONING_HERE
 </reasoning>
 <score>
 INSERT_YOUR_SCORE_HERE
-</score>"""
+</score>"""  # noqa: E501
+
     PATTERN = r"^\s*reason:(.*)##(.*)"
 
     def __init__(self, auto_client: AutoClient):
