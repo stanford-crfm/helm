@@ -65,10 +65,10 @@ INSERT_YOUR_SCORE_HERE
         assert len(correct_references) == 1
         gold_text = correct_references[0].output.text
 
-        annotator_prompt = self.PROMPT_TEMPLATE.replace("{{QUESTION}}", question_text).replace(
-            "{{PRED}}", prediction_text
-        ).replace(
-            "{{GOLD}}", gold_text
+        annotator_prompt = (
+            self.PROMPT_TEMPLATE.replace("{{QUESTION}}", question_text)
+            .replace("{{PRED}}", prediction_text)
+            .replace("{{GOLD}}", gold_text)
         )
         annotator_request = Request(
             model="openai/gpt-4o-2024-05-13",
@@ -82,11 +82,13 @@ INSERT_YOUR_SCORE_HERE
             raise Exception(f"Annotation request failed: {annotator_response.error}")
         assert len(annotator_response.completions) == 1
         annotator_response_text = annotator_response.completions[0].text
-            # fuzzy match regex check, allows for different casing, or forgetting / in end tag
+        # fuzzy match regex check, allows for different casing, or forgetting / in end tag
         reasoning_match = re.search(
             r"<\s*reasoning\s*>(.*?)<\/?\s*reasoning\s*>", annotator_response_text, re.DOTALL | re.IGNORECASE
         )
-        score_match = re.search(r"<\s*score\s*>(.*?)<\/?\s*score\s*>", annotator_response_text, re.DOTALL | re.IGNORECASE)
+        score_match = re.search(
+            r"<\s*score\s*>(.*?)<\/?\s*score\s*>", annotator_response_text, re.DOTALL | re.IGNORECASE
+        )
         if not reasoning_match or not score_match:
             raise AnnotatorResponseParseFailure(
                 message=f"Could not parse markup in raw response: '{annotator_response_text}'",

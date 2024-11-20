@@ -22,7 +22,7 @@ class AutoBencherCapabilitiesScenario(Scenario):
     for datasets. AutoBencher Capabilities consists of question
     answering datasets for math, multilingual, and knowledge-intensive
     question answering created by AutoBencher.
-    
+
     Paper: https://arxiv.org/abs/2407.08351"""
 
     name = "autobencher_capabilities"
@@ -59,9 +59,7 @@ class AutoBencherCapabilitiesScenario(Scenario):
                 continue
             input = Input(text=row["question"])
             # References are category ID, followed by level 2, 3 and 4 category names.
-            references = [
-                Reference(output=Output(text=row["gold_answer"]), tags=[CORRECT_TAG])
-            ]
+            references = [Reference(output=Output(text=row["gold_answer"]), tags=[CORRECT_TAG])]
             if row["gold_answer"] is None:
                 hlog(f"WARNING: Row had no gold_answer: {row}")
                 continue

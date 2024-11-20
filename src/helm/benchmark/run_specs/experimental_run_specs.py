@@ -89,25 +89,29 @@ Which context makes more sense given the scenario? Please answer using either "1
 
 @run_spec_function("autobencher_capabilities")
 def get_ci_mcqa_spec(subject: str) -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.autobencher_capabilities_scenario.AutoBencherCapabilitiesScenario", args={"subject": subject})
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.autobencher_capabilities_scenario.AutoBencherCapabilitiesScenario",
+        args={"subject": subject},
+    )
 
     adapter_spec = get_generation_adapter_spec(
-        instructions=(
-            "Output just with the final answer to the question."
-        ),
+        instructions=("Output just with the final answer to the question."),
         input_noun="Question",
         output_noun="Answer",
         max_tokens=100,
     )
-    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.autobencher_capabilities_annotator.AutoBencherCapabilitiesAnnotator")]
-    annotator_metric_spec = MetricSpec(
-            class_name="helm.benchmark.metrics.annotation_metrics.AnnotationNumericMetric",
-            args={
-                "annotator_name": "autobencher_capabilities",
-                "key": "score",
-            },
+    annotator_specs = [
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.autobencher_capabilities_annotator.AutoBencherCapabilitiesAnnotator"
         )
-
+    ]
+    annotator_metric_spec = MetricSpec(
+        class_name="helm.benchmark.metrics.annotation_metrics.AnnotationNumericMetric",
+        args={
+            "annotator_name": "autobencher_capabilities",
+            "key": "score",
+        },
+    )
 
     return RunSpec(
         name="autobencher_capabilities",
