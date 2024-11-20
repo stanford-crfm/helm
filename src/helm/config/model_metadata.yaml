@@ -2053,6 +2053,15 @@ models:
     release_date: 2023-07-24
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: mistralai/mistral-large-2411
+    display_name: Mistral Large (2411)
+    description: Mistral Large (2411) is a 123B parameter model that has a 128k context window. ([blog](https://mistral.ai/news/pixtral-large/))
+    creator_organization_name: Mistral AI
+    access: open
+    num_parameters: 123000000000
+    release_date: 2024-11-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: mistralai/open-mistral-nemo-2407
     display_name: Mistral NeMo (2402)
     description: Mistral NeMo is a multilingual 12B model with a large context window of 128K tokens. ([blog](https://mistral.ai/news/mistral-nemo/))
@@ -2068,6 +2077,16 @@ models:
     access: open
     release_date: 2024-09-17
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/pixtral-large-2411
+    display_name: Mistral Pixtral Large (2411)
+    description: Mistral Pixtral Large is a 124B open-weights multimodal model built on top of Mistral Large 2 (2407). ([blog](https://mistral.ai/news/pixtral-large/))
+    creator_organization_name: Mistral AI
+    access: open
+    num_parameters: 124000000000
+    release_date: 2024-11-18
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
 
   # MosaicML
   - name: mosaicml/mpt-7b
