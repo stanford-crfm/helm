@@ -1,7 +1,7 @@
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
-from .metric_name import MetricName
-from .statistic import Stat
+from helm.benchmark.metrics.metric_name import MetricName
+from helm.benchmark.metrics.statistic import Stat
 from typing import List
 import re
 

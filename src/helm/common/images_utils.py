@@ -10,7 +10,7 @@ from urllib.request import urlopen
 
 import numpy as np
 
-from .general import is_url
+from helm.common.general import is_url
 from helm.common.optional_dependencies import handle_module_not_found_error
 
 try:

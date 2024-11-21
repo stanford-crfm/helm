@@ -2,7 +2,7 @@ import os
 from typing import List
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, TEST_SPLIT, CORRECT_TAG, Input, Output
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Reference, TEST_SPLIT, CORRECT_TAG, Input, Output
 
 NUM_INPUT_TOKENS: List[int] = [
     1,

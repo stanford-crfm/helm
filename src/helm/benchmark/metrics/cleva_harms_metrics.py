@@ -14,12 +14,13 @@ from helm.benchmark.metrics.cleva_metrics_helper import ChineseTokenizer
 from helm.clients.perspective_api_client import PerspectiveAPIClientCredentialsError
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.common.optional_dependencies import handle_module_not_found_error
-from .bias_metrics import BiasMetric
-from .toxicity_metrics import ToxicityMetric
-from .copyright_metrics import BasicCopyrightMetric
-from .metric_name import MetricName
-from .metric_service import MetricService
-from .statistic import Stat
+from helm.benchmark.metrics.bias_metrics import BiasMetric
+from helm.benchmark.metrics.toxicity_metrics import ToxicityMetric
+from helm.benchmark.metrics.copyright_metrics import BasicCopyrightMetric
+from helm.benchmark.metrics.metric_name import MetricName
+from helm.benchmark.metrics.metric_service import MetricService
+from helm.benchmark.metrics.statistic import Stat
+from helm.benchmark.runner import get_benchmark_output_path
 
 try:
     import jieba
@@ -71,7 +72,7 @@ class CLEVABiasMetric(BiasMetric):
                   "demographic_category". One of "adjective" or "profession".
         """
         # Ensure all necessary data are downloaded
-        self.output_dir = os.path.join("benchmark_output", "metrics", self.name)
+        self.output_dir = os.path.join(get_benchmark_output_path(), "metrics", self.name)
         ensure_directory_exists(self.output_dir)
         for filename in self.FILE_NAMES:
             target_path = os.path.join(self.output_dir, filename)

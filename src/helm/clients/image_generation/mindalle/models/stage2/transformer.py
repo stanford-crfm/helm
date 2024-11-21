@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 from typing import Optional, Tuple, List
 from torch.cuda.amp import autocast
-from .layers import Block
+from helm.clients.image_generation.mindalle.models.stage2.layers import Block
 
 from helm.common.optional_dependencies import handle_module_not_found_error
 

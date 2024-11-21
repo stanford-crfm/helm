@@ -3,7 +3,7 @@ import json
 from typing import List
 from helm.common.general import ensure_file_downloaded
 from helm.common.general import ensure_directory_exists
-from .scenario import Scenario, Instance, Input, Reference, CORRECT_TAG, Output, VALID_SPLIT
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, Reference, CORRECT_TAG, Output, VALID_SPLIT
 
 TASKS = {
     "counterfactual": ["snli_premise", "snli_hypothesis"]

@@ -1,16 +1,17 @@
 import requests
-from typing import Any, Dict, List, Optional, TypedDict
+from typing import Any, Dict, List, Optional, TypedDict, Union
 
 from helm.proxy.retry import NonRetriableException
 from helm.common.cache import CacheConfig
+from helm.common.media_object import IMAGE_TYPE, TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput
 from helm.tokenizers.tokenizer import Tokenizer
-from .client import CachingClient, truncate_and_tokenize_response_text
+from helm.clients.client import CachingClient, truncate_and_tokenize_response_text
 
 try:
-    from mistralai.client import MistralClient
-    from mistralai.models.chat_completion import ChatMessage, ChatCompletionResponse
+    from mistralai import Mistral
+    from mistralai.models import ChatCompletionResponse
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["mistral"])
 
@@ -19,11 +20,13 @@ class MistralAIRequest(TypedDict):
     """Data passed between make_request and _send_request. Used as the cache key."""
 
     model: str
-    prompt: str
+    # The prompt can be either a string or a list of messages that can be multimodal
+    prompt: Union[str, List[Dict[str, str]]]
     max_tokens: int
     temperature: float
     top_p: float
     random_seed: Optional[int]
+    stop: Optional[List[str]]
 
 
 class MistralAIClient(CachingClient):
@@ -43,21 +46,20 @@ class MistralAIClient(CachingClient):
         self.api_key: str = api_key
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
-        self._client = MistralClient(api_key=self.api_key)
+        self._client = Mistral(api_key=self.api_key)
         self.mistral_model = mistral_model
 
     def _send_request(self, raw_request: MistralAIRequest) -> Dict[str, Any]:
-        messages = [ChatMessage(role="user", content=raw_request["prompt"])]
-
-        chat_response: ChatCompletionResponse = self._client.chat(
+        chat_response: Optional[ChatCompletionResponse] = self._client.chat.complete(
             model=raw_request["model"],
-            messages=messages,
+            messages=[{"role": "user", "content": raw_request["prompt"]}],  # type: ignore
             temperature=raw_request["temperature"],
             max_tokens=raw_request["max_tokens"],
             top_p=raw_request["top_p"],
             random_seed=raw_request["random_seed"],
             safe_prompt=False,  # Disable safe_prompt
         )
+        assert chat_response is not None
         # Documentation: "If mode is 'json', the output will only contain JSON serializable types."
         # Source: https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel.model_dump
         #
@@ -86,16 +88,40 @@ class MistralAIClient(CachingClient):
         """Make a request"""
         completions: List[GeneratedOutput] = []
 
+        prompt: Union[str, List[Dict[str, str]]] = request.prompt
+        if request.multimodal_prompt:
+            # Following https://docs.mistral.ai/capabilities/vision
+            multimodal_content: List[Dict[str, str]] = []
+            for media_object in request.multimodal_prompt.media_objects:
+                if media_object.is_type(IMAGE_TYPE) and media_object.location:
+                    assert media_object.location
+                    if media_object.is_local_file:
+                        from helm.common.images_utils import encode_base64
+
+                        base64_image: str = encode_base64(media_object.location)
+                        image_url = f"data:image/jpeg;base64,{base64_image}"
+                    else:
+                        image_url = media_object.location
+                    multimodal_content.append({"type": "image_url", "image_url": image_url})
+                elif media_object.is_type(TEXT_TYPE):
+                    assert media_object.text
+                    multimodal_content.append({"type": "text", "text": media_object.text})
+                else:
+                    raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
+
+            prompt = multimodal_content
+
         # `num_completions` is not supported, so instead make `num_completions` separate requests.
         for completion_index in range(request.num_completions):
             try:
                 raw_request: MistralAIRequest = {
                     "model": self.mistral_model or request.model_engine,
-                    "prompt": request.prompt,
+                    "prompt": prompt,
                     "max_tokens": request.max_tokens,
                     "temperature": request.temperature,
                     "top_p": request.top_p,
                     "random_seed": self._get_random_seed(request, completion_index),
+                    "stop": request.stop_sequences or None,
                 }
 
                 def do_it() -> Dict[str, Any]:

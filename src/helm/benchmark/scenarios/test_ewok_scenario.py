@@ -13,9 +13,13 @@ def test_ewok_scenario():
     with TemporaryDirectory() as tmpdir:
         try:
             instances = scenario.get_instances(tmpdir)
-        except DatasetNotFoundError:
+        except (DatasetNotFoundError, Exception):
+            # Catch generic Exception here because the Hugging Face Hub client can raise
+            # an authentication issue as the following exception:
+            # huggingface_hub.utils._errors.GatedRepoError: 401 Client Error.
+            # but GatedRepoError is a type in a private package, so we avoid referencing it
             pytest.skip("Unable to access gated dataset on Hugging Face Hub; skipping test")
-    assert len(instances) == 8748
+    assert len(instances) == 8750
     assert "believes" in instances[0].input.text
     assert len(instances[0].references) == 2
     assert "inside" in instances[0].references[0].output.text

@@ -1,3 +1,4 @@
+import { Badge } from "@tremor/react";
 import { useEffect, useState } from "react";
 import getReleaseSummary from "@/services/getReleaseSummary";
 import ReleaseSummary from "@/types/ReleaseSummary";
@@ -40,13 +41,6 @@ function ReleaseDropdown() {
       });
   }, []);
 
-  function getReleases(): string[] {
-    return currProjectMetadata !== undefined &&
-      currProjectMetadata.releases !== undefined
-      ? currProjectMetadata.releases
-      : ["v1.0.0"];
-  }
-
   useEffect(() => {
     const controller = new AbortController();
     async function fetchData() {
@@ -58,20 +52,34 @@ function ReleaseDropdown() {
     return () => controller.abort();
   }, []);
 
-  const releases = getReleases();
+  const releases =
+    currProjectMetadata !== undefined &&
+    currProjectMetadata.releases !== undefined
+      ? currProjectMetadata.releases
+      : ["v1.0.0"];
 
-  if (!summary.release && !summary.suite) {
+  const currentVersion = summary.release || summary.suite || null;
+
+  if (!currentVersion) {
     return null;
   }
 
-  const releaseInfo = `Release ${summary.release || summary.suite} (${
-    summary.date
-  })`;
+  const releaseInfo = `Release ${currentVersion} (${summary.date})`;
 
   if (releases.length <= 1) {
     return <div>{releaseInfo}</div>;
   }
 
+  const indexOfCurrentVersion = releases.indexOf(currentVersion);
+
+  const badge =
+    indexOfCurrentVersion < 0 ? (
+      <Badge color="blue">preview</Badge>
+    ) : indexOfCurrentVersion === 0 ? (
+      <Badge color="blue">latest</Badge>
+    ) : (
+      <Badge color="yellow">stale</Badge>
+    );
   return (
     <div className="dropdown">
       <div
@@ -81,7 +89,7 @@ function ReleaseDropdown() {
         aria-haspopup="true"
         aria-controls="menu"
       >
-        {releaseInfo}&nbsp;
+        {releaseInfo}&nbsp;{badge}&nbsp;
         <ChevronDownIcon
           fill="black"
           color="black"
@@ -90,7 +98,7 @@ function ReleaseDropdown() {
       </div>
       <ul
         tabIndex={0}
-        className="dropdown-content z-[1] menu p-1 shadow-lg bg-base-100 rounded-box w-max text-base"
+        className="dropdown-content z-[50] menu p-1 shadow-lg bg-base-100 rounded-box w-max text-base"
         role="menu"
       >
         {releases.map((release) => (

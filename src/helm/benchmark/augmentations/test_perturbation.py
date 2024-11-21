@@ -4,19 +4,22 @@ import unittest
 
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.benchmark.scenarios.scenario import Input, Instance, Output, Reference
-from .data_augmenter import DataAugmenter
-from .extra_space_perturbation import ExtraSpacePerturbation
-from .misspelling_perturbation import MisspellingPerturbation
-from .contraction_expansion_perturbation import ContractionPerturbation, ExpansionPerturbation
-from .typos_perturbation import TyposPerturbation
-from .filler_words_perturbation import FillerWordsPerturbation
-from .synonym_perturbation import SynonymPerturbation
-from .lowercase_perturbation import LowerCasePerturbation
-from .space_perturbation import SpacePerturbation
-from .dialect_perturbation import DialectPerturbation
-from .person_name_perturbation import PersonNamePerturbation
-from .gender_perturbation import GenderPerturbation
-from .suffix_perturbation import SuffixPerturbation
+from helm.benchmark.augmentations.data_augmenter import DataAugmenter
+from helm.benchmark.augmentations.extra_space_perturbation import ExtraSpacePerturbation
+from helm.benchmark.augmentations.misspelling_perturbation import MisspellingPerturbation
+from helm.benchmark.augmentations.contraction_expansion_perturbation import (
+    ContractionPerturbation,
+    ExpansionPerturbation,
+)
+from helm.benchmark.augmentations.typos_perturbation import TyposPerturbation
+from helm.benchmark.augmentations.filler_words_perturbation import FillerWordsPerturbation
+from helm.benchmark.augmentations.synonym_perturbation import SynonymPerturbation
+from helm.benchmark.augmentations.lowercase_perturbation import LowerCasePerturbation
+from helm.benchmark.augmentations.space_perturbation import SpacePerturbation
+from helm.benchmark.augmentations.dialect_perturbation import DialectPerturbation
+from helm.benchmark.augmentations.person_name_perturbation import PersonNamePerturbation
+from helm.benchmark.augmentations.gender_perturbation import GenderPerturbation
+from helm.benchmark.augmentations.suffix_perturbation import SuffixPerturbation
 
 
 def test_extra_space_perturbation():

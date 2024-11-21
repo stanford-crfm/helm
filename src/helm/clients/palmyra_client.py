@@ -12,7 +12,7 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
 )
 from helm.tokenizers.tokenizer import Tokenizer
-from .client import CachingClient, truncate_sequence
+from helm.clients.client import CachingClient, truncate_sequence
 
 
 _CONTENT_MODERATION_KEY = "fail.content.moderation.failed"
@@ -163,6 +163,3 @@ class PalmyraChatClient(OpenAIClient):
             org_id=None,
             base_url="https://api.writer.com/v1/chat",
         )
-
-    def _is_chat_model_engine(self, model_engine: str) -> bool:
-        return True

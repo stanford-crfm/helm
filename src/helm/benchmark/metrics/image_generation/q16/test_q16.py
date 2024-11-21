@@ -1,6 +1,6 @@
 import os
 
-from .q16_toxicity_detector import Q16ToxicityDetector
+from helm.benchmark.metrics.image_generation.q16.q16_toxicity_detector import Q16ToxicityDetector
 
 
 class TestQ16:

@@ -10,7 +10,7 @@ import numpy.typing as npt
 import torch
 import os
 import json
-from . import utils_misc
+from helm.benchmark.metrics.summac import utils_misc
 
 model_map = {
     "snli-base": {"model_card": "boychaboy/SNLI_roberta-base", "entailment_idx": 0, "contradiction_idx": 2},

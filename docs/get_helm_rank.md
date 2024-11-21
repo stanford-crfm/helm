@@ -1,6 +1,8 @@
-# Get Your Model's Leaderboard Rank
+# Efficient-HELM
 
-This tutorial will show you how to locally add your model into the HELM leaderboard, with in 3 steps:
+This tutorial will show you how to locally add your model into the HELM Classic leaderboard at a fraction of the cost of performing a full run, using a techinque from IBM Resarch described in [Efficient Benchmarking (of Language Models)](https://arxiv.org/pdf/2308.11696.pdf) a paper from IBM Research.
+
+**Warning** &mdash; The tutorial will currently only work for the HELM Classic leaderboard. Other leaderboards are not yet supported.
 
 ## Download HELM leaderboard results
 
@@ -17,7 +19,7 @@ curl -O https://storage.googleapis.com/crfm-helm-public/benchmark_output/archive
 mkdir -p benchmark_output/runs/$LEADERBOARD_VERSION && unzip run_stats.zip -d benchmark_output/runs/$LEADERBOARD_VERSION
 ```
 
-now that the files are in your results directory, all HELM models will be shown in your UI along with your model.
+Now that the files are in your results directory, all HELM models will be shown in your UI along with your model.
 
 ## Run Efficient-HELM
 

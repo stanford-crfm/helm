@@ -1,8 +1,8 @@
 from abc import ABC
 from typing import List, Optional, cast
 
-from .window_service import ConfigurableWindowService, EncodeResult
-from .tokenizer_service import TokenizerService
+from helm.benchmark.window_services.window_service import ConfigurableWindowService, EncodeResult
+from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,

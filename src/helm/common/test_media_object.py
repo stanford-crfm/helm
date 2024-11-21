@@ -1,6 +1,6 @@
 import unittest
 
-from .media_object import MediaObject, MultimediaObject
+from helm.common.media_object import MediaObject, MultimediaObject
 
 
 class TestMediaObject(unittest.TestCase):

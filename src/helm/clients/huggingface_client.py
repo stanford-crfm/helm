@@ -19,7 +19,7 @@ from helm.common.request import (
     Token,
 )
 from helm.tokenizers.tokenizer import Tokenizer
-from .client import CachingClient, truncate_sequence
+from helm.clients.client import CachingClient, truncate_sequence
 from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer, WrappedPreTrainedTokenizer
 from threading import Lock
 
@@ -59,17 +59,23 @@ class HuggingFaceServer:
         self,
         pretrained_model_name_or_path: str,
         wrapped_tokenizer: WrappedPreTrainedTokenizer,
-        openvino: bool = False,
         **kwargs,
     ):
         self.device: Optional[str]
         if "device_map" in kwargs:
+            if "device" in kwargs:
+                raise ValueError("At most one of one of `device` and `device_map` may be specified.")
             try:
                 import accelerate  # noqa: F401
             except ModuleNotFoundError as e:
                 handle_module_not_found_error(e, ["accelerate"])
-            hlog(f'Hugging Face device_map set to "{kwargs["device_map"]}".')
+            hlog(f'Hugging Face device_map set to "{kwargs["device_map"]}" from kwargs.')
             self.device = None
+        elif "device" in kwargs:
+            if "device_map" in kwargs:
+                raise ValueError("At most one of one of `device` and `device_map` may be specified.")
+            hlog(f'Hugging Face device set to "{kwargs["device"]}" from kwargs.')
+            self.device = kwargs.pop("device")
         elif torch.cuda.is_available():
             hlog('Hugging Face device set to "cuda:0" because CUDA is available.')
             self.device = "cuda:0"
@@ -85,20 +91,7 @@ class HuggingFaceServer:
 
         with htrack_block(f"Loading Hugging Face model {pretrained_model_name_or_path}"):
             # WARNING this may fail if your GPU does not have enough memory
-            if openvino:
-                # Optimum Intel provides a simple interface to optimize Transformer models and convert them to \
-                # OpenVINO™ Intermediate Representation (IR) format to accelerate end-to-end pipelines on \
-                # Intel® architectures using OpenVINO™ runtime.
-                try:
-                    from optimum.intel.openvino import OVModelForCausalLM
-                except ModuleNotFoundError as e:
-                    handle_module_not_found_error(e, ["openvino"])
-
-                self.device = "cpu"
-                self.model = OVModelForCausalLM.from_pretrained(
-                    pretrained_model_name_or_path, export=True, **kwargs
-                ).to(self.device)
-            elif self.device is None:
+            if self.device is None:
                 # kwargs contains device_map=auto
                 # Do not call to() because accelerate will take care of model device placement.
                 self.model = AutoModelForCausalLM.from_pretrained(pretrained_model_name_or_path, **kwargs)

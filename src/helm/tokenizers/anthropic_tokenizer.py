@@ -4,7 +4,7 @@ import threading
 
 from helm.common.cache import CacheConfig
 from helm.common.optional_dependencies import handle_module_not_found_error
-from .caching_tokenizer import CachingTokenizer
+from helm.tokenizers.caching_tokenizer import CachingTokenizer
 from transformers import PreTrainedTokenizerBase, PreTrainedTokenizerFast
 
 try:

@@ -1,7 +1,7 @@
 from typing import List
 import os
 
-from .watermark_detector import WatermarkDetector
+from helm.benchmark.metrics.image_generation.watermark.watermark_detector import WatermarkDetector
 
 
 def test_compute_watermark_probability():

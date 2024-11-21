@@ -1,7 +1,7 @@
 from random import Random
 
-from .perturbation import TextPerturbation
-from .perturbation_description import PerturbationDescription
+from helm.benchmark.augmentations.perturbation import TextPerturbation
+from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
 
 
 class LowerCasePerturbation(TextPerturbation):

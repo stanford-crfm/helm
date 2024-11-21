@@ -8,11 +8,11 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
-from .metric import MetricInterface, MetricResult, PerInstanceStats
-from .metric_name import MetricName
-from .metric_service import MetricService
-from .tokens.auto_token_cost_estimator import AutoTokenCostEstimator
-from .tokens.token_cost_estimator import TokenCostEstimator
+from helm.benchmark.metrics.metric import MetricInterface, MetricResult, PerInstanceStats
+from helm.benchmark.metrics.metric_name import MetricName
+from helm.benchmark.metrics.metric_service import MetricService
+from helm.benchmark.metrics.tokens.auto_token_cost_estimator import AutoTokenCostEstimator
+from helm.benchmark.metrics.tokens.token_cost_estimator import TokenCostEstimator
 
 
 @dataclass

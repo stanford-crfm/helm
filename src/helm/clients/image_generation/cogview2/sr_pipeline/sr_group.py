@@ -7,8 +7,8 @@
 """
 
 # here put the import lib
-from .direct_sr import DirectSuperResolution
-from .iterative_sr import IterativeSuperResolution
+from helm.clients.image_generation.cogview2.sr_pipeline.direct_sr import DirectSuperResolution
+from helm.clients.image_generation.cogview2.sr_pipeline.iterative_sr import IterativeSuperResolution
 
 from helm.common.optional_dependencies import handle_module_not_found_error
 

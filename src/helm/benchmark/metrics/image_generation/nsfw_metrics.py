@@ -10,7 +10,7 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.toxicity_utils import is_prompt_toxic
 from helm.clients.image_generation.dalle2_client import DALLE2Client
 from helm.common.images_utils import is_blacked_out_image
-from .nsfw_detector import NSFWDetector
+from helm.benchmark.metrics.image_generation.nsfw_detector import NSFWDetector
 
 
 class NSFWMetric(Metric):

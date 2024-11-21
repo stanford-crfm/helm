@@ -30,6 +30,3 @@ class NvidiaNimClient(OpenAIClient):
 
     def _get_model_for_request(self, request: Request) -> str:
         return request.model
-
-    def _is_chat_model_engine(self, model_engine: str) -> bool:
-        return True

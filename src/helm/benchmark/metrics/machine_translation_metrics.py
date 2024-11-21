@@ -3,8 +3,8 @@ from typing import List
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
 from helm.common.optional_dependencies import handle_module_not_found_error
-from .metric_name import MetricName
-from .statistic import Stat
+from helm.benchmark.metrics.metric_name import MetricName
+from helm.benchmark.metrics.statistic import Stat
 
 try:
     from sacrebleu.metrics import BLEU

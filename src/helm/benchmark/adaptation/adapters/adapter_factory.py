@@ -4,6 +4,7 @@ from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_GENERATION_MULTIMODAL,
     ADAPT_LANGUAGE_MODELING,
     ADAPT_MULTIPLE_CHOICE_JOINT,
+    ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT,
     ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
@@ -20,6 +21,9 @@ from helm.benchmark.adaptation.adapters.multimodal.multiple_choice_joint_multimo
 )
 from helm.benchmark.adaptation.adapters.multiple_choice_calibrated_adapter import MultipleChoiceCalibratedAdapter
 from helm.benchmark.adaptation.adapters.multiple_choice_joint_adapter import MultipleChoiceJointAdapter
+from helm.benchmark.adaptation.adapters.multiple_choice_joint_chain_of_thought_adapter import (
+    MultipleChoiceJointChainOfThoughtAdapter,
+)
 from helm.benchmark.adaptation.adapters.multiple_choice_separate_adapter import MultipleChoiceSeparateAdapter
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.benchmark.adaptation.adapters.ehr_instruction_adapter import EHRInstructionAdapter
@@ -42,6 +46,8 @@ class AdapterFactory:
             adapter = LanguageModelingAdapter(adapter_spec, tokenizer_service)
         elif method == ADAPT_MULTIPLE_CHOICE_JOINT:
             adapter = MultipleChoiceJointAdapter(adapter_spec, tokenizer_service)
+        elif method == ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT:
+            adapter = MultipleChoiceJointChainOfThoughtAdapter(adapter_spec, tokenizer_service)
         elif method == ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL:
             adapter = MultipleChoiceSeparateAdapter(adapter_spec, tokenizer_service)
         elif method == ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED:
