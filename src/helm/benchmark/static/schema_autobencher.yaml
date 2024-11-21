@@ -113,6 +113,7 @@ run_groups:
     category: All scenarios
     subgroups:
       - autobencher_capabilities
+      - autobencher_safety
 
   - name: autobencher_capabilities
     display_name: AutoBencher Capabilities
@@ -127,6 +128,23 @@ run_groups:
     taxonomy:
       task: question answering
       what: questions about various 
+      who: synthetic model-generated questions
+      when: "2024"
+      language: English and various languages
+
+  - name: autobencher_safety
+    display_name: AutoBencher Safety
+    description: AutoBencher Safety consists of harmful question answering datasets created by AutoBencher. ([paper](https://arxiv.org/abs/2407.08351))
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: annotation_autobencher_capabilities_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: harmful questions 
       who: synthetic model-generated questions
       when: "2024"
       language: English and various languages
