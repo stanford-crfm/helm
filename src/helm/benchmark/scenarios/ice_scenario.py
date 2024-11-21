@@ -114,8 +114,12 @@ class ICEScenario(Scenario):
     """
     The International Corpus of English (ICE).
 
-    NOTE: This text cannot be downloaded
-    automatically. You must extract each subset zip file into /benchmark_output/scenarios/ice.
+    NOTE: This text cannot be downloaded automatically.
+    You must extract each subset zip file into args.output_path + '/scenarios/ice',
+    which is by default '/benchmark_output/scenarios/ice',
+    where args.output_path is parsed from the command line argument.
+    See helm.benchmark.runner for more details about args.output_path.
+
     The archives should extract into folders named according to the dictionary SUBSET_TO_DIRECTORY
     below.
 
