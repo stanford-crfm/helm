@@ -302,7 +302,10 @@ class CodeScenario(Scenario):
         self.human_eval_hparams = dict(num_train_instances=0, num_val_instances=0, num_test_instances=164)
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        # By construction, output_path == 'benchmark_output/scenarios/code'.
+        # By construction, output_path == args.output_path + '/scenarios/code'
+        # where args.output_path is parsed from the command line argument.
+        # The default self.output_path here is '/benchmark_output/scenarios/ice'.
+        # See helm.benchmark.runner for more details about args.output_path.
         if self.dataset == "humaneval":
             target_path = os.path.join(output_path, "HumanEval.jsonl")
             ensure_file_downloaded(

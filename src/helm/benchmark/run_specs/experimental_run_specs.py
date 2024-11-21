@@ -4,8 +4,10 @@ These run specs are not intended for use with public leaderboards."""
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_MULTIPLE_CHOICE_JOINT
-from helm.benchmark.adaptation.common_adapter_specs import get_multiple_choice_adapter_spec
+from helm.benchmark.adaptation.common_adapter_specs import get_multiple_choice_adapter_spec, get_generation_adapter_spec
+from helm.benchmark.annotation.annotator import AnnotatorSpec
 from helm.benchmark.metrics.common_metric_specs import get_exact_match_metric_specs
+from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
@@ -82,4 +84,40 @@ Which context makes more sense given the scenario? Please answer using either "1
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
         groups=["ewok", f"ewok_{domain}"],
+    )
+
+
+@run_spec_function("autobencher_capabilities")
+def get_autobencher_capabilities_spec(subject: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.autobencher_capabilities_scenario.AutoBencherCapabilitiesScenario",
+        args={"subject": subject},
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=("Output just with the final answer to the question."),
+        input_noun="Question",
+        output_noun="Answer",
+        max_tokens=100,
+    )
+    annotator_specs = [
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.autobencher_capabilities_annotator.AutoBencherCapabilitiesAnnotator"
+        )
+    ]
+    annotator_metric_spec = MetricSpec(
+        class_name="helm.benchmark.metrics.annotation_metrics.AnnotationNumericMetric",
+        args={
+            "annotator_name": "autobencher_capabilities",
+            "key": "score",
+        },
+    )
+
+    return RunSpec(
+        name="autobencher_capabilities",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        annotators=annotator_specs,
+        metric_specs=get_exact_match_metric_specs() + [annotator_metric_spec],
+        groups=["autobencher_capabilities"],
     )

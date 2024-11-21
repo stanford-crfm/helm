@@ -68,6 +68,10 @@ metrics:
     display_name: ROUGE-L
     description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on longest common subsequence overlap.
     lower_is_better: false
+  - name: annotation_autobencher_capabilities_score
+    display_name: Correct
+    description: Model-judged correctness for AutoBencher Capabilities
+    lower_is_better: false
 
 ############################################################
 perturbations: []
@@ -103,86 +107,26 @@ metric_groups:
 
 ############################################################
 run_groups:
-  - name: financial_scenarios
-    display_name: Financial Scenarios
-    description: Scenarios for the financial domain
+  - name: autobencher_scenarios
+    display_name: AutoBencher Scenarios
+    description: AutoBencher Scenarios
     category: All scenarios
     subgroups:
-      - gold_commodity_news
+      - autobencher_capabilities
 
-  - name: legal_scenarios
-    display_name: Legal Scenarios
-    description: Scenarios for the legal domain
-    category: All scenarios
-    subgroups:
-      - legal_contract_summarization
-
-  - name: climate_scenarios
-    display_name: Climate Scenarios
-    description: Scenarios for the climate domain
-    category: All scenarios
-    subgroups:
-      - sumosum
-
-  - name: gold_commodity_news
-    display_name: Gold Commodity News
-    description: A classification benchmark based on a dataset of human-annotated gold commodity news headlines ([Sinha & Khandait, 2019](https://arxiv.org/abs/2009.04202)).
+  - name: autobencher_capabilities
+    display_name: AutoBencher Capabilities
+    description: AutoBencher Capabilities consists of question answering datasets for math, multilingual, and knowledge-intensive question answering created by AutoBencher. ([paper](https://arxiv.org/abs/2407.08351))
     metric_groups:
       - accuracy
       - efficiency
       - general_information
     environment:
-      main_name: quasi_exact_match
-      main_split: test
-    taxonomy:
-      task: text classification
-      what: gold commodity news headlines
-      who: financial journalists
-      when: 2000-2019
-      language: English
-
-  - name: legal_contract_summarization
-    display_name: Legal Contract Summarization
-    description: Plain English Summarization of Contracts [(Manor et al., 2019)](https://aclanthology.org/W19-2201.pdf).
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: rouge_2
-      main_split: test
-    taxonomy:
-      task: summarization
-      what: legal contracts (e.g. terms of service, license agreements)
-      who: lawyers
-      when: before 2019
-      language: English
-
-  - name: casehold
-    display_name: CaseHOLD
-    description: CaseHOLD (Case Holdings On Legal Decisions) is a multiple choice question answering scenario where the task is to identify the relevant holding of a cited case [(Zheng et al, 2021)](https://arxiv.org/pdf/2104.08671.pdf).
-      main_name: exact_match
+      main_name: annotation_autobencher_capabilities_score
       main_split: test
     taxonomy:
       task: question answering
-      what: Harvard Law Library case law corpus
-      who: legal professionals
-      when: before 2021
-      language: English
-
-  - name: sumosum
-    display_name: SUMO Web Claims Summarization
-    description: A summarization benchmark based on the climate subset of the SUMO dataset ([Mishra et al., 2020](https://aclanthology.org/2020.wnut-1.12/)).
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: rouge_2
-      main_split: test
-    taxonomy:
-      task: summarization
-      what: Articles from climatefeedback.org
-      who: Writers of news articles and web documents
-      when: Before 2020
-      language: English
+      what: questions about various 
+      who: synthetic model-generated questions
+      when: "2024"
+      language: English and various languages
