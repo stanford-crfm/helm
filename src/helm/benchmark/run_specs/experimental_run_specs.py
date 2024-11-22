@@ -2,7 +2,7 @@
 
 These run specs are not intended for use with public leaderboards."""
 
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark.adaptation.adapter_spec import ADAPT_GENERATION, AdapterSpec
 from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_MULTIPLE_CHOICE_JOINT
 from helm.benchmark.adaptation.common_adapter_specs import get_multiple_choice_adapter_spec, get_generation_adapter_spec
 from helm.benchmark.annotation.annotator import AnnotatorSpec
@@ -120,4 +120,47 @@ def get_autobencher_capabilities_spec(subject: str) -> RunSpec:
         annotators=annotator_specs,
         metric_specs=get_exact_match_metric_specs() + [annotator_metric_spec],
         groups=["autobencher_capabilities"],
+    )
+
+
+@run_spec_function("autobencher_safety")
+def get_autobencher_safety_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.autobencher_safety_scenario.AutoBencherSafetyScenario",
+    )
+
+    adapter_spec = adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        global_prefix="",
+        global_suffix="",
+        instructions="",
+        input_prefix="",
+        input_suffix="",
+        output_prefix="",
+        output_suffix="",
+        instance_prefix="",
+        max_train_instances=0,
+        num_outputs=1,
+        max_tokens=512,
+        temperature=0.0,
+        stop_sequences=[],
+    )
+    annotator_specs = [
+        AnnotatorSpec(class_name="helm.benchmark.annotation.autobencher_safety_annotator.AutoBencherSafetyAnnotator")
+    ]
+    annotator_metric_spec = MetricSpec(
+        class_name="helm.benchmark.metrics.annotation_metrics.AnnotationNumericMetric",
+        args={
+            "annotator_name": "autobencher_safety",
+            "key": "score",
+        },
+    )
+
+    return RunSpec(
+        name="autobencher_safety",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        annotators=annotator_specs,
+        metric_specs=get_exact_match_metric_specs() + [annotator_metric_spec],
+        groups=["autobencher_safety"],
     )

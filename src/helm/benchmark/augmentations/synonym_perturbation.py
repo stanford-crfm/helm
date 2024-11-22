@@ -12,6 +12,7 @@ import spacy
 from helm.common.general import match_case, ensure_file_downloaded
 from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
 from helm.benchmark.augmentations.perturbation import TextPerturbation
+from helm.benchmark.runner import get_benchmark_output_path
 
 
 class SynonymPerturbation(TextPerturbation):
@@ -57,7 +58,7 @@ class SynonymPerturbation(TextPerturbation):
             spacy.cli.download("en_core_web_sm")  # type: ignore
             self.spacy_model = spacy.load("en_core_web_sm")
 
-        output_dir = os.path.join("benchmark_output", "perturbations", self.name)
+        output_dir = os.path.join(get_benchmark_output_path(), "perturbations", self.name)
         Path(output_dir).mkdir(parents=True, exist_ok=True)
         nltk.data.path.append(output_dir)
         try:

@@ -6,6 +6,7 @@ from typing import Dict, List, Optional
 
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog
+from helm.benchmark.runner import get_benchmark_output_path
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -148,5 +149,5 @@ class EmpatheticDialoguesScenario(Scenario):
 
 if __name__ == "__main__":
     scenario = EmpatheticDialoguesScenario()
-    instances = scenario.get_instances("./benchmark_output/scenarios/empatheticdialogues")
+    instances = scenario.get_instances(os.path.join(get_benchmark_output_path(), "scenarios/empatheticdialogues"))
     print(instances[100])
