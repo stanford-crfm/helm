@@ -271,10 +271,8 @@ def get_voxceleb2_run_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.audio_language.voxceleb2_scenario.VoxCeleb2Scenario"
     )
-    adapter_spec = _get_generation_adapter_spec(
-        instructions="Determine whether the speakers in the following two audio clips are the same person. "
-        "Reply only with 'True' or 'False'. Don't include any explanation",
-        max_tokens=50,
+    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
+        input_noun=None, output_noun="Answer", max_train_instances=0
     )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
     run_spec_name: str = "voxceleb2"

@@ -323,24 +323,23 @@ run_groups:
   - name: voxceleb2
     display_name: VoxCeleb2
     description: >
-      AudioCaps is a large-scale dataset of about 46K audio clips to human-written text pairs collected 
-      via crowdsourcing on the AudioSet dataset, which covers a wide range of human and animal sounds, 
-      musical instruments and genres, and common everyday environmental sounds. 
-      ([Kim et al, 2019](https://aclanthology.org/N19-1011.pdf)).
       VoxCeleb is an audio-visual dataset consisting of short clips of human speech, extracted from 
-      interview videos uploaded to YouTube.([Chung et al, 2018](https://www.robots.ox.ac.uk/~vgg/publications/2018/Chung18a/chung18a.pdf))
+      interview videos uploaded to YouTube. It contains over a million utterances from over 6,000 
+      speakers with their gender, race, identity information in 145 different nationalities, covering 
+      a wide range of accents, ages, ethnicities and languages.
+      ([Chung et al, 2018](https://www.robots.ox.ac.uk/~vgg/publications/2018/Chung18a/chung18a.pdf))
     metric_groups:
       - accuracy
       - general_information
     environment:
-      main_name: cider
+      main_name: exact_match
       main_split: test
     taxonomy:
       task: audio identification
       what: audio clips in the wild
       who: real speakers
       when: "2018"
-      language: 145 languages
+      language: English, Germany, French
 
   - name: common_voice_15
     display_name: Common Voice 15
