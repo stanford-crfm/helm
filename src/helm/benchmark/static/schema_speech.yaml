@@ -336,7 +336,7 @@ run_groups:
       main_name: cider
       main_split: test
     taxonomy:
-      task: audio gender classification
+      task: audio identification
       what: audio clips in the wild
       who: real speakers
       when: "2018"
