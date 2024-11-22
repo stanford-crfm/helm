@@ -266,6 +266,27 @@ def get_audiocaps_run_spec() -> RunSpec:
     )
 
 
+@run_spec_function("voxceleb2")
+def get_voxceleb2_run_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.voxceleb2_scenario.VoxCeleb2Scenario"
+    )
+    adapter_spec = _get_generation_adapter_spec(
+        instructions="Determine the gender of the following audio's speaker. Reply only with 'Male' or 'Female'. "
+        "Don't include any explanation",
+        max_tokens=50,
+    )
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+    run_spec_name: str = "voxceleb2"
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
 @run_spec_function("common_voice_15")
 def get_common_voice_15_run_spec(language: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
