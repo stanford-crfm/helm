@@ -124,7 +124,7 @@ def get_autobencher_capabilities_spec(subject: str) -> RunSpec:
 
 
 @run_spec_function("autobencher_safety")
-def get_autobencher_capabilities_spec() -> RunSpec:
+def get_autobencher_safety_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.autobencher_safety_scenario.AutoBencherSafetyScenario",
     )
