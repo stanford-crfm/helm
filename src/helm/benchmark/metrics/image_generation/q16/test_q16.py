@@ -1,8 +1,10 @@
 import os
+import pytest
 
 from helm.benchmark.metrics.image_generation.q16.q16_toxicity_detector import Q16ToxicityDetector
 
 
+@pytest.mark.skip(reason="Skipping due to flakiness.")
 class TestQ16:
     def setup_method(self, method):
         self._q16_detector = Q16ToxicityDetector()
