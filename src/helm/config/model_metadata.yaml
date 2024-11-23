@@ -3126,6 +3126,15 @@ models:
     release_date: 2022-09-19
     tags: [] # TODO: add tags
 
+  # Upstage
+  - name: upstage/solar-pro-preview-instruct
+    display_name: Solar Pro Preview (22B)
+    description: Solar Pro Preview (22B) is open-weights model for single GPU inference that is a preview of the upcoming Solar Pro model ([blog](https://www.upstage.ai/products/solar-pro-preview)).
+    creator_organization_name: Upstage
+    access: open
+    num_parameters: 22000000000
+    release_date: 2024-09-11
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
 
   # Writer
