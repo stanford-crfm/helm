@@ -1144,6 +1144,27 @@ def get_med_paragraph_simplification_spec() -> RunSpec:
         groups=["MedParagraphSimplification"],
     )
 
+@run_spec_function("medcalc_bench")
+def get_medcalc_bench_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.medcalc_bench_scenario.MedCalcBenchScenario"
+    )
+    
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Given a patient note and a clinical question, compute the requested medical value. Be as concise as possible.",
+        input_noun=None,
+        newline_after_input_noun=False,
+        output_noun="Answer",
+    )
+
+    return RunSpec(
+        name=f"medcalc_bench",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_open_ended_generation_metric_specs(),
+        groups=["medcalc_bench"],
+    )
+
 
 @run_spec_function("pubmed_qa")
 def get_pubmed_qa_spec() -> RunSpec:
