@@ -2164,6 +2164,16 @@ model_deployments:
       args:
         together_model: meta-llama/Meta-Llama-Guard-3-8B
 
+  # NVIDIA  
+  - name: together/llama-3.1-nemotron-70b-instruct
+    model_name: nvidia/llama-3.1-nemotron-70b-instruct
+    tokenizer_name: nvidia/llama-3.1-nemotron-70b-instruct
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: nvidia/Llama-3.1-Nemotron-70B-Instruct-HF
+
   # 01.AI
   - name: together/yi-6b
     model_name: 01-ai/yi-6b
