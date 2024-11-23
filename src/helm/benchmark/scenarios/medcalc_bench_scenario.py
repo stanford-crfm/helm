@@ -85,7 +85,7 @@ class MedCalcBenchScenario(Scenario):
             
             instance = Instance(
                 input=prompt,
-                references=[Reference(Output(text=ground_truth_answer), tags=[])],
+                references=[Reference(Output(text=ground_truth_answer), tags=[CORRECT_TAG])],
                 split=split,
                 id=id
             )

@@ -195,8 +195,13 @@ run_groups:
     description: Scenarios for the medical domain
     category: All scenarios
     subgroups:
-
       - medcalc_bench
+      - med_qa
+      - med_mcqa
+      - pubmed_qa
+      - mmlu
+      - live_qa
+      - medication_qa
 
   - name: medcalc_bench
     display_name: MedCalc-Bench
