@@ -1144,6 +1144,27 @@ def get_med_paragraph_simplification_spec() -> RunSpec:
         groups=["MedParagraphSimplification"],
     )
 
+@run_spec_function("medalign")
+def get_medalign_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.medalign_scenario.MedalignScenario"
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Given an EHR and a clinical question, return the answer to the question.",
+        input_noun=None,
+        newline_after_input_noun=False,
+        output_noun="Answer",
+    )
+
+    return RunSpec(
+        name=f"medalign",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_open_ended_generation_metric_specs(),
+        groups=["medalign"],
+    )
+
 @run_spec_function("medcalc_bench")
 def get_medcalc_bench_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(

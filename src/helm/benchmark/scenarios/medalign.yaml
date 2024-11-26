@@ -1,0 +1,10 @@
+description: "Process Medalign files for evaluation."
+path_to_prompt_template: "/share/pi/nigam/scottyf/medalign-clean/src/medalign/prompt_templates/generic.txt"
+target_context_length: 8192
+generation_length: 256
+path_to_instructions: "/share/pi/nigam/data/MedAlign/ehr-relevance-labels.csv"
+path_to_ehrs: "/share/pi/nigam/data/MedAlign/full_patient_ehrs"
+use_RAG: true
+include_ehr: true
+tokenizer: "tiktoken"
+path_to_reference_responses: "/share/pi/nigam/scottyf/clinician-instruction-responses.csv"
