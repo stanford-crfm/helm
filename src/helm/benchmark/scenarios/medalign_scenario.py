@@ -23,7 +23,7 @@ import argparse
 #medcalcbench imports
 from typing import Dict, List
 from datasets import load_dataset
-
+import yaml
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -37,7 +37,7 @@ from helm.benchmark.scenarios.scenario import (
 
 def load_config(config_path: str) -> Dict[str, Any]:
     with open(config_path, 'r') as file:
-        config = json.load(file)
+        config = yaml.safe_load(file)
     return config
 
 def get_instructions(path_to_instructions: str) -> Dict[int, Dict[str, Any]]:
@@ -371,7 +371,7 @@ def retrieve_most_relevant_visits(ehr_visit_strs, query, target_length, tokenize
 
     # `k` is the number of documents to retrieve
     # We retrieve everything and just use the BM25Retriever to sort the documents
-    retriever = langchain_community.retrievers.BM25Retriever.from_documents(
+    retriever = BM25Retriever.from_documents(
         langchain_docs, k=len(langchain_docs)
     )
 
@@ -650,7 +650,7 @@ def return_dataset_dataframe():
 
 
 
-class Medalign(Scenario):
+class MedalignScenario(Scenario):
     """
 Scenario defining the MedAlign task as defined in the following work by Fleming et al:
 @article{fleming2023medalign,
@@ -706,18 +706,19 @@ This task is evaluated using COMET and BERTScore metrics.
 
     def process_csv(self, data) -> List[Instance]:
         instances: List[Instance] = []
-        # hlog(f"Processing data for {split} split")
-        for row in data:
-            question = row["instruction"]
-            ground_truth_answer = row['clinician response']
+        for index, row in data.iterrows():
+            question = row["prompt"]
+            ground_truth_answer = row['clinician_response']
 
             prompt = PassageQuestionInput(
-                passage=question
+                passage="",
+                question=question
             )
             
             instance = Instance(
                 input=prompt,
-                references=[Reference(Output(text=ground_truth_answer), tags=[CORRECT_TAG])]
+                references=[Reference(Output(text=ground_truth_answer), tags=[CORRECT_TAG])],
+                split=TEST_SPLIT,
             )
             instances.append(instance)
         return instances
