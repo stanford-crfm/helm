@@ -273,7 +273,7 @@ class FLEURSScenario(Scenario):
     name = "fleurs"
     description = "Language identification for seven languages from seven different language groups \
         ([Conneau et al, 2022](https://arxiv.org/abs/2205.12446))."
-    tags: List[str] = ["audio", "recognition"]
+    tags: List[str] = ["audio", "recognition", "multilinguality"]
 
     def __init__(self, language: str) -> None:
         super().__init__()
