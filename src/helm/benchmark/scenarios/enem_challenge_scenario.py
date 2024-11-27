@@ -1,5 +1,6 @@
 import re
-from typing import List, Any, Dict
+from typing import List, Any
+from pathlib import Path
 from datasets import load_dataset
 
 from helm.benchmark.scenarios.scenario import (
@@ -7,7 +8,6 @@ from helm.benchmark.scenarios.scenario import (
     Instance,
     Reference,
     CORRECT_TAG,
-    TRAIN_SPLIT,
     TEST_SPLIT,
     Input,
     Output,
@@ -16,27 +16,32 @@ from helm.benchmark.scenarios.scenario import (
 
 class ENEMChallengeScenario(Scenario):
     """
-    This scenario is based on the National High School Exams that were applied throughout the years
-    of 2009 and 2023.
+    The Exame Nacional do Ensino Médio (ENEM) is an advanced High-School level exam widely applied 
+    every year by the Brazilian government to students that wish to undertake a University degree.
 
-    The examples are questions about all types of intelectual fields such as mathemathics and grammar.
+    The questions are about all types of intelectual fields and they are divided into four groups 
+    that are named as: Humanities, Languages, Sciences and Mathematics.
+
+    This scenario is based on the exams that were applied throughout the years of 2009 and 2023.
+
+    The dataset can be found in this link: https://huggingface.co/datasets/eduagarcia/enem_challenge
     """
-
+ 
     name = "enem_challenge"
     description = "ENEM Challenge dataset"
     tags = ["knowledge", "multiple_choice", "pt-br"]
 
-    def __init__(self, subset):
+    def __init__(self):
         super().__init__()
-        self.subset = subset
 
     def get_instances(self, output_path: str) -> List[Instance]:
         # Download the raw data and read all the dialogues
         dataset: Any
         # Read all the instances
         instances: List[Instance] = []
+        cache_dir = str(Path(output_path) / "data")
 
-        dataset = load_dataset("eduagarcia/enem_challenge")
+        dataset = load_dataset("eduagarcia/enem_challenge", cache_dir=cache_dir)
         for example in dataset["train"]:
             question = example["question"]
             choices = example["choices"]

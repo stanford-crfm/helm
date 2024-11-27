@@ -34,31 +34,6 @@ def get_ci_mcqa_spec() -> RunSpec:
     )
 
 
-@run_spec_function("enem_challenge")
-def get_enem_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.enem_challenge_scenario.ENEMChallengeScenario", args={"subset": "test"}
-    )
-
-    adapter_spec = get_multiple_choice_adapter_spec(
-        method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="Dê uma resposta selecionando uma letra entre as opções fornecidas. "
-        "Por exemplo, se as opções forem A, B, C, D e E, "
-        "sua resposta deve consistir em uma única letra que corresponde a resposta correta.",
-        input_noun="Pergunta",
-        output_noun="Resposta",
-        model="maritaca-ai/sabia-7b",
-    )
-
-    return RunSpec(
-        name=f"enem_challenge",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs(),
-        groups=["ENEM"],
-    )
-
-
 @run_spec_function("ewok")
 def get_ewok_spec(domain: str = "all") -> RunSpec:
     scenario_spec = ScenarioSpec(
