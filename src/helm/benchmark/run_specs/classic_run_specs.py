@@ -1155,6 +1155,7 @@ def get_medalign_spec() -> RunSpec:
         input_noun=None,
         newline_after_input_noun=False,
         output_noun="Answer",
+        max_tokens=256,
     )
 
     return RunSpec(
