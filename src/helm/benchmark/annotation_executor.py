@@ -92,18 +92,26 @@ class AnnotationExecutor:
             hlog("No annotators to run.")
             return scenario_state
 
-        # Do it!
-        def do_it(request_state: RequestState) -> RequestState:
-            assert scenario_state.annotator_specs is not None
-            return self.process(scenario_state.annotator_specs, request_state)
+        if all(getattr(self.factory.get_annotator(spec), "is_macro", False) for spec in scenario_state.annotator_specs):
+            # Do it!
+            request_states = self.process_all(
+                scenario_state.annotator_specs, scenario_state.request_states  # processing all request together
+            )
 
-        self.annotator_specs = scenario_state.annotator_specs
+        else:
+            hlog("!!!!Annotators are not all is_macro!.")
+            # Do it!
+            def do_it(request_state: RequestState) -> RequestState:
+                assert scenario_state.annotator_specs is not None
+                return self.process(scenario_state.annotator_specs, request_state)
 
-        request_states = parallel_map(
-            do_it,
-            scenario_state.request_states,
-            parallelism=self.execution_spec.parallelism,
-        )
+            self.annotator_specs = scenario_state.annotator_specs
+
+            request_states = parallel_map(
+                do_it,
+                scenario_state.request_states,
+                parallelism=self.execution_spec.parallelism,
+            )
 
         hlog(f"Annotated {len(request_states)} requests")
         return ScenarioState(
@@ -122,3 +130,14 @@ class AnnotationExecutor:
         except Exception as e:
             raise AnnotationExecutorError(f"{str(e)} Request: {state.request}") from e
         return replace(state, annotations=annotations)
+
+    def process_all(self, annotator_specs: List[AnnotatorSpec], states: List[RequestState]) -> List[RequestState]:
+        annotations: Dict[str, Any] = {}
+        try:
+            for annotator_spec in annotator_specs:
+                annotator: Annotator = self.factory.get_annotator(annotator_spec)
+                new_annotations = annotator.annotate_all(states)
+                annotations[annotator.name] = new_annotations
+        except Exception as e:
+            raise AnnotationExecutorError(f"{str(e)} Request: {states.request}") from e
+        return [replace(state, annotations=annotations) for state in states]
