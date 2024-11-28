@@ -37,7 +37,6 @@ class WildBenchScenario(Scenario):
         dataset = datasets.load_dataset(
             "allenai/WildBench",
             self.subset,
-            trust_remote_code=True,
             cache_dir=cache_dir,
             split="test",
         )
@@ -46,7 +45,6 @@ class WildBenchScenario(Scenario):
             f"{model}": datasets.load_dataset(
                 "allenai/WildBench-V2-Model-Outputs",
                 model,
-                trust_remote_code=True,
                 cache_dir=cache_dir,
                 split="train",
             )
