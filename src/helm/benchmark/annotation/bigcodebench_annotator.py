@@ -60,7 +60,7 @@ class BigCodeBenchAnnotator(Annotator):
         assert all(request_state.result for request_state in request_states)
         assert all(len(request_state.result.completions) == 1 for request_state in request_states)
         assert all(request_state.instance.extra_data for request_state in request_states)
-        
+
         with TemporaryDirectory() as tmpdir:
             # with open(f"{tmpdir}/result.jsonl", "w") as file:
             with open(f"tmp_result.jsonl", "w") as file:
@@ -73,8 +73,10 @@ class BigCodeBenchAnnotator(Annotator):
                     model_output_text = request_state.result.completions[0].text
                     solution = code_extract(model_output_text)
                     escaped_solution = json.dumps(solution)[1:-1]
-                    idx = int(request_state.instance.extra_data["task_id"].split('/')[-1])
-                    res[idx] = f'{{"task_id": "{request_state.instance.extra_data["task_id"]}", "solution": "{escaped_solution}"}}\n'
+                    idx = int(request_state.instance.extra_data["task_id"].split("/")[-1])
+                    res[idx] = (
+                        f'{{"task_id": "{request_state.instance.extra_data["task_id"]}", "solution": "{escaped_solution}"}}\n'
+                    )
                 for line in res:
                     file.write(line)
 
@@ -91,7 +93,7 @@ class BigCodeBenchAnnotator(Annotator):
                         # samples=handle_file(f"{tmpdir}/result.jsonl"),
                         samples=handle_file(f"tmp_result.jsonl"),
                         pass_k=self.pass_k,
-                        api_name="/predict"
+                        api_name="/predict",
                     )
                     success = True  # Operation succeeded
                     pass_at_one = pass_at_k["pass@1"]
@@ -103,6 +105,5 @@ class BigCodeBenchAnnotator(Annotator):
             if not success:
                 hlog("Failed to complete the operation after 3 attempts.")
                 pass_at_one = 0.0
-
 
         return {"pass_at_one": pass_at_one}

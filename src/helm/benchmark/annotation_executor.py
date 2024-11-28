@@ -100,6 +100,7 @@ class AnnotationExecutor:
 
         else:
             hlog("!!!!Annotators are not all is_macro!.")
+
             # Do it!
             def do_it(request_state: RequestState) -> RequestState:
                 assert scenario_state.annotator_specs is not None

@@ -489,10 +489,17 @@ def get_bigcodebench_spec(subset: str) -> RunSpec:
 
     # Adapted from https://github.dev/bigcode-project/bigcodebench/blob/main/bigcodebench/evaluate.py
     adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION, input_prefix="", output_prefix="", max_tokens=1000, num_outputs=1, temperature=0.0,
-        global_prefix="Please provide a self-contained Python script that solves the following problem in a markdown code block:"
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="",
+        max_tokens=1000,
+        num_outputs=1,
+        temperature=0.0,
+        global_prefix="Please provide a self-contained Python script that solves the following problem in a markdown code block:",
     )
-    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.bigcodebench_annotator.BigCodeBenchAnnotator")]
+    annotator_specs = [
+        AnnotatorSpec(class_name="helm.benchmark.annotation.bigcodebench_annotator.BigCodeBenchAnnotator")
+    ]
     metric_specs = [MetricSpec(class_name="helm.benchmark.metrics.bigcodebench_metrics.BigCodeBenchMetric")]
 
     return RunSpec(
