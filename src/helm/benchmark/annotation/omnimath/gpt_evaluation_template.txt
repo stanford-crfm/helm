@@ -1,0 +1,152 @@
+# CONTEXT #
+I am a teacher, and I have some high-level math problems. I am tasked with evaluating the correctness of a student's answer. 
+Below, I am provided with a problem and a reference answer. Additionally, a student's answer is provided. My job is to assess whether the student's answer captures the same meaning as the reference answer, even when expressed with different wording or format.
+
+# OBJECTIVE #
+I need you to judge whether the student's answer is correct given the ground truth answer.
+
+Your tasks include:
+A. Identify Mathematical or Notational Equivalence: Pay special attention to any LaTeX expressions in both answers. Confirm that the mathematical relationships, variables, and operations conveyed are equivalent.
+B. Provide a Justification: Conclude with a brief explanation as to why you believe the student's output is correct or incorrect, highlighting any key differences in meaning or content.
+
+# STYLE #
+Teaching report.
+
+# TONE #
+Professional, scientific.
+
+# AUDIENCE #
+Students. Enable them to better understand whether the answer they produce is correct.
+
+# RESPONSE: MARKDOWN REPORT #
+## Student Final Answer
+[Extract the student's final answer, which is enclosed in "\\boxed{}".]
+## Equivalence Judgement
+[Whether the student's answer share the same meaning with the reference answer. (TRUE or FALSE)]
+## Justification
+[Conclude with a brief explanation as to why you believe the student's answer is correct or incorrect.]
+
+
+# ATTENTION #
+ - The reference answer is ALWAYS correct. You should carefully judge whether the student gives the same answer as reference answer.
+ - The Equivalence Judgement is only TRUE or FALSE. The answer is FALSE even if the student's final answer almost correct with a minor mistakes.
+ - The answer is contained within the "boxed" section, so you can focus solely on comparing the content in the student's answer box with the reference answer, without needing to consider the intermediate steps.
+ - Add "=== report over ===" at the end of the report.
+
+<example math solution>
+**Question**:
+The numbers $1447$ , $1005$ and $1231$ have something in common: each is a $4$ -digit number beginning with $1$ that has exactly two identical digits. How many such numbers are there?
+
+**Reference Answer**
+432
+
+**Student Solution**:
+To determine how many 4-digit numbers beginning with 1 have exactly two identical digits, we need to consider the structure of these numbers. A number of this form can be represented as \(1abc\), where \(a\), \(b\), and \(c\) are digits from 0 to 9, and exactly one of the digits \(a\), \(b\), or \(c\) is 1, while the other two are different from each other and different from 1.
+
+We can break down the problem into the following steps:
+
+1. **Choose the digit that is 1**: There are 3 positions (a, b, c) where the digit 1 can be placed. So, there are 3 choices for the position of the digit 1.
+
+2. **Choose the other two digits**: The remaining two digits must be different from each other and different from 1. Therefore, we have 9 choices for the first of these two digits (0-9 except 1) and 8 choices for the second digit (0-9 except 1 and the first digit). This gives us \(9 \times 8 = 72\) choices for the other two digits.
+
+Combining these choices, the total number of 4-digit numbers beginning with 1 that have exactly two identical digits is:
+\[3 \times 72 = 216.\]
+
+Thus, the number of such numbers is \(\boxed{216}\).
+
+</example math solution>
+
+## Student Final Answer
+216
+
+## Equivalence Judgement
+FALSE
+
+## Justification
+The student's answer of 216 is incorrect in the context of the problem, which asks for the total count of 4-digit numbers beginning with 1 that have exactly two identical digits. The reference answer is 432.
+In the student's solution, they consider only cases where the digit '1' is one of the identical digits. However, the problem also includes the scenario where the identical digits could be different from '1'. Thus, the student's calculation does not account for all valid configurations. The discrepancy in figures indicates that the student's answer does not share the same meaning as the reference answer.
+
+=== report over ===
+
+
+<example math solution>
+**Question**:
+Susana and Brenda play a game writing polynomials on the board. Susana starts and they play taking turns.
+1) On the preparatory turn (turn 0), Susana choose a positive integer $n_0$ and writes the polynomial $P_0(x)=n_0$.
+2) On turn 1, Brenda choose a positive integer $n_1$, different from $n_0$, and either writes the polynomial
+
+$$P_1(x)=n_1x+P_0(x) \textup{  or  } P_1(x)=n_1x-P_0(x)$$
+
+3) In general, on turn $k$, the respective player chooses an integer $n_k$, different from $n_0, n_1, \ldots, n_{k-1}$, and either writes the polynomial
+$$P_k(x)=n_kx^k+P_{k-1}(x) \textup{  or  } P_k(x)=n_kx^k-P_{k-1}(x)$$
+The first player to write a polynomial with at least one whole whole number root wins. Find and describe a winning strategy.
+
+**Reference Answer**
+\\text{No winning strategy; the game can last indefinitely.}
+
+**Student Solution**:
+To determine a winning strategy for Susana, we need to analyze the game and the conditions under which a player can win. The goal is to write a polynomial that has at least one integer root.
+
+Let's start by examining the polynomials that are written on the board after each turn.
+
+1. On turn 0, Susana writes the polynomial \( P_0(x) = n_0 \), where \( n_0 \) is a positive integer. This polynomial is a constant polynomial with no integer roots unless \( n_0 = 0 \), which is not allowed since \( n_0 \) is a positive integer.
+
+2. On turn 1, Brenda chooses a positive integer \( n_1 \) different from \( n_0 \) and writes either \( P_1(x) = n_1 x + P_0(x) = n_1 x + n_0 \) or \( P_1(x) = n_1 x - P_0(x) = n_1 x - n_0 \). In both cases, \( P_1(x) \) is a linear polynomial. A linear polynomial \( ax + b \) has an integer root if and only if \( b/a \) is an integer. Therefore, Brenda can choose \( n_1 \) and \( n_0 \) such that \( n_1 n_0 \) is divisible by \( n_1 \), which is always possible since \( n_1 \) and \( n_0 \) are different positive integers. For example, if \( n_1 = 2 \) and \( n_0 = 2 \), then \( P_1(x) = 2x - 2 \) has the integer root \( x = 1 \). However, since \( n_1 \) must be different from \( n_0 \), we need to consider the next turn.
+
+3. On turn 2, Susana chooses a positive integer \( n_2 \) different from \( n_0 \) and \( n_1 \) and writes either \( P_2(x) = n_2 x^2 + P_1(x) \) or \( P_2(x) = n_2 x^2 - P_1(x) \). To ensure a win, Susana should choose \( n_2 \) such that the resulting polynomial has an integer root. Notice that if \( P_1(x) = n_1 x + n_0 \) or \( P_1(x) = n_1 x - n_0 \), then \( P_2(x) = n_2 x^2 + P_1(x) \) or \( P_2(x) = n_2 x^2 - P_1(x) \) will have an integer root if \( n_2 \) is chosen appropriately. For example, if \( P_1(x) = 2x - 2 \), then \( P_2(x) = n_2 x^2 + 2x - 2 \) or \( P_2(x) = n_2 x^2 - 2x + 2 \) will have an integer root if \( n_2 \) is chosen such that the polynomial can be factored to have an integer root.
+
+By following this strategy, Susana can always choose \( n_2 \) such that the resulting polynomial has an integer root. Therefore, Susana has a winning strategy.
+
+The winning strategy for Susana is to choose \( n_2 \) such that the resulting polynomial has an integer root. Specifically, if \( P_1(x) = n_1 x + n_0 \) or \( P_1(x) = n_1 x - n_0 \), then Susana should choose \( n_2 \) such that \( P_2(x) = n_2 x^2 + P_1(x) \) or \( P_2(x) = n_2 x^2 - P_1(x) \) has an integer root.
+
+The answer is: \(\boxed{\text{Susana has a winning strategy.}}\)
+
+</example math solution>
+
+
+## Student Final Answer
+\text{Susana has a winning strategy.}
+
+## Equivalence Judgement
+FALSE
+
+## Justification
+The student's answer states that "Susana has a winning strategy," which is not in agreement with the reference answer indicating "No winning strategy; the game can last indefinitely." The essence of the problem is that neither player can guarantee a win because the game can go on indefinitely without either player being able to write a polynomial with an integer root. The student's conclusion contradicts this, suggesting that a specific winning strategy exists for Susana, which is fundamentally incorrect according to the problem's conditions. Thus, the student's answer does not capture the same meaning as the reference answer.
+
+
+=== report over ===
+
+<example math solution>
+**Question**:
+Determine if there exists a (three-variable) polynomial $P(x,y,z)$ with integer coefficients satisfying the following property: a positive integer $n$ is [i]not[/i] a perfect square if and only if there is a triple $(x,y,z)$ of positive integers such that $P(x,y,z) = n$.
+
+**Reference Answer**
+P(x,y,z) = x^2 + y^2 + z^2 + 2xyz
+
+**Student Solution**:
+ **Claim:** There exists a three-variable polynomial $P(x, y
+
+</example math solution>
+
+## Student Final Answer
+None
+
+## Equivalence Judgement
+FALSE
+
+## Justification
+The student's answer does not provide a final conclusion and the final answer is missing, which indicates a lack of conclusion.
+
+=== report over ===
+
+<math solution>
+**Question**:
+{{Problem}}
+
+**Reference Answer**
+{{Reference Answer}}
+
+**Student Solution**:
+{{Solution}}
+
+</math solution>
