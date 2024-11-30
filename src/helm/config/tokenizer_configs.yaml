@@ -340,6 +340,14 @@ tokenizer_configs:
         pretrained_model_name_or_path: meta-llama/Llama-3.2-3B-Instruct
     prefix_token: "<|begin_of_text|>"
     end_of_text_token: "<|eot_id|>"
+  
+  - name: meta/llama-3.2-1b-instruct
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: meta-llama/Llama-3.2-1B-Instruct
+    prefix_token: "<|begin_of_text|>"
+    end_of_text_token: "<|eot_id|>"
 
   - name: meta/llama-3.2-11b-vision-instruct
     tokenizer_spec:

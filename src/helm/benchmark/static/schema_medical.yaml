@@ -196,16 +196,34 @@ run_groups:
     category: All scenarios
     subgroups:
       - medcalc_bench
-      - med_qa
-      - med_mcqa
+      - medalign
       - pubmed_qa
-      - mmlu
-      - live_qa
-      - medication_qa
+      # - med_qa
+      # - med_mcqa
+      # - mmlu
+      # - live_qa
+      # - medication_qa
 
   - name: medcalc_bench
     display_name: MedCalc-Bench
     description: MedCalc-Bench is the first medical calculation dataset used to benchmark LLMs ability to serve as clinical calculators ([Khandekar et al. 2024](https://arxiv.org/abs/2406.12036)).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: medalign
+    display_name: MedAlign
+    description: MedAlign is a clinician-curated benchmark of 983 natural language instructions for EHR data, enabling evaluation of LLMs on healthcare tasks and highlighting their limitations in accuracy, context handling, and alignment with real-world needs ([Fleming et al. 2023](https://arxiv.org/abs/2308.14089)).
     metric_groups:
       - accuracy
       - efficiency
