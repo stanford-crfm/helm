@@ -1427,6 +1427,15 @@ models:
     release_date: 2022-12-22
     tags: [] # TODO: add tags
 
+  - name: meta/llama-3.2-1b-instruct
+    display_name: Llama 3.2 Instruct (1.23B)
+    description: The Meta Llama 3.2 collection of multilingual large language models (LLMs) is a collection of pretrained and instruction-tuned text-only generative models in 1B and 3B sizes. ([blog](https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 1000000000
+    release_date: 2024-09-25
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: meta/opt-175b
     display_name: OPT (175B)
     description: Open Pre-trained Transformers (175B parameters) is a suite of decoder-only pre-trained transformers that are fully and responsibly shared with interested researchers ([paper](https://arxiv.org/pdf/2205.01068.pdf)).
