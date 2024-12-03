@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Optional
 import dacite
-from importib import resources
+from importlib import resources
 import yaml
 
 from helm.common.hierarchical_logger import htrack, hlog

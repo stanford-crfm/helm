@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional
 
 import json
-from importib import resources
+from importlib import resources
 
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.adaptation.request_state import RequestState

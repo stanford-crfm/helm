@@ -6,7 +6,7 @@ import dacite
 from inspect import cleandoc
 import mako.template
 import yaml
-from importib import resources
+from importlib import resources
 
 from helm.common.general import hlog
 from helm.benchmark.metrics.metric_name import MetricName
@@ -238,7 +238,7 @@ def get_adapter_fields() -> List[Field]:
     # Unfortunately there is no standard library support for getting docstrings of class fields,
     # so we have to do the parsing outselves. Fortunately, the parsing is quite straightforward.
     adapter_spec_path = resources.files(_ADAPTER_SPEC_PACKAGE).joinpath(_ADAPTER_SPEC_FILENAME)
-    with open(adapter_spec_path, "r") as f:
+    with adapter_spec_path.open("r") as f:
         contents = f.read()
     module_node = ast.parse(contents)
     adapter_spec_node = [
@@ -271,7 +271,7 @@ def get_adapter_fields() -> List[Field]:
 
 
 def get_default_schema_path() -> str:
-    return resources.files(SCHEMA_YAML_PACKAGE).joinpath(SCHEMA_CLASSIC_YAML_FILENAME)
+    return str(resources.files(SCHEMA_YAML_PACKAGE).joinpath(SCHEMA_CLASSIC_YAML_FILENAME))
 
 
 def read_schema(schema_path: str) -> Schema:
