@@ -980,7 +980,22 @@ model_deployments:
     max_sequence_length: 2048
     client_spec:
       class_name: "helm.clients.vision_language.huggingface_vlm_client.HuggingFaceVLMClient"
+      
+  ## NECTEC
+  - name: huggingface/Pathumma-llm-text-1.0.0
+    model_name: nectec/Pathumma-llm-text-1.0.0
+    tokenizer_name: nectec/Pathumma-llm-text-1.0.0
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
 
+  - name: huggingface/OpenThaiLLM-Prebuilt-7B
+    model_name: nectec/OpenThaiLLM-Prebuilt-7B
+    tokenizer_name: nectec/OpenThaiLLM-Prebuilt-7B
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+    
   ## KAIST AI
   - name: huggingface/prometheus-vision-13b-v1.0-hf
     model_name: kaistai/prometheus-vision-13b-v1.0-hf
