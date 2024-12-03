@@ -4,7 +4,7 @@ Starts a local HTTP server to display benchmarking assets.
 """
 
 import argparse
-import importib.resources as resources
+from importib import resources
 import json
 from os import path
 import urllib

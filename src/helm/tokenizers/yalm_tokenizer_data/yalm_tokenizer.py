@@ -1,5 +1,5 @@
 # mypy: check_untyped_defs = False
-import importib.resources as resources
+from importib import resources
 
 from helm.common.optional_dependencies import handle_module_not_found_error
 
