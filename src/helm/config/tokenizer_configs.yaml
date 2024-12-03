@@ -543,7 +543,7 @@ tokenizer_configs:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
       args:
         pretrained_model_name_or_path: Qwen/Qwen2-72B-Instruct
-    end_of_text_token: <|im_end|>"
+    end_of_text_token: "<|im_end|>"
     prefix_token: "<|im_start|>'"
 
   - name: qwen/qwen2.5-7b-instruct
@@ -551,7 +551,7 @@ tokenizer_configs:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
       args:
         pretrained_model_name_or_path: Qwen/Qwen2.5-7B-Instruct
-    end_of_text_token: <|im_end|>"
+    end_of_text_token: "<|im_end|>"
     prefix_token: "<|im_start|>'"
 
   - name: qwen/qwen-vl
