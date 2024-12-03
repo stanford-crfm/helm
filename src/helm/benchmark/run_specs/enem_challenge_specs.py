@@ -19,7 +19,6 @@ def get_enem_spec() -> RunSpec:
         "Resposta: B",
         input_noun="Pergunta",
         output_noun="Resposta",
-        model="maritaca-ai/sabia-7b",
     )
 
     return RunSpec(
