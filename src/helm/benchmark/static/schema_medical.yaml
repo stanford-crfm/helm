@@ -127,6 +127,10 @@ metrics:
     display_name: BLEU-4
     description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 4-gram overlap.
     lower_is_better: false
+  - name: BERTScore-F
+    display_name: BERTScore F1
+    description: BERTScore F1 score.
+    lower_is_better: false
     
   # Toxicity metrics
   - name: expected_max_toxicity
@@ -223,19 +227,18 @@ run_groups:
 
   - name: medalign
     display_name: MedAlign
-    description: MedAlign is a clinician-curated benchmark of 983 natural language instructions for EHR data, enabling evaluation of LLMs on healthcare tasks and highlighting their limitations in accuracy, context handling, and alignment with real-world needs ([Fleming et al. 2023](https://arxiv.org/abs/2308.14089)).
+    short_display_name: MedAlign
+    description: A question answering dataset for clinical questions, each paired with a relevant patient EHR and a clinician-generated gold response.
     metric_groups:
       - accuracy
-      - efficiency
-      - general_information
     environment:
-      main_name: exact_match
+      main_name: BERTScore-F
       main_split: test
     taxonomy:
       task: question answering
-      what: n/a
-      who: n/a
-      when: n/a
+      what: "?"
+      who: "?"
+      when: "?"
       language: English
 
   - name: med_qa

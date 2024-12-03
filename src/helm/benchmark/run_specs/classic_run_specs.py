@@ -1146,6 +1146,7 @@ def get_med_paragraph_simplification_spec() -> RunSpec:
 
 @run_spec_function("medalign")
 def get_medalign_spec() -> RunSpec:
+    from helm.common.gpu_utils import get_torch_device_name
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.medalign_scenario.MedalignScenario"
     )
@@ -1157,12 +1158,12 @@ def get_medalign_spec() -> RunSpec:
         output_noun="Answer",
         max_tokens=256,
     )
-
+    metric_args = {"task": "medalign", "device": get_torch_device_name()}
     return RunSpec(
         name=f"medalign",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_open_ended_generation_metric_specs(),
+        metric_specs=get_summarization_metric_specs(metric_args),
         groups=["medalign"],
     )
 
