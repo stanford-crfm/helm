@@ -117,7 +117,6 @@ identify==2.6.1
 idna==3.10
 ImageHash==4.3.1
 imageio==2.35.1
-importlib-resources==5.13.0
 importlib_metadata==8.5.0
 iniconfig==2.0.0
 jax==0.4.30

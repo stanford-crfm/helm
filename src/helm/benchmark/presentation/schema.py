@@ -6,7 +6,7 @@ import dacite
 from inspect import cleandoc
 import mako.template
 import yaml
-import importlib_resources as resources
+import importib.resources as resources
 
 from helm.common.general import hlog
 from helm.benchmark.metrics.metric_name import MetricName
