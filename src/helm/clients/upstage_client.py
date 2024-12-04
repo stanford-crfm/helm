@@ -4,7 +4,7 @@ from helm.tokenizers.tokenizer import Tokenizer
 
 
 class UpstageChatClient(OpenAIClient):
-    """Sends request to a Palmyra model using a OpenAI-compatible Chat API."""
+    """Sends request to a Upstage model using a OpenAI-compatible Chat API."""
 
     def __init__(
         self,
