@@ -97,10 +97,10 @@ class AirBenchChatScenario(Scenario):
                 self.HF_DATA_PATH_PREFIX,
                 f'{audio_meda_data["task_name"]}_{audio_meda_data["dataset_name"]}/{audio_meda_data["path"]}',
             )
-            loacal_audio_file_path = os.path.join(
+            local_audio_file_path = os.path.join(
                 data_dir, f'{audio_meda_data["task_name"]}_{audio_meda_data["dataset_name"]}_{audio_meda_data["path"]}'
             )
-            ensure_file_downloaded(source_url=hf_audio_file_path, target_path=loacal_audio_file_path)
+            ensure_file_downloaded(source_url=hf_audio_file_path, target_path=local_audio_file_path)
             input = Input(
                 multimedia_content=MultimediaObject(
                     [
