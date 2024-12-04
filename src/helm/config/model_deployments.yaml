@@ -2751,6 +2751,14 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.reka_client.RekaClient"
 
+  # Upstage
+  - name: upstage/solar-pro-241126
+    model_name: upstage/solar-pro-241126
+    tokenizer_name: upstage/solar-pro-preview-instruct
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.upstage_client.UpstageChatClient"
+
 # Diva Llama
   - name: huggingface/diva-llama
     model_name: stanford/diva-llama

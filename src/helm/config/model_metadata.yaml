@@ -3146,6 +3146,15 @@ models:
     release_date: 2024-09-11
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: upstage/solar-pro-241126
+    display_name: Solar Pro
+    display_name: Solar Pro
+    description: Solar Pro is a LLM designed for instruction-following and processing structured formats like HTML and Markdown. It supports English, Korean, and Japanese and has domain expertise in Finance, Healthcare, and Legal. ([blog](https://www.upstage.ai/blog/press/solar-pro-aws)).
+    creator_organization_name: Upstage
+    access: limited
+    num_parameters: 22000000000
+    release_date: 2024-11-26
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   # Writer
   - name: writer/palmyra-base
