@@ -4,6 +4,7 @@ from helm.benchmark.metrics.common_metric_specs import get_exact_match_metric_sp
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
+
 @run_spec_function("enem_challenge")
 def get_enem_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(

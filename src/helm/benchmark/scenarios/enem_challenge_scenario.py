@@ -16,17 +16,17 @@ from helm.benchmark.scenarios.scenario import (
 
 class ENEMChallengeScenario(Scenario):
     """
-    The Exame Nacional do Ensino Médio (ENEM) is an advanced High-School level exam widely applied 
+    The Exame Nacional do Ensino Médio (ENEM) is an advanced High-School level exam widely applied
     every year by the Brazilian government to students that wish to undertake a University degree.
 
-    The questions are about all types of intelectual fields and they are divided into four groups 
+    The questions are about all types of intelectual fields and they are divided into four groups
     that are named as: Humanities, Languages, Sciences and Mathematics.
 
     This scenario is based on the exams that were applied throughout the years of 2009 and 2023.
 
     The dataset can be found in this link: https://huggingface.co/datasets/eduagarcia/enem_challenge
     """
- 
+
     name = "enem_challenge"
     description = "ENEM Challenge dataset"
     tags = ["knowledge", "multiple_choice", "pt-br"]

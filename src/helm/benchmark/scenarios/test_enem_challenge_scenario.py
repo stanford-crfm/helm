@@ -13,14 +13,41 @@ def test_enem_challenge_scenario():
     assert len(instances) == 1431
     assert instances[0].split == TEST_SPLIT
 
-    assert instances[0].input.text.startswith("A atmosfera terrestre é composta pelos gases nitrogênio (N2) e oxigênio (O2)")
+    assert instances[0].input.text.startswith(
+        "A atmosfera terrestre é composta pelos gases nitrogênio (N2) e oxigênio (O2)"
+    )
     assert len(instances[0].input.text) == 1163
 
     assert instances[0].references == [
-        Reference(output=Output(text="reduzir o calor irradiado pela Terra mediante a substituição da produção primária pela industrialização refrigerada. "), tags=[]),
-        Reference(output=Output(text="promover a queima da biomassa vegetal, responsável pelo aumento do efeito estufa devido à produção de CH4. "), tags=[]),
-        Reference(output=Output(text="reduzir o desmatamento, mantendo-se, assim, o potencial da vegetação em absorver o CO2 da atmosfera. "), tags=[CORRECT_TAG]),
-        Reference(output=Output(text="aumentar a concentração atmosférica de H2O, molécula capaz de absorver grande quantidade de calor. "), tags=[]),
-        Reference(output=Output(text="remover moléculas orgânicas polares da atmosfera, diminuindo a capacidade delas de reter calor. "), tags=[]),
+        Reference(
+            output=Output(
+                text="reduzir o calor irradiado pela Terra mediante a substituição da produção primária pela industrialização refrigerada. "
+            ),
+            tags=[],
+        ),
+        Reference(
+            output=Output(
+                text="promover a queima da biomassa vegetal, responsável pelo aumento do efeito estufa devido à produção de CH4. "
+            ),
+            tags=[],
+        ),
+        Reference(
+            output=Output(
+                text="reduzir o desmatamento, mantendo-se, assim, o potencial da vegetação em absorver o CO2 da atmosfera. "
+            ),
+            tags=[CORRECT_TAG],
+        ),
+        Reference(
+            output=Output(
+                text="aumentar a concentração atmosférica de H2O, molécula capaz de absorver grande quantidade de calor. "
+            ),
+            tags=[],
+        ),
+        Reference(
+            output=Output(
+                text="remover moléculas orgânicas polares da atmosfera, diminuindo a capacidade delas de reter calor. "
+            ),
+            tags=[],
+        ),
     ]
     assert instances[0].references[2].is_correct == True
