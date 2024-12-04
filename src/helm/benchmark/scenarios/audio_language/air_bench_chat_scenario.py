@@ -106,7 +106,7 @@ class AirBenchChatScenario(Scenario):
                     [
                         MediaObject(
                             content_type=self._get_content_type(audio_meda_data["path"]),
-                            location=loacal_audio_file_path,
+                            location=local_audio_file_path,
                         ),
                         MediaObject(content_type="text/plain", text=audio_meda_data["question"]),
                     ]
