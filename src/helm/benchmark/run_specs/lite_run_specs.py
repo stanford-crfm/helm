@@ -48,7 +48,6 @@ def get_narrativeqa_spec() -> RunSpec:
         groups=["narrative_qa"],
     )
 
-
 @run_spec_function("natural_qa")
 def get_natural_qa_spec(mode: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -145,74 +144,34 @@ def get_mmlu_pro_spec(subject: str, use_chain_of_thought: str = "False", use_few
     del use_few_shot
 
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.mmlu_pro.MMLUProScenario", args={"subject": subject}
+        class_name="helm.benchmark.scenarios.mmlu_pro_scenario.MMLUProScenario", args={"subject": subject}
     )
     max_train_instance_num = 5 if use_few_shot_bool else 0
 
-    if use_few_shot_bool:
-        if use_chain_of_thought_bool:
-            adapter_spec = get_multiple_choice_adapter_spec(
-                method=ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT,
-                max_tokens=1000,  # following original repo
-                max_train_instances=max_train_instance_num,
-                instructions=(
-                    "Here are some example questions from experts. "
-                    "An explanation is given before the final answer. "
-                    "Answer the final question yourself, giving your reasoning beforehand."
-                ),
-                input_noun="Question",
-                input_suffix="\nChoices: \n",
-                reference_prefix="(A) ",
-                chain_of_thought_prefix="Let's think step by step: ",
-                chain_of_thought_suffix="The correct answer is ",
-                output_noun="",  # will be overwritten with output_prefix
-                output_prefix="",
-                global_suffix=(
-                    "Give step by step reasoning before you answer, and when you’re ready to answer, "
-                    'please use the format "The correct answer is (insert answer here)":'
-                ),
-            )
-        else:
-            adapter_spec = get_multiple_choice_adapter_spec(
-                method=ADAPT_MULTIPLE_CHOICE_JOINT,
-                max_train_instances=max_train_instance_num,
-                instructions=(
-                    "Here are some example questions from experts. "
-                    "An explanation is given before the final answer. "
-                    "Answer the final question yourself, giving your reasoning beforehand."
-                ),
-                input_noun="Question",
-                input_suffix="\nChoices: \n",
-                reference_prefix="(A) ",
-                output_noun="",  # will be overwritten with output_prefix
-                output_prefix="The correct answer is ",
-            )
-    else:
-        if use_chain_of_thought_bool:
-            adapter_spec = AdapterSpec(
-                method=ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT,
-                max_train_instances=max_train_instance_num,
-                max_tokens=1000,
-                input_prefix="What is the correct answer to this question: ",
-                input_suffix="\nChoices:\n",
-                output_prefix="",
-                reference_prefix="(A) ",
-                global_suffix=(
+    if use_chain_of_thought_bool:
+        adapter_spec = AdapterSpec(
+            method=ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT,
+            max_train_instances=max_train_instance_num,
+            max_tokens=1000,
+            input_prefix="What is the correct answer to this question: ",
+            input_suffix="\nChoices:\n",
+            output_prefix="",
+            global_suffix=(
                     "Let’s think step by step. Based on your reasoning, what is the single, "
                     "most likely answer choice? Format your response as follows: "
                     '"The correct answer is (insert answer here)".'
-                ),
-            )
-        else:
-            adapter_spec = AdapterSpec(
-                method=ADAPT_MULTIPLE_CHOICE_JOINT,
-                max_train_instances=max_train_instance_num,
-                max_tokens=1000,
-                input_prefix="What is the correct answer to this question: ",
-                input_suffix="\nChoices:\n",
-                output_prefix="",
-                reference_prefix="(A) ",
-                global_suffix=("Format your response as follows: " '"The correct answer is (insert answer here)".'),
+            ),
+        )
+    else:
+        adapter_spec = AdapterSpec(
+            method=ADAPT_MULTIPLE_CHOICE_JOINT,
+            max_train_instances=max_train_instance_num,
+            max_tokens=1000,
+            input_prefix="What is the correct answer to this question: ",
+            input_suffix="\nChoices:\n",
+            output_prefix="",
+            reference_prefix="(A) ",
+            global_suffix=("Format your response as follows: " '"The correct answer is (insert answer here)".'),
             )
 
     return RunSpec(
@@ -431,10 +390,7 @@ def get_gpqa_spec(subset: str, use_chain_of_thought: str = "False", use_few_shot
                 chain_of_thought_suffix="The correct answer is ",
                 output_noun="",  # will be overwritten with output_prefix
                 output_prefix="",
-                global_suffix=(
-                    "Give step by step reasoning before you answer, and when you’re ready to answer, "
-                    'please use the format "The correct answer is (insert answer here)":'
-                ),
+
             )
         else:
             adapter_spec = get_multiple_choice_adapter_spec(
