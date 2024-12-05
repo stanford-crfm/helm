@@ -48,6 +48,7 @@ def get_narrativeqa_spec() -> RunSpec:
         groups=["narrative_qa"],
     )
 
+
 @run_spec_function("natural_qa")
 def get_natural_qa_spec(mode: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -157,9 +158,9 @@ def get_mmlu_pro_spec(subject: str, use_chain_of_thought: str = "False", use_few
             input_suffix="\nChoices:\n",
             output_prefix="",
             global_suffix=(
-                    "Let’s think step by step. Based on your reasoning, what is the single, "
-                    "most likely answer choice? Format your response as follows: "
-                    '"The correct answer is (insert answer here)".'
+                "Let’s think step by step. Based on your reasoning, what is the single, "
+                "most likely answer choice? Format your response as follows: "
+                '"The correct answer is (insert answer here)".'
             ),
         )
     else:
@@ -172,7 +173,7 @@ def get_mmlu_pro_spec(subject: str, use_chain_of_thought: str = "False", use_few
             output_prefix="",
             reference_prefix="(A) ",
             global_suffix=("Format your response as follows: " '"The correct answer is (insert answer here)".'),
-            )
+        )
 
     return RunSpec(
         name=f"gpqa:subset={subject},use_chain_of_thought={use_chain_of_thought_bool}",
@@ -390,7 +391,6 @@ def get_gpqa_spec(subset: str, use_chain_of_thought: str = "False", use_few_shot
                 chain_of_thought_suffix="The correct answer is ",
                 output_noun="",  # will be overwritten with output_prefix
                 output_prefix="",
-
             )
         else:
             adapter_spec = get_multiple_choice_adapter_spec(
