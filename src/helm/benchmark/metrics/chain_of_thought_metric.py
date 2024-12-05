@@ -90,4 +90,4 @@ class ChainOfThoughtMetric(Metric):
 
         # Compare extracted answer with the correct answer and compute the score
         score = 1 if extracted_answer == correct_answer else 0
-        return [Stat(MetricName("chain_of_thought_correct")).add(score)]
+        return [Stat(MetricName("chain_of_thought_correctness")).add(score)]

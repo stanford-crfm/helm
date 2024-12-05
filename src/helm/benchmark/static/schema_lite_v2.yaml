@@ -93,10 +93,10 @@ metrics:
     short_display_name: IFEval Strict Acc
     description: Fraction of instructions in the instance that are correctly followed.
     lower_is_better: false
-  - name: chain_of_thought_correct
+  - name: chain_of_thought_correctness
     display_name: COT correct
     short_display_name: COT correct
-    description: TBD.
+    description: Allows to do evaluation using chain of thought for mmlu pro and gpqa.
     lower_is_better: false
 
 ############################################################
@@ -140,6 +140,7 @@ run_groups:
     subgroups:
       - mmlu_pro
       - gpqa
+      - ifeval
 
   - name: mmlu_pro
     display_name: MMLU-Pro
