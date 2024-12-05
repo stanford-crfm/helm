@@ -121,6 +121,7 @@ run_groups:
     subgroups:
       - legal_contract_summarization
       - casehold
+      - echr_judgment_classification
       - legal_opinion_sentiment_classification
 
   - name: climate_scenarios
@@ -186,6 +187,22 @@ run_groups:
       what: Harvard Law Library case law corpus
       who: legal professionals
       when: before 2021
+      language: English
+
+  - name: echr_judgment_classification
+    display_name: ECHR Judgment Classification
+    description: The "Binary Violation" Classification task from the paper Neural Legal Judgment Prediction in English [(Chalkidis et al., 2019)](https://arxiv.org/pdf/1906.02059.pdf). The task is to analyze the description of a legal case from the European Court of Human Rights (ECHR), and classify it as positive if any human rights article or protocol has been violated and negative otherwise.
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: classification_weighted_f1
+      main_split: test
+    taxonomy:
+      task: text classification
+      what: casees from the European Court of Human Rights
+      who: judiciary of the European Court of Human Rights
+      when: 2014-2018 (train) and 2014-2018 (test)
       language: English
 
   - name: legal_opinion_sentiment_classification

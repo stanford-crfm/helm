@@ -120,6 +120,31 @@ def get_casehold_spec() -> RunSpec:
     )
 
 
+@run_spec_function("echr_judgment_classification")
+def get_echr_judgment_classification_spec() -> RunSpec:
+    """A different implementation (binary classification) of lex_glue_fixed:subset=ecthr_a"""
+    from helm.benchmark.scenarios.echr_judgment_classification_scenario import EchrJudgeScenario
+
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.echr_judgment_classification_scenario.EchrJudgeScenario", args={"filter_max_length": 600}
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=EchrJudgeScenario.PROMPT_INST_WITH_EX,
+        input_noun=EchrJudgeScenario.PROMPT_INPUT,
+        output_noun=EchrJudgeScenario.PROMPT_OUTPUT,
+        max_tokens=1,
+    )
+
+    return RunSpec(
+        name="echr_judgment_classification",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs() + _get_weighted_classification_metric_specs(labels=["yes", "no"]),
+        groups=["echr_judgment_classification"],
+    )
+
+
 # Climate
 
 
