@@ -93,6 +93,11 @@ metrics:
     short_display_name: IFEval Strict Acc
     description: Fraction of instructions in the instance that are correctly followed.
     lower_is_better: false
+  - name: chain_of_thought_correctness
+    display_name: COT correct
+    short_display_name: COT correct
+    description: Allows to do evaluation using chain of thought for mmlu pro and gpqa.
+    lower_is_better: false
 
 ############################################################
 perturbations: []
@@ -154,23 +159,6 @@ run_groups:
       when: "?"
       language: English
 
-  - name: gpqa
-    display_name: GPQA
-    description: GPQA
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: exact_match  # non-CoT
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: English
-  
   - name: ifeval
     display_name: IFEval
     description: IFEval
@@ -180,6 +168,19 @@ run_groups:
       - general_information
     environment:
       main_name: ifeval_strict_accuracy
+      main_split: test
+    taxonomy:
+      task: "?"
+
+  - name: gpqa
+    display_name: GPQA
+    description: GPQA
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: chain_of_thought_correct  # non-CoT
       main_split: test
     taxonomy:
       task: "?"
