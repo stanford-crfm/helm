@@ -179,7 +179,8 @@ class BasicGenerationMetric(Metric):
         derived_stats: List[Stat] = []
         derived_stats.extend(compute_calibration_metrics(per_instance_stats))
         return derived_stats
-    
+
+
 class BasicReferenceMetric(ReferenceMetric):
     """
     Defines basic metrics for Scenarios that use one Request per Reference instead of
