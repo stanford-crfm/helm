@@ -2144,6 +2144,27 @@ models:
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
 
+    
+  # NECTEC
+  - name: nectec/Pathumma-llm-text-1.0.0
+    display_name: Pathumma-llm-text-1.0.0 (7B)
+    description: Pathumma-llm-text-1.0.0 (7B) is a instruction model from  OpenThaiLLM-Prebuilt-7B ([blog](https://medium.com/nectec/pathummallm-v-1-0-0-release-6a098ddfe276))
+    creator_organization_name: nectec
+    access: open
+    num_parameters: 7620000000
+    release_date: 2024-10-28
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+ 
+  - name: nectec/OpenThaiLLM-Prebuilt-7B
+    display_name: OpenThaiLLM-Prebuilt-7B (7B)
+    description: OpenThaiLLM-Prebuilt-7B (7B) is a pretrained Thai large language model with 7 billion parameters based on Qwen2.5-7B.
+    creator_organization_name: nectec
+    access: open
+    num_parameters: 7620000000
+    release_date: 2024-10-28
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+
 
   # Neurips
   - name: neurips/local
@@ -3146,6 +3167,15 @@ models:
     release_date: 2024-09-11
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: upstage/solar-pro-241126
+    display_name: Solar Pro
+    display_name: Solar Pro
+    description: Solar Pro is a LLM designed for instruction-following and processing structured formats like HTML and Markdown. It supports English, Korean, and Japanese and has domain expertise in Finance, Healthcare, and Legal. ([blog](https://www.upstage.ai/blog/press/solar-pro-aws)).
+    creator_organization_name: Upstage
+    access: limited
+    num_parameters: 22000000000
+    release_date: 2024-11-26
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   # Writer
   - name: writer/palmyra-base
@@ -3469,3 +3499,4 @@ models:
     num_parameters: 6740000000
     release_date: 2023-11-08
     tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+   

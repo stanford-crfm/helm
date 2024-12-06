@@ -195,7 +195,6 @@ run_groups:
       audio sample ([Becker et al, 2023](https://arxiv.org/abs/1807.03418)).
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -219,7 +218,6 @@ run_groups:
       ([Wang et al, 2020](https://arxiv.org/abs/2007.10310)).
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: bleu
@@ -241,7 +239,6 @@ run_groups:
       age, gender, native language, country, and health condition ([Gong et al, 2022](https://arxiv.org/abs/2205.03433)).
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -263,7 +260,6 @@ run_groups:
       Dutch, German, French, Spanish, Italian, Portuguese", Polish ([Pratap et al, 2022](https://arxiv.org/abs/2012.03411)).
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: f1_score
@@ -288,7 +284,6 @@ run_groups:
       South Asian, South East Asian, Chinese Japanase Korean ([Conneau et al, 2022](https://arxiv.org/abs/2205.12446)).
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -353,7 +348,6 @@ run_groups:
       ([Ardila et al, 2020](https://arxiv.org/abs/1912.06670)).
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: word_accuracy
@@ -378,7 +372,6 @@ run_groups:
       ([Shah et al, 2024](https://arxiv.org/abs/2403.07937)).
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: word_accuracy
@@ -401,7 +394,6 @@ run_groups:
       The dataset contains the audio and question for three subsets: occupation, status, and potential_crime.
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -427,7 +419,6 @@ run_groups:
       questions answering task.
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -438,3 +429,26 @@ run_groups:
       who: real speakers
       when: "2023"
       language: 10 languages
+
+  - name: air_bench_chat
+    display_name: Air-Bench Chat
+    description: >
+      Air-Bench (Yang et al, 2024) encompasses two dimensions: foundation and chat benchmarks. The former consists of 19 tasks with 
+      approximately 19k single-choice questions. The latter one contains 2k instances of open-ended question-and-answer data. 
+      We consider the chat benchmark in this scenario.
+
+      The dataset contains the audio question answering task in four subjects: sound, speech, music, and mixed.
+      ([Yang et al, 2024](https://aclanthology.org/2024.acl-long.109.pdf)).
+    metric_groups:
+      - accuracy
+      - general_information
+      - reasoning
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: audio question answering
+      what: adio, question, and answer of audio samples
+      who: real speakers
+      when: "2024"
+      language: English
