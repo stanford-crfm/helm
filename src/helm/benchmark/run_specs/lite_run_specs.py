@@ -181,7 +181,6 @@ def get_mmlu_pro_spec(subject: str, use_chain_of_thought: str = "False", use_few
             input_prefix="What is the correct answer to this question: ",
             input_suffix="\nChoices:\n",
             output_prefix="",
-            reference_prefix="(A) ",
             global_suffix=("Format your response as follows: " '"The correct answer is (insert answer here)".'),
         )
         return RunSpec(

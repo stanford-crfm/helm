@@ -159,6 +159,20 @@ run_groups:
       when: "?"
       language: English
 
+  - name: ifeval
+    display_name: IFEval
+    description: IFEval
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: ifeval_strict_accuracy
+      main_name: chain_of_thought_correct  # non-CoT
+      main_split: test
+    taxonomy:
+      task: "?"
+
   - name: gpqa
     display_name: GPQA
     description: GPQA
