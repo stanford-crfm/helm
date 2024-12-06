@@ -163,6 +163,16 @@ def get_mmlu_pro_spec(subject: str, use_chain_of_thought: str = "False", use_few
                 '"The correct answer is (insert answer here)".'
             ),
         )
+        return RunSpec(
+            name=f"mmlu_pro:subset={subject},use_chain_of_thought={use_chain_of_thought_bool}",
+            scenario_spec=scenario_spec,
+            adapter_spec=adapter_spec,
+            metric_specs=get_exact_match_metric_specs()
+            + [
+            MetricSpec(class_name="helm.benchmark.metrics.chain_of_thought_metric.ChainOfThoughtMetric", args={}),
+            ],
+            groups=["mmlu_pro"],
+        )
     else:
         adapter_spec = AdapterSpec(
             method=ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -174,17 +184,16 @@ def get_mmlu_pro_spec(subject: str, use_chain_of_thought: str = "False", use_few
             reference_prefix="(A) ",
             global_suffix=("Format your response as follows: " '"The correct answer is (insert answer here)".'),
         )
-
-    return RunSpec(
-        name=f"gpqa:subset={subject},use_chain_of_thought={use_chain_of_thought_bool}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs()
-        + [
+        return RunSpec(
+            name=f"mmlu_pro:subset={subject},use_chain_of_thought={use_chain_of_thought_bool}",
+            scenario_spec=scenario_spec,
+            adapter_spec=adapter_spec,
+            metric_specs=get_exact_match_metric_specs()
+            + [
             MetricSpec(class_name="helm.benchmark.metrics.chain_of_thought_metric.ChainOfThoughtMetric", args={}),
-        ],
-        groups=["mmlu_pro"],
-    )
+            ],
+            groups=["mmlu_pro"],
+        )
 
 
 @run_spec_function("gsm")
@@ -373,8 +382,7 @@ def get_gpqa_spec(subset: str, use_chain_of_thought: str = "False", use_few_shot
     )
     max_train_instance_num = 5 if use_few_shot_bool else 0
 
-    if use_few_shot_bool:
-        if use_chain_of_thought_bool:
+    if use_chain_of_thought_bool:
             adapter_spec = get_multiple_choice_adapter_spec(
                 method=ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT,
                 max_tokens=1000,  # following original repo
@@ -392,7 +400,17 @@ def get_gpqa_spec(subset: str, use_chain_of_thought: str = "False", use_few_shot
                 output_noun="",  # will be overwritten with output_prefix
                 output_prefix="",
             )
-        else:
+            return RunSpec(
+                name=f"gpqa:subset={subset},use_chain_of_thought={use_chain_of_thought_bool}",
+                scenario_spec=scenario_spec,
+                adapter_spec=adapter_spec,
+                metric_specs=get_exact_match_metric_specs()
+                + [
+                    MetricSpec(class_name="helm.benchmark.metrics.chain_of_thought_metric.ChainOfThoughtMetric", args={}),
+                ],
+                groups=["gpqa"],
+            )
+    else:
             adapter_spec = get_multiple_choice_adapter_spec(
                 method=ADAPT_MULTIPLE_CHOICE_JOINT,
                 max_train_instances=max_train_instance_num,
@@ -407,44 +425,14 @@ def get_gpqa_spec(subset: str, use_chain_of_thought: str = "False", use_few_shot
                 output_noun="",  # will be overwritten with output_prefix
                 output_prefix="The correct answer is ",
             )
-    else:
-        if use_chain_of_thought_bool:
-            adapter_spec = AdapterSpec(
-                method=ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT,
-                max_train_instances=max_train_instance_num,
-                max_tokens=1000,
-                input_prefix="What is the correct answer to this question: ",
-                input_suffix="\nChoices:\n",
-                output_prefix="",
-                reference_prefix="(A) ",
-                global_suffix=(
-                    "Let’s think step by step. Based on your reasoning, what is the single, "
-                    "most likely answer choice? Format your response as follows: "
-                    '"The correct answer is (insert answer here)".'
-                ),
-            )
-        else:
-            adapter_spec = AdapterSpec(
-                method=ADAPT_MULTIPLE_CHOICE_JOINT,
-                max_train_instances=max_train_instance_num,
-                max_tokens=1000,
-                input_prefix="What is the correct answer to this question: ",
-                input_suffix="\nChoices:\n",
-                output_prefix="",
-                reference_prefix="(A) ",
-                global_suffix=("Format your response as follows: " '"The correct answer is (insert answer here)".'),
-            )
 
-    return RunSpec(
-        name=f"gpqa:subset={subset},use_chain_of_thought={use_chain_of_thought_bool}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs()
-        + [
-            MetricSpec(class_name="helm.benchmark.metrics.chain_of_thought_metric.ChainOfThoughtMetric", args={}),
-        ],
-        groups=["gpqa"],
-    )
+            return RunSpec(
+                name=f"gpqa:subset={subset},use_chain_of_thought={use_chain_of_thought_bool}",
+                scenario_spec=scenario_spec,
+                adapter_spec=adapter_spec,
+                metric_specs=get_exact_match_metric_specs(),
+                groups=["gpqa"],
+            )
 
 
 @run_spec_function("ifeval")
