@@ -5,9 +5,9 @@ from helm.benchmark.scenarios.enem_challenge_scenario import ENEMChallengeScenar
 from helm.benchmark.scenarios.scenario import TEST_SPLIT, CORRECT_TAG, Output, Reference
 
 
-@pytest.mark.scenarios
+# @pytest.mark.scenarios
 def test_enem_challenge_scenario():
-    enem_scenario = ENEMChallengeScenario(subset="test")
+    enem_scenario = ENEMChallengeScenario()
     with TemporaryDirectory() as tmpdir:
         instances = enem_scenario.get_instances(tmpdir)
     assert len(instances) == 1431

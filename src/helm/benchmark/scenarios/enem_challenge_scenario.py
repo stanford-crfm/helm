@@ -31,9 +31,6 @@ class ENEMChallengeScenario(Scenario):
     description = "ENEM Challenge dataset"
     tags = ["knowledge", "multiple_choice", "pt-br"]
 
-    def __init__(self):
-        super().__init__()
-
     def get_instances(self, output_path: str) -> List[Instance]:
         # Download the raw data and read all the dialogues
         dataset: Any
