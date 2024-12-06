@@ -4,6 +4,7 @@ Website: https://crfm.stanford.edu/helm/lite/"""
 
 from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_GENERATION,
+    ADAPT_CHAT,
     ADAPT_MULTIPLE_CHOICE_JOINT,
     ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT,
     AdapterSpec,
@@ -26,6 +27,7 @@ from helm.benchmark.metrics.common_metric_specs import (
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.runner import get_benchmark_output_path
 from helm.benchmark.scenarios.scenario import ScenarioSpec, get_scenario_cache_path
+from helm.benchmark.annotation.annotator import AnnotatorSpec
 
 
 @run_spec_function("narrative_qa")
@@ -414,7 +416,7 @@ def get_gpqa_spec(subset: str, use_chain_of_thought: str = "False", use_few_shot
         name=f"gpqa:subset={subset},use_chain_of_thought={use_chain_of_thought_bool}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs(),  # TODO: update this after cot metric is ready
+        metric_specs=[MetricSpec(class_name="helm.benchmark.metrics.chain_of_thought_metric.ChainOfThoughtMetric")],
         groups=["gpqa"],
     )
 
@@ -436,4 +438,27 @@ def get_ifeval_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
         groups=["ifeval"],
+    )
+
+
+@run_spec_function("wildbench")
+def get_wildbench_spec(subset: str) -> RunSpec:
+
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.wildbench_scenario.WildBenchScenario", args={"subset": subset}
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_CHAT, input_prefix="", output_prefix="", max_tokens=2000, num_outputs=1, temperature=0.0
+    )
+    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.wildbench_annotator.WildBenchAnnotator")]
+    metric_specs = [MetricSpec(class_name="helm.benchmark.metrics.wildbench_metrics.WildBenchScoreMetric")]
+
+    return RunSpec(
+        name="wildbench",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
+        groups=["wildbench"],
     )
