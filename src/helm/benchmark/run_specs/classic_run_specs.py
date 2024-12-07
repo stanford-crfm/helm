@@ -1084,6 +1084,7 @@ def get_me_q_sum_spec() -> RunSpec:
 
 @run_spec_function("med_dialog")
 def get_med_dialog_spec(subset: str) -> RunSpec:
+    from helm.common.gpu_utils import get_torch_device_name
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.med_dialog_scenario.MedDialogScenario", args={"subset": subset}
     )
@@ -1093,13 +1094,13 @@ def get_med_dialog_spec(subset: str) -> RunSpec:
         max_tokens=128,
         temperature=0.3,
     )
-
+    metric_args = {"task": "med_dialog", "device": get_torch_device_name()}
     return RunSpec(
         name=f"med_dialog,subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
-        groups=["MedDialog"],
+        metric_specs=get_summarization_metric_specs(metric_args),
+        groups=["med_dialog"],
     )
 
 
@@ -1169,6 +1170,7 @@ def get_medalign_spec() -> RunSpec:
 
 @run_spec_function("medcalc_bench")
 def get_medcalc_bench_spec() -> RunSpec:
+    from helm.common.gpu_utils import get_torch_device_name
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.medcalc_bench_scenario.MedCalcBenchScenario"
     )
@@ -1180,11 +1182,12 @@ def get_medcalc_bench_spec() -> RunSpec:
         output_noun="Answer",
     )
 
+    metric_args = {"task": "medcalc_bench", "device": get_torch_device_name()}
     return RunSpec(
         name=f"medcalc_bench",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_open_ended_generation_metric_specs(),
+        metric_specs=get_summarization_metric_specs(metric_args),
         groups=["medcalc_bench"],
     )
 

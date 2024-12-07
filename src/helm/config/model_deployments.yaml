@@ -902,6 +902,15 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
 
   ## Meta
+  - name: huggingface/llama-3.1-8b-instruct
+    model_name: meta/llama-3.1-8b-instruct
+    tokenizer_name: meta/llama-3.1-8b-instruct
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: meta-llama/Llama-3.1-8B-Instruct
+
   - name: huggingface/llama-3.2-1b-instruct
     model_name: meta/llama-3.2-1b-instruct
     tokenizer_name: meta/llama-3.2-1b-instruct
@@ -2269,12 +2278,22 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
 
+  - name: huggingface/mistral-7b-instruct-v0.3
+    model_name: mistralai/mistral-7b-instruct-v0.3-hf
+    tokenizer_name: mistralai/Mistral-7B-Instruct-v0.3
+    max_sequence_length: 32000
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: mistralai/Mistral-7B-Instruct-v0.3
+
   - name: together/mistral-7b-instruct-v0.3
     model_name: mistralai/mistral-7b-instruct-v0.3
     tokenizer_name: mistralai/Mistral-7B-Instruct-v0.3
     max_sequence_length: 32000
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
+      
 
   - name: together/mixtral-8x7b-32kseqlen
     model_name: mistralai/mixtral-8x7b-32kseqlen
@@ -2660,6 +2679,15 @@ model_deployments:
     max_sequence_length: 128000
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
+
+  - name: huggingface/qwen2.5-7b-instruct
+    model_name: qwen/qwen2.5-7b-instruct
+    tokenizer_name: qwen/qwen2.5-7b-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: Qwen/Qwen2.5-7B-Instruct
 
   - name: huggingface/qwen-vl
     model_name: qwen/qwen-vl
