@@ -500,7 +500,7 @@ def get_omnimath_spec() -> RunSpec:
         method=ADAPT_GENERATION, input_prefix="", output_prefix="", max_tokens=1000, num_outputs=1, temperature=0.0,
     )
     annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.omnimath_annotator.OmniMATHAnnotator")]
-    metric_specs = [MetricSpec(class_name="helm.benchmark.metrics.omnimath_metrics.OmniMATHMetric")]
+    metric_specs = get_basic_metric_specs([]) + [MetricSpec(class_name="helm.benchmark.metrics.omnimath_metrics.OmniMATHMetric")]
 
     return RunSpec(
         name="omnimath",

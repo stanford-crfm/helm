@@ -1,10 +1,10 @@
-from typing import Any
 
+from typing import Any
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
 from helm.clients.auto_client import AutoClient
 from helm.common.request import Request
-
+from importlib.resources import files
 
 # Following https://github.com/KbsdJames/Omni-MATH/blob/main/GPT_eval/get_result.py
 def parse_report(report):
@@ -28,13 +28,13 @@ class OmniMATHAnnotator(Annotator):
 
     def __init__(self, auto_client: AutoClient):
         self._auto_client = auto_client
-        with open("src/helm/benchmark/annotation/omnimath/gpt_evaluation_template.txt") as f:
-            self._score_template = f.read()
+        template_path = files("src.helm.benchmark.annotation.omnimath").joinpath("gpt_evaluation_template.txt")
+        with template_path.open("r") as file:
+            self._score_template = file.read()
 
     def annotate(self, request_state: RequestState) -> Any:
         assert request_state.result
         assert len(request_state.result.completions) == 1
-        assert request_state.instance.extra_data
         model_output_text = request_state.result.completions[0].text
         if not model_output_text.strip():
             return {"prompt_text": annotator_prompt, "correctness": 0.0}
@@ -42,7 +42,7 @@ class OmniMATHAnnotator(Annotator):
 
         annotator_prompt = (
             prompt_template.replace("{{Problem}}", request_state.instance.input.text)
-            .replace("{{Reference Answer}}", request_state.instance.extra_data["answer"])
+            .replace("{{Reference Answer}}", request_state.instance.references[0].output.text)
             .replace("{{Solution}}", model_output_text)
         )
         annotator_request = Request(
@@ -60,7 +60,6 @@ class OmniMATHAnnotator(Annotator):
 
         info = parse_report(annotator_response_text)
 
-        # correctness = info['Equivalence Judgement']
         correctness = info.get("Equivalence Judgement", "FALSE")
         
         if correctness == "TRUE":

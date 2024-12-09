@@ -1,17 +1,21 @@
+
 import datasets
 import os
 from typing import List
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
+    Reference,
     TEST_SPLIT,
     Input,
+    Output,
+    CORRECT_TAG,
 )
 from helm.common.general import ensure_directory_exists
 
 
 class OmniMATHScenario(Scenario):
-    """OmniMATH: A Universal Olympiad Level Mathematic Benchmark for Large Language Models
+    """Omni-MATH: A Universal Olympiad Level Mathematic Benchmark for Large Language Models
 
     Omni-MATH is a comprehensive and challenging benchmark specifically designed to assess LLMs' mathematical
     reasoning at the Olympiad level. The dataset focuses exclusively on Olympiad mathematics and comprises a 
@@ -19,20 +23,16 @@ class OmniMATHScenario(Scenario):
     (and potentially more) sub-domains and span across 10 distinct difficulty levels, enabling a nuanced 
     analysis of model performance across various mathematical disciplines and levels of complexity.."""
 
-    name = "omnimath"
+    name = "omni_math"
     description = "A Universal Olympiad Level Mathematic Benchmark for Large Language Models"
     tags = ["math"]
 
-    def __init__(self):
-        super().__init__()
-
     def get_instances(self, output_path: str) -> List[Instance]:
-        # Get OmniMATH from HuggingFace
+        # Get Omni-MATH from HuggingFace
         cache_dir = os.path.join(output_path, "data")
         ensure_directory_exists(cache_dir)
         dataset = datasets.load_dataset(
             "KbsdJames/Omni-MATH",
-            trust_remote_code=True,
             cache_dir=cache_dir,
             split="test",
         )
@@ -45,11 +45,8 @@ class OmniMATHScenario(Scenario):
             input = Input(text=row["problem"])
             instance = Instance(
                 input=input,
-                references=[],
+                references=[Reference(Output(text=row["answer"]), tags=[CORRECT_TAG])],
                 split=TEST_SPLIT,
-                extra_data={
-                    "answer": row["answer"],
-                },
             )
             instances.append(instance)
 
