@@ -9,7 +9,7 @@ from helm.benchmark.annotation.annotator import Annotator
 from helm.common.request import Request
 from helm.common.hierarchical_logger import hlog
 
-from typing import Any, List
+from typing import Any, List, Dict
 from gradio_client import Client, handle_file
 from tempfile import TemporaryDirectory
 from tenacity import retry, stop_after_attempt, wait_fixed
@@ -74,7 +74,7 @@ class BigCodeBenchAnnotator(Annotator):
         return results, pass_at_one
 
 
-    def annotate_all(self, request_states: List[RequestState]) -> Any:
+    def annotate_all(self, request_states: List[RequestState]) -> List[Dict[str, Any]]:
         assert all(request_state.result for request_state in request_states)
         assert all(len(request_state.result.completions) == 1 for request_state in request_states)
         assert all(request_state.instance.extra_data for request_state in request_states)
@@ -103,6 +103,8 @@ class BigCodeBenchAnnotator(Annotator):
             hlog("Failed to complete the operation after 3 attempts.")
             pass_at_one = 0.0
             results = []
-        
-        ret = [{"pass_at_one": results['eval'][state.instance.id][0]['status'] == 'pass'} for state in request_states]
+        if len(results):
+            ret = [{"pass_at_one": results['eval'][state.instance.id][0]['status'] == 'pass'} for state in request_states]
+        else:
+            ret = [{"pass_at_one": False} for state in request_states]
         return ret
