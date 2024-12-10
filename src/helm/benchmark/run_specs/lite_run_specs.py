@@ -481,10 +481,10 @@ def get_wildbench_spec(subset: str, use_model_outputs: str = "False") -> RunSpec
 
 
 @run_spec_function("bigcodebench")
-def get_bigcodebench_spec(subset: str) -> RunSpec:
+def get_bigcodebench_spec(version: str) -> RunSpec:
 
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.bigcodebench_scenario.BigCodeBenchScenario", args={"subset": subset}
+        class_name="helm.benchmark.scenarios.bigcodebench_scenario.BigCodeBenchScenario", args={"version": version}
     )
 
     # Adapted from https://github.dev/bigcode-project/bigcodebench/blob/main/bigcodebench/evaluate.py
@@ -492,7 +492,7 @@ def get_bigcodebench_spec(subset: str) -> RunSpec:
         method=ADAPT_GENERATION,
         input_prefix="",
         output_prefix="",
-        max_tokens=1000,
+        max_tokens=1280,
         num_outputs=1,
         temperature=0.0,
         global_prefix="Please provide a self-contained Python script that solves the following problem in a markdown code block:",

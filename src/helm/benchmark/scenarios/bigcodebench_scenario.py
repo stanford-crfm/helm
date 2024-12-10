@@ -10,7 +10,7 @@ from helm.benchmark.scenarios.scenario import (
 from helm.common.general import ensure_directory_exists
 
 
-SUBSETS = ["v0.1.2"]
+VERSIONS = ["v0.1.2"]
 
 
 class BigCodeBenchScenario(Scenario):
@@ -25,10 +25,10 @@ class BigCodeBenchScenario(Scenario):
     description = "Benchmarking Code Generation with Diverse Function Calls and Complex Instructions"
     tags = ["coding"]
 
-    def __init__(self, subset: str):
+    def __init__(self, version: str):
         super().__init__()
-        assert subset in SUBSETS, "Unknown subset: {}".format(subset)
-        self.subset = subset
+        assert version in VERSIONS, "Unknown version: {}".format(version)
+        self.version = version
 
     def get_instances(self, output_path: str) -> List[Instance]:
         # Get BigCodeBench from HuggingFace
@@ -36,9 +36,8 @@ class BigCodeBenchScenario(Scenario):
         ensure_directory_exists(cache_dir)
         dataset = datasets.load_dataset(
             "bigcode/bigcodebench",
-            trust_remote_code=True,
             cache_dir=cache_dir,
-            split="v0.1.2",
+            split=self.version,
         )
         assert isinstance(dataset, datasets.Dataset)
 
@@ -51,6 +50,7 @@ class BigCodeBenchScenario(Scenario):
                 input=input,
                 references=[],
                 split=TEST_SPLIT,
+                id=row['task_id'],
                 extra_data={"task_id": row["task_id"]},
             )
             instances.append(instance)
