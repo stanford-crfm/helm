@@ -348,6 +348,33 @@ class AnthropicClaude3RunExpander(RunExpander):
         return [run_spec]
 
 
+class NovaRunExpander(RunExpander):
+    """
+    Custom prompt for Amazon Nova models.
+    These models need more explicit instructions about following the format.
+    """
+
+    name = "amazon-nova"
+
+    PROMPT = "Do not provide any additional explanation. Follow the format shown in the provided examples strictly."
+
+    def __init__(self):
+        pass
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(
+                    run_spec.adapter_spec,
+                    global_prefix=NovaRunExpander.PROMPT
+                    + "\n\n"
+                ),
+            ),
+        ]
+
+
 class FollowFormatInstructionsRunExpander(RunExpander):
     """Adds more explicit instructions about following the format to prompts.
 
