@@ -112,7 +112,7 @@ Please refer to the docstring of the source code of each scenario, or the page s
 This study is published in the following paper. Please cite this paper if you use this code in your research and you publish it.
 - B. Zhang, M. Takeuchi, R. Kawahara, S. Asthana, Md. M. Hossain, G. Ren, K. Soule and Y. Zhu, “Enterprise Benchmarks for Large Language Model Evaluation.” arXiv preprint arXiv:2410.12857 2024. https://arxiv.org/abs/2410.12857
 
-```
+<!-- ```
 @misc{zhang2024enterprisebenchmarkslargelanguage,
       title={Enterprise Benchmarks for Large Language Model Evaluation}, 
       author={Bing Zhang and Mikio Takeuchi and Ryo Kawahara and Shubhi Asthana and Md. Maruf Hossain and Guang-Jie Ren and Kate Soule and Yada Zhu},
@@ -122,7 +122,17 @@ This study is published in the following paper. Please cite this paper if you us
       primaryClass={cs.CL},
       url={https://arxiv.org/abs/2410.12857}, 
 }
+``` -->
 ```
+@article{zhang2024enterprise,
+  title={Enterprise Benchmarks for Large Language Model Evaluation},
+  author={Zhang, Bing and Takeuchi, Mikio and Kawahara, Ryo and Asthana, Shubhi and Hossain, Md Maruf and Ren, Guang-Jie and Soule, Kate and Zhu, Yada},
+  journal={arXiv preprint arXiv:2410.12857},
+  url={https://arxiv.org/abs/2410.12857}, 
+  year={2024}
+}
+```
+
 
 - ![Finance benchmark results](helm-eb-finance-2024.png "Finance benchmark results")
 - ![Legal benchmark results](helm-eb-legal-2024.png "Legal benchmark results")
@@ -135,6 +145,6 @@ Contributors are as follows:
 - Mikio Takeuchi, Ryo Kawahara, Futoshi Iwama, Alisa Arno (IBM Research - Tokyo)
 - Bing Zhang, Shubhi Asthana (IBM Almaden Research Lab)
 - Md Maruf Hossain, Naoto Satoh, Guang-Jie Ren (former IBM members)
-- Yifan Main (Stanford University)
 - Állysson Oliveira (IBM Research - Brazil)
 - Onkar Bhardwaj (MIT-IBM Watson AI Lab)
+- Yifan Main (Stanford University)
