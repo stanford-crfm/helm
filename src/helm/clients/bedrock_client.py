@@ -3,11 +3,13 @@ from copy import deepcopy
 import json
 import os
 from typing import Any, Dict, List, Mapping, Optional
+from datetime import datetime
 
 from helm.common.cache import CacheConfig
 from helm.clients.client import CachingClient, truncate_and_tokenize_response_text
 from helm.common.request import Request, RequestResult, GeneratedOutput, wrap_request_time
-from helm.clients.bedrock_utils import get_bedrock_client
+from helm.common.hierarchical_logger import htrack_block, hlog
+from helm.clients.bedrock_utils import get_bedrock_client, get_bedrock_client_v1
 from helm.tokenizers.tokenizer import Tokenizer
 
 
@@ -94,6 +96,84 @@ class BedrockClient(CachingClient):
             completions=completions,
             embedding=[],
         )
+
+
+class BedrockNovaClient(CachingClient):
+
+    """
+    Amazon Bedrock is a fully managed service that provides s selection of leading foundation models (FMs) from Amazon
+    and other partner model providers.
+    """
+
+    model_provider = "amazon"
+
+    def __init__(
+        self,
+        cache_config: CacheConfig,
+        tokenizer: Tokenizer,
+        tokenizer_name: str,
+        bedrock_model_id: Optional[str] = None,
+        assumed_role: Optional[str] = None,
+        region: Optional[str] = None,
+    ):
+        super().__init__(cache_config=cache_config)
+        self.tokenizer = tokenizer
+        self.tokenizer_name = tokenizer_name
+        self.bedrock_model_id = bedrock_model_id
+        self.bedrock_client = get_bedrock_client_v1(
+            assumed_role=assumed_role or os.environ.get("BEDROCK_ASSUME_ROLE", None),
+            region=region or os.environ.get("AWS_DEFAULT_REGION", None),
+        )
+
+    def convert_request_to_raw_request(self, request: Request) -> Dict:
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {
+                    "text": request.prompt
+                    }
+                ]
+            }
+        ]
+
+        return {
+            "modelId": request.model,
+            "inferenceConfig": {
+                "temperature": request.temperature,
+                "maxTokens": request.max_tokens,
+                "topP": request.top_p
+            },
+            "messages": messages,
+        }
+
+    def make_request(self, request: Request) -> RequestResult:
+        raw_request = self.convert_request_to_raw_request(request)
+        hlog(f"request is {raw_request}")
+        response = self.bedrock_client.converse(**raw_request)
+        hlog(f"response is {response}")
+        completions = self.convert_raw_response_to_completions(response, request)
+        dt = datetime.strptime(response["ResponseMetadata"]["HTTPHeaders"]["date"], "%a, %d %b %Y %H:%M:%S GMT")
+
+        return RequestResult(
+            success=True,
+            cached=False,
+            request_time=response["metrics"]["latencyMs"],
+            request_datetime=int(dt.timestamp()),
+            completions=completions,
+            embedding=[],
+        )
+
+    def convert_raw_response_to_completions(self, response: Dict, request: Request) -> List[GeneratedOutput]:
+        completions: List[GeneratedOutput] = []
+        raw_completion = response["output"]
+        output_text = raw_completion["message"]["content"][0]["text"]
+        finish_reason = response["stopReason"]
+        completion = truncate_and_tokenize_response_text(
+            output_text.lstrip(), request, self.tokenizer, self.tokenizer_name, finish_reason
+        )
+        completions.append(completion)
+        return completions
 
 
 # Amazon Bedrock Client for Titan Models
