@@ -71,7 +71,10 @@ class WildBenchScenario(Scenario):
             checklist = [f"- {checklist_item}" for checklist_item in row["checklist"]]
 
             input = Input(
-                text = history_text + "\n\n" + "USER: " + user_query_text,  # For frontend display only, not used for evaluation
+                text=history_text
+                + "\n\n"
+                + "USER: "
+                + user_query_text,  # For frontend display only, not used for evaluation
             )
             instance = Instance(
                 input=input,
@@ -80,9 +83,7 @@ class WildBenchScenario(Scenario):
                 extra_data={
                     "conversation": conversation,
                     "baseline_outputs": {
-                        model: baseline_outputs[model][idx]["output"][0]
-                        if self.use_model_outputs
-                        else None
+                        model: baseline_outputs[model][idx]["output"][0] if self.use_model_outputs else None
                         for model in REFERENCE_MODELS
                     },
                     "history": history_text,
