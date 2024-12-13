@@ -70,7 +70,9 @@ class WildBenchScenario(Scenario):
             user_query_text = row["conversation_input"][-1]["content"]
             checklist = [f"- {checklist_item}" for checklist_item in row["checklist"]]
 
-            input = Input(text="")  # placeholder, adapter actually uses the conversation for Request messages
+            input = Input(
+                text = history_text + "\n\n" + "USER: " + user_query_text,  # For frontend display only, not used for evaluation
+            )
             instance = Instance(
                 input=input,
                 references=[],
