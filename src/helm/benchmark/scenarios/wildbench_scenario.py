@@ -66,7 +66,7 @@ class WildBenchScenario(Scenario):
                 history.append(noun + round["content"])
             history_text = "\n\n".join(history)
             user_query_text = row["conversation_input"][-1]["content"]
-            checklist_text = "\n".join([f"- {checklist_item}" for checklist_item in row["checklist"]])
+            checklist = [f"- {checklist_item}" for checklist_item in row["checklist"]]
 
             input = Input(text="")  # placeholder, adapter actually uses the conversation for Request messages
             instance = Instance(
@@ -80,7 +80,7 @@ class WildBenchScenario(Scenario):
                     },
                     "history": history_text,
                     "user_query": user_query_text,
-                    "checklist": checklist_text,
+                    "checklist": checklist,
                 },
             )
             instances.append(instance)
