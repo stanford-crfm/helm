@@ -26,10 +26,11 @@ class WildBenchScenario(Scenario):
     description = "Benchmarking LLMs with Challenging Tasks from Real Users in the Wild"
     tags = ["instruction following"]
 
-    def __init__(self, subset: str):
+    def __init__(self, subset: str, use_model_outputs: bool = False):
         super().__init__()
         assert subset in SUBSETS, "Unknown subset: {}".format(subset)
         self.subset = subset
+        self.use_model_outputs = use_model_outputs
 
     def get_instances(self, output_path: str) -> List[Instance]:
         # Get WildBench from HuggingFace
@@ -42,16 +43,17 @@ class WildBenchScenario(Scenario):
             split="test",
         )
         assert isinstance(dataset, datasets.Dataset)
-        baseline_outputs = {
-            f"{model}": datasets.load_dataset(
-                "allenai/WildBench-V2-Model-Outputs",
-                model,
-                cache_dir=cache_dir,
-                split="train",
-            )
-            for model in REFERENCE_MODELS
-        }
-        assert all(isinstance(baseline_output, datasets.Dataset) for baseline_output in baseline_outputs.values())
+        if self.use_model_outputs:
+            baseline_outputs = {
+                f"{model}": datasets.load_dataset(
+                    "allenai/WildBench-V2-Model-Outputs",
+                    model,
+                    cache_dir=cache_dir,
+                    split="train",
+                )
+                for model in REFERENCE_MODELS
+            }
+            assert all(isinstance(baseline_output, datasets.Dataset) for baseline_output in baseline_outputs.values())
 
         # Read all instances
         instances: List[Instance] = []
@@ -76,7 +78,10 @@ class WildBenchScenario(Scenario):
                 extra_data={
                     "conversation": conversation,
                     "baseline_outputs": {
-                        model: baseline_outputs[model][idx]["output"][0] for model in REFERENCE_MODELS
+                        model: baseline_outputs[model][idx]["output"][0]
+                        if self.use_model_outputs
+                        else None
+                        for model in REFERENCE_MODELS
                     },
                     "history": history_text,
                     "user_query": user_query_text,
