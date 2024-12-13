@@ -454,13 +454,13 @@ def get_ifeval_spec() -> RunSpec:
 
 
 @run_spec_function("wildbench")
-def get_wildbench_spec(subset: str, use_model_outputs: bool = False) -> RunSpec:
+def get_wildbench_spec(subset: str, use_model_outputs: str = "False") -> RunSpec:
 
     scenario_spec = ScenarioSpec(
         class_name = "helm.benchmark.scenarios.wildbench_scenario.WildBenchScenario",
         args = {
             "subset": subset,
-            "use_model_outputs": use_model_outputs
+            "use_model_outputs": use_model_outputs == "True",
         }
     )
 
