@@ -13,7 +13,14 @@ from helm.clients.client import CachingClient, truncate_sequence, generate_uid_f
 try:
     import vertexai
     from vertexai.language_models import TextGenerationModel, TextGenerationResponse  # PaLM2
-    from vertexai.preview.generative_models import GenerativeModel, GenerationResponse, Candidate, Part, Image  # Gemini
+    from vertexai.preview.generative_models import (
+        GenerativeModel,
+        GenerationResponse,
+        Candidate,
+        Content,
+        Part,
+        Image,
+    )  # Gemini
     from google.cloud.aiplatform_v1beta1.types import SafetySetting, HarmCategory
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["google"])
@@ -194,11 +201,19 @@ class VertexAIChatClient(VertexAIClient):
 
     def make_request(self, request: Request) -> RequestResult:
         """Make a request"""
-        contents: str = request.prompt
+        contents = [request.prompt]
 
         # For the multimodal case, build up the content with the media objects of `request.multimodal_prompt`
         if request.multimodal_prompt is not None:
             return self._make_multimodal_request(request)
+
+        if request.messages is not None:
+            contents = []
+            role_mapping = {"user": "user", "assistant": "model"}
+            for msg in request.messages:
+                contents.append(
+                    Content(role=role_mapping.get(msg["role"], "user"), parts=[Part.from_text(msg["content"])])
+                )
 
         parameters = {
             "temperature": request.temperature,
@@ -264,7 +279,7 @@ class VertexAIChatClient(VertexAIClient):
             cache_key = self.make_cache_key_with_safety_settings_preset(
                 {
                     "model_name": model_name,
-                    "prompt": request.prompt,
+                    "prompt": request.messages or request.prompt,
                     **parameters,
                 },
                 request,
