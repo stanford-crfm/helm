@@ -1170,7 +1170,6 @@ def get_medalign_spec() -> RunSpec:
 
 @run_spec_function("medcalc_bench")
 def get_medcalc_bench_spec() -> RunSpec:
-    from helm.common.gpu_utils import get_torch_device_name
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.medcalc_bench_scenario.MedCalcBenchScenario"
     )
@@ -1182,7 +1181,7 @@ def get_medcalc_bench_spec() -> RunSpec:
         output_noun="Answer",
     )
 
-    metric_args = {"task": "medcalc_bench", "device": get_torch_device_name()}
+    metric_args = {"task": "medcalc_bench"}
     return RunSpec(
         name=f"medcalc_bench",
         scenario_spec=scenario_spec,
@@ -1211,6 +1210,28 @@ def get_pubmed_qa_spec() -> RunSpec:
         groups=["pubmed_qa"],
     )
 
+
+@run_spec_function("mimic_rrs")
+def get_mimic_rrs_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mimic_rrs_scenario.MIMICRRSScenario", args={})
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Generate the impressions of a radiology report based on its findings.",
+        input_noun="Findings",
+        output_noun="Impressions",
+        newline_after_input_noun=True,
+        newline_after_output_noun=True,
+        max_tokens=512,
+        max_train_instances=5,
+    )
+
+    return RunSpec(
+        name="mimic_rrs",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs({"task": "mimic_rrs"}),
+        groups=["mimic_rrs"],
+    )
 
 @run_spec_function("live_qa")
 def get_live_qa_spec() -> RunSpec:

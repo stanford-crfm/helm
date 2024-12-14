@@ -303,6 +303,7 @@ run_groups:
       - medalign
       - pubmed_qa
       - med_dialog
+      - mimic_rrs
       # - med_qa
       # - med_mcqa
       # - mmlu
@@ -346,6 +347,22 @@ run_groups:
     display_name: MedDialog
     short_display_name: MedDialog
     description: A medical dialog dataset for clinical questions containing real patient questions and clinician-generated gold responses.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: BERTScore-F
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+  
+  - name: mimic_rrs
+    display_name: MIMIC-RRS
+    short_display_name: MIMIC-RRS
+    description: A radiology report summarization dataset collected from MIMIC-III.
     metric_groups:
       - accuracy
     environment:
