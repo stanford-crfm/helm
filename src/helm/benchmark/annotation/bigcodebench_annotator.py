@@ -4,7 +4,6 @@ import json
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
-from helm.common.request import Request
 from helm.common.hierarchical_logger import hlog
 
 from typing import Any, List, Dict
@@ -82,6 +81,7 @@ class BigCodeBenchAnnotator(Annotator):
 
         with TemporaryDirectory() as tmpdir:
             with open(OUTPUT_FILENAME, "w") as file:
+                hlog(f"Temp Dir: {tmpdir}")
                 res = []
                 for i in range(self.num_instances):
                     init_line = f'{{"task_id": "BigCodeBench/{i}", "solution": ""}}\n'
@@ -98,10 +98,10 @@ class BigCodeBenchAnnotator(Annotator):
                     file.write(line)
 
         try:
-            results, pass_at_one = self.predict_with_retry(OUTPUT_FILENAME)
+            results, _ = self.predict_with_retry(OUTPUT_FILENAME)
         except Exception as e:
             hlog("Failed to complete the operation after 3 attempts.")
-            pass_at_one = 0.0
+            hlog(f"Exception: {e}")
             results = []
         if len(results):
             ret = [
