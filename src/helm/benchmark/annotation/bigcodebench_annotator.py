@@ -75,7 +75,8 @@ class BigCodeBenchAnnotator(Annotator):
     def annotate_all(self, request_states: List[RequestState]) -> List[Dict[str, Any]]:
         assert all(request_state.result is not None for request_state in request_states)
         assert all(
-            request_state.result is not None and len(request_state.result.completions) == 1 for request_state in request_states
+            request_state.result is not None and len(request_state.result.completions) == 1
+            for request_state in request_states
         )
         assert all(request_state.instance.extra_data for request_state in request_states)
 
