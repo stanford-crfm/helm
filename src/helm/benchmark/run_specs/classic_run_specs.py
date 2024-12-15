@@ -46,6 +46,7 @@ from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.runner import get_benchmark_output_path
 from helm.benchmark.scenarios.scenario import ScenarioSpec, get_scenario_cache_path
+from helm.common.gpu_utils import get_torch_device_name
 from helm.common.hierarchical_logger import hlog, htrack
 
 
@@ -1084,7 +1085,6 @@ def get_me_q_sum_spec() -> RunSpec:
 
 @run_spec_function("med_dialog")
 def get_med_dialog_spec(subset: str) -> RunSpec:
-    from helm.common.gpu_utils import get_torch_device_name
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.med_dialog_scenario.MedDialogScenario", args={"subset": subset}
     )
@@ -1147,7 +1147,6 @@ def get_med_paragraph_simplification_spec() -> RunSpec:
 
 @run_spec_function("medalign")
 def get_medalign_spec() -> RunSpec:
-    from helm.common.gpu_utils import get_torch_device_name
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.medalign_scenario.MedalignScenario"
     )
@@ -1212,7 +1211,8 @@ def get_pubmed_qa_spec() -> RunSpec:
 
 
 @run_spec_function("mimic_rrs")
-def get_mimic_rrs_spec(device: str = "cpu") -> RunSpec:
+def get_mimic_rrs_spec() -> RunSpec:
+    
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mimic_rrs_scenario.MIMICRRSScenario", args={})
 
     adapter_spec = get_generation_adapter_spec(
@@ -1230,7 +1230,7 @@ def get_mimic_rrs_spec(device: str = "cpu") -> RunSpec:
         name="mimic_rrs",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs({"task": "mimic_rrs", 'device': "cuda:0"}),
+        metric_specs=get_summarization_metric_specs({"task": "mimic_rrs", 'device': get_torch_device_name()}),
         groups=["mimic_rrs"],
     )
 
