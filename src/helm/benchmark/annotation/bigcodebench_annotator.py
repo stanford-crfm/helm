@@ -72,10 +72,11 @@ class BigCodeBenchAnnotator(Annotator):
         pass_at_one = evals["pass@1"]
         return results, pass_at_one
 
-
     def annotate_all(self, request_states: List[RequestState]) -> List[Dict[str, Any]]:
-        assert all(request_state.result for request_state in request_states)
-        assert all(len(request_state.result.completions) == 1 for request_state in request_states)
+        assert all(request_state.result is not None for request_state in request_states)
+        assert all(
+            request_state.result is not None and len(request_state.result.completions) == 1 for request_state in request_states
+        )
         assert all(request_state.instance.extra_data for request_state in request_states)
 
         with TemporaryDirectory() as tmpdir:
@@ -86,12 +87,12 @@ class BigCodeBenchAnnotator(Annotator):
                     res.append(init_line)
                 for request_state in request_states:
                     line: str
+                    assert request_state.result is not None
                     model_output_text = request_state.result.completions[0].text
                     solution = code_extract(model_output_text)
+                    assert request_state.instance.id is not None
                     idx = int(request_state.instance.id.split("/")[-1])
-                    res[idx] = json.dumps(
-                        {"task_id": request_state.instance.id, "solution": solution}
-                    ) + "\n"
+                    res[idx] = json.dumps({"task_id": request_state.instance.id, "solution": solution}) + "\n"
                 for line in res:
                     file.write(line)
 
@@ -102,7 +103,10 @@ class BigCodeBenchAnnotator(Annotator):
             pass_at_one = 0.0
             results = []
         if len(results):
-            ret = [{'bigcodebench': {"pass_at_one": results['eval'][state.instance.id][0]['status'] == 'pass'}} for state in request_states]
+            ret = [
+                {"bigcodebench": {"pass_at_one": results["eval"][state.instance.id][0]["status"] == "pass"}}
+                for state in request_states
+            ]
         else:
-            ret = [{'bigcodebench': {"pass_at_one": False}} for state in request_states]
+            ret = [{"bigcodebench": {"pass_at_one": False}} for state in request_states]
         return ret

@@ -50,7 +50,7 @@ class BigCodeBenchScenario(Scenario):
                 input=input,
                 references=[],
                 split=TEST_SPLIT,
-                id=row['task_id'],
+                id=row["task_id"],
                 extra_data={"task_id": row["task_id"]},
             )
             instances.append(instance)

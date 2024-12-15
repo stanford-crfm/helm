@@ -92,7 +92,10 @@ class AnnotationExecutor:
             hlog("No annotators to run.")
             return scenario_state
 
-        if all(getattr(self.factory.get_annotator(spec), "use_global_metric", False) for spec in scenario_state.annotator_specs):
+        if all(
+            getattr(self.factory.get_annotator(spec), "use_global_metric", False)
+            for spec in scenario_state.annotator_specs
+        ):
             # Do it!
             request_states = self.process_all(
                 scenario_state.annotator_specs, scenario_state.request_states  # processing all request together
@@ -138,5 +141,5 @@ class AnnotationExecutor:
                 new_annotations = annotator.annotate_all(states)
                 annotations[annotator.name] = new_annotations
         except Exception as e:
-            raise AnnotationExecutorError(f"{str(e)} Request: {states.request}") from e
+            raise AnnotationExecutorError(f"{str(e)} Request: {[state.request for state in states]}") from e
         return [replace(state, annotations=new_annotations[idx]) for idx, state in enumerate(states)]
