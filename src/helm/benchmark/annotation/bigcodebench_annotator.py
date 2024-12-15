@@ -1,7 +1,5 @@
-
 import ast
 import traceback
-import time
 import json
 
 from helm.benchmark.adaptation.request_state import RequestState
@@ -56,21 +54,22 @@ class BigCodeBenchAnnotator(Annotator):
         self.subset = "full"
         self.pass_k = "1"  # Original: "1,5,10"
         self.use_global_metric = True
+        self.num_instances = 1140  # Instruct full seting of the dataset
 
     def annotate(self, request_state: RequestState) -> Any:
         pass
 
     @retry(stop=stop_after_attempt(3), wait=wait_fixed(4))
-    def predict_with_retry(self, filename):
+    def predict_with_retry(self, filename: str):
         client = Client(self.remote_execute_api)
-        results, pass_at_k = client.predict(
+        results, evals = client.predict(
             split=self.split,
             subset=self.subset,
             samples=handle_file(filename),
             pass_k=self.pass_k,
             api_name="/predict",
         )
-        results, pass_at_one = pass_at_k["pass@1"]
+        pass_at_one = evals["pass@1"]
         return results, pass_at_one
 
 
@@ -82,17 +81,16 @@ class BigCodeBenchAnnotator(Annotator):
         with TemporaryDirectory() as tmpdir:
             with open(OUTPUT_FILENAME, "w") as file:
                 res = []
-                for i in range(1140):
+                for i in range(self.num_instances):
                     init_line = f'{{"task_id": "BigCodeBench/{i}", "solution": ""}}\n'
                     res.append(init_line)
                 for request_state in request_states:
                     line: str
                     model_output_text = request_state.result.completions[0].text
                     solution = code_extract(model_output_text)
-                    escaped_solution = json.dumps(solution)[1:-1]
                     idx = int(request_state.instance.id.split("/")[-1])
                     res[idx] = json.dumps(
-                        {"task_id": request_state.instance.id, "solution": escaped_solution}
+                        {"task_id": request_state.instance.id, "solution": solution}
                     ) + "\n"
                 for line in res:
                     file.write(line)
@@ -104,7 +102,7 @@ class BigCodeBenchAnnotator(Annotator):
             pass_at_one = 0.0
             results = []
         if len(results):
-            ret = [{"pass_at_one": results['eval'][state.instance.id][0]['status'] == 'pass'} for state in request_states]
+            ret = [{'bigcodebench': {"pass_at_one": results['eval'][state.instance.id][0]['status'] == 'pass'}} for state in request_states]
         else:
-            ret = [{"pass_at_one": False} for state in request_states]
+            ret = [{'bigcodebench': {"pass_at_one": False}} for state in request_states]
         return ret

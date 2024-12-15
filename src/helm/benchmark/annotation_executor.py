@@ -99,8 +99,6 @@ class AnnotationExecutor:
             )
 
         else:
-            hlog("!!!!Annotators are not all use_global_metric!.")
-
             # Do it!
             def do_it(request_state: RequestState) -> RequestState:
                 assert scenario_state.annotator_specs is not None
