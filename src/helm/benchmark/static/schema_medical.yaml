@@ -299,16 +299,52 @@ run_groups:
     description: Scenarios for the medical domain
     category: All scenarios
     subgroups:
-      - medcalc_bench
-      - medalign
-      - pubmed_qa
-      - med_dialog
-      - mimic_rrs
+      - clinical_decision_support
+      - clinical_note_generation
+      - patient_communication
+      - medical_research
+      - administration_and_workflow
       # - med_qa
       # - med_mcqa
       # - mmlu
       # - live_qa
       # - medication_qa
+
+  - name: clinical_decision_support
+    display_name: Clinical Decision Support
+    description: Scenarios for clinical decision support
+    category: Medical Scenarios
+    subgroups:
+      - medcalc_bench
+      - medalign
+  
+  - name: clinical_note_generation
+    display_name: Clinical Note Generation
+    description: Scenarios for clinical note generation
+    category: Medical Scenarios
+    subgroups:
+      - mimic_rrs
+  
+  - name: patient_communication
+    display_name: Patient Communication and Education
+    description: Scenarios for patient communication and education
+    category: Medical Scenarios
+    subgroups:
+      - med_dialog
+  
+  - name: medical_research
+    display_name: Medical Research Assistance
+    description: Scenarios for medical research assistance
+    category: Medical Scenarios
+    subgroups:
+      - pubmed_qa
+  
+  - name: administration_and_workflow
+    display_name: Administration and Workflow
+    description: Scenarios for administration and workflow
+    category: Medical Scenarios
+    subgroups:
+      - pubmed_qa # placeholder
 
   - name: medcalc_bench
     display_name: MedCalc-Bench
@@ -333,6 +369,8 @@ run_groups:
     description: A question answering dataset for clinical questions, each paired with a relevant patient EHR and a clinician-generated gold response.
     metric_groups:
       - accuracy
+      - efficiency
+      - general_information
     environment:
       main_name: BERTScore-F
       main_split: test
@@ -349,6 +387,8 @@ run_groups:
     description: A medical dialog dataset for clinical questions containing real patient questions and clinician-generated gold responses.
     metric_groups:
       - accuracy
+      - efficiency
+      - general_information
     environment:
       main_name: BERTScore-F
       main_split: test
@@ -365,6 +405,8 @@ run_groups:
     description: A radiology report summarization dataset collected from MIMIC-III.
     metric_groups:
       - accuracy
+      - efficiency
+      - general_information
     environment:
       main_name: BERTScore-F
       main_split: test

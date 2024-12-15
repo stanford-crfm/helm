@@ -1180,7 +1180,7 @@ def get_medcalc_bench_spec() -> RunSpec:
         output_noun="Answer",
     )
 
-    metric_args = {"task": "medcalc_bench"}
+    metric_args = {"task": "medcalc_bench", "device": get_torch_device_name()}
     return RunSpec(
         name=f"medcalc_bench",
         scenario_spec=scenario_spec,
@@ -1192,7 +1192,9 @@ def get_medcalc_bench_spec() -> RunSpec:
 
 @run_spec_function("pubmed_qa")
 def get_pubmed_qa_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.pubmed_qa_scenario.PubMedQAScenario", args={})
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.pubmed_qa_scenario.PubMedQAScenario", args={}
+    )
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -1212,8 +1214,9 @@ def get_pubmed_qa_spec() -> RunSpec:
 
 @run_spec_function("mimic_rrs")
 def get_mimic_rrs_spec() -> RunSpec:
-    
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mimic_rrs_scenario.MIMICRRSScenario", args={})
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.mimic_rrs_scenario.MIMICRRSScenario", args={}
+    )
 
     adapter_spec = get_generation_adapter_spec(
         instructions="Generate the impression section of the radiology report based on its findings. Be as concise as possible.",
@@ -1225,12 +1228,12 @@ def get_mimic_rrs_spec() -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
-
+    metric_args = {"task": "mimic_rrs", "device": get_torch_device_name()}
     return RunSpec(
         name="mimic_rrs",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs({"task": "mimic_rrs", 'device': get_torch_device_name()}),
+        metric_specs=get_summarization_metric_specs(metric_args),
         groups=["mimic_rrs"],
     )
 
