@@ -495,8 +495,8 @@ def get_bigcodebench_spec(version: str) -> RunSpec:
         max_tokens=1280,
         num_outputs=1,
         temperature=0.0,
-        global_prefix="Please provide a self-contained Python script " \
-                      "that solves the following problem in a markdown code block:"
+        global_prefix="Please provide a self-contained Python script "
+        "that solves the following problem in a markdown code block:",
     )
     annotator_specs = [
         AnnotatorSpec(class_name="helm.benchmark.annotation.bigcodebench_annotator.BigCodeBenchAnnotator")
