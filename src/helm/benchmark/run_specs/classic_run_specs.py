@@ -1212,24 +1212,25 @@ def get_pubmed_qa_spec() -> RunSpec:
 
 
 @run_spec_function("mimic_rrs")
-def get_mimic_rrs_spec() -> RunSpec:
+def get_mimic_rrs_spec(device: str = "cpu") -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mimic_rrs_scenario.MIMICRRSScenario", args={})
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="Generate the impressions of a radiology report based on its findings.",
+        instructions="Generate the impression section of the radiology report based on its findings. Be as concise as possible.",
         input_noun="Findings",
-        output_noun="Impressions",
+        output_noun="Impression",
         newline_after_input_noun=True,
         newline_after_output_noun=True,
-        max_tokens=512,
-        max_train_instances=5,
+        max_tokens=128,
+        max_train_instances=0,
+        stop_sequences=[],
     )
 
     return RunSpec(
         name="mimic_rrs",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs({"task": "mimic_rrs"}),
+        metric_specs=get_summarization_metric_specs({"task": "mimic_rrs", 'device': "cuda:0"}),
         groups=["mimic_rrs"],
     )
 
