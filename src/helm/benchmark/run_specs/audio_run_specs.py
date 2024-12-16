@@ -251,7 +251,7 @@ def get_audiocaps_run_spec() -> RunSpec:
         class_name="helm.benchmark.scenarios.audio_language.audiocaps_scenario.AudioCapsScenario"
     )
     adapter_spec = _get_generation_adapter_spec(
-        instructions="Generate a caption for the following audio. The caption should be short and does "
+        instructions="Generate a caption for the following audio in English. The caption should be short and does "
         "not need to be a complete sentence.",
         max_tokens=50,
     )
@@ -378,7 +378,7 @@ def get_casual_conversations2_run_spec(subject: str) -> RunSpec:
 @run_spec_function("air_bench_chat")
 def get_air_bench_chat_run_spec(subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.audio_language.air_bench_chat_scenario." "AirBenchChatScenario",
+        class_name="helm.benchmark.scenarios.audio_language.air_bench_chat_scenario.AirBenchChatScenario",
         args={"subject": subject},
     )
     adapter_spec = _get_generation_adapter_spec(
