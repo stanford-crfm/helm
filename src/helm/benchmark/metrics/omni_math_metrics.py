@@ -9,7 +9,7 @@ from helm.benchmark.metrics.statistic import Stat
 
 
 class OmniMATHMetric(Metric):
-    """Score metrics for OmniMATH."""
+    """Score metrics for Omni-MATH."""
 
     def evaluate_generation(
         self,
@@ -19,7 +19,7 @@ class OmniMATHMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         assert request_state.annotations
-        score = request_state.annotations["omnimath"]["correctness"]
+        score = request_state.annotations["omni_math"]["correctness"]
         return [
-            Stat(MetricName("omnimath_accuracy")).add(score),
+            Stat(MetricName("omni_math_accuracy")).add(score),
         ]

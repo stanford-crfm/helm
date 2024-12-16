@@ -1,15 +1,15 @@
 import pytest
 from tempfile import TemporaryDirectory
 
-from helm.benchmark.scenarios.omnimath_scenario import OmniMATHScenario
+from helm.benchmark.scenarios.omni_math_scenario import OmniMATHScenario
 from helm.benchmark.scenarios.scenario import Input, TEST_SPLIT
 
 
 @pytest.mark.scenarios
-def test_omnimath_scenario_get_instances():
-    omnimath_scenario = OmniMATHScenario()
+def test_omni_math_scenario_get_instances():
+    omni_math_scenario = OmniMATHScenario()
     with TemporaryDirectory() as tmpdir:
-        instances = omnimath_scenario.get_instances(tmpdir)
+        instances = omni_math_scenario.get_instances(tmpdir)
     assert len(instances) == 4428
     assert instances[0].input == Input(
         text=(

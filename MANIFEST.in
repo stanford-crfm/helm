@@ -4,4 +4,4 @@ recursive-include src/helm/benchmark/ *.json
 recursive-include src/helm/benchmark/static/ *.css *.html *.js *.png *.yaml
 recursive-include src/helm/benchmark/static_build/ *.css *.html *.js *.png *.yaml
 recursive-include src/helm/config/ *.yaml
-recursive-include src/helm/benchmark/annotation/omnimath/ *.txt
+recursive-include src/helm/benchmark/annotation/omni_math/ *.txt
