@@ -1,10 +1,11 @@
-
 from typing import Any
+from importlib.resources import files
+
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
 from helm.clients.auto_client import AutoClient
 from helm.common.request import Request
-from importlib.resources import files
+
 
 # Following https://github.com/KbsdJames/Omni-MATH/blob/main/GPT_eval/get_result.py
 def parse_report(report):
@@ -17,7 +18,7 @@ def parse_report(report):
         if title == "Justification":
             data[title] = content
         else:
-            data[title] = lines[1].strip() if len(lines) > 1 else ''
+            data[title] = lines[1].strip() if len(lines) > 1 else ""
     return data
 
 
@@ -61,7 +62,7 @@ class OmniMATHAnnotator(Annotator):
         info = parse_report(annotator_response_text)
 
         correctness = info.get("Equivalence Judgement", "FALSE")
-        
+
         if correctness == "TRUE":
             return {"prompt_text": annotator_prompt, "correctness": 1.0}
         else:

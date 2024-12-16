@@ -1,4 +1,3 @@
-
 import datasets
 import os
 from typing import List
@@ -18,9 +17,9 @@ class OmniMATHScenario(Scenario):
     """Omni-MATH: A Universal Olympiad Level Mathematic Benchmark for Large Language Models
 
     Omni-MATH is a comprehensive and challenging benchmark specifically designed to assess LLMs' mathematical
-    reasoning at the Olympiad level. The dataset focuses exclusively on Olympiad mathematics and comprises a 
-    vast collection of 4428 competition-level problems. These problems are meticulously categorized into 33 
-    (and potentially more) sub-domains and span across 10 distinct difficulty levels, enabling a nuanced 
+    reasoning at the Olympiad level. The dataset focuses exclusively on Olympiad mathematics and comprises a \
+    vast collection of 4428 competition-level problems. These problems are meticulously categorized into 33 \
+    (and potentially more) sub-domains and span across 10 distinct difficulty levels, enabling a nuanced \
     analysis of model performance across various mathematical disciplines and levels of complexity.."""
 
     name = "omni_math"
