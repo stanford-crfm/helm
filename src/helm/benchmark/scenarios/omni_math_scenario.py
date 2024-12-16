@@ -32,6 +32,7 @@ class OmniMATHScenario(Scenario):
         ensure_directory_exists(cache_dir)
         dataset = datasets.load_dataset(
             "KbsdJames/Omni-MATH",
+            revision="40ba231d8f16e29ecd40e6407e2c8640145a8f62",
             cache_dir=cache_dir,
             split="test",
         )
