@@ -23,5 +23,5 @@ def test_omni_math_scenario_get_instances():
         )
     )
     assert instances[0].split == TEST_SPLIT
-    assert instances[0].extra_data
-    assert instances[0].extra_data["answer"] == "1 + \\left\\lceil \\frac{n}{2} \\right\\rceil"
+    assert instances[0].references
+    assert instances[0].references[0].output.text == "1 + \\left\\lceil \\frac{n}{2} \\right\\rceil"
