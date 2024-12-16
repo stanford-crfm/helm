@@ -478,3 +478,64 @@ def get_wildbench_spec(subset: str, use_model_outputs: str = "False") -> RunSpec
         metric_specs=metric_specs,
         groups=["wildbench"],
     )
+
+
+@run_spec_function("bigcodebench")
+def get_bigcodebench_spec(version: str) -> RunSpec:
+
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.bigcodebench_scenario.BigCodeBenchScenario", args={"version": version}
+    )
+
+    # Adapted from https://github.dev/bigcode-project/bigcodebench/blob/main/bigcodebench/evaluate.py
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="",
+        max_tokens=1280,
+        num_outputs=1,
+        temperature=0.0,
+        global_prefix="Please provide a self-contained Python script "
+        "that solves the following problem in a markdown code block:",
+    )
+    annotator_specs = [
+        AnnotatorSpec(class_name="helm.benchmark.annotation.bigcodebench_annotator.BigCodeBenchAnnotator")
+    ]
+    metric_specs = [MetricSpec(class_name="helm.benchmark.metrics.bigcodebench_metrics.BigCodeBenchMetric")]
+
+    return RunSpec(
+        name="bigcodebench",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
+        groups=["bigcodebench"],
+    )
+
+
+@run_spec_function("omni_math")
+def get_omni_math_spec() -> RunSpec:
+
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.omni_math_scenario.OmniMATHScenario")
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="",
+        max_tokens=1000,
+        num_outputs=1,
+        temperature=0.0,
+    )
+    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.omni_math_annotator.OmniMATHAnnotator")]
+    metric_specs = get_basic_metric_specs([]) + [
+        MetricSpec(class_name="helm.benchmark.metrics.omni_math_metrics.OmniMATHMetric")
+    ]
+
+    return RunSpec(
+        name="omni_math",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
+        groups=["omni_math"],
+    )
