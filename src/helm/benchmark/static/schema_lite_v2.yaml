@@ -103,6 +103,11 @@ metrics:
     short_display_name: WB Score
     description: Score of the AI output judged by GPT-4o.
     lower_is_better: false
+  - name: bigcodebench_p@1
+    display_name: BigCodeBench Pass@1
+    short_display_name: Pass@1
+    description: Accuracy of the AI output judged by BigCodeBench official evaluator.
+    lower_is_better: false
 
 ############################################################
 perturbations: []
@@ -147,6 +152,7 @@ run_groups:
       - gpqa
       - ifeval
       - wildbench
+      - bigcodebench
 
   - name: mmlu_pro
     display_name: MMLU-Pro
@@ -213,5 +219,22 @@ run_groups:
       task: "instruction following"
       what: "GPT-judged instruction following with instructions collected from real-user conversations"
       who: "real-world users"
+      when: "2024"
+      language: English
+
+  - name: bigcodebench
+    display_name: BigCodeBench
+    description: BigCodeBench
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: bigcodebench_p@1
+      main_split: test
+    taxonomy:
+      task: "code generation"
+      what: "function-level code generation tasks with complex instructions and diverse function calls"
+      who: "human annotators"
       when: "2024"
       language: English

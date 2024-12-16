@@ -9,7 +9,7 @@ from helm.common.hierarchical_logger import hlog
 from typing import Any, List, Dict
 from gradio_client import Client, handle_file
 from tempfile import TemporaryDirectory
-from tenacity import retry, stop_after_attempt, wait_fixed
+from retrying import retry
 
 
 OUTPUT_FILENAME = "tmp_result.jsonl"
@@ -58,7 +58,7 @@ class BigCodeBenchAnnotator(Annotator):
     def annotate(self, request_state: RequestState) -> Any:
         pass
 
-    @retry(stop=stop_after_attempt(3), wait=wait_fixed(4))
+    @retry(stop_max_attempt_number=3, wait_fixed=4000)
     def predict_with_retry(self, filename: str):
         client = Client(self.remote_execute_api)
         results, evals = client.predict(
@@ -99,15 +99,11 @@ class BigCodeBenchAnnotator(Annotator):
 
         try:
             results, _ = self.predict_with_retry(OUTPUT_FILENAME)
-        except Exception as e:
-            hlog("Failed to complete the operation after 3 attempts.")
-            hlog(f"Exception: {e}")
-            results = []
-        if len(results):
             ret = [
                 {"bigcodebench": {"pass_at_one": results["eval"][state.instance.id][0]["status"] == "pass"}}
                 for state in request_states
             ]
-        else:
-            ret = [{"bigcodebench": {"pass_at_one": False}} for state in request_states]
-        return ret
+            return ret
+        except Exception as e:
+            hlog(f"Failed to complete the operation after 3 attempts. Exception: {e}")
+            raise e
