@@ -108,6 +108,11 @@ metrics:
     short_display_name: Pass@1
     description: Accuracy of the AI output judged by BigCodeBench official evaluator.
     lower_is_better: false
+  - name: omni_math_accuracy
+    display_name: Omni-MATH Accuracy
+    short_display_name: Acc
+    description: Accuracy of the AI output judged by GPT-4.
+    lower_is_better: false
 
 ############################################################
 perturbations: []
@@ -153,6 +158,7 @@ run_groups:
       - ifeval
       - wildbench
       - bigcodebench
+      - omni_math
 
   - name: mmlu_pro
     display_name: MMLU-Pro
@@ -235,6 +241,23 @@ run_groups:
     taxonomy:
       task: "code generation"
       what: "function-level code generation tasks with complex instructions and diverse function calls"
+      who: "human annotators"
+      when: "2024"
+      language: English
+
+  - name: omni_math
+    display_name: Omni-MATH
+    description: Omni-MATH
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: omni_math_accuracy
+      main_split: test
+    taxonomy:
+      task: "mathematics"
+      what: "universal Olympiad level mathematic benchmark"
       who: "human annotators"
       when: "2024"
       language: English
