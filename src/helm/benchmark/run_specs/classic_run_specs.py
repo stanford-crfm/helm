@@ -1237,6 +1237,30 @@ def get_mimic_rrs_spec() -> RunSpec:
         groups=["mimic_rrs"],
     )
 
+@run_spec_function("dischargeme")
+def get_dischargeme_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.dischargeme_scenario.DischargeMeScenario"
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Given a discharge text, a radiology report text, and a target document of either discharge instructions or a brief hospital course, \
+            return the generated target document from the context provided.",
+        input_noun=None,
+        newline_after_input_noun=False,
+        output_noun="Answer",
+        max_tokens=1024,
+        stop_sequences=[]
+    )
+    metric_args = {"task": "dischargeme", "device": get_torch_device_name()}
+    return RunSpec(
+        name=f"dischargeme",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs(metric_args),
+        groups=["dischargeme"],
+    )
+
 @run_spec_function("live_qa")
 def get_live_qa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.live_qa_scenario.LiveQAScenario")

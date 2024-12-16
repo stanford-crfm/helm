@@ -324,6 +324,7 @@ run_groups:
     category: Medical Scenarios
     subgroups:
       - mimic_rrs
+      - dischargeme
   
   - name: patient_communication
     display_name: Patient Communication and Education
@@ -403,6 +404,24 @@ run_groups:
     display_name: MIMIC-RRS
     short_display_name: MIMIC-RRS
     description: A radiology report summarization dataset collected from MIMIC-III.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: BERTScore-F
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+      
+  - name: dischargeme
+    display_name: DischargeMe
+    short_display_name: DischargeMe
+    description: A discharge instruction and brief hospital course generation dataset collected from MIMIC-IV.
     metric_groups:
       - accuracy
       - efficiency
