@@ -37,12 +37,12 @@ class OmniMATHAnnotator(Annotator):
         assert request_state.result
         assert len(request_state.result.completions) == 1
         prompt_template = self._score_template
+        model_output_text = request_state.result.completions[0].text
         annotator_prompt = (
             prompt_template.replace("{{Problem}}", request_state.instance.input.text)
             .replace("{{Reference Answer}}", request_state.instance.references[0].output.text)
             .replace("{{Solution}}", model_output_text)
         )
-        model_output_text = request_state.result.completions[0].text
         if not model_output_text.strip():
             return {"prompt_text": annotator_prompt, "correctness": 0.0}
 
