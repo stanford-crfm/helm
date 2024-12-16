@@ -215,20 +215,3 @@ run_groups:
       who: "real-world users"
       when: "2024"
       language: English
-  
-  - name: wildbench
-    display_name: WildBench
-    description: WildBench
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: wildbench_score
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: English
