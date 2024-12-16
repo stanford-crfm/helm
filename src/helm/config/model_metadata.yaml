@@ -997,6 +997,14 @@ models:
     release_date: 2024-09-24
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: google/gemini-2.0-flash-exp
+    display_name: Gemini 2.0 Flash (Experimental)
+    description: Gemini 2.0 Flash (Experimental) is a Gemini model that supports multimodal inputs like images, video and audio, as well as multimodal output like natively generated images mixed with text and steerable text-to-speech (TTS) multilingual audio. ([blog](https://blog.google/technology/google-deepmind/google-gemini-ai-update-december-2024/#gemini-2-0-flash))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2024-12-11
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: google/gemma-2b
     display_name: Gemma (2B)
     description: Gemma is a family of lightweight, open models built from the research and technology that Google used to create the Gemini models. ([model card](https://www.kaggle.com/models/google/gemma), [blog post](https://blog.google/technology/developers/gemma-open-models/))
@@ -1655,6 +1663,15 @@ models:
     num_parameters: 88600000000
     release_date: 2024-09-25
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: meta/llama-3.3-70b-instruct-turbo
+    display_name: Llama 3.3 Instruct Turbo (70B)
+    description: Llama 3.3 (70B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-12-06
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: meta/llama-3-8b-chat
     display_name: Llama 3 Instruct (8B)
@@ -3490,3 +3507,13 @@ models:
     num_parameters: 1380000000
     release: 2024-10-21
     tags: [TEXT_MODEL_TAG]
+
+  - name: maritaca-ai/sabia-7b
+    display_name: Sabia 7B
+    description: Sabia 7B
+    creator_organization_name: MARITACA-AI
+    access: open
+    num_parameters: 6740000000
+    release_date: 2023-11-08
+    tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+   
