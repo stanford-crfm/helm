@@ -4,25 +4,25 @@ HELM comes with more than a hundred built-in scenarios. However, you may want to
 
 There are two steps to adding a custom scenario: adding the custom `Scenario` subclass, and adding a custom run spec function.
 
-The easiest way to implement the custom `Scenario` subclass and the custom run spec function would be to copy from an appropriate example and then make the appropriate modifications. Determine the **task** your scenario, then find the corresponding example `Scenario` subclass and run spec function from the list below from the `simple_scenarios.py` and `simple_run_specs.py` files:
+The easiest way to implement the custom `Scenario` subclass and the custom run spec function would be to copy from an appropriate example and then make the appropriate modifications. Determine the **task** of your scenario, then find the corresponding example `Scenario` subclass and run spec function from the list below from the `simple_scenarios.py` and `simple_run_specs.py` files:
 
 - **Multiple-choice question answering**: `SimpleMCQAScenario` and `get_simple_mcqa_run_spec()`
 - **Short-answer question answering**: `SimpleShortAnswerQAScenario` and `get_simple_short_answer_qa_run_spec()`
 - **Open-ended question answering**: This is similar to short-answer question answering, but overlap-based automated metrics may be unsuitable for long generations.
 - **Summarization**: This is similar to short-answer question answering, but overlap-based automated metrics may be unsuitable for long generations.
 - **Multi-class classification**: `SimpleClassificationScenario` and `get_simple_classification_run_spec()`
-- **Multi-label classification**: This is currently unsupported by HELM.
 - **Sentiment analysis**: This a sub-type of the Classification task. Set `input_noun`, `output_noun` and `instructions` appropriately.
 - **Toxicity detection**: This a sub-type of the Classification task. Set `input_noun`, `output_noun` and `instructions` appropriately.
+- **Multi-label classification**: This is currently unsupported by HELM.
 - **Named entity recognition**: This is currently unsupported by HELM.
 
-If your task is not listed, you may still be implement your task using custom adapters and metrics, but there is limited official support for doing so.
+If your task is not listed, you may still implement your task using custom adapters and metrics, but there is limited official support for doing so.
 
 ## Custom `Scenario` subclass
 
-For this tutorial, we will create a `MyScenario` class in the the `my_scenario` module. Make a file called `./my_scenario.py` under the current working directory. Create a new class called `MyScenario`. Find the appropriate example scenario and copy its implementation into `MyScenario`, making sure to also copy the required imports.
+For this tutorial, we will create a `MyScenario` class in the the `my_scenario` module. Make a file called `./my_scenario.py` under the my_scenario directory. Create a new class called `MyScenario`. Find the appropriate example scenario and copy its implementation into `MyScenario`, making sure to also copy all the required imports.
 
-Now we will create a test for the scenario to make sure that it is working correctly. Create a file called `./my_scenario_test.py` under the current working directory. Create a `test_my_scenario()` function in this file. Find the appropriate example scenario test from `test_simple_scenarios.py` and copy its implementation into `test_my_scenario()`.
+Now we will create a test for the scenario to make sure that it is working correctly. Create a file called `./my_scenario_test.py` under the my_scenario directory. Create a `test_my_scenario()` function in this file. Find the appropriate example scenario test from `test_simple_scenarios.py` and copy its implementation into `test_my_scenario()`.
 
 You can now run `python3 -m pytest test_my_scenario.py` to test the example scenario. The test should pass. If you get a `ModuleNotFound` error, you should set up your `PYTHONPATH` as explained above, and then try again.
 
@@ -56,7 +56,7 @@ HELM will search for modules with names matching these patterns for run spec fun
 - `helm.benchmark.run_specs.*_run_specs`
 - `helm_*_run_specs` (i.e. a root module)
 
-For this tutorial, we will create a `get_my_run_spec()` function in the `helm_my_run_specs` module. In your current working directory, create a file called `helm_my_run_specs.py`. Cerate a `get_my_run_spec()` function in this file. Find the appropriate example run spec function from `simple_run_specs.py` and copy its implementation into `get_my_run_spec()`. Change the 
+For this tutorial, we will create a `get_my_run_spec()` function in the `helm_my_run_specs` module. Under the `src/helm/benchmark/scenarios/` directory, create a file called `helm_my_run_specs.py`. Then, create a `get_my_run_spec()` function in this file and find the appropriate example run spec function from `simple_run_specs.py` to copy its implementation into `get_my_run_spec()`. Change the file accordingly to the needs of your scenario.
 
 Now run:
 

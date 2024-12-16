@@ -93,10 +93,15 @@ metrics:
     short_display_name: IFEval Strict Acc
     description: Fraction of instructions in the instance that are correctly followed.
     lower_is_better: false
+  - name: chain_of_thought_correctness
+    display_name: COT correct
+    short_display_name: COT correct
+    description: Allows to do evaluation using chain of thought for mmlu pro and gpqa.
+    lower_is_better: false
   - name: wildbench_score
     display_name: WildBench Score
     short_display_name: WB Score
-    description: Score of the AI output judged by GPT-4.
+    description: Score of the AI output judged by GPT-4o.
     lower_is_better: false
 
 ############################################################
@@ -168,13 +173,13 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: exact_match  # non-CoT
+      main_name: chain_of_thought_correct
       main_split: test
     taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
+      task: "question answering"
+      what: "graduate-level questions in biology, physics, and chemistry"
+      who: "domain experts"
+      when: "2023"
       language: English
   
   - name: ifeval
@@ -188,10 +193,27 @@ run_groups:
       main_name: ifeval_strict_accuracy
       main_split: test
     taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
+      task: "instruction following"
+      what: "verifiable general domain instruction following"
+      who: "human annotators"
+      when: "2023"
+      language: English
+  
+  - name: wildbench
+    display_name: WildBench
+    description: WildBench
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: wildbench_score
+      main_split: test
+    taxonomy:
+      task: "instruction following"
+      what: "GPT-judged instruction following with instructions collected from real-user conversations"
+      who: "real-world users"
+      when: "2024"
       language: English
   
   - name: wildbench

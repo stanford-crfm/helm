@@ -20,6 +20,11 @@ class Annotator(ABC):
         that are implementation specific."""
         pass
 
+    def annotate_all(self, request_states: List[RequestState]) -> List[Dict[str, Any]]:
+        """Fills the annotations field of all request states with additional information
+        that are implementation specific."""
+        return [self.annotate(request_state) for request_state in request_states]
+
 
 @dataclass(frozen=True)
 class AnnotatorSpec(ObjectSpec):

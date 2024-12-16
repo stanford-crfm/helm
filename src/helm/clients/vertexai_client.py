@@ -202,7 +202,6 @@ class VertexAIChatClient(VertexAIClient):
     def make_request(self, request: Request) -> RequestResult:
         """Make a request"""
         contents = [request.prompt]
-        content_key = request.prompt
 
         # For the multimodal case, build up the content with the media objects of `request.multimodal_prompt`
         if request.multimodal_prompt is not None:
@@ -215,7 +214,6 @@ class VertexAIChatClient(VertexAIClient):
                 contents.append(
                     Content(role=role_mapping.get(msg["role"], "user"), parts=[Part.from_text(msg["content"])])
                 )
-            content_key = "\n".join([msg["content"] for msg in request.messages])
 
         parameters = {
             "temperature": request.temperature,
@@ -281,8 +279,7 @@ class VertexAIChatClient(VertexAIClient):
             cache_key = self.make_cache_key_with_safety_settings_preset(
                 {
                     "model_name": model_name,
-                    "prompt": request.prompt,
-                    "content": content_key,
+                    "prompt": request.messages or request.prompt,
                     **parameters,
                 },
                 request,

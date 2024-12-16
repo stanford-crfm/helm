@@ -34,7 +34,7 @@ class WildBenchAnnotator(Annotator):
             prompt_template.replace("{$history}", request_state.instance.extra_data["history"])
             .replace("{$user_query}", request_state.instance.extra_data["user_query"])
             .replace("{$model_output}", model_output_text)
-            .replace("{$checklist}", request_state.instance.extra_data["checklist"])
+            .replace("{$checklist}", "\n".join(request_state.instance.extra_data["checklist"]))
         )
         annotator_request = Request(
             model="openai/gpt-4o-2024-05-13",

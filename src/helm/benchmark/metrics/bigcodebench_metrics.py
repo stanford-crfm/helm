@@ -19,7 +19,7 @@ class BigCodeBenchMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         assert request_state.annotations
-        score = request_state.annotations["bigcodebench"]["pass_at_one"] * 1140  # full size
+        score = request_state.annotations["bigcodebench"]["pass_at_one"]
         return [
             Stat(MetricName("bigcodebench_p@1")).add(score),
         ]

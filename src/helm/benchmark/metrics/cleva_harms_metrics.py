@@ -20,6 +20,7 @@ from helm.benchmark.metrics.copyright_metrics import BasicCopyrightMetric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
+from helm.benchmark.runner import get_benchmark_output_path
 
 try:
     import jieba
@@ -71,7 +72,7 @@ class CLEVABiasMetric(BiasMetric):
                   "demographic_category". One of "adjective" or "profession".
         """
         # Ensure all necessary data are downloaded
-        self.output_dir = os.path.join("benchmark_output", "metrics", self.name)
+        self.output_dir = os.path.join(get_benchmark_output_path(), "metrics", self.name)
         ensure_directory_exists(self.output_dir)
         for filename in self.FILE_NAMES:
             target_path = os.path.join(self.output_dir, filename)
