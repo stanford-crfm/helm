@@ -444,7 +444,6 @@ run_groups:
     metric_groups:
       - accuracy
       - general_information
-      - reasoning
     environment:
       main_name: f1_score
       main_split: test
