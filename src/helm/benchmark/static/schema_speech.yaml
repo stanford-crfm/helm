@@ -179,6 +179,7 @@ run_groups:
     category: All scenarios
     subgroups:
       - audio_mnist
+      - air_bench_chat
       - covost2
       - vocal_sound
       - multilingual_librispeech
@@ -186,6 +187,7 @@ run_groups:
       - audiocaps
       - common_voice_15
       - speech_robust_bench
+      - voxceleb2
 
   - name: audio_mnist
     display_name: AudioMNIST
@@ -241,7 +243,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_exact_match
       main_split: test
     taxonomy:
       task: audio classification
@@ -306,7 +308,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: cider
+      main_name: f1_score
       main_split: test
     taxonomy:
       task: audio captioning
@@ -448,7 +450,7 @@ run_groups:
       main_split: test
     taxonomy:
       task: audio question answering
-      what: adio, question, and answer of audio samples
+      what: audio, question, and answer of audio samples
       who: real speakers
       when: "2024"
       language: English
