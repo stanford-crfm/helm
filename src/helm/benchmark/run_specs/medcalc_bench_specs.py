@@ -1,6 +1,7 @@
 import json
 from typing import Dict, List
 
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.common_adapter_specs import get_generation_adapter_spec
 from helm.benchmark.metrics.common_metric_specs import get_basic_metric_specs
 from helm.benchmark.metrics.metric import MetricSpec
@@ -10,44 +11,47 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 ONE_SHOT_EXAMPLES_URL = "https://raw.githubusercontent.com/ncbi-nlp/MedCalc-Bench/048ba77dbe332e9190935e4a30965bff444b940e/evaluation/one_shot_finalized_explanation.json"
 
 
-@run_spec_function("med_calc_bench_zero_shot_cot")
-def get_med_calc_bench_zero_shot_spec() -> RunSpec:
+@run_spec_function("medcalc_bench")
+def get_medcalc_bench_spec(method: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.med_calc_bench_scenario.MedCalcBenchScenario",
+        class_name="helm.benchmark.scenarios.medcalc_bench_scenario.MedCalcBenchScenario",
         args={},
     )
 
-    adapter_spec = get_generation_adapter_spec(
-        instructions=_get_zero_shot_cot_instructions(),
-        input_noun=None,  # Set directly in the scenario.
-        output_noun="Calculated Value",
-        max_tokens=500,
-    )
+    if method == "zero_shot":
+        adapter_spec = get_medcalc_bench_zero_shot_adapter()
+    elif method == "one_shot":
+        adapter_spec = get_medcalc_bench_one_shot_adapter()
+    else:
+        raise ValueError(f"Invalid method for MedCalc-Bench: {method}")
 
     metric_specs: List[MetricSpec] = [
         MetricSpec(
-            class_name="helm.benchmark.metrics.med_calc_bench_metrics.MedCalcBenchMetric",
+            class_name="helm.benchmark.metrics.medcalc_bench_metrics.MedCalcBenchMetric",
             args={},
         )
-    ] + get_basic_metric_specs([])
+    ] # + get_basic_metric_specs([])
 
     return RunSpec(
-        name="med_calc_bench",
+        name=f"medcalc_bench:method{method}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=["med_calc_bench"],
+        groups=["medcalc_bench"],
     )
 
 
-@run_spec_function("med_calc_bench_one_shot_cot")
-def get_med_calc_bench_one_shot_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.med_calc_bench_scenario.MedCalcBenchScenario",
-        args={},
+def get_medcalc_bench_zero_shot_adapter() -> AdapterSpec:
+    return get_generation_adapter_spec(
+        instructions=_get_zero_shot_cot_instructions(),
+        input_noun=None,  # Set directly in the scenario.
+        output_noun="\n\nCalculated Value",
+        max_tokens=500,
     )
 
-    adapter_spec = get_generation_adapter_spec(
+
+def get_medcalc_bench_one_shot_adapter() -> AdapterSpec:
+    return get_generation_adapter_spec(
         instructions=_get_one_shot_cot_instructions(
             # TODO: Modify this to retrieve the question and calculator ID from the respective dataset sample.
             # For more information see the docstring for the `_get_one_shot_cot_instructions` function.
@@ -63,28 +67,13 @@ def get_med_calc_bench_one_shot_spec() -> RunSpec:
             calculator_id="2",
         ),
         input_noun=None,  # Set directly in the scenario.
-        output_noun="Calculated Value",
+        output_noun="\n\nCalculated Value",
         max_tokens=500,
-    )
-
-    metric_specs: List[MetricSpec] = [
-        MetricSpec(
-            class_name="helm.benchmark.metrics.med_calc_bench_metrics.MedCalcBenchMetric",
-            args={},
-        )
-    ] + get_basic_metric_specs([])
-
-    return RunSpec(
-        name="med_calc_bench",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=metric_specs,
-        groups=["med_calc_bench"],
     )
 
 
 def _get_zero_shot_cot_instructions() -> str:
-    """Generate instructions for the MedCalcBench scenario.
+    """Generate instructions for the MedCalc-Bench scenario.
 
     This function is inspired on the system prompt definition in the original code:
     https://github.com/ncbi-nlp/MedCalc-Bench/blob/048ba77dbe332e9190935e4a30965bff444b940e/evaluation/run.py#L16
@@ -101,7 +90,7 @@ def _get_zero_shot_cot_instructions() -> str:
 
 
 def _get_one_shot_cot_instructions(question: str, calculator_id: str) -> str:
-    """Generate instructions for the MedCalcBench scenario.
+    """Generate instructions for the MedCalc-Bench scenario.
 
     This function is inspired on the system prompt definition in the original code:
     https://github.com/ncbi-nlp/MedCalc-Bench/blob/048ba77dbe332e9190935e4a30965bff444b940e/evaluation/run.py#L26
@@ -120,7 +109,7 @@ def _get_one_shot_cot_instructions(question: str, calculator_id: str) -> str:
 
     if not examples:
         raise ValueError(
-            "Failed to load one-shot examples for the MedCalcBench scenario."
+            "Failed to load one-shot examples for the MedCalc-Bench scenario."
         )
 
     example = examples.get(calculator_id, {})

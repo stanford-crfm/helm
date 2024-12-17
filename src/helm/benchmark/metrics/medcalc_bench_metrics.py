@@ -8,6 +8,7 @@ from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
+from helm.common.hierarchical_logger import hlog
 
 
 class MedCalcBenchMetric(Metric):
@@ -33,25 +34,33 @@ class MedCalcBenchMetric(Metric):
             "Only one was expected"
         )
 
-        final_answer = request_state.result.completions[0].text.strip().lower().split("final answer:")[-1].strip()
+        final_answer = (
+            request_state.result.completions[0]
+            .text.strip()
+            .lower()
+            .split("calculated value:")[-1]
+            .strip()
+        )
 
-        try:
-            correctness = self.medcalc_bench_range_metric_calculation(
-                answer=final_answer,
-                ground_truth=request_state.instance.extra_data["ground_truth"],
-                calid=int(request_state.instance.extra_data["calculator_id"]),
-                upper_limit=request_state.instance.extra_data["upper_limit"],
-                lower_limit=request_state.instance.extra_data["lower_limit"],
-            )
-        except ValueError:
-            raise ValueError(
-                "Failed to calculate the correctess of the output for a MedCalc-Bench instance."
-            )
+        correctness = 0
+        if final_answer:
+            try:
+                correctness = self.medcalc_bench_metric_calculation(
+                    answer=final_answer,
+                    ground_truth=request_state.instance.extra_data["ground_truth"],
+                    calid=int(request_state.instance.extra_data["calculator_id"]),
+                    upper_limit=request_state.instance.extra_data["upper_limit"],
+                    lower_limit=request_state.instance.extra_data["lower_limit"],
+                )
+            except ValueError as e:
+                hlog(
+                    (
+                        "Failed to calculate the correctess of the output for MedCalc-Bench instance "
+                        f'with id {request_state.instance.extra_data["id"]}: {e}'
+                    )
+                )
 
-        stat = Stat(MetricName("medcalc_bench_metric"))
-        stat.add(int(correctness))
-
-        return [stat]
+        return [Stat(MetricName("medcalc_bench_metric")).add(correctness)]
 
     def medcalc_bench_metric_calculation(
         self,
@@ -120,8 +129,8 @@ class MedCalcBenchMetric(Metric):
             69,
         ]:
             # Output Type: integer A
-            answer = round(eval(answer))
-            if answer == eval(ground_truth):
+            answer = round(int(answer))
+            if answer == int(ground_truth):
                 correctness = 1
             else:
                 correctness = 0
@@ -162,8 +171,8 @@ class MedCalcBenchMetric(Metric):
             67,
         ]:
             # Output Type: decimal
-            answer = eval(answer)
-            if answer >= eval(lower_limit) and answer <= eval(upper_limit):
+            answer = float(answer)
+            if answer >= float(lower_limit) and answer <= float(upper_limit):
                 correctness = 1
             else:
                 correctness = 0
