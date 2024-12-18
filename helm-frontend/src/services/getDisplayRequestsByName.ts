@@ -35,6 +35,7 @@ export default async function getDisplayRequestsByName(
   runName: string,
   signal: AbortSignal,
   suite?: string,
+  userAgreed?: boolean,
 ): Promise<DisplayRequest[]> {
   try {
     // Fetch display requests JSON
@@ -48,7 +49,7 @@ export default async function getDisplayRequestsByName(
     );
     const displayRequests = (await response.json()) as DisplayRequest[];
 
-    if (runName.startsWith("gpqa")) {
+    if (runName.startsWith("gpqa") && userAgreed) {
     
       const encryptionResponse = await fetch(
         getBenchmarkEndpoint(

@@ -37,6 +37,7 @@ export default async function getInstancesByRunName(
   runName: string,
   signal: AbortSignal,
   suite?: string,
+  userAgreed?: boolean,
 ): Promise<Instance[]> {
   try {
     // Fetch instances JSON
@@ -49,7 +50,7 @@ export default async function getInstancesByRunName(
     const instances = (await response.json()) as Instance[];
 
     // Decrypt text fields if runName contains "gpqa"
-    if (runName.includes("gpqa")) {
+    if (runName.includes("gpqa") && userAgreed) {
       const encryptionResponse = await fetch(
         getBenchmarkEndpoint(
           `/runs/${suite || getBenchmarkSuite()}/${runName}/encryption_data.json`,

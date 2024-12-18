@@ -23,9 +23,10 @@ interface Props {
   runName: string;
   suite: string;
   metricFieldMap: MetricFieldMap;
+  userAgreed: boolean;
 }
 
-export default function Instances({ runName, suite, metricFieldMap }: Props) {
+export default function Instances({ runName, suite, metricFieldMap, userAgreed }: Props) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [instances, setInstances] = useState<Instance[]>([]);
   const [displayPredictionsMap, setDisplayPredictionsMap] = useState<
@@ -43,9 +44,9 @@ export default function Instances({ runName, suite, metricFieldMap }: Props) {
 
       const [instancesResp, displayPredictions, displayRequests] =
         await Promise.all([
-          getInstances(runName, signal, suite),
-          getDisplayPredictionsByName(runName, signal, suite),
-          getDisplayRequestsByName(runName, signal, suite),
+          getInstances(runName, signal, suite, userAgreed),
+          getDisplayPredictionsByName(runName, signal, suite, userAgreed),
+          getDisplayRequestsByName(runName, signal, suite, userAgreed),
         ]);
       setInstances(instancesResp);
 
