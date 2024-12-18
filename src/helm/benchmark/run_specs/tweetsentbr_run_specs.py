@@ -15,7 +15,7 @@ def get_tweetsentbr_spec() -> RunSpec:
 
         Tweet: vocês viram a novela hoje?
         Classe: Neutro
-        
+
         Tweet: que vontade de comer pizza
         Classe: Neutro
         """,

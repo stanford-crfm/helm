@@ -5,7 +5,7 @@ from helm.benchmark.scenarios.tweetsentbr_scenario import TweetSentBRScenario
 from helm.benchmark.scenarios.scenario import TRAIN_SPLIT, CORRECT_TAG, Output, Reference
 
 
-# @pytest.mark.scenarios
+@pytest.mark.scenarios
 def test_tweetsentbr_scenario():
     tweetsentbr = TweetSentBRScenario()
     with TemporaryDirectory() as tmpdir:
