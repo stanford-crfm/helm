@@ -3,7 +3,7 @@ import dataclasses
 import json
 import os
 import base64
-from typing import Dict, Any, Optional
+from typing import Dict, Optional
 from tqdm import tqdm
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
@@ -14,7 +14,6 @@ from helm.benchmark.scenarios.scenario import Instance, Reference
 from helm.common.codec import from_json, to_json
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import Request, RequestResult
-from helm.common.general import write
 
 _SCENARIO_STATE_FILE_NAME = "scenario_state.json"
 _DECRYPTED_SCENARIO_STATE_FILE_NAME = "decrypted_scenario_state.json"
