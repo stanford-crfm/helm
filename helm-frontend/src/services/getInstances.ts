@@ -1,4 +1,5 @@
 import Instance from "@/types/Instance";
+import { EncryptionDataMap } from "@/types/EncryptionDataMap";
 import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
 import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
 
@@ -61,12 +62,13 @@ export default async function getInstancesByRunName(
         ),
         { signal },
       );
-      const encryptionData = await encryptionResponse.json();
+      const encryptionData =
+        (await encryptionResponse.json()) as EncryptionDataMap;
 
       for (const instance of instances) {
         const inputEncryption = encryptionData[instance.input.text];
         if (inputEncryption) {
-          instance.input.text = "redacted";
+          instance.input.text = "encrypted";
           instance.input.text = await decryptField(
             inputEncryption.ciphertext,
             inputEncryption.key,

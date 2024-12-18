@@ -1,8 +1,8 @@
 import type DisplayPrediction from "@/types/DisplayPrediction";
+import { EncryptionDataMap } from "@/types/EncryptionDataMap";
 import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
 import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
 
-// Helper function for decryption
 async function decryptField(
   ciphertext: string,
   key: string,
@@ -62,7 +62,8 @@ export default async function getDisplayPredictionsByName(
         ),
         { signal },
       );
-      const encryptionData = await encryptionResponse.json();
+      const encryptionData =
+        (await encryptionResponse.json()) as EncryptionDataMap;
 
       for (const prediction of displayPredictions) {
         const encryptedText = prediction.predicted_text;

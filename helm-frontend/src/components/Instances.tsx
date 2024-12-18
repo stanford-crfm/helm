@@ -99,7 +99,7 @@ export default function Instances({
     void fetchData();
 
     return () => controller.abort();
-  }, [runName, suite]);
+  }, [runName, suite, userAgreed]);
 
   const pagedInstances = instances.slice(
     (currentInstancesPage - 1) * INSTANCES_PAGE_SIZE,

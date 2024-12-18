@@ -1,4 +1,5 @@
 import type DisplayRequest from "@/types/DisplayRequest";
+import { EncryptionDataMap } from "@/types/EncryptionDataMap";
 import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
 import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
 
@@ -62,7 +63,8 @@ export default async function getDisplayRequestsByName(
         ),
         { signal },
       );
-      const encryptionData = await encryptionResponse.json();
+      const encryptionData =
+        (await encryptionResponse.json()) as EncryptionDataMap;
 
       for (const request of displayRequests) {
         const encryptedPrompt = request.request.prompt;
