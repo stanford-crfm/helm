@@ -34,11 +34,7 @@ class TweetSentBRScenario(Scenario):
 
     def process_dataset(self, dataset: Any, split: str) -> List[Instance]:
         instances: List[Instance] = []
-        label_names = {
-            "Positive": "Positivo", 
-            "Negative": "Negativo", 
-            "Neutral": "Neutro"
-        }
+        label_names = {"Positive": "Positivo", "Negative": "Negativo", "Neutral": "Neutro"}
         for example in dataset[split]:
             input = Input(text=example["sentence"])
             # NOTE: For classification scenarios, the reference outputs should be the same

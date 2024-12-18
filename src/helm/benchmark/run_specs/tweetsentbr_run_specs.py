@@ -20,7 +20,7 @@ def get_tweetsentbr_spec() -> RunSpec:
         Classe: Neutro
         """,
         input_noun="Tweet",
-        output_noun="Classe"
+        output_noun="Classe",
     )
 
     return RunSpec(
