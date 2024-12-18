@@ -20,6 +20,7 @@ _SCENARIO_STATE_FILE_NAME = "scenario_state.json"
 _DECRYPTED_SCENARIO_STATE_FILE_NAME = "decrypted_scenario_state.json"
 _DISPLAY_ENCRYPTION_DATA_JSON_FILE_NAME = "encryption_data.json"
 
+
 class HELMDecryptor:
     def __init__(self, encryption_data_mapping: Dict[str, Dict[str, str]]):
         """
@@ -92,7 +93,9 @@ def decrypt_request(request: Request, decryptor: HELMDecryptor) -> Request:
     return dataclasses.replace(request, prompt=decryptor.decrypt_text(request.prompt))
 
 
-def decrypt_output_mapping(output_mapping: Optional[Dict[str, str]], decryptor: HELMDecryptor) -> Optional[Dict[str, str]]:
+def decrypt_output_mapping(
+    output_mapping: Optional[Dict[str, str]], decryptor: HELMDecryptor
+) -> Optional[Dict[str, str]]:
     if output_mapping is None:
         return None
     return {key: decryptor.decrypt_text(val) for key, val in output_mapping.items()}
@@ -127,7 +130,7 @@ def decrypt_scenario_state(scenario_state: ScenarioState, decryptor: HELMDecrypt
 def modify_scenario_state_for_run(run_path: str) -> None:
     scenario_state_path = os.path.join(run_path, _SCENARIO_STATE_FILE_NAME)
     encryption_data_path = os.path.join(run_path, _DISPLAY_ENCRYPTION_DATA_JSON_FILE_NAME)
-    
+
     scenario_state = read_scenario_state(scenario_state_path)
     encryption_data_mapping = read_encryption_data(encryption_data_path)
     decryptor = HELMDecryptor(encryption_data_mapping)
@@ -138,13 +141,15 @@ def modify_scenario_state_for_run(run_path: str) -> None:
 
 
 def modify_scenario_states_for_suite(run_suite_path: str, scenario: str) -> None:
-    scenario_prefix = scenario if scenario != 'all' else ''
+    scenario_prefix = scenario if scenario != "all" else ""
     run_dir_names = sorted(
         [
             p
             for p in os.listdir(run_suite_path)
-            if p != "eval_cache" and p != "groups" and \
-                os.path.isdir(os.path.join(run_suite_path, p)) and p.startswith(scenario_prefix)
+            if p != "eval_cache"
+            and p != "groups"
+            and os.path.isdir(os.path.join(run_suite_path, p))
+            and p.startswith(scenario_prefix)
         ]
     )
     for run_dir_name in tqdm(run_dir_names, disable=None):
@@ -173,7 +178,7 @@ def main():
     parser.add_argument(
         "--scenario",
         type=str,
-        default='all',
+        default="all",
         help="Name of the scenario this decryption should go under. Default is all.",
     )
     args = parser.parse_args()

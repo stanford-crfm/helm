@@ -85,7 +85,9 @@ def encrypt_instance(instance: Instance) -> Instance:
 
 def encrypt_request(request: Request) -> Request:
     global encryptor
-    return dataclasses.replace(request, prompt=encryptor.encrypt_text(request.prompt), messages=None, multimodal_prompt=None)
+    return dataclasses.replace(
+        request, prompt=encryptor.encrypt_text(request.prompt), messages=None, multimodal_prompt=None
+    )
 
 
 def encrypt_output_mapping(output_mapping: Optional[Dict[str, str]]) -> Optional[Dict[str, str]]:
@@ -97,7 +99,7 @@ def encrypt_output_mapping(output_mapping: Optional[Dict[str, str]]) -> Optional
 def encrypt_result(result: Optional[RequestResult]) -> Optional[RequestResult]:
     if result is None:
         return None
-    
+
     encrypted_results = [
         dataclasses.replace(completion, text=encryptor.encrypt_text(completion.text))
         for completion in result.completions
@@ -131,13 +133,15 @@ def modify_scenario_states_for_suite(run_suite_path: str, scenario: str) -> None
     """Load the runs in the run suite path."""
     # run_suite_path can contain subdirectories that are not runs (e.g. eval_cache, groups)
     # so filter them out.
-    scenario_prefix = scenario if scenario != 'all' else ''
+    scenario_prefix = scenario if scenario != "all" else ""
     run_dir_names = sorted(
         [
             p
             for p in os.listdir(run_suite_path)
-            if p != "eval_cache" and p != "groups" and \
-                os.path.isdir(os.path.join(run_suite_path, p)) and p.startswith(scenario_prefix)
+            if p != "eval_cache"
+            and p != "groups"
+            and os.path.isdir(os.path.join(run_suite_path, p))
+            and p.startswith(scenario_prefix)
         ]
     )
     for run_dir_name in tqdm(run_dir_names, disable=None):
@@ -166,7 +170,7 @@ def main():
     parser.add_argument(
         "--scenario",
         type=str,
-        default='all',
+        default="all",
         help="Name of the scenario this encryption should go under. Default is all.",
     )
     args = parser.parse_args()
