@@ -140,11 +140,11 @@ This study is published in the following paper. Please cite this paper if you us
 - ![Cyber security benchmark results](helm-eb-cybersecurity-2024.png "Cyber security benchmark results")
 
 ## Contributors
-Contributors are as follows:
+Original contributors are as follows:
 - Yada Zhu, Kate Soule (MIT-IBM Watson AI Lab)
 - Mikio Takeuchi, Ryo Kawahara, Futoshi Iwama, Alisa Arno (IBM Research - Tokyo)
 - Bing Zhang, Shubhi Asthana (IBM Almaden Research Lab)
 - Md Maruf Hossain, Naoto Satoh, Guang-Jie Ren (former IBM members)
-- Állysson Oliveira (IBM Research - Brazil)
-- Onkar Bhardwaj (MIT-IBM Watson AI Lab)
-- Yifan Main (Stanford University)
+
+Contributors of the integration to the HELM repository are as follows:
+- Yifan Mai (Stanford University)
