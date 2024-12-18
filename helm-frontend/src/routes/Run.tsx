@@ -192,18 +192,22 @@ export default function Run() {
         </Tabs>
       </div>
 
-      {activeTab === 0 && runName.includes('gpqa') && !userAgreed && (
+      {activeTab === 0 && runName.includes("gpqa") && !userAgreed && (
         <div className="mb-8">
           <hr className="my-4" />
           <p className="mb-4">
-            The GPQA dataset instances are encrypted by default to comply with the following request:
+            The GPQA dataset instances are encrypted by default to comply with
+            the following request:
           </p>
           <blockquote className="italic border-l-4 border-gray-300 pl-4 text-gray-700 mb-4">
-            “We ask that you do not reveal examples from this dataset in plain text or images online, 
-            to minimize the risk of these instances being included in foundation model training corpora.”
+            “We ask that you do not reveal examples from this dataset in plain
+            text or images online, to minimize the risk of these instances being
+            included in foundation model training corpora.”
           </blockquote>
           <p className="mb-4">
-            If you agree to this condition, please type <strong>"Yes, I agree"</strong> in the box below and then click <strong>Decrypt</strong>.
+            If you agree to this condition, please type{" "}
+            <strong>"Yes, I agree"</strong> in the box below and then click{" "}
+            <strong>Decrypt</strong>.
           </p>
           <div className="flex gap-2 mt-2">
             <input

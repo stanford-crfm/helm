@@ -26,7 +26,12 @@ interface Props {
   userAgreed: boolean;
 }
 
-export default function Instances({ runName, suite, metricFieldMap, userAgreed }: Props) {
+export default function Instances({
+  runName,
+  suite,
+  metricFieldMap,
+  userAgreed,
+}: Props) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [instances, setInstances] = useState<Instance[]>([]);
   const [displayPredictionsMap, setDisplayPredictionsMap] = useState<

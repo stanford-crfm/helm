@@ -3,16 +3,21 @@ import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
 import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
 
 // Helper function for decryption
-async function decryptField(ciphertext: string, key: string, iv: string, tag: string): Promise<string> {
+async function decryptField(
+  ciphertext: string,
+  key: string,
+  iv: string,
+  tag: string,
+): Promise<string> {
   const decodeBase64 = (str: string) =>
-    Uint8Array.from(atob(str), c => c.charCodeAt(0));
+    Uint8Array.from(atob(str), (c) => c.charCodeAt(0));
 
   const cryptoKey = await window.crypto.subtle.importKey(
     "raw",
     decodeBase64(key),
     "AES-GCM",
     true,
-    ["decrypt"]
+    ["decrypt"],
   );
 
   const combinedCiphertext = new Uint8Array([
@@ -25,7 +30,7 @@ async function decryptField(ciphertext: string, key: string, iv: string, tag: st
   const decrypted = await window.crypto.subtle.decrypt(
     { name: "AES-GCM", iv: ivArray },
     cryptoKey,
-    combinedCiphertext
+    combinedCiphertext,
   );
 
   return new TextDecoder().decode(decrypted);
@@ -47,11 +52,13 @@ export default async function getDisplayPredictionsByName(
       { signal },
     );
     const displayPredictions = (await response.json()) as DisplayPrediction[];
-    
+
     if (runName.includes("gpqa") && userAgreed) {
       const encryptionResponse = await fetch(
         getBenchmarkEndpoint(
-          `/runs/${suite || getBenchmarkSuite()}/${runName}/encryption_data.json`,
+          `/runs/${
+            suite || getBenchmarkSuite()
+          }/${runName}/encryption_data.json`,
         ),
         { signal },
       );
@@ -67,10 +74,13 @@ export default async function getDisplayPredictionsByName(
               encryptionDetails.ciphertext,
               encryptionDetails.key,
               encryptionDetails.iv,
-              encryptionDetails.tag
+              encryptionDetails.tag,
             );
           } catch (error) {
-            console.error(`Failed to decrypt predicted_text for instance_id: ${prediction.instance_id}`, error);
+            console.error(
+              `Failed to decrypt predicted_text for instance_id: ${prediction.instance_id}`,
+              error,
+            );
           }
         }
       }
