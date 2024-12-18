@@ -21,33 +21,33 @@ def test_enem_challenge_scenario():
     assert instances[0].references == [
         Reference(
             output=Output(
-                text="reduzir o calor irradiado pela Terra mediante a substituição da produção primária pela industrialização refrigerada. "
+                text="reduzir o calor irradiado pela Terra mediante a substituição da produção primária pela industrialização refrigerada. "  # noqa: E501
             ),
             tags=[],
         ),
         Reference(
             output=Output(
-                text="promover a queima da biomassa vegetal, responsável pelo aumento do efeito estufa devido à produção de CH4. "
+                text="promover a queima da biomassa vegetal, responsável pelo aumento do efeito estufa devido à produção de CH4. "  # noqa: E501
             ),
             tags=[],
         ),
         Reference(
             output=Output(
-                text="reduzir o desmatamento, mantendo-se, assim, o potencial da vegetação em absorver o CO2 da atmosfera. "
+                text="reduzir o desmatamento, mantendo-se, assim, o potencial da vegetação em absorver o CO2 da atmosfera. "  # noqa: E501
             ),
             tags=[CORRECT_TAG],
         ),
         Reference(
             output=Output(
-                text="aumentar a concentração atmosférica de H2O, molécula capaz de absorver grande quantidade de calor. "
+                text="aumentar a concentração atmosférica de H2O, molécula capaz de absorver grande quantidade de calor. "  # noqa: E501
             ),
             tags=[],
         ),
         Reference(
             output=Output(
-                text="remover moléculas orgânicas polares da atmosfera, diminuindo a capacidade delas de reter calor. "
+                text="remover moléculas orgânicas polares da atmosfera, diminuindo a capacidade delas de reter calor. "  # noqa: E501
             ),
             tags=[],
         ),
     ]
-    assert instances[0].references[2].is_correct == True
+    assert instances[0].references[2].is_correct
