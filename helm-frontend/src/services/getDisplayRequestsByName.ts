@@ -38,7 +38,6 @@ export default async function getDisplayRequestsByName(
   userAgreed?: boolean,
 ): Promise<DisplayRequest[]> {
   try {
-    // Fetch display requests JSON
     const response = await fetch(
       getBenchmarkEndpoint(
         `/runs/${
@@ -59,7 +58,6 @@ export default async function getDisplayRequestsByName(
       );
       const encryptionData = await encryptionResponse.json();
 
-      // Decrypt `prompt` field in `request`
       for (const request of displayRequests) {
         const encryptedPrompt = request.request.prompt;
         const encryptionDetails = encryptionData[encryptedPrompt];

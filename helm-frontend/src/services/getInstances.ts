@@ -32,7 +32,6 @@ async function decryptField(ciphertext: string, key: string, iv: string, tag: st
   return new TextDecoder().decode(decrypted);
 }
 
-// Main function to fetch and decrypt instances
 export default async function getInstancesByRunName(
   runName: string,
   signal: AbortSignal,
@@ -40,7 +39,6 @@ export default async function getInstancesByRunName(
   userAgreed?: boolean,
 ): Promise<Instance[]> {
   try {
-    // Fetch instances JSON
     const response = await fetch(
       getBenchmarkEndpoint(
         `/runs/${suite || getBenchmarkSuite()}/${runName}/instances.json`,
@@ -49,7 +47,6 @@ export default async function getInstancesByRunName(
     );
     const instances = (await response.json()) as Instance[];
 
-    // Decrypt text fields if runName contains "gpqa"
     if (runName.includes("gpqa") && userAgreed) {
       const encryptionResponse = await fetch(
         getBenchmarkEndpoint(
@@ -83,11 +80,6 @@ export default async function getInstancesByRunName(
           }
         }
       }
-    }
-
-    // print first 10 instances
-    for (let i = 0; i < 10; i++) {
-      console.log(instances[i]);
     }
 
     return instances;

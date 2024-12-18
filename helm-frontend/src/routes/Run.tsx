@@ -37,7 +37,6 @@ export default function Run() {
     MetricFieldMap | undefined
   >({});
 
-  // New state for agreement
   const [agreeInput, setAgreeInput] = useState("");
   const [userAgreed, setUserAgreed] = useState(false);
 

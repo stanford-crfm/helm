@@ -38,7 +38,6 @@ export default async function getDisplayPredictionsByName(
   userAgreed?: boolean,
 ): Promise<DisplayPrediction[]> {
   try {
-    // Fetch display predictions JSON
     const response = await fetch(
       getBenchmarkEndpoint(
         `/runs/${
@@ -49,7 +48,6 @@ export default async function getDisplayPredictionsByName(
     );
     const displayPredictions = (await response.json()) as DisplayPrediction[];
     
-    // Decrypt `predicted_text` field
     if (runName.includes("gpqa") && userAgreed) {
       const encryptionResponse = await fetch(
         getBenchmarkEndpoint(
