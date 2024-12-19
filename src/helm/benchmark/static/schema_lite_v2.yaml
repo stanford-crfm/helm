@@ -96,7 +96,7 @@ metrics:
   - name: chain_of_thought_correctness
     display_name: COT correct
     short_display_name: COT correct
-    description: Allows to do evaluation using chain of thought for mmlu pro and gpqa.
+    description: Fraction of correct answers after chain of thought
     lower_is_better: false
   - name: wildbench_score
     display_name: WildBench Score
@@ -168,7 +168,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: exact_match  # non-CoT
+      main_name: chain_of_thought_correctness
       main_split: test
     taxonomy:
       task: "?"
@@ -185,7 +185,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: chain_of_thought_correct
+      main_name: chain_of_thought_correctness
       main_split: test
     taxonomy:
       task: "question answering"
