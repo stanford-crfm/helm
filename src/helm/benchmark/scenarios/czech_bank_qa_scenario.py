@@ -104,7 +104,7 @@ CREATE TABLE "trans" (
 ,  "account" integer  DEFAULT NULL
 ,  PRIMARY KEY ("trans_id")
 ,  CONSTRAINT "trans_ibfk_1" FOREIGN KEY ("account_id") REFERENCES "account" ("account_id")
-);"""
+);"""  # noqa: E501
 
     """CzechBankQA"""
     name = "czech_bank_qa"

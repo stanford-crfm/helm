@@ -8,7 +8,7 @@ from helm.benchmark.adaptation.common_adapter_specs import get_multiple_choice_a
 from helm.benchmark.annotation.annotator import AnnotatorSpec
 from helm.benchmark.metrics.common_metric_specs import get_basic_metric_specs, get_exact_match_metric_specs
 from helm.benchmark.metrics.metric import MetricSpec
-from helm.benchmark.run_spec import AnnotatorSpec, RunSpec, run_spec_function
+from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 
