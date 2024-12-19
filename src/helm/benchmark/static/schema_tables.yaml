@@ -94,91 +94,148 @@ metrics:
     display_name: Batch size
     description: For batch jobs, how many requests are in a batch.
 
-  # Unitxt Metrics
-  - name: meteor
-    display_name: METEOR
-    short_display_name: METEOR
-    description: METEOR
+  - name: program_accuracy
+    display_name: program_accuracy
+    short_display_name: program_accuracy
+    description: program_accuracy
     lower_is_better: false
-  - name: f1
-    display_name: BERTScore F1
-    short_display_name: BERTScore F1
-    description: BERTScore F1
-    lower_is_better: false
-  - name: precision
-    display_name: Precision
-    short_display_name: Precision
-    description: Precision
-    lower_is_better: false
-  - name: recall
-    display_name: Recall
-    short_display_name: Recall
-    description: Recall
-    lower_is_better: false
-  - name: rouge1
-    display_name: ROUGE-1
-    short_display_name: ROUGE-1
-    description: ROUGE-1
-    lower_is_better: false
-  - name: rouge2
-    display_name: ROUGE-2
-    short_display_name: ROUGE-2
-    description: ROUGE-2
-    lower_is_better: false
-  - name: rougeL
-    display_name: ROUGE-L
-    short_display_name: ROUGE-L
-    description: ROUGE-L
-    lower_is_better: false
-  - name: rougeLsum
-    display_name: ROUGE-Lsum
-    short_display_name: ROUGE-Lsum
-    description: ROUGE-Lsum
-    lower_is_better: false
-  - name: bleu
-    display_name: BLEU
-    short_display_name: BLEU
-    description: BLEU
-    lower_is_better: false
-  - name: accuracy
-    display_name: Accuracy
-    short_display_name: Accuracy
-    description: Accuracy
-    lower_is_better: false
-  - name: f1_macro
-    display_name: Macro F1
-    short_display_name: Macro F1
-    description: Macro F1
+  - name: f1_strings
+    display_name: f1_strings
+    short_display_name: f1_strings
+    description: f1_strings
     lower_is_better: false
   - name: f1_micro
-    display_name: Micro F1
-    short_display_name: Micro F1
-    description: Micro F1
+    display_name: f1_micro
+    short_display_name: f1_micro
+    description: f1_micro
     lower_is_better: false
-  - name: unsorted_list_exact_match
-    display_name: Unsorted List Exact Match
-    short_display_name: Exact Match
-    description: Unsorted List Exact Match
+  - name: f1_micro
+    display_name: f1_micro
+    short_display_name: f1_micro
+    description: f1_micro
+    lower_is_better: false
+  - name: bleu
+    display_name: bleu
+    short_display_name: bleu
+    description: bleu
+    lower_is_better: false
+  - name: rougeL
+    display_name: rougeL
+    short_display_name: rougeL
+    description: rougeL
+    lower_is_better: false
+  - name: rougeL
+    display_name: rougeL
+    short_display_name: rougeL
+    description: rougeL
+    lower_is_better: false
+  - name: llama_3_1_70b_instruct_cross_provider_template_table2text_single_turn_with_reference
+    display_name: llama_3_1_score
+    short_display_name: llama_3_1_score
+    description: llama_3_1_score
+    lower_is_better: false
+  - name: rougeL
+    display_name: rougeL
+    short_display_name: rougeL
+    description: rougeL
+    lower_is_better: false
+  - name: rougeL
+    display_name: rougeL
+    short_display_name: rougeL
+    description: rougeL
+    lower_is_better: false
+  - name: rougeL
+    display_name: rougeL
+    short_display_name: rougeL
+    description: rougeL
     lower_is_better: false
 
-  # FinQA Accuracy
-  - name: program_accuracy
-    display_name: Program Accuracy
-    short_display_name: Program Accuracy
-    description: Program Accuracy
-    lower_is_better: false
-  - name: execution_accuracy
-    display_name: Execution Accuracy
-    short_display_name: Execution Accuracy
-    description: Execution Accuracy
-    lower_is_better: false
 
-  # SciGen Accuracy
-  - name: llama_3_8b_chat_hf_together_ai_template_table2text_single_turn_with_reference
-    display_name: Rating
-    short_display_name: Rating
-    description: Rating by Llama 3 (8B) LLM as judge
-    lower_is_better: false
+  # Unitxt Metrics
+  # - name: meteor
+  #   display_name: METEOR
+  #   short_display_name: METEOR
+  #   description: METEOR
+  #   lower_is_better: false
+  # - name: f1
+  #   display_name: BERTScore F1
+  #   short_display_name: BERTScore F1
+  #   description: BERTScore F1
+  #   lower_is_better: false
+  # - name: precision
+  #   display_name: Precision
+  #   short_display_name: Precision
+  #   description: Precision
+  #   lower_is_better: false
+  # - name: recall
+  #   display_name: Recall
+  #   short_display_name: Recall
+  #   description: Recall
+  #   lower_is_better: false
+  # - name: rouge1
+  #   display_name: ROUGE-1
+  #   short_display_name: ROUGE-1
+  #   description: ROUGE-1
+  #   lower_is_better: false
+  # - name: rouge2
+  #   display_name: ROUGE-2
+  #   short_display_name: ROUGE-2
+  #   description: ROUGE-2
+  #   lower_is_better: false
+  # - name: rougeL
+  #   display_name: ROUGE-L
+  #   short_display_name: ROUGE-L
+  #   description: ROUGE-L
+  #   lower_is_better: false
+  # - name: rougeLsum
+  #   display_name: ROUGE-Lsum
+  #   short_display_name: ROUGE-Lsum
+  #   description: ROUGE-Lsum
+  #   lower_is_better: false
+  # - name: bleu
+  #   display_name: BLEU
+  #   short_display_name: BLEU
+  #   description: BLEU
+  #   lower_is_better: false
+  # - name: accuracy
+  #   display_name: Accuracy
+  #   short_display_name: Accuracy
+  #   description: Accuracy
+  #   lower_is_better: false
+  # - name: f1_macro
+  #   display_name: Macro F1
+  #   short_display_name: Macro F1
+  #   description: Macro F1
+  #   lower_is_better: false
+  # - name: f1_micro
+  #   display_name: Micro F1
+  #   short_display_name: Micro F1
+  #   description: Micro F1
+  #   lower_is_better: false
+  # - name: unsorted_list_exact_match
+  #   display_name: Unsorted List Exact Match
+  #   short_display_name: Exact Match
+  #   description: Unsorted List Exact Match
+  #   lower_is_better: false
+
+  # # FinQA Accuracy
+  # - name: program_accuracy
+  #   display_name: Program Accuracy
+  #   short_display_name: Program Accuracy
+  #   description: Program Accuracy
+  #   lower_is_better: false
+  # - name: execution_accuracy
+  #   display_name: Execution Accuracy
+  #   short_display_name: Execution Accuracy
+  #   description: Execution Accuracy
+  #   lower_is_better: false
+
+  # # SciGen Accuracy
+  # - name: llama_3_8b_chat_hf_together_ai_template_table2text_single_turn_with_reference
+  #   display_name: Rating
+  #   short_display_name: Rating
+  #   description: Rating by Llama 3 (8B) LLM as judge
+  #   lower_is_better: false
 
 perturbations: []
 
@@ -244,41 +301,28 @@ run_groups:
     description: Table Scenarios
     category: All Scenarios
     subgroups:
-      - unitxt_cards.numeric_nlg
-      - unitxt_cards.tab_fact
+      - unitxt_cards.fin_qa
       - unitxt_cards.wikitq
+      - unitxt_cards.turl_col_type
+      - unitxt_cards.tab_fact
+      - unitxt_cards.numeric_nlg
+      - unitxt_cards.qtsumm
+      - unitxt_cards.tablebench_data_analysis
       - unitxt_cards.scigen
+      - unitxt_cards.tablebench_fact_checking
+      - unitxt_cards.tablebench_numerical_reasoning
+      - unitxt_cards.tablebench_visualization
 
-  - name: unitxt_cards.numeric_nlg
-    display_name: NumericNLG
-    short_display_name: NumericNLG
-    description: "NumericNLG is a dataset for numerical table-to-text generation using pairs of a table and a paragraph of a table description with richer inference from scientific papers."
+  - name: unitxt_cards.fin_qa
+    display_name: FinQA
+    short_display_name: FinQA
+    description: The FinQA benchmark for numeric reasoning over financial data, with question answering pairs written by financial experts over financial reports [(Chen et al., 2021)](https://arxiv.org/abs/2109.00122/).
     metric_groups:
       - main_metrics
-      - generation_metrics
       - efficiency
       - general_information
     environment:
-      main_name: meteor
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: English
-
-  - name: unitxt_cards.tab_fact
-    display_name: TabFact
-    short_display_name: TabFact
-    description: "tab_fact is a large-scale dataset for the task of fact-checking on tables."
-    metric_groups:
-      - main_metrics
-      - classification_metrics
-      - efficiency
-      - general_information
-    environment:
-      main_name: accuracy
+      main_name: program_accuracy
       main_split: test
     taxonomy:
       task: "?"
@@ -290,14 +334,13 @@ run_groups:
   - name: unitxt_cards.wikitq
     display_name: WikiTableQuestions
     short_display_name: WikiTableQuestions
-    description: "This WikiTableQuestions dataset is a large-scale dataset for the task of question answering on semi-structured tables."
+    description: This WikiTableQuestions dataset is a large-scale dataset for the task of question answering on semi-structured tables.
     metric_groups:
       - main_metrics
-      - classification_metrics
       - efficiency
       - general_information
     environment:
-      main_name: unsorted_list_exact_match
+      main_name: f1_strings
       main_split: test
     taxonomy:
       task: "?"
@@ -306,32 +349,160 @@ run_groups:
       when: "?"
       language: English
 
-  - name: unitxt_cards.fin_qa
-    display_name: FinQA
-    description: The FinQA benchmark for numeric reasoning over financial data, with question answering pairs written by financial experts over financial reports [(Chen et al., 2021)](https://arxiv.org/abs/2109.00122/).
+  - name: unitxt_cards.turl_col_type
+    display_name: unitxt_cards.turl_col_type
+    short_display_name: unitxt_cards.turl_col_type
+    description: unitxt_cards.turl_col_type
     metric_groups:
       - main_metrics
       - efficiency
       - general_information
     environment:
-      main_name: program_accuracy
+      main_name: f1_micro
       main_split: test
     taxonomy:
-      task: question answering with numeric reasoning
-      what: financial reports
-      who: financial experts
-      when: 1999 to 2019
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: unitxt_cards.tab_fact
+    display_name: unitxt_cards.tab_fact
+    short_display_name: unitxt_cards.tab_fact
+    description: TabFact is a large-scale dataset for the task of fact-checking on tables.
+    metric_groups:
+      - main_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_micro
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: unitxt_cards.numeric_nlg
+    display_name: unitxt_cards.numeric_nlg
+    short_display_name: unitxt_cards.numeric_nlg
+    description: NumericNLG is a dataset for numerical table-to-text generation using pairs of a table and a paragraph of a table description with richer inference from scientific papers.
+    metric_groups:
+      - main_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: bleu
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: unitxt_cards.qtsumm
+    display_name: unitxt_cards.qtsumm
+    short_display_name: unitxt_cards.qtsumm
+    description: unitxt_cards.qtsumm
+    metric_groups:
+      - main_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: rougeL
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: unitxt_cards.tablebench_data_analysis
+    display_name: unitxt_cards.tablebench_data_analysis
+    short_display_name: unitxt_cards.tablebench_data_analysis
+    description: unitxt_cards.tablebench_data_analysis
+    metric_groups:
+      - main_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: rougeL
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
       language: English
 
   - name: unitxt_cards.scigen
     display_name: SciGen
+    short_display_name: SciGen
     description: SciGen
     metric_groups:
       - main_metrics
       - efficiency
       - general_information
     environment:
-      main_name: llama_3_8b_chat_hf_together_ai_template_table2text_single_turn_with_reference
+      main_name: llama_3_1_70b_instruct_cross_provider_template_table2text_single_turn_with_reference
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: unitxt_cards.tablebench_fact_checking
+    display_name: unitxt_cards.tablebench_fact_checking
+    short_display_name: unitxt_cards.tablebench_fact_checking
+    description: unitxt_cards.tablebench_fact_checking
+    metric_groups:
+      - main_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: rougeL
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: unitxt_cards.tablebench_numerical_reasoning
+    display_name: unitxt_cards.tablebench_numerical_reasoning
+    short_display_name: unitxt_cards.tablebench_numerical_reasoning
+    description: unitxt_cards.tablebench_numerical_reasoning
+    metric_groups:
+      - main_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: rougeL
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: unitxt_cards.tablebench_visualization
+    display_name: unitxt_cards.tablebench_visualization
+    short_display_name: unitxt_cards.tablebench_visualization
+    description: unitxt_cards.tablebench_visualization
+    metric_groups:
+      - main_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: rougeL
       main_split: test
     taxonomy:
       task: "?"
