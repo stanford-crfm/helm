@@ -141,8 +141,8 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
 @run_spec_function("mmlu_pro")
 def get_mmlu_pro_spec(subject: str, use_chain_of_thought: str = "False", use_few_shot: str = "False") -> RunSpec:
     # Convert to bools and remove the str versions
-    use_chain_of_thought_bool: bool = use_chain_of_thought == "True"
-    use_few_shot_bool: bool = use_few_shot == "True"
+    use_chain_of_thought_bool: bool = use_chain_of_thought.lower() == "true"
+    use_few_shot_bool: bool = use_few_shot.lower() == "true"
     del use_chain_of_thought
     del use_few_shot
 
@@ -226,8 +226,8 @@ def get_math_spec(
     use_chain_of_thought: str = "False",
 ) -> RunSpec:
     # Convert to bools and remove the str versions
-    use_official_examples_bool: bool = use_official_examples == "True"
-    use_chain_of_thought_bool: bool = use_chain_of_thought == "True"
+    use_official_examples_bool: bool = use_official_examples.lower() == "true"
+    use_chain_of_thought_bool: bool = use_chain_of_thought.lower() == "true"
     del use_official_examples
     del use_chain_of_thought
 
@@ -370,8 +370,8 @@ def get_wmt_14_spec(language_pair: str, max_train_instances: int = 1) -> RunSpec
 @run_spec_function("gpqa")
 def get_gpqa_spec(subset: str, use_chain_of_thought: str = "False", use_few_shot: str = "False") -> RunSpec:
     # Convert to bools and remove the str versions
-    use_chain_of_thought_bool: bool = use_chain_of_thought == "True"
-    use_few_shot_bool: bool = use_few_shot == "True"
+    use_chain_of_thought_bool: bool = use_chain_of_thought.lower() == "true"
+    use_few_shot_bool: bool = use_few_shot.lower() == "true"
     del use_chain_of_thought
     del use_few_shot
 
@@ -460,7 +460,7 @@ def get_wildbench_spec(subset: str, use_model_outputs: str = "False") -> RunSpec
         class_name="helm.benchmark.scenarios.wildbench_scenario.WildBenchScenario",
         args={
             "subset": subset,
-            "use_model_outputs": use_model_outputs == "True",
+            "use_model_outputs": use_model_outputs.lower() == "true",
         },
     )
 
