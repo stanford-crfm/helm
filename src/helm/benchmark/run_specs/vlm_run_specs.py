@@ -7,7 +7,9 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_GENERATION_MULTIMODAL,
     ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
 )
-from helm.benchmark.scenarios.vision_language.image2struct.image2struct_scenario import DIFFICULTY_ALL
+from helm.benchmark.scenarios.vision_language.image2struct.image2struct_scenario import (
+    DIFFICULTY_ALL,
+)
 from helm.benchmark.metrics.common_metric_specs import (
     get_exact_match_metric_specs,
     get_generative_harms_metric_specs,
@@ -51,7 +53,9 @@ def _get_generation_adapter_spec(
     )
 
 
-def _get_short_answer_generation_adapter_spec(instructions: Optional[str] = None) -> AdapterSpec:
+def _get_short_answer_generation_adapter_spec(
+    instructions: Optional[str] = None,
+) -> AdapterSpec:
     return _get_generation_adapter_spec(
         instructions=(
             "Just give a short answer without answering in a complete sentence."
@@ -107,7 +111,15 @@ def _get_multiple_choice_joint_adapter_spec(
 
 def _get_open_ended_generation_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(
-        ["exact_match", "quasi_exact_match", "f1_score", "rouge_l", "bleu_1", "bleu_4", "cider"]
+        [
+            "exact_match",
+            "quasi_exact_match",
+            "f1_score",
+            "rouge_l",
+            "bleu_1",
+            "bleu_4",
+            "cider",
+        ]
     )
 
 
@@ -118,7 +130,9 @@ def _get_image2struct_metric_specs(
     include_edit_similarity: bool = True,
     size_handling_method: str = "resize",
 ) -> List[MetricSpec]:
-    from helm.benchmark.metrics.vision_language.image_metrics import AnnotatedImageMetrics
+    from helm.benchmark.metrics.vision_language.image_metrics import (
+        AnnotatedImageMetrics,
+    )
 
     if metric_names is None:
         metric_names = [
@@ -147,7 +161,9 @@ def _get_image2struct_metric_specs(
     return metric_specs + get_basic_metric_specs([])
 
 
-def _get_prometheus_vision_critique_metric_specs(num_respondents: int, max_tokens: int) -> List[MetricSpec]:
+def _get_prometheus_vision_critique_metric_specs(
+    num_respondents: int, max_tokens: int
+) -> List[MetricSpec]:
     return [
         MetricSpec(
             class_name="helm.benchmark.metrics.prometheus_vision_critique_metrics.PrometheusVisionCritiqueMetric",
@@ -159,7 +175,9 @@ def _get_prometheus_vision_critique_metric_specs(num_respondents: int, max_token
     ]
 
 
-def _get_gpt4v_critique_originality_metric_specs(num_respondents: int) -> List[MetricSpec]:
+def _get_gpt4v_critique_originality_metric_specs(
+    num_respondents: int,
+) -> List[MetricSpec]:
     return [
         MetricSpec(
             class_name="helm.benchmark.metrics.gpt4v_originality_critique_metrics.GPT4VCritiqueMetric",
@@ -170,7 +188,9 @@ def _get_gpt4v_critique_originality_metric_specs(num_respondents: int) -> List[M
     ]
 
 
-def _get_vibe_eval_critique_metric_specs(num_respondents: int, max_tokens: int) -> List[MetricSpec]:
+def _get_vibe_eval_critique_metric_specs(
+    num_respondents: int, max_tokens: int
+) -> List[MetricSpec]:
     return [
         MetricSpec(
             class_name="helm.benchmark.metrics.reka_vibe_critique_metrics.RekaVibeCritiqueMetric",
@@ -233,7 +253,9 @@ def get_chart2csv_spec() -> RunSpec:
 
 
 @run_spec_function("crossmodal_3600")
-def get_crossmodal_3600_spec(location: str, language: str, num_respondents: int) -> RunSpec:
+def get_crossmodal_3600_spec(
+    location: str, language: str, num_respondents: int
+) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.crossmodal_3600_scenario.Crossmodal3600Scenario",
         args={"location": location, "language": language},
@@ -264,7 +286,8 @@ def get_crossmodal_3600_spec(location: str, language: str, num_respondents: int)
 @run_spec_function("flickr30k")
 def get_flickr30k_spec(num_respondents: int) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.vision_language.flickr30k_scenario.Flickr30KScenario", args={}
+        class_name="helm.benchmark.scenarios.vision_language.flickr30k_scenario.Flickr30KScenario",
+        args={},
     )
     adapter_spec: AdapterSpec = _get_generation_adapter_spec(
         instructions="Generate a caption for the following image in plain words. The caption should "
@@ -293,12 +316,15 @@ def get_flickr30k_spec(num_respondents: int) -> RunSpec:
 @run_spec_function("gqa")
 def get_gqa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.vision_language.gqa_scenario.GQAScenario", args={}
+        class_name="helm.benchmark.scenarios.vision_language.gqa_scenario.GQAScenario",
+        args={},
     )
     adapter_spec: AdapterSpec = _get_short_answer_generation_adapter_spec(
         instructions="Answer the question using a single word."
     )
-    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
+    metric_specs: List[MetricSpec] = (
+        get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
+    )
 
     run_spec_name: str = "gqa"
     return RunSpec(
@@ -313,9 +339,12 @@ def get_gqa_spec() -> RunSpec:
 @run_spec_function("hateful_memes")
 def get_hateful_memes_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.vision_language.hateful_memes_scenario.HatefulMemesScenario", args={}
+        class_name="helm.benchmark.scenarios.vision_language.hateful_memes_scenario.HatefulMemesScenario",
+        args={},
     )
-    adapter_spec = _get_multiple_choice_joint_adapter_spec(input_noun=None, output_noun="Answer", max_train_instances=0)
+    adapter_spec = _get_multiple_choice_joint_adapter_spec(
+        input_noun=None, output_noun="Answer", max_train_instances=0
+    )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
 
     run_spec_name: str = "hateful_memes"
@@ -368,7 +397,9 @@ def get_mscoco_captioning_spec(long: bool = False) -> RunSpec:
             "not need to be a complete sentence.",
             max_tokens=20,
         )
-    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
+    metric_specs: List[MetricSpec] = (
+        get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
+    )
 
     run_spec_name: str = "mscoco_captioning"
     if long:
@@ -409,7 +440,8 @@ def get_mscoco_categorization_spec() -> RunSpec:
 @run_spec_function("originality_vlm")
 def get_originality_vlm_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.vision_language.originality_scenario.OriginalityScenario", args={}
+        class_name="helm.benchmark.scenarios.vision_language.originality_scenario.OriginalityScenario",
+        args={},
     )
     adapter_spec: AdapterSpec = _get_generation_adapter_spec(max_tokens=500)
     metric_specs: List[MetricSpec] = get_generative_harms_metric_specs(
@@ -429,14 +461,17 @@ def get_originality_vlm_spec() -> RunSpec:
 @run_spec_function("viz_wiz")
 def get_viz_wiz_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.vision_language.viz_wiz_scenario.VizWizScenario", args={}
+        class_name="helm.benchmark.scenarios.vision_language.viz_wiz_scenario.VizWizScenario",
+        args={},
     )
     adapter_spec: AdapterSpec = _get_short_answer_generation_adapter_spec(
         # Following https://arxiv.org/abs/2310.03744
         instructions="When the provided information is insufficient, respond with 'Unanswerable'. "
         "Answer the question using a single word or phrase."
     )
-    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
+    metric_specs: List[MetricSpec] = (
+        get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
+    )
 
     run_spec_name: str = "viz_wiz"
     return RunSpec(
@@ -451,14 +486,17 @@ def get_viz_wiz_spec() -> RunSpec:
 @run_spec_function("vqa")
 def get_vqa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.vision_language.vqa_scenario.VQAScenario", args={}
+        class_name="helm.benchmark.scenarios.vision_language.vqa_scenario.VQAScenario",
+        args={},
     )
     # Following https://arxiv.org/abs/2310.03744
     adapter_spec: AdapterSpec = _get_short_answer_generation_adapter_spec(
         instructions='Answer the question using a single word or phrase. When the question asks "How many...", '
         "respond with just a number (e.g., 3) and not the word corresponding to the number."
     )
-    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
+    metric_specs: List[MetricSpec] = (
+        get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
+    )
 
     run_spec_name: str = "vqa"
     return RunSpec(
@@ -472,11 +510,18 @@ def get_vqa_spec() -> RunSpec:
 
 @run_spec_function("image2latex")
 def get_image2latex_spec(
-    subset: str, recompile_prompt: bool = False, difficulty: str = DIFFICULTY_ALL, args: Optional[Dict] = None
+    subset: str,
+    recompile_prompt: bool = False,
+    difficulty: str = DIFFICULTY_ALL,
+    args: Optional[Dict] = None,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.image2struct.latex_scenario.LatexScenario",
-        args={"subset": subset, "recompile_prompt": recompile_prompt, "difficulty": difficulty},
+        args={
+            "subset": subset,
+            "recompile_prompt": recompile_prompt,
+            "difficulty": difficulty,
+        },
     )
     adapter_spec: AdapterSpec = _get_generation_adapter_spec(
         instructions="Just give a short answer without answering in a complete sentence.",
@@ -485,7 +530,9 @@ def get_image2latex_spec(
     metric_specs: List[MetricSpec] = _get_image2struct_metric_specs(
         generation_type="latex",
         args=args,
-        include_edit_similarity=("wild" not in subset),  # No ground truth for "wild" subset
+        include_edit_similarity=(
+            "wild" not in subset
+        ),  # No ground truth for "wild" subset
         size_handling_method="padding",
     )
     annotator_specs: List[AnnotatorSpec] = [
@@ -519,7 +566,11 @@ def get_image2webpage_spec(
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.image2struct.webpage_scenario.WebpageScenario",
-        args={"subset": subset, "recompile_prompt": recompile_prompt, "difficulty": difficulty},
+        args={
+            "subset": subset,
+            "recompile_prompt": recompile_prompt,
+            "difficulty": difficulty,
+        },
     )
     adapter_spec: AdapterSpec = _get_generation_adapter_spec(
         instructions="Just give a short answer without answering in a complete sentence.",
@@ -528,7 +579,9 @@ def get_image2webpage_spec(
     metric_specs: List[MetricSpec] = _get_image2struct_metric_specs(
         generation_type="webpage",
         args=args,
-        include_edit_similarity=("wild" not in subset),  # No ground truth for "wild" subset
+        include_edit_similarity=(
+            "wild" not in subset
+        ),  # No ground truth for "wild" subset
         size_handling_method="resize",
     )
     annotator_specs: List[AnnotatorSpec] = [
@@ -542,7 +595,11 @@ def get_image2webpage_spec(
     if "wild" in subset:
         groups = ["image2webpage_wild"]
     else:
-        groups = ["image2webpage", f"image2webpage_{difficulty}", f"image2webpage_{subset}"]
+        groups = [
+            "image2webpage",
+            f"image2webpage_{difficulty}",
+            f"image2webpage_{subset}",
+        ]
     return RunSpec(
         name=run_spec_name,
         scenario_spec=scenario_spec,
@@ -584,7 +641,9 @@ def get_math_vista_spec(grade: str, question_type: str) -> RunSpec:
 
 
 @run_spec_function("image2musicsheet")
-def get_image2musicsheet_spec(difficulty: str = DIFFICULTY_ALL, args: Optional[Dict] = None) -> RunSpec:
+def get_image2musicsheet_spec(
+    difficulty: str = DIFFICULTY_ALL, args: Optional[Dict] = None
+) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.image2struct.musicsheet_scenario.MusicSheetScenario",
         # There os only one subset for music sheets
@@ -675,7 +734,8 @@ def get_unicorn_spec(subject: str) -> RunSpec:
 @run_spec_function("bingo")
 def get_bingo_spec(subject: str, num_respondents: int) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.vision_language.bingo_scenario.BingoScenario", args={"subject": subject}
+        class_name="helm.benchmark.scenarios.vision_language.bingo_scenario.BingoScenario",
+        args={"subject": subject},
     )
     adapter_spec: AdapterSpec = _get_generation_adapter_spec(
         instructions="Answer the question with a complete and clear explanation in sentences without listing it out.",
@@ -874,8 +934,12 @@ def get_real_world_qa_spec() -> RunSpec:
     )
 
     # Leave the instructions blank because the questions of the dataset already contain the instructions
-    adapter_spec: AdapterSpec = _get_short_answer_generation_adapter_spec(instructions="")
-    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
+    adapter_spec: AdapterSpec = _get_short_answer_generation_adapter_spec(
+        instructions=""
+    )
+    metric_specs: List[MetricSpec] = (
+        get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
+    )
 
     run_spec_name: str = "real_world_qa"
     return RunSpec(
@@ -897,7 +961,9 @@ def get_blink_spec(category: str) -> RunSpec:
         instructions="Answer the multiple choice question by just giving the letter of the correct answer.",
         max_tokens=1,
     )
-    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
+    metric_specs: List[MetricSpec] = (
+        get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
+    )
 
     run_spec_name: str = "blink"
     return RunSpec(
@@ -919,7 +985,9 @@ def get_mm_star_spec(category: str) -> RunSpec:
         instructions="Answer the multiple choice question by just giving the letter of the correct answer.",
         max_tokens=1,
     )
-    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
+    metric_specs: List[MetricSpec] = (
+        get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
+    )
 
     run_spec_name: str = "mm_star"
     return RunSpec(
@@ -932,7 +1000,9 @@ def get_mm_star_spec(category: str) -> RunSpec:
 
 
 @run_spec_function("exams_v")
-def get_exams_v_spec(language: str, subject_grouped: str, type: str = "image_text") -> RunSpec:
+def get_exams_v_spec(
+    language: str, subject_grouped: str, type: str = "image_text"
+) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.exams_v_scenario.ExamsVScenario",
         args={"language": language, "subject_grouped": subject_grouped, "type": type},
@@ -964,7 +1034,9 @@ def get_mementos_spec(subject: str, num_respondents: int) -> RunSpec:
     )
     adapter_spec: AdapterSpec = get_open_end_answer_generation_adapter_spec()
     metric_specs: List[MetricSpec] = (
-        _get_prometheus_vision_critique_metric_specs(num_respondents=num_respondents, max_tokens=200)
+        _get_prometheus_vision_critique_metric_specs(
+            num_respondents=num_respondents, max_tokens=200
+        )
         + _get_open_ended_generation_metric_specs()
     )
 
@@ -986,13 +1058,35 @@ def get_vibe_eval_spec(subject: str, num_respondents: int) -> RunSpec:
     )
     adapter_spec: AdapterSpec = get_open_end_answer_generation_adapter_spec()
     metric_specs: List[MetricSpec] = (
-        _get_prometheus_vision_critique_metric_specs(num_respondents=num_respondents, max_tokens=200)
+        _get_prometheus_vision_critique_metric_specs(
+            num_respondents=num_respondents, max_tokens=200
+        )
         + _get_open_ended_generation_metric_specs()
     )
 
     run_spec_name: str = "vibe_eval"
     return RunSpec(
         name=f"{run_spec_name}:subject={subject}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("vqa_rad")
+def get_vqa_rad_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.vqa_rad_scenario.VQARadScenario",
+    )
+    adapter_spec: AdapterSpec = _get_short_answer_generation_adapter_spec(
+        instructions="Answer the question using a single word or sentence."
+    )
+    metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
+
+    run_spec_name: str = "vqa_rad"
+    return RunSpec(
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
