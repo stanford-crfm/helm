@@ -185,7 +185,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: chain_of_thought_correct
+      main_name: chain_of_thought_correctness
       main_split: test
     taxonomy:
       task: "question answering"
