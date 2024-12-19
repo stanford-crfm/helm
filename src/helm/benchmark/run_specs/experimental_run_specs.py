@@ -87,7 +87,6 @@ Which context makes more sense given the scenario? Please answer using either "1
     )
 
 
-<<<<<<< HEAD
 @run_spec_function("autobencher_capabilities")
 def get_autobencher_capabilities_spec(subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
