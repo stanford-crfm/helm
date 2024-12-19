@@ -374,6 +374,9 @@ def get_gpqa_spec(subset: str, use_chain_of_thought: str = "False", use_few_shot
     use_few_shot_bool: bool = use_few_shot.lower() == "true"
     del use_chain_of_thought
     del use_few_shot
+    
+    if not subset.startswith("gpqa_"):
+        subset = "gpqa_" + subset
 
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.gpqa_scenario.GPQAScenario", args={"subset": subset}
