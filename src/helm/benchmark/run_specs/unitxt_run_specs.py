@@ -36,7 +36,7 @@ def get_unitxt_spec(**kwargs) -> RunSpec:
         num_outputs=1,
         temperature=0.0,
         max_tokens=512,
-        stop_sequences=["\n\n"],
+        stop_sequences=[],
     )
     return RunSpec(
         name=name,
