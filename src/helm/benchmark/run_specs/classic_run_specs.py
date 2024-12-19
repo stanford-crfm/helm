@@ -1236,6 +1236,31 @@ def get_mimic_rrs_spec() -> RunSpec:
         metric_specs=get_summarization_metric_specs(metric_args),
         groups=["mimic_rrs"],
     )
+    
+
+@run_spec_function("medi_qa")
+def get_mimic_rrs_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.medi_qa_scenario.MediQAScenario", args={}
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Answer the following consumer health question.",
+        input_noun="Question",
+        output_noun="Answer",
+        max_tokens=1024,
+        max_train_instances=0,
+        stop_sequences=[],
+    )
+    metric_args = {"task": "medi_qa", "device": get_torch_device_name()}
+    return RunSpec(
+        name="medi_qa",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs(metric_args),
+        groups=["medi_qa"],
+    )
+    
 
 @run_spec_function("dischargeme")
 def get_dischargeme_spec() -> RunSpec:

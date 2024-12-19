@@ -332,6 +332,7 @@ run_groups:
     category: Medical Scenarios
     subgroups:
       - med_dialog
+      - medi_qa
   
   - name: medical_research
     display_name: Medical Research Assistance
@@ -386,6 +387,24 @@ run_groups:
     display_name: MedDialog
     short_display_name: MedDialog
     description: A medical dialog dataset for clinical questions containing real patient questions and clinician-generated gold responses.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: BERTScore-F
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+  
+  - name: medi_qa
+    display_name: MEDIQA-QA
+    short_display_name: MEDIQA-QA
+    description: A consumer healthcare question dataset containing medical expert ranked responses from medcial websites.
     metric_groups:
       - accuracy
       - efficiency

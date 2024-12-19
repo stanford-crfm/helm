@@ -64,7 +64,7 @@ class MedCalcBenchScenario(Scenario):
     """
 
     name = "medcalc_bench"
-    description = "Benchmarking LLMs ability to serve as clinical calculators"
+    description = "Benchmarking LLMs ability to serve as clinical calculators."
     tags = ["knowledge", "reasoning", "biomedical"]
 
     def __init__(self):
