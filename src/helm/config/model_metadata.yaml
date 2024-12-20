@@ -2483,6 +2483,14 @@ models:
     release_date: 2024-08-06
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: openai/gpt-4o-2024-11-20
+    display_name: GPT-4o (2024-11-20)
+    description: GPT-4o (2024-11-20) is a large multimodal model that accepts as input any combination of text, audio, and image and generates any combination of text, audio, and image outputs. ([blog](https://openai.com/index/introducing-structured-outputs-in-the-api/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2024-11-20
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: openai/gpt-4o-mini-2024-07-18
     display_name: GPT-4o mini (2024-07-18)
     description: GPT-4o mini (2024-07-18) is a multimodal model with a context window of 128K tokens and improved handling of non-English text. ([blog](https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/))
@@ -2519,6 +2527,14 @@ models:
     tags: [VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
 
   ## o1 Models
+  - name: openai/o1-2024-12-17
+    display_name: o1 (2024-12-17)
+    description: o1 is a new large language model trained with reinforcement learning to perform complex reasoning. ([model card](https://openai.com/index/openai-o1-system-card/), [blog post](https://openai.com/index/learning-to-reason-with-llms/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2024-12-17
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: openai/o1-preview-2024-09-12
     display_name: o1-preview (2024-09-12)
     description: o1-preview is a language model trained with reinforcement learning to perform complex reasoning that can produce a long internal chain of thought before responding to the user. ([model card](https://openai.com/index/openai-o1-system-card/), [blog post](https://openai.com/index/learning-to-reason-with-llms/))
