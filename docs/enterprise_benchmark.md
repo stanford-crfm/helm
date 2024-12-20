@@ -13,7 +13,8 @@ from non-domain-specific benchmarks, such as benchmarks for language capabilitie
 Therefore, it is important to use a domain-specific dataset whose distribution is close to that of the actual application domain.
 
 <!-- Here, public datasets from the above four domains were curated and corresponding scenarios were implemented. -->
-The following scenarios are added. 
+The following scenarios are added.
+
 - Finance
     - gold_commodity_news (news_headline)
     - (WIP) financial_phrasebank
@@ -133,18 +134,19 @@ This study is published in the following paper. Please cite this paper if you us
 }
 ```
 
+![Finance benchmark results](helm-eb-finance-2024.png "Finance benchmark results")
 
-- ![Finance benchmark results](helm-eb-finance-2024.png "Finance benchmark results")
-- ![Legal benchmark results](helm-eb-legal-2024.png "Legal benchmark results")
-- ![Climate and sustainability benchmark results](helm-eb-climate-2024.png "Climate and sustainability benchmark results")
-- ![Cyber security benchmark results](helm-eb-cybersecurity-2024.png "Cyber security benchmark results")
+![Legal benchmark results](helm-eb-legal-2024.png "Legal benchmark results")
+
+![Climate and sustainability benchmark results](helm-eb-climate-2024.png "Climate and sustainability benchmark results")
+
+![Cyber security benchmark results](helm-eb-cybersecurity-2024.png "Cyber security benchmark results")
 
 ## Contributors
+
 Original contributors are as follows:
+
 - Yada Zhu, Kate Soule (MIT-IBM Watson AI Lab)
 - Mikio Takeuchi, Ryo Kawahara, Futoshi Iwama, Alisa Arno (IBM Research - Tokyo)
 - Bing Zhang, Shubhi Asthana (IBM Almaden Research Lab)
 - Md Maruf Hossain, Naoto Satoh, Guang-Jie Ren (former IBM members)
-
-Contributors of the integration to the HELM repository are as follows:
-- Yifan Mai (Stanford University)
