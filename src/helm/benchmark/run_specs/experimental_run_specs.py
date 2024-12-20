@@ -167,11 +167,12 @@ def get_autobencher_safety_spec() -> RunSpec:
 
 
 @run_spec_function("czech_bank_qa")
-def get_czech_bank_qa_spec() -> RunSpec:
+def get_czech_bank_qa_spec(config_name: str = "berka_queries_1024_2024_12_18") -> RunSpec:
     from helm.benchmark.scenarios.czech_bank_qa_scenario import CzechBankQAScenario
 
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.czech_bank_qa_scenario.CzechBankQAScenario", args={}
+        class_name="helm.benchmark.scenarios.czech_bank_qa_scenario.CzechBankQAScenario",
+        args={"config_name": config_name},
     )
 
     adapter_spec = get_generation_adapter_spec(

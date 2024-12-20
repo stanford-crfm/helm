@@ -1,9 +1,11 @@
+import os
 import sqlite3
 import threading
 from typing import Any, Optional, Tuple
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
+from helm.common.general import ensure_directory_exists, ensure_file_downloaded
 
 
 class CzechBankQAAnnotator(Annotator):
@@ -13,8 +15,18 @@ class CzechBankQAAnnotator(Annotator):
 
     name = "czech_bank_qa"
 
+    DATABASE_SOURCE_URL = (
+        "https://huggingface.co/datasets/yifanmai/czech_bank_qa/resolve/main/czech_bank.db?download=true"
+    )
+
     def __init__(self, file_storage_path: str):
         super().__init__()
+
+        cache_dir = os.path.join(file_storage_path, "data")
+        ensure_directory_exists(cache_dir)
+        file_name = "czech_bank.db"
+        file_path = os.path.join(cache_dir, file_name)
+        ensure_file_downloaded(source_url=CzechBankQAAnnotator.DATABASE_SOURCE_URL, target_path=file_path)
         database = sqlite3.connect("/home/yifanmai/oss/helm/czech_bank/czech_bank.db")
 
         # csv_files_dir = "/home/yifanmai/oss/helm-scenarios/1999-czech-bank"
@@ -38,7 +50,6 @@ class CzechBankQAAnnotator(Annotator):
 
         self.database = database
         self.lock = threading.Lock()
-        print("done iwth init")
 
     def get_result(self, query: str) -> Tuple[Optional[str], Optional[str]]:
         result: Optional[str] = None
