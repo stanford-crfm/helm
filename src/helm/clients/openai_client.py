@@ -171,11 +171,6 @@ class OpenAIClient(CachingClient):
             "frequency_penalty": request.frequency_penalty,
         }
 
-        # OpenAI's vision API doesn't allow None values for stop.
-        # Fails with "body -> stop: none is not an allowed value" if None is passed.
-        if is_vlm(request.model) and raw_request["stop"] is None:
-            raw_request.pop("stop")
-
         # Special handling for o1 models.
         # Refer to the "Reasoning models" documentation further discussion of o1 model limitations:
         # https://platform.openai.com/docs/guides/reasoning
@@ -186,6 +181,11 @@ class OpenAIClient(CachingClient):
             if raw_request["max_tokens"]:
                 raw_request["max_completion_tokens"] = raw_request["max_tokens"]
                 raw_request.pop("max_tokens")
+            # Avoid error:
+            # "Invalid type for 'stop': expected an unsupported value, but got null instead."
+            if raw_request["stop"] is None:
+                raw_request.pop("stop")
+        elif is_vlm(request.model):
             # Avoid error:
             # "Invalid type for 'stop': expected an unsupported value, but got null instead."
             if raw_request["stop"] is None:
