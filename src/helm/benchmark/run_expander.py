@@ -1454,6 +1454,8 @@ class OutputFormatInstructions(RunExpander):
                 )
             elif self.scenario == "natural_qa":
                 instructions = "Answer with a short answer or a boolean 'yes' or 'no' answer."
+            elif self.scenario == "natural_qa_short_answer":
+                instructions = "Answer with a short answer."
             elif self.scenario == "legalbench":
                 if output_noun != "Answer":
                     instructions = f"Answer with the {output_noun.lower()}."
