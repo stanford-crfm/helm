@@ -3,7 +3,7 @@ from typing import List, Optional
 from helm.benchmark.adaptation.adapters.generation_adapter import GenerationAdapter
 from helm.benchmark.adaptation.prompt import Prompt
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.scenarios.scenario import TRAIN_SPLIT, EHRInstructionInput, Instance
+from helm.benchmark.scenarios.scenario import TRAIN_SPLIT, Instance
 from helm.benchmark.window_services.window_service import EncodeResult
 from helm.common.tokenization_request import TokenizationToken
 
@@ -58,8 +58,9 @@ class EHRInstructionAdapter(GenerationAdapter):
         """
         # start by simply getting the inputs
         question = eval_instance.input.text
+        assert eval_instance.extra_data is not None
         ehr_text: str = eval_instance.extra_data["ehr"]
-        prompt_template: str = eval_instance.extra_data["prmpt_template"]
+        prompt_template: str = eval_instance.extra_data["prompt_template"]
         full_prompt_text = prompt_template.format(question=question, ehr=ehr_text)
 
         # insert the question and see how many tokens we have so far

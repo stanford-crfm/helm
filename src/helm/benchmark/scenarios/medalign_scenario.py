@@ -220,7 +220,9 @@ class MedAlignScenario(Scenario):
             relevant_ehr = ehrs[pt_id]  # type: ignore
 
             # get the clinican response which serves as the reference
-            clinician_response_rows = list(clinician_responses_df[clinician_responses_df.instruction_id == instruction_id].iterrows())
+            clinician_response_rows = list(
+                clinician_responses_df[clinician_responses_df.instruction_id == instruction_id].iterrows()
+            )
             assert len(clinician_response_rows) == 1
             clinician_response = clinician_response_rows[0][1].clinician_response
 
@@ -230,12 +232,10 @@ class MedAlignScenario(Scenario):
                         text=instruction,  # type: ignore
                     ),
                     references=[Reference(Output(clinician_response), tags=[CORRECT_TAG])],
-                    extra_data=
-                        {
-                            "prompt_template": prompt_template,
-                            "ehr": relevant_ehr,
-                        }
-                    ,
+                    extra_data={
+                        "prompt_template": prompt_template,
+                        "ehr": relevant_ehr,
+                    },
                     split=TEST_SPLIT,
                 )
             )
