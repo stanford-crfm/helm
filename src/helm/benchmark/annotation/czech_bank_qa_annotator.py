@@ -27,7 +27,7 @@ class CzechBankQAAnnotator(Annotator):
         file_name = "czech_bank.db"
         file_path = os.path.join(cache_dir, file_name)
         ensure_file_downloaded(source_url=CzechBankQAAnnotator.DATABASE_SOURCE_URL, target_path=file_path)
-        database = sqlite3.connect("/home/yifanmai/oss/helm/czech_bank/czech_bank.db")
+        self.database = sqlite3.connect(file_path)
 
         # csv_files_dir = "/home/yifanmai/oss/helm-scenarios/1999-czech-bank"
         # # table_name_to_file_name = {
@@ -47,8 +47,6 @@ class CzechBankQAAnnotator(Annotator):
         #     df.to_sql(table_name, database, if_exists="append", index=False)
         #     print("Commited to SQL")
         # # df.to_sql(table_name, conn, if_exists='append', index=False)
-
-        self.database = database
         self.lock = threading.Lock()
 
     def get_result(self, query: str) -> Tuple[Optional[str], Optional[str]]:
