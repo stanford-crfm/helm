@@ -30,7 +30,7 @@ from helm.common.general import write
 
 
 _SCENARIO_STATE_FILE_NAME = "scenario_state.json"
-_DISPLAY_ENCRYPTION_DATA_JSON_FILE_NAME = "encryption_data.json"
+_ENCRYTED_DATA_JSON_FILE_NAME = "encryption_data.json"
 
 
 class HELMEncryptor:
@@ -145,15 +145,18 @@ def modify_scenario_states_for_suite(run_suite_path: str, scenario: str) -> None
         ]
     )
     for run_dir_name in tqdm(run_dir_names, disable=None):
-        scenario_state_path: str = os.path.join(run_suite_path, run_dir_name, _SCENARIO_STATE_FILE_NAME)
+        run_path: str = os.path.join(run_suite_path, run_dir_name)
+        scenario_state_path: str = os.path.join(run_path, _SCENARIO_STATE_FILE_NAME)
         if not os.path.exists(scenario_state_path):
             hlog(f"WARNING: {run_dir_name} doesn't have {_SCENARIO_STATE_FILE_NAME}, skipping")
             continue
-        run_path: str = os.path.join(run_suite_path, run_dir_name)
+        encryption_data_path: str = os.path.join(run_path, _ENCRYTED_DATA_JSON_FILE_NAME)
+        if os.path.exists(encryption_data_path):
+            hlog(f"INFO: {run_dir_name} already has {_ENCRYTED_DATA_JSON_FILE_NAME}, skipping")
+            continue
         modify_scenario_state_for_run(run_path)
 
         # Write the encryption data to a file
-        encryption_data_path = os.path.join(run_path, _DISPLAY_ENCRYPTION_DATA_JSON_FILE_NAME)
         write(encryption_data_path, to_json(encryptor.encryption_data_mapping))
 
 
@@ -166,12 +169,13 @@ def main():
         "--suite",
         type=str,
         help="Name of the suite this encryption should go under.",
+        required=True,
     )
     parser.add_argument(
         "--scenario",
         type=str,
-        default="all",
         help="Name of the scenario this encryption should go under. Default is all.",
+        required=True,
     )
     args = parser.parse_args()
     output_path = args.output_path
