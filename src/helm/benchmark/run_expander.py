@@ -1433,7 +1433,7 @@ class OutputFormatInstructions(RunExpander):
         if scenario.endswith(OutputFormatInstructions._SUFFIX_SUFFIX):
             scenario = scenario.removesuffix(OutputFormatInstructions._SUFFIX_SUFFIX)
             self.suffix = True
-            
+
         self.no_prefix = False
         if scenario.endswith(OutputFormatInstructions._NO_PREFIX_SUFFIX):
             scenario = scenario.removesuffix(OutputFormatInstructions._NO_PREFIX_SUFFIX)
@@ -1494,7 +1494,7 @@ class OutputFormatInstructions(RunExpander):
                 )
             else:
                 raise ValueError(f"Unknown scenario {self.scenario}")
-        
+
         if self.no_prefix:
             if instructions:
                 instructions += " "
