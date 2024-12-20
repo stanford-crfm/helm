@@ -1,12 +1,12 @@
 from typing import List, Optional
 
+from helm.benchmark.adaptation.adapters.generation_adapter import GenerationAdapter
 from helm.benchmark.adaptation.prompt import Prompt
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.scenarios.scenario import TRAIN_SPLIT, EHRInstructionInput, Instance
 from helm.benchmark.window_services.window_service import EncodeResult
 from helm.common.tokenization_request import TokenizationToken
 
-from .generation_adapter import GenerationAdapter
 
 # in the prompt templates for EHR instructions, this is the placeholder for the EHR part
 # which we use to compute accurate tokenized sequence lengths
@@ -57,12 +57,13 @@ class EHRInstructionAdapter(GenerationAdapter):
             the instance we wish to use to construct the prompt
         """
         # start by simply getting the inputs
-        ehr_input: EHRInstructionInput = eval_instance.input  # type: ignore
-        ehr_text: str = ehr_input.ehr
-        full_prompt_text: str = ehr_input.prompt_template.format(question=ehr_input.question, ehr=ehr_text)
+        question = eval_instance.input.text
+        ehr_text: str = eval_instance.extra_data["ehr"]
+        prompt_template: str = eval_instance.extra_data["prmpt_template"]
+        full_prompt_text = prompt_template.format(question=question, ehr=ehr_text)
 
         # insert the question and see how many tokens we have so far
-        prompt_with_instr_no_ehr_placeholder = ehr_input.prompt_template.format(question=ehr_input.question, ehr="")
+        prompt_with_instr_no_ehr_placeholder = prompt_template.format(question=question, ehr="")
         num_tokens_no_ehr = self.window_service.get_num_tokens(prompt_with_instr_no_ehr_placeholder)
 
         # number of tokens we can allow the EHR part to be
@@ -79,7 +80,7 @@ class EHRInstructionAdapter(GenerationAdapter):
         ehr_truncated = self.window_service.decode(truncated_ehr_tokens)
 
         # create the truncated prompt
-        truncated_prompt_text = ehr_input.prompt_template.format(question=ehr_input.question, ehr=ehr_truncated)
+        truncated_prompt_text = prompt_template.format(question=question, ehr=ehr_truncated)
         num_truncations = 1
         while (
             num_extra_tokens := self.adapter_spec.max_tokens
@@ -88,7 +89,7 @@ class EHRInstructionAdapter(GenerationAdapter):
         ) > 0:
             truncated_ehr_tokens = truncated_ehr_tokens[num_extra_tokens:]
             ehr_truncated = self.window_service.decode(truncated_ehr_tokens)
-            truncated_prompt_text = ehr_input.prompt_template.format(question=ehr_input.question, ehr=ehr_truncated)
+            truncated_prompt_text = prompt_template.format(question=question, ehr=ehr_truncated)
             num_truncations += 1
 
         # naively construct the full non-truncated prompt

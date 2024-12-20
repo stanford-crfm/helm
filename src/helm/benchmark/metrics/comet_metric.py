@@ -2,19 +2,17 @@ import logging
 from typing import List
 
 import comet
-from more_itertools import one
 from torch import nn
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
+from helm.benchmark.metrics.metric import Metric, MetricResult
+from helm.benchmark.metrics.metric_name import MetricName
+from helm.benchmark.metrics.metric_service import MetricService
+from helm.benchmark.metrics.statistic import Stat
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import RequestResult
-
-from .metric import Metric, MetricResult
-from .metric_name import MetricName
-from .metric_service import MetricService
-from .statistic import Stat
 
 
 class CometMetric(Metric):
@@ -108,7 +106,8 @@ class CometMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         """Compute the COMET score for this instance"""
-        ref = one(r.output.text for r in request_state.instance.references)
+        assert len(request_state.instance.references) == 1
+        ref = request_state.instance.references[0].output.text
         src = request_state.instance.input.text
 
         result = request_state.result

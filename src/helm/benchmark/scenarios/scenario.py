@@ -86,24 +86,6 @@ class PassageQuestionInput(Input):
 
 
 @dataclass(frozen=True)
-class EHRInstructionInput(Input):
-    """
-    Instruction + EHR pair used for instruction-following Scenarios using EHRs as input.
-    This helps us later truncate the EHR as needed to accomodate specified window sizes,
-    since EHR inputs can be very long.
-    """
-
-    prompt_template: str = ""
-    """A template for the whole prompt, expecting format keys `question` and `ehr`"""
-
-    question: str = ""
-    """The question representing the instruction for the given input"""
-
-    ehr: str = ""
-    """The EHR context that the model should refer to in answering the question"""
-
-
-@dataclass(frozen=True)
 class Output:
     """
     The output of a `Reference`.

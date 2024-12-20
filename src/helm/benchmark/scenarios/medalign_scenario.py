@@ -1,69 +1,20 @@
-"""
-Scenario defining the MedAlign task as defined in the following work by Fleming et al:
-@article{fleming2023medalign,
-  title={MedAlign: A Clinician-Generated Dataset for Instruction Following with Electronic Medical Records},
-  author={Scott L. Fleming
-    and Alejandro Lozano
-    and William J. Haberkorn
-    and Jenelle A. Jindal
-    and Eduardo P. Reis
-    and Rahul Thapa
-    and Louis Blankemeier
-    and Julian Z. Genkins
-    and Ethan Steinberg
-    and Ashwin Nayak
-    and Birju S. Patel
-    and Chia-Chun Chiang
-    and Alison Callahan
-    and Zepeng Huo
-    and Sergios Gatidis
-    and Scott J. Adams
-    and Oluseyi Fayanju
-    and Shreya J. Shah
-    and Thomas Savage
-    and Ethan Goh
-    and Akshay S. Chaudhari
-    and Nima Aghaeepour
-    and Christopher Sharp
-    and Michael A. Pfeffer
-    and Percy Liang
-    and Jonathan H. Chen
-    and Keith E. Morse
-    and Emma P. Brunskill
-    and Jason A. Fries
-    and Nigam H. Shah},
-  journal={arXiv preprint arXiv:2308.14089},
-  year={2023}
-}
-
-Each instance includes:
-- input: the instruction and patient record
-- reference: the clinical 'gold standard' completion for the instruction for the given patient record
-
-This is a clinical instruction-following task, wherein a generative language model must follow
-the instructions using the provided patient record. As explained in the MedAlign work, each example
-is guaranteed to be completable for the given patient record.
-
-This task is evaluated using COMET and BERTScore metrics.
-"""
-
 import os
 from pathlib import Path
 import re
 from typing import Dict, List, Optional, Tuple, Union
 
-from more_itertools import one
 import pandas as pd
 
-from .scenario import (
+from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TEST_SPLIT,
-    EHRInstructionInput,
+    Input,
     Instance,
     Output,
     Reference,
     Scenario,
 )
+
 
 # /share/pi/nigam/data/MedAlign on Carina
 EHR_BASE_PATH = "/local-scratch/shahlab/aunell/helm/medalign_data/ehr_unzipped/full_ehrs"
@@ -180,7 +131,53 @@ def get_instructions(path_to_instructions: str) -> Dict[int, Dict[str, Union[int
 
 
 class MedAlignScenario(Scenario):
-    """Scenario for the MedAlign task and dataset"""
+    """Scenario defining the MedAlign task as defined in the following work by Fleming et al:
+    @article{fleming2023medalign,
+    title={MedAlign: A Clinician-Generated Dataset for Instruction Following with Electronic Medical Records},
+    author={Scott L. Fleming
+        and Alejandro Lozano
+        and William J. Haberkorn
+        and Jenelle A. Jindal
+        and Eduardo P. Reis
+        and Rahul Thapa
+        and Louis Blankemeier
+        and Julian Z. Genkins
+        and Ethan Steinberg
+        and Ashwin Nayak
+        and Birju S. Patel
+        and Chia-Chun Chiang
+        and Alison Callahan
+        and Zepeng Huo
+        and Sergios Gatidis
+        and Scott J. Adams
+        and Oluseyi Fayanju
+        and Shreya J. Shah
+        and Thomas Savage
+        and Ethan Goh
+        and Akshay S. Chaudhari
+        and Nima Aghaeepour
+        and Christopher Sharp
+        and Michael A. Pfeffer
+        and Percy Liang
+        and Jonathan H. Chen
+        and Keith E. Morse
+        and Emma P. Brunskill
+        and Jason A. Fries
+        and Nigam H. Shah},
+    journal={arXiv preprint arXiv:2308.14089},
+    year={2023}
+    }
+
+    Each instance includes:
+    - input: the instruction and patient record
+    - reference: the clinical 'gold standard' completion for the instruction for the given patient record
+
+    This is a clinical instruction-following task, wherein a generative language model must follow
+    the instructions using the provided patient record. As explained in the MedAlign work, each example
+    is guaranteed to be completable for the given patient record.
+
+    This task is evaluated using COMET and BERTScore metrics.
+    """
 
     name = "medalign"
     description = "MedAlign clinical instruction following task and dataset"
@@ -195,7 +192,8 @@ class MedAlignScenario(Scenario):
         assert os.path.exists(CLINICIAN_RESPONSES_PATH)
         assert os.path.exists(EHR_BASE_PATH)
 
-        instructions, ehrs = get_instructions(INSTRUCTIONS_PATH), get_ehrs(EHR_BASE_PATH)
+        instructions = get_instructions(INSTRUCTIONS_PATH)
+        ehrs = get_ehrs(EHR_BASE_PATH)
         gold_df = pd.read_csv(CLINICIAN_RESPONSES_PATH)
 
         # required filtering to match MedAlign code.
@@ -222,18 +220,22 @@ class MedAlignScenario(Scenario):
             relevant_ehr = ehrs[pt_id]  # type: ignore
 
             # get the clinican response which serves as the reference
-            clinician_response = one(
-                clinician_responses_df[clinician_responses_df.instruction_id == instruction_id].iterrows()
-            )[1].clinician_response
+            clinician_response_rows = list(clinician_responses_df[clinician_responses_df.instruction_id == instruction_id].iterrows())
+            assert len(clinician_response_rows) == 1
+            clinician_response = clinician_response_rows[0][1].clinician_response
 
             instances.append(
                 Instance(
-                    input=EHRInstructionInput(
-                        prompt_template=prompt_template,
-                        question=instruction,  # type: ignore
-                        ehr=relevant_ehr,
+                    input=Input(
+                        text=instruction,  # type: ignore
                     ),
                     references=[Reference(Output(clinician_response), tags=[CORRECT_TAG])],
+                    extra_data=
+                        {
+                            "prompt_template": prompt_template,
+                            "ehr": relevant_ehr,
+                        }
+                    ,
                     split=TEST_SPLIT,
                 )
             )
