@@ -172,19 +172,9 @@ class OpenAIClient(CachingClient):
         }
 
         # Special handling for o1 models.
-        if request.model_engine == "o1-2024-12-17":
-            # Avoid error:
-            # "Error code: 400 - {'error': {'message': "Unsupported parameter: 'temperature' is
-            # not supported with this model.", 'type': 'invalid_request_error', 'param': 'temperature',
-            # 'code': 'unsupported_parameter'}}"
-            raw_request.pop("temperature", None)
-            # Avoid error:
-            # "Invalid type for 'stop': expected an unsupported value, but got null instead."
-            if raw_request["stop"] is None:
-                raw_request.pop("stop")
         # Refer to the "Reasoning models" documentation further discussion of o1 model limitations:
         # https://platform.openai.com/docs/guides/reasoning
-        elif request.model_engine.startswith("o1"):
+        if request.model_engine.startswith("o1"):
             # Avoid error:
             # "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead."  # noqa: E501
             # Note that openai>=1.45 is needed for this
@@ -195,6 +185,13 @@ class OpenAIClient(CachingClient):
             # "Invalid type for 'stop': expected an unsupported value, but got null instead."
             if raw_request["stop"] is None:
                 raw_request.pop("stop")
+
+            if request.model_engine == "o1-2024-12-17":
+                # Avoid error:
+                # "Error code: 400 - {'error': {'message': "Unsupported parameter: 'temperature' is
+                # not supported with this model.", 'type': 'invalid_request_error', 'param': 'temperature',
+                # 'code': 'unsupported_parameter'}}"
+                raw_request.pop("temperature", None)
         elif is_vlm(request.model):
             # Avoid error:
             # "Invalid type for 'stop': expected an unsupported value, but got null instead."
