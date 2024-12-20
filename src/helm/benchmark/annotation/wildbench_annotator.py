@@ -15,7 +15,7 @@ class WildBenchAnnotator(Annotator):
 
     def __init__(self, auto_client: AutoClient):
         self._auto_client = auto_client
-        template_path = files("src.helm.benchmark.annotation.wildbench").joinpath("eval_template.score.v2.md")
+        template_path = files("helm.benchmark.annotation.wildbench").joinpath("eval_template.score.v2.md")
         with template_path.open("r") as f:
             self._score_template = f.read()
         self._pattern = re.compile(
