@@ -388,7 +388,7 @@ def get_numeracy_spec(
 ) -> RunSpec:
     from helm.benchmark.scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 
-    run_solver_bool: bool = True if run_solver == "True" else False
+    run_solver_bool: bool = True if run_solver.lower() == "true" else False
     del run_solver
     random_seed = int(seed)
     scenario_spec = ScenarioSpec(

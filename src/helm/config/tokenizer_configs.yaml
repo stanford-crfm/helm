@@ -349,6 +349,14 @@ tokenizer_configs:
     prefix_token: "<|begin_of_text|>"
     end_of_text_token: "<|eot_id|>"
 
+  - name: meta/llama-3.3-70b-instruct
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: meta-llama/Llama-3.3-70B-Instruct
+    prefix_token: "<|begin_of_text|>"
+    end_of_text_token: "<|eot_id|>"
+
   # 01-ai
   - name: 01-ai/Yi-6B
     tokenizer_spec:
@@ -456,6 +464,19 @@ tokenizer_configs:
     end_of_text_token: "</s>"
     prefix_token: "<s>"
 
+  # Nectec
+  - name: nectec/OpenThaiLLM-Prebuilt-7B
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|im_end|>"
+    prefix_token: ""
+  
+  - name: nectec/Pathumma-llm-text-1.0.0
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|im_end|>"
+    prefix_token: "<|im_start|>"
+  
   # Neurips
   - name: neurips/local
     tokenizer_spec:
@@ -472,6 +493,14 @@ tokenizer_configs:
         revision: b7aa0de92cda9f9e722d58d6ca90f46ae17d4701
     end_of_text_token: "<|endoftext|>"
     prefix_token: "<|endoftext|>"
+
+  - name: nvidia/llama-3.1-nemotron-70b-instruct
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: nvidia/Llama-3.1-Nemotron-70B-Instruct-HF
+    end_of_text_token: "<|eot_id|>"
+    prefix_token: "<|begin_of_text|>"
 
   # OpenAI
   - name: openai/cl100k_base
@@ -522,7 +551,7 @@ tokenizer_configs:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
       args:
         pretrained_model_name_or_path: Qwen/Qwen2-72B-Instruct
-    end_of_text_token: <|im_end|>"
+    end_of_text_token: "<|im_end|>"
     prefix_token: "<|im_start|>'"
 
   - name: qwen/qwen2.5-7b-instruct
@@ -530,7 +559,7 @@ tokenizer_configs:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
       args:
         pretrained_model_name_or_path: Qwen/Qwen2.5-7B-Instruct
-    end_of_text_token: <|im_end|>"
+    end_of_text_token: "<|im_end|>"
     prefix_token: "<|im_start|>'"
 
   - name: qwen/qwen-vl
@@ -611,6 +640,15 @@ tokenizer_configs:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "</s>"
     prefix_token: "<s>"
+
+  # Upstage
+  - name: upstage/solar-pro-preview-instruct
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        trust_remote_code: true
+    end_of_text_token: "<|im_end|>"
+    prefix_token: "<|startoftext|>"
 
   # Writer
   - name: writer/gpt2
@@ -712,3 +750,11 @@ tokenizer_configs:
         pretrained_model_name_or_path: ibm-granite/granite-3.0-1b-a400m-base
     end_of_text_token: ""
     prefix_token: ""
+
+  - name: maritaca-ai/sabia-7b
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: maritaca-ai/sabia-7b
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"

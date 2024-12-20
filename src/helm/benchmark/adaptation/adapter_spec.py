@@ -6,6 +6,7 @@ from helm.common.image_generation_parameters import ImageGenerationParameters
 
 # Adaptation methods
 ADAPT_GENERATION: str = "generation"
+ADAPT_CHAT: str = "chat"
 ADAPT_LANGUAGE_MODELING: str = "language_modeling"
 ADAPT_MULTIPLE_CHOICE_JOINT: str = "multiple_choice_joint"
 ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT: str = "multiple_choice_joint_chain_of_thought"

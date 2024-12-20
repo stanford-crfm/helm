@@ -997,6 +997,14 @@ models:
     release_date: 2024-09-24
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: google/gemini-2.0-flash-exp
+    display_name: Gemini 2.0 Flash (Experimental)
+    description: Gemini 2.0 Flash (Experimental) is a Gemini model that supports multimodal inputs like images, video and audio, as well as multimodal output like natively generated images mixed with text and steerable text-to-speech (TTS) multilingual audio. ([blog](https://blog.google/technology/google-deepmind/google-gemini-ai-update-december-2024/#gemini-2-0-flash))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2024-12-11
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: google/gemma-2b
     display_name: Gemma (2B)
     description: Gemma is a family of lightweight, open models built from the research and technology that Google used to create the Gemini models. ([model card](https://www.kaggle.com/models/google/gemma), [blog post](https://blog.google/technology/developers/gemma-open-models/))
@@ -1656,6 +1664,15 @@ models:
     release_date: 2024-09-25
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: meta/llama-3.3-70b-instruct-turbo
+    display_name: Llama 3.3 Instruct Turbo (70B)
+    description: Llama 3.3 (70B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-12-06
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: meta/llama-3-8b-chat
     display_name: Llama 3 Instruct (8B)
     description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. It used SFT, rejection sampling, PPO and DPO for post-training. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/)
@@ -2144,6 +2161,27 @@ models:
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
 
+    
+  # NECTEC
+  - name: nectec/Pathumma-llm-text-1.0.0
+    display_name: Pathumma-llm-text-1.0.0 (7B)
+    description: Pathumma-llm-text-1.0.0 (7B) is a instruction model from  OpenThaiLLM-Prebuilt-7B ([blog](https://medium.com/nectec/pathummallm-v-1-0-0-release-6a098ddfe276))
+    creator_organization_name: nectec
+    access: open
+    num_parameters: 7620000000
+    release_date: 2024-10-28
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+ 
+  - name: nectec/OpenThaiLLM-Prebuilt-7B
+    display_name: OpenThaiLLM-Prebuilt-7B (7B)
+    description: OpenThaiLLM-Prebuilt-7B (7B) is a pretrained Thai large language model with 7 billion parameters based on Qwen2.5-7B.
+    creator_organization_name: nectec
+    access: open
+    num_parameters: 7620000000
+    release_date: 2024-10-28
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+
 
   # Neurips
   - name: neurips/local
@@ -2172,6 +2210,16 @@ models:
     access: open
     release_date: 2024-06-17
     tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: nvidia/llama-3.1-nemotron-70b-instruct
+    display_name: Llama 3.1 Nemotron Instruct (70B)
+    description: Llama-3.1-Nemotron-70B-Instruct is a large language model customized by NVIDIA to improve the helpfulness of LLM generated responses to user queries. It was trained using RLHF (specifically, REINFORCE), Llama-3.1-Nemotron-70B-Reward and HelpSteer2-Preference prompts on a Llama-3.1-70B-Instruct model. ([paper](https://arxiv.org/abs/2410.01257))
+    creator_organization_name: NVIDIA
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-10-02
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
 
   # OpenAI
 
@@ -2435,6 +2483,14 @@ models:
     release_date: 2024-08-06
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: openai/gpt-4o-2024-11-20
+    display_name: GPT-4o (2024-11-20)
+    description: GPT-4o (2024-11-20) is a large multimodal model that accepts as input any combination of text, audio, and image and generates any combination of text, audio, and image outputs. ([blog](https://openai.com/index/introducing-structured-outputs-in-the-api/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2024-11-20
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: openai/gpt-4o-mini-2024-07-18
     display_name: GPT-4o mini (2024-07-18)
     description: GPT-4o mini (2024-07-18) is a multimodal model with a context window of 128K tokens and improved handling of non-English text. ([blog](https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/))
@@ -2471,6 +2527,14 @@ models:
     tags: [VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
 
   ## o1 Models
+  - name: openai/o1-2024-12-17
+    display_name: o1 (2024-12-17)
+    description: o1 is a new large language model trained with reinforcement learning to perform complex reasoning. ([model card](https://openai.com/index/openai-o1-system-card/), [blog post](https://openai.com/index/learning-to-reason-with-llms/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2024-12-17
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: openai/o1-preview-2024-09-12
     display_name: o1-preview (2024-09-12)
     description: o1-preview is a language model trained with reinforcement learning to perform complex reasoning that can produce a long internal chain of thought before responding to the user. ([model card](https://openai.com/index/openai-o1-system-card/), [blog post](https://openai.com/index/learning-to-reason-with-llms/))
@@ -3126,7 +3190,25 @@ models:
     release_date: 2022-09-19
     tags: [] # TODO: add tags
 
+  # Upstage
+  - name: upstage/solar-pro-preview-instruct
+    display_name: Solar Pro Preview (22B)
+    description: Solar Pro Preview (22B) is open-weights model for single GPU inference that is a preview of the upcoming Solar Pro model ([blog](https://www.upstage.ai/products/solar-pro-preview)).
+    creator_organization_name: Upstage
+    access: open
+    num_parameters: 22000000000
+    release_date: 2024-09-11
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: upstage/solar-pro-241126
+    display_name: Solar Pro
+    display_name: Solar Pro
+    description: Solar Pro is a LLM designed for instruction-following and processing structured formats like HTML and Markdown. It supports English, Korean, and Japanese and has domain expertise in Finance, Healthcare, and Legal. ([blog](https://www.upstage.ai/blog/press/solar-pro-aws)).
+    creator_organization_name: Upstage
+    access: limited
+    num_parameters: 22000000000
+    release_date: 2024-11-26
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   # Writer
   - name: writer/palmyra-base
@@ -3441,3 +3523,13 @@ models:
     num_parameters: 1380000000
     release: 2024-10-21
     tags: [TEXT_MODEL_TAG]
+
+  - name: maritaca-ai/sabia-7b
+    display_name: Sabia 7B
+    description: Sabia 7B
+    creator_organization_name: MARITACA-AI
+    access: open
+    num_parameters: 6740000000
+    release_date: 2023-11-08
+    tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+   

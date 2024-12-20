@@ -266,6 +266,25 @@ def get_audiocaps_run_spec() -> RunSpec:
     )
 
 
+@run_spec_function("voxceleb2")
+def get_voxceleb2_run_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.voxceleb2_scenario.VoxCeleb2Scenario"
+    )
+    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
+        input_noun=None, output_noun="Answer", max_train_instances=0
+    )
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+    run_spec_name: str = "voxceleb2"
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
 @run_spec_function("common_voice_15")
 def get_common_voice_15_run_spec(language: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -347,6 +366,26 @@ def get_casual_conversations2_run_spec(subject: str) -> RunSpec:
     )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
     run_spec_name: str = "casual_conversations2"
+    return RunSpec(
+        name=f"{run_spec_name}:subject={subject}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("air_bench_chat")
+def get_air_bench_chat_run_spec(subject: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.air_bench_chat_scenario." "AirBenchChatScenario",
+        args={"subject": subject},
+    )
+    adapter_spec = _get_generation_adapter_spec(
+        max_tokens=50,
+    )
+    metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
+    run_spec_name: str = "air_bench_chat"
     return RunSpec(
         name=f"{run_spec_name}:subject={subject}",
         scenario_spec=scenario_spec,

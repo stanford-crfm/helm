@@ -15,6 +15,7 @@ from helm.benchmark.scenarios.scenario import (
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
+from helm.common.audio_utils import use_ffmpeg_to_extract_audio_from_video
 
 
 class CasualConversations2Scenario(Scenario):
@@ -72,12 +73,6 @@ class CasualConversations2Scenario(Scenario):
         self.options = self.age_options if subject == "age" else self.gender_options
         self.instruction = self.AGE_INSTRUCTION if subject == "age" else self.GENDER_INSTRUCTION
 
-    def _extract_audio_from_video(self, input_video_path: str, output_audio_path: str) -> None:
-        try:
-            os.system(f"ffmpeg -i {input_video_path} -q:a 0 -map a {output_audio_path}")
-        except Exception:
-            raise ValueError("Please install ffmpeg using `bash install-shelm-extras.sh` first to extract audio files.")
-
     def _convert_age_to_label(self, age: str) -> str:
         if age != "prefer not to say":
             age_int = int(age)
@@ -128,8 +123,7 @@ class CasualConversations2Scenario(Scenario):
             if file_name.endswith(".mp4"):
                 local_audio_path: str = os.path.join(audio_file_folder, file_name.replace(".mp4", ".mp3"))
                 local_video_path: str = os.path.join(data_dir, file_name)
-                if not os.path.exists(local_audio_path):
-                    self._extract_audio_from_video(local_video_path, local_audio_path)
+                use_ffmpeg_to_extract_audio_from_video(local_video_path, local_audio_path)
                 assert os.path.exists(local_audio_path), f"Audio file does not exist at path: {local_audio_path}"
 
                 subject_answer = audio_scripts[file_name][self._subject]
