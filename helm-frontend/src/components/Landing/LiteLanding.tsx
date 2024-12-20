@@ -9,12 +9,14 @@ import Hero from "@/components/Hero";
 //import scenariosByMetrics from "@/assets/scenarios-by-metrics.png";
 //import taxonomyScenarios from "@/assets/taxonomy-scenarios.png";
 import ai21 from "@/assets/logos/ai21.png";
+import aisingapore from "@/assets/logos/aisingapore.png";
 import alephAlpha from "@/assets/logos/aleph-alpha.png";
 import anthropic from "@/assets/logos/anthropic.png";
 import bigscience from "@/assets/logos/bigscience.png";
 import cohere from "@/assets/logos/cohere.png";
 import eleutherai from "@/assets/logos/eleutherai.png";
 import google from "@/assets/logos/google.png";
+import ibm from "@/assets/logos/ibm.png";
 import meta from "@/assets/logos/meta.png";
 import microsoft from "@/assets/logos/microsoft.png";
 import mistral from "@/assets/logos/mistral.png";
@@ -29,12 +31,14 @@ import zeroOne from "@/assets/logos/01.png";
 
 const logos = [
   ai21,
+  aisingapore,
   alephAlpha,
   anthropic,
   bigscience,
   cohere,
   eleutherai,
   google,
+  ibm,
   meta,
   microsoft,
   mistral,
