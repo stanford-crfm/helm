@@ -1,6 +1,6 @@
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.request import Request
-from .token_cost_estimator import TokenCostEstimator
+from helm.benchmark.metrics.tokens.token_cost_estimator import TokenCostEstimator
 
 
 class FreeTokenCostEstimator(TokenCostEstimator):

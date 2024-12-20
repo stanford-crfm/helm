@@ -1,0 +1,454 @@
+---
+############################################################
+metrics:
+  # Infrastructure metrics:
+  - name: num_perplexity_tokens
+    display_name: '# tokens'
+    description: Average number of tokens in the predicted output (for language modeling, the input too).
+  - name: num_bytes
+    display_name: '# bytes'
+    description: Average number of bytes in the predicted output (for language modeling, the input too).
+
+  - name: num_references
+    display_name: '# ref'
+    description: Number of references.
+  - name: num_train_trials
+    display_name: '# trials'
+    description: Number of trials, where in each trial we choose an independent, random set of training instances.
+  - name: estimated_num_tokens_cost
+    display_name: 'cost'
+    description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
+  - name: num_prompt_tokens
+    display_name: '# prompt tokens'
+    description: Number of tokens in the prompt.
+  - name: num_prompt_characters
+    display_name: '# prompt chars'
+    description: Number of characters in the prompt.
+  - name: num_completion_tokens
+    display_name: '# completion tokens'
+    description: Actual number of completion tokens (over all completions).
+  - name: num_output_tokens
+    display_name: '# output tokens'
+    description: Actual number of output tokens.
+  - name: max_num_output_tokens
+    display_name: 'Max output tokens'
+    description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
+  - name: num_requests
+    display_name: '# requests'
+    description: Number of distinct API requests.
+  - name: num_instances
+    display_name: '# eval'
+    description: Number of evaluation instances.
+  - name: num_train_instances
+    display_name: '# train'
+    description: Number of training instances (e.g., in-context examples).
+  - name: prompt_truncated
+    display_name: truncated
+    description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
+  - name: finish_reason_length
+    display_name: finish b/c length
+    description: Fraction of instances where the the output was terminated because of the max tokens limit.
+  - name: finish_reason_stop
+    display_name: finish b/c stop
+    description: Fraction of instances where the the output was terminated because of the stop sequences.
+  - name: finish_reason_endoftext
+    display_name: finish b/c endoftext
+    description: Fraction of instances where the the output was terminated because the end of text token was generated.
+  - name: finish_reason_unknown
+    display_name: finish b/c unknown
+    description: Fraction of instances where the the output was terminated for unknown reasons.
+  - name: num_completions
+    display_name: '# completions'
+    description: Number of completions.
+  - name: predicted_index
+    display_name: Predicted index
+    description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
+
+  # Accuracy metrics:
+  - name: exact_match
+    display_name: Exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_exact_match
+    display_name: Quasi-exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+    lower_is_better: false
+  - name: prefix_exact_match
+    display_name: Prefix exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_prefix_exact_match
+    # TODO: should call this prefix_quasi_exact_match
+    display_name: Prefix quasi-exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
+    lower_is_better: false
+
+  - name: rouge_1
+    display_name: ROUGE-1
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 1-gram overlap.
+    lower_is_better: false
+  - name: rouge_2
+    display_name: ROUGE-2
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 2-gram overlap.
+    lower_is_better: false
+  - name: rouge_l
+    display_name: ROUGE-L
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on longest common subsequence overlap.
+    lower_is_better: false
+  - name: bleu_1
+    display_name: BLEU-1
+    description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 1-gram overlap.
+    lower_is_better: false
+  - name: bleu_4
+    display_name: BLEU-4
+    description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 4-gram overlap.
+    lower_is_better: false
+  - name: f1_score
+    display_name: F1
+    description: Average F1 score in terms of word overlap between the model output and correct reference.
+    lower_is_better: false
+  - name: cider
+    display_name: CIDEr
+    description: Evaluates the quality of generated caption by measuring the weighted similarity of n-grams between the captions and a set of human-written reference captions, emphasizing informativeness and consensus.
+    lower_is_better: false
+
+  # Machine Translation metrics
+  - name: bleu
+    display_name: BLEU
+    short_display_name: BLEU
+    description: BLEU score based on [Post, (2018)](https://aclanthology.org/W18-6319/).
+    lower_is_better: false
+
+  # Speech Recognition metrics
+  - name: wa
+    display_name: WA
+    short_display_name: WA
+    description: Word Accuracy based on the Word Error Rate.
+    lower_is_better: true
+
+  - name: CA
+    display_name: WA
+    short_display_name: WA
+    description: Word Accuracy based on the Word Error Rate.
+    lower_is_better: true
+
+############################################################
+perturbations: []
+
+############################################################
+metric_groups:
+  - name: accuracy
+    display_name: Accuracy
+    hide_win_rates: true
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+
+  - name: efficiency
+    display_name: Efficiency
+    metrics:
+    - name: inference_runtime
+      split: ${main_split}
+
+  - name: general_information
+    display_name: General information
+    hide_win_rates: true
+    metrics:
+    - name: num_instances
+      split: ${main_split}
+    - name: num_train_instances
+      split: ${main_split}
+    - name: prompt_truncated
+      split: ${main_split}
+    - name: num_prompt_tokens
+      split: ${main_split}
+    - name: num_output_tokens
+      split: ${main_split}
+
+############################################################
+
+run_groups:
+  # TODO: further split by aspects
+  - name: audio_scenarios
+    display_name: Audio Scenarios
+    description: Audio Scenarios
+    category: All scenarios
+    subgroups:
+      - audio_mnist
+      - covost2
+      - vocal_sound
+      - multilingual_librispeech
+      - fleurs
+      - audiocaps
+      - common_voice_15
+      - speech_robust_bench
+
+  - name: audio_mnist
+    display_name: AudioMNIST
+    description: >
+      The AudioMNIST dataset consists of a dataset of 30000 audio samples of
+      spoken digits (0-9) of 60 different speakers. The task is to classify the digit from the
+      audio sample ([Becker et al, 2023](https://arxiv.org/abs/1807.03418)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: audio samples of spoken digits (0-9)
+      who: 60 different speakers
+      when: "2018"
+      language: English
+
+  - name: covost2
+    display_name: CoVost-2
+    description: >
+      CoVost-2 is a large-scale multilingual speech translation corpus covering translations from 21 languages
+      into English and from English into 15 languages.
+
+      The dataset contains the audio, transcriptions, and translations in the following languages:
+      French, German, Dutch, Russian, Spanish, Italian, Turkish, Persian, Swedish, Mongolian, Chinese,
+      Welsh, Catalan, Slovenian, Estonian, Indonesian, Arabic, Tamil, Portuguese, Latvian, and Japanese
+      ([Wang et al, 2020](https://arxiv.org/abs/2007.10310)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: bleu
+      main_split: test
+    taxonomy:
+      task: audio machine translation
+      what: audio, transcriptions, and translations in 15 languages
+      who: real speakers
+      when: "2020"
+      language: 15 languages
+
+  - name: vocal_sound
+    display_name: VocalSound
+    description: >
+      VocalSound dataset consisting of over 21,000 crowdsourced recordings of laughter, sighs, coughs, throat 
+      clearing, sneezes, and sniffs from 3,365 unique subjects. 
+      
+      Different from previous datasets, the VocalSound dataset contains meta information such as speaker 
+      age, gender, native language, country, and health condition ([Gong et al, 2022](https://arxiv.org/abs/2205.03433)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: audio samples of behaviours ("cough", "laughter", "sigh", "sneeze", "sniff", "throatclearing")
+      who: real speakers
+      when: "2022"
+      language: English
+
+  - name: multilingual_librispeech
+    display_name: Multilingual Librispeech
+    description: >
+      Multilingual Librispeech is derived from read audiobooks from LibriVox and consists of 8 languages, 
+      including about 44.5K hours of English and a total of about 6K hours for other languages. 
+
+      The dataset contains the audio and transcriptions in the following languages:
+      Dutch, German, French, Spanish, Italian, Portuguese", Polish ([Pratap et al, 2022](https://arxiv.org/abs/2012.03411)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: audio captioning
+      what: audio and transcriptions in 8 languages
+      who: real speakers
+      when: "2020"
+      language: 8 languages
+
+  - name: fleurs
+    display_name: FLEURS
+    description: >
+      FLEURS is an n-way parallel speech dataset in 102 languages built on top of the machine translation FLoRes-101 
+      benchmark, with approximately 12 hours of speech supervision per language. FLEURS can be used for a variety of 
+      speech tasks, including Automatic Speech Recognition (ASR), Speech Language Identification (Speech LangID), 
+      Translation and Retrieval.
+
+      The dataset contains the audio, transcriptions, and language in 102 different languages, which are divided into
+      7 language groups: Western European, Eastern European, Central Asia Middle North African, Sub Saharan African, 
+      South Asian, South East Asian, Chinese Japanase Korean ([Conneau et al, 2022](https://arxiv.org/abs/2205.12446)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: audio, transcripts, and language names in 102 languages
+      who: real speakers
+      when: "2022"
+      language: 102 languages
+
+  - name: audiocaps
+    display_name: AudioCaps
+    description: >
+      AudioCaps is a large-scale dataset of about 46K audio clips to human-written text pairs collected 
+      via crowdsourcing on the AudioSet dataset, which covers a wide range of human and animal sounds, 
+      musical instruments and genres, and common everyday environmental sounds. 
+      ([Kim et al, 2019](https://aclanthology.org/N19-1011.pdf)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: cider
+      main_split: test
+    taxonomy:
+      task: audio captioning
+      what: audio clips in the wild
+      who: real speakers
+      when: "2019"
+      language: English
+
+  - name: voxceleb2
+    display_name: VoxCeleb2
+    description: >
+      VoxCeleb is an audio-visual dataset consisting of short clips of human speech, extracted from 
+      interview videos uploaded to YouTube. It contains over a million utterances from over 6,000 
+      speakers with their gender, race, identity information in 145 different nationalities, covering 
+      a wide range of accents, ages, ethnicities and languages.
+      ([Chung et al, 2018](https://www.robots.ox.ac.uk/~vgg/publications/2018/Chung18a/chung18a.pdf))
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: audio identification
+      what: audio clips in the wild
+      who: real speakers
+      when: "2018"
+      language: English, Germany, French
+
+  - name: common_voice_15
+    display_name: Common Voice 15
+    description: >
+      The most recent release of CommonVoice15 (Ardila et al, 2019) includes 114 languages. Over 50,000 
+      individuals have participated so far, resulting in 2,500 hours of collected audio. This is the largest 
+      audio corpus in the public domain for speech recognition, both in terms of number of hours and number 
+      of languages. The task is to recognize the speech from the audio sample.
+
+      The dataset contains the audio, transcriptions, location, speaker's gender, age, and accent 
+      ([Ardila et al, 2020](https://arxiv.org/abs/1912.06670)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: word_accuracy
+      main_split: test
+    taxonomy:
+      task: audio recognition
+      what: audio, transcripts, location, speaker's information in 114 languages
+      who: real speakers
+      when: "2019"
+      language: 114 languages
+
+  - name: speech_robust_bench
+    display_name: Robust Speech Bench
+    description: >
+      Speech Robust Bench (Shah et al, 2024) is a comprehensive benchmark for evaluating 
+      the robustness of ASR models to diverse corruptions. SRB is composed of 114 input 
+      perturbations which simulate an heterogeneous range of corruptions that ASR models 
+      may encounter when deployed in the wild. In this scenario, we select 4 subsets: 
+      accent_cv, accent_cv_es, chinme, and AIM for evaluation.
+
+      The dataset contains the audio, transcriptions for all subsets 
+      ([Shah et al, 2024](https://arxiv.org/abs/2403.07937)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: word_accuracy
+      main_split: test
+    taxonomy:
+      task: audio recognition
+      what: audio, transcripts of audio samples in a wide range of perturbations 
+      who: real speakers
+      when: "2024"
+      language: English, Spanish
+
+  - name: audio_pairs
+    display_name: Audio PAIRS
+    description: >
+      Audio PAIRS is an audio extension of the PAIRS dataset (Fraser et al, 2024) to examine gender and 
+      racial bias in audio large language models. We convert the questions in the PAIRS dataset to audio
+      clips using OpenAI's TTS-1-HD API. This dataset is also modified to add an option to opt-out with 
+      "unclear" as a choice.
+
+      The dataset contains the audio and question for three subsets: occupation, status, and potential_crime.
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: audio and question of audio samples to examine models' gender and racial bias
+      who: OpenAI's TTS-1-HD
+      when: "2024"
+      language: English
+
+  - name: casual_conversations2
+    display_name: Casual Conversations 2
+    description: >
+      Casual Conversation v2 (Porgali et al, 2023) is composed of over 5,567 participants (26,467 videos). 
+      The videos feature paid individuals who agreed to participate in the project and explicitly provided 
+      Age, Gender, Language/Dialect, Geo-location, Disability, Physical adornments, Physical attributes labels 
+      themselves. The videos were recorded in Brazil, India, Indonesia, Mexico, Philippines, United States, 
+      and Vietnam with a diverse set of adults in various categories.
+
+      The dataset contains two classification tasks: age and gender classification
+      ([Porgali et al., 2023](https://arxiv.org/abs/2303.04838)). We phrase these two tasks as the multi-choice
+      questions answering task.
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: audio, spoken language, speaker's gender, age information of audio samples
+      who: real speakers
+      when: "2023"
+      language: 10 languages
+
+  - name: air_bench_chat
+    display_name: Air-Bench Chat
+    description: >
+      Air-Bench (Yang et al, 2024) encompasses two dimensions: foundation and chat benchmarks. The former consists of 19 tasks with 
+      approximately 19k single-choice questions. The latter one contains 2k instances of open-ended question-and-answer data. 
+      We consider the chat benchmark in this scenario.
+
+      The dataset contains the audio question answering task in four subjects: sound, speech, music, and mixed.
+      ([Yang et al, 2024](https://aclanthology.org/2024.acl-long.109.pdf)).
+    metric_groups:
+      - accuracy
+      - general_information
+      - reasoning
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: audio question answering
+      what: adio, question, and answer of audio samples
+      who: real speakers
+      when: "2024"
+      language: English

@@ -3,7 +3,7 @@ import os
 from typing import List
 
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, ALL_SPLITS, CORRECT_TAG, Input, Output
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Reference, ALL_SPLITS, CORRECT_TAG, Input, Output
 
 
 class MedDialogScenario(Scenario):

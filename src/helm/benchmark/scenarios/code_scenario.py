@@ -57,9 +57,19 @@ from typing import List, Dict, Iterable, Optional, cast
 
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog
-from .code_scenario_helper import run as run_reindent
-from .code_scenario_apps_pinned_file_order import apps_listdir_with_pinned_order
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
+from helm.benchmark.scenarios.code_scenario_helper import run as run_reindent
+from helm.benchmark.scenarios.code_scenario_apps_pinned_file_order import apps_listdir_with_pinned_order
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    TEST_SPLIT,
+    CORRECT_TAG,
+    Input,
+    Output,
+)
 
 
 class CodeReference(Reference):
@@ -292,7 +302,10 @@ class CodeScenario(Scenario):
         self.human_eval_hparams = dict(num_train_instances=0, num_val_instances=0, num_test_instances=164)
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        # By construction, output_path == 'benchmark_output/scenarios/code'.
+        # By construction, output_path == args.output_path + '/scenarios/code'
+        # where args.output_path is parsed from the command line argument.
+        # The default self.output_path here is '/benchmark_output/scenarios/ice'.
+        # See helm.benchmark.runner for more details about args.output_path.
         if self.dataset == "humaneval":
             target_path = os.path.join(output_path, "HumanEval.jsonl")
             ensure_file_downloaded(

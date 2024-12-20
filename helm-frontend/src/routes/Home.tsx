@@ -14,6 +14,7 @@ import Image2StructLanding from "@/components/Landing/Image2StructLanding";
 import EWoKLanding from "@/components/Landing/EWoKLanding";
 import MedicalLanding from "@/components/Landing/MedicalLanding";
 import SafetyLanding from "@/components/Landing/SafetyLanding";
+import CapabilitiesLanding from "@/components/Landing/CapabilitiesLanding";
 
 export default function Home() {
   // TODO consider a more streamlined way to do this?
@@ -47,6 +48,8 @@ export default function Home() {
     return <MedicalLanding />;
   } else if (window.PROJECT_ID === "safety") {
     return <SafetyLanding />;
+  } else if (window.PROJECT_ID === "capabilities") {
+    return <CapabilitiesLanding />;
   } else if (window.PROJECT_ID === "home") {
     return <HomeLanding />;
   } else {

@@ -114,7 +114,7 @@ metric_groups:
   - name: accuracy
     display_name: Accuracy
     aggregation_strategies: 
-      - win_rate
+      - mean
     metrics:
       - name: ${main_name}
         split: ${main_split}
@@ -171,7 +171,7 @@ run_groups:
     description: Scenarios for the model safety
     category: All scenarios
     subgroups:
-      - harm_bench_gcg_transfer
+      # - harm_bench_gcg_transfer
       - harm_bench
       - simple_safety_tests
       - bbq

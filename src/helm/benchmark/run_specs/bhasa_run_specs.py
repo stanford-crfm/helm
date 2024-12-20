@@ -578,14 +578,18 @@ def get_lindsea_syntax_minimal_pairs_spec(language: str = "id", method: str = "m
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["bhasa_linguistic", f"lindsea_syntax_minimal_pairs_{language}"],
+        groups=[
+            "bhasa_linguistic",
+            f"lindsea_syntax_minimal_pairs_{language}",
+            f"lindsea_syntax_minimal_pairs_{method}_{language}",
+        ],
     )
 
 
-# 2.1. Pragmatics: LINDSEA Pragmatic Reasoning (single sentence)
-@run_spec_function("lindsea_pragmatics_pragmatic_reasoning_single")
-def get_lindsea_pragmatics_pragmatic_reasoning_single_spec(language="id") -> RunSpec:
-    name = f"lindsea_pragmatics_pragmatic_reasoning_single_{language}"
+# 2.1. Pragmatics: LINDSEA Presuppositions
+@run_spec_function("lindsea_pragmatics_presuppositions")
+def get_lindsea_pragmatics_presuppositions_spec(language: str = "id", subset: str = "all") -> RunSpec:
+    name = f"lindsea_pragmatics_presuppositions_{subset}_{language}"
 
     adapter_spec = get_generation_adapter_spec(
         output_noun=LINDSEA_OUTPUT_NOUNS[language],
@@ -595,9 +599,10 @@ def get_lindsea_pragmatics_pragmatic_reasoning_single_spec(language="id") -> Run
     )
 
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.bhasa_scenario.LINDSEAPragmaticsPragmaticReasoningSingleScenario",
+        class_name="helm.benchmark.scenarios.bhasa_scenario.LINDSEAPragmaticsPresuppositionsScenario",
         args={
             "language": language,
+            "subset": subset,
         },
     )
 
@@ -606,14 +611,18 @@ def get_lindsea_pragmatics_pragmatic_reasoning_single_spec(language="id") -> Run
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["bhasa_linguistic", f"lindsea_pragmatics_pragmatic_reasoning_single_{language}"],
+        groups=[
+            "bhasa_linguistic",
+            f"lindsea_pragmatics_presuppositions_{language}",
+            f"lindsea_pragmatics_presuppositions_{subset}_{language}",
+        ],
     )
 
 
-# 2.2. Pragmatics: LINDSEA Pragmatic Reasoning (sentence pair)
-@run_spec_function("lindsea_pragmatics_pragmatic_reasoning_pair")
-def get_lindsea_pragmatics_pragmatic_reasoning_pair_spec(language="id") -> RunSpec:
-    name = f"lindsea_pragmatics_pragmatic_reasoning_pair_{language}"
+# 2.2. Pragmatics: LINDSEA Scalar Implicatures
+@run_spec_function("lindsea_pragmatics_scalar_implicatures")
+def get_lindsea_pragmatics_scalar_implicatures_spec(language: str = "id", subset: str = "all") -> RunSpec:
+    name = f"lindsea_pragmatics_scalar_implicatures_{subset}_{language}"
 
     adapter_spec = get_generation_adapter_spec(
         output_noun=LINDSEA_OUTPUT_NOUNS[language],
@@ -623,9 +632,10 @@ def get_lindsea_pragmatics_pragmatic_reasoning_pair_spec(language="id") -> RunSp
     )
 
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.bhasa_scenario.LINDSEAPragmaticsPragmaticReasoningPairScenario",
+        class_name="helm.benchmark.scenarios.bhasa_scenario.LINDSEAPragmaticsScalarImplicaturesScenario",
         args={
             "language": language,
+            "subset": subset,
         },
     )
 
@@ -634,5 +644,9 @@ def get_lindsea_pragmatics_pragmatic_reasoning_pair_spec(language="id") -> RunSp
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["bhasa_linguistic", f"lindsea_pragmatics_pragmatic_reasoning_pair_{language}"],
+        groups=[
+            "bhasa_linguistic",
+            f"lindsea_pragmatics_scalar_implicatures_{language}",
+            f"lindsea_pragmatics_scalar_implicatures_{subset}_{language}",
+        ],
     )

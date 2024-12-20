@@ -368,7 +368,15 @@ class MATHScenario(Scenario):
         cache_dir = os.path.join(output_path, "data")
         ensure_directory_exists(cache_dir)
         data = (
-            typing.cast(DatasetDict, load_dataset("competition_math", trust_remote_code=True, cache_dir=cache_dir))
+            typing.cast(
+                DatasetDict,
+                load_dataset(
+                    "hendrycks/competition_math",
+                    trust_remote_code=True,
+                    cache_dir=cache_dir,
+                    revision="71b758ecc688b2822d07ffa7f8393299f1dc7cac",
+                ),
+            )
             .sort("problem")
             .shuffle(seed=42)
         )

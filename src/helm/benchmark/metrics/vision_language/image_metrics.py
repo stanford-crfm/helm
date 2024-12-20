@@ -324,7 +324,7 @@ class AnnotatedImageMetrics(Metric):
 
         # Compute the LPIPS score
         assert self._lpips_metric is not None
-        score: float = self._lpips_metric(img1, img2).detach().item()
+        score: float = 1.0 - self._lpips_metric(img1, img2).detach().item()
         return score
 
     def _calculate_fid(self, act1, act2):

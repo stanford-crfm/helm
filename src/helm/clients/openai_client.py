@@ -3,6 +3,7 @@ from dataclasses import replace
 from typing import Any, Dict, List, Optional, cast, Union
 
 from helm.benchmark.model_metadata_registry import is_vlm
+from helm.common import multimodal_request_utils
 from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
@@ -12,7 +13,7 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
-from .client import CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
+from helm.clients.client import CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
 from helm.tokenizers.tokenizer import Tokenizer
 
 try:
@@ -47,13 +48,6 @@ class OpenAIClient(CachingClient):
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
         self.client = OpenAI(api_key=api_key, organization=org_id, base_url=base_url)
-
-    def _is_chat_model_engine(self, model_engine: str) -> bool:
-        if model_engine == "gpt-3.5-turbo-instruct":
-            return False
-        elif model_engine.startswith("gpt-3.5") or model_engine.startswith("gpt-4") or model_engine.startswith("o1"):
-            return True
-        return False
 
     def _get_model_for_request(self, request: Request) -> str:
         return request.model_engine
@@ -140,6 +134,19 @@ class OpenAIClient(CachingClient):
                         base64_image: str = encode_base64(media_object.location)
                         image_object: Dict[str, str] = {"url": f"data:image/jpeg;base64,{base64_image}"}
                         content.append({"type": "image_url", "image_url": image_object})
+                    elif media_object.is_type("audio") and media_object.location:
+                        base64_audio: str = multimodal_request_utils.get_contents_as_base64(media_object.location)
+                        format: str = media_object.content_type.split("/")[1]
+                        if format == "mpeg":
+                            # OpenAI expects "mp3" for mpeg audio
+                            format = "mp3"
+
+                        content.append(
+                            {
+                                "type": "input_audio",
+                                "input_audio": {"data": base64_audio, "format": format},
+                            }
+                        )
                     elif media_object.is_type(TEXT_TYPE):
                         content.append({"type": media_object.type, "text": media_object.text})
                     else:
@@ -181,6 +188,16 @@ class OpenAIClient(CachingClient):
                 raw_request.pop("max_tokens")
             # Avoid error:
             # "Invalid type for 'stop': expected an unsupported value, but got null instead."
+            if raw_request["stop"] is None:
+                raw_request.pop("stop")
+
+        # Special handling for gpt-4o-audio-preview
+        # See: https://platform.openai.com/docs/guides/audio
+        if request.model_engine.startswith("gpt-4o-audio-preview"):
+            raw_request["modalities"] = ["text"]
+
+            # Avoid error:
+            # OpenAI error: Error code: 400 - {'error': {'message': "[{'type': 'string_type', 'loc': ('body', 'stop', 'str'), 'msg': 'Input should be a valid string', 'input': None}, {'type': 'list_type', 'loc': ('body', 'stop', 'list[str]'), 'msg': 'Input should be a valid list', 'input': None}, {'type': 'list_type', 'loc': ('body', 'stop', 'list[list[int]]'), 'msg': 'Input should be a valid list', 'input': None}]", 'type': 'invalid_request_error', 'param': None, 'code': None}}  # noqa: 3501
             if raw_request["stop"] is None:
                 raw_request.pop("stop")
 
@@ -316,7 +333,10 @@ class OpenAIClient(CachingClient):
     def make_request(self, request: Request) -> RequestResult:
         if request.embedding:
             return self._make_embedding_request(request)
-        elif self._is_chat_model_engine(request.model_engine):
-            return self._make_chat_request(request)
         else:
-            return self._make_completion_request(request)
+            return self._make_chat_request(request)
+
+
+class OpenAILegacyCompletionsClient(OpenAIClient):
+    def make_request(self, request: Request) -> RequestResult:
+        return self._make_completion_request(request)

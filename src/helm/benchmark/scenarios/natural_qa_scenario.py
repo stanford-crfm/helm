@@ -10,7 +10,7 @@ from helm.common.hierarchical_logger import htrack_block, hlog
 from typing import List, Dict
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists, asdict_without_nones
-from .scenario import (
+from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
     Reference,

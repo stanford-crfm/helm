@@ -11,10 +11,10 @@ from helm.benchmark.metrics.efficiency_metrics import EfficiencyMetric
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from .metric import MetricInterface, MetricResult, PerInstanceStats, add_context
-from .metric_name import MetricContext, MetricName
-from .metric_service import MetricService
-from .statistic import Stat, merge_stat
+from helm.benchmark.metrics.metric import MetricInterface, MetricResult, PerInstanceStats, add_context
+from helm.benchmark.metrics.metric_name import MetricContext, MetricName
+from helm.benchmark.metrics.metric_service import MetricService
+from helm.benchmark.metrics.statistic import Stat, merge_stat
 
 
 class LanguageModelingMetric(MetricInterface):

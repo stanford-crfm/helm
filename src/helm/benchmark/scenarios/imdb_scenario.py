@@ -2,8 +2,17 @@ import os
 from typing import List, Dict, Optional
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, Input, Output
-from .imdb_scenario_pinned_file_order import listdir_with_pinned_file_order
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    CORRECT_TAG,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    Input,
+    Output,
+)
+from helm.benchmark.scenarios.imdb_scenario_pinned_file_order import listdir_with_pinned_file_order
 
 
 class IMDBScenario(Scenario):

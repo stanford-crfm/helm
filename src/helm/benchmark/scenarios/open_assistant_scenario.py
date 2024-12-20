@@ -2,7 +2,16 @@ from typing import List, Dict, Any, DefaultDict
 from datasets import load_dataset, Dataset
 from collections import defaultdict
 
-from .scenario import CORRECT_TAG, Reference, Scenario, Instance, Input, TRAIN_SPLIT, VALID_SPLIT, Output
+from helm.benchmark.scenarios.scenario import (
+    CORRECT_TAG,
+    Reference,
+    Scenario,
+    Instance,
+    Input,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    Output,
+)
 
 
 class OpenAssistantScenario(Scenario):
@@ -110,7 +119,7 @@ class OpenAssistantScenario(Scenario):
             return instances
 
         # Download the raw data from Huggingface
-        dataset: Any = load_dataset("OpenAssistant/oasst1")
+        dataset: Any = load_dataset("OpenAssistant/oasst1", revision="fdf72ae0827c1cda404aff25b6603abec9e3399b")
 
         # Get the instances for each split
         train_instances = get_split_instances(dataset["train"], TRAIN_SPLIT)

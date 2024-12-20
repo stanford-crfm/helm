@@ -4,7 +4,7 @@ from helm.benchmark.model_deployment_registry import ModelDeployment, get_model_
 from helm.common.request import Request, GeneratedOutput
 from helm.tokenizers.auto_tokenizer import AutoTokenizer
 from helm.common.tokenization_request import TokenizationRequest, TokenizationRequestResult
-from .token_counter import TokenCounter
+from helm.proxy.token_counters.token_counter import TokenCounter
 
 
 class AutoTokenCounter(TokenCounter):

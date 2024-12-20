@@ -15,7 +15,6 @@ from helm.common.file_upload_request import FileUploadRequest, FileUploadResult
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from helm.common.clip_score_request import CLIPScoreRequest, CLIPScoreResult
 from helm.common.tokenization_request import (
-    WindowServiceInfo,
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequestResult,
@@ -25,7 +24,7 @@ from helm.common.request import Request, RequestResult
 from dacite import from_dict
 from helm.proxy.accounts import Account
 from helm.proxy.query import Query, QueryResult
-from .service import Service, GeneralInfo
+from helm.proxy.services.service import Service, GeneralInfo
 
 
 class RemoteServiceError(Exception):
@@ -50,11 +49,6 @@ class RemoteService(Service):
     def get_general_info(self) -> GeneralInfo:
         response = requests.get(f"{self.base_url}/api/general_info").json()
         return from_dict(GeneralInfo, response)
-
-    def get_window_service_info(self, model_name) -> WindowServiceInfo:
-        params = {"model_name": model_name}
-        response = requests.get(f"{self.base_url}/api/window_service_info?{urllib.parse.urlencode(params)}").json()
-        return from_dict(WindowServiceInfo, response)
 
     def expand_query(self, query: Query) -> QueryResult:
         params = asdict(query)

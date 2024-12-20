@@ -11,7 +11,7 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
     TokenizationToken,
 )
-from .tokenizer import Tokenizer
+from helm.tokenizers.tokenizer import Tokenizer
 
 
 class CachingTokenizer(Tokenizer):

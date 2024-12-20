@@ -2,7 +2,7 @@ from typing import List, Dict
 
 from helm.common.cache import CacheConfig
 from helm.common.request import Request, RequestResult, GeneratedOutput, Token
-from .client import CachingClient, truncate_sequence
+from helm.clients.client import CachingClient, truncate_sequence
 
 
 class GoogleClient(CachingClient):

@@ -16,11 +16,11 @@ from helm.benchmark.metrics.evaluate_reference_metrics import get_rouge_function
 from helm.common.hierarchical_logger import hlog
 from helm.common.general import ensure_file_downloaded
 from helm.common.optional_dependencies import handle_module_not_found_error
-from .metric import Metric, MetricResult
-from .metric_name import MetricName
-from .metric_service import MetricService
-from .statistic import Stat
-from .summac.model_summac import SummaCZS
+from helm.benchmark.metrics.metric import Metric, MetricResult
+from helm.benchmark.metrics.metric_name import MetricName
+from helm.benchmark.metrics.metric_service import MetricService
+from helm.benchmark.metrics.statistic import Stat
+from helm.benchmark.metrics.summac.model_summac import SummaCZS
 from bert_score import BERTScorer
 
 

@@ -3,7 +3,7 @@ import json
 import random
 from typing import Dict, List, Tuple
 
-from .scenario import (
+from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
     Reference,

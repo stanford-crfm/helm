@@ -34,10 +34,20 @@ helm-server --suite $SUITE_NAME
 
 The following specifies the appropriate parameters and configuration files for a leaderboard, given its project and version number.
 
-### Lite
+### Lite for non-instruction-following models
 
 ```bash
 export RUN_ENTRIES_CONF_PATH=run_entries_lite_20240424.conf
+export SCHEMA_PATH=schema_lite.yaml
+export NUM_TRAIN_TRIALS=1
+export MAX_EVAL_INSTANCES=1000
+export PRIORITY=2
+```
+
+### Lite for instruction-following models
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_lite_20240424_output_format_instructions.conf
 export SCHEMA_PATH=schema_lite.yaml
 export NUM_TRAIN_TRIALS=1
 export MAX_EVAL_INSTANCES=1000
@@ -94,6 +104,16 @@ export NUM_EVAL_INSTANCES=1000
 export PRIORITY=2
 ```
 
+### VHELM >=v2.0.0
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_vhelm.conf
+export SCHEMA_PATH=schema_vhelm.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=1000
+export PRIORITY=2
+```
+
 ### AIR-Bench
 
 ```bash
@@ -101,5 +121,15 @@ export RUN_ENTRIES_CONF_PATH=run_entries_air_bench.conf
 export SCHEMA_PATH=schema_air_bench.yaml
 export NUM_TRAIN_TRIALS=1
 export NUM_EVAL_INSTANCES=10000
+export PRIORITY=2
+```
+
+### Safety
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_safety.conf
+export SCHEMA_PATH=schema_safety.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=1000
 export PRIORITY=2
 ```

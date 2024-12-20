@@ -145,6 +145,23 @@ models:
     release_date: 2023-02-24
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: aisingapore/llama3-8b-cpt-sea-lionv2-base
+    display_name: Llama 3 CPT SEA-Lion v2 (8B)
+    description: Llama 3 CPT SEA-Lion v2 (8B) is a multilingual model which was continued pre-trained on 48B additional tokens, including tokens in Southeast Asian languages.
+    creator_organization_name: AI Singapore
+    access: open
+    num_parameters: 80300000000
+    release_date: 2024-07-31
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: aisingapore/llama3-8b-cpt-sea-lionv2.1-instruct
+    display_name: Llama 3 CPT SEA-Lion v2.1 Instruct (8B)
+    description: Llama 3 CPT SEA-Lion v2.1 Instruct (8B) is a multilingual model which has been fine-tuned with around 100,000 English instruction-completion pairs alongside a smaller pool of around 50,000 instruction-completion pairs from other Southeast Asian languages, such as Indonesian, Thai and Vietnamese.
+    creator_organization_name: AI Singapore
+    access: open
+    num_parameters: 80300000000
+    release_date: 2024-08-21
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # Aleph Alpha
   # Aleph Alpha's Luminous models: https://docs.aleph-alpha.com/docs/introduction/luminous
@@ -203,6 +220,7 @@ models:
 
 
   # Amazon
+  # Titan Models
   # References for Amazon Titan models:
   # - https://aws.amazon.com/bedrock/titan/
   # - https://community.aws/content/2ZUVD3fkNtqEOYIa2iUJAFArS7c/family-of-titan-text-models---cli-demo
@@ -213,16 +231,8 @@ models:
     creator_organization_name: Amazon
     access: limited
     release_date: 2023-11-29
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
-
-  - name: amazon/titan-tg1-large
-    display_name: Amazon Titan Large
-    description: Amazon Titan Large is efficient model perfect for fine-tuning English-language tasks like summarization, create article, marketing campaign.
-    creator_organization_name: Amazon
-    access: limited
-    release_date: 2023-11-29
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
-
+    tags: [BEDROCK_MODEL_TAG,TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+ 
   - name: amazon/titan-text-express-v1
     display_name: Amazon Titan Text Express
     description: Amazon Titan Text Express, with a context length of up to 8,000 tokens, excels in advanced language tasks like open-ended text generation and conversational chat. It's also optimized for Retrieval Augmented Generation (RAG). Initially designed for English, the model offers preview multilingual support for over 100 additional languages.
@@ -231,6 +241,93 @@ models:
     release_date: 2023-11-29
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+# Mistral Models on Bedrock
+# References for Mistral on Amazon Bedrock
+# https://aws.amazon.com/bedrock/mistral/
+
+  - name: mistralai/amazon-mistral-7b-instruct-v0:2
+    display_name:  Mistral 7B Instruct on Amazon Bedrock
+    description: A 7B dense Transformer, fast-deployed and easily customisable. Small, yet powerful for a variety of use cases. Supports English and code, and a 32k context window.
+    creator_organization_name: Mistral
+    access: limited
+    release_date: 2024-03-23
+    tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/amazon-mixtral-8x7b-instruct-v0:1
+    display_name: Mixtral 8x7B Instruct on Amazon Bedrock
+    description: A 7B sparse Mixture-of-Experts model with stronger capabilities than Mistral 7B. Uses 12B active parameters out of 45B total. Supports multiple languages, code and 32k context window.
+    creator_organization_name: Mistral
+    access: limited
+    release_date: 2023-12-11
+    tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/amazon-mistral-large-2402-v1:0
+    display_name: Mistral Large(2402) on Amazon Bedrock
+    description: The most advanced Mistral AI Large Language model capable of handling any language task including complex multilingual reasoning, text understanding, transformation, and code generation.
+    creator_organization_name: Mistral
+    access: limited
+    release_date: 2023-07-26
+    tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/amazon-mistral-small-2402-v1:0
+    display_name: Mistral Small on Amazon Bedrock
+    description: Mistral Small is perfectly suited for straightforward tasks that can be performed in bulk, such as classification, customer support, or text generation. It provides outstanding performance at a cost-effective price point.
+    creator_organization_name: Mistral
+    access: limited
+    release_date: 2023-02-26
+    tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/amazon-mistral-large-2407-v1:0
+    display_name: Mistral Large(2407) on Amazon Bedrock
+    description: Mistral Large 2407 is an advanced Large Language Model (LLM) that supports dozens of languages and is trained on 80+ coding languages. It has best-in-class agentic capabilities with native function calling JSON outputting and reasoning capabilities.
+    creator_organization_name: Mistral
+    access: limited
+    release_date: 2024-07-24
+    tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+# Llama3 on Amazon Bedrock
+# References for Llama3 on Amazon Bedrock
+# https://aws.amazon.com/bedrock/llama/
+
+  - name: meta/amazon-llama3-8b-instruct-v1:0
+    display_name: Llama 3 8B Instruct on Amazon Bedrock
+    description: Meta Llama 3 is an accessible, open large language model (LLM) designed for developers, researchers, and businesses to build, experiment, and responsibly scale their generative AI ideas. Part of a foundational system, it serves as a bedrock for innovation in the global community. Ideal for limited computational power and resources, edge devices, and faster training times.
+    creator_organization_name: Meta
+    access: limited
+    release_date: 2024-04-23
+    tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: meta/amazon-llama3-70b-instruct-v1:0
+    display_name: Llama 3 70B Instruct on Amazon Bedrock
+    description: Meta Llama 3 is an accessible, open large language model (LLM) designed for developers, researchers, and businesses to build, experiment, and responsibly scale their generative AI ideas. Part of a foundational system, it serves as a bedrock for innovation in the global community. Ideal for content creation, conversational AI, language understanding, R&D, and Enterprise applications.
+    creator_organization_name: Meta
+    access: limited
+    release_date: 2024-04-23
+    tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: meta/amazon-llama3-1-405b-instruct-v1:0
+    display_name: Llama 3.1 405b Instruct on Amazon Bedrock.
+    description: Meta's Llama 3.1 offers multilingual models (8B, 70B, 405B) with 128K context, improved reasoning, and optimization for dialogue. It outperforms many open-source chat models and is designed for commercial and research use in multiple languages.
+    creator_organization_name: Meta
+    access: limited
+    release_date: 2024-07-26
+    tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: meta/amazon-llama3-1-70b-instruct-v1:0
+    display_name: Llama 3.1 70b Instruct on Amazon Bedrock.
+    description: Meta's Llama 3.1 offers multilingual models (8B, 70B, 405B) with 128K context, improved reasoning, and optimization for dialogue. It outperforms many open-source chat models and is designed for commercial and research use in multiple languages.
+    creator_organization_name: Meta
+    access: limited
+    release_date: 2024-07-26
+    tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: meta/amazon-llama3-1-8b-instruct-v1:0
+    display_name: Llama 3.1 8b Instruct on Amazon Bedrock.
+    description: Meta's Llama 3.1 offers multilingual models (8B, 70B, 405B) with 128K context, improved reasoning, and optimization for dialogue. It outperforms many open-source chat models and is designed for commercial and research use in multiple languages.
+    creator_organization_name: Meta
+    access: limited
+    release_date: 2024-07-26
+    tags: [BEDROCK_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # Anthropic
   - name: anthropic/claude-v1.3
@@ -298,12 +395,28 @@ models:
     release_date: 2024-03-04  # https://www.anthropic.com/news/claude-3-family
     tags: [ANTHROPIC_CLAUDE_3_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: anthropic/claude-3-5-haiku-20241022
+    display_name: Claude 3.5 Haiku (20241022)
+    description: Claude 3.5 Haiku is a Claude 3 family model which matches the performance of Claude 3 Opus at a similar speed to the previous generation of Haiku ([blog](https://www.anthropic.com/news/3-5-models-and-computer-use)).
+    creator_organization_name: Anthropic
+    access: limited
+    release_date: 2024-11-04  # Released after the blog post
+    tags: [ANTHROPIC_CLAUDE_3_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: anthropic/claude-3-5-sonnet-20240620
     display_name: Claude 3.5 Sonnet (20240620)
     description: Claude 3.5 Sonnet is a Claude 3 family model which outperforms Claude 3 Opus while operating faster and at a lower cost. ([blog](https://www.anthropic.com/news/claude-3-5-sonnet))
     creator_organization_name: Anthropic
     access: limited
     release_date: 2024-06-20
+    tags: [ANTHROPIC_CLAUDE_3_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: anthropic/claude-3-5-sonnet-20241022
+    display_name: Claude 3.5 Sonnet (20241022)
+    description: Claude 3.5 Sonnet is a Claude 3 family model which outperforms Claude 3 Opus while operating faster and at a lower cost ([blog](https://www.anthropic.com/news/claude-3-5-sonnet)). This is an upgraded snapshot released on 2024-10-22 ([blog](https://www.anthropic.com/news/3-5-models-and-computer-use)).
+    creator_organization_name: Anthropic
+    access: limited
+    release_date: 2024-10-22
     tags: [ANTHROPIC_CLAUDE_3_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: anthropic/stanford-online-all-v4-s3
@@ -802,7 +915,7 @@ models:
     creator_organization_name: Google
     access: limited
     release_date: 2024-05-24
-    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemini-1.5-flash-001
     display_name: Gemini 1.5 Flash (001)
@@ -810,7 +923,7 @@ models:
     creator_organization_name: Google
     access: limited
     release_date: 2024-05-24
-    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemini-1.5-pro-preview-0409
     display_name: Gemini 1.5 Pro (0409 preview)
@@ -867,6 +980,30 @@ models:
     access: limited
     release_date: 2024-05-24
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-1.5-pro-002
+    display_name: Gemini 1.5 Pro (002)
+    description: Gemini 1.5 Pro is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. This model is accessed through Vertex AI and has all safety thresholds set to `BLOCK_NONE`. ([paper](https://arxiv.org/abs/2403.05530))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2024-09-24
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-1.5-flash-002
+    display_name: Gemini 1.5 Flash (002)
+    description: Gemini 1.5 Flash is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. This model is accessed through Vertex AI and has all safety thresholds set to `BLOCK_NONE`. ([paper](https://arxiv.org/abs/2403.05530))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2024-09-24
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-2.0-flash-exp
+    display_name: Gemini 2.0 Flash (Experimental)
+    description: Gemini 2.0 Flash (Experimental) is a Gemini model that supports multimodal inputs like images, video and audio, as well as multimodal output like natively generated images mixed with text and steerable text-to-speech (TTS) multilingual audio. ([blog](https://blog.google/technology/google-deepmind/google-gemini-ai-update-december-2024/#gemini-2-0-flash))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2024-12-11
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemma-2b
     display_name: Gemma (2B)
@@ -1427,6 +1564,24 @@ models:
     num_parameters: 8000000000
     release_date: 2024-04-18
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: meta/llama-3-8b-instruct-turbo
+    display_name: Llama 3 Instruct Turbo (8B)
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/) Turbo is Together's implementation, providing fast FP8 performance while maintaining quality, closely matching FP16 reference models. ([blog](https://www.together.ai/blog/together-inference-engine-2))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-07-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: meta/llama-3-8b-instruct-lite
+    display_name: Llama 3 Instruct Lite (8B)
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/) Lite is Together's implementation, it leverages a number of optimizations including INT4 quantization, provides the most cost-efficient and scalable Llama 3 models available anywhere, while maintaining excellent quality relative to full precision reference implementations ([blog](https://www.together.ai/blog/together-inference-engine-2))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-07-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
     
   - name: meta/llama-3-70b
     display_name: Llama 3 (70B)
@@ -1436,6 +1591,24 @@ models:
     num_parameters: 70000000000
     release_date: 2024-04-18
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    
+  - name: meta/llama-3-70b-instruct-turbo
+    display_name: Llama 3 Instruct Turbo (70B)
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/) Turbo is Together's implementation, providing fast FP8 performance while maintaining quality, closely matching FP16 reference models. ([blog](https://www.together.ai/blog/together-inference-engine-2))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-07-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    
+  - name: meta/llama-3-70b-instruct-lite
+    display_name: Llama 3 Instruct Lite (70B)
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/) Lite is Together's implementation, it leverages a number of optimizations including INT4 quantization, provides the most cost-efficient and scalable Llama 3 models available anywhere, while maintaining excellent quality relative to full precision reference implementations ([blog](https://www.together.ai/blog/together-inference-engine-2))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-07-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: meta/llama-3.1-8b-instruct-turbo
     display_name: Llama 3.1 Instruct Turbo (8B)
@@ -1480,7 +1653,7 @@ models:
     access: open
     num_parameters: 10700000000
     release_date: 2024-09-25
-    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG. LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: meta/llama-3.2-90b-vision-instruct-turbo
     display_name: Llama 3.2 Vision Instruct Turbo (90B)
@@ -1489,7 +1662,16 @@ models:
     access: open
     num_parameters: 88600000000
     release_date: 2024-09-25
-    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG. LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: meta/llama-3.3-70b-instruct-turbo
+    display_name: Llama 3.3 Instruct Turbo (70B)
+    description: Llama 3.3 (70B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-12-06
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: meta/llama-3-8b-chat
     display_name: Llama 3 Instruct (8B)
@@ -1831,12 +2013,36 @@ models:
     release_date: 2023-10-16
     tags: [VISION_LANGUAGE_MODEL_TAG, LLAVA_MODEL_TAG, LIMITED_FUNCTIONALITY_VLM_TAG]
 
+  - name: mistralai/ministral-3b-2410
+    display_name: Ministral 3B (2402)
+    description: Ministral 3B (2402) is a model for on-device computing and at-the-edge use cases ([blog](https://mistral.ai/news/ministraux/)).
+    creator_organization_name: Mistral AI
+    access: limited
+    release_date: 2024-10-16
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/ministral-8b-2410
+    display_name: Ministral 8B (2402)
+    description: Ministral 8B (2402) is a model for on-device computing and at-the-edge use cases a special interleaved sliding-window attention pattern for faster and memory-efficient inference ([blog](https://mistral.ai/news/ministraux/)).
+    creator_organization_name: Mistral AI
+    access: open
+    release_date: 2024-10-16
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: mistralai/mistral-small-2402
     display_name: Mistral Small (2402)
     description: Mistral Small is a multilingual model with a 32K tokens context window and function-calling capabilities. ([blog](https://mistral.ai/news/mistral-large/))
     creator_organization_name: Mistral AI
     access: limited
     release_date: 2023-02-26
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/mistral-small-2409
+    display_name: Mistral Small (2409)
+    description: Mistral Small is a multilingual model with a 32K tokens context window and function-calling capabilities. ([blog](https://mistral.ai/news/mistral-large/))
+    creator_organization_name: Mistral AI
+    access: limited
+    release_date: 2024-09-18
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: mistralai/mistral-medium-2312
@@ -1864,6 +2070,15 @@ models:
     release_date: 2023-07-24
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: mistralai/mistral-large-2411
+    display_name: Mistral Large (2411)
+    description: Mistral Large (2411) is a 123B parameter model that has a 128k context window. ([blog](https://mistral.ai/news/pixtral-large/))
+    creator_organization_name: Mistral AI
+    access: open
+    num_parameters: 123000000000
+    release_date: 2024-11-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: mistralai/open-mistral-nemo-2407
     display_name: Mistral NeMo (2402)
     description: Mistral NeMo is a multilingual 12B model with a large context window of 128K tokens. ([blog](https://mistral.ai/news/mistral-nemo/))
@@ -1871,6 +2086,24 @@ models:
     access: open
     release_date: 2024-07-18
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/pixtral-12b-2409
+    display_name: Mistral Pixtral (2409)
+    description: Mistral Pixtral 12B is the first multimodal Mistral model for image understanding. ([blog](https://mistral.ai/news/pixtral-12b/))
+    creator_organization_name: Mistral AI
+    access: open
+    release_date: 2024-09-17
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/pixtral-large-2411
+    display_name: Mistral Pixtral Large (2411)
+    description: Mistral Pixtral Large is a 124B open-weights multimodal model built on top of Mistral Large 2 (2407). ([blog](https://mistral.ai/news/pixtral-large/))
+    creator_organization_name: Mistral AI
+    access: open
+    num_parameters: 124000000000
+    release_date: 2024-11-18
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
 
   # MosaicML
   - name: mosaicml/mpt-7b
@@ -1928,6 +2161,27 @@ models:
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
 
+    
+  # NECTEC
+  - name: nectec/Pathumma-llm-text-1.0.0
+    display_name: Pathumma-llm-text-1.0.0 (7B)
+    description: Pathumma-llm-text-1.0.0 (7B) is a instruction model from  OpenThaiLLM-Prebuilt-7B ([blog](https://medium.com/nectec/pathummallm-v-1-0-0-release-6a098ddfe276))
+    creator_organization_name: nectec
+    access: open
+    num_parameters: 7620000000
+    release_date: 2024-10-28
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+ 
+  - name: nectec/OpenThaiLLM-Prebuilt-7B
+    display_name: OpenThaiLLM-Prebuilt-7B (7B)
+    description: OpenThaiLLM-Prebuilt-7B (7B) is a pretrained Thai large language model with 7 billion parameters based on Qwen2.5-7B.
+    creator_organization_name: nectec
+    access: open
+    num_parameters: 7620000000
+    release_date: 2024-10-28
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+
 
   # Neurips
   - name: neurips/local
@@ -1956,6 +2210,16 @@ models:
     access: open
     release_date: 2024-06-17
     tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: nvidia/llama-3.1-nemotron-70b-instruct
+    display_name: Llama 3.1 Nemotron Instruct (70B)
+    description: Llama-3.1-Nemotron-70B-Instruct is a large language model customized by NVIDIA to improve the helpfulness of LLM generated responses to user queries. It was trained using RLHF (specifically, REINFORCE), Llama-3.1-Nemotron-70B-Reward and HelpSteer2-Preference prompts on a Llama-3.1-70B-Instruct model. ([paper](https://arxiv.org/abs/2410.01257))
+    creator_organization_name: NVIDIA
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-10-02
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
 
   # OpenAI
 
@@ -2141,7 +2405,7 @@ models:
     tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
 
-  ## GPT 4 Models
+  ## GPT-4 and GPT-4 Turbo
 
   - name: openai/gpt-4-1106-preview
     display_name: GPT-4 Turbo (1106 preview)
@@ -2193,6 +2457,8 @@ models:
     release_date: 2024-01-25
     tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  ## GPT-4o
+
   - name: openai/gpt-4-turbo-2024-04-09
     display_name: GPT-4 Turbo (2024-04-09)
     description: GPT-4 Turbo (2024-04-09) is a large multimodal model that is optimized for chat but works well for traditional completions tasks. The model is cheaper and faster than the original GPT-4 model. Snapshot from 2024-04-09.
@@ -2217,6 +2483,14 @@ models:
     release_date: 2024-08-06
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: openai/gpt-4o-2024-11-20
+    display_name: GPT-4o (2024-11-20)
+    description: GPT-4o (2024-11-20) is a large multimodal model that accepts as input any combination of text, audio, and image and generates any combination of text, audio, and image outputs. ([blog](https://openai.com/index/introducing-structured-outputs-in-the-api/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2024-11-20
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: openai/gpt-4o-mini-2024-07-18
     display_name: GPT-4o mini (2024-07-18)
     description: GPT-4o mini (2024-07-18) is a multimodal model with a context window of 128K tokens and improved handling of non-English text. ([blog](https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/))
@@ -2224,6 +2498,16 @@ models:
     access: limited
     release_date: 2024-07-18
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/gpt-4o-audio-preview-2024-10-01
+    display_name: GPT-4o Audio (Preview 2024-10-01)
+    description: GPT-4o Audio (Preview 2024-10-01) is a preview model that allows using use audio inputs to prompt the model ([documentation](https://platform.openai.com/docs/guides/audio)).
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2024-10-17
+    tags: [AUDIO_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  # GPT-4V
 
   - name: openai/gpt-4-vision-preview
     # According to https://platform.openai.com/docs/models/gpt-4-turbo-and-gpt-4, this model has pointed gpt-4-1106-vision-preview.
@@ -2243,6 +2527,14 @@ models:
     tags: [VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
 
   ## o1 Models
+  - name: openai/o1-2024-12-17
+    display_name: o1 (2024-12-17)
+    description: o1 is a new large language model trained with reinforcement learning to perform complex reasoning. ([model card](https://openai.com/index/openai-o1-system-card/), [blog post](https://openai.com/index/learning-to-reason-with-llms/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2024-12-17
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: openai/o1-preview-2024-09-12
     display_name: o1-preview (2024-09-12)
     description: o1-preview is a language model trained with reinforcement learning to perform complex reasoning that can produce a long internal chain of thought before responding to the user. ([model card](https://openai.com/index/openai-o1-system-card/), [blog post](https://openai.com/index/learning-to-reason-with-llms/))
@@ -2503,6 +2795,22 @@ models:
     release_date: 2024-06-07
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: qwen/qwen2.5-7b-instruct-turbo
+    display_name: Qwen2.5 Instruct Turbo (7B)
+    description: Qwen2.5 Instruct Turbo (7B) was trained on 18 trillion tokens and supports 29 languages, and shows improvements over Qwen2 in knowledge, coding, mathematics, instruction following, generating long texts, and processing structure data. ([blog](https://qwenlm.github.io/blog/qwen2.5/)) Turbo is Together's cost-efficient implementation, providing fast FP8 performance while maintaining quality, closely matching FP16 reference models. ([blog](https://www.together.ai/blog/together-inference-engine-2))
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2024-09-19
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: qwen/qwen2.5-72b-instruct-turbo
+    display_name: Qwen2.5 Instruct Turbo (72B)
+    description: Qwen2.5 Instruct Turbo (72B) was trained on 18 trillion tokens and supports 29 languages, and shows improvements over Qwen2 in knowledge, coding, mathematics, instruction following, generating long texts, and processing structure data. ([blog](https://qwenlm.github.io/blog/qwen2.5/)) Turbo is Together's cost-efficient implementation, providing fast FP8 performance while maintaining quality, closely matching FP16 reference models. ([blog](https://www.together.ai/blog/together-inference-engine-2))
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2024-09-19
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: qwen/qwen-vl
     display_name: Qwen-VL
     description: Visual multimodal version of the Qwen large language model series ([paper](https://arxiv.org/abs/2308.12966)).
@@ -2518,6 +2826,22 @@ models:
     access: open
     release_date: 2023-08-24
     tags: [VISION_LANGUAGE_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
+
+  - name: qwen/qwen-audio-chat
+    display_name: Qwen-Audio Chat
+    description: Auditory multimodal version of the Qwen large language model series ([paper](https://arxiv.org/abs/2311.07919)).
+    creator_organization_name: Alibaba Cloud
+    access: open
+    release_date: 2023-11-14
+    tags: [AUDIO_LANGUAGE_MODEL_TAG]
+
+  - name: qwen/qwen2-audio-instruct
+    display_name: Qwen2-Audio Instruct
+    description: The second version of auditory multimodal version of the Qwen large language model series ([paper](https://arxiv.org/abs/2407.10759)).
+    creator_organization_name: Alibaba Cloud
+    access: open
+    release_date: 2024-07-15
+    tags: [AUDIO_LANGUAGE_MODEL_TAG]
 
   # SAIL (Sea AI Lab)
   - name: sail/sailor-7b
@@ -2866,7 +3190,25 @@ models:
     release_date: 2022-09-19
     tags: [] # TODO: add tags
 
+  # Upstage
+  - name: upstage/solar-pro-preview-instruct
+    display_name: Solar Pro Preview (22B)
+    description: Solar Pro Preview (22B) is open-weights model for single GPU inference that is a preview of the upcoming Solar Pro model ([blog](https://www.upstage.ai/products/solar-pro-preview)).
+    creator_organization_name: Upstage
+    access: open
+    num_parameters: 22000000000
+    release_date: 2024-09-11
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: upstage/solar-pro-241126
+    display_name: Solar Pro
+    display_name: Solar Pro
+    description: Solar Pro is a LLM designed for instruction-following and processing structured formats like HTML and Markdown. It supports English, Korean, and Japanese and has domain expertise in Finance, Healthcare, and Legal. ([blog](https://www.upstage.ai/blog/press/solar-pro-aws)).
+    creator_organization_name: Upstage
+    access: limited
+    num_parameters: 22000000000
+    release_date: 2024-11-26
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   # Writer
   - name: writer/palmyra-base
@@ -3004,6 +3346,16 @@ models:
     release_date: 2024-07-31
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  # xAI
+
+  - name: xai/grok-beta
+    display_name: Grok Beta
+    description: Grok Beta is a model from xAI.
+    creator_organization_name: xAI
+    access: closed
+    release_date: 2024-08-13
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   # Yandex
   - name: yandex/yalm
     display_name: YaLM (100B)
@@ -3075,3 +3427,109 @@ models:
     release_date: 2024-04-18
     tags: [VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
   
+# Diva Llama
+  - name: stanford/diva-llama
+    display_name: Diva Llama 3 (8B)
+    description: Diva Llama 3 is an end-to-end Voice Assistant Model which can handle speech and text as inputs. It was trained using distillation loss. ([paper](https://arxiv.org/abs/2410.02678))
+    creator_organization_name: Stanford
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-10-03
+    tags: [AUDIO_LANGUAGE_MODEL_TAG]
+
+
+# LLaMA-Omni
+  - name: ictnlp/llama-3.1-8b-omni
+    display_name: LLaMA-Omni (8B)
+    description: The audio-visual multimodal version of the LLaMA 3.1 model ([paper](https://arxiv.org/abs/2409.06666)).
+    creator_organization_name: ICTNLP
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-09-10
+    tags: [AUDIO_LANGUAGE_MODEL_TAG]
+
+# Granite - IBM
+# https://www.ibm.com/granite
+# https://github.com/ibm-granite/granite-3.0-language-models
+
+  - name: ibm-granite/granite-3.0-2b-base
+    display_name: Granite 3.0 base (2B)
+    description: Granite-3.0-2B-Base is a decoder-only language model to support a variety of text-to-text generation tasks.
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 2530000000
+    release: 2024-10-21
+    tags: [TEXT_MODEL_TAG]
+
+  - name: ibm-granite/granite-3.0-2b-instruct
+    display_name: Granite 3.0 Instruct (2B)
+    description:  Granite-3.0-2B-Instruct is a 2B parameter model finetuned from Granite-3.0-2B-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets. 
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 2630000000
+    release: 2024-10-21
+    tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: ibm-granite/granite-3.0-8b-instruct
+    display_name: Granite 3.0 instruct (8B)
+    description:  Granite-3.0-8B-Instruct is a 8B parameter model finetuned from Granite-3.0-8B-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets.
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 8170000000
+    release: 2024-10-21
+    tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: ibm-granite/granite-3.0-8b-base
+    display_name: Granite 3.0 base (8B)
+    description: Granite-3.0-8B-Base is a decoder-only language model to support a variety of text-to-text generation tasks.
+    creator_organization_name: IBM 
+    access: open
+    num_parameters: 8170000000
+    release: 2024-10-21
+    tags: [TEXT_MODEL_TAG]
+
+  - name: ibm-granite/granite-3.0-3b-a800m-instruct
+    display_name: Granite 3.0 A800M instruct (3B)
+    description: Granite-3.0-3B-A800M-Instruct is a 3B parameter model finetuned from Granite-3.0-3B-A800M-Base-4K using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets.
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 3370000000
+    release: 2024-10-21
+    tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: ibm-granite/granite-3.0-3b-a800m-base
+    display_name: Granite 3.0 A800M base (3B)
+    description: Granite-3.0-3B-A800M-Base is a decoder-only language model to support a variety of text-to-text generation tasks.
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 3370000000
+    release: 2024-10-21
+    tags: [TEXT_MODEL_TAG]
+
+  - name: ibm-granite/granite-3.0-1b-a400m-instruct
+    display_name: Granite 3.0 A400M instruct (1B)
+    description: Granite-3.0-1B-A400M-Instruct is an 1B parameter model finetuned from Granite-3.0-1B-A400M-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets.
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 1330000000
+    release: 2024-10-21
+    tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: ibm-granite/granite-3.0-1b-a400m-base
+    display_name: Granite 3.0 A400M base (1B)
+    description: Granite-3.0-1B-A400M-Base is a decoder-only language model to support a variety of text-to-text generation tasks. It is trained from scratch following a two-stage training strategy.
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 1380000000
+    release: 2024-10-21
+    tags: [TEXT_MODEL_TAG]
+
+  - name: maritaca-ai/sabia-7b
+    display_name: Sabia 7B
+    description: Sabia 7B
+    creator_organization_name: MARITACA-AI
+    access: open
+    num_parameters: 6740000000
+    release_date: 2023-11-08
+    tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+   

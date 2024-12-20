@@ -29,9 +29,9 @@ from helm.common.perspective_api_request import PerspectiveAPIRequest
 from helm.common.moderations_api_request import ModerationAPIRequest
 from helm.common.tokenization_request import TokenizationRequest, DecodeRequest
 from helm.proxy.services.service import CACHE_DIR
-from .accounts import Account
-from .services.server_service import ServerService
-from .query import Query
+from helm.proxy.accounts import Account
+from helm.proxy.services.server_service import ServerService
+from helm.proxy.query import Query
 
 try:
     import gunicorn  # noqa
@@ -102,15 +102,6 @@ def handle_get_general_info():
     def perform(args):
         global service
         return dataclasses.asdict(service.get_general_info())
-
-    return safe_call(perform)
-
-
-@app.get("/api/window_service_info")
-def handle_get_window_service_info():
-    def perform(args):
-        global service
-        return dataclasses.asdict(service.get_window_service_info(args["model_name"]))
 
     return safe_call(perform)
 

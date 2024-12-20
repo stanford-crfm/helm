@@ -4,7 +4,7 @@ import csv
 from typing import List, Dict
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import (
+from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
     Reference,

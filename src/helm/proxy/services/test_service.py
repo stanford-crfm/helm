@@ -8,7 +8,7 @@ from helm.common.authentication import Authentication
 from helm.common.request import Request
 from helm.proxy.accounts import AuthenticationError, Accounts
 from helm.proxy.query import Query
-from .server_service import ServerService
+from helm.proxy.services.server_service import ServerService
 
 
 def get_authentication():

@@ -6,7 +6,16 @@ from pathlib import Path
 from typing import List, Dict
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, TEST_SPLIT, Input, Output
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    CORRECT_TAG,
+    TRAIN_SPLIT,
+    TEST_SPLIT,
+    Input,
+    Output,
+)
 
 PROMPT_SETTINGS_URL = "https://www.dropbox.com/s/a5cyevryzw8rt4f/prompt_construction_settings.json?dl=0"
 
@@ -103,7 +112,13 @@ class RAFTScenario(Scenario):
         cache_dir = str(Path(output_path) / "data")
         # Download raw data
         # Note: Only using public labeled instances now. Check if we can get the hidden test set labels.
-        all_usable_dataset = datasets.load_dataset("ought/raft", self.subset, cache_dir=cache_dir, split="train")
+        all_usable_dataset = datasets.load_dataset(
+            "ought/raft",
+            self.subset,
+            cache_dir=cache_dir,
+            split="train",
+            revision="9ee50172ea9afda2f1033c6f1b986e568b862fb3",
+        )
         assert isinstance(all_usable_dataset, datasets.Dataset)
         dataset = all_usable_dataset.train_test_split(test_size=0.8, seed=self.random_seed)
         train_dataset, test_dataset = dataset["train"], dataset["test"]

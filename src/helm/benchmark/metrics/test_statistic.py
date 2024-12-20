@@ -3,8 +3,8 @@ from typing import Dict
 import pytest
 import statistics
 
-from .metric_name import MetricName
-from .statistic import Stat, merge_stat
+from helm.benchmark.metrics.metric_name import MetricName
+from helm.benchmark.metrics.statistic import Stat, merge_stat
 
 
 def test_stat_add():

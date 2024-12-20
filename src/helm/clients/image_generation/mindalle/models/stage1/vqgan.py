@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 from typing import List, Tuple, Optional
 
-from .layers import Encoder, Decoder
+from helm.clients.image_generation.mindalle.models.stage1.layers import Encoder, Decoder
 from helm.common.optional_dependencies import handle_module_not_found_error
 
 

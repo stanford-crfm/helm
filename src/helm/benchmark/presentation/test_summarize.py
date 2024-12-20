@@ -20,7 +20,7 @@ def test_summarize_suite():
             num_threads=4,
             allow_unknown_models=True,
         )
-        summarizer.run_pipeline(skip_completed=True, num_instances=1000)
+        summarizer.run_pipeline(skip_completed=True)
         assert os.path.isfile(os.path.join(output_path, "runs", "test_suite", "groups.json"))
 
 
@@ -38,7 +38,7 @@ def test_summarize_release():
             num_threads=4,
             allow_unknown_models=True,
         )
-        summarizer.run_pipeline(skip_completed=True, num_instances=1000)
+        summarizer.run_pipeline(skip_completed=True)
         assert os.path.isfile(os.path.join(output_path, "releases", "test_release", "groups.json"))
 
 

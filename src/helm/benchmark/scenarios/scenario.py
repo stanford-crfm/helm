@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field, replace
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 import os
 from pathlib import PurePath
 import inspect
@@ -152,6 +152,9 @@ class Instance:
 
     contrast_references: Optional[List[List[Reference]]] = None
     """References for the perturbed input above (if available)"""
+
+    extra_data: Optional[Dict[str, Any]] = None
+    """Extra data required by the scenario e.g. chain-of-thought annotations"""
 
     @property
     def first_correct_reference(self) -> Optional[Reference]:

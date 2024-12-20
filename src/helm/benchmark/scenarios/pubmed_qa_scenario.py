@@ -3,7 +3,15 @@ import os
 from typing import Dict, List
 
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded
-from .scenario import Scenario, Instance, ALL_SPLITS, CORRECT_TAG, Reference, PassageQuestionInput, Output
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    ALL_SPLITS,
+    CORRECT_TAG,
+    Reference,
+    PassageQuestionInput,
+    Output,
+)
 
 
 class PubMedQAScenario(Scenario):

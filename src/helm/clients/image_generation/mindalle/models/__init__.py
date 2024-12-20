@@ -11,12 +11,12 @@ from typing import Optional, Tuple
 from torch.cuda.amp import autocast
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.nn import functional as F
-from .stage1.vqgan import VQGAN
-from .stage2.transformer import Transformer1d, iGPT
-from .. import utils
-from ..utils.config import get_base_config
-from ..utils.sampling import sampling, sampling_igpt
-from .tokenizer import build_tokenizer
+from helm.clients.image_generation.mindalle.models.stage1.vqgan import VQGAN
+from helm.clients.image_generation.mindalle.models.stage2.transformer import Transformer1d, iGPT
+from helm.clients.image_generation.mindalle import utils
+from helm.clients.image_generation.mindalle.utils.config import get_base_config
+from helm.clients.image_generation.mindalle.utils.sampling import sampling, sampling_igpt
+from helm.clients.image_generation.mindalle.models.tokenizer import build_tokenizer
 from helm.common.optional_dependencies import handle_module_not_found_error
 
 

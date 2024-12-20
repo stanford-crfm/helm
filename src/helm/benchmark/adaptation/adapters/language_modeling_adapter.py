@@ -7,7 +7,7 @@ from helm.common.general import flatten_list, parallel_map
 from helm.common.hierarchical_logger import hlog, htrack
 from helm.common.request import Request
 from helm.common.tokenization_request import TokenizationToken
-from .adapter import Adapter
+from helm.benchmark.adaptation.adapters.adapter import Adapter
 
 
 class LanguageModelingAdapter(Adapter):

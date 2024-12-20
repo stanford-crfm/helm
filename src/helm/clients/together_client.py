@@ -7,6 +7,7 @@ import requests
 from retrying import retry
 
 from helm.common.cache import CacheConfig
+from helm.common.media_object import IMAGE_TYPE, TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
 from helm.clients.client import CachingClient, truncate_sequence, cleanup_str
@@ -323,8 +324,29 @@ class TogetherChatClient(CachingClient):
         self._together_model = together_model
 
     def convert_to_raw_chat_request(self, request: Request) -> TogetherRawChatRequest:
+        request.validate()
+        messages: List[Dict[str, Any]]
         if request.messages:
             messages = request.messages
+        elif request.multimodal_prompt:
+            message_contents = []
+            for media_object in request.multimodal_prompt.media_objects:
+                if media_object.is_type(IMAGE_TYPE) and media_object.location:
+                    assert media_object.location
+                    if media_object.is_local_file:
+                        from helm.common.images_utils import encode_base64
+
+                        base64_image: str = encode_base64(media_object.location)
+                        image_url = f"data:image/jpeg;base64,{base64_image}"
+                    else:
+                        image_url = media_object.location
+                    message_contents.append({"type": "image_url", "image_url": {"url": image_url}})
+                elif media_object.is_type(TEXT_TYPE):
+                    assert media_object.text
+                    message_contents.append({"type": "text", "text": media_object.text})
+                else:
+                    raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
+            messages = [{"role": "user", "content": message_contents}]
         else:
             messages = [{"role": "user", "content": request.prompt}]
         if self._together_model is not None:

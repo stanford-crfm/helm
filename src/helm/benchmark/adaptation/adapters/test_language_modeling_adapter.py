@@ -5,8 +5,8 @@ from helm.common.tokenization_request import TokenizationToken
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.request import Request
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from .adapter_factory import AdapterFactory, ADAPT_LANGUAGE_MODELING
-from .test_adapter import TestAdapter
+from helm.benchmark.adaptation.adapters.adapter_factory import AdapterFactory, ADAPT_LANGUAGE_MODELING
+from helm.benchmark.adaptation.adapters.test_adapter import TestAdapter
 from helm.benchmark.scenarios.scenario import TEST_SPLIT, Instance, Input, Reference
 
 

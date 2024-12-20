@@ -16,14 +16,15 @@ from helm.benchmark.model_metadata_registry import (
     ABLATION_MODEL_TAG,
     TEXT_TO_IMAGE_MODEL_TAG,
     VISION_LANGUAGE_MODEL_TAG,
+    AUDIO_LANGUAGE_MODEL_TAG,
     INSTRUCTION_FOLLOWING_MODEL_TAG,
 )
 from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION
 from helm.benchmark.model_deployment_registry import get_model_names_with_tokenizer
-from .run_spec import RunSpec
+from helm.benchmark.run_spec import RunSpec
 from helm.benchmark.adaptation.adapter_spec import ADAPT_MULTIPLE_CHOICE_JOINT, AdapterSpec, Substitution
-from .augmentations.perturbation import PerturbationSpec
-from .augmentations.data_augmenter import DataAugmenterSpec
+from helm.benchmark.augmentations.perturbation import PerturbationSpec
+from helm.benchmark.augmentations.data_augmenter import DataAugmenterSpec
 from helm.benchmark.scenarios.scenario import TEST_SPLIT, VALID_SPLIT
 
 
@@ -588,6 +589,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
             "opinions_qa_ai21": ["ai21/j1-grande", "ai21/j1-jumbo", "ai21/j1-grande-v2-beta"],
             "text_to_image": get_model_names_with_tag(TEXT_TO_IMAGE_MODEL_TAG),
             "vlm": get_model_names_with_tag(VISION_LANGUAGE_MODEL_TAG),
+            "audiolm": get_model_names_with_tag(AUDIO_LANGUAGE_MODEL_TAG),
         }
 
         # For each of the keys above (e.g., "text"), create a corresponding ablation (e.g., "ablation_text")
@@ -1424,14 +1426,20 @@ class OutputFormatInstructions(RunExpander):
     name = "output_format_instructions"
 
     _SUFFIX_SUFFIX = "_suffix"
+    _NO_PREFIX_SUFFIX = "_no_prefix"
 
     def __init__(self, scenario: str):
+        self.suffix = False
         if scenario.endswith(OutputFormatInstructions._SUFFIX_SUFFIX):
-            self.scenario = scenario[: -len(OutputFormatInstructions._SUFFIX_SUFFIX)]
+            scenario = scenario.removesuffix(OutputFormatInstructions._SUFFIX_SUFFIX)
             self.suffix = True
-        else:
-            self.scenario = scenario
-            self.suffix = False
+
+        self.no_prefix = False
+        if scenario.endswith(OutputFormatInstructions._NO_PREFIX_SUFFIX):
+            scenario = scenario.removesuffix(OutputFormatInstructions._NO_PREFIX_SUFFIX)
+            self.no_prefix = True
+
+        self.scenario = scenario
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         if run_spec.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
@@ -1452,6 +1460,8 @@ class OutputFormatInstructions(RunExpander):
                 )
             elif self.scenario == "natural_qa":
                 instructions = "Answer with a short answer or a boolean 'yes' or 'no' answer."
+            elif self.scenario == "natural_qa_short_answer":
+                instructions = "Answer with a short answer."
             elif self.scenario == "legalbench":
                 if output_noun != "Answer":
                     instructions = f"Answer with the {output_noun.lower()}."
@@ -1482,6 +1492,11 @@ class OutputFormatInstructions(RunExpander):
                 )
             else:
                 raise ValueError(f"Unknown scenario {self.scenario}")
+
+        if self.no_prefix:
+            if instructions:
+                instructions += " "
+            instructions += f"Do not include '{run_spec.adapter_spec.output_prefix.strip()}' in your answer."
 
         if self.suffix:
             return [

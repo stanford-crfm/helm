@@ -11,7 +11,7 @@ from helm.common.request import (
     Token,
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
 )
-from .client import CachingClient
+from helm.clients.client import CachingClient
 
 import requests
 

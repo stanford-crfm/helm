@@ -1,2 +1,2 @@
-from .src.flamingo import Flamingo
-from .src.factory import create_model_and_transforms
+from helm.clients.vision_language.open_flamingo.src.flamingo import Flamingo
+from helm.clients.vision_language.open_flamingo.src.factory import create_model_and_transforms

@@ -17,9 +17,12 @@ export default function VHELMLanding() {
         <a
           className="px-10 btn rounded-md"
           // TODO: update with VHELM paper link
-          href="https://arxiv.org/abs/2311.04287"
+          href="https://arxiv.org/abs/2410.07112"
         >
           Paper
+        </a>
+        <a className="px-10 btn rounded-md" href="#/leaderboard">
+          Leaderboard
         </a>
         <a
           className="px-10 btn rounded-md"

@@ -7,9 +7,9 @@ from typing import Optional
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from helm.common.general import handle_module_not_found_error
-from .flamingo import Flamingo
-from .flamingo_lm import FlamingoLMMixin
-from .utils import extend_instance
+from helm.clients.vision_language.open_flamingo.src.flamingo import Flamingo
+from helm.clients.vision_language.open_flamingo.src.flamingo_lm import FlamingoLMMixin
+from helm.clients.vision_language.open_flamingo.src.utils import extend_instance
 
 
 def create_model_and_transforms(

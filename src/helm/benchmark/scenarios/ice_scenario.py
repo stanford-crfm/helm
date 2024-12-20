@@ -5,8 +5,8 @@ from enum import Enum
 import pandas as pd
 
 from helm.common.optional_dependencies import handle_module_not_found_error
-from .ice_scenario_pinned_file_order import listdir_with_pinned_file_order
-from .scenario import Scenario, Instance, TEST_SPLIT, Input
+from helm.benchmark.scenarios.ice_scenario_pinned_file_order import listdir_with_pinned_file_order
+from helm.benchmark.scenarios.scenario import Scenario, Instance, TEST_SPLIT, Input
 
 try:
     # pd.read_excel() uses xlrd
@@ -114,8 +114,12 @@ class ICEScenario(Scenario):
     """
     The International Corpus of English (ICE).
 
-    NOTE: This text cannot be downloaded
-    automatically. You must extract each subset zip file into /benchmark_output/scenarios/ice.
+    NOTE: This text cannot be downloaded automatically.
+    You must extract each subset zip file into args.output_path + '/scenarios/ice',
+    which is by default '/benchmark_output/scenarios/ice',
+    where args.output_path is parsed from the command line argument.
+    See helm.benchmark.runner for more details about args.output_path.
+
     The archives should extract into folders named according to the dictionary SUBSET_TO_DIRECTORY
     below.
 

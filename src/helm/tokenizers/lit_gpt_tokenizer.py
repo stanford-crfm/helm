@@ -5,7 +5,7 @@ import torch
 
 from helm.common.cache import CacheConfig
 from helm.common.optional_dependencies import OptionalDependencyNotInstalled
-from .caching_tokenizer import CachingTokenizer
+from helm.tokenizers.caching_tokenizer import CachingTokenizer
 
 try:
     from lit_gpt import Tokenizer as InternalTokenizer

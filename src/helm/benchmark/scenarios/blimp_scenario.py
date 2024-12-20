@@ -4,7 +4,7 @@ from typing import List
 
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog
-from .scenario import CORRECT_TAG, Reference, Scenario, Instance, Input, TEST_SPLIT, Output
+from helm.benchmark.scenarios.scenario import CORRECT_TAG, Reference, Scenario, Instance, Input, TEST_SPLIT, Output
 
 
 class BLiMPScenario(Scenario):

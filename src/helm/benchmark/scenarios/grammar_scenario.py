@@ -1,7 +1,7 @@
 from typing import List
 
-from .scenario import Scenario, Instance, Input, TEST_SPLIT
-from .grammar import read_grammar, generate_derivations, Derivation, get_values, get_tags
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT
+from helm.benchmark.scenarios.grammar import read_grammar, generate_derivations, Derivation, get_values, get_tags
 
 
 class GrammarScenario(Scenario):

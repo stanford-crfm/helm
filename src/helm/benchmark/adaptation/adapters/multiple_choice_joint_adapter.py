@@ -3,7 +3,7 @@ from typing import List, Dict, Optional
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.scenarios.scenario import Instance
 from helm.common.request import Request
-from .in_context_learning_adapter import InContextLearningAdapter
+from helm.benchmark.adaptation.adapters.in_context_learning_adapter import InContextLearningAdapter
 
 
 class MultipleChoiceJointAdapter(InContextLearningAdapter):
@@ -40,7 +40,7 @@ class MultipleChoiceJointAdapter(InContextLearningAdapter):
 
     @staticmethod
     def get_prefix_char(prefix: str) -> str:
-        return prefix.lstrip()[0]
+        return [char for char in prefix if char.isalnum()][0]
 
     @staticmethod
     def get_reference_prefix(prefix: str, i: int) -> str:
