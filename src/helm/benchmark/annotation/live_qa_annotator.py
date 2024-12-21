@@ -5,7 +5,7 @@ from typing import Any
 from helm.common.general import ensure_directory_exists
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
-from helm.benchmark.annotation.score_util import score_with_reasoning
+from helm.benchmark.annotation.model_as_judge import score_with_reasoning
 from helm.clients.auto_client import AutoClient
 
 PROMPT_TEMPLATE = """You are a medical judge will be given a user request and a model response to that request.
