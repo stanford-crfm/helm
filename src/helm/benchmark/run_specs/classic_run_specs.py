@@ -1236,7 +1236,32 @@ def get_mimic_rrs_spec() -> RunSpec:
         metric_specs=get_summarization_metric_specs(metric_args),
         groups=["mimic_rrs"],
     )
-    
+
+@run_spec_function("mimiciv_billing_code")
+def get_mimiciv_billing_code_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.mimiciv_billing_code_scenario.MIMICIVBillingCodeScenario",
+        args={
+            "data_file": "/share/pi/nigam/suhana/medhelm/data/mimic-iv/medical-coding-reproducibility/files/data/mimiciv_icd10/mimiciv_icd10.feather",
+        },
+    )
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Given the following clinical note, predict the ICD-10 codes:",
+        input_noun="Note",
+        output_noun="Predicted ICD-10 Codes",
+        newline_after_input_noun=True,
+        newline_after_output_noun=True,
+        max_tokens=512,
+        max_train_instances=0,
+    )
+
+    return RunSpec(
+        name="mimiciv_billing_code",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs({"task": "mimiciv_billing_code"}),
+        groups=["mimiciv_billing_code"],
+    )
 
 @run_spec_function("medi_qa")
 def get_mimic_rrs_spec() -> RunSpec:
