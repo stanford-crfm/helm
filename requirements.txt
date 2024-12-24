@@ -120,7 +120,7 @@ iniconfig==2.0.0
 jax==0.4.30
 jaxlib==0.4.30
 jieba==0.42.1
-Jinja2==3.1.4
+Jinja2==3.1.5
 jiter==0.8.2
 jiwer==3.0.5
 jmespath==1.0.1
