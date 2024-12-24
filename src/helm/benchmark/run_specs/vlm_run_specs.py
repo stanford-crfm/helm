@@ -55,6 +55,7 @@ def _get_generation_adapter_spec(
 
 def _get_short_answer_generation_adapter_spec(
     instructions: Optional[str] = None,
+    max_tokens: Optional[int] = None,
 ) -> AdapterSpec:
     return _get_generation_adapter_spec(
         instructions=(
@@ -62,7 +63,7 @@ def _get_short_answer_generation_adapter_spec(
             if instructions is None
             else instructions
         ),
-        max_tokens=20,
+        max_tokens=20 if max_tokens is None else max_tokens,
     )
 
 
