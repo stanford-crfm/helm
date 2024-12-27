@@ -138,6 +138,10 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         ):
             run_spec = singleton(IncreaseMaxTokensRunExpander(value=1).expand(run_spec))
 
+        if model.name == "openai/o1-2024-12-17":
+            # Increase max tokens for the latest o1 model by 1000 to handle hidden reasoning tokens
+            run_spec = singleton(IncreaseMaxTokensRunExpander(value=1000).expand(run_spec))
+
         # IDEFICS special handling
         if IDEFICS_MODEL_TAG in model.tags:
             if IDEFICS_INSTRUCT_MODEL_TAG in model.tags:

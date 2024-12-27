@@ -154,6 +154,7 @@ class Qwen2VLMClient(CachingClient):
                         tokens=[Token(text=str(token), logprob=0) for token in tokens],
                     )
                 )
+                hlog(f"Generated: {text_out}")
 
                 request_time += result["request_time"]
                 request_datetime = request_datetime or result.get("request_datetime")
