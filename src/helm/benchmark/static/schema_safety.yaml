@@ -171,6 +171,7 @@ run_groups:
     description: Scenarios for the model safety
     category: All scenarios
     subgroups:
+      # - harm_bench_gcg_transfer
       - harm_bench
       - simple_safety_tests
       - bbq
@@ -180,6 +181,23 @@ run_groups:
   - name: harm_bench
     display_name: HarmBench
     description: HarmBench
+    metric_groups:
+      - accuracy
+      - general_information
+      - annotation_metrics
+    environment:
+      main_name: safety_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: harm_bench_gcg_transfer
+    display_name: HarmBenchGCGTransfer
+    description: HarmBenchGCGTransfer
     metric_groups:
       - accuracy
       - general_information

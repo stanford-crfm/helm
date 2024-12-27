@@ -1,6 +1,3 @@
----
-# EXPERIMENTAL: DO NOT USE IN PROD
-# Temporary schema for prototyping HELM Lite v2
 ############################################################
 metrics:
   # Infrastructure metrics:
@@ -88,31 +85,7 @@ metrics:
     short_display_name: PEM
     description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
     lower_is_better: false
-  - name: ifeval_strict_accuracy
-    display_name: IFEval strict accuracy
-    short_display_name: IFEval Strict Acc
-    description: Fraction of instructions in the instance that are correctly followed.
-    lower_is_better: false
-  - name: chain_of_thought_correctness
-    display_name: COT correct
-    short_display_name: COT correct
-    description: Fraction of correct answers after chain of thought
-    lower_is_better: false
-  - name: wildbench_score
-    display_name: WildBench Score
-    short_display_name: WB Score
-    description: Score of the AI output judged by GPT-4o.
-    lower_is_better: false
-  - name: bigcodebench_p@1
-    display_name: BigCodeBench Pass@1
-    short_display_name: Pass@1
-    description: Accuracy of the AI output judged by BigCodeBench official evaluator.
-    lower_is_better: false
-  - name: omni_math_accuracy
-    display_name: Omni-MATH Accuracy
-    short_display_name: Acc
-    description: Accuracy of the AI output judged by GPT-4.
-    lower_is_better: false
+
 
 ############################################################
 perturbations: []
@@ -153,111 +126,21 @@ run_groups:
     description: Core Scenarios
     category: All scenarios
     subgroups:
-      - mmlu_pro
-      - gpqa
-      - ifeval
-      - wildbench
-      - bigcodebench
-      - omni_math
+      - tweetsentbr
 
-  - name: mmlu_pro
-    display_name: MMLU-Pro
-    description: MMLU-Pro
+  - name: tweetsentbr
+    display_name: TweetSentBR
+    description: TweetSentBR
     metric_groups:
       - accuracy
       - efficiency
       - general_information
     environment:
-      main_name: chain_of_thought_correctness
+      main_name: exact_match
       main_split: test
     taxonomy:
-      task: "?"
-      what: "?"
+      task: "text classification"
+      what: "tweets with sentiments"
       who: "?"
-      when: "?"
-      language: English
-
-  - name: gpqa
-    display_name: GPQA
-    description: GPQA
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: chain_of_thought_correctness
-      main_split: test
-    taxonomy:
-      task: "question answering"
-      what: "graduate-level questions in biology, physics, and chemistry"
-      who: "domain experts"
-      when: "2023"
-      language: English
-  
-  - name: ifeval
-    display_name: IFEval
-    description: IFEval
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: ifeval_strict_accuracy
-      main_split: test
-    taxonomy:
-      task: "instruction following"
-      what: "verifiable general domain instruction following"
-      who: "human annotators"
-      when: "2023"
-      language: English
-  
-  - name: wildbench
-    display_name: WildBench
-    description: WildBench
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: wildbench_score
-      main_split: test
-    taxonomy:
-      task: "instruction following"
-      what: "GPT-judged instruction following with instructions collected from real-user conversations"
-      who: "real-world users"
-      when: "2024"
-      language: English
-
-  - name: bigcodebench
-    display_name: BigCodeBench
-    description: BigCodeBench
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: bigcodebench_p@1
-      main_split: test
-    taxonomy:
-      task: "code generation"
-      what: "function-level code generation tasks with complex instructions and diverse function calls"
-      who: "human annotators"
-      when: "2024"
-      language: English
-
-  - name: omni_math
-    display_name: Omni-MATH
-    description: Omni-MATH
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: omni_math_accuracy
-      main_split: test
-    taxonomy:
-      task: "mathematics"
-      what: "universal Olympiad level mathematic benchmark"
-      who: "human annotators"
-      when: "2024"
-      language: English
+      when: "2018"
+      language: Portuguese

@@ -37,6 +37,9 @@ export default function Run() {
     MetricFieldMap | undefined
   >({});
 
+  const [agreeInput, setAgreeInput] = useState("");
+  const [userAgreed, setUserAgreed] = useState(false);
+
   useEffect(() => {
     const controller = new AbortController();
     async function fetchData() {
@@ -92,6 +95,16 @@ export default function Run() {
   ) {
     return <Loading />;
   }
+
+  // Handler for agreement
+  const handleAgreement = () => {
+    if (agreeInput.trim() === "Yes, I agree") {
+      setUserAgreed(true);
+    } else {
+      setUserAgreed(false);
+      alert("Please type 'Yes, I agree' exactly.");
+    }
+  };
 
   return (
     <>
@@ -178,11 +191,47 @@ export default function Run() {
           </Tab>
         </Tabs>
       </div>
+
+      {activeTab === 0 && runName.includes("gpqa") && !userAgreed && (
+        <div className="mb-8">
+          <hr className="my-4" />
+          <p className="mb-4">
+            The GPQA dataset instances are encrypted by default to comply with
+            the following request:
+          </p>
+          <blockquote className="italic border-l-4 border-gray-300 pl-4 text-gray-700 mb-4">
+            “We ask that you do not reveal examples from this dataset in plain
+            text or images online, to minimize the risk of these instances being
+            included in foundation model training corpora.”
+          </blockquote>
+          <p className="mb-4">
+            If you agree to this condition, please type{" "}
+            <strong>"Yes, I agree"</strong> in the box below and then click{" "}
+            <strong>Decrypt</strong>.
+          </p>
+          <div className="flex gap-2 mt-2">
+            <input
+              type="text"
+              value={agreeInput}
+              onChange={(e) => setAgreeInput(e.target.value)}
+              className="input input-bordered"
+              placeholder='Type "Yes, I agree"'
+            />
+            <button onClick={handleAgreement} className="btn btn-primary">
+              Decrypt
+            </button>
+          </div>
+          <hr className="my-4" />
+        </div>
+      )}
+
       {activeTab === 0 ? (
         <Instances
+          key={userAgreed ? "instances-agreed" : "instances-not-agreed"}
           runName={runName}
           suite={runSuite}
           metricFieldMap={metricFieldMap}
+          userAgreed={userAgreed} // Pass the boolean to Instances
         />
       ) : (
         <RunMetrics

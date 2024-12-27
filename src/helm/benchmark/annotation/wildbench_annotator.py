@@ -1,5 +1,6 @@
 import re
 from typing import Any
+from importlib.resources import files
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
@@ -14,7 +15,8 @@ class WildBenchAnnotator(Annotator):
 
     def __init__(self, auto_client: AutoClient):
         self._auto_client = auto_client
-        with open("src/helm/benchmark/annotation/wildbench/eval_template.score.v2.md") as f:
+        template_path = files("helm.benchmark.annotation.wildbench").joinpath("eval_template.score.v2.md")
+        with template_path.open("r") as f:
             self._score_template = f.read()
         self._pattern = re.compile(
             r'"strengths"\s*:\s*"(.*?)"\s*,\s*"weaknesses"\s*:\s*"(.*?)"\s*,\s*"score"\s*:\s*(".*?"|\d+)', re.DOTALL

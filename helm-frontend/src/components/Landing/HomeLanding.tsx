@@ -15,6 +15,7 @@ import bigscience from "@/assets/logos/bigscience.png";
 import cohere from "@/assets/logos/cohere.png";
 import eleutherai from "@/assets/logos/eleutherai.png";
 import google from "@/assets/logos/google.png";
+import ibm from "@/assets/logos/ibm.png";
 import meta from "@/assets/logos/meta.png";
 import microsoft from "@/assets/logos/microsoft.png";
 import mistral from "@/assets/logos/mistral.png";
@@ -36,6 +37,7 @@ const logos = [
   cohere,
   eleutherai,
   google,
+  ibm,
   meta,
   microsoft,
   mistral,

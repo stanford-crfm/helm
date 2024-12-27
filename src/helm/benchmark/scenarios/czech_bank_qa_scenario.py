@@ -111,10 +111,16 @@ CREATE TABLE "trans" (
     description = "This is a list of SQL queries for a text-to-SQL task over the Czech Bank 1999 dataset."
     tags = ["text_to_sql"]
 
+    def __init__(self, config_name: str):
+        super().__init__()
+        self.config_name = config_name
+
     def get_instances(self, output_path: str) -> List[Instance]:
         cache_dir = os.path.join(output_path, "data")
         ensure_directory_exists(cache_dir)
-        dataset = datasets.load_dataset("yifanmai/czech_bank_qa", split="test", cache_dir=cache_dir)
+        dataset = datasets.load_dataset(
+            "yifanmai/czech_bank_qa", name=self.config_name, split="test", cache_dir=cache_dir
+        )
         instances: List[Instance] = []
         for row in dataset:
             input = Input(text=row["description"])

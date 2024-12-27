@@ -123,3 +123,13 @@ export NUM_TRAIN_TRIALS=1
 export NUM_EVAL_INSTANCES=10000
 export PRIORITY=2
 ```
+
+### Safety
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_safety.conf
+export SCHEMA_PATH=schema_safety.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=1000
+export PRIORITY=2
+```

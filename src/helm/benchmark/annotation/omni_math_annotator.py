@@ -29,7 +29,7 @@ class OmniMATHAnnotator(Annotator):
 
     def __init__(self, auto_client: AutoClient):
         self._auto_client = auto_client
-        template_path = files("src.helm.benchmark.annotation.omni_math").joinpath("gpt_evaluation_template.txt")
+        template_path = files("helm.benchmark.annotation.omni_math").joinpath("gpt_evaluation_template.txt")
         with template_path.open("r") as file:
             self._score_template = file.read()
 

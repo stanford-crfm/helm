@@ -82,6 +82,15 @@ metrics:
     display_name: Judge Score
     description: LLM-as-judge score
     lower_is_better: false
+  - name: comet
+    display_name: COMET Score
+    short_display_name: comet
+    description: A model-based score of similarity of a machine translation based on a source, predicted translation, and reference translation.
+    lower_is_better: false
+  - name: BERTScore-F
+    display_name: BERTScore F1
+    description: BERTScore F1 score.
+    lower_is_better: false
 
   # Toxicity metrics
   - name: expected_max_toxicity
@@ -150,6 +159,7 @@ run_groups:
       - mmlu
       - live_qa
       - medication_qa
+      - medalign
 
   - name: med_qa
     display_name: MedQA
@@ -252,4 +262,19 @@ run_groups:
       what: n/a
       who: n/a
       when: n/a
+      language: English
+  - name: medalign
+    display_name: MedAlign
+    short_display_name: MedAlign
+    description: A question answering dataset for clinical questions, each paired with a relevant patient EHR and a clinician-generated gold response.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: BERTScore-F
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
       language: English
