@@ -51,7 +51,7 @@ class Qwen2VLMClient(CachingClient):
             if loaded is None:
                 hlog(f"Loading model {model_name} and caching in memory...")
                 model = Qwen2VLForConditionalGeneration.from_pretrained(
-                    model_name, torch_dtype="auto", device_map=self._device
+                    model_name, torch_dtype="auto", device_map="auto"
                 ).eval()
                 processor = AutoProcessor.from_pretrained(model_name)
                 loaded = LoadedQwen2ModelProcessor(model=model, processor=processor)
