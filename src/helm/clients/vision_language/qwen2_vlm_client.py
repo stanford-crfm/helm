@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from transformers import Qwen2VLForConditionalGeneration, AutoProcessor
 from qwen_vl_utils import process_vision_info
+import torch
 
 from helm.common.cache import CacheConfig
 from helm.common.gpu_utils import get_torch_device_name
@@ -51,7 +52,7 @@ class Qwen2VLMClient(CachingClient):
             if loaded is None:
                 hlog(f"Loading model {model_name} and caching in memory...")
                 model = Qwen2VLForConditionalGeneration.from_pretrained(
-                    model_name, torch_dtype="auto", device_map="auto"
+                    model_name, torch_dtype=torch.bfloat16, device_map="auto"
                 ).eval()
                 processor = AutoProcessor.from_pretrained(model_name)
                 loaded = LoadedQwen2ModelProcessor(model=model, processor=processor)
