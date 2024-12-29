@@ -51,8 +51,12 @@ class Qwen2VLMClient(CachingClient):
             loaded = _models[model_name]
             if loaded is None:
                 hlog(f"Loading model {model_name} and caching in memory...")
+                # https://huggingface.co/docs/transformers/model_doc/qwen2_vl#flash-attention-2-to-speed-up-generation
                 model = Qwen2VLForConditionalGeneration.from_pretrained(
-                    model_name, torch_dtype=torch.bfloat16, device_map="auto"
+                    model_name,
+                    torch_dtype=torch.bfloat16,
+                    device_map="auto",
+                    attn_implementation="flash_attention_2",
                 ).eval()
                 processor = AutoProcessor.from_pretrained(model_name)
                 loaded = LoadedQwen2ModelProcessor(model=model, processor=processor)
