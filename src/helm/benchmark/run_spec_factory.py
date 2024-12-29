@@ -139,8 +139,11 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             run_spec = singleton(IncreaseMaxTokensRunExpander(value=1).expand(run_spec))
 
         if model.name == "openai/o1-2024-12-17":
-            # Increase max tokens for the latest o1 model by 1000 to handle hidden reasoning tokens
-            run_spec = singleton(IncreaseMaxTokensRunExpander(value=1000).expand(run_spec))
+            # From https://platform.openai.com/docs/guides/reasoning,
+            # "OpenAI recommends reserving at least 25,000 tokens for reasoning and outputs when you start
+            # experimenting with these models. As you become familiar with the number of reasoning tokens your
+            # prompts require, you can adjust this buffer accordingly."
+            run_spec = singleton(IncreaseMaxTokensRunExpander(value=25_000).expand(run_spec))
 
         # IDEFICS special handling
         if IDEFICS_MODEL_TAG in model.tags:
