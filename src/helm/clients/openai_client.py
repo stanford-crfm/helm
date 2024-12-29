@@ -28,6 +28,7 @@ class OpenAIClient(CachingClient):
 
     # Error OpenAI throws when the image in the prompt violates their content policy
     INAPPROPRIATE_IMAGE_ERROR: str = "Your input image may contain content that is not allowed by our safety system"
+    INAPPROPRIATE_PROMPT_ERROR: str = "Invalid prompt: your prompt was flagged"
 
     # Set the finish reason to this if the prompt violates OpenAI's content policy
     CONTENT_POLICY_VIOLATED_FINISH_REASON: str = (
@@ -215,7 +216,7 @@ class OpenAIClient(CachingClient):
             cache_key = self._get_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except openai.OpenAIError as e:
-            if self.INAPPROPRIATE_IMAGE_ERROR in str(e):
+            if self.INAPPROPRIATE_IMAGE_ERROR in str(e) or self.INAPPROPRIATE_PROMPT_ERROR in str(e):
                 hlog(f"Failed safety check: {str(request)}")
                 empty_completion = GeneratedOutput(
                     text="",
