@@ -726,7 +726,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_prefix_exact_match
       main_split: test
     taxonomy:
       task: short-answer question answering
@@ -902,7 +902,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_prefix_exact_match
       main_split: test
     taxonomy:
       task: short-answer question answering
