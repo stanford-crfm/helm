@@ -317,6 +317,7 @@ run_groups:
     subgroups:
       - medcalc_bench
       - medalign
+      - mtsamples
   
   - name: clinical_note_generation
     display_name: Clinical Note Generation
@@ -369,6 +370,24 @@ run_groups:
     display_name: MedAlign
     short_display_name: MedAlign
     description: A question answering dataset for clinical questions, each paired with a relevant patient EHR and a clinician-generated gold response.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: BERTScore-F
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: mtsamples
+    display_name: MTSamples
+    short_display_name: MTSamples
+    description: A benchmark created fro the MTSamples dataset for patient plan prediction/generation.
     metric_groups:
       - accuracy
       - efficiency
