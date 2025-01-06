@@ -111,7 +111,7 @@ class CtiToMitreScenario(Scenario):
         E. Others
         Answer:
         -----------------------
-    """
+    """  # noqa: E501
 
     # Names of the tasks we support
     name = "cti_to_mitre"
@@ -127,8 +127,8 @@ class CtiToMitreScenario(Scenario):
     # Constant: the description for Others option
     OTHERS_OPTION = "Others"
 
-    CTI_URL = "https://github.com/dessertlab/cti-to-mitre-with-nlp/raw/a8cacf3185d098c686e0d88768a619a03a4d76d1/data/dataset.csv"
-    MITRE_URL = "https://github.com/mitre/cti/raw/refs/tags/ATT&CK-v10.1/enterprise-attack/enterprise-attack.json"
+    CTI_URL = "https://github.com/dessertlab/cti-to-mitre-with-nlp/raw/a8cacf3185d098c686e0d88768a619a03a4d76d1/data/dataset.csv"  # noqa: E501
+    MITRE_URL = "https://github.com/mitre/cti/raw/refs/tags/ATT&CK-v10.1/enterprise-attack/enterprise-attack.json"  # noqa: E501
 
     def __init__(self, num_options=None, seed=42):
         """
@@ -143,8 +143,7 @@ class CtiToMitreScenario(Scenario):
             self.num_options = CtiToMitreScenario.MAX_NUM_OPTIONS
         # set seed to random
         self.random_seed = seed
-        self.rand = Random(seed)
-
+        self.random = Random(seed)
 
     @staticmethod
     def make_label_category_name_dict(jdata) -> Dict[str, str]:
@@ -155,7 +154,9 @@ class CtiToMitreScenario(Scenario):
         """
 
         category_id_to_name: Dict[str, str] = {}
-        attacks = [o for o in jdata["objects"] if o["type"] == "attack-pattern" and not o.get("x_mitre_is_subtechnique", True)]
+        attacks = [
+            o for o in jdata["objects"] if o["type"] == "attack-pattern" and not o.get("x_mitre_is_subtechnique", True)
+        ]
         for attack in attacks:
             ids = [ref["external_id"] for ref in attack["external_references"] if ref["source_name"] == "mitre-attack"]
             assert len(ids) == 1
@@ -215,7 +216,7 @@ class CtiToMitreScenario(Scenario):
             references = [Reference(Output(text=cname), tags=[]) for cname in wrong_cnames]
             references.append(correct_ref)
             # shuffle answer options
-            self.rand.shuffle(references)
+            self.random.shuffle(references)
             # bring others_option to the end of the reference list
             ord_references = CtiToMitreScenario.bring_others_to_end(references)
             instance = Instance(input, ord_references, split=split)
@@ -231,13 +232,13 @@ class CtiToMitreScenario(Scenario):
 
         dataset_path = os.path.join(data_dir, "dataset.csv")
         ensure_file_downloaded(
-            source_url="https://github.com/dessertlab/cti-to-mitre-with-nlp/raw/a8cacf3185d098c686e0d88768a619a03a4d76d1/data/dataset.csv",
+            source_url="https://github.com/dessertlab/cti-to-mitre-with-nlp/raw/a8cacf3185d098c686e0d88768a619a03a4d76d1/data/dataset.csv",  # noqa: E501
             target_path=dataset_path,
         )
 
         labels_path = os.path.join(data_dir, "enterprise-attack.json")
         ensure_file_downloaded(
-            source_url="https://github.com/mitre/cti/raw/refs/tags/ATT&CK-v10.1/enterprise-attack/enterprise-attack.json",
+            source_url="https://github.com/mitre/cti/raw/refs/tags/ATT&CK-v10.1/enterprise-attack/enterprise-attack.json",  # noqa: E501
             target_path=labels_path,
         )
 

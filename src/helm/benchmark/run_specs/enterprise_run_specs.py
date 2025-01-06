@@ -11,15 +11,6 @@ from helm.benchmark.metrics.common_metric_specs import (
     get_exact_match_metric_specs,
     get_f1_metric_specs,
 )
-from helm.benchmark.metrics.common_metric_specs import (
-    get_basic_generation_metric_specs,
-    get_basic_metric_specs,
-    get_exact_match_metric_specs,
-    get_f1_metric_specs,
-    get_generative_harms_metric_specs,
-    get_generic_metric_specs,
-    get_open_ended_generation_metric_specs,
-)
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
