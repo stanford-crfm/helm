@@ -130,7 +130,7 @@ class CtiToMitreScenario(Scenario):
     CTI_URL = "https://github.com/dessertlab/cti-to-mitre-with-nlp/raw/a8cacf3185d098c686e0d88768a619a03a4d76d1/data/dataset.csv"  # noqa: E501
     MITRE_URL = "https://github.com/mitre/cti/raw/refs/tags/ATT&CK-v10.1/enterprise-attack/enterprise-attack.json"
 
-    def __init__(self, num_options: int=MAX_NUM_OPTIONS, seed: int=42) -> None:
+    def __init__(self, num_options: int = MAX_NUM_OPTIONS, seed: int = 42) -> None:
         """
         num_options: int, number of choices in multiple-choice task
         seed: int, seed for random module. The seed is set to random if specified
@@ -170,9 +170,13 @@ class CtiToMitreScenario(Scenario):
         """
         assert num_references >= 2, "Need at least 2 references for the correct choice and 'Others'"
         num_incorrect_cname_samples = num_references - 2
-        assert num_references <= len(cnames), f"Cannot have more references than the number of categories, which is {len(cnames)}"
+        assert num_references <= len(
+            cnames
+        ), f"Cannot have more references than the number of categories, which is {len(cnames)}"
         incorrect_cnames = [cname for cname in cnames if cname != correct_cname]
-        incorrect_cname_samples = self.random.sample(incorrect_cnames, min(len(incorrect_cnames), num_incorrect_cname_samples))
+        incorrect_cname_samples = self.random.sample(
+            incorrect_cnames, min(len(incorrect_cnames), num_incorrect_cname_samples)
+        )
         references = [Reference(Output(text=cname), tags=[]) for cname in incorrect_cname_samples]
         references.append(Reference(Output(text=correct_cname), tags=[CORRECT_TAG]))
         self.random.shuffle(references)
