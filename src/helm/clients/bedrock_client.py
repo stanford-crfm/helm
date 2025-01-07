@@ -8,7 +8,6 @@ from datetime import datetime
 from helm.common.cache import CacheConfig
 from helm.clients.client import CachingClient, truncate_and_tokenize_response_text
 from helm.common.request import Request, RequestResult, GeneratedOutput, wrap_request_time
-from helm.common.hierarchical_logger import htrack_block
 from helm.clients.bedrock_utils import get_bedrock_client, get_bedrock_client_v1
 from helm.tokenizers.tokenizer import Tokenizer
 
@@ -99,7 +98,6 @@ class BedrockClient(CachingClient):
 
 
 class BedrockNovaClient(CachingClient):
-
     """
     Amazon Bedrock is a fully managed service that provides s selection of leading foundation models (FMs) from Amazon
     and other partner model providers.
@@ -125,23 +123,14 @@ class BedrockNovaClient(CachingClient):
 
     def convert_request_to_raw_request(self, request: Request) -> Dict:
         model_id = request.model.replace("/", ".")
-        messages = [
-            {
-                "role": "user",
-                "content": [
-                    {
-                    "text": request.prompt
-                    }
-                ]
-            }
-        ]
+        messages = [{"role": "user", "content": [{"text": request.prompt}]}]
 
         return {
             "modelId": model_id,
             "inferenceConfig": {
                 "temperature": request.temperature,
                 "maxTokens": request.max_tokens,
-                "topP": request.top_p
+                "topP": request.top_p,
             },
             "messages": messages,
         }
