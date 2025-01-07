@@ -128,9 +128,7 @@ class CtiToMitreScenario(Scenario):
     OTHERS_OPTION = "Others"
 
     CTI_URL = "https://github.com/dessertlab/cti-to-mitre-with-nlp/raw/a8cacf3185d098c686e0d88768a619a03a4d76d1/data/dataset.csv"  # noqa: E501
-    MITRE_URL = (
-        "https://github.com/mitre/cti/raw/refs/tags/ATT&CK-v10.1/enterprise-attack/enterprise-attack.json"
-    )
+    MITRE_URL = "https://github.com/mitre/cti/raw/refs/tags/ATT&CK-v10.1/enterprise-attack/enterprise-attack.json"
 
     def __init__(self, num_options=None, seed=42):
         """
