@@ -1,7 +1,7 @@
 import os
 import json
 from random import Random
-from typing import Any, List, Dict, Optional
+from typing import Any, List, Dict
 
 import pandas as pd
 from pandas import DataFrame
