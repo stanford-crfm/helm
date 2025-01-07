@@ -149,9 +149,7 @@ class BedrockNovaClient(CachingClient):
 
     def make_request(self, request: Request) -> RequestResult:
         raw_request = self.convert_request_to_raw_request(request)
-        hlog(f"request is {raw_request}")
         response = self.bedrock_client.converse(**raw_request)
-        hlog(f"response is {response}")
         completions = self.convert_raw_response_to_completions(response, request)
         dt = datetime.strptime(response["ResponseMetadata"]["HTTPHeaders"]["date"], "%a, %d %b %Y %H:%M:%S GMT")
 
