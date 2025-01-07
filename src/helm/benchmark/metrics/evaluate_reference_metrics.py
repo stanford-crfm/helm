@@ -39,7 +39,7 @@ def pass_at_k_estimator(n: int, c: int, k: int) -> float:
     return 1.0 - np.prod(1.0 - k / np.arange(n - c + 1, n + 1))
 
 
-def normalize_text(text: str) -> str:
+def normalize_text(text: str, should_remove_articles: bool = True) -> str:
     """Lower text and remove punctuation, articles and extra whitespace.
     Copied from the [QuAC](http://quac.ai/) evaluation script found at
     https://s3.amazonaws.com/my89public/quac/scorer.py"""
@@ -57,7 +57,10 @@ def normalize_text(text: str) -> str:
     def lower(text: str) -> str:
         return text.lower()
 
-    return white_space_fix(remove_articles(remove_punc(lower(text))))
+    normalized_text = remove_punc(lower(text))
+    if should_remove_articles:
+        normalized_text = remove_articles(normalized_text)
+    return white_space_fix(normalized_text)
 
 
 def exact_match(gold: str, pred: str) -> float:
@@ -72,6 +75,17 @@ def quasi_exact_match(gold: str, pred: str) -> float:
         return 0
 
     return 1 if normalize_text(gold) == normalize_text(pred) else 0
+
+
+def quasi_leave_articles_exact_match(gold: str, pred: str) -> float:
+    if not pred:
+        return 0
+
+    return (
+        1
+        if normalize_text(gold, should_remove_articles=False) == normalize_text(pred, should_remove_articles=False)
+        else 0
+    )
 
 
 def prefix_exact_match(gold: str, pred: str) -> float:
@@ -423,6 +437,7 @@ def compute_reference_metrics(
     metric_fn_mapping: Dict[str, Callable] = {
         "exact_match": exact_match,
         "quasi_exact_match": quasi_exact_match,
+        "quasi_leave_articles_exact_match": quasi_leave_articles_exact_match,
         "prefix_exact_match": prefix_exact_match,
         "quasi_prefix_exact_match": quasi_prefix_exact_match,
         "exact_match_indicator": exact_match_indicator,
