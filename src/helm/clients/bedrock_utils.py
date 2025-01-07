@@ -93,6 +93,7 @@ def get_bedrock_client_v1(
         session = Session(
             aws_access_key_id=creds["AccessKeyId"],
             aws_secret_access_key=creds["SecretAccessKey"],
+            aws_session_token=creds["SessionToken"],
         )
         return session.client(
             service_name=service_name,
