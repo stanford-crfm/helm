@@ -74,9 +74,9 @@ def get_bedrock_client(
 
 
 def get_bedrock_client_v1(
-    assumed_role: Optional[str] = None,
-    service_name: str = "bedrock-runtime",
     region: Optional[str] = None,
+    service_name: str = "bedrock-runtime",
+    assumed_role: Optional[str] = None,
     read_timeout: int = 5000,
     connect_timeout: int = 5000,
     max_attempts: int = 10,

@@ -47,7 +47,7 @@ class BedrockClient(CachingClient):
         self.tokenizer_name = tokenizer_name
         self.bedrock_client = get_bedrock_client(
             assumed_role=assumed_role or os.environ.get("BEDROCK_ASSUME_ROLE", None),
-            region=region or os.environ.get("AWS_DEFAULT_REGION", None),
+            region=region,
         )
 
     def make_request(self, request: Request) -> RequestResult:
