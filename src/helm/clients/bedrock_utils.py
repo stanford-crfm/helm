@@ -81,7 +81,9 @@ def get_bedrock_client_v1(
     connect_timeout: int = 5000,
     max_attempts: int = 10,
 ):
-    boto_config = Config(read_timeout=read_timeout, connect_timeout=connect_timeout, retries={"max_attempts": max_attempts})
+    boto_config = Config(
+        read_timeout=read_timeout, connect_timeout=connect_timeout, retries={"max_attempts": max_attempts}
+    )
 
     if assumed_role:
         session = boto3.Session(region_name=region)
