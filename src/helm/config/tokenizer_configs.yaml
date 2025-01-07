@@ -168,11 +168,12 @@ tokenizer_configs:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "<｜end▁of▁sentence｜>"
     prefix_token: "<｜begin▁of▁sentence｜>"
+
   - name: deepseek-ai/deepseek-v3
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "<｜end▁of▁sentence｜>"
-    prefix_token: "<｜begin▁of▁sentence｜>
+    prefix_token: "<｜begin▁of▁sentence｜>"
 
   # EleutherAI
   - name: EleutherAI/gpt-j-6B
