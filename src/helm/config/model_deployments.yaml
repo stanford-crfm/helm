@@ -412,6 +412,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
 
+  - name: together/deepseek-v3
+    model_name: deepseek-ai/deepseek-v3
+    tokenizer_name: deepseek-ai/deepseek-v3
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+
   # Gooseai
 
   # TODO: Migrate these models to use OpenAIClient
