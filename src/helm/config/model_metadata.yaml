@@ -230,7 +230,7 @@ models:
     release_date: 2024-12-03
     tags: [NOVA_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: amazon.nova-1-lite-v1:0
+  - name: amazon.nova-lite-v1:0
     display_name: Amazon Nova Lite
     description: Amazon Nova Lite Model
     creator_organization_name: Amazon

@@ -113,8 +113,8 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.bedrock_client.BedrockNovaClient"
 
-  - name: amazon.nova-1-lite-v1:0
-    model_name: amazon.nova-1-lite-v1:0
+  - name: amazon.nova-lite-v1:0
+    model_name: amazon.nova-lite-v1:0
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 300000
     client_spec:
