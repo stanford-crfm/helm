@@ -159,7 +159,7 @@ class CtiToMitreScenario(Scenario):
             category_id_to_name[id] = attack["name"]
         return category_id_to_name
 
-    def get_references(self, num_references: int, correct_cname: str, cnames: List[str]) -> List[str]:
+    def get_references(self, num_references: int, correct_cname: str, cnames: List[str]) -> List[Reference]:
         """
         Randomly select k tec_category_names (attack technique category names) as choices.
         However, choose not to include "excluded",
@@ -196,7 +196,6 @@ class CtiToMitreScenario(Scenario):
             correct_cname = label_cname[label_tec]
             all_cnames = [cname for cname in label_cname.values()]
             references = self.get_references(self.num_options, correct_cname, all_cnames)
-            print(references)
             input = Input(text=sentence)
             instance = Instance(input, references, split=split)
             instances.append(instance)
