@@ -113,7 +113,7 @@ class BedrockNovaClient(CachingClient):
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
         self.bedrock_client = get_bedrock_client_v1(
-            assumed_role=assumed_role,
+            assumed_role=assumed_role or os.environ.get("BEDROCK_ASSUME_ROLE", None),
             region=region,
         )
 
