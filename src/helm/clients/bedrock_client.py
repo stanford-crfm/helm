@@ -39,14 +39,12 @@ class BedrockClient(CachingClient):
         cache_config: CacheConfig,
         tokenizer: Tokenizer,
         tokenizer_name: str,
-        bedrock_model_id: Optional[str] = None,
         assumed_role: Optional[str] = None,
         region: Optional[str] = None,
     ):
         super().__init__(cache_config=cache_config)
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
-        self.bedrock_model_id = bedrock_model_id
         self.bedrock_client = get_bedrock_client(
             assumed_role=assumed_role or os.environ.get("BEDROCK_ASSUME_ROLE", None),
             region=region or os.environ.get("AWS_DEFAULT_REGION", None),
@@ -108,17 +106,15 @@ class BedrockNovaClient(CachingClient):
         cache_config: CacheConfig,
         tokenizer: Tokenizer,
         tokenizer_name: str,
-        bedrock_model_id: Optional[str] = None,
         assumed_role: Optional[str] = None,
         region: Optional[str] = None,
     ):
         super().__init__(cache_config=cache_config)
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
-        self.bedrock_model_id = bedrock_model_id
         self.bedrock_client = get_bedrock_client_v1(
-            assumed_role=assumed_role or os.environ.get("BEDROCK_ASSUME_ROLE", None),
-            region=region or os.environ.get("AWS_DEFAULT_REGION", None),
+            assumed_role=assumed_role,
+            region=region,
         )
 
     def convert_request_to_raw_request(self, request: Request) -> Dict:
