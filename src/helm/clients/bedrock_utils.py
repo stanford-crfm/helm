@@ -1,7 +1,7 @@
 """Helper utilities for working with Amazon Bedrock."""
 
 import os
-from typing import Optional, Dict
+from typing import Optional
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
