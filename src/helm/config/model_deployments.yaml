@@ -104,7 +104,29 @@ model_deployments:
       class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
 
 
-  # Amazon
+  # Amazon nova models
+
+  - name: amazon/nova-pro-v1:0
+    model_name: amazon/nova-pro-v1:0
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 300000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockNovaClient"
+
+  - name: amazon/nova-lite-v1:0
+    model_name: amazon/nova-lite-v1:0
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 300000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockNovaClient"
+
+  - name: amazon/nova-micro-v1:0
+    model_name: amazon/nova-micro-v1:0
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockNovaClient"
+
   # Titan on Amazon Bedrock
 
   - name: amazon/titan-text-lite-v1
