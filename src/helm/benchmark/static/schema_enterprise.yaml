@@ -202,8 +202,8 @@ run_groups:
       main_split: test
 
   - name: cti_mitre
-    display_name: CTI-to-MITRE Cyber Threat Intelligence (Classification)
-    description: Automatic Mapping of Unstructured Cyber Threat Intelligence - An Experimental Study [(Orbinato et al., 2022)](https://arxiv.org/pdf/2208.12144.pdf).
+    display_name: CTI-to-MITRE Cyber Threat Intelligence
+    description: A classification benchmark based on Automatic Mapping of Unstructured Cyber Threat Intelligence - An Experimental Study [(Orbinato et al., 2022)](https://arxiv.org/pdf/2208.12144.pdf).
     metric_groups:
       - accuracy
       - efficiency
@@ -213,7 +213,7 @@ run_groups:
       main_split: test
     taxonomy:
       task: text classification
-      what: "?"
-      who: "?"
-      when: "?"
+      what: Descriptions of malicious techniques
+      who: Security professionals
+      when: Before 2022
       language: English

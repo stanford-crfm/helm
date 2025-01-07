@@ -1,7 +1,7 @@
 import os
 import json
 from random import Random
-from typing import List, Dict
+from typing import Any, List, Dict, Optional
 
 import pandas as pd
 from pandas import DataFrame
@@ -130,23 +130,18 @@ class CtiToMitreScenario(Scenario):
     CTI_URL = "https://github.com/dessertlab/cti-to-mitre-with-nlp/raw/a8cacf3185d098c686e0d88768a619a03a4d76d1/data/dataset.csv"  # noqa: E501
     MITRE_URL = "https://github.com/mitre/cti/raw/refs/tags/ATT&CK-v10.1/enterprise-attack/enterprise-attack.json"
 
-    def __init__(self, num_options=None, seed=42):
+    def __init__(self, num_options: int=MAX_NUM_OPTIONS, seed: int=42) -> None:
         """
         num_options: int, number of choices in multiple-choice task
         seed: int, seed for random module. The seed is set to random if specified
         """
         super().__init__()
-        # Number of options : if num_options is not specified, num_options=MAX_NUM_OPTIONS
-        if num_options is not None and 0 < num_options <= CtiToMitreScenario.MAX_NUM_OPTIONS:
-            self.num_options = num_options
-        else:
-            self.num_options = CtiToMitreScenario.MAX_NUM_OPTIONS
-        # set seed to random
+        self.num_options = min(num_options, CtiToMitreScenario.MAX_NUM_OPTIONS)
         self.random_seed = seed
         self.random = Random(seed)
 
     @staticmethod
-    def make_label_category_name_dict(jdata) -> Dict[str, str]:
+    def make_label_category_name_dict(jdata: Dict[str, Any]) -> Dict[str, str]:
         """
         This makes mapping from label_tec (attack technique category label) to tec_category_name
         (attack technique category name)
@@ -164,38 +159,26 @@ class CtiToMitreScenario(Scenario):
             category_id_to_name[id] = attack["name"]
         return category_id_to_name
 
-    def select_option_cnames(self, k: int, excluded: str, cnames: List[str]) -> List[str]:
+    def get_references(self, num_references: int, correct_cname: str, cnames: List[str]) -> List[str]:
         """
         Randomly select k tec_category_names (attack technique category names) as choices.
         However, choose not to include "excluded",
         and if k is less than the total number of possible choices, add a default case.
         - k : number of choices
-        - excluded : excluded attack technique category name (usually, specify correct answer)
+        - correct_cname : correct attack technique category names
         - cnames : list containing all attack technique category names
         """
-        target_cnames = [v for v in cnames if v != excluded]
-
-        if len(target_cnames) <= k:
-            return target_cnames
-        elif k - 1 <= 0:
-            return [CtiToMitreScenario.OTHERS_OPTION]
-        else:
-            ops = self.random.sample(target_cnames, k - 1)
-            ops.append(CtiToMitreScenario.OTHERS_OPTION)
-            return ops
-
-    @staticmethod
-    def bring_others_to_end(references: List[Reference]) -> List[Reference]:
-        """Rearrange the list of references so that the reference corresponding to the default case comes last"""
-        newref_list: List[Reference] = []
-        others_list: List[Reference] = []
-        for ref in references:
-            if ref.output.text == CtiToMitreScenario.OTHERS_OPTION:
-                others_list.append(ref)
-            else:
-                newref_list.append(ref)
-        newref_list.extend(others_list)
-        return newref_list
+        assert num_references >= 2, "Need at least 2 references for the correct choice and 'Others'"
+        num_incorrect_cname_samples = num_references - 2
+        assert num_references <= len(cnames), f"Cannot have more references than the number of categories, which is {len(cnames)}"
+        incorrect_cnames = [cname for cname in cnames if cname != correct_cname]
+        incorrect_cname_samples = self.random.sample(incorrect_cnames, min(len(incorrect_cnames), num_incorrect_cname_samples))
+        references = [Reference(Output(text=cname), tags=[]) for cname in incorrect_cname_samples]
+        references.append(Reference(Output(text=correct_cname), tags=[CORRECT_TAG]))
+        self.random.shuffle(references)
+        if num_references <= len(cnames):
+            references.append(Reference(Output(text=CtiToMitreScenario.OTHERS_OPTION), tags=[]))
+        return references
 
     def create_multiple_choice_instances(
         self, df: DataFrame, split: str, label_cname: Dict[str, str]
@@ -204,27 +187,16 @@ class CtiToMitreScenario(Scenario):
         instances = []
         for idx in df.index:
             linedata = df.loc[idx]
-            sent = linedata["sentence"]
+            sentence = linedata["sentence"]
             label_tec = linedata["label_tec"]
             correct_cname = label_cname[label_tec]
             all_cnames = [cname for cname in label_cname.values()]
-            num_of_wrong_options = self.num_options - 1
-            wrong_cnames = self.select_option_cnames(num_of_wrong_options, correct_cname, all_cnames)
-            input = Input(text=sent)
-            # create options (including one correct answer)
-            correct_ref = Reference(Output(text=correct_cname), tags=[CORRECT_TAG])
-            references = [Reference(Output(text=cname), tags=[]) for cname in wrong_cnames]
-            references.append(correct_ref)
-            # shuffle answer options
-            self.random.shuffle(references)
-            # bring others_option to the end of the reference list
-            ord_references = CtiToMitreScenario.bring_others_to_end(references)
-            instance = Instance(input, ord_references, split=split)
+            references = self.get_references(self.num_options, correct_cname, all_cnames)
+            print(references)
+            input = Input(text=sentence)
+            instance = Instance(input, references, split=split)
             instances.append(instance)
         return instances
-
-    def create_instances(self, df: DataFrame, split: str, label_cname: Dict[str, str]) -> List[Instance]:
-        return self.create_multiple_choice_instances(df, split, label_cname)
 
     def get_instances(self, output_path: str) -> List[Instance]:
         data_dir = os.path.join(output_path, "data")
@@ -261,7 +233,5 @@ class CtiToMitreScenario(Scenario):
         instances_test = self.create_multiple_choice_instances(test_df, TEST_SPLIT, label_cname)
 
         # return all instances
-        all_instances = []
-        all_instances.extend(instances_train)
-        all_instances.extend(instances_test)
+        all_instances = instances_train + instances_test
         return all_instances
