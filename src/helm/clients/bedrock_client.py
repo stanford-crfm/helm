@@ -8,7 +8,7 @@ from datetime import datetime
 from helm.common.cache import CacheConfig
 from helm.clients.client import CachingClient, truncate_and_tokenize_response_text
 from helm.common.request import Request, RequestResult, GeneratedOutput, wrap_request_time
-from helm.common.hierarchical_logger import htrack_block, hlog
+from helm.common.hierarchical_logger import htrack_block
 from helm.clients.bedrock_utils import get_bedrock_client, get_bedrock_client_v1
 from helm.tokenizers.tokenizer import Tokenizer
 
@@ -105,8 +105,6 @@ class BedrockNovaClient(CachingClient):
     and other partner model providers.
     """
 
-    model_provider = "amazon"
-
     def __init__(
         self,
         cache_config: CacheConfig,
@@ -126,6 +124,7 @@ class BedrockNovaClient(CachingClient):
         )
 
     def convert_request_to_raw_request(self, request: Request) -> Dict:
+        model_id = request.model.replace("/", ".")
         messages = [
             {
                 "role": "user",
@@ -138,7 +137,7 @@ class BedrockNovaClient(CachingClient):
         ]
 
         return {
-            "modelId": request.model,
+            "modelId": model_id,
             "inferenceConfig": {
                 "temperature": request.temperature,
                 "maxTokens": request.max_tokens,

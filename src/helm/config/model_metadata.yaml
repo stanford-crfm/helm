@@ -222,7 +222,7 @@ models:
   # Amazon Nova models
   # References for Amazon Nova models:
   # https://aws.amazon.com/ai/generative-ai/nova/
-  - name: amazon.nova-pro-v1:0
+  - name: amazon/nova-pro-v1:0
     display_name: Amazon Nova Pro
     description: Amazon Nova Pro Model
     creator_organization_name: Amazon
@@ -230,7 +230,7 @@ models:
     release_date: 2024-12-03
     tags: [NOVA_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: amazon.nova-lite-v1:0
+  - name: amazon/nova-lite-v1:0
     display_name: Amazon Nova Lite
     description: Amazon Nova Lite Model
     creator_organization_name: Amazon
@@ -238,7 +238,7 @@ models:
     release_date: 2024-12-03
     tags: [NOVA_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: amazon.nova-micro-v1:0
+  - name: amazon/nova-micro-v1:0
     display_name: Amazon Nova Micro
     description: Amazon Nova Micro Model
     creator_organization_name: Amazon
