@@ -788,6 +788,15 @@ models:
     release_date: 2024-01-05
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: deepseek-ai/deepseek-v3
+    display_name: DeepSeek v3
+    description: DeepSeek v3 a Mixture-of-Experts (MoE) language model with 671B total parameters with 37B activated for each token. It adopts Multi-head Latent Attention (MLA) and DeepSeekMoE architectures. ([paper](https://github.com/deepseek-ai/DeepSeek-V3/blob/main/DeepSeek_V3.pdf))
+    creator_organization_name: DeepSeek
+    access: open
+    # NOTE: The total size of DeepSeek-V3 models on HuggingFace is 685B, which includes 671B of the Main Model weights and 14B of the Multi-Token Prediction (MTP) Module weights.
+    num_parameters: 685000000000
+    release_date: 2024-12-24
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # EleutherAI
   - name: eleutherai/gpt-j-6b # Served by GooseAi, HuggingFace and Together.
