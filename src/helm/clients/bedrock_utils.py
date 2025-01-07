@@ -74,45 +74,37 @@ def get_bedrock_client(
 
 
 def get_bedrock_client_v1(
-        assumed_role: Optional[str] = None,
-        service_name: str = "bedrock-runtime",
-        region: str = "us-east-1",
-        read_timeout: int = 5000,
-        connect_timeout: int = 5000,
-        retries: Dict = {"max_attempts": 10},
-    ):
-        if region is None:
-            target_region = os.environ.get("AWS_REGION", os.environ.get("AWS_DEFAULT_REGION"))
-        else:
-            target_region = region
+    assumed_role: Optional[str] = None,
+    service_name: str = "bedrock-runtime",
+    region: Optional[str] = "us-east-1",
+    read_timeout: int = 5000,
+    connect_timeout: int = 5000,
+    retries: Dict = {"max_attempts": 10},
+):
+    if region is None:
+        target_region = os.environ.get("AWS_REGION", os.environ.get("AWS_DEFAULT_REGION"))
+    else:
+        target_region = region
 
-        boto_config = Config(
-            read_timeout=read_timeout, connect_timeout=connect_timeout, retries=retries
+    boto_config = Config(read_timeout=read_timeout, connect_timeout=connect_timeout, retries=retries)
+
+    if target_region is None:
+        raise ValueError("region environment variable is not set.")
+
+    if assumed_role:
+        session = boto3.Session(region_name=target_region)
+        # Assume role and get credentials
+        sts = session.client("sts")
+        creds = sts.assume_role(RoleArn=str(assumed_role), RoleSessionName="crfm-helm")["Credentials"]
+        session = Session(
+            aws_access_key_id=creds["AccessKeyId"],
+            aws_secret_access_key=creds["SecretAccessKey"],
         )
-
-        if target_region is None:
-            raise ValueError(
-                "region environment variable is not set."
-            )
-
-        if assumed_role:
-            session = boto3.Session(region_name=target_region)
-            # Assume role and get credentials
-            sts = session.client("sts")
-            creds = sts.assume_role(RoleArn=str(assumed_role),RoleSessionName="crfm-helm")["Credentials"]
-            session = Session(
-                aws_access_key_id=creds["AccessKeyId"],
-                aws_secret_access_key=creds["SecretAccessKey"],
-            )
-            return session.client(
-                service_name=service_name,
-                region_name=target_region,
-                config=boto_config,
-            )
-
-        # default to instance role to get the aws credentials or aws configured credentials
-        return boto3.client(
+        return session.client(
             service_name=service_name,
             region_name=target_region,
-            config=boto_config
+            config=boto_config,
         )
+
+    # default to instance role to get the aws credentials or aws configured credentials
+    return boto3.client(service_name=service_name, region_name=target_region, config=boto_config)

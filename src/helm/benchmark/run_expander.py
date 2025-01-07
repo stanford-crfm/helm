@@ -366,11 +366,7 @@ class NovaRunExpander(RunExpander):
             replace(
                 run_spec,
                 name=run_spec.name,
-                adapter_spec=replace(
-                    run_spec.adapter_spec,
-                    global_prefix=NovaRunExpander.PROMPT
-                    + "\n\n"
-                ),
+                adapter_spec=replace(run_spec.adapter_spec, global_prefix=NovaRunExpander.PROMPT + "\n\n"),
             ),
         ]
 
