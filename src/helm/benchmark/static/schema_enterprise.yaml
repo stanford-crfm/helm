@@ -76,6 +76,14 @@ metrics:
     display_name: Float Equivalence
     description: Float Equivalence
     lower_is_better: false
+  - name: kpi_edgar_adjusted_f1.macro
+    display_name: KPI-EDGAR Adjusted F1 Score (macro average)
+    short_display_name: KPI_EDGAR_Adj_F1
+    description: Adjusted F1 Score defined in the KPI-EDGAR paper. The score is a macro average over various tags. This is used for kpi_edgar scenario only.
+  - name: kpi_edgar_adjusted_f1.modified_macro
+    display_name: Modified KPI-EDGAR Adjusted F1 Score (macro average)
+    short_display_name: Mod_KPI_EDGAR_Adj_F1
+    description: Adjusted F1 Score defined in a standard manner. The score is a macro average over various tags. This is used for kpi_edgar scenario only.
 
 ############################################################
 perturbations: []
@@ -109,7 +117,6 @@ metric_groups:
     - name: num_output_tokens
       split: ${main_split}
 
-############################################################
 run_groups:
   - name: financial_scenarios
     display_name: Financial Scenarios
@@ -119,6 +126,7 @@ run_groups:
       - gold_commodity_news
       - financial_phrasebank
       - conv_fin_qa_calc
+      - kpi_edgar
 
   - name: legal_scenarios
     display_name: Legal Scenarios
@@ -193,6 +201,22 @@ run_groups:
       what: gold commodity news headlines
       who: financial journalists
       when: 2000-2019
+      language: English
+
+  - name: kpi_edgar
+    display_name: KPI-EDGAR Financial Documents (Named Entity Recognition)
+    description: KPI-EDGAR - A Novel Dataset and Accompanying Metric for Relation Extraction from Financial Documents [(Deußer et al., 2022)](https://arxiv.org/pdf/2210.09163.pdf).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: kpi_edgar_adjusted_f1.macro
+      main_split: test
+    taxonomy:
+      task: named entity recognition
+      what: "?"
+      who: "?"
+      when: "?"
       language: English
 
   - name: legal_contract_summarization
