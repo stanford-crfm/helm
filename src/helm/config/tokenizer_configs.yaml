@@ -764,3 +764,21 @@ tokenizer_configs:
         pretrained_model_name_or_path: maritaca-ai/sabia-7b
     end_of_text_token: "</s>"
     prefix_token: "<s>"
+
+# Granite-3.1-8b-base
+  - name: ibm-granite/granite-3.1-8b-base
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-8b-base
+    prefix_token: ""
+    end_of_text_token: "<|endoftext|>"
+
+# Granite-3.1-8b-instruct
+  - name: ibm-granite/granite-3.1-8b-instruct
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-8b-instruct
+    prefix_token: ""
+    end_of_text_token: "<|endoftext|>"
