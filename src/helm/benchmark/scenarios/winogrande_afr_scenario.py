@@ -22,16 +22,16 @@ class Winogrande_Afr_Scenario(Scenario):
 
     def download_winogrande_afr(self, path: str):
         ensure_file_downloaded(
-            source_url="https://github.com/InstituteforDiseaseModeling/Bridging-the-Gap-Low-Resource-African-Languages/raw/refs/heads/main/data/evaluation_benchmarks_afr_release.zip",
+            source_url="https://github.com/InstituteforDiseaseModeling/Bridging-the-Gap-Low-Resource-African-Languages/raw/refs/heads/main/data/evaluation_benchmarks_afr_release.zip",  # noqa: E501
             target_path=path,
             unpack=True,
-            unpack_type='unzip'
+            unpack_type="unzip",
         )
 
     def process_csv(self, csv_path: str, split: str, pseudo_split: str) -> List[Instance]:
         # Match naming in Winogrande
-        if pseudo_split == 'val':
-            pseudo_split = 'train_s'
+        if pseudo_split == "val":
+            pseudo_split = "train_s"
         instances: List[Instance] = []
         hlog(f"Reading {csv_path}")
         with open(csv_path) as f:
@@ -57,7 +57,7 @@ class Winogrande_Afr_Scenario(Scenario):
 
     def get_instances(self, output_path: str) -> List[Instance]:
         # Download the raw data
-        desired_dir = 'winogrande_s'
+        desired_dir = "winogrande_s"
         data_path: str = os.path.join(output_path, desired_dir)
         self.download_winogrande_afr(data_path)
 

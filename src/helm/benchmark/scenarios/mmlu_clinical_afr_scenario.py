@@ -23,10 +23,10 @@ class MMLU_Clinical_Afr_Scenario(Scenario):
 
     def download_mmlu_clinical_afr(self, path: str):
         ensure_file_downloaded(
-            source_url="https://github.com/InstituteforDiseaseModeling/Bridging-the-Gap-Low-Resource-African-Languages/raw/refs/heads/main/data/evaluation_benchmarks_afr_release.zip",
+            source_url="https://github.com/InstituteforDiseaseModeling/Bridging-the-Gap-Low-Resource-African-Languages/raw/refs/heads/main/data/evaluation_benchmarks_afr_release.zip",  # noqa: E501
             target_path=path,
             unpack=True,
-            unpack_type='unzip'
+            unpack_type="unzip",
         )
 
     def process_csv(self, csv_path: str, split: str) -> List[Instance]:
@@ -53,7 +53,7 @@ class MMLU_Clinical_Afr_Scenario(Scenario):
 
     def get_instances(self, output_path: str) -> List[Instance]:
         # Download the raw data
-        desired_dir = 'mmlu_cm_ck_vir'
+        desired_dir = "mmlu_cm_ck_vir"
         data_path: str = os.path.join(output_path, desired_dir)
         self.download_mmlu_clinical_afr(data_path)
 
