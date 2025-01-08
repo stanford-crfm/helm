@@ -2,6 +2,7 @@ import Instance from "@/types/Instance";
 import { EncryptionDataMap } from "@/types/EncryptionDataMap";
 import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
 import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
+import isScenarioEncrypted from "@/utils/isScenarioEncrypted";
 
 // Helper function for decryption
 async function decryptField(
@@ -53,7 +54,7 @@ export default async function getInstancesByRunName(
     );
     const instances = (await response.json()) as Instance[];
 
-    if (runName.includes("gpqa") && userAgreed) {
+    if (isScenarioEncrypted(runName) && userAgreed) {
       const encryptionResponse = await fetch(
         getBenchmarkEndpoint(
           `/runs/${
