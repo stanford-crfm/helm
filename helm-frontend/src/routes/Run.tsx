@@ -97,16 +97,6 @@ export default function Run() {
     return <Loading />;
   }
 
-  // Handler for agreement
-  const handleAgreement = () => {
-    if (agreeInput.trim() === "Yes, I agree") {
-      setUserAgreed(true);
-    } else {
-      setUserAgreed(false);
-      alert("Please type 'Yes, I agree' exactly.");
-    }
-  };
-
   return (
     <>
       <div className="flex justify-between gap-8 mb-12">
