@@ -133,14 +133,22 @@ class BedrockNovaClient(CachingClient):
 
     def make_request(self, request: Request) -> RequestResult:
         raw_request = self.convert_request_to_raw_request(request)
-        response = self.bedrock_client.converse(**raw_request)
+        cache_key = CachingClient.make_cache_key(raw_request, request)
+
+        def do_it() -> Dict[Any, Any]:
+            return self.bedrock_client.converse(**raw_request)
+
+        response, cached = self.cache.get(cache_key, do_it)
+
         completions = self.convert_raw_response_to_completions(response, request)
         dt = datetime.strptime(response["ResponseMetadata"]["HTTPHeaders"]["date"], "%a, %d %b %Y %H:%M:%S GMT")
+        # Use API reported latency rather than client measured latency
+        request_time = response["metrics"]["latencyMs"] / 1000
 
         return RequestResult(
             success=True,
-            cached=False,
-            request_time=(response["metrics"]["latencyMs"] / 1000),
+            cached=cached,
+            request_time=request_time,
             request_datetime=int(dt.timestamp()),
             completions=completions,
             embedding=[],
