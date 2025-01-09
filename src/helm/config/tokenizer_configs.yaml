@@ -827,3 +827,12 @@ tokenizer_configs:
             pretrained_model_name_or_path: ibm-granite/granite-3.1-1b-a400m-instruct
     prefix_token: ""
     end_of_text_token: ""
+
+# Granite-3.1-1b-a400m-base
+  - name: ibm-granite/granite-3.1-1b-a400m-base
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-1b-a400m-base
+    prefix_token: ""
+    end_of_text_token: ""
