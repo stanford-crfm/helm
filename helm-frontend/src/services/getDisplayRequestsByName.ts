@@ -2,6 +2,7 @@ import type DisplayRequest from "@/types/DisplayRequest";
 import { EncryptionDataMap } from "@/types/EncryptionDataMap";
 import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
 import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
+import isScenarioEncrypted from "@/utils/isScenarioEncrypted";
 
 // Helper function for decryption
 async function decryptField(
@@ -54,7 +55,7 @@ export default async function getDisplayRequestsByName(
     );
     const displayRequests = (await response.json()) as DisplayRequest[];
 
-    if (runName.startsWith("gpqa") && userAgreed) {
+    if (isScenarioEncrypted(runName) && userAgreed) {
       const encryptionResponse = await fetch(
         getBenchmarkEndpoint(
           `/runs/${

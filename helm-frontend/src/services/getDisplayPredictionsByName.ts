@@ -2,6 +2,7 @@ import type DisplayPrediction from "@/types/DisplayPrediction";
 import { EncryptionDataMap } from "@/types/EncryptionDataMap";
 import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
 import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
+import isScenarioEncrypted from "@/utils/isScenarioEncrypted";
 
 async function decryptField(
   ciphertext: string,
@@ -53,7 +54,7 @@ export default async function getDisplayPredictionsByName(
     );
     const displayPredictions = (await response.json()) as DisplayPrediction[];
 
-    if (runName.includes("gpqa") && userAgreed) {
+    if (isScenarioEncrypted(runName) && userAgreed) {
       const encryptionResponse = await fetch(
         getBenchmarkEndpoint(
           `/runs/${
