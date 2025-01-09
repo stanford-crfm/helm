@@ -474,6 +474,24 @@ run_groups:
       who: "?"
       when: "?"
       language: English
+  
+  - name: mimiciv_billing_code
+    display_name: MIMIC-IV Billing Code Prediction
+    short_display_name: MIMIC-IV Billing Code
+    description: A multi-label classification task where the model predicts ICD-10 billing codes based on discharge summaries from electronic health records.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: F1Score
+      main_split: test
+    taxonomy:
+      task: multi-label classification
+      what: "Predict ICD-10 billing codes from clinical discharge notes."
+      who: "Healthcare providers and medical coders."
+      when: "During or after patient discharge from the hospital."
+      language: English
       
   - name: dischargeme
     display_name: DischargeMe
