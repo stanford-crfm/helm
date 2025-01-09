@@ -3613,3 +3613,13 @@ models:
     num_parameters: 2530000000
     release_date: 2024-12-18
     tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+# Granite-3.1-2b-base
+  - name: ibm-granite/granite-3.1-2b-base
+    display_name: Granite 3.1 - 2B - Base
+    description: Granite-3.1-2B-Base extends the context length of Granite-3.0-2B-Base from 4K to 128K using a progressive training strategy by increasing the supported context length in increments while adjusting RoPE theta until the model has successfully adapted to desired length of 128K.
+    creator_organization_name: IBM-GRANITE
+    access: open
+    num_parameters: 2530000000
+    release_date: 2024-12-18
+    tags: [TEXT_MODEL_TAG]
