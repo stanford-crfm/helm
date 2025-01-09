@@ -3660,6 +3660,6 @@ models:
     description: Granite-3.1-1B-A400M-Base extends the context length of Granite-3.0-1B-A400M-Base from 4K to 128K using a progressive training strategy by increasing the supported context length in increments while adjusting RoPE theta until the model has successfully adapted to desired length of 128K.
     creator_organization_name: IBM-GRANITE
     access: open
-    num_parameters: 1380000000
+    num_parameters: 1330000000
     release_date: 2024-12-18
     tags: [TEXT_MODEL_TAG]
