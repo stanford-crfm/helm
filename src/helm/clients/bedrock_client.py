@@ -140,7 +140,7 @@ class BedrockNovaClient(CachingClient):
         return RequestResult(
             success=True,
             cached=False,
-            request_time=response["metrics"]["latencyMs"],
+            request_time=(response["metrics"]["latencyMs"] / 1000),
             request_datetime=int(dt.timestamp()),
             completions=completions,
             embedding=[],
