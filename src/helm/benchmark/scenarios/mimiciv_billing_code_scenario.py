@@ -22,7 +22,7 @@ class MIMICIVBillingCodeScenario(Scenario):
     - Output: The list of ICD-10 codes (column "target").
     """
 
-    name = "mimiciv_icd10"
+    name = "mimiciv_billing_code"
     description = "Given a discharge note, predict the ICD-10 code(s)."
     tags = ["question_answering", "biomedical"]
 
@@ -54,7 +54,7 @@ class MIMICIVBillingCodeScenario(Scenario):
                     icd10_codes = [str(icd10_codes)]  # Handle single values
                 
                 # Convert all codes to strings and join
-                codes_str = ";".join(str(code) for code in icd10_codes)
+                codes_str = ",".join(str(code) for code in icd10_codes)
 
                 # Create one Instance per row
                 instance = Instance(

@@ -1188,6 +1188,27 @@ def get_medcalc_bench_spec() -> RunSpec:
         metric_specs=get_summarization_metric_specs(metric_args),
         groups=["medcalc_bench"],
     )
+@run_spec_function("mtsamples")
+def get_mtsamples_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.mtsamples_scenario.MTSamplesScenario"
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Given various information about a patient, return a reasonable treatment plan for the patient.",
+        input_noun=None,
+        newline_after_input_noun=False,
+        output_noun="Answer",
+        max_tokens=256,
+    )
+    metric_args = {"task": "mtsamples", "device": get_torch_device_name()}
+    return RunSpec(
+        name=f"mtsamples",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs(metric_args),
+        groups=["mtsamples"],
+    )
 
 
 @run_spec_function("pubmed_qa")
@@ -1237,6 +1258,7 @@ def get_mimic_rrs_spec() -> RunSpec:
         groups=["mimic_rrs"],
     )
 
+
 @run_spec_function("mimiciv_billing_code")
 def get_mimiciv_billing_code_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -1246,22 +1268,23 @@ def get_mimiciv_billing_code_spec() -> RunSpec:
         },
     )
     adapter_spec = get_generation_adapter_spec(
-        instructions="Given the following clinical note, predict the ICD-10 codes:",
+        instructions="Given the following clinical note, identify all relevant ICD-10 codes.",
         input_noun="Note",
         output_noun="Predicted ICD-10 Codes",
         newline_after_input_noun=True,
         newline_after_output_noun=True,
-        max_tokens=512,
+        max_tokens=256,
         max_train_instances=0,
+        stop_sequences=[]
     )
-
     return RunSpec(
         name="mimiciv_billing_code",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs({"task": "mimiciv_billing_code"}),
+        metric_specs=get_f1_metric_specs(),
         groups=["mimiciv_billing_code"],
     )
+
 
 @run_spec_function("medi_qa")
 def get_mimic_rrs_spec() -> RunSpec:

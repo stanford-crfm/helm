@@ -317,6 +317,7 @@ run_groups:
     subgroups:
       - medcalc_bench
       - medalign
+      - mtsamples
   
   - name: clinical_note_generation
     display_name: Clinical Note Generation
@@ -346,7 +347,6 @@ run_groups:
     description: Scenarios for administration and workflow
     category: Medical Scenarios
     subgroups:
-      - pubmed_qa # placeholder
       - mimiciv_billing_code
 
   - name: medcalc_bench
@@ -370,6 +370,24 @@ run_groups:
     display_name: MedAlign
     short_display_name: MedAlign
     description: A question answering dataset for clinical questions, each paired with a relevant patient EHR and a clinician-generated gold response.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: BERTScore-F
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: mtsamples
+    display_name: MTSamples
+    short_display_name: MTSamples
+    description: A benchmark created fro the MTSamples dataset for patient plan prediction/generation.
     metric_groups:
       - accuracy
       - efficiency
@@ -419,7 +437,25 @@ run_groups:
       who: "?"
       when: "?"
       language: English
-  
+
+  - name: mimiciv_billing_code
+    display_name: MIMIC-IV Billing Code Prediction
+    short_display_name: MIMIC-IV Billing Code
+    description: A multi-label classification task where the model predicts ICD-10 billing codes based on discharge summaries from electronic health records.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: multi-label classification
+      what: "Predict ICD-10 billing codes from clinical discharge notes."
+      who: "Healthcare providers and medical coders."
+      when: "During or after patient discharge from the hospital."
+      language: English
+
   - name: mimic_rrs
     display_name: MIMIC-RRS
     short_display_name: MIMIC-RRS
