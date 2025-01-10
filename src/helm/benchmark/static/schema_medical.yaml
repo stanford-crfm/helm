@@ -333,6 +333,7 @@ run_groups:
     description: Scenarios for patient communication and education
     category: Medical Scenarios
     subgroups:
+      - medication_qa
       - med_dialog
       - medi_qa
   
@@ -623,7 +624,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: medication_qa_score
+      main_name: BERTScore-F
       main_split: test
     taxonomy:
       task: question answering

@@ -1394,17 +1394,17 @@ def get_medication_qa_spec() -> RunSpec:
         max_tokens=512,
     )
 
-    annotator_specs = [
-        AnnotatorSpec(class_name="helm.benchmark.annotation.medication_qa_annotator.MedicationQAAnnotator")
-    ]
-    metric_specs = [MetricSpec(class_name="helm.benchmark.metrics.medication_qa_metrics.MedicationQAScoreMetric")]
-
+    # annotator_specs = [
+    #     AnnotatorSpec(class_name="helm.benchmark.annotation.medication_qa_annotator.MedicationQAAnnotator")
+    # ]
+    # metric_specs = [MetricSpec(class_name="helm.benchmark.metrics.medication_qa_metrics.MedicationQAScoreMetric")]
+    metric_args = {"task": "medication_qa", "device": get_torch_device_name()}
     return RunSpec(
         name="medication_qa",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        annotators=annotator_specs,
-        metric_specs=metric_specs,
+        # annotators=annotator_specs,
+        metric_specs=get_summarization_metric_specs(metric_args),
         groups=["medication_qa"],
     )
 
