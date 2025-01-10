@@ -1,7 +1,7 @@
 from functools import partial
 import multiprocessing
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 from tqdm import tqdm
@@ -1102,9 +1102,9 @@ ACTION_COT_TMPL = (
 )
 
 
-def lumia_prompt(config: Dict[str, Any], examples: List[Dict[str, Any]], timeline: Dict[str, Any]) -> str:
+def lumia_prompt(task_name: str, config: Dict[str, Any], examples: List[Dict[str, Any]], timeline: Dict[str, Any]) -> str:
     # Base template
-    tmpl: Dict[str, Any] = base_prompt(**config)
+    tmpl: Dict[str, Any] = base_prompt(task_name, **config)
     
     # EHR => String converter
     if config.get('ehr_converter') == 'codes_and_timestamps':
@@ -1138,12 +1138,12 @@ def get_code_def(task_name: str):
 
 
 def base_prompt(
-    task_name: str = '',
-    is_include_persona=True,
-    is_include_clinical_def=True,
-    is_include_code_def=True,
-    is_use_short_clinical_def=True,
-    is_include_cot=True,
+    task_name: str,
+    is_include_persona: bool = True,
+    is_include_clinical_def: bool = True,
+    is_include_code_def: bool = True,
+    is_use_short_clinical_def: bool = True,
+    is_include_cot: bool = True,
     seed: int = 1,
     **kwargs,
 ) -> Dict[str, Any]:
@@ -1176,12 +1176,11 @@ def base_prompt(
         'delimiter':    '\n##\n'
     """
     prompt = []
-    rng = np.random.default_rng(seed)
     task_full_name = TASK_FULL_NAMES[task_name].lower()
 
     # 1. Persona
     if is_include_persona:
-        persona = rng.choice(PERSONAS[task_name])
+        persona = PERSONAS[task_name][0]
         prompt.append(
             "You are an expert {role} at Stanford Healthcare, an academic medical center "
             "affiliated with Stanford University. You specialize in predicting "
@@ -1250,7 +1249,7 @@ def codes_and_timestamps(events: List[Dict[str, Any]]) -> str:
     """
     return "\n".join([f"- {event['time'].strftime('%Y-%m-%d')} {event['code']}" for event in events])
 
-def codes_only(events: List[str | Dict[str, Any]]) -> str:
+def codes_only(events: List[Union[str, Dict[str, Any]]]) -> str:
     """Format a list of MEDS events into a string.
     
     Example:
@@ -1349,8 +1348,6 @@ class EHRSHOTScenario(Scenario):
     15 unique clinical prediction tasks. We use a subset of 14 of these tasks, namely
     the binary classification tasks.
 
-    # TODO -- add splits
-
     Citation
     ```
     @article{wornow2023ehrshot,
@@ -1376,9 +1373,8 @@ class EHRSHOTScenario(Scenario):
         self.path_to_meds_dir: str = "/share/pi/nigam/data/medhelm/ehrshot/meds/"
         self.path_to_tmp_dir: str = "/share/pi/nigam/data/medhelm/ehrshot/prompts/"
 
-    def create_benchmark(self)->Dict[str, str]:
+    def create_benchmark(self, n_procs: int = 4)->Dict[str, str]:
         """Loads the MEDS dataset and converts it to prompts"""
-        n_procs: int = 4
 
         # Load MEDS EHRSHOT patient timelines
         df_data = pd.read_parquet(os.path.join(self.path_to_meds_dir, "data/data.parquet"))
@@ -1409,7 +1405,7 @@ class EHRSHOTScenario(Scenario):
 
         # Create LUMIA-ified prompt for each label
         print(f"Generating {len(timelines)} prompts...")
-        prompts: List[str] = [lumia_prompt(CONFIG, examples, {'ehr': x, 'label': 0}) for x in timelines]
+        prompts: List[str] = [lumia_prompt(self.subject, CONFIG, examples, {'ehr': x, 'label': 0}) for x in timelines]
         df_labels['prompt'] = prompts
 
         # Save to parquet
@@ -1428,8 +1424,8 @@ class EHRSHOTScenario(Scenario):
 
         # Generate instances
         instances: List[Instance] = []
-        for prompt, label, split in zip(df['prompt'], df['label'], df['split']):
-            label = "yes" if label == 1 else "no"
+        for prompt, label, split in tqdm(zip(df['prompt'], df['boolean_value'], df['split']), total=len(df), desc="Generating instances"):
+            label = "yes" if label else "no"
             split = TEST_SPLIT if split == "held_out" else (VALID_SPLIT if split == "tuning" else TRAIN_SPLIT)
             instances.append(
                 Instance(
@@ -1443,7 +1439,6 @@ class EHRSHOTScenario(Scenario):
 
 if __name__ == "__main__":
     scenario = EHRSHOTScenario(subject="new_hypertension")
-    breakpoint()
-    scenario.create_benchmark()
-    instances = scenario.get_instances()
-    print(instances)
+    scenario.create_benchmark(n_procs=10)
+    instances = scenario.get_instances('test.csv')
+    print(len(instances))
