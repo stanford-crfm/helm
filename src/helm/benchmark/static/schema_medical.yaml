@@ -318,6 +318,7 @@ run_groups:
       - medcalc_bench
       - medalign
       - mtsamples
+      - ehrshot
   
   - name: clinical_note_generation
     display_name: Clinical Note Generation
@@ -387,13 +388,31 @@ run_groups:
   - name: mtsamples
     display_name: MTSamples
     short_display_name: MTSamples
-    description: A benchmark created fro the MTSamples dataset for patient plan prediction/generation.
+    description: A benchmark created from the MTSamples dataset for patient plan prediction/generation.
     metric_groups:
       - accuracy
       - efficiency
       - general_information
     environment:
       main_name: BERTScore-F
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: ehrshot
+    display_name: EHRShot
+    short_display_name: EHRShot
+    description: A benchmark created from the EHRShot dataset for clinical prediction making using structured EHR data.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
       main_split: test
     taxonomy:
       task: question answering
