@@ -155,7 +155,7 @@ def get_mmlu_pro_spec(subject: str, use_chain_of_thought: str = "False", use_few
         adapter_spec = AdapterSpec(
             method=ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT,
             max_train_instances=max_train_instance_num,
-            max_tokens=1000,
+            max_tokens=2000,
             input_prefix="What is the correct answer to this question: ",
             input_suffix="\nChoices:\n",
             output_prefix="",
@@ -179,7 +179,7 @@ def get_mmlu_pro_spec(subject: str, use_chain_of_thought: str = "False", use_few
         adapter_spec = AdapterSpec(
             method=ADAPT_MULTIPLE_CHOICE_JOINT,
             max_train_instances=max_train_instance_num,
-            max_tokens=1000,
+            max_tokens=2000,
             input_prefix="What is the correct answer to this question: ",
             input_suffix="\nChoices:\n",
             output_prefix="",
@@ -387,7 +387,7 @@ def get_gpqa_spec(subset: str, use_chain_of_thought: str = "False", use_few_shot
         if use_chain_of_thought_bool:
             adapter_spec = get_multiple_choice_adapter_spec(
                 method=ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT,
-                max_tokens=1000,  # following original repo
+                max_tokens=2000,  # original: 1000
                 max_train_instances=max_train_instance_num,
                 instructions=(
                     "Here are some example questions from experts. "
@@ -426,7 +426,7 @@ def get_gpqa_spec(subset: str, use_chain_of_thought: str = "False", use_few_shot
             adapter_spec = AdapterSpec(
                 method=ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT,
                 max_train_instances=max_train_instance_num,
-                max_tokens=1000,
+                max_tokens=2000,  # original: 1000
                 input_prefix="What is the correct answer to this question: ",
                 input_suffix="\nChoices:\n",
                 output_prefix="",
@@ -441,7 +441,7 @@ def get_gpqa_spec(subset: str, use_chain_of_thought: str = "False", use_few_shot
             adapter_spec = AdapterSpec(
                 method=ADAPT_MULTIPLE_CHOICE_JOINT,
                 max_train_instances=max_train_instance_num,
-                max_tokens=1000,
+                max_tokens=2000,  # original: 1000
                 input_prefix="What is the correct answer to this question: ",
                 input_suffix="\nChoices:\n",
                 output_prefix="",
@@ -475,7 +475,7 @@ def get_ifeval_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.ifeval_scenario.IFEvalScenario")
 
     adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION, input_prefix="", output_prefix="", max_tokens=1000, num_outputs=1, temperature=0.0
+        method=ADAPT_GENERATION, input_prefix="", output_prefix="", max_tokens=2000, num_outputs=1, temperature=0.0
     )
 
     metric_specs = [MetricSpec(class_name="helm.benchmark.metrics.ifeval_metrics.IFEvalMetric")]
@@ -528,7 +528,7 @@ def get_bigcodebench_spec(version: str) -> RunSpec:
         method=ADAPT_GENERATION,
         input_prefix="",
         output_prefix="",
-        max_tokens=1280,
+        max_tokens=2000,  # original: 1280
         num_outputs=1,
         temperature=0.0,
         global_prefix="Please provide a self-contained Python script "
@@ -558,7 +558,7 @@ def get_omni_math_spec() -> RunSpec:
         method=ADAPT_GENERATION,
         input_prefix="",
         output_prefix="",
-        max_tokens=1000,
+        max_tokens=2000,
         num_outputs=1,
         temperature=0.0,
     )
