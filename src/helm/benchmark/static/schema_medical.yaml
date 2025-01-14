@@ -343,6 +343,7 @@ run_groups:
     category: Medical Scenarios
     subgroups:
       - pubmed_qa
+      - race_based_med
   
   - name: administration_and_workflow
     display_name: Administration and Workflow
@@ -420,6 +421,24 @@ run_groups:
       what: "?"
       who: "?"
       when: "?"
+      language: English
+
+  - name: race_based_med
+    display_name: RaceBasedMedicine
+    short_display_name: RaceBasedMed
+    description: A benchmark created from the race based medicine detection paper where models are tasked at detecting harmful race basewd content in LLM output.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
       language: English
 
   - name: med_dialog

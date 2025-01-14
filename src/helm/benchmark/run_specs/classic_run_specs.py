@@ -1167,6 +1167,26 @@ def get_medalign_spec() -> RunSpec:
         groups=["medalign"],
     )
 
+@run_spec_function("race_based_med")
+def get_race_based_med_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.race_based_med_scenario.RaceBasedMedScenario", args={}
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="Answer A for yes, B for no or C for maybe.",
+        input_noun="Question",
+        output_noun="Answer",
+    )
+
+    return RunSpec(
+        name="race_based_med",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["race_based_med"],
+    )
 
 @run_spec_function("ehrshot")
 def get_ehrshot_spec(subject: str) -> RunSpec:
