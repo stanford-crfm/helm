@@ -1175,9 +1175,9 @@ def get_race_based_med_spec() -> RunSpec:
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="Answer A for yes, B for no or C for maybe.",
-        input_noun="Question",
-        output_noun="Answer",
+        instructions="Answer A for yes, B for no.",
+        input_noun="",
+        output_noun="",
     )
 
     return RunSpec(
