@@ -21,7 +21,7 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 
 @run_spec_function("gpqa")
-def get_gpqa_spec(subset: str, use_chain_of_thought: str = "False", use_few_shot: str = "False") -> RunSpec:
+def get_gpqa_spec(subset: str, use_chain_of_thought: str = "true", use_few_shot: str = "false") -> RunSpec:
     # Convert to bools and remove the str versions
     use_chain_of_thought_bool: bool = use_chain_of_thought.lower() == "true"
     use_few_shot_bool: bool = use_few_shot.lower() == "true"
@@ -114,7 +114,7 @@ def get_gpqa_spec(subset: str, use_chain_of_thought: str = "False", use_few_shot
     )
 
     return RunSpec(
-        name=f"gpqa:subset={subset},use_chain_of_thought={use_chain_of_thought_bool}",
+        name=f"gpqa:subset={subset},use_chain_of_thought={str(use_chain_of_thought_bool).lower()},use_few_shot={str(use_few_shot_bool).lower()}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -145,13 +145,12 @@ def get_ifeval_spec() -> RunSpec:
 
 
 @run_spec_function("wildbench")
-def get_wildbench_spec(subset: str, use_model_outputs: str = "False") -> RunSpec:
-
+def get_wildbench_spec(subset: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.wildbench_scenario.WildBenchScenario",
         args={
             "subset": subset,
-            "use_model_outputs": use_model_outputs.lower() == "true",
+            "use_model_outputs": False,
         },
     )
 
@@ -164,7 +163,7 @@ def get_wildbench_spec(subset: str, use_model_outputs: str = "False") -> RunSpec
     ]
 
     return RunSpec(
-        name="wildbench",
+        name=f"wildbench:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         annotators=annotator_specs,
@@ -199,7 +198,7 @@ def get_bigcodebench_spec(version: str) -> RunSpec:
     ]
 
     return RunSpec(
-        name="bigcodebench",
+        name=f"bigcodebench:version={version}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         annotators=annotator_specs,

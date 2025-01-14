@@ -36,7 +36,7 @@ class BigCodeBenchScenario(Scenario):
         ensure_directory_exists(cache_dir)
         dataset = datasets.load_dataset(
             "bigcode/bigcodebench",
-            revision="35a015f216382cb88997b91b9400357a79e55141",  # for v0.1.2
+            revision="35a015f216382cb88997b91b9400357a79e55141",
             cache_dir=cache_dir,
             split=self.version,
         )
