@@ -61,9 +61,12 @@ class OmniMATHAnnotator(Annotator):
 
         info = parse_report(annotator_response_text)
 
-        correctness = info.get("Equivalence Judgement", "FALSE")
+        equivalence_judgement = info.get("Equivalence Judgement", "")
+        student_final_answer = info.get("Student Final Answer", "")
+        justification = info.get("Justification", "").strip().removesuffix("=== report over ===").strip()
 
-        if correctness == "TRUE":
-            return {"prompt_text": annotator_prompt, "correctness": 1.0}
-        else:
-            return {"prompt_text": annotator_prompt, "correctness": 0.0}
+        return {
+            "student_final_answer": student_final_answer,
+            "equivalence_judgement": equivalence_judgement,
+            "justification": justification,
+        }

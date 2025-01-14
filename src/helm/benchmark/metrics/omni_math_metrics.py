@@ -19,7 +19,7 @@ class OmniMATHMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         assert request_state.annotations
-        score = request_state.annotations["omni_math"]["correctness"]
+        score = request_state.annotations["omni_math"]["equivalence_judgement"].strip().upper() == "TRUE"
         return [
             Stat(MetricName("omni_math_accuracy")).add(score),
         ]
