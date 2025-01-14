@@ -32,13 +32,19 @@ class UnitxtScenario(Scenario):
         self.kwargs = kwargs
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        dataset_name = ",".join(f"{key}={value}" for key, value in self.kwargs.items())
+        if len(self.kwargs) == 1 and "recipe" in self.kwargs:
+            dataset_name = self.kwargs["recipe"]
+        else:
+            dataset_name = ",".join(f"{key}={value}" for key, value in self.kwargs.items())
         dataset = load_dataset("unitxt/data", dataset_name, trust_remote_code=True)
 
         instances: List[Instance] = []
 
         for unitxt_split_name, helm_split_name in UnitxtScenario.UNITXT_SPLIT_NAME_TO_HELM_SPLIT_NAME.items():
-            for index, row in enumerate(dataset[unitxt_split_name]):
+            dataset_split = dataset.get(unitxt_split_name)
+            if dataset_split is None:
+                continue
+            for index, row in enumerate(dataset_split):
                 references = [
                     Reference(
                         output=Output(text=reference_text),
