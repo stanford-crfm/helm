@@ -26,6 +26,7 @@ CONFIG = {
     "seed": 1,
     "n_shots": 0,
     "ehr_converter": "codes_only",
+    "max_labels_per_task": 10_000,
     "guo": {
         "is_include_persona": True,
         "is_include_clinical_def": False,
@@ -1320,7 +1321,7 @@ def get_prior_events(df_data: pd.DataFrame, df_labels: pd.DataFrame, n_procs: in
         prior_events = _process_prior_events_chunk(df_labels_sorted, grouped_a, is_show_tqdm=True)
     else:
         # Split df_labels_sorted into n chunks
-        chunk_size = 5_000
+        chunk_size = 1_000
         chunks = [df_labels_sorted.iloc[i:i + chunk_size] for i in range(0, len(df_labels_sorted), chunk_size)]
         
         # Create partial function with grouped_a already set
@@ -1395,6 +1396,11 @@ class EHRSHOTScenario(Scenario):
             timelines: List[List[Dict[str, Any]]] = get_prior_events(df_data, df_labels, n_procs=n_procs)
             assert len(timelines) == df_labels.shape[0], f"Expected {df_labels.shape[0]} prior events, got {len(timelines)}"
 
+        # If lab value task, limit to 10k random labels b/c too many in EHRSHOT (upwards of 300k)
+        if self.subject.startswith('lab_'):
+            df_labels = df_labels.sample(n=CONFIG['max_labels_per_task'], random_state=CONFIG['seed'])
+            print(f"Sampling {len(df_labels)} labels for {self.subject} using random_state={CONFIG['seed']}...")
+
         # Add splits
         df_labels['split'] = df_labels['subject_id'].map(df_splits['split'])
 
@@ -1438,7 +1444,34 @@ class EHRSHOTScenario(Scenario):
         return instances
 
 if __name__ == "__main__":
-    scenario = EHRSHOTScenario(subject="new_hypertension")
-    scenario.create_benchmark(n_procs=10)
-    instances = scenario.get_instances('test.csv')
-    print(len(instances))
+    # Generate statistics on prompts
+    from transformers import AutoTokenizer
+    tokenizer = AutoTokenizer.from_pretrained("gpt2")
+    tqdm.pandas()
+    n_procs: int = 10
+
+    os.makedirs('./ehrshot_stats', exist_ok=True)
+    for t in TASK_FULL_NAMES.keys():
+        # Skip if already exists
+        if os.path.exists(f'./ehrshot_stats/{t}.txt'):
+            print(f"Skipping {t} because it already exists")
+            continue
+
+        # Create benchmark
+        scenario = EHRSHOTScenario(subject=t)
+        scenario.create_benchmark(n_procs=n_procs)
+        instances = scenario.get_instances('test.csv')
+            
+        # Calculate prompt token stats
+        path_to_input_csv = os.path.join(scenario.path_to_tmp_dir, scenario.subject, "medhelm_prompts.parquet")
+        df = pd.read_parquet(path_to_input_csv)
+        df['prompt_n_tokens'] = df['prompt'].progress_apply(lambda x: len(tokenizer.encode(x)))
+        with open(f'./ehrshot_stats/{t}.txt', 'w') as f:
+            f.write("-"*100 + "\n")
+            f.write(f"Task: {t}\n")
+            f.write(f"# of instances: {len(instances)}\n")
+            f.write(f"# of positives: {df['boolean_value'].sum()}\n")
+            f.write(f"Size of splits:\n{df['split'].value_counts()}\n")
+            f.write(f"# tokens per prompt:\n{df['prompt_n_tokens'].describe()}\n")
+            f.write("-"*100 + "\n")
+        df.to_parquet(os.path.join(scenario.path_to_tmp_dir, scenario.subject, "medhelm_prompts.parquet"))
