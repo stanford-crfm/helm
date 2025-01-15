@@ -274,6 +274,7 @@ def compute_aggregate_row_means(table: Table) -> List[Optional[float]]:
     for header_cell in header_cells:
         orderings.append(header_cell.lower_is_better)
     if len(set(orderings)) != 1:
+        print(header_cells)
         raise Exception("Cannot mean columns with different values for lower_is_better")
 
     for row in table.rows:

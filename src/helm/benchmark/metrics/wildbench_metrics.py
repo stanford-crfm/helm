@@ -20,6 +20,8 @@ class WildBenchScoreMetric(Metric):
     ) -> List[Stat]:
         assert request_state.annotations
         score = request_state.annotations["wildbench"]["score"]
+        score_rescaled = (score - 1) / 9
         return [
             Stat(MetricName("wildbench_score")).add(score),
+            Stat(MetricName("wildbench_score_rescaled")).add(rescaled_score),
         ]
