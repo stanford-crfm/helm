@@ -41,6 +41,7 @@ class WildBenchScenario(Scenario):
             self.subset,
             cache_dir=cache_dir,
             split="test",
+            revision="7c05c1b4550282b2ed6a2e6ac5db069f1e07df5c",
         )
         assert isinstance(dataset, datasets.Dataset)
         if self.use_model_outputs:
@@ -50,6 +51,7 @@ class WildBenchScenario(Scenario):
                     model,
                     cache_dir=cache_dir,
                     split="train",
+                    revision="d6755bc68220df853c0825a733430f73f5af2501",
                 )
                 for model in REFERENCE_MODELS
             }

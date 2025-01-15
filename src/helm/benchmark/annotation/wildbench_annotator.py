@@ -62,4 +62,4 @@ class WildBenchAnnotator(Annotator):
         except ValueError:
             raise ValueError(f"Malformed score '{score_text}' in annotator response: {annotator_response_text}")
 
-        return {"prompt_text": annotator_prompt, "strengths": strengths, "weaknesses": weaknesses, "score": score}
+        return {"strengths": strengths, "weaknesses": weaknesses, "score": score}

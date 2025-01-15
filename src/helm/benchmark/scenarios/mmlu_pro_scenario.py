@@ -53,7 +53,7 @@ class MMLUProScenario(Scenario):
         instances: List[Instance] = []
         hlog(f"Processing data for {split} split")
         for row in data:
-            id = row["id"]
+            id = row["question_id"]
             question = row["question"]
             answers = row["options"]
             correct_choice = row["answer"]
