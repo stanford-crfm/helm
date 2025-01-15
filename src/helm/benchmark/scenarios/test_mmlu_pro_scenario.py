@@ -1,7 +1,7 @@
 import pytest
 from tempfile import TemporaryDirectory
 
-from helm.benchmark.scenarios.mmlu_pro import MMLUProScenario
+from helm.benchmark.scenarios.mmlu_pro_scenario import MMLUProScenario
 from helm.benchmark.scenarios.scenario import CORRECT_TAG, Input, Output, Reference
 
 
