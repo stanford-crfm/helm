@@ -23,5 +23,5 @@ class WildBenchScoreMetric(Metric):
         score_rescaled = (score - 1) / 9
         return [
             Stat(MetricName("wildbench_score")).add(score),
-            Stat(MetricName("wildbench_score_rescaled")).add(rescaled_score),
+            Stat(MetricName("wildbench_score_rescaled")).add(score_rescaled),
         ]
