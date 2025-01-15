@@ -108,7 +108,7 @@ metrics:
     short_display_name: WB Score
     description: Score of the AI output judged by GPT-4o.
     lower_is_better: false
-  - name: wildbench_score
+  - name: wildbench_score_rescaled
     display_name: WildBench Score
     short_display_name: WB Score
     description: Score of the AI output judged by GPT-4o, rescaled to be between 0 and 1.
