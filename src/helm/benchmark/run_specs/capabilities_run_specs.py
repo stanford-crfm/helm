@@ -131,7 +131,9 @@ def get_ifeval_spec() -> RunSpec:
         method=ADAPT_GENERATION, input_prefix="", output_prefix="", max_tokens=2000, num_outputs=1, temperature=0.0
     )
 
-    metric_specs = [MetricSpec(class_name="helm.benchmark.metrics.ifeval_metrics.IFEvalMetric")]
+    metric_specs = get_basic_metric_specs([]) + [
+        MetricSpec(class_name="helm.benchmark.metrics.ifeval_metrics.IFEvalMetric")
+    ]
 
     return RunSpec(
         name="ifeval",
@@ -157,7 +159,9 @@ def get_wildbench_spec(subset: str, use_model_outputs: str = "False") -> RunSpec
         method=ADAPT_CHAT, input_prefix="", output_prefix="", max_tokens=2000, num_outputs=1, temperature=0.0
     )
     annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.wildbench_annotator.WildBenchAnnotator")]
-    metric_specs = [MetricSpec(class_name="helm.benchmark.metrics.wildbench_metrics.WildBenchScoreMetric")]
+    metric_specs = get_basic_metric_specs([]) + [
+        MetricSpec(class_name="helm.benchmark.metrics.wildbench_metrics.WildBenchScoreMetric")
+    ]
 
     return RunSpec(
         name="wildbench",
@@ -190,7 +194,9 @@ def get_bigcodebench_spec(version: str) -> RunSpec:
     annotator_specs = [
         AnnotatorSpec(class_name="helm.benchmark.annotation.bigcodebench_annotator.BigCodeBenchAnnotator")
     ]
-    metric_specs = [MetricSpec(class_name="helm.benchmark.metrics.bigcodebench_metrics.BigCodeBenchMetric")]
+    metric_specs = get_basic_metric_specs([]) + [
+        MetricSpec(class_name="helm.benchmark.metrics.bigcodebench_metrics.BigCodeBenchMetric")
+    ]
 
     return RunSpec(
         name="bigcodebench",
