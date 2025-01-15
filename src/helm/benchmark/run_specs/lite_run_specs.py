@@ -5,7 +5,6 @@ Website: https://crfm.stanford.edu/helm/lite/"""
 from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_GENERATION,
     ADAPT_MULTIPLE_CHOICE_JOINT,
-    ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT,
     AdapterSpec,
 )
 from helm.benchmark.adaptation.common_adapter_specs import (
@@ -25,7 +24,6 @@ from helm.benchmark.metrics.common_metric_specs import (
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.runner import get_benchmark_output_path
 from helm.benchmark.scenarios.scenario import ScenarioSpec, get_scenario_cache_path
-from helm.benchmark.metrics.metric import MetricSpec
 
 
 @run_spec_function("narrative_qa")

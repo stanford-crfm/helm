@@ -32,7 +32,7 @@ def get_mmlu_pro_spec(subject: str, use_chain_of_thought: str = "true", use_few_
     del use_chain_of_thought
     del use_few_shot
 
-    run_spec_name = f"mmlu_pro:subset={subject},use_chain_of_thought={_bool_to_str(use_chain_of_thought_bool)},use_few_shot={_bool_to_str(use_few_shot_bool)}"
+    run_spec_name = f"mmlu_pro:subset={subject},use_chain_of_thought={_bool_to_str(use_chain_of_thought_bool)},use_few_shot={_bool_to_str(use_few_shot_bool)}"  # noqa: E501
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mmlu_pro_scenario.MMLUProScenario", args={"subject": subject}
     )
@@ -175,7 +175,7 @@ def get_gpqa_spec(subset: str, use_chain_of_thought: str = "true", use_few_shot:
     )
 
     return RunSpec(
-        name=f"gpqa:subset={subset},use_chain_of_thought={_bool_to_str(use_chain_of_thought_bool)},use_few_shot={_bool_to_str(use_few_shot_bool)}",
+        name=f"gpqa:subset={subset},use_chain_of_thought={_bool_to_str(use_chain_of_thought_bool)},use_few_shot={_bool_to_str(use_few_shot_bool)}",  # noqa: E501
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
