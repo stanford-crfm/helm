@@ -71,6 +71,7 @@ class AutoClient(Client):
                 model_deployment.client_spec,
                 constant_bindings={
                     "cache_config": cache_config,
+                    "model_name": model_deployment.model_name,
                     "tokenizer_name": model_deployment.tokenizer_name,
                 },
                 provider_bindings={
