@@ -1189,6 +1189,29 @@ def get_ehrshot_spec(subject: str) -> RunSpec:
         groups=["ehrshot"],
     )
 
+
+@run_spec_function("n2c2_ct_matching")
+def get_n2c2_ct_matching_spec(subject: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.n2c2_ct_matching_scenario.N2C2CTMatchingScenario", args={"subject": subject}
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="",
+        input_noun="",
+        output_noun="",
+    )
+    
+    return RunSpec(
+        name=f"n2c2_ct_matching:subject={subject}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_f1_metric_specs(),
+        groups=["n2c2_ct_matching"],
+    )
+
+
 @run_spec_function("medcalc_bench")
 def get_medcalc_bench_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(

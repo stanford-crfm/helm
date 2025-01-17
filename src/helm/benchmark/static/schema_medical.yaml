@@ -319,7 +319,8 @@ run_groups:
       - medalign
       - mtsamples
       - ehrshot
-  
+      - n2c2_ct_matching
+
   - name: clinical_note_generation
     display_name: Clinical Note Generation
     description: Scenarios for clinical note generation
@@ -408,6 +409,24 @@ run_groups:
     display_name: EHRShot
     short_display_name: EHRShot
     description: A benchmark created from the EHRShot dataset for clinical prediction making using structured EHR data.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: n2c2_ct_matching
+    display_name: N2C2 CT Matching
+    short_display_name: N2C2 CT Matching
+    description: A benchmark created from the N2C2 2018 CT Matching dataset for assessing whether a patient meets a clinical trial inclusion criterion based a set of 2-5 clinical notes.
     metric_groups:
       - accuracy
       - efficiency
