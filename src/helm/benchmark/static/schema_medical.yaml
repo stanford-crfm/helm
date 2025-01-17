@@ -344,6 +344,7 @@ run_groups:
     category: Medical Scenarios
     subgroups:
       - pubmed_qa
+      - race_based_med
   
   - name: administration_and_workflow
     display_name: Administration and Workflow
@@ -423,6 +424,24 @@ run_groups:
       when: "?"
       language: English
 
+  - name: race_based_med
+    display_name: RaceBasedMedicine
+    short_display_name: RaceBasedMed
+    description: A benchmark created from the race based medicine detection paper where models are tasked at detecting harmful race basewd content in LLM output.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
   - name: n2c2_ct_matching
     display_name: N2C2 CT Matching
     short_display_name: N2C2 CT Matching
@@ -475,24 +494,6 @@ run_groups:
       what: "?"
       who: "?"
       when: "?"
-      language: English
-
-  - name: mimiciv_billing_code
-    display_name: MIMIC-IV Billing Code Prediction
-    short_display_name: MIMIC-IV Billing Code
-    description: A multi-label classification task where the model predicts ICD-10 billing codes based on discharge summaries from electronic health records.
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: f1_score
-      main_split: test
-    taxonomy:
-      task: multi-label classification
-      what: "Predict ICD-10 billing codes from clinical discharge notes."
-      who: "Healthcare providers and medical coders."
-      when: "During or after patient discharge from the hospital."
       language: English
 
   - name: mimic_rrs
