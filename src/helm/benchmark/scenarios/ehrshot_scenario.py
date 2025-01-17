@@ -32,14 +32,14 @@ CONFIG = {
         "is_include_clinical_def": False,
         "is_include_code_def": False,
         "is_use_short_clinical_def": False,
-        "is_include_cot": False,
+        "is_include_cot": True,
     },
     "lab": {
         "is_include_persona": True,
         "is_include_clinical_def": False,
         "is_include_code_def": False,
         "is_use_short_clinical_def": False,
-        "is_include_cot": False,
+        "is_include_cot": True,
     },
     "new": {
         "is_include_persona": True,
@@ -1105,7 +1105,8 @@ ACTION_COT_TMPL = (
 
 def lumia_prompt(task_name: str, config: Dict[str, Any], examples: List[Dict[str, Any]], timeline: Dict[str, Any]) -> str:
     # Base template
-    tmpl: Dict[str, Any] = base_prompt(task_name, **config)
+    task_config = CONFIG['guo'] if task_name.startswith('guo') else CONFIG['lab'] if task_name.startswith('lab') else CONFIG['new']
+    tmpl: Dict[str, Any] = base_prompt(task_name, **task_config)
     
     # EHR => String converter
     if config.get('ehr_converter') == 'codes_and_timestamps':
@@ -1393,13 +1394,16 @@ class EHRSHOTScenario(Scenario):
                 continue
             df_labels = pd.read_parquet(path_to_labels)
             print(f"Task: {t} | df_labels.shape: {df_labels.shape}")
+            
+            # If lab value task, limit to 10k random labels b/c too many in EHRSHOT (upwards of 300k)
+            if self.subject.startswith('lab_'):
+                df_labels = df_labels.sample(n=CONFIG['max_labels_per_task'], random_state=CONFIG['seed'])
+                print(f"Sampling {len(df_labels)} labels for {self.subject} using random_state={CONFIG['seed']}...")
+            
+            # Create patient timelines, limited to only events prior to the prediction time of the label
             timelines: List[List[Dict[str, Any]]] = get_prior_events(df_data, df_labels, n_procs=n_procs)
             assert len(timelines) == df_labels.shape[0], f"Expected {df_labels.shape[0]} prior events, got {len(timelines)}"
 
-        # If lab value task, limit to 10k random labels b/c too many in EHRSHOT (upwards of 300k)
-        if self.subject.startswith('lab_'):
-            df_labels = df_labels.sample(n=CONFIG['max_labels_per_task'], random_state=CONFIG['seed'])
-            print(f"Sampling {len(df_labels)} labels for {self.subject} using random_state={CONFIG['seed']}...")
 
         # Add splits
         df_labels['split'] = df_labels['subject_id'].map(df_splits['split'])
