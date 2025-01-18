@@ -35,6 +35,20 @@ model_deployments:
     max_sequence_and_generated_tokens_length: 8192
     client_spec:
       class_name: "helm.clients.stanfordhealthcare_google_client.StanfordHealthCareGoogleClient"
+      
+  - name: stanfordhealthcare/gpt-4o-mini-2024-07-18
+    model_name: openai/gpt-4o-mini-2024-07-18
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+
+  - name: stanfordhealthcare/llama-3.3-70b-instruct
+    model_name: meta/llama-3.3-70b-instruct
+    tokenizer_name: meta/llama-3.3-70b-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_llama_client.StanfordHealthCareLlamaClient"
 
   # Adobe
   - name: adobe/giga-gan
@@ -124,7 +138,29 @@ model_deployments:
       class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
 
 
-  # Amazon
+  # Amazon nova models
+
+  - name: amazon/nova-pro-v1:0
+    model_name: amazon/nova-pro-v1:0
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 300000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockNovaClient"
+
+  - name: amazon/nova-lite-v1:0
+    model_name: amazon/nova-lite-v1:0
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 300000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockNovaClient"
+
+  - name: amazon/nova-micro-v1:0
+    model_name: amazon/nova-micro-v1:0
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockNovaClient"
+
   # Titan on Amazon Bedrock
 
   - name: amazon/titan-text-lite-v1
@@ -410,6 +446,15 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
 
+  - name: together/deepseek-v3
+    model_name: deepseek-ai/deepseek-v3
+    tokenizer_name: deepseek-ai/deepseek-v3
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        disable_logprobs: True
+
   # Gooseai
 
   # TODO: Migrate these models to use OpenAIClient
@@ -567,6 +612,14 @@ model_deployments:
 
   - name: google/gemini-1.5-flash-002
     model_name: google/gemini-1.5-flash-002
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+    # TODO: Max output tokens: 8192
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+
+  - name: google/gemini-2.0-flash-exp
+    model_name: google/gemini-2.0-flash-exp
     tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
     max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
     # TODO: Max output tokens: 8192
@@ -1018,7 +1071,22 @@ model_deployments:
     max_sequence_length: 2048
     client_spec:
       class_name: "helm.clients.vision_language.huggingface_vlm_client.HuggingFaceVLMClient"
+      
+  ## NECTEC
+  - name: huggingface/Pathumma-llm-text-1.0.0
+    model_name: nectec/Pathumma-llm-text-1.0.0
+    tokenizer_name: nectec/Pathumma-llm-text-1.0.0
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
 
+  - name: huggingface/OpenThaiLLM-Prebuilt-7B
+    model_name: nectec/OpenThaiLLM-Prebuilt-7B
+    tokenizer_name: nectec/OpenThaiLLM-Prebuilt-7B
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+    
   ## KAIST AI
   - name: huggingface/prometheus-vision-13b-v1.0-hf
     model_name: kaistai/prometheus-vision-13b-v1.0-hf
@@ -1308,6 +1376,17 @@ model_deployments:
     max_sequence_length: 4096
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  # Upstage
+  - name: huggingface/solar-pro-preview-instruct
+    model_name: upstage/solar-pro-preview-instruct
+    tokenizer_name: upstage/solar-pro-preview-instruct
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        torch_dtype: auto
+        trust_remote_code: true
 
   ## Text-to-Image Diffusion Models
 
@@ -1808,6 +1887,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
+  - name: openai/gpt-4o-2024-11-20
+    model_name: openai/gpt-4o-2024-11-20
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
   - name: openai/gpt-4o-mini-2024-07-18
     model_name: openai/gpt-4o-mini-2024-07-18
     tokenizer_name: openai/o200k_base
@@ -1841,6 +1927,13 @@ model_deployments:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
   ## o1 Models
+  - name: openai/o1-2024-12-17
+    model_name: openai/o1-2024-12-17
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
   - name: openai/o1-preview-2024-09-12
     model_name: openai/o1-preview-2024-09-12
     tokenizer_name: openai/cl100k_base
@@ -2164,6 +2257,15 @@ model_deployments:
       args:
         together_model: meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo
 
+  - name: together/llama-3.3-70b-instruct-turbo
+    model_name: meta/llama-3.3-70b-instruct-turbo
+    tokenizer_name: meta/llama-3.3-70b-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        together_model: meta-llama/Llama-3.3-70B-Instruct-Turbo
+
   - name: together/llama-guard-7b
     model_name: meta/llama-guard-7b
     tokenizer_name: meta-llama/Llama-2-7b-hf
@@ -2190,6 +2292,16 @@ model_deployments:
       class_name: "helm.clients.together_client.TogetherClient"
       args:
         together_model: meta-llama/Meta-Llama-Guard-3-8B
+
+  # NVIDIA  
+  - name: together/llama-3.1-nemotron-70b-instruct
+    model_name: nvidia/llama-3.1-nemotron-70b-instruct
+    tokenizer_name: nvidia/llama-3.1-nemotron-70b-instruct
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: nvidia/Llama-3.1-Nemotron-70B-Instruct-HF
 
   # 01.AI
   - name: together/yi-6b
@@ -2723,6 +2835,20 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.vision_language.qwen_vlm_client.QwenVLMClient"
 
+  - name: huggingface/qwen2-vl-7b-instruct
+    model_name: qwen/qwen2-vl-7b-instruct
+    tokenizer_name: qwen/qwen-vl-chat
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.vision_language.qwen2_vlm_client.Qwen2VLMClient"
+
+  - name: huggingface/qwen2-vl-72b-instruct
+    model_name: qwen/qwen2-vl-72b-instruct
+    tokenizer_name: qwen/qwen-vl-chat
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.vision_language.qwen2_vlm_client.Qwen2VLMClient"
+
   - name: huggingface/qwen-audio-chat
     model_name: qwen/qwen-audio-chat
     tokenizer_name: qwen/qwen-audio-chat
@@ -2786,6 +2912,14 @@ model_deployments:
     max_sequence_length: 64000
     client_spec:
       class_name: "helm.clients.reka_client.RekaClient"
+
+  # Upstage
+  - name: upstage/solar-pro-241126
+    model_name: upstage/solar-pro-241126
+    tokenizer_name: upstage/solar-pro-preview-instruct
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.upstage_client.UpstageChatClient"
 
 # Diva Llama
   - name: huggingface/diva-llama
@@ -2876,3 +3010,92 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         pretrained_model_name_or_path: ibm-granite/granite-3.0-1b-a400m-base
+
+  - name: huggingface/sabia-7b
+    model_name: maritaca-ai/sabia-7b
+    tokenizer_name: maritaca-ai/sabia-7b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+    args:
+      pretrained_model_name_or_path: maritaca-ai/sabia-7b
+
+# Granite-3.1-8b-base
+  - name: huggingface/granite-3.1-8b-base
+    model_name: ibm-granite/granite-3.1-8b-base
+    tokenizer_name: ibm-granite/granite-3.1-8b-base
+    max_sequence_length: 128000
+    client_spec:
+        class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-8b-base
+
+# Granite-3.1-8b-instruct
+  - name: huggingface/granite-3.1-8b-instruct
+    model_name: ibm-granite/granite-3.1-8b-instruct
+    tokenizer_name: ibm-granite/granite-3.1-8b-instruct
+    max_sequence_length: 128000
+    client_spec:
+        class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-8b-instruct
+
+# Granite-3.1-2b-instruct
+  - name: huggingface/granite-3.1-2b-instruct
+    model_name: ibm-granite/granite-3.1-2b-instruct
+    tokenizer_name: ibm-granite/granite-3.1-2b-instruct
+    max_sequence_length: 128000
+    client_spec:
+        class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-2b-instruct
+
+# Granite-3.1-2b-base
+  - name: huggingface/granite-3.1-2b-base
+    model_name: ibm-granite/granite-3.1-2b-base
+    tokenizer_name: ibm-granite/granite-3.1-2b-base
+    max_sequence_length: 128000
+    client_spec:
+        class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-2b-base
+
+# Granite-3.1-3b-a800m-instruct
+  - name: huggingface/granite-3.1-3b-a800m-instruct
+    model_name: ibm-granite/granite-3.1-3b-a800m-instruct
+    tokenizer_name: ibm-granite/granite-3.1-3b-a800m-instruct
+    max_sequence_length: 128000
+    client_spec:
+        class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-3b-a800m-instruct
+
+# Granite-3.1-3b-a800m-base
+  - name: huggingface/granite-3.1-3b-a800m-base
+    model_name: ibm-granite/granite-3.1-3b-a800m-base
+    tokenizer_name: ibm-granite/granite-3.1-3b-a800m-base
+    max_sequence_length: 128000
+    client_spec:
+        class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-3b-a800m-base
+
+# Granite-3.1-1b-a400m-instruct
+  - name: huggingface/granite-3.1-1b-a400m-instruct
+    model_name: ibm-granite/granite-3.1-1b-a400m-instruct
+    tokenizer_name: ibm-granite/granite-3.1-1b-a400m-instruct
+    max_sequence_length: 128000
+    client_spec:
+        class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-1b-a400m-instruct
+
+# Granite-3.1-1b-a400m-base
+  - name: huggingface/granite-3.1-1b-a400m-base
+    model_name: ibm-granite/granite-3.1-1b-a400m-base
+    tokenizer_name: ibm-granite/granite-3.1-1b-a400m-base
+    max_sequence_length: 128000
+    client_spec:
+        class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-1b-a400m-base

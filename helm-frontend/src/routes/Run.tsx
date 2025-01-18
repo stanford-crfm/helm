@@ -24,6 +24,8 @@ import getRunsToRunSuites from "@/services/getRunsToRunSuites";
 import getSuiteForRun from "@/services/getSuiteForRun";
 import Instances from "@/components/Instances";
 import RunMetrics from "@/components/RunMetrics";
+import UserAgreement from "@/components/UserAgreement";
+import isScenarioEncrypted from "@/utils/isScenarioEncrypted";
 
 export default function Run() {
   const { runName } = useParams();
@@ -36,6 +38,8 @@ export default function Run() {
   const [metricFieldMap, setMetricFieldMap] = useState<
     MetricFieldMap | undefined
   >({});
+
+  const [userAgreed, setUserAgreed] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -178,11 +182,18 @@ export default function Run() {
           </Tab>
         </Tabs>
       </div>
+
+      {activeTab === 0 && isScenarioEncrypted(runName) && !userAgreed && (
+        <UserAgreement runName={runName} onAgree={() => setUserAgreed(true)} />
+      )}
+
       {activeTab === 0 ? (
         <Instances
+          key={userAgreed ? "instances-agreed" : "instances-not-agreed"}
           runName={runName}
           suite={runSuite}
           metricFieldMap={metricFieldMap}
+          userAgreed={userAgreed} // Pass the boolean to Instances
         />
       ) : (
         <RunMetrics

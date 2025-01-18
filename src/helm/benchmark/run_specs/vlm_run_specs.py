@@ -107,7 +107,16 @@ def _get_multiple_choice_joint_adapter_spec(
 
 def _get_open_ended_generation_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(
-        ["exact_match", "quasi_exact_match", "f1_score", "rouge_l", "bleu_1", "bleu_4", "cider"]
+        [
+            "exact_match",
+            "quasi_exact_match",
+            "quasi_leave_articles_exact_match",
+            "f1_score",
+            "rouge_l",
+            "bleu_1",
+            "bleu_4",
+            "cider",
+        ]
     )
 
 

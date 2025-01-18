@@ -169,6 +169,12 @@ tokenizer_configs:
     end_of_text_token: "<｜end▁of▁sentence｜>"
     prefix_token: "<｜begin▁of▁sentence｜>"
 
+  - name: deepseek-ai/deepseek-v3
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<｜end▁of▁sentence｜>"
+    prefix_token: "<｜begin▁of▁sentence｜>"
+
   # EleutherAI
   - name: EleutherAI/gpt-j-6B
     tokenizer_spec:
@@ -365,6 +371,14 @@ tokenizer_configs:
     prefix_token: "<|begin_of_text|>"
     end_of_text_token: "<|eot_id|>"
 
+  - name: meta/llama-3.3-70b-instruct
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: meta-llama/Llama-3.3-70B-Instruct
+    prefix_token: "<|begin_of_text|>"
+    end_of_text_token: "<|eot_id|>"
+
   # 01-ai
   - name: 01-ai/Yi-6B
     tokenizer_spec:
@@ -472,6 +486,19 @@ tokenizer_configs:
     end_of_text_token: "</s>"
     prefix_token: "<s>"
 
+  # Nectec
+  - name: nectec/OpenThaiLLM-Prebuilt-7B
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|im_end|>"
+    prefix_token: ""
+  
+  - name: nectec/Pathumma-llm-text-1.0.0
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|im_end|>"
+    prefix_token: "<|im_start|>"
+  
   # Neurips
   - name: neurips/local
     tokenizer_spec:
@@ -488,6 +515,14 @@ tokenizer_configs:
         revision: b7aa0de92cda9f9e722d58d6ca90f46ae17d4701
     end_of_text_token: "<|endoftext|>"
     prefix_token: "<|endoftext|>"
+
+  - name: nvidia/llama-3.1-nemotron-70b-instruct
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: nvidia/Llama-3.1-Nemotron-70B-Instruct-HF
+    end_of_text_token: "<|eot_id|>"
+    prefix_token: "<|begin_of_text|>"
 
   # OpenAI
   - name: openai/cl100k_base
@@ -538,7 +573,7 @@ tokenizer_configs:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
       args:
         pretrained_model_name_or_path: Qwen/Qwen2-72B-Instruct
-    end_of_text_token: <|im_end|>"
+    end_of_text_token: "<|im_end|>"
     prefix_token: "<|im_start|>'"
 
   - name: qwen/qwen2.5-7b-instruct
@@ -546,7 +581,7 @@ tokenizer_configs:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
       args:
         pretrained_model_name_or_path: Qwen/Qwen2.5-7B-Instruct
-    end_of_text_token: <|im_end|>"
+    end_of_text_token: "<|im_end|>"
     prefix_token: "<|im_start|>'"
 
   - name: qwen/qwen-vl
@@ -627,6 +662,15 @@ tokenizer_configs:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "</s>"
     prefix_token: "<s>"
+
+  # Upstage
+  - name: upstage/solar-pro-preview-instruct
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        trust_remote_code: true
+    end_of_text_token: "<|im_end|>"
+    prefix_token: "<|startoftext|>"
 
   # Writer
   - name: writer/gpt2
@@ -728,3 +772,83 @@ tokenizer_configs:
         pretrained_model_name_or_path: ibm-granite/granite-3.0-1b-a400m-base
     end_of_text_token: ""
     prefix_token: ""
+
+  - name: maritaca-ai/sabia-7b
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: maritaca-ai/sabia-7b
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+
+# Granite-3.1-8b-base
+  - name: ibm-granite/granite-3.1-8b-base
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-8b-base
+    prefix_token: ""
+    end_of_text_token: "<|endoftext|>"
+
+# Granite-3.1-8b-instruct
+  - name: ibm-granite/granite-3.1-8b-instruct
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-8b-instruct
+    prefix_token: ""
+    end_of_text_token: "<|endoftext|>"
+
+# Granite-3.1-2b-instruct
+  - name: ibm-granite/granite-3.1-2b-instruct
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-2b-instruct
+    prefix_token: ""
+    end_of_text_token: ""
+
+# Granite-3.1-2b-base
+  - name: ibm-granite/granite-3.1-2b-base
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-2b-base
+    prefix_token: ""
+    end_of_text_token: ""
+
+# Granite-3.1-3b-a800m-instruct
+  - name: ibm-granite/granite-3.1-3b-a800m-instruct
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-3b-a800m-instruct
+    prefix_token: ""
+    end_of_text_token: ""
+
+# Granite-3.1-3b-a800m-base
+  - name: ibm-granite/granite-3.1-3b-a800m-base
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-3b-a800m-base
+    prefix_token: ""
+    end_of_text_token: ""
+
+# Granite-3.1-1b-a400m-instruct
+  - name: ibm-granite/granite-3.1-1b-a400m-instruct
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-1b-a400m-instruct
+    prefix_token: ""
+    end_of_text_token: ""
+
+# Granite-3.1-1b-a400m-base
+  - name: ibm-granite/granite-3.1-1b-a400m-base
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-1b-a400m-base
+    prefix_token: ""
+    end_of_text_token: ""

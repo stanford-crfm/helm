@@ -14,6 +14,7 @@ from helm.benchmark.model_metadata_registry import (
     ANTHROPIC_CLAUDE_1_MODEL_TAG,
     ANTHROPIC_CLAUDE_2_MODEL_TAG,
     ANTHROPIC_CLAUDE_3_MODEL_TAG,
+    NOVA_MODEL_TAG,
     BUGGY_TEMP_0_TAG,
     CHATML_MODEL_TAG,
     GOOGLE_GEMINI_PRO_VISION_V1_TAG,
@@ -31,6 +32,7 @@ from helm.benchmark.run_expander import (
     RUN_EXPANDERS,
     AnthropicClaude2RunExpander,
     AnthropicClaude3RunExpander,
+    NovaRunExpander,
     ChatMLRunExpander,
     GlobalPrefixRunExpander,
     IDEFICSInstructRunExpander,
@@ -122,6 +124,9 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             chatml_expander = ChatMLRunExpander()
             run_spec = singleton(chatml_expander.expand(run_spec))
 
+        if NOVA_MODEL_TAG in model.tags:
+            run_spec = singleton(NovaRunExpander().expand(run_spec))
+
         # Anthropic Claude 1 and 2 prompts
         if ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags or ANTHROPIC_CLAUDE_2_MODEL_TAG in model.tags:
             run_spec = singleton(AnthropicClaude2RunExpander().expand(run_spec))
@@ -137,6 +142,13 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             and run_spec.adapter_spec.max_tokens == 1
         ):
             run_spec = singleton(IncreaseMaxTokensRunExpander(value=1).expand(run_spec))
+
+        if model.name == "openai/o1-2024-12-17":
+            # From https://platform.openai.com/docs/guides/reasoning,
+            # "OpenAI recommends reserving at least 25,000 tokens for reasoning and outputs when you start
+            # experimenting with these models. As you become familiar with the number of reasoning tokens your
+            # prompts require, you can adjust this buffer accordingly."
+            run_spec = singleton(IncreaseMaxTokensRunExpander(value=25_000).expand(run_spec))
 
         # IDEFICS special handling
         if IDEFICS_MODEL_TAG in model.tags:

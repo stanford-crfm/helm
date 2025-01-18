@@ -652,3 +652,18 @@ run_groups:
       who: n/a
       when: n/a
       language: English
+  - name: medalign
+    display_name: MedAlign
+    short_display_name: MedAlign
+    description: A question answering dataset for clinical questions, each paired with a relevant patient EHR and a clinician-generated gold response.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: BERTScore-F
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English

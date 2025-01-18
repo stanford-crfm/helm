@@ -28,6 +28,7 @@ class OpenAIClient(CachingClient):
 
     # Error OpenAI throws when the image in the prompt violates their content policy
     INAPPROPRIATE_IMAGE_ERROR: str = "Your input image may contain content that is not allowed by our safety system"
+    INAPPROPRIATE_PROMPT_ERROR: str = "Invalid prompt: your prompt was flagged"
 
     # Set the finish reason to this if the prompt violates OpenAI's content policy
     CONTENT_POLICY_VIOLATED_FINISH_REASON: str = (
@@ -171,11 +172,6 @@ class OpenAIClient(CachingClient):
             "frequency_penalty": request.frequency_penalty,
         }
 
-        # OpenAI's vision API doesn't allow None values for stop.
-        # Fails with "body -> stop: none is not an allowed value" if None is passed.
-        if is_vlm(request.model) and raw_request["stop"] is None:
-            raw_request.pop("stop")
-
         # Special handling for o1 models.
         # Refer to the "Reasoning models" documentation further discussion of o1 model limitations:
         # https://platform.openai.com/docs/guides/reasoning
@@ -186,6 +182,18 @@ class OpenAIClient(CachingClient):
             if raw_request["max_tokens"]:
                 raw_request["max_completion_tokens"] = raw_request["max_tokens"]
                 raw_request.pop("max_tokens")
+            # Avoid error:
+            # "Invalid type for 'stop': expected an unsupported value, but got null instead."
+            if raw_request["stop"] is None:
+                raw_request.pop("stop")
+
+            if request.model_engine == "o1-2024-12-17":
+                # Avoid error:
+                # "Error code: 400 - {'error': {'message': "Unsupported parameter: 'temperature' is
+                # not supported with this model.", 'type': 'invalid_request_error', 'param': 'temperature',
+                # 'code': 'unsupported_parameter'}}"
+                raw_request.pop("temperature", None)
+        elif is_vlm(request.model):
             # Avoid error:
             # "Invalid type for 'stop': expected an unsupported value, but got null instead."
             if raw_request["stop"] is None:
@@ -208,7 +216,7 @@ class OpenAIClient(CachingClient):
             cache_key = self._get_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except openai.OpenAIError as e:
-            if self.INAPPROPRIATE_IMAGE_ERROR in str(e):
+            if self.INAPPROPRIATE_IMAGE_ERROR in str(e) or self.INAPPROPRIATE_PROMPT_ERROR in str(e):
                 hlog(f"Failed safety check: {str(request)}")
                 empty_completion = GeneratedOutput(
                     text="",

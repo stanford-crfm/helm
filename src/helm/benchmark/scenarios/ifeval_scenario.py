@@ -27,7 +27,13 @@ class IFEvalScenario(Scenario):
         # Get IFEval from HuggingFace
         cache_dir = os.path.join(output_path, "data")
         ensure_directory_exists(cache_dir)
-        dataset = datasets.load_dataset("google/IFEval", trust_remote_code=True, cache_dir=cache_dir, split="train")
+        dataset = datasets.load_dataset(
+            "google/IFEval",
+            trust_remote_code=True,
+            cache_dir=cache_dir,
+            split="train",
+            revision="966cd89545d6b6acfd7638bc708b98261ca58e84",
+        )
         assert isinstance(dataset, datasets.Dataset)
 
         # Read all instances
