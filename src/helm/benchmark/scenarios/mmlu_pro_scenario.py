@@ -1,8 +1,17 @@
 from typing import Dict, List
-from datasets import load_dataset
+from datasets import Dataset, load_dataset
 
 from helm.common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TRAIN_SPLIT,
+    TEST_SPLIT,
+    CORRECT_TAG,
+    Input,
+    Output,
+)
 
 
 class MMLUProScenario(Scenario):
@@ -33,7 +42,14 @@ class MMLUProScenario(Scenario):
         super().__init__()
         self.subject: str = subject
 
-    def process_csv(self, data, split: str) -> List[Instance]:
+    def process_dataset(self, data: Dataset, split: str) -> List[Instance]:
+        """
+        Process the dataset to create instances.
+
+        :param data: Hugging Face `Dataset` containing the data for a specific split.
+        :param split: The data split (e.g., "train", "test").
+        :return: A list of processed `Instance` objects.
+        """
         instances: List[Instance] = []
         hlog(f"Processing data for {split} split")
         for row in data:
@@ -55,8 +71,14 @@ class MMLUProScenario(Scenario):
         return instances
 
     def get_instances(self, output_path: str) -> List[Instance]:
+        """
+        Load and process the MMLU-Pro dataset to create instances.
+
+        :param output_path: Path to save or output the processed instances.
+        :return: A list of all processed `Instance` objects.
+        """
         # Load the MMLU-Pro dataset from Hugging Face
-        dataset = load_dataset("TIGER-Lab/MMLU-Pro")
+        dataset = load_dataset("TIGER-Lab/MMLU-Pro", revision="3373e0b")
 
         # Process all the instances
         instances: List[Instance] = []
@@ -66,6 +88,6 @@ class MMLUProScenario(Scenario):
         }
         for hf_split, split in splits.items():
             data = dataset[hf_split].filter(lambda x: x["category"] == self.subject)
-            instances.extend(self.process_csv(data, split))
+            instances.extend(self.process_dataset(data, split))
 
         return instances

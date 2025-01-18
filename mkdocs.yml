@@ -51,7 +51,7 @@ nav:
     - get_helm_rank.md
     - benchmark.md
     - huggingface_models.md
-  - Multimodality:
+  - Papers:
     - heim.md
     - vhelm.md
   - Reference:
