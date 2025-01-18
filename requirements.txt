@@ -12,7 +12,7 @@ aiosignal==1.3.1
 aleph-alpha-client==2.14.0
 alive-progress==3.1.5
 annotated-types==0.7.0
-anthropic==0.34.2
+anthropic==0.38.0
 antlr4-python3-runtime==4.9.3
 anyio==4.6.0
 appdirs==1.4.4
@@ -108,7 +108,7 @@ h5py==3.12.0
 html2text==2024.2.26
 httpcore==1.0.5
 httplib2==0.22.0
-httpx==0.25.2
+httpx==0.27.2
 httpx-sse==0.4.0
 huggingface-hub==0.23.5
 humanfriendly==10.0
@@ -155,7 +155,7 @@ MarkupSafe==2.1.5
 matplotlib==3.6.3
 mccabe==0.7.0
 mdurl==0.1.2
-mistralai==0.0.12
+mistralai==1.2.6
 ml-dtypes==0.4.1
 mpmath==1.3.0
 msgpack==1.1.0
@@ -180,8 +180,7 @@ omegaconf==2.3.0
 onnx==1.17.0
 onnxruntime==1.19.2
 open_clip_torch==2.26.1
-openai==1.48.0
-opencv-python==4.8.1.78
+openai==1.59.4
 opencv-python-headless==4.10.0.84
 opt-einsum==3.3.0
 optax==0.2.3

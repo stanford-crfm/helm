@@ -16,6 +16,26 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.simple_client.SimpleClient"
 
+  # Stanford Health Care
+  # Placed earlier in the file to make them non-default
+  - name: stanfordhealthcare/claude-3-5-sonnet-20241022
+    model_name: stanfordhealthcare/claude-3-5-sonnet-20241022
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 200000
+    max_sequence_and_generated_tokens_length: 8192
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_claude_client.StanfordHealthCareClaudeClient"
+      args:
+        model: anthropic.claude-3-5-sonnet-20241022-v2:0
+
+  - name: stanfordhealthcare/gemini-1.5-pro
+    model_name: stanfordhealthcare/gemini-1.5-pro
+    tokenizer_name: google/gemma-2b
+    max_sequence_length: 1000000
+    max_sequence_and_generated_tokens_length: 8192
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_google_client.StanfordHealthCareGoogleClient"
+
   # Adobe
   - name: adobe/giga-gan
     model_name: adobe/giga-gan

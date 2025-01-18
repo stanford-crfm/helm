@@ -1171,7 +1171,7 @@ def get_medalign_spec() -> RunSpec:
 @run_spec_function("ehrshot")
 def get_ehrshot_spec(subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.ehrshot_scenario.EHRShotScenario", args={"subject": subject}
+        class_name="helm.benchmark.scenarios.ehrshot_scenario.EHRSHOTScenario", args={"subject": subject}
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -1299,11 +1299,12 @@ def get_mimiciv_billing_code_spec() -> RunSpec:
         max_train_instances=0,
         stop_sequences=[]
     )
+    metric_args = {"task": "mimiciv_billing_code", "device": get_torch_device_name()}
     return RunSpec(
         name="mimiciv_billing_code",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_f1_metric_specs(),
+        metric_specs=get_f1_metric_specs() + get_summarization_metric_specs(metric_args),
         groups=["mimiciv_billing_code"],
     )
 

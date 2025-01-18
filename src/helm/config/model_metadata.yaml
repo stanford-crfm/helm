@@ -19,6 +19,23 @@ models:
     release_date: 2023-01-01
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+    # Stanford Health Care
+  - name: stanfordhealthcare/claude-3-5-sonnet-20241022
+    display_name: Claude 3.5 Sonnet (20241022)
+    description: Claude 3.5 Sonnet is a Claude 3 family model which outperforms Claude 3 Opus while operating faster and at a lower cost ([blog](https://www.anthropic.com/news/claude-3-5-sonnet)). This is an upgraded snapshot released on 2024-10-22 ([blog](https://www.anthropic.com/news/3-5-models-and-computer-use)).
+    creator_organization_name: Anthropic
+    access: limited
+    release_date: 2024-10-22
+    tags: [ANTHROPIC_CLAUDE_3_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: stanfordhealthcare/gemini-1.5-pro
+    display_name: Gemini 1.5 Pro (001)
+    description: Gemini 1.5 Pro is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. This model is accessed through Vertex AI and has all safety thresholds set to `BLOCK_NONE`. ([paper](https://arxiv.org/abs/2403.05530))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2024-05-24
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   # Adobe
   - name: adobe/giga-gan
     display_name: GigaGAN (1B)
