@@ -1190,26 +1190,25 @@ def get_race_based_med_spec() -> RunSpec:
     )
 
 @run_spec_function("ehrshot")
-def get_ehrshot_spec(subject: str) -> RunSpec:
+def get_ehrshot_spec(subject:str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.ehrshot_scenario.EHRSHOTScenario", args={"subject": subject}
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="",
+        instructions="Answer A for yes, B for no.",
         input_noun="",
         output_noun="",
     )
-    
+
     return RunSpec(
         name=f"ehrshot:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_f1_metric_specs(),
+        metric_specs=get_exact_match_metric_specs(),
         groups=["ehrshot"],
     )
-
 
 @run_spec_function("n2c2_ct_matching")
 def get_n2c2_ct_matching_spec(subject: str) -> RunSpec:

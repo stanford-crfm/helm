@@ -1436,12 +1436,16 @@ class EHRSHOTScenario(Scenario):
         instances: List[Instance] = []
         for prompt, label, split in tqdm(zip(df['prompt'], df['boolean_value'], df['split']), total=len(df), desc="Generating instances"):
             label = "yes" if label else "no"
-            split = TEST_SPLIT if split == "held_out" else (VALID_SPLIT if split == "tuning" else TRAIN_SPLIT)
+            # split = TEST_SPLIT if split == "held_out" else (VALID_SPLIT if split == "tuning" else TRAIN_SPLIT)
+            references: List[Reference] = [
+                        Reference(Output(text=pred_answer), tags=[CORRECT_TAG] if pred_answer == label else [])
+                        for pred_answer in EHRSHOTScenario.POSSIBLE_ANSWER_CHOICES
+                    ]
             instances.append(
                 Instance(
                     input=Input(text=prompt), # prompt
-                    references=[Reference(Output(text=label), tags=[CORRECT_TAG])], # `plan` is the the label; `tags` is whether it is correct`
-                    split=split, # the split
+                    references=references, # `plan` is the the label; `tags` is whether it is correct`
+                    split=TEST_SPLIT, # the split
                 )
             )
                 
