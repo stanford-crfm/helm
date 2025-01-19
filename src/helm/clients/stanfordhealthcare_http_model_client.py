@@ -17,23 +17,36 @@ from helm.common.request import (
 from helm.clients.client import CachingClient
 
 class StanfordHealthCareHTTPModelClient(CachingClient, ABC):
+    """
+    Client for accessing Stanford Health Care models via HTTP requests.
+
+    Configure by setting the following in prod_env/credentials.conf:
+
+    ```
+    stanfordhealthcareEndpoint: https://your-domain-name/
+    stanfordhealthcareApiKey: your-private-key
+    ```
+    """
+    
+    CREDENTIAL_HEADER_NAME = "Ocp-Apim-Subscription-Key"
+    
     def __init__(
         self,
         cache_config: CacheConfig,
         deployment: str,
-        base_url: str = "http://localhost:8080",
+        endpoint: str = "http://localhost:8080",
         do_cache: bool = False,
         timeout: int = 3000,
         api_key: Optional[str] = None,
         model: Optional[str] = None
     ):
         super().__init__(cache_config=cache_config)
-        self.base_url = base_url if not os.environ.get("HELM_HTTP_MODEL_BASE_URL") else os.environ["HELM_HTTP_MODEL_BASE_URL"]
+        self.endpoint = endpoint
         self.timeout = timeout
         self.do_cache = do_cache
         self.deployment = deployment
         self.model = model
-        self.default_headers = {"Ocp-Apim-Subscription-key": api_key}
+        self.default_headers = {StanfordHealthCareHTTPModelClient.CREDENTIAL_HEADER_NAME: api_key}
 
     def make_request(self, request: Request) -> RequestResult:
         cache_key = asdict(request)
@@ -44,7 +57,7 @@ class StanfordHealthCareHTTPModelClient(CachingClient, ABC):
 
         try:
             def do_it() -> Dict[str, Any]:
-                url = f"{self.base_url}/{self.deployment}"
+                url = f"{self.endpoint}/{self.deployment}"
                 response = requests.post(url, json=raw_request, headers=self.default_headers, timeout=self.timeout)
                 response.raise_for_status()
                 return response.json()

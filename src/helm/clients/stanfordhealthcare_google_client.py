@@ -8,6 +8,17 @@ from helm.clients.stanfordhealthcare_http_model_client import StanfordHealthCare
 
 
 class StanfordHealthCareGoogleClient(StanfordHealthCareHTTPModelClient):
+    """
+    Client for accessing Google models hosted on Stanford Health Care's model API.
+
+    Configure by setting the following in prod_env/credentials.conf:
+
+    ```
+    stanfordhealthcareEndpoint: https://your-domain-name/
+    stanfordhealthcareApiKey: your-private-key
+    ```
+    """
+    
     def get_request(self, request: Request) -> Dict[str, Any]:
         return {
             "contents": {

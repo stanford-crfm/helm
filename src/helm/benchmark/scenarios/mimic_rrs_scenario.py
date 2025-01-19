@@ -65,6 +65,8 @@ class MIMICRRSScenario(Scenario):
             impressions: List[str] = self.read_file(impressions_path)
             assert len(findings) == len(impressions), "Findings and impressions must have the same length"
             for finding, impression in zip(findings, impressions):
+                if not finding or not impression:
+                    continue
                 instances.append(
                     Instance(
                         input=Input(text=finding),

@@ -8,6 +8,17 @@ from helm.clients.stanfordhealthcare_http_model_client import StanfordHealthCare
 
 
 class StanfordHealthCareClaudeClient(StanfordHealthCareHTTPModelClient):
+    """
+    Client for accessing Claude models hosted on Stanford Health Care's model API.
+
+    Configure by setting the following in prod_env/credentials.conf:
+
+    ```
+    stanfordhealthcareEndpoint: https://your-domain-name/
+    stanfordhealthcareApiKey: your-private-key
+    ```
+    """
+    
     def get_request(self, request: Request) -> Dict[str, Any]:
         return {
             "model_id": self.model,

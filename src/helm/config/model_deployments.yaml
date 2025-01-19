@@ -19,7 +19,7 @@ model_deployments:
   # Stanford Health Care
   # Placed earlier in the file to make them non-default
   - name: stanfordhealthcare/claude-3-5-sonnet-20241022
-    model_name: stanfordhealthcare/claude-3-5-sonnet-20241022
+    model_name: anthropic/claude-3-5-sonnet-20241022
     tokenizer_name: anthropic/claude
     max_sequence_length: 200000
     max_sequence_and_generated_tokens_length: 8192
@@ -29,7 +29,7 @@ model_deployments:
         model: anthropic.claude-3-5-sonnet-20241022-v2:0
 
   - name: stanfordhealthcare/gemini-1.5-pro
-    model_name: stanfordhealthcare/gemini-1.5-pro
+    model_name: google/gemini-1.5-pro-001
     tokenizer_name: google/gemma-2b
     max_sequence_length: 1000000
     max_sequence_and_generated_tokens_length: 8192
@@ -37,9 +37,23 @@ model_deployments:
       class_name: "helm.clients.stanfordhealthcare_google_client.StanfordHealthCareGoogleClient"
       
   - name: stanfordhealthcare/gpt-4o-mini-2024-07-18
-    model_name: openai/gpt-4o-mini-2024-07-18
+    model_name: openai/gpt-4o-mini
     tokenizer_name: openai/o200k_base
     max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+
+  - name: stanfordhealthcare/gpt-4o-2024-05-13
+    model_name: openai/gpt-4o
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+  
+  - name: stanfordhealthcare/gpt-4-2023-03-14
+    model_name: openai/gpt-4
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 8192
     client_spec:
       class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
 

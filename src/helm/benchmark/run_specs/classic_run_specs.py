@@ -6,7 +6,7 @@ If a run spec function is included in both the HELM Classic leaderboard and the
 HELM Lite leaderboard, it will be included in the lite_run_specs module instead of this module.
 This module also contains some scenarios that are currently not used on any HELM leaderboard."""
 
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set, Union
 
 from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_GENERATION,
@@ -1660,32 +1660,6 @@ def get_medalign_adapter_spec() -> AdapterSpec:
         num_outputs=1,
         max_tokens=256,  # MedAlign default number of generation tokens
     )
-
-
-def get_comet_metric_specs(args: Dict[str, Any]) -> List[MetricSpec]:
-    return [MetricSpec(class_name="helm.benchmark.metrics.comet_metric.CometMetric", args=args)]
-
-
-@run_spec_function("medalign")
-def get_medalign_spec(prompt_template: str = "generic.txt") -> RunSpec:
-    from helm.common.gpu_utils import get_torch_device_name
-
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.medalign_scenario.MedAlignScenario",
-        args={"prompt_template": prompt_template},
-    )
-
-    adapter_spec = get_medalign_adapter_spec()
-
-    metric_args = {"task": "medalign", "device": get_torch_device_name()}
-    return RunSpec(
-        name="medalign",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args) + get_comet_metric_specs(metric_args),
-        groups=["medalign", "med_helm"],
-    )
-
 
 @run_spec_function("lextreme")
 def get_lextreme_spec(subset: str) -> RunSpec:
