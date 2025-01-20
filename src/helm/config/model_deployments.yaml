@@ -552,6 +552,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
       args:
+        vertexai_model: gemini-1.5-pro-001
         safety_settings_preset: default
 
   - name: google/gemini-1.5-pro-001-safety-block-none
@@ -562,6 +563,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
       args:
+        vertexai_model: gemini-1.5-pro-001
         safety_settings_preset: block_none
 
   - name: google/gemini-1.5-flash-001-safety-default
@@ -572,6 +574,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
       args:
+        vertexai_model: gemini-1.5-flash-001
         safety_settings_preset: default
 
   - name: google/gemini-1.5-flash-001-safety-block-none
@@ -582,6 +585,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
       args:
+        vertexai_model: gemini-1.5-flash-001
         safety_settings_preset: block_none
 
   - name: google/gemini-1.5-pro-002
@@ -607,6 +611,33 @@ model_deployments:
     # TODO: Max output tokens: 8192
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+
+  - name: google/llama-3.1-8b-instruct
+    model_name: meta/llama-3.1-8b-instruct
+    tokenizer_name: meta/llama-3.1-8b-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+      args:
+        vertexai_model: publishers/meta/models/llama-3.1-8b-instruct-maas
+
+  - name: google/llama-3.1-70b-instruct
+    model_name: meta/llama-3.1-70b-instruct
+    tokenizer_name: meta/llama-3.1-8b-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+      args:
+        vertexai_model: publishers/meta/models/llama-3.1-70b-instruct-maas
+
+  - name: google/llama-3.1-405b-instruct
+    model_name: meta/llama-3.1-405b-instruct
+    tokenizer_name: meta/llama-3.1-8b-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+      args:
+        vertexai_model: publishers/meta/models/llama-3.1-405b-instruct-maas
 
   ## Gemma
   - name: together/gemma-2b
