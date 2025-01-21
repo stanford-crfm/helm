@@ -8,6 +8,7 @@ import uuid
 import zstandard
 from typing import Any, Callable, Dict, List, Optional, TypeVar
 from datetime import datetime, date
+from enum import Enum
 from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm
 
@@ -158,7 +159,17 @@ def format_split(split: str) -> str:
 def asdict_without_nones(obj: Any) -> Dict[str, Any]:
     if not is_dataclass(obj):
         raise ValueError(f"Expected dataclass, got '{obj}'")
-    return asdict(obj, dict_factory=lambda x: {k: v for (k, v) in x if v is not None})
+
+    def convert_value(value: Any):
+        if isinstance(value, Enum):  # Handle Enums
+            return value.value
+        elif isinstance(value, list):  # Handle lists of Enums or nested objects
+            return [convert_value(v) for v in value]
+        elif isinstance(value, dict):  # Handle dicts with Enum keys/values
+            return {convert_value(k): convert_value(v) for k, v in value.items()}
+        return value  # Return other types as is
+
+    return asdict(obj, dict_factory=lambda x: {k: convert_value(v) for k, v in x if v is not None})
 
 
 def serialize_dates(obj):

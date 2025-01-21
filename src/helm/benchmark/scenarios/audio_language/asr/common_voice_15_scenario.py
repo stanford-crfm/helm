@@ -1,9 +1,11 @@
 """Scenarios for audio models"""
 
-from typing import List
+from collections import OrderedDict
+from datasets import load_dataset
+from tqdm import tqdm
+from typing import Any, Dict, List
 
 from helm.benchmark.scenarios.scenario import (
-    Scenario,
     Instance,
     Reference,
     TEST_SPLIT,
@@ -11,14 +13,20 @@ from helm.benchmark.scenarios.scenario import (
     Input,
     Output,
 )
-from collections import OrderedDict
-from tqdm import tqdm
-from datasets import load_dataset
+from helm.benchmark.scenarios.audio_language.asr.asr_scenario import (
+    ASRInstance,
+    ASRScenario,
+    SpeakerMetadata,
+    Language,
+    Country,
+    Gender,
+    Age,
+)
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.hierarchical_logger import hlog
 
 
-class CommonVoice15Scenario(Scenario):
+class CommonVoice15Scenario(ASRScenario):
     """CommonVoice15 Scenario
 
     The most recent release of CommonVoice15 (Ardila et al, 2019) includes 114 languages. Over 50,000
@@ -26,10 +34,14 @@ class CommonVoice15Scenario(Scenario):
     audio corpus in the public domain for speech recognition, both in terms of number of hours and number
     of languages. The task is to recognize the speech from the audio sample.
 
-
-
     Paper: https://arxiv.org/abs/1912.06670
     Code: https://github.com/common-voice/common-voice
+    Dataset: https://huggingface.co/datasets/mozilla-foundation/common_voice_15_0
+
+    Metadata:
+    - gender: male, female, ''
+    - age: teens, twenties, thirties, forties, fifties, sixties, seventies, eighties, nineties, ''
+    - locale: us, uk, fr, es, de, it, nl, pt, ru, cn, ..., ''
 
     Citation:
     @article{ardila2019common,
@@ -71,11 +83,38 @@ class CommonVoice15Scenario(Scenario):
                 f"Invalid language. Valid languages are: {CommonVoice15Scenario._COMMON_VOICE_TEST_LANG_TO_ID.keys()}"
             )
 
+        self._speaker_langauge = Language(language.lower())
         self._language: str = language
         hlog(
             "You need to sign in Huggingface to download the dataset. Please remember "
             "to sign in to download the dataset."
         )
+
+    def get_gender(self, example: Dict[str, Any]) -> Gender:
+        if not example["gender"]:
+            return Gender.UNKNOWN
+
+        gender: str = example["gender"]
+        if gender == "other":
+            return Gender.NON_BINARY
+        return Gender(example["gender"])
+
+    def get_age(self, example: Dict[str, Any]) -> Age:
+        if not example["age"]:
+            return Age.UNKNOWN
+
+        age: str = example["age"]
+        if age == "fourties":
+            age = "forties"
+        return Age(age)
+
+    def get_country(self, example: Dict[str, Any]) -> Country:
+        try:
+            locale: str = example["locale"]
+            return Country[locale.upper()]
+        except KeyError:
+            hlog(f"Unknown country. Using unknown: {example}")
+            return Country.UNKNOWN
 
     def get_instances(self, output_path: str) -> List[Instance]:
         instances: List[Instance] = []
@@ -89,11 +128,18 @@ class CommonVoice15Scenario(Scenario):
                 trust_remote_code=True,
             )
         ):
-            local_audio_path = row["path"]
-            answer = row["sentence"]
             input = Input(
-                multimedia_content=MultimediaObject([MediaObject(content_type="audio/mpeg", location=local_audio_path)])
+                multimedia_content=MultimediaObject([MediaObject(content_type="audio/mpeg", location=row["path"])])
             )
-            references = [Reference(Output(text=answer), tags=[CORRECT_TAG])]
-            instances.append(Instance(input=input, references=references, split=TEST_SPLIT))
+            references = [Reference(Output(text=row["sentence"]), tags=[CORRECT_TAG])]
+
+            instances.append(
+                ASRInstance(
+                    input=input,
+                    references=references,
+                    split=TEST_SPLIT,
+                    speaker_metadata=self.get_speaker_metadata(row),
+                    language=self._speaker_langauge,
+                )
+            )
         return instances

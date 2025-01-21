@@ -288,7 +288,7 @@ def get_voxceleb2_run_spec() -> RunSpec:
 @run_spec_function("common_voice_15")
 def get_common_voice_15_run_spec(language: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.audio_language.common_voice_15_scenario.CommonVoice15Scenario",
+        class_name="helm.benchmark.scenarios.audio_language.asr.common_voice_15_scenario.CommonVoice15Scenario",
         args={"language": language},
     )
     adapter_spec = _get_generation_adapter_spec(
