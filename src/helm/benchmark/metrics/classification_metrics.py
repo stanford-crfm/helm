@@ -9,6 +9,7 @@ from helm.benchmark.metrics.evaluate_reference_metrics import normalize_text
 from helm.benchmark.metrics.metric import MetricName
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.scenarios.scenario import Reference
+from helm.common.hierarchical_logger import hlog
 from helm.common.request import GeneratedOutput
 
 
@@ -73,6 +74,11 @@ class ClassificationMetric(EvaluateInstancesMetric):
                 raise ValueError(f"Each value in `scores` must be set to one of {ClassificationMetric.SCORE_OPTIONS}.")
         self.delimiter = delimiter
         self.labels = labels
+        hlog(
+            "WARNING: `labels` were not set on `ClassificationMetric`, "
+            "so they will be inferred from target references. "
+            "It is recommend to explicitly set `labels` on `ClassificationMetric`."
+        )
 
     def is_multi_label(self) -> bool:
         return bool(self.delimiter)
@@ -102,10 +108,13 @@ class ClassificationMetric(EvaluateInstancesMetric):
             input_text = request_state.result.completions[0].text
             predictions = input_text.split(self.delimiter) if self.is_multi_label() else [input_text]
             y_pred.append([_normalize_label_text(pred) for pred in predictions if pred])
-        labels: List[str] = self.labels or list(set(y for ys in y_true for y in ys))
-        mlb = MultiLabelBinarizer().fit([labels])
+        mlb = MultiLabelBinarizer().fit([self.labels] if self.labels else y_true)
+        print(y_true)
         y_true = mlb.transform(y_true)
+        print(y_true)
+        print(y_pred)
         y_pred = mlb.transform(y_pred)
+        print(y_pred)
         stats: List[Stat] = []
         for average in self.averages:
             for score_name in self.scores:

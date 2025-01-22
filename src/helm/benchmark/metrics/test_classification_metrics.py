@@ -77,12 +77,37 @@ def compute_stats(all_classes_counts: Dict[str, Dict[str, int]]):
     return stats
 
 
+def test_evaluate_instances_default_parameters():
+    request_states = [
+        _request_state("yes", [_Option("yes", True)]),
+        _request_state("yes ", [_Option("yes", True)]),
+        _request_state("yeS", [_Option("yes", True)]),
+        _request_state("yes", [_Option("no", True)]),
+        _request_state("no", [_Option("yes", True)]),
+        _request_state("no", [_Option("no", True)]),
+        _request_state("invalid", [_Option("no", True)]),
+    ]
+
+    expected_stats = compute_stats(
+        {
+            "yes": {"tp": 3, "fp": 1, "tn": 2, "fn": 1},
+            "no": {"tp": 1, "fp": 1, "tn": 3, "fn": 2},
+        }
+    )
+
+    actual_stats = ClassificationMetric().evaluate_instances(request_states, "")
+    actual_macro_f1 = get_stat_value(actual_stats, "classification_macro_f1")
+    assert actual_macro_f1 == approx(expected_stats["macro_f1"])
+    actual_micro_f1 = get_stat_value(actual_stats, "classification_micro_f1")
+    assert actual_micro_f1 == approx(expected_stats["micro_f1"])
+
+
 def test_evaluate_instances_yes_and_no():
     labels = ["yes", "no"]
     request_states = [
         _request_state("yes", [_Option("yes", True)]),
-        _request_state("yes", [_Option("yes", True)]),
-        _request_state("yes", [_Option("yes", True)]),
+        _request_state("yes ", [_Option("yes", True)]),
+        _request_state("yeS", [_Option("yes", True)]),
         _request_state("yes", [_Option("no", True)]),
         _request_state("no", [_Option("yes", True)]),
         _request_state("no", [_Option("no", True)]),
@@ -99,7 +124,6 @@ def test_evaluate_instances_yes_and_no():
     actual_stats = ClassificationMetric(
         scores=["f1"], averages=["macro", "micro", "weighted", None], labels=labels
     ).evaluate_instances(request_states, "")
-    print(actual_stats)
     actual_macro_f1 = get_stat_value(actual_stats, "classification_macro_f1")
     assert actual_macro_f1 == approx(expected_stats["macro_f1"])
     actual_micro_f1 = get_stat_value(actual_stats, "classification_micro_f1")
