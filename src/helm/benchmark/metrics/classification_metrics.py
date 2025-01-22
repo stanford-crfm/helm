@@ -121,7 +121,9 @@ class ClassificationMetric(EvaluateInstancesMetric):
                     )
                 if average is None:
                     for mlb_class, class_score_value in zip(mlb.classes_, score_value):
-                        stats.append(Stat(MetricName(f"classification_{mlb_class}_{score_name}")).add(class_score_value))
+                        stats.append(
+                            Stat(MetricName(f"classification_{mlb_class}_{score_name}")).add(class_score_value)
+                        )
                 else:
                     stats.append(Stat(MetricName(f"classification_{average}_{score_name}")).add(score_value))
         return stats
