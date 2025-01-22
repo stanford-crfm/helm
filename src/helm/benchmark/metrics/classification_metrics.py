@@ -40,7 +40,7 @@ class ClassificationMetric(EvaluateInstancesMetric):
     - Currently, multi-label classification is not supported.
     """
 
-    AVERAGE_OPTIONS = ["micro", "macro", "weighted"]
+    AVERAGE_OPTIONS = ["micro", "macro", "weighted", None]
     SCORE_OPTIONS = ["f1", "precision", "recall"]
 
     def __init__(
@@ -119,7 +119,11 @@ class ClassificationMetric(EvaluateInstancesMetric):
                     raise ValueError(
                         f"Unknown score name: '{score_name}' - expected one of ['f1', 'precision', 'recall']"
                     )
-                stats.append(Stat(MetricName(f"classification_{average}_{score_name}")).add(score_value))
+                if average is None:
+                    for mlb_class, class_score_value in zip(mlb.classes_, score_value):
+                        stats.append(Stat(MetricName(f"classification_{mlb_class}_{score_name}")).add(class_score_value))
+                else:
+                    stats.append(Stat(MetricName(f"classification_{average}_{score_name}")).add(score_value))
         return stats
 
 

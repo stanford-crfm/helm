@@ -73,7 +73,7 @@ def compute_stats(all_classes_counts: Dict[str, Dict[str, int]]):
         "weighted_f1": weighted_f1,
     }
     for class_name, class_f1_score in class_f1.items():
-        stats[class_name] = class_f1_score
+        stats[f"{class_name}_f1"] = class_f1_score
     return stats
 
 
@@ -97,14 +97,19 @@ def test_evaluate_instances_yes_and_no():
     )
 
     actual_stats = ClassificationMetric(
-        scores=["f1"], averages=["macro", "micro", "weighted"], labels=labels
+        scores=["f1"], averages=["macro", "micro", "weighted", None], labels=labels
     ).evaluate_instances(request_states, "")
+    print(actual_stats)
     actual_macro_f1 = get_stat_value(actual_stats, "classification_macro_f1")
     assert actual_macro_f1 == approx(expected_stats["macro_f1"])
     actual_micro_f1 = get_stat_value(actual_stats, "classification_micro_f1")
     assert actual_micro_f1 == approx(expected_stats["micro_f1"])
     actual_weighted_f1 = get_stat_value(actual_stats, "classification_weighted_f1")
     assert actual_weighted_f1 == approx(expected_stats["weighted_f1"])
+    actual_yes_f1 = get_stat_value(actual_stats, "classification_yes_f1")
+    assert actual_yes_f1 == approx(expected_stats["yes_f1"])
+    actual_no_f1 = get_stat_value(actual_stats, "classification_no_f1")
+    assert actual_no_f1 == approx(expected_stats["no_f1"])
 
 
 def test_evaluate_instances_multi_class():
@@ -135,7 +140,7 @@ def test_evaluate_instances_multi_class():
     )
 
     actual_stats = ClassificationMetric(
-        scores=["f1"], averages=["macro", "micro", "weighted"], labels=labels
+        scores=["f1"], averages=["macro", "micro", "weighted", None], labels=labels
     ).evaluate_instances(request_states, "")
     actual_macro_f1 = get_stat_value(actual_stats, "classification_macro_f1")
     assert actual_macro_f1 == approx(expected_stats["macro_f1"])
@@ -143,6 +148,12 @@ def test_evaluate_instances_multi_class():
     assert actual_micro_f1 == approx(expected_stats["micro_f1"])
     actual_weighted_f1 = get_stat_value(actual_stats, "classification_weighted_f1")
     assert actual_weighted_f1 == approx(expected_stats["weighted_f1"])
+    actual_a_f1 = get_stat_value(actual_stats, "classification_a_f1")
+    assert actual_a_f1 == approx(expected_stats["a_f1"])
+    actual_b_f1 = get_stat_value(actual_stats, "classification_b_f1")
+    assert actual_b_f1 == approx(expected_stats["b_f1"])
+    actual_c_f1 = get_stat_value(actual_stats, "classification_c_f1")
+    assert actual_c_f1 == approx(expected_stats["c_f1"])
 
 
 def test_evaluate_instances_multilabel():
@@ -174,7 +185,7 @@ def test_evaluate_instances_multilabel():
     )
 
     actual_stats = ClassificationMetric(
-        scores=["f1"], averages=["macro", "micro", "weighted"], labels=labels, delimiter=","
+        scores=["f1"], averages=["macro", "micro", "weighted", None], labels=labels, delimiter=","
     ).evaluate_instances(request_states, "")
     actual_macro_f1 = get_stat_value(actual_stats, "classification_macro_f1")
     assert actual_macro_f1 == approx(expected_stats["macro_f1"])
@@ -182,3 +193,9 @@ def test_evaluate_instances_multilabel():
     assert actual_micro_f1 == approx(expected_stats["micro_f1"])
     actual_weighted_f1 = get_stat_value(actual_stats, "classification_weighted_f1")
     assert actual_weighted_f1 == approx(expected_stats["weighted_f1"])
+    actual_a_f1 = get_stat_value(actual_stats, "classification_a_f1")
+    assert actual_a_f1 == approx(expected_stats["a_f1"])
+    actual_b_f1 = get_stat_value(actual_stats, "classification_b_f1")
+    assert actual_b_f1 == approx(expected_stats["b_f1"])
+    actual_c_f1 = get_stat_value(actual_stats, "classification_c_f1")
+    assert actual_c_f1 == approx(expected_stats["c_f1"])
