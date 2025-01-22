@@ -47,7 +47,7 @@ def get_stat_value(stats: List[Stat], stat_name: str):
 
 def compute_stats(all_classes_counts: Dict[str, Dict[str, int]]):
     micro_counts: Dict[str, int] = defaultdict(int)
-    for class_name, class_counts in all_classes_counts.items():
+    for class_counts in all_classes_counts.values():
         for key, class_count in class_counts.items():
             micro_counts[key] += class_count
     micro_precision = micro_counts["tp"] / (micro_counts["tp"] + micro_counts["fp"])
