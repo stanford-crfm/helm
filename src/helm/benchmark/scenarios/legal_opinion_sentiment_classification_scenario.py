@@ -18,7 +18,7 @@ from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 
 class LegalOpinionSentimentClassificationScenario(Scenario):
     """
-    A legal opinion sentiment classificaiton task based on the paper
+    A legal opinion sentiment classification task based on the paper
     Effective Approach to Develop a Sentiment Annotator For Legal Domain in a Low Resource Setting
     [(Ratnayaka et al., 2020)](https://arxiv.org/pdf/2011.00318.pdf).
 
