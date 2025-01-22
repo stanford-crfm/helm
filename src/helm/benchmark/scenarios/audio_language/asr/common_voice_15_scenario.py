@@ -16,7 +16,6 @@ from helm.benchmark.scenarios.scenario import (
 from helm.benchmark.scenarios.audio_language.asr.asr_scenario import (
     ASRInstance,
     ASRScenario,
-    SpeakerMetadata,
     Language,
     Country,
     Gender,
