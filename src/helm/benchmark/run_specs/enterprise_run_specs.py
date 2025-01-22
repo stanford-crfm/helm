@@ -78,12 +78,12 @@ def get_legal_opinion_sentiment_classification_spec() -> RunSpec:
     )
 
     return RunSpec(
-        name="legal_opinion",
+        name="legal_opinion_sentiment_classification",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         # TODO: Switch to using weighted F1
         metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
-        groups=["legal_opinion"],
+        groups=["legal_opinion_sentiment_classification"],
     )
 
 

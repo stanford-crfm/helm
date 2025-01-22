@@ -37,8 +37,8 @@ class LegalOpinionSentimentClassificationScenario(Scenario):
 
     SENTIMENT_CLASSES = ["positive", "negative", "neutral"]
     SPLIT_TO_URL = {
-        TRAIN_SPLIT: "https://osf.io/download/hfn62/train.xlsx",
-        TEST_SPLIT: "https://osf.io/download/hfn62/test.xlsx",
+        TRAIN_SPLIT: "https://osf.io/download/hfn62/",
+        TEST_SPLIT: "https://osf.io/download/q4adh/",
     }
 
     def create_instances(self, df: pd.DataFrame, split: str) -> List[Instance]:
@@ -66,7 +66,7 @@ class LegalOpinionSentimentClassificationScenario(Scenario):
         ensure_directory_exists(data_dir)
         instances: List[Instance] = []
         for split, url in LegalOpinionSentimentClassificationScenario.SPLIT_TO_URL.items():
-            file_name = url.split("/")[-1]
+            file_name = f"{split.lower()}.xlsx"
             file_path = os.path.join(data_dir, file_name)
             ensure_file_downloaded(
                 source_url=url,
