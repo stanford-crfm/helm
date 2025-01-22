@@ -14,8 +14,8 @@ def test_imdb_ptbr_scenario():
     assert instances[0].split == TRAIN_SPLIT
 
     assert instances[10].input.text.startswith(
-        "Foi ótimo ver algumas das minhas estrelas favoritas de 30 anos atrás, \
-        incluindo John Ritter, Ben Gazarra e Audrey Hepburn."
+        "Foi ótimo ver algumas das minhas estrelas favoritas de 30 anos atrás, "
+        "incluindo John Ritter, Ben Gazarra e Audrey Hepburn."
     )
     assert len(instances[10].input.text) == 1549
 
