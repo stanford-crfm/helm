@@ -1,7 +1,5 @@
-from functools import partial
-import multiprocessing
 import os
-from typing import Any, Dict, List, Optional, Union, Tuple
+from typing import Any, Dict, List, Tuple
 import re
 import pandas as pd
 from tqdm import tqdm
@@ -11,7 +9,6 @@ from helm.common.general import ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     TRAIN_SPLIT,
-    VALID_SPLIT,
     Input,
     Scenario,
     Instance,
@@ -217,8 +214,8 @@ Please provide your response:"""
     def get_instances(self, output_path: str) -> List[Instance]:
         instances: List[Instance] = []
         for split in ['train', 'test']:
-            # path_to_data = self.path_to_train_dir if split == 'train' else self.path_to_test_dir
-            path_to_data = self.path_to_test_dir
+            path_to_data = self.path_to_train_dir if split == 'train' else self.path_to_test_dir
+            ensure_directory_exists(path_to_data)
             
             # Load dataset
             dataloader = XMLDataLoader(path_to_data)
@@ -227,10 +224,9 @@ Please provide your response:"""
             # Create instances
             for patient in dataset:
                 is_met: bool = patient['labels'][self.subject]
-                # label: str = "yes" if is_met else "no"
                 correct_answer: str = "yes" if is_met else "no"
 
-                # Build `Reference`s. The possible answer choices are "yes" or "no"
+                # Build `References. The possible answer choices are "yes" or "no"
                 references: List[Reference] = [
                     Reference(Output(text=answer), tags=[CORRECT_TAG] if answer == correct_answer else [])
                     for answer in N2C2CTMatchingScenario.POSSIBLE_ANSWER_CHOICES
@@ -239,10 +235,8 @@ Please provide your response:"""
                 instances.append(
                     Instance(
                         input=Input(text=self.create_prompt(patient)),
-                        # references=[Reference(Output(text=label), tags=[CORRECT_TAG])],
                         references=references,
-                        # split=TRAIN_SPLIT if split == 'train' else TEST_SPLIT,
-                        split=TEST_SPLIT
+                        split=TRAIN_SPLIT if split == 'train' else TEST_SPLIT,
                     )
                 )
                 

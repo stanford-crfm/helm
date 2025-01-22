@@ -1199,7 +1199,7 @@ def get_ehrshot_spec(subject:str) -> RunSpec:
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions="Answer A for yes, B for no.",
         input_noun="",
-        output_noun="",
+        output_noun="Answer",
     )
 
     return RunSpec(
@@ -1220,7 +1220,7 @@ def get_n2c2_ct_matching_spec(subject: str) -> RunSpec:
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions="Answer A for yes, B for no.", 
         input_noun="",
-        output_noun="",
+        output_noun="Answer",
     )
     
     return RunSpec(
