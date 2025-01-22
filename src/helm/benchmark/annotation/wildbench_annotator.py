@@ -42,12 +42,16 @@ class WildBenchAnnotator(Annotator):
         )
 
         SHORT_NAME_TO_MODEL_INFO: Dict[str, _AnnotatorModelInfo] = {
-            "gpt": _AnnotatorModelInfo(model_name="openai/gpt-4o-2024-05-13", model_deployment="openai/gpt-4o-2024-05-13"),
+            "gpt": _AnnotatorModelInfo(
+                model_name="openai/gpt-4o-2024-05-13", model_deployment="openai/gpt-4o-2024-05-13"
+            ),
             "llama": _AnnotatorModelInfo(
-                model_name="meta/llama-3.1-405b-instruct-turbo", model_deployment="together/llama-3.1-405b-instruct-turbo"
+                model_name="meta/llama-3.1-405b-instruct-turbo",
+                model_deployment="together/llama-3.1-405b-instruct-turbo",
             ),
             "claude": _AnnotatorModelInfo(
-                model_name="anthropic/claude-3-5-sonnet-20241022", model_deployment="anthropic/claude-3-5-sonnet-20241022"
+                model_name="anthropic/claude-3-5-sonnet-20241022",
+                model_deployment="anthropic/claude-3-5-sonnet-20241022",
             ),
         }
         all_strengths = []
@@ -69,7 +73,7 @@ class WildBenchAnnotator(Annotator):
             annotator_response_text = annotator_response.completions[0].text
             annotator_response_parts = self._pattern.search(annotator_response_text)
             if not annotator_response_parts:
-                continue   # skip this annotator if the response is malformed
+                continue  # skip this annotator if the response is malformed
 
             strengths = annotator_response_parts[1].strip()
             weaknesses = annotator_response_parts[2].strip()
@@ -78,7 +82,7 @@ class WildBenchAnnotator(Annotator):
                 score = float(score_text)
             except ValueError:
                 continue  # skip this annotator if the score is not a number
-            
+
             all_strengths.append(strengths)
             all_weaknesses.append(weaknesses)
             all_scores.append(score)
