@@ -109,12 +109,8 @@ class ClassificationMetric(EvaluateInstancesMetric):
             predictions = input_text.split(self.delimiter) if self.is_multi_label() else [input_text]
             y_pred.append([_normalize_label_text(pred) for pred in predictions if pred])
         mlb = MultiLabelBinarizer().fit([self.labels] if self.labels else y_true)
-        print(y_true)
         y_true = mlb.transform(y_true)
-        print(y_true)
-        print(y_pred)
         y_pred = mlb.transform(y_pred)
-        print(y_pred)
         stats: List[Stat] = []
         for average in self.averages:
             for score_name in self.scores:
