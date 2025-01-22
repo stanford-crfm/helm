@@ -54,8 +54,10 @@ class ClassificationMetric(EvaluateInstancesMetric):
 
         :param delimiter: For multi-label classification, the string delimiter between classes in the model's output.
         :param average: The list of scores to compute (e.g. "f1", "precision", "recall").
+          Defaults to ["f1"].
         :param average: The averaging methods (e.g. "micro", "macro", "weighted") to be used.
           It has the same meaning `average` as in scikit-learn.
+          Defaults to ["macro", "micro"].
         :param labels: The set of labels.
         :return: A list of `Stat` objects.
         """
