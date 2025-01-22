@@ -31,7 +31,8 @@ class ClassificationMetric(EvaluateInstancesMetric):
       `labels` parameter. Otherwise, the set of classes is derived from the correct references
       from all the instances. This means that classes may be incorrectly omitted if they are never
       used as a correct reference.
-    - The `average` parameter has the same meaning as in scikit-learn.
+    - The `averages` parameter is a list of averaging methods to be used.
+      It has the same meaning `average` as in scikit-learn.
     - Generations that are not in any of the known classes are counted as a
       negative prediction for every class.
     - Perturbed classes are considered different classes from unperturbed
@@ -40,10 +41,11 @@ class ClassificationMetric(EvaluateInstancesMetric):
     """
 
     AVERAGE_OPTIONS = ["micro", "macro", "weighted"]
+    SCORE_OPTIONS = ["f1", "precision", "recall"]
 
     def __init__(
         self,
-        average: Optional[str],
+        averages: Optional[List[Optional[str]]] = None,
         labels: Optional[List[str]] = None,
         scores: Optional[List[str]] = None,
         delimiter: Optional[str] = None,
@@ -52,16 +54,23 @@ class ClassificationMetric(EvaluateInstancesMetric):
 
         :param delimiter: For multi-label classification, the string delimiter between classes in the model's output.
         :param average: The list of scores to compute (e.g. "f1", "precision", "recall").
-        :param average: The averaging method (e.g. "micro", "macro", "weighted") used by scikit-learn.
+        :param average: The averaging methods (e.g. "micro", "macro", "weighted") to be used.
+          It has the same meaning `average` as in scikit-learn.
         :param labels: The set of labels.
         :return: A list of `Stat` objects.
         """
-        if average not in ClassificationMetric.AVERAGE_OPTIONS:
-            raise ValueError(f"`average` must be set to one of {ClassificationMetric.AVERAGE_OPTIONS}.")
+        self.averages = averages or ["macro", "micro"]
+        for average in self.averages:
+            if average not in ClassificationMetric.AVERAGE_OPTIONS:
+                raise ValueError(
+                    f"Each value in `averages` must be set to one of {ClassificationMetric.AVERAGE_OPTIONS}."
+                )
+        self.scores = scores or ["f1"]
+        for score_name in self.scores:
+            if score_name not in ClassificationMetric.SCORE_OPTIONS:
+                raise ValueError(f"Each value in `scores` must be set to one of {ClassificationMetric.SCORE_OPTIONS}.")
         self.delimiter = delimiter
         self.labels = labels
-        self.average = average
-        self.scores = scores or ["f1"]
 
     def is_multi_label(self) -> bool:
         return bool(self.delimiter)
@@ -96,16 +105,19 @@ class ClassificationMetric(EvaluateInstancesMetric):
         y_true = mlb.transform(y_true)
         y_pred = mlb.transform(y_pred)
         stats: List[Stat] = []
-        for score_name in self.scores:
-            if score_name == "f1":
-                score_value = f1_score(y_pred=y_pred, y_true=y_true, average=self.average)
-            elif score_name == "precision":
-                score_value = precision_score(y_pred=y_pred, y_true=y_true, average=self.average)
-            elif score_name == "recall":
-                score_value = recall_score(y_pred=y_pred, y_true=y_true, average=self.average)
-            else:
-                raise ValueError(f"Unknown score name: '{score_name}' - expected one of ['f1', 'precision', 'recall']")
-            stats.append(Stat(MetricName(f"classification_{self.average}_{score_name}")).add(score_value))
+        for average in self.averages:
+            for score_name in self.scores:
+                if score_name == "f1":
+                    score_value = f1_score(y_pred=y_pred, y_true=y_true, average=average)
+                elif score_name == "precision":
+                    score_value = precision_score(y_pred=y_pred, y_true=y_true, average=average)
+                elif score_name == "recall":
+                    score_value = recall_score(y_pred=y_pred, y_true=y_true, average=average)
+                else:
+                    raise ValueError(
+                        f"Unknown score name: '{score_name}' - expected one of ['f1', 'precision', 'recall']"
+                    )
+                stats.append(Stat(MetricName(f"classification_{average}_{score_name}")).add(score_value))
         return stats
 
 
