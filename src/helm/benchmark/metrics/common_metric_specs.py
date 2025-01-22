@@ -55,12 +55,8 @@ def get_classification_metric_specs(
     return [
         MetricSpec(
             class_name="helm.benchmark.metrics.classification_metrics.ClassificationMetric",
-            args={"average": "macro"} | extra_args,
-        ),
-        MetricSpec(
-            class_name="helm.benchmark.metrics.classification_metrics.ClassificationMetric",
-            args={"average": "micro"} | extra_args,
-        ),
+            args=extra_args,
+        )
     ]
 
 
