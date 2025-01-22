@@ -1,5 +1,6 @@
 """Run spec functions for HELM Enterprise scenarios."""
 
+from typing import List, Optional
 from helm.benchmark.adaptation.adapter_spec import ADAPT_MULTIPLE_CHOICE_JOINT
 from helm.benchmark.adaptation.common_adapter_specs import (
     get_generation_adapter_spec,
@@ -11,8 +12,20 @@ from helm.benchmark.metrics.common_metric_specs import (
     get_exact_match_metric_specs,
     get_f1_metric_specs,
 )
+from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
+
+
+def get_weighted_classification_metric_specs(
+    delimiter: Optional[str] = None, average: str = "weighted", class_defs: Optional[List[str]] = None
+) -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.classification_metrics.ClassificationMetric",
+            args={"delimiter": delimiter, "average": average, "class_defs": class_defs},
+        )
+    ]
 
 
 # Finance
@@ -44,7 +57,7 @@ def get_news_headline_spec(category: str) -> RunSpec:
 
 
 @run_spec_function("legal_contract_summarization")
-def get_legal_contract_spec() -> RunSpec:
+def get_legal_contract_summarization_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.legal_contract_summarization_scenario.LegalContractSummarizationScenario",
         args={},
@@ -64,6 +77,28 @@ def get_legal_contract_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_basic_metric_specs(["rouge_1", "rouge_2"]),
         groups=["legal_contract_summarization"],
+    )
+
+
+@run_spec_function("legal_opinion_sentiment_classification")
+def get_legal_opinion_sentiment_classification_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.legal_opinion_sentiment_classification_scenario.LegalOpinionSentimentClassificationScenario",
+        args={},
+    )
+
+    instructions = "Classify the sentences into one of the 3 sentiment categories. Possible labels: positive, neutral, negative."  # noqa
+    adapter_spec = get_generation_adapter_spec(
+        instructions=instructions,
+        output_noun="Label",
+    )
+
+    return RunSpec(
+        name="legal_opinion",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs() + get_weighted_classification_metric_specs(),
+        groups=["legal_opinion"],
     )
 
 
