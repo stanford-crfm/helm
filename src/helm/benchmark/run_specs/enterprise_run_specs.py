@@ -1,6 +1,6 @@
 """Run spec functions for HELM Enterprise scenarios."""
 
-from typing import List, Optional
+from typing import List
 from helm.benchmark.adaptation.adapter_spec import ADAPT_MULTIPLE_CHOICE_JOINT
 from helm.benchmark.adaptation.common_adapter_specs import (
     get_generation_adapter_spec,
@@ -8,7 +8,6 @@ from helm.benchmark.adaptation.common_adapter_specs import (
 )
 from helm.benchmark.metrics.common_metric_specs import (
     get_basic_metric_specs,
-    get_classification_metric_specs,
     get_exact_match_metric_specs,
 )
 from helm.benchmark.metrics.metric import MetricSpec
@@ -16,11 +15,11 @@ from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 
-def _get_classification_metric_specs(labels: List[str], delimiter: Optional[str] = None) -> List[MetricSpec]:
+def _get_weighted_classification_metric_specs(labels: List[str]) -> List[MetricSpec]:
     return [
         MetricSpec(
             class_name="helm.benchmark.metrics.classification_metrics.ClassificationMetric",
-            args={"delimiter": delimiter},
+            args={"averages": ["weighted"], "labels": labels},
         )
     ]
 
@@ -45,7 +44,7 @@ def get_news_headline_spec(category: str) -> RunSpec:
         name=f"gold_commodity_news:category={category}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + _get_weighted_classification_metric_specs(labels=["Yes", "No"]),
         groups=["gold_commodity_news"],
     )
 
