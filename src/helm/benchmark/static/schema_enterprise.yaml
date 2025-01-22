@@ -139,7 +139,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: quasi_exact_match
+      main_name: classification_weighted_f1
       main_split: test
     taxonomy:
       task: text classification
@@ -156,7 +156,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: rouge_2
+      main_name: rouge_l
       main_split: test
     taxonomy:
       task: summarization
@@ -173,7 +173,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_exact_match
       main_split: test
     taxonomy:
       task: question answering
@@ -190,7 +190,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: rouge_2
+      main_name: rouge_l
       main_split: test
     taxonomy:
       task: summarization
