@@ -11,7 +11,6 @@ from helm.benchmark.metrics.common_metric_specs import (
     get_exact_match_metric_specs,
     get_f1_metric_specs,
 )
-from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
@@ -68,10 +67,10 @@ def get_legal_contract_summarization_spec() -> RunSpec:
 @run_spec_function("legal_opinion_sentiment_classification")
 def get_legal_opinion_sentiment_classification_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.legal_opinion_sentiment_classification_scenario.LegalOpinionSentimentClassificationScenario",
+        class_name="helm.benchmark.scenarios.legal_opinion_sentiment_classification_scenario.LegalOpinionSentimentClassificationScenario",  # noqa: E501
     )
 
-    instructions = "Classify the sentences into one of the 3 sentiment categories. Possible labels: positive, neutral, negative."  # noqa
+    instructions = "Classify the sentences into one of the 3 sentiment categories. Possible labels: positive, neutral, negative."  # noqa: E501
     adapter_spec = get_generation_adapter_spec(
         instructions=instructions,
         output_noun="Label",
