@@ -19,7 +19,10 @@ class WildBenchScoreMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         assert request_state.annotations
-        score = request_state.annotations["wildbench"]["score"]
+        all_scores = request_state.annotations["wildbench"]["score"]
+        if len(all_scores) == 0:
+            raise ValueError("Could not compute WB Score because all annotators failed.")
+        score = sum(score) / len(score)
         score_rescaled = (score - 1) / 9
         return [
             Stat(MetricName("wildbench_score")).add(score),
