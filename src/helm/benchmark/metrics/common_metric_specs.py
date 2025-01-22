@@ -44,12 +44,23 @@ def get_language_modeling_metric_specs(names: List[str]) -> List[MetricSpec]:
     ]
 
 
-def get_classification_metric_specs(delimiter: Optional[str] = None) -> List[MetricSpec]:
+def get_classification_metric_specs(
+    labels: Optional[List[str]] = None, delimiter: Optional[str] = None
+) -> List[MetricSpec]:
+    extra_args: Dict[str, Any] = {}
+    if labels:
+        extra_args["labels"] = labels
+    if delimiter:
+        extra_args["delimiter"] = delimiter
     return [
         MetricSpec(
             class_name="helm.benchmark.metrics.classification_metrics.ClassificationMetric",
-            args={"delimiter": delimiter},
-        )
+            args={"average": "macro"} | extra_args,
+        ),
+        MetricSpec(
+            class_name="helm.benchmark.metrics.classification_metrics.ClassificationMetric",
+            args={"average": "micro"} | extra_args,
+        ),
     ]
 
 

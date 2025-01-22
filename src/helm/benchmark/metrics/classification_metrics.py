@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, precision_score, recall_score
 from sklearn.preprocessing import MultiLabelBinarizer
 
 from helm.benchmark.adaptation.request_state import RequestState
@@ -10,6 +10,10 @@ from helm.benchmark.metrics.metric import MetricName
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.scenarios.scenario import Reference
 from helm.common.request import GeneratedOutput
+
+
+def _normalize_label_text(text: str) -> str:
+    return normalize_text(text, should_remove_articles=False)
 
 
 class ClassificationMetric(EvaluateInstancesMetric):
@@ -23,8 +27,11 @@ class ClassificationMetric(EvaluateInstancesMetric):
     reference. The predicted class for each instance is the normalized text of the generation.
 
     Note:
-    - The set of classes is derived from the correct references from all the instances.
-      This means that classes may be omitted if they are never used as a correct reference.
+    - It is highly recommended to specify the set of classes should be specified using the
+      `labels` parameter. Otherwise, the set of classes is derived from the correct references
+      from all the instances. This means that classes may be incorrectly omitted if they are never
+      used as a correct reference.
+    - The `average` parameter has the same meaning as in scikit-learn.
     - Generations that are not in any of the known classes are counted as a
       negative prediction for every class.
     - Perturbed classes are considered different classes from unperturbed
@@ -32,8 +39,29 @@ class ClassificationMetric(EvaluateInstancesMetric):
     - Currently, multi-label classification is not supported.
     """
 
-    def __init__(self, delimiter: Optional[str] = None):
+    AVERAGE_OPTIONS = ["micro", "macro", "weighted"]
+
+    def __init__(
+        self,
+        average: Optional[str],
+        labels: Optional[List[str]] = None,
+        scores: Optional[List[str]] = None,
+        delimiter: Optional[str] = None,
+    ) -> None:
+        """Creates metrics for multi-class classification.
+
+        :param delimiter: For multi-label classification, the string delimiter between classes in the model's output.
+        :param average: The list of scores to compute (e.g. "f1", "precision", "recall").
+        :param average: The averaging method (e.g. "micro", "macro", "weighted") used by scikit-learn.
+        :param labels: The set of labels.
+        :return: A list of `Stat` objects.
+        """
+        if average not in ClassificationMetric.AVERAGE_OPTIONS:
+            raise ValueError(f"`average` must be set to one of {ClassificationMetric.AVERAGE_OPTIONS}.")
         self.delimiter = delimiter
+        self.labels = labels
+        self.average = average
+        self.scores = scores or ["f1"]
 
     def is_multi_label(self) -> bool:
         return bool(self.delimiter)
@@ -57,20 +85,28 @@ class ClassificationMetric(EvaluateInstancesMetric):
             references = request_state.instance.all_correct_references
             if not self.is_multi_label():
                 assert len(references) == 1
-            correct_ref_texts = [normalize_text(ref.output.text) for ref in references if ref.output.text]
+            correct_ref_texts = [_normalize_label_text(ref.output.text) for ref in references if ref.output.text]
             y_true.append(correct_ref_texts)
 
             input_text = request_state.result.completions[0].text
             predictions = input_text.split(self.delimiter) if self.is_multi_label() else [input_text]
-            y_pred.append([normalize_text(pred) for pred in predictions if pred])
-        labels: List[str] = list(set(y for ys in y_true for y in ys))
+            y_pred.append([_normalize_label_text(pred) for pred in predictions if pred])
+        labels: List[str] = self.labels or list(set(y for ys in y_true for y in ys))
         mlb = MultiLabelBinarizer().fit([labels])
         y_true = mlb.transform(y_true)
         y_pred = mlb.transform(y_pred)
-        return [
-            Stat(MetricName("classification_macro_f1")).add(f1_score(y_pred=y_pred, y_true=y_true, average="macro")),
-            Stat(MetricName("classification_micro_f1")).add(f1_score(y_pred=y_pred, y_true=y_true, average="micro")),
-        ]
+        stats: List[Stat] = []
+        for score_name in self.scores:
+            if score_name == "f1":
+                score_value = f1_score(y_pred=y_pred, y_true=y_true, average=self.average)
+            elif score_name == "precision":
+                score_value = precision_score(y_pred=y_pred, y_true=y_true, average=self.average)
+            elif score_name == "recall":
+                score_value = recall_score(y_pred=y_pred, y_true=y_true, average=self.average)
+            else:
+                raise ValueError(f"Unknown score name: '{score_name}' - expected one of ['f1', 'precision', 'recall']")
+            stats.append(Stat(MetricName(f"classification_{self.average}_{score_name}")).add(score_value))
+        return stats
 
 
 class MultipleChoiceClassificationMetric(EvaluateInstancesMetric):

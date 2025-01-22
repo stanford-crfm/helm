@@ -38,36 +38,47 @@ def _request_state(prediction: str, options: List[_Option]):
     )
 
 
-def assert_stats_equal(actual_stats: List[Stat], expected_values: Dict[str, float]):
-    actual_values = {stat.name.name: stat.mean for stat in actual_stats}
-    assert actual_values == approx(expected_values)
+def get_stat_value(stats: List[Stat], stat_name: str):
+    for stat in stats:
+        if stat.name.name == stat_name:
+            return stat.mean
+    raise ValueError(f"No stat with name {stat_name}")
 
 
-def _expected_stats(all_classes_counts: Dict[str, Dict[str, int]]):
+def compute_stats(all_classes_counts: Dict[str, Dict[str, int]]):
     micro_counts: Dict[str, int] = defaultdict(int)
-    for class_counts in all_classes_counts.values():
+    for class_name, class_counts in all_classes_counts.items():
         for key, class_count in class_counts.items():
             micro_counts[key] += class_count
     micro_precision = micro_counts["tp"] / (micro_counts["tp"] + micro_counts["fp"])
     micro_recall = micro_counts["tp"] / (micro_counts["tp"] + micro_counts["fn"])
     micro_f1 = 2 * (micro_precision * micro_recall) / (micro_precision + micro_recall)
 
-    class_f1: List[float] = []
-    for class_counts in all_classes_counts.values():
+    class_f1: Dict[str, float] = {}
+    for class_name, class_counts in all_classes_counts.items():
         class_precision = class_counts["tp"] / (class_counts["tp"] + class_counts["fp"])
         class_recall = class_counts["tp"] / (class_counts["tp"] + class_counts["fn"])
-        class_f1.append(2 * (class_precision * class_recall) / (class_precision + class_recall))
-    macro_f1 = sum(class_f1) / len(class_f1)
-
-    return {
-        "classification_micro_f1": micro_f1,
-        "classification_macro_f1": macro_f1,
+        class_f1[class_name] = 2 * (class_precision * class_recall) / (class_precision + class_recall)
+    macro_f1 = sum(class_f1.values()) / len(class_f1)
+    class_name_to_support = {
+        class_name: class_counts["tp"] + class_counts["fn"] for class_name, class_counts in all_classes_counts.items()
     }
+    weighted_f1 = sum(class_f1[class_name] * support for class_name, support in class_name_to_support.items()) / sum(
+        support for support in class_name_to_support.values()
+    )
+
+    stats = {
+        "macro_f1": macro_f1,
+        "micro_f1": micro_f1,
+        "weighted_f1": weighted_f1,
+    }
+    for class_name, class_f1_score in class_f1.items():
+        stats[class_name] = class_f1_score
+    return stats
 
 
-def test_evaluate_instances_binary_generation():
-    metric = ClassificationMetric(delimiter=None)
-
+def test_evaluate_instances_yes_and_no():
+    labels = ["yes", "no"]
     request_states = [
         _request_state("yes", [_Option("yes", True)]),
         _request_state("yes", [_Option("yes", True)]),
@@ -78,76 +89,114 @@ def test_evaluate_instances_binary_generation():
         _request_state("invalid", [_Option("no", True)]),
     ]
 
-    assert_stats_equal(
-        metric.evaluate_instances(request_states, ""),
-        _expected_stats(
-            {
-                "yes": {"tp": 3, "fp": 1, "tn": 2, "fn": 1},
-                "no": {"tp": 1, "fp": 1, "tn": 3, "fn": 2},
-            }
-        ),
+    expected_stats = compute_stats(
+        {
+            "yes": {"tp": 3, "fp": 1, "tn": 2, "fn": 1},
+            "no": {"tp": 1, "fp": 1, "tn": 3, "fn": 2},
+        }
     )
+
+    actual_macro_f1 = get_stat_value(
+        ClassificationMetric(average="macro", labels=labels).evaluate_instances(request_states, ""),
+        "classification_macro_f1",
+    )
+    assert actual_macro_f1 == approx(expected_stats["macro_f1"])
+    actual_micro_f1 = get_stat_value(
+        ClassificationMetric(average="micro", labels=labels).evaluate_instances(request_states, ""),
+        "classification_micro_f1",
+    )
+    assert actual_micro_f1 == approx(expected_stats["micro_f1"])
+    actual_weighted_f1 = get_stat_value(
+        ClassificationMetric(average="weighted", labels=labels).evaluate_instances(request_states, ""),
+        "classification_weighted_f1",
+    )
+    assert actual_weighted_f1 == approx(expected_stats["weighted_f1"])
 
 
 def test_evaluate_instances_multi_class():
-    # Note: no "a" because it would get filtered out by normalize_text()
-    metric = ClassificationMetric(delimiter=None)
+    labels = ["a", "b", "c"]
 
-    def _options(correct: str):
-        return [_Option(text, text == correct) for text in ["d", "b", "c"]]
+    def _gold_label(correct: str):
+        return [_Option(text, text == correct) for text in labels]
 
     request_states = [
-        _request_state("d", _options("d")),
-        _request_state("d", _options("d")),
-        _request_state("d", _options("d")),
-        _request_state("d", _options("b")),
-        _request_state("b", _options("b")),
-        _request_state("b", _options("b")),
-        _request_state("b", _options("c")),
-        _request_state("c", _options("d")),
-        _request_state("c", _options("c")),
-        _request_state("invalid", _options("c")),
+        _request_state("a", _gold_label("a")),
+        _request_state("a", _gold_label("a")),
+        _request_state("a", _gold_label("a")),
+        _request_state("a", _gold_label("b")),
+        _request_state("b", _gold_label("b")),
+        _request_state("b", _gold_label("b")),
+        _request_state("b", _gold_label("c")),
+        _request_state("c", _gold_label("a")),
+        _request_state("c", _gold_label("c")),
+        _request_state("invalid", _gold_label("c")),
     ]
-    assert_stats_equal(
-        metric.evaluate_instances(request_states, ""),
-        _expected_stats(
-            {
-                "d": {"tp": 3, "fp": 1, "tn": 5, "fn": 1},
-                "b": {"tp": 2, "fp": 1, "tn": 6, "fn": 1},
-                "c": {"tp": 1, "fp": 1, "tn": 6, "fn": 2},
-            }
-        ),
+
+    expected_stats = compute_stats(
+        {
+            "a": {"tp": 3, "fp": 1, "tn": 5, "fn": 1},
+            "b": {"tp": 2, "fp": 1, "tn": 6, "fn": 1},
+            "c": {"tp": 1, "fp": 1, "tn": 6, "fn": 2},
+        }
     )
+
+    actual_macro_f1 = get_stat_value(
+        ClassificationMetric(average="macro", labels=labels).evaluate_instances(request_states, ""),
+        "classification_macro_f1",
+    )
+    assert actual_macro_f1 == approx(expected_stats["macro_f1"])
+    actual_micro_f1 = get_stat_value(
+        ClassificationMetric(average="micro", labels=labels).evaluate_instances(request_states, ""),
+        "classification_micro_f1",
+    )
+    assert actual_micro_f1 == approx(expected_stats["micro_f1"])
+    weighted_micro_f1 = get_stat_value(
+        ClassificationMetric(average="weighted", labels=labels).evaluate_instances(request_states, ""),
+        "classification_weighted_f1",
+    )
+    assert weighted_micro_f1 == approx(expected_stats["weighted_f1"])
 
 
 def test_evaluate_instances_multilabel():
-    # Note: no "a" because it would get filtered out by normalize_text()
-    metric = ClassificationMetric(delimiter=",")
+    labels = ["a", "b", "c"]
 
-    def _options(correct: List[str]):
-        return [_Option(text, text in correct) for text in ["d", "b", "c"]]
+    def _gold_labels(correct: List[str]):
+        return [_Option(text, text in correct) for text in labels]
 
     request_states = [
-        _request_state("d,b", _options(["d", "b"])),
-        _request_state("d,b", _options(["d", "c"])),
-        _request_state("d", _options(["d"])),
-        _request_state("c", _options(["b"])),
-        _request_state("b", _options(["b", "c"])),
-        _request_state("d,b", _options(["c"])),
-        _request_state("d,c", _options(["d"])),
-        _request_state("d,b,c", _options(["d", "b", "c"])),
+        _request_state("a,b", _gold_labels(["a", "b"])),
+        _request_state("a,b", _gold_labels(["a", "c"])),
+        _request_state("a", _gold_labels(["a"])),
+        _request_state("c", _gold_labels(["b"])),
+        _request_state("b", _gold_labels(["b", "c"])),
+        _request_state("a,b", _gold_labels(["c"])),
+        _request_state("a,c", _gold_labels(["a"])),
+        _request_state("a,b,c", _gold_labels(["a", "b", "c"])),
         _request_state("", []),
         _request_state("n/a", []),
-        _request_state("invalid", _options(["c"])),
+        _request_state("invalid", _gold_labels(["c"])),
     ]
 
-    assert_stats_equal(
-        metric.evaluate_instances(request_states, ""),
-        _expected_stats(
-            {
-                "d": {"tp": 5, "fp": 1, "tn": 5, "fn": 0},
-                "b": {"tp": 3, "fp": 2, "tn": 5, "fn": 1},
-                "c": {"tp": 1, "fp": 2, "tn": 4, "fn": 4},
-            }
-        ),
+    expected_stats = compute_stats(
+        {
+            "a": {"tp": 5, "fp": 1, "tn": 5, "fn": 0},
+            "b": {"tp": 3, "fp": 2, "tn": 5, "fn": 1},
+            "c": {"tp": 1, "fp": 2, "tn": 4, "fn": 4},
+        }
     )
+
+    actual_macro_f1 = get_stat_value(
+        ClassificationMetric(average="macro", labels=labels, delimiter=",").evaluate_instances(request_states, ""),
+        "classification_macro_f1",
+    )
+    assert actual_macro_f1 == approx(expected_stats["macro_f1"])
+    actual_micro_f1 = get_stat_value(
+        ClassificationMetric(average="micro", labels=labels, delimiter=",").evaluate_instances(request_states, ""),
+        "classification_micro_f1",
+    )
+    assert actual_micro_f1 == approx(expected_stats["micro_f1"])
+    actual_micro_f1 = get_stat_value(
+        ClassificationMetric(average="weighted", labels=labels, delimiter=",").evaluate_instances(request_states, ""),
+        "classification_weighted_f1",
+    )
+    assert actual_micro_f1 == approx(expected_stats["weighted_f1"])
