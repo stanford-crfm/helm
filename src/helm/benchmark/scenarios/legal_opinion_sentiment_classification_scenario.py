@@ -18,9 +18,11 @@ from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 
 class LegalOpinionSentimentClassificationScenario(Scenario):
     """
-        TODO: Fill this in
+    A legal opinion sentiment classificaiton task based on the paper
+    Effective Approach to Develop a Sentiment Annotator For Legal Domain in a Low Resource Setting
+    [(Ratnayaka et al., 2020)](https://arxiv.org/pdf/2011.00318.pdf).
 
-        Example prompt:
+    Example prompt:
     Classify the sentences into one of the 3 sentiment categories. Possible labels: positive, neutral, negative.
     {Sentence}
     Label: {positive/neutral/negative}

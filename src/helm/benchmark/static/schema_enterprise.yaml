@@ -116,6 +116,8 @@ run_groups:
     category: All scenarios
     subgroups:
       - legal_contract_summarization
+      - legal_opinion_sentiment_classification
+      - casehold
 
   - name: climate_scenarios
     display_name: Climate Scenarios
@@ -180,6 +182,22 @@ run_groups:
       what: Harvard Law Library case law corpus
       who: legal professionals
       when: before 2021
+      language: English
+
+  - name: legal_opinion_sentiment_classification
+    display_name: Legal Opinion Sentiment Classification
+    description: A legal opinion sentiment classificaiton task based on the paper Effective Approach to Develop a Sentiment Annotator For Legal Domain in a Low Resource Setting [(Ratnayaka et al., 2020)](https://arxiv.org/pdf/2011.00318.pdf).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: sentiment analysis
+      what: United States legal opinion texts
+      who: United States courts
+      when: Before 2020
       language: English
 
   - name: sumosum
