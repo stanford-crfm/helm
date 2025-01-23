@@ -13,7 +13,7 @@ class AnnotatorResponseParseFailure(Exception):
 
 
 @dataclass
-class _AnnotatorModelInfo:
+class AnnotatorModelInfo:
     model_name: str
     model_deployment: str
 
@@ -26,9 +26,9 @@ def score_with_reasoning_with_gpt_and_llama(
 
     Score using GPT-4o and Llama 3.1 for safety scenarios in HELM Safety."""
     # TODO: Make this configurable
-    SHORT_NAME_TO_MODEL_INFO: Dict[str, _AnnotatorModelInfo] = {
-        "gpt": _AnnotatorModelInfo(model_name="openai/gpt-4o-2024-05-13", model_deployment="openai/gpt-4o-2024-05-13"),
-        "llama": _AnnotatorModelInfo(
+    SHORT_NAME_TO_MODEL_INFO: Dict[str, AnnotatorModelInfo] = {
+        "gpt": AnnotatorModelInfo(model_name="openai/gpt-4o-2024-05-13", model_deployment="openai/gpt-4o-2024-05-13"),
+        "llama": AnnotatorModelInfo(
             model_name="meta/llama-3.1-405b-instruct-turbo", model_deployment="together/llama-3.1-405b-instruct-turbo"
         ),
     }

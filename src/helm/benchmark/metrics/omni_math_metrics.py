@@ -19,7 +19,11 @@ class OmniMATHMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         assert request_state.annotations
-        score = request_state.annotations["omni_math"]["equivalence_judgement"].strip().upper() == "TRUE"
+        all_judgements = request_state.annotations["omni_math"]["equivalence_judgement"]
+        if len(all_judgements) == 0:
+            raise ValueError("Could not compute Omni-MATH accuracy because all annotators failed.")
+        judgement_bools = [judgement.strip().upper() == "TRUE" for judgement in all_judgements]
+        score = sum(judgement_bools) / len(judgement_bools)
         return [
             Stat(MetricName("omni_math_accuracy")).add(score),
         ]
