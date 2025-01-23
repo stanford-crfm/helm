@@ -261,7 +261,7 @@ class FLEURSScenario(Scenario):
     _FLEURS_TEST_LANG_TO_ID = OrderedDict(
         [
             ("Finnish", "fi"),
-            ("Bulgarian", "bg"),
+            ("English", "en"),
             ("Hebrew", "he"),
             ("Zulu", "zu"),
             ("Bengali", "bn"),
@@ -303,10 +303,10 @@ class FLEURSScenario(Scenario):
             )
         ):
             local_audio_path = row["path"]
-            lang_id_answer = list(self._fleurs_long_to_lang.keys())[row["lang_id"]]
+            answer = row["transcription"]
             input = Input(
                 multimedia_content=MultimediaObject([MediaObject(content_type="audio/wav", location=local_audio_path)])
             )
-            references = [Reference(Output(text=lang_id_answer), tags=[CORRECT_TAG])]
+            references = [Reference(Output(text=answer), tags=[CORRECT_TAG])]
             instances.append(Instance(input=input, references=references, split=TEST_SPLIT))
         return instances

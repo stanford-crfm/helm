@@ -228,7 +228,8 @@ def wa_score(gold: str, pred: str) -> float:
 
     if not pred:
         return 0
-
+    gold = normalize_text(gold, should_remove_articles=False)
+    pred = normalize_text(pred, should_remove_articles=False)
     wer_ret = 1 - wer(gold, pred)
     return wer_ret
 
@@ -243,6 +244,9 @@ def ma_score(gold: str, pred: str) -> float:
 
     if not pred:
         return 0
+
+    gold = normalize_text(gold, should_remove_articles=False)
+    pred = normalize_text(pred, should_remove_articles=False)
     mer_ret = mer(gold, pred)
     return mer_ret
 
@@ -257,6 +261,9 @@ def wip_score(gold: str, pred: str) -> float:
 
     if not pred:
         return 0
+
+    gold = normalize_text(gold, should_remove_articles=False)
+    pred = normalize_text(pred, should_remove_articles=False)
     wip_ret = wip(gold, pred)
     return wip_ret
 
@@ -271,6 +278,9 @@ def ca_score(gold: str, pred: str) -> float:
 
     if not pred:
         return 0
+
+    gold = normalize_text(gold, should_remove_articles=False)
+    pred = normalize_text(pred, should_remove_articles=False)
     cer_ret = cer(gold, pred)
     return cer_ret
 
