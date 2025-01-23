@@ -68,6 +68,10 @@ metrics:
     display_name: ROUGE-L
     description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on longest common subsequence overlap.
     lower_is_better: false
+  - name: classification_weighted_f1
+    display_name: Weighted F1
+    description: Weighted F1 score
+    lower_is_better: false
 
 ############################################################
 perturbations: []
@@ -116,6 +120,7 @@ run_groups:
     category: All scenarios
     subgroups:
       - legal_contract_summarization
+      - casehold
 
   - name: climate_scenarios
     display_name: Climate Scenarios
@@ -129,7 +134,7 @@ run_groups:
     description: Scenarios for the cyber security domain
     category: All scenarios
     subgroups:
-      - cti_mitre
+      - cti_to_mitre
 
   - name: gold_commodity_news
     display_name: Gold Commodity News
@@ -139,7 +144,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: quasi_exact_match
+      main_name: classification_weighted_f1
       main_split: test
     taxonomy:
       task: text classification
@@ -156,7 +161,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: rouge_2
+      main_name: rouge_l
       main_split: test
     taxonomy:
       task: summarization
@@ -173,7 +178,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_exact_match
       main_split: test
     taxonomy:
       task: question answering
@@ -190,7 +195,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: rouge_2
+      main_name: rouge_l
       main_split: test
     taxonomy:
       task: summarization
@@ -201,7 +206,7 @@ run_groups:
       main_name: quasi_exact_match
       main_split: test
 
-  - name: cti_mitre
+  - name: cti_to_mitre
     display_name: CTI-to-MITRE Cyber Threat Intelligence
     description: A classification benchmark based on Automatic Mapping of Unstructured Cyber Threat Intelligence - An Experimental Study [(Orbinato et al., 2022)](https://arxiv.org/pdf/2208.12144.pdf).
     metric_groups:
@@ -209,7 +214,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_exact_match
       main_split: test
     taxonomy:
       task: text classification
