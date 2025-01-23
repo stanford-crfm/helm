@@ -451,7 +451,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: f1_score
+      main_name: exact_match
       main_split: test
     taxonomy:
       task: question answering

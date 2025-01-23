@@ -1,7 +1,5 @@
-from functools import partial
-import multiprocessing
 import os
-from typing import Any, Dict, List, Optional, Union, Tuple
+from typing import Any, Dict, List, Tuple
 import re
 import pandas as pd
 from tqdm import tqdm
@@ -11,7 +9,6 @@ from helm.common.general import ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     TRAIN_SPLIT,
-    VALID_SPLIT,
     Input,
     Scenario,
     Instance,
@@ -203,14 +200,13 @@ Below is a set of {len(patient['ehr'])} clinical notes describing the patient's 
 # Current Date
 Assume that the current date is: {current_date}
 
-# Inclusion Criterion
-The inclusion criterion being assessed is: "{self.subject}".
-The definition of the inclusion criterion is: "{LONG_DEFINITIONS[self.subject]}".
+# Question
+Does the patient meet the inclusion criterion "{self.subject}"?
 
-# Assessment
-Given the criterion above, use the patient's clinical notes to determine whether the patient meets this criterion. Think step by step, and justify
-your answer. At the very end of your answer, provider a final answer to the question: "Does the patient meet the inclusion criterion?"
-Your answer must be either "yes" or "no". The answer must be the final word of your response.
+A) yes
+B) no
+
+Please think step by step about this case. After your analysis, your final answer must be exactly "yes" or "no" (lowercase, without quotes).
 
 Please provide your response:"""
         return prompt
@@ -219,6 +215,7 @@ Please provide your response:"""
         instances: List[Instance] = []
         for split in ['train', 'test']:
             path_to_data = self.path_to_train_dir if split == 'train' else self.path_to_test_dir
+            ensure_directory_exists(path_to_data)
             
             # Load dataset
             dataloader = XMLDataLoader(path_to_data)
@@ -227,11 +224,18 @@ Please provide your response:"""
             # Create instances
             for patient in dataset:
                 is_met: bool = patient['labels'][self.subject]
-                label: str = "yes" if is_met else "no"
+                correct_answer: str = "yes" if is_met else "no"
+
+                # Build `References. The possible answer choices are "yes" or "no"
+                references: List[Reference] = [
+                    Reference(Output(text=answer), tags=[CORRECT_TAG] if answer == correct_answer else [])
+                    for answer in N2C2CTMatchingScenario.POSSIBLE_ANSWER_CHOICES
+                ]
+
                 instances.append(
                     Instance(
                         input=Input(text=self.create_prompt(patient)),
-                        references=[Reference(Output(text=label), tags=[CORRECT_TAG])],
+                        references=references,
                         split=TRAIN_SPLIT if split == 'train' else TEST_SPLIT,
                     )
                 )

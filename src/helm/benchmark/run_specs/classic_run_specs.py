@@ -1199,7 +1199,7 @@ def get_ehrshot_spec(subject:str) -> RunSpec:
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions="Answer A for yes, B for no.",
         input_noun="",
-        output_noun="",
+        output_noun="Answer",
     )
 
     return RunSpec(
@@ -1218,16 +1218,16 @@ def get_n2c2_ct_matching_spec(subject: str) -> RunSpec:
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="",
+        instructions="Answer A for yes, B for no.", 
         input_noun="",
-        output_noun="",
+        output_noun="Answer",
     )
     
     return RunSpec(
         name=f"n2c2_ct_matching:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_f1_metric_specs(),
+        metric_specs=get_exact_match_metric_specs(),
         groups=["n2c2_ct_matching"],
     )
 
