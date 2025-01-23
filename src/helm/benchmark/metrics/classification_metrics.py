@@ -74,11 +74,12 @@ class ClassificationMetric(EvaluateInstancesMetric):
                 raise ValueError(f"Each value in `scores` must be set to one of {ClassificationMetric.SCORE_OPTIONS}.")
         self.delimiter = delimiter
         self.labels = labels
-        hlog(
-            "WARNING: `labels` were not set on `ClassificationMetric`, "
-            "so they will be inferred from target references. "
-            "It is recommend to explicitly set `labels` on `ClassificationMetric`."
-        )
+        if not self.labels:
+            hlog(
+                "WARNING: `labels` were not set on `ClassificationMetric`, "
+                "so they will be inferred from target references. "
+                "It is recommend to explicitly set `labels` on `ClassificationMetric`."
+            )
 
     def is_multi_label(self) -> bool:
         return bool(self.delimiter)
@@ -108,7 +109,7 @@ class ClassificationMetric(EvaluateInstancesMetric):
             input_text = request_state.result.completions[0].text
             predictions = input_text.split(self.delimiter) if self.is_multi_label() else [input_text]
             y_pred.append([_normalize_label_text(pred) for pred in predictions if pred])
-        mlb = MultiLabelBinarizer().fit([self.labels] if self.labels else y_true)
+        mlb = MultiLabelBinarizer().fit([[_normalize_label_text(label) for label in self.labels]] if self.labels else y_true)
         y_true = mlb.transform(y_true)
         y_pred = mlb.transform(y_pred)
         stats: List[Stat] = []
