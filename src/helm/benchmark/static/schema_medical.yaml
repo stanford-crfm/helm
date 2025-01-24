@@ -138,7 +138,26 @@ metrics:
     display_name: BLEU-4
     description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 4-gram overlap.
     lower_is_better: false
-  
+  - name: medec_error_flag_accuracy
+    display_name: Medical Error Flag Accuracy
+    short_display_name: MedecFlagAcc
+    description: Measures how accurately the model identifies whether a clinical note contains an error (binary classification of correct/incorrect).
+    lower_is_better: false
+  - name: medec_error_sentence_accuracy
+    display_name: Medical Error Sentence Accuracy
+    short_display_name: MedecSentenceAcc
+    description: Measures how accurately the model identifies the specific erroneous sentence within a clinical note.
+    lower_is_better: false
+  - name: ehr_sql_precision_answerable
+    display_name: Precision for Answerable Questions
+    short_display_name: EHRSQLPreAns
+    description:  Measures the proportion of correctly predicted answerable questions among all questions predicted to be answerable.
+    lower_is_better: false
+  - name: ehr_sql_recall_answerable
+    display_name: Recall for Answerable Questions
+    short_display_name: EHRSQLReAns
+    description: Measures the proportion of correctly predicted answerable questions among all answerable questions in the dataset.
+    lower_is_better: false
   - name: exact_match@5
     display_name: Exact match @5
     short_display_name: EM@5
@@ -593,6 +612,91 @@ run_groups:
       - general_information
     environment:
       main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: medec
+    display_name: Medec
+    description: Detects and corrects medical errors in clinical notes, focusing on five error types, diagnosis, management, treatment, pharmacotherapy, and causal organism.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: ehr_sql_recall_answerable
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: aci_bench
+    display_name: ACI_Bench
+    description: Converts doctor-patient dialogues into structured electronic medical records, benchmarking generative models for note generation.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: BERTScore-F
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: ehr_sql
+    display_name: EHR_SQL
+    description: Translates medical questions into SQL queries for electronic health records, addressing real-world hospital needs and time-sensitive queries.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: ehr_sql_recall_answerable
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: head_qa
+    display_name: HeadQA
+    description: Evaluates reasoning on challenging healthcare-related multiple-choice questions sourced from Spanish specialization exams.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: ehr_sql_recall_answerable
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: medbullets
+    display_name: Medbullets
+    description: Benchmarks LLMs on USMLE-style clinical questions, assessing their ability to provide accurate answers with detailed explanations.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: ehr_sql_recall_answerable
       main_split: test
     taxonomy:
       task: question answering

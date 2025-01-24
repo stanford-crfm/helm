@@ -1399,7 +1399,7 @@ def get_medbullets_freetext_run_spec() -> RunSpec:
 
 
 @run_spec_function("aci_bench")
-def get_aci_bench_run_spec() -> RunSpec:
+def get_aci_bench_run_spec(device: str = "cpu") -> RunSpec:
     """
     RunSpec for the ACI-Bench dataset.
     This configuration evaluates the model's ability to summarize doctor-patient dialogues into structured clinical notes.
@@ -1425,7 +1425,7 @@ def get_aci_bench_run_spec() -> RunSpec:
     )
 
     # Define the metrics
-    metric_specs = get_open_ended_generation_metric_specs()
+    metric_specs = get_summarization_metric_specs([{"task": "aci_bench", "device": device}]) + get_open_ended_generation_metric_specs()
 
     # Return the RunSpec
     return RunSpec(
