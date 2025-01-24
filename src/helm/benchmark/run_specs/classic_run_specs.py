@@ -1153,7 +1153,7 @@ def get_medalign_spec() -> RunSpec:
     )
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="Given an EHR and a clinical question, return the answer to the question.",
+        instructions="",
         input_noun=None,
         newline_after_input_noun=False,
         output_noun="Answer",

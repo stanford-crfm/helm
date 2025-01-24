@@ -485,7 +485,6 @@ def pack_and_trim_prompts(
             )
         else:
             target_ehr_length = 0
-
         if target_ehr_length <= 0:
             prompt_with_truncated_ehr = prompt_template.format(
                 question=instruction, ehr=""
@@ -565,7 +564,7 @@ def preprocess_prompts(path_to_prompt_template, target_context_length, generatio
 
     ### SAVE CONSTRUCTED PROMPTS TO DISK ###
     df_rows = []
-    for instruction_id in tqdm(instructions.keys()):
+    for instruction_id in tqdm(filled_prompts.keys()):
         row = {}
         row["instruction_id"] = instruction_id
         patient_id = instructions[instruction_id]["patient_id"]
