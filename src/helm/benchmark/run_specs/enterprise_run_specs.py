@@ -92,7 +92,8 @@ def get_legal_opinion_sentiment_classification_spec() -> RunSpec:
         name="legal_opinion_sentiment_classification",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + _get_weighted_classification_metric_specs(labels=["positive", "neutral", "negative"]),
+        metric_specs=get_exact_match_metric_specs()
+        + _get_weighted_classification_metric_specs(labels=["positive", "neutral", "negative"]),
         groups=["legal_opinion_sentiment_classification"],
     )
 
