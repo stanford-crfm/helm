@@ -1478,6 +1478,49 @@ def get_medec_run_spec() -> RunSpec:
         groups=["clinical", "medec"],
     )
 
+@run_spec_function("ehr_sql")
+def get_ehr_sql_run_spec() -> RunSpec:
+    """
+    RunSpec for the EHR SQL dataset.
+    This configuration evaluates the model's ability to generate accurate SQL queries from natural language questions.
+    """
+
+    # Define the scenario
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.ehr_sql_scenario.EhrSqlScenario",
+        args={},
+    )
+
+    # Define the adapter
+    adapter_spec = get_generation_adapter_spec(
+        instructions=(
+            "You are a highly skilled AI specialized in processing medical data. Your task is to convert natural language medical questions "
+            "into SQL queries that retrieve the required information from a database. The question will be provided, and your output "
+            "should be a valid SQL query.\n\n"
+            "Input: A natural language question.\n"
+            "Output: The SQL query."
+        ),
+        input_noun="Question",
+        output_noun="SQL Query",
+    )
+
+    # Define the metrics
+    metric_specs = [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.ehr_sql_metrics.EhrSqlMetric",
+            args={},
+        )
+    ] + get_open_ended_generation_metric_specs()
+
+    # Return the RunSpec
+    return RunSpec(
+        name="ehr_sql",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["medical", "sql", "ehr"],
+    )
+
 @run_spec_function("pubmed_qa")
 def get_pubmed_qa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
