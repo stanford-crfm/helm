@@ -19,7 +19,7 @@ def _get_weighted_classification_metric_specs(labels: List[str]) -> List[MetricS
     return [
         MetricSpec(
             class_name="helm.benchmark.metrics.classification_metrics.ClassificationMetric",
-            args={"averages": ["weighted"], "labels": labels},
+            args={"averages": ["weighted"], "scores": ["f1", "precision", "recall"], "labels": labels},
         )
     ]
 
@@ -44,7 +44,7 @@ def get_news_headline_spec(category: str) -> RunSpec:
         name=f"gold_commodity_news:category={category}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + _get_weighted_classification_metric_specs(labels=["Yes", "No"]),
+        metric_specs=get_exact_match_metric_specs() + _get_weighted_classification_metric_specs(labels=["yes", "no"]),
         groups=["gold_commodity_news"],
     )
 
@@ -92,8 +92,7 @@ def get_legal_opinion_sentiment_classification_spec() -> RunSpec:
         name="legal_opinion_sentiment_classification",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        # TODO: Switch to using weighted F1
-        metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + _get_weighted_classification_metric_specs(labels=["positive", "neutral", "negative"]),
         groups=["legal_opinion_sentiment_classification"],
     )
 
