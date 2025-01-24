@@ -1,4 +1,3 @@
-import os
 import requests
 
 from abc import ABC, abstractmethod
@@ -11,7 +10,6 @@ from helm.common.request import (
     Request,
     RequestResult,
     GeneratedOutput,
-    Token,
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
 )
 from helm.clients.client import CachingClient
@@ -60,7 +58,12 @@ class StanfordHealthCareHTTPModelClient(CachingClient, ABC):
                 url = f"{self.endpoint}/{self.deployment}"
                 response = requests.post(url, json=raw_request, headers=self.default_headers, timeout=self.timeout)
                 response.raise_for_status()
-                return response.json()
+                response_json = response.json()
+                if type(response_json) == list:
+                    response_json = {
+                        "content": response_json
+                    }
+                return response_json
 
             if self.do_cache:
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))

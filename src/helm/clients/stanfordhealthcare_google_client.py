@@ -25,13 +25,9 @@ class StanfordHealthCareGoogleClient(StanfordHealthCareHTTPModelClient):
                 "role": "user",
                 "parts": {"text": request.prompt},
             },
-            "safety_settings": {
-                "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                "threshold": "BLOCK_LOW_AND_ABOVE",
-            },
             "generation_config": {
                 "temperature": request.temperature,
-                "topP": request.top,
+                "topP": request.top_p,
                 "topK": request.top_k_per_token,
                 "candidateCount": 1,
                 "maxOutputTokens": request.max_tokens,
@@ -40,9 +36,9 @@ class StanfordHealthCareGoogleClient(StanfordHealthCareHTTPModelClient):
         }
 
     def parse_response(self, response: Dict[str, Any]) -> List[GeneratedOutput]:
-        completions = []
-        for item in response:
-            for candidate in item.get("candidates", []):
-                text_parts = "".join(part["text"] for part in candidate.get("content", {}).get("parts", []))
-                completions.append(GeneratedOutput(text=text_parts, logprob=0, tokens=[]))
-        return completions
+        completion = ""
+        print(response)
+        for item in response["content"]:
+            if "content" in item["candidates"][0]:
+                completion += item["candidates"][0]["content"]["parts"][0]["text"]
+        return [GeneratedOutput(text=completion, logprob=0, tokens=[])]

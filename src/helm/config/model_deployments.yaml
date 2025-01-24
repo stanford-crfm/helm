@@ -27,6 +27,7 @@ model_deployments:
       class_name: "helm.clients.stanfordhealthcare_claude_client.StanfordHealthCareClaudeClient"
       args:
         model: anthropic.claude-3-5-sonnet-20241022-v2:0
+        deployment: placeholder
 
   - name: stanfordhealthcare/gemini-1.5-pro
     model_name: google/gemini-1.5-pro-001
@@ -35,7 +36,9 @@ model_deployments:
     max_sequence_and_generated_tokens_length: 8192
     client_spec:
       class_name: "helm.clients.stanfordhealthcare_google_client.StanfordHealthCareGoogleClient"
-      
+      args:
+        deployment: placeholder
+
   - name: stanfordhealthcare/gpt-4o-mini-2024-07-18
     model_name: openai/gpt-4o-mini
     tokenizer_name: openai/o200k_base
