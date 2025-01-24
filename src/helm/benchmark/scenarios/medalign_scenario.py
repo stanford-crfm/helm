@@ -506,23 +506,23 @@ def pack_and_trim_prompts(
             # Do a first pass with a fast tokenizer
             fast_tokenizer = tiktoken.get_encoding("cl100k_base")
             fast_encoded = fast_tokenizer.encode(relevant_ehr)
-            fast_encoded_truncated = fast_encoded[-(2 * target_ehr_length) :]
-            fast_truncated_ehr = fast_tokenizer.decode(fast_encoded_truncated)
+            if len(fast_encoded) <= target_ehr_length:
+                fast_encoded_truncated = fast_encoded[-(2 * target_ehr_length) :]
+                fast_truncated_ehr = fast_tokenizer.decode(fast_encoded_truncated)
 
-            # Then do a second pass with the actual tokenizer
-            encoded_ehr = tokenizer.encode(fast_truncated_ehr)
-            truncated_encoded_ehr = encoded_ehr[-target_ehr_length:]
-            truncated_ehr = tokenizer.decode(truncated_encoded_ehr)
-            prompt_with_truncated_ehr = prompt_template.format(
-                question=instruction, ehr=truncated_ehr
-            )
+                # Then do a second pass with the actual tokenizer
+                encoded_ehr = tokenizer.encode(fast_truncated_ehr)
+                truncated_encoded_ehr = encoded_ehr[-target_ehr_length:]
+                truncated_ehr = tokenizer.decode(truncated_encoded_ehr)
+                prompt_with_truncated_ehr = prompt_template.format(
+                    question=instruction, ehr=truncated_ehr
+                )
 
-        prompts_map[instruction_id] = prompt_with_truncated_ehr
+                prompts_map[instruction_id] = prompt_with_truncated_ehr
 
-        if verbose:
-            print(prompt_with_truncated_ehr)
-            print("~" * 20)
-
+                if verbose:
+                    print(prompt_with_truncated_ehr)
+                    print("~" * 20)
     return prompts_map
 
 def preprocess_prompts(path_to_prompt_template, target_context_length, generation_length, path_to_instructions, path_to_ehrs, use_RAG, include_ehr, tokenizer, codes_only=False, notes_only=False):
@@ -613,16 +613,6 @@ def add_reference_responses(prompts_df, path_to_reference_responses) -> pd.DataF
     return merged_df
 
 def return_dataset_dataframe():
-    # parser = argparse.ArgumentParser(description="Process some files for evaluation.")
-    # parser.add_argument('--path_to_prompt_template', type=str, default="/share/pi/nigam/scottyf/medalign-clean/src/medalign/prompt_templates/generic.txt", help='Path to the prompt template file')
-    # parser.add_argument('--target_context_length', type=int, default=8192, help='Target context length')
-    # parser.add_argument('--generation_length', type=int, default=256, help='Generation length')
-    # parser.add_argument('--path_to_instructions', type=str, default="/share/pi/nigam/data/MedAlign/ehr-relevance-labels.csv", help='Path to the instructions file')
-    # parser.add_argument('--path_to_ehrs', type=str, default="/share/pi/nigam/data/MedAlign/full_patient_ehrs", help='Path to the EHRs directory')
-    # parser.add_argument('--use_RAG', type=bool, default=True, help='Whether to use RAG')
-    # parser.add_argument('--include_ehr', type=bool, default=True, help='Whether to include EHR')
-    # parser.add_argument('--tokenizer', type=str, default="tiktoken", help='Tokenizer to use')
-    # parser.add_argument('--path_to_reference_responses', type=str, default="/share/pi/nigam/scottyf/clinician-instruction-responses.csv", help='Path to the reference responses file')
     script_dir = os.path.dirname(os.path.abspath(__file__))
     config_path = os.path.join(script_dir,"medalign.yaml")
     config = load_config(config_path)
