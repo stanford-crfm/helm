@@ -628,7 +628,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: ehr_sql_recall_answerable
+      main_name: medec_error_flag_accuracy
       main_split: test
     taxonomy:
       task: question answering
@@ -679,7 +679,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: ehr_sql_recall_answerable
+      main_name: exact_match
       main_split: test
     taxonomy:
       task: question answering
@@ -696,7 +696,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: ehr_sql_recall_answerable
+      main_name: exact_match
       main_split: test
     taxonomy:
       task: question answering
