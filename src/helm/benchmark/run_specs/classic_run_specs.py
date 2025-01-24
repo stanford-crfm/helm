@@ -1243,7 +1243,7 @@ def get_medcalc_bench_spec() -> RunSpec:
     )
     
     adapter_spec = get_generation_adapter_spec(
-        instructions="Given a patient note and a clinical question, compute the requested medical value. Be as concise as possible.",
+        instructions="Given a patient note and a clinical question, compute the requested medical value. Be as concise as possible. Do not include the units in your answer.",
         input_noun=None,
         newline_after_input_noun=False,
         output_noun="Answer",
@@ -1640,10 +1640,6 @@ def get_medication_qa_spec() -> RunSpec:
         max_tokens=512,
     )
 
-    # annotator_specs = [
-    #     AnnotatorSpec(class_name="helm.benchmark.annotation.medication_qa_annotator.MedicationQAAnnotator")
-    # ]
-    # metric_specs = [MetricSpec(class_name="helm.benchmark.metrics.medication_qa_metrics.MedicationQAScoreMetric")]
     metric_args = {"task": "medication_qa", "device": get_torch_device_name()}
     return RunSpec(
         name="medication_qa",
