@@ -1369,11 +1369,15 @@ class EHRSHOTScenario(Scenario):
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["yes", "no",]
 
-    def __init__(self, subject: str):
+    def __init__(self, 
+        subject: str,
+        max_length: Optional[int] = None
+    ):
         super().__init__()
         self.subject: str = subject # same as "task" or "labeling_function"
         self.path_to_meds_dir: str = "/share/pi/nigam/data/medhelm/ehrshot/meds/"
         self.path_to_tmp_dir: str = "/share/pi/nigam/data/medhelm/ehrshot/prompts/"
+        self.max_length = max_length
 
     def create_benchmark(self, n_procs: int = 4)->Dict[str, str]:
         """Loads the MEDS dataset and converts it to prompts"""
@@ -1381,7 +1385,6 @@ class EHRSHOTScenario(Scenario):
         # Load MEDS EHRSHOT patient timelines
         df_data = pd.read_parquet(os.path.join(self.path_to_meds_dir, "data/data.parquet"))
         df_splits = pd.read_parquet(os.path.join(self.path_to_meds_dir, "metadata/subject_splits.parquet"))
-        print("df_data.shape", df_data.shape)
         
         # Load MEDS EHRSHOT labels
         tasks = sorted(os.listdir(os.path.join(self.path_to_meds_dir, "labels")))
@@ -1393,12 +1396,10 @@ class EHRSHOTScenario(Scenario):
             ):
                 continue
             df_labels = pd.read_parquet(path_to_labels)
-            print(f"Task: {t} | df_labels.shape: {df_labels.shape}")
             
             # If lab value task, limit to 10k random labels b/c too many in EHRSHOT (upwards of 300k)
             if self.subject.startswith('lab_'):
                 df_labels = df_labels.sample(n=CONFIG['max_labels_per_task'], random_state=CONFIG['seed'])
-                print(f"Sampling {len(df_labels)} labels for {self.subject} using random_state={CONFIG['seed']}...")
             
             # Create patient timelines, limited to only events prior to the prediction time of the label
             timelines: List[List[Dict[str, Any]]] = get_prior_events(df_data, df_labels, n_procs=n_procs)
@@ -1435,6 +1436,8 @@ class EHRSHOTScenario(Scenario):
         # Generate instances
         instances: List[Instance] = []
         for prompt, label, split in tqdm(zip(df['prompt'], df['boolean_value'], df['split']), total=len(df), desc="Generating instances"):
+            if self.max_length and len(prompt.split()) > self.max_length:
+                continue
             label = "yes" if label else "no"
             # split = TEST_SPLIT if split == "held_out" else (VALID_SPLIT if split == "tuning" else TRAIN_SPLIT)
             references: List[Reference] = [
@@ -1448,7 +1451,7 @@ class EHRSHOTScenario(Scenario):
                     split=TEST_SPLIT, # the split
                 )
             )
-                
+            
         return instances
 
 if __name__ == "__main__":
