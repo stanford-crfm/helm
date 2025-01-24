@@ -1190,9 +1190,13 @@ def get_race_based_med_spec() -> RunSpec:
     )
 
 @run_spec_function("ehrshot")
-def get_ehrshot_spec(subject:str) -> RunSpec:
+def get_ehrshot_spec(
+    subject: str,
+    max_length: str = 120000
+) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.ehrshot_scenario.EHRSHOTScenario", args={"subject": subject}
+        class_name="helm.benchmark.scenarios.ehrshot_scenario.EHRSHOTScenario", 
+        args={"subject": subject, "max_length": max_length}
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
