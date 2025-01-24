@@ -71,12 +71,11 @@ class SummarizationMetric(Metric):
         else:
             self.compute_bertscore = True
             self.bert_scorer = BERTScorer(
-                model_type="distilbert-base-uncased", lang="en", device=device
+                model_type="microsoft/deberta-base", lang="en", rescale_with_baseline=True, device=device
             )
             # Need GPU for faithfulness metrics since they are model-based.
-            self.compute_faithfulness = False
-            # self.compute_faithfulness = True
-            # self.summac = SummaCZS(granularity="sentence", model_name="vitc", imager_load_cache=False, device=device)
+            self.compute_faithfulness = True
+            self.summac = SummaCZS(granularity="sentence", model_name="vitc", imager_load_cache=False, device=device)
 
     def _load_qafacteval(self, eval_cache_path: str):
         target_path: str = os.path.join(eval_cache_path, "qafacteval.pk")
