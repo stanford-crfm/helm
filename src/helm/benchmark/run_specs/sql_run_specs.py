@@ -36,9 +36,7 @@ def get_czech_bank_qa_spec(config_name: str = "berka_queries_1024_2024_12_18") -
 
 @run_spec_function("bird_sql_dev")
 def get_bird_sql_dev() -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.bird_sql_dev_scenario.BIRDSQLDevScenario"
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bird_sql_dev_scenario.BIRDSQLDevScenario")
 
     adapter_spec = get_generation_adapter_spec(
         input_noun=None,
