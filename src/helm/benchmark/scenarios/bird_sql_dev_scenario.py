@@ -21,6 +21,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
 )
 
+
 def _ensure_file_unzipped(source_path: str, target_path: str):
     with FileLock(f"{target_path}.lock"):
         if os.path.exists(target_path):
