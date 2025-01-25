@@ -33,11 +33,11 @@ def _ensure_file_unzipped(source_path: str, target_path: str):
         shell(["mv", tmp_path, target_path])
 
 
-class BIRDSQLDevScenario(Scenario):
+class BIRDSQLScenario(Scenario):
     """BIRD-SQL (Dev)"""
 
-    name = "bird_sql_dev"
-    description = "bird_sql_dev"
+    name = "bird_sql"
+    description = "bird_sql"
     tags = ["sql"]
 
     def get_instances(self, output_path: str) -> List[Instance]:
