@@ -26,11 +26,6 @@ import sqlite3
 # copies or substantial portions of the Software.
 
 
-def new_directory(path):  
-    if not os.path.exists(path):  
-        os.makedirs(path)  
-
-
 def get_db_schemas(bench_root: str, db_name: str) -> Dict[str, str]:
     """
     Read an sqlite file, and return the CREATE commands for each of the tables in the database.

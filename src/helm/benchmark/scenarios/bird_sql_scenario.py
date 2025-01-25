@@ -6,7 +6,7 @@ from filelock import FileLock
 
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded, shell
 from helm.common.hierarchical_logger import hlog
-from helm.benchmark.scenarios.bird_sql_dev_scenario_helper import (  # type: ignore
+from helm.benchmark.scenarios.bird_sql_scenario_helper import (  # type: ignore
     cot_wizard,
     generate_comment_prompt,
     generate_schema_prompt,
