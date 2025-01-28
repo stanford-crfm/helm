@@ -124,16 +124,52 @@ metrics:
     lower_is_better: false
 
   # Speech Recognition metrics
-  - name: wa_score
-    display_name: Word Accuracy Score
-    short_display_name: Word Accuracy Score
-    description: Word Accuracy based on the Word Error Rate.
+  - name: wer_score
+    display_name: Word Error Rate
+    short_display_name: WER
+    description: Word error rate between model predictions and ground truth answers for ASR tasks.
+    lower_is_better: true
+
+  - name: mer_score
+    display_name: Match Error Rate
+    short_display_name: MER
+    description: Word match error rate between model predictions and ground truth answers.
+    lower_is_better: true
+
+  - name: wip_score
+    display_name: Word Information Preservation
+    short_display_name: WIP
+    description: Word information preservation (WIP) for evaluating the preserved information of ASR.
     lower_is_better: false
 
-  - name: CA
-    display_name: WA
-    short_display_name: WA
-    description: Word Accuracy based on the Word Error Rate.
+  - name: cer_score
+    display_name: Character Error Rate
+    short_display_name: CER
+    description: Character error rate (CER) for evaluating the accuracy of ASR.
+    lower_is_better: true
+
+  - name: chinese_wer_score
+    display_name: Chinese Word Error Rate
+    short_display_name: Chinese WER
+    description: Chinese word error rate between model predictions and ground truth answers for ASR tasks.
+    lower_is_better: true
+
+  - name: chinese_mer_score
+    display_name: Chinese Match Error Rate
+    short_display_name: Chinese MER
+    description: Chinese word match error rate between model predictions and ground truth answers.
+    lower_is_better: true
+
+  - name: chinese_wip_score
+    display_name: Chinese Word Information Preservation
+    short_display_name: Chinese WIP
+    description: Chinese word information preservation (WIP) for evaluating the preserved information of ASR.
+    lower_is_better: false
+
+  - name: chinese_cer_score
+    display_name: Chinese Character Error Rate
+    short_display_name: Chinese CER
+    description: Chinese character error rate (CER) for evaluating the accuracy of Chiese ASR.
     lower_is_better: true
 
 ############################################################

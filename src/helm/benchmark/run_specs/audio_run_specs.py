@@ -78,7 +78,7 @@ def get_machine_translation_metric_specs() -> List[MetricSpec]:
 
 
 def _get_audio_recognition_metric_specs() -> List[MetricSpec]:
-    return get_basic_metric_specs(["wer_score", "mer_score", "wip_score", "ca_score"])
+    return get_basic_metric_specs(["wer_score", "mer_score", "wip_score", "cer_score"])
 
 
 def _get_open_ended_generation_metric_specs() -> List[MetricSpec]:
@@ -88,7 +88,7 @@ def _get_open_ended_generation_metric_specs() -> List[MetricSpec]:
 
 
 def _get_chinese_audio_recognition_metric_specs() -> List[MetricSpec]:
-    return get_basic_metric_specs(["chinese_wer_score", "chinese_mer_score", "chinese_wip_score", "chinese_ca_score"])
+    return get_basic_metric_specs(["chinese_wer_score", "chinese_mer_score", "chinese_wip_score", "chinese_cer_score"])
 
 
 ########################################################################################################################

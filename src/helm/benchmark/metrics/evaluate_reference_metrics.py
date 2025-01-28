@@ -268,9 +268,9 @@ def wip_score(gold: str, pred: str) -> float:
     return wip_ret
 
 
-def ca_score(gold: str, pred: str) -> float:
-    # Character accuracy (CA) equals to character error rate (CER) for evaluating the accuracy
-    # of speech recognition systems.
+def cer_score(gold: str, pred: str) -> float:
+    # Character Error Rate (CER) for evaluating the accuracy
+    # of speech recognition systems. The lower the better.
     try:
         from jiwer import cer
     except ModuleNotFoundError as e:
@@ -312,13 +312,13 @@ def chinese_wip_score(gold: str, pred: str) -> float:
     return wip_score(" ".join(jieba.cut(gold)), " ".join(jieba.cut(pred)))
 
 
-def chinese_ca_score(gold: str, pred: str) -> float:
+def chinese_cer_score(gold: str, pred: str) -> float:
     try:
         import jieba
     except ModuleNotFoundError as e:
         handle_module_not_found_error(e, ["audiolm"])
 
-    return ca_score(" ".join(jieba.cut(gold)), " ".join(jieba.cut(pred)))
+    return cer_score(" ".join(jieba.cut(gold)), " ".join(jieba.cut(pred)))
 
 
 def extract_set_from_text(
@@ -474,11 +474,11 @@ def compute_reference_metrics(
         "wer_score": wer_score,
         "mer_score": mer_score,
         "wip_score": wip_score,
-        "ca_score": ca_score,
+        "cer_score": cer_score,
         "chinese_wer_score": chinese_wer_score,
         "chinese_mer_score": chinese_mer_score,
         "chinese_wip_score": chinese_wip_score,
-        "chinese_ca_score": chinese_ca_score,
+        "chinese_cer_score": chinese_cer_score,
     }
 
     stats: List[Stat] = []
