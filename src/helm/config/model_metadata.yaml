@@ -2922,8 +2922,8 @@ models:
     release_date: 2023-11-14
     tags: [AUDIO_LANGUAGE_MODEL_TAG]
 
-  - name: qwen/qwen2-audio-instruct
-    display_name: Qwen2-Audio Instruct
+  - name: qwen/qwen2-audio-7b-instruct
+    display_name: Qwen2-Audio Instruct (7B)
     description: The second version of auditory multimodal version of the Qwen large language model series ([paper](https://arxiv.org/abs/2407.10759)).
     creator_organization_name: Alibaba Cloud
     access: open

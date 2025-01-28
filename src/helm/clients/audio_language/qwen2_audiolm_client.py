@@ -54,7 +54,7 @@ class Qwen2AudioLMClient(CachingClient):
         global _models
 
         model_name: str
-        if helm_model_name == "qwen2-audio-instruct":
+        if helm_model_name == "qwen2-audio-7b-instruct":
             model_name = "Qwen/Qwen2-Audio-7B-Instruct"
         else:
             raise ValueError(f"Unhandled model name: {helm_model_name}")
