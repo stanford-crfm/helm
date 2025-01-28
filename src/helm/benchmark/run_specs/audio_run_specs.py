@@ -385,6 +385,7 @@ def get_air_bench_chat_run_spec(subject: str) -> RunSpec:
         args={"subject": subject},
     )
     adapter_spec = _get_generation_adapter_spec(
+        instructions="Answer the question with a short answer and not in a complete sentence.",
         max_tokens=50,
     )
     metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
