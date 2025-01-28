@@ -298,7 +298,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: wa_score
+      main_name: wer_score
       main_split: test
     taxonomy:
       task: audio captioning
@@ -322,7 +322,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: wa_score
+      main_name: wer_score
       main_split: test
     taxonomy:
       task: audio classification
@@ -386,7 +386,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: wa_score
+      main_name: wer_score
       main_split: test
     taxonomy:
       task: audio recognition
@@ -410,7 +410,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: wa_score
+      main_name: wer_score
       main_split: test
     taxonomy:
       task: audio recognition
