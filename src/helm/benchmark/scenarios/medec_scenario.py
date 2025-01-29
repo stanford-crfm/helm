@@ -66,30 +66,36 @@ class MedecScenario(Scenario):
             reader = csv.DictReader(f)
 
             for row in reader:
-                # Validate required fields
-                if not row.get("Text") or not row.get("Error Type"):
+                # Ensure required fields exist
+                if not row.get("Text"):
                     continue
 
-                # Build input text (entire clinical note)
+                # Extract text content
                 input_text = row["Text"].strip()
 
-                # Parse error-related fields
+                # Extract metadata
                 error_flag = int(row.get("Error Flag", 0))
-                error_type = row["Error Type"].strip()
-                error_sentence_id = int(row.get("Error Sentence ID", -1))
+                error_sentence_id = row.get("Error Sentence ID", "-1").strip()
                 corrected_sentence = row.get("Corrected Sentence", "").strip()
 
-                # Create references for correction task
                 references = []
-                if error_flag == 1 and error_sentence_id != -1:
+                if error_flag == 1 and corrected_sentence != "NA" and error_sentence_id != "-1":
+                    # If there is an error, store the corrected sentence
                     references.append(
                         Reference(
-                            Output(text=corrected_sentence),
+                            Output(text=f"{error_sentence_id} {corrected_sentence}"),
+                            tags=[CORRECT_TAG],
+                        )
+                    )
+                else:
+                    # If no error exists, expect "CORRECT" as the output
+                    references.append(
+                        Reference(
+                            Output(text="CORRECT"),
                             tags=[CORRECT_TAG],
                         )
                     )
 
-                # Create an instance for the error detection and correction task
                 instance = Instance(
                     input=Input(text=input_text),
                     references=references,
