@@ -49,22 +49,17 @@ class SpiderScenario(Scenario):
             unpack_type="unzip",
         )
         data_root_path = os.path.join(data_parent_path, "spider_data")
-        # databases_unzip_target = os.path.join(data_root_path, "unzipped_dev_databases")
-        # _ensure_file_unzipped(os.path.join(data_root_path, "dev_databases.zip"), databases_unzip_target)
-        # # Note: Zip file contains .DS_Store file at the root, which makes dev_databases unzip into a nested directory
         databases_root_path = os.path.join(data_root_path, "test_database")
 
         database_schema_prompts: Dict[str, str] = {}
         for database_name in os.listdir(databases_root_path):
             database_path = os.path.join(databases_root_path, database_name, f"{database_name}.sqlite")
-            print(database_path)
             if not os.path.exists(database_path):
                 # Ignore stray ".DS_Store" directory
                 continue
 
             database_schema_prompt = generate_schema_prompt(database_path, num_rows=None)
             database_schema_prompts[database_name] = database_schema_prompt
-        print(database_schema_prompts)
 
         instances: List[Instance] = []
         dataset_path = os.path.join(data_root_path, "test.json")
