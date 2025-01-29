@@ -98,7 +98,7 @@ class Qwen2AudioLMClient(CachingClient):
         for media_num, media_object in enumerate(request.multimodal_prompt.media_objects):
             if media_object.is_type("audio") and media_object.location:
                 assert media_object.is_local_file, "Only local audio files are supported"
-                query.append({"type": "audio", "audio_loc": media_object.location})
+                query.append({"type": "audio", "audio_url": media_object.location})
 
                 prompt_text += f"<|im_start|>user\nAudio {media_num+1}: <|audio_bos|><|AUDIO|><|audio_eos|>\n"
             elif media_object.is_type(TEXT_TYPE):
@@ -131,7 +131,7 @@ class Qwen2AudioLMClient(CachingClient):
                                     if element["type"] == "audio":
                                         audios.append(
                                             librosa.load(
-                                                element["audio_loc"],
+                                                element["audio_url"],
                                                 sr=tokenizer.feature_extractor.sampling_rate,
                                             )[0]
                                         )
