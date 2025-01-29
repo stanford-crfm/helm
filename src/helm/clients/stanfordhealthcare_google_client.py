@@ -37,7 +37,6 @@ class StanfordHealthCareGoogleClient(StanfordHealthCareHTTPModelClient):
 
     def parse_response(self, response: Dict[str, Any]) -> List[GeneratedOutput]:
         completion = ""
-        print(response)
         for item in response["content"]:
             if "content" in item["candidates"][0]:
                 completion += item["candidates"][0]["content"]["parts"][0]["text"]

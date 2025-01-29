@@ -1598,7 +1598,7 @@ def get_mimiciv_billing_code_spec() -> RunSpec:
 
 
 @run_spec_function("medi_qa")
-def get_mimic_rrs_spec() -> RunSpec:
+def get_medi_qa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.medi_qa_scenario.MediQAScenario", args={}
     )
