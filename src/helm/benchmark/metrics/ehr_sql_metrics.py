@@ -6,6 +6,7 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 from helm.common.hierarchical_logger import hlog
+import re
 
 
 class EhrSqlMetric(Metric):
@@ -18,6 +19,11 @@ class EhrSqlMetric(Metric):
     2. Recall for Answerable Questions (Rans): The proportion of correctly predicted answerable questions
        among all answerable questions in the dataset.
     """
+
+    def extract_value_from_text(self, input_text: str) -> bool:
+        """Extract the value field from input_text instead of extra_data."""
+        match = re.search(r"Is Impossible: (True|False)", input_text)
+        return match and match.group(1) == "False"
 
     def evaluate_generation(
         self,
@@ -43,15 +49,15 @@ class EhrSqlMetric(Metric):
 
         # Extract references and ground truth from the instance
         references = getattr(request_state.instance, "references", None)
-        extra_data = getattr(request_state.instance, "extra_data", {})
+        input_text = request_state.instance.input.text  # Read input text instead of extra_data
+
         if not references or len(references) == 0:
             hlog(f"Warning: Missing references for instance {request_state.instance}")
             return []
 
         # Check if the ground truth is answerable
         ground_truth_query = references[0].output.text
-        ground_truth_value = extra_data.get("value", None)
-        is_answerable = bool(ground_truth_query and ground_truth_value)
+        is_answerable = bool(ground_truth_query) and self.extract_value_from_text(input_text)
 
         # Check if the model prediction is answerable
         is_predicted_answerable = bool(prediction)

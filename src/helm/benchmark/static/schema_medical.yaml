@@ -645,7 +645,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: BERTScore-F
+      main_name: rouge_l
       main_split: test
     taxonomy:
       task: question answering
