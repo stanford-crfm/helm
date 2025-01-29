@@ -123,28 +123,29 @@ metric_groups:
 
 ############################################################
 run_groups:
-  - name: financial_scenarios
-    display_name: Financial Scenarios
-    description: Scenarios for the financial domain
+  - name: text_to_sql_scenarios
+    display_name: Text-to-SQL Scenarios
+    description: Text-to-SQL Scenarios
     category: All scenarios
     subgroups:
-      - czech_bank_qa
+      - spider
+      - bird_sql
 
-  - name: czech_bank_qa
-    display_name: CzechBankQA
-    description: The CzechBankQA
+  - name: spider
+    display_name: Spider 1.0 (Test)
+    description: Spider 1.0 (Test)
     metric_groups:
       - accuracy
       - efficiency
       - general_information
     environment:
-      main_name: error_rate
-      main_split: test
+      main_name: quasi_exact_match
+      main_split: valid
     taxonomy:
       task: text-to-SQL
-      what: queries from financial experts
-      who: financial experts
-      when: "1999"
+      what: databases from various domains
+      who: expert data scientists
+      when: "?"
       language: English
 
   - name: bird_sql
