@@ -216,7 +216,6 @@ run_groups:
       - audio_mnist
       - covost2
       - vocal_sound
-      - multilingual_librispeech
       - fleurs
       - audiocaps
       - common_voice_15
