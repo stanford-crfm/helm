@@ -13,17 +13,17 @@ class EhrSqlMetric(Metric):
     """
     Metric for evaluating the EHR SQL dataset, assessing the model's ability to generate valid SQL queries.
 
-    This implementation calculates two main metrics:
+    This implementation calculates:
     1. Precision for Answerable Questions (Pans): The proportion of correctly predicted answerable questions
        among all questions predicted to be answerable.
     2. Recall for Answerable Questions (Rans): The proportion of correctly predicted answerable questions
        among all answerable questions in the dataset.
     """
 
-    def extract_value_from_text(self, input_text: str) -> bool:
-        """Extract the value field from input_text instead of extra_data."""
-        match = re.search(r"Is Impossible: (True|False)", input_text)
-        return match and match.group(1) == "False"
+    def extract_is_impossible(self, input_text: str) -> bool:
+        """Extracts `is_impossible` from input_text using regex."""
+        match = re.search(r'"is_impossible":\s*(true|false)', input_text, re.IGNORECASE)
+        return match and match.group(1).lower() == "true"
 
     def evaluate_generation(
         self,
@@ -47,17 +47,19 @@ class EhrSqlMetric(Metric):
         # Process the first prediction as the primary output
         prediction = predictions[0]
 
-        # Extract references and ground truth from the instance
+        # Extract references and input text
         references = getattr(request_state.instance, "references", None)
-        input_text = request_state.instance.input.text  # Read input text instead of extra_data
+        input_text = request_state.instance.input.text  # Read input text
 
         if not references or len(references) == 0:
             hlog(f"Warning: Missing references for instance {request_state.instance}")
             return []
 
-        # Check if the ground truth is answerable
+        # Check if the ground truth is answerable based on is_impossible flag
         ground_truth_query = references[0].output.text
-        is_answerable = bool(ground_truth_query) and self.extract_value_from_text(input_text)
+        is_impossible = self.extract_is_impossible(input_text)  # Extract from input
+
+        is_answerable = not is_impossible and bool(ground_truth_query)
 
         # Check if the model prediction is answerable
         is_predicted_answerable = bool(prediction)
