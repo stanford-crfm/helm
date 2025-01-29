@@ -19,7 +19,7 @@ def _get_weighted_classification_metric_specs(labels: List[str]) -> List[MetricS
     return [
         MetricSpec(
             class_name="helm.benchmark.metrics.classification_metrics.ClassificationMetric",
-            args={"averages": ["weighted"], "labels": labels},
+            args={"averages": ["weighted"], "scores": ["f1", "precision", "recall"], "labels": labels},
         )
     ]
 
@@ -44,7 +44,7 @@ def get_news_headline_spec(category: str) -> RunSpec:
         name=f"gold_commodity_news:category={category}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + _get_weighted_classification_metric_specs(labels=["Yes", "No"]),
+        metric_specs=get_exact_match_metric_specs() + _get_weighted_classification_metric_specs(labels=["yes", "no"]),
         groups=["gold_commodity_news"],
     )
 
@@ -53,7 +53,7 @@ def get_news_headline_spec(category: str) -> RunSpec:
 
 
 @run_spec_function("legal_contract_summarization")
-def get_legal_contract_spec() -> RunSpec:
+def get_legal_contract_summarization_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.legal_contract_summarization_scenario.LegalContractSummarizationScenario",
         args={},
@@ -73,6 +73,28 @@ def get_legal_contract_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_basic_metric_specs(["rouge_1", "rouge_2", "rouge_l"]),
         groups=["legal_contract_summarization"],
+    )
+
+
+@run_spec_function("legal_opinion_sentiment_classification")
+def get_legal_opinion_sentiment_classification_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.legal_opinion_sentiment_classification_scenario.LegalOpinionSentimentClassificationScenario",  # noqa: E501
+    )
+
+    instructions = "Classify the sentences into one of the 3 sentiment categories. Possible labels: positive, neutral, negative."  # noqa: E501
+    adapter_spec = get_generation_adapter_spec(
+        instructions=instructions,
+        output_noun="Label",
+    )
+
+    return RunSpec(
+        name="legal_opinion_sentiment_classification",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs()
+        + _get_weighted_classification_metric_specs(labels=["positive", "neutral", "negative"]),
+        groups=["legal_opinion_sentiment_classification"],
     )
 
 
