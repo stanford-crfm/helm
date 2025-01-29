@@ -1,6 +1,8 @@
 import json
 import logging
 import os
+import csv
+import sys
 from typing import Dict, List
 
 from helm.benchmark.scenarios.scenario import (
@@ -15,11 +17,12 @@ from helm.benchmark.scenarios.scenario import (
 )
 from helm.common.general import ensure_file_downloaded
 
+csv.field_size_limit(sys.maxsize)
 
 class MedBulletsScenario(Scenario):
     """
     From "Benchmarking Large Language Models on Answering and Explaining Challenging Medical Questions"
-    (Chen et al.), MedBullets is a dataset comprising USMLE Step 2&3 style clinical questions. The dataset
+    (Chen et al.), MedBullet is a dataset comprising USMLE Step 2&3 style clinical questions. The dataset
     is designed to evaluate the performance of LLMs in answering and explaining challenging medical questions,
     emphasizing the need for explainable AI in medical QA.
 
@@ -41,109 +44,93 @@ class MedBulletsScenario(Scenario):
     Purkinje fibers > atria > ventricles > AV node. A calcium channel blocker such as verapamil would only slow
     conduction in the AV node.
 
-    @article{chen2024benchmarking,
-        title={Benchmarking Large Language Models on Answering and Explaining Challenging Medical Questions},
-        author={Chen, Hanjie and Fang, Zhouxiang and Singla, Yash and Dredze, Mark},
-        journal={arXiv preprint arXiv:2402.18060},
-        year={2024}
-    }
+    @Article{MedBullet,
+    author = {Hanjie Chen and Zhouxiang Fang and Yash Singla and Mark Dredze},
+    title = {Benchmarking Large Language Models on Answering and Explaining Challenging Medical Questions},
+    year = {2023},
+    abstract = {LLMs have demonstrated impressive performance in answering medical questions, such as passing scores
+    on medical licensing examinations. However, medical board exam questions or general clinical questions do not
+    capture the complexity of realistic clinical cases. Moreover, the lack of reference explanations means we cannot
+    easily evaluate the reasoning of model decisions, a crucial component of supporting doctors in making complex
+    medical decisions. To address these challenges, we construct two new datasets: JAMA Clinical Challenge and
+    Medbullets. JAMA Clinical Challenge consists of questions based on challenging clinical cases, while Medbullets
+    comprises USMLE Step 2&3 style clinical questions. Both datasets are structured as multiple-choice question-answering
+    tasks, where each question is accompanied by an expert-written explanation. We evaluate four LLMs on the two
+    datasets using various prompts. Experiments demonstrate that our datasets are harder than previous benchmarks.
+    The inconsistency between automatic and human evaluations of model-generated explanations highlights the need
+    to develop new metrics to support future research on explainable medical QA.}}
 
     Task:
     Given a clinical question with multiple-choice options, models must identify the correct answer and generate a
     response that includes the reasoning, as described in the expert-written explanation.
     """
 
-    DATASET_DOWNLOAD_BASE_URL: str = "https://raw.githubusercontent.com/HanjieChen/ChallengeClinicalQA/refs/heads/main/medbullets/"
-    DATASET_JSON_NAMES: List[str] = ["medbullets_op4.json", "medbullets_op5.json"]
+    DATASET_DOWNLOAD_BASE_URL = "https://raw.githubusercontent.com/HanjieChen/ChallengeClinicalQA/refs/heads/main/medbullets/"
 
-    name = "medbullets"
+    name = "medbullet"
     description = "USMLE Step 2&3 style clinical questions with explanations."
-    tags = ["reasoning", "biomedical", "medicine"]
+    tags = ["reasoning", "biomedical"]
 
-    def get_instances(self, output_path: str) -> List[Instance]:
-        # The dataset has no official train/test split.
-        helm_split_name = TEST_SPLIT
+    def __init__(self):
+        super().__init__()
+        self.splits = {"_op4": TRAIN_SPLIT, "_op5": TEST_SPLIT}
 
+    def download_csv(self, output_path: str, split: str):
+        """Download CSV files for the given split."""
+        csv_path = os.path.join(output_path, f"medbullets{split}.csv")
+        ensure_file_downloaded(
+            source_url=f"{self.DATASET_DOWNLOAD_BASE_URL}/medbullets{split}.csv",
+            target_path=csv_path,
+            unpack=False,
+        )
+        return csv_path
+
+    def process_csv(self, csv_path: str, split: str) -> List[Instance]:
+        """Read and process a CSV file to generate instances."""
         instances: List[Instance] = []
-        for json_name in self.DATASET_JSON_NAMES:
-            json_path = os.path.join(output_path, json_name)
-            ensure_file_downloaded(
-                source_url=f"{self.DATASET_DOWNLOAD_BASE_URL}/{json_name}",
-                target_path=json_path,
-                unpack=False,
-            )
+        with open(csv_path, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                # Validate required fields
+                if not row.get("question") or not row.get("answer_idx") or not row.get("opa"):
+                    print(f"Skipping invalid row: {row}")
+                    continue
 
-            # Load the JSON file
-            with open(json_path, "r", encoding="utf-8") as f:
-                data: List[Dict] = json.load(f)
+                # Map answers to indices
+                option_map = {
+                    "A": row.get("opa", "Not applicable"),
+                    "B": row.get("opb", "Not applicable"),
+                    "C": row.get("opc", "Not applicable"),
+                    "D": row.get("opd", "Not applicable"),
+                    "E": row.get("ope", "Not applicable"),
+                }
 
-                question_ids = list(data["question"].keys())
-                for question_id in question_ids:
-                    references = self._get_references(data, question_id)
+                # Correct answer text
+                correct_option = row["answer_idx"]
+                correct_answer = option_map.get(correct_option, "Not applicable")
 
-                    if not references:
-                        continue
-
-                    instances.append(
-                        Instance(
-                            input=Input(text=data["question"][question_id]),
-                            references=references,
-                            split=helm_split_name,
-                        )
+                # Build references
+                references = [
+                    Reference(
+                        Output(text=option_text),
+                        tags=[CORRECT_TAG] if option == correct_option else [],
                     )
+                    for option, option_text in option_map.items()
+                ]
 
+                # Create instance
+                instance = Instance(
+                    input=Input(text=row["question"]),
+                    references=references,
+                    split=split,
+                )
+                instances.append(instance)
         return instances
 
-    def _get_references(self, data: Dict, question_id: str) -> List[Reference]:
-        """Get references for a given question from the dataset."""
-        answer = data["answer"][question_id]
-
-        options = []
-        try:
-            # Map from answer_idx to the corresponding option text
-            options.extend(
-                [
-                    data["opa"][question_id],
-                    data["opb"][question_id],
-                    data["opc"][question_id],
-                    data["opd"][question_id],
-                ]
-            )
-        except KeyError:
-            logging.error(
-                f"Failed to process references for MedBullets question {question_id}"
-            )
-            return []
-
-        # MedBullets includes a dataset with 4 options and another with 5 options
-        if "ope" in data:
-            options.append(data["ope"][question_id])
-
-        # XXX: Should we verify we have one correct answer?
-        return [
-            Reference(
-                Output(text=option),
-                tags=[CORRECT_TAG] if option == answer else [],
-            )
-            for option in options
-        ]
-
-
-class MedBulletsFreeTextScenario(MedBulletsScenario):
-    """MedBullets free-text scenario.
-
-    An adaptation of the MedBullets dataset that uses the explanation as the answer.
-    """
-
-    name = "medbullets-freetext"
-
-    def _get_references(self, data: Dict, question_id: str) -> List[Reference]:
-        """Get references for a given question from the dataset."""
-        answer = data["answer"][question_id]
-        explanation = data["explanation"][question_id].split("Incorrect Answers:")[0]
-        return [
-            Reference(
-                Output(text=f"{answer}. {explanation}"),
-                tags=[CORRECT_TAG],
-            )
-        ]
+    def get_instances(self, output_path: str) -> List[Instance]:
+        """Download and process dataset to generate instances."""
+        instances: List[Instance] = []
+        for split_suffix, split in self.splits.items():
+            csv_path = self.download_csv(output_path, split_suffix)
+            instances.extend(self.process_csv(csv_path, split))
+        return instances
