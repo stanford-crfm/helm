@@ -43,7 +43,10 @@ class SpiderScenario(Scenario):
     def get_instances(self, output_path: str) -> List[Instance]:
         data_parent_path = os.path.join(output_path, "data")
         ensure_file_downloaded(
-            "https://drive.google.com/uc?id=1403EGqzIDoHMdQF4c9Bkyl7dZLZ5Wt6J&export=download&confirm=t", data_parent_path, unpack=True, unpack_type="unzip"
+            "https://drive.google.com/uc?id=1403EGqzIDoHMdQF4c9Bkyl7dZLZ5Wt6J&export=download&confirm=t",
+            data_parent_path,
+            unpack=True,
+            unpack_type="unzip",
         )
         data_root_path = os.path.join(data_parent_path, "spider_data")
         # databases_unzip_target = os.path.join(data_root_path, "unzipped_dev_databases")

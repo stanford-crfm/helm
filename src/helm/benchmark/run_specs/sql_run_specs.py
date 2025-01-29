@@ -23,6 +23,7 @@ def get_bird_sql_dev_run_spec() -> RunSpec:
         groups=["bird_sql"],
     )
 
+
 @run_spec_function("spider")
 def get_spider_run_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.spider_scenario.SpiderScenario")
