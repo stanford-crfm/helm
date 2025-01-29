@@ -45,7 +45,7 @@ class OmniMATHAnnotator(Annotator):
         )
         if not model_output_text.strip():
             return {
-                "prompt_text": "", 
+                "prompt_text": "",
                 "student_final_answer": "N/A",
                 "equivalence_judgement": "FALSE",
                 "justification": "The model output is empty.",
