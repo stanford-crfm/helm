@@ -705,6 +705,23 @@ run_groups:
       when: n/a
       language: English
 
+  - name: mtsamples_procedures
+    display_name: Mtsamples_Procedures
+    description: A benchmark created from the procedure subset in MTSamples dataset for patient plan prediction/generation.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: BERTScore-F
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
   - name: mmlu
     display_name: MMLU (Massive Multitask Language Understanding)
     short_display_name: MMLU

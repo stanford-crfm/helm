@@ -1279,6 +1279,29 @@ def get_mtsamples_spec() -> RunSpec:
         groups=["mtsamples"],
     )
 
+@run_spec_function("mtsamples_procedures")
+def get_mtsamples_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.mtsamples_procedures_scenario.MTSamplesProceduresScenario"
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Here are information about a patient, return a reasonable treatment plan for the patient.",
+        input_noun="Patient Notes",
+        newline_after_input_noun=False,
+        output_noun="Answer",
+        #max_tokens=256,
+    )
+    metric_args = {"task": "mtsamples_procedures", "device": get_torch_device_name()}
+
+    return RunSpec(
+        name=f"mtsamples_procedures",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs(metric_args),
+        groups=["mtsamples_procedures"],
+    )
+
 @run_spec_function("head_qa")
 def get_head_qa_run_spec(
     language: str = "en", category: Union[str, None] = None
