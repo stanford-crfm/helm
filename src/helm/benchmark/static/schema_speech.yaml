@@ -221,6 +221,7 @@ run_groups:
       - common_voice_15
       - speech_robust_bench
       - meld_audio
+      - air_bench_chat
 
   - name: audio_mnist
     display_name: AudioMNIST
