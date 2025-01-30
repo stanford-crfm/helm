@@ -51,16 +51,20 @@ def redact_instance(instance: Instance) -> Instance:
     redacted_references = [redact_reference(reference) for reference in instance.references]
     return dataclasses.replace(instance, input=redacted_input, references=redacted_references)
 
+
 def redact_request(request: Request) -> Request:
     return dataclasses.replace(request, prompt=REDACTED_STRING, messages=None, multimodal_prompt=None)
+
 
 def redact_output_mapping(output_mapping: Optional[Dict[str, str]]) -> Optional[Dict[str, str]]:
     if output_mapping is None:
         return None
     return {key: REDACTED_STRING for key in output_mapping}
 
+
 def redact_token(token: Token) -> Token:
     return dataclasses.replace(token, text=REDACTED_STRING)
+
 
 def redact_completion(completion: GeneratedOutput) -> GeneratedOutput:
     # Replacing tokens for empty list in case length of completion reveals information about the prompt
@@ -70,6 +74,7 @@ def redact_completion(completion: GeneratedOutput) -> GeneratedOutput:
 def redact_result(result: RequestResult) -> RequestResult:
     redacted_completions = [redact_completion(completion) for completion in result.completions]
     return dataclasses.replace(result, completions=redacted_completions)
+
 
 def redact_request_state(request_state: RequestState, redact_output: bool) -> RequestState:
     result = redact_result(request_state.result) if redact_output else request_state.result
