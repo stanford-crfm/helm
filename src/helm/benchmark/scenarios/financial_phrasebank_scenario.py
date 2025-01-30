@@ -15,13 +15,6 @@ from helm.benchmark.scenarios.scenario import (
 )
 
 
-def get_instructions():
-    instruction = """The dataset consists of sentences from English language financial news categorized by sentiment.
-Classify the sentences into one of the 3 sentiment categories.
-Possible labels:\n1. positive\n2. neutral\n3. negative"""
-    return instruction
-
-
 class FinancialPhrasebankScenario(Scenario):
     """
     A sentiment classification benchmark based on the dataset from Good Debt or Bad Debt - Detecting Semantic Orientations in Economic Texts [(Malo et al., 2013)](https://arxiv.org/abs/1307.5336).
