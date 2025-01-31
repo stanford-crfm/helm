@@ -1204,6 +1204,7 @@ def get_ehrshot_spec(
         instructions="Answer A for yes, B for no.",
         input_noun="",
         output_noun="Answer",
+        max_train_instances=0
     )
 
     return RunSpec(
@@ -1225,6 +1226,7 @@ def get_n2c2_ct_matching_spec(subject: str) -> RunSpec:
         instructions="Answer A for yes, B for no.", 
         input_noun="",
         output_noun="Answer",
+        max_train_instances=0
     )
     
     return RunSpec(

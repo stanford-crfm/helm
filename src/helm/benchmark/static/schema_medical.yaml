@@ -313,8 +313,8 @@ metric_groups:
 
 ############################################################
 run_groups:
-  - name: medical_scenarios
-    display_name: Medical Scenarios
+  - name: medhelm_scenarios
+    display_name: MedHELM Scenarios
     description: Scenarios for the medical domain
     category: All scenarios
     subgroups:
@@ -323,11 +323,6 @@ run_groups:
       - patient_communication
       - medical_research
       - administration_and_workflow
-      # - med_qa
-      # - med_mcqa
-      # - mmlu
-      # - live_qa
-      # - medication_qa
 
   - name: clinical_decision_support
     display_name: Clinical Decision Support
@@ -335,18 +330,21 @@ run_groups:
     category: Medical Scenarios
     subgroups:
       - medcalc_bench
-      - medalign
       - mtsamples
+      - medec
       - ehrshot
-      - n2c2_ct_matching
+      - head_qa
+      - medbullets
+      - medalign
 
   - name: clinical_note_generation
     display_name: Clinical Note Generation
     description: Scenarios for clinical note generation
     category: Medical Scenarios
     subgroups:
-      - mimic_rrs
       - dischargeme
+      - aci_bench
+      - mimic_rrs
   
   - name: patient_communication
     display_name: Patient Communication and Education
@@ -363,7 +361,9 @@ run_groups:
     category: Medical Scenarios
     subgroups:
       - pubmed_qa
+      - ehr_sql
       - race_based_med
+      - n2c2_ct_matching
   
   - name: administration_and_workflow
     display_name: Administration and Workflow
@@ -542,7 +542,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: F1Score
+      main_name: f1_score
       main_split: test
     taxonomy:
       task: multi-label classification
@@ -567,40 +567,6 @@ run_groups:
       what: "?"
       who: "?"
       when: "?"
-      language: English
-
-  - name: med_qa
-    display_name: MedQA
-    description: MedQA is an open domain question answering dataset composed of questions from professional medical board exams ([Jin et al. 2020](https://arxiv.org/pdf/2009.13081.pdf)).
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: question answering
-      what: n/a
-      who: n/a
-      when: n/a
-      language: English
-
-  - name: med_mcqa
-    display_name: MedMCQA
-    description: AIIMS/NEET QA multiple choice questions with 4 choices.
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: valid
-    taxonomy:
-      task: question answering
-      what: n/a
-      who: n/a
-      when: n/a
       language: English
 
   - name: pubmed_qa
@@ -705,41 +671,6 @@ run_groups:
       when: n/a
       language: English
 
-  - name: mmlu
-    display_name: MMLU (Massive Multitask Language Understanding)
-    short_display_name: MMLU
-    description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intensive question answering across 57 domains [(Hendrycks et al., 2021)](https://openreview.net/forum?id=d7KBjmI3GmQ).
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: question answering
-      what: "?"
-      who: "?"
-      when: "?"
-      language: English
-
-  - name: live_qa
-    display_name: LiveQA
-    description: Consumer health questions with librarian-generated reference answers.
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: live_qa_score
-      main_split: test
-    taxonomy:
-      task: question answering
-      what: n/a
-      who: n/a
-      when: n/a
-      language: English
-
   - name: medication_qa
     display_name: MedicationQA
     description: Consumer medication questions with reference answers.
@@ -756,18 +687,4 @@ run_groups:
       who: n/a
       when: n/a
       language: English
-  - name: medalign
-    display_name: MedAlign
-    short_display_name: MedAlign
-    description: A question answering dataset for clinical questions, each paired with a relevant patient EHR and a clinician-generated gold response.
-    metric_groups:
-      - accuracy
-    environment:
-      main_name: BERTScore-F
-      main_split: test
-    taxonomy:
-      task: question answering
-      what: "?"
-      who: "?"
-      when: "?"
-      language: English
+      

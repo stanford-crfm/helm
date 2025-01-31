@@ -1,10 +1,11 @@
-from functools import partial
 import multiprocessing
 import os
-from typing import Any, Dict, List, Optional, Union
-
 import pandas as pd
+import tiktoken
+
+from functools import partial
 from tqdm import tqdm
+from typing import Any, Dict, List, Optional, Union
 
 from helm.common.general import ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
@@ -1342,6 +1343,19 @@ def get_prior_events(df_data: pd.DataFrame, df_labels: pd.DataFrame, n_procs: in
 
     return prior_events
 
+def count_tokens(text: str, model: str = "gpt-4") -> int:
+    """
+    Counts the number of tokens in a string using the GPT-4 tokenizer.
+    """
+    # Load the tokenizer for the specified model
+    tokenizer = tiktoken.encoding_for_model(model)
+    
+    # Encode the text to get the tokens
+    tokens = tokenizer.encode(text)
+    
+    # Return the number of tokens
+    return len(tokens)
+
 class EHRSHOTScenario(Scenario):
     """
     From "An EHR Benchmark for Few-Shot Evaluation of Foundation Models" (Wornow et al. 2023),
@@ -1436,7 +1450,7 @@ class EHRSHOTScenario(Scenario):
         # Generate instances
         instances: List[Instance] = []
         for prompt, label, split in tqdm(zip(df['prompt'], df['boolean_value'], df['split']), total=len(df), desc="Generating instances"):
-            if self.max_length and len(prompt.split()) > self.max_length:
+            if count_tokens(prompt) > self.max_length:
                 continue
             label = "yes" if label else "no"
             # split = TEST_SPLIT if split == "held_out" else (VALID_SPLIT if split == "tuning" else TRAIN_SPLIT)
