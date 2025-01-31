@@ -345,6 +345,7 @@ run_groups:
       - dischargeme
       - aci_bench
       - mimic_rrs
+      - mtsamples_procedures
   
   - name: patient_communication
     display_name: Patient Communication and Education
@@ -611,7 +612,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: BERTScore-F
+      main_name: rouge_l
       main_split: test
     taxonomy:
       task: question answering
@@ -663,6 +664,23 @@ run_groups:
       - general_information
     environment:
       main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: mtsamples_procedures
+    display_name: Mtsamples_Procedures
+    description: A benchmark created from the procedure subset in MTSamples dataset for patient plan prediction/generation.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: BERTScore-F
       main_split: test
     taxonomy:
       task: question answering

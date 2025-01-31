@@ -6,6 +6,8 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 from helm.common.hierarchical_logger import hlog
+import re
+
 
 class MedecMetric(Metric):
     """
@@ -26,8 +28,6 @@ class MedecMetric(Metric):
         """
         Evaluate a single generation against the reference labels.
         """
-        # Debugging output
-        #print(f"Current completions: {request_state.result.completions}")
 
         # Extract predictions
         predictions = [
@@ -40,45 +40,42 @@ class MedecMetric(Metric):
         # Process the first prediction as the primary output
         prediction = predictions[0]
 
-        # Try to get references from the instance
+        # Extract references and ground truth from the instance
         references = getattr(request_state.instance, "references", None)
-        if not references or len(references) == 0:
-            # If references are missing, log and skip evaluation for this instance
-            print(f"Warning: Missing references for instance {request_state.instance}")
-            return []
 
-        # The ground truth is the first reference with a CORRECT_TAG
-        ground_truth_reference = next(
-            (ref for ref in references if "CORRECT_TAG" in ref.tags), None
-        )
-        if not ground_truth_reference:
-            print(f"Warning: No ground truth reference with CORRECT_TAG for instance {request_state.instance}")
-            return []
+        # Default values
+        ground_truth_flag = 0  # Assume no error unless we find otherwise
+        ground_truth_sentence_id = "-1"
 
-        # Ground truth flag and sentence
-        ground_truth_flag = 1 if ground_truth_reference.output.text else 0
-        ground_truth_sentence = (
-            int(ground_truth_reference.output.text.split()[0])
-            if ground_truth_flag
-            else -1
-        )
+        if references and len(references) > 0:
+            ground_truth_reference = next(
+                (ref for ref in references if "CORRECT_TAG" in ref.tags), None
+            )
 
-        # Process prediction
+            if ground_truth_reference:
+                # If the reference is "CORRECT", set flag = 0
+                if ground_truth_reference.output.text == "CORRECT":
+                    ground_truth_flag = 0
+                    ground_truth_sentence_id = "-1"
+                else:
+                    # Otherwise, extract the error sentence ID
+                    match = re.match(r"(\d+)", ground_truth_reference.output.text)
+                    if match:
+                        ground_truth_flag = 1
+                        ground_truth_sentence_id = match.group(1)
+
+        # Process prediction for correctness
         if prediction.startswith("CORRECT"):
             predicted_flag = 0
-            predicted_sentence = -1
+            predicted_sentence_id = "-1"
         else:
-            split_prediction = prediction.split()
-            if len(split_prediction) > 0 and split_prediction[0].isdigit():
-                predicted_sentence = int(split_prediction[0])
-                predicted_flag = 1 if predicted_sentence != -1 else 0
-            else:
-                predicted_sentence = -1
-                predicted_flag = 0
+            match = re.match(r"(\d+)", prediction)
+            predicted_sentence_id = match.group(1) if match else "-1"
+            predicted_flag = 1 if predicted_sentence_id != "-1" else 0
 
-        # Calculate metrics
+        # Calculate accuracy
         flag_accuracy = int(predicted_flag == ground_truth_flag)
-        sentence_accuracy = int(predicted_sentence == ground_truth_sentence)
+        sentence_accuracy = int(predicted_sentence_id == ground_truth_sentence_id)
 
         return [
             Stat(MetricName("medec_error_flag_accuracy")).add(flag_accuracy),

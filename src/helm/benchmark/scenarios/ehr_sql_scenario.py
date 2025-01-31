@@ -69,7 +69,15 @@ class EhrSqlScenario(Scenario):
             for entry in raw_data:
                 # Ensure the entry has required fields
                 if "question" in entry and "query" in entry and "value" in entry:
-                    input_text = f"Question: {entry['question']}"
+                    input_text = f"Question: {entry['question']}\n"
+                    input_text += f"Database: {entry.get('db_id', 'N/A')}\n"
+                    input_text += f"Template: {entry.get('template', 'N/A')}\n"
+                    input_text += f"Tag: {entry.get('tag', 'N/A')}\n"
+                    input_text += f"Department: {entry.get('department', 'N/A')}\n"
+                    input_text += f"Importance: {entry.get('importance', 'N/A')}\n"
+                    input_text += f"Type: {entry.get('para_type', 'N/A')}\n"
+                    input_text += f"Is Impossible: {entry.get('is_impossible', False)}\n"
+                    input_text += f"ID: {entry.get('id', 'N/A')}\n"
 
                     # Create an instance
                     instance = Instance(

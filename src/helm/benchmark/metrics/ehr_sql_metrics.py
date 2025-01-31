@@ -6,18 +6,24 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 from helm.common.hierarchical_logger import hlog
+import re
 
 
 class EhrSqlMetric(Metric):
     """
     Metric for evaluating the EHR SQL dataset, assessing the model's ability to generate valid SQL queries.
 
-    This implementation calculates two main metrics:
+    This implementation calculates:
     1. Precision for Answerable Questions (Pans): The proportion of correctly predicted answerable questions
        among all questions predicted to be answerable.
     2. Recall for Answerable Questions (Rans): The proportion of correctly predicted answerable questions
        among all answerable questions in the dataset.
     """
+
+    def extract_is_impossible(self, input_text: str) -> bool:
+        """Extracts `is_impossible` from input_text using regex."""
+        match = re.search(r'"is_impossible":\s*(true|false)', input_text, re.IGNORECASE)
+        return match and match.group(1).lower() == "true"
 
     def evaluate_generation(
         self,
@@ -41,17 +47,19 @@ class EhrSqlMetric(Metric):
         # Process the first prediction as the primary output
         prediction = predictions[0]
 
-        # Extract references and ground truth from the instance
+        # Extract references and input text
         references = getattr(request_state.instance, "references", None)
-        extra_data = getattr(request_state.instance, "extra_data", {})
+        input_text = request_state.instance.input.text  # Read input text
+
         if not references or len(references) == 0:
             hlog(f"Warning: Missing references for instance {request_state.instance}")
             return []
 
-        # Check if the ground truth is answerable
+        # Check if the ground truth is answerable based on is_impossible flag
         ground_truth_query = references[0].output.text
-        ground_truth_value = extra_data.get("value", None)
-        is_answerable = bool(ground_truth_query and ground_truth_value)
+        is_impossible = self.extract_is_impossible(input_text)  # Extract from input
+
+        is_answerable = not is_impossible and bool(ground_truth_query)
 
         # Check if the model prediction is answerable
         is_predicted_answerable = bool(prediction)

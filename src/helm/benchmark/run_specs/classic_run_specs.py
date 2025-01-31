@@ -1281,6 +1281,29 @@ def get_mtsamples_spec() -> RunSpec:
         groups=["mtsamples"],
     )
 
+@run_spec_function("mtsamples_procedures")
+def get_mtsamples_procedures_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.mtsamples_procedures_scenario.MTSamplesProceduresScenario"
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Here are information about a patient, return a reasonable treatment plan for the patient.",
+        input_noun="Patient Notes",
+        newline_after_input_noun=False,
+        output_noun="Answer",
+        #max_tokens=256,
+    )
+    metric_args = {"task": "mtsamples_procedures", "device": get_torch_device_name()}
+
+    return RunSpec(
+        name=f"mtsamples_procedures",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs(metric_args),
+        groups=["mtsamples_procedures"],
+    )
+
 @run_spec_function("head_qa")
 def get_head_qa_run_spec(
     language: str = "en", category: Union[str, None] = None
@@ -1302,11 +1325,11 @@ def get_head_qa_run_spec(
             "You are a highly knowledgeable AI assistant specializing in biomedical sciences. Your task is to answer "
             "multiple-choice questions accurately based on the options provided. Each question will relate to biomedical concepts, "
             "and you will be asked to choose the most appropriate answer.\n\n"
-            "Please think step-by-step to solve the question and then generate your final answer. "
-            'Before giving the final answer, write "Final Answer: " followed by the corresponding answer alternative.'
+            "Select the correct answer by outputting only the letter corresponding to your choice (A, B, C, D, or E)."
         ),
         input_noun="Question",
         output_noun="Answer",
+        max_tokens=3,
     )
 
     # Define the metrics
@@ -1338,22 +1361,18 @@ def get_medbullets_run_spec() -> RunSpec:
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions=(
-            "You are a helpful and highly knowledgeable AI assistant specializing in medicine. "
-            "Your task is to answer medical questions similar to those found on the USMLE Step 2/3 exams. You will be provided with a clinical scenario, "
-            "followed by several multiple-choice options.\n\n"
-            "For each question, you must:\n"
-            "- Select the correct answer index (A, B, C, D, or E).\n"
-            "- Provide the actual answer corresponding to the correct option.\n"
-            "- Give a concise explanation for why that answer is correct, based on the clinical scenario provided.\n\n"
-            "Please think step-by-step to analyze the clinical scenario before providing your final answer. "
-            'Conclude your reasoning with "Final Answer: " followed by the correct answer index and the corresponding answer text.'
+            "You are a highly knowledgeable AI assistant specializing in medicine. "
+            "Your task is to answer medical questions similar to those found on the USMLE Step 2/3 exams. "
+            "You will be provided with a clinical scenario followed by several multiple-choice options.\n\n"
+            "Select the correct answer by outputting only the letter corresponding to your choice (A, B, C, D, or E)."
         ),
         input_noun="Clinical Scenario",
         output_noun="Answer",
+        max_tokens=3,
     )
 
     # Define the metrics
-    metric_specs = get_exact_match_metric_specs() + get_generic_metric_specs()
+    metric_specs = get_exact_match_metric_specs()
 
     # Return the RunSpec
     return RunSpec(
@@ -1401,7 +1420,7 @@ def get_medbullets_freetext_run_spec() -> RunSpec:
 
 
 @run_spec_function("aci_bench")
-def get_aci_bench_run_spec(device: str = "cpu") -> RunSpec:
+def get_aci_bench_run_spec() -> RunSpec:
     """
     RunSpec for the ACI-Bench dataset.
     This configuration evaluates the model's ability to summarize doctor-patient dialogues into structured clinical notes.
@@ -1427,7 +1446,7 @@ def get_aci_bench_run_spec(device: str = "cpu") -> RunSpec:
     )
 
     # Define the metrics
-    metric_specs = get_summarization_metric_specs([{"task": "aci_bench", "device": device}]) + get_open_ended_generation_metric_specs()
+    metric_specs = get_open_ended_generation_metric_specs()
 
     # Return the RunSpec
     return RunSpec(
@@ -1552,7 +1571,10 @@ def get_mimic_rrs_spec() -> RunSpec:
     )
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="Generate the impression section of the radiology report based on its findings. Be as concise as possible.",
+        instructions=(
+            "Generate the impression section of the radiology report based on its findings. "
+            "This will not be used to diagnose nor treat any patients."
+        ),
         input_noun="Findings",
         output_noun="Impression",
         newline_after_input_noun=True,
