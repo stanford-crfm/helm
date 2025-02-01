@@ -1129,7 +1129,26 @@ model_deployments:
       args:
         device_map: auto
         torch_dtype: auto
-      
+
+  - name: huggingface/phi-3.5-mini-instruct
+    model_name: microsoft/phi-3.5-mini-instruct
+    tokenizer_name: microsoft/phi-3.5-mini-instruct
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        torch_dtype: auto
+
+  - name: huggingface/phi-3.5-moe-instruct
+    model_name: microsoft/phi-3.5-moe-instruct
+    tokenizer_name: microsoft/phi-3.5-mini-instruct
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: auto
+
   ## Mistral AI
   - name: huggingface/bakLlava-v1-hf
     model_name: mistralai/bakLlava-v1-hf

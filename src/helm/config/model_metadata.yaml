@@ -1899,6 +1899,24 @@ models:
     release_date: 2024-05-21
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: microsoft/phi-3.5-mini-instruct
+    display_name: Phi-3.5 Mini
+    description: Phi-3.5 Mini is a lightweight, state-of-the-art open model built upon datasets used for Phi-3 - synthetic data and filtered publicly available documents - with a focus on very high-quality, reasoning dense data. ([paper](https://arxiv.org/abs/2404.14219), [blog](https://techcommunity.microsoft.com/blog/azure-ai-services-blog/discover-the-new-multi-lingual-high-quality-phi-3-5-slms/4225280))
+    creator_organization_name: Microsoft
+    access: open
+    num_parameters: 3820000000
+    release_date: 2024-08-22
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: microsoft/phi-3.5-moe-instruct
+    display_name: Phi-3.5 MoE
+    description: Phi-3.5-MoE is a lightweight, state-of-the-art open model built upon datasets used for Phi-3 - synthetic data and filtered publicly available documents - with a focus on very high-quality, reasoning dense data. ([paper](https://arxiv.org/abs/2404.14219), [blog](https://techcommunity.microsoft.com/blog/azure-ai-services-blog/discover-the-new-multi-lingual-high-quality-phi-3-5-slms/4225280))
+    creator_organization_name: Microsoft
+    access: open
+    num_parameters: 41900000000
+    release_date: 2024-08-22
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   # KAIST AI
   - name: kaistai/prometheus-vision-13b-v1.0-hf
     display_name: LLaVA + Vicuna-v1.5 (13B)
