@@ -2118,7 +2118,7 @@ models:
 
   - name: mistralai/mistral-small-2501
     display_name: Mistral Small 3 (2501)
-    description: Mistral Small 3 (2501) is a pre-trained and instructed model catered to the ‘80%’ of generative AI tasks—those that require robust language and instruction following performance, with very low latency. ([blog](https://mistral.ai/news/mistral-small-3/))
+    description: Mistral Small 3 (2501) is a pre-trained and instructed model catered to the '80%' of generative AI tasks—those that require robust language and instruction following performance, with very low latency. ([blog](https://mistral.ai/news/mistral-small-3/))
     creator_organization_name: Mistral AI
     access: open
     num_parameters: 23600000000
