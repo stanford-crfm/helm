@@ -1137,6 +1137,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
+        device_map: auto
         torch_dtype: auto
 
   - name: huggingface/phi-3.5-moe-instruct
