@@ -2797,6 +2797,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
 
+  - name: together/qwq-32b-preview
+    model_name: qwen/qwq-32b-preview
+    tokenizer_name: qwen/qwq-32b-preview
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+
   - name: huggingface/qwen-vl
     model_name: qwen/qwen-vl
     tokenizer_name: qwen/qwen-vl
