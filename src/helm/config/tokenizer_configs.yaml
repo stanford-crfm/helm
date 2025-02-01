@@ -478,6 +478,12 @@ tokenizer_configs:
     end_of_text_token: "</s>"
     prefix_token: "<s>"
 
+  - name: mistralai/Mistral-Small-24B-Instruct-2501
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+
   # Nectec
   - name: nectec/OpenThaiLLM-Prebuilt-7B
     tokenizer_spec:
