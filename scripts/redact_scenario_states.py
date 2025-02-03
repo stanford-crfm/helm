@@ -77,6 +77,7 @@ def redact_result(result: RequestResult) -> RequestResult:
 
 
 def redact_request_state(request_state: RequestState, redact_output: bool) -> RequestState:
+    assert request_state.result is not None
     result = redact_result(request_state.result) if redact_output else request_state.result
     return dataclasses.replace(
         request_state,
