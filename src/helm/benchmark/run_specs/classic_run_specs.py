@@ -1542,6 +1542,30 @@ def get_ehr_sql_run_spec() -> RunSpec:
         groups=["medical", "sql", "ehr"],
     )
 
+@run_spec_function("mtsamples_replicate")
+def get_mtsamples_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.mtsamples_replicate_scenario.MTSamplesScenario"
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Given various information about a patient, return a reasonable treatment plan for the patient.",
+        input_noun=None,
+        newline_after_input_noun=False,
+        output_noun="Answer",
+        max_tokens=512,
+    )
+
+    metric_specs = get_open_ended_generation_metric_specs()
+
+    return RunSpec(
+        name=f"mtsamples_replicate",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs, #get_summarization_metric_specs(metric_args),
+        groups=["mtsamples_replicate"],
+    )
+
 @run_spec_function("pubmed_qa")
 def get_pubmed_qa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
