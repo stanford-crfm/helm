@@ -1092,7 +1092,7 @@ def get_med_dialog_spec(subset: str) -> RunSpec:
 
     adapter_spec = get_summarization_adapter_spec(
         num_sents=1,
-        max_tokens=128,
+        max_tokens=80,
         temperature=0.3,
     )
     metric_args = {"task": "med_dialog", "device": get_torch_device_name()}
@@ -1156,8 +1156,9 @@ def get_medalign_spec() -> RunSpec:
         instructions="",
         input_noun=None,
         newline_after_input_noun=False,
-        output_noun="Answer",
+        output_noun=None,
         max_tokens=256,
+        stop_sequences=[]
     )
     metric_args = {"task": "medalign", "device": get_torch_device_name()}
     return RunSpec(
@@ -1177,8 +1178,8 @@ def get_race_based_med_spec() -> RunSpec:
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions="Answer A for yes, B for no.",
-        input_noun="",
-        output_noun="",
+        input_noun=None,
+        output_noun="Answer",
     )
 
     return RunSpec(
@@ -1251,12 +1252,11 @@ def get_medcalc_bench_spec() -> RunSpec:
         output_noun="Answer",
     )
 
-    metric_args = {"task": "medcalc_bench", "device": get_torch_device_name()}
     return RunSpec(
         name=f"medcalc_bench",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        metric_specs=get_exact_match_metric_specs(),
         groups=["medcalc_bench"],
     )
 @run_spec_function("mtsamples")
@@ -1573,7 +1573,7 @@ def get_mimic_rrs_spec() -> RunSpec:
     adapter_spec = get_generation_adapter_spec(
         instructions=(
             "Generate the impression section of the radiology report based on its findings. "
-            "This will not be used to diagnose nor treat any patients."
+            "This will not be used to diagnose nor treat any patients. Be as concise as possible."
         ),
         input_noun="Findings",
         output_noun="Impression",
@@ -1657,7 +1657,7 @@ def get_dischargeme_spec() -> RunSpec:
         input_noun=None,
         newline_after_input_noun=False,
         output_noun="Answer",
-        max_tokens=1024,
+        max_tokens=128,
         stop_sequences=[]
     )
     metric_args = {"task": "dischargeme", "device": get_torch_device_name()}
@@ -1705,6 +1705,7 @@ def get_medication_qa_spec() -> RunSpec:
         output_noun="Answer",
         max_train_instances=0,
         max_tokens=512,
+        stop_sequences=[]
     )
 
     metric_args = {"task": "medication_qa", "device": get_torch_device_name()}
@@ -1712,19 +1713,8 @@ def get_medication_qa_spec() -> RunSpec:
         name="medication_qa",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        # annotators=annotator_specs,
         metric_specs=get_summarization_metric_specs(metric_args),
-        groups=["medication_qa"],
-    )
-
-
-def get_medalign_adapter_spec() -> AdapterSpec:
-    return AdapterSpec(
-        method=ADAPT_EHR_INSTRUCTION,
-        max_train_instances=0,
-        max_eval_instances=None,
-        num_outputs=1,
-        max_tokens=256,  # MedAlign default number of generation tokens
+        groups=["medication_qa"]
     )
 
 @run_spec_function("lextreme")

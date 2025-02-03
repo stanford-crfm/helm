@@ -381,7 +381,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: BERTScore-F
+      main_name: exact_match
       main_split: test
     taxonomy:
       task: question answering
