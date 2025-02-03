@@ -158,6 +158,21 @@ metrics:
     short_display_name: EHRSQLReAns
     description: Measures the proportion of correctly predicted answerable questions among all answerable questions in the dataset.
     lower_is_better: false
+  - name: mimiciv_billing_code_precision
+    display_name: Precision for MIMIC Billing Codes
+    short_display_name: MIMICBillingPre
+    description: Measures the proportion of correctly predicted ICD codes among all ICD codes predicted by the model.
+    lower_is_better: false
+  - name: mimiciv_billing_code_recall
+    display_name: Recall for MIMIC Billing Codes
+    short_display_name: MIMICBillingRec
+    description: Measures the proportion of correctly predicted ICD codes among all ICD codes present in the gold standard.
+    lower_is_better: false
+  - name: mimiciv_billing_code_f1
+    display_name: F1 Score for MIMIC Billing Codes
+    short_display_name: MIMICBillingF1
+    description: Measures the harmonic mean of precision and recall for ICD codes, providing a balanced evaluation of the model's performance.
+    lower_is_better: false
   - name: exact_match@5
     display_name: Exact match @5
     short_display_name: EM@5
@@ -426,6 +441,24 @@ run_groups:
       when: "?"
       language: English
 
+  - name: mtsamples_replicate
+    display_name: MTSamplesReplica
+    short_display_name: MTSamplesRe
+    description: A benchmark created from the MTSamples dataset for patient plan prediction/generation.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: rouge_l
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
   - name: ehrshot
     display_name: EHRShot
     short_display_name: EHRShot
@@ -543,7 +576,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: f1_score
+      main_name: mimiciv_billing_code_f1
       main_split: test
     taxonomy:
       task: multi-label classification
