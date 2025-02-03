@@ -1614,7 +1614,7 @@ def get_mimiciv_billing_code_spec() -> RunSpec:
     # Define the metrics
     metric_specs = [
         MetricSpec(
-            class_name="helm.benchmark.metrics.mimiciv_billing_code_metrics.MIMICBillingCodeMetric",
+            class_name="helm.benchmark.metrics.mimiciv_billing_code_metrics.MIMICIVBillingCodeMetric",
             args={},
         )
     ] + get_generic_metric_specs()
