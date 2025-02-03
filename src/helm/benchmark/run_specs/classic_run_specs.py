@@ -1611,12 +1611,20 @@ def get_mimiciv_billing_code_spec() -> RunSpec:
         max_train_instances=0,
         stop_sequences=[]
     )
-    metric_args = {"task": "mimiciv_billing_code", "device": get_torch_device_name()}
+    # Define the metrics
+    metric_specs = [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.mimiciv_billing_code_metrics.MIMICBillingCodeMetric",
+            args={},
+        )
+    ] + get_generic_metric_specs()
+
+    # Return the RunSpec
     return RunSpec(
         name="mimiciv_billing_code",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_f1_metric_specs() + get_summarization_metric_specs(metric_args),
+        metric_specs=metric_specs,
         groups=["mimiciv_billing_code"],
     )
 
