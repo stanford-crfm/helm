@@ -45,7 +45,12 @@ class OmniMATHAnnotator(Annotator):
             .replace("{{Solution}}", model_output_text)
         )
         if not model_output_text.strip():
-            return {"prompt_text": annotator_prompt, "correctness": 0.0}
+            return {
+                "prompt_text": "",
+                "student_final_answer": "N/A",
+                "equivalence_judgement": "FALSE",
+                "justification": "The model output is empty.",
+            }
 
         SHORT_NAME_TO_MODEL_INFO: Dict[str, AnnotatorModelInfo] = {
             "gpt": AnnotatorModelInfo(
@@ -91,6 +96,7 @@ class OmniMATHAnnotator(Annotator):
             all_justifications.append(justification)
 
         return {
+            "prompt_text": annotator_prompt,
             "student_final_answer": all_student_final_answers,
             "equivalence_judgement": all_equivalence_judgements,
             "justification": all_justifications,
