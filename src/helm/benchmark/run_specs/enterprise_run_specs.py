@@ -126,7 +126,8 @@ def get_echr_judgment_classification_spec() -> RunSpec:
     from helm.benchmark.scenarios.echr_judgment_classification_scenario import EchrJudgeScenario
 
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.echr_judgment_classification_scenario.EchrJudgeScenario", args={"filter_max_length": 600}
+        class_name="helm.benchmark.scenarios.echr_judgment_classification_scenario.EchrJudgeScenario",
+        args={"filter_max_length": 600},
     )
 
     adapter_spec = get_generation_adapter_spec(
