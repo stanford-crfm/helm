@@ -7,11 +7,11 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
 from helm.common.hierarchical_logger import hlog
 
-from typing import Any, Iterable, List, Dict, Optional
+from typing import Any, List, Dict, Optional
 from gradio_client import Client, handle_file
 
 
-# Based on https://github.com/bigcode-project/bigcodebench/blob/0331489b29cbf2653b4669597ef431e158882aab/bigcodebench/syncheck.py#L14
+# Based on https://github.com/bigcode-project/bigcodebench/blob/0331489b29cbf2653b4669597ef431e158882aab/bigcodebench/syncheck.py#L14  # noqa: E501
 # Licensed under Apache 2.0
 def syntax_check(code, verbose=False):
     try:
@@ -23,7 +23,7 @@ def syntax_check(code, verbose=False):
         return False
 
 
-# Based on https://github.com/bigcode-project/bigcodebench/blob/0331489b29cbf2653b4669597ef431e158882aab/bigcodebench/sanitize.py#L30
+# Based on https://github.com/bigcode-project/bigcodebench/blob/0331489b29cbf2653b4669597ef431e158882aab/bigcodebench/sanitize.py#L30  # noqa: E501
 # Licensed under Apache 2.0
 def code_extract(text: str) -> str:
     lines = text.split("\n")
@@ -59,20 +59,20 @@ class BigCodeBenchAnnotator(Annotator):
             hlog(f"BigCodeBenchAnnotator will use the configured endpoint {endpoint}")
             self.client = Client(endpoint, hf_token=api_key)
         else:
-            hlog(f"WARNING: BigCodeBenchAnnotator will use the default public evaluator endpoint {self.DEFAULT_URL} - "
-                 "set bigcodebenchApiKey and bigcodebenchEndpoint in credentials.conf to use a cloned evaluator instead")
+            hlog(
+                f"WARNING: BigCodeBenchAnnotator will use the default public evaluator endpoint {self.DEFAULT_URL} - "
+                "set bigcodebenchApiKey and bigcodebenchEndpoint in credentials.conf to use a cloned evaluator instead"
+            )
             self.client = Client(self.DEFAULT_URL)
-        
 
     def annotate(self, request_state: RequestState) -> Any:
         raise NotImplementedError("annotate() is not supported; use annotate_all() instead")
 
-    def send_request_to_gradio_evaluator(self, filename: str, task_ids: Iterable[str]):
+    def send_request_to_gradio_evaluator(self, filename: str, task_ids: List[str]):
         if len(task_ids) == self.DATASET_SIZE:
             selective_evaluate = ""
         else:
             selective_evaluate = ",".join([task_id.removeprefix("BigCodeBench/") for task_id in task_ids])
-        print(selective_evaluate)
         return self.client.predict(
             split=self.SPLIT,
             subset=self.SUBSET,
@@ -99,9 +99,8 @@ class BigCodeBenchAnnotator(Annotator):
                 for task_id, solution in task_id_to_solution.items():
                     json.dump({"task_id": task_id, "solution": solution}, f)
                     f.write("\n")
-            evaluator_result = self.send_request_to_gradio_evaluator(temp_file.name, task_id_to_solution.keys())[0]
-        print(json.dumps(evaluator_result, indent=2))
+            eval_result = self.send_request_to_gradio_evaluator(temp_file.name, list(task_id_to_solution.keys()))[0]
         return [
-            {"bigcodebench": {"pass_at_one": evaluator_result["eval"][request_state.instance.id][0]["status"] == "pass"}}
+            {"bigcodebench": {"pass_at_one": eval_result["eval"][request_state.instance.id][0]["status"] == "pass"}}
             for request_state in request_states
         ]
