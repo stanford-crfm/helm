@@ -1,14 +1,15 @@
+from typing import Any, List, Dict, Optional
 import ast
+import json
 import tempfile
 import traceback
-import json
+
+from gradio_client import Client, handle_file
+from retrying import retry
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
 from helm.common.hierarchical_logger import hlog
-
-from typing import Any, List, Dict, Optional
-from gradio_client import Client, handle_file
 
 
 # Based on https://github.com/bigcode-project/bigcodebench/blob/0331489b29cbf2653b4669597ef431e158882aab/bigcodebench/syncheck.py#L14  # noqa: E501
@@ -68,6 +69,7 @@ class BigCodeBenchAnnotator(Annotator):
     def annotate(self, request_state: RequestState) -> Any:
         raise NotImplementedError("annotate() is not supported; use annotate_all() instead")
 
+    @retry(stop_max_attempt_number=3, wait_fixed=4000)
     def send_request_to_gradio_evaluator(self, filename: str, task_ids: List[str]):
         if len(task_ids) == self.DATASET_SIZE:
             selective_evaluate = ""
