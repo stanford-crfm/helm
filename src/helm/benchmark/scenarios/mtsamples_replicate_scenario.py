@@ -15,7 +15,7 @@ from helm.benchmark.scenarios.scenario import (
 from helm.common.general import ensure_directory_exists
 
 
-class MTSamplesScenario(Scenario):
+class MTSamplesReplicateScenario(Scenario):
     """
     MTSamples.com is designed to give you access to a big collection of transcribed medical reports. 
     These samples can be used by learning, as well as working medical transcriptionists for their daily 
