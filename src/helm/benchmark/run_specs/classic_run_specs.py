@@ -1192,7 +1192,7 @@ def get_race_based_med_spec() -> RunSpec:
 @run_spec_function("ehrshot")
 def get_ehrshot_spec(
     subject: str,
-    max_length: str = 120000
+    max_length: str = 100000
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.ehrshot_scenario.EHRSHOTScenario", 
@@ -1443,6 +1443,9 @@ def get_aci_bench_run_spec() -> RunSpec:
         ),
         input_noun="Conversation",
         output_noun="Clinical Note",
+        max_tokens=768, #avg tokens in response is 618.9
+        max_train_instances=0,
+        stop_sequences=[],
     )
 
     # Define the metrics
