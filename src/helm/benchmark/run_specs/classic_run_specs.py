@@ -1481,6 +1481,8 @@ def get_medec_run_spec() -> RunSpec:
         ),
         input_noun="Conversation",
         output_noun="Clinical Note",
+        max_tokens=256,
+        max_train_instances = 0,
     )
 
     # Define the metrics
