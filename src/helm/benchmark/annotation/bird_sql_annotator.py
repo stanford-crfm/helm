@@ -1,0 +1,52 @@
+import os
+import re
+from typing import Any
+from importlib.resources import files
+from typing import Dict
+import sqlite3
+
+from helm.benchmark.runner import get_benchmark_output_path
+from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.annotation.annotator import Annotator
+from helm.benchmark.annotation.model_as_judge import _AnnotatorModelInfo
+from helm.clients.auto_client import AutoClient
+from helm.common.request import Request
+
+
+class BirdSQLAnnotator(Annotator):
+    """The Bird-SQL evaluator that computes execution accuracy."""
+
+    name = "bird_sql"
+
+    def annotate(self, request_state: RequestState) -> Any:
+        assert request_state.instance.extra_data is not None
+        database_name = request_state.instance.extra_data["db_id"]
+        databases_root_path = os.path.join(
+            get_benchmark_output_path(), "scenarios", "bird_sql", "dev", "unzipped_dev_databases", "dev_databases"
+        )
+        database_path = os.path.join(databases_root_path, database_name, f"{database_name}.sqlite")
+        print(database_path)
+
+        assert len(request_state.instance.references) == 1
+        ground_truth_sql = request_state.instance.references[0].output.text
+
+        assert request_state.result is not None
+        assert len(request_state.result.completions) == 1
+        predicted_text = request_state.result.completions[0].text
+        predicted_sql_match = re.search(r"```sql(.*?)```", predicted_text, re.DOTALL)
+        predicted_sql = predicted_sql_match.group(1) if predicted_sql_match else ""
+
+        conn = sqlite3.connect(database_path)
+        # Connect to the database
+        cursor = conn.cursor()
+        try:
+            cursor.execute(predicted_sql)
+            predicted_result = cursor.fetchall()
+        except Exception as e:
+            predicted_result = []
+        cursor.execute(ground_truth_sql)
+        ground_truth_result = cursor.fetchall()
+        return {
+            "predicted_result": predicted_result,
+            "ground_truth_result": ground_truth_result,
+        }
