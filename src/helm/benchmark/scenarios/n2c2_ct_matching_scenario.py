@@ -208,33 +208,35 @@ Does the patient meet the inclusion criterion "{self.subject}"?
     def get_instances(self, output_path: str) -> List[Instance]:
         instances: List[Instance] = []
         for split in ['train', 'test']:
-            path_to_data = self.path_to_train_dir if split == 'train' else self.path_to_test_dir
-            ensure_directory_exists(path_to_data)
-            
-            # Load dataset
-            dataloader = XMLDataLoader(path_to_data)
-            dataset = dataloader.load_data()
-            
-            # Create instances
-            for patient in dataset:
-                is_met: bool = patient['labels'][self.subject]
-                correct_answer: str = "yes" if is_met else "no"
-
-                # Build `References. The possible answer choices are "yes" or "no"
-                references: List[Reference] = [
-                    Reference(Output(text=answer), tags=[CORRECT_TAG] if answer == correct_answer else [])
-                    for answer in N2C2CTMatchingScenario.POSSIBLE_ANSWER_CHOICES
-                ]
-
-                instances.append(
-                    Instance(
-                        input=Input(text=self.create_prompt(patient)),
-                        references=references,
-                        split=TRAIN_SPLIT if split == 'train' else TEST_SPLIT,
-                    )
-                )
+            # limit to zero shot setting
+            if split == 'test':
+                path_to_data = self.path_to_train_dir if split == 'train' else self.path_to_test_dir
+                ensure_directory_exists(path_to_data)
                 
-        return instances
+                # Load dataset
+                dataloader = XMLDataLoader(path_to_data)
+                dataset = dataloader.load_data()
+                
+                # Create instances
+                for patient in dataset:
+                    is_met: bool = patient['labels'][self.subject]
+                    correct_answer: str = "yes" if is_met else "no"
+
+                    # Build `References. The possible answer choices are "yes" or "no"
+                    references: List[Reference] = [
+                        Reference(Output(text=answer), tags=[CORRECT_TAG] if answer == correct_answer else [])
+                        for answer in N2C2CTMatchingScenario.POSSIBLE_ANSWER_CHOICES
+                    ]
+
+                    instances.append(
+                        Instance(
+                            input=Input(text=self.create_prompt(patient)),
+                            references=references,
+                            split=TRAIN_SPLIT if split == 'train' else TEST_SPLIT,
+                        )
+                    )
+                    
+            return instances
 
 if __name__ == "__main__":
     # Generate statistics on prompts

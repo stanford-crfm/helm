@@ -109,9 +109,9 @@ class MedecScenario(Scenario):
         """Download and process the dataset to generate instances."""
         instances: List[Instance] = []
 
-        # Download and process the training set
-        train_csv = self.download_csv(self.TRAIN_URL, output_path, "medec_train.csv")
-        instances.extend(self.process_csv(train_csv, TRAIN_SPLIT))
+        # Download and process the training set - limit to zero shot setting for now
+        #train_csv = self.download_csv(self.TRAIN_URL, output_path, "medec_train.csv")
+        #instances.extend(self.process_csv(train_csv, TRAIN_SPLIT))
 
         # Download and process the test set
         test_csv = self.download_csv(self.TEST_URL, output_path, "medec_test.csv")

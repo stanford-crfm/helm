@@ -85,7 +85,9 @@ class HeadQAScenario(Scenario):
         )
 
         # XXX: Should we consider validation as test too?
-        splits = {TRAIN_SPLIT: ["train", "validation"], TEST_SPLIT: ["test"]}
+        #splits = {TRAIN_SPLIT: ["train", "validation"], TEST_SPLIT: ["test"]}
+        # Limit to zero shot setting
+        splits = {TEST_SPLIT: ["test"]}
         instances: List[Instance] = []
         for (
             helm_split_name,

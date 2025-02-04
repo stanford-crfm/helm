@@ -73,7 +73,9 @@ class MedBulletsScenario(Scenario):
 
     def __init__(self):
         super().__init__()
-        self.splits = {"_op4": TRAIN_SPLIT, "_op5": TEST_SPLIT}
+        #self.splits = {"_op4": TRAIN_SPLIT, "_op5": TEST_SPLIT}
+        # limit to zero shot setting for now
+        self.splits = {"_op5": TEST_SPLIT}
 
     def download_csv(self, output_path: str, split: str):
         """Download CSV files for the given split."""

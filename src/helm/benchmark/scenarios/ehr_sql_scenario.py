@@ -101,7 +101,8 @@ class EhrSqlScenario(Scenario):
         - Validation and test data are merged into the TEST_SPLIT.
         """
         ensure_directory_exists(output_path)
-        splits = {"train": TRAIN_SPLIT, "valid": TEST_SPLIT, "test": TEST_SPLIT}
+        # limit to zero shot setting
+        splits = {"valid": TEST_SPLIT, "test": TEST_SPLIT}
         instances: List[Instance] = []
 
         for split_name, helm_split in splits.items():
