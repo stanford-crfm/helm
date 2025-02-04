@@ -44,7 +44,12 @@ class OmniMATHAnnotator(Annotator):
             .replace("{{Solution}}", model_output_text)
         )
         if not model_output_text.strip():
-            return {"prompt_text": annotator_prompt, "correctness": 0.0}
+            return {
+                "prompt_text": "",
+                "student_final_answer": "N/A",
+                "equivalence_judgement": "FALSE",
+                "justification": "The model output is empty.",
+            }
 
         annotator_request = Request(
             model="openai/gpt-4o-2024-05-13",
@@ -66,6 +71,7 @@ class OmniMATHAnnotator(Annotator):
         justification = info.get("Justification", "").strip().removesuffix("=== report over ===").strip()
 
         return {
+            "prompt_text": annotator_prompt,
             "student_final_answer": student_final_answer,
             "equivalence_judgement": equivalence_judgement,
             "justification": justification,

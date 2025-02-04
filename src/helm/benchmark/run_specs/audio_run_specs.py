@@ -78,7 +78,7 @@ def get_machine_translation_metric_specs() -> List[MetricSpec]:
 
 
 def _get_audio_recognition_metric_specs() -> List[MetricSpec]:
-    return get_basic_metric_specs(["wa_score", "ma_score", "wip_score", "ca_score"])
+    return get_basic_metric_specs(["wer_score", "mer_score", "wip_score", "cer_score"])
 
 
 def _get_open_ended_generation_metric_specs() -> List[MetricSpec]:
@@ -88,7 +88,7 @@ def _get_open_ended_generation_metric_specs() -> List[MetricSpec]:
 
 
 def _get_chinese_audio_recognition_metric_specs() -> List[MetricSpec]:
-    return get_basic_metric_specs(["chinese_wa_score", "chinese_ma_score", "chinese_wip_score", "chinese_ca_score"])
+    return get_basic_metric_specs(["chinese_wer_score", "chinese_mer_score", "chinese_wip_score", "chinese_cer_score"])
 
 
 ########################################################################################################################
@@ -229,12 +229,15 @@ def get_fleurs_run_spec(language: str) -> RunSpec:
         args={"language": language},
     )
     adapter_spec = _get_generation_adapter_spec(
-        instructions="Listen to the audio and identify the language spoken. Choose from these"
-        'options only: "Finnish", "Bulgarian", "Hebrew", "Zulu", "Bengali", "Thai",'
-        '"Mandarin Chinese". Respond with just the language name.',
-        max_tokens=5,
+        instructions="Listen to the audio and generate an accurate transcript of the spoken content. "
+        "Respond with only the transcript text.",
+        max_tokens=100,
     )
-    metric_specs = get_exact_match_metric_specs() + get_classification_metric_specs()
+    # Chinese characters are not supported in the default metrics
+    if "chinese" in language.lower():
+        metric_specs = _get_chinese_audio_recognition_metric_specs()
+    else:
+        metric_specs = _get_audio_recognition_metric_specs()
     run_spec_name: str = "fleurs"
     return RunSpec(
         name=f"{run_spec_name}:language={language}",
@@ -382,6 +385,7 @@ def get_air_bench_chat_run_spec(subject: str) -> RunSpec:
         args={"subject": subject},
     )
     adapter_spec = _get_generation_adapter_spec(
+        instructions="Answer the question with a short answer and not in a complete sentence.",
         max_tokens=50,
     )
     metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
