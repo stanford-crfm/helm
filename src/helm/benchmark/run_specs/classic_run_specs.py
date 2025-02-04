@@ -1450,14 +1450,14 @@ def get_aci_bench_run_spec() -> RunSpec:
     )
 
     # Define the metrics
-    metric_specs = get_open_ended_generation_metric_specs()
+    metric_args = {"task": "aci_bench", "device": get_torch_device_name()}
 
     # Return the RunSpec
     return RunSpec(
         name="aci_bench",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=metric_specs,
+        metric_specs=get_summarization_metric_specs(metric_args),
         groups=["clinical", "aci_bench"],
     )
 
@@ -1482,8 +1482,8 @@ def get_medec_run_spec() -> RunSpec:
             "If the text is correct return the following output: CORRECT. If the text has a medical error, return the "
             "sentence ID of the sentence containing the error, followed by a space, and a corrected version of the sentence."
         ),
-        input_noun="Conversation",
-        output_noun="Clinical Note",
+        input_noun="Clinical Note",
+        output_noun="Answer",
         max_tokens=256,
         max_train_instances = 0,
     )
@@ -1568,7 +1568,7 @@ def get_mtsamples_spec() -> RunSpec:
         name=f"mtsamples_replicate",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=metric_specs, #get_summarization_metric_specs(metric_args),
+        metric_specs=metric_specs,
         groups=["mtsamples_replicate"],
     )
 

@@ -645,7 +645,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: rouge_l
+      main_name: summac
       main_split: test
     taxonomy:
       task: question answering

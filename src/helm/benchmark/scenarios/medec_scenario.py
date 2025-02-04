@@ -67,11 +67,11 @@ class MedecScenario(Scenario):
 
             for row in reader:
                 # Ensure required fields exist
-                if not row.get("Text"):
+                if not row.get("Sentences"):
                     continue
 
                 # Extract text content
-                input_text = row["Text"].strip()
+                input_text = row["Sentences"].strip()
 
                 # Extract metadata
                 error_flag = int(row.get("Error Flag", 0))
