@@ -19,6 +19,14 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 
 ########################################################################################################################
+# Constants
+ASR_INSTRUCTIONS: str = (
+    "Listen to the audio and transcribe the spoken content to text. "
+    "Respond with only the transcript text and nothing else."
+)
+
+
+########################################################################################################################
 #  AdapterSpecs
 
 
@@ -204,8 +212,7 @@ def get_multilingual_librispeech_run_spec(language: str) -> RunSpec:
         args={"language": language},
     )
     adapter_spec = _get_generation_adapter_spec(
-        instructions="Listen to the audio and generate an accurate transcript of the spoken content. "
-        "Respond with only the transcript text.",
+        instructions=ASR_INSTRUCTIONS,
         max_tokens=100,
     )
     if "chinese" in language.lower():
@@ -229,8 +236,7 @@ def get_fleurs_run_spec(language: str) -> RunSpec:
         args={"language": language},
     )
     adapter_spec = _get_generation_adapter_spec(
-        instructions="Listen to the audio and generate an accurate transcript of the spoken content. "
-        "Respond with only the transcript text.",
+        instructions=ASR_INSTRUCTIONS,
         max_tokens=100,
     )
     # Chinese characters are not supported in the default metrics
@@ -295,8 +301,7 @@ def get_common_voice_15_run_spec(language: str) -> RunSpec:
         args={"language": language},
     )
     adapter_spec = _get_generation_adapter_spec(
-        instructions="Listen to the audio and generate an accurate transcript of the spoken content. "
-        "Respond with only the transcript text.",
+        instructions=ASR_INSTRUCTIONS,
         max_tokens=100,
     )
     # Chinese characters are not supported in the default metrics
@@ -321,8 +326,7 @@ def get_speech_robust_bench_run_spec(subject: str) -> RunSpec:
         args={"subject": subject},
     )
     adapter_spec = _get_generation_adapter_spec(
-        instructions="Listen to the audio and generate an accurate transcript of the spoken content. "
-        "Respond with only the transcript text.",
+        instructions=ASR_INSTRUCTIONS,
         max_tokens=100,
     )
     metric_specs = _get_audio_recognition_metric_specs()
