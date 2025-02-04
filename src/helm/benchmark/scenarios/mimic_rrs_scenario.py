@@ -50,9 +50,10 @@ class MIMICRRSScenario(Scenario):
         ensure_directory_exists(data_path)
 
         instances: List[Instance] = []
+        # Limit to zero shot setting for now
         splits: Dict[str, str] = {
-            "train": TRAIN_SPLIT,
-            "validate": VALID_SPLIT,
+            #"train": TRAIN_SPLIT,
+            #"validate": VALID_SPLIT,
             "test": TEST_SPLIT,
         }
         

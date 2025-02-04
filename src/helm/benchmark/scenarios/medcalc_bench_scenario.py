@@ -96,11 +96,11 @@ class MedCalcBenchScenario(Scenario):
         # Load the MedCalc-Bench dataset from Hugging Face
         dataset = load_dataset("ncbi/MedCalc-Bench-v1.0")
 
-        # Process all the instances
+        # Process all the instances - limit to zero shot setting 
         instances: List[Instance] = []
         splits: Dict[str, str] = {
-            "train": TRAIN_SPLIT,
-            "test": TEST_SPLIT,
+            #"train": TRAIN_SPLIT,
+            "test": TEST_SPLIT, 
         }
         for hf_split, split in splits.items():
             data = dataset[hf_split]

@@ -85,9 +85,10 @@ class MediQAScenario(Scenario):
 
         # Process all the instances
         instances: List[Instance] = []
+        # Limit to zero shot setting 
         splits: Dict[str, str] = {
-            "train_live_qa_med": TRAIN_SPLIT,
-            "validation": VALID_SPLIT,
+            #"train_live_qa_med": TRAIN_SPLIT,
+            #"validation": VALID_SPLIT,
             "test": TEST_SPLIT,
         }
         for hf_split, split in splits.items():

@@ -56,17 +56,16 @@ def _get_safety_settings_for_preset(
         raise ValueError(f"Unknown safety_settings_preset: {safety_settings_preset}")
 
 
-def _get_model_name_for_request(request: Request) -> str:
-    # We have to strip "-safety-" suffixes from model names because they are not part of the Vertex AI model name
-    # TODO: Clean up this hack
-    return request.model_engine.split("-safety-")[0]
-
-
 class VertexAIClient(CachingClient, ABC):
     """Client for Vertex AI models"""
 
     def __init__(
-        self, cache_config: CacheConfig, project_id: str, location: str, safety_settings_preset: Optional[str] = None
+        self,
+        cache_config: CacheConfig,
+        project_id: str,
+        location: str,
+        safety_settings_preset: Optional[str] = None,
+        vertexai_model: Optional[str] = None,
     ) -> None:
         super().__init__(cache_config=cache_config)
         self.project_id = project_id
@@ -75,7 +74,14 @@ class VertexAIClient(CachingClient, ABC):
         self.safety_settings_preset = safety_settings_preset
         self.safety_settings = _get_safety_settings_for_preset(safety_settings_preset)
 
+        self.vertexai_model = vertexai_model
+
         vertexai.init(project=self.project_id, location=self.location)
+
+    def _get_model_name_for_request(self, request: Request) -> str:
+        if self.vertexai_model is not None:
+            return self.vertexai_model
+        return request.model_engine
 
     def make_cache_key_with_safety_settings_preset(self, raw_request: Mapping, request: Request) -> Mapping:
         """Construct the key for the cache using the raw request.
@@ -119,7 +125,7 @@ class VertexAITextClient(VertexAIClient):
         }
 
         completions: List[GeneratedOutput] = []
-        model_name: str = _get_model_name_for_request(request)
+        model_name: str = self._get_model_name_for_request(request)
 
         try:
 
@@ -233,7 +239,7 @@ class VertexAIChatClient(VertexAIClient):
         }
 
         completions: List[GeneratedOutput] = []
-        model_name: str = _get_model_name_for_request(request)
+        model_name: str = self._get_model_name_for_request(request)
         model = self.get_model(model_name)
 
         try:
@@ -375,7 +381,7 @@ class VertexAIChatClient(VertexAIClient):
         }
 
         completions: List[GeneratedOutput] = []
-        model_name: str = _get_model_name_for_request(request)
+        model_name: str = self._get_model_name_for_request(request)
         model = self.get_model(model_name)
 
         request_time = 0
