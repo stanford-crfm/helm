@@ -2909,6 +2909,15 @@ models:
     release_date: 2024-09-19
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: qwen/qwq-32b-preview
+    display_name: QwQ (32B Preview)
+    description: QwQ-32B-Preview is an experimental research model developed by the Qwen Team, focused on advancing AI reasoning capabilities. ([blog post](https://qwenlm.github.io/blog/qwq-32b-preview/)).
+    creator_organization_name: Alibaba Cloud
+    access: open
+    num_parameters: 32800000000
+    release_date: 2024-11-28
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: qwen/qwen-vl
     display_name: Qwen-VL
     description: Visual multimodal version of the Qwen large language model series ([paper](https://arxiv.org/abs/2308.12966)).
