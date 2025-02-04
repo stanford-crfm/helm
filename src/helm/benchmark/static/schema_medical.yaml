@@ -345,7 +345,7 @@ run_groups:
     category: Medical Scenarios
     subgroups:
       - medcalc_bench
-      - mtsamples
+      - mtsamples_replicate
       - medec
       - ehrshot
       - head_qa
@@ -423,7 +423,25 @@ run_groups:
       when: "?"
       language: English
 
-  - name: mtsamples
+  # - name: mtsamples
+  #   display_name: MTSamples
+  #   short_display_name: MTSamples
+  #   description: A benchmark created from the MTSamples dataset for patient plan prediction/generation.
+  #   metric_groups:
+  #     - accuracy
+  #     - efficiency
+  #     - general_information
+  #   environment:
+  #     main_name: BERTScore-F
+  #     main_split: test
+  #   taxonomy:
+  #     task: question answering
+  #     what: "?"
+  #     who: "?"
+  #     when: "?"
+  #     language: English
+
+  - name: mtsamples_replicate
     display_name: MTSamples
     short_display_name: MTSamples
     description: A benchmark created from the MTSamples dataset for patient plan prediction/generation.
@@ -433,24 +451,6 @@ run_groups:
       - general_information
     environment:
       main_name: BERTScore-F
-      main_split: test
-    taxonomy:
-      task: question answering
-      what: "?"
-      who: "?"
-      when: "?"
-      language: English
-
-  - name: mtsamples_replicate
-    display_name: MTSamplesReplica
-    short_display_name: MTSamplesRe
-    description: A benchmark created from the MTSamples dataset for patient plan prediction/generation.
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: rouge_l
       main_split: test
     taxonomy:
       task: question answering
