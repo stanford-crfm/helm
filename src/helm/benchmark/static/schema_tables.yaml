@@ -179,10 +179,10 @@ metrics:
     lower_is_better: false
 
   # SciGen Accuracy
-  - name: llama_3_8b_chat_hf_together_ai_template_table2text_single_turn_with_reference
+  - name: llama_3_1_70b_instruct_cross_provider_template_table2text_single_turn_with_reference
     display_name: Rating
     short_display_name: Rating
-    description: Rating by Llama 3 (8B) LLM as judge
+    description: Rating by Llama 3.1 (70B) LLM as judge
     lower_is_better: false
 
 perturbations: []
