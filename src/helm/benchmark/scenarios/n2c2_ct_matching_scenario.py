@@ -202,13 +202,7 @@ Assume that the current date is: {current_date}
 
 # Question
 Does the patient meet the inclusion criterion "{self.subject}"?
-
-A) yes
-B) no
-
-Please think step by step about this case. After your analysis, your final answer must be exactly "yes" or "no" (lowercase, without quotes).
-
-Please provide your response:"""
+"""
         return prompt
     
     def get_instances(self, output_path: str) -> List[Instance]:

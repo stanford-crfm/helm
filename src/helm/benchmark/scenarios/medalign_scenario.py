@@ -713,18 +713,5 @@ This task is evaluated using COMET and BERTScore metrics.
         return instances
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        # Load the MedCalc-Bench dataset from Hugging Face
         dataset = return_dataset_dataframe()
-
-        # Process all the instances
-        # instances: List[Instance] = []
-        # splits: Dict[str, str] = {
-        #     "train": TRAIN_SPLIT,
-        #     "test": TEST_SPLIT,
-        # }
-        # for hf_split, split in splits.items():
-        #     data = dataset[hf_split]
-        #     instances.extend(self.process_csv(data, split))
-
-
         return self.process_csv(dataset)

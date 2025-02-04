@@ -33,14 +33,14 @@ CONFIG = {
         "is_include_clinical_def": False,
         "is_include_code_def": False,
         "is_use_short_clinical_def": False,
-        "is_include_cot": True,
+        "is_include_cot": False,
     },
     "lab": {
         "is_include_persona": True,
         "is_include_clinical_def": False,
         "is_include_code_def": False,
         "is_use_short_clinical_def": False,
-        "is_include_cot": True,
+        "is_include_cot": False,
     },
     "new": {
         "is_include_persona": True,
@@ -1094,13 +1094,13 @@ CODE_DEFS = {
 
 ACTION_TMPL = (
     "Review the patient's EHR history. Based on all available medical evidence in the provided EHR, please "
-    'answer the question: {question} Respond with "yes" or "no" as your final output.'
+    'answer the question: {question}'
 )
 
 ACTION_COT_TMPL = (
     "Review the patient's EHR history. Based on all available medical evidence in the provided EHR, please "
     "answer the question: {question} Reflect on the problem and generate a numbered list of the steps "
-    'you took to reach your conclusion. Then respond with "yes" or "no" as your final output.'
+    'you took to reach your conclusion.'
 )
 
 
@@ -1118,17 +1118,15 @@ def lumia_prompt(task_name: str, config: Dict[str, Any], examples: List[Dict[str
         raise ValueError(f"Invalid `ehr_converter` strategy: {config.get('ehr_converter')}")
     
     # Examples
-    examples: str = "\n\n# Examples\n\n" + "\n".join([tmpl['example'].format(ehr=ehr_converter(e['ehr']), label=e['label']) for e in examples]) + "\n\n" if len(examples) > 0 else ""
+    # examples: str = "\n\n# Examples\n\n" + "\n".join([tmpl['example'].format(ehr=ehr_converter(e['ehr']), label=e['label']) for e in examples]) + "\n\n" if len(examples) > 0 else ""
     
     # Prompt
     prompt: str = f"""
 # Instructions
 {tmpl['instruction']}
 
-{examples}
-
 # Your Task
-{tmpl['example'].format(ehr=ehr_converter(timeline['ehr']), label='')}"""
+{tmpl['example'].format(ehr=ehr_converter(timeline['ehr']))}"""
     return prompt
 
 def get_code_def(task_name: str):
@@ -1174,8 +1172,8 @@ def base_prompt(
                         SNOMED/72022006, SNOMED/78808002, SNOMED/78975002, SNOMED/9901000\n\n
                         Instruction: Review the patient\'s EHR history and answer the following question: Based on all available medical 
                         evidence in the provided EHR, is this patient likely to receive a first time diagnosis of hypertension within 
-                        the next year? Respond with "Yes" or "No" as your final output.\n'
-        'example':     'Patient EHR: {ehr}\n\nOutput: {label}'
+                        the next year?'
+        'example':     'Patient EHR: {ehr}\n\n'
         'delimiter':    '\n##\n'
     """
     prompt = []
@@ -1230,7 +1228,7 @@ def base_prompt(
     prompt = "\n".join(prompt)
     return {
         "instruction": prompt,
-        "example": "Patient EHR:\n{ehr}\n\nOutput: {label}",
+        "example": "Patient EHR:\n{ehr}\n\n",
         "delimiter": "\n##\n",
     }
 

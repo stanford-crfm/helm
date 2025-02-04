@@ -1093,7 +1093,7 @@ def get_med_dialog_spec(subset: str) -> RunSpec:
     adapter_spec = get_summarization_adapter_spec(
         num_sents=1,
         max_tokens=80,
-        temperature=0.3,
+        temperature=0.3
     )
     metric_args = {"task": "med_dialog", "device": get_torch_device_name()}
     return RunSpec(
@@ -1204,7 +1204,7 @@ def get_ehrshot_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions="Answer A for yes, B for no.",
         input_noun="",
-        output_noun="Answer",
+        output_noun="Answer A for yes, B for no",
         max_train_instances=0
     )
 
@@ -1226,7 +1226,7 @@ def get_n2c2_ct_matching_spec(subject: str) -> RunSpec:
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions="Answer A for yes, B for no.", 
         input_noun="",
-        output_noun="Answer",
+        output_noun="Answer A for yes, B for no",
         max_train_instances=0
     )
     
@@ -1246,10 +1246,11 @@ def get_medcalc_bench_spec() -> RunSpec:
     )
     
     adapter_spec = get_generation_adapter_spec(
-        instructions="Given a patient note and a clinical question, compute the requested medical value. Be as concise as possible. Do not include the units in your answer.",
+        instructions="Given a patient note and a clinical question, compute the requested medical value.",
         input_noun=None,
         newline_after_input_noun=False,
-        output_noun="Answer",
+        output_noun="Answer only the requested quantity without units. No explanation needed",
+        max_tokens=10
     )
 
     return RunSpec(
@@ -1684,12 +1685,14 @@ def get_dischargeme_spec() -> RunSpec:
     )
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="Given a discharge text, a radiology report text, and a target document of either discharge instructions or a brief hospital course, \
-            return the generated target document from the context provided.",
+        instructions=(
+            "Given a discharge text, a radiology report text, and a target document of either discharge instructions or a brief hospital course,"
+            " return the generated target document from the context provided."
+        ),
         input_noun=None,
         newline_after_input_noun=False,
         output_noun="Answer",
-        max_tokens=128,
+        max_tokens=300,
         stop_sequences=[]
     )
     metric_args = {"task": "dischargeme", "device": get_torch_device_name()}
