@@ -36,7 +36,7 @@ class BirdSQLAnnotator(Annotator):
         predicted_result: List[str] = []
         ground_truth_result: List[str] = []
         query_error: Optional[str] = None
-        # TODO: 
+        # TODO: Run SQL queries with a timeout
         try:
             cursor = conn.cursor()
             cursor.execute(predicted_sql)
