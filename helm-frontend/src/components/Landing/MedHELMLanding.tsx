@@ -1,10 +1,10 @@
 import MiniLeaderboard from "@/components/MiniLeaderboard";
 import { Link } from "react-router-dom";
 
-export default function MedicalLanding() {
+export default function MedHELMLanding() {
   return (
     <div className="container mx-auto px-16">
-      <h1 className="text-3xl my-8 font-bold text-center">HELM Medical</h1>
+      <h1 className="text-3xl my-8 font-bold text-center">MedHELM</h1>
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 text-l">
           <p className="my-2">
@@ -16,21 +16,12 @@ export default function MedicalLanding() {
           </p>
           <p className="my-2">
             To address this, we present the{" "}
-            <a className="font-bold" href="https://arxiv.org/abs/2405.09605">
-              HELM Medical
-            </a>{" "}
-            leaderboard for evaluation of language models in the medical domain.
-            The HELM Medical leaderboard presents evaluations of leading
-            general-purpose language models as well as language models
-            fine-tuned on the medical domain. These models are evaluated on a
-            range of medical tasks based on the benchmarks used in{" "}
-            <a
-              className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
-              href="https://arxiv.org/abs/2212.13138"
-            >
-              Singhal et al. 2022
-            </a>
-            . We hope that this leaderboard encourages further work in
+            <strong className="font-bold">MedHELM</strong> leaderboard for
+            evaluation of language models in the medical domain. The MedHELM
+            leaderboard presents evaluations of leading general-purpose language
+            models as well as language models fine-tuned on the medical domain.
+            These models are evaluated on a range of ecologically-valid medical
+            tasks. We hope that this leaderboard encourages further work in
             evaluating language models on tasks from the medical domain.
           </p>
           <div className="flex flex-row justify-center my-4">
