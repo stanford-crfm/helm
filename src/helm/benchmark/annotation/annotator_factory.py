@@ -46,6 +46,7 @@ class AnnotatorFactory:
             },
             provider_bindings={
                 "api_key": lambda: provide_api_key(self.credentials, annotator_name),
+                "endpoint": lambda: self.credentials.get(annotator_name + "Endpoint", None),
                 "file_storage_path": lambda: self._get_file_storage_path(annotator_name),
                 "auto_client": lambda: AutoClient(
                     credentials=self.credentials,

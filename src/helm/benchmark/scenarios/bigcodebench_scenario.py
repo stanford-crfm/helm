@@ -44,15 +44,14 @@ class BigCodeBenchScenario(Scenario):
 
         # Read all instances
         instances: List[Instance] = []
-        for idx, row in enumerate(dataset):
-
+        for row in dataset:
+            id = row["task_id"]
             input = Input(text=row["instruct_prompt"])
             instance = Instance(
+                id=id,
                 input=input,
                 references=[],
                 split=TEST_SPLIT,
-                id=row["task_id"],
-                extra_data={"task_id": row["task_id"]},
             )
             instances.append(instance)
 
