@@ -62,3 +62,17 @@ def use_ffmpeg_to_extract_audio_from_video(input_video_path: str, output_audio_p
         subprocess.run(["ffmpeg", "-i", input_video_path, "-q:a", "0", "-map", "a", output_audio_path], check=True)
     except (subprocess.CalledProcessError, FileNotFoundError):
         raise ValueError("Please install ffmpeg using `bash install-shelm-extras.sh` first to extract audio files.")
+
+
+def remove_audio_clips_with_zero_frames(audio_directory: str) -> None:
+    # Iterate through all files in the directory
+    for filename in os.listdir(audio_directory):
+        if filename.endswith(".wav"):
+            file_path = os.path.join(audio_directory, filename)
+            try:
+                with sf.SoundFile(file_path) as audio_file:
+                    if len(audio_file) == 0:  # Check if the file has zero frames
+                        print(f"Removing empty file: {filename}")
+                        os.remove(file_path)
+            except RuntimeError:
+                print(f"Skipping invalid audio file: {filename}")
