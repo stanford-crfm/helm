@@ -113,6 +113,7 @@ run_groups:
     category: All scenarios
     subgroups:
       - gold_commodity_news
+      - financial_phrasebank
 
   - name: legal_scenarios
     display_name: Legal Scenarios
@@ -137,6 +138,23 @@ run_groups:
     category: All scenarios
     subgroups:
       - cti_to_mitre
+
+  - name: financial_phrasebank
+    display_name: Financial Phrasebank (Sentiment Classification)
+    description: A sentiment classification benchmark based on the dataset from Good Debt or Bad Debt - Detecting Semantic Orientations in Economic Texts [(Malo et al., 2013)](https://arxiv.org/abs/1307.5336).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: classification_weighted_f1
+      main_split: test
+    taxonomy:
+      task: sentiment analysis
+      what: phrases from financial news texts and company press releases
+      who: annotators with adequate business education background
+      when: before 2013
+      language: English
 
   - name: gold_commodity_news
     display_name: Gold Commodity News
