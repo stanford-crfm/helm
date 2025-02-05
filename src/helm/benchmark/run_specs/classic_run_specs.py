@@ -1350,7 +1350,7 @@ def get_medbullets_run_spec() -> RunSpec:
         ),
         input_noun="Clinical Scenario",
         output_noun="Answer",
-        max_tokens=3,
+        max_tokens=1,
     )
 
     # Define the metrics

@@ -56,7 +56,8 @@ class MedecMetric(Metric):
             return []
 
         # Extract the ground truth error flag and sentence ID
-        ground_truth_text = ground_truth_reference.output.text.strip()
+        # ground_truth_text_pre = ground_truth_reference.output.text.strip()
+        ground_truth_text= ground_truth_reference.output.text.replace('.', '').strip()
 
         # Determine ground truth values
         if ground_truth_text == "CORRECT":
