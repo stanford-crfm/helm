@@ -5,7 +5,7 @@ from typing import Dict
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
-from helm.benchmark.annotation.model_as_judge import _AnnotatorModelInfo
+from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo
 from helm.clients.auto_client import AutoClient
 from helm.common.request import Request
 
@@ -46,15 +46,15 @@ class WildBenchAnnotator(Annotator):
             .replace("{$checklist}", "\n".join(request_state.instance.extra_data["checklist"]))
         )
 
-        SHORT_NAME_TO_MODEL_INFO: Dict[str, _AnnotatorModelInfo] = {
-            "gpt": _AnnotatorModelInfo(
+        SHORT_NAME_TO_MODEL_INFO: Dict[str, AnnotatorModelInfo] = {
+            "gpt": AnnotatorModelInfo(
                 model_name="openai/gpt-4o-2024-05-13", model_deployment="openai/gpt-4o-2024-05-13"
             ),
-            "llama": _AnnotatorModelInfo(
+            "llama": AnnotatorModelInfo(
                 model_name="meta/llama-3.1-405b-instruct-turbo",
                 model_deployment="together/llama-3.1-405b-instruct-turbo",
             ),
-            "claude": _AnnotatorModelInfo(
+            "claude": AnnotatorModelInfo(
                 model_name="anthropic/claude-3-5-sonnet-20241022",
                 model_deployment="anthropic/claude-3-5-sonnet-20241022",
             ),
