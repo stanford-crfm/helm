@@ -532,7 +532,7 @@ run_groups:
       when: "?"
       language: English
 
-- name: mental_health
+  - name: mental_health
     display_name: Mental Health Counseling
     short_display_name: MentalHealth
     description: A dialogue-based dataset containing counseling conversations, each with expert counselor responses for various mental health topics including anxiety, workplace issues, and crisis situations.
@@ -540,7 +540,6 @@ run_groups:
       - accuracy
       - efficiency
       - general_information
-      - dialogue_quality
     environment:
       main_name: BERTScore-F
       main_split: test
