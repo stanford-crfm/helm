@@ -40,10 +40,14 @@ class BIRDSQLScenario(Scenario):
     tags = ["sql"]
 
     COT_PROMPT = """
-Think step by step, then generate the SQL query in a Markdown block as follows:
-```sql
--- Your SQL query here
-```"""
+Think step by step, then generate a single SQL query in valid SQLite syntax. Respond with only your reasoning and SQL query in the following tag-delimited format:
+
+<reasoning>
+INSERT_YOUR_REASONING_HERE
+</reasoning>
+<sql>
+INSERT_YOUR_SQL_QUERY_HERE
+</sql>"""  # noqa: E501
 
     def get_instances(self, output_path: str) -> List[Instance]:
         data_root_path = os.path.join(output_path, "dev")

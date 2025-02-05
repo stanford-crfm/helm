@@ -21,20 +21,24 @@ class BirdSQLAnnotator(Annotator):
             get_benchmark_output_path(), "scenarios", "bird_sql", "dev", "unzipped_dev_databases", "dev_databases"
         )
         database_path = os.path.join(databases_root_path, database_name, f"{database_name}.sqlite")
+        conn = sqlite3.connect(database_path)
 
         assert len(request_state.instance.references) == 1
         ground_truth_sql = request_state.instance.references[0].output.text
+        ground_truth_result: List[str] = []
+        try:
+            cursor = conn.cursor()
+            cursor.execute(ground_truth_sql)
+            ground_truth_result = cursor.fetchall()
+        except (sqlite3.OperationalError, sqlite3.Warning) as e:
+            hlog(f"WARNING: Ground truth SQL failed with error: {e}")
 
         assert request_state.result is not None
         assert len(request_state.result.completions) == 1
         predicted_text = request_state.result.completions[0].text
-        predicted_sql_match = re.search(r"```sql(.*?)```", predicted_text, re.DOTALL)
+        predicted_sql_match = re.search(r"<\s*sql\s*>(.*?)<\/?\s*sql\s*>", predicted_text, re.DOTALL | re.IGNORECASE)
         predicted_sql = predicted_sql_match.group(1) if predicted_sql_match else ""
-
-        conn = sqlite3.connect(database_path)
-        # Connect to the database
         predicted_result: List[str] = []
-        ground_truth_result: List[str] = []
         query_error: Optional[str] = None
         # TODO: Run SQL queries with a timeout
         try:
@@ -42,13 +46,9 @@ class BirdSQLAnnotator(Annotator):
             cursor.execute(predicted_sql)
             predicted_result = cursor.fetchall()
         except (sqlite3.OperationalError, sqlite3.Warning) as e:
+            print(f"SQL error: {e}")
             query_error = str(e)
-        try:
-            cursor = conn.cursor()
-            cursor.execute(predicted_sql)
-            ground_truth_result = cursor.fetchall()
-        except (sqlite3.OperationalError, sqlite3.Warning) as e:
-            hlog(f"WARNING: Ground truth SQL failed with error: {e}")
+
         return {
             "predicted_result": predicted_result,
             "ground_truth_result": ground_truth_result,
