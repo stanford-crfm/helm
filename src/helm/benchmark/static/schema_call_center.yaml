@@ -99,6 +99,13 @@ metrics:
     short_display_name: Recall
     description: How many key items were recalled
     lower_is_better: false
+
+  - name: annotation_helpdesk_call_center_summarization_score
+    display_name: Score
+    short_display_name: Score
+    description: Score
+    lower_is_better: false
+
 ############################################################
 perturbations: []
 
@@ -108,6 +115,8 @@ metric_groups:
     display_name: Summarization
     hide_win_rates: true
     metrics:
+      - name: annotation_helpdesk_call_center_summarization_score
+        split: ${main_split}
       - name: annotation_call_center_summarization_faithfulness
         split: ${main_split}
       - name: annotation_call_center_summarization_relevance
@@ -158,14 +167,32 @@ run_groups:
     description: Scenarios representating realistic tasks from the call center.
     category: All scenarios
     subgroups:
-      - call_center_summarization
-      - call_center_summarization_real_call_transcripts
-      - call_center_summarization_pairwise_comparison
-      - call_center_summarization_key_points_recall
+      - helpdesk_call_summarization
+      # - call_center_summarization
+      # - call_center_summarization_real_call_transcripts
+      # - call_center_summarization_pairwise_comparison
+      # - call_center_summarization_key_points_recall
 
   - name: call_center_summarization
     display_name: Summarization
     description: summarization
+    metric_groups:
+      # - accuracy
+      - summarization_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_split: test
+    taxonomy:
+      task: summarization
+      what: n/a
+      who: n/a
+      when: "?"
+      language: English
+
+  - name: helpdesk_call_summarization
+    display_name: Helpdesk Call summarization
+    description: Helpdesk Call summarization
     metric_groups:
       # - accuracy
       - summarization_metrics

@@ -160,6 +160,11 @@ metrics:
     short_display_name: Exact Match
     description: Unsorted List Exact Match
     lower_is_better: false
+  - name: f1_strings
+    display_name: F1 Strings
+    short_display_name: F1 Strings
+    description: F1 Strings
+    lower_is_better: false
 
   # FinQA Accuracy
   - name: program_accuracy
@@ -174,10 +179,10 @@ metrics:
     lower_is_better: false
 
   # SciGen Accuracy
-  - name: llama_3_8b_chat_hf_together_ai_template_table2text_single_turn_with_reference
+  - name: llama_3_1_70b_instruct_cross_provider_template_table2text_single_turn_with_reference
     display_name: Rating
     short_display_name: Rating
-    description: Rating by Llama 3 (8B) LLM as judge
+    description: Rating by Llama 3.1 (70B) LLM as judge
     lower_is_better: false
 
 perturbations: []
@@ -185,6 +190,8 @@ perturbations: []
 metric_groups:
   - name: main_metrics
     display_name: Main Metrics
+    aggregation_strategies: 
+      - mean
     metrics:
     - name: ${main_name}
       split: __all__
@@ -244,69 +251,18 @@ run_groups:
     description: Table Scenarios
     category: All Scenarios
     subgroups:
-      - unitxt_cards.numeric_nlg
-      - unitxt_cards.tab_fact
-      - unitxt_cards.wikitq
-      - unitxt_cards.scigen
+      - fin_qa
+      - numeric_nlg
+      - qtsumm
+      - scigen
+      - tab_fact
+      - tablebench_data_analysis
+      - tablebench_fact_checking
+      - tablebench_numerical_reasoning
+      - turl_col_type
+      - wikitq
 
-  - name: unitxt_cards.numeric_nlg
-    display_name: NumericNLG
-    short_display_name: NumericNLG
-    description: "NumericNLG is a dataset for numerical table-to-text generation using pairs of a table and a paragraph of a table description with richer inference from scientific papers."
-    metric_groups:
-      - main_metrics
-      - generation_metrics
-      - efficiency
-      - general_information
-    environment:
-      main_name: meteor
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: English
-
-  - name: unitxt_cards.tab_fact
-    display_name: TabFact
-    short_display_name: TabFact
-    description: "tab_fact is a large-scale dataset for the task of fact-checking on tables."
-    metric_groups:
-      - main_metrics
-      - classification_metrics
-      - efficiency
-      - general_information
-    environment:
-      main_name: accuracy
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: English
-
-  - name: unitxt_cards.wikitq
-    display_name: WikiTableQuestions
-    short_display_name: WikiTableQuestions
-    description: "This WikiTableQuestions dataset is a large-scale dataset for the task of question answering on semi-structured tables."
-    metric_groups:
-      - main_metrics
-      - classification_metrics
-      - efficiency
-      - general_information
-    environment:
-      main_name: unsorted_list_exact_match
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: English
-
-  - name: unitxt_cards.fin_qa
+  - name: fin_qa
     display_name: FinQA
     description: The FinQA benchmark for numeric reasoning over financial data, with question answering pairs written by financial experts over financial reports [(Chen et al., 2021)](https://arxiv.org/abs/2109.00122/).
     metric_groups:
@@ -323,7 +279,45 @@ run_groups:
       when: 1999 to 2019
       language: English
 
-  - name: unitxt_cards.scigen
+  - name: numeric_nlg
+    display_name: NumericNLG
+    short_display_name: NumericNLG
+    description: "NumericNLG is a dataset for numerical table-to-text generation using pairs of a table and a paragraph of a table description with richer inference from scientific papers."
+    metric_groups:
+      - main_metrics
+      # - generation_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: bleu
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: qtsumm
+    display_name: QTSumm
+    short_display_name: QTSumm
+    description: QTFumm
+    metric_groups:
+      - main_metrics
+      # - generation_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: rougeL
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: scigen
     display_name: SciGen
     description: SciGen
     metric_groups:
@@ -331,7 +325,115 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: llama_3_8b_chat_hf_together_ai_template_table2text_single_turn_with_reference
+      main_name: llama_3_1_70b_instruct_cross_provider_template_table2text_single_turn_with_reference
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: tab_fact
+    display_name: TabFact
+    short_display_name: TabFact
+    description: "tab_fact is a large-scale dataset for the task of fact-checking on tables."
+    metric_groups:
+      - main_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_micro
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: tablebench_data_analysis
+    display_name: Tablebench Data Analysis
+    short_display_name: Tablebench Data Analysis
+    description: "tab_fact is a large-scale dataset for the task of fact-checking on tables."
+    metric_groups:
+      - main_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: rougeL
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: tablebench_fact_checking
+    display_name: Tablebench Fact Checking
+    short_display_name: Tablebench Fact Checking
+    description: "tab_fact is a large-scale dataset for the task of fact-checking on tables."
+    metric_groups:
+      - main_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: rougeL
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: tablebench_numerical_reasoning
+    display_name: Tablebench Numerical Reasoning
+    short_display_name: Tablebench Numerical Reasoning
+    description: "tab_fact is a large-scale dataset for the task of fact-checking on tables."
+    metric_groups:
+      - main_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: rougeL
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: turl_col_type
+    display_name: Turl Col Type
+    description: Turl Col Type
+    metric_groups:
+      - main_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_micro
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
+
+  - name: wikitq
+    display_name: WikiTableQuestions
+    short_display_name: WikiTableQuestions
+    description: "This WikiTableQuestions dataset is a large-scale dataset for the task of question answering on semi-structured tables."
+    metric_groups:
+      - main_metrics
+      # - classification_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_strings
       main_split: test
     taxonomy:
       task: "?"
