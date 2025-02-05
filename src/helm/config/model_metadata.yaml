@@ -3745,3 +3745,13 @@ models:
     num_parameters: 1330000000
     release_date: 2024-12-18
     tags: [TEXT_MODEL_TAG]
+
+# DeepSeek-R1-Distill-Llama-3.1-8b
+  - name: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+    display_name: DeepSeek-R1-Distill-Llama-8b
+    description: DeepSeek-R1-Distill-Llama-8b is a model that is distilled from LLaMA 8B model for the DeepSeek-R1 task.
+    creator_organization_name: DeepSeek
+    access: open
+    num_parameters: 8000000000
+    release_date: 2025-01-20
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
