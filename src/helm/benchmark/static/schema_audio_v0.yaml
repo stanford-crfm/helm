@@ -1,5 +1,9 @@
 ---
 ############################################################
+# For backwards compatibility with older versions of HELM.
+# TODO: Remove this after 2024-09-01.
+adapter: []
+############################################################
 metrics:
   # Infrastructure metrics:
   - name: num_perplexity_tokens
@@ -213,57 +217,10 @@ run_groups:
     description: Audio Scenarios
     category: All scenarios
     subgroups:
-      - audio_mnist
-      - covost2
+      - meld_audio
       - vocal_sound
       - fleurs
-      - audiocaps
       - common_voice_15
-      - speech_robust_bench
-      - meld_audio
-      - air_bench_chat
-
-  - name: audio_mnist
-    display_name: AudioMNIST
-    description: >
-      The AudioMNIST dataset consists of a dataset of 30000 audio samples of
-      spoken digits (0-9) of 60 different speakers. The task is to classify the digit from the
-      audio sample ([Becker et al, 2023](https://arxiv.org/abs/1807.03418)).
-    metric_groups:
-      - accuracy
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: audio classification
-      what: audio samples of spoken digits (0-9)
-      who: 60 different speakers
-      when: "2018"
-      language: English
-
-  - name: covost2
-    display_name: CoVost-2
-    description: >
-      CoVost-2 is a large-scale multilingual speech translation corpus covering translations from 21 languages
-      into English and from English into 15 languages.
-
-      The dataset contains the audio, transcriptions, and translations in the following languages:
-      French, German, Dutch, Russian, Spanish, Italian, Turkish, Persian, Swedish, Mongolian, Chinese,
-      Welsh, Catalan, Slovenian, Estonian, Indonesian, Arabic, Tamil, Portuguese, Latvian, and Japanese
-      ([Wang et al, 2020](https://arxiv.org/abs/2007.10310)).
-    metric_groups:
-      - accuracy
-      - general_information
-    environment:
-      main_name: bleu
-      main_split: test
-    taxonomy:
-      task: audio machine translation
-      what: audio, transcriptions, and translations in 15 languages
-      who: real speakers
-      when: "2020"
-      language: 15 languages
 
   - name: vocal_sound
     display_name: VocalSound
@@ -285,27 +242,6 @@ run_groups:
       who: real speakers
       when: "2022"
       language: English
-
-  - name: multilingual_librispeech
-    display_name: Multilingual Librispeech
-    description: >
-      Multilingual Librispeech is derived from read audiobooks from LibriVox and consists of 8 languages, 
-      including about 44.5K hours of English and a total of about 6K hours for other languages. 
-
-      The dataset contains the audio and transcriptions in the following languages:
-      Dutch, German, French, Spanish, Italian, Portuguese", Polish ([Pratap et al, 2022](https://arxiv.org/abs/2012.03411)).
-    metric_groups:
-      - accuracy
-      - general_information
-    environment:
-      main_name: wer_score
-      main_split: test
-    taxonomy:
-      task: audio captioning
-      what: audio and transcriptions in 8 languages
-      who: real speakers
-      when: "2020"
-      language: 8 languages
 
   - name: fleurs
     display_name: FLEURS
@@ -331,47 +267,6 @@ run_groups:
       when: "2022"
       language: 102 languages
 
-  - name: audiocaps
-    display_name: AudioCaps
-    description: >
-      AudioCaps is a large-scale dataset of about 46K audio clips to human-written text pairs collected 
-      via crowdsourcing on the AudioSet dataset, which covers a wide range of human and animal sounds, 
-      musical instruments and genres, and common everyday environmental sounds. 
-      ([Kim et al, 2019](https://aclanthology.org/N19-1011.pdf)).
-    metric_groups:
-      - accuracy
-      - general_information
-    environment:
-      main_name: f1_score
-      main_split: test
-    taxonomy:
-      task: audio captioning
-      what: audio clips in the wild
-      who: real speakers
-      when: "2019"
-      language: English
-
-  - name: voxceleb2
-    display_name: VoxCeleb2
-    description: >
-      VoxCeleb is an audio-visual dataset consisting of short clips of human speech, extracted from 
-      interview videos uploaded to YouTube. It contains over a million utterances from over 6,000 
-      speakers with their gender, race, identity information in 145 different nationalities, covering 
-      a wide range of accents, ages, ethnicities and languages.
-      ([Chung et al, 2018](https://www.robots.ox.ac.uk/~vgg/publications/2018/Chung18a/chung18a.pdf))
-    metric_groups:
-      - accuracy
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: audio identification
-      what: audio clips in the wild
-      who: real speakers
-      when: "2018"
-      language: English, Germany, French
-
   - name: common_voice_15
     display_name: Common Voice 15
     description: >
@@ -395,52 +290,6 @@ run_groups:
       when: "2019"
       language: 114 languages
 
-  - name: speech_robust_bench
-    display_name: Robust Speech Bench
-    description: >
-      Speech Robust Bench (Shah et al, 2024) is a comprehensive benchmark for evaluating 
-      the robustness of ASR models to diverse corruptions. SRB is composed of 114 input 
-      perturbations which simulate an heterogeneous range of corruptions that ASR models 
-      may encounter when deployed in the wild. In this scenario, we select 4 subsets: 
-      accent_cv, accent_cv_es, chinme, and AIM for evaluation.
-
-      The dataset contains the audio, transcriptions for all subsets 
-      ([Shah et al, 2024](https://arxiv.org/abs/2403.07937)).
-    metric_groups:
-      - accuracy
-      - general_information
-    environment:
-      main_name: wer_score
-      main_split: test
-    taxonomy:
-      task: audio recognition
-      what: audio, transcripts of audio samples in a wide range of perturbations 
-      who: real speakers
-      when: "2024"
-      language: English, Spanish
-
-  - name: audio_pairs
-    display_name: Audio PAIRS
-    description: >
-      Audio PAIRS is an audio extension of the PAIRS dataset (Fraser et al, 2024) to examine gender and 
-      racial bias in audio large language models. We convert the questions in the PAIRS dataset to audio
-      clips using OpenAI's TTS-1-HD API. This dataset is also modified to add an option to opt-out with 
-      "unclear" as a choice.
-
-      The dataset contains the audio and question for three subsets: occupation, status, and potential_crime.
-    metric_groups:
-      - accuracy
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: audio classification
-      what: audio and question of audio samples to examine models' gender and racial bias
-      who: OpenAI's TTS-1-HD
-      when: "2024"
-      language: English
-
   - name: meld_audio
     display_name: Multimodal EmotionLines Dataset (MELD) Audio
     description: >
@@ -459,51 +308,4 @@ run_groups:
       what: Classify audio by emotion
       who: Friends TV series
       when: "2018"
-      language: English
-
-  - name: casual_conversations2
-    display_name: Casual Conversations 2
-    description: >
-      Casual Conversation v2 (Porgali et al, 2023) is composed of over 5,567 participants (26,467 videos). 
-      The videos feature paid individuals who agreed to participate in the project and explicitly provided 
-      Age, Gender, Language/Dialect, Geo-location, Disability, Physical adornments, Physical attributes labels 
-      themselves. The videos were recorded in Brazil, India, Indonesia, Mexico, Philippines, United States, 
-      and Vietnam with a diverse set of adults in various categories.
-
-      The dataset contains two classification tasks: age and gender classification
-      ([Porgali et al., 2023](https://arxiv.org/abs/2303.04838)). We phrase these two tasks as the multi-choice
-      questions answering task.
-    metric_groups:
-      - accuracy
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: audio classification
-      what: audio, spoken language, speaker's gender, age information of audio samples
-      who: real speakers
-      when: "2023"
-      language: 10 languages
-
-  - name: air_bench_chat
-    display_name: Air-Bench Chat
-    description: >
-      Air-Bench (Yang et al, 2024) encompasses two dimensions: foundation and chat benchmarks. The former consists of 19 tasks with 
-      approximately 19k single-choice questions. The latter one contains 2k instances of open-ended question-and-answer data. 
-      We consider the chat benchmark in this scenario.
-
-      The dataset contains the audio question answering task in four subjects: sound, speech, music, and mixed.
-      ([Yang et al, 2024](https://aclanthology.org/2024.acl-long.109.pdf)).
-    metric_groups:
-      - accuracy
-      - general_information
-    environment:
-      main_name: f1_score
-      main_split: test
-    taxonomy:
-      task: audio question answering
-      what: audio, question, and answer of audio samples
-      who: real speakers
-      when: "2024"
       language: English

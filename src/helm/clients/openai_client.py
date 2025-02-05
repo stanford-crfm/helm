@@ -30,6 +30,12 @@ class OpenAIClient(CachingClient):
     INAPPROPRIATE_IMAGE_ERROR: str = "Your input image may contain content that is not allowed by our safety system"
     INAPPROPRIATE_PROMPT_ERROR: str = "Invalid prompt: your prompt was flagged"
 
+    # OpenAI server error
+    OPENAI_SERVER_ERROR: str = (
+        "The server had an error processing your request. Sorry about that! You can retry your request, "
+        "or contact us through our help center at help.openai.com if you keep seeing this error."
+    )
+
     # Set the finish reason to this if the prompt violates OpenAI's content policy
     CONTENT_POLICY_VIOLATED_FINISH_REASON: str = (
         "The prompt violates OpenAI's content policy. "
@@ -223,6 +229,22 @@ class OpenAIClient(CachingClient):
                     logprob=0,
                     tokens=[],
                     finish_reason={"reason": self.CONTENT_POLICY_VIOLATED_FINISH_REASON},
+                )
+                return RequestResult(
+                    success=True,
+                    cached=False,
+                    request_time=0,
+                    completions=[empty_completion] * request.num_completions,
+                    embedding=[],
+                )
+            elif self.OPENAI_SERVER_ERROR in str(e):
+                # Handle these errors by returning an empty completion to unblock
+                hlog(f"OpenAI server error for request: {str(request)}")
+                empty_completion = GeneratedOutput(
+                    text="",
+                    logprob=0,
+                    tokens=[],
+                    finish_reason={"reason": self.OPENAI_SERVER_ERROR},
                 )
                 return RequestResult(
                     success=True,
