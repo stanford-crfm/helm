@@ -1965,6 +1965,26 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
+  - name: openai/o1-2024-12-17-low-reasoning-effort
+    model_name: openai/o1-2024-12-17-low-reasoning-effort
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+      args:
+        openai_model_name: o1-2024-12-17
+        reasoning_effort: low
+
+  - name: openai/o1-2024-12-17-high-reasoning-effort
+    model_name: openai/o1-2024-12-17-high-reasoning-effort
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+      args:
+        openai_model_name: o1-2024-12-17
+        reasoning_effort: high
+
   - name: openai/o1-preview-2024-09-12
     model_name: openai/o1-preview-2024-09-12
     tokenizer_name: openai/cl100k_base
@@ -1978,6 +1998,33 @@ model_deployments:
     max_sequence_length: 128000
     client_spec:
       class_name: "helm.clients.openai_client.OpenAIClient"
+
+  - name: openai/o3-mini-2025-01-31
+    model_name: openai/o3-mini-2025-01-31
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
+  - name: openai/o3-mini-2025-01-31-low-reasoning-effort
+    model_name: openai/o3-mini-2025-01-31-low-reasoning-effort
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+      args:
+        openai_model_name: o3-mini-2025-01-31
+        reasoning_effort: low
+
+  - name: openai/o3-mini-2025-01-31-high-reasoning-effort
+    model_name: openai/o3-mini-2025-01-31-high-reasoning-effort
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+      args:
+        openai_model_name: o3-mini-2025-01-31
+        reasoning_effort: high
 
   ## Text Similarity Models
   # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
