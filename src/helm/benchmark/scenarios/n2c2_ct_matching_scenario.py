@@ -236,7 +236,7 @@ Does the patient meet the inclusion criterion "{self.subject}"?
                         )
                     )
                     
-            return instances
+        return instances
 
 if __name__ == "__main__":
     # Generate statistics on prompts
