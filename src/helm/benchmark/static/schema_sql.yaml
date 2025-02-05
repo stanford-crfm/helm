@@ -133,25 +133,25 @@ run_groups:
     description: Text-to-SQL Scenarios
     category: All scenarios
     subgroups:
-      # - spider
+      - spider
       - bird_sql
 
-  # - name: spider
-  #   display_name: Spider 1.0 (Test)
-  #   description: Spider 1.0 (Test)
-  #   metric_groups:
-  #     - accuracy
-  #     - efficiency
-  #     - general_information
-  #   environment:
-  #     main_name: quasi_exact_match
-  #     main_split: valid
-  #   taxonomy:
-  #     task: text-to-SQL
-  #     what: databases from various domains
-  #     who: expert data scientists
-  #     when: "?"
-  #     language: English
+  - name: spider
+    display_name: Spider 1.0 (Test)
+    description: Spider 1.0 (Test)
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: valid
+    taxonomy:
+      task: text-to-SQL
+      what: databases from various domains
+      who: expert data scientists
+      when: "?"
+      language: English
 
   - name: bird_sql
     display_name: BIRD-SQL (Dev)

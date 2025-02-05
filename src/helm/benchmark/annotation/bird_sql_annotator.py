@@ -1,11 +1,11 @@
+from typing import Any, List, Optional
 import os
 import re
-from typing import Any, List, Optional
 import sqlite3
 
-from helm.benchmark.runner import get_benchmark_output_path
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
+from helm.benchmark.runner import get_benchmark_output_path
 from helm.common.hierarchical_logger import hlog
 
 
@@ -46,7 +46,6 @@ class BirdSQLAnnotator(Annotator):
             cursor.execute(predicted_sql)
             predicted_result = cursor.fetchall()
         except (sqlite3.OperationalError, sqlite3.Warning) as e:
-            print(f"SQL error: {e}")
             query_error = str(e)
 
         return {

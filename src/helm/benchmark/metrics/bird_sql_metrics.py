@@ -18,8 +18,6 @@ class BirdSQLMetric(Metric):
         metric_service: MetricService,
         eval_cache_path: str,
     ) -> List[Stat]:
-        # For now, assume there is only one annotator.
-
         if not request_state.annotations:
             raise Exception("Request state did not have annotations.")
         predicted_result = request_state.annotations["bird_sql"]["predicted_result"]
