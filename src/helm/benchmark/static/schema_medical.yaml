@@ -370,6 +370,7 @@ run_groups:
       - medication_qa
       - med_dialog
       - medi_qa
+      - mental_health
   
   - name: medical_research
     display_name: Medical Research Assistance
@@ -528,6 +529,25 @@ run_groups:
       task: question answering
       what: "?"
       who: "?"
+      when: "?"
+      language: English
+
+- name: mental_health
+    display_name: Mental Health Counseling
+    short_display_name: MentalHealth
+    description: A dialogue-based dataset containing counseling conversations, each with expert counselor responses for various mental health topics including anxiety, workplace issues, and crisis situations.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+      - dialogue_quality
+    environment:
+      main_name: BERTScore-F
+      main_split: test
+    taxonomy:
+      task: dialogue generation
+      what: counseling responses
+      who: mental health counselors and clients
       when: "?"
       language: English
 

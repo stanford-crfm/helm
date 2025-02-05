@@ -1664,7 +1664,35 @@ def get_medi_qa_spec() -> RunSpec:
         groups=["medi_qa"],
     )
     
+@run_spec_function("mental_health")
+def get_mental_health_spec() -> RunSpec:
+    """
+    Returns the run specification for the mental health counseling scenario.
+    This scenario evaluates a model's ability to generate appropriate counseling responses
+    in mental health conversations.
+    """
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.mental_health_scenario.MentalHealthScenario"
+    )
 
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Given a mental health conversation history, generate an empathetic and appropriate counselor response.",
+        input_noun=None,  # No specific input noun needed as format is defined in scenario
+        newline_after_input_noun=False,
+        output_noun="Counselor response",
+        max_tokens=512,  
+    )
+
+    metric_args = {"task": "mental_health", "device": get_torch_device_name()}
+
+    return RunSpec(
+        name=f"mental_health",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs(metric_args),
+        groups=["mental_health"],
+    )
+    
 @run_spec_function("dischargeme")
 def get_dischargeme_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
