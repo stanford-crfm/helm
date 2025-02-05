@@ -87,6 +87,11 @@ metrics:
     short_display_name: SQL Error Rate
     description: Fraction of generated queries that result in a SQL execution error
     lower_is_better: true
+  - name: execution_accuracy
+    display_name: Execution Accuracy
+    short_display_name: Execution Accuracy
+    description: Execution Accuracy
+    lower_is_better: false
 
 ############################################################
 perturbations: []
@@ -156,7 +161,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: quasi_exact_match
+      main_name: execution_accuracy
       main_split: valid
     taxonomy:
       task: text-to-SQL
