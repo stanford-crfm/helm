@@ -39,8 +39,10 @@ class IFEvalScenario(Scenario):
         # Read all instances
         instances: List[Instance] = []
         for _, row in enumerate(dataset):
+            id = row["key"]
             input = Input(text=row["prompt"].strip())
             instance = Instance(
+                id=f"id{id}",
                 input=input,
                 references=[],
                 split=TEST_SPLIT,
