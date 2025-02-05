@@ -51,6 +51,8 @@ class VocalSoundScenario(Scenario):
         wav_save_dir = os.path.join(down_loading_path, "audio_16k")
         for file_name in tqdm(os.listdir(wav_save_dir)):
             local_audio_path = os.path.join(wav_save_dir, file_name)
+            assert os.path.exists(local_audio_path), f"Audio file does not exist at path: {local_audio_path}"
+
             answer = file_name.split("_")[-1].split(".")[0]
             input = Input(
                 multimedia_content=MultimediaObject([MediaObject(content_type="audio/wav", location=local_audio_path)])
