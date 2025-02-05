@@ -53,7 +53,7 @@ class VocalSoundScenario(Scenario):
         wav_save_dir = os.path.join(down_loading_path, "audio_16k")
         for file_name in tqdm(os.listdir(wav_save_dir)):
             local_audio_path: str = os.path.join(wav_save_dir, file_name)
-            if not file_name.endswith(".wav") or not is_invalid_audio_file(local_audio_path):
+            if not file_name.endswith(".wav") or is_invalid_audio_file(local_audio_path):
                 continue
 
             answer: str = file_name.split("_")[-1].split(".")[0]
