@@ -1311,7 +1311,7 @@ def get_head_qa_run_spec(
         ),
         input_noun="Question",
         output_noun="Answer",
-        max_tokens=3,
+        max_tokens=1,
     )
 
     # Define the metrics
