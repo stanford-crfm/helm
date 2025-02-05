@@ -78,11 +78,11 @@ Possible labels:\n1. positive\n2. neutral\n3. negative"""  # noqa: E501
         )
         file_name = "Sentences_AllAgree.txt" if self.agreement == 100 else f"Sentences_{self.agreement}Agree.txt"
         data_file_path = os.path.join(data_parent_path, "FinancialPhraseBank-v1.0", file_name)
-        instances: List[Instance] = []
         with open(data_file_path, mode="r", encoding="iso-8859-1") as f:
             lines = list(f.readlines())
             random.Random(self.random_seed).shuffle(lines)
-        train_split_index = int(len(instances) * self.TRAIN_SPLIT_SIZE)
+        train_split_index = int(len(lines) * self.TRAIN_SPLIT_SIZE)
+        instances: List[Instance] = []
         for index, line in enumerate(lines):
             sentence, label = line.strip().rsplit("@", 1)
             instance = Instance(

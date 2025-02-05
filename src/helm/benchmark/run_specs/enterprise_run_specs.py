@@ -59,7 +59,10 @@ def get_financial_phrasebank_spec(agreement: int = 50) -> RunSpec:
     )
 
     adapter_spec = get_generation_adapter_spec(
-        instructions=FinancialPhrasebankScenario.INSTRUCTIONS, input_noun="Headline", output_noun="Answer"
+        instructions=FinancialPhrasebankScenario.INSTRUCTIONS,
+        input_noun="Sentence",
+        output_noun="Label",
+        max_tokens=30,
     )
 
     return RunSpec(
