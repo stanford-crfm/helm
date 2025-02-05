@@ -7,7 +7,6 @@ from filelock import FileLock
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded, shell
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.scenarios.bird_sql_scenario_helper import (  # type: ignore
-    cot_wizard,
     generate_comment_prompt,
     generate_schema_prompt,
 )
@@ -84,9 +83,7 @@ Think step by step, then generate the SQL query in a Markdown block as follows:
                 id=f"id{question_id}",
                 input=Input(text=combined_prompt),
                 references=[Reference(output=Output(text=gold_sql), tags=[CORRECT_TAG])],
-                extra_data={
-                    "db_id": row["db_id"]
-                },
+                extra_data={"db_id": row["db_id"]},
                 split=VALID_SPLIT,
             )
             instances.append(instance)

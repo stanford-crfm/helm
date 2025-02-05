@@ -1,16 +1,12 @@
 import os
 import re
-from typing import Any
-from importlib.resources import files
-from typing import Dict
+from typing import Any, List, Optional
 import sqlite3
 
 from helm.benchmark.runner import get_benchmark_output_path
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
-from helm.benchmark.annotation.model_as_judge import _AnnotatorModelInfo
-from helm.clients.auto_client import AutoClient
-from helm.common.request import Request
+from helm.common.hierarchical_logger import hlog
 
 
 class BirdSQLAnnotator(Annotator):
@@ -25,7 +21,6 @@ class BirdSQLAnnotator(Annotator):
             get_benchmark_output_path(), "scenarios", "bird_sql", "dev", "unzipped_dev_databases", "dev_databases"
         )
         database_path = os.path.join(databases_root_path, database_name, f"{database_name}.sqlite")
-        print(database_path)
 
         assert len(request_state.instance.references) == 1
         ground_truth_sql = request_state.instance.references[0].output.text
@@ -38,15 +33,24 @@ class BirdSQLAnnotator(Annotator):
 
         conn = sqlite3.connect(database_path)
         # Connect to the database
-        cursor = conn.cursor()
+        predicted_result: List[str] = []
+        ground_truth_result: List[str] = []
+        query_error: Optional[str] = None
+        # TODO: 
         try:
+            cursor = conn.cursor()
             cursor.execute(predicted_sql)
             predicted_result = cursor.fetchall()
-        except Exception as e:
-            predicted_result = []
-        cursor.execute(ground_truth_sql)
-        ground_truth_result = cursor.fetchall()
+        except (sqlite3.OperationalError, sqlite3.Warning) as e:
+            query_error = str(e)
+        try:
+            cursor = conn.cursor()
+            cursor.execute(predicted_sql)
+            ground_truth_result = cursor.fetchall()
+        except (sqlite3.OperationalError, sqlite3.Warning) as e:
+            hlog(f"WARNING: Ground truth SQL failed with error: {e}")
         return {
             "predicted_result": predicted_result,
             "ground_truth_result": ground_truth_result,
+            "query_error": query_error,
         }

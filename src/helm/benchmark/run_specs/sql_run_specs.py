@@ -24,7 +24,8 @@ def get_bird_sql_dev_run_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         annotators=annotator_specs,
-        metric_specs=get_exact_match_metric_specs() + [MetricSpec(class_name="helm.benchmark.metrics.bird_sql_metrics.BirdSQLMetric")],
+        metric_specs=get_exact_match_metric_specs()
+        + [MetricSpec(class_name="helm.benchmark.metrics.bird_sql_metrics.BirdSQLMetric")],
         groups=["bird_sql"],
     )
 
