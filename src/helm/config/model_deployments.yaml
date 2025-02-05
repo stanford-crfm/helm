@@ -2922,8 +2922,8 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.audio_language.qwen_audiolm_client.QwenAudioLMClient"
 
-  - name: huggingface/qwen2-audio-instruct
-    model_name: qwen/qwen2-audio-instruct
+  - name: huggingface/qwen2-audio-7b-instruct
+    model_name: qwen/qwen2-audio-7b-instruct
     tokenizer_name: qwen/qwen2-audio-instruct
     max_sequence_length: 8191
     client_spec:
