@@ -3755,3 +3755,13 @@ models:
     num_parameters: 8000000000
     release_date: 2025-01-20
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+# deepseek-ai/deepseek-coder-6.7b-instruct
+  - name: deepseek-ai/deepseek-coder-6.7b-instruct
+    display_name: DeepSeek-Coder-6.7b-Instruct
+    description: DeepSeek-Coder-6.7b-Instruct is a model that is fine-tuned from the LLaMA 6.7B model for the DeepSeek-Coder task.
+    creator_organization_name: DeepSeek
+    access: open
+    num_parameters: 6740000000
+    release_date: 2025-01-20
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
