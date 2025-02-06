@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, Dict, List
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
@@ -19,10 +19,14 @@ class WildBenchScoreMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         assert request_state.annotations
-        all_scores = request_state.annotations["wildbench"]["score"]
-        if len(all_scores) == 0:
+        annotations: Dict[str, Any] = request_state.annotations["wildbench"]
+        scores: List[float] = []
+        for annotation_key, annotation_value in annotations.items():
+            if annotation_key.endswith("_score") and annotation_value is not None:
+                scores.append(annotation_value)
+        if not scores:
             raise ValueError("Could not compute WB Score because all annotators failed.")
-        score = sum(all_scores) / len(all_scores)
+        score = sum(scores) / len(scores)
         score_rescaled = (score - 1) / 9
         return [
             Stat(MetricName("wildbench_score")).add(score),
