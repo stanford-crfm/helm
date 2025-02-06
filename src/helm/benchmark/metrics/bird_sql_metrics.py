@@ -8,8 +8,8 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 
 
-class OmniMATHMetric(Metric):
-    """Score metrics for Omni-MATH."""
+class BirdSQLMetric(Metric):
+    """Score metrics for Bird-SQL."""
 
     def evaluate_generation(
         self,
@@ -18,12 +18,9 @@ class OmniMATHMetric(Metric):
         metric_service: MetricService,
         eval_cache_path: str,
     ) -> List[Stat]:
-        assert request_state.annotations
-        all_judgements = request_state.annotations["omni_math"]["equivalence_judgement"]
-        if len(all_judgements) == 0:
-            raise ValueError("Could not compute Omni-MATH accuracy because all annotators failed.")
-        judgement_bools = [judgement.strip().upper() == "TRUE" for judgement in all_judgements]
-        score = sum(judgement_bools) / len(judgement_bools)
-        return [
-            Stat(MetricName("omni_math_accuracy")).add(score),
-        ]
+        if not request_state.annotations:
+            raise Exception("Request state did not have annotations.")
+        predicted_result = request_state.annotations["bird_sql"]["predicted_result"]
+        ground_truth_result = request_state.annotations["bird_sql"]["ground_truth_result"]
+        execution_accuracy = int(set(predicted_result) == set(ground_truth_result))
+        return [Stat(MetricName("execution_accuracy")).add(execution_accuracy)]

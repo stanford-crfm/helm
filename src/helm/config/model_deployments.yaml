@@ -466,7 +466,16 @@ model_deployments:
   - name: together/deepseek-v3
     model_name: deepseek-ai/deepseek-v3
     tokenizer_name: deepseek-ai/deepseek-v3
-    max_sequence_length: 131072
+    max_sequence_length: 16384
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        disable_logprobs: True
+
+  - name: together/deepseek-r1
+    model_name: deepseek-ai/deepseek-r1
+    tokenizer_name: deepseek-ai/deepseek-r1
+    max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
       args:
@@ -2009,6 +2018,26 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
+  - name: openai/o1-2024-12-17-low-reasoning-effort
+    model_name: openai/o1-2024-12-17-low-reasoning-effort
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+      args:
+        openai_model_name: o1-2024-12-17
+        reasoning_effort: low
+
+  - name: openai/o1-2024-12-17-high-reasoning-effort
+    model_name: openai/o1-2024-12-17-high-reasoning-effort
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+      args:
+        openai_model_name: o1-2024-12-17
+        reasoning_effort: high
+
   - name: openai/o1-preview-2024-09-12
     model_name: openai/o1-preview-2024-09-12
     tokenizer_name: openai/cl100k_base
@@ -2022,6 +2051,33 @@ model_deployments:
     max_sequence_length: 128000
     client_spec:
       class_name: "helm.clients.openai_client.OpenAIClient"
+
+  - name: openai/o3-mini-2025-01-31
+    model_name: openai/o3-mini-2025-01-31
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
+  - name: openai/o3-mini-2025-01-31-low-reasoning-effort
+    model_name: openai/o3-mini-2025-01-31-low-reasoning-effort
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+      args:
+        openai_model_name: o3-mini-2025-01-31
+        reasoning_effort: low
+
+  - name: openai/o3-mini-2025-01-31-high-reasoning-effort
+    model_name: openai/o3-mini-2025-01-31-high-reasoning-effort
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+      args:
+        openai_model_name: o3-mini-2025-01-31
+        reasoning_effort: high
 
   ## Text Similarity Models
   # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
@@ -2896,6 +2952,13 @@ model_deployments:
       args:
         pretrained_model_name_or_path: Qwen/Qwen2.5-7B-Instruct
 
+  - name: together/qwq-32b-preview
+    model_name: qwen/qwq-32b-preview
+    tokenizer_name: qwen/qwq-32b-preview
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+
   - name: huggingface/qwen-vl
     model_name: qwen/qwen-vl
     tokenizer_name: qwen/qwen-vl
@@ -2931,8 +2994,8 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.audio_language.qwen_audiolm_client.QwenAudioLMClient"
 
-  - name: huggingface/qwen2-audio-instruct
-    model_name: qwen/qwen2-audio-instruct
+  - name: huggingface/qwen2-audio-7b-instruct
+    model_name: qwen/qwen2-audio-7b-instruct
     tokenizer_name: qwen/qwen2-audio-instruct
     max_sequence_length: 8191
     client_spec:
