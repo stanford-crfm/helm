@@ -46,6 +46,10 @@ class OmniMATHAnnotator(Annotator):
             .replace("{{Solution}}", model_output_text)
         )
         if not model_output_text.strip():
+            hlog(
+                "WARNING: OmniMATHAnnotator skipped sending requests to annotator models "
+                "because the model response was empty"
+            )
             return {
                 "prompt_text": None,
                 "empty_output_equivalence_judgement": False,
