@@ -30,6 +30,16 @@ class WildBenchAnnotator(Annotator):
         assert len(request_state.result.completions) == 1
         assert request_state.instance.extra_data
         model_output_text = request_state.result.completions[0].text
+        if not model_output_text.strip():
+            # Following https://github.com/allenai/WildBench/blob/d6b8dcaf377d173d031980f97c16e1a82618c03d/src/eval.py
+            hlog(
+                "WARNING: WildBenchAnnotator skipped sending requests to annotator models "
+                "because the model response was empty"
+            )
+            return {
+                "prompt_text": None,
+                "empty_output_score": [1.0],
+            }
 
         annotator_prompt = (
             self._score_template.replace("{$history}", request_state.instance.extra_data["history"])
@@ -40,7 +50,7 @@ class WildBenchAnnotator(Annotator):
 
         SHORT_NAME_TO_MODEL_INFO: Dict[str, AnnotatorModelInfo] = {
             "gpt": AnnotatorModelInfo(
-                model_name="openai/gpt-4o-2024-05-13", model_deployment="openai/gpt-4o-2024-05-13"
+                model_name="openai/gpt-4o-2024-11-20", model_deployment="openai/gpt-4o-2024-11-20"
             ),
             "llama": AnnotatorModelInfo(
                 model_name="meta/llama-3.1-405b-instruct-turbo",
@@ -66,8 +76,8 @@ class WildBenchAnnotator(Annotator):
             annotator_response = self._auto_client.make_request(annotator_request)
             if not annotator_response.success:
                 hlog(
-                    "WARNING: WildBenchAnnotator got an error response from annotator "
-                    f"{annotator_name}: {annotator_response.error}"
+                    "WARNING: WildBenchAnnotator got an error response from "
+                    f"{annotator_model_info.model_name}: : {annotator_response.error}"
                 )
             else:
                 assert len(annotator_response.completions) == 1
@@ -75,8 +85,8 @@ class WildBenchAnnotator(Annotator):
                 annotator_response_parts = self._pattern.search(annotator_response_text)
                 if not annotator_response_parts:
                     hlog(
-                        "WARNING: WildBenchAnnotator got malformed annotation from annotator "
-                        f"{annotator_name}: {annotator_response_text}"
+                        "WARNING: WildBenchAnnotator got a malformed annotation from "
+                        f"{annotator_model_info.model_name}: {annotator_response_text}"
                     )
                 else:
                     strengths = annotator_response_parts[1].strip()
@@ -86,8 +96,8 @@ class WildBenchAnnotator(Annotator):
                         score = float(score_text)
                     except ValueError:
                         hlog(
-                            "WARNING: WildBenchAnnotator could not parse score from annotation from annotator "
-                            f"{annotator_name}: {annotator_response_text}"
+                            "WARNING: WildBenchAnnotator could not parse the score from the annotation from "
+                            f"{annotator_model_info.model_name}: {annotator_response_text}"
                         )
 
             annotations[f"{annotator_name}_strengths"] = strengths
