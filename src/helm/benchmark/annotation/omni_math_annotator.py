@@ -47,10 +47,8 @@ class OmniMATHAnnotator(Annotator):
         )
         if not model_output_text.strip():
             return {
-                "prompt_text": "",
-                "student_final_answer": None,
-                "equivalence_judgement": "FALSE",
-                "justification": None,
+                "prompt_text": None,
+                "empty_output_equivalence_judgement": False,
             }
 
         SHORT_NAME_TO_MODEL_INFO: Dict[str, AnnotatorModelInfo] = {
