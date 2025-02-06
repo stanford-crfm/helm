@@ -179,7 +179,6 @@ perturbations: []
 metric_groups:
   - name: accuracy
     display_name: Accuracy
-    hide_win_rates: true
     metrics:
       - name: ${main_name}
         split: ${main_split}
@@ -192,7 +191,6 @@ metric_groups:
 
   - name: general_information
     display_name: General information
-    hide_win_rates: true
     metrics:
     - name: num_instances
       split: ${main_split}
