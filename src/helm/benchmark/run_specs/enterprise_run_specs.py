@@ -49,6 +49,32 @@ def get_news_headline_spec(category: str) -> RunSpec:
     )
 
 
+@run_spec_function("financial_phrasebank")
+def get_financial_phrasebank_spec(agreement: int = 50) -> RunSpec:
+    from helm.benchmark.scenarios.financial_phrasebank_scenario import FinancialPhrasebankScenario
+
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.financial_phrasebank_scenario.FinancialPhrasebankScenario",
+        args={"agreement": agreement},
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=FinancialPhrasebankScenario.INSTRUCTIONS,
+        input_noun="Sentence",
+        output_noun="Label",
+        max_tokens=30,
+    )
+
+    return RunSpec(
+        name=f"financial_phrasebank:agreement={agreement}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs()
+        + _get_weighted_classification_metric_specs(labels=["positive", "neutral", "negative"]),
+        groups=["financial_phrasebank"],
+    )
+
+
 # Legal
 
 
