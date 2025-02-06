@@ -22,7 +22,7 @@ class OmniMATHMetric(Metric):
         annotations: Dict[str, Any] = request_state.annotations["omni_math"]
         scores: List[int] = []
         for annotation_key, annotation_value in annotations.items():
-            if annotation_key.endswith("equivalence_judgement") and annotation_value is not None:
+            if annotation_key.endswith("_equivalence_judgement") and annotation_value is not None:
                 scores.append(int(annotation_value))
         if not scores:
             raise ValueError("Could not compute Omni-MATH accuracy because all annotators failed.")

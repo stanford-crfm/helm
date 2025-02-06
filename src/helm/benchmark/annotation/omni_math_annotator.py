@@ -57,7 +57,7 @@ class OmniMATHAnnotator(Annotator):
 
         SHORT_NAME_TO_MODEL_INFO: Dict[str, AnnotatorModelInfo] = {
             "gpt": AnnotatorModelInfo(
-                model_name="openai/gpt-4o-2024-05-13", model_deployment="openai/gpt-4o-2024-05-13"
+                model_name="openai/gpt-4o-2024-11-20", model_deployment="openai/gpt-4o-2024-11-20"
             ),
             "llama": AnnotatorModelInfo(
                 model_name="meta/llama-3.1-405b-instruct-turbo",
@@ -90,8 +90,6 @@ class OmniMATHAnnotator(Annotator):
             else:
                 assert len(annotator_response.completions) == 1
                 annotator_response_text = annotator_response.completions[0].text
-                if annotator_name == "claude":
-                    annotator_response_text = "malformed"
 
                 report_parts: Dict[str, str] = parse_report(annotator_response_text)
                 try:
