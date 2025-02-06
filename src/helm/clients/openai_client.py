@@ -261,7 +261,7 @@ class OpenAIClient(CachingClient):
                 return RequestResult(
                     success=False,
                     cached=False,
-                    error=f"Content blocked by OpenAI filter",
+                    error="Content blocked by OpenAI filter",
                     completions=[],
                     embedding=[],
                     error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
