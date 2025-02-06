@@ -90,11 +90,11 @@ class OmniMATHAnnotator(Annotator):
                 annotator_response_text = annotator_response.completions[0].text
                 if annotator_name == "claude":
                     annotator_response_text = "malformed"
-                
+
                 report_parts: Dict[str, str] = parse_report(annotator_response_text)
                 try:
                     student_final_answer = report_parts["Student Final Answer"]
-                except KeyError as e:
+                except KeyError:
                     hlog(
                         "WARNING: OmniMATHAnnotator could not get Student Final Answer from annotation from "
                         f"{annotator_model_info.model_name}: {annotator_response_text}"
@@ -102,7 +102,7 @@ class OmniMATHAnnotator(Annotator):
 
                 try:
                     justification = report_parts["Justification"].strip().removesuffix("=== report over ===").strip()
-                except KeyError as e:
+                except KeyError:
                     hlog(
                         "WARNING: OmniMATHAnnotator could not get Justification from annotation from "
                         f"{annotator_model_info.model_name}: {annotator_response_text}"
@@ -119,7 +119,7 @@ class OmniMATHAnnotator(Annotator):
                             "WARNING: OmniMATHAnnotator got a non-boolean Equivalence Judgement from annotation from "
                             f"{annotator_model_info.model_name}: {equivalence_judgement_str}"
                         )
-                except KeyError as e:
+                except KeyError:
                     hlog(
                         "WARNING: OmniMATHAnnotator could not get Equivalence Judgement from annotation from "
                         f"{annotator_model_info.model_name}: {annotator_response_text}"
