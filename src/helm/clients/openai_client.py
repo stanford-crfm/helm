@@ -6,7 +6,7 @@ from helm.benchmark.model_metadata_registry import is_vlm
 from helm.common import multimodal_request_utils
 from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE
-from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
+from helm.common.request import ErrorFlags, wrap_request_time, Request, RequestResult, GeneratedOutput, Token
 from helm.common.hierarchical_logger import hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.tokenization_request import (
@@ -50,14 +50,18 @@ class OpenAIClient(CachingClient):
         api_key: Optional[str] = None,
         org_id: Optional[str] = None,
         base_url: Optional[str] = None,
+        reasoning_effort: Optional[str] = None,
+        openai_model_name: Optional[str] = None,
     ):
         super().__init__(cache_config=cache_config)
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
         self.client = OpenAI(api_key=api_key, organization=org_id, base_url=base_url)
+        self.reasoning_effort = reasoning_effort
+        self.openai_model_name = openai_model_name
 
     def _get_model_for_request(self, request: Request) -> str:
-        return request.model_engine
+        return self.openai_model_name or request.model_engine
 
     def _get_cache_key(self, raw_request: Dict, request: Request):
         cache_key = CachingClient.make_cache_key(raw_request, request)
@@ -181,7 +185,7 @@ class OpenAIClient(CachingClient):
         # Special handling for o1 models.
         # Refer to the "Reasoning models" documentation further discussion of o1 model limitations:
         # https://platform.openai.com/docs/guides/reasoning
-        if request.model_engine.startswith("o1"):
+        if request.model_engine.startswith("o1") or request.model_engine.startswith("o3"):
             # Avoid error:
             # "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead."  # noqa: E501
             # Note that openai>=1.45 is needed for this
@@ -193,12 +197,14 @@ class OpenAIClient(CachingClient):
             if raw_request["stop"] is None:
                 raw_request.pop("stop")
 
-            if request.model_engine == "o1-2024-12-17":
-                # Avoid error:
-                # "Error code: 400 - {'error': {'message': "Unsupported parameter: 'temperature' is
-                # not supported with this model.", 'type': 'invalid_request_error', 'param': 'temperature',
-                # 'code': 'unsupported_parameter'}}"
-                raw_request.pop("temperature", None)
+            # Avoid error:
+            # "Error code: 400 - {'error': {'message': "Unsupported parameter: 'temperature' is
+            # not supported with this model.", 'type': 'invalid_request_error', 'param': 'temperature',
+            # 'code': 'unsupported_parameter'}}"
+            raw_request.pop("temperature", None)
+
+            if self.reasoning_effort:
+                raw_request["reasoning_effort"] = "self.reasoning_effort"
         elif is_vlm(request.model):
             # Avoid error:
             # "Invalid type for 'stop': expected an unsupported value, but got null instead."
@@ -271,6 +277,17 @@ class OpenAIClient(CachingClient):
             tokens: List[Token] = [
                 Token(text=cast(str, raw_token), logprob=0) for raw_token in tokenization_result.raw_tokens
             ]
+            # Handle Azure OpenAI content filter
+            # See: https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter
+            if raw_completion["finish_reason"] == "content_filter":
+                return RequestResult(
+                    success=False,
+                    cached=False,
+                    error="Content blocked by OpenAI filter",
+                    completions=[],
+                    embedding=[],
+                    error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                )
             completion = GeneratedOutput(
                 text=text,
                 logprob=0,  # OpenAI does not provide logprobs
