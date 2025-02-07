@@ -32,6 +32,9 @@ class OpenAIClient(CachingClient):
     INAPPROPRIATE_PROMPT_AZURE_ERROR: str = (
         "The response was filtered due to the prompt triggering Azure OpenAI's content management policy."
     )
+    INAPPROPRIATE_PROMPT_MICROSOFT_ERROR: str = (
+        "The response was filtered due to the prompt triggering Microsoft's content management policy."
+    )
 
     # OpenAI server error
     OPENAI_SERVER_ERROR: str = (
@@ -262,7 +265,7 @@ class OpenAIClient(CachingClient):
                     completions=[empty_completion] * request.num_completions,
                     embedding=[],
                 )
-            elif self.INAPPROPRIATE_PROMPT_AZURE_ERROR in str(e):
+            elif self.INAPPROPRIATE_PROMPT_AZURE_ERROR in str(e) or self.INAPPROPRIATE_PROMPT_MICROSOFT_ERROR in str(e):
                 return RequestResult(
                     success=False,
                     cached=False,
