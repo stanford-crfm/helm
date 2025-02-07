@@ -56,10 +56,14 @@ class VocalSoundScenario(Scenario):
             if not file_name.endswith(".wav") or is_invalid_audio_file(local_audio_path):
                 continue
 
-            answer: str = file_name.split("_")[-1].split(".")[0]
             input = Input(
                 multimedia_content=MultimediaObject([MediaObject(content_type="audio/wav", location=local_audio_path)])
             )
+
+            answer: str = file_name.split("_")[-1].split(".")[0]
+            if answer == "throatclearing":
+                answer = "throat clearing"
+
             references = [Reference(Output(text=str(answer)), tags=[CORRECT_TAG])]
             instances.append(Instance(input=input, references=references, split=TEST_SPLIT))
         return instances
