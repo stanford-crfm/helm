@@ -1,9 +1,4 @@
 ---
-############################################################
-# For backwards compatibility with older versions of HELM.
-# TODO: Remove this after 2024-09-01.
-adapter: []
-############################################################
 metrics:
   # Infrastructure metrics:
   - name: num_perplexity_tokens
@@ -183,7 +178,6 @@ perturbations: []
 metric_groups:
   - name: accuracy
     display_name: Accuracy
-    hide_win_rates: true
     metrics:
       - name: ${main_name}
         split: ${main_split}

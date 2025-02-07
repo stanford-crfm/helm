@@ -265,6 +265,17 @@ class OpenAIClient(CachingClient):
 
         completions: List[GeneratedOutput] = []
         for raw_completion in response["choices"]:
+            # Handle Azure OpenAI content filter
+            # See: https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter
+            if raw_completion["finish_reason"] == "content_filter":
+                return RequestResult(
+                    success=False,
+                    cached=False,
+                    error="Content blocked by OpenAI filter",
+                    completions=[],
+                    embedding=[],
+                    error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                )
             # The OpenAI chat completion API doesn't support echo.
             # If `echo_prompt` is true, combine the prompt and completion.
             raw_completion_content = raw_completion["message"]["content"]
@@ -277,17 +288,6 @@ class OpenAIClient(CachingClient):
             tokens: List[Token] = [
                 Token(text=cast(str, raw_token), logprob=0) for raw_token in tokenization_result.raw_tokens
             ]
-            # Handle Azure OpenAI content filter
-            # See: https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter
-            if raw_completion["finish_reason"] == "content_filter":
-                return RequestResult(
-                    success=False,
-                    cached=False,
-                    error="Content blocked by OpenAI filter",
-                    completions=[],
-                    embedding=[],
-                    error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
-                )
             completion = GeneratedOutput(
                 text=text,
                 logprob=0,  # OpenAI does not provide logprobs
