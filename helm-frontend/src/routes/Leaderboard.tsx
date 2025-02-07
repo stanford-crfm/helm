@@ -81,21 +81,21 @@ export default function Leaderboard() {
     <>
       <div className="flex flex-row">
         <div className="w-3/4">
-        {groupMetadata ? (
-          <PageTitle
-            title={"Leaderboard: " + groupMetadata.display_name}
-            subtitle={groupMetadata.description}
-            markdown={true}
-          />
-        ) : (
-          <PageTitle
-            title={"Leaderboard"}
-            subtitle={
-              "The HELM leaderboard shows how the various models perform across different scenarios and metrics."
-            }
-            markdown={true}
-          />
-        )}
+          {groupMetadata ? (
+            <PageTitle
+              title={"Leaderboard: " + groupMetadata.display_name}
+              subtitle={groupMetadata.description}
+              markdown={true}
+            />
+          ) : (
+            <PageTitle
+              title={"Leaderboard"}
+              subtitle={
+                "The HELM leaderboard shows how the various models perform across different scenarios and metrics."
+              }
+              markdown={true}
+            />
+          )}
         </div>
 
         <div className="w-1/4 pt-8">
