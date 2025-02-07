@@ -72,7 +72,7 @@ export default function Leaderboard() {
 
   let groupMetadata: RunGroup | undefined;
   for (const runGroup of schema.run_groups) {
-    if (runGroup.name === groupName) {
+    if (runGroup.name === runGroupName) {
       groupMetadata = runGroup;
     }
   }
