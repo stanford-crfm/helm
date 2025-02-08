@@ -372,6 +372,7 @@ run_groups:
       - med_dialog
       - medi_qa
       - mental_health
+      - starr_patient_instructions
   
   - name: medical_research
     display_name: Medical Research Assistance
@@ -459,6 +460,23 @@ run_groups:
       what: "?"
       who: "?"
       when: "?"
+      language: English
+  
+  - name: starr_patient_instructions
+    display_name: "Starr Patient Instructions"
+    description: A benchmark created from STARR-OMOP for generating patient instructions outpatient surgeries and procedures. 
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: BERTScore-F
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: patient instructions
+      who: patient
+      when: post-procedure
       language: English
 
   - name: race_based_med

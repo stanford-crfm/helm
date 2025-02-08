@@ -1621,6 +1621,37 @@ def get_pubmed_qa_spec() -> RunSpec:
         groups=["pubmed_qa"],
     )
 
+@run_spec_function("starr_patient_instructions")
+def get_starr_patient_instructions_run_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.starr_patient_instructions_scenario.StarrPatientInstructionsScenario",
+        args={},
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=(
+            "You are a skilled medical professional tasked with generating personalized post-procedure patient instructions. "
+            "Given the following case details—which include the patient's diagnosis, the planned procedure, the history & physical note, "
+            "and the operative report—produce clear, concise, and actionable instructions for the patient to follow after their procedure. "
+            "Ensure that the instructions are accurate, understandable, and tailored to the patient's clinical context."
+        ),
+        input_noun="Case Details",
+        output_noun="Patient Instructions",
+        max_tokens=256,
+        max_train_instances=0,
+    )
+    
+    metric_args = {"task": "starr_patient_instructions", "device": get_torch_device_name()}
+    metric_specs = get_summarization_metric_specs(metric_args) + get_basic_metric_specs([])
+
+    return RunSpec(
+        name="starr_patient_instructions",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["starr_patient_instructions"],
+    )
+
 
 @run_spec_function("mimic_rrs")
 def get_mimic_rrs_spec() -> RunSpec:
