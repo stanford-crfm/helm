@@ -1119,7 +1119,7 @@ def lumia_prompt(task_name: str, config: Dict[str, Any], examples: List[Dict[str
     
     # Examples
     # examples: str = "\n\n# Examples\n\n" + "\n".join([tmpl['example'].format(ehr=ehr_converter(e['ehr']), label=e['label']) for e in examples]) + "\n\n" if len(examples) > 0 else ""
-    
+    tmpl['instruction']=tmpl['instruction'].replace("Then respond with \"yes\" or \"no\" as your final output", "Then respond with \"A\" for yes or \"B\" for no as your final output")
     # Prompt
     prompt: str = f"""
 # Instructions
@@ -1447,6 +1447,7 @@ class EHRSHOTScenario(Scenario):
 
         # Generate instances
         instances: List[Instance] = []
+        df['prompt']=df['prompt'].str.replace('yes','A for yes').str.replace('no','B for no')
         for prompt, label, split in tqdm(zip(df['prompt'], df['boolean_value'], df['split']), total=len(df), desc="Generating instances"):
             if count_tokens(prompt) > self.max_length:
                 continue
