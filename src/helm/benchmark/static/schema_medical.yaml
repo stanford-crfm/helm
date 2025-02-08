@@ -361,6 +361,7 @@ run_groups:
       - aci_bench
       - mimic_rrs
       - mtsamples_procedures
+      - chw_care_plan
   
   - name: patient_communication
     display_name: Patient Communication and Education
@@ -622,6 +623,23 @@ run_groups:
   - name: aci_bench
     display_name: ACI_Bench
     description: Converts doctor-patient dialogues into structured electronic medical records, benchmarking generative models for note generation.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: summac
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: chw_care_plan
+    display_name: CHW_Care_Plan
+    description: Converts patient notes into structured electronic records, benchmarking generative models for note generation.
     metric_groups:
       - accuracy
       - efficiency

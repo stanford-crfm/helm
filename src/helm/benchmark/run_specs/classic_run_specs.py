@@ -1205,7 +1205,8 @@ def get_ehrshot_spec(
         instructions="Answer A for yes, B for no.",
         input_noun="",
         output_noun="Answer A for yes, B for no",
-        max_train_instances=0
+        max_train_instances=0,
+        max_tokens=1
     )
 
     return RunSpec(
@@ -1441,6 +1442,42 @@ def get_aci_bench_run_spec() -> RunSpec:
         metric_specs=get_summarization_metric_specs(metric_args),
         groups=["clinical", "aci_bench"],
     )
+
+@run_spec_function("chw_care_plan")
+def get_chw_care_plan_run_spec() -> RunSpec:
+    """
+    RunSpec for the chw_care_plan dataset.
+    This configuration evaluates the model's ability to summarize doctor-patient dialogues into structured clinical notes.
+    """
+    # Define the scenario
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.chw_care_plan_scenario.CHWCarePlanScenario",
+        args={},
+    )
+
+    # Define the adapter
+    adapter_spec = get_generation_adapter_spec(
+        instructions=( "Follow the instructions provided regarding conversion of a patient note into a specified format."
+        ),
+        input_noun="",
+        output_noun="",
+        max_tokens=768, 
+        max_train_instances=0,
+        stop_sequences=[],
+    )
+
+    # Define the metrics
+    metric_args = {"task": "chw_care_plan", "device": get_torch_device_name()}
+
+    # Return the RunSpec
+    return RunSpec(
+        name="chw_care_plan",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs(metric_args),
+        groups=["clinical", "chw_care_plan"],
+    )
+
 
 @run_spec_function("medec")
 def get_medec_run_spec() -> RunSpec:
