@@ -1093,8 +1093,10 @@ def get_med_dialog_spec(subset: str) -> RunSpec:
     adapter_spec = get_summarization_adapter_spec(
         num_sents=1,
         max_tokens=80,
-        temperature=0.3
+        temperature=0.3,
+        max_train_instances=0
     )
+    
     metric_args = {"task": "med_dialog", "device": get_torch_device_name()}
     return RunSpec(
         name=f"med_dialog,subset={subset}",
@@ -1158,7 +1160,8 @@ def get_medalign_spec() -> RunSpec:
         newline_after_input_noun=False,
         output_noun=None,
         max_tokens=256,
-        stop_sequences=[]
+        stop_sequences=[],
+        max_train_instances=0
     )
     metric_args = {"task": "medalign", "device": get_torch_device_name()}
     return RunSpec(
@@ -1180,6 +1183,7 @@ def get_race_based_med_spec() -> RunSpec:
         instructions="Answer A for yes, B for no.",
         input_noun=None,
         output_noun="Answer",
+        max_train_instances=0
     )
 
     return RunSpec(
@@ -1251,7 +1255,8 @@ def get_medcalc_bench_spec() -> RunSpec:
         input_noun=None,
         newline_after_input_noun=False,
         output_noun="Answer only the requested quantity without units. No explanation needed",
-        max_tokens=10
+        max_tokens=10,
+        max_train_instances=0
     )
 
     return RunSpec(
@@ -1313,6 +1318,7 @@ def get_head_qa_run_spec(
         input_noun="Question",
         output_noun="Answer",
         max_tokens=1,
+        max_train_instances=0
     )
 
     # Define the metrics
@@ -1352,6 +1358,7 @@ def get_medbullets_run_spec() -> RunSpec:
         input_noun="Clinical Scenario",
         output_noun="Answer",
         max_tokens=1,
+        max_train_instances=0
     )
 
     # Define the metrics
@@ -1578,6 +1585,7 @@ def get_mtsamples_spec() -> RunSpec:
         newline_after_input_noun=False,
         output_noun="Answer",
         max_tokens=512,
+        max_train_instances=0
     )
 
     #metric_specs = get_open_ended_generation_metric_specs()
@@ -1602,6 +1610,7 @@ def get_pubmed_qa_spec() -> RunSpec:
         instructions="Answer A for yes, B for no or C for maybe.",
         input_noun="Question",
         output_noun="Answer",
+        max_train_instances=0
     )
 
     return RunSpec(
@@ -1701,7 +1710,35 @@ def get_medi_qa_spec() -> RunSpec:
         groups=["medi_qa"],
     )
     
+@run_spec_function("mental_health")
+def get_mental_health_spec() -> RunSpec:
+    """
+    Returns the run specification for the mental health counseling scenario.
+    This scenario evaluates a model's ability to generate appropriate counseling responses
+    in mental health conversations.
+    """
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.mental_health_scenario.MentalHealthScenario"
+    )
 
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Given a mental health conversation history, generate an empathetic and appropriate counselor response.",
+        input_noun=None,  # No specific input noun needed as format is defined in scenario
+        newline_after_input_noun=False,
+        output_noun="Counselor response",
+        max_tokens=512,  
+    )
+
+    metric_args = {"task": "mental_health", "device": get_torch_device_name()}
+
+    return RunSpec(
+        name=f"mental_health",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs(metric_args),
+        groups=["mental_health"],
+    )
+    
 @run_spec_function("dischargeme")
 def get_dischargeme_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -1717,7 +1754,8 @@ def get_dischargeme_spec() -> RunSpec:
         newline_after_input_noun=False,
         output_noun="Answer",
         max_tokens=300,
-        stop_sequences=[]
+        stop_sequences=[],
+        max_train_instances=0
     )
     metric_args = {"task": "dischargeme", "device": get_torch_device_name()}
     return RunSpec(
