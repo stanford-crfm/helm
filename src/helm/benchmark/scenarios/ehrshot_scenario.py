@@ -1447,7 +1447,7 @@ class EHRSHOTScenario(Scenario):
 
         # Generate instances
         instances: List[Instance] = []
-        df['prompt']=df['prompt'].str.replace('yes','A for yes').str.replace('no','B for no')
+        # df['prompt']=df['prompt'].str.replace('yes','A for yes').str.replace('no','B for no')
         for prompt, label, split in tqdm(zip(df['prompt'], df['boolean_value'], df['split']), total=len(df), desc="Generating instances"):
             if count_tokens(prompt) > self.max_length:
                 continue

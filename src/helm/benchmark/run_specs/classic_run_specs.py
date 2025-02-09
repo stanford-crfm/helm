@@ -1211,7 +1211,7 @@ def get_ehrshot_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions="Answer A for yes, B for no.",
         input_noun="",
-        output_noun="Answer A for yes, B for no",
+        output_noun="Respond with only 'A' for yes or 'B' for no. Do not add any other text, punctuation, or symbols",
         max_train_instances=0,
         max_tokens=1
     )
