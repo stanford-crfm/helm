@@ -1175,6 +1175,28 @@ def get_medalign_spec(
         groups=["medalign"],
     )
 
+@run_spec_function("clear")
+def get_clear_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.clear_scenario.CLEARScenario", args={}
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="Answer A for yes, B for no, C for maybe",
+        input_noun=None,
+        output_noun="Respond with only 'A' for yes, 'B' for no or 'C' for maybe. Do not add any other text, punctuation, or symbols",
+        max_train_instances=0
+    )
+
+    return RunSpec(
+        name="clear",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["clear"],
+    )
+
 @run_spec_function("race_based_med")
 def get_race_based_med_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
