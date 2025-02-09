@@ -46,6 +46,8 @@ class CLEARScenario(Scenario):
     description = "A dataset for classifying whether a patient has a history of alcohol dependence based on human-labeled medical texts from CLEAR."
     tags = ["classification", "biomedical"]
 
+    POSSIBLE_ANSWER_CHOICES: List[str] = ["A", "B", "C"]
+
     def get_instances(self, output_path: str) -> List[Instance]:
         excel_path = "/share/pi/nigam/suhana/medhelm/data/CLEAR/human_labeled/alcohol_dependence.xlsx"
         ensure_directory_exists(os.path.dirname(excel_path))
@@ -63,20 +65,30 @@ class CLEARScenario(Scenario):
             # Skip the instance if any required field is missing
             if not text or not label:
                 continue
+            
+            # Map the human label to the multiple-choice option: 1 -> A, 0 -> B, 2 -> C
+            mapped_label = {"1": "A", "0": "B", "2": "C"}.get(label, label)
 
-            label = {"1": "A", "0": "B", "2": "C"}.get(label, label)
-            # Construct the input prompt
+            # Build the References using the possible answer choices,
+            # marking the correct one with the CORRECT_TAG.
+            references: List[Reference] = [
+                Reference(Output(text=choice), tags=[CORRECT_TAG] if choice == mapped_label else [])
+                for choice in self.POSSIBLE_ANSWER_CHOICES
+            ]
+
             input_text = (
-                "You are a helpful medical assistant. Determine whether the patient has a history of alcohol dependence. Answer A for yes, B for no, C for maybe. Do not add any other text, punctuation, or symbols \n\n"
+                "You are a helpful medical assistant. Determine whether the patient has a history of alcohol dependence. Answer 'A', 'B', or 'C'. \n\n"
                 "Original Clinical Note:\n"
                 f"{text}\n\n"
-                "Answer A for yes, B for no, C for maybe. Do not add any other text, punctuation, or symbols"
+                "A. Has a history of alcohol dependence\n"
+                "B. Does not have a history of alcohol dependence\n"
+                "C. Uncertain\n\n"
             )
 
             instances.append(
                 Instance(
                     input=Input(text=input_text),
-                    references=[Reference(Output(text=label), tags=[CORRECT_TAG])],
+                    references=references,
                     split=split,
                 )
             )
