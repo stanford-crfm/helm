@@ -29,6 +29,12 @@ class OpenAIClient(CachingClient):
     # Error OpenAI throws when the image in the prompt violates their content policy
     INAPPROPRIATE_IMAGE_ERROR: str = "Your input image may contain content that is not allowed by our safety system"
     INAPPROPRIATE_PROMPT_ERROR: str = "Invalid prompt: your prompt was flagged"
+    INAPPROPRIATE_PROMPT_AZURE_ERROR: str = (
+        "The response was filtered due to the prompt triggering Azure OpenAI's content management policy."
+    )
+    INAPPROPRIATE_PROMPT_MICROSOFT_ERROR: str = (
+        "The response was filtered due to the prompt triggering Microsoft's content management policy."
+    )
 
     # OpenAI server error
     OPENAI_SERVER_ERROR: str = (
@@ -258,6 +264,15 @@ class OpenAIClient(CachingClient):
                     request_time=0,
                     completions=[empty_completion] * request.num_completions,
                     embedding=[],
+                )
+            elif self.INAPPROPRIATE_PROMPT_AZURE_ERROR in str(e) or self.INAPPROPRIATE_PROMPT_MICROSOFT_ERROR in str(e):
+                return RequestResult(
+                    success=False,
+                    cached=False,
+                    error="Content blocked by Azure's content management filter",
+                    completions=[],
+                    embedding=[],
+                    error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
                 )
 
             error: str = f"OpenAI error: {e}"
