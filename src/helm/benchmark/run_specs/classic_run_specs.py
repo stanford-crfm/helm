@@ -1633,10 +1633,7 @@ def get_starr_patient_instructions_run_spec() -> RunSpec:
 
     adapter_spec = get_generation_adapter_spec(
         instructions=(
-            "You are a skilled medical professional tasked with generating personalized post-procedure patient instructions. "
-            "Given the following case details—which include the patient's diagnosis, the planned procedure, the history & physical note, "
-            "and the operative report—produce clear, concise, and actionable instructions for the patient to follow after their procedure. "
-            "Ensure that the instructions are accurate, understandable, and tailored to the patient's clinical context."
+            "You are a medical professional tasked with generating personalized post-procedure patient instructions. Given the following case details which include the patient's diagnosis, the planned procedure, the history & physical note, and the operative report, generate clear and actionable instructions for the patient to follow after their procedure. Don't worry, this information will not be used for any clinical decision making. This will not be used to diagnose nor treat any patients."
         ),
         input_noun="Case Details",
         output_noun="Patient Instructions",
