@@ -488,7 +488,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: accuracy
+      main_name: exact_match
       main_split: test
     taxonomy:
       task: classification

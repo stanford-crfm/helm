@@ -1182,11 +1182,11 @@ def get_clear_spec() -> RunSpec:
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
-        method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions="Answer A for yes, B for no, C for maybe",
         input_noun=None,
         output_noun="Respond with only 'A' for yes, 'B' for no or 'C' for maybe. Do not add any other text, punctuation, or symbols",
-        max_train_instances=0
+        max_train_instances=0,
+        max_tokens=1
     )
 
     return RunSpec(

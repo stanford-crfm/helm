@@ -64,10 +64,13 @@ class CLEARScenario(Scenario):
             if not text or not label:
                 continue
 
-            label = {"1": " A", "0": " B", "2": " C"}.get(label, label)
+            label = {"1": "A", "0": "B", "2": "C"}.get(label, label)
             # Construct the input prompt
             input_text = (
-                "You are a helpful medical assistant. Determine whether the patient has a history of alcohol dependence. Answer A for yes, B for no, C for maybe. Do not add any other text, punctuation, or symbols"
+                "You are a helpful medical assistant. Determine whether the patient has a history of alcohol dependence. Answer A for yes, B for no, C for maybe. Do not add any other text, punctuation, or symbols \n\n"
+                "Original Clinical Note:\n"
+                f"{text}\n\n"
+                "Answer A for yes, B for no, C for maybe. Do not add any other text, punctuation, or symbols"
             )
 
             instances.append(
