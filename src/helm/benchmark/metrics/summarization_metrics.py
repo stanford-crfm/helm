@@ -71,7 +71,7 @@ class SummarizationMetric(Metric):
         else:
             self.compute_bertscore = True
             self.bert_scorer = BERTScorer(
-                model_type="microsoft/deberta-base", lang="en", rescale_with_baseline=True, device=device
+                model_type="distilbert-base-uncased", lang="en", device=device
             )
             # Need GPU for faithfulness metrics since they are model-based.
             self.compute_faithfulness = True
