@@ -1149,9 +1149,12 @@ def get_med_paragraph_simplification_spec() -> RunSpec:
     )
 
 @run_spec_function("medalign")
-def get_medalign_spec() -> RunSpec:
+def get_medalign_spec(
+    max_length: int = 128000
+) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.medalign_scenario.MedalignScenario"
+        class_name="helm.benchmark.scenarios.medalign_scenario.MedalignScenario",
+        args={"max_length": max_length}
     )
 
     adapter_spec = get_generation_adapter_spec(
@@ -1197,7 +1200,7 @@ def get_race_based_med_spec() -> RunSpec:
 @run_spec_function("ehrshot")
 def get_ehrshot_spec(
     subject: str,
-    max_length: str = 100000
+    max_length: int = 100000
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.ehrshot_scenario.EHRSHOTScenario", 

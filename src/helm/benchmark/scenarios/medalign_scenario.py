@@ -561,7 +561,7 @@ def preprocess_prompts(path_to_prompt_template, target_context_length, generatio
         verbose=False,
         include_ehr=include_ehr,
     )
-
+    assert filled_prompts, f"No prompts were found for length: {target_context_length}. Try again with a larger length."
     ### SAVE CONSTRUCTED PROMPTS TO DISK ###
     df_rows = []
     for instruction_id in tqdm(filled_prompts.keys()):
@@ -611,19 +611,16 @@ def add_reference_responses(prompts_df, path_to_reference_responses) -> pd.DataF
     merged_df = gold_df.merge(prompts_df, on="instruction_id", how="inner")
     return merged_df
 
-def return_dataset_dataframe():
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    config_path = os.path.join(script_dir,"medalign.yaml")
-    config = load_config(config_path)
-    path_to_prompt_template = config["path_to_prompt_template"]
-    target_context_length = config["target_context_length"]
-    generation_length = config["generation_length"]
-    path_to_instructions = config["path_to_instructions"]
-    path_to_ehrs = config["path_to_ehrs"]
-    use_RAG = config["use_RAG"]
-    include_ehr = config["include_ehr"]
-    tokenizer = config["tokenizer"]
-    path_to_reference_responses = config["path_to_reference_responses"]
+def return_dataset_dataframe(max_length: int) -> pd.DataFrame:
+    path_to_prompt_template = "/share/pi/nigam/scottyf/medalign-clean/src/medalign/prompt_templates/generic.txt"
+    target_context_length = max_length
+    generation_length = 256
+    path_to_instructions = "/share/pi/nigam/data/MedAlign/ehr-relevance-labels.csv"
+    path_to_ehrs = "/share/pi/nigam/data/MedAlign/full_patient_ehrs"
+    use_RAG = False
+    include_ehr = True
+    tokenizer = "tiktoken"
+    path_to_reference_responses = "/share/pi/nigam/scottyf/clinician-instruction-responses.csv"
 
 
     instructionid_to_prompt_df = preprocess_prompts(path_to_prompt_template=path_to_prompt_template,\
@@ -690,8 +687,9 @@ This task is evaluated using COMET and BERTScore metrics.
     description = "Benchmarking LLMs ability for clinical instruction-following"
     tags = ["knowledge", "reasoning", "biomedical"]
 
-    def __init__(self):
+    def __init__(self, max_length: int):
         super().__init__()
+        self.max_length = max_length
 
     def process_csv(self, data) -> List[Instance]:
         instances: List[Instance] = []
@@ -713,5 +711,5 @@ This task is evaluated using COMET and BERTScore metrics.
         return instances
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        dataset = return_dataset_dataframe()
+        dataset = return_dataset_dataframe(self.max_length)
         return self.process_csv(dataset)
