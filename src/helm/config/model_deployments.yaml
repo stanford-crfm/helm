@@ -67,6 +67,30 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.stanfordhealthcare_llama_client.StanfordHealthCareLlamaClient"
 
+  - name: stanfordhealthcare_shc/gpt-4o
+    model_name: openai/gpt-4o
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_shc_openai_client.StanfordHealthCareSHCOpenAIClient"
+      deployment: gpt-4o
+
+  - name: stanfordhealthcare_shc/gpt-4o-mini
+    model_name: openai/gpt-4o-mini
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_shc_openai_client.StanfordHealthCareSHCOpenAIClient"
+      deployment: gpt-4o-mini
+  
+  - name: stanfordhealthcare_shc/gpt-4-turbo-2024-04-09
+    model_name: openai/gpt-4-turbo-2024-04-09
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_shc_openai_client.StanfordHealthCareSHCOpenAIClient"
+      deployment: gpt-4-turbo-2024-04-09
+
   # Adobe
   - name: adobe/giga-gan
     model_name: adobe/giga-gan
