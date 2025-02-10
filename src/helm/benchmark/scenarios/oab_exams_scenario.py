@@ -25,8 +25,8 @@ class OABExamsScenario(Scenario):
     The dataset can be found in this link: https://huggingface.co/datasets/eduagarcia/oab_exams
     """
 
-    name = "enem_challenge"
-    description = "ENEM Challenge dataset"
+    name = "oab_exams"
+    description = "OAB exams dataset"
     tags = ["knowledge", "multiple_choice", "pt-br"]
 
     def get_instances(self, output_path: str) -> List[Instance]:

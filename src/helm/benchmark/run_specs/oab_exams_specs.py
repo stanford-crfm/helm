@@ -14,8 +14,11 @@ def get_enem_spec() -> RunSpec:
         instructions="Dê uma resposta selecionando uma letra entre as opções fornecidas. "
         "Se as opções forem A, B, C e D,"
         "sua resposta deve consistir em uma única letra que corresponde a resposta correta.\n"
-        "Exemplo: Qual é a capital da França?\nA. Londres\nB. Paris\nC. Roma\nD. Berlim\nE. Sydney\n"
-        "Resposta: B",
+        "Exemplo: Ao conselho da subseção compete\nA. representar a OAB no Conselho de Segurança do MERCOSUL."
+        "\nB. fiscalizar as funções e atribuições do conselho seccional.\nC. instaurar e instruir processos "
+        "disciplinares, para julgamento pelo Conselho Federal.\nD. receber pedido de inscrição nos quadros de "
+        "advogado e estagiário, instruindo e emitindo parecer prévio, para decisão do conselho seccional.\n"
+        "Resposta: D",
         input_noun="Pergunta",
         output_noun="Resposta",
     )
