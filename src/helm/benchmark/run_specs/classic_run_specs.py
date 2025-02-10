@@ -2162,3 +2162,108 @@ def get_thai_exam_spec(exam: str = "onet", method: str = ADAPT_MULTIPLE_CHOICE_J
         metric_specs=get_exact_match_metric_specs(),
         groups=["thai_exam", f"thai_exam_{exam}"],
     )
+
+@run_spec_function("shc_sequoia_med")
+def get_shc_sequoia_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.shc_sequoia_scenario.SHCSequoiaMedScenario", args={}
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="Answer A or B.",
+        input_noun="",
+        output_noun="",
+    )
+
+    return RunSpec(
+        name="shc_sequoia_med",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["shc_sequoia_med"],
+    )
+
+@run_spec_function("shc_cdi_med")
+def get_shc_cdi_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.shc_cdi_scenario.SHCCDIMedScenario", args={}
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="Answer A or B.",
+        input_noun="",
+        output_noun="",
+    )
+
+    return RunSpec(
+        name="shc_cdi_med",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["shc_cdi_med"],
+    )
+
+@run_spec_function("shc_ent_med")
+def get_shc_ent_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.shc_ent_scenario.SHCENTMedScenario", args={}
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="Answer A, B, or C.",
+        input_noun="",
+        output_noun="",
+    )
+
+    return RunSpec(
+        name="shc_ent_med",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["shc_ent_med"],
+    )    
+
+@run_spec_function("shc_gip_med")
+def get_shc_cdi_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.shc_gip_scenario.SHCGIPMedScenario", args={}
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="Answer A or B.",
+        input_noun="",
+        output_noun="",
+    )
+
+    return RunSpec(
+        name="shc_gip_med",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["shc_gip_med"],
+    )
+    
+@run_spec_function("shc_bmt_med")
+def get_shc_cdi_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.shc_bmt_scenario.SHCBMTMedScenario", args={}
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="Answer A or B.",
+        input_noun="",
+        output_noun="",
+    )
+
+    return RunSpec(
+        name="shc_bmt_med",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["shc_bmt_med"],
+    )
