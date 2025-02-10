@@ -8,6 +8,7 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 
 try:
     import boto3
+    from boto3 import Session
     from botocore.config import Config
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["aws"])
@@ -70,3 +71,35 @@ def get_bedrock_client(
 
     hlog(f"Amazon Bedrock client successfully created with endpoint {bedrock_client._endpoint}")
     return bedrock_client
+
+
+def get_bedrock_client_v1(
+    region: Optional[str] = None,
+    service_name: str = "bedrock-runtime",
+    assumed_role: Optional[str] = None,
+    read_timeout: int = 5000,
+    connect_timeout: int = 5000,
+    max_attempts: int = 10,
+):
+    boto_config = Config(
+        read_timeout=read_timeout, connect_timeout=connect_timeout, retries={"max_attempts": max_attempts}
+    )
+
+    if assumed_role:
+        session = boto3.Session(region_name=region)
+        # Assume role and get credentials
+        sts = session.client("sts")
+        creds = sts.assume_role(RoleArn=str(assumed_role), RoleSessionName="crfm-helm")["Credentials"]
+        session = Session(
+            aws_access_key_id=creds["AccessKeyId"],
+            aws_secret_access_key=creds["SecretAccessKey"],
+            aws_session_token=creds["SessionToken"],
+        )
+        return session.client(
+            service_name=service_name,
+            region_name=region,
+            config=boto_config,
+        )
+
+    # default to instance role to get the aws credentials or aws configured credentials
+    return boto3.client(service_name=service_name, region_name=region, config=boto_config)

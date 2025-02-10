@@ -13,7 +13,14 @@ from helm.clients.client import CachingClient, truncate_sequence, generate_uid_f
 try:
     import vertexai
     from vertexai.language_models import TextGenerationModel, TextGenerationResponse  # PaLM2
-    from vertexai.preview.generative_models import GenerativeModel, GenerationResponse, Candidate, Part, Image  # Gemini
+    from vertexai.preview.generative_models import (
+        GenerativeModel,
+        GenerationResponse,
+        Candidate,
+        Content,
+        Part,
+        Image,
+    )  # Gemini
     from google.cloud.aiplatform_v1beta1.types import SafetySetting, HarmCategory
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["google"])
@@ -49,17 +56,16 @@ def _get_safety_settings_for_preset(
         raise ValueError(f"Unknown safety_settings_preset: {safety_settings_preset}")
 
 
-def _get_model_name_for_request(request: Request) -> str:
-    # We have to strip "-safety-" suffixes from model names because they are not part of the Vertex AI model name
-    # TODO: Clean up this hack
-    return request.model_engine.split("-safety-")[0]
-
-
 class VertexAIClient(CachingClient, ABC):
     """Client for Vertex AI models"""
 
     def __init__(
-        self, cache_config: CacheConfig, project_id: str, location: str, safety_settings_preset: Optional[str] = None
+        self,
+        cache_config: CacheConfig,
+        project_id: str,
+        location: str,
+        safety_settings_preset: Optional[str] = None,
+        vertexai_model: Optional[str] = None,
     ) -> None:
         super().__init__(cache_config=cache_config)
         self.project_id = project_id
@@ -68,7 +74,14 @@ class VertexAIClient(CachingClient, ABC):
         self.safety_settings_preset = safety_settings_preset
         self.safety_settings = _get_safety_settings_for_preset(safety_settings_preset)
 
+        self.vertexai_model = vertexai_model
+
         vertexai.init(project=self.project_id, location=self.location)
+
+    def _get_model_name_for_request(self, request: Request) -> str:
+        if self.vertexai_model is not None:
+            return self.vertexai_model
+        return request.model_engine
 
     def make_cache_key_with_safety_settings_preset(self, raw_request: Mapping, request: Request) -> Mapping:
         """Construct the key for the cache using the raw request.
@@ -112,7 +125,7 @@ class VertexAITextClient(VertexAIClient):
         }
 
         completions: List[GeneratedOutput] = []
-        model_name: str = _get_model_name_for_request(request)
+        model_name: str = self._get_model_name_for_request(request)
 
         try:
 
@@ -194,11 +207,19 @@ class VertexAIChatClient(VertexAIClient):
 
     def make_request(self, request: Request) -> RequestResult:
         """Make a request"""
-        contents: str = request.prompt
+        contents = [request.prompt]
 
         # For the multimodal case, build up the content with the media objects of `request.multimodal_prompt`
         if request.multimodal_prompt is not None:
             return self._make_multimodal_request(request)
+
+        if request.messages is not None:
+            contents = []
+            role_mapping = {"user": "user", "assistant": "model"}
+            for msg in request.messages:
+                contents.append(
+                    Content(role=role_mapping.get(msg["role"], "user"), parts=[Part.from_text(msg["content"])])
+                )
 
         parameters = {
             "temperature": request.temperature,
@@ -218,7 +239,7 @@ class VertexAIChatClient(VertexAIClient):
         }
 
         completions: List[GeneratedOutput] = []
-        model_name: str = _get_model_name_for_request(request)
+        model_name: str = self._get_model_name_for_request(request)
         model = self.get_model(model_name)
 
         try:
@@ -264,7 +285,7 @@ class VertexAIChatClient(VertexAIClient):
             cache_key = self.make_cache_key_with_safety_settings_preset(
                 {
                     "model_name": model_name,
-                    "prompt": request.prompt,
+                    "prompt": request.messages or request.prompt,
                     **parameters,
                 },
                 request,
@@ -360,7 +381,7 @@ class VertexAIChatClient(VertexAIClient):
         }
 
         completions: List[GeneratedOutput] = []
-        model_name: str = _get_model_name_for_request(request)
+        model_name: str = self._get_model_name_for_request(request)
         model = self.get_model(model_name)
 
         request_time = 0

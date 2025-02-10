@@ -68,6 +68,10 @@ metrics:
     display_name: ROUGE-L
     description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on longest common subsequence overlap.
     lower_is_better: false
+  - name: classification_weighted_f1
+    display_name: Weighted F1
+    description: Weighted F1 score
+    lower_is_better: false
 
 ############################################################
 perturbations: []
@@ -109,6 +113,7 @@ run_groups:
     category: All scenarios
     subgroups:
       - gold_commodity_news
+      - financial_phrasebank
 
   - name: legal_scenarios
     display_name: Legal Scenarios
@@ -116,6 +121,9 @@ run_groups:
     category: All scenarios
     subgroups:
       - legal_contract_summarization
+      - casehold
+      - echr_judgment_classification
+      - legal_opinion_sentiment_classification
 
   - name: climate_scenarios
     display_name: Climate Scenarios
@@ -123,6 +131,30 @@ run_groups:
     category: All scenarios
     subgroups:
       - sumosum
+
+  - name: cyber_security_scenarios
+    display_name: Cyber Security Scenarios
+    description: Scenarios for the cyber security domain
+    category: All scenarios
+    subgroups:
+      - cti_to_mitre
+
+  - name: financial_phrasebank
+    display_name: Financial Phrasebank (Sentiment Classification)
+    description: A sentiment classification benchmark based on the dataset from Good Debt or Bad Debt - Detecting Semantic Orientations in Economic Texts [(Malo et al., 2013)](https://arxiv.org/abs/1307.5336).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: classification_weighted_f1
+      main_split: test
+    taxonomy:
+      task: sentiment analysis
+      what: phrases from financial news texts and company press releases
+      who: annotators with adequate business education background
+      when: before 2013
+      language: English
 
   - name: gold_commodity_news
     display_name: Gold Commodity News
@@ -132,7 +164,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: quasi_exact_match
+      main_name: classification_weighted_f1
       main_split: test
     taxonomy:
       task: text classification
@@ -149,7 +181,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: rouge_2
+      main_name: rouge_l
       main_split: test
     taxonomy:
       task: summarization
@@ -161,13 +193,50 @@ run_groups:
   - name: casehold
     display_name: CaseHOLD
     description: CaseHOLD (Case Holdings On Legal Decisions) is a multiple choice question answering scenario where the task is to identify the relevant holding of a cited case [(Zheng et al, 2021)](https://arxiv.org/pdf/2104.08671.pdf).
-      main_name: exact_match
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
       main_split: test
     taxonomy:
       task: question answering
       what: Harvard Law Library case law corpus
       who: legal professionals
       when: before 2021
+      language: English
+
+  - name: echr_judgment_classification
+    display_name: ECHR Judgment Classification
+    description: The "Binary Violation" Classification task from the paper Neural Legal Judgment Prediction in English [(Chalkidis et al., 2019)](https://arxiv.org/pdf/1906.02059.pdf). The task is to analyze the description of a legal case from the European Court of Human Rights (ECHR), and classify it as positive if any human rights article or protocol has been violated and negative otherwise.
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: classification_weighted_f1
+      main_split: test
+    taxonomy:
+      task: text classification
+      what: casees from the European Court of Human Rights
+      who: judiciary of the European Court of Human Rights
+      when: 2014-2018 (train) and 2014-2018 (test)
+      language: English
+
+  - name: legal_opinion_sentiment_classification
+    display_name: Legal Opinion Sentiment Classification
+    description: A legal opinion sentiment classification task based on the paper Effective Approach to Develop a Sentiment Annotator For Legal Domain in a Low Resource Setting [(Ratnayaka et al., 2020)](https://arxiv.org/pdf/2011.00318.pdf).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: sentiment analysis
+      what: United States legal opinion texts
+      who: United States courts
+      when: Before 2020
       language: English
 
   - name: sumosum
@@ -178,11 +247,30 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: rouge_2
+      main_name: rouge_l
       main_split: test
     taxonomy:
       task: summarization
       what: Articles from climatefeedback.org
       who: Writers of news articles and web documents
       when: Before 2020
+      language: English
+      main_name: quasi_exact_match
+      main_split: test
+
+  - name: cti_to_mitre
+    display_name: CTI-to-MITRE Cyber Threat Intelligence
+    description: A classification benchmark based on Automatic Mapping of Unstructured Cyber Threat Intelligence - An Experimental Study [(Orbinato et al., 2022)](https://arxiv.org/pdf/2208.12144.pdf).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: text classification
+      what: Descriptions of malicious techniques
+      who: Security professionals
+      when: Before 2022
       language: English

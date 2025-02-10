@@ -348,6 +348,29 @@ class AnthropicClaude3RunExpander(RunExpander):
         return [run_spec]
 
 
+class NovaRunExpander(RunExpander):
+    """
+    Custom prompt for Amazon Nova models.
+    These models need more explicit instructions about following the format.
+    """
+
+    name = "amazon-nova"
+
+    PROMPT = "Do not provide any additional explanation. Follow the format shown in the provided examples strictly."
+
+    def __init__(self):
+        pass
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(run_spec.adapter_spec, global_prefix=NovaRunExpander.PROMPT + "\n\n"),
+            ),
+        ]
+
+
 class FollowFormatInstructionsRunExpander(RunExpander):
     """Adds more explicit instructions about following the format to prompts.
 
@@ -1426,14 +1449,20 @@ class OutputFormatInstructions(RunExpander):
     name = "output_format_instructions"
 
     _SUFFIX_SUFFIX = "_suffix"
+    _NO_PREFIX_SUFFIX = "_no_prefix"
 
     def __init__(self, scenario: str):
+        self.suffix = False
         if scenario.endswith(OutputFormatInstructions._SUFFIX_SUFFIX):
-            self.scenario = scenario[: -len(OutputFormatInstructions._SUFFIX_SUFFIX)]
+            scenario = scenario.removesuffix(OutputFormatInstructions._SUFFIX_SUFFIX)
             self.suffix = True
-        else:
-            self.scenario = scenario
-            self.suffix = False
+
+        self.no_prefix = False
+        if scenario.endswith(OutputFormatInstructions._NO_PREFIX_SUFFIX):
+            scenario = scenario.removesuffix(OutputFormatInstructions._NO_PREFIX_SUFFIX)
+            self.no_prefix = True
+
+        self.scenario = scenario
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         if run_spec.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
@@ -1454,6 +1483,8 @@ class OutputFormatInstructions(RunExpander):
                 )
             elif self.scenario == "natural_qa":
                 instructions = "Answer with a short answer or a boolean 'yes' or 'no' answer."
+            elif self.scenario == "natural_qa_short_answer":
+                instructions = "Answer with a short answer."
             elif self.scenario == "legalbench":
                 if output_noun != "Answer":
                     instructions = f"Answer with the {output_noun.lower()}."
@@ -1469,8 +1500,6 @@ class OutputFormatInstructions(RunExpander):
                 instructions = "Answer with the English translation."
             elif self.scenario == "wmt_14_only_last_sentence":
                 instructions = "Answer with only the English translation for the last sentence."
-            elif self.scenario == "wmt_14_no_prefix":
-                instructions = "Answer with the English translation. Do not include 'English:' in your answer."
             elif self.scenario == "math":
                 instructions = "Wrap the final answer with the \\boxed{} command."
             elif self.scenario == "numeric_nlg":
@@ -1486,6 +1515,11 @@ class OutputFormatInstructions(RunExpander):
                 )
             else:
                 raise ValueError(f"Unknown scenario {self.scenario}")
+
+        if self.no_prefix:
+            if instructions:
+                instructions += " "
+            instructions += f"Do not include '{run_spec.adapter_spec.output_prefix.strip()}' in your answer."
 
         if self.suffix:
             return [

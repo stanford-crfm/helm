@@ -318,10 +318,17 @@ class TogetherRawChatRequest(TypedDict):
 class TogetherChatClient(CachingClient):
     """Client that uses the Python Together library for chat models."""
 
-    def __init__(self, cache_config: CacheConfig, api_key: Optional[str], together_model: Optional[str] = None):
+    def __init__(
+        self,
+        cache_config: CacheConfig,
+        api_key: Optional[str],
+        together_model: Optional[str] = None,
+        disable_logprobs: Optional[bool] = None,
+    ):
         super().__init__(cache_config=cache_config)
         self._client = Together(api_key=api_key)
         self._together_model = together_model
+        self._disable_logprobs = bool(disable_logprobs)
 
     def convert_to_raw_chat_request(self, request: Request) -> TogetherRawChatRequest:
         request.validate()
@@ -353,6 +360,10 @@ class TogetherChatClient(CachingClient):
             model = self._together_model
         else:
             model = request.model
+        if self._disable_logprobs:
+            logprobs = 0
+        else:
+            logprobs = min(request.top_k_per_token, 1)
         return {
             "messages": messages,
             "model": model,
@@ -361,7 +372,7 @@ class TogetherChatClient(CachingClient):
             "temperature": request.temperature,
             "top_p": request.top_p,
             "top_k": request.top_k_per_token,
-            "logprobs": min(request.top_k_per_token, 1),
+            "logprobs": logprobs,
             "echo": request.echo_prompt,
             "n": request.num_completions,
         }
@@ -426,16 +437,27 @@ class TogetherRawCompletionRequest(TypedDict):
 class TogetherCompletionClient(CachingClient):
     """Client that uses the Python Together library for text completion models."""
 
-    def __init__(self, cache_config: CacheConfig, api_key: Optional[str], together_model: Optional[str] = None):
+    def __init__(
+        self,
+        cache_config: CacheConfig,
+        api_key: Optional[str],
+        together_model: Optional[str] = None,
+        disable_logprobs: Optional[bool] = None,
+    ):
         super().__init__(cache_config=cache_config)
         self._client = Together(api_key=api_key)
         self._together_model = together_model
+        self._disable_logprobs = bool(disable_logprobs)
 
     def convert_to_raw_completion_request(self, request: Request) -> TogetherRawCompletionRequest:
         if self._together_model is not None:
             model = self._together_model
         else:
             model = request.model
+        if self._disable_logprobs:
+            logprobs = 0
+        else:
+            logprobs = min(request.top_k_per_token, 1)
         return {
             "prompt": request.prompt,
             "model": model,
@@ -444,7 +466,7 @@ class TogetherCompletionClient(CachingClient):
             "temperature": request.temperature,
             "top_p": request.top_p,
             "top_k": request.top_k_per_token,
-            "logprobs": min(request.top_k_per_token, 1),
+            "logprobs": logprobs,
             "echo": request.echo_prompt,
             "n": request.num_completions,
         }

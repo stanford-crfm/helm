@@ -193,7 +193,7 @@ class RequestResult:
     """Whether the request was actually cached"""
 
     request_time: Optional[float] = None
-    """How long did the request take?"""
+    """How long the request took in seconds"""
 
     request_datetime: Optional[int] = None
     """When was the request sent?

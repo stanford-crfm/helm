@@ -3984,9 +3984,9 @@ mz@^2.7.0:
     thenify-all "^1.0.0"
 
 nanoid@^3.3.6:
-  version "3.3.6"
-  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.6.tgz#443380c856d6e9f9824267d960b4236ad583ea4c"
-  integrity sha512-BGcqMMJuToF7i1rt+2PWSNVnWIkGCU78jBG3RxO/bZlnZPK2Cmi2QaffxGO/2RvWi9sL+FAiRiXMgsyxQ1DIDA==
+  version "3.3.8"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.8.tgz#b1be3030bee36aaff18bacb375e5cce521684baf"
+  integrity sha512-WNLf5Sd8oZxOm+TzppcYk8gVOgP+l58xNy58D0nbUnOxOWRWvlcCV4kUF7ltmI6PsrLl/BgKEyS4mqsGChFN0w==
 
 natural-compare@^1.4.0:
   version "1.4.0"
@@ -5270,10 +5270,10 @@ vite-node@0.33.0:
     picocolors "^1.0.0"
     vite "^3.0.0 || ^4.0.0"
 
-"vite@^3.0.0 || ^4.0.0", vite@^4.5.5:
-  version "4.5.5"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-4.5.5.tgz#639b9feca5c0a3bfe3c60cb630ef28bf219d742e"
-  integrity sha512-ifW3Lb2sMdX+WU91s3R0FyQlAyLxOzCSCP37ujw0+r5POeHPwe6udWVIElKQq8gk3t7b8rkmvqC6IHBpCff4GQ==
+"vite@^3.0.0 || ^4.0.0", vite@^4.5.6:
+  version "4.5.6"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-4.5.6.tgz#48bbd97fe06e8241df2e625b31c581707e10b57d"
+  integrity sha512-ElBNuVvJKslxcfY2gMmae5IjaKGqCYGicCNZ+8R56sAznobeE3pI9ctzI17cBS/6OJh5YuQNMSN4BP4dRjugBg==
   dependencies:
     esbuild "^0.18.10"
     postcss "^8.4.27"

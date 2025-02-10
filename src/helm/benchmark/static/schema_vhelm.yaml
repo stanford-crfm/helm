@@ -122,6 +122,11 @@ metrics:
     short_display_name: EM
     description: Fraction of instances that the predicted output matches a correct reference up to light processing.
     lower_is_better: false
+  - name: quasi_leave_articles_exact_match
+    display_name: Quasi-exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+    lower_is_better: false
   - name: prefix_exact_match
     display_name: Prefix exact match
     short_display_name: PEM
@@ -726,7 +731,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_prefix_exact_match
       main_split: test
     taxonomy:
       task: short-answer question answering
@@ -902,7 +907,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_leave_articles_exact_match
       main_split: test
     taxonomy:
       task: short-answer question answering

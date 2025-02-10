@@ -150,3 +150,58 @@ def get_call_center_summarization_key_points_recall_spec() -> RunSpec:
         annotators=annotator_specs,
         groups=["call_center_summarization_key_points_recall"],
     )
+
+
+@run_spec_function("helpdesk_call_summarization")
+def get_helpdesk_call_summarization_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.helpdesk_call_summarization_scenario.HelpdeskCallSummarizationScenario",
+    )
+    annotator_specs = annotator_specs = [
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.helpdesk_call_summarization_annotator.HelpdeskCallSummarizationAnnotator"  # noqa: E501
+        )
+    ]
+
+    instructions = "The following is a call transcript of a call between a compnay's employee and the company's IT helpdesk. Summarize the call transcript in under 100 words."  # noqa: E501
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions=instructions,
+        input_prefix="### Call Transcript\n",
+        input_suffix="",
+        output_prefix="",
+        output_suffix="",
+        max_train_instances=0,
+        temperature=0.0,
+        max_tokens=512,
+        num_outputs=1,
+    )
+
+    # annotator_specs = annotator_specs = [
+    #     AnnotatorSpec(class_name="helm.benchmark.annotation.call_center_annotator.CallCenterSummarizationAnnotator")
+    # ]
+    annotation_metric_specs = [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.annotation_metrics.AnnotationLikertScaleMetric",
+            args={
+                "annotator_name": "helpdesk_call_center_summarization",
+                "key": "score",
+                "min_score": 1,
+                "max_score": 10,
+            },
+        )
+    ]
+
+    metric_specs = get_basic_metric_specs([]) + annotation_metric_specs
+
+    group = "helpdesk_call_summarization"
+
+    return RunSpec(
+        name="helpdesk_call_summarization",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        annotators=annotator_specs,
+        groups=[group],
+    )

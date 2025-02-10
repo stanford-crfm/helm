@@ -10,8 +10,9 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 @run_spec_function("unitxt")
 def get_unitxt_spec(**kwargs) -> RunSpec:
     card = kwargs.get("card")
-    if not card:
-        raise Exception("Unitxt card must be specified")
+    recipe = kwargs.get("recipe")
+    if not card and not recipe:
+        raise Exception("Unitxt card or recipe must be specified")
     if os.environ.get("HELM_UNITXT_SHORTEN_RUN_SPEC_NAMES", "").lower() == "true":
         name_suffix = ",".join(
             [f"{key}={value}" for key, value in kwargs.items() if key not in ["template_card_index", "loader_limit"]]
@@ -35,7 +36,8 @@ def get_unitxt_spec(**kwargs) -> RunSpec:
         max_train_instances=0,
         num_outputs=1,
         temperature=0.0,
-        stop_sequences=["\n\n"],
+        max_tokens=512,
+        stop_sequences=[],
     )
     return RunSpec(
         name=name,
@@ -45,5 +47,5 @@ def get_unitxt_spec(**kwargs) -> RunSpec:
             MetricSpec(class_name="helm.benchmark.metrics.unitxt_metrics.UnitxtMetric", args=kwargs),
         ]
         + get_basic_metric_specs([]),
-        groups=[f"unitxt_{card}"],
+        groups=[f"unitxt_{card or recipe}"],
     )
