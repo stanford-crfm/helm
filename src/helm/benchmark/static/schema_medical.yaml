@@ -351,6 +351,7 @@ run_groups:
       - head_qa
       - medbullets
       - medalign
+      - clear
 
   - name: clinical_note_generation
     display_name: Clinical Note Generation
@@ -477,6 +478,23 @@ run_groups:
       what: patient instructions
       who: patient
       when: post-procedure
+      language: English
+    
+  - name: clear
+    display_name: "CLEAR (Alcohol Dependence)"
+    description: "A benchmark created from CLEAR data for classifying whether a patient has a history of alcohol dependence based on human-labeled medical texts."
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: classification
+      what: alcohol dependence classification
+      who: patient
+      when: any
       language: English
 
   - name: race_based_med

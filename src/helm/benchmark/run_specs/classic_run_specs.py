@@ -1090,11 +1090,11 @@ def get_med_dialog_spec(subset: str) -> RunSpec:
         class_name="helm.benchmark.scenarios.med_dialog_scenario.MedDialogScenario", args={"subset": subset}
     )
 
-    adapter_spec = get_summarization_adapter_spec(
-        num_sents=1,
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Generate a one sentence summary of this patient-doctor conversation.",
+        input_noun="Patient-Doctor",
+        output_noun="Summary",
         max_tokens=80,
-        temperature=0.3,
-        max_train_instances=0
     )
     
     metric_args = {"task": "med_dialog", "device": get_torch_device_name()}
@@ -1175,6 +1175,29 @@ def get_medalign_spec(
         groups=["medalign"],
     )
 
+@run_spec_function("clear")
+def get_clear_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.clear_scenario.CLEARScenario", args={}
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT, 
+        instructions="Answer 'A' for yes, 'B' for no, or 'C' for maybe'",
+        input_noun=None,
+        output_noun="Respond only with 'A', 'B', or 'C'. Do not add any other text, punctuation, or symbols",
+        max_train_instances=0,
+        max_tokens=1
+    )
+
+    return RunSpec(
+        name="clear",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["clear"],
+    )
+
 @run_spec_function("race_based_med")
 def get_race_based_med_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -1211,7 +1234,7 @@ def get_ehrshot_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions="Answer A for yes, B for no.",
         input_noun="",
-        output_noun="Answer A for yes, B for no",
+        output_noun="Respond with only 'A' for yes or 'B' for no. Do not add any other text, punctuation, or symbols",
         max_train_instances=0,
         max_tokens=1
     )
@@ -1633,10 +1656,7 @@ def get_starr_patient_instructions_run_spec() -> RunSpec:
 
     adapter_spec = get_generation_adapter_spec(
         instructions=(
-            "You are a skilled medical professional tasked with generating personalized post-procedure patient instructions. "
-            "Given the following case details—which include the patient's diagnosis, the planned procedure, the history & physical note, "
-            "and the operative report—produce clear, concise, and actionable instructions for the patient to follow after their procedure. "
-            "Ensure that the instructions are accurate, understandable, and tailored to the patient's clinical context."
+            "You are a medical professional tasked with generating personalized post-procedure patient instructions. Given the following case details which include the patient's diagnosis, the planned procedure, the history & physical note, and the operative report, generate clear and actionable instructions for the patient to follow after their procedure. Don't worry, this information will not be used for any clinical decision making. This will not be used to diagnose nor treat any patients."
         ),
         input_noun="Case Details",
         output_noun="Patient Instructions",
