@@ -1090,11 +1090,11 @@ def get_med_dialog_spec(subset: str) -> RunSpec:
         class_name="helm.benchmark.scenarios.med_dialog_scenario.MedDialogScenario", args={"subset": subset}
     )
 
-    adapter_spec = get_summarization_adapter_spec(
-        num_sents=1,
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Generate a one sentence summary of this patient-doctor conversation.",
+        input_noun="Patient-Doctor",
+        output_noun="Summary",
         max_tokens=80,
-        temperature=0.3,
-        max_train_instances=0
     )
     
     metric_args = {"task": "med_dialog", "device": get_torch_device_name()}
