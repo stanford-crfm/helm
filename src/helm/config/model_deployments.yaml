@@ -1205,6 +1205,7 @@ model_deployments:
           load_in_4bit: true
         attn_implementation: "flash_attention_2"
 
+
   - name: huggingface/phi-3.5-moe-instruct
     model_name: microsoft/phi-3.5-moe-instruct
     tokenizer_name: microsoft/phi-3.5-mini-instruct
@@ -2954,6 +2955,10 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         pretrained_model_name_or_path: Qwen/Qwen2.5-7B-Instruct
+        torch_dtype: "float16"
+        quantization_config:
+          load_in_4bit: true
+        attn_implementation: "flash_attention_2"
 
   - name: together/qwq-32b-preview
     model_name: qwen/qwq-32b-preview

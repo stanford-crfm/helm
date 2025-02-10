@@ -342,7 +342,7 @@ run_groups:
   - name: clinical_decision_support
     display_name: Clinical Decision Support
     description: Scenarios for clinical decision support
-    category: Medical Scenarios
+    category: Healthcare Task Categories
     subgroups:
       - medcalc_bench
       - mtsamples_replicate
@@ -356,7 +356,7 @@ run_groups:
   - name: clinical_note_generation
     display_name: Clinical Note Generation
     description: Scenarios for clinical note generation
-    category: Medical Scenarios
+    category: Healthcare Task Categories
     subgroups:
       - dischargeme
       - aci_bench
@@ -367,7 +367,7 @@ run_groups:
   - name: patient_communication
     display_name: Patient Communication and Education
     description: Scenarios for patient communication and education
-    category: Medical Scenarios
+    category: Healthcare Task Categories
     subgroups:
       - medication_qa
       - med_dialog
@@ -378,7 +378,7 @@ run_groups:
   - name: medical_research
     display_name: Medical Research Assistance
     description: Scenarios for medical research assistance
-    category: Medical Scenarios
+    category: Healthcare Task Categories
     subgroups:
       - pubmed_qa
       - ehr_sql
@@ -388,7 +388,7 @@ run_groups:
   - name: administration_and_workflow
     display_name: Administration and Workflow
     description: Scenarios for administration and workflow
-    category: Medical Scenarios
+    category: Healthcare Task Categories
     subgroups:
       - mimiciv_billing_code
 
