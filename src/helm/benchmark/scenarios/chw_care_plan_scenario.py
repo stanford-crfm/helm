@@ -84,25 +84,23 @@ class CHWCarePlanScenario(Scenario):
         
         # Use the entire dataset as one split (TEST_SPLIT)
         for idx, row in df.iterrows():
-            try:
-                note_text: str = row["MO Note"]
-                prompt_text = create_prompt_text(note_text)
-                # print(f"Prompt text: {prompt_text}")
-
-                # Create one Instance per patient
-                instance = Instance(
-                    input=Input(text=prompt_text),
-                    references=[
-                        Reference(
-                            Output(text=note_text),
-                            tags=[CORRECT_TAG]
-                        )
-                    ],
-                    split=TEST_SPLIT
-                )
-                instances.append(instance)
-            except Exception as e:
-                print(f"Error processing row {idx}: {str(e)}")
+            note_text: str = row["MO Note"]
+            prompt_text = create_prompt_text(note_text)
+            if pd.isna(note_text):
+                print(f"Skipping row {idx} due to NaN value in 'MO Note'")
                 continue
-        
+            # print(f"Prompt text: {prompt_text}")
+
+            # Create one Instance per patient
+            instance = Instance(
+                input=Input(text=prompt_text),
+                references=[
+                    Reference(
+                        Output(text=note_text),
+                        tags=[CORRECT_TAG]
+                    )
+                ],
+                split=TEST_SPLIT
+            )
+            instances.append(instance)
         return instances
