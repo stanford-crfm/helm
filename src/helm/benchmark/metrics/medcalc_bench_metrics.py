@@ -8,8 +8,8 @@ from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
+from helm.benchmark.scenarios.scenario import CORRECT_TAG
 from helm.common.hierarchical_logger import hlog
-
 
 class MedCalcBenchMetric(Metric):
     def evaluate_generation(
@@ -41,13 +41,14 @@ class MedCalcBenchMetric(Metric):
             .split("calculated value:")[-1]
             .strip()
         )
+        ground_truth_ref = [ref for ref in request_state.instance.references if CORRECT_TAG in ref.tags][0]
 
         correctness = 0
         if final_answer:
             try:
                 correctness = self.medcalc_bench_metric_calculation(
                     answer=final_answer,
-                    ground_truth=request_state.instance.extra_data["ground_truth"],
+                    ground_truth=ground_truth_ref.output.text,
                     calid=int(request_state.instance.extra_data["calculator_id"]),
                     upper_limit=request_state.instance.extra_data["upper_limit"],
                     lower_limit=request_state.instance.extra_data["lower_limit"],
@@ -56,7 +57,7 @@ class MedCalcBenchMetric(Metric):
                 hlog(
                     (
                         "Failed to calculate the correctess of the output for MedCalc-Bench instance "
-                        f'with id {request_state.instance.extra_data["id"]}: {e}'
+                        f'with id {request_state.instance.id}: {e}'
                     )
                 )
 
