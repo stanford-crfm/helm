@@ -1,14 +1,15 @@
 import dataclasses
 from typing import Any, Dict, List, TypedDict
+
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.metrics.metric import (
+    create_metric,
     Metric,
     MetricInterface,
     MetricResult,
     MetricSpec,
     PerInstanceStats,
-    create_metric,
 )
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
