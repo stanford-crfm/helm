@@ -1,9 +1,15 @@
 import re
 
 
-def remove_thinking(input: str) -> str:
-    result = input
-    result = re.sub("<think>.*</think>", "", result, flags=re.DOTALL)
-    # If there is a unclosed think block, remove the entire block
-    result = re.sub("<think>.*", "", result, flags=re.DOTALL)
-    return result
+def remove_deepseek_r1_thinking(input: str) -> str:
+    if "<think>" not in input:
+        return input
+
+    if "</think>\n\n" in input:
+        # The think block is usually followed by two newlines, so we should remove that
+        return re.sub("<think>.*</think>\n\n", "", input, flags=re.DOTALL)
+    elif "</think>" in input:
+        return re.sub("<think>.*</think>", "", input, flags=re.DOTALL)
+    else:
+        # Unclosed think block
+        return ""

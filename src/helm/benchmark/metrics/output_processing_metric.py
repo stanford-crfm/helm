@@ -16,10 +16,6 @@ from helm.common.object_spec import get_class_by_name
 from helm.common.request import GeneratedOutput
 
 
-def remove_thinking(input: str) -> str:
-    return input.split("</think>")[-1]
-
-
 class MetricSpecDict(TypedDict):
     class_name: str
     args: Dict[str, Any]
