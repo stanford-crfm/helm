@@ -1662,6 +1662,7 @@ def get_starr_patient_instructions_run_spec() -> RunSpec:
         output_noun="Patient Instructions",
         max_tokens=256,
         max_train_instances=0,
+        stop_sequences=[]
     )
     
     metric_args = {"task": "starr_patient_instructions", "device": get_torch_device_name()}
