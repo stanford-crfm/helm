@@ -1208,7 +1208,7 @@ def get_race_based_med_spec() -> RunSpec:
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions="Answer A for yes, B for no.",
         input_noun=None,
-        output_noun="Answer",
+        output_noun="Respond with only 'A' for yes or 'B' for no. Do not add any other text, punctuation, or symbols",
         max_train_instances=0
     )
 
