@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from dataclasses import replace
 from typing import Any, List, Dict, Optional, Tuple, Type
 
+from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.model_metadata_registry import (
     get_all_instruction_following_models,
     get_all_code_models,
@@ -1544,6 +1545,31 @@ class OutputFormatInstructions(RunExpander):
         ]
 
 
+class ProcessOutputRunExpander(RunExpander):
+    name = "process_output"
+
+    def __init__(self, processor: str):
+        self.processor = processor
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        output_processing_metric_spec = MetricSpec(
+            class_name="helm.benchmark.metrics.output_processing_metric.OutputProcessingMetric",
+            args={
+                "processor": self.processor,
+                "metric_specs": [
+                    {"class_name": metric_spec.class_name, "args": metric_spec.args}
+                    for metric_spec in run_spec.metric_specs
+                ],
+            },
+        )
+        return [
+            replace(
+                run_spec,
+                metric_specs=[output_processing_metric_spec],
+            ),
+        ]
+
+
 RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     InstructionsRunExpander,
     PromptRunExpander,
@@ -1570,6 +1596,7 @@ RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     TemperatureRunExpander,
     IncreaseTemperatureRunExpander,
     IncreaseMaxTokensRunExpander,
+    ProcessOutputRunExpander,
 ]
 
 
