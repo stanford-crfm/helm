@@ -384,6 +384,7 @@ run_groups:
       - ehr_sql
       - race_based_med
       - n2c2_ct_matching
+      - shc_bmt_med
   
   - name: administration_and_workflow
     display_name: Administration and Workflow
@@ -391,6 +392,9 @@ run_groups:
     category: Healthcare Task Categories
     subgroups:
       - mimiciv_billing_code
+      - shc_gip_med
+      - shc_cdi_med
+      - shc_ent_med
 
   - name: medcalc_bench
     display_name: MedCalc-Bench
@@ -786,6 +790,74 @@ run_groups:
       - general_information
     environment:
       main_name: BERTScore-F
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: shc_bmt_med
+    display_name: BMT Registry
+    description: A benchmark created from the Stanford Health Care Bone Marrow Transplant Registry.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+  
+  - name: shc_gip_med
+    display_name: GIP Referral
+    description: A benchmark that evaluates model performance on predicting Yes/No eligibility labels for inpatient hospice referrals based on clinician-provided assessments in palliative medicine.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+  
+  - name: shc_cdi_med
+    display_name: CDI
+    description: This benchmark assesses model performance in predicting Yes/No labels indicating whether a patient has the specified diagnosis or has undergone the specified procedure.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+  
+  - name: shc_ent_med
+    display_name: ENT Referral
+    description: This benchmark evaluates model performance on predicting Yes/No labels for ENT clinic referral screening questions based on assessments provided by ENT physicians.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
       main_split: test
     taxonomy:
       task: question answering
