@@ -287,6 +287,46 @@ metrics:
     display_name: Max prob
     description: Model's average confidence in its prediction (only computed for classification tasks)
     lower_is_better: false
+  - name: ece_10_bin
+    display_name: 10-bin expected calibration error
+    short_display_name: ECE (10-bin)
+    lower_is_better: true
+    description: The average difference between the model's confidence and accuracy, averaged across 10 bins where each bin contains an equal number of points (only computed for classification tasks). Warning - not reliable for small datasets (e.g., with < 300 examples) because each bin will have very few examples.
+  - name: ece_1_bin
+    display_name: 1-bin expected calibration error
+    short_display_name: ECE (1-bin)
+    lower_is_better: true
+    description: The (absolute value) difference between the model's average confidence and accuracy (only computed for classification tasks).
+  - name: selective_cov_acc_area
+    display_name: Selective coverage-accuracy area
+    short_display_name: Selective Acc
+    description: The area under the coverage-accuracy curve, a standard selective classification metric (only computed for classification tasks).
+    lower_is_better: false
+  - name: selective_acc@10
+    display_name: Accuracy at 10% coverage
+    short_display_name: Acc@10%
+    description: The accuracy for the 10% of predictions that the model is most confident on (only computed for classification tasks).
+    lower_is_better: false
+  - name: platt_ece_10_bin
+    display_name: 10-bin Expected Calibration Error (after Platt scaling)
+    short_display_name: Platt-scaled ECE (10-bin)
+    lower_is_better: true
+    description: 10-bin ECE computed after applying Platt scaling to recalibrate the model's predicted probabilities.
+  - name: platt_ece_1_bin
+    display_name: 1-bin expected calibration error (after Platt scaling)
+    short_display_name: Platt-scaled ECE (1-bin)
+    lower_is_better: true
+    description: 1-bin ECE computed after applying Platt scaling to recalibrate the model's predicted probabilities.
+  - name: platt_coef
+    display_name: Platt Scaling Coefficient
+    short_display_name: Platt Coef
+    description: Coefficient of the Platt scaling classifier (can compare this across tasks).
+    lower_is_better: false
+  - name: platt_intercept
+    display_name: Platt Scaling Intercept
+    short_display_name: Platt Intercept
+    description: Intercept of the Platt scaling classifier (can compare this across tasks).
+    lower_is_better: false
 
 ############################################################
 perturbations: []
@@ -395,6 +435,7 @@ run_groups:
       - shc_gip_med
       - shc_cdi_med
       - shc_ent_med
+      - shc_sequoia_med
 
   - name: medcalc_bench
     display_name: MedCalc-Bench
@@ -800,7 +841,7 @@ run_groups:
 
   - name: shc_bmt_med
     display_name: BMT Registry
-    description: A benchmark created from the Stanford Health Care Bone Marrow Transplant Registry.
+    description: A binary classification benchmark created from the Stanford Health Care Bone Marrow Transplant Registry.
     metric_groups:
       - accuracy
       - efficiency
@@ -817,7 +858,7 @@ run_groups:
   
   - name: shc_gip_med
     display_name: GIP Referral
-    description: A benchmark that evaluates model performance on predicting Yes/No eligibility labels for inpatient hospice referrals based on clinician-provided assessments in palliative medicine.
+    description: A binary classification benchmark that evaluates model performance on predicting eligibility for inpatient hospice referrals based on clinician-provided assessments in palliative medicine.
     metric_groups:
       - accuracy
       - efficiency
@@ -834,7 +875,7 @@ run_groups:
   
   - name: shc_cdi_med
     display_name: CDI
-    description: This benchmark assesses model performance in predicting Yes/No labels indicating whether a patient has the specified diagnosis or has undergone the specified procedure.
+    description: A binary classification benchmark that evaluates model performance in predicting whether a patient has the specified diagnosis or has undergone the specified procedure.
     metric_groups:
       - accuracy
       - efficiency
@@ -851,7 +892,24 @@ run_groups:
   
   - name: shc_ent_med
     display_name: ENT Referral
-    description: This benchmark evaluates model performance on predicting Yes/No labels for ENT clinic referral screening questions based on assessments provided by ENT physicians.
+    description: A binary classification benchmark that evaluates model performance on predicting whether a patient should be reffered to an ENT clinic.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: shc_sequoia_med
+    display_name: Sequoia Referral
+    description: A binary classification benchmark that evaluates model performance on predicting whether a patient should be reffered to an accessory inpatient care unit.
     metric_groups:
       - accuracy
       - efficiency
