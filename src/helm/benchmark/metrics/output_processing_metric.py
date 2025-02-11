@@ -16,23 +16,19 @@ from helm.common.object_spec import get_class_by_name
 from helm.common.request import GeneratedOutput
 
 
-class MetricSpecDict(TypedDict):
+class _MetricSpecDict(TypedDict):
     class_name: str
     args: Dict[str, Any]
 
 
-def dict_to_metric_spec(metric_spec_dict: MetricSpecDict) -> MetricSpec:
+def _dict_to_metric_spec(metric_spec_dict: _MetricSpecDict) -> MetricSpec:
     return MetricSpec(metric_spec_dict["class_name"], metric_spec_dict["args"])
 
 
-def metric_spec_to_dict(metric_spec: MetricSpec) -> MetricSpecDict:
-    return {"class_name": metric_spec.class_name, "args": metric_spec.args}
-
-
 class OutputProcessingMetric(MetricInterface):
-    def __init__(self, processor: str, metric_specs: List[MetricSpecDict]):
+    def __init__(self, processor: str, metric_specs: List[_MetricSpecDict]):
         self.processor = get_class_by_name(processor)  # actually a function, not a class
-        self.metrics: List[Metric] = [create_metric(dict_to_metric_spec(metric_spec)) for metric_spec in metric_specs]
+        self.metrics: List[Metric] = [create_metric(_dict_to_metric_spec(metric_spec)) for metric_spec in metric_specs]
 
     def _process_request_state(self, request_state: RequestState) -> RequestState:
         if not request_state.result:
