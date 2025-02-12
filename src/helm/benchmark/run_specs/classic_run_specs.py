@@ -1512,3 +1512,50 @@ def get_thai_exam_spec(exam: str = "onet", method: str = ADAPT_MULTIPLE_CHOICE_J
         metric_specs=get_exact_match_metric_specs(),
         groups=["thai_exam", f"thai_exam_{exam}"],
     )
+
+@run_spec_function("ehr_sql")
+def get_ehr_sql_run_spec() -> RunSpec:
+    """
+    RunSpec for the EHR SQL dataset.
+    This configuration evaluates the model's ability to generate accurate SQL queries from natural language questions.
+    """
+
+    # Define the scenario
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.ehr_sql_scenario.EhrSqlScenario",
+        args={},
+    )
+
+    # Define the adapter
+    adapter_spec = get_generation_adapter_spec(
+        instructions=(
+            "You are a highly skilled AI specialized in processing medical data. Your task is to convert natural language medical questions "
+            "into SQL queries that retrieve the required information from a database. The question will be provided, and your output "
+            "should be a valid SQL query.\n\n"
+            "Input: A natural language question.\n"
+            "Output: The SQL query."
+        ),
+        input_noun="Question",
+        output_noun="SQL Query",
+        max_tokens=512,
+    )
+    
+    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.ehr_sql_annotator.EhrSqlAnnotator")]
+
+    # Define the metrics
+    metric_specs = [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.ehr_sql_metrics.EhrSqlMetric",
+            args={},
+        )
+    ] + get_exact_match_metric_specs() #get_open_ended_generation_metric_specs()
+
+    # Return the RunSpec
+    return RunSpec(
+        name="ehr_sql",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
+        groups=["medical", "sql", "ehr"],
+    )
