@@ -71,6 +71,9 @@ class MedBulletsScenario(Scenario):
     description = "USMLE Step 2&3 style clinical questions with explanations."
     tags = ["reasoning", "biomedical"]
 
+    # Define the possible answer choices
+    POSSIBLE_ANSWER_CHOICES: List[str] = ["A", "B", "C", "D", "E"]
+
     def __init__(self):
         super().__init__()
         #self.splits = {"_op4": TRAIN_SPLIT, "_op5": TEST_SPLIT}
@@ -109,15 +112,14 @@ class MedBulletsScenario(Scenario):
 
                 # Correct answer text
                 correct_option = row["answer_idx"]
-                correct_answer = option_map.get(correct_option, "Not applicable")
 
-                # Build references
+                # Build references using POSSIBLE_ANSWER_CHOICES
                 references = [
                     Reference(
-                        Output(text=option_text),
+                        Output(text=option_map.get(option, "Not applicable")),
                         tags=[CORRECT_TAG] if option == correct_option else [],
                     )
-                    for option, option_text in option_map.items()
+                    for option in self.POSSIBLE_ANSWER_CHOICES
                 ]
 
                 # Create instance
