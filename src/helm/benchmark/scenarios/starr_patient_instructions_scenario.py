@@ -77,7 +77,6 @@ class StarrPatientInstructionsScenario(Scenario):
                     f"Procedure: {actual_procedure}\n"
                     f"History & Physical: {history_physical}\n"
                     f"Operative Report: {operative_note}\n\n"
-                    f"Patient Instructions:"
                 )
 
                 instances.append(
