@@ -5,6 +5,7 @@ import sqlite3
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
 from helm.common.hierarchical_logger import hlog
+from helm.benchmark.runner import get_benchmark_output_path
 
 
 class EhrSqlAnnotator(Annotator):
@@ -18,7 +19,7 @@ class EhrSqlAnnotator(Annotator):
         """Evaluate SQL execution accuracy by running queries against the eicu.sqlite database."""
 
         # Ensure the database file is correctly referenced
-        database_path = os.path.join(request_state.output_path, "eicu.sqlite")
+        database_path = os.path.join(get_benchmark_output_path(), "eicu.sqlite")
 
         # Validate ground truth query existence
         assert len(request_state.instance.references) == 1
