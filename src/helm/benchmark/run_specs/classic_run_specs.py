@@ -2268,3 +2268,24 @@ def get_shc_cdi_spec() -> RunSpec:
         metric_specs=get_exact_match_metric_specs(),
         groups=["shc_bmt_med"],
     )
+    
+@run_spec_function("shc_conf_med")
+def get_shc_cdi_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.shc_conf_scenario.SHCCONFMedScenario", args={}
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="Answer A or B.",
+        input_noun="",
+        output_noun="",
+    )
+
+    return RunSpec(
+        name="shc_conf_med",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["shc_conf_med"],
+    )
