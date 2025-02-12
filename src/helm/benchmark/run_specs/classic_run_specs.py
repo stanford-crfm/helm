@@ -1611,7 +1611,8 @@ def get_mtsamples_spec() -> RunSpec:
         newline_after_input_noun=False,
         output_noun="Answer",
         max_tokens=512,
-        max_train_instances=0
+        max_train_instances=0,
+        stop_sequences=[]
     )
 
     #metric_specs = get_open_ended_generation_metric_specs()
