@@ -46,15 +46,14 @@ class WildBenchAnnotator(Annotator):
             history.append(noun + round["content"])
         history_text = "\n\n".join(history)
         user_query_text = input_messages[-1]["content"]
+        checklist_text = "\n".join([f"- {checklist_item}" for checklist_item in request_state.instance.extra_data["checklist"]])
         annotator_prompt = (
             prompt_template.replace("{$history}", history_text)
             .replace("{$user_query}", user_query_text)
             .replace("{$model_output}", model_output_text)
-            .replace(
-                "{$checklist}",
-                "\n".join([f"- {checklist_item}" for checklist_item in request_state.instance.extra_data["checklist"]]),
+            .replace("{$checklist}", checklist_text)
             )
-        )
+        print(annotator_prompt)
 
         SHORT_NAME_TO_MODEL_INFO: Dict[str, AnnotatorModelInfo] = {
             "gpt": AnnotatorModelInfo(
