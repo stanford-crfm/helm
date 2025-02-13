@@ -41,12 +41,24 @@ class WildBenchAnnotator(Annotator):
                 "empty_output_score": [1.0],
             }
 
-        annotator_prompt = (
-            self._score_template.replace("{$history}", request_state.instance.extra_data["history"])
-            .replace("{$user_query}", request_state.instance.extra_data["user_query"])
-            .replace("{$model_output}", model_output_text)
-            .replace("{$checklist}", "\n".join(request_state.instance.extra_data["checklist"]))
+        input_messages = request_state.instance.input.messages
+        assert input_messages is not None
+        history = []
+        for round in input_messages[:-1]:
+            noun = "USER: " if round["role"] == "user" else "ASSISTANT: "
+            history.append(noun + round["content"])
+        history_text = "\n\n".join(history)
+        user_query_text = input_messages[-1]["content"]
+        checklist_text = "\n".join(
+            [f"- {checklist_item}" for checklist_item in request_state.instance.extra_data["checklist"]]
         )
+        annotator_prompt = (
+            self._score_template.replace("{$history}", history_text)
+            .replace("{$user_query}", user_query_text)
+            .replace("{$model_output}", model_output_text)
+            .replace("{$checklist}", checklist_text)
+        )
+        print(annotator_prompt)
 
         SHORT_NAME_TO_MODEL_INFO: Dict[str, AnnotatorModelInfo] = {
             "gpt": AnnotatorModelInfo(

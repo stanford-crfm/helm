@@ -81,7 +81,7 @@ export default function Scenarios() {
             {runGroups.map((runGroup) => (
               <tr>
                 <td>
-                  <Link to={`/groups/${runGroup.name}`}>
+                  <Link to={`/leaderboard/${runGroup.name}`}>
                     <span className="text-lg">{runGroup.display_name}</span>
                   </Link>
                   <span className="block">{runGroup.name}</span>

@@ -868,3 +868,21 @@ tokenizer_configs:
             pretrained_model_name_or_path: ibm-granite/granite-3.1-1b-a400m-base
     prefix_token: ""
     end_of_text_token: ""
+
+# DeepSeek-R1-Distill-Llama-3.1-8b
+  - name: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+    end_of_text_token: "<｜end▁of▁sentence｜>"
+    prefix_token: "<｜begin▁of▁sentence｜>"
+
+# deepseek-ai/deepseek-coder-6.7b-instruct
+  - name: deepseek-ai/deepseek-coder-6.7b-instruct
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: deepseek-ai/deepseek-coder-6.7b-instruct
+    end_of_text_token: "<｜end▁of▁sentence｜>"
+    prefix_token: "<｜begin▁of▁sentence｜>"

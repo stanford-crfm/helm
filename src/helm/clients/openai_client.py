@@ -6,7 +6,7 @@ from helm.benchmark.model_metadata_registry import is_vlm
 from helm.common import multimodal_request_utils
 from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE
-from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
+from helm.common.request import ErrorFlags, wrap_request_time, Request, RequestResult, GeneratedOutput, Token
 from helm.common.hierarchical_logger import hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.tokenization_request import (
@@ -29,6 +29,18 @@ class OpenAIClient(CachingClient):
     # Error OpenAI throws when the image in the prompt violates their content policy
     INAPPROPRIATE_IMAGE_ERROR: str = "Your input image may contain content that is not allowed by our safety system"
     INAPPROPRIATE_PROMPT_ERROR: str = "Invalid prompt: your prompt was flagged"
+    INAPPROPRIATE_PROMPT_AZURE_ERROR: str = (
+        "The response was filtered due to the prompt triggering Azure OpenAI's content management policy."
+    )
+    INAPPROPRIATE_PROMPT_MICROSOFT_ERROR: str = (
+        "The response was filtered due to the prompt triggering Microsoft's content management policy."
+    )
+
+    # OpenAI server error
+    OPENAI_SERVER_ERROR: str = (
+        "The server had an error processing your request. Sorry about that! You can retry your request, "
+        "or contact us through our help center at help.openai.com if you keep seeing this error."
+    )
 
     # Set the finish reason to this if the prompt violates OpenAI's content policy
     CONTENT_POLICY_VIOLATED_FINISH_REASON: str = (
@@ -237,12 +249,48 @@ class OpenAIClient(CachingClient):
                     completions=[empty_completion] * request.num_completions,
                     embedding=[],
                 )
+            elif self.OPENAI_SERVER_ERROR in str(e):
+                # Handle these errors by returning an empty completion to unblock
+                hlog(f"OpenAI server error for request: {str(request)}")
+                empty_completion = GeneratedOutput(
+                    text="",
+                    logprob=0,
+                    tokens=[],
+                    finish_reason={"reason": self.OPENAI_SERVER_ERROR},
+                )
+                return RequestResult(
+                    success=True,
+                    cached=False,
+                    request_time=0,
+                    completions=[empty_completion] * request.num_completions,
+                    embedding=[],
+                )
+            elif self.INAPPROPRIATE_PROMPT_AZURE_ERROR in str(e) or self.INAPPROPRIATE_PROMPT_MICROSOFT_ERROR in str(e):
+                return RequestResult(
+                    success=False,
+                    cached=False,
+                    error="Content blocked by Azure's content management filter",
+                    completions=[],
+                    embedding=[],
+                    error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                )
 
             error: str = f"OpenAI error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[GeneratedOutput] = []
         for raw_completion in response["choices"]:
+            # Handle Azure OpenAI content filter
+            # See: https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter
+            if raw_completion["finish_reason"] == "content_filter":
+                return RequestResult(
+                    success=False,
+                    cached=False,
+                    error="Content blocked by OpenAI filter",
+                    completions=[],
+                    embedding=[],
+                    error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                )
             # The OpenAI chat completion API doesn't support echo.
             # If `echo_prompt` is true, combine the prompt and completion.
             raw_completion_content = raw_completion["message"]["content"]

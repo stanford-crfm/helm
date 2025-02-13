@@ -22,15 +22,12 @@ class ChatAdapter(InContextLearningAdapter):
     def generate_requests(
         self, eval_instance: Instance, train_trial_index: int, training_instances: List[Instance]
     ) -> List[RequestState]:
-        assert eval_instance.extra_data
-        messages = [
-            {"role": message["role"], "content": message["content"]}
-            for message in eval_instance.extra_data["conversation"]
-        ]
+        if eval_instance.input.messages is None:
+            raise ValueError("ChatAdapter requires input.messages of instances to be non-empty")
         request = Request(
             model=self.adapter_spec.model,
             model_deployment=self.adapter_spec.model_deployment,
-            messages=messages,
+            messages=eval_instance.input.messages,
             num_completions=self.adapter_spec.num_outputs,
             temperature=self.adapter_spec.temperature,
             max_tokens=self.adapter_spec.max_tokens,
