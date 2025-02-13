@@ -57,7 +57,7 @@ class OmniMATHAnnotator(Annotator):
 
         SHORT_NAME_TO_MODEL_INFO: Dict[str, AnnotatorModelInfo] = {
             "gpt": AnnotatorModelInfo(
-                model_name="openai/gpt-4o-2024-11-20", model_deployment="openai/gpt-4o-2024-11-20"
+                model_name="openai/gpt-4o-2024-05-13", model_deployment="openai/gpt-4o-2024-05-13",
             ),
             "llama": AnnotatorModelInfo(
                 model_name="meta/llama-3.1-405b-instruct-turbo",
