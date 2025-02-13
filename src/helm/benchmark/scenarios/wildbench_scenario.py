@@ -60,7 +60,11 @@ class WildBenchScenario(Scenario):
         # Read all instances
         instances: List[Instance] = []
         for idx, row in enumerate(dataset):
-            input = Input(messages=[{"role": message["role"], "content": message["content"]} for message in row["conversation_input"]])
+            input = Input(
+                messages=[
+                    {"role": message["role"], "content": message["content"]} for message in row["conversation_input"]
+                ]
+            )
             extra_data = {
                 "checklist": row["checklist"],
             }
