@@ -5,8 +5,9 @@ import Predictions from "@/components/Predictions";
 import References from "@/components/References";
 import type MetricFieldMap from "@/types/MetricFieldMap";
 import Preview from "@/components/Preview";
-import MultimediaObjectDisplay from "./MultimediaObjectDisplay";
-import ExtraDataDisplay from "./ExtraDataDisplay";
+import MultimediaObjectDisplay from "@/components/MultimediaObjectDisplay";
+import ExtraDataDisplay from "@/components/ExtraDataDisplay";
+import MessagesDisplay from "@/components/MessagesDisplay";
 
 interface Props {
   instance: Instance;
@@ -30,8 +31,9 @@ export default function InstanceData({
         />
       ) : instance.input.text.includes(`<br><img src="data:image;base64`) ? (
         <div dangerouslySetInnerHTML={{ __html: instance.input.text }} />
-      ) : instance.input.messages !== undefined && instance.input.messages.length ?
-      
+      ) : instance.input.messages !== undefined &&
+        instance.input.messages.length ? (
+        <MessagesDisplay messages={instance.input.messages} />
       ) : (
         <Preview value={instance.input.text} />
       )}
