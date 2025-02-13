@@ -58,7 +58,6 @@ class WildBenchAnnotator(Annotator):
             .replace("{$model_output}", model_output_text)
             .replace("{$checklist}", checklist_text)
         )
-        print(annotator_prompt)
 
         SHORT_NAME_TO_MODEL_INFO: Dict[str, AnnotatorModelInfo] = {
             "gpt": AnnotatorModelInfo(
