@@ -43,9 +43,7 @@ export default function Request({ request }: Props) {
       ) : request.request.messages ? (
         <div>
           <h3 className="block text text-gray-400">Prompt</h3>
-          <MessagesDisplay
-            messages={request.request.messages}
-          />
+          <MessagesDisplay messages={request.request.messages} />
         </div>
       ) : (
         <h3 className="block text text-gray-400">Empty Prompt</h3>
