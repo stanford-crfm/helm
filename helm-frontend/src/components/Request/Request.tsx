@@ -40,7 +40,7 @@ export default function Request({ request }: Props) {
             multimediaObject={request.request.multimodal_prompt}
           />
         </div>
-      ) : request.request.messages ? (
+      ) : request.request.messages && request.request.messages.length ? (
         <div>
           <h3 className="block text text-gray-400">Prompt</h3>
           <MessagesDisplay messages={request.request.messages} />

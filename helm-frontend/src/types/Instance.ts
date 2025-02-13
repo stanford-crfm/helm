@@ -1,6 +1,7 @@
 import MultimediaObject from "@/types/MultimediaObject";
 import type Reference from "@/types/Reference";
-import Perturbation from "./Perturbation";
+import Perturbation from "@/types/Perturbation";
+import Message from "@/types/Message";
 
 export default interface Instance {
   id: string;
@@ -8,6 +9,7 @@ export default interface Instance {
   input: {
     text: string;
     multimedia_content: MultimediaObject | undefined;
+    messages: Message[] | undefined;
   };
   references: Reference[];
   perturbation?: Perturbation | undefined;

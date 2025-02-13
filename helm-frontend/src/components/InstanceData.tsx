@@ -30,6 +30,8 @@ export default function InstanceData({
         />
       ) : instance.input.text.includes(`<br><img src="data:image;base64`) ? (
         <div dangerouslySetInnerHTML={{ __html: instance.input.text }} />
+      ) : instance.input.messages !== undefined && instance.input.messages.length ?
+      
       ) : (
         <Preview value={instance.input.text} />
       )}
@@ -39,7 +41,7 @@ export default function InstanceData({
           <References references={instance.references} />
         ) : null}
       </div>
-      {instance.extra_data ? (
+      {instance.extra_data && instance.extra_data.length ? (
         <ExtraDataDisplay extraData={instance.extra_data} />
       ) : null}
       <div>
