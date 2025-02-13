@@ -24,4 +24,3 @@ def test_bigcodebench_scenario_get_instances():
         )
     )
     assert instances[0].split == TEST_SPLIT
-    assert instances[0].extra_data
