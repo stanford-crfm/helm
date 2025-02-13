@@ -336,8 +336,6 @@ class TogetherChatClient(CachingClient):
         self.output_processor: Optional[Callable[[str], str]] = (
             get_class_by_name(output_processor) if output_processor else None
         )
-        print("self.output_processor")
-        print(self.output_processor)
 
     def convert_to_raw_chat_request(self, request: Request) -> TogetherRawChatRequest:
         request.validate()
