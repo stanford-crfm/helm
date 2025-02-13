@@ -20,10 +20,10 @@ csv.field_size_limit(sys.maxsize)
 
 class SHCENTMedScenario(Scenario):
     """
-    Benchmark derived from ENT
+    This benchmark dataset was built to assess the capabilities of an LLM for referral to the Ear, Nose and Throat department.
     """
     name = "shc_ent_med"
-    description = "A benchmark for evaluating LLM patient referral capabilities"
+    description = "This benchmark dataset was built to assess the capabilities of an LLM for referral to the Ear, Nose and Throat department."
     tags = ["knowledge", "reasoning", "biomedical"]
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["A", "B", "C"]

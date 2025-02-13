@@ -20,10 +20,10 @@ csv.field_size_limit(sys.maxsize)
 
 class SHCBMTMedScenario(Scenario):
     """
-    Benchmark derived from manually curated answers to several questions for BMT evaluation
+    This benchmark dataset was built from a patient status gold-standard for specific questions asked after a bone marrow transplant has taken place.
     """
     name = "shc_bmt_med"
-    description = "A benchmark for evaluating LLM patient referral capabilities"
+    description = "This benchmark dataset was built from a patient status gold-standard for specific questions asked after a bone marrow transplant has taken place."
     tags = ["knowledge", "reasoning", "biomedical"]
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["A", "B"]

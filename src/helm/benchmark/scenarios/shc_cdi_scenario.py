@@ -20,10 +20,10 @@ csv.field_size_limit(sys.maxsize)
 
 class SHCCDIMedScenario(Scenario):
     """
-    Benchmark derived from CDI
+    This benchmark dataset was built from Clinical Document Integrity (CDI) notes were there are verifications of clinical activities. The idea behind it was to assess an LLM capability to answer these questions from previous notes.
     """
     name = "shc_cdi_med"
-    description = "A benchmark for evaluating LLM patient referral capabilities"
+    description = "This benchmark dataset was built from Clinical Document Integrity (CDI) notes were there are verifications of clinical activities. The idea behind it was to assess an LLM capability to answer these questions from previous notes."
     tags = ["knowledge", "reasoning", "biomedical"]
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["A", "B"]

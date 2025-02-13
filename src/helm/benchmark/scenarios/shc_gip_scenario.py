@@ -20,10 +20,10 @@ csv.field_size_limit(sys.maxsize)
 
 class SHCGIPMedScenario(Scenario):
     """
-    Benchmark derived from manually curated answers to several questions for GIP referrals
+    This benchmark dataset was built from a patient referral gold-standard set to a specialty clinic to verify the ability of LLMs for patient hospice referral purposes.
     """
     name = "shc_gip_med"
-    description = "A benchmark for evaluating LLM patient referral capabilities"
+    description = "This benchmark dataset was built from a patient referral gold-standard set to a specialty clinic to verify the ability of LLMs for patient hospice referral purposes."
     tags = ["knowledge", "reasoning", "biomedical"]
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["A", "B"]

@@ -2232,7 +2232,7 @@ def get_shc_ent_spec() -> RunSpec:
     )    
 
 @run_spec_function("shc_gip_med")
-def get_shc_cdi_spec() -> RunSpec:
+def get_shc_gip_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.shc_gip_scenario.SHCGIPMedScenario", args={}
     )
@@ -2253,7 +2253,7 @@ def get_shc_cdi_spec() -> RunSpec:
     )
     
 @run_spec_function("shc_bmt_med")
-def get_shc_cdi_spec() -> RunSpec:
+def get_shc_bmt_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.shc_bmt_scenario.SHCBMTMedScenario", args={}
     )
@@ -2272,9 +2272,9 @@ def get_shc_cdi_spec() -> RunSpec:
         metric_specs=get_exact_match_metric_specs(),
         groups=["shc_bmt_med"],
     )
-    
+
 @run_spec_function("shc_conf_med")
-def get_shc_cdi_spec() -> RunSpec:
+def get_shc_conf_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.shc_conf_scenario.SHCCONFMedScenario", args={}
     )
@@ -2292,4 +2292,46 @@ def get_shc_cdi_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
         groups=["shc_conf_med"],
+    )
+
+@run_spec_function("shc_ptbm_med")
+def get_shc_ptbm_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.shc_ptbm_scenario.SHCPTBMMedScenario", args={}
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="Answer A or B.",
+        input_noun="",
+        output_noun="",
+    )
+
+    return RunSpec(
+        name="shc_ptbm_med",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["shc_ptbm_med"],
+    )
+
+@run_spec_function("shc_sei_med")
+def get_shc_sei_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.shc_sei_scenario.SHCSEIMedScenario", args={}
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="Answer A or B.",
+        input_noun="",
+        output_noun="",
+    )
+
+    return RunSpec(
+        name="shc_sei_med",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["shc_sei_med"],
     )
