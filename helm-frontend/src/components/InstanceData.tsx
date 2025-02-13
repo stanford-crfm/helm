@@ -6,6 +6,7 @@ import References from "@/components/References";
 import type MetricFieldMap from "@/types/MetricFieldMap";
 import Preview from "@/components/Preview";
 import MultimediaObjectDisplay from "./MultimediaObjectDisplay";
+import ExtraDataDisplay from "./ExtraDataDisplay";
 
 interface Props {
   instance: Instance;
@@ -38,6 +39,9 @@ export default function InstanceData({
           <References references={instance.references} />
         ) : null}
       </div>
+      {instance.extra_data ? (
+        <ExtraDataDisplay extraData={instance.extra_data} />
+      ) : null}
       <div>
         {predictions && requests ? (
           <Predictions

@@ -11,4 +11,8 @@ export default interface Instance {
   };
   references: Reference[];
   perturbation?: Perturbation | undefined;
+  extra_data?: Record<
+    string,
+    string | number | null | Array<string | number | null>
+  >;
 }
