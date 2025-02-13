@@ -327,6 +327,18 @@ metrics:
     short_display_name: Platt Intercept
     description: Intercept of the Platt scaling classifier (can compare this across tasks).
     lower_is_better: false
+  
+  - name: ehr_sql_total_predicted_answerable
+    display_name: Total Predicted Answerable
+    short_display_name: Total Pred Ans
+    description: Total number of questions predicted to be answerable by the model.
+    lower_is_better: false
+  
+  - name: ehr_sql_total_ground_truth_answerable
+    display_name: Total Ground Truth Answerable
+    short_display_name: Total GT Ans
+    description: Total number of answerable questions in the ground truth.
+    lower_is_better: false
 
 ############################################################
 perturbations: []
@@ -840,8 +852,8 @@ run_groups:
       language: English
 
   - name: shc_bmt_med
-    display_name: BMT Registry
-    description: A binary classification benchmark created from the Stanford Health Care Bone Marrow Transplant Registry.
+    display_name: BMTStatus
+    description: This benchmark dataset was built from a patient status gold-standard for specific questions asked after a bone marrow transplant has taken place.
     metric_groups:
       - accuracy
       - efficiency
@@ -857,8 +869,8 @@ run_groups:
       language: English
   
   - name: shc_gip_med
-    display_name: GIP Referral
-    description: A binary classification benchmark that evaluates model performance on predicting eligibility for inpatient hospice referrals based on clinician-provided assessments in palliative medicine.
+    display_name: GIPRefer
+    description: This benchmark dataset was built from a patient referral gold-standard set to a specialty clinic to verify the ability of LLMs for patient hospice referral purposes.
     metric_groups:
       - accuracy
       - efficiency
@@ -874,8 +886,8 @@ run_groups:
       language: English
   
   - name: shc_cdi_med
-    display_name: CDI
-    description: A binary classification benchmark that evaluates model performance in predicting whether a patient has the specified diagnosis or has undergone the specified procedure.
+    display_name: CDI-QA
+    description: This benchmark dataset was built from Clinical Document Integrity (CDI) notes were there are verifications of clinical activities. The idea behind it was to assess an LLM capability to answer these questions from previous notes.
     metric_groups:
       - accuracy
       - efficiency
@@ -891,8 +903,8 @@ run_groups:
       language: English
   
   - name: shc_ent_med
-    display_name: ENT Referral
-    description: A binary classification benchmark that evaluates model performance on predicting whether a patient should be reffered to an ENT clinic.
+    display_name: ENTRefer
+    description: This benchmark dataset was built to assess the capabilities of an LLM for referral to the Ear, Nose and Throat department.
     metric_groups:
       - accuracy
       - efficiency
@@ -908,8 +920,25 @@ run_groups:
       language: English
 
   - name: shc_sequoia_med
-    display_name: Sequoia Referral
-    description: A binary classification benchmark that evaluates model performance on predicting whether a patient should be reffered to an accessory inpatient care unit.
+    display_name: SeqRefer
+    description: This benchmark dataset was built from a patient referral gold-standard set to a specialty clinic to verify the ability of LLMs for patient referral purposes.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+      
+  - name: shc_conf_med
+    display_name: ConfIdent
+    description: Benchmark derived from extracting confidential information from clinical notes.  Taken from Evaluation of a Large Language Model to Identify Confidential Content in Adolescent Encounter Notes published at https://jamanetwork.com/journals/jamapediatrics/fullarticle/2814109
     metric_groups:
       - accuracy
       - efficiency
