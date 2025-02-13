@@ -18,7 +18,10 @@ class EhrSqlAnnotator(Annotator):
     def annotate(self, request_state: RequestState) -> Any:
         """Evaluate SQL execution accuracy by running queries against the eicu.sqlite database."""
 
-        database_path = os.path.join(get_benchmark_output_path(), "eicu.sqlite")
+        databases_root_path = os.path.join(
+            get_benchmark_output_path(), "scenarios", "ehr_sql"
+        )
+        database_path = os.path.join(databases_root_path, "eicu.sqlite")
 
         assert len(request_state.instance.references) == 1
         ground_truth_sql = request_state.instance.references[0].output.text.strip()
