@@ -1572,29 +1572,32 @@ def get_ehr_sql_run_spec() -> RunSpec:
     # Define the adapter
     adapter_spec = get_generation_adapter_spec(
         instructions=(
-            "You are a highly skilled AI specialized in processing medical data. Your task is to convert natural language medical questions "
-            "into SQL queries that retrieve the required information from a database. The question will be provided, and your output "
-            "should be a valid SQL query.\n\n"
-            "Input: A natural language question.\n"
-            "Output: The SQL query."
+            "You are a highly skilled AI specializing in medical SQL queries. "
+            "Given a database schema and a medical question, generate a valid SQL query "
+            "that retrieves the required information from the database. "
+            "Output only the SQL query without explanations.\n\n"
+            "Input: A database schema followed by a natural language question.\n"
+            "Output: A valid SQL query ending with ;. Only return SQL query, don't add additional text."
         ),
-        input_noun="Question",
+        input_noun="Medical Question + Schema",
         output_noun="SQL Query",
+        max_tokens=1024,
+        temperature=0
     )
+    
+    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.ehr_sql_annotator.EhrSqlAnnotator")]
 
     # Define the metrics
     metric_specs = [
-        MetricSpec(
-            class_name="helm.benchmark.metrics.ehr_sql_metrics.EhrSqlMetric",
-            args={},
-        )
-    ] + get_open_ended_generation_metric_specs()
+        MetricSpec(class_name="helm.benchmark.metrics.ehr_sql_metrics.EhrSqlMetric", args={})
+    ] + get_exact_match_metric_specs()
 
     # Return the RunSpec
     return RunSpec(
         name="ehr_sql",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
+        annotators=annotator_specs,
         metric_specs=metric_specs,
         groups=["medical", "sql", "ehr"],
     )
