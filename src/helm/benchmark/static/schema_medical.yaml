@@ -193,6 +193,16 @@ metrics:
     short_display_name: PEM@5
     description: Fraction of instances that the predicted output among the top 5 matches the prefix of a correct reference up to light processing.
     lower_is_better: false
+  - name: ehr_sql_execution_accuracy
+    display_name: Execution accuracy for Generated Query
+    short_display_name: EHRSQLExeAcc
+    description:  Measures the proportion of correctly predicted answerable questions among all questions predicted to be answerable.
+    lower_is_better: false
+  - name: ehr_sql_query_validity
+    display_name: Validity of Generated Query
+    short_display_name: EHRSQLQueryValid
+    description: Measures the proportion of correctly predicted answerable questions among all answerable questions in the dataset.
+    lower_is_better: false
 
   # Summariazation metrics
   - name: summac
@@ -774,7 +784,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: ehr_sql_recall_answerable
+      main_name: ehr_sql_execution_accuracy
       main_split: test
     taxonomy:
       task: question answering
