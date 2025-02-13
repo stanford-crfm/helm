@@ -1,13 +1,14 @@
 from copy import deepcopy
 from itertools import zip_longest
 import threading
-from typing import List, Dict, Any, Mapping, Optional, TypedDict, Union
+from typing import Callable, List, Dict, Any, Mapping, Optional, TypedDict, Union
 
 import requests
 from retrying import retry
 
 from helm.common.cache import CacheConfig
 from helm.common.media_object import IMAGE_TYPE, TEXT_TYPE
+from helm.common.object_spec import get_class_by_name
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
 from helm.clients.client import CachingClient, truncate_sequence, cleanup_str
@@ -324,11 +325,17 @@ class TogetherChatClient(CachingClient):
         api_key: Optional[str],
         together_model: Optional[str] = None,
         disable_logprobs: Optional[bool] = None,
+        output_processor: Optional[str] = None,
     ):
         super().__init__(cache_config=cache_config)
         self._client = Together(api_key=api_key)
         self._together_model = together_model
         self._disable_logprobs = bool(disable_logprobs)
+        # self.output_processor is actually a function, not a class
+
+        self.output_processor: Optional[Callable[[str], str]] = (
+            get_class_by_name(output_processor) if output_processor else None
+        )
 
     def convert_to_raw_chat_request(self, request: Request) -> TogetherRawChatRequest:
         request.validate()
@@ -410,7 +417,10 @@ class TogetherChatClient(CachingClient):
                         break
                     tokens.append(Token(text=token_text, logprob=token_logprob or 0.0))
             assert choice.message.role == "assistant"
-            generated_outputs.append(GeneratedOutput(text=choice.message.content, logprob=0.0, tokens=tokens))
+            output_text = choice.message.content
+            if self.output_processor:
+                output_text = self.output_processor(output_text)
+            generated_outputs.append(GeneratedOutput(text=output_text, logprob=0.0, tokens=tokens))
         return RequestResult(
             success=True,
             cached=cached,

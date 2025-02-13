@@ -446,6 +446,17 @@ model_deployments:
       args:
         disable_logprobs: True
 
+  - name: together/deepseek-r1-hide-reasoning
+    model_name: deepseek-ai/deepseek-r1-hide-reasoning
+    tokenizer_name: deepseek-ai/deepseek-r1
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        together_model: deepseek-ai/deepseek-r1
+        disable_logprobs: True
+        output_processor: helm.benchmark.metrics.output_processors.remove_deepseek_r1_thinking
+
   # Gooseai
 
   # TODO: Migrate these models to use OpenAIClient
