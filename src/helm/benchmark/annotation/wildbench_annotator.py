@@ -38,12 +38,22 @@ class WildBenchAnnotator(Annotator):
                 "score": [1.0],
             }
         prompt_template = self._score_template
-
+        input_messages = request_state.instance.input.messages
+        assert input_messages is not None
+        history = []
+        for round in input_messages[:-1]:
+            noun = "USER: " if round["role"] == "user" else "ASSISTANT: "
+            history.append(noun + round["content"])
+        history_text = "\n\n".join(history)
+        user_query_text = input_messages[-1]["content"]
         annotator_prompt = (
-            prompt_template.replace("{$history}", request_state.instance.extra_data["history"])
-            .replace("{$user_query}", request_state.instance.extra_data["user_query"])
+            prompt_template.replace("{$history}", history_text)
+            .replace("{$user_query}", user_query_text)
             .replace("{$model_output}", model_output_text)
-            .replace("{$checklist}", "\n".join(request_state.instance.extra_data["checklist"]))
+            .replace(
+                "{$checklist}",
+                "\n".join([f"- {checklist_item}" for checklist_item in request_state.instance.extra_data["checklist"]]),
+            )
         )
 
         SHORT_NAME_TO_MODEL_INFO: Dict[str, AnnotatorModelInfo] = {

@@ -67,6 +67,11 @@ class Input:
     multimedia_content: Optional[MultimediaObject] = None
     """A single input can consists of multimodal content interleaved (e.g., text, image, text, ...)."""
 
+    messages: Optional[List[Dict[str, str]]] = None
+    """Used for chat models.
+    If messages is specified for a chat model, the prompt is ignored.
+    Otherwise, the client should convert the prompt into a message."""
+
 
 @dataclass(frozen=True)
 class PassageQuestionInput(Input):
