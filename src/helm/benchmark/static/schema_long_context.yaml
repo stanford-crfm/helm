@@ -172,10 +172,29 @@ run_groups:
     category: All scenarios
     subgroups:
       - ruler_hotpotqa
+      - ruler_squad
 
   - name: ruler_hotpotqa
     display_name: RULER HotPotQA
     description: RULER HotPotQA
+    metric_groups:
+      - accuracy
+      - general_information
+      - annotation_metrics
+    environment:
+      main_name: f1_score
+      main_split: valid
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+
+  - name: ruler_squad
+    display_name: RULER SQuAD
+    description: RULER SQuAD
     metric_groups:
       - accuracy
       - general_information
