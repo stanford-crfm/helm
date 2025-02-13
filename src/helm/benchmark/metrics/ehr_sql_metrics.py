@@ -35,18 +35,24 @@ class EhrSqlMetric(Metric):
         """
 
         if not request_state.annotations:
-            raise Exception("Request state does not contain annotations.")
+            hlog(f"Warning: Request state missing annotations for instance {request_state.instance}")
+            return []
+
+        if "ehr_sql" not in request_state.annotations:
+            hlog(f"Warning: 'ehr_sql' key missing in annotations for instance {request_state.instance}")
+            return []
 
         # Extract execution results
-        predicted_result = request_state.annotations["ehr_sql"]["predicted_result"]
-        ground_truth_result = request_state.annotations["ehr_sql"]["ground_truth_result"]
-        query_error = request_state.annotations["ehr_sql"]["query_error"]
+        predicted_result = request_state.annotations["ehr_sql"].get("predicted_result", [])
+        ground_truth_result = request_state.annotations["ehr_sql"].get("ground_truth_result", [])
+        query_error = request_state.annotations["ehr_sql"].get("query_error", None)
 
         # Extract predictions from the model output
         predictions = [completion.text.strip() for completion in request_state.result.completions]
 
         if not predictions:
-            raise ValueError("No predictions found in the completions.")
+            hlog(f"Warning: No predictions found in the completions for instance {request_state.instance}")
+            return []
 
         # Process the first prediction as the primary output
         prediction = predictions[0].strip()
