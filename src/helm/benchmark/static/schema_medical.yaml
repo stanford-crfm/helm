@@ -436,6 +436,7 @@ run_groups:
       - medi_qa
       - mental_health
       - starr_patient_instructions
+      - shc_conf_med
   
   - name: medical_research
     display_name: Medical Research Assistance
