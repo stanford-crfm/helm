@@ -1,109 +1,147 @@
+import json
+import os
 from typing import Dict, List
-from datasets import load_dataset
 
-from helm.common.hierarchical_logger import hlog
+from datasets import DatasetDict, load_dataset
+
 from helm.benchmark.scenarios.scenario import (
-    Scenario,
-    Instance,
-    Reference,
+    CORRECT_TAG,
+    TEST_SPLIT,
     TRAIN_SPLIT,
-    TEST_SPLIT, CORRECT_TAG,
-    PassageQuestionInput,
-    Output
+    Input,
+    Instance,
+    Output,
+    Reference,
+    Scenario,
 )
+from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 
 
 class MedCalcBenchScenario(Scenario):
     """
-    MedCalc-Bench is the first medical calculation dataset used to benchmark LLMs ability to serve as clinical calculators. 
-    Each instance in the dataset consists of a patient note, a question asking to compute a specific clinical value, a final 
-    answer value, and a step-by-step solution explaining how the final answer was obtained. Our dataset covers 55 different
-    calculation tasks. We hope this dataset serves as a call to improve the verbal and computational reasoning skills of LLMs 
-    in medical settings.
+    MedCalcBench scenario: Processes a medical calculation dataset with explanations.
 
-    This dataset contains a training dataset of 10,053 instances and a testing dataset of 1,047 instances.
+    Each record in the dataset has:
+    - Row Number
+    - Calculator ID
+    - Calculator Name
+    - Category
+    - Output Type
+    - Note ID
+    - Note Type
+    - Question
+    - Ground Truth Explanation
+    - Patient Note
+    - Relevant Entities
+    - Lower Limit
+    - Upper Limit
+    - Ground Truth Answer
 
-    Dataset: https://huggingface.co/datasets/ncbi/MedCalc-Bench-v1.0
-    Paper: https://arxiv.org/abs/2406.12036
-    
-    Sample Prompt:
-        Given a patient note and a clinical question, compute the requested medical value. Be as concise as possible.
-                
-        Patient note: A 70-year-old female was rushed into the ICU due to respiratory distress, following which she was
-        promptly put on mechanical ventilation. Her delivered oxygen fell to 51 % FiO₂; meanwhile, her partial pressure 
-        of oxygen (PaO₂) registered at 74 mm Hg. She was conscious but visibly disoriented with a functional Glasgow Coma
-        Score of 12. She was hypotensive with blood pressure of 91/70 mm Hg. Multiple vasopressors are being administered
-        simultaneously including DOPamine at 4 mcg/kg/min, norEPINEPHrine at 0.06 mcg/kg/min, DOBUTamine at 3 mcg/kg/min,
-        and EPINEPHrine at 0.03 mcg/kg/min. Laboratory evaluations revealed mild renal impairment with creatinine
-        levels slightly elevated at 1.6 mg/dL and a bilirubin level of 1.9 mg/dL. Her platelet count was found to be 165,000/µL. 
-        Her daily urine output of 950 mL.
-        Question: What is the patient's Sequential Organ Failure Assessment (SOFA) Score?
-        
-        Answer:
-    
-    @misc{khandekar2024medcalcbench,
-        title={MedCalc-Bench: Evaluating Large Language Models for Medical Calculations}, 
-        author={
-            Nikhil Khandekar and Qiao Jin and Guangzhi Xiong and Soren Dunn and Serina S Applebaum and
-            Zain Anwar and Maame Sarfo-Gyamfi and Conrad W Safranek and Abid A Anwar and Andrew Zhang and
-            Aidan Gilson and Maxwell B Singer and Amisha Dave and Andrew Taylor and Aidong Zhang and
-            Qingyu Chen and Zhiyong Lu
-        },
-        year={2024},
-        eprint={2406.12036},
-        archivePrefix={arXiv},
-        primaryClass={
-            id='cs.CL' full_name='Computation and Language' is_active=True alt_name='cmp-lg'
-            in_archive='cs' is_general=False description='Covers natural language processing. 
-            Roughly includes material in ACM Subject Class I.2.7. Note that work on artificial 
-            languages (programming languages, logics, formal systems) that does not explicitly 
-            address natural-language issues broadly construed (natural-language processing, computational 
-            linguistics, speech, text retrieval, etc.) is not appropriate for this area.'
-        }
-    }
+    The output is formatted as:
+    "The answer is <calculated value>. Steps: <explanation>"
     """
 
-    name = "medcalc_bench"
-    description = "Benchmarking LLMs ability to serve as clinical calculators."
-    tags = ["knowledge", "reasoning", "biomedical"]
+    HUGGING_FACE_DATASET_PATH: str = "ncbi/MedCalc-Bench-v1.0"
+    ONE_SHOT_EXAMPLES_URL = "https://raw.githubusercontent.com/ncbi-nlp/MedCalc-Bench/048ba77dbe332e9190935e4a30965bff444b940e/evaluation/one_shot_finalized_explanation.json"
 
-    def __init__(self):
+    name = "medcalcbench"
+    description = "Medical calculation questions with step-by-step explanations."
+    tags = ["reasoning", "medicine", "calculation"]
+
+    def __init__(self, is_one_shot: bool):
         super().__init__()
-
-    def process_csv(self, data, split: str) -> List[Instance]:
-        instances: List[Instance] = []
-        hlog(f"Processing data for {split} split")
-        for row in data:
-            question = row["Question"]
-            ground_truth_answer = row['Ground Truth Answer']
-            patient_note = row['Patient Note']
-            id = row['Row Number']
-
-            prompt = PassageQuestionInput(
-                passage=patient_note + "\n", question=question + "\n", passage_prefix="Patient note: "
-            )
-            
-            instance = Instance(
-                input=prompt,
-                references=[Reference(Output(text=ground_truth_answer), tags=[CORRECT_TAG])],
-                split=split,
-                id=id
-            )
-            instances.append(instance)
-        return instances
+        self.is_one_shot = is_one_shot
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        # Load the MedCalc-Bench dataset from Hugging Face
-        dataset = load_dataset("ncbi/MedCalc-Bench-v1.0")
+        data_path: str = os.path.join(output_path, "data")
+        ensure_directory_exists(data_path)
+        dataset: DatasetDict = load_dataset(self.HUGGING_FACE_DATASET_PATH)
 
-        # Process all the instances - limit to zero shot setting 
+        if self.is_one_shot:
+            one_shot_examples_path = os.path.join(output_path, "one_shot_examples")
+            ensure_file_downloaded(
+                source_url=self.ONE_SHOT_EXAMPLES_URL, target_path=one_shot_examples_path
+            )
+
+        splits = {TRAIN_SPLIT: "train", TEST_SPLIT: "test"}
         instances: List[Instance] = []
-        splits: Dict[str, str] = {
-            #"train": TRAIN_SPLIT,
-            "test": TEST_SPLIT, 
-        }
-        for hf_split, split in splits.items():
-            data = dataset[hf_split]
-            instances.extend(self.process_csv(data, split))
+        for (
+            helm_split_name,
+            dataset_split_name,
+        ) in splits.items():  # Iterate over the splits
+            split_data = dataset[dataset_split_name]
+
+            for example in split_data:
+                question = example["Question"]
+                patient_note = example["Patient Note"]
+
+                input_text = (
+                    f"Patient Note:\n\n{patient_note}\n\nQuestion:\n\n{question}"
+                )
+                if self.is_one_shot:
+                    one_shot_examples = json.load(open(one_shot_examples_path))
+
+                    # In one-shot, we have a single example for each calculator ID
+                    calculator_id = str(example["Calculator ID"])
+                    instructions = self._get_one_shot_cot_instructions(
+                        question, calculator_id, one_shot_examples
+                    )
+
+                    input_text = f"{instructions}\n\n{input_text}"
+
+                # Format the final answer with explanation
+                instances.append(
+                    Instance(
+                        id=example["Row Number"],
+                        input=Input(text=input_text),
+                        references=[
+                            Reference(
+                                Output(text=example["Ground Truth Answer"]),
+                                tags=[CORRECT_TAG],
+                            )
+                        ],
+                        split=helm_split_name,
+                        extra_data={
+                            "lower_limit": example["Lower Limit"],
+                            "upper_limit": example["Upper Limit"],
+                            "calculator_id": example["Calculator ID"],
+                        },
+                    )
+                )
 
         return instances
+
+    def _get_one_shot_cot_instructions(self, question: str, calculator_id: str, one_shot_examples: dict) -> str:
+        """Generate instructions for the MedCalc-Bench scenario.
+
+        This function is inspired on the system prompt definition in the original code:
+        https://github.com/ncbi-nlp/MedCalc-Bench/blob/048ba77dbe332e9190935e4a30965bff444b940e/evaluation/run.py#L26
+
+        Credits to the original authors: https://github.com/ncbi-nlp/MedCalc-Bench.
+
+        In the original code, there's exactly one example response for each calculator ID.
+        These examples are stored in a JSON file: https://github.com/ncbi-nlp/MedCalc-Bench/blob/048ba77dbe332e9190935e4a30965bff444b940e/evaluation/one_shot_finalized_explanation.json
+        None of the examples include the actual questions. They only contain the step-by-step thinking and the final answer.
+        Looking at the dataset samples we can see that all samples with the same calculator ID use the same question.
+        The original expect that for each sample, we collect the calculator ID and the question for building the one-shot instructions.
+        """
+        if not one_shot_examples:
+            raise ValueError(
+                "Failed to load one-shot examples for the MedCalc-Bench scenario."
+            )
+
+        example = one_shot_examples.get(calculator_id, {})
+
+        if not example:
+            raise ValueError(
+                f"Failed to find one-shot example for calculator ID {calculator_id}."
+            )
+
+        return (
+            "Below is an example:"
+            # This example follows the formatting of the respective scenario.
+            f"\n\nPatient Note:\n\n{example['Patient Note']}"
+            f"\n\nQuestion:\n\n{question}"
+            f"\n\nExplanation:\n\n{example['Response']['step_by_step_thinking']}"
+            f"\n\nCalculated Value: {example['Response']['answer']}"
+        )
