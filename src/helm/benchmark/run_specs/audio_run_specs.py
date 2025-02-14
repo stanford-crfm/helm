@@ -86,17 +86,13 @@ def get_machine_translation_metric_specs() -> List[MetricSpec]:
 
 
 def _get_audio_recognition_metric_specs() -> List[MetricSpec]:
-    return get_basic_metric_specs(["wer_score", "mer_score", "wip_score", "cer_score"])
+    return get_basic_metric_specs(["ter_score", "mer_score", "tip_score", "cer_score"])
 
 
 def _get_open_ended_generation_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(
         ["exact_match", "quasi_exact_match", "f1_score", "rouge_l", "bleu_1", "bleu_4", "cider"]
     )
-
-
-def _get_chinese_audio_recognition_metric_specs() -> List[MetricSpec]:
-    return get_basic_metric_specs(["chinese_wer_score", "chinese_mer_score", "chinese_wip_score", "chinese_cer_score"])
 
 
 ########################################################################################################################
@@ -215,10 +211,7 @@ def get_multilingual_librispeech_run_spec(language: str) -> RunSpec:
         instructions=ASR_INSTRUCTIONS,
         max_tokens=100,
     )
-    if "chinese" in language.lower():
-        metric_specs = _get_chinese_audio_recognition_metric_specs()
-    else:
-        metric_specs = _get_audio_recognition_metric_specs()
+    metric_specs = _get_audio_recognition_metric_specs()
     run_spec_name: str = "multilingual_librispeech"
     return RunSpec(
         name=f"{run_spec_name}:language={language}",
@@ -239,11 +232,7 @@ def get_fleurs_run_spec(language: str) -> RunSpec:
         instructions=ASR_INSTRUCTIONS,
         max_tokens=100,
     )
-    # Chinese characters are not supported in the default metrics
-    if "chinese" in language.lower():
-        metric_specs = _get_chinese_audio_recognition_metric_specs()
-    else:
-        metric_specs = _get_audio_recognition_metric_specs()
+    metric_specs = _get_audio_recognition_metric_specs()
     run_spec_name: str = "fleurs"
     return RunSpec(
         name=f"{run_spec_name}:language={language}",
@@ -304,11 +293,8 @@ def get_common_voice_15_run_spec(language: str) -> RunSpec:
         instructions=ASR_INSTRUCTIONS,
         max_tokens=100,
     )
-    # Chinese characters are not supported in the default metrics
-    if "chinese" in language.lower():
-        metric_specs = _get_chinese_audio_recognition_metric_specs()
-    else:
-        metric_specs = _get_audio_recognition_metric_specs()
+
+    metric_specs = _get_audio_recognition_metric_specs()
     run_spec_name: str = "common_voice_15"
     return RunSpec(
         name=f"{run_spec_name}:language={language}",
