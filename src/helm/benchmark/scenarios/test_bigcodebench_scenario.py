@@ -11,6 +11,7 @@ def test_bigcodebench_scenario_get_instances():
     with TemporaryDirectory() as tmpdir:
         instances = bigcodebench_scenario.get_instances(tmpdir)
     assert len(instances) == 1140
+    assert instances[0].id == "BigCodeBench/0"
     assert instances[0].input == Input(
         text=(
             "Calculates the average of the sums of absolute differences between each pair "
@@ -23,5 +24,3 @@ def test_bigcodebench_scenario_get_instances():
         )
     )
     assert instances[0].split == TEST_SPLIT
-    assert instances[0].extra_data
-    assert instances[0].extra_data["task_id"] == "BigCodeBench/0"

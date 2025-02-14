@@ -5,6 +5,7 @@ from helm.benchmark.scenarios.math_scenario import MATHScenario
 from helm.benchmark.scenarios.scenario import Input, Output, Reference
 
 
+@pytest.mark.skip(reason="competition_math has been disabled on Hugging Face Hub due to a DMCA takedown")
 @pytest.mark.scenarios
 def test_math_scenario_get_instances():
     math_scenario = MATHScenario(subject="number_theory", level="1")
