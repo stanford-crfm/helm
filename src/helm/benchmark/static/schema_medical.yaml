@@ -414,6 +414,8 @@ run_groups:
       - medbullets
       - medalign
       - clear
+      - shc_ptbm_med
+      - shc_sei_med
 
   - name: clinical_note_generation
     display_name: Clinical Note Generation
@@ -963,4 +965,37 @@ run_groups:
       who: n/a
       when: n/a
       language: English
-      
+
+  - name: shc_ptbm_med
+    display_name: ADHD-PTM 
+    description: This dataset contains clinical notes from primary care visit encounters of children ages 4-6 years old with ADHD seen at Stanford's community-based primary care network, Packard Children's Health Alliance, between 2015-2019. In this classification task, the LLM is tasked with classifying whether the note contains clinician recommendation for parent training in behavior management, which is the first-line evidence-based treatment for young children with ADHD. From publication https://doi.org/10.1093/jamia/ocae001
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: shc_sei_med
+    display_name:  ADHD-SEI
+    description: This dataset contains clinical notes from primary care visit encounters (in-person/telehealth and telephone) of children ages 6-11 years old with ADHD seen at Stanford's community-based primary care network, Packard Children's Health Alliance, between 2015-2022. All children in this dataset were prescribed at least once an ADHD medication (stimulants or non-stimulants) by a primary care clinician. In this classification task, the LLM is tasked with classifying whether the note contains documentation of side effect monitoring (recording of absence or presence of medication side effects), as recommended in clinical practice guidelines. From publication https://doi.org/10.1542/peds.2024-067223
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
