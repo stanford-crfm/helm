@@ -24,7 +24,6 @@ from helm.benchmark.scenarios.math_scenario import is_equiv, is_equiv_chain_of_t
 from helm.benchmark.scenarios.scenario import Reference
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import GeneratedOutput
-from helm.tokenizers.tiktoken_tokenizer import TiktokenTokenizer
 from helm.common.cache import SqliteCacheConfig
 
 
@@ -224,6 +223,10 @@ def get_tiktoken_encode_request(text: str) -> Dict:
 
 
 def get_tiktoken_tokenizer():
+    try:
+        from helm.tokenizers.tiktoken_tokenizer import TiktokenTokenizer
+    except ModuleNotFoundError as e:
+        handle_module_not_found_error(e, ["openai"])
     cache_file = tempfile.NamedTemporaryFile(delete=False)
     cache_path: str = cache_file.name
     return TiktokenTokenizer(SqliteCacheConfig(cache_path))
