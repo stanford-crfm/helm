@@ -85,7 +85,7 @@ class RaceBasedMedScenario(Scenario):
     """
 
     name = "race_based_med"
-    description = "A benchmark evaluating the presence of racial bias in LLM output."
+    description = "A collection of LLM outputs in response to medical questions with race-based biases, with the objective being to classify whether the output contains racially biased content."
     tags = ["knowledge", "reasoning", "biomedical"]
     POSSIBLE_ANSWER_CHOICES: List[str] = ["yes", "no"]
     def create_benchmark(self, csv_path)->Dict[str, str]:

@@ -30,7 +30,7 @@ class EhrSqlScenario(Scenario):
     SQL_SCHEMA_URL: str = "https://raw.githubusercontent.com/glee4810/EHRSQL/refs/heads/main/dataset/ehrsql/eicu/eicu.sql"
 
     name = "ehr_sql"
-    description = "Generate SQL queries based on medical questions."
+    description = "Given a natural language instruction, generate an SQL query that would be used in clinical research."
     tags = ["sql", "medical", "reasoning"]
 
     def setup_database(self, output_path: str) -> str:

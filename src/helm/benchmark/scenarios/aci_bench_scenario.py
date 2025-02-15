@@ -67,7 +67,7 @@ class ACIBenchScenario(Scenario):
     ]
 
     name = "aci_bench"
-    description = "The ACI-Bench dataset evaluates the task of generating medical notes from doctor-patient dialogue."
+    description = "A dataset of patient-doctor conversations paired with structured clinical notes."
     tags = ["summarization", "medicine"]
 
     def download_json(self, url: str, output_path: str, file_name: str) -> str:

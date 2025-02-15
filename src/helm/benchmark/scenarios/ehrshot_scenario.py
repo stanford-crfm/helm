@@ -1376,7 +1376,7 @@ class EHRSHOTScenario(Scenario):
     """
 
     name = "ehrshot"
-    description = "EHRSHOT is a binary classification dataset for clinical prediction making."
+    description = "A dataset given a patient record of EHR codes, classifying if an event will occur at a future date or not."
     tags = [] # TODO
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["yes", "no",]

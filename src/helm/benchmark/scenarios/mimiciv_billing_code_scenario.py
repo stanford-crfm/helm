@@ -23,7 +23,7 @@ class MIMICIVBillingCodeScenario(Scenario):
     """
 
     name = "mimiciv_billing_code"
-    description = "Given a discharge note, predict the ICD-10 code(s)."
+    description = "A  dataset pairing clinical notes from MIMIC-IV with corresponding ICD-10 billing codes."
     tags = ["question_answering", "biomedical"]
 
     def __init__(self, data_file: str):

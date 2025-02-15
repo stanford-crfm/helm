@@ -23,7 +23,7 @@ class SHCPTBMMedScenario(Scenario):
     This dataset contains clinical notes from primary care visit encounters of children ages 4-6 years old with ADHD seen at Stanford's community-based primary care network, Packard Children's Health Alliance, between 2015-2019. In this classification task, the LLM is tasked with classifying whether the note contains clinician recommendation for parent training in behavior management, which is the first-line evidence-based treatment for young children with ADHD. From publication: https://doi.org/10.1093/jamia/ocae001
     """
     name = "shc_ptbm_med"
-    description = "This dataset contains clinical notes from primary care visit encounters of children ages 4-6 years old with ADHD seen at Stanford's community-based primary care network, Packard Children's Health Alliance, between 2015-2019. In this classification task, the LLM is tasked with classifying whether the note contains clinician recommendation for parent training in behavior management, which is the first-line evidence-based treatment for young children with ADHD. From publication: https://doi.org/10.1093/jamia/ocae001"
+    description = "A dataset that classifies whether a clinical note contains documentation of side effect monitoring (recording of absence or presence of medication side effects), as recommended in clinical practice guidelines."
     tags = ["knowledge", "reasoning", "biomedical"]
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["A", "B"]

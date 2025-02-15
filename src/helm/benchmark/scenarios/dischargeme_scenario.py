@@ -84,7 +84,7 @@ class DischargeMeScenario(Scenario):
     }
     """
     name = "dischargeme"
-    description = "A discharge instruction and brief hospital course generation dataset collected from MIMIC-IV."
+    description = "DischargeMe is a discharge instruction generation dataset and brief hospital course generation datasetcollected from MIMIC-IV data, consindering only the discharge text as well as the radiology report text."
     tags = ["biomedical"]
 
     def get_instances(self, output_path: str) -> List[Instance]:

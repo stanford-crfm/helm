@@ -23,7 +23,7 @@ class SHCCDIMedScenario(Scenario):
     This benchmark dataset was built from Clinical Document Integrity (CDI) notes were there are verifications of clinical activities. The idea behind it was to assess an LLM capability to answer these questions from previous notes.
     """
     name = "shc_cdi_med"
-    description = "This benchmark dataset was built from Clinical Document Integrity (CDI) notes were there are verifications of clinical activities. The idea behind it was to assess an LLM capability to answer these questions from previous notes."
+    description = "A dataset built from Clinical Document Integrity (CDI) notes, to assess the ability to answer verification questions from previous notes."
     tags = ["knowledge", "reasoning", "biomedical"]
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["A", "B"]

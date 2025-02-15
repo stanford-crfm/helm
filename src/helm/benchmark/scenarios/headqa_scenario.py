@@ -59,7 +59,7 @@ class HeadQAScenario(Scenario):
 
     name = "head_qa"
     description = (
-        "A multi-choice QA dataset from Spanish healthcare specialization exams."
+        "A collection of biomedical multiple-choice questions for testing medical knowledge."
     )
     tags = ["question_answering", "biomedical", "medicine"]
 

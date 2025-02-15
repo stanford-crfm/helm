@@ -68,7 +68,7 @@ class MedBulletsScenario(Scenario):
     DATASET_DOWNLOAD_BASE_URL = "https://raw.githubusercontent.com/HanjieChen/ChallengeClinicalQA/refs/heads/main/medbullets/"
 
     name = "medbullet"
-    description = "USMLE Step 2&3 style clinical questions with explanations."
+    description = "A USMLE-style medical question dataset with multiple-choice answers and explanations."
     tags = ["reasoning", "biomedical"]
 
     # Define the possible answer choices

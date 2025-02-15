@@ -49,7 +49,7 @@ class MentalHealthScenario(Scenario):
     """
 
     name = "mental_health"
-    description = "Benchmarking LLMs ability for mental health counseling dialogue generation"
+    description = "A dataset containing a counselor and mental health patient conversation, where the objective is to generate an empathetic counselor response."
     tags = ["dialogue", "counseling", "mental_health", "empathy", "healthcare"]
 
     def __init__(self):

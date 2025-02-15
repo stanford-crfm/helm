@@ -91,9 +91,7 @@ class MedDialogScenario(Scenario):
 
     name = "med_dialog"
     description = (
-        "The MedDialog dataset (English) contains conversations between doctors and patients. "
-        "It has 0.26 million dialogues. The data is continuously growing and more dialogues will be added. "
-        "The raw dialogues are from healthcaremagic.com and icliniq.com."
+        "A collection of doctor-patient conversations with corresponding summaries."
     )
     tags = ["dialogue", "biomedical"]
 

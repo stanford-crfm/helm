@@ -23,7 +23,7 @@ class SHCENTMedScenario(Scenario):
     This benchmark dataset was built to assess the capabilities of an LLM for referral to the Ear, Nose and Throat department.
     """
     name = "shc_ent_med"
-    description = "This benchmark dataset was built to assess the capabilities of an LLM for referral to the Ear, Nose and Throat department."
+    description = "A dataset designed to evaluate performance in identifying appropriate patient referrals to Ear, Nose, and Throat specialists."
     tags = ["knowledge", "reasoning", "biomedical"]
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["A", "B", "C"]

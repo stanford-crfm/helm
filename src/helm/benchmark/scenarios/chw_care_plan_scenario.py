@@ -65,7 +65,7 @@ class CHWCarePlanScenario(Scenario):
     """
 
     name = "chw_care_plan"
-    description = "Given a clinical note, extract key information into a given format."
+    description = "A dataset containing free form text of a clinical health worker care plan, with the associated goal being to restructure that text into a given format."
     tags = ["question_answering", "biomedical"]
 
     def __init__(self):

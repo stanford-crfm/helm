@@ -166,7 +166,7 @@ class N2C2CTMatchingScenario(Scenario):
     """
 
     name = "n2c2_ct_matching"
-    description = "N2C2 CT Matching is a binary classification dataset for assessing whether a patient meets a clinical trial inclusion criteria."
+    description = "A dataset that provides clinical notes and asks the model to classify whether the patient is a valid candidate for a provided clinical trial."
     tags = [] # TODO
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["yes", "no",]

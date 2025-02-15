@@ -50,7 +50,7 @@ class MedecScenario(Scenario):
     TEST_URL = "https://raw.githubusercontent.com/abachaa/MEDEC/refs/heads/main/MEDEC-MS/MEDEC-MS-TestSet-with-GroundTruth-and-ErrorType.csv"
 
     name = "medec"
-    description = "MEDEC dataset for medical error detection and correction tasks."
+    description = "A dataset containing medical narratives with error detection and correction pairs."
     tags = ["error_detection", "error_correction", "biomedical"]
 
     def download_csv(self, url: str, output_path: str, file_name: str) -> str:

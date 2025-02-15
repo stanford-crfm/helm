@@ -23,7 +23,7 @@ class SHCBMTMedScenario(Scenario):
     This benchmark dataset was built from a patient status gold-standard for specific questions asked after a bone marrow transplant has taken place.
     """
     name = "shc_bmt_med"
-    description = "This benchmark dataset was built from a patient status gold-standard for specific questions asked after a bone marrow transplant has taken place."
+    description = "A dataset containing patient notes with associated questions and answers related to bone marrow transplantation."
     tags = ["knowledge", "reasoning", "biomedical"]
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["A", "B"]

@@ -34,7 +34,7 @@ class MTSamplesReplicateScenario(Scenario):
     RAW_BASE_URL = "https://raw.githubusercontent.com/raulista1997/benchmarkdata/refs/heads/main/mtsamples_processed/"
 
     name = "mtsamples_replicate"
-    description = "Medical transcription dataset for structured plan generation."
+    description = "A dataset of clinical notes where the model is prompted to generate the apprioriate treatment plan for this patient."
     tags = ["medical", "transcription", "plan_generation"]
 
     def fetch_file_list(self) -> List[str]:

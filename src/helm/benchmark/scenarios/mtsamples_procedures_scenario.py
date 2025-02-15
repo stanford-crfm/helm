@@ -32,7 +32,7 @@ class MTSamplesProceduresScenario(Scenario):
     RAW_BASE_URL = "https://raw.githubusercontent.com/raulista1997/benchmarkdata/refs/heads/main/mtsample_procedure/"
 
     name = "mtsamples"
-    description = "Medical transcription dataset with structured plan generation."
+    description = "A dataset that provides a patient note regarding an operation, with the objective to document the procedure."
     tags = ["medical", "transcription", "plan_generation"]
 
     def fetch_file_list(self) -> List[str]:

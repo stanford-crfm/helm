@@ -42,7 +42,7 @@ class MIMICRRSScenario(Scenario):
     """
 
     name = "mimic_rrs"
-    description = "A radiology report summarization dataset collected from MIMIC-III."
+    description = "A dataset containing radiology reports with findings sections from MIMIC-III paired with their corresponding impression sections, used for generating radiology report summaries."
     tags = ["question_answering", "biomedical"]
 
     def get_instances(self, output_path: str) -> List[Instance]:

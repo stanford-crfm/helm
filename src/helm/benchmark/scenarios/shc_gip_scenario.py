@@ -23,7 +23,7 @@ class SHCGIPMedScenario(Scenario):
     This benchmark dataset was built from a patient referral gold-standard set to a specialty clinic to verify the ability of LLMs for patient hospice referral purposes.
     """
     name = "shc_gip_med"
-    description = "This benchmark dataset was built from a patient referral gold-standard set to a specialty clinic to verify the ability of LLMs for patient hospice referral purposes."
+    description = "A dataset evaluating performance in identifying appropriate patient referrals to hospice care."
     tags = ["knowledge", "reasoning", "biomedical"]
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["A", "B"]

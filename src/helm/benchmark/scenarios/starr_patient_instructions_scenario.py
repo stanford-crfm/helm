@@ -42,7 +42,7 @@ class StarrPatientInstructionsScenario(Scenario):
     """
 
     name = "starr_patient_instructions"
-    description = "A dataset for generating personalized patient instructions after outpatient surgeries or procedures from STARR-OMOP data."
+    description = "A dataset containing case details used to generate customized post-procedure patient instructions."
     tags = ["patient_communication", "healthcare", "instruction_generation", "surgery"]
 
     def get_instances(self, output_path: str) -> List[Instance]:

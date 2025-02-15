@@ -684,7 +684,7 @@ This task is evaluated using COMET and BERTScore metrics.
     """
 
     name = "medalign"
-    description = "Benchmarking LLMs ability for clinical instruction-following"
+    description = "A dataset that asks models to answer questions/follow instructions over longitudinal EHR."
     tags = ["knowledge", "reasoning", "biomedical"]
 
     def __init__(self, max_length: int):

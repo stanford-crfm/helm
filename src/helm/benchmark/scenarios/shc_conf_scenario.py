@@ -24,7 +24,7 @@ class SHCCONFMedScenario(Scenario):
     From Evaluation of a Large Language Model to Identify Confidential Content in Adolescent Encounter Notes published at https://jamanetwork.com/journals/jamapediatrics/fullarticle/2814109
     """
     name = "shc_conf_med"
-    description = "Benchmark derived from extracting confidential information from clinical notes. From Evaluation of a Large Language Model to Identify Confidential Content in Adolescent Encounter Notes published at https://jamanetwork.com/journals/jamapediatrics/fullarticle/2814109"
+    description = "A dataset of clinical notes from adolescent patients used to identify sensitive protected health information that should be restricted from parental access."
     tags = ["knowledge", "reasoning", "biomedical"]
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["A", "B"]

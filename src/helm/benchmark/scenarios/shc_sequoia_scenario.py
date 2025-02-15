@@ -23,7 +23,7 @@ class SHCSequoiaMedScenario(Scenario):
     Benchmark derived from manually curated answers to several questions for Sequoia clinic referrals
     """
     name = "shc_sequoia_med"
-    description = "A benchmark for evaluating LLM patient referral capabilities"
+    description = "A dataset containing manually curated answers to questions regarding patient referrals to the Sequoia clinic."
     tags = ["knowledge", "reasoning", "biomedical"]
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["A", "B"]

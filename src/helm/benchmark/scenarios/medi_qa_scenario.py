@@ -42,7 +42,7 @@ class MediQAScenario(Scenario):
     """
 
     name = "medi_qa"
-    description = "Benchmarking LLMs ability to answer consumer healthcare questions."
+    description = "A dataset including a medical question, a set of candidate answers, relevance annotations for ranking, and additional context to evaluate understanding and retrieval capabilities in a healthcare setting."
     tags = ["knowledge", "biomedical"]
 
     def __init__(self):
