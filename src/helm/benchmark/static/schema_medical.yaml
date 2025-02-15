@@ -540,7 +540,7 @@ run_groups:
       language: English
   
   - name: starr_patient_instructions
-    display_name: "Starr Patient Instructions"
+    display_name: PatientInstruct
     description: A benchmark created from STARR-OMOP for generating patient instructions outpatient surgeries and procedures. 
     metric_groups:
       - accuracy
@@ -574,8 +574,7 @@ run_groups:
       language: English
 
   - name: race_based_med
-    display_name: RaceBasedMedicine
-    short_display_name: RaceBasedMed
+    display_name: RaceBias
     description: A benchmark created from the race based medicine detection paper where models are tasked at detecting harmful race basewd content in LLM output.
     metric_groups:
       - accuracy
@@ -769,7 +768,7 @@ run_groups:
       language: English
 
   - name: chw_care_plan
-    display_name: CHW_Care_Plan
+    display_name: NoteExtract
     description: Converts patient notes into structured electronic records, benchmarking generative models for note generation.
     metric_groups:
       - accuracy
@@ -871,7 +870,7 @@ run_groups:
       language: English
 
   - name: shc_bmt_med
-    display_name: BMTStatus
+    display_name: BMT-Status
     description: This benchmark dataset was built from a patient status gold-standard for specific questions asked after a bone marrow transplant has taken place.
     metric_groups:
       - accuracy
@@ -888,7 +887,7 @@ run_groups:
       language: English
   
   - name: shc_gip_med
-    display_name: GIPRefer
+    display_name: HospiceReferral
     description: This benchmark dataset was built from a patient referral gold-standard set to a specialty clinic to verify the ability of LLMs for patient hospice referral purposes.
     metric_groups:
       - accuracy
@@ -906,7 +905,7 @@ run_groups:
   
   - name: shc_cdi_med
     display_name: CDI-QA
-    description: This benchmark dataset was built from Clinical Document Integrity (CDI) notes were there are verifications of clinical activities. The idea behind it was to assess an LLM capability to answer these questions from previous notes.
+    description: This benchmark dataset was built from Clinical Document Integrity (CDI) notes were there are verifications of clinical activities. The idea behind it is to assess an LLM capability to answer these questions from previous notes.
     metric_groups:
       - accuracy
       - efficiency
@@ -922,7 +921,7 @@ run_groups:
       language: English
   
   - name: shc_ent_med
-    display_name: ENTRefer
+    display_name: ENT-Referral
     description: This benchmark dataset was built to assess the capabilities of an LLM for referral to the Ear, Nose and Throat department.
     metric_groups:
       - accuracy
@@ -939,8 +938,8 @@ run_groups:
       language: English
 
   - name: shc_sequoia_med
-    display_name: SeqRefer
-    description: This benchmark dataset was built from a patient referral gold-standard set to a specialty clinic to verify the ability of LLMs for patient referral purposes.
+    display_name: ClinicReferral
+    description: Benchmark derived from manually curated answers to several questions for Sequoia clinic referrals.
     metric_groups:
       - accuracy
       - efficiency
@@ -956,7 +955,7 @@ run_groups:
       language: English
       
   - name: shc_conf_med
-    display_name: ConfIdent
+    display_name: MedConfInfo
     description: Benchmark derived from extracting confidential information from clinical notes.  Taken from Evaluation of a Large Language Model to Identify Confidential Content in Adolescent Encounter Notes published at https://jamanetwork.com/journals/jamapediatrics/fullarticle/2814109
     metric_groups:
       - accuracy
@@ -973,7 +972,7 @@ run_groups:
       language: English
 
   - name: shc_ptbm_med
-    display_name: ADHD-PTM 
+    display_name: ADHD-Behavior
     description: This dataset contains clinical notes from primary care visit encounters of children ages 4-6 years old with ADHD seen at Stanford's community-based primary care network, Packard Children's Health Alliance, between 2015-2019. In this classification task, the LLM is tasked with classifying whether the note contains clinician recommendation for parent training in behavior management, which is the first-line evidence-based treatment for young children with ADHD. From publication https://doi.org/10.1093/jamia/ocae001
     metric_groups:
       - accuracy
@@ -990,7 +989,7 @@ run_groups:
       language: English
 
   - name: shc_sei_med
-    display_name:  ADHD-SEI
+    display_name:  ADHD-MedEffects
     description: This dataset contains clinical notes from primary care visit encounters (in-person/telehealth and telephone) of children ages 6-11 years old with ADHD seen at Stanford's community-based primary care network, Packard Children's Health Alliance, between 2015-2022. All children in this dataset were prescribed at least once an ADHD medication (stimulants or non-stimulants) by a primary care clinician. In this classification task, the LLM is tasked with classifying whether the note contains documentation of side effect monitoring (recording of absence or presence of medication side effects), as recommended in clinical practice guidelines. From publication https://doi.org/10.1542/peds.2024-067223
     metric_groups:
       - accuracy
