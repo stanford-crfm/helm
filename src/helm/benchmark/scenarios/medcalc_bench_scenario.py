@@ -83,9 +83,16 @@ class MedCalcBenchScenario(Scenario):
                 passage=patient_note + "\n", question=question + "\n", passage_prefix="Patient note: "
             )
             
+            extra_data = {
+                "category": row["Category"],
+                "upper_limit": row["Upper Limit"],
+                "lower_limit": row["Lower Limit"],
+            }
+            
             instance = Instance(
                 input=prompt,
                 references=[Reference(Output(text=ground_truth_answer), tags=[CORRECT_TAG])],
+                extra_data=extra_data,
                 split=split,
                 id=id
             )

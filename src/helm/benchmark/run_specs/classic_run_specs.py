@@ -1284,12 +1284,19 @@ def get_medcalc_bench_spec() -> RunSpec:
         max_tokens=10,
         max_train_instances=0
     )
+    
+    metric_specs = [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.medcalc_bench_metrics.MedCalcBenchMetric",
+            args={},
+        )
+    ] + get_exact_match_metric_specs()
 
     return RunSpec(
         name=f"medcalc_bench",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs(),
+        metric_specs=metric_specs,
         groups=["medcalc_bench"],
     )
 
