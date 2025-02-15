@@ -470,7 +470,7 @@ run_groups:
 
   - name: medcalc_bench
     display_name: MedCalc-Bench
-    description: MedCalc-Bench is the first medical calculation dataset used to benchmark LLMs ability to serve as clinical calculators ([Khandekar et al. 2024](https://arxiv.org/abs/2406.12036)).
+    description: A dataset which consists of a patient note, a question requesting to compute a specific medical value, and a ground truth answer ([Khandekar et al. 2024](https://arxiv.org/abs/2406.12036)).
     metric_groups:
       - accuracy
       - efficiency
@@ -488,7 +488,7 @@ run_groups:
   - name: medalign
     display_name: MedAlign
     short_display_name: MedAlign
-    description: A question answering dataset for clinical questions, each paired with a relevant patient EHR and a clinician-generated gold response.
+    description: A dataset that asks models to answer questions/follow instructions over longitudinal EHR.
     metric_groups:
       - accuracy
       - efficiency
@@ -504,9 +504,9 @@ run_groups:
       language: English
 
   - name: mtsamples_replicate
-    display_name: MTSamplesReplica
-    short_display_name: MTSamplesRe
-    description: A benchmark created from the MTSamples dataset for patient plan prediction/generation.
+    display_name: MTSamples
+    short_display_name: MTSamples
+    description: A dataset of clinical notes where the model is prompted to generate the apprioriate treatment plan for this patient.
     metric_groups:
       - accuracy
       - efficiency
@@ -522,9 +522,8 @@ run_groups:
       language: English
 
   - name: ehrshot
-    display_name: EHRShot
-    short_display_name: EHRShot
-    description: A benchmark created from the EHRShot dataset for clinical prediction making using structured EHR data.
+    display_name: EHRSHOT
+    description: A dataset given a patient record of EHR codes, classifying if an event will occur at a future date or not.
     metric_groups:
       - accuracy
       - efficiency
@@ -541,7 +540,7 @@ run_groups:
   
   - name: starr_patient_instructions
     display_name: PatientInstruct
-    description: A benchmark created from STARR-OMOP for generating patient instructions outpatient surgeries and procedures. 
+    description: A dataset containing case details used to generate customized post-procedure patient instructions.
     metric_groups:
       - accuracy
       - efficiency
@@ -557,8 +556,8 @@ run_groups:
       language: English
     
   - name: clear
-    display_name: "CLEAR (Alcohol Dependence)"
-    description: "A benchmark created from CLEAR data for classifying whether a patient has a history of alcohol dependence based on human-labeled medical texts."
+    display_name: CLEAR-AD
+    description: "A dataset for evaluating alcohol dependence history detection from patient notes with yes/no/maybe classifications."
     metric_groups:
       - accuracy
       - efficiency
@@ -575,7 +574,7 @@ run_groups:
 
   - name: race_based_med
     display_name: RaceBias
-    description: A benchmark created from the race based medicine detection paper where models are tasked at detecting harmful race basewd content in LLM output.
+    description: A collection of LLM outputs in response to medical questions with race-based biases, with the objective being to classify whether the output contains racially biased content.
     metric_groups:
       - accuracy
       - efficiency
@@ -591,9 +590,9 @@ run_groups:
       language: English
 
   - name: n2c2_ct_matching
-    display_name: N2C2 CT Matching
-    short_display_name: N2C2 CT Matching
-    description: A benchmark created from the N2C2 2018 CT Matching dataset for assessing whether a patient meets a clinical trial inclusion criterion based a set of 2-5 clinical notes.
+    display_name: N2C2-CT Matching
+    short_display_name: N2C2-CT
+    description: A dataset that provides clinical notes and asks the model to classify whether the patient is a valid candidate for a provided clinical trial.
     metric_groups:
       - accuracy
       - efficiency
@@ -611,7 +610,7 @@ run_groups:
   - name: med_dialog
     display_name: MedDialog
     short_display_name: MedDialog
-    description: A medical dialog dataset for clinical questions containing real patient questions and clinician-generated gold responses.
+    description: A collection of doctor-patient conversations with corresponding summaries.
     metric_groups:
       - accuracy
       - efficiency
@@ -627,9 +626,8 @@ run_groups:
       language: English
   
   - name: medi_qa
-    display_name: MEDIQA-QA
-    short_display_name: MEDIQA-QA
-    description: A consumer healthcare question dataset containing medical expert ranked responses from medcial websites.
+    display_name: MEDIQA
+    description: A dataset including a medical question, a set of candidate answers, relevance annotations for ranking, and additional context to evaluate understanding and retrieval capabilities in a healthcare setting.
     metric_groups:
       - accuracy
       - efficiency
@@ -645,9 +643,8 @@ run_groups:
       language: English
 
   - name: mental_health
-    display_name: Mental Health Counseling
-    short_display_name: MentalHealth
-    description: A dialogue-based dataset containing counseling conversations, each with expert counselor responses for various mental health topics including anxiety, workplace issues, and crisis situations.
+    display_name: MentalHealth
+    description: A dataset containing a counselor and mental health patient conversation, where the objective is to generate an empathetic counselor response.
     metric_groups:
       - accuracy
       - efficiency
@@ -665,7 +662,7 @@ run_groups:
   - name: mimic_rrs
     display_name: MIMIC-RRS
     short_display_name: MIMIC-RRS
-    description: A radiology report summarization dataset collected from MIMIC-III.
+    description: A dataset containing radiology reports with findings sections from MIMIC-III paired with their corresponding impression sections, used for generating radiology report summaries.
     metric_groups:
       - accuracy
       - efficiency
@@ -681,9 +678,8 @@ run_groups:
       language: English
   
   - name: mimiciv_billing_code
-    display_name: MIMIC-IV Billing Code Prediction
-    short_display_name: MIMIC-IV Billing Code
-    description: A multi-label classification task where the model predicts ICD-10 billing codes based on discharge summaries from electronic health records.
+    display_name: MIMIC-IV Billing Code
+    description: A  dataset pairing clinical notes from MIMIC-IV with corresponding ICD-10 billing codes.
     metric_groups:
       - accuracy
       - efficiency
@@ -701,7 +697,7 @@ run_groups:
   - name: dischargeme
     display_name: DischargeMe
     short_display_name: DischargeMe
-    description: A discharge instruction and brief hospital course generation dataset collected from MIMIC-IV.
+    description: DischargeMe is a discharge instruction generation dataset and brief hospital course generation datasetcollected from MIMIC-IV data, consindering only the discharge text as well as the radiology report text.
     metric_groups:
       - accuracy
       - efficiency
@@ -718,7 +714,7 @@ run_groups:
 
   - name: pubmed_qa
     display_name: PubMedQA
-    description: biomedical literature Q + Context + A yes/no/maybe + long answer questions
+    description: A dataset that provides pubmed abstracts and asks associated questions yes/no/maybe questions.
     metric_groups:
       - accuracy
       - efficiency
@@ -735,7 +731,7 @@ run_groups:
 
   - name: medec
     display_name: Medec
-    description: Detects and corrects medical errors in clinical notes, focusing on five error types, diagnosis, management, treatment, pharmacotherapy, and causal organism.
+    description: A dataset containing medical narratives with error detection and correction pairs.
     metric_groups:
       - accuracy
       - efficiency
@@ -751,8 +747,8 @@ run_groups:
       language: English
 
   - name: aci_bench
-    display_name: ACI_Bench
-    description: Converts doctor-patient dialogues into structured electronic medical records, benchmarking generative models for note generation.
+    display_name: ACI-Bench
+    description: A dataset of patient-doctor conversations paired with structured clinical notes.
     metric_groups:
       - accuracy
       - efficiency
@@ -769,7 +765,7 @@ run_groups:
 
   - name: chw_care_plan
     display_name: NoteExtract
-    description: Converts patient notes into structured electronic records, benchmarking generative models for note generation.
+    description: A dataset containing free form text of a clinical health worker care plan, with the associated goal being to restructure that text into a given format.
     metric_groups:
       - accuracy
       - efficiency
@@ -785,8 +781,8 @@ run_groups:
       language: English
 
   - name: ehr_sql
-    display_name: EHR_SQL
-    description: Translates medical questions into SQL queries for electronic health records, addressing real-world hospital needs and time-sensitive queries.
+    display_name: EHRSQL
+    description: Given a natural language instruction, generate an SQL query that would be used in clinical research.
     metric_groups:
       - accuracy
       - efficiency
@@ -803,7 +799,7 @@ run_groups:
 
   - name: head_qa
     display_name: HeadQA
-    description: Evaluates reasoning on challenging healthcare-related multiple-choice questions sourced from Spanish specialization exams.
+    description: A collection of biomedical multiple-choice questions for testing medical knowledge.
     metric_groups:
       - accuracy
       - efficiency
@@ -820,7 +816,7 @@ run_groups:
 
   - name: medbullets
     display_name: Medbullets
-    description: Benchmarks LLMs on USMLE-style clinical questions, assessing their ability to provide accurate answers with detailed explanations.
+    description: A USMLE-style medical question dataset with multiple-choice answers and explanations.
     metric_groups:
       - accuracy
       - efficiency
@@ -836,8 +832,8 @@ run_groups:
       language: English
 
   - name: mtsamples_procedures
-    display_name: Mtsamples_Procedures
-    description: A benchmark created from the procedure subset in MTSamples dataset for patient plan prediction/generation.
+    display_name: MTSamples Procedures
+    description: A dataset that provides a patient note regarding an operation, with the objective to document the procedure.
     metric_groups:
       - accuracy
       - efficiency
@@ -871,7 +867,7 @@ run_groups:
 
   - name: shc_bmt_med
     display_name: BMT-Status
-    description: This benchmark dataset was built from a patient status gold-standard for specific questions asked after a bone marrow transplant has taken place.
+    description: A dataset containing patient notes with associated questions and answers related to bone marrow transplantation.
     metric_groups:
       - accuracy
       - efficiency
@@ -888,7 +884,7 @@ run_groups:
   
   - name: shc_gip_med
     display_name: HospiceReferral
-    description: This benchmark dataset was built from a patient referral gold-standard set to a specialty clinic to verify the ability of LLMs for patient hospice referral purposes.
+    description: A dataset evaluating performance in identifying appropriate patient referrals to hospice care.
     metric_groups:
       - accuracy
       - efficiency
@@ -905,7 +901,7 @@ run_groups:
   
   - name: shc_cdi_med
     display_name: CDI-QA
-    description: This benchmark dataset was built from Clinical Document Integrity (CDI) notes were there are verifications of clinical activities. The idea behind it is to assess an LLM capability to answer these questions from previous notes.
+    description: A dataset built from Clinical Document Integrity (CDI) notes, to assess the ability to answer verification questions from previous notes.
     metric_groups:
       - accuracy
       - efficiency
@@ -922,7 +918,7 @@ run_groups:
   
   - name: shc_ent_med
     display_name: ENT-Referral
-    description: This benchmark dataset was built to assess the capabilities of an LLM for referral to the Ear, Nose and Throat department.
+    description: A dataset designed to evaluate performance in identifying appropriate patient referrals to Ear, Nose, and Throat specialists.
     metric_groups:
       - accuracy
       - efficiency
@@ -939,7 +935,7 @@ run_groups:
 
   - name: shc_sequoia_med
     display_name: ClinicReferral
-    description: Benchmark derived from manually curated answers to several questions for Sequoia clinic referrals.
+    description: A dataset containing manually curated answers to questions regarding patient referrals to the Sequoia clinic.
     metric_groups:
       - accuracy
       - efficiency
@@ -956,7 +952,7 @@ run_groups:
       
   - name: shc_conf_med
     display_name: MedConfInfo
-    description: Benchmark derived from extracting confidential information from clinical notes.  Taken from Evaluation of a Large Language Model to Identify Confidential Content in Adolescent Encounter Notes published at https://jamanetwork.com/journals/jamapediatrics/fullarticle/2814109
+    description: A dataset of clinical notes from adolescent patients used to identify sensitive protected health information that should be restricted from parental access [(Rabani et al, 2024)](https://jamanetwork.com/journals/jamapediatrics/fullarticle/2814109)
     metric_groups:
       - accuracy
       - efficiency
@@ -973,7 +969,7 @@ run_groups:
 
   - name: shc_ptbm_med
     display_name: ADHD-Behavior
-    description: This dataset contains clinical notes from primary care visit encounters of children ages 4-6 years old with ADHD seen at Stanford's community-based primary care network, Packard Children's Health Alliance, between 2015-2019. In this classification task, the LLM is tasked with classifying whether the note contains clinician recommendation for parent training in behavior management, which is the first-line evidence-based treatment for young children with ADHD. From publication https://doi.org/10.1093/jamia/ocae001
+    description: A dataset that classifies whether a clinical note contains documentation of side effect monitoring (recording of absence or presence of medication side effects), as recommended in clinical practice guidelines [(Pillai et al, 2024)](https://doi.org/10.1093/jamia/ocae001).
     metric_groups:
       - accuracy
       - efficiency
@@ -990,7 +986,7 @@ run_groups:
 
   - name: shc_sei_med
     display_name:  ADHD-MedEffects
-    description: This dataset contains clinical notes from primary care visit encounters (in-person/telehealth and telephone) of children ages 6-11 years old with ADHD seen at Stanford's community-based primary care network, Packard Children's Health Alliance, between 2015-2022. All children in this dataset were prescribed at least once an ADHD medication (stimulants or non-stimulants) by a primary care clinician. In this classification task, the LLM is tasked with classifying whether the note contains documentation of side effect monitoring (recording of absence or presence of medication side effects), as recommended in clinical practice guidelines. From publication https://doi.org/10.1542/peds.2024-067223
+    description: A dataset that classifies whether a clinical note contains a clinician recommendation for parent training in behavior management, which is the first-line evidence-based treatment for young children with ADHD [(Bannet et al, 2024)](https://doi.org/10.1542/peds.2024-067223).
     metric_groups:
       - accuracy
       - efficiency
