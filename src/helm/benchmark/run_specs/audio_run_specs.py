@@ -175,7 +175,7 @@ def get_mutox_audio_run_spec(language: str) -> RunSpec:
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
     run_spec_name: str = "mutox"
     return RunSpec(
-        name=f"{run_spec_name}:subject={language}",
+        name=f"{run_spec_name}:language={language}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
