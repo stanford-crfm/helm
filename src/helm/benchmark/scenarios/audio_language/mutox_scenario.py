@@ -1,8 +1,7 @@
-import os
-import pdb
-import requests
 from io import BytesIO
 from typing import List
+import os
+import requests
 
 from pydub import AudioSegment
 from tqdm import tqdm
@@ -37,7 +36,6 @@ class MuToxScenario(Scenario):
     Languages:
         English
         Spanish
-
         Arabic
         Bengali
         Mandarin Chinese
@@ -84,7 +82,7 @@ class MuToxScenario(Scenario):
       archivePrefix={arXiv},
       primaryClass={cs.CL}
     }
-    """  # noqa: E501
+    """
 
     ANNOTATIONS_URL = "https://dl.fbaipublicfiles.com/seamless/datasets/mutox.tsv"
 
@@ -116,6 +114,15 @@ class MuToxScenario(Scenario):
     description = "Toxicity detection benchmark ([Costa-jussà et al, 2018](https://arxiv.org/abs/2401.05060))."
     tags = ["audio", "classification", "toxicity "]
 
+    @staticmethod
+    def track_bad_audio_file(bad_audio_file: str, output_path: str) -> None:
+        """
+        Many of the links do not exist or point to broken so we keep track of them
+        and skip them in the future runs to significantly speed up gathering the instances.
+        """
+        with open(output_path, "a") as f:
+            f.write(bad_audio_file + "\n")
+
     def __init__(self, language: str) -> None:
         super().__init__()
         self._language_code: str = self.LANGAUGE_CODES[language]
@@ -125,25 +132,57 @@ class MuToxScenario(Scenario):
         annotations_path: str = os.path.join(output_path, "mutox.tsv")
         ensure_file_downloaded(self.ANNOTATIONS_URL, annotations_path)
 
+        # Read bad audio files
+        bad_audio_files: set[str] = set()
+        bad_audio_files_path: str = os.path.join(output_path, "bad_audio_files.txt")
+        if os.path.exists(bad_audio_files_path):
+            # Each line is the audio file name
+            with open(bad_audio_files_path, "r") as f:
+                for line in f:
+                    bad_audio_files.add(line.strip())
+            hlog(f"Found {len(bad_audio_files)} bad audio files.")
+
         # Where the audio files will be downloaded to
         audio_path: str = os.path.join(output_path, "audio")
         ensure_directory_exists(audio_path)
 
         instances: List[Instance] = []
         df = pd.read_csv(annotations_path, delimiter="\t")
+        hlog(f"Found {len(df)} rows in the dataset")
+
+        valid_count: int = 0
+        total_count: int = 0
         for row in tqdm(df.itertuples()):
+            # Only proces examples that are in devtest and the language we're interested in
             if row.partition != "devtest":
                 continue
 
-            if row.lang != self._language_code:
+            # TODO: reenable
+            # if row.lang != self._language_code:
+            #     continue
+
+            total_count += 1
+
+            # Discard known bad audio files
+            audio_filename: str = f"{row.id}.mp3"
+            if audio_filename in bad_audio_files:
+                hlog(f"Skipping this example -- known bad audio file: {audio_filename}")
                 continue
 
-            local_audio_path: str = os.path.join(audio_path, f"{row.id}.mp3")
+            local_audio_path: str = os.path.join(audio_path, audio_filename)
             if not os.path.exists(local_audio_path):
                 # The provided URL has the complete audio, so we need to download it and clip it
                 # public_url_segment: a string formatted as url:start:end,
+                if not isinstance(row.public_url_segment, str):
+                    # Sometimes URL is just a float causing an error. Skip those.
+                    hlog(f"Skipping this example -- invalid URL: {row.public_url_segment}")
+                    continue
+
                 parts = row.public_url_segment.split()
-                assert len(parts) == 3, f"Invalid public_url_segment format: {row}"
+                if len(parts) != 3:
+                    hlog(f"Skipping this example -- invalid URL: {row.public_url_segment}")
+                    continue
+
                 audio_url, start_ms, end_ms = parts
                 start_ms, end_ms = int(start_ms), int(end_ms)
 
@@ -162,25 +201,32 @@ class MuToxScenario(Scenario):
                     clipped_audio.export(local_audio_path, format="mp3")
                 except Exception as e:
                     # Some files are no longer available or invalid
-                    hlog(f"Skipping this example...error downloading and processing audio file from {audio_url}: {e}")
+                    hlog(f"Skipping this example -- error downloading and processing audio file from {audio_url}: {e}")
+                    self.track_bad_audio_file(audio_filename, bad_audio_files_path)
                     continue
 
             if is_invalid_audio_file(local_audio_path):
-                hlog(f"Skipping this example. Invalid audio file at {local_audio_path}")
+                hlog(f"Skipping this example -- Invalid audio file even after downloading at {local_audio_path}")
+                self.track_bad_audio_file(audio_filename, bad_audio_files_path)
                 continue
+            else:
+                valid_count += 1
+                hlog(f"Valid audio file found at {local_audio_path} (valid/total: {valid_count}/{total_count})")
 
             input = Input(
                 multimedia_content=MultimediaObject(
                     media_objects=[
                         # Following what was prompted annotators as outlined in the paper
                         MediaObject(text="Does the utterance contain toxicity?", content_type="text/plain"),
-                        MediaObject(location=local_audio_path, content_type="audio/mp3"),
+                        MediaObject(location=local_audio_path, content_type="audio/mpeg"),
                     ]
                 )
             )
+
+            is_toxic: bool = row.label == 1
             references = [
-                Reference(Output(text="Yes"), tags=[CORRECT_TAG] if row.label == 1 else []),
-                Reference(Output(text="No"), tags=[CORRECT_TAG] if row.label == 0 else []),
+                Reference(Output(text="Yes"), tags=[CORRECT_TAG] if is_toxic else []),
+                Reference(Output(text="No"), tags=[CORRECT_TAG] if not is_toxic else []),
             ]
             instances.append(Instance(input=input, references=references, split=TEST_SPLIT))
 
