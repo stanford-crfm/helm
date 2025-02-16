@@ -470,7 +470,7 @@ run_groups:
 
   - name: medcalc_bench
     display_name: MedCalc-Bench
-    description: A dataset which consists of a patient note, a question requesting to compute a specific medical value, and a ground truth answer ([Khandekar et al. 2024](https://arxiv.org/abs/2406.12036)).
+    description: A dataset which consists of a patient note, a question requesting to compute a specific medical value, and a ground truth answer [(Khandekar et al., 2024)](https://arxiv.org/abs/2406.12036).
     metric_groups:
       - accuracy
       - efficiency
@@ -488,7 +488,7 @@ run_groups:
   - name: medalign
     display_name: MedAlign
     short_display_name: MedAlign
-    description: A dataset that asks models to answer questions/follow instructions over longitudinal EHR.
+    description: A dataset that asks models to answer questions/follow instructions over longitudinal EHR [(Fleming et al., 2023)](https://arxiv.org/abs/2308.14089).
     metric_groups:
       - accuracy
       - efficiency
@@ -506,7 +506,7 @@ run_groups:
   - name: mtsamples_replicate
     display_name: MTSamples
     short_display_name: MTSamples
-    description: A dataset of clinical notes where the model is prompted to generate the apprioriate treatment plan for this patient.
+    description: A dataset of clinical notes where the model is prompted to generate the appropriate treatment plan for this patient [(MTSamples, 2025)](https://mtsamples.com).
     metric_groups:
       - accuracy
       - efficiency
@@ -523,7 +523,7 @@ run_groups:
 
   - name: ehrshot
     display_name: EHRSHOT
-    description: A dataset given a patient record of EHR codes, classifying if an event will occur at a future date or not.
+    description: A dataset given a patient record of EHR codes, classifying if an event will occur at a future date or not [(Wornow et al., 2023)](https://arxiv.org/abs/2307.02028).
     metric_groups:
       - accuracy
       - efficiency
@@ -557,7 +557,7 @@ run_groups:
     
   - name: clear
     display_name: CLEAR-AD
-    description: "A dataset for evaluating alcohol dependence history detection from patient notes with yes/no/maybe classifications."
+    description: "A dataset for evaluating alcohol dependence history detection from patient notes with yes/no/maybe classifications [(Lopez et al., 2025)](https://www.nature.com/articles/s41746-024-01377-1)."
     metric_groups:
       - accuracy
       - efficiency
@@ -662,7 +662,7 @@ run_groups:
   - name: mimic_rrs
     display_name: MIMIC-RRS
     short_display_name: MIMIC-RRS
-    description: A dataset containing radiology reports with findings sections from MIMIC-III paired with their corresponding impression sections, used for generating radiology report summaries.
+    description: A dataset containing radiology reports with findings sections from MIMIC-III paired with their corresponding impression sections, used for generating radiology report summaries [(Chen et al., 2023)](https://arxiv.org/abs/2211.08584).
     metric_groups:
       - accuracy
       - efficiency
@@ -697,7 +697,7 @@ run_groups:
   - name: dischargeme
     display_name: DischargeMe
     short_display_name: DischargeMe
-    description: DischargeMe is a discharge instruction generation dataset and brief hospital course generation datasetcollected from MIMIC-IV data, consindering only the discharge text as well as the radiology report text.
+    description: DischargeMe is a discharge instruction generation dataset and brief hospital course generation dataset collected from MIMIC-IV data, considering only the discharge text as well as the radiology report text [(Xu, 2024)](https://physionet.org/content/discharge-me/1.3/).
     metric_groups:
       - accuracy
       - efficiency
@@ -731,7 +731,7 @@ run_groups:
 
   - name: medec
     display_name: Medec
-    description: A dataset containing medical narratives with error detection and correction pairs.
+    description: A dataset containing medical narratives with error detection and correction pairs [(Abacha et al., 2025)](https://arxiv.org/abs/2412.19260).
     metric_groups:
       - accuracy
       - efficiency
@@ -748,7 +748,7 @@ run_groups:
 
   - name: aci_bench
     display_name: ACI-Bench
-    description: A dataset of patient-doctor conversations paired with structured clinical notes.
+    description: A dataset of patient-doctor conversations paired with structured clinical notes [(Yim et al., 2024)](https://www.nature.com/articles/s41597-023-02487-3).
     metric_groups:
       - accuracy
       - efficiency
@@ -799,7 +799,7 @@ run_groups:
 
   - name: head_qa
     display_name: HeadQA
-    description: A collection of biomedical multiple-choice questions for testing medical knowledge.
+    description: A collection of biomedical multiple-choice questions for testing medical knowledge [(Vilares et al., 2019)](https://arxiv.org/abs/1906.04701).
     metric_groups:
       - accuracy
       - efficiency
@@ -816,7 +816,7 @@ run_groups:
 
   - name: medbullets
     display_name: Medbullets
-    description: A USMLE-style medical question dataset with multiple-choice answers and explanations.
+    description: A USMLE-style medical question dataset with multiple-choice answers and explanations [(MedBullets, 2025)](https://step2.medbullets.com).
     metric_groups:
       - accuracy
       - efficiency
@@ -952,7 +952,7 @@ run_groups:
       
   - name: shc_conf_med
     display_name: MedConfInfo
-    description: A dataset of clinical notes from adolescent patients used to identify sensitive protected health information that should be restricted from parental access [(Rabani et al, 2024)](https://jamanetwork.com/journals/jamapediatrics/fullarticle/2814109)
+    description: A dataset of clinical notes from adolescent patients used to identify sensitive protected health information that should be restricted from parental access [(Rabbani et al., 2024)](https://jamanetwork.com/journals/jamapediatrics/fullarticle/2814109).
     metric_groups:
       - accuracy
       - efficiency
@@ -969,7 +969,7 @@ run_groups:
 
   - name: shc_ptbm_med
     display_name: ADHD-Behavior
-    description: A dataset that classifies whether a clinical note contains documentation of side effect monitoring (recording of absence or presence of medication side effects), as recommended in clinical practice guidelines [(Pillai et al, 2024)](https://doi.org/10.1093/jamia/ocae001).
+    description: A dataset that classifies whether a clinical note contains documentation of side effect monitoring (recording of absence or presence of medication side effects), as recommended in clinical practice guidelines [(Pillai et al., 2024)](https://doi.org/10.1093/jamia/ocae001).
     metric_groups:
       - accuracy
       - efficiency
@@ -986,7 +986,7 @@ run_groups:
 
   - name: shc_sei_med
     display_name:  ADHD-MedEffects
-    description: A dataset that classifies whether a clinical note contains a clinician recommendation for parent training in behavior management, which is the first-line evidence-based treatment for young children with ADHD [(Bannet et al, 2024)](https://doi.org/10.1542/peds.2024-067223).
+    description: A dataset that classifies whether a clinical note contains a clinician recommendation for parent training in behavior management, which is the first-line evidence-based treatment for young children with ADHD [(Bannet et al., 2024)](https://doi.org/10.1542/peds.2024-067223).
     metric_groups:
       - accuracy
       - efficiency
