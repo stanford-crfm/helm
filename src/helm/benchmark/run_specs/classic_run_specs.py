@@ -1589,7 +1589,9 @@ def get_ehr_sql_run_spec() -> RunSpec:
         input_noun="Medical Question + Schema",
         output_noun="SQL Query",
         max_tokens=1024,
-        temperature=0
+        temperature=0,
+        max_train_instances=0,
+        stop_sequences=[],
     )
     
     annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.ehr_sql_annotator.EhrSqlAnnotator")]
@@ -1606,7 +1608,7 @@ def get_ehr_sql_run_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         annotators=annotator_specs,
         metric_specs=metric_specs,
-        groups=["medical", "sql", "ehr"],
+        groups=["ehr_sql"],
     )
 
 @run_spec_function("mtsamples_replicate")
