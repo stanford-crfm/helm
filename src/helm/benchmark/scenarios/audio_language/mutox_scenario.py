@@ -201,8 +201,8 @@ class MuToxScenario(Scenario):
                         hlog(f"Skipping this example -- invalid URL: {row.public_url_segment}")
                         continue
 
-                    audio_url, start_ms, end_ms = parts
-                    start_ms, end_ms = int(start_ms), int(end_ms)
+                    audio_url, start_ms_str, end_ms_str = parts
+                    start_ms, end_ms = int(start_ms_str), int(end_ms_str)
 
                     # Download the full audio file
                     try:
