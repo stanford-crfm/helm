@@ -220,6 +220,7 @@ run_groups:
       - speech_robust_bench
       - meld_audio
       - air_bench_chat
+      - mutox
 
   - name: audio_mnist
     display_name: AudioMNIST
@@ -505,3 +506,21 @@ run_groups:
       who: real speakers
       when: "2024"
       language: English
+
+  - name: mutox
+    display_name: MuTox
+    description: >
+     The dataset consists of 20k audio utterances for English and Spanish, and 4k for the other languages.
+     ([Costa-jussà et al, 2018](https://arxiv.org/abs/2401.05060)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: toxicity detection
+      what: samples of utterances
+      who: real speakers
+      when: "2024"
+      language: 30 langguages
