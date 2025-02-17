@@ -159,6 +159,43 @@ def get_meld_audio_run_spec() -> RunSpec:
     )
 
 
+@run_spec_function("mutox")
+def get_mutox_audio_run_spec(language: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.mutox_scenario.MuToxScenario",
+        args={"language": language},
+    )
+    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
+        input_noun=None, output_noun="Answer", max_train_instances=0
+    )
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+    run_spec_name: str = "mutox"
+    return RunSpec(
+        name=f"{run_spec_name}:language={language}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("mustard")
+def get_mustard_audio_run_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.audio_language.mustard_scenario.MUStARDScenario")
+    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
+        input_noun=None, output_noun="Answer", max_train_instances=0
+    )
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+    run_spec_name: str = "mustard"
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
 @run_spec_function("covost2")
 def get_covost2_run_spec(source_language: str, target_language: str) -> RunSpec:
     scenario_spec = ScenarioSpec(

@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, Dict, List
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
@@ -19,11 +19,14 @@ class OmniMATHMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         assert request_state.annotations
-        all_judgements = request_state.annotations["omni_math"]["equivalence_judgement"]
-        if len(all_judgements) == 0:
+        annotations: Dict[str, Any] = request_state.annotations["omni_math"]
+        scores: List[int] = []
+        for annotation_key, annotation_value in annotations.items():
+            if annotation_key.endswith("_equivalence_judgement") and annotation_value is not None:
+                scores.append(int(annotation_value))
+        if not scores:
             raise ValueError("Could not compute Omni-MATH accuracy because all annotators failed.")
-        judgement_bools = [judgement.strip().upper() == "TRUE" for judgement in all_judgements]
-        score = sum(judgement_bools) / len(judgement_bools)
+        score = sum(scores) / len(scores)
         return [
             Stat(MetricName("omni_math_accuracy")).add(score),
         ]

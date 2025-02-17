@@ -187,7 +187,6 @@ run_groups:
     description: Audio Scenarios
     category: All scenarios
     subgroups:
-      - audio_mnist
       - covost2
       - vocal_sound
       - fleurs
@@ -196,6 +195,8 @@ run_groups:
       - speech_robust_bench
       - meld_audio
       - air_bench_chat
+      - mutox
+      - mustard
 
   - name: audio_mnist
     display_name: AudioMNIST
@@ -480,4 +481,41 @@ run_groups:
       what: audio, question, and answer of audio samples
       who: real speakers
       when: "2024"
+      language: English
+
+  - name: mutox
+    display_name: MuTox
+    description: >
+     The dataset consists of 20k audio utterances for English and Spanish, and 4k for the other languages.
+     ([Costa-jussà et al, 2018](https://arxiv.org/abs/2401.05060)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: toxicity detection
+      what: samples of utterances
+      who: real speakers
+      when: "2024"
+      language: 30 languages
+
+  - name: mustard
+    display_name: MUStARD
+    description: >
+      A multimodal video corpus for research in automated sarcasm discovery. The dataset is compiled from popular
+      TV shows including Friends, The Golden Girls, The Big Bang Theory, and Sarcasmaholics Anonymous. 
+      ([Castro et al, 2019](https://arxiv.org/abs/1906.01815)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: sarcasm detection
+      what: clips from television shows
+      who: real speakers
+      when: "2019"
       language: English

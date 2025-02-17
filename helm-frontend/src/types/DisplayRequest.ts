@@ -1,3 +1,4 @@
+import Message from "@/types/Message";
 import MultimediaObject from "@/types/MultimediaObject";
 import Perturbation from "./Perturbation";
 
@@ -18,6 +19,7 @@ export default interface DisplayRequest {
     top_k_per_token: number;
     top_p: number;
     multimodal_prompt: MultimediaObject | undefined;
+    messages: Message[] | undefined;
   };
   perturbation?: Perturbation | undefined;
 }
