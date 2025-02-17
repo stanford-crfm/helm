@@ -49,7 +49,8 @@ class EhrSqlAnnotator(Annotator):
 
         predicted_result: List[str] = []
         query_error: Optional[str] = None
-
+        predicted_sql = predicted_sql.replace("`","").strip()
+        predicted_sql = re.sub(r"^sql\n", "", predicted_sql, flags=re.MULTILINE)
         if not predicted_sql:
             query_error = "No query generated"
         else:
