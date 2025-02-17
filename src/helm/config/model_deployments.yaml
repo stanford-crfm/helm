@@ -446,6 +446,17 @@ model_deployments:
       args:
         disable_logprobs: True
 
+  - name: together/deepseek-r1-hide-reasoning
+    model_name: deepseek-ai/deepseek-r1-hide-reasoning
+    tokenizer_name: deepseek-ai/deepseek-r1
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        together_model: deepseek-ai/deepseek-r1
+        disable_logprobs: True
+        output_processor: helm.benchmark.metrics.output_processors.remove_deepseek_r1_thinking
+
   # Gooseai
 
   # TODO: Migrate these models to use OpenAIClient
@@ -3165,3 +3176,23 @@ model_deployments:
         class_name: "helm.clients.huggingface_client.HuggingFaceClient"
         args:
             pretrained_model_name_or_path: ibm-granite/granite-3.1-1b-a400m-base
+
+# DeepSeek-R1-Distill-Llama-3.1-8b
+  - name: huggingface/DeepSeek-R1-Distill-Llama-8B
+    model_name: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+    tokenizer_name: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+    max_sequence_length: 128000
+    client_spec:
+        class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+        args:
+            pretrained_model_name_or_path: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+
+# deepseek-ai/deepseek-coder-6.7b-instruct
+  - name: huggingface/deepseek-coder-6.7b-instruct
+    model_name: deepseek-ai/deepseek-coder-6.7b-instruct
+    tokenizer_name: deepseek-ai/deepseek-coder-6.7b-instruct
+    max_sequence_length: 128000
+    client_spec:
+        class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+        args:
+            pretrained_model_name_or_path: deepseek-ai/deepseek-coder-6.7b-instruct
