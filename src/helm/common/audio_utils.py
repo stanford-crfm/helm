@@ -57,15 +57,6 @@ def use_ffmpeg_to_convert_audio_file(input_path: str, output_path: str) -> None:
         raise ValueError("Please install ffmpeg using `bash install-shelm-extras.sh` first to convert audio files.")
 
 
-def use_ffmpeg_to_extract_audio_from_video(input_video_path: str, output_audio_path: str) -> None:
-    if os.path.exists(output_audio_path):
-        return
-    try:
-        subprocess.run(["ffmpeg", "-i", input_video_path, "-q:a", "0", "-map", "a", output_audio_path], check=True)
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        raise ValueError("Please install ffmpeg using `bash install-shelm-extras.sh` first to extract audio files.")
-
-
 def is_invalid_audio_file(audio_path: str) -> bool:
     """
     Two conditions for an audio file to be considered invalid:
