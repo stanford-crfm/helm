@@ -19,7 +19,7 @@ from helm.benchmark.scenarios.scenario import (
 from helm.common.audio_utils import is_invalid_audio_file
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hlog, htrack_block
 
 
 class MuToxScenario(Scenario):
@@ -27,34 +27,43 @@ class MuToxScenario(Scenario):
     MuTox: MuTox: Universal MUltilingual Audio-based TOXicity Dataset and Zero-shot Detector
 
     MuTox, the first highly multilingual audio-based dataset with toxicity labels. The dataset consists of 20k
-    audio utterances for English and Spanish, and 4k for the other 19 languages. To showcase the quality of this
+    audio utterances for English and Spanish, and 4k for the other languages. To showcase the quality of this
     dataset, we train the MuTox audio-based toxicity classifier, which allows zero-shot toxicity detection across
     a broad range of languages. This classifier outperforms existing text-based trainable classifiers by more than
     1% AUC, while increasing the language coverage from 8 to 100+ languages. When compared to a wordlist-based
     classifier that covers a similar number of languages, MuTox improves precision and recall by ∼2.5 times.
 
     Languages:
-        English
-        Spanish
-        Arabic
-        Bengali
-        Mandarin Chinese
-        Dutch
-        French
-        German
-        Hindi
-        Indonesian
-        Italian
-        Japanese
-        Korean
-        Portuguese
-        Russian
-        Swahili
-        Tagalog
-        Thai
-        Turkish
-        Urdu
-        Vietnamese
+        "Arabic": "arb",
+        "Bengali": "ben",
+        "Bulgarian": "bul",
+        "Catalan": "cat",
+        "Czech": "ces",
+        "Mandarin Chinese": "cmn",
+        "Danish": "dan",
+        "German": "deu",
+        "Greek": "ell",
+        "English": "eng",
+        "Estonian": "est",
+        "Western Persian": "fas",
+        "Finnish": "fin",
+        "French": "fra",
+        "Hebrew": "heb",
+        "Hindi": "hin",
+        "Hungarian": "hun",
+        "Indonesian": "ind",
+        "Italian": "ita",
+        "Dutch": "nld",
+        "Polish": "pol",
+        "Portuguese": "por",
+        "Russian": "rus",
+        "Spanish": "spa",
+        "Slovak": "slk",
+        "Swahili": "swh",
+        "Tagalog": "tgl",
+        "Turkish": "tur",
+        "Urdu": "urd",
+        "Vietnamese": "vie",
 
     The columns of the dataset are:
 
@@ -87,31 +96,40 @@ class MuToxScenario(Scenario):
     ANNOTATIONS_URL = "https://dl.fbaipublicfiles.com/seamless/datasets/mutox.tsv"
 
     LANGAUGE_CODES = {
-        "English": "eng",
-        "Spanish": "spa",
-        "Arabic": "ara",
+        "Arabic": "arb",
         "Bengali": "ben",
-        "Mandarin Chinese": "zho",
-        "Dutch": "nld",
-        "French": "fra",
+        "Bulgarian": "bul",
+        "Catalan": "cat",
+        "Czech": "ces",
+        "Mandarin_Chinese": "cmn",
+        "Danish": "dan",
         "German": "deu",
+        "Greek": "ell",
+        "English": "eng",
+        "Estonian": "est",
+        "Western_Persian": "fas",
+        "Finnish": "fin",
+        "French": "fra",
+        "Hebrew": "heb",
         "Hindi": "hin",
+        "Hungarian": "hun",
         "Indonesian": "ind",
         "Italian": "ita",
-        "Japanese": "jpn",
-        "Korean": "kor",
+        "Dutch": "nld",
+        "Polish": "pol",
         "Portuguese": "por",
         "Russian": "rus",
-        "Swahili": "swa",
+        "Spanish": "spa",
+        "Slovak": "slk",
+        "Swahili": "swh",
         "Tagalog": "tgl",
-        "Thai": "tha",
         "Turkish": "tur",
         "Urdu": "urd",
         "Vietnamese": "vie",
     }
 
     name = "mutox"
-    description = "Toxicity detection benchmark ([Costa-jussà et al, 2018](https://arxiv.org/abs/2401.05060))."
+    description = "Toxicity detection benchmark ([Costa-jussà et al, 2024](https://arxiv.org/abs/2401.05060))."
     tags = ["audio", "classification", "toxicity "]
 
     @staticmethod
@@ -157,61 +175,63 @@ class MuToxScenario(Scenario):
             if row.partition != "devtest":
                 continue
 
-            # TODO: reenable
-            # if row.lang != self._language_code:
-            #     continue
+            if row.lang != self._language_code:
+                continue
 
             total_count += 1
 
             # Discard known bad audio files
             audio_filename: str = f"{row.id}.mp3"
-            if audio_filename in bad_audio_files:
-                hlog(f"Skipping this example -- known bad audio file: {audio_filename}")
-                continue
-
-            local_audio_path: str = os.path.join(audio_path, audio_filename)
-            if not os.path.exists(local_audio_path):
-                # The provided URL has the complete audio, so we need to download it and clip it
-                # public_url_segment: a string formatted as url:start:end,
-                if not isinstance(row.public_url_segment, str):
-                    # Sometimes URL is just a float causing an error. Skip those.
-                    hlog(f"Skipping this example -- invalid URL: {row.public_url_segment}")
+            with htrack_block(f"Processing audio file: {audio_filename}"):
+                if audio_filename in bad_audio_files:
+                    hlog(f"Skipping this example -- known bad audio file: {audio_filename}")
                     continue
 
-                parts = row.public_url_segment.split()
-                if len(parts) != 3:
-                    hlog(f"Skipping this example -- invalid URL: {row.public_url_segment}")
-                    continue
+                local_audio_path: str = os.path.join(audio_path, audio_filename)
+                if not os.path.exists(local_audio_path):
+                    # The provided URL has the complete audio, so we need to download it and clip it
+                    # public_url_segment: a string formatted as url:start:end,
+                    if not isinstance(row.public_url_segment, str):
+                        # Sometimes URL is just a float causing an error. Skip those.
+                        hlog(f"Skipping this example -- invalid URL: {row.public_url_segment}")
+                        continue
 
-                audio_url, start_ms, end_ms = parts
-                start_ms, end_ms = int(start_ms), int(end_ms)
+                    parts = row.public_url_segment.split()
+                    if len(parts) != 3:
+                        hlog(f"Skipping this example -- invalid URL: {row.public_url_segment}")
+                        continue
 
-                # Download the full audio file
-                try:
-                    response = requests.get(audio_url, stream=True)
-                    response.raise_for_status()
+                    audio_url, start_ms, end_ms = parts
+                    start_ms, end_ms = int(start_ms), int(end_ms)
 
-                    # Load audio from the downloaded file
-                    audio = AudioSegment.from_file(BytesIO(response.content))
+                    # Download the full audio file
+                    try:
+                        response = requests.get(audio_url, stream=True)
+                        response.raise_for_status()
 
-                    # Clip the audio
-                    clipped_audio = audio[start_ms:end_ms]
+                        # Load audio from the downloaded file
+                        audio = AudioSegment.from_file(BytesIO(response.content))
 
-                    # Save the clipped file
-                    clipped_audio.export(local_audio_path, format="mp3")
-                except Exception as e:
-                    # Some files are no longer available or invalid
-                    hlog(f"Skipping this example -- error downloading and processing audio file from {audio_url}: {e}")
+                        # Clip the audio
+                        clipped_audio = audio[start_ms:end_ms]
+
+                        # Save the clipped file
+                        clipped_audio.export(local_audio_path, format="mp3")
+                    except Exception as e:
+                        # Some files are no longer available or invalid
+                        hlog(
+                            f"Skipping this example -- error downloading / processing audio file from {audio_url}: {e}"
+                        )
+                        self.track_bad_audio_file(audio_filename, bad_audio_files_path)
+                        continue
+
+                if is_invalid_audio_file(local_audio_path):
+                    hlog(f"Skipping this example -- Invalid audio file even after downloading at {local_audio_path}")
                     self.track_bad_audio_file(audio_filename, bad_audio_files_path)
                     continue
-
-            if is_invalid_audio_file(local_audio_path):
-                hlog(f"Skipping this example -- Invalid audio file even after downloading at {local_audio_path}")
-                self.track_bad_audio_file(audio_filename, bad_audio_files_path)
-                continue
-            else:
-                valid_count += 1
-                hlog(f"Valid audio file found at {local_audio_path} (valid/total: {valid_count}/{total_count})")
+                else:
+                    valid_count += 1
+                    hlog(f"Valid audio file found at {local_audio_path} (valid/total: {valid_count}/{total_count})")
 
             input = Input(
                 multimedia_content=MultimediaObject(
