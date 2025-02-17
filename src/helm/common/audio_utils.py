@@ -3,10 +3,12 @@ import os
 from typing import Optional
 from filelock import FileLock
 
+import ffmpeg
 import numpy as np
 import soundfile as sf
 import subprocess
 
+from helm.common.hierarchical_logger import hlog
 from helm.common.multimodal_request_utils import get_contents_as_bytes
 from helm.common.optional_dependencies import handle_module_not_found_error
 
@@ -78,3 +80,25 @@ def is_invalid_audio_file(audio_path: str) -> bool:
             return len(audio_file) == 0
     except RuntimeError:
         return True
+
+
+def extract_audio(video_path: str, output_audio_path: str) -> None:
+    """
+    Extracts audio from an MP4 video file and saves it as an MP3 file.
+
+    Args:
+        video_path (str): Path to the input MP4 video file.
+        output_audio_path (str): Path to save the extracted MP3 audio file.
+
+    Returns:
+        None
+    """
+    try:
+        (
+            ffmpeg.input(video_path)
+            .output(output_audio_path, format="mp3", acodec="libmp3lame", audio_bitrate="192k")
+            .run(overwrite_output=True)
+        )
+    except ffmpeg.Error as e:
+        hlog(f"Error extracting audio from video: {video_path}: {e.stderr.decode()}")
+        raise e

@@ -211,7 +211,6 @@ run_groups:
     description: Audio Scenarios
     category: All scenarios
     subgroups:
-      - audio_mnist
       - covost2
       - vocal_sound
       - fleurs
@@ -221,6 +220,7 @@ run_groups:
       - meld_audio
       - air_bench_chat
       - mutox
+      - mustard
 
   - name: audio_mnist
     display_name: AudioMNIST
@@ -523,4 +523,23 @@ run_groups:
       what: samples of utterances
       who: real speakers
       when: "2024"
-      language: 30 langguages
+      language: 30 languages
+
+  - name: mustard
+    display_name: MUStARD
+    description: >
+      A multimodal video corpus for research in automated sarcasm discovery. The dataset is compiled from popular
+      TV shows including Friends, The Golden Girls, The Big Bang Theory, and Sarcasmaholics Anonymous. 
+      ([Castro et al, 2019](https://arxiv.org/abs/1906.01815)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: sarcasm detection
+      what: clips from television shows
+      who: real speakers
+      when: "2019"
+      language: English
