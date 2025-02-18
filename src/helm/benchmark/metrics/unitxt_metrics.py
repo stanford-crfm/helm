@@ -18,7 +18,10 @@ class UnitxtMetric(MetricInterface):
 
     def __init__(self, **kwargs):
         super().__init__()
-        dataset_name = ",".join(f"{key}={value}" for key, value in kwargs.items())
+        if len(kwargs) == 1 and "recipe" in kwargs:
+            dataset_name = kwargs["recipe"]
+        else:
+            dataset_name = ",".join(f"{key}={value}" for key, value in kwargs.items())
         self.dataset = load_dataset("unitxt/data", dataset_name, trust_remote_code=True)
 
     def evaluate(

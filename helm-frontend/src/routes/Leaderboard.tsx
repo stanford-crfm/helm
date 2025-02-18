@@ -6,20 +6,29 @@ import GroupLeaderboard from "@/components/GroupLeaderboard";
 import getGroupsTables from "@/services/getGroupsTables";
 import getSchema from "@/services/getSchema";
 import type Schema from "@/types/Schema";
+import { useParams, useNavigate } from "react-router-dom";
+import RunGroup from "@/types/RunGroup";
 
 interface GroupEntry {
   title: string;
   name: string;
 }
 
+interface HeaderToGroupEntries {
+  [Key: string]: GroupEntry[];
+}
+
 export default function Leaderboard() {
+  const { groupName } = useParams();
+  const navigate = useNavigate();
+
   const [schema, setSchema] = useState<Schema | undefined>(undefined);
-  const [groupEntries, setGroupEntries] = useState<GroupEntry[] | undefined>(
-    undefined,
-  );
-  const [activeRunGroupName, setActiveRunGroupName] = useState<
+  const [headerToGroupEntries, setHeaderToGroupEntries] = useState<
+    HeaderToGroupEntries | undefined
+  >();
+  const [defaultGroupName, setDefaultGroupName] = useState<
     string | undefined
-  >(undefined);
+  >();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -29,77 +38,92 @@ export default function Leaderboard() {
 
       const schemaResult = await schemaPromise;
       setSchema(schemaResult);
-
+      let defaultGroupNameResult: string | undefined;
       const groupsTables = await groupsTablesPromise;
-      const groupEntriesResult: GroupEntry[] = [];
+      const headerToGroupEntriesResult: HeaderToGroupEntries = {};
       groupsTables.forEach((groupTable) => {
+        headerToGroupEntriesResult[groupTable.title] = [];
         groupTable.rows.forEach((row) => {
-          groupEntriesResult.push({
+          const groupName = row[0].href.replace("?group=", "");
+          if (defaultGroupNameResult === undefined) {
+            defaultGroupNameResult = groupName;
+          }
+          headerToGroupEntriesResult[groupTable.title].push({
             title: String(row[0].value),
-            name: row[0].href.replace("?group=", ""),
+            name: groupName,
           });
         });
       });
-      setGroupEntries(groupEntriesResult);
+      setHeaderToGroupEntries(headerToGroupEntriesResult);
+      setDefaultGroupName(defaultGroupNameResult);
     }
     void fetchData();
     return () => controller.abort();
   }, []);
 
-  if (schema === undefined || groupEntries === undefined) {
+  const runGroupName = groupName || defaultGroupName;
+  if (
+    schema === undefined ||
+    headerToGroupEntries === undefined ||
+    runGroupName === undefined
+  ) {
     return <Loading />;
   }
 
-  if (groupEntries.length === 0) {
-    return (
-      <>
-        <PageTitle
-          title={"HELM Leaderboard"}
-          subtitle={
-            "The HELM leaderboard shows how the various models perform across different scenarios and metrics."
-          }
-          markdown={true}
-        />
-        <div className="divider"></div>
-        <p className="text-center mt-8">Group currently has no results.</p>
-      </>
-    );
+  let groupMetadata: RunGroup | undefined;
+  for (const runGroup of schema.run_groups) {
+    if (runGroup.name === runGroupName) {
+      groupMetadata = runGroup;
+    }
   }
-
-  const runGroupName =
-    activeRunGroupName !== undefined
-      ? activeRunGroupName
-      : groupEntries[0].name;
 
   return (
     <>
-      <div className="flex flex-row justify-between">
-        <PageTitle
-          title={"HELM Leaderboard"}
-          subtitle={
-            "The HELM leaderboard shows how the various models perform across different scenarios and metrics."
-          }
-          markdown={true}
-        />
-        <div className="w-64 pt-8">
+      <div className="flex flex-row">
+        <div className="w-3/4">
+          {groupMetadata ? (
+            <PageTitle
+              title={"Leaderboard: " + groupMetadata.display_name}
+              subtitle={groupMetadata.description}
+              markdown={true}
+            />
+          ) : (
+            <PageTitle
+              title={"Leaderboard"}
+              subtitle={
+                "The HELM leaderboard shows how the various models perform across different scenarios and metrics."
+              }
+              markdown={true}
+            />
+          )}
+        </div>
+
+        <div className="w-1/4 pt-8">
           <label
             htmlFor="group"
             className="block text-sm font-medium text-gray-700"
           >
             Select a group:
+            <select
+              id="group"
+              name="group"
+              onChange={(e) => navigate("/leaderboard/" + e.target.value)}
+              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring focus:border-blue-300 rounded-md"
+              value={runGroupName}
+            >
+              {Object.entries(headerToGroupEntries).map(
+                ([header, groupEntries]) => (
+                  <optgroup key={header} label={header}>
+                    {groupEntries.map((groupEntry) => (
+                      <option key={groupEntry.name} value={groupEntry.name}>
+                        {groupEntry.title}
+                      </option>
+                    ))}
+                  </optgroup>
+                ),
+              )}
+            </select>
           </label>
-          <select
-            id="group"
-            name="group"
-            onChange={(e) => setActiveRunGroupName(e.target.value)}
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring focus:border-blue-300 rounded-md"
-          >
-            {groupEntries.map((group, index) => (
-              <option key={index} value={group.name}>
-                {group.title}
-              </option>
-            ))}
-          </select>
         </div>
       </div>
       <GroupLeaderboard

@@ -124,16 +124,52 @@ metrics:
     lower_is_better: false
 
   # Speech Recognition metrics
-  - name: wa
-    display_name: WA
-    short_display_name: WA
-    description: Word Accuracy based on the Word Error Rate.
+  - name: wer_score
+    display_name: Word Error Rate
+    short_display_name: WER
+    description: Word error rate between model predictions and ground truth answers for ASR tasks.
     lower_is_better: true
 
-  - name: CA
-    display_name: WA
-    short_display_name: WA
-    description: Word Accuracy based on the Word Error Rate.
+  - name: mer_score
+    display_name: Match Error Rate
+    short_display_name: MER
+    description: Word match error rate between model predictions and ground truth answers.
+    lower_is_better: true
+
+  - name: wip_score
+    display_name: Word Information Preservation
+    short_display_name: WIP
+    description: Word information preservation (WIP) for evaluating the preserved information of ASR.
+    lower_is_better: false
+
+  - name: cer_score
+    display_name: Character Error Rate
+    short_display_name: CER
+    description: Character error rate (CER) for evaluating the accuracy of ASR.
+    lower_is_better: true
+
+  - name: chinese_wer_score
+    display_name: Chinese Word Error Rate
+    short_display_name: Chinese WER
+    description: Chinese word error rate between model predictions and ground truth answers for ASR tasks.
+    lower_is_better: true
+
+  - name: chinese_mer_score
+    display_name: Chinese Match Error Rate
+    short_display_name: Chinese MER
+    description: Chinese word match error rate between model predictions and ground truth answers.
+    lower_is_better: true
+
+  - name: chinese_wip_score
+    display_name: Chinese Word Information Preservation
+    short_display_name: Chinese WIP
+    description: Chinese word information preservation (WIP) for evaluating the preserved information of ASR.
+    lower_is_better: false
+
+  - name: chinese_cer_score
+    display_name: Chinese Character Error Rate
+    short_display_name: Chinese CER
+    description: Chinese character error rate (CER) for evaluating the accuracy of Chiese ASR.
     lower_is_better: true
 
 ############################################################
@@ -143,7 +179,6 @@ perturbations: []
 metric_groups:
   - name: accuracy
     display_name: Accuracy
-    hide_win_rates: true
     metrics:
       - name: ${main_name}
         split: ${main_split}
@@ -156,7 +191,6 @@ metric_groups:
 
   - name: general_information
     display_name: General information
-    hide_win_rates: true
     metrics:
     - name: num_instances
       split: ${main_split}
@@ -172,20 +206,21 @@ metric_groups:
 ############################################################
 
 run_groups:
-  # TODO: further split by aspects
   - name: audio_scenarios
     display_name: Audio Scenarios
     description: Audio Scenarios
     category: All scenarios
     subgroups:
-      - audio_mnist
       - covost2
       - vocal_sound
-      - multilingual_librispeech
       - fleurs
       - audiocaps
       - common_voice_15
       - speech_robust_bench
+      - meld_audio
+      - air_bench_chat
+      - mutox
+      - mustard
 
   - name: audio_mnist
     display_name: AudioMNIST
@@ -241,7 +276,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_exact_match
       main_split: test
     taxonomy:
       task: audio classification
@@ -262,7 +297,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: f1_score
+      main_name: wer_score
       main_split: test
     taxonomy:
       task: audio captioning
@@ -286,7 +321,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: wer_score
       main_split: test
     taxonomy:
       task: audio classification
@@ -306,7 +341,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: cider
+      main_name: f1_score
       main_split: test
     taxonomy:
       task: audio captioning
@@ -350,7 +385,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: word_accuracy
+      main_name: wer_score
       main_split: test
     taxonomy:
       task: audio recognition
@@ -374,7 +409,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: word_accuracy
+      main_name: wer_score
       main_split: test
     taxonomy:
       task: audio recognition
@@ -403,6 +438,26 @@ run_groups:
       what: audio and question of audio samples to examine models' gender and racial bias
       who: OpenAI's TTS-1-HD
       when: "2024"
+      language: English
+
+  - name: meld_audio
+    display_name: Multimodal EmotionLines Dataset (MELD) Audio
+    description: >
+      Multimodal EmotionLines Dataset (MELD) has been created by enhancing and extending EmotionLines dataset.
+      MELD has more than 1400 dialogues and 13000 utterances from Friends TV series. Multiple speakers participated
+      in the dialogues. Each utterance in a dialogue has been labeled by any of these seven emotions -
+      Anger, Disgust, Sadness, Joy, Neutral, Surprise and Fear.
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: Classify audio by emotion
+      who: Friends TV series
+      when: "2018"
       language: English
 
   - name: casual_conversations2
@@ -442,13 +497,49 @@ run_groups:
     metric_groups:
       - accuracy
       - general_information
-      - reasoning
     environment:
       main_name: f1_score
       main_split: test
     taxonomy:
       task: audio question answering
-      what: adio, question, and answer of audio samples
+      what: audio, question, and answer of audio samples
       who: real speakers
       when: "2024"
+      language: English
+
+  - name: mutox
+    display_name: MuTox
+    description: >
+     The dataset consists of 20k audio utterances for English and Spanish, and 4k for the other languages.
+     ([Costa-jussà et al, 2018](https://arxiv.org/abs/2401.05060)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: toxicity detection
+      what: samples of utterances
+      who: real speakers
+      when: "2024"
+      language: 30 languages
+
+  - name: mustard
+    display_name: MUStARD
+    description: >
+      A multimodal video corpus for research in automated sarcasm discovery. The dataset is compiled from popular
+      TV shows including Friends, The Golden Girls, The Big Bang Theory, and Sarcasmaholics Anonymous. 
+      ([Castro et al, 2019](https://arxiv.org/abs/1906.01815)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: sarcasm detection
+      what: clips from television shows
+      who: real speakers
+      when: "2019"
       language: English

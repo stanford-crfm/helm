@@ -1,13 +1,15 @@
-from typing import Any
+from typing import Any, Dict, Optional, Union
 from importlib.resources import files
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
+from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo
 from helm.clients.auto_client import AutoClient
+from helm.common.hierarchical_logger import hlog
 from helm.common.request import Request
 
 
-# Following https://github.com/KbsdJames/Omni-MATH/blob/main/GPT_eval/get_result.py
+# Following https://github.com/KbsdJames/Omni-MATH/blob/23be225c8e268df51990f6c5c1448f34d3b56911/GPT_eval/get_result.py
 def parse_report(report):
     parts = report.split("## ")
     data = {}
@@ -44,26 +46,87 @@ class OmniMATHAnnotator(Annotator):
             .replace("{{Solution}}", model_output_text)
         )
         if not model_output_text.strip():
-            return {"prompt_text": annotator_prompt, "correctness": 0.0}
+            hlog(
+                "WARNING: OmniMATHAnnotator skipped sending requests to annotator models "
+                "because the model response was empty"
+            )
+            return {
+                "prompt_text": None,
+                "empty_output_equivalence_judgement": False,
+            }
 
-        annotator_request = Request(
-            model="openai/gpt-4o-2024-05-13",
-            model_deployment="openai/gpt-4o-2024-05-13",
-            prompt=annotator_prompt,
-            temperature=0.0,
-            max_tokens=1000,
-        )
-        annotator_response = self._auto_client.make_request(annotator_request)
-        if not annotator_response.success:
-            raise Exception(f"Annotation request failed: {annotator_response.error}")
-        assert len(annotator_response.completions) == 1
-        annotator_response_text = annotator_response.completions[0].text
+        SHORT_NAME_TO_MODEL_INFO: Dict[str, AnnotatorModelInfo] = {
+            "gpt": AnnotatorModelInfo(
+                model_name="openai/gpt-4o-2024-05-13",
+                model_deployment="openai/gpt-4o-2024-05-13",
+            ),
+            "llama": AnnotatorModelInfo(
+                model_name="meta/llama-3.1-405b-instruct-turbo",
+                model_deployment="together/llama-3.1-405b-instruct-turbo",
+            ),
+            "claude": AnnotatorModelInfo(
+                model_name="anthropic/claude-3-5-sonnet-20241022",
+                model_deployment="anthropic/claude-3-5-sonnet-20241022",
+            ),
+        }
+        annotations: Dict[str, Union[Optional[str], Optional[bool]]] = {"prompt_text": annotator_prompt}
 
-        info = parse_report(annotator_response_text)
+        for annotator_name, annotator_model_info in SHORT_NAME_TO_MODEL_INFO.items():
+            student_final_answer: Optional[str] = None
+            equivalence_judgement: Optional[bool] = None
+            justification: Optional[str] = None
+            annotator_request = Request(
+                model=annotator_model_info.model_name,
+                model_deployment=annotator_model_info.model_deployment,
+                prompt=annotator_prompt,
+                temperature=0.0,
+                max_tokens=1000,
+            )
+            annotator_response = self._auto_client.make_request(annotator_request)
+            if not annotator_response.success:
+                hlog(
+                    "WARNING: OmniMATHAnnotator got an error response from "
+                    f"{annotator_model_info.model_name}: {annotator_response.error}"
+                )
+            else:
+                assert len(annotator_response.completions) == 1
+                annotator_response_text = annotator_response.completions[0].text
 
-        correctness = info.get("Equivalence Judgement", "FALSE")
+                report_parts: Dict[str, str] = parse_report(annotator_response_text)
+                try:
+                    student_final_answer = report_parts["Student Final Answer"]
+                except KeyError:
+                    hlog(
+                        "WARNING: OmniMATHAnnotator could not get Student Final Answer from annotation from "
+                        f"{annotator_model_info.model_name}: {annotator_response_text}"
+                    )
 
-        if correctness == "TRUE":
-            return {"prompt_text": annotator_prompt, "correctness": 1.0}
-        else:
-            return {"prompt_text": annotator_prompt, "correctness": 0.0}
+                try:
+                    justification = report_parts["Justification"].strip().removesuffix("=== report over ===").strip()
+                except KeyError:
+                    hlog(
+                        "WARNING: OmniMATHAnnotator could not get Justification from annotation from "
+                        f"{annotator_model_info.model_name}: {annotator_response_text}"
+                    )
+
+                try:
+                    equivalence_judgement_str = report_parts["Equivalence Judgement"].strip().upper()
+                    if equivalence_judgement_str == "TRUE":
+                        equivalence_judgement = True
+                    elif equivalence_judgement_str == "FALSE":
+                        equivalence_judgement = False
+                    else:
+                        hlog(
+                            "WARNING: OmniMATHAnnotator got a non-boolean Equivalence Judgement from annotation from "
+                            f"{annotator_model_info.model_name}: {equivalence_judgement_str}"
+                        )
+                except KeyError:
+                    hlog(
+                        "WARNING: OmniMATHAnnotator could not get Equivalence Judgement from annotation from "
+                        f"{annotator_model_info.model_name}: {annotator_response_text}"
+                    )
+
+            annotations[f"{annotator_name}_student_final_answer"] = student_final_answer
+            annotations[f"{annotator_name}_equivalence_judgement"] = equivalence_judgement
+            annotations[f"{annotator_name}_justification"] = justification
+        return annotations

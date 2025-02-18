@@ -53,6 +53,7 @@ class MMLUProScenario(Scenario):
         instances: List[Instance] = []
         hlog(f"Processing data for {split} split")
         for row in data:
+            id = row["question_id"]
             question = row["question"]
             answers = row["options"]
             correct_choice = row["answer"]
@@ -63,6 +64,7 @@ class MMLUProScenario(Scenario):
                 return Reference(Output(text=answer), tags=[CORRECT_TAG] if answer == correct_answer else [])
 
             instance = Instance(
+                id=f"id{id}",
                 input=Input(text=question),
                 references=list(map(answer_to_reference, answers)),
                 split=split,
@@ -87,7 +89,7 @@ class MMLUProScenario(Scenario):
             "test": TEST_SPLIT,
         }
         for hf_split, split in splits.items():
-            data = dataset[hf_split].filter(lambda x: x["category"] == self.subject)
+            data = dataset[hf_split].filter(lambda x: self.subject == "all" or self.subject == x["category"])
             instances.extend(self.process_dataset(data, split))
 
         return instances

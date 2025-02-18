@@ -10,7 +10,7 @@ from helm.benchmark.scenarios.scenario import (
 from helm.common.general import ensure_directory_exists
 
 
-VERSIONS = ["v0.1.2"]
+VERSIONS = ["v0.1.0_hf", "v0.1.1", "v0.1.2", "v0.1.3"]
 
 
 class BigCodeBenchScenario(Scenario):
@@ -36,7 +36,7 @@ class BigCodeBenchScenario(Scenario):
         ensure_directory_exists(cache_dir)
         dataset = datasets.load_dataset(
             "bigcode/bigcodebench",
-            revision="35a015f216382cb88997b91b9400357a79e55141",  # for v0.1.2
+            revision="057dd1a30dd73d4ed59cfbaaae049870491fa4d6",
             cache_dir=cache_dir,
             split=self.version,
         )
@@ -44,15 +44,14 @@ class BigCodeBenchScenario(Scenario):
 
         # Read all instances
         instances: List[Instance] = []
-        for idx, row in enumerate(dataset):
-
+        for row in dataset:
+            id = row["task_id"]
             input = Input(text=row["instruct_prompt"])
             instance = Instance(
+                id=id,
                 input=input,
                 references=[],
                 split=TEST_SPLIT,
-                id=row["task_id"],
-                extra_data={"task_id": row["task_id"]},
             )
             instances.append(instance)
 

@@ -41,6 +41,7 @@ class WildBenchScenario(Scenario):
             self.subset,
             cache_dir=cache_dir,
             split="test",
+            revision="7c05c1b4550282b2ed6a2e6ac5db069f1e07df5c",
         )
         assert isinstance(dataset, datasets.Dataset)
         if self.use_model_outputs:
@@ -50,6 +51,7 @@ class WildBenchScenario(Scenario):
                     model,
                     cache_dir=cache_dir,
                     split="train",
+                    revision="d6755bc68220df853c0825a733430f73f5af2501",
                 )
                 for model in REFERENCE_MODELS
             }
@@ -58,38 +60,23 @@ class WildBenchScenario(Scenario):
         # Read all instances
         instances: List[Instance] = []
         for idx, row in enumerate(dataset):
-
-            conversation = row["conversation_input"]
-
-            # Following https://github.com/allenai/WildBench/blob/d6b8dcaf377d173d031980f97c16e1a82618c03d/src/eval.py
-            history = []
-            for round in row["conversation_input"][:-1]:
-                noun = "USER: " if round["role"] == "user" else "ASSISTANT: "
-                history.append(noun + round["content"])
-            history_text = "\n\n".join(history)
-            user_query_text = row["conversation_input"][-1]["content"]
-            checklist = [f"- {checklist_item}" for checklist_item in row["checklist"]]
-
             input = Input(
-                text=history_text
-                + "\n\n"
-                + "USER: "
-                + user_query_text,  # For frontend display only, not used for evaluation
+                messages=[
+                    {"role": message["role"], "content": message["content"]} for message in row["conversation_input"]
+                ]
             )
+            extra_data = {
+                "checklist": row["checklist"],
+            }
+            if self.use_model_outputs:
+                extra_data["baseline_outputs"] = {
+                    model: baseline_outputs[model][idx]["output"][0] for model in REFERENCE_MODELS
+                }
             instance = Instance(
                 input=input,
                 references=[],
                 split=TEST_SPLIT,
-                extra_data={
-                    "conversation": conversation,
-                    "baseline_outputs": {
-                        model: baseline_outputs[model][idx]["output"][0] if self.use_model_outputs else None
-                        for model in REFERENCE_MODELS
-                    },
-                    "history": history_text,
-                    "user_query": user_query_text,
-                    "checklist": checklist,
-                },
+                extra_data=extra_data,
             )
             instances.append(instance)
 

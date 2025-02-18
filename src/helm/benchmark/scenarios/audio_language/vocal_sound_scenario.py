@@ -13,8 +13,10 @@ from helm.benchmark.scenarios.scenario import (
     Output,
 )
 from tqdm import tqdm
+
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_file_downloaded
+from helm.common.audio_utils import is_invalid_audio_file
 
 
 class VocalSoundScenario(Scenario):
@@ -50,11 +52,18 @@ class VocalSoundScenario(Scenario):
         ensure_file_downloaded(VocalSoundScenario.DOWNLOADING_URL, down_loading_path, unpack=True)
         wav_save_dir = os.path.join(down_loading_path, "audio_16k")
         for file_name in tqdm(os.listdir(wav_save_dir)):
-            local_audio_path = os.path.join(wav_save_dir, file_name)
-            answer = file_name.split("_")[-1].split(".")[0]
+            local_audio_path: str = os.path.join(wav_save_dir, file_name)
+            if not file_name.endswith(".wav") or is_invalid_audio_file(local_audio_path):
+                continue
+
             input = Input(
                 multimedia_content=MultimediaObject([MediaObject(content_type="audio/wav", location=local_audio_path)])
             )
+
+            answer: str = file_name.split("_")[-1].split(".")[0]
+            if answer == "throatclearing":
+                answer = "throat clearing"
+
             references = [Reference(Output(text=str(answer)), tags=[CORRECT_TAG])]
             instances.append(Instance(input=input, references=references, split=TEST_SPLIT))
         return instances

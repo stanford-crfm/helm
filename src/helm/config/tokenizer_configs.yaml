@@ -175,6 +175,12 @@ tokenizer_configs:
     end_of_text_token: "<｜end▁of▁sentence｜>"
     prefix_token: "<｜begin▁of▁sentence｜>"
 
+  - name: deepseek-ai/deepseek-r1
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<｜end▁of▁sentence｜>"
+    prefix_token: "<｜begin▁of▁sentence｜>"
+
   # EleutherAI
   - name: EleutherAI/gpt-j-6B
     tokenizer_spec:
@@ -339,6 +345,14 @@ tokenizer_configs:
     prefix_token: "<|begin_of_text|>"
     end_of_text_token: "<|end_of_text|>"
 
+  - name: meta/llama-3.1-8b-instruct
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: meta-llama/Meta-Llama-3.1-8B-Instruct
+    prefix_token: "<|begin_of_text|>"
+    end_of_text_token: "<|eot_id|>"
+
   - name: meta/llama-3.2-3b-instruct
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
@@ -421,6 +435,12 @@ tokenizer_configs:
     end_of_text_token: "<|endoftext|>"
     prefix_token: "<s>"
 
+  - name: microsoft/phi-3.5-mini-instruct
+    tokenizer_spec:  
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<s>"
+
   # Mistralai
   - name: mistralai/Mistral-7B-v0.1
     tokenizer_spec:
@@ -465,6 +485,12 @@ tokenizer_configs:
     prefix_token: "<s>"
 
   - name: mistralai/Ministral-8B-Instruct-2410
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+
+  - name: mistralai/Mistral-Small-24B-Instruct-2501
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "</s>"
@@ -558,7 +584,7 @@ tokenizer_configs:
       args:
         pretrained_model_name_or_path: Qwen/Qwen2-72B-Instruct
     end_of_text_token: "<|im_end|>"
-    prefix_token: "<|im_start|>'"
+    prefix_token: "<|im_start|>"
 
   - name: qwen/qwen2.5-7b-instruct
     tokenizer_spec:
@@ -566,7 +592,13 @@ tokenizer_configs:
       args:
         pretrained_model_name_or_path: Qwen/Qwen2.5-7B-Instruct
     end_of_text_token: "<|im_end|>"
-    prefix_token: "<|im_start|>'"
+    prefix_token: "<|im_start|>"
+
+  - name: qwen/qwq-32b-preview
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|im_end|>"
+    prefix_token: ""
 
   - name: qwen/qwen-vl
     tokenizer_spec:
@@ -764,3 +796,93 @@ tokenizer_configs:
         pretrained_model_name_or_path: maritaca-ai/sabia-7b
     end_of_text_token: "</s>"
     prefix_token: "<s>"
+
+# Granite-3.1-8b-base
+  - name: ibm-granite/granite-3.1-8b-base
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-8b-base
+    prefix_token: ""
+    end_of_text_token: "<|endoftext|>"
+
+# Granite-3.1-8b-instruct
+  - name: ibm-granite/granite-3.1-8b-instruct
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-8b-instruct
+    prefix_token: ""
+    end_of_text_token: "<|endoftext|>"
+
+# Granite-3.1-2b-instruct
+  - name: ibm-granite/granite-3.1-2b-instruct
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-2b-instruct
+    prefix_token: ""
+    end_of_text_token: ""
+
+# Granite-3.1-2b-base
+  - name: ibm-granite/granite-3.1-2b-base
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-2b-base
+    prefix_token: ""
+    end_of_text_token: ""
+
+# Granite-3.1-3b-a800m-instruct
+  - name: ibm-granite/granite-3.1-3b-a800m-instruct
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-3b-a800m-instruct
+    prefix_token: ""
+    end_of_text_token: ""
+
+# Granite-3.1-3b-a800m-base
+  - name: ibm-granite/granite-3.1-3b-a800m-base
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-3b-a800m-base
+    prefix_token: ""
+    end_of_text_token: ""
+
+# Granite-3.1-1b-a400m-instruct
+  - name: ibm-granite/granite-3.1-1b-a400m-instruct
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-1b-a400m-instruct
+    prefix_token: ""
+    end_of_text_token: ""
+
+# Granite-3.1-1b-a400m-base
+  - name: ibm-granite/granite-3.1-1b-a400m-base
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: ibm-granite/granite-3.1-1b-a400m-base
+    prefix_token: ""
+    end_of_text_token: ""
+
+# DeepSeek-R1-Distill-Llama-3.1-8b
+  - name: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+    end_of_text_token: "<｜end▁of▁sentence｜>"
+    prefix_token: "<｜begin▁of▁sentence｜>"
+
+# deepseek-ai/deepseek-coder-6.7b-instruct
+  - name: deepseek-ai/deepseek-coder-6.7b-instruct
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: deepseek-ai/deepseek-coder-6.7b-instruct
+    end_of_text_token: "<｜end▁of▁sentence｜>"
+    prefix_token: "<｜begin▁of▁sentence｜>"

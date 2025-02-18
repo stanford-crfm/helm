@@ -852,6 +852,26 @@ models:
     release_date: 2024-12-24
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: deepseek-ai/deepseek-r1
+    display_name: DeepSeek R1
+    description: DeepSeek R1 is DeepSeek's first-generation reasoning model which incoporates which incorporates multi-stage training and cold-start data before RL. ([paper](https://arxiv.org/abs/2501.12948))
+    creator_organization_name: DeepSeek
+    access: open
+    # NOTE: The total size of DeepSeek-R3 model1 on HuggingFace is 685B
+    num_parameters: 685000000000
+    release_date: 2025-01-20
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: deepseek-ai/deepseek-r1-hide-reasoning
+    display_name: DeepSeek R1 (hide reasoning)
+    description: DeepSeek R1 is DeepSeek's first-generation reasoning model which incoporates which incorporates multi-stage training and cold-start data before RL. ([paper](https://arxiv.org/abs/2501.12948)) The reasoning tokens are hidden from the output of the model.
+    creator_organization_name: DeepSeek
+    access: open
+    # NOTE: The total size of DeepSeek-R3 model1 on HuggingFace is 685B
+    num_parameters: 685000000000
+    release_date: 2025-01-20
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+ 
   # EleutherAI
   - name: eleutherai/gpt-j-6b # Served by GooseAi, HuggingFace and Together.
     display_name: GPT-J (6B)
@@ -1699,6 +1719,33 @@ models:
     release_date: 2024-07-18
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: meta/llama-3.1-8b-instruct
+    display_name: Llama 3.1 Instruct (8B)
+    description: Llama 3.1 (8B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-07-23
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: meta/llama-3.1-70b-instruct
+    display_name: Llama 3.1 Instruct (70B)
+    description: Llama 3.1 (70B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-07-23
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: meta/llama-3.1-405b-instruct
+    display_name: Llama 3.1 Instruct (405B)
+    description: Llama 3.1 (405B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 405000000000
+    release_date: 2024-07-23
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: meta/llama-3.1-8b-instruct-turbo
     display_name: Llama 3.1 Instruct Turbo (8B)
     description: Llama 3.1 (8B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/), [blog](https://ai.meta.com/blog/meta-llama-3-1/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
@@ -1756,6 +1803,15 @@ models:
   - name: meta/llama-3.3-70b-instruct-turbo
     display_name: Llama 3.3 Instruct Turbo (70B)
     description: Llama 3.3 (70B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-12-06
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+  
+  - name: meta/llama-3.3-70b-instruct
+    display_name: Llama 3.3 Instruct (70B)
+    description: Llama 3.3 (70B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/))
     creator_organization_name: Meta
     access: open
     num_parameters: 70000000000
@@ -1915,6 +1971,24 @@ models:
     access: open
     num_parameters: 14000000000
     release_date: 2024-05-21
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: microsoft/phi-3.5-mini-instruct
+    display_name: Phi-3.5 Mini
+    description: Phi-3.5 Mini is a lightweight, state-of-the-art open model built upon datasets used for Phi-3 - synthetic data and filtered publicly available documents - with a focus on very high-quality, reasoning dense data. ([paper](https://arxiv.org/abs/2404.14219), [blog](https://techcommunity.microsoft.com/blog/azure-ai-services-blog/discover-the-new-multi-lingual-high-quality-phi-3-5-slms/4225280))
+    creator_organization_name: Microsoft
+    access: open
+    num_parameters: 3820000000
+    release_date: 2024-08-22
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: microsoft/phi-3.5-moe-instruct
+    display_name: Phi-3.5 MoE
+    description: Phi-3.5 MoE is a lightweight, state-of-the-art open model built upon datasets used for Phi-3 - synthetic data and filtered publicly available documents - with a focus on very high-quality, reasoning dense data. ([paper](https://arxiv.org/abs/2404.14219), [blog](https://techcommunity.microsoft.com/blog/azure-ai-services-blog/discover-the-new-multi-lingual-high-quality-phi-3-5-slms/4225280))
+    creator_organization_name: Microsoft
+    access: open
+    num_parameters: 41900000000
+    release_date: 2024-08-22
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # KAIST AI
@@ -2132,6 +2206,15 @@ models:
     creator_organization_name: Mistral AI
     access: limited
     release_date: 2024-09-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/mistral-small-2501
+    display_name: Mistral Small 3 (2501)
+    description: Mistral Small 3 (2501) is a pre-trained and instructed model catered to the '80%' of generative AI tasks—those that require robust language and instruction following performance, with very low latency. ([blog](https://mistral.ai/news/mistral-small-3/))
+    creator_organization_name: Mistral AI
+    access: open
+    num_parameters: 23600000000
+    release_date: 2025-01-30
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: mistralai/mistral-medium-2312
@@ -2624,6 +2707,22 @@ models:
     release_date: 2024-12-17
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: openai/o1-2024-12-17-low-reasoning-effort
+    display_name: o1 (2024-12-17, low reasoning effort)
+    description: o1 is a new large language model trained with reinforcement learning to perform complex reasoning. ([model card](https://openai.com/index/openai-o1-system-card/), [blog post](https://openai.com/index/learning-to-reason-with-llms/)) The requests' reasoning effort parameter in is set to low.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2024-12-17
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/o1-2024-12-17-high-reasoning-effort
+    display_name: o1 (2024-12-17, high reasoning effort)
+    description: o1 is a new large language model trained with reinforcement learning to perform complex reasoning. ([model card](https://openai.com/index/openai-o1-system-card/), [blog post](https://openai.com/index/learning-to-reason-with-llms/)) The requests' reasoning effort parameter in is set to high.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2024-12-17
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: openai/o1-preview-2024-09-12
     display_name: o1-preview (2024-09-12)
     description: o1-preview is a language model trained with reinforcement learning to perform complex reasoning that can produce a long internal chain of thought before responding to the user. ([model card](https://openai.com/index/openai-o1-system-card/), [blog post](https://openai.com/index/learning-to-reason-with-llms/))
@@ -2638,6 +2737,30 @@ models:
     creator_organization_name: OpenAI
     access: limited
     release_date: 2024-09-12
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/o3-mini-2025-01-31
+    display_name: o3-mini (2025-01-31)
+    description: o3-mini is a small reasoning model form OpenAI that aims to deliver STEM capabilities while maintaining the low cost and reduced latency of OpenAI o1-mini. ([blog post](https://openai.com/index/openai-o3-mini/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-01-31
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/o3-mini-2025-01-31-low-reasoning-effort
+    display_name: o3-mini (2025-01-31, low reasoning effort)
+    description: o3-mini is a small reasoning model form OpenAI that aims to deliver STEM capabilities while maintaining the low cost and reduced latency of OpenAI o1-mini. ([blog post](https://openai.com/index/openai-o3-mini/)) The requests' reasoning effort parameter in is set to low.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-01-31
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/o3-mini-2025-01-31-high-reasoning-effort
+    display_name: o3-mini (2025-01-31, high reasoning effort)
+    description: o3-mini is a small reasoning model form OpenAI that aims to deliver STEM capabilities while maintaining the low cost and reduced latency of OpenAI o1-mini. ([blog post](https://openai.com/index/openai-o3-mini/)) The requests' reasoning effort parameter in is set to high.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-01-31
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   ## Codex Models
@@ -2900,6 +3023,15 @@ models:
     release_date: 2024-09-19
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: qwen/qwq-32b-preview
+    display_name: QwQ (32B Preview)
+    description: QwQ-32B-Preview is an experimental research model developed by the Qwen Team, focused on advancing AI reasoning capabilities. ([blog post](https://qwenlm.github.io/blog/qwq-32b-preview/)).
+    creator_organization_name: Alibaba Cloud
+    access: open
+    num_parameters: 32800000000
+    release_date: 2024-11-28
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: qwen/qwen-vl
     display_name: Qwen-VL
     description: Visual multimodal version of the Qwen large language model series ([paper](https://arxiv.org/abs/2308.12966)).
@@ -2940,8 +3072,8 @@ models:
     release_date: 2023-11-14
     tags: [AUDIO_LANGUAGE_MODEL_TAG]
 
-  - name: qwen/qwen2-audio-instruct
-    display_name: Qwen2-Audio Instruct
+  - name: qwen/qwen2-audio-7b-instruct
+    display_name: Qwen2-Audio Instruct (7B)
     description: The second version of auditory multimodal version of the Qwen large language model series ([paper](https://arxiv.org/abs/2407.10759)).
     creator_organization_name: Alibaba Cloud
     access: open
@@ -3638,3 +3770,102 @@ models:
     release_date: 2023-11-08
     tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
    
+# Granite-3.1-8b-base
+  - name: ibm-granite/granite-3.1-8b-base
+    display_name: Granite 3.1 - 8B - Base
+    description: Granite-3.1-8B-Base extends the context length of Granite-3.0-8B-Base from 4K to 128K using a progressive training strategy by increasing the supported context length in increments while adjusting RoPE theta until the model has successfully adapted to desired length of 128K.
+    creator_organization_name: IBM-GRANITE
+    access: open
+    num_parameters: 8170000000
+    release_date: 2024-12-18
+    tags: [TEXT_MODEL_TAG]
+
+# Granite-3.1-8b-instruct
+  - name: ibm-granite/granite-3.1-8b-instruct
+    display_name: Granite 3.1 - 8B - Instruct
+    description: Granite-3.1-8B-Instruct is a 8B parameter long-context instruct model finetuned from Granite-3.1-8B-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets tailored for solving long context problems.
+    creator_organization_name: IBM-GRANITE
+    access: open
+    num_parameters: 8170000000
+    release_date: 2024-12-18
+    tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+# Granite-3.1-2b-instruct
+  - name: ibm-granite/granite-3.1-2b-instruct
+    display_name: Granite 3.1 - 2B - Instruct
+    description: Granite-3.1-2B-Instruct is a 2B parameter long-context instruct model finetuned from Granite-3.1-2B-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets tailored for solving long context problems.
+    creator_organization_name: IBM-GRANITE
+    access: open
+    num_parameters: 2530000000
+    release_date: 2024-12-18
+    tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+# Granite-3.1-2b-base
+  - name: ibm-granite/granite-3.1-2b-base
+    display_name: Granite 3.1 - 2B - Base
+    description: Granite-3.1-2B-Base extends the context length of Granite-3.0-2B-Base from 4K to 128K using a progressive training strategy by increasing the supported context length in increments while adjusting RoPE theta until the model has successfully adapted to desired length of 128K.
+    creator_organization_name: IBM-GRANITE
+    access: open
+    num_parameters: 2530000000
+    release_date: 2024-12-18
+    tags: [TEXT_MODEL_TAG]
+
+# Granite-3.1-3b-a800m-instruct
+  - name: ibm-granite/granite-3.1-3b-a800m-instruct
+    display_name: Granite 3.1 - 3B - A800M - Instruct
+    description: Granite-3.1-3B-A800M-Instruct is a 3B parameter long-context instruct model finetuned from Granite-3.1-3B-A800M-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets tailored for solving long context problems.
+    creator_organization_name: IBM-GRANITE
+    access: open
+    num_parameters: 3300000000
+    release_date: 2024-12-18
+    tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+# Granite-3.1-3b-a800m-base
+  - name: ibm-granite/granite-3.1-3b-a800m-base
+    display_name: Granite 3.1 - 3B - A800M - Base
+    description: Granite-3.1-3B-A800M-Base extends the context length of Granite-3.0-3B-A800M-Base from 4K to 128K using a progressive training strategy by increasing the supported context length in increments while adjusting RoPE theta until the model has successfully adapted to desired length of 128K.
+    creator_organization_name: IBM-GRANITE
+    access: open
+    num_parameters: 3300000000
+    release_date: 2024-12-18
+    tags: [TEXT_MODEL_TAG]
+
+# Granite-3.1-1b-a400m-instruct
+  - name: ibm-granite/granite-3.1-1b-a400m-instruct
+    display_name: Granite 3.1 - 1B - A400M - Instruct
+    description: Granite-3.1-1B-A400M-Instruct is a 8B parameter long-context instruct model finetuned from Granite-3.1-1B-A400M-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets tailored for solving long context problems.
+    creator_organization_name: IBM-GRANITE
+    access: open
+    num_parameters: 1330000000
+    release_date: 2024-12-18
+    tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+# Granite-3.1-1b-a400m-base
+  - name: ibm-granite/granite-3.1-1b-a400m-base
+    display_name: Granite 3.1 - 1B - A400M - Base
+    description: Granite-3.1-1B-A400M-Base extends the context length of Granite-3.0-1B-A400M-Base from 4K to 128K using a progressive training strategy by increasing the supported context length in increments while adjusting RoPE theta until the model has successfully adapted to desired length of 128K.
+    creator_organization_name: IBM-GRANITE
+    access: open
+    num_parameters: 1330000000
+    release_date: 2024-12-18
+    tags: [TEXT_MODEL_TAG]
+
+# DeepSeek-R1-Distill-Llama-3.1-8b
+  - name: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+    display_name: DeepSeek-R1-Distill-Llama-8b
+    description: DeepSeek-R1-Distill-Llama-8b is a model that is distilled from LLaMA 8B model for the DeepSeek-R1 task.
+    creator_organization_name: DeepSeek
+    access: open
+    num_parameters: 8000000000
+    release_date: 2025-01-20
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+# deepseek-ai/deepseek-coder-6.7b-instruct
+  - name: deepseek-ai/deepseek-coder-6.7b-instruct
+    display_name: DeepSeek-Coder-6.7b-Instruct
+    description: DeepSeek-Coder-6.7b-Instruct is a model that is fine-tuned from the LLaMA 6.7B model for the DeepSeek-Coder task.
+    creator_organization_name: DeepSeek
+    access: open
+    num_parameters: 6740000000
+    release_date: 2025-01-20
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
