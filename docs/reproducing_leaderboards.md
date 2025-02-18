@@ -133,3 +133,13 @@ export NUM_TRAIN_TRIALS=1
 export NUM_EVAL_INSTANCES=1000
 export PRIORITY=2
 ```
+
+### Bhasa
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_bhasa_zero_shot.conf
+export SCHEMA_PATH=schema_bhasa.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=1000
+export PRIORITY=2
+```

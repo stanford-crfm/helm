@@ -876,7 +876,7 @@ model_deployments:
     tokenizer_name: meta/llama-3.1-8b
     max_sequence_length: 128000
     client_spec:
-      class_name: "helm.clients.together_client.HuggingFaceClient"
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         device_map: auto
         torch_dtype: torch.bfloat16
@@ -886,7 +886,7 @@ model_deployments:
     tokenizer_name: meta/llama-3.1-8b
     max_sequence_length: 128000
     client_spec:
-      class_name: "helm.clients.together_client.HuggingFaceClient"
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         device_map: auto
         torch_dtype: torch.bfloat16
@@ -896,7 +896,7 @@ model_deployments:
     tokenizer_name: meta/llama-3.1-8b
     max_sequence_length: 128000
     client_spec:
-      class_name: "helm.clients.together_client.HuggingFaceClient"
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         device_map: auto
         torch_dtype: torch.bfloat16
@@ -906,7 +906,7 @@ model_deployments:
     tokenizer_name: meta/llama-3.1-8b
     max_sequence_length: 128000
     client_spec:
-      class_name: "helm.clients.together_client.HuggingFaceClient"
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         device_map: auto
         torch_dtype: torch.bfloat16

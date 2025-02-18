@@ -66,6 +66,12 @@
 		"releases": ["v1.1.0", "v1.0.0"]
 	},
 	{
+		"title": "Bhasa",
+		"description": "Benchmark across various tasks for Southeast Asian languages.",
+		"id": "bhasa",
+		"releases": ["v1.0.0"]
+	},
+	{
 		"title": "All Leaderboards",
 		"description": "Home page for all HELM leaderboards",
 		"id": "home",
