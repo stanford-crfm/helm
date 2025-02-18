@@ -9,7 +9,6 @@ from nltk.tokenize import word_tokenize
 from nltk.translate.bleu_score import sentence_bleu
 from rouge_score import rouge_scorer
 import numpy as np
-import tempfile
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
@@ -24,7 +23,6 @@ from helm.benchmark.scenarios.math_scenario import is_equiv, is_equiv_chain_of_t
 from helm.benchmark.scenarios.scenario import Reference
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import GeneratedOutput
-from helm.common.cache import SqliteCacheConfig
 
 
 install_nltk_resources()
@@ -218,18 +216,13 @@ def cider(gold: str, pred: str) -> float:
     return average_score
 
 
-def get_tiktoken_encode_request(text: str) -> Dict:
-    return {"tokenizer": "cl100k_base", "encode": True, "truncation": False, "text": text}
-
-
-def get_tiktoken_tokenizer():
+def get_tiktoken_tokenizer(tokenizer_name: str):
     try:
-        from helm.tokenizers.tiktoken_tokenizer import TiktokenTokenizer
+        import tiktoken
     except ModuleNotFoundError as e:
         handle_module_not_found_error(e, ["openai"])
-    cache_file = tempfile.NamedTemporaryFile(delete=False)
-    cache_path: str = cache_file.name
-    return TiktokenTokenizer(SqliteCacheConfig(cache_path))
+    tokenizer = tiktoken.get_encoding(tokenizer_name)
+    return tokenizer
 
 
 def ter_score(gold: str, pred: str) -> float:
@@ -242,17 +235,15 @@ def ter_score(gold: str, pred: str) -> float:
     except ModuleNotFoundError as e:
         handle_module_not_found_error(e, ["audiolm"])
 
-    tokenizer = get_tiktoken_tokenizer()
+    tokenizer = get_tiktoken_tokenizer("cl100k_base")
 
     if not pred:
         return 0
     gold_norm = normalize_text(gold, should_remove_articles=False)
     pred_norm = normalize_text(pred, should_remove_articles=False)
 
-    gold_request = get_tiktoken_encode_request(gold_norm)
-    pred_request = get_tiktoken_encode_request(pred_norm)
-    gold_tokenized = " ".join([str(item) for item in tokenizer._tokenize_do_it(gold_request)["tokens"]])
-    pred_tokenized = " ".join([str(item) for item in tokenizer._tokenize_do_it(pred_request)["tokens"]])
+    gold_tokenized = " ".join([str(item) for item in tokenizer.encode(gold_norm)])
+    pred_tokenized = " ".join([str(item) for item in tokenizer.encode(pred_norm)])
     wer_ret = wer(gold_tokenized, pred_tokenized)
     return wer_ret
 
@@ -265,17 +256,15 @@ def mer_score(gold: str, pred: str) -> float:
     except ModuleNotFoundError as e:
         handle_module_not_found_error(e, ["audiolm"])
 
-    tokenizer = get_tiktoken_tokenizer()
+    tokenizer = get_tiktoken_tokenizer("cl100k_base")
 
     if not pred:
         return 0
     gold_norm = normalize_text(gold, should_remove_articles=False)
     pred_norm = normalize_text(pred, should_remove_articles=False)
 
-    gold_request = get_tiktoken_encode_request(gold_norm)
-    pred_request = get_tiktoken_encode_request(pred_norm)
-    gold_tokenized = " ".join([str(item) for item in tokenizer._tokenize_do_it(gold_request)["tokens"]])
-    pred_tokenized = " ".join([str(item) for item in tokenizer._tokenize_do_it(pred_request)["tokens"]])
+    gold_tokenized = " ".join([str(item) for item in tokenizer.encode(gold_norm)])
+    pred_tokenized = " ".join([str(item) for item in tokenizer.encode(pred_norm)])
     mer_ret = mer(gold_tokenized, pred_tokenized)
     return mer_ret
 
@@ -289,17 +278,15 @@ def tip_score(gold: str, pred: str) -> float:
     except ModuleNotFoundError as e:
         handle_module_not_found_error(e, ["audiolm"])
 
-    tokenizer = get_tiktoken_tokenizer()
+    tokenizer = get_tiktoken_tokenizer("cl100k_base")
 
     if not pred:
         return 0
     gold_norm = normalize_text(gold, should_remove_articles=False)
     pred_norm = normalize_text(pred, should_remove_articles=False)
 
-    gold_request = get_tiktoken_encode_request(gold_norm)
-    pred_request = get_tiktoken_encode_request(pred_norm)
-    gold_tokenized = " ".join([str(item) for item in tokenizer._tokenize_do_it(gold_request)["tokens"]])
-    pred_tokenized = " ".join([str(item) for item in tokenizer._tokenize_do_it(pred_request)["tokens"]])
+    gold_tokenized = " ".join([str(item) for item in tokenizer.encode(gold_norm)])
+    pred_tokenized = " ".join([str(item) for item in tokenizer.encode(pred_norm)])
     wip_ret = wip(gold_tokenized, pred_tokenized)
     return wip_ret
 
