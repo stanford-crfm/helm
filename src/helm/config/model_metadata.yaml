@@ -1060,7 +1060,7 @@ models:
     release_date: 2024-12-11
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  - name: google/gemini-1.5-flash-8b
+  - name: google/gemini-1.5-flash-8b-001
     display_name: Gemini 1.5 Flash 8B
     description: Gemini 1.5 Flash-8B is a small model designed for lower intelligence tasks. ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
     creator_organization_name: Google
@@ -1068,7 +1068,7 @@ models:
     release_date: 2024-10-01
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  - name: google/gemini-2.0-flash
+  - name: google/gemini-2.0-flash-001
     display_name: Gemini 2.0 Flash
     description: Gemini 2.0 Flash ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
     creator_organization_name: Google
@@ -1079,6 +1079,14 @@ models:
   - name: google/gemini-2.0-flash-lite-preview-02-05
     display_name: Gemini 2.0 Flash Lite (02-05 preview)
     description: Gemini 2.0 Flash Lite (02-05 preview) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-02-05
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-2.0-pro-exp-02-05
+    display_name: Gemini 2.0 Pro (02-05 preview)
+    description: Gemini 2.0 Pro (02-05 preview) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
     creator_organization_name: Google
     access: limited
     release_date: 2025-02-05
