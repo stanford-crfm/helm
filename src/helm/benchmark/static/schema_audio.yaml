@@ -211,16 +211,27 @@ run_groups:
     description: Audio Scenarios
     category: All scenarios
     subgroups:
-      - covost2
-      - vocal_sound
-      - fleurs
+      # Auditory Perception
       - audiocaps
-      - common_voice_15
-      - speech_robust_bench
+      - voxceleb2
+      - vocal_sound
+      # Fairness
+      # Emotion Detection
       - meld_audio
-      - air_bench_chat
-      - mutox
       - mustard
+      # Knowledge
+      - air_bench_chat
+      # Robustness
+      - speech_robust_bench
+      # Bias
+      # Multilinguality
+      - covost2
+      - fleurs
+      - common_voice_15
+      - multilingual_librispeech
+      # Toxicity Detection
+      - mutox
+      # Safety
 
   - name: audio_mnist
     display_name: AudioMNIST
