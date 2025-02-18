@@ -10,7 +10,11 @@ export default function BhasaLanding() {
         <div className="flex-1 text-l">
           <div className="text-center">
             <a href="https://aisingapore.org/">
-              <img src={aisingapore} alt="Logo" className="inline h-32 mx-4 my-4" />
+              <img
+                src={aisingapore}
+                alt="Logo"
+                className="inline h-32 mx-4 my-4"
+              />
             </a>
           </div>
           <p>
@@ -20,12 +24,12 @@ export default function BhasaLanding() {
             >
               AI Singapore
             </a>
-            introduces the Bhasa leaderboard. Bhasa is an assessment of
-            large language models across various tasks for Southeast Asian
-            languages. The leaderboard evaluates four key multilingual
-            capabilities for language models: performance on natural language
-            understanding (NLU), natural language generation (NLG), natural
-            language reasoning (NLR), and linguistic diagnostics.
+            introduces the Bhasa leaderboard. Bhasa is an assessment of large
+            language models across various tasks for Southeast Asian languages.
+            The leaderboard evaluates four key multilingual capabilities for
+            language models: performance on natural language understanding
+            (NLU), natural language generation (NLG), natural language reasoning
+            (NLR), and linguistic diagnostics.
           </p>
           <div className="flex flex-row justify-center my-4">
             <Link to="leaderboard" className="px-10 btn rounded-md mx-4">

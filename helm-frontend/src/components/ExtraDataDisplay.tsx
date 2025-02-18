@@ -16,8 +16,8 @@ function valueDisplay(value: string | number | null) {
         value === null
           ? "null"
           : typeof value === "object"
-          ? JSON.stringify(value)
-          : value.toString()
+            ? JSON.stringify(value)
+            : value.toString()
       }
     />
   );
