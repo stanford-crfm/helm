@@ -1,3 +1,4 @@
+import re
 from typing import Any, Dict, Optional, Union
 from importlib.resources import files
 
@@ -10,7 +11,7 @@ from helm.common.request import Request
 
 
 # Following https://github.com/KbsdJames/Omni-MATH/blob/23be225c8e268df51990f6c5c1448f34d3b56911/GPT_eval/get_result.py
-def parse_report(report):
+def _parse_report(report):
     parts = report.split("## ")
     data = {}
     for part in parts[1:]:
@@ -24,14 +25,44 @@ def parse_report(report):
     return data
 
 
+def _parse_annotator_response_markup(annotator_response_text: str):
+    parsed_parts: Dict[str, str] = {}
+
+    # fuzzy match regex check, allows for different casing, or forgetting / in end tag
+    student_final_answer_match = re.search(
+        r"<\s*student_final_answer\s*>(.*?)<\/?\s*student_final_answer\s*>",
+        annotator_response_text,
+        re.DOTALL | re.IGNORECASE,
+    )
+    if student_final_answer_match:
+        parsed_parts["Student Final Answer"] = student_final_answer_match.group(1).strip()
+
+    justification_match = re.search(
+        r"<\s*justification\s*>(.*?)<\/?\s*justification\s*>", annotator_response_text, re.DOTALL | re.IGNORECASE
+    )
+    if justification_match:
+        parsed_parts["Justification"] = justification_match.group(1).strip()
+
+    equivalence_judgement_match = re.search(
+        r"<\s*equivalence_judgement\s*>(.*?)<\/?\s*equivalence_judgement\s*>",
+        annotator_response_text,
+        re.DOTALL | re.IGNORECASE,
+    )
+    if equivalence_judgement_match:
+        parsed_parts["Equivalence Judgement"] = equivalence_judgement_match.group(1).strip()
+
+    return parsed_parts
+
+
 class OmniMATHAnnotator(Annotator):
     """The Omni-MATH autograder."""
 
     name = "omni_math"
 
-    def __init__(self, auto_client: AutoClient):
+    def __init__(self, auto_client: AutoClient, template_name: Optional[str] = None):
         self._auto_client = auto_client
-        template_path = files("helm.benchmark.annotation.omni_math").joinpath("gpt_evaluation_template.txt")
+        self._template_name = template_name or "helm_omni_math_annotator_v1.0.0"
+        template_path = files("helm.benchmark.annotation.omni_math").joinpath(f"{self._template_name}.txt")
         with template_path.open("r") as file:
             self._score_template = file.read()
 
@@ -91,8 +122,11 @@ class OmniMATHAnnotator(Annotator):
             else:
                 assert len(annotator_response.completions) == 1
                 annotator_response_text = annotator_response.completions[0].text
-
-                report_parts: Dict[str, str] = parse_report(annotator_response_text)
+                report_parts: Dict[str, str]
+                if self._template_name.startswith("helm"):
+                    report_parts = _parse_annotator_response_markup(annotator_response_text)
+                else:
+                    report_parts = _parse_report(annotator_response_text)
                 try:
                     student_final_answer = report_parts["Student Final Answer"]
                 except KeyError:
