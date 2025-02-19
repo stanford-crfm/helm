@@ -24,35 +24,29 @@ def _parse_report(report):
             data[title] = lines[1].strip() if len(lines) > 1 else ""
     return data
 
-
 def _parse_annotator_response_markup(annotator_response_text: str):
     parsed_parts: Dict[str, str] = {}
 
     # fuzzy match regex check, allows for different casing, or forgetting / in end tag
     student_final_answer_match = re.search(
-        r"<\s*student_final_answer\s*>(.*?)<\/?\s*student_final_answer\s*>",
-        annotator_response_text,
-        re.DOTALL | re.IGNORECASE,
+        r"<\s*student_final_answer\s*>(.*?)<\/?\s*student_final_answer\s*>", annotator_response_text, re.DOTALL | re.IGNORECASE
     )
     if student_final_answer_match:
-        parsed_parts["Student Final Answer"] = student_final_answer_match.group(1).strip()
+        parsed_parts["Student Final Answer"]  = student_final_answer_match.group(1).strip()
 
     justification_match = re.search(
         r"<\s*justification\s*>(.*?)<\/?\s*justification\s*>", annotator_response_text, re.DOTALL | re.IGNORECASE
     )
     if justification_match:
-        parsed_parts["Justification"] = justification_match.group(1).strip()
+        parsed_parts["Justification"]  = justification_match.group(1).strip()
 
     equivalence_judgement_match = re.search(
-        r"<\s*equivalence_judgement\s*>(.*?)<\/?\s*equivalence_judgement\s*>",
-        annotator_response_text,
-        re.DOTALL | re.IGNORECASE,
+        r"<\s*equivalence_judgement\s*>(.*?)<\/?\s*equivalence_judgement\s*>", annotator_response_text, re.DOTALL | re.IGNORECASE
     )
     if equivalence_judgement_match:
-        parsed_parts["Equivalence Judgement"] = equivalence_judgement_match.group(1).strip()
+        parsed_parts["Equivalence Judgement"]  = equivalence_judgement_match.group(1).strip()
 
     return parsed_parts
-
 
 class OmniMATHAnnotator(Annotator):
     """The Omni-MATH autograder."""
@@ -61,7 +55,7 @@ class OmniMATHAnnotator(Annotator):
 
     def __init__(self, auto_client: AutoClient, template_name: Optional[str] = None):
         self._auto_client = auto_client
-        self._template_name = template_name or "helm_omni_math_annotator_v1.0.0"
+        self._template_name = template_name or "helm_omni_math_annotator_template_v1.0.0"
         template_path = files("helm.benchmark.annotation.omni_math").joinpath(f"{self._template_name}.txt")
         with template_path.open("r") as file:
             self._score_template = file.read()
