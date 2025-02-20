@@ -42,7 +42,7 @@ def get_mmlu_pro_spec(subject: str, use_chain_of_thought: str = "true", use_few_
         adapter_spec = AdapterSpec(
             method=ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT,
             max_train_instances=max_train_instance_num,
-            max_tokens=2000,
+            max_tokens=8000,  # original: 4000
             input_prefix="What is the correct answer to this question: ",
             input_suffix="\nChoices:\n",
             output_prefix="",
@@ -66,7 +66,7 @@ def get_mmlu_pro_spec(subject: str, use_chain_of_thought: str = "true", use_few_
         adapter_spec = AdapterSpec(
             method=ADAPT_MULTIPLE_CHOICE_JOINT,
             max_train_instances=max_train_instance_num,
-            max_tokens=2000,
+            max_tokens=8000,  # original: 4000
             input_prefix="What is the correct answer to this question: ",
             input_suffix="\nChoices:\n",
             output_prefix="",
@@ -140,7 +140,7 @@ def get_gpqa_spec(subset: str, use_chain_of_thought: str = "true", use_few_shot:
             adapter_spec = AdapterSpec(
                 method=ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT,
                 max_train_instances=max_train_instance_num,
-                max_tokens=2000,  # original: 1000
+                max_tokens=8000,  # original: 1000
                 input_prefix="What is the correct answer to this question: ",
                 input_suffix="\nChoices:\n",
                 output_prefix="",
@@ -155,7 +155,7 @@ def get_gpqa_spec(subset: str, use_chain_of_thought: str = "true", use_few_shot:
             adapter_spec = AdapterSpec(
                 method=ADAPT_MULTIPLE_CHOICE_JOINT,
                 max_train_instances=max_train_instance_num,
-                max_tokens=2000,  # original: 1000
+                max_tokens=8000,  # original: 1000
                 input_prefix="What is the correct answer to this question: ",
                 input_suffix="\nChoices:\n",
                 output_prefix="",
@@ -189,7 +189,12 @@ def get_ifeval_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.ifeval_scenario.IFEvalScenario")
 
     adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION, input_prefix="", output_prefix="", max_tokens=2000, num_outputs=1, temperature=0.0
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="",
+        max_tokens=8000,  # Unknown number from paper
+        num_outputs=1,
+        temperature=0.0,
     )
 
     metric_specs = get_basic_metric_specs([]) + [
@@ -245,7 +250,7 @@ def get_bigcodebench_spec(version: str) -> RunSpec:
         method=ADAPT_GENERATION,
         input_prefix="",
         output_prefix="",
-        max_tokens=2000,  # original: 1280
+        max_tokens=8000,  # original: 1280
         num_outputs=1,
         temperature=0.0,
         global_prefix="Please provide a self-contained Python script "
@@ -277,7 +282,7 @@ def get_omni_math_spec() -> RunSpec:
         method=ADAPT_GENERATION,
         input_prefix="",
         output_prefix="",
-        max_tokens=2000,
+        max_tokens=8000,  # original: 2048
         num_outputs=1,
         temperature=0.0,
     )
