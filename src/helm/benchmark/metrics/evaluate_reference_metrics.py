@@ -216,8 +216,17 @@ def cider(gold: str, pred: str) -> float:
     return average_score
 
 
-def wer_score(gold: str, pred: str) -> float:
-    # Word Error Rate (WER), which is a common
+def get_tiktoken_tokenizer(tokenizer_name: str):
+    try:
+        import tiktoken
+    except ModuleNotFoundError as e:
+        handle_module_not_found_error(e, ["openai"])
+    tokenizer = tiktoken.get_encoding(tokenizer_name)
+    return tokenizer
+
+
+def ter_score(gold: str, pred: str) -> float:
+    # Token Error Rate based on Word Error Rate (WER), which is a common
     # metric used to evaluate the accuracy of speech recognition systems.
     # The lower the better. The WER might be greater than 1.
     # https://huggingface.co/learn/audio-course/en/chapter5/evaluation#word-error-rate
@@ -226,45 +235,59 @@ def wer_score(gold: str, pred: str) -> float:
     except ModuleNotFoundError as e:
         handle_module_not_found_error(e, ["audiolm"])
 
+    tokenizer = get_tiktoken_tokenizer("cl100k_base")
+
     if not pred:
         return 0
-    gold = normalize_text(gold, should_remove_articles=False)
-    pred = normalize_text(pred, should_remove_articles=False)
-    wer_ret = wer(gold, pred)
+    gold_norm = normalize_text(gold, should_remove_articles=False)
+    pred_norm = normalize_text(pred, should_remove_articles=False)
+
+    gold_tokenized = " ".join([str(item) for item in tokenizer.encode(gold_norm)])
+    pred_tokenized = " ".join([str(item) for item in tokenizer.encode(pred_norm)])
+    wer_ret = wer(gold_tokenized, pred_tokenized)
     return wer_ret
 
 
 def mer_score(gold: str, pred: str) -> float:
-    # Match Error Rate (MER), which is for evaluating the error rate of
+    # Token Match Error rate based on Word Match Error Rate (MER), which is for evaluating the error rate of
     # speech recognition systems. The lower the better.
     try:
         from jiwer import mer
     except ModuleNotFoundError as e:
         handle_module_not_found_error(e, ["audiolm"])
 
+    tokenizer = get_tiktoken_tokenizer("cl100k_base")
+
     if not pred:
         return 0
+    gold_norm = normalize_text(gold, should_remove_articles=False)
+    pred_norm = normalize_text(pred, should_remove_articles=False)
 
-    gold = normalize_text(gold, should_remove_articles=False)
-    pred = normalize_text(pred, should_remove_articles=False)
-    mer_ret = mer(gold, pred)
+    gold_tokenized = " ".join([str(item) for item in tokenizer.encode(gold_norm)])
+    pred_tokenized = " ".join([str(item) for item in tokenizer.encode(pred_norm)])
+    mer_ret = mer(gold_tokenized, pred_tokenized)
     return mer_ret
 
 
-def wip_score(gold: str, pred: str) -> float:
-    # Word information preservation (WIP) for evaluating the preserved information of speech
+def tip_score(gold: str, pred: str) -> float:
+    # Token information preservation based on Word information preservation (WIP)
+    # for evaluating the preserved information of speech
     # recognition systems. The higher the better.
     try:
         from jiwer import wip
     except ModuleNotFoundError as e:
         handle_module_not_found_error(e, ["audiolm"])
 
+    tokenizer = get_tiktoken_tokenizer("cl100k_base")
+
     if not pred:
         return 0
+    gold_norm = normalize_text(gold, should_remove_articles=False)
+    pred_norm = normalize_text(pred, should_remove_articles=False)
 
-    gold = normalize_text(gold, should_remove_articles=False)
-    pred = normalize_text(pred, should_remove_articles=False)
-    wip_ret = wip(gold, pred)
+    gold_tokenized = " ".join([str(item) for item in tokenizer.encode(gold_norm)])
+    pred_tokenized = " ".join([str(item) for item in tokenizer.encode(pred_norm)])
+    wip_ret = wip(gold_tokenized, pred_tokenized)
     return wip_ret
 
 
@@ -278,47 +301,11 @@ def cer_score(gold: str, pred: str) -> float:
 
     if not pred:
         return 0
+    gold_norm = normalize_text(gold, should_remove_articles=False)
+    pred_norm = normalize_text(pred, should_remove_articles=False)
 
-    gold = normalize_text(gold, should_remove_articles=False)
-    pred = normalize_text(pred, should_remove_articles=False)
-    cer_ret = cer(gold, pred)
+    cer_ret = cer(gold_norm, pred_norm)
     return cer_ret
-
-
-def chinese_wer_score(gold: str, pred: str) -> float:
-    try:
-        import jieba
-    except ModuleNotFoundError as e:
-        handle_module_not_found_error(e, ["audiolm"])
-
-    return wer_score(" ".join(jieba.cut(gold)), " ".join(jieba.cut(pred)))
-
-
-def chinese_mer_score(gold: str, pred: str) -> float:
-    try:
-        import jieba
-    except ModuleNotFoundError as e:
-        handle_module_not_found_error(e, ["audiolm"])
-
-    return mer_score(" ".join(jieba.cut(gold)), " ".join(jieba.cut(pred)))
-
-
-def chinese_wip_score(gold: str, pred: str) -> float:
-    try:
-        import jieba
-    except ModuleNotFoundError as e:
-        handle_module_not_found_error(e, ["audiolm"])
-
-    return wip_score(" ".join(jieba.cut(gold)), " ".join(jieba.cut(pred)))
-
-
-def chinese_cer_score(gold: str, pred: str) -> float:
-    try:
-        import jieba
-    except ModuleNotFoundError as e:
-        handle_module_not_found_error(e, ["audiolm"])
-
-    return cer_score(" ".join(jieba.cut(gold)), " ".join(jieba.cut(pred)))
 
 
 def extract_set_from_text(
@@ -471,14 +458,10 @@ def compute_reference_metrics(
         "chinese_rouge_2": get_chinese_rouge_function("rouge2"),
         "cleva_math_result_match": cleva_math_result_match,
         "absolute_value_difference": absolute_value_difference,
-        "wer_score": wer_score,
+        "ter_score": ter_score,
         "mer_score": mer_score,
-        "wip_score": wip_score,
+        "tip_score": tip_score,
         "cer_score": cer_score,
-        "chinese_wer_score": chinese_wer_score,
-        "chinese_mer_score": chinese_mer_score,
-        "chinese_wip_score": chinese_wip_score,
-        "chinese_cer_score": chinese_cer_score,
     }
 
     stats: List[Stat] = []
