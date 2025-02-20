@@ -554,3 +554,52 @@ run_groups:
       who: real speakers
       when: "2019"
       language: English
+
+  - name: ami
+    display_name: AMI Meeting Corpus
+    description: >
+      The AMI Meeting Corpus (Carletta et al. 2005) is a multi-modal data set consisting of 
+      100 hours of meeting recordings. It is being created in the context of a project that 
+      is developing meeting browsing technology. The corpus is being recorded using a wide 
+      range of devices including close-talking and far-field microphones, individual and 
+      room-view video cameras, projection, a whiteboard, and individual pens, all of which 
+      produce output signals that are synchronized with each other.
+
+      The dataset contains the audio, transcriptions for all subsets 
+      ([Carletta et al, 2005](https://link.springer.com/chapter/10.1007/11677482_3)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: wer_score
+      main_split: test
+    taxonomy:
+      task: audio recognition
+      what: audio, transcripts of audio samples from meeting environments 
+      who: real speakers
+      when: "2005"
+      language: English
+
+  - name: librispeech
+    display_name: LibriSpeech
+    description: >
+      The LibriSpeech corpus (Vassil et al. 2015) is derived from audiobooks that are part 
+      of the LibriVox project, and contains 1000 hours of speech sampled at 16 kHz. The 
+      data has separately prepared language-model training data and pre-built language models. 
+      This corpus is one of the most widely-used ASR corpus, which has been extended to many 
+      applicaitons such as robust ASR and multilingual ASR tasks.
+
+      The dataset contains the audio, transcriptions for all subsets 
+      ([Vassil et al. 2015](https://ieeexplore.ieee.org/document/7178964)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: wer_score
+      main_split: test
+    taxonomy:
+      task: audio recognition
+      what: audio, transcripts of audio samples in daily scenarios
+      who: real speakers
+      when: "2015"
+      language: English
