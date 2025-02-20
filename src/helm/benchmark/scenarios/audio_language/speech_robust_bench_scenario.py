@@ -43,16 +43,36 @@ class SpeechRobustBenchScenario(Scenario):
     """
 
     HF_DATASET_NAME = "mshah1/speech_robust_bench"
-    HF_MAPPING_URL = "https://huggingface.co/datasets/PahaII/SRB_instance_key_mapping/resolve/main/srb_instance_keys.json"
+    HF_MAPPING_URL = (
+        "https://huggingface.co/datasets/PahaII/SRB_instance_key_mapping/resolve/main/srb_instance_keys.json"
+    )
 
     # Select four subsets of the dataset for the benchmark
     SUBJECTS_DICT = {
-        "ami_far": {"name": "in-the-wild-AMI", "split": "farfield", "type": "audio/wav", "mapping_key": "srb_aim_field_key2audio"},
-        "ami_near": {"name": "in-the-wild-AMI", "split": "nearfield", "type": "audio/wav", "mapping_key": "srb_aim_field_key2audio"},
-        "librispeech_gnoise": {"name": "librispeech_asr-test.clean_pertEval_500_30", "split": "gnoise.1", "type": "audio/mp3", 
-                               "mapping_key": "srb_librispeech_noises_key2audio"},
-        "librispeech_env_noise": {"name": "librispeech_asr-test.clean_pertEval_500_30", "split": "env_noise_esc50.1", 
-                                  "type": "audio/mp3", "mapping_key": "srb_librispeech_noises_key2audio"},
+        "ami_far": {
+            "name": "in-the-wild-AMI",
+            "split": "farfield",
+            "type": "audio/wav",
+            "mapping_key": "srb_aim_field_key2audio",
+        },
+        "ami_near": {
+            "name": "in-the-wild-AMI",
+            "split": "nearfield",
+            "type": "audio/wav",
+            "mapping_key": "srb_aim_field_key2audio",
+        },
+        "librispeech_gnoise": {
+            "name": "librispeech_asr-test.clean_pertEval_500_30",
+            "split": "gnoise.1",
+            "type": "audio/mp3",
+            "mapping_key": "srb_librispeech_noises_key2audio",
+        },
+        "librispeech_env_noise": {
+            "name": "librispeech_asr-test.clean_pertEval_500_30",
+            "split": "env_noise_esc50.1",
+            "type": "audio/mp3",
+            "mapping_key": "srb_librispeech_noises_key2audio",
+        },
     }
 
     name = "speech_robust_bench"
@@ -81,11 +101,11 @@ class SpeechRobustBenchScenario(Scenario):
         ensure_file_downloaded(source_url=SpeechRobustBenchScenario.HF_MAPPING_URL, target_path=mapping_local_path)
         mapping_keys = json.load(open(mapping_local_path))[subject_mapping][subject_split]
         meta_data = load_dataset(
-                SpeechRobustBenchScenario.HF_DATASET_NAME,
-                name=subject_name,
-                cache_dir=output_path,
-                split=subject_split,
-            )
+            SpeechRobustBenchScenario.HF_DATASET_NAME,
+            name=subject_name,
+            cache_dir=output_path,
+            split=subject_split,
+        )
         for line_num in tqdm(list(mapping_keys.keys())):
             row = meta_data[int(mapping_keys[line_num][0])]
             local_audio_name = f"{self._subject}_{subject_split}_{line_num}.{subject_audio_type}"
