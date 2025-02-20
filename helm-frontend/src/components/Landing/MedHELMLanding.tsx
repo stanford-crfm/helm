@@ -1,33 +1,38 @@
 import MiniLeaderboard from "@/components/MiniLeaderboard";
 import { Link } from "react-router-dom";
+import overview from "@/assets/medhelm/medhelm-overview.png";
 
 export default function MedHELMLanding() {
   return (
     <div className="container mx-auto px-16">
-      <h1 className="text-3xl my-8 font-bold text-center">MedHELM</h1>
+      <h1 className="text-3xl mt-16 my-8 font-bold text-center">MedHELM</h1>
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 text-l">
-          <p className="my-2">
-            With the increasing scale and impact of language models, there has
-            also been interest interest in using language models in the medical
-            domain. However, the capabilities and risks of these models are not
-            well-understood, and there is significant potential for harm in the
-            medical setting.
-          </p>
-          <p className="my-2">
-            To address this, we present the{" "}
-            <strong className="font-bold">MedHELM</strong> leaderboard for
-            evaluation of language models in the medical domain. The MedHELM
-            leaderboard presents evaluations of leading general-purpose language
-            models as well as language models fine-tuned on the medical domain.
-            These models are evaluated on a range of ecologically-valid medical
-            tasks. We hope that this leaderboard encourages further work in
-            evaluating language models on tasks from the medical domain.
-          </p>
-          <div className="flex flex-row justify-center my-4">
-            <Link to="leaderboard" className="px-10 btn rounded-md mx-4">
+          <img
+            src={overview}
+            alt="MedHELM Task Categories"
+            className="mx-auto my-4 block w-3/4"
+            sizes="100vw"
+          />
+          We introduce <strong className="font-bold">MedHELM</strong>, a
+          comprehensive healthcare benchmark to evaluate language models on
+          real-world clinical tasks using real electronic health records.
+          Building on the HELM framework, MedHELM comprises a structured
+          taxonomy with 5 categories, 22 subcategories, and 121 distinct
+          clinical tasks as well as 31 diverse datasets (12 private, 6
+          gated-access, and 13 public), representing a spectrum of healthcare
+          scenarios, from diagnostic decision-making to patient communication,
+          providing a more nuanced and clinically relevant assessment of AI
+          capabilities in healthcare settings. MedHELM establishes a foundation
+          for testing and evaluation of the real-world applicability of language
+          models in healthcare.
+          <div className="flex flex-row justify-center mt-4">
+            <a className="px-10 btn rounded-md mx-4" href="#">
+              Blog Post
+            </a>
+            <a className="px-10 btn rounded-md mx-4" href="#/leaderboard">
               Full Leaderboard
-            </Link>
+            </a>
           </div>
         </div>
         <div
