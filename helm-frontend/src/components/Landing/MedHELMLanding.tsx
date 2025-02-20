@@ -5,7 +5,7 @@ import overview from "@/assets/medhelm/medhelm-overview.png";
 export default function MedHELMLanding() {
   return (
     <div className="container mx-auto px-16">
-      <h1 className="text-3xl mt-16 my-8 font-bold text-center">MedHELM</h1>
+      <h1 className="text-3xl my-8 font-bold text-center">MedHELM</h1>
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 text-l">
           <img
