@@ -1724,7 +1724,7 @@ def get_mimiciv_billing_code_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mimiciv_billing_code_scenario.MIMICIVBillingCodeScenario",
         args={
-            "data_file": "/share/pi/nigam/suhana/medhelm/data/mimic-iv/medical-coding-reproducibility/files/data/mimiciv_icd10/mimiciv_icd10.feather",
+            "data_file": "/share/pi/nigam/data/medhelm/mimiciv_billing_codes/mimiciv_icd10.feather",
         },
     )
     adapter_spec = get_generation_adapter_spec(

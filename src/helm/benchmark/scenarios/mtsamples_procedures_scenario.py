@@ -32,7 +32,9 @@ class MTSamplesProceduresScenario(Scenario):
     RAW_BASE_URL = "https://raw.githubusercontent.com/raulista1997/benchmarkdata/refs/heads/main/mtsample_procedure/"
 
     name = "mtsamples"
-    description = "A dataset that provides a patient note regarding an operation, with the objective to document the procedure."
+    description = (
+        "A dataset that provides a patient note regarding an operation, with the objective to document the procedure."
+    )
     tags = ["medical", "transcription", "plan_generation"]
 
     def fetch_file_list(self) -> List[str]:
@@ -45,7 +47,10 @@ class MTSamplesProceduresScenario(Scenario):
 
         soup = BeautifulSoup(response.text, "html.parser")
         file_links = [
-            link.text for link in soup.find_all("a", {"href": re.compile(r"/raulista1997/benchmarkdata/blob/main/mtsample_procedure/.*\.txt$")})
+            link.text
+            for link in soup.find_all(
+                "a", {"href": re.compile(r"/raulista1997/benchmarkdata/blob/main/mtsample_procedure/.*\.txt$")}
+            )
         ]
         return file_links
 
