@@ -413,13 +413,13 @@ run_groups:
     category: Healthcare Task Categories
     subgroups:
       - medcalc_bench
+      - clear
       - mtsamples_replicate
       - medec
       - ehrshot
       - head_qa
       - medbullets
       - medalign
-      - clear
       - shc_ptbm_med
       - shc_sei_med
 
@@ -430,8 +430,8 @@ run_groups:
     subgroups:
       - dischargeme
       - aci_bench
-      - mimic_rrs
       - mtsamples_procedures
+      - mimic_rrs
       - chw_care_plan
   
   - name: patient_communication
@@ -440,11 +440,11 @@ run_groups:
     category: Healthcare Task Categories
     subgroups:
       - medication_qa
+      - starr_patient_instructions
       - med_dialog
+      - shc_conf_med
       - medi_qa
       - mental_health
-      - starr_patient_instructions
-      - shc_conf_med
   
   - name: medical_research
     display_name: Medical Research Assistance
@@ -453,20 +453,20 @@ run_groups:
     subgroups:
       - pubmed_qa
       - ehr_sql
+      - shc_bmt_med
       - race_based_med
       - n2c2_ct_matching
-      - shc_bmt_med
   
   - name: administration_and_workflow
     display_name: Administration and Workflow
     description: Scenarios for administration and workflow
     category: Healthcare Task Categories
     subgroups:
-      - mimiciv_billing_code
       - shc_gip_med
+      - mimiciv_billing_code
+      - shc_sequoia_med
       - shc_cdi_med
       - shc_ent_med
-      - shc_sequoia_med
 
   - name: medcalc_bench
     display_name: MedCalc-Bench
