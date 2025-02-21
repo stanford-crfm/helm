@@ -479,10 +479,10 @@ run_groups:
       main_name: medcalc_bench_exact_match
       main_split: test
     taxonomy:
-      task: question answering
-      what: "?"
-      who: "?"
-      when: "?"
+      task: Computational reasoning
+      what: "Compute a specific medical value from a patient note"
+      who: "Clinician, Researcher"
+      when: "Any"
       language: English
 
   - name: medalign
@@ -497,10 +497,10 @@ run_groups:
       main_name: BERTScore-F
       main_split: test
     taxonomy:
-      task: question answering
-      what: "?"
-      who: "?"
-      when: "?"
+      task: Text generation
+      what: "Answer questions and follow instructions over longitudinal EHR"
+      who: "Clinician, Researcher"
+      when: "Any"
       language: English
 
   - name: mtsamples_replicate
@@ -515,10 +515,10 @@ run_groups:
       main_name: BERTScore-F
       main_split: test
     taxonomy:
-      task: question answering
-      what: "?"
-      who: "?"
-      when: "?"
+      task: Text generation
+      what: "Generate treatment plans based on clinical notes"
+      who: "Clinician"
+      when: "Post-diagnosis"
       language: English
 
   - name: ehrshot
@@ -532,10 +532,10 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: question answering
-      what: "?"
-      who: "?"
-      when: "?"
+      task: Classification
+      what: "Predict whether a medical event will occur in the future based on EHR codes"
+      who: "Clinician, Insurer"
+      when: "Future prediction"
       language: English
   
   - name: starr_patient_instructions
@@ -549,10 +549,10 @@ run_groups:
       main_name: BERTScore-F
       main_split: test
     taxonomy:
-      task: question answering
-      what: patient instructions
-      who: patient
-      when: post-procedure
+      task: Text generation
+      what: Generate customized post-procedure patient instructions
+      who: Clinician
+      when: Post-procedure
       language: English
     
   - name: clear
@@ -566,10 +566,10 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: classification
-      what: alcohol dependence classification
-      who: patient
-      when: any
+      task: Classification
+      what: Classify alcohol dependence history from patient notes
+      who: Clinician
+      when: Any
       language: English
 
   - name: race_based_med
@@ -583,10 +583,10 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: question answering
-      what: n/a
-      who: n/a
-      when: n/a
+      task: Classification
+      what: Identify race-based bias in LLM-generated medical responses
+      who: Researcher
+      when: Any
       language: English
 
   - name: n2c2_ct_matching
@@ -601,10 +601,10 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: question answering
-      what: "?"
-      who: "?"
-      when: "?"
+      task: Classification
+      what: Classify whether a patient is a valid candidate for a clinical trial based on clinical notes
+      who: Researcher
+      when: Pre-Trial
       language: English
 
   - name: med_dialog
@@ -619,10 +619,10 @@ run_groups:
       main_name: BERTScore-F
       main_split: test
     taxonomy:
-      task: question answering
-      what: "?"
-      who: "?"
-      when: "?"
+      task: Text generation
+      what: Generate summaries of doctor-patient conversations
+      who: Clinician
+      when: Any
       language: English
   
   - name: medi_qa
@@ -636,10 +636,10 @@ run_groups:
       main_name: BERTScore-F
       main_split: test
     taxonomy:
-      task: question answering
-      what: "?"
-      who: "?"
-      when: "?"
+      task: Text generation
+      what: Retrieve and rank answers based on medical question understanding
+      who: Clinician, Medical Student
+      when: Any
       language: English
 
   - name: mental_health
@@ -653,10 +653,10 @@ run_groups:
       main_name: BERTScore-F
       main_split: test
     taxonomy:
-      task: dialogue generation
-      what: counseling responses
-      who: mental health counselors and clients
-      when: "?"
+      task: Text generation
+      what: Generate empathetic counseling responses in mental health conversations
+      who: Counselors, Patients
+      when: Any
       language: English
 
   - name: mimic_rrs
@@ -671,10 +671,10 @@ run_groups:
       main_name: BERTScore-F
       main_split: test
     taxonomy:
-      task: question answering
-      what: "?"
-      who: "?"
-      when: "?"
+      task: Text generation
+      what: Generate radiology report summaries from findings sections
+      who: Radiologist
+      when: Post-imaging
       language: English
   
   - name: mimiciv_billing_code
@@ -688,10 +688,10 @@ run_groups:
       main_name: mimiciv_billing_code_f1
       main_split: test
     taxonomy:
-      task: multi-label classification
-      what: "Predict ICD-10 billing codes from clinical discharge notes."
-      who: "Healthcare providers and medical coders."
-      when: "During or after patient discharge from the hospital."
+      task: Classification
+      what: Predict ICD-10 billing codes from clinical discharge notes
+      who: Hospital Admistrator
+      when: During or after patient discharge
       language: English
       
   - name: dischargeme
@@ -706,10 +706,10 @@ run_groups:
       main_name: BERTScore-F
       main_split: test
     taxonomy:
-      task: question answering
-      what: "?"
-      who: "?"
-      when: "?"
+      task: Text generation
+      what: Generate discharge instructions from hospital notes
+      who: Clinician
+      when: Upon hospital discharge
       language: English
 
   - name: pubmed_qa
@@ -723,10 +723,10 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: question answering
-      what: n/a
-      who: n/a
-      when: n/a
+      task: Question answering
+      what: Answer questions based on PubMed abstracts
+      who: Researcher
+      when: Any
       language: English
 
   - name: medec
@@ -740,10 +740,10 @@ run_groups:
       main_name: medec_error_flag_accuracy
       main_split: test
     taxonomy:
-      task: question answering
-      what: n/a
-      who: n/a
-      when: n/a
+      task: Classification
+      what: Detect and correct errors in medical narratives
+      who: Researcher, Clinician
+      when: Any
       language: English
 
   - name: aci_bench
@@ -757,10 +757,10 @@ run_groups:
       main_name: BERTScore-F
       main_split: test
     taxonomy:
-      task: question answering
-      what: n/a
-      who: n/a
-      when: n/a
+      task: Text generation
+      what: Extract and structure information from patient-doctor conversations
+      who: Clinician
+      when: Any
       language: English
 
   - name: chw_care_plan
@@ -774,10 +774,10 @@ run_groups:
       main_name: BERTScore-F
       main_split: test
     taxonomy:
-      task: question answering
-      what: n/a
-      who: n/a
-      when: n/a
+      task: Text generation
+      what: Convert general text care plans into structured formats
+      who: Clinician, Researcher
+      when: Any
       language: English
 
   - name: ehr_sql
@@ -791,10 +791,10 @@ run_groups:
       main_name: ehr_sql_execution_accuracy
       main_split: test
     taxonomy:
-      task: question answering
-      what: n/a
-      who: n/a
-      when: n/a
+      task: Code generation
+      what: Generate SQL queries from natural language for clinical research
+      who: Researcher
+      when: Any
       language: English
 
   - name: head_qa
@@ -808,10 +808,10 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: question answering
-      what: n/a
-      who: n/a
-      when: n/a
+      task: Question answering
+      what: Medical knowledge testing
+      who: Medical student, Researcher
+      when: Any
       language: English
 
   - name: medbullets
@@ -825,10 +825,10 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: question answering
-      what: n/a
-      who: n/a
-      when: n/a
+      task: Question answering
+      what: Medical knowledge testing
+      who: Medical student, . Researcher
+      when: Any
       language: English
 
   - name: mtsamples_procedures
@@ -842,10 +842,10 @@ run_groups:
       main_name: BERTScore-F
       main_split: test
     taxonomy:
-      task: question answering
-      what: n/a
-      who: n/a
-      when: n/a
+      task: Text generation
+      what: Document and extract information about medical procedures
+      who: Clinician, Researcher
+      when: Post-procedure
       language: English
 
   - name: medication_qa
@@ -859,10 +859,10 @@ run_groups:
       main_name: BERTScore-F
       main_split: test
     taxonomy:
-      task: question answering
-      what: n/a
-      who: n/a
-      when: n/a
+      task: Question answering
+      what: Answer consumer medication-related questions
+      who: Patient, Pharmacist
+      when: Any
       language: English
 
   - name: shc_bmt_med
@@ -877,9 +877,9 @@ run_groups:
       main_split: test
     taxonomy:
       task: question answering
-      what: n/a
-      who: n/a
-      when: n/a
+      what: Answer bone marrow transplant questions
+      who: Researcher
+      when: Any
       language: English
   
   - name: shc_gip_med
@@ -893,10 +893,10 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: question answering
-      what: n/a
-      who: n/a
-      when: n/a
+      task: Classification
+      what: Assess hospice referral appropriateness
+      who: Hospital Admistrator
+      when: End-of-care
       language: English
   
   - name: shc_cdi_med
@@ -910,10 +910,10 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: question answering
-      what: n/a
-      who: n/a
-      when: n/a
+      task: Classification
+      what: Answer verification questions from CDI notes
+      who: Hospital Admistrator
+      when: Any
       language: English
   
   - name: shc_ent_med
@@ -927,10 +927,10 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: question answering
-      what: n/a
-      who: n/a
-      when: n/a
+      task: Classification
+      what: Identify referrals for ENT specialists
+      who: Hospital Admistrator
+      when: Any
       language: English
 
   - name: shc_sequoia_med
@@ -944,10 +944,10 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: question answering
-      what: n/a
-      who: n/a
-      when: n/a
+      task: Classification
+      what: Provide answers on clinic referrals
+      who: Hospital Admistrator
+      when: Pre-referral
       language: English
       
   - name: shc_conf_med
@@ -961,10 +961,10 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: question answering
-      what: n/a
-      who: n/a
-      when: n/a
+      task: Classification
+      what: Identify sensitive health info in adolescent notes
+      who: Clinician
+      when: Any
       language: English
 
   - name: shc_ptbm_med
@@ -978,10 +978,10 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: question answering
-      what: n/a
-      who: n/a
-      when: n/a
+      task: Classification
+      what: Detect ADHD medication side effect monitoring
+      who: Clinician, Researcher
+      when: During Treatment
       language: English
 
   - name: shc_sei_med
@@ -995,8 +995,8 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: question answering
-      what: n/a
-      who: n/a
-      when: n/a
+      task: Classification
+      what: Classify clinician recommendations for ADHD behavior management
+      who: Clinician, Caregiver
+      when: Early Intervention
       language: English
