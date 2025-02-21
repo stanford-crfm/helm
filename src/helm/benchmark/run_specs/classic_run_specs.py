@@ -1346,7 +1346,7 @@ def get_head_qa_run_spec(
             "You are a highly knowledgeable AI assistant specializing in biomedical sciences. Your task is to answer "
             "multiple-choice questions accurately based on the options provided. Each question will relate to biomedical concepts, "
             "and you will be asked to choose the most appropriate answer.\n\n"
-            "Select the correct answer by outputting only the letter corresponding to your choice (A, B, C, D, or E)."
+            "Select the correct answer by outputting only the letter corresponding to your choice (A, B, C, or D)."
         ),
         input_noun="Question",
         output_noun="Answer",
