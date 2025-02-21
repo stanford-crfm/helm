@@ -24,12 +24,12 @@ export default function SEAHELMLanding() {
             >
               AI Singapore
             </a>
-            introduces the SEA-HELM leaderboard. SEA-HELM is an assessment of large
-            language models across various tasks for Southeast Asian languages.
-            The leaderboard evaluates four key multilingual capabilities for
-            language models: performance on natural language understanding
-            (NLU), natural language generation (NLG), natural language reasoning
-            (NLR), and linguistic diagnostics.
+            introduces the SEA-HELM leaderboard. SEA-HELM is an assessment of
+            large language models across various tasks for Southeast Asian
+            languages. The leaderboard evaluates four key multilingual
+            capabilities for language models: performance on natural language
+            understanding (NLU), natural language generation (NLG), natural
+            language reasoning (NLR), and linguistic diagnostics.
           </p>
           <div className="flex flex-row justify-center my-4">
             <Link to="leaderboard" className="px-10 btn rounded-md mx-4">
