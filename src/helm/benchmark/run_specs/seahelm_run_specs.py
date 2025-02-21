@@ -5,9 +5,9 @@ from helm.benchmark.adaptation.common_adapter_specs import (
     get_generation_adapter_spec,
     get_multiple_choice_separate_adapter_spec,
 )
-from helm.benchmark.metrics.bhasa_metrics_specs import (
-    get_bhasa_machine_translation_metric_specs,
-    get_bhasa_qa_metric_specs,
+from helm.benchmark.metrics.seahelm_metrics_specs import (
+    get_seahelm_machine_translation_metric_specs,
+    get_seahelm_qa_metric_specs,
 )
 from helm.benchmark.metrics.common_metric_specs import (
     get_basic_metric_specs,
@@ -17,7 +17,7 @@ from helm.benchmark.metrics.common_metric_specs import (
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
-# BHASA Run Specs
+# SEA-HELM Run Specs
 #   A. Natural Language Understanding
 #   B. Natural Language Generation
 #   C. Natural Language Reasoning
@@ -43,18 +43,18 @@ def get_tydiqa_spec() -> RunSpec:
         max_tokens=256,
     )
 
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bhasa_scenario.TyDiQAScenario")
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.seahelm_scenario.TyDiQAScenario")
 
     return RunSpec(
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_bhasa_qa_metric_specs(
+        metric_specs=get_seahelm_qa_metric_specs(
             args={
                 "language": "id",
             }
         ),
-        groups=["bhasa_nlu", "tydiqa"],
+        groups=["seahelm_nlu", "tydiqa"],
     )
 
 
@@ -84,7 +84,7 @@ def get_xquad_spec(language="th") -> RunSpec:
     )
 
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.bhasa_scenario.XQuADScenario",
+        class_name="helm.benchmark.scenarios.seahelm_scenario.XQuADScenario",
         args={
             "language": language,
         },
@@ -94,12 +94,12 @@ def get_xquad_spec(language="th") -> RunSpec:
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_bhasa_qa_metric_specs(
+        metric_specs=get_seahelm_qa_metric_specs(
             args={
                 "language": language,
             }
         ),
-        groups=["bhasa_nlu", f"xquad_{language}"],
+        groups=["seahelm_nlu", f"xquad_{language}"],
     )
 
 
@@ -116,18 +116,18 @@ def get_indicqa_spec() -> RunSpec:
         max_tokens=256,
     )
 
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bhasa_scenario.IndicQAScenario")
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.seahelm_scenario.IndicQAScenario")
 
     return RunSpec(
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_bhasa_qa_metric_specs(
+        metric_specs=get_seahelm_qa_metric_specs(
             args={
                 "language": "ta",
             }
         ),
-        groups=["bhasa_nlu", "indicqa"],
+        groups=["seahelm_nlu", "indicqa"],
     )
 
 
@@ -146,14 +146,14 @@ def get_nusax_spec() -> RunSpec:
         max_tokens=16,
     )
 
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bhasa_scenario.NusaXScenario")
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.seahelm_scenario.NusaXScenario")
 
     return RunSpec(
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
-        groups=["bhasa_nlu", "nusax"],
+        groups=["seahelm_nlu", "nusax"],
     )
 
 
@@ -171,14 +171,14 @@ def get_uitvsfc_spec() -> RunSpec:
         max_tokens=16,
     )
 
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bhasa_scenario.UITVSFCScenario")
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.seahelm_scenario.UITVSFCScenario")
 
     return RunSpec(
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
-        groups=["bhasa_nlu", "uitvsfc"],
+        groups=["seahelm_nlu", "uitvsfc"],
     )
 
 
@@ -196,14 +196,14 @@ def get_wisesight_spec() -> RunSpec:
         max_tokens=16,
     )
 
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bhasa_scenario.WisesightScenario")
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.seahelm_scenario.WisesightScenario")
 
     return RunSpec(
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
-        groups=["bhasa_nlu", "wisesight"],
+        groups=["seahelm_nlu", "wisesight"],
     )
 
 
@@ -221,14 +221,14 @@ def get_indicsentiment_spec() -> RunSpec:
         max_tokens=16,
     )
 
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bhasa_scenario.IndicSentimentScenario")
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.seahelm_scenario.IndicSentimentScenario")
 
     return RunSpec(
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_classification_metric_specs() + get_basic_metric_specs([]),
-        groups=["bhasa_nlu", "indicsentiment"],
+        groups=["seahelm_nlu", "indicsentiment"],
     )
 
 
@@ -250,14 +250,14 @@ def get_mlhsd_spec() -> RunSpec:
         max_tokens=16,
     )
 
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bhasa_scenario.MLHSDScenario")
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.seahelm_scenario.MLHSDScenario")
 
     return RunSpec(
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
-        groups=["bhasa_nlu", "mlhsd"],
+        groups=["seahelm_nlu", "mlhsd"],
     )
 
 
@@ -278,14 +278,14 @@ def get_vihsd_spec() -> RunSpec:
         max_tokens=16,
     )
 
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bhasa_scenario.ViHSDScenario")
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.seahelm_scenario.ViHSDScenario")
 
     return RunSpec(
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
-        groups=["bhasa_nlu", "vihsd"],
+        groups=["seahelm_nlu", "vihsd"],
     )
 
 
@@ -304,14 +304,14 @@ def get_thaitoxicitytweets_spec() -> RunSpec:
         max_tokens=16,
     )
 
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bhasa_scenario.ThaiToxicityTweetsScenario")
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.seahelm_scenario.ThaiToxicityTweetsScenario")
 
     return RunSpec(
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
-        groups=["bhasa_nlu", "thaitoxicitytweets"],
+        groups=["seahelm_nlu", "thaitoxicitytweets"],
     )
 
 
@@ -378,7 +378,7 @@ def get_flores_spec(source="en", target="id") -> RunSpec:
     )
 
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.bhasa_scenario.FloresScenario",
+        class_name="helm.benchmark.scenarios.seahelm_scenario.FloresScenario",
         args={
             "pair": pair,
         },
@@ -388,8 +388,8 @@ def get_flores_spec(source="en", target="id") -> RunSpec:
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_bhasa_machine_translation_metric_specs(),
-        groups=["bhasa_nlg", f"flores_{pair}"],
+        metric_specs=get_seahelm_machine_translation_metric_specs(),
+        groups=["seahelm_nlg", f"flores_{pair}"],
     )
 
 
@@ -414,14 +414,14 @@ def get_indonli_spec() -> RunSpec:
         max_tokens=2,
     )
 
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bhasa_scenario.IndoNLIScenario")
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.seahelm_scenario.IndoNLIScenario")
 
     return RunSpec(
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
-        groups=["bhasa_nlr", "indonli"],
+        groups=["seahelm_nlr", "indonli"],
     )
 
 
@@ -456,7 +456,7 @@ def get_xnli_spec(language="vi") -> RunSpec:
     )
 
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.bhasa_scenario.XNLIScenario",
+        class_name="helm.benchmark.scenarios.seahelm_scenario.XNLIScenario",
         args={
             "language": language,
         },
@@ -467,7 +467,7 @@ def get_xnli_spec(language="vi") -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
-        groups=["bhasa_nlr", f"xnli_{language}"],
+        groups=["seahelm_nlr", f"xnli_{language}"],
     )
 
 
@@ -487,14 +487,14 @@ def get_indicxnli_spec() -> RunSpec:
         max_tokens=2,
     )
 
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bhasa_scenario.IndicXNLIScenario")
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.seahelm_scenario.IndicXNLIScenario")
 
     return RunSpec(
         name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
-        groups=["bhasa_nlr", "indicxnli"],
+        groups=["seahelm_nlr", "indicxnli"],
     )
 
 
@@ -531,7 +531,7 @@ def get_xcopa_spec(language="id") -> RunSpec:
     )
 
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.bhasa_scenario.XCOPAScenario",
+        class_name="helm.benchmark.scenarios.seahelm_scenario.XCOPAScenario",
         args={
             "language": language,
         },
@@ -542,7 +542,7 @@ def get_xcopa_spec(language="id") -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
-        groups=["bhasa_nlr", f"xcopa_{language}"],
+        groups=["seahelm_nlr", f"xcopa_{language}"],
     )
 
 
@@ -566,7 +566,7 @@ def get_lindsea_syntax_minimal_pairs_spec(language: str = "id", method: str = "m
         )
 
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.bhasa_scenario.LINDSEASyntaxMinimalPairsScenario",
+        class_name="helm.benchmark.scenarios.seahelm_scenario.LINDSEASyntaxMinimalPairsScenario",
         args={
             "method": method,
             "language": language,
@@ -579,7 +579,7 @@ def get_lindsea_syntax_minimal_pairs_spec(language: str = "id", method: str = "m
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
         groups=[
-            "bhasa_linguistic",
+            "seahelm_linguistic",
             f"lindsea_syntax_minimal_pairs_{language}",
             f"lindsea_syntax_minimal_pairs_{method}_{language}",
         ],
@@ -599,7 +599,7 @@ def get_lindsea_pragmatics_presuppositions_spec(language: str = "id", subset: st
     )
 
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.bhasa_scenario.LINDSEAPragmaticsPresuppositionsScenario",
+        class_name="helm.benchmark.scenarios.seahelm_scenario.LINDSEAPragmaticsPresuppositionsScenario",
         args={
             "language": language,
             "subset": subset,
@@ -612,7 +612,7 @@ def get_lindsea_pragmatics_presuppositions_spec(language: str = "id", subset: st
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
         groups=[
-            "bhasa_linguistic",
+            "seahelm_linguistic",
             f"lindsea_pragmatics_presuppositions_{language}",
             f"lindsea_pragmatics_presuppositions_{subset}_{language}",
         ],
@@ -632,7 +632,7 @@ def get_lindsea_pragmatics_scalar_implicatures_spec(language: str = "id", subset
     )
 
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.bhasa_scenario.LINDSEAPragmaticsScalarImplicaturesScenario",
+        class_name="helm.benchmark.scenarios.seahelm_scenario.LINDSEAPragmaticsScalarImplicaturesScenario",
         args={
             "language": language,
             "subset": subset,
@@ -645,7 +645,7 @@ def get_lindsea_pragmatics_scalar_implicatures_spec(language: str = "id", subset
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
         groups=[
-            "bhasa_linguistic",
+            "seahelm_linguistic",
             f"lindsea_pragmatics_scalar_implicatures_{language}",
             f"lindsea_pragmatics_scalar_implicatures_{subset}_{language}",
         ],
