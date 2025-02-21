@@ -111,7 +111,7 @@ class SpeechRobustBenchScenario(Scenario):
             split=subject_split,
         )
         for line_num in tqdm(list(mapping_keys.keys())):
-            row = meta_data[int(mapping_keys[line_num][self._level-1])]
+            row = meta_data[int(mapping_keys[line_num][self._level - 1])]
             local_audio_name = f"{self._subject}_{subject_split}_{line_num}.{subject_audio_type}"
             local_audio_path = os.path.join(audio_save_dir, local_audio_name)
             ensure_audio_file_exists_from_array(local_audio_path, row["audio"]["array"], row["audio"]["sampling_rate"])
