@@ -1,4 +1,4 @@
-window.RELEASE = "v1.5.0";
+window.RELEASE = "v1.9.0";
 window.BENCHMARK_OUTPUT_BASE_URL =
-	"https://nlp.stanford.edu/helm/air-bench/benchmark_output/";
-window.PROJECT_ID = "mmlu-winogrande-afr";
+	"https://storage.googleapis.com/crfm-helm-public/lite/benchmark_output/";
+window.PROJECT_ID = "lite";
