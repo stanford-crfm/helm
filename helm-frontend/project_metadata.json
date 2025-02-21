@@ -66,9 +66,9 @@
 		"releases": ["v1.1.0", "v1.0.0"]
 	},
 	{
-		"title": "Bhasa",
-		"description": "Benchmark across various tasks for Southeast Asian languages.",
-		"id": "bhasa",
+		"title": "SEA-HELM",
+		"description": "Assessment of large language models across various tasks, emphasizing Southeast Asian languages",
+		"id": "seahelm",
 		"releases": ["v1.0.0"]
 	},
 	{

@@ -113,10 +113,10 @@ metric_groups:
 ############################################################
 
 run_groups:
-  - name: bhasa_nlu
-    display_name: BHASA natural language understanding (NLU)
-    description: BHASA natural language understanding (NLU) scenarios
-    category: BHASA scenarios
+  - name: seahelm_nlu
+    display_name: SEA-HELM natural language understanding (NLU)
+    description: SEA-HELM natural language understanding (NLU) scenarios
+    category: SEA-HELM scenarios
     subgroups:
       - tydiqa
       - xquad_vi
@@ -130,10 +130,10 @@ run_groups:
       - vihsd
       - thaitoxicitytweets
 
-  - name: bhasa_nlg
-    display_name: BHASA natural language generation (NLG)
-    description: BHASA natural language generation (NLG) scenarios
-    category: BHASA scenarios
+  - name: seahelm_nlg
+    display_name: SEA-HELM natural language generation (NLG)
+    description: SEA-HELM natural language generation (NLG) scenarios
+    category: SEA-HELM scenarios
     subgroups:
     - flores_id_en
     - flores_vi_en
@@ -144,10 +144,10 @@ run_groups:
     - flores_en_th
     - flores_en_ta
 
-  - name: bhasa_nlr
-    display_name: BHASA natural language reasoning (NLR)
-    description: BHASA natural language reasoning (NLR) scenarios
-    category: BHASA scenarios
+  - name: seahelm_nlr
+    display_name: SEA-HELM natural language reasoning (NLR)
+    description: SEA-HELM natural language reasoning (NLR) scenarios
+    category: SEA-HELM scenarios
     subgroups:
     - indonli
     - xnli_vi
@@ -158,10 +158,10 @@ run_groups:
     - xcopa_th
     - xcopa_ta
 
-  - name: bhasa_lindsea
-    display_name: BHASA Linguistic Diagnostics for Southeast Asian Languages (LINDSEA)
-    description: BHASA Linguistic Diagnostics for Southeast Asian Languages (LINDSEA) scenarios
-    category: BHASA scenarios
+  - name: seahelm_lindsea
+    display_name: SEA-HELM Linguistic Diagnostics for Southeast Asian Languages (LINDSEA)
+    description: SEA-HELM Linguistic Diagnostics for Southeast Asian Languages (LINDSEA) scenarios
+    category: SEA-HELM scenarios
     subgroups:
     - lindsea_syntax_minimal_pairs_id
     - lindsea_pragmatics_presuppositions_id

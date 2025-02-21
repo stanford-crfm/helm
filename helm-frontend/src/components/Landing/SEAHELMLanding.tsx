@@ -2,10 +2,10 @@ import MiniLeaderboard from "@/components/MiniLeaderboard";
 import { Link } from "react-router-dom";
 import aisingapore from "@/assets/logos/aisingapore.png";
 
-export default function BhasaLanding() {
+export default function SEAHELMLanding() {
   return (
     <div className="container mx-auto px-16">
-      <h1 className="text-3xl my-8 font-bold text-center">Bhasa</h1>
+      <h1 className="text-3xl my-8 font-bold text-center">SEA-HELM</h1>
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 text-l">
           <div className="text-center">
@@ -24,7 +24,7 @@ export default function BhasaLanding() {
             >
               AI Singapore
             </a>
-            introduces the Bhasa leaderboard. Bhasa is an assessment of large
+            introduces the SEA-HELM leaderboard. SEA-HELM is an assessment of large
             language models across various tasks for Southeast Asian languages.
             The leaderboard evaluates four key multilingual capabilities for
             language models: performance on natural language understanding
