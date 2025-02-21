@@ -357,10 +357,10 @@ def get_common_voice_15_run_spec(language: str) -> RunSpec:
 
 
 @run_spec_function("speech_robust_bench")
-def get_speech_robust_bench_run_spec(subject: str) -> RunSpec:
+def get_speech_robust_bench_run_spec(subject: str, level: int) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.audio_language.speech_robust_bench_scenario.SpeechRobustBenchScenario",
-        args={"subject": subject},
+        args={"subject": subject, "level": level},
     )
     adapter_spec = _get_generation_adapter_spec(
         instructions=ASR_INSTRUCTIONS,
@@ -369,7 +369,7 @@ def get_speech_robust_bench_run_spec(subject: str) -> RunSpec:
     metric_specs = _get_audio_recognition_metric_specs()
     run_spec_name: str = "speech_robust_bench"
     return RunSpec(
-        name=f"{run_spec_name}:subject={subject}",
+        name=f"{run_spec_name}:subject={subject},level={level}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,

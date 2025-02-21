@@ -74,7 +74,8 @@ class SpeechRobustBenchScenario(Scenario):
             "mapping_key": "srb_librispeech_noises_key2audio",
         },
     }
-
+    # There are 30 different perturbation samples for each LibriSpeech ID
+    PERTURBATION_LEVELS = list(range(1, 31))
     name = "speech_robust_bench"
     description = (
         "Speech recognition for 4 datasets with a wide range of corruptions"
@@ -82,12 +83,15 @@ class SpeechRobustBenchScenario(Scenario):
     )
     tags: List[str] = ["audio", "recognition", "robustness", "multilinguality"]
 
-    def __init__(self, subject: str) -> None:
+    def __init__(self, subject: str, level: int) -> None:
         super().__init__()
 
         self._subject = subject
         if self._subject not in SpeechRobustBenchScenario.SUBJECTS_DICT.keys():
             raise ValueError(f"Invalid subject. Valid subjects are: {SpeechRobustBenchScenario.SUBJECTS_DICT.keys()}")
+        self._level = level
+        if self._level not in SpeechRobustBenchScenario.PERTURBATION_LEVELS:
+            raise ValueError(f"Invalid level. Valid levels are: {SpeechRobustBenchScenario.PERTURBATION_LEVELS}")
 
     def get_instances(self, output_path: str) -> List[Instance]:
         instances: List[Instance] = []
@@ -107,7 +111,7 @@ class SpeechRobustBenchScenario(Scenario):
             split=subject_split,
         )
         for line_num in tqdm(list(mapping_keys.keys())):
-            row = meta_data[int(mapping_keys[line_num][0])]
+            row = meta_data[int(mapping_keys[line_num][self._level-1])]
             local_audio_name = f"{self._subject}_{subject_split}_{line_num}.{subject_audio_type}"
             local_audio_path = os.path.join(audio_save_dir, local_audio_name)
             ensure_audio_file_exists_from_array(local_audio_path, row["audio"]["array"], row["audio"]["sampling_rate"])
