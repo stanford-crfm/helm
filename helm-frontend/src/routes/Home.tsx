@@ -16,6 +16,7 @@ import MedHELMLanding from "@/components/Landing/MedHELMLanding";
 import SafetyLanding from "@/components/Landing/SafetyLanding";
 import CapabilitiesLanding from "@/components/Landing/CapabilitiesLanding";
 import MMLUWinograndeAfrLanding from "@/components/Landing/MMLUWinograndeAfrLanding";
+import SEAHELMLanding from "@/components/Landing/SEAHELMLanding";
 
 export default function Home() {
   // TODO consider a more streamlined way to do this?
@@ -53,6 +54,8 @@ export default function Home() {
     return <CapabilitiesLanding />;
   } else if (window.PROJECT_ID === "mmlu-winogrande-afr") {
     return <MMLUWinograndeAfrLanding />;
+  } else if (window.PROJECT_ID === "sea-helm") {
+    return <SEAHELMLanding />;
   } else if (window.PROJECT_ID === "home") {
     return <HomeLanding />;
   } else {
