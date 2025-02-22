@@ -357,10 +357,10 @@ def get_common_voice_15_run_spec(language: str) -> RunSpec:
 
 
 @run_spec_function("speech_robust_bench")
-def get_speech_robust_bench_run_spec(subject: str) -> RunSpec:
+def get_speech_robust_bench_run_spec(subject: str, level: int) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.audio_language.speech_robust_bench_scenario.SpeechRobustBenchScenario",
-        args={"subject": subject},
+        args={"subject": subject, "level": level},
     )
     adapter_spec = _get_generation_adapter_spec(
         instructions=ASR_INSTRUCTIONS,
@@ -369,7 +369,7 @@ def get_speech_robust_bench_run_spec(subject: str) -> RunSpec:
     metric_specs = _get_audio_recognition_metric_specs()
     run_spec_name: str = "speech_robust_bench"
     return RunSpec(
-        name=f"{run_spec_name}:subject={subject}",
+        name=f"{run_spec_name}:subject={subject},level={level}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -433,6 +433,47 @@ def get_air_bench_chat_run_spec(subject: str) -> RunSpec:
     run_spec_name: str = "air_bench_chat"
     return RunSpec(
         name=f"{run_spec_name}:subject={subject}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("ami")
+def get_ami_run_spec(subject: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.ami_scenario.AMIScenario",
+        args={"subject": subject},
+    )
+    adapter_spec = _get_generation_adapter_spec(
+        instructions=ASR_INSTRUCTIONS,
+        max_tokens=100,
+    )
+    metric_specs = _get_audio_recognition_metric_specs()
+    run_spec_name: str = "ami"
+    return RunSpec(
+        name=f"{run_spec_name}:subject={subject}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("librispeech")
+def get_librispeech_run_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.librispeech_scenario.LibriSpeechScenario",
+    )
+    adapter_spec = _get_generation_adapter_spec(
+        instructions=ASR_INSTRUCTIONS,
+        max_tokens=100,
+    )
+    metric_specs = _get_audio_recognition_metric_specs()
+    run_spec_name: str = "librispeech"
+    return RunSpec(
+        name=f"{run_spec_name}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
