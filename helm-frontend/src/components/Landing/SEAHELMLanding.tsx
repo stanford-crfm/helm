@@ -5,7 +5,9 @@ import aisingapore from "@/assets/logos/aisingapore.png";
 export default function SEAHELMLanding() {
   return (
     <div className="container mx-auto px-16">
-      <h1 className="text-3xl my-8 font-bold text-center">SEA-HELM</h1>
+      <h1 className="text-3xl my-8 font-bold text-center">
+        SEA-HELM: Southeast Asian Holistic Evaluation of Language Models
+      </h1>
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 text-l">
           <div className="text-center">
@@ -17,24 +19,32 @@ export default function SEAHELMLanding() {
               />
             </a>
           </div>
-          <p>
+          With the rapid emergence of novel capabilities in Large Language
+          Models (LLMs), the need for rigorous multilingual and multicultural
+          benchmarks that are integrated has become more pronounced. Though
+          existing LLM benchmarks are capable of evaluating specific
+          capabilities of LLMs in English as well as in various mid- to
+          low-resource languages, including those in the Southeast Asian (SEA)
+          region, a comprehensive and authentic evaluation suite for the SEA
+          languages has not been developed thus far. Here, we present{" "}
+          <strong className="font-bold">SEA-HELM</strong>, a holistic linguistic
+          and cultural LLM evaluation suite that emphasizes SEA languages,
+          comprising five core pillars: (1) NLP Classics, (2) LLM-specifics, (3)
+          SEA Linguistics, (4) SEA Culture, (5) Safety. SEA-HELM currently
+          supports Filipino, Indonesian, Tamil, Thai, and Vietnamese. We also
+          introduce the SEA-HELM leaderboard, which allows users to understand
+          models' multilingual and multicultural performance in a systematic and
+          user-friendly manner.
+          <div className="flex flex-row justify-center mt-4">
             <a
-              href="https://aisingapore.org/"
-              className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+              className="px-10 btn rounded-md mx-4"
+              href="https://arxiv.org/abs/2502.14301"
             >
-              AI Singapore
+              Paper
             </a>
-            introduces the SEA-HELM leaderboard. SEA-HELM is an assessment of
-            large language models across various tasks for Southeast Asian
-            languages. The leaderboard evaluates four key multilingual
-            capabilities for language models: performance on natural language
-            understanding (NLU), natural language generation (NLG), natural
-            language reasoning (NLR), and linguistic diagnostics.
-          </p>
-          <div className="flex flex-row justify-center my-4">
-            <Link to="leaderboard" className="px-10 btn rounded-md mx-4">
+            <a className="px-10 btn rounded-md mx-4" href="#/leaderboard">
               Full Leaderboard
-            </Link>
+            </a>
           </div>
         </div>
         <div
