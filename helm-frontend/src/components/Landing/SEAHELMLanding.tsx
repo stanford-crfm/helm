@@ -1,7 +1,6 @@
 import MiniLeaderboard from "@/components/MiniLeaderboard";
 import { Link } from "react-router-dom";
 import aisingapore from "@/assets/logos/aisingapore.png";
-
 export default function SEAHELMLanding() {
   return (
     <div className="container mx-auto px-16">

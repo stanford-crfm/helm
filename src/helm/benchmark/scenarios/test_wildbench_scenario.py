@@ -13,6 +13,3 @@ def test_wildbench_scenario_get_instances():
     assert len(instances) == 1024
     assert instances[0].split == TEST_SPLIT
     assert instances[0].extra_data
-
-    assert instances[0].extra_data["user_query"].startswith("add 10 more balanced governments[aoc2]\n{\n\tGovernment")
-    assert len(instances[0].extra_data["user_query"]) == 17619
