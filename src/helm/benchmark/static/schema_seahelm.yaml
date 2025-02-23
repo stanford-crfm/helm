@@ -69,15 +69,19 @@ metrics:
   - name: chr_f_plus_plus
     display_name: ChrF++
     description: Character n-gram F-score with word n-gram order (ChrF++) [(Popovic, 2015)](https://aclanthology.org/W15-3049/). Code can be found [here](https://github.com/mjpost/sacrebleu).
+    lower_is_better: false
   - name: squad_exact_match_score
     display_name: SQuAD exact match
     description: SQuAD exact match score [(Rajpurkar, 2016)](https://aclanthology.org/D16-1264). Code can be found [here](https://github.com/allenai/bi-att-flow/blob/master/squad/evaluate-v1.1.py)
+    lower_is_better: false
   - name: squad_f1_score
     display_name: SQuAD macro-averaged F1 score
     description: SQuAD macro-averaged F1 score [(Rajpurkar, 2016)](https://aclanthology.org/D16-1264). Code can be found [here](https://github.com/allenai/bi-att-flow/blob/master/squad/evaluate-v1.1.py)
+    lower_is_better: false
   - name: classification_macro_f1
     display_name: Macro F1 score
     description: Macro F1 score
+    lower_is_better: false
 
 ############################################################
 perturbations: []
