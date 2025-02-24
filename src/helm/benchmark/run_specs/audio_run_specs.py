@@ -205,7 +205,7 @@ def get_mustard_audio_run_spec() -> RunSpec:
 def get_voice_jailbreak_attacks_run_spec(subset: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.audio_language.voice_jailbreak_attacks_scenario."
-                   "VoiceJailbreakAttacksScenario",
+        "VoiceJailbreakAttacksScenario",
         args={"subset": subset},
     )
     adapter_spec = _get_generation_adapter_spec(max_tokens=1024)
