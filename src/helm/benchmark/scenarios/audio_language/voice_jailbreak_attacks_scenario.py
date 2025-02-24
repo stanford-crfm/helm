@@ -7,6 +7,7 @@ from helm.benchmark.scenarios.scenario import (
     Instance,
     Input,
 )
+from helm.common.audio_utils import is_invalid_audio_file
 from helm.common.media_object import MediaObject, MultimediaObject
 
 
@@ -72,6 +73,8 @@ class VoiceJailbreakAttacksScenario(Scenario):
                 continue
 
             audio_path: str = os.path.join(audio_directory_path, file)
+            assert not is_invalid_audio_file(audio_path), f"Invalid audio file: {audio_path}"
+
             input = Input(
                 multimedia_content=MultimediaObject(
                     media_objects=[
