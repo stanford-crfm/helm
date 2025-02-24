@@ -46,7 +46,7 @@ class CLEARScenario(Scenario):
     description = "A dataset for evaluating alcohol dependence history detection from patient notes with yes/no/maybe classifications."
     tags = ["classification", "biomedical"]
 
-    POSSIBLE_ANSWER_CHOICES: List[str] = ["A", "B", "C"]
+    POSSIBLE_ANSWER_CHOICES: List[str] = ["Has a history of alcohol dependence", "Does not have a history of alcohol dependence", "Uncertain"]
 
     def get_instances(self, output_path: str) -> List[Instance]:
         excel_path = "/share/pi/nigam/suhana/medhelm/data/CLEAR/human_labeled/alcohol_dependence.xlsx"
@@ -67,7 +67,7 @@ class CLEARScenario(Scenario):
                 continue
             
             # Map the human label to the multiple-choice option: 1 -> A, 0 -> B, 2 -> C
-            mapped_label = {"1": "A", "0": "B", "2": "C"}.get(label, label)
+            mapped_label = {"1": "Has a history of alcohol dependence", "0": "Does not have a history of alcohol dependence", "2": "Uncertain"}.get(label, label)
 
             # Build the References using the possible answer choices,
             # marking the correct one with the CORRECT_TAG.
@@ -80,9 +80,6 @@ class CLEARScenario(Scenario):
                 "You are a helpful medical assistant. Determine whether the patient has a history of alcohol dependence. Answer 'A', 'B', or 'C'. \n\n"
                 "Original Clinical Note:\n"
                 f"{text}\n\n"
-                "A. Has a history of alcohol dependence\n"
-                "B. Does not have a history of alcohol dependence\n"
-                "C. Uncertain\n\n"
             )
 
             instances.append(

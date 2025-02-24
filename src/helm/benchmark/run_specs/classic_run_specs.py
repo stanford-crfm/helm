@@ -1183,7 +1183,7 @@ def get_clear_spec() -> RunSpec:
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT, 
-        instructions="Answer 'A' for yes, 'B' for no, or 'C' for maybe'",
+        instructions="Answer 'A' for 'Has a history of alcohol dependence', 'B' for 'Does not have a history of alcohol dependence;, or 'C' for 'Uncertain'",
         input_noun=None,
         output_noun="Respond only with 'A', 'B', or 'C'. Do not add any other text, punctuation, or symbols",
         max_train_instances=0,
