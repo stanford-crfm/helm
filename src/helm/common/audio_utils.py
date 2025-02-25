@@ -1,7 +1,8 @@
 from io import BytesIO
-import os
 from typing import Optional
 from filelock import FileLock
+import base64
+import os
 
 import ffmpeg
 import numpy as np
@@ -93,3 +94,18 @@ def extract_audio(video_path: str, output_audio_path: str) -> None:
     except ffmpeg.Error as e:
         hlog(f"Error extracting audio from video: {video_path}: {e.stderr.decode()}")
         raise e
+
+
+def encode_audio_to_base64(file_path: str) -> str:
+    """
+    Encodes an audio file to a Base64 string.
+
+    Args:
+        file_path (str): Path to the audio file.
+
+    Returns:
+        str: Base64-encoded string of the audio file.
+    """
+    assert os.path.exists(file_path), f"Audio file does not exist at path: {file_path}"
+    with open(file_path, "rb") as audio_file:
+        return base64.b64encode(audio_file.read()).decode("utf-8")
