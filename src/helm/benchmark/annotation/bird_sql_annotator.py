@@ -14,14 +14,17 @@ class BirdSQLAnnotator(Annotator):
 
     name = "bird_sql"
 
-    def annotate(self, request_state: RequestState) -> Any:
-        assert request_state.instance.extra_data is not None
-        database_name = request_state.instance.extra_data["db_id"]
+    def get_database_path(self, database_name: str) -> str:
         databases_root_path = os.path.join(
             get_benchmark_output_path(), "scenarios", "bird_sql", "dev", "unzipped_dev_databases", "dev_databases"
         )
-        database_path = os.path.join(databases_root_path, database_name, f"{database_name}.sqlite")
-        conn = sqlite3.connect(database_path)
+        return os.path.join(databases_root_path, database_name, f"{database_name}.sqlite")
+
+    def annotate(self, request_state: RequestState) -> Any:
+        assert request_state.instance.extra_data is not None
+        database_name = request_state.instance.extra_data["db_id"]
+        print(self.get_database_path(database_name))
+        conn = sqlite3.connect(self.get_database_path(database_name))
 
         assert len(request_state.instance.references) == 1
         ground_truth_sql = request_state.instance.references[0].output.text

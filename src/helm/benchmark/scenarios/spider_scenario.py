@@ -75,6 +75,7 @@ class SpiderScenario(Scenario):
             instance = Instance(
                 input=Input(text=combined_prompt),
                 references=[Reference(output=Output(text=gold_sql), tags=[CORRECT_TAG])],
+                extra_data={"db_id": row["db_id"]},
                 split=VALID_SPLIT,
             )
             instances.append(instance)
