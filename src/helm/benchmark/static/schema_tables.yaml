@@ -289,7 +289,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: bleu
+      main_name: rougeL
       main_split: test
     taxonomy:
       task: "?"
@@ -325,7 +325,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: llama_3_1_70b_instruct_cross_provider_template_table2text_single_turn_with_reference
+      main_name: rougeL
       main_split: test
     taxonomy:
       task: "?"
@@ -343,7 +343,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: f1_micro
+      main_name: accuracy
       main_split: test
     taxonomy:
       task: "?"
@@ -414,7 +414,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: f1_micro
+      main_name: accuracy
       main_split: test
     taxonomy:
       task: "?"
