@@ -36,7 +36,11 @@ class StanfordHealthCareDeepSeekClient(OpenAIClient):
         endpoint: Optional[str] = None,
     ):
         super().__init__(
-            tokenizer=tokenizer, tokenizer_name=tokenizer_name, cache_config=cache_config, api_key="unused", openai_model_name="deepseek-chat"
+            tokenizer=tokenizer,
+            tokenizer_name=tokenizer_name,
+            cache_config=cache_config,
+            api_key="unused",
+            openai_model_name="deepseek-chat",
         )
         if not endpoint:
             raise NonRetriableException("Must provide endpoint through credentials.conf")

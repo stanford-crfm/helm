@@ -18,7 +18,7 @@ class StanfordHealthCareClaudeClient(StanfordHealthCareHTTPModelClient):
     stanfordhealthcareApiKey: your-private-key
     ```
     """
-    
+
     def get_request(self, request: Request) -> Dict[str, Any]:
         return {
             "model_id": self.model,
@@ -26,7 +26,4 @@ class StanfordHealthCareClaudeClient(StanfordHealthCareHTTPModelClient):
         }
 
     def parse_response(self, response: Dict[str, Any]) -> List[GeneratedOutput]:
-        return [
-            GeneratedOutput(text=item["text"], logprob=0, tokens=[])
-            for item in response["content"]
-        ]
+        return [GeneratedOutput(text=item["text"], logprob=0, tokens=[]) for item in response["content"]]
