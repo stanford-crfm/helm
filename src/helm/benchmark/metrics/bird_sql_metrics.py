@@ -11,6 +11,8 @@ from helm.benchmark.metrics.statistic import Stat
 class BirdSQLMetric(Metric):
     """Score metrics for Bird-SQL."""
 
+    ANNOTATOR_NAME = "bird_sql"
+
     def evaluate_generation(
         self,
         adapter_spec: AdapterSpec,
@@ -20,7 +22,7 @@ class BirdSQLMetric(Metric):
     ) -> List[Stat]:
         if not request_state.annotations:
             raise Exception("Request state did not have annotations.")
-        predicted_result = request_state.annotations["bird_sql"]["predicted_result"]
-        ground_truth_result = request_state.annotations["bird_sql"]["ground_truth_result"]
+        predicted_result = request_state.annotations[self.ANNOTATOR_NAME]["predicted_result"]
+        ground_truth_result = request_state.annotations[self.ANNOTATOR_NAME]["ground_truth_result"]
         execution_accuracy = int(set(predicted_result) == set(ground_truth_result))
         return [Stat(MetricName("execution_accuracy")).add(execution_accuracy)]

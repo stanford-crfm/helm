@@ -41,10 +41,14 @@ def get_spider_run_spec() -> RunSpec:
         stop_sequences=[],
     )
 
+    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.spider_annotator.SpiderAnnotator")]
+
     return RunSpec(
         name="spider",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs(),
+        annotators=annotator_specs,
+        metric_specs=get_exact_match_metric_specs()
+        + [MetricSpec(class_name="helm.benchmark.metrics.spider_metrics.SpiderMetric")],
         groups=["spider"],
     )
