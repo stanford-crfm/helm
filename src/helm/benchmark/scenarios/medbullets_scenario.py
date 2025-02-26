@@ -1,14 +1,11 @@
-import json
-import logging
 import os
 import csv
 import sys
-from typing import Dict, List
+from typing import List
 
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TEST_SPLIT,
-    TRAIN_SPLIT,
     Input,
     Instance,
     Output,
@@ -18,6 +15,7 @@ from helm.benchmark.scenarios.scenario import (
 from helm.common.general import ensure_file_downloaded
 
 csv.field_size_limit(sys.maxsize)
+
 
 class MedBulletsScenario(Scenario):
     """
@@ -54,18 +52,20 @@ class MedBulletsScenario(Scenario):
     easily evaluate the reasoning of model decisions, a crucial component of supporting doctors in making complex
     medical decisions. To address these challenges, we construct two new datasets: JAMA Clinical Challenge and
     Medbullets. JAMA Clinical Challenge consists of questions based on challenging clinical cases, while Medbullets
-    comprises USMLE Step 2&3 style clinical questions. Both datasets are structured as multiple-choice question-answering
-    tasks, where each question is accompanied by an expert-written explanation. We evaluate four LLMs on the two
-    datasets using various prompts. Experiments demonstrate that our datasets are harder than previous benchmarks.
-    The inconsistency between automatic and human evaluations of model-generated explanations highlights the need
-    to develop new metrics to support future research on explainable medical QA.}}
+    comprises USMLE Step 2&3 style clinical questions. Both datasets are structured as multiple-choice
+    question-answering tasks, where each question is accompanied by an expert-written explanation. We evaluate four
+    LLMs on the two datasets using various prompts. Experiments demonstrate that our datasets are harder than
+    previous benchmarks. The inconsistency between automatic and human evaluations of model-generated explanations
+    highlights the need to develop new metrics to support future research on explainable medical QA.}}
 
     Task:
     Given a clinical question with multiple-choice options, models must identify the correct answer and generate a
     response that includes the reasoning, as described in the expert-written explanation.
     """
 
-    DATASET_DOWNLOAD_BASE_URL = "https://raw.githubusercontent.com/HanjieChen/ChallengeClinicalQA/refs/heads/main/medbullets/"
+    DATASET_DOWNLOAD_BASE_URL = (
+        "https://raw.githubusercontent.com/HanjieChen/ChallengeClinicalQA/refs/heads/main/medbullets/"
+    )
 
     name = "medbullet"
     description = "A USMLE-style medical question dataset with multiple-choice answers and explanations."
@@ -76,7 +76,7 @@ class MedBulletsScenario(Scenario):
 
     def __init__(self):
         super().__init__()
-        #self.splits = {"_op4": TRAIN_SPLIT, "_op5": TEST_SPLIT}
+        # self.splits = {"_op4": TRAIN_SPLIT, "_op5": TEST_SPLIT}
         # limit to zero shot setting for now
         self.splits = {"_op5": TEST_SPLIT}
 

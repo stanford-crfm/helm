@@ -139,9 +139,14 @@ class PubMedQAScenario(Scenario):
             if split == "test":
                 split_file_name: str = f"{split}_set.json"
                 split_path: str = os.path.join(data_path, split_file_name)
+                # ensure_file_downloaded(
+                #     source_url="https://worksheets.codalab.org/rest/bundles/0x531c9c54d8314d289da812af608b86fb/"
+                #     f"contents/blob/{split_file_name}",
+                #     target_path=split_path,
+                #     unpack=False,
+                # )
                 ensure_file_downloaded(
-                    source_url="https://worksheets.codalab.org/rest/bundles/0x531c9c54d8314d289da812af608b86fb/"
-                    f"contents/blob/{split_file_name}",
+                    source_url="https://raw.githubusercontent.com/pubmedqa/pubmedqa/refs/heads/master/data/ori_pqal.json",
                     target_path=split_path,
                     unpack=False,
                 )
