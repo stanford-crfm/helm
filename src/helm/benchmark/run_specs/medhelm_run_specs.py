@@ -96,7 +96,12 @@ def get_mtsamples_spec() -> RunSpec:
         stop_sequences=[],
     )
 
-    metric_args = {"task": "mtsamples_replicate", "device": get_torch_device_name()}
+    metric_args = {
+        "task": "mtsamples_replicate",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
 
     return RunSpec(
         name="mtsamples_replicate",
@@ -315,7 +320,12 @@ def get_medalign_spec(max_length: int = 128000) -> RunSpec:
         stop_sequences=[],
         max_train_instances=0,
     )
-    metric_args = {"task": "medalign", "device": get_torch_device_name()}
+    metric_args = {
+        "task": "medalign",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
     return RunSpec(
         name="medalign",
         scenario_spec=scenario_spec,
@@ -382,7 +392,12 @@ def get_dischargeme_spec() -> RunSpec:
         stop_sequences=[],
         max_train_instances=0,
     )
-    metric_args = {"task": "dischargeme", "device": get_torch_device_name()}
+    metric_args = {
+        "task": "dischargeme",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
     return RunSpec(
         name="dischargeme",
         scenario_spec=scenario_spec,
@@ -423,7 +438,12 @@ def get_aci_bench_run_spec() -> RunSpec:
     )
 
     # Define the metrics
-    metric_args = {"task": "aci_bench", "device": get_torch_device_name()}
+    metric_args = {
+        "task": "aci_bench",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
 
     # Return the RunSpec
     return RunSpec(
@@ -450,7 +470,12 @@ def get_mtsamples_procedures_spec() -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
-    metric_args = {"task": "mtsamples_procedures", "device": get_torch_device_name()}
+    metric_args = {
+        "task": "mtsamples_procedures",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
 
     return RunSpec(
         name="mtsamples_procedures",
@@ -478,7 +503,12 @@ def get_mimic_rrs_spec() -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
-    metric_args = {"task": "mimic_rrs", "device": get_torch_device_name()}
+    metric_args = {
+        "task": "mimic_rrs",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
     return RunSpec(
         name="mimic_rrs",
         scenario_spec=scenario_spec,
@@ -514,7 +544,12 @@ def get_chw_care_plan_run_spec() -> RunSpec:
     )
 
     # Define the metrics
-    metric_args = {"task": "chw_care_plan", "device": get_torch_device_name()}
+    metric_args = {
+        "task": "chw_care_plan",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
 
     # Return the RunSpec
     return RunSpec(
@@ -539,7 +574,12 @@ def get_medication_qa_spec() -> RunSpec:
         stop_sequences=[],
     )
 
-    metric_args = {"task": "medication_qa", "device": get_torch_device_name()}
+    metric_args = {
+        "task": "medication_qa",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
     return RunSpec(
         name="medication_qa",
         scenario_spec=scenario_spec,
@@ -572,7 +612,12 @@ def get_starr_patient_instructions_run_spec() -> RunSpec:
         stop_sequences=[],
     )
 
-    metric_args = {"task": "starr_patient_instructions", "device": get_torch_device_name()}
+    metric_args = {
+        "task": "starr_patient_instructions",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
     metric_specs = get_summarization_metric_specs(metric_args) + get_basic_metric_specs([])
 
     return RunSpec(
@@ -597,7 +642,12 @@ def get_med_dialog_spec(subset: str) -> RunSpec:
         max_tokens=80,
     )
 
-    metric_args = {"task": "med_dialog", "device": get_torch_device_name()}
+    metric_args = {
+        "task": "med_dialog",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
     return RunSpec(
         name=f"med_dialog,subset={subset}",
         scenario_spec=scenario_spec,
@@ -639,7 +689,12 @@ def get_medi_qa_spec() -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
-    metric_args = {"task": "medi_qa", "device": get_torch_device_name()}
+    metric_args = {
+        "task": "medi_qa",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
     return RunSpec(
         name="medi_qa",
         scenario_spec=scenario_spec,
@@ -668,7 +723,12 @@ def get_mental_health_spec() -> RunSpec:
         max_tokens=512,
     )
 
-    metric_args = {"task": "mental_health", "device": get_torch_device_name()}
+    metric_args = {
+        "task": "mental_health",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
 
     return RunSpec(
         name="mental_health",
