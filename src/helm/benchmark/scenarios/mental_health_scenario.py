@@ -1,22 +1,21 @@
 import pandas as pd
-from typing import Dict, List
-import os
+from typing import List
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
     Reference,
-    TRAIN_SPLIT,
     TEST_SPLIT,
     CORRECT_TAG,
     PassageQuestionInput,
-    Output
+    Output,
 )
+
 
 class MentalHealthScenario(Scenario):
     """
     This scenario evaluates language models' ability to generate appropriate counseling responses
     in mental health conversations. The dataset contains counseling dialogues covering
-    various topics including workplace issues, anxiety, suicidal thoughts, relationship 
+    various topics including workplace issues, anxiety, suicidal thoughts, relationship
     problems, and more.
 
     Each dialogue consists of interactions between a counselor and a client, where the counselor
@@ -49,7 +48,8 @@ class MentalHealthScenario(Scenario):
     """
 
     name = "mental_health"
-    description = "A dataset containing a counselor and mental health patient conversation, where the objective is to generate an empathetic counselor response."
+    description = "A dataset containing a counselor and mental health patient conversation, where the objective is to \
+                    generate an empathetic counselor response."
     tags = ["dialogue", "counseling", "mental_health", "empathy", "healthcare"]
 
     def __init__(self):
@@ -72,7 +72,7 @@ class MentalHealthScenario(Scenario):
             List[Instance]: List of processed instances ready for evaluation
         """
         instances: List[Instance] = []
-        
+
         for _, row in data.iterrows():
             # Format input with clear section breaks and instructions
             input_text = (
@@ -83,25 +83,22 @@ class MentalHealthScenario(Scenario):
             )
 
             # Create input with empty passage since all context is in question
-            prompt = PassageQuestionInput(
-                passage="",
-                question=input_text
-            )
-            
+            prompt = PassageQuestionInput(passage="", question=input_text)
+
             # Create instance with gold standard response
             instance = Instance(
                 input=prompt,
-                references=[Reference(Output(text=row['gold_counselor_response']), tags=[CORRECT_TAG])],
-                split=TEST_SPLIT
+                references=[Reference(Output(text=row["gold_counselor_response"]), tags=[CORRECT_TAG])],
+                split=TEST_SPLIT,
             )
             instances.append(instance)
-        
+
         return instances
 
     def get_instances(self, output_path: str) -> List[Instance]:
         """
         Load and process the mental health dialogue dataset.
-        
+
         Args:
             output_path (str): Path for any cached or intermediate files
 
@@ -111,8 +108,8 @@ class MentalHealthScenario(Scenario):
         # Load the processed dialogue data
         data_path = "/share/pi/nigam/data/medhelm/mental_health/processed_dialogues.csv"
         dialogue_data = pd.read_csv(data_path)
-        
+
         # Process into instances
         instances = self.process_dialogue_data(dialogue_data)
-        
+
         return instances

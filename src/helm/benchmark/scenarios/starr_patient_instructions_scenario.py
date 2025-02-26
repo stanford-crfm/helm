@@ -7,8 +7,6 @@ from helm.benchmark.scenarios.scenario import (
     Input,
     Scenario,
     Instance,
-    TRAIN_SPLIT,
-    VALID_SPLIT,
     TEST_SPLIT,
     CORRECT_TAG,
     Reference,
@@ -21,23 +19,23 @@ class StarrPatientInstructionsScenario(Scenario):
     Starr Patient Instructions is a dataset created from STARR-OMOP data, containing after-visit instructions
     for outpatient surgeries/procedures. Each example corresponds to one surgery or procedure case (only including
     outpatient or observation/overnight cases with discharge within 24 hours) and includes the following fields:
-    
+
       - Diagnosis: Why the patient needs the surgery/procedure.
       - ActualProcedure: The surgery/procedure name.
       - HistoryPhysicalNoteText: The History & Physical note written by the surgeon.
       - OperativeNoteText: The report describing what was done during the surgery/procedure.
       - DischargeInstructionNoteText: The specific after-surgery care instructions given to the patient.
-      
+
     The task is to generate personalized post-procedure patient instructions based on the provided case details.
-    
+
     Sample Synthetic Prompt:
         Given the following case details, generate personalized after-surgery care instructions.
-        
+
         Diagnosis: [diagnosis text]
         Procedure: [actual procedure text]
         History & Physical: [H&P note text]
         Operative Report: [operative note text]
-        
+
         Patient Instructions:
     """
 
@@ -68,7 +66,9 @@ class StarrPatientInstructionsScenario(Scenario):
                 discharge_instruction = row.get("DischargeInstructionNoteText", "").strip()
 
                 # Skip the instance if any required field is missing.
-                if not (diagnosis and actual_procedure and history_physical and operative_note and discharge_instruction):
+                if not (
+                    diagnosis and actual_procedure and history_physical and operative_note and discharge_instruction
+                ):
                     continue
 
                 # Construct the input prompt by concatenating the fields.

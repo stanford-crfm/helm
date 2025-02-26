@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-import numpy as np
 from typing import List
 
 from helm.common.general import ensure_directory_exists
@@ -14,10 +13,13 @@ from helm.benchmark.scenarios.scenario import (
     Output,
 )
 
+
 def create_prompt_text(clinical_note):
     # Create a prompt for the model to generate a care plan based on the clinical note
     prompt = f"""
-You are provided with a clinical note regarding a physician-patient interaction. Your task is to extract specific information based solely on the content provided. Do not hallucinate or infer details that are not explicitly stated in the text. Any information you include must be directly entailed by the text.
+You are provided with a clinical note regarding a physician-patient interaction. Your task is to \
+extract specific information based solely on the content provided. Do not hallucinate or infer details \
+that are not explicitly stated in the text. Any information you include must be directly entailed by the text.
 
 Instructions:
 
@@ -48,7 +50,8 @@ Timing: When do you experience the symptoms? What times of day? [ENTER TIMING IN
 
 Related Symptoms: Are there any other symptoms related to the main complaint? [ENTER RELATED SYMPTOMS INFORMATION]
 
-Ensure your responses are concise, accurate, and entirely supported by the provided text. Do not introduce external knowledge or assumptions.
+Ensure your responses are concise, accurate, and entirely supported by the provided text. \
+Do not introduce external knowledge or assumptions.
 
 Clinical Note:
 {clinical_note}
@@ -65,7 +68,8 @@ class CHWCarePlanScenario(Scenario):
     """
 
     name = "chw_care_plan"
-    description = "A dataset containing free form text of a clinical health worker care plan, with the associated goal being to restructure that text into a given format."
+    description = "A dataset containing free form text of a clinical health worker care plan, with the \
+    associated goal being to restructure that text into a given format."
     tags = ["question_answering", "biomedical"]
 
     def __init__(self):
@@ -74,14 +78,14 @@ class CHWCarePlanScenario(Scenario):
         """
         super().__init__()
         self.data_file = "/share/pi/nigam/datasets/CHW_Dataset.csv"
-        
+
     def get_instances(self, output_path: str) -> List[Instance]:
         ensure_directory_exists(os.path.dirname(self.data_file))
-        
+
         df = pd.read_csv(self.data_file)  # columns: ["text", "target", ...]
 
         instances: List[Instance] = []
-        
+
         # Use the entire dataset as one split (TEST_SPLIT)
         for idx, row in df.iterrows():
             note_text: str = row["MO Note"]
@@ -94,13 +98,8 @@ class CHWCarePlanScenario(Scenario):
             # Create one Instance per patient
             instance = Instance(
                 input=Input(text=prompt_text),
-                references=[
-                    Reference(
-                        Output(text=note_text),
-                        tags=[CORRECT_TAG]
-                    )
-                ],
-                split=TEST_SPLIT
+                references=[Reference(Output(text=note_text), tags=[CORRECT_TAG])],
+                split=TEST_SPLIT,
             )
             instances.append(instance)
         return instances

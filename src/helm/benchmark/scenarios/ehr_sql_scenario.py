@@ -1,7 +1,6 @@
 import os
 import json
-import requests
-from typing import List, Dict
+from typing import List
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TRAIN_SPLIT,
@@ -27,7 +26,9 @@ class EhrSqlScenario(Scenario):
 
     BASE_URL: str = "https://raw.githubusercontent.com/glee4810/EHRSQL/refs/heads/main/dataset/ehrsql/eicu"
     DB_URL: str = "https://raw.githubusercontent.com/raulista1997/benchmarkdata/main/eicu.sqlite"
-    SQL_SCHEMA_URL: str = "https://raw.githubusercontent.com/glee4810/EHRSQL/refs/heads/main/dataset/ehrsql/eicu/eicu.sql"
+    SQL_SCHEMA_URL: str = (
+        "https://raw.githubusercontent.com/glee4810/EHRSQL/refs/heads/main/dataset/ehrsql/eicu/eicu.sql"
+    )
 
     name = "ehr_sql"
     description = "Given a natural language instruction, generate an SQL query that would be used in clinical research."
@@ -85,7 +86,8 @@ class EhrSqlScenario(Scenario):
             for entry in raw_data:
                 if "question" in entry and "query" in entry:
                     is_impossible = entry.get("is_impossible", False)
-                    input_text = f"-- Database Schema:\n{schema_prompt}\n\n-- Question:\n{entry['question']}\n\n -- Is Impossible: {is_impossible}"
+                    input_text = f"-- Database Schema:\n{schema_prompt}\n\n-- \
+                    Question:\n{entry['question']}\n\n -- Is Impossible: {is_impossible}"
 
                     instance = Instance(
                         input=Input(text=input_text),

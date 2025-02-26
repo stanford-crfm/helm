@@ -43,7 +43,7 @@ class ACIBenchScenario(Scenario):
     title = {Aci-bench: a Novel Ambient Clinical Intelligence Dataset for Benchmarking Automatic Visit Note Generation},
     journal = {Nature Scientific Data},
     year = {2023},
-    abstract = {Recent immense breakthroughs in generative models such as in GPT4 have precipitated re-imagined ubiquitous
+    abstract = {Recent immense breakthroughs in generative models have precipitated re-imagined ubiquitous
     usage of these models in all applications. One area that can benefit by improvements in artificial intelligence (AI)
     is healthcare. The note generation task from doctor-patient encounters, and its associated electronic medical record
     documentation, is one of the most arduous time-consuming tasks for physicians. It is also a natural prime potential
@@ -51,7 +51,7 @@ class ACIBenchScenario(Scenario):
     Whether studying model weaknesses or developing new evaluation metrics, shared open datasets are an imperative part
     of understanding the current state-of-the-art. Unfortunately as clinic encounter conversations are not routinely
     recorded and are difficult to ethically share due to patient confidentiality, there are no sufficiently large clinic
-    dialogue-note datasets to benchmark this task. Here we present the Ambient Clinical Intelligence Benchmark (aci-bench)
+    dialogue-note datasets to benchmark this task. Here we present the Ambient Clinical Intelligence Benchmark
     corpus, the largest dataset to date tackling the problem of AI-assisted note generation from visit dialogue. We also
     present the benchmark performances of several common state-of-the-art approaches.}}
 
@@ -59,11 +59,17 @@ class ACIBenchScenario(Scenario):
     Given a doctor-patient dialogue, models must generate a clinical note that summarizes the conversation,
     focusing on the chief complaint, history of present illness, and other relevant clinical information.
     """
-    TRAIN_URL = "https://raw.githubusercontent.com/wyim/aci-bench/refs/heads/main/data/challenge_data_json/train_full.json"
+
+    TRAIN_URL = (
+        "https://raw.githubusercontent.com/wyim/aci-bench/refs/heads/main/data/challenge_data_json/train_full.json"
+    )
     TEST_URLS = [
-        "https://raw.githubusercontent.com/wyim/aci-bench/refs/heads/main/data/challenge_data_json/clinicalnlp_taskB_test1_full.json",
-        "https://raw.githubusercontent.com/wyim/aci-bench/refs/heads/main/data/challenge_data_json/clef_taskC_test3_full.json",
-        "https://raw.githubusercontent.com/wyim/aci-bench/refs/heads/main/data/challenge_data_json/clinicalnlp_taskC_test2_full.json",
+        "https://raw.githubusercontent.com/wyim/aci-bench/refs/heads/main/data/"
+        "challenge_data_json/clinicalnlp_taskB_test1_full.json",
+        "https://raw.githubusercontent.com/wyim/aci-bench/refs/heads/main/data/"
+        "challenge_data_json/clef_taskC_test3_full.json",
+        "https://raw.githubusercontent.com/wyim/aci-bench/refs/heads/main/data/"
+        "challenge_data_json/clinicalnlp_taskC_test2_full.json",
     ]
 
     name = "aci_bench"
