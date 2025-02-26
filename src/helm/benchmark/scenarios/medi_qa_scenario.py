@@ -6,49 +6,59 @@ from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
     Reference,
-    TRAIN_SPLIT, VALID_SPLIT,
-    TEST_SPLIT, CORRECT_TAG,
+    TEST_SPLIT,
+    CORRECT_TAG,
     Input,
-    Output
+    Output,
 )
 
 
 class MediQAScenario(Scenario):
     """
-    MEDIQA-QA is a dataset designed to benchmark large language models (LLMs) on medical question answering (QA) tasks.
-    Each instance in the dataset includes a medical question, a set of candidate answers, relevance annotations for ranking, 
-    and additional context to evaluate understanding and retrieval capabilities in a healthcare setting.
+    MEDIQA-QA is a dataset designed to benchmark large language models (LLMs) on medical
+    question answering (QA) tasks.
+    Each instance in the dataset includes a medical question, a set of candidate answers,
+    relevance annotations for ranking, and additional context to evaluate understanding
+    and retrieval capabilities in a healthcare setting.
 
-    The dataset encompasses diverse question types, including consumer health queries and clinical questions, making it suitable 
-    for assessing LLMs' ability to answer consumer healthcare questions.
+    The dataset encompasses diverse question types, including consumer health queries
+    and clinical questions, making it suitable for assessing LLMs' ability to answer
+    consumer healthcare questions.
 
-    This dataset comprises two training sets of 104 instances each, a validation set of 25 instances, and a testing set of 150 instances.
+    This dataset comprises two training sets of 104 instances each, a validation set
+    of 25 instances, and a testing set of 150 instances.
 
     Dataset: https://huggingface.co/datasets/bigbio/mediqa_qa
-    Paper: https://aclanthology.org/W19-5039/#:~:text=MEDIQA%202019%20includes%20three%20tasks,78.3%25%20in%20the%20QA%20task.
-    
+    Paper: https://aclanthology.org/W19-5039/
+
     Sample Prompt:
         Answer the following consumer health question.
-                
-        Question: Noonan syndrome. What are the references with noonan syndrome and polycystic renal disease?
+
+        Question: Noonan syndrome. What are the references with noonan syndrome
+        and polycystic renal disease?
         Answer:
-    
-    @inproceedings{MEDIQA2019, 
-        author    = {Asma {Ben Abacha} and Chaitanya Shivade and Dina Demner{-}Fushman},  
-        title     = {Overview of the MEDIQA 2019 Shared Task on Textual Inference, Question Entailment and Question Answering}, 
+
+    @inproceedings{MEDIQA2019,
+        author    = {Asma {Ben Abacha} and Chaitanya Shivade and Dina Demner{-}Fushman},
+        title     = {Overview of the MEDIQA 2019 Shared Task on Textual Inference,
+                     Question Entailment and Question Answering},
         booktitle = {ACL-BioNLP 2019},
         year      = {2019}
     }
     """
 
     name = "medi_qa"
-    description = "A dataset including a medical question, a set of candidate answers, relevance annotations for ranking, and additional context to evaluate understanding and retrieval capabilities in a healthcare setting."
+    description = (
+        "A dataset including a medical question, a set of candidate answers,"
+        "relevance annotations for ranking, and additional context to evaluate understanding"
+        "and retrieval capabilities in a healthcare setting."
+    )
     tags = ["knowledge", "biomedical"]
 
     def __init__(self):
         super().__init__()
-    
-    def _get_highest_ranked_answer(self, answers: List[Dict[str, str]]) -> str:
+
+    def _get_highest_ranked_answer(self, answers: List[Dict[str, Dict[str, str]]]) -> str:
         best_answer: str = ""
         for answer in answers:
             if answer["Answer"]["ReferenceRank"] != 1:
@@ -56,7 +66,7 @@ class MediQAScenario(Scenario):
             best_answer = answer["Answer"]["AnswerText"]
             break
         return best_answer
-    
+
     def process_csv(self, data, split: str) -> List[Instance]:
         instances: List[Instance] = []
         hlog(f"Processing data for {split} split")
@@ -66,7 +76,7 @@ class MediQAScenario(Scenario):
             row = row["QUESTION"]
             question = row["QuestionText"]
             ground_truth_answer = self._get_highest_ranked_answer(row["AnswerList"])
-            id = row['QID']
+            id = row["QID"]
             counter += 1
             total_tokens += len(ground_truth_answer.split())
             instances.append(
@@ -74,7 +84,7 @@ class MediQAScenario(Scenario):
                     input=Input(question),
                     references=[Reference(Output(ground_truth_answer), tags=[CORRECT_TAG])],
                     split=split,
-                    id=id
+                    id=id,
                 )
             )
         return instances
@@ -85,10 +95,10 @@ class MediQAScenario(Scenario):
 
         # Process all the instances
         instances: List[Instance] = []
-        # Limit to zero shot setting 
+        # Limit to zero shot setting
         splits: Dict[str, str] = {
-            #"train_live_qa_med": TRAIN_SPLIT,
-            #"validation": VALID_SPLIT,
+            # "train_live_qa_med": TRAIN_SPLIT,
+            # "validation": VALID_SPLIT,
             "test": TEST_SPLIT,
         }
         for hf_split, split in splits.items():

@@ -59,6 +59,13 @@ model_deployments:
     max_sequence_length: 8192
     client_spec:
       class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+  
+  - name: stanfordhealthcare/deepseek-r1
+    model_name: deepseek-ai/deepseek-r1
+    tokenizer_name: deepseek-ai/deepseek-r1
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_deepseek_client.StanfordHealthCareDeepSeekClient"
 
   - name: stanfordhealthcare/llama-3.3-70b-instruct
     model_name: meta/llama-3.3-70b-instruct

@@ -19,7 +19,7 @@ class StanfordHealthCareSHCOpenAIClient(AzureOpenAIClient):
     """
 
     API_VERSION = "2024-08-01-preview"
- 
+
     def __init__(
         self,
         tokenizer: Tokenizer,
@@ -40,4 +40,3 @@ class StanfordHealthCareSHCOpenAIClient(AzureOpenAIClient):
             api_version=StanfordHealthCareSHCOpenAIClient.API_VERSION,
             default_headers=default_headers,
         )
-

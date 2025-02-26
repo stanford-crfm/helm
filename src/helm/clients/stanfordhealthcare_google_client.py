@@ -18,7 +18,7 @@ class StanfordHealthCareGoogleClient(StanfordHealthCareHTTPModelClient):
     stanfordhealthcareApiKey: your-private-key
     ```
     """
-    
+
     def get_request(self, request: Request) -> Dict[str, Any]:
         return {
             "contents": {

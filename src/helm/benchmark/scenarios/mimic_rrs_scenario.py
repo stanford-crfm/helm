@@ -6,8 +6,6 @@ from helm.benchmark.scenarios.scenario import (
     Input,
     Scenario,
     Instance,
-    TRAIN_SPLIT,
-    VALID_SPLIT,
     TEST_SPLIT,
     CORRECT_TAG,
     Reference,
@@ -17,23 +15,26 @@ from helm.benchmark.scenarios.scenario import (
 
 class MIMICRRSScenario(Scenario):
     """
-    MIMIC-RRS is a biomedical question answering (QA) dataset collected from MIMIC-III and MIMIC-CXR radiology reports.
-    In this scenario, we only consider the radiology reports from MIMIC-III. In total, the dataset contains 73,259 reports.
-    The splits are provided by the dataset itself. 
+    MIMIC-RRS is a biomedical question answering (QA) dataset collected from MIMIC-III and MIMIC-CXR
+    radiology reports.
+    In this scenario, we only consider the radiology reports from MIMIC-III.
+    In total, the dataset contains 73,259 reports.
+    The splits are provided by the dataset itself.
 
     Sample Synthetic Prompt:
         Generate the impressions of a radiology report based on its findings.
-                
+
         Findings:
         The heart is normal in size. The lungs are clear.
-        
+
         Impressions:
 
     @inproceedings{Chen_2023,
         title={Toward Expanding the Scope of Radiology Report Summarization to Multiple Anatomies and Modalities},
         url={http://dx.doi.org/10.18653/v1/2023.acl-short.41},
         DOI={10.18653/v1/2023.acl-short.41},
-        booktitle={Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 2: Short Papers)},
+        booktitle={Proceedings of the 61st Annual Meeting of the Association
+                   for Computational Linguistics (Volume 2: Short Papers)},
         publisher={Association for Computational Linguistics},
         author={Chen, Zhihong and Varma, Maya and Wan, Xiang and Langlotz, Curtis and Delbrouck, Jean-Benoit},
         year={2023},
@@ -42,7 +43,10 @@ class MIMICRRSScenario(Scenario):
     """
 
     name = "mimic_rrs"
-    description = "A dataset containing radiology reports with findings sections from MIMIC-III paired with their corresponding impression sections, used for generating radiology report summaries."
+    description = (
+        "A dataset containing radiology reports with findings sections from MIMIC-III paired with"
+        " their corresponding impression sections, used for generating radiology report summaries."
+    )
     tags = ["question_answering", "biomedical"]
 
     def get_instances(self, output_path: str) -> List[Instance]:
@@ -52,11 +56,11 @@ class MIMICRRSScenario(Scenario):
         instances: List[Instance] = []
         # Limit to zero shot setting for now
         splits: Dict[str, str] = {
-            #"train": TRAIN_SPLIT,
-            #"validate": VALID_SPLIT,
+            # "train": TRAIN_SPLIT,
+            # "validate": VALID_SPLIT,
             "test": TEST_SPLIT,
         }
-        
+
         for data_split, split in splits.items():
             split_findings_name: str = f"{data_split}.findings.tok"
             split_impressions_name: str = f"{data_split}.impression.tok"
@@ -75,12 +79,11 @@ class MIMICRRSScenario(Scenario):
                         split=split,
                     )
                 )
-                
+
         return instances
 
-    
     def read_file(self, file_path: str) -> List[str]:
-        with open(file_path, 'r') as file:
+        with open(file_path, "r") as file:
             lines = file.readlines()
         lines = [line.strip() for line in lines]
         return lines

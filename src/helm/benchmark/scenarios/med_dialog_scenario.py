@@ -90,9 +90,7 @@ class MedDialogScenario(Scenario):
     """
 
     name = "med_dialog"
-    description = (
-        "A collection of doctor-patient conversations with corresponding summaries."
-    )
+    description = "A collection of doctor-patient conversations with corresponding summaries."
     tags = ["dialogue", "biomedical"]
 
     def __init__(self, subset: str):
@@ -107,7 +105,7 @@ class MedDialogScenario(Scenario):
         instances: List[Instance] = []
 
         for split in ALL_SPLITS:
-            # Limit to zero shot setting 
+            # Limit to zero shot setting
             if split == "test":
                 split_file_name: str = f"{split}.json"
                 split_path: str = os.path.join(data_path, split_file_name)
