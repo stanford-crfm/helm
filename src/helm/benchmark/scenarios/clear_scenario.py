@@ -24,7 +24,7 @@ class CLEARScenario(Scenario):
             1 indicates the patient has a history of alcohol dependence,
             0 indicates the patient does not have a history of alcohol dependence,
             2 indicates uncertainty about the patient's history of alcohol dependence.
-            
+
     For this scenario, the human label is mapped to a multiple-choice option as follows:
             1 -> A, 0 -> B, 2 -> C
 
@@ -43,10 +43,15 @@ class CLEARScenario(Scenario):
     """
 
     name = "clear_alcohol_dependence"
-    description = "A dataset for evaluating alcohol dependence history detection from patient notes with yes/no/maybe classifications."
+    description = "A dataset for evaluating alcohol dependence history"
+    "detection from patient notes with yes/no/maybe classifications."
     tags = ["classification", "biomedical"]
 
-    POSSIBLE_ANSWER_CHOICES: List[str] = ["Has a history of alcohol dependence", "Does not have a history of alcohol dependence", "Uncertain"]
+    POSSIBLE_ANSWER_CHOICES: List[str] = [
+        "Has a history of alcohol dependence",
+        "Does not have a history of alcohol dependence",
+        "Uncertain",
+    ]
 
     def get_instances(self, output_path: str) -> List[Instance]:
         excel_path = "/share/pi/nigam/suhana/medhelm/data/CLEAR/human_labeled/alcohol_dependence.xlsx"
@@ -65,9 +70,13 @@ class CLEARScenario(Scenario):
             # Skip the instance if any required field is missing
             if not text or not label:
                 continue
-            
+
             # Map the human label to the multiple-choice option: 1 -> A, 0 -> B, 2 -> C
-            mapped_label = {"1": "Has a history of alcohol dependence", "0": "Does not have a history of alcohol dependence", "2": "Uncertain"}.get(label, label)
+            mapped_label = {
+                "1": "Has a history of alcohol dependence",
+                "0": "Does not have a history of alcohol dependence",
+                "2": "Uncertain",
+            }.get(label, label)
 
             # Build the References using the possible answer choices,
             # marking the correct one with the CORRECT_TAG.
@@ -77,7 +86,8 @@ class CLEARScenario(Scenario):
             ]
 
             input_text = (
-                "You are a helpful medical assistant. Determine whether the patient has a history of alcohol dependence. Answer 'A', 'B', or 'C'. \n\n"
+                "You are a helpful medical assistant."
+                "Determine whether the patient has a history of alcohol dependence. Answer 'A', 'B', or 'C'. \n\n"
                 "Original Clinical Note:\n"
                 f"{text}\n\n"
             )
