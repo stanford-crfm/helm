@@ -32,7 +32,6 @@ class HeadQAScenario(Scenario):
     B) They are hyperpolarizing.
     C) They can be added.
     D) They spread long distances.
-    E) They present a refractory period.
 
     Answer:
     The answer is C. Explanation: None provided in this dataset.

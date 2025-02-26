@@ -1096,8 +1096,13 @@ def get_med_dialog_spec(subset: str) -> RunSpec:
         output_noun="Summary",
         max_tokens=80,
     )
-    
-    metric_args = {"task": "med_dialog", "device": get_torch_device_name()}
+
+    metric_args = {
+        "task": "med_dialog",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
     return RunSpec(
         name=f"med_dialog,subset={subset}",
         scenario_spec=scenario_spec,
@@ -1148,13 +1153,11 @@ def get_med_paragraph_simplification_spec() -> RunSpec:
         groups=["MedParagraphSimplification"],
     )
 
+
 @run_spec_function("medalign")
-def get_medalign_spec(
-    max_length: int = 128000
-) -> RunSpec:
+def get_medalign_spec(max_length: int = 128000) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.medalign_scenario.MedalignScenario",
-        args={"max_length": max_length}
+        class_name="helm.benchmark.scenarios.medalign_scenario.MedalignScenario", args={"max_length": max_length}
     )
 
     adapter_spec = get_generation_adapter_spec(
@@ -1164,9 +1167,14 @@ def get_medalign_spec(
         output_noun=None,
         max_tokens=256,
         stop_sequences=[],
-        max_train_instances=0
+        max_train_instances=0,
     )
-    metric_args = {"task": "medalign", "device": get_torch_device_name()}
+    metric_args = {
+        "task": "medalign",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
     return RunSpec(
         name=f"medalign",
         scenario_spec=scenario_spec,
@@ -1175,19 +1183,18 @@ def get_medalign_spec(
         groups=["medalign"],
     )
 
+
 @run_spec_function("clear")
 def get_clear_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.clear_scenario.CLEARScenario", args={}
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.clear_scenario.CLEARScenario", args={})
 
     adapter_spec = get_multiple_choice_adapter_spec(
-        method=ADAPT_MULTIPLE_CHOICE_JOINT, 
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions="Answer 'A' for 'Has a history of alcohol dependence', 'B' for 'Does not have a history of alcohol dependence;, or 'C' for 'Uncertain'",
         input_noun=None,
         output_noun="Respond only with 'A', 'B', or 'C'. Do not add any other text, punctuation, or symbols",
         max_train_instances=0,
-        max_tokens=1
+        max_tokens=1,
     )
 
     return RunSpec(
@@ -1197,6 +1204,7 @@ def get_clear_spec() -> RunSpec:
         metric_specs=get_exact_match_metric_specs(),
         groups=["clear"],
     )
+
 
 @run_spec_function("race_based_med")
 def get_race_based_med_spec() -> RunSpec:
@@ -1209,7 +1217,7 @@ def get_race_based_med_spec() -> RunSpec:
         instructions="Answer A for yes, B for no.",
         input_noun=None,
         output_noun="Respond with only 'A' for yes or 'B' for no. Do not add any other text, punctuation, or symbols",
-        max_train_instances=0
+        max_train_instances=0,
     )
 
     return RunSpec(
@@ -1220,14 +1228,12 @@ def get_race_based_med_spec() -> RunSpec:
         groups=["race_based_med"],
     )
 
+
 @run_spec_function("ehrshot")
-def get_ehrshot_spec(
-    subject: str,
-    max_length: int = 100000
-) -> RunSpec:
+def get_ehrshot_spec(subject: str, max_length: int = 100000) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.ehrshot_scenario.EHRSHOTScenario", 
-        args={"subject": subject, "max_length": max_length}
+        class_name="helm.benchmark.scenarios.ehrshot_scenario.EHRSHOTScenario",
+        args={"subject": subject, "max_length": max_length},
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -1236,7 +1242,7 @@ def get_ehrshot_spec(
         input_noun="",
         output_noun="Respond with only 'A' for yes or 'B' for no. Do not add any other text, punctuation, or symbols",
         max_train_instances=0,
-        max_tokens=1
+        max_tokens=1,
     )
 
     return RunSpec(
@@ -1247,20 +1253,22 @@ def get_ehrshot_spec(
         groups=["ehrshot"],
     )
 
+
 @run_spec_function("n2c2_ct_matching")
 def get_n2c2_ct_matching_spec(subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.n2c2_ct_matching_scenario.N2C2CTMatchingScenario", args={"subject": subject}
+        class_name="helm.benchmark.scenarios.n2c2_ct_matching_scenario.N2C2CTMatchingScenario",
+        args={"subject": subject},
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="Answer A for yes, B for no.", 
+        instructions="Answer A for yes, B for no.",
         input_noun="",
         output_noun="Answer A for yes, B for no",
-        max_train_instances=0
+        max_train_instances=0,
     )
-    
+
     return RunSpec(
         name=f"n2c2_ct_matching:subject={subject}",
         scenario_spec=scenario_spec,
@@ -1272,19 +1280,17 @@ def get_n2c2_ct_matching_spec(subject: str) -> RunSpec:
 
 @run_spec_function("medcalc_bench")
 def get_medcalc_bench_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.medcalc_bench_scenario.MedCalcBenchScenario"
-    )
-    
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.medcalc_bench_scenario.MedCalcBenchScenario")
+
     adapter_spec = get_generation_adapter_spec(
         instructions="Given a patient note and a clinical question, compute the requested medical value.",
         input_noun=None,
         newline_after_input_noun=False,
         output_noun="Answer only the requested quantity without units. No explanation needed",
         max_tokens=10,
-        max_train_instances=0
+        max_train_instances=0,
     )
-    
+
     metric_specs = [
         MetricSpec(
             class_name="helm.benchmark.metrics.medcalc_bench_metrics.MedCalcBenchMetric",
@@ -1300,6 +1306,7 @@ def get_medcalc_bench_spec() -> RunSpec:
         groups=["medcalc_bench"],
     )
 
+
 @run_spec_function("mtsamples_procedures")
 def get_mtsamples_procedures_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -1311,11 +1318,16 @@ def get_mtsamples_procedures_spec() -> RunSpec:
         input_noun="Patient Notes",
         newline_after_input_noun=False,
         output_noun="Answer",
-        max_tokens=512, 
+        max_tokens=512,
         max_train_instances=0,
         stop_sequences=[],
     )
-    metric_args = {"task": "mtsamples_procedures", "device": get_torch_device_name()}
+    metric_args = {
+        "task": "mtsamples_procedures",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
 
     return RunSpec(
         name=f"mtsamples_procedures",
@@ -1325,10 +1337,9 @@ def get_mtsamples_procedures_spec() -> RunSpec:
         groups=["mtsamples_procedures"],
     )
 
+
 @run_spec_function("head_qa")
-def get_head_qa_run_spec(
-    language: str = "en", category: Union[str, None] = None
-) -> RunSpec:
+def get_head_qa_run_spec(language: str = "en", category: Union[str, None] = None) -> RunSpec:
     """
     RunSpec for the HEAD-QA dataset.
     This configuration evaluates the model's ability to answer challenging multiple-choice biomedical questions.
@@ -1351,7 +1362,7 @@ def get_head_qa_run_spec(
         input_noun="Question",
         output_noun="Answer",
         max_tokens=1,
-        max_train_instances=0
+        max_train_instances=0,
     )
 
     # Define the metrics
@@ -1391,7 +1402,7 @@ def get_medbullets_run_spec() -> RunSpec:
         input_noun="Clinical Scenario",
         output_noun="Answer",
         max_tokens=1,
-        max_train_instances=0
+        max_train_instances=0,
     )
 
     # Define the metrics
@@ -1466,13 +1477,18 @@ def get_aci_bench_run_spec() -> RunSpec:
         ),
         input_noun="Conversation",
         output_noun="Clinical Note",
-        max_tokens=768, #avg tokens in response is 618.9
+        max_tokens=768,  # avg tokens in response is 618.9
         max_train_instances=0,
         stop_sequences=[],
     )
 
     # Define the metrics
-    metric_args = {"task": "aci_bench", "device": get_torch_device_name()}
+    metric_args = {
+        "task": "aci_bench",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
 
     # Return the RunSpec
     return RunSpec(
@@ -1482,6 +1498,7 @@ def get_aci_bench_run_spec() -> RunSpec:
         metric_specs=get_summarization_metric_specs(metric_args),
         groups=["clinical", "aci_bench"],
     )
+
 
 @run_spec_function("chw_care_plan")
 def get_chw_care_plan_run_spec() -> RunSpec:
@@ -1497,17 +1514,23 @@ def get_chw_care_plan_run_spec() -> RunSpec:
 
     # Define the adapter
     adapter_spec = get_generation_adapter_spec(
-        instructions=( "Follow the instructions provided regarding conversion of a patient note into a specified format."
+        instructions=(
+            "Follow the instructions provided regarding conversion of a patient note into a specified format."
         ),
         input_noun="",
         output_noun="",
-        max_tokens=768, 
+        max_tokens=768,
         max_train_instances=0,
         stop_sequences=[],
     )
 
     # Define the metrics
-    metric_args = {"task": "chw_care_plan", "device": get_torch_device_name()}
+    metric_args = {
+        "task": "chw_care_plan",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
 
     # Return the RunSpec
     return RunSpec(
@@ -1543,7 +1566,7 @@ def get_medec_run_spec() -> RunSpec:
         input_noun="Clinical Note",
         output_noun="Answer",
         max_tokens=256,
-        max_train_instances = 0,
+        max_train_instances=0,
     )
 
     # Define the metrics
@@ -1562,6 +1585,7 @@ def get_medec_run_spec() -> RunSpec:
         metric_specs=metric_specs,
         groups=["clinical", "medec"],
     )
+
 
 @run_spec_function("ehr_sql")
 def get_ehr_sql_run_spec() -> RunSpec:
@@ -1593,7 +1617,7 @@ def get_ehr_sql_run_spec() -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
-    
+
     annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.ehr_sql_annotator.EhrSqlAnnotator")]
 
     # Define the metrics
@@ -1611,6 +1635,7 @@ def get_ehr_sql_run_spec() -> RunSpec:
         groups=["ehr_sql"],
     )
 
+
 @run_spec_function("mtsamples_replicate")
 def get_mtsamples_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -1624,11 +1649,16 @@ def get_mtsamples_spec() -> RunSpec:
         output_noun="Answer",
         max_tokens=512,
         max_train_instances=0,
-        stop_sequences=[]
+        stop_sequences=[],
     )
 
-    #metric_specs = get_open_ended_generation_metric_specs()
-    metric_args = {"task": "mtsamples_replicate", "device": get_torch_device_name()}
+    # metric_specs = get_open_ended_generation_metric_specs()
+    metric_args = {
+        "task": "mtsamples_replicate",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
 
     return RunSpec(
         name=f"mtsamples_replicate",
@@ -1638,18 +1668,17 @@ def get_mtsamples_spec() -> RunSpec:
         groups=["mtsamples_replicate"],
     )
 
+
 @run_spec_function("pubmed_qa")
 def get_pubmed_qa_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.pubmed_qa_scenario.PubMedQAScenario", args={}
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.pubmed_qa_scenario.PubMedQAScenario", args={})
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions="Answer A for yes, B for no or C for maybe.",
         input_noun="Question",
         output_noun="Answer",
-        max_train_instances=0
+        max_train_instances=0,
     )
 
     return RunSpec(
@@ -1659,6 +1688,7 @@ def get_pubmed_qa_spec() -> RunSpec:
         metric_specs=get_exact_match_metric_specs(),
         groups=["pubmed_qa"],
     )
+
 
 @run_spec_function("starr_patient_instructions")
 def get_starr_patient_instructions_run_spec() -> RunSpec:
@@ -1675,10 +1705,15 @@ def get_starr_patient_instructions_run_spec() -> RunSpec:
         output_noun="Patient Instructions",
         max_tokens=256,
         max_train_instances=0,
-        stop_sequences=[]
+        stop_sequences=[],
     )
-    
-    metric_args = {"task": "starr_patient_instructions", "device": get_torch_device_name()}
+
+    metric_args = {
+        "task": "starr_patient_instructions",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
     metric_specs = get_summarization_metric_specs(metric_args) + get_basic_metric_specs([])
 
     return RunSpec(
@@ -1692,9 +1727,7 @@ def get_starr_patient_instructions_run_spec() -> RunSpec:
 
 @run_spec_function("mimic_rrs")
 def get_mimic_rrs_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.mimic_rrs_scenario.MIMICRRSScenario", args={}
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mimic_rrs_scenario.MIMICRRSScenario", args={})
 
     adapter_spec = get_generation_adapter_spec(
         instructions=(
@@ -1709,7 +1742,12 @@ def get_mimic_rrs_spec() -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
-    metric_args = {"task": "mimic_rrs", "device": get_torch_device_name()}
+    metric_args = {
+        "task": "mimic_rrs",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
     return RunSpec(
         name="mimic_rrs",
         scenario_spec=scenario_spec,
@@ -1735,7 +1773,7 @@ def get_mimiciv_billing_code_spec() -> RunSpec:
         newline_after_output_noun=True,
         max_tokens=256,
         max_train_instances=0,
-        stop_sequences=[]
+        stop_sequences=[],
     )
     # Define the metrics
     metric_specs = [
@@ -1757,9 +1795,7 @@ def get_mimiciv_billing_code_spec() -> RunSpec:
 
 @run_spec_function("medi_qa")
 def get_medi_qa_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.medi_qa_scenario.MediQAScenario", args={}
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.medi_qa_scenario.MediQAScenario", args={})
 
     adapter_spec = get_generation_adapter_spec(
         instructions="Answer the following consumer health question.",
@@ -1769,7 +1805,12 @@ def get_medi_qa_spec() -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
-    metric_args = {"task": "medi_qa", "device": get_torch_device_name()}
+    metric_args = {
+        "task": "medi_qa",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
     return RunSpec(
         name="medi_qa",
         scenario_spec=scenario_spec,
@@ -1777,7 +1818,8 @@ def get_medi_qa_spec() -> RunSpec:
         metric_specs=get_summarization_metric_specs(metric_args),
         groups=["medi_qa"],
     )
-    
+
+
 @run_spec_function("mental_health")
 def get_mental_health_spec() -> RunSpec:
     """
@@ -1785,19 +1827,22 @@ def get_mental_health_spec() -> RunSpec:
     This scenario evaluates a model's ability to generate appropriate counseling responses
     in mental health conversations.
     """
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.mental_health_scenario.MentalHealthScenario"
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mental_health_scenario.MentalHealthScenario")
 
     adapter_spec = get_generation_adapter_spec(
         instructions="Given a mental health conversation history, generate an empathetic and appropriate counselor response.",
         input_noun=None,  # No specific input noun needed as format is defined in scenario
         newline_after_input_noun=False,
         output_noun="Counselor response",
-        max_tokens=512,  
+        max_tokens=512,
     )
 
-    metric_args = {"task": "mental_health", "device": get_torch_device_name()}
+    metric_args = {
+        "task": "mental_health",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
 
     return RunSpec(
         name=f"mental_health",
@@ -1806,12 +1851,11 @@ def get_mental_health_spec() -> RunSpec:
         metric_specs=get_summarization_metric_specs(metric_args),
         groups=["mental_health"],
     )
-    
+
+
 @run_spec_function("dischargeme")
 def get_dischargeme_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.dischargeme_scenario.DischargeMeScenario"
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.dischargeme_scenario.DischargeMeScenario")
 
     adapter_spec = get_generation_adapter_spec(
         instructions=(
@@ -1823,9 +1867,14 @@ def get_dischargeme_spec() -> RunSpec:
         output_noun="Answer",
         max_tokens=300,
         stop_sequences=[],
-        max_train_instances=0
+        max_train_instances=0,
     )
-    metric_args = {"task": "dischargeme", "device": get_torch_device_name()}
+    metric_args = {
+        "task": "dischargeme",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
     return RunSpec(
         name=f"dischargeme",
         scenario_spec=scenario_spec,
@@ -1833,6 +1882,7 @@ def get_dischargeme_spec() -> RunSpec:
         metric_specs=get_summarization_metric_specs(metric_args),
         groups=["dischargeme"],
     )
+
 
 @run_spec_function("live_qa")
 def get_live_qa_spec() -> RunSpec:
@@ -1870,17 +1920,23 @@ def get_medication_qa_spec() -> RunSpec:
         output_noun="Answer",
         max_train_instances=0,
         max_tokens=512,
-        stop_sequences=[]
+        stop_sequences=[],
     )
 
-    metric_args = {"task": "medication_qa", "device": get_torch_device_name()}
+    metric_args = {
+        "task": "medication_qa",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
     return RunSpec(
         name="medication_qa",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_summarization_metric_specs(metric_args),
-        groups=["medication_qa"]
+        groups=["medication_qa"],
     )
+
 
 @run_spec_function("lextreme")
 def get_lextreme_spec(subset: str) -> RunSpec:
@@ -2177,6 +2233,7 @@ def get_thai_exam_spec(exam: str = "onet", method: str = ADAPT_MULTIPLE_CHOICE_J
         groups=["thai_exam", f"thai_exam_{exam}"],
     )
 
+
 @run_spec_function("shc_sequoia_med")
 def get_shc_sequoia_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -2198,11 +2255,10 @@ def get_shc_sequoia_spec() -> RunSpec:
         groups=["shc_sequoia_med"],
     )
 
+
 @run_spec_function("shc_cdi_med")
 def get_shc_cdi_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.shc_cdi_scenario.SHCCDIMedScenario", args={}
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_cdi_scenario.SHCCDIMedScenario", args={})
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -2219,11 +2275,10 @@ def get_shc_cdi_spec() -> RunSpec:
         groups=["shc_cdi_med"],
     )
 
+
 @run_spec_function("shc_ent_med")
 def get_shc_ent_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.shc_ent_scenario.SHCENTMedScenario", args={}
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_ent_scenario.SHCENTMedScenario", args={})
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -2238,13 +2293,12 @@ def get_shc_ent_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
         groups=["shc_ent_med"],
-    )    
+    )
+
 
 @run_spec_function("shc_gip_med")
 def get_shc_gip_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.shc_gip_scenario.SHCGIPMedScenario", args={}
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_gip_scenario.SHCGIPMedScenario", args={})
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -2260,12 +2314,11 @@ def get_shc_gip_spec() -> RunSpec:
         metric_specs=get_exact_match_metric_specs(),
         groups=["shc_gip_med"],
     )
-    
+
+
 @run_spec_function("shc_bmt_med")
 def get_shc_bmt_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.shc_bmt_scenario.SHCBMTMedScenario", args={}
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_bmt_scenario.SHCBMTMedScenario", args={})
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -2282,11 +2335,10 @@ def get_shc_bmt_spec() -> RunSpec:
         groups=["shc_bmt_med"],
     )
 
+
 @run_spec_function("shc_conf_med")
 def get_shc_conf_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.shc_conf_scenario.SHCCONFMedScenario", args={}
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_conf_scenario.SHCCONFMedScenario", args={})
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -2303,11 +2355,10 @@ def get_shc_conf_spec() -> RunSpec:
         groups=["shc_conf_med"],
     )
 
+
 @run_spec_function("shc_ptbm_med")
 def get_shc_ptbm_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.shc_ptbm_scenario.SHCPTBMMedScenario", args={}
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_ptbm_scenario.SHCPTBMMedScenario", args={})
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -2324,11 +2375,10 @@ def get_shc_ptbm_spec() -> RunSpec:
         groups=["shc_ptbm_med"],
     )
 
+
 @run_spec_function("shc_sei_med")
 def get_shc_sei_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.shc_sei_scenario.SHCSEIMedScenario", args={}
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_sei_scenario.SHCSEIMedScenario", args={})
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
