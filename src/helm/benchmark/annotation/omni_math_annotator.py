@@ -1,4 +1,3 @@
-import re
 from typing import Any, Dict, Optional, Union
 from importlib.resources import files
 
@@ -25,35 +24,6 @@ def _parse_report(report):
     return data
 
 
-def _parse_annotator_response_markup(annotator_response_text: str):
-    parsed_parts: Dict[str, str] = {}
-
-    # fuzzy match regex check, allows for different casing, or forgetting / in end tag
-    student_final_answer_match = re.search(
-        r"<\s*student_final_answer\s*>(.*?)<\/?\s*student_final_answer\s*>",
-        annotator_response_text,
-        re.DOTALL | re.IGNORECASE,
-    )
-    if student_final_answer_match:
-        parsed_parts["Student Final Answer"] = student_final_answer_match.group(1).strip()
-
-    justification_match = re.search(
-        r"<\s*justification\s*>(.*?)<\/?\s*justification\s*>", annotator_response_text, re.DOTALL | re.IGNORECASE
-    )
-    if justification_match:
-        parsed_parts["Justification"] = justification_match.group(1).strip()
-
-    equivalence_judgement_match = re.search(
-        r"<\s*equivalence_judgement\s*>(.*?)<\/?\s*equivalence_judgement\s*>",
-        annotator_response_text,
-        re.DOTALL | re.IGNORECASE,
-    )
-    if equivalence_judgement_match:
-        parsed_parts["Equivalence Judgement"] = equivalence_judgement_match.group(1).strip()
-
-    return parsed_parts
-
-
 class OmniMATHAnnotator(Annotator):
     """The Omni-MATH autograder."""
 
@@ -61,7 +31,7 @@ class OmniMATHAnnotator(Annotator):
 
     def __init__(self, auto_client: AutoClient, template_name: Optional[str] = None):
         self._auto_client = auto_client
-        self._template_name = template_name or "helm_omni_math_annotator_template_v1.0.0"
+        self._template_name = template_name or "gpt_evaluation_zero_shot_template"
         template_path = files("helm.benchmark.annotation.omni_math").joinpath(f"{self._template_name}.txt")
         with template_path.open("r") as file:
             self._score_template = file.read()
@@ -111,7 +81,7 @@ class OmniMATHAnnotator(Annotator):
                 model_deployment=annotator_model_info.model_deployment,
                 prompt=annotator_prompt,
                 temperature=0.0,
-                max_tokens=1000,
+                max_tokens=4096,
             )
             annotator_response = self._auto_client.make_request(annotator_request)
             if not annotator_response.success:
@@ -122,11 +92,7 @@ class OmniMATHAnnotator(Annotator):
             else:
                 assert len(annotator_response.completions) == 1
                 annotator_response_text = annotator_response.completions[0].text
-                report_parts: Dict[str, str]
-                if self._template_name.startswith("helm"):
-                    report_parts = _parse_annotator_response_markup(annotator_response_text)
-                else:
-                    report_parts = _parse_report(annotator_response_text)
+                report_parts: Dict[str, str] = _parse_report(annotator_response_text)
                 try:
                     student_final_answer = report_parts["Student Final Answer"]
                 except KeyError:
@@ -161,6 +127,6 @@ class OmniMATHAnnotator(Annotator):
                     )
 
             annotations[f"{annotator_name}_student_final_answer"] = student_final_answer
-            annotations[f"{annotator_name}_equivalence_judgement"] = equivalence_judgement
             annotations[f"{annotator_name}_justification"] = justification
+            annotations[f"{annotator_name}_equivalence_judgement"] = equivalence_judgement
         return annotations
