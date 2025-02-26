@@ -17,8 +17,8 @@ from helm.common.general import ensure_directory_exists
 
 class MTSamplesReplicateScenario(Scenario):
     """
-    MTSamples.com is designed to give you access to a big collection of transcribed medical reports. 
-    These samples can be used by learning, as well as working medical transcriptionists for their daily 
+    MTSamples.com is designed to give you access to a big collection of transcribed medical reports.
+    These samples can be used by learning, as well as working medical transcriptionists for their daily
     transcription needs. We present the model with patient information and request it to generate a corresponding
     treatment plan.
 
@@ -34,7 +34,8 @@ class MTSamplesReplicateScenario(Scenario):
     RAW_BASE_URL = "https://raw.githubusercontent.com/raulista1997/benchmarkdata/refs/heads/main/mtsamples_processed/"
 
     name = "mtsamples_replicate"
-    description = "A dataset of clinical notes where the model is prompted to generate the apprioriate treatment plan for this patient."
+    description = "A dataset of clinical notes where the model is prompted to generate "
+    "the apprioriate treatment plan for this patient."
     tags = ["medical", "transcription", "plan_generation"]
 
     def fetch_file_list(self) -> List[str]:
@@ -47,7 +48,10 @@ class MTSamplesReplicateScenario(Scenario):
 
         soup = BeautifulSoup(response.text, "html.parser")
         file_links = [
-            link.text for link in soup.find_all("a", {"href": re.compile(r"/raulista1997/benchmarkdata/blob/main/mtsamples_processed/.*\.txt$")})
+            link.text
+            for link in soup.find_all(
+                "a", {"href": re.compile(r"/raulista1997/benchmarkdata/blob/main/mtsamples_processed/.*\.txt$")}
+            )
         ]
         return file_links
 

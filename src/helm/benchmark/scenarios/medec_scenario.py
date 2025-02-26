@@ -6,7 +6,6 @@ from helm.benchmark.scenarios.scenario import (
     Instance,
     Reference,
     CORRECT_TAG,
-    TRAIN_SPLIT,
     TEST_SPLIT,
     Input,
     Output,
@@ -46,8 +45,8 @@ class MedecScenario(Scenario):
     and reasoning capabilities.
     """
 
-    TRAIN_URL = "https://raw.githubusercontent.com/abachaa/MEDEC/refs/heads/main/MEDEC-MS/MEDEC-Full-TrainingSet-with-ErrorType.csv"
-    TEST_URL = "https://raw.githubusercontent.com/abachaa/MEDEC/refs/heads/main/MEDEC-MS/MEDEC-MS-TestSet-with-GroundTruth-and-ErrorType.csv"
+    TRAIN_URL = "https://raw.githubusercontent.com/abachaa/MEDEC/refs/heads/main/MEDEC-MS/MEDEC-Full-TrainingSet-with-ErrorType.csv"  # noqa: E501
+    TEST_URL = "https://raw.githubusercontent.com/abachaa/MEDEC/refs/heads/main/MEDEC-MS/MEDEC-MS-TestSet-with-GroundTruth-and-ErrorType.csv"  # noqa: E501
 
     name = "medec"
     description = "A dataset containing medical narratives with error detection and correction pairs."
@@ -110,8 +109,8 @@ class MedecScenario(Scenario):
         instances: List[Instance] = []
 
         # Download and process the training set - limit to zero shot setting for now
-        #train_csv = self.download_csv(self.TRAIN_URL, output_path, "medec_train.csv")
-        #instances.extend(self.process_csv(train_csv, TRAIN_SPLIT))
+        # train_csv = self.download_csv(self.TRAIN_URL, output_path, "medec_train.csv")
+        # instances.extend(self.process_csv(train_csv, TRAIN_SPLIT))
 
         # Download and process the test set
         test_csv = self.download_csv(self.TEST_URL, output_path, "medec_test.csv")

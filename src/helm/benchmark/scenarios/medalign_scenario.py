@@ -1,44 +1,35 @@
-import argparse
 import ast
-from ast import literal_eval
 import datetime
-import json
 import os
 import re
-from typing import Any, Callable, Dict, Optional, Union
+from typing import Any, Callable, Dict, Optional, Union, List
 
-import dateutil
 import langchain
 import langchain.prompts
-from langchain.schema import Document
-import langchain_community
 from langchain_community.retrievers import BM25Retriever
 import lxml.etree
 import pandas as pd
 import transformers
-import tiktoken 
+import tiktoken
 from tqdm import tqdm
-import argparse
 
-#medcalcbench imports
-from typing import Dict, List
-from datasets import load_dataset
 import yaml
-from helm.common.hierarchical_logger import hlog
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
     Reference,
-    TRAIN_SPLIT,
-    TEST_SPLIT, CORRECT_TAG,
+    TEST_SPLIT,
+    CORRECT_TAG,
     PassageQuestionInput,
-    Output
+    Output,
 )
 
+
 def load_config(config_path: str) -> Dict[str, Any]:
-    with open(config_path, 'r') as file:
+    with open(config_path, "r") as file:
         config = yaml.safe_load(file)
     return config
+
 
 def get_instructions(path_to_instructions: str) -> Dict[int, Dict[str, Any]]:
     """
@@ -67,9 +58,7 @@ def get_instructions(path_to_instructions: str) -> Dict[int, Dict[str, Any]]:
         ValueError: If the CSV file does not contain the expected columns.
     """
     if not os.path.exists(path_to_instructions):
-        raise FileNotFoundError(
-            f"The specified file {path_to_instructions} does not exist."
-        )
+        raise FileNotFoundError(f"The specified file {path_to_instructions} does not exist.")
 
     instructions_df = pd.read_csv(path_to_instructions)
     required_columns = {
@@ -79,9 +68,7 @@ def get_instructions(path_to_instructions: str) -> Dict[int, Dict[str, Any]]:
         "is_selected_ehr",
     }
     if not required_columns.issubset(instructions_df.columns):
-        raise ValueError(
-            f"The CSV file is missing one or more of the required columns: {required_columns}"
-        )
+        raise ValueError(f"The CSV file is missing one or more of the required columns: {required_columns}")
 
     selected_instructions_df = instructions_df.query("is_selected_ehr == 'yes'")
     instructions_map = {
@@ -134,18 +121,13 @@ def get_ehrs(path_to_ehrs: str) -> Dict[int, str]:
         FileNotFoundError: If the specified directory does not exist.
     """
     if not os.path.isdir(path_to_ehrs):
-        raise FileNotFoundError(
-            f"The specified directory {path_to_ehrs} does not exist."
-        )
+        raise FileNotFoundError(f"The specified directory {path_to_ehrs} does not exist.")
 
     ehr_map = {}
     for fname in os.listdir(path_to_ehrs):
         pt_id = extract_patient_id_from_fname(fname)
         if pt_id is None:
-            print(
-                f"Warning: File '{fname}' does not match the expected format "
-                "and will be skipped."
-            )
+            print(f"Warning: File '{fname}' does not match the expected format " "and will be skipped.")
             continue
 
         file_path = os.path.join(path_to_ehrs, fname)
@@ -211,7 +193,8 @@ def cast_dtype(i: str) -> Union[str, datetime.datetime, int, float]:
 
             if isinstance(i, (datetime.datetime, list)):
                 return i
-            return dateutil.parser.parse(i)
+            else:
+                raise ValueError
         except ValueError:
             return i
 
@@ -233,9 +216,7 @@ def check_condition(node_value, value, condition):
         "$nin": (lambda x, y: x not in y),
     }
 
-    return condition_mapping.get(condition, lambda x, y: False)(
-        casted_node_value, casted_value
-    )
+    return condition_mapping.get(condition, lambda x, y: False)(casted_node_value, casted_value)
 
 
 def check_all_conditions(node, conditions):
@@ -268,33 +249,19 @@ def remove_node(start_node, bad_node, remove_children=True):
 
 def query_xml_str(xml_str, filters):
     """Apply filters to an XML string"""
-    is_str_equal = lambda x, y: bool(y.match(x.lower()))
 
     tree = lxml.etree.ElementTree(lxml.etree.fromstring(xml_str))
     root = tree.getroot()
 
     parent_tag = filters.get("@parent", None)
-    include = filters.get("@include_children", [])
-    exclude = filters.get("@exclude_children", [])
     first_n = filters.get("@first", None)
     last_n = filters.get("@last", None)
 
-    rgx_tag_compare = tag_rgx_expression(include, exclude)
     parent_nodes = []
     for parent_node in fetch_nodes_with_tag(root, f".//{parent_tag}"):
 
         if not check_all_conditions(parent_node, filters.get(parent_tag, {})):
             continue
-
-        for child in parent_node.findall(".//"):
-
-            is_tag_match = is_str_equal(child.tag, rgx_tag_compare)
-            if not is_tag_match:
-                node = remove_node(parent_node, child, remove_children=False)
-
-            elif not check_all_conditions(child, filters.get(child.tag, {})):
-                node = remove_node(parent_node, child, remove_children=False)
-
         if parent_node.findall(".//"):
             # After performing the filtering, add the XML-as-string to the list
             # of parent_nodes (essentially comprises a document)
@@ -312,9 +279,7 @@ def query_xml_str(xml_str, filters):
 def filter_events(ehrs, codes_only=False, notes_only=False):
     print("Filtering events...")
 
-    assert not (
-        codes_only and notes_only
-    ), "Only one of `notes_only` and `codes_only` should be true"
+    assert not (codes_only and notes_only), "Only one of `notes_only` and `codes_only` should be true"
 
     pt_ids = ehrs.keys()
     for pt_id_key in pt_ids:
@@ -340,9 +305,7 @@ def filter_events(ehrs, codes_only=False, notes_only=False):
                 filters=filters,
             )
 
-        ehrs[pt_id_key] = (
-            ehr_visit_strs  # Each pt timeline is a list of visits as xml strs
-        )
+        ehrs[pt_id_key] = ehr_visit_strs  # Each pt timeline is a list of visits as xml strs
 
     return ehrs
 
@@ -365,15 +328,11 @@ def retrieve_most_relevant_visits(ehr_visit_strs, query, target_length, tokenize
     Returns:
         list[str]: List of EHR visit strings sorted chronologically and constrained by the target length.
     """
-    langchain_docs = [
-        langchain.schema.Document(page_content=doc) for doc in ehr_visit_strs
-    ]
+    langchain_docs = [langchain.schema.Document(page_content=doc) for doc in ehr_visit_strs]
 
     # `k` is the number of documents to retrieve
     # We retrieve everything and just use the BM25Retriever to sort the documents
-    retriever = BM25Retriever.from_documents(
-        langchain_docs, k=len(langchain_docs)
-    )
+    retriever = BM25Retriever.from_documents(langchain_docs, k=len(langchain_docs))
 
     # Invoking the retriever means the most relevant documents are sorted first
     sorted_docs = retriever.invoke(query)
@@ -424,15 +383,6 @@ def retrieve_most_relevant_visits(ehr_visit_strs, query, target_length, tokenize
         current_length += doc_length
         if current_length > target_length:
             break
-        # We used to also consider the datetime of the added docs so as to not truncate the most
-        # relevant document, but that adds complexity to the exposition; better to keep simple
-        # else:
-        #     # Check if final_docs is not empty and if the current doc is earlier than all other documents in final_docs
-        #     if final_docs and dts[i] < min(dt for dt, _ in final_docs):
-        #         final_docs.append((dts[i], doc_content))
-        #         break
-        #     else:
-        #         break
 
     # Sort final_docs chronologically
     final_docs.sort(key=lambda x: x[0])
@@ -446,9 +396,7 @@ def retrieve_most_relevant_visits(ehr_visit_strs, query, target_length, tokenize
 def get_prompt_template(path_to_template="prompt_templates/generic.txt") -> str:
     with open(path_to_template, encoding="utf-8", mode="r") as f:
         prompt_template_str = f.read()
-    prompt_template_obj = langchain.prompts.PromptTemplate.from_template(
-        prompt_template_str
-    )
+    prompt_template_obj = langchain.prompts.PromptTemplate.from_template(prompt_template_str)
     return prompt_template_obj
 
 
@@ -458,7 +406,7 @@ def pack_and_trim_prompts(
     prompt_template: langchain.prompts.PromptTemplate,
     context_length: int,
     generation_length: int,
-    tokenizer: Callable,
+    tokenizer: Any,
     use_RAG: bool = True,
     verbose: bool = False,
     include_ehr: bool = True,
@@ -470,25 +418,18 @@ def pack_and_trim_prompts(
     prompts_map = {}
     for instruction_id in tqdm(instructions.keys()):
         instruction = instructions[instruction_id]["instruction"]
-        patient_id = instructions[instruction_id]["patient_id"]
+        patient_id = int(instructions[instruction_id]["patient_id"])
         relevant_ehr = ehrs[patient_id]
 
         # Calculate how many tokens of EHR we can include in the prompt
         num_tokens_instruction = len(tokenizer.encode(instruction))
         num_tokens_prompt_template = len(tokenizer.encode(prompt_template.template))
         if include_ehr:
-            target_ehr_length = (
-                context_length
-                - generation_length
-                - num_tokens_prompt_template
-                - num_tokens_instruction
-            )
+            target_ehr_length = context_length - generation_length - num_tokens_prompt_template - num_tokens_instruction
         else:
             target_ehr_length = 0
         if target_ehr_length <= 0:
-            prompt_with_truncated_ehr = prompt_template.format(
-                question=instruction, ehr=""
-            )
+            prompt_with_truncated_ehr = prompt_template.format(question=instruction, ehr="")
         else:
             if use_RAG:
                 # Return a list of the most relevant visit strings
@@ -513,9 +454,7 @@ def pack_and_trim_prompts(
                 encoded_ehr = tokenizer.encode(fast_truncated_ehr)
                 truncated_encoded_ehr = encoded_ehr[-target_ehr_length:]
                 truncated_ehr = tokenizer.decode(truncated_encoded_ehr)
-                prompt_with_truncated_ehr = prompt_template.format(
-                    question=instruction, ehr=truncated_ehr
-                )
+                prompt_with_truncated_ehr = prompt_template.format(question=instruction, ehr=truncated_ehr)
 
                 prompts_map[instruction_id] = prompt_with_truncated_ehr
 
@@ -524,30 +463,42 @@ def pack_and_trim_prompts(
                     print("~" * 20)
     return prompts_map
 
-def preprocess_prompts(path_to_prompt_template, target_context_length, generation_length, path_to_instructions, path_to_ehrs, use_RAG, include_ehr, tokenizer, codes_only=False, notes_only=False):
+
+def preprocess_prompts(
+    path_to_prompt_template,
+    target_context_length,
+    generation_length,
+    path_to_instructions,
+    path_to_ehrs,
+    use_RAG,
+    include_ehr,
+    tokenizer,
+    codes_only=False,
+    notes_only=False,
+):
     print(
         f"\n\twith prompt template = {path_to_prompt_template} "
         f"\n\twith target context length = {target_context_length} "
         f"\n\twith target generation length = {generation_length} "
     )
 
-    ### FETCH INSTRUCTIONS ###
+    # FETCH INSTRUCTIONS
     print("Fetching instructions...")
     instructions = get_instructions(path_to_instructions)
 
-    ### FETCH RELEVANT EHRs ###
+    # FETCH RELEVANT EHRs #
     print("Fetching patient EHR timelines...")
     ehrs = get_ehrs(path_to_ehrs)
 
-    ### LOAD TOKENIZER ###
+    # LOAD TOKENIZER #
     print("Loading tokenizer...")
     tokenizer = get_tokenizer(tokenizer)
 
-    ### FILTER OUT EVENTS BY TYPE ###
+    # FILTER OUT EVENTS BY TYPE #
     print("Filtering events...")
     ehrs = filter_events(ehrs, codes_only=codes_only, notes_only=notes_only)
 
-    ### CONSTRUCT & TRUNCATE PROMPTS ###
+    # CONSTRUCT & TRUNCATE PROMPTS #
     print("Constructing prompts using instructions and EHRs...")
     prompt_template = get_prompt_template(path_to_prompt_template)
     filled_prompts = pack_and_trim_prompts(
@@ -562,7 +513,7 @@ def preprocess_prompts(path_to_prompt_template, target_context_length, generatio
         include_ehr=include_ehr,
     )
     assert filled_prompts, f"No prompts were found for length: {target_context_length}. Try again with a larger length."
-    ### SAVE CONSTRUCTED PROMPTS TO DISK ###
+    # SAVE CONSTRUCTED PROMPTS TO DISK
     df_rows = []
     for instruction_id in tqdm(filled_prompts.keys()):
         row = {}
@@ -580,18 +531,18 @@ def preprocess_prompts(path_to_prompt_template, target_context_length, generatio
     prompts_df = pd.DataFrame(df_rows)
     # prompts_df.to_csv(path_to_save, index=False)
     instructionid_to_prompt_map = (
-        prompts_df[["instruction_id", "prompt"]]
-        .set_index("instruction_id")
-        .to_dict()
-        .get("prompt")
+        prompts_df[["instruction_id", "prompt"]].set_index("instruction_id").to_dict().get("prompt")
     )
-    instructionid_to_prompt_df = pd.DataFrame.from_dict(
-    instructionid_to_prompt_map, orient='index', columns=['prompt']
-).reset_index().rename(columns={'index': 'instruction_id'})
+    instructionid_to_prompt_df = (
+        pd.DataFrame.from_dict(instructionid_to_prompt_map, orient="index", columns=["prompt"])
+        .reset_index()
+        .rename(columns={"index": "instruction_id"})
+    )
 
     print("...Prompt construction complete")
     # instructionid_to_prompt_map.to_csv(path_to_save, index=False)
     return instructionid_to_prompt_df
+
 
 def add_reference_responses(prompts_df, path_to_reference_responses) -> pd.DataFrame:
     """
@@ -607,9 +558,10 @@ def add_reference_responses(prompts_df, path_to_reference_responses) -> pd.DataF
     # TODO: We should be able to just read this in from `merged_df`
     gold_df = pd.read_csv(path_to_reference_responses)
     gold_df = gold_df.query("annotator_num == 'Annotator_1'")
-    gold_df = gold_df[['instruction_id', 'clinician_response']]
+    gold_df = gold_df[["instruction_id", "clinician_response"]]
     merged_df = gold_df.merge(prompts_df, on="instruction_id", how="inner")
     return merged_df
+
 
 def return_dataset_dataframe(max_length: int) -> pd.DataFrame:
     path_to_prompt_template = "/share/pi/nigam/scottyf/medalign-clean/src/medalign/prompt_templates/generic.txt"
@@ -622,65 +574,65 @@ def return_dataset_dataframe(max_length: int) -> pd.DataFrame:
     tokenizer = "tiktoken"
     path_to_reference_responses = "/share/pi/nigam/scottyf/clinician-instruction-responses.csv"
 
-
-    instructionid_to_prompt_df = preprocess_prompts(path_to_prompt_template=path_to_prompt_template,\
-                                     target_context_length=target_context_length,\
-                                          generation_length=generation_length,\
-                                              path_to_instructions=path_to_instructions,\
-                                                  path_to_ehrs=path_to_ehrs,\
-                                                      use_RAG=use_RAG,\
-                                                          include_ehr=include_ehr,\
-                                          tokenizer=tokenizer) 
+    instructionid_to_prompt_df = preprocess_prompts(
+        path_to_prompt_template=path_to_prompt_template,
+        target_context_length=target_context_length,
+        generation_length=generation_length,
+        path_to_instructions=path_to_instructions,
+        path_to_ehrs=path_to_ehrs,
+        use_RAG=use_RAG,
+        include_ehr=include_ehr,
+        tokenizer=tokenizer,
+    )
     medalign_dataframe = add_reference_responses(instructionid_to_prompt_df, path_to_reference_responses)
     return medalign_dataframe
 
 
-
 class MedalignScenario(Scenario):
     """
-Scenario defining the MedAlign task as defined in the following work by Fleming et al:
-@article{fleming2023medalign,
-  title={MedAlign: A Clinician-Generated Dataset for Instruction Following with Electronic Medical Records},
-  author={Scott L. Fleming
-    and Alejandro Lozano
-    and William J. Haberkorn
-    and Jenelle A. Jindal
-    and Eduardo P. Reis
-    and Rahul Thapa
-    and Louis Blankemeier
-    and Julian Z. Genkins
-    and Ethan Steinberg
-    and Ashwin Nayak
-    and Birju S. Patel
-    and Chia-Chun Chiang
-    and Alison Callahan
-    and Zepeng Huo
-    and Sergios Gatidis
-    and Scott J. Adams
-    and Oluseyi Fayanju
-    and Shreya J. Shah
-    and Thomas Savage
-    and Ethan Goh
-    and Akshay S. Chaudhari
-    and Nima Aghaeepour
-    and Christopher Sharp
-    and Michael A. Pfeffer
-    and Percy Liang
-    and Jonathan H. Chen
-    and Keith E. Morse
-    and Emma P. Brunskill
-    and Jason A. Fries
-    and Nigam H. Shah},
-  journal={arXiv preprint arXiv:2308.14089},
-  year={2023}
-}
-Each instance includes:
-- input: the instruction and patient record
-- reference: the clinical 'gold standard' completion for the instruction for the given patient record
-This is a clinical instruction-following task, wherein a generative language model must follow
-the instructions using the provided patient record. As explained in the MedAlign work, each example
-is guaranteed to be completable for the given patient record.
-This task is evaluated using COMET and BERTScore metrics.
+    Scenario defining the MedAlign task as defined in the following work by Fleming et al:
+    @article{fleming2023medalign,
+      title={MedAlign: A Clinician-Generated Dataset for Instruction Following with Electronic Medical Records},
+      author={Scott L. Fleming
+        and Alejandro Lozano
+        and William J. Haberkorn
+        and Jenelle A. Jindal
+        and Eduardo P. Reis
+        and Rahul Thapa
+        and Louis Blankemeier
+        and Julian Z. Genkins
+        and Ethan Steinberg
+        and Ashwin Nayak
+        and Birju S. Patel
+        and Chia-Chun Chiang
+        and Alison Callahan
+        and Zepeng Huo
+        and Sergios Gatidis
+        and Scott J. Adams
+        and Oluseyi Fayanju
+        and Shreya J. Shah
+        and Thomas Savage
+        and Ethan Goh
+        and Akshay S. Chaudhari
+        and Nima Aghaeepour
+        and Christopher Sharp
+        and Michael A. Pfeffer
+        and Percy Liang
+        and Jonathan H. Chen
+        and Keith E. Morse
+        and Emma P. Brunskill
+        and Jason A. Fries
+        and Nigam H. Shah},
+      journal={arXiv preprint arXiv:2308.14089},
+      year={2023}
+    }
+    Each instance includes:
+    - input: the instruction and patient record
+    - reference: the clinical 'gold standard' completion for the instruction for the given patient record
+    This is a clinical instruction-following task, wherein a generative language model must follow
+    the instructions using the provided patient record. As explained in the MedAlign work, each example
+    is guaranteed to be completable for the given patient record.
+    This task is evaluated using COMET and BERTScore metrics.
     """
 
     name = "medalign"
@@ -695,13 +647,10 @@ This task is evaluated using COMET and BERTScore metrics.
         instances: List[Instance] = []
         for index, row in data.iterrows():
             question = row["prompt"]
-            ground_truth_answer = row['clinician_response']
+            ground_truth_answer = row["clinician_response"]
 
-            prompt = PassageQuestionInput(
-                passage="",
-                question=question
-            )
-            
+            prompt = PassageQuestionInput(passage="", question=question)
+
             instance = Instance(
                 input=prompt,
                 references=[Reference(Output(text=ground_truth_answer), tags=[CORRECT_TAG])],
