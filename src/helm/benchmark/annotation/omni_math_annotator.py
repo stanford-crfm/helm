@@ -1,4 +1,3 @@
-import re
 from typing import Any, Dict, Optional, Union
 from importlib.resources import files
 
