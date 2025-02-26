@@ -72,6 +72,12 @@
 		"releases": ["v1.0.0"]
 	},
 	{
+		"title": "ToRR",
+		"description": "A benchmark for table reasoning and robustness",
+		"id": "torr",
+		"releases": ["v1.0.0"]
+	},
+	{
 		"title": "All Leaderboards",
 		"description": "Home page for all HELM leaderboards",
 		"id": "home",
