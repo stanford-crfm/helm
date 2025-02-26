@@ -11,21 +11,35 @@ export default function MedHELMLanding() {
           <img
             src={overview}
             alt="MedHELM Task Categories"
-            className="mx-auto my-4 block w-3/4"
+            className="mx-auto my-4 block w-7/8"
             sizes="100vw"
           />
-          We introduce <strong className="font-bold">MedHELM</strong>, a
-          comprehensive healthcare benchmark to evaluate language models on
-          real-world clinical tasks using real electronic health records.
-          Building on the HELM framework, MedHELM comprises a structured
-          taxonomy with 5 categories, 22 subcategories, and 121 distinct
-          clinical tasks as well as 31 diverse datasets (12 private, 6
-          gated-access, and 13 public), representing a spectrum of healthcare
-          scenarios, from diagnostic decision-making to patient communication,
-          providing a more nuanced and clinically relevant assessment of AI
-          capabilities in healthcare settings. MedHELM establishes a foundation
-          for testing and evaluation of the real-world applicability of language
-          models in healthcare.
+          <p className="my-4">
+            We introduce <strong className="font-bold">MedHELM</strong>, a
+            comprehensive healthcare benchmark to evaluate language models on
+            real-world clinical tasks using real electronic health records.
+            Building on the HELM framework,{" "}
+            <strong className="font-bold">MedHELM</strong> comprises a
+            structured taxonomy with 5 categories, 22 subcategories, and 121
+            distinct clinical tasks as well as 31 diverse datasets (12 private,
+            6 gated-access, and 13 public). The datasets represent a spectrum of
+            healthcare scenarios, from diagnostic decision-making to patient
+            communication, providing a more nuanced and clinically relevant
+            assessment of AI capabilities in healthcare settings.
+          </p>
+          <p className="my-4">
+            <strong className="font-bold">MedHELM</strong> establishes a
+            foundation for testing and evaluation of the real-world
+            applicability of language models in healthcare. It is made possible
+            by a unique collaboration between the Center for Research on
+            Foundation Models, Technology and Digital Solutions at Stanford
+            Healthcare, and Microsoft Healthcare and Life Sciences in
+            partnership with faculty in the Departments of Medicine, Computer
+            Science, Anesthesiology, Dermatology, Pediatrics and Biomedical Data
+            Science as well as trainees from the MCiM program at the Clinical
+            Excellence Research Center. The effort is coordinated by the Center
+            for Biomedical Informatics Research.
+          </p>
           <div className="flex flex-row justify-center mt-4">
             <a className="px-10 btn rounded-md mx-4" href="#">
               Blog Post
