@@ -27,7 +27,7 @@ B. Provide a Justification: Conclude with a brief explanation as to why you beli
 Respond only with a report in the following Markdown format, without any extra text:
 
 ## Student Final Answer
-[Extract the student's final answer, which is enclosed in "\\boxed{}".]
+[Extract the student's final answer, which is enclosed in "\\boxed{}", or output None if the student did not provide a final answer.]
 
 ## Justification
 [A brief one-sentence explanation as to why you believe the student's answer is correct or incorrect.]
