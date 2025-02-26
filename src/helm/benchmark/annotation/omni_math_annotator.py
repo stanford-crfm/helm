@@ -92,8 +92,7 @@ class OmniMATHAnnotator(Annotator):
             else:
                 assert len(annotator_response.completions) == 1
                 annotator_response_text = annotator_response.completions[0].text
-                report_parts: Dict[str, str]
-                report_parts = _parse_report(annotator_response_text)
+                report_parts: Dict[str, str] = _parse_report(annotator_response_text)
                 try:
                     student_final_answer = report_parts["Student Final Answer"]
                 except KeyError:
