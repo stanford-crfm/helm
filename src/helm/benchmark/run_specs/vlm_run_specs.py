@@ -1008,6 +1008,7 @@ def get_vibe_eval_spec(subject: str, num_respondents: int) -> RunSpec:
         groups=[run_spec_name],
     )
 
+
 @run_spec_function("vqa_rad")
 def get_vqa_rad_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
