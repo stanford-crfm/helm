@@ -414,7 +414,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: accuracy
+      main_name: f1_micro
       main_split: test
     taxonomy:
       task: "?"
