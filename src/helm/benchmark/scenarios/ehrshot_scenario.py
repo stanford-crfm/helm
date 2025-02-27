@@ -5,13 +5,11 @@ import tiktoken
 
 from functools import partial
 from tqdm import tqdm
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from helm.common.general import ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
-    TRAIN_SPLIT,
-    VALID_SPLIT,
     Input,
     Scenario,
     Instance,
@@ -73,27 +71,40 @@ TASK_FULL_NAMES = {
 }
 
 TASK_QUESTIONS = {
-    "new_acutemi": "Is this patient likely to receive a first-time diagnosis of Acute Myocardial Infarction within the next year?",
-    "new_celiac": "Is this patient likely to receive a first-time diagnosis of Celiac Disease within the next year?",
-    "new_hyperlipidemia": "Is this patient likely to receive a first-time diagnosis of Hyperlipidemia within the next year?",
-    "new_hypertension": "Is this patient likely to receive a first-time diagnosis of Hypertension within the next year?",
-    "new_lupus": "Is this patient likely to receive a first-time diagnosis of Systemic Lupus Erythematosus within the next year?",
-    "new_pancan": "Is this patient likely to receive a first-time diagnosis of Pancreatic Cancer within the next year?",
-    "lab_anemia": "If a lab test for Anemia is ordered for this patient right now, will it come back back abnormal? (i.e. <120 g/L)",
-    "lab_hyperkalemia": "If a lab test for Hyperkalemia is ordered for this patient right now, will it come back back abnormal (i.e. >5.5 mmol/L)?",
-    "lab_hypoglycemia": "If a lab test for Hypoglycemia is ordered for this patient right now, will it come back back abnormal (i.e. <3.9 mmol/L)?",
-    "lab_hyponatremia": "If a lab test for Hyponatremia is ordered for this patient right now, will it come back back abnormal (i.e. <135 mmol/L)?",
-    "lab_thrombocytopenia": "If a lab test for Thrombocytopenia is ordered for this patient right now, will it come back back abnormal? (i.e. <150 109/L)",
-    "guo_los": "If this patient is admitted to the hospital right now, is the patient likely to have a length of stay of at least 7 days (i.e. a week)?",
-    "guo_readmission": "If this patient is discharged from the hospital right now, is the patient likely to be readmitted to the hospital within 30 days?",
-    "guo_icu": "If this patient is admitted to the hospital right now, is the patient likely to be transferred to the ICU at any point during their admission?",
+    "new_acutemi": "Is this patient likely to receive a first-time diagnosis of \
+    Acute Myocardial Infarction within the next year?",
+    "new_celiac": "Is this patient likely to receive a first-time diagnosis of \
+    Celiac Disease within the next year?",
+    "new_hyperlipidemia": "Is this patient likely to receive a first-time diagnosis \
+    of Hyperlipidemia within the next year?",
+    "new_hypertension": "Is this patient likely to receive a first-time diagnosis \
+    of Hypertension within the next year?",
+    "new_lupus": "Is this patient likely to receive a first-time diagnosis of \
+    Systemic Lupus Erythematosus within the next year?",
+    "new_pancan": "Is this patient likely to receive a first-time diagnosis of \
+    Pancreatic Cancer within the next year?",
+    "lab_anemia": "If a lab test for Anemia is ordered for this patient right now, \
+    will it come back back abnormal? (i.e. <120 g/L)",
+    "lab_hyperkalemia": "If a lab test for Hyperkalemia is ordered for this patient right now, \
+    will it come back back abnormal (i.e. >5.5 mmol/L)?",
+    "lab_hypoglycemia": "If a lab test for Hypoglycemia is ordered for this patient right now, \
+    will it come back back abnormal (i.e. <3.9 mmol/L)?",
+    "lab_hyponatremia": "If a lab test for Hyponatremia is ordered for this patient right now, \
+    will it come back back abnormal (i.e. <135 mmol/L)?",
+    "lab_thrombocytopenia": "If a lab test for Thrombocytopenia is ordered for this patient right now, \
+    will it come back back abnormal? (i.e. <150 109/L)",
+    "guo_los": "If this patient is admitted to the hospital right now, is the patient likely to have a \
+    length of stay of at least 7 days (i.e. a week)?",
+    "guo_readmission": "If this patient is discharged from the hospital right now, is the patient likely \
+    to be readmitted to the hospital within 30 days?",
+    "guo_icu": "If this patient is admitted to the hospital right now, is the patient likely to be \
+    transferred to the ICU at any point during their admission?",
 }
 
 
 ##################################
 # Task Definitions
 ##################################
-
 # Exact task definitions from the EHRSHOT paper
 TASK_DEFS = {}
 
@@ -218,9 +229,9 @@ PERSONAS["new_pancan"] = [
 
 # Generated from GPT4o using the wikipedia definition and this prompt:
 #
-# Read the following definition of a medical prediction task, and suggest 
-# the most likely medical specialists or professions (up to 5) who would be 
-# involved in either predicting, treating, or managing a patient who might 
+# Read the following definition of a medical prediction task, and suggest
+# the most likely medical specialists or professions (up to 5) who would be
+# involved in either predicting, treating, or managing a patient who might
 # have this event occur. Only list the title and respond with a Python List object.
 #
 # "{TASK_DEFINITION}""
@@ -230,7 +241,7 @@ PERSONAS["guo_icu"] = [
     "Hospitalist",
     "Critical Care Nurse",
     "Emergency Medicine Physician",
-    "Medical Data Scientist"
+    "Medical Data Scientist",
 ]
 
 PERSONAS["guo_los"] = [
@@ -238,7 +249,7 @@ PERSONAS["guo_los"] = [
     "Internal Medicine Specialist",
     "Intensivist",
     "Discharge Planner",
-    "Clinical Data Scientist"
+    "Clinical Data Scientist",
 ]
 
 PERSONAS["guo_readmission"] = [
@@ -246,7 +257,7 @@ PERSONAS["guo_readmission"] = [
     "Internal Medicine Specialist",
     "Case Manager",
     "Discharge Planner",
-    "Primary Care Physician"
+    "Primary Care Physician",
 ]
 
 PERSONAS["lab_anemia"] = [
@@ -254,7 +265,7 @@ PERSONAS["lab_anemia"] = [
     "Primary Care Physician",
     "Internal Medicine Specialist",
     "Clinical Pathologist",
-    "Nurse Practitioner"
+    "Nurse Practitioner",
 ]
 
 PERSONAS["lab_hyperkalemia"] = [
@@ -270,7 +281,7 @@ PERSONAS["lab_hypoglycemia"] = [
     "Primary Care Physician",
     "Diabetologist",
     "Clinical Laboratory Scientist",
-    "Nurse Practitioner"
+    "Nurse Practitioner",
 ]
 
 PERSONAS["lab_hyponatremia"] = [
@@ -1094,32 +1105,47 @@ CODE_DEFS = {
 
 ACTION_TMPL = (
     "Review the patient's EHR history. Based on all available medical evidence in the provided EHR, please "
-    'answer the question: {question}'
+    "answer the question: {question}"
 )
 
 ACTION_COT_TMPL = (
     "Review the patient's EHR history. Based on all available medical evidence in the provided EHR, please "
     "answer the question: {question} Reflect on the problem and generate a numbered list of the steps "
-    'you took to reach your conclusion.'
+    "you took to reach your conclusion."
 )
 
 
-def lumia_prompt(task_name: str, config: Dict[str, Any], examples: List[Dict[str, Any]], timeline: Dict[str, Any]) -> str:
+def lumia_prompt(
+    task_name: str, config: Dict[str, Any], examples: List[Dict[str, Any]], timeline: Dict[str, Any]
+) -> str:
     # Base template
-    task_config = CONFIG['guo'] if task_name.startswith('guo') else CONFIG['lab'] if task_name.startswith('lab') else CONFIG['new']
-    tmpl: Dict[str, Any] = base_prompt(task_name, **task_config)
-    
+    task_config = (
+        CONFIG["guo"]
+        if task_name.startswith("guo")
+        else CONFIG["lab"] if task_name.startswith("lab") else CONFIG["new"]
+    )
+    tmpl: Dict[str, Any]
+    if isinstance(task_config, dict):
+        tmpl = base_prompt(task_name, **task_config)
+    else:
+        # Fallback in case it's not a dict
+        tmpl = base_prompt(task_name, is_include_persona=True)
+
     # EHR => String converter
-    if config.get('ehr_converter') == 'codes_and_timestamps':
+    if config.get("ehr_converter") == "codes_and_timestamps":
         ehr_converter = codes_and_timestamps
-    elif config.get('ehr_converter') == 'codes_only':
+    elif config.get("ehr_converter") == "codes_only":
         ehr_converter = codes_only
     else:
         raise ValueError(f"Invalid `ehr_converter` strategy: {config.get('ehr_converter')}")
-    
+
     # Examples
-    # examples: str = "\n\n# Examples\n\n" + "\n".join([tmpl['example'].format(ehr=ehr_converter(e['ehr']), label=e['label']) for e in examples]) + "\n\n" if len(examples) > 0 else ""
-    tmpl['instruction']=tmpl['instruction'].replace("Then respond with \"yes\" or \"no\" as your final output", "Then respond with \"A\" for yes or \"B\" for no as your final output")
+    # examples: str = "\n\n# Examples\n\n" + "\n".join([tmpl['example'].format(ehr=ehr_converter(e['ehr']), \
+    # label=e['label']) for e in examples]) + "\n\n" if len(examples) > 0 else ""
+    tmpl["instruction"] = tmpl["instruction"].replace(
+        'Then respond with "yes" or "no" as your final output',
+        'Then respond with "A" for yes or "B" for no as your final output',
+    )
     # Prompt
     prompt: str = f"""
 # Instructions
@@ -1129,9 +1155,10 @@ def lumia_prompt(task_name: str, config: Dict[str, Any], examples: List[Dict[str
 {tmpl['example'].format(ehr=ehr_converter(timeline['ehr']))}"""
     return prompt
 
+
 def get_code_def(task_name: str):
     """Create a text list of all codes defining this task definition."""
-    code_def = []
+    code_def: List[str] = []
     for parent in CODE_DEFS[task_name]:
         code_def.extend(CODE_DEFS[task_name][parent]["descendants"])
 
@@ -1151,28 +1178,31 @@ def base_prompt(
     """
     Build the base prompt template for the provided task_name. This will create
     a prompt that can be populated by specific labeled patient examples.
-    
+
     Example output:
-        'instruction': 'You are an expert endocrinologist at Stanford Healthcare, an academic medical center affiliated with 
-                        Stanford University. You specialize in diagnosing and treating hypertension.\n\n
-                        Clinical Definition: Hypertension, or high blood pressure, is a chronic medical condition characterized 
-                        by persistently elevated blood pressure in the arteries, with a resting measurement at or above 130/80 mmHg. 
-                        It is a significant risk factor for numerous cardiovascular and systemic diseases, including stroke, coronary 
-                        artery disease, heart failure, atrial fibrillation, and chronic kidney disease. Hypertension is divided into 
-                        primary (essential) hypertension, accounting for 90-95% of cases, which is due to nonspecific lifestyle and 
-                        genetic factors, and secondary hypertension, due to identifiable causes like chronic kidney disease and endocrine 
-                        disorders. Identifying hypertension in a patient\'s EHR involves reviewing blood pressure readings, assessing 
-                        for risk factors such as obesity, high salt intake, and smoking, and noting any related health conditions or 
-                        medications.\n\n
-                        Medical Code Definition: In an electronic health record (EHR), hypertension is denoted by the 
-                        occurrence of any of the following medical codes: ICD10CM/I10, ICD9CM/401, ICD9CM/401.0, ICD9CM/401.1, 
-                        ICD9CM/401.9, SNOMED/1201005, SNOMED/1218009, SNOMED/155296003, SNOMED/18416000, SNOMED/194758001, 
-                        SNOMED/194760004, SNOMED/19769006, SNOMED/23717007, SNOMED/266228004, SNOMED/35303009, SNOMED/371125006, 
-                        SNOMED/40511000119107, SNOMED/429457004, SNOMED/46481004, SNOMED/59621000, SNOMED/63287004, SNOMED/71874008, 
+        'instruction': 'You are an expert endocrinologist at Stanford Healthcare, an academic medical center
+                        affiliated with Stanford University. You specialize in diagnosing and treating
+                        hypertension.\n\n Clinical Definition: Hypertension, or high blood pressure, is a
+                        chronic medical condition characterized by persistently elevated blood pressure in
+                        the arteries, with a resting measurement at or above 130/80 mmHg.
+                        It is a significant risk factor for numerous cardiovascular and systemic diseases,
+                        including stroke, coronary artery disease, heart failure, atrial fibrillation, and
+                        chronic kidney disease. Hypertension is divided into primary (essential) hypertension,
+                        accounting for 90-95% of cases, which is due to nonspecific lifestyle and
+                        genetic factors, and secondary hypertension, due to identifiable causes like chronic
+                        kidney disease and endocrine disorders. Identifying hypertension in a patient\'s EHR
+                        involves reviewing blood pressure readings, assessing for risk factors such as obesity,
+                        high salt intake, and smoking, and noting any related health conditions or medications.\n\n
+                        Medical Code Definition: In an electronic health record (EHR), hypertension is denoted by the
+                        occurrence of any of the following medical codes: ICD10CM/I10, ICD9CM/401, ICD9CM/401.0,
+                        ICD9CM/401.1, ICD9CM/401.9, SNOMED/1201005, SNOMED/1218009, SNOMED/155296003,
+                        SNOMED/18416000, SNOMED/194758001, SNOMED/194760004, SNOMED/19769006, SNOMED/23717007,
+                        SNOMED/266228004, SNOMED/35303009, SNOMED/371125006, SNOMED/40511000119107, SNOMED/429457004,
+                        SNOMED/46481004, SNOMED/59621000, SNOMED/63287004, SNOMED/71874008,
                         SNOMED/72022006, SNOMED/78808002, SNOMED/78975002, SNOMED/9901000\n\n
-                        Instruction: Review the patient\'s EHR history and answer the following question: Based on all available medical 
-                        evidence in the provided EHR, is this patient likely to receive a first time diagnosis of hypertension within 
-                        the next year?'
+                        Instruction: Review the patient\'s EHR history and answer the following question:
+                        Based on all available medical evidence in the provided EHR, is this patient likely to
+                        receive a first time diagnosis of hypertension within the next year?'
         'example':     'Patient EHR: {ehr}\n\n'
         'delimiter':    '\n##\n'
     """
@@ -1209,32 +1239,29 @@ def base_prompt(
                 code_def=get_code_def(task_name),
             )
         )
-    
+
     # 4. Question for this task
     question: str = TASK_QUESTIONS[task_name]
 
     # 4. Action
     if is_include_cot:
-        prompt.append(
-            "Instruction: " + ACTION_COT_TMPL.format(question=question)
-        )
+        prompt.append("Instruction: " + ACTION_COT_TMPL.format(question=question))
     else:
-        prompt.append(
-            "Instruction: " + ACTION_TMPL.format(question=question)
-        )
+        prompt.append("Instruction: " + ACTION_TMPL.format(question=question))
 
     # padding
     prompt = [item + "\n" for item in prompt]
-    prompt = "\n".join(prompt)
+    prompt_text = "\n".join(prompt)
     return {
-        "instruction": prompt,
+        "instruction": prompt_text,
         "example": "Patient EHR:\n{ehr}\n\n",
         "delimiter": "\n##\n",
     }
 
+
 def codes_and_timestamps(events: List[Dict[str, Any]]) -> str:
     """Format a list of MEDS events into a string.
-    
+
     Example:
         > events = [
             { 'time' : datetime.datetime(2024, 1, 1), 'code' : 'ICD10CM/C25.9' },
@@ -1250,15 +1277,16 @@ def codes_and_timestamps(events: List[Dict[str, Any]]) -> str:
     """
     return "\n".join([f"- {event['time'].strftime('%Y-%m-%d')} {event['code']}" for event in events])
 
-def codes_only(events: List[Union[str, Dict[str, Any]]]) -> str:
+
+def codes_only(events: List[Any]) -> str:
     """Format a list of MEDS events into a string.
-    
+
     Example:
         events = [
             { 'time' : datetime.datetime(2024, 1, 1), 'code' : 'ICD10CM/C25.9' },
             { 'time' : datetime.datetime(2024, 1, 2), 'code' : 'ICD10CM/C25.9' },
             { 'time' : datetime.datetime(2024, 1, 3), 'code' : 'ICD10CM/C25.9' },
-        ] or 
+        ] or
         events = [
             'ICD10CM/C25.9',
             'ICD10CM/C25.9',
@@ -1274,30 +1302,36 @@ def codes_only(events: List[Union[str, Dict[str, Any]]]) -> str:
     return "\n".join([f"- {event['code'] if isinstance(event, dict) else event}" for event in events])
 
 
-def _process_prior_events_chunk(chunk_data: pd.DataFrame, grouped_a: pd.DataFrame, is_show_tqdm: bool = False) -> List[List[str]]:
+def _process_prior_events_chunk(
+    chunk_data: pd.DataFrame, grouped_a: pd.DataFrame, is_show_tqdm: bool = False
+) -> List[List[str]]:
     """Process a chunk of label rows and return their prior events."""
     chunk_prior_events: List[List[str]] = []
-    for _, row_b in tqdm(chunk_data.iterrows(), total=len(chunk_data), desc="Processing labels", disable=not is_show_tqdm):
+    for _, row_b in tqdm(
+        chunk_data.iterrows(), total=len(chunk_data), desc="Processing labels", disable=not is_show_tqdm
+    ):
         # Find events for this patient that occur before the specified time
-        patient_events = grouped_a.get_group(row_b['subject_id']) if row_b['subject_id'] in grouped_a.groups else pd.DataFrame()
-        
+        patient_events = (
+            grouped_a.get_group(row_b["subject_id"]) if row_b["subject_id"] in grouped_a.groups else pd.DataFrame()
+        )
+
         if len(patient_events) == 0:
             chunk_prior_events.append([])
             continue
-        
+
         # Filter events before the specified time
-        prior_patient_events = patient_events[patient_events['time'] <= row_b['prediction_time']]
-        
+        prior_patient_events = patient_events[patient_events["time"] <= row_b["prediction_time"]]
+
         # Collect codes
-        chunk_prior_events.append(list(prior_patient_events['code']))
-    
+        chunk_prior_events.append(list(prior_patient_events["code"]))
+
     return chunk_prior_events
 
 
 def get_prior_events(df_data: pd.DataFrame, df_labels: pd.DataFrame, n_procs: int = 4) -> List[List[str]]:
     """
     Find events for each patient in `df_data` that occur before the specified time in `df_labels`
-    
+
     Returns:
     --------
     list of lists
@@ -1306,40 +1340,37 @@ def get_prior_events(df_data: pd.DataFrame, df_labels: pd.DataFrame, n_procs: in
     # Convert Polars DataFrames to pandas
     df_data = df_data.to_pandas() if not isinstance(df_data, pd.DataFrame) else df_data
     df_labels = df_labels.to_pandas() if not isinstance(df_labels, pd.DataFrame) else df_labels
-    
+
     # Sort both dataframes to ensure proper filtering
-    df_data_sorted = df_data.sort_values(['subject_id', 'time'])
-    df_labels_sorted = df_labels.sort_values(['subject_id', 'prediction_time'])
-    
+    df_data_sorted = df_data.sort_values(["subject_id", "time"])
+    df_labels_sorted = df_labels.sort_values(["subject_id", "prediction_time"])
+
     # Create a list to store results
     prior_events: List[List[str]] = []
-    
+
     # Group A dataframe by subject_id for efficient lookup
-    grouped_a = df_data_sorted.groupby('subject_id')
-    
+    grouped_a = df_data_sorted.groupby("subject_id")
+
     if n_procs == 1:
         prior_events = _process_prior_events_chunk(df_labels_sorted, grouped_a, is_show_tqdm=True)
     else:
         # Split df_labels_sorted into n chunks
         chunk_size = 1_000
-        chunks = [df_labels_sorted.iloc[i:i + chunk_size] for i in range(0, len(df_labels_sorted), chunk_size)]
-        
+        chunks = [df_labels_sorted.iloc[i : i + chunk_size] for i in range(0, len(df_labels_sorted), chunk_size)]
+
         # Create partial function with grouped_a already set
         process_chunk_partial = partial(_process_prior_events_chunk, grouped_a=grouped_a)
-        
+
         # Process chunks in parallel
         print(f"Processing {len(chunks)} chunks across {n_procs} processes...")
         with multiprocessing.Pool(n_procs) as pool:
-            results = list(tqdm(
-                pool.imap(process_chunk_partial, chunks),
-                total=len(chunks),
-                desc="Processing chunks"
-            ))
-        
+            results = list(tqdm(pool.imap(process_chunk_partial, chunks), total=len(chunks), desc="Processing chunks"))
+
         # Flatten results
         prior_events = [event for chunk_result in results for event in chunk_result]
 
     return prior_events
+
 
 def count_tokens(text: str, model: str = "gpt-4") -> int:
     """
@@ -1347,17 +1378,18 @@ def count_tokens(text: str, model: str = "gpt-4") -> int:
     """
     # Load the tokenizer for the specified model
     tokenizer = tiktoken.encoding_for_model(model)
-    
+
     # Encode the text to get the tokens
     tokens = tokenizer.encode(text)
-    
+
     # Return the number of tokens
     return len(tokens)
+
 
 class EHRSHOTScenario(Scenario):
     """
     From "An EHR Benchmark for Few-Shot Evaluation of Foundation Models" (Wornow et al. 2023),
-    EHRSHOT is a collection of structured data from 6,739 deidentified longitudinal 
+    EHRSHOT is a collection of structured data from 6,739 deidentified longitudinal
     electronic health records (EHRs) sourced from Stanford Medicine. It contains
     15 unique clinical prediction tasks. We use a subset of 14 of these tasks, namely
     the binary classification tasks.
@@ -1365,7 +1397,7 @@ class EHRSHOTScenario(Scenario):
     Citation
     ```
     @article{wornow2023ehrshot,
-        title={EHRSHOT: An EHR Benchmark for Few-Shot Evaluation of Foundation Models}, 
+        title={EHRSHOT: An EHR Benchmark for Few-Shot Evaluation of Foundation Models},
         author={Michael Wornow and Rahul Thapa and Ethan Steinberg and Jason Fries and Nigam Shah},
         year={2023},
         eprint={2307.02028},
@@ -1376,65 +1408,70 @@ class EHRSHOTScenario(Scenario):
     """
 
     name = "ehrshot"
-    description = "A dataset given a patient record of EHR codes, classifying if an event will occur at a future date or not."
-    tags = [] # TODO
+    description = (
+        "A dataset given a patient record of EHR codes, classifying if an event will occur at a future date or not."
+    )
+    tags = []  # TODO
 
-    POSSIBLE_ANSWER_CHOICES: List[str] = ["yes", "no",]
+    POSSIBLE_ANSWER_CHOICES: List[str] = [
+        "yes",
+        "no",
+    ]
 
-    def __init__(self, 
-        subject: str,
-        max_length: Optional[int] = None
-    ):
+    def __init__(self, subject: str, max_length: Optional[int] = None):
         super().__init__()
-        self.subject: str = subject # same as "task" or "labeling_function"
+        self.subject: str = subject  # same as "task" or "labeling_function"
         self.path_to_meds_dir: str = "/share/pi/nigam/data/medhelm/ehrshot/meds/"
         self.path_to_tmp_dir: str = "/share/pi/nigam/data/medhelm/ehrshot/prompts/"
         self.max_length = max_length
 
-    def create_benchmark(self, n_procs: int = 4)->Dict[str, str]:
+    def create_benchmark(self, n_procs: int = 4) -> Dict[str, str]:
         """Loads the MEDS dataset and converts it to prompts"""
 
         # Load MEDS EHRSHOT patient timelines
         df_data = pd.read_parquet(os.path.join(self.path_to_meds_dir, "data/data.parquet"))
         df_splits = pd.read_parquet(os.path.join(self.path_to_meds_dir, "metadata/subject_splits.parquet"))
-        
+
         # Load MEDS EHRSHOT labels
         tasks = sorted(os.listdir(os.path.join(self.path_to_meds_dir, "labels")))
         for t in tasks:
             path_to_labels: str = os.path.join(self.path_to_meds_dir, "labels", t, "labels.parquet")
-            if (
-                t != self.subject
-                or not os.path.exists(path_to_labels)
-            ):
+            if t != self.subject or not os.path.exists(path_to_labels):
                 continue
             df_labels = pd.read_parquet(path_to_labels)
-            
-            # If lab value task, limit to 10k random labels b/c too many in EHRSHOT (upwards of 300k)
-            if self.subject.startswith('lab_'):
-                df_labels = df_labels.sample(n=CONFIG['max_labels_per_task'], random_state=CONFIG['seed'])
-            
-            # Create patient timelines, limited to only events prior to the prediction time of the label
-            timelines: List[List[Dict[str, Any]]] = get_prior_events(df_data, df_labels, n_procs=n_procs)
-            assert len(timelines) == df_labels.shape[0], f"Expected {df_labels.shape[0]} prior events, got {len(timelines)}"
 
+            # If lab value task, limit to 10k random labels b/c too many in EHRSHOT (upwards of 300k)
+            if self.subject.startswith("lab_"):
+                df_labels = df_labels.sample(n=CONFIG["max_labels_per_task"], random_state=CONFIG["seed"])
+
+            # Create patient timelines, limited to only events prior to the prediction time of the label
+            timelines_raw: List[List[str]] = get_prior_events(df_data, df_labels, n_procs=n_procs)
+            timelines: List[List[Dict[str, Any]]] = [
+                [{"code": code} for code in timeline] for timeline in timelines_raw
+            ]
+            assert (
+                len(timelines) == df_labels.shape[0]
+            ), f"Expected {df_labels.shape[0]} prior events, got {len(timelines)}"
 
         # Add splits
-        df_labels['split'] = df_labels['subject_id'].map(df_splits['split'])
+        df_labels["split"] = df_labels["subject_id"].map(df_splits["split"])
 
         # TODO -- Few-shot examples
-        examples = [ ]
-        for i in range(CONFIG['n_shots']):
+        examples: List[Dict[str, Any]] = []
+        n_shots = CONFIG.get("n_shots", 0)
+        for i in range(n_shots if isinstance(n_shots, int) else 0):
             pass
 
         # Create LUMIA-ified prompt for each label
         print(f"Generating {len(timelines)} prompts...")
-        prompts: List[str] = [lumia_prompt(self.subject, CONFIG, examples, {'ehr': x, 'label': 0}) for x in timelines]
-        df_labels['prompt'] = prompts
+        prompts: List[str] = [lumia_prompt(self.subject, CONFIG, examples, {"ehr": x, "label": 0}) for x in timelines]
+        df_labels["prompt"] = prompts
 
         # Save to parquet
         path_to_output_dir: str = os.path.join(self.path_to_tmp_dir, self.subject)
         ensure_directory_exists(path_to_output_dir)
         df_labels.to_parquet(os.path.join(path_to_output_dir, "medhelm_prompts.parquet"))
+        return {"status": "success"}
 
     def get_instances(self, output_path: str) -> List[Instance]:
         path_to_input_csv: str = os.path.join(self.path_to_tmp_dir, self.subject, "medhelm_prompts.parquet")
@@ -1448,54 +1485,58 @@ class EHRSHOTScenario(Scenario):
         # Generate instances
         instances: List[Instance] = []
         # df['prompt']=df['prompt'].str.replace('yes','A for yes').str.replace('no','B for no')
-        for prompt, label, split in tqdm(zip(df['prompt'], df['boolean_value'], df['split']), total=len(df), desc="Generating instances"):
-            if count_tokens(prompt) > self.max_length:
+        for prompt, label, split in tqdm(
+            zip(df["prompt"], df["boolean_value"], df["split"]), total=len(df), desc="Generating instances"
+        ):
+            if self.max_length is not None and count_tokens(prompt) > self.max_length:
                 continue
             label = "yes" if label else "no"
             # split = TEST_SPLIT if split == "held_out" else (VALID_SPLIT if split == "tuning" else TRAIN_SPLIT)
             references: List[Reference] = [
-                        Reference(Output(text=pred_answer), tags=[CORRECT_TAG] if pred_answer == label else [])
-                        for pred_answer in EHRSHOTScenario.POSSIBLE_ANSWER_CHOICES
-                    ]
+                Reference(Output(text=pred_answer), tags=[CORRECT_TAG] if pred_answer == label else [])
+                for pred_answer in EHRSHOTScenario.POSSIBLE_ANSWER_CHOICES
+            ]
             instances.append(
                 Instance(
-                    input=Input(text=prompt), # prompt
-                    references=references, # `plan` is the the label; `tags` is whether it is correct`
-                    split=TEST_SPLIT, # the split
+                    input=Input(text=prompt),  # prompt
+                    references=references,  # `plan` is the the label; `tags` is whether it is correct`
+                    split=TEST_SPLIT,  # the split
                 )
             )
-            
+
         return instances
+
 
 if __name__ == "__main__":
     # Generate statistics on prompts
     from transformers import AutoTokenizer
+
     tokenizer = AutoTokenizer.from_pretrained("gpt2")
     tqdm.pandas()
     n_procs: int = 10
 
-    os.makedirs('./ehrshot_stats', exist_ok=True)
+    os.makedirs("./ehrshot_stats", exist_ok=True)
     for t in TASK_FULL_NAMES.keys():
         # Skip if already exists
-        if os.path.exists(f'./ehrshot_stats/{t}.txt'):
+        if os.path.exists(f"./ehrshot_stats/{t}.txt"):
             print(f"Skipping {t} because it already exists")
             continue
 
         # Create benchmark
         scenario = EHRSHOTScenario(subject=t)
         scenario.create_benchmark(n_procs=n_procs)
-        instances = scenario.get_instances('test.csv')
-            
+        instances = scenario.get_instances("test.csv")
+
         # Calculate prompt token stats
         path_to_input_csv = os.path.join(scenario.path_to_tmp_dir, scenario.subject, "medhelm_prompts.parquet")
         df = pd.read_parquet(path_to_input_csv)
-        df['prompt_n_tokens'] = df['prompt'].progress_apply(lambda x: len(tokenizer.encode(x)))
-        with open(f'./ehrshot_stats/{t}.txt', 'w') as f:
-            f.write("-"*100 + "\n")
+        df["prompt_n_tokens"] = df["prompt"].progress_apply(lambda x: len(tokenizer.encode(x)))
+        with open(f"./ehrshot_stats/{t}.txt", "w") as f:
+            f.write("-" * 100 + "\n")
             f.write(f"Task: {t}\n")
             f.write(f"# of instances: {len(instances)}\n")
             f.write(f"# of positives: {df['boolean_value'].sum()}\n")
             f.write(f"Size of splits:\n{df['split'].value_counts()}\n")
             f.write(f"# tokens per prompt:\n{df['prompt_n_tokens'].describe()}\n")
-            f.write("-"*100 + "\n")
+            f.write("-" * 100 + "\n")
         df.to_parquet(os.path.join(scenario.path_to_tmp_dir, scenario.subject, "medhelm_prompts.parquet"))
