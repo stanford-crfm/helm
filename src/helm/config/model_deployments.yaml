@@ -2021,6 +2021,14 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
+  ## GPT-4.5
+  - name: openai/gpt-4.5-preview-2025-02-27
+    model_name: openai/gpt-4.5-preview-2025-02-27
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
   ## o1 Models
   - name: openai/o1-2024-12-17
     model_name: openai/o1-2024-12-17
