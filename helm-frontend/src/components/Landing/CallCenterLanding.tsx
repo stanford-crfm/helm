@@ -1,53 +1,43 @@
 import MiniLeaderboard from "@/components/MiniLeaderboard";
 import { Link } from "react-router-dom";
 
-import accenture from "@/assets/logos/accenture.png";
-import cresta from "@/assets/logos/cresta.png";
-
 export default function CallCenterLanding() {
   return (
     <div className="container mx-auto px-16">
-      <h1 className="text-3xl my-8 font-bold text-center">HELM Call Center</h1>
+      <h1 className="text-3xl my-8 font-bold text-center">
+        HELM Call Center Leaderboard
+      </h1>
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 text-l">
-          <div className="text-center">
-            <a href="https://www.accenture.com/">
-              <img
-                src={accenture}
-                alt="Logo"
-                className="inline h-12 mx-4 my-4"
-              />
-            </a>
-            <a href="https://www.cresta.com/">
-              <img src={cresta} alt="Logo" className="inline h-8 mx-4 my-4" />
-            </a>
-          </div>
-          <p>
-            In collaboration with{" "}
+          <p className="my-4">
+            LLMs show great potential for applications for the call center, yet
+            there is a lack of domain-specific and ecologically-valid
+            evaluations in this domain. To address this, we introduce the{" "}
+            <strong className="font-bold">HELM Call Center leaderboard</strong>.
+            The HELM Call Center leaderboard evaluates leading LLMs on a
+            summarization task over a dataset of real helpdesk call transcripts
+            provided by Accenture. The quality of the summaries is evaluated
+            using LLM-as-judge with an ensemble of 3 models. We hope that this
+            leaderboard provides some initial insights into the potential of
+            LLMs in this domain.
+          </p>
+          <p className="my-4">
+            This leaderboard was produced through research collaboration with{" "}
             <a
-              href="https://www.accenture.com/"
               className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+              href="https://www.accenture.com/"
             >
               Accenture
-            </a>{" "}
-            and{" "}
-            <a
-              href="https://www.cresta.com/"
-              className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
-            >
-              Cresta
             </a>
-            , we introduce the HELM{" "}
-            <span className="font-bold">Call Center</span> leaderboard. HELM
-            Call Center is a leaderboard consisting of evaluations of leading
-            language models on scenarios with realistic tasks from the call
-            center context.
+            , and was funded by the{" "}
+            <a
+              className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+              href="https://hai.stanford.edu/corporate-affiliate-program"
+            >
+              HAI Corporate Affiliate Program
+            </a>
+            .
           </p>
-          <div className="flex flex-row justify-center my-4">
-            <Link to="leaderboard" className="px-10 btn rounded-md mx-4">
-              Full Leaderboard
-            </Link>
-          </div>
         </div>
         <div
           className="py-2 pb-6 rounded-3xl bg-gray-100 h-full" // Stretched to full height
