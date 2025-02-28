@@ -78,6 +78,12 @@
 		"releases": ["v1.0.0"]
 	},
 	{
+		"title": "MedHELM",
+		"description": "A benchmark by medical experts for LLMs grounded in real-world healthcare needs",
+		"id": "medhelm",
+		"releases": ["v1.0.0"]
+	},
+	{
 		"title": "All Leaderboards",
 		"description": "Home page for all HELM leaderboards",
 		"id": "home",
