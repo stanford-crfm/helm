@@ -10,16 +10,17 @@ import re
 from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.preprocessing import MultiLabelBinarizer
 
+
 class MIMICIVBillingCodeMetric(Metric):
     """
     Metric for evaluating the MIMIC Billing Code dataset, assessing the model's ability to match the
     reference ICD codes. Handles cases where raw prediction output contains additional text.
-    
+
     Calculates:
     1. Precision: proportion of correctly predicted ICD codes among all predicted codes
     2. Recall: proportion of correctly predicted ICD codes among all reference codes
     3. F1 score: harmonic mean of precision and recall
-    
+
     ICD codes format: letter followed by 1-3 digits, optional period, optional additional digits
     Examples: "J18.9", "J45.909", "J47.1", "J96.01"
     """
@@ -28,7 +29,7 @@ class MIMICIVBillingCodeMetric(Metric):
         """Extract ICD codes from text, handling markdown and standardizing format."""
         if not text:
             return []
-            
+
         # Remove markdown bold formatting
         cleaned_text = re.sub(r"\*\*", "", text)
         # Match ICD code pattern with optional period and trailing digits
@@ -48,20 +49,20 @@ class MIMICIVBillingCodeMetric(Metric):
         Evaluate a single generation against reference labels.
         """
         # Extract predictions
-        predictions = [
-            completion.text.strip() for completion in request_state.result.completions
-        ]
-
+        if request_state.result is None:
+            predictions = []
+        else:
+            predictions = [completion.text.strip() for completion in request_state.result.completions]
         if not predictions:
             hlog("Warning: No predictions found in completions")
             return []
 
         # Get the first prediction
         prediction = predictions[0]
-        
+
         # Get references
         references = getattr(request_state.instance, "references", None)
-        
+
         if not references or len(references) == 0:
             hlog(f"Warning: Missing references for instance {request_state.instance}")
             return []
@@ -79,7 +80,7 @@ class MIMICIVBillingCodeMetric(Metric):
         # Convert to binary format for metrics
         all_codes = sorted(list(set(ref_codes + pred_codes)))
         mlb = MultiLabelBinarizer(classes=all_codes)
-        
+
         y_true_bin = mlb.fit_transform([ref_codes])
         y_pred_bin = mlb.transform([pred_codes])
 
@@ -101,21 +102,20 @@ class MIMICIVBillingCodeMetric(Metric):
         metric_sums = {
             "mimiciv_billing_code_precision": 0.0,
             "mimiciv_billing_code_recall": 0.0,
-            "mimiciv_billing_code_f1": 0.0
+            "mimiciv_billing_code_f1": 0.0,
         }
         metric_counts = {
             "mimiciv_billing_code_precision": 0,
             "mimiciv_billing_code_recall": 0,
-            "mimiciv_billing_code_f1": 0
+            "mimiciv_billing_code_f1": 0,
         }
 
-        # Sum up values for each metric
         for stat in stats:
-            if stat.name in metric_sums:
-                metric_sums[stat.name] += stat.value
-                metric_counts[stat.name] += 1
+            metric_name = str(stat.name)
+            if metric_name in metric_sums:
+                metric_sums[metric_name] += stat.sum
+                metric_counts[metric_name] += 1
 
-        # Calculate averages
         results = {}
         for metric_name in metric_sums:
             if metric_counts[metric_name] > 0:

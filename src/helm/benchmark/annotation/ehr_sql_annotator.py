@@ -18,9 +18,7 @@ class EhrSqlAnnotator(Annotator):
     def annotate(self, request_state: RequestState) -> Any:
         """Evaluate SQL execution accuracy by running queries against the eicu.sqlite database."""
 
-        databases_root_path = os.path.join(
-            get_benchmark_output_path(), "scenarios", "ehr_sql"
-        )
+        databases_root_path = os.path.join(get_benchmark_output_path(), "scenarios", "ehr_sql")
         database_path = os.path.join(databases_root_path, "eicu.sqlite")
 
         assert len(request_state.instance.references) == 1
@@ -37,7 +35,9 @@ class EhrSqlAnnotator(Annotator):
             hlog(f"WARNING: Ground truth SQL failed with error: {e}")
 
         # If the database query returns empty, use `value` field as ground truth
-        if not ground_truth_result and "value" in request_state.instance.extra_data:
+        if (not ground_truth_result
+                and request_state.instance.extra_data is not None
+                and "value" in request_state.instance.extra_data):
             ground_truth_result = list(request_state.instance.extra_data["value"].values())
 
         assert request_state.result is not None
@@ -49,7 +49,7 @@ class EhrSqlAnnotator(Annotator):
 
         predicted_result: List[str] = []
         query_error: Optional[str] = None
-        predicted_sql = predicted_sql.replace("`","").strip()
+        predicted_sql = predicted_sql.replace("`", "").strip()
         predicted_sql = re.sub(r"^sql\n", "", predicted_sql, flags=re.MULTILINE)
         if not predicted_sql:
             query_error = "No query generated"

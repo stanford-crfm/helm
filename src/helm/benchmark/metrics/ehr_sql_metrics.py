@@ -21,7 +21,7 @@ class EhrSqlMetric(Metric):
     def extract_is_impossible(self, input_text: str) -> bool:
         """Extracts `is_impossible` from input_text using regex."""
         match = re.search(r'"is_impossible":\s*(true|false)', input_text, re.IGNORECASE)
-        return match and match.group(1).lower() == "true"
+        return bool(match and match.group(1).lower() == "true")
 
     def evaluate_generation(
         self,
@@ -48,8 +48,10 @@ class EhrSqlMetric(Metric):
         query_error = request_state.annotations["ehr_sql"].get("query_error", None)
 
         # Extract predictions from the model output
-        predictions = [completion.text.strip() for completion in request_state.result.completions]
-
+        if request_state.result is None:
+            predictions = []
+        else:
+            predictions = [completion.text.strip() for completion in request_state.result.completions]
         if not predictions:
             hlog(f"Warning: No predictions found in the completions for instance {request_state.instance}")
             return []
@@ -96,7 +98,6 @@ class EhrSqlMetric(Metric):
             # Execution-based Metrics
             Stat(MetricName("ehr_sql_execution_accuracy")).add(execution_accuracy),
             Stat(MetricName("ehr_sql_query_validity")).add(query_validity),
-
             # Answerability Metrics
             Stat(MetricName("ehr_sql_precision_answerable")).add(correct_answerable if is_predicted_answerable else 0),
             Stat(MetricName("ehr_sql_recall_answerable")).add(correct_answerable if is_answerable else 0),
@@ -108,18 +109,19 @@ class EhrSqlMetric(Metric):
         """
         Aggregate statistics to compute final metrics.
         """
+        # Extract execution-based metrics using sum instead of value
+        execution_correct = sum(stat.sum for stat in stats if stat.name == "ehr_sql_execution_accuracy")
+        query_valid = sum(stat.sum for stat in stats if stat.name == "ehr_sql_query_validity")
 
-        execution_correct = sum(stat.value for stat in stats if stat.name == "ehr_sql_execution_accuracy")
-        query_valid = sum(stat.value for stat in stats if stat.name == "ehr_sql_query_validity")
-
+        # Extract answerability metrics using sum
         correct_answerable = sum(
-            stat.value for stat in stats if stat.name in ["ehr_sql_precision_answerable", "ehr_sql_recall_answerable"]
+            stat.sum for stat in stats if stat.name in ["ehr_sql_precision_answerable", "ehr_sql_recall_answerable"]
         )
         total_predicted_answerable = sum(
-            stat.value for stat in stats if stat.name == "ehr_sql_total_predicted_answerable"
+            stat.sum for stat in stats if stat.name == "ehr_sql_total_predicted_answerable"
         )
         total_ground_truth_answerable = sum(
-            stat.value for stat in stats if stat.name == "ehr_sql_total_ground_truth_answerable"
+            stat.sum for stat in stats if stat.name == "ehr_sql_total_ground_truth_answerable"
         )
 
         total_queries = len(stats) // 6  # Each query contributes 6 stats
