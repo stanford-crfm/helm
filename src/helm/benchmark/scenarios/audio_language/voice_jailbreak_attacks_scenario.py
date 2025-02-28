@@ -78,6 +78,7 @@ class VoiceJailbreakAttacksScenario(Scenario):
             input = Input(
                 multimedia_content=MultimediaObject(
                     media_objects=[
+                        MediaObject(text="Listen to the audio and reply.", content_type="text/plain"),
                         MediaObject(location=audio_path, content_type="audio/wav"),
                     ]
                 )

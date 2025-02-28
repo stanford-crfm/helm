@@ -41,6 +41,7 @@ class OpenAIClient(CachingClient):
         "The server had an error processing your request. Sorry about that! You can retry your request, "
         "or contact us through our help center at help.openai.com if you keep seeing this error."
     )
+    OPENAI_INTERNAL_SERVER_ERROR: str = "An internal error occurred"
 
     # Set the finish reason to this if the prompt violates OpenAI's content policy
     CONTENT_POLICY_VIOLATED_FINISH_REASON: str = (
@@ -250,7 +251,7 @@ class OpenAIClient(CachingClient):
                     completions=[empty_completion] * request.num_completions,
                     embedding=[],
                 )
-            elif self.OPENAI_SERVER_ERROR in str(e):
+            elif self.OPENAI_SERVER_ERROR in str(e) or self.OPENAI_INTERNAL_SERVER_ERROR in str(e):
                 # Handle these errors by returning an empty completion to unblock
                 hlog(f"OpenAI server error for request: {str(request)}")
                 empty_completion = GeneratedOutput(
