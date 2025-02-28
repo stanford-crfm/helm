@@ -106,6 +106,14 @@ metrics:
     description: Score
     lower_is_better: false
 
+
+  - name: score
+    display_name: Score
+    short_display_name: Score
+    description: Score
+    lower_is_better: false
+
+
 ############################################################
 perturbations: []
 
@@ -115,6 +123,8 @@ metric_groups:
     display_name: Summarization
     hide_win_rates: true
     metrics:
+      - name: score
+        split: ${main_split}
       - name: annotation_helpdesk_call_center_summarization_score
         split: ${main_split}
       - name: annotation_call_center_summarization_faithfulness
