@@ -32,5 +32,5 @@ class HelpdeskCallSummarizationMetric(Metric):
         # normalize score
         score = (score - 1) / 9
         return [
-            Stat(MetricName("score")).add(score),
+            Stat(MetricName("call_summarization_score")).add(score),
         ]
