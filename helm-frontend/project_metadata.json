@@ -45,13 +45,13 @@
 		"title": "AIR-Bench",
 		"description": "Safety benchmark based on emerging government regulations and company policies",
 		"id": "air-bench",
-		"releases": ["v1.5.0", "v1.4.0", "v1.3.0", "v1.2.0", "v1.1.0", "v1.0.0"]
+		"releases": ["v1.6.0", "v1.5.0", "v1.4.0", "v1.3.0", "v1.2.0", "v1.1.0", "v1.0.0"]
 	},
 	{
 		"title": "Safety",
 		"description": "Safety benchmark that aggregates popular safety benchmarks across 6 risk vectors",
 		"id": "safety",
-		"releases": ["v1.1.0", "v1.0.0"]
+		"releases": ["v1.2.0", "v1.1.0", "v1.0.0"]
 	},
 	{
 		"title": "CLEVA",
