@@ -15,7 +15,7 @@ from helm.benchmark.scenarios.scenario import (
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-from helm.common.audio_utils import use_ffmpeg_to_extract_audio_from_video
+from helm.common.audio_utils import extract_audio
 
 
 class CasualConversations2Scenario(Scenario):
@@ -123,7 +123,9 @@ class CasualConversations2Scenario(Scenario):
             if file_name.endswith(".mp4"):
                 local_audio_path: str = os.path.join(audio_file_folder, file_name.replace(".mp4", ".mp3"))
                 local_video_path: str = os.path.join(data_dir, file_name)
-                use_ffmpeg_to_extract_audio_from_video(local_video_path, local_audio_path)
+
+                if not os.path.exists(local_audio_path):
+                    extract_audio(local_video_path, local_audio_path)
                 assert os.path.exists(local_audio_path), f"Audio file does not exist at path: {local_audio_path}"
 
                 subject_answer = audio_scripts[file_name][self._subject]

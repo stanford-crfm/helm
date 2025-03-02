@@ -106,6 +106,14 @@ metrics:
     description: Score
     lower_is_better: false
 
+
+  - name: call_summarization_score
+    display_name: Score
+    short_display_name: Score
+    description: Score
+    lower_is_better: false
+
+
 ############################################################
 perturbations: []
 
@@ -115,14 +123,16 @@ metric_groups:
     display_name: Summarization
     hide_win_rates: true
     metrics:
-      - name: annotation_helpdesk_call_center_summarization_score
+      - name: call_summarization_score
         split: ${main_split}
-      - name: annotation_call_center_summarization_faithfulness
-        split: ${main_split}
-      - name: annotation_call_center_summarization_relevance
-        split: ${main_split}
-      - name: annotation_call_center_summarization_coherence
-        split: ${main_split}
+      # - name: annotation_helpdesk_call_center_summarization_score
+      #   split: ${main_split}
+      # - name: annotation_call_center_summarization_faithfulness
+      #   split: ${main_split}
+      # - name: annotation_call_center_summarization_relevance
+      #   split: ${main_split}
+      # - name: annotation_call_center_summarization_coherence
+      #   split: ${main_split}
 
   - name: pairwise_comparison_metrics
     display_name: Pairwise Comparison
@@ -173,22 +183,22 @@ run_groups:
       # - call_center_summarization_pairwise_comparison
       # - call_center_summarization_key_points_recall
 
-  - name: call_center_summarization
-    display_name: Summarization
-    description: summarization
-    metric_groups:
-      # - accuracy
-      - summarization_metrics
-      - efficiency
-      - general_information
-    environment:
-      main_split: test
-    taxonomy:
-      task: summarization
-      what: n/a
-      who: n/a
-      when: "?"
-      language: English
+  # - name: call_center_summarization
+  #   display_name: Summarization
+  #   description: summarization
+  #   metric_groups:
+  #     # - accuracy
+  #     - summarization_metrics
+  #     - efficiency
+  #     - general_information
+  #   environment:
+  #     main_split: test
+  #   taxonomy:
+  #     task: summarization
+  #     what: n/a
+  #     who: n/a
+  #     when: "?"
+  #     language: English
 
   - name: helpdesk_call_summarization
     display_name: Helpdesk Call summarization
@@ -207,53 +217,53 @@ run_groups:
       when: "?"
       language: English
 
-  - name: call_center_summarization_real_call_transcripts
-    display_name: Summarization (Real)
-    description: Summarization with real call transcripts
-    metric_groups:
-      # - accuracy
-      - summarization_metrics
-      - efficiency
-      - general_information
-    environment:
-      main_split: test
-    taxonomy:
-      task: summarization
-      what: n/a
-      who: n/a
-      when: "?"
-      language: English
+  # - name: call_center_summarization_real_call_transcripts
+  #   display_name: Summarization (Real)
+  #   description: Summarization with real call transcripts
+  #   metric_groups:
+  #     # - accuracy
+  #     - summarization_metrics
+  #     - efficiency
+  #     - general_information
+  #   environment:
+  #     main_split: test
+  #   taxonomy:
+  #     task: summarization
+  #     what: n/a
+  #     who: n/a
+  #     when: "?"
+  #     language: English
 
-  - name: call_center_summarization_pairwise_comparison
-    display_name: Summarization (Pairwise)
-    description: summarization
-    metric_groups:
-      # - accuracy
-      - pairwise_comparison_metrics
-      - efficiency
-      - general_information
-    environment:
-      main_split: test
-    taxonomy:
-      task: summarization
-      what: n/a
-      who: n/a
-      when: "?"
-      language: English
+  # - name: call_center_summarization_pairwise_comparison
+  #   display_name: Summarization (Pairwise)
+  #   description: summarization
+  #   metric_groups:
+  #     # - accuracy
+  #     - pairwise_comparison_metrics
+  #     - efficiency
+  #     - general_information
+  #   environment:
+  #     main_split: test
+  #   taxonomy:
+  #     task: summarization
+  #     what: n/a
+  #     who: n/a
+  #     when: "?"
+  #     language: English
 
-  - name: call_center_summarization_key_points_recall
-    display_name: Summarization (Key Points Recall)
-    description: summarization
-    metric_groups:
-      # - accuracy
-      - key_points_recall_metrics
-      - efficiency
-      - general_information
-    environment:
-      main_split: test
-    taxonomy:
-      task: summarization
-      what: n/a
-      who: n/a
-      when: "?"
-      language: English
+  # - name: call_center_summarization_key_points_recall
+  #   display_name: Summarization (Key Points Recall)
+  #   description: summarization
+  #   metric_groups:
+  #     # - accuracy
+  #     - key_points_recall_metrics
+  #     - efficiency
+  #     - general_information
+  #   environment:
+  #     main_split: test
+  #   taxonomy:
+  #     task: summarization
+  #     what: n/a
+  #     who: n/a
+  #     when: "?"
+  #     language: English

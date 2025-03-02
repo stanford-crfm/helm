@@ -144,7 +144,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: quasi_exact_match
+      main_name: execution_accuracy
       main_split: valid
     taxonomy:
       task: text-to-SQL

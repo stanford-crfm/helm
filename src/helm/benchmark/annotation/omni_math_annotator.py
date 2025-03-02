@@ -10,7 +10,7 @@ from helm.common.request import Request
 
 
 # Following https://github.com/KbsdJames/Omni-MATH/blob/23be225c8e268df51990f6c5c1448f34d3b56911/GPT_eval/get_result.py
-def parse_report(report):
+def _parse_report(report):
     parts = report.split("## ")
     data = {}
     for part in parts[1:]:
@@ -29,9 +29,10 @@ class OmniMATHAnnotator(Annotator):
 
     name = "omni_math"
 
-    def __init__(self, auto_client: AutoClient):
+    def __init__(self, auto_client: AutoClient, template_name: Optional[str] = None):
         self._auto_client = auto_client
-        template_path = files("helm.benchmark.annotation.omni_math").joinpath("gpt_evaluation_template.txt")
+        self._template_name = template_name or "gpt_evaluation_zero_shot_template"
+        template_path = files("helm.benchmark.annotation.omni_math").joinpath(f"{self._template_name}.txt")
         with template_path.open("r") as file:
             self._score_template = file.read()
 
@@ -80,7 +81,7 @@ class OmniMATHAnnotator(Annotator):
                 model_deployment=annotator_model_info.model_deployment,
                 prompt=annotator_prompt,
                 temperature=0.0,
-                max_tokens=1000,
+                max_tokens=4096,
             )
             annotator_response = self._auto_client.make_request(annotator_request)
             if not annotator_response.success:
@@ -91,8 +92,7 @@ class OmniMATHAnnotator(Annotator):
             else:
                 assert len(annotator_response.completions) == 1
                 annotator_response_text = annotator_response.completions[0].text
-
-                report_parts: Dict[str, str] = parse_report(annotator_response_text)
+                report_parts: Dict[str, str] = _parse_report(annotator_response_text)
                 try:
                     student_final_answer = report_parts["Student Final Answer"]
                 except KeyError:
@@ -127,6 +127,6 @@ class OmniMATHAnnotator(Annotator):
                     )
 
             annotations[f"{annotator_name}_student_final_answer"] = student_final_answer
-            annotations[f"{annotator_name}_equivalence_judgement"] = equivalence_judgement
             annotations[f"{annotator_name}_justification"] = justification
+            annotations[f"{annotator_name}_equivalence_judgement"] = equivalence_judgement
         return annotations

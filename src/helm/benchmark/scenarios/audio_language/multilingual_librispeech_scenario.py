@@ -1,5 +1,3 @@
-"""Scenarios for audio models"""
-
 from typing import List
 import os
 

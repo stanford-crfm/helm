@@ -445,6 +445,14 @@ models:
     release_date: 2024-10-22
     tags: [ANTHROPIC_CLAUDE_3_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: anthropic/claude-3-7-sonnet-20250219
+    display_name: Claude 3.7 Sonnet (20250219)
+    description: Claude 3.7 Sonnet is a Claude 3 family hybrid reasoning model that can produce near-instant responses or extended, step-by-step thinking that is made visible to the user ([blog](https://www.anthropic.com/news/claude-3-7-sonnet)).
+    creator_organization_name: Anthropic
+    access: limited
+    release_date: 2025-02-24
+    tags: [ANTHROPIC_CLAUDE_3_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: anthropic/stanford-online-all-v4-s3
     display_name: Anthropic-LM v4-s3 (52B)
     description: A 52B parameter language model, trained using reinforcement learning from human feedback [paper](https://arxiv.org/pdf/2204.05862.pdf).
@@ -1058,6 +1066,38 @@ models:
     creator_organization_name: Google
     access: limited
     release_date: 2024-12-11
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-1.5-flash-8b-001
+    display_name: Gemini 1.5 Flash 8B
+    description: Gemini 1.5 Flash-8B is a small model designed for lower intelligence tasks. ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2024-10-01
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-2.0-flash-001
+    display_name: Gemini 2.0 Flash
+    description: Gemini 2.0 Flash ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-02-01
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-2.0-flash-lite-preview-02-05
+    display_name: Gemini 2.0 Flash Lite (02-05 preview)
+    description: Gemini 2.0 Flash Lite (02-05 preview) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-02-05
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-2.0-pro-exp-02-05
+    display_name: Gemini 2.0 Pro (02-05 preview)
+    description: Gemini 2.0 Pro (02-05 preview) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-02-05
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemma-2b
@@ -2622,7 +2662,23 @@ models:
     description: GPT-4o Audio (Preview 2024-10-01) is a preview model that allows using use audio inputs to prompt the model ([documentation](https://platform.openai.com/docs/guides/audio)).
     creator_organization_name: OpenAI
     access: limited
-    release_date: 2024-10-17
+    release_date: 2024-10-01
+    tags: [AUDIO_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/gpt-4o-audio-preview-2024-12-17
+    display_name: GPT-4o Audio (Preview 2024-12-17)
+    description: GPT-4o Audio (Preview 2024-12-17) is a preview model that allows using use audio inputs to prompt the model ([documentation](https://platform.openai.com/docs/guides/audio)).
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2024-12-17
+    tags: [AUDIO_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/gpt-4o-mini-audio-preview-2024-12-17
+    display_name: GPT-4o mini Audio (Preview 2024-12-17)
+    description: GPT-4o mini Audio (Preview 2024-12-17) is a preview model that allows using use audio inputs to prompt the model ([documentation](https://platform.openai.com/docs/guides/audio)).
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2024-12-17
     tags: [AUDIO_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # GPT-4V
@@ -2643,6 +2699,15 @@ models:
     access: limited
     release_date: 2023-11-06
     tags: [VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
+
+  ## GPT-4.5
+  - name: openai/gpt-4.5-preview-2025-02-27
+    display_name: GPT-4.5 (2025-02-27 preview)
+    description: GPT-4.5 (2025-02-27 preview) is a large multimodal model that is designed to be more general-purpose than OpenAI's STEM-focused reasoning models. It was trained using new supervision techniques combined with traditional methods like supervised fine-tuning (SFT) and reinforcement learning from human feedback (RLHF). ([blog](https://openai.com/index/introducing-gpt-4-5/), [system card](https://openai.com/index/gpt-4-5-system-card/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-02-27
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   ## o1 Models
   - name: openai/o1-2024-12-17

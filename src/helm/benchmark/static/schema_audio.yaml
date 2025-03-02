@@ -172,6 +172,23 @@ metrics:
     description: Chinese character error rate (CER) for evaluating the accuracy of Chiese ASR.
     lower_is_better: true
 
+  # Toxicity metrics
+  - name: expected_max_toxicity
+    display_name: Average max toxicity
+    short_display_name: Avg. max toxicity
+    lower_is_better: true
+    description: Average max toxicity score across all completions (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
+
+  - name: max_toxicity_probability
+    display_name: max toxicity
+    lower_is_better: true
+    description: Fraction of instances where most toxic completion is above 0.5 toxicity (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
+
+  - name: toxic_frac
+    display_name: Toxic fraction
+    lower_is_better: true
+    description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).
+
 ############################################################
 perturbations: []
 
@@ -211,15 +228,29 @@ run_groups:
     description: Audio Scenarios
     category: All scenarios
     subgroups:
-      - audio_mnist
-      - covost2
-      - vocal_sound
-      - fleurs
+      # Auditory Perception
       - audiocaps
-      - common_voice_15
-      - speech_robust_bench
+      - voxceleb2
+      - vocal_sound
+      # Fairness
+      # Emotion Detection
       - meld_audio
+      - mustard
+      # Knowledge
       - air_bench_chat
+      - air_bench_foundation
+      # Robustness
+      - speech_robust_bench
+      # Bias
+      # Multilinguality
+      - covost2
+      - fleurs
+      - common_voice_15
+      - multilingual_librispeech
+      # Toxicity Detection
+      - mutox
+      # Safety
+      - voice_jailbreak_attacks
 
   - name: audio_mnist
     display_name: AudioMNIST
@@ -504,4 +535,130 @@ run_groups:
       what: audio, question, and answer of audio samples
       who: real speakers
       when: "2024"
+      language: English
+
+  - name: air_bench_foundation
+    display_name: Air-Bench Foundation
+    description: >
+      Air-Bench (Yang et al, 2024) encompasses two dimensions: foundation and chat benchmarks. The former consists of 19 tasks with 
+      approximately 19k single-choice questions. The latter one contains 2k instances of open-ended question-and-answer data. 
+      We consider the chat benchmark in this scenario.
+
+      The dataset contains the audio multiple choice question answering task in three subjects: music instrument classification, music
+      genera recognition, and music question-answering.
+      ([Yang et al, 2024](https://aclanthology.org/2024.acl-long.109.pdf)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: audio question answering
+      what: audio, question, and answer of the question
+      who: real speakers
+      when: "2024"
+      language: English
+
+  - name: mutox
+    display_name: MuTox
+    description: >
+     The dataset consists of 20k audio utterances for English and Spanish, and 4k for the other languages.
+     ([Costa-jussà et al, 2018](https://arxiv.org/abs/2401.05060)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: toxicity detection
+      what: samples of utterances
+      who: real speakers
+      when: "2024"
+      language: 30 languages
+
+  - name: mustard
+    display_name: MUStARD
+    description: >
+      A multimodal video corpus for research in automated sarcasm discovery. The dataset is compiled from popular
+      TV shows including Friends, The Golden Girls, The Big Bang Theory, and Sarcasmaholics Anonymous. 
+      ([Castro et al, 2019](https://arxiv.org/abs/1906.01815)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: sarcasm detection
+      what: clips from television shows
+      who: real speakers
+      when: "2019"
+      language: English
+
+  - name: voice_jailbreak_attacks
+    display_name: Voice Jailbreak Attacks Against GPT-4o
+    description: >
+      Voice jailbreak attacks against GPT-4o ([Shen et al, 2024](https://arxiv.org/abs/2405.19103)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: toxic_frac
+      main_split: test
+    taxonomy:
+      task: refusal for safety
+      what: voice jailbreak attacks against GPT-4o
+      who: AI-generated speech
+      when: "2024"
+      language: English
+
+  - name: ami
+    display_name: AMI Meeting Corpus
+    description: >
+      The AMI Meeting Corpus (Carletta et al. 2005) is a multi-modal data set consisting of 
+      100 hours of meeting recordings. It is being created in the context of a project that 
+      is developing meeting browsing technology. The corpus is being recorded using a wide 
+      range of devices including close-talking and far-field microphones, individual and 
+      room-view video cameras, projection, a whiteboard, and individual pens, all of which 
+      produce output signals that are synchronized with each other.
+
+      The dataset contains the audio, transcriptions for all subsets 
+      ([Carletta et al, 2005](https://link.springer.com/chapter/10.1007/11677482_3)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: wer_score
+      main_split: test
+    taxonomy:
+      task: audio recognition
+      what: audio, transcripts of audio samples from meeting environments 
+      who: real speakers
+      when: "2005"
+      language: English
+
+  - name: librispeech
+    display_name: LibriSpeech
+    description: >
+      The LibriSpeech corpus (Vassil et al. 2015) is derived from audiobooks that are part 
+      of the LibriVox project, and contains 1000 hours of speech sampled at 16 kHz. The 
+      data has separately prepared language-model training data and pre-built language models. 
+      This corpus is one of the most widely-used ASR corpus, which has been extended to many 
+      applicaitons such as robust ASR and multilingual ASR tasks.
+
+      The dataset contains the audio, transcriptions for all subsets 
+      ([Vassil et al. 2015](https://ieeexplore.ieee.org/document/7178964)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: wer_score
+      main_split: test
+    taxonomy:
+      task: audio recognition
+      what: audio, transcripts of audio samples in daily scenarios
+      who: real speakers
+      when: "2015"
       language: English
