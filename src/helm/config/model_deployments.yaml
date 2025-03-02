@@ -1223,7 +1223,7 @@ model_deployments:
         device_map: auto
         torch_dtype: auto
 
-  - name: huggingface/phi-3.5-mini-instruct
+  - name: huggingface/phi-3.5-mini-instruct-4bit
     model_name: microsoft/phi-3.5-mini-instruct
     tokenizer_name: microsoft/phi-3.5-mini-instruct
     max_sequence_length: 131072
@@ -1235,7 +1235,13 @@ model_deployments:
         quantization_config:
           load_in_4bit: true
         attn_implementation: "flash_attention_2"
-
+  
+  - name: huggingface/phi-3.5-mini-instruct
+    model_name: microsoft/phi-3.5-mini-instruct
+    tokenizer_name: microsoft/phi-3.5-mini-instruct
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
 
   - name: huggingface/phi-3.5-moe-instruct
     model_name: microsoft/phi-3.5-moe-instruct
@@ -2977,8 +2983,8 @@ model_deployments:
     max_sequence_length: 128000
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
-
-  - name: huggingface/qwen2.5-7b-instruct
+  
+  - name: huggingface/qwen2.5-7b-instruct-4bit
     model_name: qwen/qwen2.5-7b-instruct
     tokenizer_name: qwen/qwen2.5-7b-instruct
     max_sequence_length: 128000
@@ -2990,6 +2996,15 @@ model_deployments:
         quantization_config:
           load_in_4bit: true
         attn_implementation: "flash_attention_2"
+
+  - name: huggingface/qwen2.5-7b-instruct
+    model_name: qwen/qwen2.5-7b-instruct
+    tokenizer_name: qwen/qwen2.5-7b-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: Qwen/Qwen2.5-7B-Instruct
 
   - name: together/qwq-32b-preview
     model_name: qwen/qwq-32b-preview
