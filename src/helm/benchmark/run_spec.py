@@ -39,6 +39,12 @@ class RunSpec:
     annotators: Optional[List[AnnotatorSpec]] = None
     """Annotators to use for this run spec"""
 
+    adaptive_mode: bool = False
+    """Whether to run in adaptive mode -- select the most informative samples to evaluate next"""
+
+    adaptive_max_samples: int = 50
+    """Maximum number of samples to evaluate in adaptive mode"""
+
     def __post_init__(self):
         """
         `self.name` is used as the name of the output folder for the `RunSpec`.
