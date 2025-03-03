@@ -59,7 +59,14 @@ model_deployments:
     max_sequence_length: 8192
     client_spec:
       class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
-  
+
+  - name: stanfordhealthcare/gpt-4-turbo-2024-04-09
+    model_name: openai/gpt-4-turbo
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+
   - name: stanfordhealthcare/deepseek-r1
     model_name: deepseek-ai/deepseek-r1
     tokenizer_name: deepseek-ai/deepseek-r1
