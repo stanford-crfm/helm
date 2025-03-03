@@ -1,29 +1,29 @@
-import gradio as gr
+import argparse
 import json
 import logging
 import multiprocessing
 import os
 import pickle
-import threading
 import time
 from collections import Counter, defaultdict
-from concurrent.futures import ProcessPoolExecutor, as_completed, wait, FIRST_COMPLETED
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import datetime
 from typing import Any, Dict, List, Tuple
-from warnings import warn
 import gc
 
 import numpy as np
-from huggingface_hub import HfApi
 from bigcodebench.data import get_bigcodebench, get_bigcodebench_hash, load_solutions
 from bigcodebench.data.utils import CACHE_DIR
-from bigcodebench.eval import PASS, compatible_eval_result, estimate_pass_at_k, untrusted_check
+from bigcodebench.eval import PASS, estimate_pass_at_k, untrusted_check
 from bigcodebench.gen.util import trusted_check
-from apscheduler.schedulers.background import BackgroundScheduler
 
-REPO_ID = "bigcode/bigcodebench-evaluator"
-HF_TOKEN = os.environ.get("HF_TOKEN", None)
-API = HfApi(token=HF_TOKEN)
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
 Result = Tuple[str, List[bool]]
 
 
@@ -110,6 +110,7 @@ def evaluate(
     check_gt_only: bool = False,
     no_gt: bool = False,
     selective_evaluate: str = "",
+    output_file: str = None
 ):
     passk = [int(k.strip()) for k in pass_k.split(',') if k.strip().isdigit()]
     if parallel < 1:
@@ -148,7 +149,7 @@ def evaluate(
     }
     
     if not check_gt_only:
-
+        logger.info(f"Evaluating samples from {samples}")
         with ProcessPoolExecutor(max_workers=n_workers) as executor:
             futures = []
             completion_id = Counter()
@@ -237,54 +238,69 @@ def evaluate(
     pass_at_k["gt_pass_rate"] = gt_pass_rate
     pass_at_k["failed_tasks"] = failed_tasks
     
+    # Save results to output file
+    if output_file:
+        output_dir = os.path.dirname(output_file)
+        if output_dir:
+            os.makedirs(output_dir, exist_ok=True)
+            
+        with open(output_file, 'w') as f:
+            json.dump({
+                "results": results,
+                "metrics": pass_at_k
+            }, f, indent=4)
+        logger.info(f"Results saved to {output_file}")
+    
     return results, pass_at_k
 
 
-# def run_gradio():
-interface = gr.Interface(
-    fn=evaluate,
-    inputs=[
-        gr.Dropdown(["complete", "instruct"], label="BigCodeBench Split"),
-        gr.Dropdown(["full", "hard"], label="BigCodeBench Subset"),
-        gr.File(label="Samples Path (.jsonl)"),
-        gr.Textbox(label="Pass k Values (comma-separated)", value="1,5,10"),
-        gr.Slider(-1, multiprocessing.cpu_count(), step=1, label="Parallel Workers", value=-1),
-        gr.Slider(0.1, 10, step=0.1, label="Min Time Limit", value=1),
-        gr.Slider(1, 100 * 1024, step=1024, label="Max AS Limit", value=30 * 1024),
-        gr.Slider(1, 100 * 1024, step=1024, label="Max Data Limit", value=30 * 1024),
-        gr.Slider(1, 100, step=1, label="Max Stack Limit", value=10),
-        gr.Checkbox(label="Calibrated", value=True),
-        gr.Checkbox(label="Check GT Only"),
-        gr.Checkbox(label="No GT"),
-        gr.Textbox(label="Selective Evaluated Task IDs (comma-separated, e.g. '0,1,2')", value=""),
-    ],
-    outputs=[
-        gr.JSON(label="Results"),
-        gr.JSON(label="Eval Results"),
-    ],
-    # concurrency_limit=None
-)
-interface.queue(default_concurrency_limit=None)
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--split", type=str, choices=["complete", "instruct"], default="complete")
+    parser.add_argument("--subset", type=str, choices=["full", "hard"], default="full")
+    parser.add_argument("--samples", type=str, required=False, default="samples.jsonl")
+    parser.add_argument("--pass-k", type=str, default="1,5,10")
+    parser.add_argument("--parallel", type=int, default=-1)
+    parser.add_argument("--min-time-limit", type=float, default=1)
+    parser.add_argument("--max-as-limit", type=int, default=30*1024)
+    parser.add_argument("--max-data-limit", type=int, default=30*1024)
+    parser.add_argument("--max-stack-limit", type=int, default=10)
+    parser.add_argument("--calibrated", action="store_true", default=True)
+    parser.add_argument("--no-calibrated", action="store_false", dest="calibrated")
+    parser.add_argument("--check-gt-only", action="store_true", default=False)
+    parser.add_argument("--no-gt", action="store_true", default=False)
+    parser.add_argument("--selective-evaluate", type=str, default="")
+    parser.add_argument("--output", type=str, default="output.json")
+    
+    args = parser.parse_args()
+    
+    results, metrics = evaluate(
+        split=args.split,
+        subset=args.subset,
+        samples=args.samples,
+        pass_k=args.pass_k,
+        parallel=args.parallel,
+        min_time_limit=args.min_time_limit,
+        max_as_limit=args.max_as_limit,
+        max_data_limit=args.max_data_limit,
+        max_stack_limit=args.max_stack_limit,
+        calibrated=args.calibrated,
+        check_gt_only=args.check_gt_only,
+        no_gt=args.no_gt,
+        selective_evaluate=args.selective_evaluate,
+        output_file=args.output
+    )
+    
+    # Print metrics summary to console for potential docker debugging
+    print("\n===== Evaluation Results =====")
+    for k, v in metrics.items():
+        if k == "failed_tasks" and v:
+            print(f"{k}: {v}")
+        elif k == "failed_tasks":
+            print(f"{k}: None")
+        else:
+            print(f"{k}: {v}")
+            
 
-
-def preload_gt():
-    evaluate(split="complete", subset="full", samples="", check_gt_only=True)
-    evaluate(split="complete", subset="hard", samples="", check_gt_only=True)
-
-
-def restart_space():
-    logging.info(f"Restarting space with repo ID: {REPO_ID}")
-    try:
-        # Now restart the space
-        API.restart_space(repo_id=REPO_ID, token=HF_TOKEN)
-        logging.info("Space restarted successfully.")
-    except Exception as e:
-        logging.error(f"Failed to restart space: {e}")
-
-
-# if __name__ == "__main__":
-preload_gt()
-scheduler = BackgroundScheduler()
-scheduler.add_job(restart_space, "interval", hours=2)  # Restart every 2hs
-scheduler.start()
-interface.launch(show_error=True)
+if __name__ == "__main__":
+    main()
