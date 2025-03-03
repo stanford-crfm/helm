@@ -62,6 +62,7 @@ class LibriSpeechScenario(Scenario):
             name="clean",
             cache_dir=output_path,
             split=TEST_SPLIT,
+            trust_remote_code=True,
         )
         mapping_dict = json.load(open(mapping_local_path))
         srb_mapping_keys = mapping_dict[self.SRB_KEY][self.SRB_SUBSET]
