@@ -29,6 +29,8 @@ class HelpdeskCallSummarizationMetric(Metric):
                 "Could not compute score in HelpdeskCallSummarizationMetric because all annotators failed."
             )
         score = sum(scores) / len(scores)
+        # normalize score
+        score = (score - 1) / 9
         return [
-            Stat(MetricName("score")).add(score),
+            Stat(MetricName("call_summarization_score")).add(score),
         ]

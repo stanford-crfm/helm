@@ -107,7 +107,7 @@ metrics:
     lower_is_better: false
 
 
-  - name: score
+  - name: call_summarization_score
     display_name: Score
     short_display_name: Score
     description: Score
@@ -123,7 +123,7 @@ metric_groups:
     display_name: Summarization
     hide_win_rates: true
     metrics:
-      - name: score
+      - name: call_summarization_score
         split: ${main_split}
       # - name: annotation_helpdesk_call_center_summarization_score
       #   split: ${main_split}

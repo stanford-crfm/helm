@@ -17,7 +17,7 @@ export default function SEAHELMLanding() {
           low-resource languages, including those in the Southeast Asian (SEA)
           region, a comprehensive and authentic evaluation suite for the SEA
           languages has not been developed thus far. Here, we present{" "}
-          <strong className="font-bold">MedHELM</strong>, a holistic linguistic
+          <strong className="font-bold">SEA-HELM</strong>, a holistic linguistic
           and cultural LLM evaluation suite that emphasizes SEA languages,
           comprising five core pillars: (1) NLP Classics, (2) LLM-specifics, (3)
           SEA Linguistics, (4) SEA Culture, (5) Safety. SEA-HELM currently
