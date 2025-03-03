@@ -35,9 +35,11 @@ class EhrSqlAnnotator(Annotator):
             hlog(f"WARNING: Ground truth SQL failed with error: {e}")
 
         # If the database query returns empty, use `value` field as ground truth
-        if (not ground_truth_result
-                and request_state.instance.extra_data is not None
-                and "value" in request_state.instance.extra_data):
+        if (
+            not ground_truth_result
+            and request_state.instance.extra_data is not None
+            and "value" in request_state.instance.extra_data
+        ):
             ground_truth_result = list(request_state.instance.extra_data["value"].values())
 
         assert request_state.result is not None
