@@ -38,7 +38,7 @@ class WildBenchAnnotator(Annotator):
             )
             return {
                 "prompt_text": None,
-                "empty_output_score": [1.0],
+                "empty_output_score": 1.0,
             }
 
         input_messages = request_state.instance.input.messages

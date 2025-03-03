@@ -1,6 +1,5 @@
 import MiniLeaderboard from "@/components/MiniLeaderboard";
 import { Link } from "react-router-dom";
-import wellsfargo from "@/assets/logos/wellsfargo.png";
 
 export default function FinanceLanding() {
   return (
@@ -8,15 +7,6 @@ export default function FinanceLanding() {
       <h1 className="text-3xl my-8 font-bold text-center">HELM Finance</h1>
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 text-l">
-          <div>
-            <a href="https://wellsfargo.com/">
-              <img
-                src={wellsfargo}
-                alt="Logo"
-                className="mx-auto block my-4 w-48"
-              />
-            </a>
-          </div>
           <p>
             In collaboration with{" "}
             <a

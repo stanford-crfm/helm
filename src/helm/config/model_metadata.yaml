@@ -499,6 +499,14 @@ models:
     release_date: 2024-10-22
     tags: [ANTHROPIC_CLAUDE_3_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: anthropic/claude-3-7-sonnet-20250219
+    display_name: Claude 3.7 Sonnet (20250219)
+    description: Claude 3.7 Sonnet is a Claude 3 family hybrid reasoning model that can produce near-instant responses or extended, step-by-step thinking that is made visible to the user ([blog](https://www.anthropic.com/news/claude-3-7-sonnet)).
+    creator_organization_name: Anthropic
+    access: limited
+    release_date: 2025-02-24
+    tags: [ANTHROPIC_CLAUDE_3_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: anthropic/stanford-online-all-v4-s3
     display_name: Anthropic-LM v4-s3 (52B)
     description: A 52B parameter language model, trained using reinforcement learning from human feedback [paper](https://arxiv.org/pdf/2204.05862.pdf).
@@ -2745,6 +2753,15 @@ models:
     access: limited
     release_date: 2023-11-06
     tags: [VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
+
+  ## GPT-4.5
+  - name: openai/gpt-4.5-preview-2025-02-27
+    display_name: GPT-4.5 (2025-02-27 preview)
+    description: GPT-4.5 (2025-02-27 preview) is a large multimodal model that is designed to be more general-purpose than OpenAI's STEM-focused reasoning models. It was trained using new supervision techniques combined with traditional methods like supervised fine-tuning (SFT) and reinforcement learning from human feedback (RLHF). ([blog](https://openai.com/index/introducing-gpt-4-5/), [system card](https://openai.com/index/gpt-4-5-system-card/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-02-27
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   ## o1 Models
   - name: openai/o1-2024-12-17

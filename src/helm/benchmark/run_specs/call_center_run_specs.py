@@ -163,7 +163,7 @@ def get_helpdesk_call_summarization_spec() -> RunSpec:
         )
     ]
 
-    instructions = "The following is a call transcript of a call between a compnay's employee and the company's IT helpdesk. Summarize the call transcript in under 100 words."  # noqa: E501
+    instructions = "The following is a call transcript of a call between a compnay's employee and the company's IT helpdesk. Summarize the call transcript in under 200 words."  # noqa: E501
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -183,14 +183,8 @@ def get_helpdesk_call_summarization_spec() -> RunSpec:
     # ]
     annotation_metric_specs = [
         MetricSpec(
-            class_name="helm.benchmark.metrics.annotation_metrics.AnnotationLikertScaleMetric",
-            args={
-                "annotator_name": "helpdesk_call_center_summarization",
-                "key": "score",
-                "min_score": 1,
-                "max_score": 10,
-            },
-        )
+            class_name="helm.benchmark.metrics.helpdesk_call_summarization_metrics.HelpdeskCallSummarizationMetric",
+        ),
     ]
 
     metric_specs = get_basic_metric_specs([]) + annotation_metric_specs

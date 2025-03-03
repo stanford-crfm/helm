@@ -1,8 +1,6 @@
 import MiniLeaderboard from "@/components/MiniLeaderboard";
 import { Link } from "react-router-dom";
 
-import cuhk from "@/assets/logos/cuhk.png";
-
 export default function CLEVALanding() {
   return (
     <div className="container mx-auto px-16">
@@ -11,11 +9,6 @@ export default function CLEVALanding() {
       </h1>
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 text-l">
-          <div className="text-center">
-            <a href="https://www.cuhk.edu.hk/">
-              <img src={cuhk} alt="Logo" className="inline h-12 mx-4 my-4" />
-            </a>
-          </div>
           <p>
             In collaboration with the{" "}
             <a

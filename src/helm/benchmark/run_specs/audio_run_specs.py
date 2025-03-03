@@ -11,6 +11,7 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
 from helm.benchmark.metrics.common_metric_specs import (
     get_classification_metric_specs,
     get_exact_match_metric_specs,
+    get_generative_harms_metric_specs,
     get_basic_metric_specs,
 )
 from helm.benchmark.metrics.metric import MetricSpec
@@ -193,6 +194,28 @@ def get_mustard_audio_run_spec() -> RunSpec:
     run_spec_name: str = "mustard"
     return RunSpec(
         name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("voice_jailbreak_attacks")
+def get_voice_jailbreak_attacks_run_spec(subset: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.voice_jailbreak_attacks_scenario."
+        "VoiceJailbreakAttacksScenario",
+        args={"subset": subset},
+    )
+    adapter_spec = _get_generation_adapter_spec(max_tokens=1024)
+    metric_specs: List[MetricSpec] = get_generative_harms_metric_specs(
+        include_basic_metrics=True, include_generative_harms_metrics=True
+    )
+
+    run_spec_name: str = "voice_jailbreak_attacks"
+    return RunSpec(
+        name=f"{run_spec_name}:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -474,6 +497,26 @@ def get_librispeech_run_spec() -> RunSpec:
     run_spec_name: str = "librispeech"
     return RunSpec(
         name=f"{run_spec_name}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("air_bench_foundation")
+def get_air_bench_foundation_run_spec(subject: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.air_bench_foundation_scenario.AirBenchFoundationScenario",
+        args={"subject": subject},
+    )
+    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
+        input_noun=None, output_noun="Answer", max_train_instances=0
+    )
+    metric_specs = get_exact_match_metric_specs()
+    run_spec_name: str = "air_bench_foundation"
+    return RunSpec(
+        name=f"{run_spec_name},subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,

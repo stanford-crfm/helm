@@ -172,6 +172,23 @@ metrics:
     description: Chinese character error rate (CER) for evaluating the accuracy of Chiese ASR.
     lower_is_better: true
 
+  # Toxicity metrics
+  - name: expected_max_toxicity
+    display_name: Average max toxicity
+    short_display_name: Avg. max toxicity
+    lower_is_better: true
+    description: Average max toxicity score across all completions (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
+
+  - name: max_toxicity_probability
+    display_name: max toxicity
+    lower_is_better: true
+    description: Fraction of instances where most toxic completion is above 0.5 toxicity (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
+
+  - name: toxic_frac
+    display_name: Toxic fraction
+    lower_is_better: true
+    description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).
+
 ############################################################
 perturbations: []
 
@@ -221,6 +238,7 @@ run_groups:
       - mustard
       # Knowledge
       - air_bench_chat
+      - air_bench_foundation
       # Robustness
       - speech_robust_bench
       # Bias
@@ -232,6 +250,7 @@ run_groups:
       # Toxicity Detection
       - mutox
       # Safety
+      - voice_jailbreak_attacks
 
   - name: audio_mnist
     display_name: AudioMNIST
@@ -518,6 +537,29 @@ run_groups:
       when: "2024"
       language: English
 
+  - name: air_bench_foundation
+    display_name: Air-Bench Foundation
+    description: >
+      Air-Bench (Yang et al, 2024) encompasses two dimensions: foundation and chat benchmarks. The former consists of 19 tasks with 
+      approximately 19k single-choice questions. The latter one contains 2k instances of open-ended question-and-answer data. 
+      We consider the chat benchmark in this scenario.
+
+      The dataset contains the audio multiple choice question answering task in three subjects: music instrument classification, music
+      genera recognition, and music question-answering.
+      ([Yang et al, 2024](https://aclanthology.org/2024.acl-long.109.pdf)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: audio question answering
+      what: audio, question, and answer of the question
+      who: real speakers
+      when: "2024"
+      language: English
+
   - name: mutox
     display_name: MuTox
     description: >
@@ -553,6 +595,23 @@ run_groups:
       what: clips from television shows
       who: real speakers
       when: "2019"
+      language: English
+
+  - name: voice_jailbreak_attacks
+    display_name: Voice Jailbreak Attacks Against GPT-4o
+    description: >
+      Voice jailbreak attacks against GPT-4o ([Shen et al, 2024](https://arxiv.org/abs/2405.19103)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: toxic_frac
+      main_split: test
+    taxonomy:
+      task: refusal for safety
+      what: voice jailbreak attacks against GPT-4o
+      who: AI-generated speech
+      when: "2024"
       language: English
 
   - name: ami
