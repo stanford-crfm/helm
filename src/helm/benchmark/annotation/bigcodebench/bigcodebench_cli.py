@@ -33,7 +33,7 @@ def get_groundtruth(
             return pickle.load(f)
 
     os.makedirs(CACHE_DIR, exist_ok=True)
-    tbegin = time.time()
+    tbegin = time.time()  # noqa: F841
 
     with ProcessPoolExecutor(max_workers=n_workers) as executor:
         futures = []
@@ -109,7 +109,7 @@ def evaluate(
     check_gt_only: bool = False,
     no_gt: bool = False,
     selective_evaluate: str = "",
-    output_file: str = None,
+    output_file: str = "output.json",
 ):
     passk = [int(k.strip()) for k in pass_k.split(",") if k.strip().isdigit()]
     if parallel < 1:
@@ -120,7 +120,7 @@ def evaluate(
     if check_gt_only:
         samples = "__dummy__.jsonl"
 
-    extra = subset + "_" if subset != "full" else ""
+    extra = subset + "_" if subset != "full" else ""  # noqa: F841
 
     problems = get_bigcodebench(subset=subset)
 
@@ -160,9 +160,9 @@ def evaluate(
         logger.info(f"Evaluating samples from {samples}")
         with ProcessPoolExecutor(max_workers=n_workers) as executor:
             futures = []
-            completion_id = Counter()
+            completion_id = Counter()  # type: ignore
             n_samples = 0
-            eval_results = defaultdict(list)  # task_id ->
+            eval_results = defaultdict(list)
             remainings = set()
 
             for sample in load_solutions(samples):
@@ -206,10 +206,10 @@ def evaluate(
         # sort the results for each problem by completion_id
         for task_id, task_results in eval_results.items():
             task_results.sort(key=lambda x: x["completion_id"])
-            results["eval"][task_id] = []
+            results["eval"][task_id] = []  # type: ignore
             for res in task_results:
                 stat, details = res["base"]
-                results["eval"][task_id].append(
+                results["eval"][task_id].append(  # type: ignore
                     {
                         "task_id": task_id,
                         "solution": res["solution"],
@@ -219,16 +219,16 @@ def evaluate(
                 )
 
         # Calculate pass@k.
-        total = np.array([len(r) for k, r in results["eval"].items() if k in problems])
+        total = np.array([len(r) for k, r in results["eval"].items() if k in problems])  # type: ignore
         base_correct = []
 
-        for key, res in results["eval"].items():
+        for key, res in results["eval"].items():  # type: ignore
             if key not in problems:
                 continue
-            bc = sum([r["status"] == PASS for r in res])
+            bc = sum([r["status"] == PASS for r in res])  # type: ignore
             base_correct.append(bc)
 
-        base_correct = np.array(base_correct)
+        base_correct = np.array(base_correct)  # type: ignore
 
         pass_at_k.update(
             {f"pass@{k}": estimate_pass_at_k(total, base_correct, k).mean() for k in passk if total.min() >= k}
