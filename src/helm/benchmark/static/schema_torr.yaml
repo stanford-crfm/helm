@@ -185,8 +185,10 @@ metrics:
     description: Rating by Llama 3.1 (70B) LLM as judge
     lower_is_better: false
 
-
-  # SciGen Accuracy
+  # Robustness
+  # NOTE: This is a "virtual" metric that is not produced directly by the metrics, but will appear as an aggregate table.
+  # Run `helm-summarize` with `--summarizer-class helm.benchmark.presentation.torr_robustness_summarizer.ToRRRobustnessSummarizer`
+  # to compute the values of this metric.
   - name: robustness
     display_name: Robustness
     short_display_name: Robustness
@@ -204,7 +206,9 @@ metric_groups:
     - name: ${main_name}
       split: __all__
 
-
+  # NOTE: Robustness is a "virtual" metric that is not produced directly by the metrics, but will appear as an aggregate table.
+  # Run `helm-summarize` with `--summarizer-class helm.benchmark.presentation.torr_robustness_summarizer.ToRRRobustnessSummarizer`
+  # to compute the values of this metric.
   - name: robustness_metrics
     display_name: Robustness
     aggregation_strategies: 

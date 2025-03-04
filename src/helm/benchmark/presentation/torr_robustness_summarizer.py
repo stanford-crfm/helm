@@ -9,6 +9,19 @@ from helm.common.codec import from_json
 
 
 class ToRRRobustnessSummarizer(Summarizer):
+    """A Summarizer that computes robustness metrics.
+
+    This Summarizer computes a robustness metrics based on the definition in the ToRR paper.
+    The instance-level robustness score for a given model and instance is defined as
+    1 - (max_score - min_score) where max_score and min_scores are the maximum and minimum
+    scores for the model on that instance across all runs (i.e. across all augmentations
+    and serialization formats). The robustness score for a given model and scenario is
+    the mean of the model's instance-level robustness score across all instances in that scenario.
+
+    The core HELM framework does not natively support computing metrics that depend on
+    per-instance metrics across multiple runs, therefore this special summarizer is needed
+    to compute this robustness metic."""
+
     def __init__(
         self,
         release: Optional[str],
@@ -32,8 +45,8 @@ class ToRRRobustnessSummarizer(Summarizer):
         )
         self.run_group_to_model_name_to_robustness: Dict[str, Dict[str, float]] = {}
 
-    PERFORMANCE_METRIC_GROUP_NAME = "performance_metrics"  # might need to change this
-    ROBUSTNESS_METRIC_GROUP_NAME = "robustness_metrics"  # might need to change this
+    PERFORMANCE_METRIC_GROUP_NAME = "performance_metrics"
+    ROBUSTNESS_METRIC_GROUP_NAME = "robustness_metrics"
     ROBUSTNESS_METRIC_NAME = "robustness"
 
     def _get_instance_id_to_performance(
@@ -64,7 +77,7 @@ class ToRRRobustnessSummarizer(Summarizer):
                 instance_id_to_performances[instance_id].append(performance)
         instance_id_to_robustness: Dict[str, float] = {}
         for instance_id, performances in instance_id_to_performances.items():
-            instance_id_to_robustness[instance_id] = max(performances) - min(performances)
+            instance_id_to_robustness[instance_id] = 1 - (max(performances) - min(performances))
         return sum(instance_id_to_robustness.values()) / len(instance_id_to_robustness.values())
 
     def _compute_robustness_for_run_group(self, run_group: RunGroup) -> Dict[str, float]:
