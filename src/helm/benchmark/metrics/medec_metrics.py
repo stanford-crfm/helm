@@ -10,7 +10,6 @@ import re
 from helm.benchmark.scenarios.scenario import CORRECT_TAG
 
 
-
 class MedecMetric(Metric):
     """
     Metric for evaluating the MEDEC dataset, assessing medical error detection and correction.
@@ -31,9 +30,10 @@ class MedecMetric(Metric):
         """
 
         # Extract predictions from the model output
-        predictions = [
-            completion.text.strip() for completion in request_state.result.completions
-        ]
+        if request_state.result is not None:
+            predictions = [completion.text.strip() for completion in request_state.result.completions]
+        else:
+            predictions = []
 
         if not predictions:
             raise ValueError("No predictions found in the completions.")
@@ -47,9 +47,7 @@ class MedecMetric(Metric):
             hlog(f"Warning: Missing references for instance {request_state.instance}")
             return []
 
-        ground_truth_reference = next(
-            (ref for ref in references if CORRECT_TAG in ref.tags), None
-        )
+        ground_truth_reference = next((ref for ref in references if CORRECT_TAG in ref.tags), None)
 
         if not ground_truth_reference:
             hlog(f"Warning: No ground truth reference with CORRECT_TAG for instance {request_state.instance}")
@@ -57,7 +55,7 @@ class MedecMetric(Metric):
 
         # Extract the ground truth error flag and sentence ID
         # ground_truth_text_pre = ground_truth_reference.output.text.strip()
-        ground_truth_text= ground_truth_reference.output.text.replace('.', '').strip()
+        ground_truth_text = ground_truth_reference.output.text.replace(".", "").strip()
 
         # Determine ground truth values
         if ground_truth_text == "CORRECT":
@@ -90,7 +88,9 @@ class MedecMetric(Metric):
         if ground_truth_flag == 1 and predicted_flag == 1:
             sentence_accuracy = 1 if predicted_sentence_id == ground_truth_sentence_id else 0
         else:
-            sentence_accuracy = 1 if ground_truth_flag == 0 and predicted_flag == 0 else 0  # Both must agree it's "CORRECT"
+            sentence_accuracy = (
+                1 if ground_truth_flag == 0 and predicted_flag == 0 else 0
+            )  # Both must agree it's "CORRECT"
 
         return [
             Stat(MetricName("medec_error_flag_accuracy")).add(flag_accuracy),
@@ -102,8 +102,8 @@ class MedecMetric(Metric):
         Aggregate statistics to compute final accuracy metrics.
         """
 
-        total_flag_accuracy = sum(stat.value for stat in stats if stat.name == "medec_error_flag_accuracy")
-        total_sentence_accuracy = sum(stat.value for stat in stats if stat.name == "medec_error_sentence_accuracy")
+        total_flag_accuracy = sum(stat.value for stat in stats if stat.name == "medec_error_flag_accuracy")  # type: ignore
+        total_sentence_accuracy = sum(stat.value for stat in stats if stat.name == "medec_error_sentence_accuracy")  # type: ignore
 
         count = len(stats) // 2  # Each instance contributes two stats (flag and sentence accuracy)
 

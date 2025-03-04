@@ -138,7 +138,7 @@ def get_ehrs(path_to_ehrs: str) -> Dict[int, str]:
     return ehr_map
 
 
-def get_tokenizer(tokenizer_name: str) -> Callable:
+def get_tokenizer(tokenizer_name: str):
     """
     Returns a tokenizer based on the given tokenizer name.
 
@@ -393,7 +393,7 @@ def retrieve_most_relevant_visits(ehr_visit_strs, query, target_length, tokenize
     return final_docs_content
 
 
-def get_prompt_template(path_to_template="prompt_templates/generic.txt") -> str:
+def get_prompt_template(path_to_template="prompt_templates/generic.txt"):
     with open(path_to_template, encoding="utf-8", mode="r") as f:
         prompt_template_str = f.read()
     prompt_template_obj = langchain.prompts.PromptTemplate.from_template(prompt_template_str)
