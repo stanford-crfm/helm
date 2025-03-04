@@ -43,5 +43,5 @@ def get_winogrande_afr_spec(lang: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["low_resource_languages"],
+        groups=["winogrande_afr", f"winogrande_afr_{lang}"],
     )
