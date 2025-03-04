@@ -1,15 +1,16 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional, Union
 from importlib.resources import files
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
 from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo
 from helm.clients.auto_client import AutoClient
+from helm.common.hierarchical_logger import hlog
 from helm.common.request import Request
 
 
-# Following https://github.com/KbsdJames/Omni-MATH/blob/main/GPT_eval/get_result.py
-def parse_report(report):
+# Following https://github.com/KbsdJames/Omni-MATH/blob/23be225c8e268df51990f6c5c1448f34d3b56911/GPT_eval/get_result.py
+def _parse_report(report):
     parts = report.split("## ")
     data = {}
     for part in parts[1:]:
@@ -28,9 +29,10 @@ class OmniMATHAnnotator(Annotator):
 
     name = "omni_math"
 
-    def __init__(self, auto_client: AutoClient):
+    def __init__(self, auto_client: AutoClient, template_name: Optional[str] = None):
         self._auto_client = auto_client
-        template_path = files("helm.benchmark.annotation.omni_math").joinpath("gpt_evaluation_template.txt")
+        self._template_name = template_name or "gpt_evaluation_zero_shot_template"
+        template_path = files("helm.benchmark.annotation.omni_math").joinpath(f"{self._template_name}.txt")
         with template_path.open("r") as file:
             self._score_template = file.read()
 
@@ -45,16 +47,19 @@ class OmniMATHAnnotator(Annotator):
             .replace("{{Solution}}", model_output_text)
         )
         if not model_output_text.strip():
+            hlog(
+                "WARNING: OmniMATHAnnotator skipped sending requests to annotator models "
+                "because the model response was empty"
+            )
             return {
-                "prompt_text": "",
-                "student_final_answer": "N/A",
-                "equivalence_judgement": "FALSE",
-                "justification": "The model output is empty.",
+                "prompt_text": None,
+                "empty_output_equivalence_judgement": False,
             }
 
         SHORT_NAME_TO_MODEL_INFO: Dict[str, AnnotatorModelInfo] = {
             "gpt": AnnotatorModelInfo(
-                model_name="openai/gpt-4o-2024-05-13", model_deployment="openai/gpt-4o-2024-05-13"
+                model_name="openai/gpt-4o-2024-05-13",
+                model_deployment="openai/gpt-4o-2024-05-13",
             ),
             "llama": AnnotatorModelInfo(
                 model_name="meta/llama-3.1-405b-instruct-turbo",
@@ -65,39 +70,63 @@ class OmniMATHAnnotator(Annotator):
                 model_deployment="anthropic/claude-3-5-sonnet-20241022",
             ),
         }
-        all_student_final_answers = []
-        all_equivalence_judgements = []
-        all_justifications = []
-        for annotator_model in SHORT_NAME_TO_MODEL_INFO:
-            annotator_model_info = SHORT_NAME_TO_MODEL_INFO[annotator_model]
+        annotations: Dict[str, Union[Optional[str], Optional[bool]]] = {"prompt_text": annotator_prompt}
+
+        for annotator_name, annotator_model_info in SHORT_NAME_TO_MODEL_INFO.items():
+            student_final_answer: Optional[str] = None
+            equivalence_judgement: Optional[bool] = None
+            justification: Optional[str] = None
             annotator_request = Request(
                 model=annotator_model_info.model_name,
                 model_deployment=annotator_model_info.model_deployment,
                 prompt=annotator_prompt,
                 temperature=0.0,
-                max_tokens=1000,
+                max_tokens=4096,
             )
             annotator_response = self._auto_client.make_request(annotator_request)
             if not annotator_response.success:
-                raise Exception(f"Annotation request failed: {annotator_response.error}")
-            assert len(annotator_response.completions) == 1
-            annotator_response_text = annotator_response.completions[0].text
+                hlog(
+                    "WARNING: OmniMATHAnnotator got an error response from "
+                    f"{annotator_model_info.model_name}: {annotator_response.error}"
+                )
+            else:
+                assert len(annotator_response.completions) == 1
+                annotator_response_text = annotator_response.completions[0].text
+                report_parts: Dict[str, str] = _parse_report(annotator_response_text)
+                try:
+                    student_final_answer = report_parts["Student Final Answer"]
+                except KeyError:
+                    hlog(
+                        "WARNING: OmniMATHAnnotator could not get Student Final Answer from annotation from "
+                        f"{annotator_model_info.model_name}: {annotator_response_text}"
+                    )
 
-            info = parse_report(annotator_response_text)
+                try:
+                    justification = report_parts["Justification"].strip().removesuffix("=== report over ===").strip()
+                except KeyError:
+                    hlog(
+                        "WARNING: OmniMATHAnnotator could not get Justification from annotation from "
+                        f"{annotator_model_info.model_name}: {annotator_response_text}"
+                    )
 
-            equivalence_judgement = info.get("Equivalence Judgement", "")
-            student_final_answer = info.get("Student Final Answer", "")
-            justification = info.get("Justification", "").strip().removesuffix("=== report over ===").strip()
-            if equivalence_judgement == "":
-                continue  # skip this annotator if there is no equivalence judgement parsed
+                try:
+                    equivalence_judgement_str = report_parts["Equivalence Judgement"].strip().upper()
+                    if equivalence_judgement_str == "TRUE":
+                        equivalence_judgement = True
+                    elif equivalence_judgement_str == "FALSE":
+                        equivalence_judgement = False
+                    else:
+                        hlog(
+                            "WARNING: OmniMATHAnnotator got a non-boolean Equivalence Judgement from annotation from "
+                            f"{annotator_model_info.model_name}: {equivalence_judgement_str}"
+                        )
+                except KeyError:
+                    hlog(
+                        "WARNING: OmniMATHAnnotator could not get Equivalence Judgement from annotation from "
+                        f"{annotator_model_info.model_name}: {annotator_response_text}"
+                    )
 
-            all_student_final_answers.append(student_final_answer)
-            all_equivalence_judgements.append(equivalence_judgement)
-            all_justifications.append(justification)
-
-        return {
-            "prompt_text": annotator_prompt,
-            "student_final_answer": all_student_final_answers,
-            "equivalence_judgement": all_equivalence_judgements,
-            "justification": all_justifications,
-        }
+            annotations[f"{annotator_name}_student_final_answer"] = student_final_answer
+            annotations[f"{annotator_name}_justification"] = justification
+            annotations[f"{annotator_name}_equivalence_judgement"] = equivalence_judgement
+        return annotations

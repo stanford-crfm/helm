@@ -7,8 +7,6 @@ from filelock import FileLock
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded, shell
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.scenarios.bird_sql_scenario_helper import (  # type: ignore
-    cot_wizard,
-    generate_comment_prompt,
     generate_schema_prompt,
 )
 from helm.benchmark.scenarios.scenario import (
@@ -40,6 +38,18 @@ class SpiderScenario(Scenario):
     description = "spider"
     tags = ["sql"]
 
+    INSTRUCTIONS_PROMPT = """-- Using valid SQLite, answer the following questions for the tables provided above.
+"""
+    COT_PROMPT = """
+Think step by step, then generate a single SQL query in valid SQLite syntax. Respond with only your reasoning and SQL query in the following tag-delimited format:
+
+<reasoning>
+INSERT_YOUR_REASONING_HERE
+</reasoning>
+<sql>
+INSERT_YOUR_SQL_QUERY_HERE
+</sql>"""  # noqa: E501
+
     def get_instances(self, output_path: str) -> List[Instance]:
         data_parent_path = os.path.join(output_path, "data")
         ensure_file_downloaded(
@@ -70,11 +80,11 @@ class SpiderScenario(Scenario):
             gold_sql: str = row["query"]
 
             schema_prompt = database_schema_prompts[database_id]
-            comment_prompt = generate_comment_prompt(question, None)
-            combined_prompt = schema_prompt + "\n\n" + comment_prompt + cot_wizard() + "\nSELECT "
+            combined_prompt = schema_prompt + "\n\n" + self.INSTRUCTIONS_PROMPT + question + self.COT_PROMPT
             instance = Instance(
                 input=Input(text=combined_prompt),
                 references=[Reference(output=Output(text=gold_sql), tags=[CORRECT_TAG])],
+                extra_data={"db_id": row["db_id"]},
                 split=VALID_SPLIT,
             )
             instances.append(instance)

@@ -390,6 +390,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.anthropic_client.AnthropicMessagesClient"
 
+  - name: anthropic/claude-3-7-sonnet-20250219
+    model_name: anthropic/claude-3-7-sonnet-20250219
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.anthropic_client.AnthropicMessagesClient"
+
   - name: anthropic/stanford-online-all-v4-s3
     deprecated: true # Closed model, not accessible via API
     model_name: anthropic/stanford-online-all-v4-s3
@@ -518,6 +525,17 @@ model_deployments:
       class_name: "helm.clients.together_client.TogetherChatClient"
       args:
         disable_logprobs: True
+
+  - name: together/deepseek-r1-hide-reasoning
+    model_name: deepseek-ai/deepseek-r1-hide-reasoning
+    tokenizer_name: deepseek-ai/deepseek-r1
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        together_model: deepseek-ai/deepseek-r1
+        disable_logprobs: True
+        output_processor: helm.benchmark.metrics.output_processors.remove_deepseek_r1_thinking
 
   # Gooseai
 
@@ -686,8 +704,40 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
 
+  - name: google/gemini-2.0-pro-exp-02-05
+    model_name: google/gemini-2.0-pro-exp-02-05
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+    # TODO: Max output tokens: 8192
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+
   - name: google/gemini-2.0-flash-exp
     model_name: google/gemini-2.0-flash-exp
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+    # TODO: Max output tokens: 8192
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+
+  - name: google/gemini-2.0-flash-001
+    model_name: google/gemini-2.0-flash-001
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+    # TODO: Max output tokens: 8192
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+
+  - name: google/gemini-2.0-flash-lite-preview-02-05
+    model_name: google/gemini-2.0-flash-lite-preview-02-05
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+    # TODO: Max output tokens: 8192
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+
+  - name: google/gemini-1.5-flash-8b-001
+    model_name: google/gemini-1.5-flash-8b-001
     tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
     max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
     # TODO: Max output tokens: 8192
@@ -2040,6 +2090,20 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
+  - name: openai/gpt-4o-audio-preview-2024-12-17
+    model_name: openai/gpt-4o-audio-preview-2024-12-17
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
+  - name: openai/gpt-4o-mini-audio-preview-2024-12-17
+    model_name: openai/gpt-4o-mini-audio-preview-2024-12-17
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
   - name: openai/gpt-4-vision-preview
     model_name: openai/gpt-4-vision-preview
     tokenizer_name: openai/cl100k_base
@@ -2055,6 +2119,14 @@ model_deployments:
     max_sequence_length: 128000  # According to https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo
     max_request_length: 128001
     max_sequence_and_generated_tokens_length: 132096
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
+  ## GPT-4.5
+  - name: openai/gpt-4.5-preview-2025-02-27
+    model_name: openai/gpt-4.5-preview-2025-02-27
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
     client_spec:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
@@ -3298,3 +3370,23 @@ model_deployments:
         class_name: "helm.clients.huggingface_client.HuggingFaceClient"
         args:
             pretrained_model_name_or_path: ibm-granite/granite-3.1-1b-a400m-base
+
+# DeepSeek-R1-Distill-Llama-3.1-8b
+  - name: huggingface/DeepSeek-R1-Distill-Llama-8B
+    model_name: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+    tokenizer_name: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+    max_sequence_length: 128000
+    client_spec:
+        class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+        args:
+            pretrained_model_name_or_path: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+
+# deepseek-ai/deepseek-coder-6.7b-instruct
+  - name: huggingface/deepseek-coder-6.7b-instruct
+    model_name: deepseek-ai/deepseek-coder-6.7b-instruct
+    tokenizer_name: deepseek-ai/deepseek-coder-6.7b-instruct
+    max_sequence_length: 128000
+    client_spec:
+        class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+        args:
+            pretrained_model_name_or_path: deepseek-ai/deepseek-coder-6.7b-instruct

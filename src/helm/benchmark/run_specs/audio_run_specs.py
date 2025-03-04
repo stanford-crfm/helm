@@ -11,6 +11,7 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
 from helm.benchmark.metrics.common_metric_specs import (
     get_classification_metric_specs,
     get_exact_match_metric_specs,
+    get_generative_harms_metric_specs,
     get_basic_metric_specs,
 )
 from helm.benchmark.metrics.metric import MetricSpec
@@ -156,6 +157,65 @@ def get_meld_audio_run_spec() -> RunSpec:
     run_spec_name: str = "meld_audio"
     return RunSpec(
         name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("mutox")
+def get_mutox_audio_run_spec(language: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.mutox_scenario.MuToxScenario",
+        args={"language": language},
+    )
+    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
+        input_noun=None, output_noun="Answer", max_train_instances=0
+    )
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+    run_spec_name: str = "mutox"
+    return RunSpec(
+        name=f"{run_spec_name}:language={language}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("mustard")
+def get_mustard_audio_run_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.audio_language.mustard_scenario.MUStARDScenario")
+    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
+        input_noun=None, output_noun="Answer", max_train_instances=0
+    )
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+    run_spec_name: str = "mustard"
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("voice_jailbreak_attacks")
+def get_voice_jailbreak_attacks_run_spec(subset: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.voice_jailbreak_attacks_scenario."
+        "VoiceJailbreakAttacksScenario",
+        args={"subset": subset},
+    )
+    adapter_spec = _get_generation_adapter_spec(max_tokens=1024)
+    metric_specs: List[MetricSpec] = get_generative_harms_metric_specs(
+        include_basic_metrics=True, include_generative_harms_metrics=True
+    )
+
+    run_spec_name: str = "voice_jailbreak_attacks"
+    return RunSpec(
+        name=f"{run_spec_name}:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -320,10 +380,10 @@ def get_common_voice_15_run_spec(language: str) -> RunSpec:
 
 
 @run_spec_function("speech_robust_bench")
-def get_speech_robust_bench_run_spec(subject: str) -> RunSpec:
+def get_speech_robust_bench_run_spec(subject: str, level: int) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.audio_language.speech_robust_bench_scenario.SpeechRobustBenchScenario",
-        args={"subject": subject},
+        args={"subject": subject, "level": level},
     )
     adapter_spec = _get_generation_adapter_spec(
         instructions=ASR_INSTRUCTIONS,
@@ -332,7 +392,7 @@ def get_speech_robust_bench_run_spec(subject: str) -> RunSpec:
     metric_specs = _get_audio_recognition_metric_specs()
     run_spec_name: str = "speech_robust_bench"
     return RunSpec(
-        name=f"{run_spec_name}:subject={subject}",
+        name=f"{run_spec_name}:subject={subject},level={level}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -396,6 +456,67 @@ def get_air_bench_chat_run_spec(subject: str) -> RunSpec:
     run_spec_name: str = "air_bench_chat"
     return RunSpec(
         name=f"{run_spec_name}:subject={subject}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("ami")
+def get_ami_run_spec(subject: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.ami_scenario.AMIScenario",
+        args={"subject": subject},
+    )
+    adapter_spec = _get_generation_adapter_spec(
+        instructions=ASR_INSTRUCTIONS,
+        max_tokens=100,
+    )
+    metric_specs = _get_audio_recognition_metric_specs()
+    run_spec_name: str = "ami"
+    return RunSpec(
+        name=f"{run_spec_name}:subject={subject}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("librispeech")
+def get_librispeech_run_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.librispeech_scenario.LibriSpeechScenario",
+    )
+    adapter_spec = _get_generation_adapter_spec(
+        instructions=ASR_INSTRUCTIONS,
+        max_tokens=100,
+    )
+    metric_specs = _get_audio_recognition_metric_specs()
+    run_spec_name: str = "librispeech"
+    return RunSpec(
+        name=f"{run_spec_name}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("air_bench_foundation")
+def get_air_bench_foundation_run_spec(subject: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.air_bench_foundation_scenario.AirBenchFoundationScenario",
+        args={"subject": subject},
+    )
+    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
+        input_noun=None, output_noun="Answer", max_train_instances=0
+    )
+    metric_specs = get_exact_match_metric_specs()
+    run_spec_name: str = "air_bench_foundation"
+    return RunSpec(
+        name=f"{run_spec_name},subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,

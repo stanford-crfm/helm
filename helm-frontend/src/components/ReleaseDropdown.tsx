@@ -101,7 +101,7 @@ function ReleaseDropdown() {
         className="dropdown-content z-[50] menu p-1 shadow-lg bg-base-100 rounded-box w-max text-base"
         role="menu"
       >
-        {releases.map((release) => (
+        {["latest"].concat(releases).map((release) => (
           <li key={release}>
             <a
               href={getReleaseUrl(

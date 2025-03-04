@@ -191,7 +191,8 @@ class OpenAIClient(CachingClient):
         # Special handling for o1 models.
         # Refer to the "Reasoning models" documentation further discussion of o1 model limitations:
         # https://platform.openai.com/docs/guides/reasoning
-        if request.model_engine.startswith("o1") or request.model_engine.startswith("o3"):
+        model_engine: str = request.model_engine
+        if model_engine.startswith("o1") or model_engine.startswith("o3"):
             # Avoid error:
             # "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead."  # noqa: E501
             # Note that openai>=1.45 is needed for this
@@ -219,7 +220,7 @@ class OpenAIClient(CachingClient):
 
         # Special handling for gpt-4o-audio-preview
         # See: https://platform.openai.com/docs/guides/audio
-        if request.model_engine.startswith("gpt-4o-audio-preview"):
+        if model_engine.startswith("gpt-4o-audio-preview") or model_engine.startswith("gpt-4o-mini-audio-preview"):
             raw_request["modalities"] = ["text"]
 
             # Avoid error:

@@ -1,7 +1,5 @@
 import MiniLeaderboard from "@/components/MiniLeaderboard";
 import { Link } from "react-router-dom";
-import scb10x from "@/assets/logos/scb10x.png";
-import scbx from "@/assets/logos/scbx.jpg";
 
 export default function ThaiExamLanding() {
   return (
@@ -9,14 +7,6 @@ export default function ThaiExamLanding() {
       <h1 className="text-3xl my-8 font-bold text-center">ThaiExam</h1>
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 text-l">
-          <div className="text-center">
-            <a href="https://scbx.com/">
-              <img src={scbx} alt="Logo" className="inline h-32 mx-4 my-4" />
-            </a>
-            <a href="https://scb10x.com/">
-              <img src={scb10x} alt="Logo" className="inline h-32 mx-4 my-4" />
-            </a>
-          </div>
           <p>
             In collaboration with{" "}
             <a

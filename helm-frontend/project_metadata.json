@@ -45,13 +45,13 @@
 		"title": "AIR-Bench",
 		"description": "Safety benchmark based on emerging government regulations and company policies",
 		"id": "air-bench",
-		"releases": ["v1.4.0", "v1.3.0", "v1.2.0", "v1.1.0", "v1.0.0"]
+		"releases": ["v1.6.0", "v1.5.0", "v1.4.0", "v1.3.0", "v1.2.0", "v1.1.0", "v1.0.0"]
 	},
 	{
 		"title": "Safety",
 		"description": "Safety benchmark that aggregates popular safety benchmarks across 6 risk vectors",
 		"id": "safety",
-		"releases": ["v1.0.0"]
+		"releases": ["v1.2.0", "v1.1.0", "v1.0.0"]
 	},
 	{
 		"title": "CLEVA",
@@ -64,6 +64,24 @@
 		"description": "Thai-language evaluations of language models on standardized examinations in Thailand",
 		"id": "thaiexam",
 		"releases": ["v1.1.0", "v1.0.0"]
+	},
+	{
+		"title": "MMLU-Winogrande-Afr",
+		"description": "Clinical MMLU and Winogrande in 11 low-resource African languages",
+		"id": "mmlu-winogrande-afr",
+		"releases": ["v1.0.0"]
+	},
+	{
+		"title": "ToRR",
+		"description": "A benchmark for table reasoning and robustness",
+		"id": "torr",
+		"releases": ["v1.0.0"]
+	},
+	{
+		"title": "MedHELM",
+		"description": "A benchmark by medical experts for LLMs grounded in real-world healthcare needs",
+		"id": "medhelm",
+		"releases": ["v1.0.0"]
 	},
 	{
 		"title": "All Leaderboards",

@@ -52,6 +52,7 @@ from helm.benchmark.presentation.schema import (
 from helm.benchmark.config_registry import register_builtin_configs_from_helm_package, register_configs_from_directory
 from helm.benchmark.presentation.run_display import write_run_display_json
 from helm.benchmark.model_metadata_registry import ModelMetadata, get_model_metadata, get_all_models
+from helm.common.object_spec import get_class_by_name
 
 
 MODEL_HEADER_CELL_VALUE = "Model"
@@ -1277,6 +1278,12 @@ def main():
         help="Whether to allow unknown models in the metadata file",
         default=True,
     )
+    parser.add_argument(
+        "--summarizer-class-name",
+        type=str,
+        default=None,
+        help="EXPERIMENTAL: Full class name of the Summarizer class to use. If unset, uses the default Summarizer.",
+    )
     args = parser.parse_args()
 
     release: Optional[str] = None
@@ -1306,7 +1313,8 @@ def main():
     register_configs_from_directory(args.local_path)
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
-    summarizer = Summarizer(
+    summarizer_cls = get_class_by_name(args.summarizer_class_name) if args.summarizer_class_name else Summarizer
+    summarizer = summarizer_cls(
         release=release,
         suites=suites,
         suite=suite,
