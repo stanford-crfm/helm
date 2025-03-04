@@ -133,7 +133,7 @@ class PubMedQAScenario(Scenario):
     def get_instances(self, output_path: str) -> List[Instance]:
         data_path: str = os.path.join(output_path, "data")
         ensure_directory_exists(data_path)
-
+        url = "https://raw.githubusercontent.com/pubmedqa/pubmedqa/refs/heads/master/data/ori_pqal.json"
         instances: List[Instance] = []
         for split in ALL_SPLITS:
             if split == "test":
@@ -146,7 +146,7 @@ class PubMedQAScenario(Scenario):
                 #     unpack=False,
                 # )
                 ensure_file_downloaded(
-                    source_url="https://raw.githubusercontent.com/pubmedqa/pubmedqa/refs/heads/master/data/ori_pqal.json",
+                    source_url=url,
                     target_path=split_path,
                     unpack=False,
                 )

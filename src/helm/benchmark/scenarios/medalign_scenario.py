@@ -2,7 +2,7 @@ import ast
 import datetime
 import os
 import re
-from typing import Any, Callable, Dict, Optional, Union, List
+from typing import Any, Dict, Optional, Union, List
 
 import langchain
 import langchain.prompts

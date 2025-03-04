@@ -2,7 +2,6 @@ import os
 from typing import List
 
 from datasets import DatasetDict, load_dataset
-from PIL import Image
 
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,

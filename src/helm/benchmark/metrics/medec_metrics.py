@@ -15,7 +15,8 @@ class MedecMetric(Metric):
     Metric for evaluating the MEDEC dataset, assessing medical error detection and correction.
 
     - **Error Flag Accuracy**: Whether the model correctly identifies if a medical note contains an error.
-    - **Error Sentence Detection Accuracy**: Whether the model correctly identifies the erroneous sentence when an error is present.
+    - **Error Sentence Detection Accuracy**: Whether the model correctly identifies the erroneous
+        sentence when an error is present.
     """
 
     def evaluate_generation(
@@ -102,8 +103,12 @@ class MedecMetric(Metric):
         Aggregate statistics to compute final accuracy metrics.
         """
 
-        total_flag_accuracy = sum(stat.value for stat in stats if stat.name == "medec_error_flag_accuracy")  # type: ignore
-        total_sentence_accuracy = sum(stat.value for stat in stats if stat.name == "medec_error_sentence_accuracy")  # type: ignore
+        total_flag_accuracy = sum(
+            stat.value for stat in stats if stat.name == "medec_error_flag_accuracy"
+        )  # type: ignore
+        total_sentence_accuracy = sum(
+            stat.value for stat in stats if stat.name == "medec_error_sentence_accuracy"
+        )  # type: ignore
 
         count = len(stats) // 2  # Each instance contributes two stats (flag and sentence accuracy)
 
