@@ -185,15 +185,36 @@ metrics:
     description: Rating by Llama 3.1 (70B) LLM as judge
     lower_is_better: false
 
+  # Robustness
+  # NOTE: This is a "virtual" metric that is not produced directly by the metrics, but will appear as an aggregate table.
+  # Run `helm-summarize` with `--summarizer-class helm.benchmark.presentation.torr_robustness_summarizer.ToRRRobustnessSummarizer`
+  # to compute the values of this metric.
+  - name: robustness
+    display_name: Robustness
+    short_display_name: Robustness
+    description: Robustness
+    lower_is_better: false
+
 perturbations: []
 
 metric_groups:
-  - name: main_metrics
-    display_name: Main Metrics
+  - name: performance_metrics
+    display_name: Performance
     aggregation_strategies: 
       - mean
     metrics:
     - name: ${main_name}
+      split: __all__
+
+  # NOTE: Robustness is a "virtual" metric that is not produced directly by the metrics, but will appear as an aggregate table.
+  # Run `helm-summarize` with `--summarizer-class helm.benchmark.presentation.torr_robustness_summarizer.ToRRRobustnessSummarizer`
+  # to compute the values of this metric.
+  - name: robustness_metrics
+    display_name: Robustness
+    aggregation_strategies: 
+      - mean
+    metrics:
+    - name: robustness
       split: __all__
 
   - name: generation_metrics
@@ -266,7 +287,8 @@ run_groups:
     display_name: FinQA
     description: The FinQA benchmark for numeric reasoning over financial data, with question answering pairs written by financial experts over financial reports [(Chen et al., 2021)](https://arxiv.org/abs/2109.00122/).
     metric_groups:
-      - main_metrics
+      - performance_metrics
+      - robustness_metrics
       - efficiency
       - general_information
     environment:
@@ -284,7 +306,8 @@ run_groups:
     short_display_name: NumericNLG
     description: "NumericNLG is a dataset for numerical table-to-text generation using pairs of a table and a paragraph of a table description with richer inference from scientific papers."
     metric_groups:
-      - main_metrics
+      - performance_metrics
+      - robustness_metrics
       # - generation_metrics
       - efficiency
       - general_information
@@ -303,7 +326,8 @@ run_groups:
     short_display_name: QTSumm
     description: QTFumm
     metric_groups:
-      - main_metrics
+      - performance_metrics
+      - robustness_metrics
       # - generation_metrics
       - efficiency
       - general_information
@@ -321,7 +345,8 @@ run_groups:
     display_name: SciGen
     description: SciGen
     metric_groups:
-      - main_metrics
+      - performance_metrics
+      - robustness_metrics
       - efficiency
       - general_information
     environment:
@@ -339,7 +364,8 @@ run_groups:
     short_display_name: TabFact
     description: "tab_fact is a large-scale dataset for the task of fact-checking on tables."
     metric_groups:
-      - main_metrics
+      - performance_metrics
+      - robustness_metrics
       - efficiency
       - general_information
     environment:
@@ -357,7 +383,8 @@ run_groups:
     short_display_name: Tablebench Data Analysis
     description: "tab_fact is a large-scale dataset for the task of fact-checking on tables."
     metric_groups:
-      - main_metrics
+      - performance_metrics
+      - robustness_metrics
       - efficiency
       - general_information
     environment:
@@ -375,7 +402,8 @@ run_groups:
     short_display_name: Tablebench Fact Checking
     description: "tab_fact is a large-scale dataset for the task of fact-checking on tables."
     metric_groups:
-      - main_metrics
+      - performance_metrics
+      - robustness_metrics
       - efficiency
       - general_information
     environment:
@@ -393,7 +421,8 @@ run_groups:
     short_display_name: Tablebench Numerical Reasoning
     description: "tab_fact is a large-scale dataset for the task of fact-checking on tables."
     metric_groups:
-      - main_metrics
+      - performance_metrics
+      - robustness_metrics
       - efficiency
       - general_information
     environment:
@@ -410,7 +439,8 @@ run_groups:
     display_name: Turl Col Type
     description: Turl Col Type
     metric_groups:
-      - main_metrics
+      - performance_metrics
+      - robustness_metrics
       - efficiency
       - general_information
     environment:
@@ -428,7 +458,8 @@ run_groups:
     short_display_name: WikiTableQuestions
     description: "This WikiTableQuestions dataset is a large-scale dataset for the task of question answering on semi-structured tables."
     metric_groups:
-      - main_metrics
+      - performance_metrics
+      - robustness_metrics
       # - classification_metrics
       - efficiency
       - general_information
