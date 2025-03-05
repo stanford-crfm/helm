@@ -280,6 +280,7 @@ def get_omni_math_spec() -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
+        instructions="Answer the question, giving your reasoning beforehand. Wrap the final answer with the \\boxed{} command.",  # noqa: E501
         input_prefix="",
         output_prefix="",
         max_tokens=4096,  # original: 2048
