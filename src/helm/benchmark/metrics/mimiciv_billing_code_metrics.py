@@ -94,33 +94,3 @@ class MIMICIVBillingCodeMetric(Metric):
             Stat(MetricName("mimiciv_billing_code_recall")).add(recall),
             Stat(MetricName("mimiciv_billing_code_f1")).add(f1),
         ]
-
-    def compute(self, stats: List[Stat], **kwargs: Any) -> Dict[str, float]:
-        """
-        Aggregate statistics to compute final metrics.
-        """
-        metric_sums = {
-            "mimiciv_billing_code_precision": 0.0,
-            "mimiciv_billing_code_recall": 0.0,
-            "mimiciv_billing_code_f1": 0.0,
-        }
-        metric_counts = {
-            "mimiciv_billing_code_precision": 0,
-            "mimiciv_billing_code_recall": 0,
-            "mimiciv_billing_code_f1": 0,
-        }
-
-        for stat in stats:
-            metric_name = str(stat.name)
-            if metric_name in metric_sums:
-                metric_sums[metric_name] += stat.sum
-                metric_counts[metric_name] += 1
-
-        results = {}
-        for metric_name in metric_sums:
-            if metric_counts[metric_name] > 0:
-                results[metric_name] = metric_sums[metric_name] / metric_counts[metric_name]
-            else:
-                results[metric_name] = 0.0
-
-        return results

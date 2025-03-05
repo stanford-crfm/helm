@@ -104,39 +104,3 @@ class EhrSqlMetric(Metric):
             Stat(MetricName("ehr_sql_total_predicted_answerable")).add(int(is_predicted_answerable)),
             Stat(MetricName("ehr_sql_total_ground_truth_answerable")).add(int(is_answerable)),
         ]
-
-    def compute(self, stats: List[Stat], **kwargs: Any) -> Dict[str, float]:
-        """
-        Aggregate statistics to compute final metrics.
-        """
-        # Extract execution-based metrics using sum instead of value
-        execution_correct = sum(stat.sum for stat in stats if stat.name == "ehr_sql_execution_accuracy")
-        query_valid = sum(stat.sum for stat in stats if stat.name == "ehr_sql_query_validity")
-
-        # Extract answerability metrics using sum
-        correct_answerable = sum(
-            stat.sum for stat in stats if stat.name in ["ehr_sql_precision_answerable", "ehr_sql_recall_answerable"]
-        )
-        total_predicted_answerable = sum(
-            stat.sum for stat in stats if stat.name == "ehr_sql_total_predicted_answerable"
-        )
-        total_ground_truth_answerable = sum(
-            stat.sum for stat in stats if stat.name == "ehr_sql_total_ground_truth_answerable"
-        )
-
-        total_queries = len(stats) // 6  # Each query contributes 6 stats
-
-        # Compute execution-based metrics
-        execution_accuracy = execution_correct / total_queries if total_queries > 0 else 0.0
-        query_validity = query_valid / total_queries if total_queries > 0 else 0.0
-
-        # Compute answerability metrics
-        precision = correct_answerable / total_predicted_answerable if total_predicted_answerable > 0 else 0.0
-        recall = correct_answerable / total_ground_truth_answerable if total_ground_truth_answerable > 0 else 0.0
-
-        return {
-            "ehr_sql_execution_accuracy": execution_accuracy,
-            "ehr_sql_query_validity": query_validity,
-            "ehr_sql_precision_answerable": precision,
-            "ehr_sql_recall_answerable": recall,
-        }

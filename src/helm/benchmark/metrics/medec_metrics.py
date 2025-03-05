@@ -97,22 +97,3 @@ class MedecMetric(Metric):
             Stat(MetricName("medec_error_flag_accuracy")).add(flag_accuracy),
             Stat(MetricName("medec_error_sentence_accuracy")).add(sentence_accuracy),
         ]
-
-    def compute(self, stats: List[Stat], **kwargs: Any) -> Dict[str, float]:
-        """
-        Aggregate statistics to compute final accuracy metrics.
-        """
-
-        total_flag_accuracy = sum(
-            stat.value for stat in stats if stat.name == "medec_error_flag_accuracy"
-        )  # type: ignore
-        total_sentence_accuracy = sum(
-            stat.value for stat in stats if stat.name == "medec_error_sentence_accuracy"
-        )  # type: ignore
-
-        count = len(stats) // 2  # Each instance contributes two stats (flag and sentence accuracy)
-
-        return {
-            "medec_error_flag_accuracy": total_flag_accuracy / count if count > 0 else 0.0,
-            "medec_error_sentence_accuracy": total_sentence_accuracy / count if count > 0 else 0.0,
-        }
