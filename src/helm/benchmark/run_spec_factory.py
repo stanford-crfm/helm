@@ -124,9 +124,6 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             chatml_expander = ChatMLRunExpander()
             run_spec = singleton(chatml_expander.expand(run_spec))
 
-        if NOVA_MODEL_TAG in model.tags:
-            run_spec = singleton(NovaRunExpander().expand(run_spec))
-
         # Anthropic Claude 1 and 2 prompts
         if ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags or ANTHROPIC_CLAUDE_2_MODEL_TAG in model.tags:
             run_spec = singleton(AnthropicClaude2RunExpander().expand(run_spec))
