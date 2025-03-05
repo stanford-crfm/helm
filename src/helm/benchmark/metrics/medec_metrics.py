@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import List
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.metric import Metric
