@@ -192,3 +192,34 @@ def get_czech_bank_qa_spec(config_name: str = "berka_queries_1024_2024_12_18") -
         annotators=[AnnotatorSpec("helm.benchmark.annotation.czech_bank_qa_annotator.CzechBankQAAnnotator")],
         groups=["czech_bank_qa"],
     )
+
+
+@run_spec_function("infinite_bench_sum")
+def get_infinite_bench_sum_spec(word_lower_bound: int = 0, word_upper_bound: int = 100e6) -> RunSpec:
+
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.infinite_bench_sum_scenario.InfiniteBenchSumScenario",
+        args={
+            "word_lower_bound": word_lower_bound,
+            "word_upper_bound": word_upper_bound,
+        }
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="",
+        max_tokens=2000,  # No official number, the average output token is 1.1k according to the paper
+        num_outputs=1,
+        temperature=0.0,
+    )
+
+    metric_specs = get_basic_metric_specs(["rouge_l"])
+
+    return RunSpec(
+        name="infinite_bench_sum",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["infinite_bench_sum"],
+    )
