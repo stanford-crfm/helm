@@ -1,0 +1,1045 @@
+---
+############################################################
+metrics:
+  # Infrastructure metrics:
+  - name: num_perplexity_tokens
+    display_name: '# tokens'
+    description: Average number of tokens in the predicted output (for language modeling, the input too).
+  - name: num_bytes
+    display_name: '# bytes'
+    description: Average number of bytes in the predicted output (for language modeling, the input too).
+
+  - name: num_references
+    display_name: '# ref'
+    description: Number of references.
+  - name: num_train_trials
+    display_name: '# trials'
+    description: Number of trials, where in each trial we choose an independent, random set of training instances.
+  - name: estimated_num_tokens_cost
+    display_name: 'cost'
+    description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
+  - name: num_prompt_tokens
+    display_name: '# prompt tokens'
+    description: Number of tokens in the prompt.
+  - name: num_prompt_characters
+    display_name: '# prompt chars'
+    description: Number of characters in the prompt.
+  - name: num_completion_tokens
+    display_name: '# completion tokens'
+    description: Actual number of completion tokens (over all completions).
+  - name: num_output_tokens
+    display_name: '# output tokens'
+    description: Actual number of output tokens.
+  - name: max_num_output_tokens
+    display_name: 'Max output tokens'
+    description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
+  - name: num_requests
+    display_name: '# requests'
+    description: Number of distinct API requests.
+  - name: num_instances
+    display_name: '# eval'
+    description: Number of evaluation instances.
+  - name: num_train_instances
+    display_name: '# train'
+    description: Number of training instances (e.g., in-context examples).
+  - name: prompt_truncated
+    display_name: truncated
+    description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
+  - name: finish_reason_length
+    display_name: finish b/c length
+    description: Fraction of instances where the the output was terminated because of the max tokens limit.
+  - name: finish_reason_stop
+    display_name: finish b/c stop
+    description: Fraction of instances where the the output was terminated because of the stop sequences.
+  - name: finish_reason_endoftext
+    display_name: finish b/c endoftext
+    description: Fraction of instances where the the output was terminated because the end of text token was generated.
+  - name: finish_reason_unknown
+    display_name: finish b/c unknown
+    description: Fraction of instances where the the output was terminated for unknown reasons.
+  - name: num_completions
+    display_name: '# completions'
+    description: Number of completions.
+  - name: predicted_index
+    display_name: Predicted index
+    description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
+
+  # Accuracy metrics:
+  - name: exact_match
+    display_name: Exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
+    lower_is_better: false
+
+############################################################
+perturbations: []
+
+############################################################
+metric_groups:
+  - name: accuracy
+    display_name: Accuracy
+    aggregation_strategies: 
+      - mean
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+
+############################################################
+
+run_groups:
+
+  - name: benchmarks
+    display_name: All Benchmarks
+    description: Results for scenarios translated to 11 African languages by human translators.
+    category: Top-level results
+    subgroups:
+      - winogrande_afr
+      - mmlu_clinical_afr_clinical_knowledge
+      - mmlu_clinical_afr_college_medicine
+      - mmlu_clinical_afr_virology
+
+  - name: benchmarks_af
+    display_name: Afrikaans Benchmarks
+    description: Results for scenarios translated to Afrikaans by human translators.
+    category: Results by language
+    subgroups:
+      - winogrande_afr_af
+      - mmlu_clinical_afr_clinical_knowledge_af
+      - mmlu_clinical_afr_college_medicine_af
+      - mmlu_clinical_afr_virology_af
+
+  - name: benchmarks_am
+    display_name: Amharic Benchmarks
+    description: Results for scenarios translated to Amharic by human translators.
+    category: Results by language
+    subgroups:
+      - winogrande_afr_am
+      - mmlu_clinical_afr_clinical_knowledge_am
+      - mmlu_clinical_afr_college_medicine_am
+      - mmlu_clinical_afr_virology_am
+
+  - name: benchmarks_bm
+    display_name: Bambara Benchmarks
+    description: Results for scenarios translated to Bambara by human translators.
+    category: Results by language
+    subgroups:
+      - winogrande_afr_bm
+      - mmlu_clinical_afr_clinical_knowledge_bm
+      - mmlu_clinical_afr_college_medicine_bm
+      - mmlu_clinical_afr_virology_bm
+
+  - name: benchmarks_ig
+    display_name: Igbo Benchmarks
+    description: Results for scenarios translated to Igbo by human translators.
+    category: Results by language
+    subgroups:
+      - winogrande_afr_ig
+      - mmlu_clinical_afr_clinical_knowledge_ig
+      - mmlu_clinical_afr_college_medicine_ig
+      - mmlu_clinical_afr_virology_ig
+
+  - name: benchmarks_nso
+    display_name: Sepedi Benchmarks
+    description: Results for scenarios translated to Sepedi by human translators.
+    category: Results by language
+    subgroups:
+      - winogrande_afr_nso
+      - mmlu_clinical_afr_clinical_knowledge_nso
+      - mmlu_clinical_afr_college_medicine_nso
+      - mmlu_clinical_afr_virology_nso
+
+  - name: benchmarks_sn
+    display_name: Shona Benchmarks
+    description: Results for scenarios translated to Shona by human translators.
+    category: Results by language
+    subgroups:
+      - winogrande_afr_sn
+      - mmlu_clinical_afr_clinical_knowledge_sn
+      - mmlu_clinical_afr_college_medicine_sn
+      - mmlu_clinical_afr_virology_sn
+
+  - name: benchmarks_st
+    display_name: Sesotho Benchmarks
+    description: Results for scenarios translated to Sesotho by human translators.
+    category: Results by language
+    subgroups:
+      - winogrande_afr_st
+      - mmlu_clinical_afr_clinical_knowledge_st
+      - mmlu_clinical_afr_college_medicine_st
+      - mmlu_clinical_afr_virology_st
+
+  - name: benchmarks_tn
+    display_name: Setswana Benchmarks
+    description: Results for scenarios translated to Setswana by human translators.
+    category: Results by language
+    subgroups:
+      - winogrande_afr_tn
+      - mmlu_clinical_afr_clinical_knowledge_tn
+      - mmlu_clinical_afr_college_medicine_tn
+      - mmlu_clinical_afr_virology_tn
+
+  - name: benchmarks_ts
+    display_name: Tsonga Benchmarks
+    description: Results for scenarios translated to Tsonga by human translators.
+    category: Results by language
+    subgroups:
+      - winogrande_afr_ts
+      - mmlu_clinical_afr_clinical_knowledge_ts
+      - mmlu_clinical_afr_college_medicine_ts
+      - mmlu_clinical_afr_virology_ts
+
+  - name: benchmarks_xh
+    display_name: Xhosa Benchmarks
+    description: Results for scenarios translated to Xhosa by human translators.
+    category: Results by language
+    subgroups:
+      - winogrande_afr_xh
+      - mmlu_clinical_afr_clinical_knowledge_xh
+      - mmlu_clinical_afr_college_medicine_xh
+      - mmlu_clinical_afr_virology_xh
+
+  - name: benchmarks_zu
+    display_name: Zulu Benchmarks
+    description: Results for scenarios translated to Zulu by human translators.
+    category: Results by language
+    subgroups:
+      - winogrande_afr_zu
+      - mmlu_clinical_afr_clinical_knowledge_zu
+      - mmlu_clinical_afr_college_medicine_zu
+      - mmlu_clinical_afr_virology_zu
+
+    display_name: WinoGrande
+    description: Results for WinoGrande by language.
+    category: Results by benchmark
+    subgroups:
+      - winogrande_afr_af
+      - winogrande_afr_am
+      - winogrande_afr_bm
+      - winogrande_afr_ig
+      - winogrande_afr_nso
+      - winogrande_afr_sn
+      - winogrande_afr_st
+      - winogrande_afr_tn
+      - winogrande_afr_ts
+      - winogrande_afr_xh
+      - winogrande_afr_zu
+
+  - name: mmlu_clinical_afr_clinical_knowledge_by_language
+    display_name: MMLU Clinical Knowledge
+    description: Results for MMLU Clinical Knowledge by language.
+    category: Results by benchmark
+    subgroups:
+      - mmlu_clinical_afr_clinical_knowledge_af
+      - mmlu_clinical_afr_clinical_knowledge_am
+      - mmlu_clinical_afr_clinical_knowledge_bm
+      - mmlu_clinical_afr_clinical_knowledge_ig
+      - mmlu_clinical_afr_clinical_knowledge_nso
+      - mmlu_clinical_afr_clinical_knowledge_sn
+      - mmlu_clinical_afr_clinical_knowledge_st
+      - mmlu_clinical_afr_clinical_knowledge_tn
+      - mmlu_clinical_afr_clinical_knowledge_ts
+      - mmlu_clinical_afr_clinical_knowledge_xh
+      - mmlu_clinical_afr_clinical_knowledge_zu
+
+  - name: mmlu_clinical_afr_college_medicine_by_language
+    display_name: MMLU College Medicine
+    description: Results for MMLU College Medicine by language.
+    category: Results by benchmark
+    subgroups:
+      - mmlu_clinical_afr_college_medicine_af
+      - mmlu_clinical_afr_college_medicine_am
+      - mmlu_clinical_afr_college_medicine_bm
+      - mmlu_clinical_afr_college_medicine_ig
+      - mmlu_clinical_afr_college_medicine_nso
+      - mmlu_clinical_afr_college_medicine_sn
+      - mmlu_clinical_afr_college_medicine_st
+      - mmlu_clinical_afr_college_medicine_tn
+      - mmlu_clinical_afr_college_medicine_ts
+      - mmlu_clinical_afr_college_medicine_xh
+      - mmlu_clinical_afr_college_medicine_zu
+
+  - name: mmlu_clinical_afr_virology_by_language
+    display_name: MMLU Virology
+    description: Results for MMLU Virology by language.
+    category: Results by benchmark
+    subgroups:
+      - mmlu_clinical_afr_virology_af
+      - mmlu_clinical_afr_virology_am
+      - mmlu_clinical_afr_virology_bm
+      - mmlu_clinical_afr_virology_ig
+      - mmlu_clinical_afr_virology_nso
+      - mmlu_clinical_afr_virology_sn
+      - mmlu_clinical_afr_virology_st
+      - mmlu_clinical_afr_virology_tn
+      - mmlu_clinical_afr_virology_ts
+      - mmlu_clinical_afr_virology_xh
+      - mmlu_clinical_afr_virology_zu
+
+  - name: winogrande_afr
+    display_name: Winogrande (11 African languages)
+    short_display_name: Winogrande (11 African languages)
+    description: The multiple-choice reasoning benchmark Winogrande ([Sakaguchi et al. 2021](https://arxiv.org/abs/1907.10641)) translated to 11 African languages by human translators 
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice reasoning
+      what: pronoun resolution
+      who: workers on Amazon Mechanical Turk
+      when: before 2019
+      language: 11 African languages
+
+  - name: winogrande_afr_af
+    display_name: Winogrande (Afrikaans)
+    short_display_name: Winogrande (Afrikaans)
+    description: The multiple-choice reasoning benchmark Winogrande ([Sakaguchi et al. 2021](https://arxiv.org/abs/1907.10641)) translated to Afrikaans by human translators 
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice reasoning
+      what: pronoun resolution
+      who: workers on Amazon Mechanical Turk
+      when: before 2019
+      language: Afrikaans
+
+  - name: winogrande_afr_am
+    display_name: Winogrande (Amharic)
+    short_display_name: Winogrande (Amharic)
+    description: The multiple-choice reasoning benchmark Winogrande ([Sakaguchi et al. 2021](https://arxiv.org/abs/1907.10641)) translated to Amharic by human translators 
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice reasoning
+      what: pronoun resolution
+      who: workers on Amazon Mechanical Turk
+      when: before 2019
+      language: Amharic
+
+  - name: winogrande_afr_bm
+    display_name: Winogrande (Bambara)
+    short_display_name: Winogrande (Bambara)
+    description: The multiple-choice reasoning benchmark Winogrande ([Sakaguchi et al. 2021](https://arxiv.org/abs/1907.10641)) translated to Bambara by human translators 
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice reasoning
+      what: pronoun resolution
+      who: workers on Amazon Mechanical Turk
+      when: before 2019
+      language: Bambara
+
+  - name: winogrande_afr_ig
+    display_name: Winogrande (Igbo)
+    short_display_name: Winogrande (Igbo)
+    description: The multiple-choice reasoning benchmark Winogrande ([Sakaguchi et al. 2021](https://arxiv.org/abs/1907.10641)) translated to Igbo by human translators 
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice reasoning
+      what: pronoun resolution
+      who: workers on Amazon Mechanical Turk
+      when: before 2019
+      language: Igbo
+
+  - name: winogrande_afr_nso
+    display_name: Winogrande (Sepedi)
+    short_display_name: Winogrande (Sepedi)
+    description: The multiple-choice reasoning benchmark Winogrande ([Sakaguchi et al. 2021](https://arxiv.org/abs/1907.10641)) translated to Sepedi by human translators 
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice reasoning
+      what: pronoun resolution
+      who: workers on Amazon Mechanical Turk
+      when: before 2019
+      language: Sepedi
+
+  - name: winogrande_afr_sn
+    display_name: Winogrande (Shona)
+    short_display_name: Winogrande (Shona)
+    description: The multiple-choice reasoning benchmark Winogrande ([Sakaguchi et al. 2021](https://arxiv.org/abs/1907.10641)) translated to Shona by human translators 
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice reasoning
+      what: pronoun resolution
+      who: workers on Amazon Mechanical Turk
+      when: before 2019
+      language: Shona
+
+  - name: winogrande_afr_st
+    display_name: Winogrande (Sesotho)
+    short_display_name: Winogrande (Sesotho)
+    description: The multiple-choice reasoning benchmark Winogrande ([Sakaguchi et al. 2021](https://arxiv.org/abs/1907.10641)) translated to Sesotho by human translators 
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice reasoning
+      what: pronoun resolution
+      who: workers on Amazon Mechanical Turk
+      when: before 2019
+      language: Sesotho
+
+  - name: winogrande_afr_tn
+    display_name: Winogrande (Setswana)
+    short_display_name: Winogrande (Setswana)
+    description: The multiple-choice reasoning benchmark Winogrande ([Sakaguchi et al. 2021](https://arxiv.org/abs/1907.10641)) translated to Setswana by human translators 
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice reasoning
+      what: pronoun resolution
+      who: workers on Amazon Mechanical Turk
+      when: before 2019
+      language: Setswana
+
+  - name: winogrande_afr_ts
+    display_name: Winogrande (Tsonga)
+    short_display_name: Winogrande (Tsonga)
+    description: The multiple-choice reasoning benchmark Winogrande ([Sakaguchi et al. 2021](https://arxiv.org/abs/1907.10641)) translated to Tsonga by human translators 
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice reasoning
+      what: pronoun resolution
+      who: workers on Amazon Mechanical Turk
+      when: before 2019
+      language: Tsonga
+
+  - name: winogrande_afr_xh
+    display_name: Winogrande (Xhosa)
+    short_display_name: Winogrande (Xhosa)
+    description: The multiple-choice reasoning benchmark Winogrande ([Sakaguchi et al. 2021](https://arxiv.org/abs/1907.10641)) translated to Xhosa by human translators 
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice reasoning
+      what: pronoun resolution
+      who: workers on Amazon Mechanical Turk
+      when: before 2019
+      language: Xhosa
+
+  - name: winogrande_afr_zu
+    display_name: Winogrande (Zulu)
+    short_display_name: Winogrande (Zulu)
+    description: The multiple-choice reasoning benchmark Winogrande ([Sakaguchi et al. 2021](https://arxiv.org/abs/1907.10641)) translated to Zulu by human translators 
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice reasoning
+      what: pronoun resolution
+      who: workers on Amazon Mechanical Turk
+      when: before 2019
+      language: Zulu
+
+  - name: mmlu_clinical_afr_clinical_knowledge
+    display_name: MMLU Clinical Knowledge (11 African languages)
+    short_display_name: MMLU Clinical Knowledge (11 African languages)
+    description: The clinical knowledge subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to 11 African languages by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: clinical knowledge
+      who: various online sources
+      when: before 2021
+      language: 11 African languages
+
+  - name: mmlu_clinical_afr_clinical_knowledge_af
+    display_name: MMLU Clinical Knowledge (Afrikaans)
+    short_display_name: MMLU Clinical Knowledge (Afrikaans)
+    description: The clinical knowledge subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Afrikaans by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: clinical knowledge
+      who: various online sources
+      when: before 2021
+      language: Afrikaans
+
+  - name: mmlu_clinical_afr_clinical_knowledge_am
+    display_name: MMLU Clinical Knowledge (Amharic)
+    short_display_name: MMLU Clinical Knowledge (Amharic)
+    description: The clinical knowledge subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Amharic by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: clinical knowledge
+      who: various online sources
+      when: before 2021
+      language: Amharic
+
+  - name: mmlu_clinical_afr_clinical_knowledge_bm
+    display_name: MMLU Clinical Knowledge (Bambara)
+    short_display_name: MMLU Clinical Knowledge (Bambara)
+    description: The clinical knowledge subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Bambara by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: clinical knowledge
+      who: various online sources
+      when: before 2021
+      language: Bambara
+
+  - name: mmlu_clinical_afr_clinical_knowledge_ig
+    display_name: MMLU Clinical Knowledge (Igbo)
+    short_display_name: MMLU Clinical Knowledge (Igbo)
+    description: The clinical knowledge subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Igbo by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: clinical knowledge
+      who: various online sources
+      when: before 2021
+      language: Igbo
+
+  - name: mmlu_clinical_afr_clinical_knowledge_nso
+    display_name: MMLU Clinical Knowledge (Sepedi)
+    short_display_name: MMLU Clinical Knowledge (Sepedi)
+    description: The clinical knowledge subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Sepedi by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: clinical knowledge
+      who: various online sources
+      when: before 2021
+      language: Sepedi
+
+  - name: mmlu_clinical_afr_clinical_knowledge_sn
+    display_name: MMLU Clinical Knowledge (Shona)
+    short_display_name: MMLU Clinical Knowledge (Shona)
+    description: The clinical knowledge subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Shona by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: clinical knowledge
+      who: various online sources
+      when: before 2021
+      language: Shona
+
+  - name: mmlu_clinical_afr_clinical_knowledge_st
+    display_name: MMLU Clinical Knowledge (Sesotho)
+    short_display_name: MMLU Clinical Knowledge (Sesotho)
+    description: The clinical knowledge subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Sesotho by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: clinical knowledge
+      who: various online sources
+      when: before 2021
+      language: Sesotho
+
+  - name: mmlu_clinical_afr_clinical_knowledge_tn
+    display_name: MMLU Clinical Knowledge (Setswana)
+    short_display_name: MMLU Clinical Knowledge (Setswana)
+    description: The clinical knowledge subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Setswana by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: clinical knowledge
+      who: various online sources
+      when: before 2021
+      language: Setswana
+
+  - name: mmlu_clinical_afr_clinical_knowledge_ts
+    display_name: MMLU Clinical Knowledge (Tsonga)
+    short_display_name: MMLU Clinical Knowledge (Tsonga)
+    description: The clinical knowledge subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Tsonga by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: clinical knowledge
+      who: various online sources
+      when: before 2021
+      language: Tsonga
+
+  - name: mmlu_clinical_afr_clinical_knowledge_xh
+    display_name: MMLU Clinical Knowledge (Xhosa)
+    short_display_name: MMLU Clinical Knowledge (Xhosa)
+    description: The clinical knowledge subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Xhosa by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: clinical knowledge
+      who: various online sources
+      when: before 2021
+      language: Xhosa
+
+  - name: mmlu_clinical_afr_clinical_knowledge_zu
+    display_name: MMLU Clinical Knowledge (Zulu)
+    short_display_name: MMLU Clinical Knowledge (Zulu)
+    description: The clinical knowledge subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Zulu by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: clinical knowledge
+      who: various online sources
+      when: before 2021
+      language: Zulu
+
+  - name: mmlu_clinical_afr_college_medicine
+    display_name: MMLU College Medicine (11 African languages)
+    short_display_name: MMLU College Medicine (11 African languages)
+    description: The college medicine subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to 11 African languages by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: college medicine
+      who: various online sources
+      when: before 2021
+      language: 11 African languages
+
+  - name: mmlu_clinical_afr_college_medicine_af
+    display_name: MMLU College Medicine (Afrikaans)
+    short_display_name: MMLU College Medicine (Afrikaans)
+    description: The college medicine subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Afrikaans by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: college medicine
+      who: various online sources
+      when: before 2021
+      language: Afrikaans
+
+  - name: mmlu_clinical_afr_college_medicine_am
+    display_name: MMLU College Medicine (Amharic)
+    short_display_name: MMLU College Medicine (Amharic)
+    description: The college medicine subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Amharic by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: college medicine
+      who: various online sources
+      when: before 2021
+      language: Amharic
+
+  - name: mmlu_clinical_afr_college_medicine_bm
+    display_name: MMLU College Medicine (Bambara)
+    short_display_name: MMLU College Medicine (Bambara)
+    description: The college medicine subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Bambara by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: college medicine
+      who: various online sources
+      when: before 2021
+      language: Bambara
+
+  - name: mmlu_clinical_afr_college_medicine_ig
+    display_name: MMLU College Medicine (Igbo)
+    short_display_name: MMLU College Medicine (Igbo)
+    description: The college medicine subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Igbo by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: college medicine
+      who: various online sources
+      when: before 2021
+      language: Igbo
+
+  - name: mmlu_clinical_afr_college_medicine_nso
+    display_name: MMLU College Medicine (Sepedi)
+    short_display_name: MMLU College Medicine (Sepedi)
+    description: The college medicine subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Sepedi by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: college medicine
+      who: various online sources
+      when: before 2021
+      language: Sepedi
+
+  - name: mmlu_clinical_afr_college_medicine_sn
+    display_name: MMLU College Medicine (Shona)
+    short_display_name: MMLU College Medicine (Shona)
+    description: The college medicine subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Shona by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: college medicine
+      who: various online sources
+      when: before 2021
+      language: Shona
+
+  - name: mmlu_clinical_afr_college_medicine_st
+    display_name: MMLU College Medicine (Sesotho)
+    short_display_name: MMLU College Medicine (Sesotho)
+    description: The college medicine subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Sesotho by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: college medicine
+      who: various online sources
+      when: before 2021
+      language: Sesotho
+
+  - name: mmlu_clinical_afr_college_medicine_tn
+    display_name: MMLU College Medicine (Setswana)
+    short_display_name: MMLU College Medicine (Setswana)
+    description: The college medicine subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Setswana by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: college medicine
+      who: various online sources
+      when: before 2021
+      language: Setswana
+
+  - name: mmlu_clinical_afr_college_medicine_ts
+    display_name: MMLU College Medicine (Tsonga)
+    short_display_name: MMLU College Medicine (Tsonga)
+    description: The college medicine subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Tsonga by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: college medicine
+      who: various online sources
+      when: before 2021
+      language: Tsonga
+
+  - name: mmlu_clinical_afr_college_medicine_xh
+    display_name: MMLU College Medicine (Xhosa)
+    short_display_name: MMLU College Medicine (Xhosa)
+    description: The college medicine subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Xhosa by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: college medicine
+      who: various online sources
+      when: before 2021
+      language: Xhosa
+
+  - name: mmlu_clinical_afr_college_medicine_zu
+    display_name: MMLU College Medicine (Zulu)
+    short_display_name: MMLU College Medicine (Zulu)
+    description: The college medicine subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Zulu by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: college medicine
+      who: various online sources
+      when: before 2021
+      language: Zulu
+
+  - name: mmlu_clinical_afr_virology
+    display_name: MMLU Virology (11 African languages)
+    short_display_name: MMLU Virology (11 African languages)
+    description: The virology subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to 11 African languages by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: virology
+      who: various online sources
+      when: before 2021
+      language: 11 African languages
+
+  - name: mmlu_clinical_afr_virology_af
+    display_name: MMLU Virology (Afrikaans)
+    short_display_name: MMLU Virology (Afrikaans)
+    description: The virology subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Afrikaans by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: virology
+      who: various online sources
+      when: before 2021
+      language: Afrikaans
+
+  - name: mmlu_clinical_afr_virology_am
+    display_name: MMLU Virology (Amharic)
+    short_display_name: MMLU Virology (Amharic)
+    description: The virology subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Amharic by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: virology
+      who: various online sources
+      when: before 2021
+      language: Amharic
+
+  - name: mmlu_clinical_afr_virology_bm
+    display_name: MMLU Virology (Bambara)
+    short_display_name: MMLU Virology (Bambara)
+    description: The virology subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Bambara by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: virology
+      who: various online sources
+      when: before 2021
+      language: Bambara
+
+  - name: mmlu_clinical_afr_virology_ig
+    display_name: MMLU Virology (Igbo)
+    short_display_name: MMLU Virology (Igbo)
+    description: The virology subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Igbo by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: virology
+      who: various online sources
+      when: before 2021
+      language: Igbo
+
+  - name: mmlu_clinical_afr_virology_nso
+    display_name: MMLU Virology (Sepedi)
+    short_display_name: MMLU Virology (Sepedi)
+    description: The virology subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Sepedi by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: virology
+      who: various online sources
+      when: before 2021
+      language: Sepedi
+
+  - name: mmlu_clinical_afr_virology_sn
+    display_name: MMLU Virology (Shona)
+    short_display_name: MMLU Virology (Shona)
+    description: The virology subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Shona by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: virology
+      who: various online sources
+      when: before 2021
+      language: Shona
+
+  - name: mmlu_clinical_afr_virology_st
+    display_name: MMLU Virology (Sesotho)
+    short_display_name: MMLU Virology (Sesotho)
+    description: The virology subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Sesotho by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: virology
+      who: various online sources
+      when: before 2021
+      language: Sesotho
+
+  - name: mmlu_clinical_afr_virology_tn
+    display_name: MMLU Virology (Setswana)
+    short_display_name: MMLU Virology (Setswana)
+    description: The virology subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Setswana by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: virology
+      who: various online sources
+      when: before 2021
+      language: Setswana
+
+  - name: mmlu_clinical_afr_virology_ts
+    display_name: MMLU Virology (Tsonga)
+    short_display_name: MMLU Virology (Tsonga)
+    description: The virology subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Tsonga by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: virology
+      who: various online sources
+      when: before 2021
+      language: Tsonga
+
+  - name: mmlu_clinical_afr_virology_xh
+    display_name: MMLU Virology (Xhosa)
+    short_display_name: MMLU Virology (Xhosa)
+    description: The virology subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Xhosa by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: virology
+      who: various online sources
+      when: before 2021
+      language: Xhosa
+
+  - name: mmlu_clinical_afr_virology_zu
+    display_name: MMLU Virology (Zulu)
+    short_display_name: MMLU Virology (Zulu)
+    description: The virology subject in the Massive Multitask Language Understanding (MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark translated to Zulu by human translators.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: virology
+      who: various online sources
+      when: before 2021
+      language: Zulu
+
