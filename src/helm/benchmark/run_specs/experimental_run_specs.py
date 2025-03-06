@@ -195,7 +195,7 @@ def get_czech_bank_qa_spec(config_name: str = "berka_queries_1024_2024_12_18") -
 
 
 @run_spec_function("infinite_bench_sum")
-def get_infinite_bench_sum_spec(word_lower_bound: int = 0, word_upper_bound: int = 100e6) -> RunSpec:
+def get_infinite_bench_sum_spec(word_lower_bound: float = 0.0, word_upper_bound: float = 100e6) -> RunSpec:
 
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.infinite_bench_sum_scenario.InfiniteBenchSumScenario",

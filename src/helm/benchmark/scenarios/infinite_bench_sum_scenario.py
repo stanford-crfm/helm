@@ -26,7 +26,7 @@ class InfiniteBenchSumScenario(Scenario):
     description = "Summarize a novel from InfiniteBench"
     tags = ["summarization"]
 
-    def __init__(self, word_lower_bound: int = 0, word_upper_bound: int = 100e6):
+    def __init__(self, word_lower_bound: float = 0.0, word_upper_bound: float = 100e6):
         self.word_lower_bound = word_lower_bound
         self.word_upper_bound = word_upper_bound
         super().__init__()
