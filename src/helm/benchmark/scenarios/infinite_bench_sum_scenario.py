@@ -12,10 +12,11 @@ from helm.benchmark.scenarios.scenario import (
 )
 from helm.common.general import ensure_directory_exists
 
+
 class InfiniteBenchSumScenario(Scenario):
     """InfiniteBenchSum
 
-    InfiniteBenchbenchmark tailored for evaluating the capabilities of language models to process, 
+    InfiniteBenchbenchmark tailored for evaluating the capabilities of language models to process,
     understand, and reason over super long contexts (100k+ tokens). InfiniteBenchSum is a subset of
     InfiniteBench that requires models to generate a concise summary of the novel. The subset is referred
     to as "En.Sum" in the original paper.
@@ -36,13 +37,15 @@ class InfiniteBenchSumScenario(Scenario):
         ensure_directory_exists(cache_dir)
 
         # Define the features schema
-        ft = Features({
-            "id": Value("int64"),
-            "context": Value("string"),
-            "input": Value("string"),
-            "answer": Sequence(Value("string")),
-            "options": Sequence(Value("string"))
-        })
+        ft = Features(
+            {
+                "id": Value("int64"),
+                "context": Value("string"),
+                "input": Value("string"),
+                "answer": Sequence(Value("string")),
+                "options": Sequence(Value("string")),
+            }
+        )
 
         # Load the dataset with the specified features
         dataset = load_dataset("xinrongzhang2022/InfiniteBench", split="longbook_sum_eng", features=ft)
@@ -57,7 +60,7 @@ class InfiniteBenchSumScenario(Scenario):
         instances: List[Instance] = []
         for row in dataset:
             id = row["id"]
-            input = Input(text=row['prompt'])
+            input = Input(text=row["prompt"])
             instance = Instance(
                 id=id,
                 input=input,

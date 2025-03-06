@@ -12,7 +12,7 @@ def test_infinite_bench_sum_scenario():
         assert len(instances) == 103
         assert instances[0].split == "test"
         assert len(instances[0].input.text) == 1745528
-        assert len(instances[0].input.text.split(' ')) == 317253
+        assert len(instances[0].input.text.split(" ")) == 317253
         references = instances[0].references
         assert len(references[0].output.text) == 2865
         assert references[0].tags == [CORRECT_TAG]
@@ -22,7 +22,7 @@ def test_infinite_bench_sum_scenario():
         assert len(instances) == 48
         assert instances[0].split == "test"
         assert len(instances[0].input.text) == 381778
-        assert len(instances[0].input.text.split(' ')) == 68651
+        assert len(instances[0].input.text.split(" ")) == 68651
         references = instances[0].references
         assert len(references[0].output.text) == 4217
         assert references[0].tags == [CORRECT_TAG]
@@ -32,7 +32,7 @@ def test_infinite_bench_sum_scenario():
         assert len(instances) == 32
         assert instances[0].split == "test"
         assert len(instances[1].input.text) == 383396
-        assert len(instances[1].input.text.split(' ')) == 63542
+        assert len(instances[1].input.text.split(" ")) == 63542
         references = instances[1].references
         assert len(references[0].output.text) == 5667
         assert references[0].tags == [CORRECT_TAG]

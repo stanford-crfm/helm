@@ -202,7 +202,7 @@ def get_infinite_bench_sum_spec(word_lower_bound: int = 0, word_upper_bound: int
         args={
             "word_lower_bound": word_lower_bound,
             "word_upper_bound": word_upper_bound,
-        }
+        },
     )
 
     adapter_spec = AdapterSpec(
