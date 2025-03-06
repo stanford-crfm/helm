@@ -6,9 +6,7 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 @run_spec_function("ruler_hotpotqa")
 def get_ruler_hotpotqa_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.ruler_qa_scenarios.RulerQAScenario", args={}
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.ruler_qa_scenarios.RulerQAScenario", args={})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -36,6 +34,7 @@ def get_ruler_hotpotqa_spec() -> RunSpec:
         metric_specs=get_open_ended_generation_metric_specs(),
         groups=["ruler_hotpotqa"],
     )
+
 
 @run_spec_function("ruler_squad")
 def get_ruler_squad_spec() -> RunSpec:
@@ -69,4 +68,3 @@ def get_ruler_squad_spec() -> RunSpec:
         metric_specs=get_open_ended_generation_metric_specs(),
         groups=["ruler_squad"],
     )
-

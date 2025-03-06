@@ -1,33 +1,33 @@
+# flake8: noqa
+# type: ignore
+# fmt: off
+
 from tqdm import tqdm
 from typing import Any, List
 import json
 import numpy as np
 import random
 
-# Load Tokenizer
 
-class _Tokenizer:
-    def text_to_tokens(self, text: str) -> List[int]:
-        pass
 
-    def tokens_to_text(self, tokens: List[int]) -> str:
-        pass
+# The following code is copied verbatim from:
+# https://github.com/NVIDIA/RULER/blob/860f2bd5c0430569f5941176f9f97f95e770b3da/scripts/data/synthetic/qa.py
+# under the following license:
+#
+# Copyright (c) 2024, NVIDIA CORPORATION.  All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License
 
-class _OpenAITokenizer(_Tokenizer):
-    """
-    Tokenizer from tiktoken
-    """
-    def __init__(self, model_path="cl100k_base") -> None:
-        import tiktoken
-        self.tokenizer = tiktoken.get_encoding(model_path)
-
-    def text_to_tokens(self, text: str) -> List[int]:
-        tokens = self.tokenizer.encode(text)
-        return tokens
-
-    def tokens_to_text(self, tokens: List[int]) -> str:
-        text = self.tokenizer.decode(tokens)
-        return text
 
 # Read SQuAD QA dataset
 def read_squad(file):
@@ -101,8 +101,37 @@ def generate_input_output(index, num_docs, template: str, random_seed: int, qas:
     return input_text, curr_a
 
 
-def generate_samples(tokenizer: _Tokenizer, template: str, random_seed: int, qas: Any, docs: Any, pre_samples: int, num_samples: int, tokens_to_generate: int, max_seq_length: int, incremental: int = 10, remove_newline_tab: bool = False): 
-    
+# The following code has been modified from the original source from:
+# https://github.com/NVIDIA/RULER/blob/860f2bd5c0430569f5941176f9f97f95e770b3da/scripts/data/synthetic/qa.py
+# under the Apache 2.0 license included above.
+
+
+class _TiktokenTokenizer:
+    """
+    Tokenizer from tiktoken
+    """
+    def __init__(self, model_path="cl100k_base") -> None:
+        import tiktoken
+        self.tokenizer = tiktoken.get_encoding(model_path)
+
+    def text_to_tokens(self, text: str) -> List[int]:
+        tokens = self.tokenizer.encode(text)
+        return tokens
+
+
+def generate_samples(dataset: str, dataset_path: str, template: str, random_seed: int, pre_samples: int, num_samples: int, tokens_to_generate: int, max_seq_length: int, incremental: int = 10, remove_newline_tab: bool = False): 
+    tokenizer = _TiktokenTokenizer()
+
+    random.seed(random_seed)
+    np.random.seed(random_seed)
+
+    if dataset == 'squad':
+        qas, docs = read_squad(dataset_path)
+    elif dataset == 'hotpotqa':
+        qas, docs = read_hotpotqa(dataset_path)
+    else:
+        raise NotImplementedError(f'{dataset} is not implemented.')
+
     write_jsons = []
     tokens_to_generate = tokens_to_generate
     
@@ -150,43 +179,3 @@ def generate_samples(tokenizer: _Tokenizer, template: str, random_seed: int, qas
         write_jsons.append(formatted_output)
 
     return write_jsons
-
-
-def generate_samples_for_helm(dataset_path, tokenizer, max_seq_length, tokens_to_generate, num_samples, random_seed, dataset, pre_samples, template):
-    
-    random.seed(random_seed)
-    np.random.seed(random_seed)
-
-    if dataset == 'squad':
-        qas, docs = read_squad(dataset_path)
-    elif dataset == 'hotpotqa':
-        qas, docs = read_hotpotqa(dataset_path)
-    else:
-        raise NotImplementedError(f'{dataset} is not implemented.')
-
-    write_jsons = generate_samples(
-        tokenizer=_OpenAITokenizer(),
-        template=template,
-        random_seed=random_seed,
-        qas=qas,
-        docs=docs,
-        pre_samples=pre_samples,
-        num_samples=num_samples,
-        tokens_to_generate=tokens_to_generate,
-        max_seq_length=max_seq_length, 
-    )
-
-    return write_jsons
-
-# def main():
-#     template = """Answer the question based on the given documents. Only give me the answer and do not output any other words.
-
-# The following are given documents.
-
-# {context}
-
-# Answer the question based on the given documents. Only give me the answer and do not output any other words.
-
-# Question: {query} Answer:"""
-#     generate_samples_for_scenario(tokenizer="cl100k_base", max_seq_length=131072, tokens_to_generate=32, num_samples=500, random_seed=42, dataset="squad", pre_samples=0, template=template)
-
