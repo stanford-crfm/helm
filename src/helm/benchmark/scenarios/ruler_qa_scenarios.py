@@ -20,7 +20,7 @@ _DATASET_TO_URL = {
 }
 
 
-class RulerQAScenario(Scenario):
+class _RULERQAScenario(Scenario):
     name = "ruler_qa"
     description = "A QA scenario from Ruler"
     tags = ["long_context", "rag"]
@@ -35,7 +35,7 @@ Answer the question based on the given documents. Only give me the answer and do
 
 Question: {query} Answer:"""  # noqa: E501
 
-    def __init__(self, dataset: Optional[str] = None, max_sequence_length: Optional[int] = None):
+    def __init__(self, dataset: str, max_sequence_length: Optional[int] = None):
         super().__init__()
         self.dataset = dataset or "hotpotqa"
         self.max_sequence_length = max_sequence_length or 32768
@@ -54,7 +54,6 @@ Question: {query} Answer:"""  # noqa: E501
             tokens_to_generate=32,
             num_samples=500,
             random_seed=42,
-            dataset=self.dataset,
             pre_samples=0,
             template=self._TEMPLATE,
         )
@@ -69,3 +68,21 @@ Question: {query} Answer:"""  # noqa: E501
             )
             instances.append(instance)
         return instances
+
+
+class RULERHotpotQAScenario(_RULERQAScenario):
+    name = "ruler_hotpotqa"
+    description = "The HotpotQA long-context multi-hop RAG question answering scenario from RULER"
+    tags = ["long_context", "rag"]
+
+    def __init__(self, dataset: Optional[str] = None, max_sequence_length: Optional[int] = None):
+        super().__init__("hotpotqa", max_sequence_length)
+
+
+class RULERSQuADScenario(_RULERQAScenario):
+    name = "ruler_squad"
+    description = "The SQuAD question answering scenario from RULER"
+    tags = ["long_context", "rag"]
+
+    def __init__(self, dataset: Optional[str] = None, max_sequence_length: Optional[int] = None):
+        super().__init__("squad", max_sequence_length)

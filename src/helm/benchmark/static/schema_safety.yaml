@@ -166,26 +166,118 @@ metric_groups:
 
 ############################################################
 run_groups:
-  - name: long_context_scenarios
-    display_name: Long Context Scenarios
+  - name: safety_scenarios
+    display_name: Safety Scenarios
     description: Scenarios for the model safety
     category: All scenarios
     subgroups:
-      - ruler_hotpotqa
+      # - harm_bench_gcg_transfer
+      - harm_bench
+      - simple_safety_tests
+      - bbq
+      - anthropic_red_team
+      - xstest
 
-  - name: ruler_hotpotqa
-    display_name: RULER HotPotQA
-    description: RULER HotPotQA
+  - name: harm_bench
+    display_name: HarmBench
+    description: HarmBench
     metric_groups:
       - accuracy
       - general_information
       - annotation_metrics
     environment:
-      main_name: f1_score
-      main_split: valid
+      main_name: safety_score
+      main_split: test
     taxonomy:
       task: question answering
       what: n/a
       who: n/a
       when: n/a
+      language: English
+
+  - name: harm_bench_gcg_transfer
+    display_name: HarmBenchGCGTransfer
+    description: HarmBenchGCGTransfer
+    metric_groups:
+      - accuracy
+      - general_information
+      - annotation_metrics
+    environment:
+      main_name: safety_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: simple_safety_tests
+    display_name: SimpleSafetyTests
+    description: SimpleSafetyTests
+    metric_groups:
+      - accuracy
+      - general_information
+      - annotation_metrics
+    environment:
+      main_name: safety_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+  
+  - name: xstest
+    display_name: XSTest
+    description: XSTest
+    metric_groups:
+      - accuracy
+      - general_information
+      - annotation_metrics
+    environment:
+      main_name: safety_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: bbq
+    display_name: BBQ
+    description: The Bias Benchmark for Question Answering (BBQ) for measuring social bias in question answering in ambiguous and unambigous context [(Parrish et al., 2022)](https://aclanthology.org/2022.findings-acl.165/).
+    metric_groups:
+      - accuracy
+      - general_information
+      - bbq_metrics
+      - annotation_metrics
+    environment:
+      main_name: bbq_accuracy
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: anthropic_red_team
+    display_name: Anthropic Red Team
+    short_display_name: Anthropic Red Team
+    description: Anthropic Red Team
+    metric_groups:
+      - accuracy
+      - general_information
+      - annotation_metrics
+    environment:
+      main_name: safety_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
       language: English

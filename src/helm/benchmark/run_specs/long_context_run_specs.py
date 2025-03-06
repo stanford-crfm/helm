@@ -6,7 +6,7 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 @run_spec_function("ruler_hotpotqa")
 def get_ruler_hotpotqa_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.ruler_qa_scenarios.RulerQAScenario", args={})
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.ruler_qa_scenarios.RULERHotpotQAScenario", args={})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -39,7 +39,7 @@ def get_ruler_hotpotqa_spec() -> RunSpec:
 @run_spec_function("ruler_squad")
 def get_ruler_squad_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.ruler_qa_scenarios.RulerQAScenario", args={"dataset": "squad"}
+        class_name="helm.benchmark.scenarios.ruler_qa_scenarios.RULERSQuADScenario"
     )
 
     adapter_spec = AdapterSpec(

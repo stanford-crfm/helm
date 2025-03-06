@@ -2,12 +2,13 @@
 # type: ignore
 # fmt: off
 
-from tqdm import tqdm
-from typing import Any, List
 import json
-import numpy as np
 import random
+import re
+from typing import Any, List
 
+import numpy as np
+from tqdm import tqdm
 
 
 # The following code is copied verbatim from:
@@ -103,25 +104,14 @@ def generate_input_output(index, num_docs, template: str, random_seed: int, qas:
 
 # The following code has been modified from the original source from:
 # https://github.com/NVIDIA/RULER/blob/860f2bd5c0430569f5941176f9f97f95e770b3da/scripts/data/synthetic/qa.py
-# under the Apache 2.0 license included above.
+# under the same Apache 2.0 license included above.
 
 
-class _TiktokenTokenizer:
-    """
-    Tokenizer from tiktoken
-    """
-    def __init__(self, model_path="cl100k_base") -> None:
-        import tiktoken
-        self.tokenizer = tiktoken.get_encoding(model_path)
-
-    def text_to_tokens(self, text: str) -> List[int]:
-        tokens = self.tokenizer.encode(text)
-        return tokens
+def _text_to_tokens(text: str) -> List[int]:
+    return re.split(r"\s+", text.strip())
 
 
 def generate_samples(dataset: str, dataset_path: str, template: str, random_seed: int, pre_samples: int, num_samples: int, tokens_to_generate: int, max_seq_length: int, incremental: int = 10, remove_newline_tab: bool = False): 
-    tokenizer = _TiktokenTokenizer()
-
     random.seed(random_seed)
     np.random.seed(random_seed)
 
@@ -142,7 +132,7 @@ def generate_samples(dataset: str, dataset_path: str, template: str, random_seed
     while total_tokens + tokens_to_generate < max_seq_length :  
         input_text, answer = generate_input_output(0, num_docs, template=template, random_seed=random_seed, qas=qas, docs=docs)
         # Calculate the number of tokens in the example
-        total_tokens = len(tokenizer.text_to_tokens(input_text + f' {answer}'))
+        total_tokens = len(_text_to_tokens(input_text + f' {answer}'))
         print(f'Max length {max_seq_length} | Current length {total_tokens + tokens_to_generate} | Docs: {num_docs}')
         if total_tokens + tokens_to_generate > max_seq_length:
             num_docs -= incremental
@@ -160,7 +150,7 @@ def generate_samples(dataset: str, dataset_path: str, template: str, random_seed
         while(True):
             try:
                 input_text, answer = generate_input_output(index + pre_samples, used_docs, template=template, random_seed=random_seed, qas=qas, docs=docs)
-                length = len(tokenizer.text_to_tokens(input_text)) + tokens_to_generate
+                length = len(_text_to_tokens(input_text)) + tokens_to_generate
                 assert length <= max_seq_length, f"{length} exceeds max_seq_length."
                 break
             except:
