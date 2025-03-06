@@ -1092,6 +1092,14 @@ models:
     release_date: 2025-02-05
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: google/gemini-2.0-flash-thinking-exp-01-21
+    display_name: Gemini 2.0 Flash Thinking (01-21 preview)
+    description: Gemini 2.0 Flash Thinking (01-21 preview) ([documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/thinking))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-01-21
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: google/gemini-2.0-pro-exp-02-05
     display_name: Gemini 2.0 Pro (02-05 preview)
     description: Gemini 2.0 Pro (02-05 preview) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
