@@ -82,6 +82,18 @@ metrics:
     display_name: BBQ accuracy
     description: BBQ accuracy
     lower_is_better: false
+  - name: rouge_1
+    display_name: ROUGE-1
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 1-gram overlap.
+    lower_is_better: false
+  - name: rouge_2
+    display_name: ROUGE-2
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 2-gram overlap.
+    lower_is_better: false
+  - name: rouge_l
+    display_name: ROUGE-L
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on longest common subsequence overlap.
+    lower_is_better: false
 
   # Toxicity metrics
   - name: expected_max_toxicity
@@ -173,6 +185,7 @@ run_groups:
     subgroups:
       - ruler_hotpotqa
       - ruler_squad
+      - infinite_bench_sum
 
   - name: ruler_hotpotqa
     display_name: RULER HotPotQA
@@ -202,6 +215,23 @@ run_groups:
     environment:
       main_name: f1_score
       main_split: valid
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: infinite_bench_sum
+    display_name: ∞Bench Sum
+    description: ∞Bench Sum
+    metric_groups:
+      - accuracy
+      - general_information
+      - annotation_metrics
+    environment:
+      main_name: rouge_l
+      main_split: test
     taxonomy:
       task: question answering
       what: n/a
