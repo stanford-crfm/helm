@@ -1,4 +1,5 @@
 import os
+import re
 from typing import List
 from datasets import load_dataset, Features, Value, Sequence, Dataset
 from helm.benchmark.scenarios.scenario import (
@@ -14,10 +15,10 @@ from helm.common.general import ensure_directory_exists
 
 
 class InfiniteBenchSumScenario(Scenario):
-    """InfiniteBenchSum
+    """InfiniteBench Sum
 
-    InfiniteBenchbenchmark tailored for evaluating the capabilities of language models to process,
-    understand, and reason over super long contexts (100k+ tokens). InfiniteBenchSum is a subset of
+    InfiniteBench is a benchmark tailored for evaluating the capabilities of language models to process,
+    understand, and reason over super long contexts (100k+ tokens). InfiniteBench Sum is a subset of
     InfiniteBench that requires models to generate a concise summary of the novel. The subset is referred
     to as "En.Sum" in the original paper.
     """
@@ -26,9 +27,9 @@ class InfiniteBenchSumScenario(Scenario):
     description = "Summarize a novel from InfiniteBench"
     tags = ["summarization"]
 
-    def __init__(self, word_lower_bound: float = 0.0, word_upper_bound: float = 100e6):
-        self.word_lower_bound = word_lower_bound
-        self.word_upper_bound = word_upper_bound
+    def __init__(self, min_num_word: float = 0.0, max_num_word: float = 100e6):
+        self.min_num_word = min_num_word
+        self.max_num_word = max_num_word
         super().__init__()
 
     def get_instances(self, output_path: str) -> List[Instance]:
@@ -48,24 +49,33 @@ class InfiniteBenchSumScenario(Scenario):
         )
 
         # Load the dataset with the specified features
-        dataset = load_dataset("xinrongzhang2022/InfiniteBench", split="longbook_sum_eng", features=ft)
+        dataset = load_dataset(
+            "xinrongzhang2022/InfiniteBench",
+            split="longbook_sum_eng",
+            features=ft,
+            revision="90f0394333616266d9fe85824ceaf505093cbaa5",
+        )
 
         assert isinstance(dataset, Dataset)
 
-        dataset = dataset.map(lambda example: {"prompt": example["context"] + "\n\n" + example["input"]})
-        dataset = dataset.map(lambda example: {"prompt_wc": len(example["prompt"].split())})
-        dataset = dataset.filter(lambda example: self.word_lower_bound <= example["prompt_wc"] <= self.word_upper_bound)
+        def count_words(text: str) -> int:
+            return len(re.split(r"\s+", text.strip()))
+
+        dataset = dataset.map(
+            lambda example: {"prompt_wc": count_words(example["context"]) + count_words(example["input"])}
+        ).filter(lambda example: self.min_num_word <= example["prompt_wc"] <= self.max_num_word)
 
         # Read all instances
         instances: List[Instance] = []
         for row in dataset:
             id = row["id"]
-            input = Input(text=row["prompt"])
+            input = Input(text=row["context"] + "\n\n" + row["input"])
             instance = Instance(
                 id=id,
                 input=input,
                 references=[Reference(Output(text=row["answer"][0]), tags=[CORRECT_TAG])],
                 split=TEST_SPLIT,
+                extra_data={"word_count": row["prompt_wc"]},
             )
             instances.append(instance)
 
