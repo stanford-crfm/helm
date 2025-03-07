@@ -1,6 +1,6 @@
 import MiniLeaderboard from "@/components/MiniLeaderboard";
 import { Link } from "react-router-dom";
-
+import aisingapore from "@/assets/seahelm/aisingapore.png";
 export default function SEAHELMLanding() {
   return (
     <div className="container mx-auto px-16">
@@ -9,6 +9,15 @@ export default function SEAHELMLanding() {
       </h1>
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 text-l">
+          <div className="text-center">
+            <a href="https://aisingapore.org/">
+              <img
+                src={aisingapore}
+                alt="Logo"
+                className="inline h-32 mx-4 my-4"
+              />
+            </a>
+          </div>
           With the rapid emergence of novel capabilities in Large Language
           Models (LLMs), the need for rigorous multilingual and multicultural
           benchmarks that are integrated has become more pronounced. Though
