@@ -318,7 +318,6 @@ class TogetherRawChatRequest(TypedDict):
     response_format: NotRequired[Dict[str, Any]]
 
 
-
 class TogetherChatClient(CachingClient):
     """Client that uses the Python Together library for chat models."""
 
