@@ -897,6 +897,66 @@ model_deployments:
         device_map: auto
         torch_dtype: torch.bfloat16
 
+  - name: huggingface/gemma2-9b-cpt-sea-lionv3-base
+    model_name: aisingapore/gemma2-9b-cpt-sea-lionv3-base
+    tokenizer_name: google/gemma-2-9b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/gemma2-9b-cpt-sea-lionv3-instruct
+    model_name: aisingapore/gemma2-9b-cpt-sea-lionv3-instruct
+    tokenizer_name: google/gemma-2-9b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/llama3.1-8b-cpt-sea-lionv3-base
+    model_name: aisingapore/llama3.1-8b-cpt-sea-lionv3-base
+    tokenizer_name: meta/llama-3.1-8b
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/llama3.1-8b-cpt-sea-lionv3-instruct
+    model_name: aisingapore/llama3.1-8b-cpt-sea-lionv3-instruct
+    tokenizer_name: meta/llama-3.1-8b
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/llama3.1-70b-cpt-sea-lionv3-base
+    model_name: aisingapore/llama3.1-70b-cpt-sea-lionv3-base
+    tokenizer_name: meta/llama-3.1-8b
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/llama3.1-70b-cpt-sea-lionv3-instruct
+    model_name: aisingapore/llama3.1-70b-cpt-sea-lionv3-instruct
+    tokenizer_name: meta/llama-3.1-8b
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
   ## Bigcode
   - name: huggingface/santacoder
     model_name: bigcode/santacoder

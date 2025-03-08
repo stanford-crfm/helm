@@ -14,7 +14,7 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 
 
-class BhasaMachineTranslationMetric(Metric):
+class SEAHELMMachineTranslationMetric(Metric):
     """Machine Translation Metrics
 
     This class computes the following standard machine translation metrics
@@ -74,8 +74,8 @@ class BhasaMachineTranslationMetric(Metric):
         return result
 
 
-class BhasaQAMetric(Metric):
-    """Bhasa QA Metrics
+class SEAHELMQAMetric(Metric):
+    """SEAHELM QA Metrics
 
     This class computes the following standard SQuAD v1.1 metrics
 
