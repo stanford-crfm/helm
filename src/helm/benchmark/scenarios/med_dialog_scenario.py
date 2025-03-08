@@ -90,11 +90,7 @@ class MedDialogScenario(Scenario):
     """
 
     name = "med_dialog"
-    description = (
-        "The MedDialog dataset (English) contains conversations between doctors and patients. "
-        "It has 0.26 million dialogues. The data is continuously growing and more dialogues will be added. "
-        "The raw dialogues are from healthcaremagic.com and icliniq.com."
-    )
+    description = "A collection of doctor-patient conversations with corresponding summaries."
     tags = ["dialogue", "biomedical"]
 
     def __init__(self, subset: str):
@@ -109,24 +105,26 @@ class MedDialogScenario(Scenario):
         instances: List[Instance] = []
 
         for split in ALL_SPLITS:
-            split_file_name: str = f"{split}.json"
-            split_path: str = os.path.join(data_path, split_file_name)
-            ensure_file_downloaded(
-                source_url="https://worksheets.codalab.org/rest/bundles/0x82f0c47f6d3e4462ae9ef8ea39eebe64/"
-                f"contents/blob/{self.subset}/{split_file_name}",
-                target_path=split_path,
-                unpack=False,
-            )
+            # Limit to zero shot setting
+            if split == "test":
+                split_file_name: str = f"{split}.json"
+                split_path: str = os.path.join(data_path, split_file_name)
+                ensure_file_downloaded(
+                    source_url="https://worksheets.codalab.org/rest/bundles/0x82f0c47f6d3e4462ae9ef8ea39eebe64/"
+                    f"contents/blob/{self.subset}/{split_file_name}",
+                    target_path=split_path,
+                    unpack=False,
+                )
 
-            with open(split_path, "r") as f:
-                examples: List = json.load(f)["data"]
-                for example in examples:
-                    instances.append(
-                        Instance(
-                            input=Input(text=example["src"]),
-                            references=[Reference(Output(text=example["tgt"]), tags=[CORRECT_TAG])],
-                            split=split,
+                with open(split_path, "r") as f:
+                    examples: List = json.load(f)["data"]
+                    for example in examples:
+                        instances.append(
+                            Instance(
+                                input=Input(text=example["src"]),
+                                references=[Reference(Output(text=example["tgt"]), tags=[CORRECT_TAG])],
+                                split=split,
+                            )
                         )
-                    )
 
         return instances

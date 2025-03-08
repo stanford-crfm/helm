@@ -1007,3 +1007,23 @@ def get_vibe_eval_spec(subject: str, num_respondents: int) -> RunSpec:
         metric_specs=metric_specs,
         groups=[run_spec_name],
     )
+
+
+@run_spec_function("vqa_rad")
+def get_vqa_rad_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.vqa_rad_scenario.VQARadScenario",
+    )
+    adapter_spec: AdapterSpec = _get_short_answer_generation_adapter_spec(
+        instructions="Answer the question using a single word or sentence."
+    )
+    metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
+
+    run_spec_name: str = "vqa_rad"
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
