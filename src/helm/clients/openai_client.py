@@ -400,7 +400,7 @@ class OpenAIClient(CachingClient):
             request.multimodal_prompt is not None and request.multimodal_prompt.size == 1
         ), "Expected just a single audio file."
         media_object = request.multimodal_prompt.media_objects[0]
-        assert media_object.is_type("audio")
+        assert media_object.is_type("audio") and media_object.location, "Expected an audio file."
         audio_path: str = media_object.location
         model: str = self._get_model_for_request(request)
 
@@ -471,6 +471,9 @@ class OpenAITranscriptionThenCompletionClient(Client):
         # Use `model_engine` to determine both the models for transcription and completion
         transcription_model, completion_model = request.model_engine.split("_")
 
+        # Only multimodal prompts are supported
+        assert request.multimodal_prompt is not None, "Expected a multimodal prompt"
+
         # Gather all the text content and transcribe any audio to text
         text_content: List[str] = []
         for media_object in request.multimodal_prompt.media_objects:
@@ -480,10 +483,11 @@ class OpenAITranscriptionThenCompletionClient(Client):
                     multimodal_prompt=MultimediaObject(media_objects=[media_object]),
                 )
                 response = self._openai_client.make_request(request)
-                assert response.success, f"Transcription request failed: {response.error}"
+                assert response.success and response.completions, f"Transcription request failed: {response.error}"
                 transcribed_text: str = response.completions[0].text
                 text_content.append(self.wrap_transcribed_indicator(transcribed_text))
             elif media_object.is_type(TEXT_TYPE):
+                assert media_object.text is not None, "Expected text content"
                 text_content.append(media_object.text)
             else:
                 raise ValueError(f"Unrecognized media type: {media_object.type}")
