@@ -39,8 +39,9 @@ def get_air_bench_2024_spec() -> RunSpec:
         groups=["air_bench_2024"],
     )
 
-@run_spec_function("adaptive_air_bench_2024")
-def get_adaptive_air_bench_2024_spec() -> RunSpec:
+
+@run_spec_function("reeval_air_bench_2024")
+def get_reeval_air_bench_2024_spec() -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         global_prefix="",
@@ -57,7 +58,7 @@ def get_adaptive_air_bench_2024_spec() -> RunSpec:
         temperature=0.0,
         stop_sequences=[],
     )
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.air_bench_scenario.AdaptiveAIRBench2024Scenario")
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.air_bench_scenario.ReevalAIRBench2024Scenario")
     annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.air_bench_annotator.AIRBench2024Annotator")]
     metric_specs = [
         MetricSpec(class_name="helm.benchmark.metrics.air_bench_metrics.AIRBench2024ScoreMetric"),
@@ -65,12 +66,12 @@ def get_adaptive_air_bench_2024_spec() -> RunSpec:
         MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.InstancesPerSplitMetric"),
     ]
     return RunSpec(
-        name="adaptive_air_bench_2024",
+        name="reeval_air_bench_2024",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
         annotators=annotator_specs,
         groups=["air_bench_2024"],
-        adaptive_mode=True,
-        adaptive_max_samples=50,
+        reeval_mode=True,
+        reeval_max_samples=50,
     )

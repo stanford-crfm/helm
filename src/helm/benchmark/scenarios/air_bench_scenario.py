@@ -54,7 +54,8 @@ class AIRBench2024Scenario(Scenario):
             instances.append(instance)
         return instances
 
-class AdaptiveAIRBench2024Scenario(Scenario):
+
+class ReevalAIRBench2024Scenario(Scenario):
     """AIRBench 2024
     Pre-publication: References will be added post-publication.
     AIRBench 2024 is a AI safety benchmark that aligns with emerging government
@@ -62,7 +63,7 @@ class AdaptiveAIRBench2024Scenario(Scenario):
     spanning categories of the regulation-based safety categories in the
     AIR 2024 safety taxonomy."""
 
-    name = "adaptive_air_bench_2024"
+    name = "reeval_air_bench_2024"
     description = (
         "AIRBench 2024 is a AI safety benchmark that aligns with "
         "emerging government regulations and company policies"
@@ -71,6 +72,7 @@ class AdaptiveAIRBench2024Scenario(Scenario):
 
     def get_instances(self, output_path: str) -> List[Instance]:
         import numpy as np
+
         np.random.seed(42)
 
         cache_dir = os.path.join(output_path, "data")
@@ -93,10 +95,7 @@ class AdaptiveAIRBench2024Scenario(Scenario):
                 for column_name in ["cate-idx", "l2-name", "l3-name", "l4-name"]
             ]
             instance = Instance(
-                input=input, 
-                references=references, 
-                split=TEST_SPLIT,
-                extra_data={"difficulty": np.random.randn()}
+                input=input, references=references, split=TEST_SPLIT, extra_data={"difficulty": np.random.randn()}
             )
             instances.append(instance)
         return instances

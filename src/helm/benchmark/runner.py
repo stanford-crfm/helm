@@ -7,9 +7,7 @@ import typing
 from collections import Counter
 import dataclasses
 from typing import Any, Dict, List
-from queue import PriorityQueue
 import numpy as np
-import torch
 
 from tqdm import tqdm
 
@@ -137,10 +135,6 @@ def downsample_eval_instances(
 
     return all_train_instances + selected_eval_instances
 
-@dataclasses.dataclass(order=True)
-class PrioritizedItem:
-    priority: int
-    request_state: Any=dataclasses.field(compare=False)
 
 class Runner:
     """
@@ -236,10 +230,6 @@ class Runner:
             hlog(f"Skipping run {run_spec.name} because run is completed and all output files exist.")
             return
         ensure_directory_exists(run_path)
-        
-        # Check adaptive mode
-        if run_spec.adaptive_mode and self.executor.execution_spec.parallelism > 1:
-            hlog("Adaptive mode is not supported with parallelism > 1. Running with parallelism=1.")
 
         # Load the scenario
         scenario: Scenario = create_scenario(run_spec.scenario_spec)
@@ -291,57 +281,6 @@ class Runner:
         # Adapt (convert to requests)
         adapter: Adapter = AdapterFactory.get_adapter(run_spec.adapter_spec, self.tokenizer_service)
         request_states: List[RequestState] = adapter.adapt(instances, self.executor.execution_spec.parallelism)
-
-        if run_spec.adaptive_mode:
-            scenario_state, stats, per_instance_stats, adaptive_trajectory = self.run_execution_adaptive(run_spec, request_states)
-        else:
-            scenario_state, stats, per_instance_stats = self.run_execution(run_spec, request_states)
-
-        # Check that there aren't duplicate `Stat`s
-        # Note: doesn't catch near misses.
-        metric_counts: typing.Counter[MetricName] = Counter([stat.name for stat in stats])
-        for metric_name, count in metric_counts.items():
-            if count > 1:
-                hlog(f"WARNING: duplicate metric name {metric_name}")
-
-        # Print out the number of stats
-        hlog(f"Generated {len(stats)} stats.")
-
-        if self.skip_instances:
-            hlog("skip_instances was True. Skipping writing results out.")
-            return
-
-        # Output benchmarking information and results to files
-        write(os.path.join(run_path, "run_spec.json"), json.dumps(asdict_without_nones(run_spec), indent=2))
-
-        # Write out scenario
-        write(os.path.join(run_path, "scenario.json"), json.dumps(asdict_without_nones(scenario), indent=2))
-
-        # Write scenario state
-        write(os.path.join(run_path, "scenario_state.json"), json.dumps(asdict_without_nones(scenario_state), indent=2))
-
-        write(
-            os.path.join(run_path, "stats.json"),
-            json.dumps([asdict_without_nones(stat) for stat in remove_stats_nans(stats)], indent=2),
-        )
-        write(
-            os.path.join(run_path, "per_instance_stats.json"),
-            json.dumps(list(map(asdict_without_nones, remove_per_instance_stats_nans(per_instance_stats))), indent=2),
-        )
-        
-        if run_spec.adaptive_mode:
-            write(
-                os.path.join(run_path, "adaptive_trajectory.json"),
-                json.dumps(adaptive_trajectory, indent=2),
-            )
-
-        cache_stats.print_status()
-
-    def run_execution(
-        self, 
-        run_spec: RunSpec,
-        request_states: List[RequestState],
-    ):
         scenario_state: ScenarioState = ScenarioState(
             adapter_spec=run_spec.adapter_spec,
             request_states=request_states,
@@ -374,145 +313,36 @@ class Runner:
                     stats.extend(metric_result.aggregated_stats)
                     per_instance_stats.extend(metric_result.per_instance_stats)
 
-        return scenario_state, stats, per_instance_stats
+        # Check that there aren't duplicate `Stat`s
+        # Note: doesn't catch near misses.
+        metric_counts: typing.Counter[MetricName] = Counter([stat.name for stat in stats])
+        for metric_name, count in metric_counts.items():
+            if count > 1:
+                hlog(f"WARNING: duplicate metric name {metric_name}")
 
-    def _compute_negative_fisher_information(
-        self,
-        model_ability: float,
-        instance_difficulty: float,
-    ):
-        sigmoid = lambda x: 1 / (1 + np.exp(-x))
-        llh = sigmoid(model_ability + instance_difficulty)
-        return -llh * (1 - llh)
+        # Print out the number of stats
+        hlog(f"Generated {len(stats)} stats.")
 
-    def _construct_request_state_queue(
-        self,
-        request_states: List[RequestState],
-        model_ability: float,
-        priority: str = "adaptive",
-    ):
-        if priority == "random":
-            priorities = np.random.rand(len(request_states))
+        if self.skip_instances:
+            hlog("skip_instances was True. Skipping writing results out.")
+            return
 
-        elif priority == "default":
-            priorities = np.linspace(0, 1, len(request_states))
+        # Output benchmarking information and results to files
+        write(os.path.join(run_path, "run_spec.json"), json.dumps(asdict_without_nones(run_spec), indent=2))
 
-        else:
-            priorities = [] 
-            for request_state in request_states:
-                instance_difficulty = request_state.instance.extra_data["difficulty"]
-                priorities.append(
-                    self._compute_negative_fisher_information(
-                        model_ability=model_ability,
-                        instance_difficulty=instance_difficulty,
-                    )
-                )
+        # Write out scenario
+        write(os.path.join(run_path, "scenario.json"), json.dumps(asdict_without_nones(scenario), indent=2))
 
-        # Add all requests to the queue with priority 0
-        # Lower priority means being processed first
-        request_state_queue = PriorityQueue()
-        for request_state, priority in zip(request_states, priorities):
-            request_state_queue.put(
-                PrioritizedItem(
-                    priority=priority,
-                    request_state=request_state,
-                )
-            )
+        # Write scenario state
+        write(os.path.join(run_path, "scenario_state.json"), json.dumps(asdict_without_nones(scenario_state), indent=2))
 
-        return request_state_queue
-
-    def _estimate_model_ability(
-        self,
-        old_ability: float,
-        response_correctness: List[bool],
-        instance_difficulties: List[float],
-    ):
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        ability = torch.tensor([old_ability], requires_grad=True, device=device)
-        difficulties = torch.tensor(instance_difficulties, device=device)
-        label = torch.tensor(response_correctness, device=device)
-
-        optimizer = torch.optim.Adam([ability], lr=0.01)
-        for _ in range(1000):
-            optimizer.zero_grad()
-
-            nll = torch.distributions.Bernoulli(
-                logits=ability+difficulties
-            ).log_prob(label).sum()
-
-            loss = -nll
-            loss.backward()
-            optimizer.step()
-        return ability.item()
-
-    def run_execution_adaptive(
-        self, 
-        run_spec: RunSpec,
-        request_states: List[RequestState],
-    ):
-        # Execute the requests in an adaptive manner
-        model_ability = run_spec.adapter_spec.model_ability
-        request_state_queue = self._construct_request_state_queue(
-            request_states=request_states,
-            model_ability=model_ability,
-            priority="adaptive",
+        write(
+            os.path.join(run_path, "stats.json"),
+            json.dumps([asdict_without_nones(stat) for stat in remove_stats_nans(stats)], indent=2),
         )
-        adaptive_request_states: List[RequestState] = []
-        stats: List[Stat] = []
-        per_instance_stats: List[PerInstanceStats] = []
-        adaptive_trajectory = {
-            "model_ability": [],
-            "response_correctness": [],
-            "instance_difficulties": [],
-        }
-
-        for _ in tqdm(range(run_spec.adaptive_max_samples), desc="Adaptive execution"):
-            pitem = request_state_queue.get()
-
-            # Execute the request
-            single_scenario_state, stat, per_instance_stat = self.run_execution(run_spec, [pitem.request_state])
-
-            # Update the adaptive request states
-            adaptive_request_states.extend(single_scenario_state.request_states)
-
-            # Update the aggregated stats
-            if len(stats) > 0:
-                for idx, s in enumerate(stat):
-                    stats[idx].merge(s)
-            else:
-                stats = stat
-
-            # Update the per instance stats
-            per_instance_stats.extend(per_instance_stat)
-
-            # Update the adaptive trajectory
-            adaptive_trajectory["model_ability"].append(model_ability)
-            adaptive_trajectory["response_correctness"].append(
-                float(per_instance_stat[0].stats[0].mean > 0.5)
-            )
-            adaptive_trajectory["instance_difficulties"].append(
-                pitem.request_state.instance.extra_data["difficulty"]
-            )
-
-            # Estimate the model ability
-            model_ability = self._estimate_model_ability(
-                old_ability=model_ability,
-                response_correctness=adaptive_trajectory["response_correctness"],
-                instance_difficulties=adaptive_trajectory["instance_difficulties"],
-            )
-
-            # Update the priority
-            request_state_queue = self._construct_request_state_queue(
-                request_states=request_states,
-                model_ability=model_ability,
-                priority="adaptive",
-            )
-
-        # Create the scenario state
-        scenario_state: ScenarioState = ScenarioState(
-            adapter_spec=run_spec.adapter_spec,
-            request_states=adaptive_request_states,
-            annotator_specs=run_spec.annotators,
+        write(
+            os.path.join(run_path, "per_instance_stats.json"),
+            json.dumps(list(map(asdict_without_nones, remove_per_instance_stats_nans(per_instance_stats))), indent=2),
         )
 
-        return scenario_state, stats, per_instance_stats, adaptive_trajectory
+        cache_stats.print_status()

@@ -39,11 +39,11 @@ class RunSpec:
     annotators: Optional[List[AnnotatorSpec]] = None
     """Annotators to use for this run spec"""
 
-    adaptive_mode: bool = False
-    """Whether to run in adaptive mode -- select the most informative samples to evaluate next"""
+    reeval_mode: bool = False
+    """Whether to run in reeval mode -- select the most informative samples to evaluate next"""
 
-    adaptive_max_samples: int = 50
-    """Maximum number of samples to evaluate in adaptive mode"""
+    reeval_max_samples: int = 50
+    """Maximum number of samples to evaluate in reeval mode"""
 
     def __post_init__(self):
         """
