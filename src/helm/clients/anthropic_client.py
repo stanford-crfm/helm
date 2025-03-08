@@ -360,6 +360,15 @@ class AnthropicMessagesClient(CachingClient):
         }
         if system_message is not None:
             raw_request["system"] = cast(str, system_message["content"])
+        if "thinking-64k" in request.model_engine:
+            # What was reported in the announcement: https://www.anthropic.com/news/claude-3-7-sonnet
+            # How to set the thinking parameter: https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking
+            raw_request["thinking"] = {
+                "type": "enabled",
+                "budget_tokens": 64000,
+            }
+        print(f"Tony: {raw_request}")
+
         completions: List[GeneratedOutput] = []
 
         # `num_completions` is not supported, so instead make `num_completions` separate requests.
