@@ -396,17 +396,16 @@ class OpenAIClient(CachingClient):
         )
 
     def _make_transcription_request(self, request: Request) -> RequestResult:
-        assert request.multimodal_prompt is not None and request.multimodal_prompt.size == 1, "Expected just a single audio file."
+        assert (
+            request.multimodal_prompt is not None and request.multimodal_prompt.size == 1
+        ), "Expected just a single audio file."
         media_object = request.multimodal_prompt.media_objects[0]
         assert media_object.is_type("audio")
         audio_path: str = media_object.location
         model: str = self._get_model_for_request(request)
 
         def do_it() -> Dict[str, Any]:
-            transcription = self.client.audio.transcriptions.create(
-                model=model,
-                file=open(audio_path, "rb")
-            )
+            transcription = self.client.audio.transcriptions.create(model=model, file=open(audio_path, "rb"))
             return {"transcription": transcription.text}
 
         try:

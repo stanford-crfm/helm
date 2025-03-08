@@ -64,7 +64,7 @@ def _get_multiple_choice_joint_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
         global_prefix="",
         instructions="Answer the multiple choice question by just giving the letter of the correct answer "
-                     "and nothing else.",
+        "and nothing else.",
         input_prefix=f"{input_noun}: " if input_noun is not None else "",
         input_suffix="\n",
         output_prefix=f"{output_noun}: ",
