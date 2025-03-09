@@ -2719,6 +2719,14 @@ models:
     release_date: 2024-07-18
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: openai/whisper-1_gpt-4o-2024-11-20
+    display_name: Whisper-1 + GPT-4o (2024-11-20)
+    description: Transcribes the text with Whisper-1 and then uses GPT-4o to generate a response.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2024-11-20
+    tags: [AUDIO_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG]
+
   - name: openai/gpt-4o-audio-preview-2024-10-01
     display_name: GPT-4o Audio (Preview 2024-10-01)
     description: GPT-4o Audio (Preview 2024-10-01) is a preview model that allows using use audio inputs to prompt the model ([documentation](https://platform.openai.com/docs/guides/audio)).
