@@ -82,6 +82,7 @@ class AutoClient(Client):
                     "org_id": lambda: self.credentials.get(
                         host_organization + "OrgId", None
                     ),  # OpenAI, GooseAI, Microsoft
+                    "base_url": lambda: self.credentials.get(host_organization + "BaseUrl", None),
                     "moderation_api_client": lambda: self.get_moderation_api_client(),  # OpenAI DALL-E
                     "lock_file_path": lambda: os.path.join(
                         self.file_storage_path, f"{host_organization}.lock"

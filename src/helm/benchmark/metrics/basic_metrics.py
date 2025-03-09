@@ -5,8 +5,8 @@ from typing import List, Dict, Set
 from urllib.parse import unquote
 
 import numpy as np
-import scipy
-import calibration as cal
+import scipy  # type: ignore
+import calibration as cal  # type: ignore
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.metrics.evaluate_reference_metrics import compute_reference_metrics
 from helm.benchmark.metrics.efficiency_metrics import EfficiencyMetric
