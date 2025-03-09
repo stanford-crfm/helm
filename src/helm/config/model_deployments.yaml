@@ -3169,24 +3169,24 @@ model_deployments:
             pretrained_model_name_or_path: ibm-granite/granite-3.1-8b-base
 
 # Granite-3.1-8b-instruct
-  - name: huggingface/granite-3.1-8b-instruct
-    model_name: ibm-granite/granite-3.1-8b-instruct
-    tokenizer_name: ibm-granite/granite-3.1-8b-instruct
-    max_sequence_length: 128000
-    client_spec:
-        class_name: "helm.clients.huggingface_client.HuggingFaceClient"
-        args:
-            pretrained_model_name_or_path: ibm-granite/granite-3.1-8b-instruct
+#  - name: huggingface/granite-3.1-8b-instruct
+#    model_name: ibm-granite/granite-3.1-8b-instruct
+#    tokenizer_name: ibm-granite/granite-3.1-8b-instruct
+#    max_sequence_length: 128000
+#    client_spec:
+#        class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+#        args:
+#            pretrained_model_name_or_path: ibm-granite/granite-3.1-8b-instruct
 
 # Granite-3.1-2b-instruct
-  - name: huggingface/granite-3.1-2b-instruct
-    model_name: ibm-granite/granite-3.1-2b-instruct
-    tokenizer_name: ibm-granite/granite-3.1-2b-instruct
-    max_sequence_length: 128000
-    client_spec:
-        class_name: "helm.clients.huggingface_client.HuggingFaceClient"
-        args:
-            pretrained_model_name_or_path: ibm-granite/granite-3.1-2b-instruct
+#  - name: huggingface/granite-3.1-2b-instruct
+#    model_name: ibm-granite/granite-3.1-2b-instruct
+#    tokenizer_name: ibm-granite/granite-3.1-2b-instruct
+#    max_sequence_length: 128000
+#    client_spec:
+#        class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+#        args:
+#            pretrained_model_name_or_path: ibm-granite/granite-3.1-2b-instruct
 
 # Granite-3.1-2b-base
   - name: huggingface/granite-3.1-2b-base
@@ -3257,3 +3257,109 @@ model_deployments:
         class_name: "helm.clients.huggingface_client.HuggingFaceClient"
         args:
             pretrained_model_name_or_path: deepseek-ai/deepseek-coder-6.7b-instruct
+
+# IBM WatsonX
+  - name: ibm/llama-3.3-70b-instruct
+    model_name: meta/llama-3.3-70b-instruct
+    tokenizer_name: meta/llama-3.3-70b-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.ibm_client.IbmChatClient"
+      args:
+        inner_model_name: meta-llama/llama-3-3-70b-instruct
+        region: Dallas
+
+  - name: ibm/granite-3-2b-instruct
+    model_name: ibm-granite/granite-3.1-2b-instruct
+    tokenizer_name: ibm-granite/granite-3.1-2b-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.ibm_client.IbmChatClient"
+      args:
+        inner_model_name: ibm/granite-3-2b-instruct
+        region: Dallas
+
+
+#
+  - name: ibm/granite-3-8b-instruct
+    model_name: ibm-granite/granite-3.1-8b-instruct
+    tokenizer_name: ibm-granite/granite-3.1-8b-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.ibm_client.IbmChatClient"
+      args:
+        inner_model_name: ibm/granite-3-8b-instruct
+        region: Dallas
+#
+
+#
+  - name: ibm/granite-13b-instruct-v2
+    model_name: ibm/granite-13b-instruct-v2
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.ibm_client.IbmTextClient"
+      args:
+        inner_model_name: ibm/granite-13b-instruct-v2
+        region: Dallas
+#
+  - name: ibm/granite-20b-code-instruct-8k
+    model_name: ibm/granite-20b-code-instruct-8k
+    tokenizer_name: ibm-granite/granite-20b-code-instruct-8k
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.ibm_client.IbmChatClient"
+      args:
+        inner_model_name: ibm/granite-20b-code-instruct
+        region: Dallas
+#
+  - name: ibm/granite-34b-code-instruct
+    model_name: ibm/granite-34b-code-instruct
+    tokenizer_name: ibm-granite/granite-34b-code-instruct-8k
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.ibm_client.IbmChatClient"
+      args:
+        inner_model_name: ibm/granite-34b-code-instruct
+        region: Dallas
+#
+  - name: ibm/granite-3b-code-instruct
+    model_name: ibm/granite-3b-code-instruct
+    tokenizer_name: ibm-granite/granite-3b-code-instruct-128k
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.ibm_client.IbmTextClient"
+      args:
+        inner_model_name: ibm/granite-3b-code-instruct
+        region: Dallas
+#
+  - name: ibm/granite-8b-code-instruct
+    model_name: ibm/granite-8b-code-instruct
+    tokenizer_name: ibm-granite/granite-8b-code-instruct-128k
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.ibm_client.IbmTextClient"
+      args:
+        inner_model_name: ibm/granite-8b-code-instruct
+        region: Dallas
+#
+  - name: ibm/granite-guardian-3-2b
+    model_name: ibm/granite-guardian-3-2b
+    tokenizer_name: ibm-granite/granite-guardian-3.1-2b
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.ibm_client.IbmTextClient"
+      args:
+        inner_model_name: ibm/granite-guardian-3-2b
+        region: Dallas
+#
+  - name: ibm/granite-guardian-3-8b
+    model_name: ibm/granite-guardian-3-8b
+    tokenizer_name: ibm-granite/granite-guardian-3.1-8b
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.ibm_client.IbmTextClient"
+      args:
+        inner_model_name: ibm/granite-guardian-3-8b
+        region: Dallas
+#

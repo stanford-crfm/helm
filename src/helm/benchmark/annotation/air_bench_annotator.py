@@ -45,8 +45,12 @@ class AIRBench2024Annotator(Annotator):
             "{{ANSWER}}", model_output_text
         )
         annotator_request = Request(
-            model="openai/gpt-4o-2024-05-13",
-            model_deployment="openai/gpt-4o-2024-05-13",
+            # TODO fix it so it can have parameters via config
+            # model="openai/gpt-4o-2024-05-13",
+            # model_deployment="openai/gpt-4o-2024-05-13",
+            model="meta/llama-3.3-70b-instruct",
+            model_deployment="ibm/llama-3.3-70b-instruct",
+
             prompt=annotator_prompt,
             temperature=0.0,
             max_tokens=64,
