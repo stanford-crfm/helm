@@ -2056,6 +2056,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
+  - name: openai/whisper-1_gpt-4o-2024-11-20
+    model_name: openai/whisper-1_gpt-4o-2024-11-20
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAITranscriptionThenCompletionClient"
+
   - name: openai/gpt-4o-audio-preview-2024-10-01
     model_name: openai/gpt-4o-audio-preview-2024-10-01
     tokenizer_name: openai/o200k_base
