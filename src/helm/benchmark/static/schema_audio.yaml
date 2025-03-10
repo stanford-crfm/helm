@@ -233,27 +233,68 @@ run_groups:
     description: Audio Scenarios
     category: All scenarios
     subgroups:
-      # Auditory Perception
+      # TODO: add Fairness and Bias
+      - auditory_perception
+      - emotion_detection
+      - knowledge
+      - robustness
+      - multilinguality
+      - toxicity_detection
+      - safety
+
+  - name: auditory_perception
+    display_name: Auditory Perception
+    description: Interpreting fundamental information in an audio clip
+    category: Core scenarios
+    subgroups:
       - audiocaps
       - voxceleb2
       - vocal_sound
-      # Fairness
-      # Emotion Detection
+
+  - name: emotion_detection
+    display_name: Emotion Detection
+    description: TODO
+    category: Core scenarios
+    subgroups:
       - meld_audio
       - mustard
-      # Knowledge
+
+  - name: knowledge
+    display_name: Knowledge
+    description: Recalling facts or information contained in the audio LLM.
+    category: Core scenarios
+    subgroups:
       - air_bench_chat
       - air_bench_foundation
-      # Robustness
+
+  - name: robustness
+    display_name: Robustness
+    description: Producing desired answers under invariant perturbations to the audio.
+    category: Core scenarios
+    subgroups:
       - speech_robust_bench
-      # Bias
-      # Multilinguality
+
+  - name: multilinguality
+    display_name: Multilinguality
+    description: Performs the same task when the language is changed
+    category: Core scenarios
+    subgroups:
       - covost2
       - fleurs
       - multilingual_librispeech
-      # Toxicity Detection
+
+  - name: toxicity_detection
+    display_name: Toxicity detection
+    description: Identifying and avoiding offensive or damaging materials.
+    category: Core scenarios
+    subgroups:
       - mutox
-      # Safety
+
+  - name: safety
+    display_name: Safety
+    description: Refusing to produce answers that cause harm to humans.
+    category: Core scenarios
+    subgroups:
       - voice_jailbreak_attacks
 
   - name: covost2
