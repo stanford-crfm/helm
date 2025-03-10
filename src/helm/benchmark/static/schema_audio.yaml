@@ -250,31 +250,11 @@ run_groups:
       # Multilinguality
       - covost2
       - fleurs
-      - common_voice_15
       - multilingual_librispeech
       # Toxicity Detection
       - mutox
       # Safety
       - voice_jailbreak_attacks
-
-  - name: audio_mnist
-    display_name: AudioMNIST
-    description: >
-      The AudioMNIST dataset consists of a dataset of 30000 audio samples of
-      spoken digits (0-9) of 60 different speakers. The task is to classify the digit from the
-      audio sample ([Becker et al, 2023](https://arxiv.org/abs/1807.03418)).
-    metric_groups:
-      - accuracy
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: audio classification
-      what: audio samples of spoken digits (0-9)
-      who: 60 different speakers
-      when: "2018"
-      language: English
 
   - name: covost2
     display_name: CoVost-2
@@ -405,29 +385,6 @@ run_groups:
       who: real speakers
       when: "2018"
       language: English, Germany, French
-
-  - name: common_voice_15
-    display_name: Common Voice 15
-    description: >
-      The most recent release of CommonVoice15 (Ardila et al, 2019) includes 114 languages. Over 50,000 
-      individuals have participated so far, resulting in 2,500 hours of collected audio. This is the largest 
-      audio corpus in the public domain for speech recognition, both in terms of number of hours and number 
-      of languages. The task is to recognize the speech from the audio sample.
-
-      The dataset contains the audio, transcriptions, location, speaker's gender, age, and accent 
-      ([Ardila et al, 2020](https://arxiv.org/abs/1912.06670)).
-    metric_groups:
-      - accuracy
-      - general_information
-    environment:
-      main_name: wer_score
-      main_split: test
-    taxonomy:
-      task: audio recognition
-      what: audio, transcripts, location, speaker's information in 114 languages
-      who: real speakers
-      when: "2019"
-      language: 114 languages
 
   - name: speech_robust_bench
     display_name: Robust Speech Bench
