@@ -111,6 +111,9 @@ class AdapterSpec:
     model: str = ""
     """Name of the language model (<creator_organization>/<model name>) to send requests to."""
 
+    model_ability: float = 0.0
+    """The ability of the model to perform the task. Used for adaptive evaluation."""
+
     temperature: float = 1
     """Temperature parameter used in generation."""
 
