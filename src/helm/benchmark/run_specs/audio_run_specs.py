@@ -327,6 +327,27 @@ def get_fleurs_run_spec(language: str) -> RunSpec:
     )
 
 
+@run_spec_function("fleurs_fairness")
+def get_fleurs_fairness_run_spec(gender: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.fleurs_fairness_scenario.FLEURSFairnessScenario",
+        args={"gender": gender},
+    )
+    adapter_spec = _get_generation_adapter_spec(
+        instructions=ASR_INSTRUCTIONS,
+        max_tokens=100,
+    )
+    metric_specs = _get_audio_recognition_metric_specs()
+    run_spec_name: str = "fleurs_fairness"
+    return RunSpec(
+        name=f"{run_spec_name}:gender={gender}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
 @run_spec_function("audiocaps")
 def get_audiocaps_run_spec(num_respondents: int) -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -522,6 +543,27 @@ def get_librispeech_run_spec() -> RunSpec:
     run_spec_name: str = "librispeech"
     return RunSpec(
         name=f"{run_spec_name}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("librispeech_fairness")
+def get_librispeech_fairness_run_spec(gender: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.librispeech_fairness_scenario.LibriSpeechFairnessScenario",
+        args={"gender": gender},
+    )
+    adapter_spec = _get_generation_adapter_spec(
+        instructions=ASR_INSTRUCTIONS,
+        max_tokens=100,
+    )
+    metric_specs = _get_audio_recognition_metric_specs()
+    run_spec_name: str = "librispeech_fairness"
+    return RunSpec(
+        name=f"{run_spec_name}:gender={gender}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
