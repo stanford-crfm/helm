@@ -24,7 +24,7 @@ def extract_answer(output_text: str) -> Optional[str]:
     match = re.search(r"answer is \(?([A-J])\)?", output_text)
     if match:
         return match.group(1)
-    
+
     # Second regex: Matches "[answer: (A-J)]" with optional leading characters like "."
     match = re.search(r"\.*\[aA\]nswer:\s*\(?([A-J])\)?", output_text)
     if match:

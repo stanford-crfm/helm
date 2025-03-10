@@ -58,11 +58,13 @@ def get_mmlu_pro_spec(subject: str, use_chain_of_thought: str = "true", use_few_
             adapter_spec=adapter_spec,
             metric_specs=get_basic_metric_specs([])
             + [
-                MetricSpec(class_name="helm.benchmark.metrics.gpqa_chain_of_thought_metric.GPQAChainOfThoughtMetric", args={}),
+                MetricSpec(
+                    class_name="helm.benchmark.metrics.gpqa_chain_of_thought_metric.GPQAChainOfThoughtMetric", args={}
+                ),
             ],
             groups=["mmlu_pro"],
         )
-        
+
     else:
         adapter_spec = AdapterSpec(
             method=ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -168,7 +170,9 @@ def get_gpqa_spec(subset: str, use_chain_of_thought: str = "true", use_few_shot:
         (
             get_basic_metric_specs([])
             + [
-                MetricSpec(class_name="helm.benchmark.metrics.gpqa_chain_of_thought_metric.GPQAChainOfThoughtMetric", args={}),
+                MetricSpec(
+                    class_name="helm.benchmark.metrics.gpqa_chain_of_thought_metric.GPQAChainOfThoughtMetric", args={}
+                ),
             ]
         )
         if use_chain_of_thought_bool
