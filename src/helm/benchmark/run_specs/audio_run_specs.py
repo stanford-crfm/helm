@@ -101,6 +101,18 @@ def _get_chinese_audio_recognition_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(["chinese_wer_score", "chinese_mer_score", "chinese_wip_score", "chinese_cer_score"])
 
 
+def _get_gpt4_critique_metric_specs(num_respondents: int, max_tokens: int) -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.gpt4_audio_critique_metrics.GPT4AudioCritiqueMetric",
+            args={
+                "num_respondents": num_respondents,
+                "max_tokens": max_tokens,
+            },
+        )
+    ]
+
+
 ########################################################################################################################
 # RunSpecs
 
@@ -316,7 +328,7 @@ def get_fleurs_run_spec(language: str) -> RunSpec:
 
 
 @run_spec_function("audiocaps")
-def get_audiocaps_run_spec() -> RunSpec:
+def get_audiocaps_run_spec(num_respondents: int) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.audio_language.audiocaps_scenario.AudioCapsScenario"
     )
@@ -325,7 +337,13 @@ def get_audiocaps_run_spec() -> RunSpec:
         "not need to be a complete sentence.",
         max_tokens=50,
     )
-    metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
+    metric_specs: List[MetricSpec] = (
+        _get_gpt4_critique_metric_specs(
+            num_respondents=num_respondents,
+            max_tokens=200,
+        )
+        + _get_open_ended_generation_metric_specs()
+    )
     run_spec_name: str = "audiocaps"
     return RunSpec(
         name=run_spec_name,
@@ -444,16 +462,22 @@ def get_casual_conversations2_run_spec(subject: str) -> RunSpec:
 
 
 @run_spec_function("air_bench_chat")
-def get_air_bench_chat_run_spec(subject: str) -> RunSpec:
+def get_air_bench_chat_run_spec(subject: str, num_respondents: int) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.audio_language.air_bench_chat_scenario." "AirBenchChatScenario",
         args={"subject": subject},
     )
     adapter_spec = _get_generation_adapter_spec(
-        instructions="Answer the question with a short answer and not in a complete sentence.",
-        max_tokens=50,
+        instructions="",
+        max_tokens=200,
     )
-    metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
+    metric_specs: List[MetricSpec] = (
+        _get_gpt4_critique_metric_specs(
+            num_respondents=num_respondents,
+            max_tokens=200,
+        )
+        + _get_open_ended_generation_metric_specs()
+    )
     run_spec_name: str = "air_bench_chat"
     return RunSpec(
         name=f"{run_spec_name}:subject={subject}",
