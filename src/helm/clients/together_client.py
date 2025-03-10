@@ -2,6 +2,7 @@ from copy import deepcopy
 from itertools import zip_longest
 import threading
 from typing import Callable, List, Dict, Any, Mapping, Optional, TypedDict, Union
+from typing_extensions import NotRequired
 
 import requests
 from retrying import retry
@@ -314,6 +315,7 @@ class TogetherRawChatRequest(TypedDict):
     logprobs: int
     echo: bool
     n: int
+    response_format: NotRequired[Dict[str, Any]]
 
 
 class TogetherChatClient(CachingClient):
@@ -371,7 +373,7 @@ class TogetherChatClient(CachingClient):
             logprobs = 0
         else:
             logprobs = min(request.top_k_per_token, 1)
-        return {
+        raw_chat_request: TogetherRawChatRequest = {
             "messages": messages,
             "model": model,
             "max_tokens": request.max_tokens,
@@ -383,6 +385,12 @@ class TogetherChatClient(CachingClient):
             "echo": request.echo_prompt,
             "n": request.num_completions,
         }
+        if request.response_format and request.response_format.json_schema:
+            raw_chat_request["response_format"] = {
+                "type": "json_object",
+                "schema": request.response_format.json_schema,
+            }
+        return raw_chat_request
 
     def make_request(self, request: Request) -> RequestResult:
         raw_request = self.convert_to_raw_chat_request(request)
