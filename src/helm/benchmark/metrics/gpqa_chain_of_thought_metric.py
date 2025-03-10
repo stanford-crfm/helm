@@ -24,17 +24,22 @@ def extract_answer(output_text: str) -> Optional[str]:
     match = re.search(r"answer is \(?([A-J])\)?", output_text)
     if match:
         return match.group(1)
-
+    
     # Second regex: Matches "[answer: (A-J)]" with optional leading characters like "."
     match = re.search(r"\.*\[aA\]nswer:\s*\(?([A-J])\)?", output_text)
     if match:
         return match.group(1)
 
-    # If neither regex matches, return None
+    # Third regex: Matches "answer is (A-J)" with optional leading non-alpha characters
+    match = re.search(r"correct answer is [^A-Za-z]*([A-J])", output_text)
+    if match:
+        return match.group(1)
+
+    # If no regex matches, return None
     return None
 
 
-class ChainOfThoughtMetric(Metric):
+class GPQAChainOfThoughtMetric(Metric):
     """
     This metric focuses on structured reasoning and the accuracy of extracted answers.
     It compares model outputs against correct answers provided in a multiple-choice
