@@ -189,6 +189,11 @@ metrics:
     lower_is_better: true
     description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).
 
+  - name: gpt4_audio_critique
+    display_name: GPT-4o Judge Critique
+    lower_is_better: false
+    description: Judgements by GPT-4o
+
 ############################################################
 perturbations: []
 
@@ -371,7 +376,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: f1_score
+      main_name: gpt4_audio_critique
       main_split: test
     taxonomy:
       task: audio captioning
@@ -528,7 +533,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: f1_score
+      main_name: gpt4_audio_critique
       main_split: test
     taxonomy:
       task: audio question answering
