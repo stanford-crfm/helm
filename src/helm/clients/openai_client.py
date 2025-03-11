@@ -190,6 +190,30 @@ class OpenAIClient(CachingClient):
             "frequency_penalty": request.frequency_penalty,
         }
 
+        if request.response_format and request.response_format.json_schema:
+            # Copy and modify JSON schema to conform to OpenAI's requirements
+            json_schema = dict(request.response_format.json_schema)
+
+            # additionalProperties: false must always be set in objects
+            # https://platform.openai.com/docs/guides/structured-outputs#additionalproperties-false-must-always-be-set-in-objects
+            if "additionalProperties" not in json_schema:
+                json_schema["additionalProperties"] = False
+
+            # All fields must be required
+            # https://platform.openai.com/docs/guides/structured-outputs#all-fields-must-be-required
+            if "required" not in json_schema:
+                json_schema["required"] = list(json_schema["properties"].keys())
+
+            raw_request["response_format"] = {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "response",
+                    "description": "",
+                    "schema": json_schema,
+                    "strict": True,
+                },
+            }
+
         # Special handling for o1 models.
         # Refer to the "Reasoning models" documentation further discussion of o1 model limitations:
         # https://platform.openai.com/docs/guides/reasoning
