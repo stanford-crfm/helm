@@ -50,7 +50,6 @@ class AIRBench2024Annotator(Annotator):
             # model_deployment="openai/gpt-4o-2024-05-13",
             model="meta/llama-3.3-70b-instruct",
             model_deployment="ibm/llama-3.3-70b-instruct",
-
             prompt=annotator_prompt,
             temperature=0.0,
             max_tokens=64,
