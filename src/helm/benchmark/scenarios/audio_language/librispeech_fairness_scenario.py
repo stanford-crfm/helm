@@ -47,7 +47,7 @@ class LibriSpeechFairnessScenario(Scenario):
     )
     GENDERS = ["male", "female"]
 
-    name = "librispeech"
+    name = "librispeech_fairness"
     description = (
         "Widely-used speech corpus for the speech recognition task "
         "([Vassil et al. 2015](https://ieeexplore.ieee.org/document/7178964))."

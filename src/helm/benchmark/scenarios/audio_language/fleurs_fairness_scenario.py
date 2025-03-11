@@ -44,7 +44,7 @@ class FLEURSFairnessScenario(Scenario):
 
     GENDERS = {"male": 0, "female": 1}
 
-    name = "fleurs"
+    name = "fleurs_fairness"
     description = "Language identification for seven languages from seven different language groups \
         ([Conneau et al, 2022](https://arxiv.org/abs/2205.12446))."
     tags: List[str] = ["audio", "recognition", "multilinguality"]
