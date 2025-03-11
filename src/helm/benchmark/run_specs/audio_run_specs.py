@@ -349,7 +349,7 @@ def get_fleurs_fairness_run_spec(gender: str) -> RunSpec:
 
 
 @run_spec_function("audiocaps")
-def get_audiocaps_run_spec(num_respondents: int) -> RunSpec:
+def get_audiocaps_run_spec(num_respondents: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.audio_language.audiocaps_scenario.AudioCapsScenario"
     )
@@ -483,7 +483,7 @@ def get_casual_conversations2_run_spec(subject: str) -> RunSpec:
 
 
 @run_spec_function("air_bench_chat")
-def get_air_bench_chat_run_spec(subject: str, num_respondents: int) -> RunSpec:
+def get_air_bench_chat_run_spec(subject: str, num_respondents: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.audio_language.air_bench_chat_scenario." "AirBenchChatScenario",
         args={"subject": subject},
