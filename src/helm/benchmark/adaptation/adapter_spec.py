@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 from helm.common.image_generation_parameters import ImageGenerationParameters
+from helm.common.reeval_parameters import ReevalParameters
 
 
 # Adaptation methods
@@ -111,9 +112,6 @@ class AdapterSpec:
     model: str = ""
     """Name of the language model (<creator_organization>/<model name>) to send requests to."""
 
-    model_ability: float = 0.0
-    """The ability of the model to perform the task. Used for adaptive evaluation."""
-
     temperature: float = 1
     """Temperature parameter used in generation."""
 
@@ -134,6 +132,9 @@ class AdapterSpec:
 
     image_generation_parameters: Optional[ImageGenerationParameters] = None
     """Parameters for image generation."""
+    
+    reeval_parameters: Optional[ReevalParameters] = None
+    """Parameters for reeval evaluation."""
 
     # Set hash=False to make `AdapterSpec` hashable
     eval_splits: Optional[List[str]] = field(default=None, hash=False)

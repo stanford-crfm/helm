@@ -3,9 +3,7 @@ import json
 import os
 import typing
 from collections import Counter
-import dataclasses
 from typing import Any, Dict, List
-from queue import PriorityQueue, Empty
 import torch
 
 from tqdm import tqdm
@@ -21,6 +19,7 @@ from helm.benchmark.scenarios.scenario import (
     Instance,
     get_scenario_cache_path,
     with_instance_ids,
+    with_instance_difficulties,
 )
 from helm.benchmark.adaptation.adapters.adapter import Adapter
 from helm.benchmark.adaptation.adapters.adapter_factory import AdapterFactory
@@ -40,13 +39,7 @@ from helm.benchmark.runner import (
 )
 
 
-@dataclasses.dataclass(order=True)
-class PrioritizedItem:
-    priority: float
-    request_state: Any = dataclasses.field(compare=False)
-
-
-class ReevalRunner(Runner):
+class RelEffEvalRunner(Runner):
     """
     This runner implements the basic (non-amortized) method described in the paper
     `Reliable and Efficient Amortized Model-Based Evaluation`. This approach, which is
@@ -57,7 +50,8 @@ class ReevalRunner(Runner):
     the authors of the paper will supply a Python package for calculating these difficulties.
     At each iteration, the runner estimates the model's ability based on all previously
     administered questions and their corresponding responses. It then selects the next question
-    that maximizes Fisher information, thereby optimally eliciting the model's ability.
+    whose difficulty is closest to the estimated ability, thereby optimally eliciting the
+    model's ability.
     """
 
     def __init__(
@@ -82,53 +76,15 @@ class ReevalRunner(Runner):
             exit_on_error=exit_on_error,
         )
 
-    def _compute_negative_fisher_information(
-        self,
-        model_ability: float,
-        instance_difficulty: float,
-    ):
-        ability = torch.tensor([model_ability])
-        difficulty = torch.tensor([instance_difficulty])
-        p = torch.sigmoid(ability + difficulty).item()
-        return -p * (1 - p)
-
-    def _construct_request_state_queue(
-        self,
-        request_states: List[RequestState],
-        model_ability: float,
-    ):
-        priorities = []
-        for request_state in request_states:
-            instance_difficulty = request_state.instance.extra_data["difficulty"]
-            priorities.append(
-                self._compute_negative_fisher_information(
-                    model_ability=model_ability,
-                    instance_difficulty=instance_difficulty,
-                )
-            )
-
-        # Add all requests to the queue with priority 0
-        # Lower priority means being processed first
-        request_state_queue = PriorityQueue()
-        for request_state, priority in zip(request_states, priorities):
-            request_state_queue.put(
-                PrioritizedItem(
-                    priority=priority,
-                    request_state=request_state,
-                )
-            )
-
-        return request_state_queue
-
     def _estimate_model_ability(
         self,
         old_ability: float,
         response_correctness: List[bool],
         instance_difficulties: List[float],
-    ):
+    ) -> float:
         def closure():
             optim.zero_grad()
-            probs = torch.sigmoid(ability + difficulties)
+            probs = torch.sigmoid(ability - difficulties)
             loss = -torch.distributions.Bernoulli(probs=probs).log_prob(responses).mean()
             loss.backward()
             return loss
@@ -162,9 +118,10 @@ class ReevalRunner(Runner):
             return
         ensure_directory_exists(run_path)
 
-        # Check reeval mode
-        if run_spec.reeval_mode and self.executor.execution_spec.parallelism > 1:
-            hlog("Reeval mode is not supported with parallelism > 1. Running with parallelism=1.")
+        # TODO: is this necessary? Check reeval mode
+        if self.executor.execution_spec.parallelism > 1:
+            hlog("Reeval mode is not supported with parallelism > 1. Running with parallelism = 1.")
+            raise RuntimeError("Reeval mode does not support parallelism > 1")
 
         # Load the scenario
         scenario: Scenario = create_scenario(run_spec.scenario_spec)
@@ -208,6 +165,14 @@ class ReevalRunner(Runner):
         if max_eval_instances is not None:
             instances = downsample_eval_instances(instances, max_eval_instances, eval_splits)
 
+        # get difficulty information
+        import numpy as np
+
+        np.random.seed(42)
+        difficulties = np.random.randn(len(instances)).tolist()
+        if any([instance.extra_data is None for instance in instances]):
+            instances = with_instance_difficulties(instances, difficulties)
+
         # Data preprocessing
         instances = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(
             instances, self.executor.execution_spec.parallelism
@@ -215,16 +180,13 @@ class ReevalRunner(Runner):
 
         # Adapt (convert to requests)
         adapter: Adapter = AdapterFactory.get_adapter(run_spec.adapter_spec, self.tokenizer_service)
-        request_states: List[RequestState] = adapter.adapt(instances, self.executor.execution_spec.parallelism)
+        unasked_request_states: List[RequestState] = adapter.adapt(instances, self.executor.execution_spec.parallelism)
 
         # Execute the requests in an reeval manner
-        model_ability = run_spec.adapter_spec.model_ability
-        scenario_metric_name = run_spec.metric_specs[0].args["names"][0]
-        request_state_queue = self._construct_request_state_queue(
-            request_states=request_states,
-            model_ability=model_ability,
-        )
-        reeval_request_states: List[RequestState] = []
+        model_ability = run_spec.adapter_spec.reeval_parameters.model_ability
+        scenario_metric_name = run_spec.adapter_spec.reeval_parameters.metric_name
+
+        asked_request_states: List[RequestState] = []
         stats: List[Stat] = []
         per_instance_stats: List[PerInstanceStats] = []
         reeval_trajectory = {
@@ -233,16 +195,19 @@ class ReevalRunner(Runner):
             "instance_difficulties": [],
         }
 
-        for _ in tqdm(range(run_spec.reeval_max_samples), desc="Reeval execution"):
-            try:
-                selected_item = request_state_queue.get(block=False)
-            except Empty:
+        for _ in tqdm(range(run_spec.adapter_spec.reeval_parameters.max_samples), desc="Reeval execution"):
+            if not unasked_request_states:
                 break
+
+            selected_item = min(
+                unasked_request_states, key=lambda item: abs(item.instance.extra_data["difficulty"] - model_ability)
+            )
+            unasked_request_states.remove(selected_item)
 
             # Execute the request
             single_scenario_state: ScenarioState = ScenarioState(
                 adapter_spec=run_spec.adapter_spec,
-                request_states=[selected_item.request_state],
+                request_states=[selected_item],
                 annotator_specs=run_spec.annotators,
             )
 
@@ -275,7 +240,7 @@ class ReevalRunner(Runner):
                         per_instance_stat.extend(metric_result.per_instance_stats)
 
             # Update the reeval request states
-            reeval_request_states.extend(single_scenario_state.request_states)
+            asked_request_states.extend(single_scenario_state.request_states)
 
             # Update the aggregated stats
             if len(stats) > 0:
@@ -293,9 +258,7 @@ class ReevalRunner(Runner):
                 0
             ].mean
             reeval_trajectory["response_correctness"].append(scenario_metric_value)
-            reeval_trajectory["instance_difficulties"].append(
-                selected_item.request_state.instance.extra_data["difficulty"]
-            )
+            reeval_trajectory["instance_difficulties"].append(selected_item.instance.extra_data["difficulty"])
 
             # Estimate the model ability
             model_ability = self._estimate_model_ability(
@@ -304,16 +267,10 @@ class ReevalRunner(Runner):
                 instance_difficulties=reeval_trajectory["instance_difficulties"],
             )
 
-            # Update the priority
-            request_state_queue = self._construct_request_state_queue(
-                request_states=[item.request_state for item in request_state_queue.queue],
-                model_ability=model_ability,
-            )
-
         # Create the scenario state
         scenario_state: ScenarioState = ScenarioState(
             adapter_spec=run_spec.adapter_spec,
-            request_states=reeval_request_states,
+            request_states=asked_request_states,
             annotator_specs=run_spec.annotators,
         )
 
@@ -349,10 +306,9 @@ class ReevalRunner(Runner):
             json.dumps(list(map(asdict_without_nones, remove_per_instance_stats_nans(per_instance_stats))), indent=2),
         )
 
-        if run_spec.reeval_mode:
-            write(
-                os.path.join(run_path, "reeval_trajectory.json"),
-                json.dumps(reeval_trajectory, indent=2),
-            )
+        write(
+            os.path.join(run_path, "reeval_trajectory.json"),
+            json.dumps(reeval_trajectory, indent=2),
+        )
 
         cache_stats.print_status()
