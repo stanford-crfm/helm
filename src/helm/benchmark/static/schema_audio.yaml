@@ -360,6 +360,29 @@ run_groups:
       when: "2022"
       language: 102 languages
 
+  - name: fleurs_fairness
+    display_name: FLEURS Fairness
+    description: >
+      FLEURS is an n-way parallel speech dataset in 102 languages built on top of the machine translation FLoRes-101 
+      benchmark, with approximately 12 hours of speech supervision per language. FLEURS can be used for a variety of 
+      speech tasks, including Automatic Speech Recognition (ASR), Speech Language Identification (Speech LangID), 
+      Translation and Retrieval.
+
+      We only use the English subset of the dataset for the fairness task. We ask the model to do ASR on
+      audio files from different gender groups ([Conneau et al, 2022](https://arxiv.org/abs/2205.12446)).
+    metric_groups:
+      - accuracy
+      - fairness
+    environment:
+      main_name: wer_score
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: audio, transcripts, and gender of the speaker
+      who: real speakers
+      when: "2022"
+      language: English
+
   - name: audiocaps
     display_name: AudioCaps
     description: >
@@ -653,6 +676,31 @@ run_groups:
     metric_groups:
       - accuracy
       - general_information
+    environment:
+      main_name: wer_score
+      main_split: test
+    taxonomy:
+      task: audio recognition
+      what: audio, transcripts of audio samples in daily scenarios
+      who: real speakers
+      when: "2015"
+      language: English
+
+  - name: librispeech_fairness
+    display_name: LibriSpeech Fairness
+    description: >
+      The LibriSpeech corpus (Vassil et al. 2015) is derived from audiobooks that are part 
+      of the LibriVox project, and contains 1000 hours of speech sampled at 16 kHz. The 
+      data has separately prepared language-model training data and pre-built language models. 
+      This corpus is one of the most widely-used ASR corpus, which has been extended to many 
+      applicaitons such as robust ASR and multilingual ASR tasks.
+
+      The dataset contains the audio, transcriptions for all subsets. We ask the model to do 
+      ASR on audio files from different gender groups 
+      ([Vassil et al. 2015](https://ieeexplore.ieee.org/document/7178964)).
+    metric_groups:
+      - accuracy
+      - fairness
     environment:
       main_name: wer_score
       main_split: test
