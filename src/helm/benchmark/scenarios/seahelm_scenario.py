@@ -19,7 +19,7 @@ from helm.benchmark.scenarios.scenario import (
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog
 
-# BHASA Scenarios
+# SEA-HELM Scenarios
 #   A. Natural Language Understanding
 #   B. Natural Language Generation
 #   C. Natural Language Reasoning

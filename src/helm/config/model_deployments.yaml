@@ -663,6 +663,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
 
+  - name: google/gemini-2.0-flash-thinking-exp-01-21
+    model_name: google/gemini-2.0-flash-thinking-exp-01-21
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+
   - name: google/gemini-1.5-flash-8b-001
     model_name: google/gemini-1.5-flash-8b-001
     tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
@@ -884,6 +891,66 @@ model_deployments:
     model_name: aisingapore/llama3-8b-cpt-sea-lionv2.1-instruct
     tokenizer_name: meta/llama-3-8b-instruct
     max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/gemma2-9b-cpt-sea-lionv3-base
+    model_name: aisingapore/gemma2-9b-cpt-sea-lionv3-base
+    tokenizer_name: google/gemma-2-9b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/gemma2-9b-cpt-sea-lionv3-instruct
+    model_name: aisingapore/gemma2-9b-cpt-sea-lionv3-instruct
+    tokenizer_name: google/gemma-2-9b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/llama3.1-8b-cpt-sea-lionv3-base
+    model_name: aisingapore/llama3.1-8b-cpt-sea-lionv3-base
+    tokenizer_name: meta/llama-3.1-8b
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/llama3.1-8b-cpt-sea-lionv3-instruct
+    model_name: aisingapore/llama3.1-8b-cpt-sea-lionv3-instruct
+    tokenizer_name: meta/llama-3.1-8b
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/llama3.1-70b-cpt-sea-lionv3-base
+    model_name: aisingapore/llama3.1-70b-cpt-sea-lionv3-base
+    tokenizer_name: meta/llama-3.1-8b
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/llama3.1-70b-cpt-sea-lionv3-instruct
+    model_name: aisingapore/llama3.1-70b-cpt-sea-lionv3-instruct
+    tokenizer_name: meta/llama-3.1-8b
+    max_sequence_length: 128000
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
@@ -1981,6 +2048,13 @@ model_deployments:
     max_sequence_length: 128000
     client_spec:
       class_name: "helm.clients.openai_client.OpenAIClient"
+
+  - name: openai/whisper-1_gpt-4o-2024-11-20
+    model_name: openai/whisper-1_gpt-4o-2024-11-20
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAITranscriptionThenCompletionClient"
 
   - name: openai/gpt-4o-audio-preview-2024-10-01
     model_name: openai/gpt-4o-audio-preview-2024-10-01
