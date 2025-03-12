@@ -233,7 +233,6 @@ run_groups:
     description: Audio Scenarios
     category: All scenarios
     subgroups:
-      # add bias -Tony
       - auditory_perception
       - emotion_detection
       - knowledge
@@ -242,6 +241,7 @@ run_groups:
       - toxicity_detection
       - safety
       - fairness
+      - bias
 
   - name: auditory_perception
     display_name: Auditory Perception
@@ -305,6 +305,13 @@ run_groups:
     subgroups:
       - fleurs_fairness
       - librispeech_fairness
+
+  - name: bias
+    display_name: Bias
+    description: Whether the model is biased towards certain groups or demographics.
+    category: Core scenarios
+    subgroups:
+      - parade
 
   - name: covost2
     display_name: CoVost-2
