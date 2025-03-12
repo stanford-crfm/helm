@@ -23,7 +23,7 @@ const ServeBenchmarkOutputPlugin = {
 // https://vitejs.dev/config/
 export default () => {
   return defineConfig({
-    base: process.env.VITE_BASE || "",
+    base: process.env.VITE_HELM_FRONTEND_BASE || "",
     plugins: [react(), ServeBenchmarkOutputPlugin],
     resolve: {
       alias: {
