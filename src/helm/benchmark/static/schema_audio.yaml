@@ -233,7 +233,7 @@ run_groups:
     description: Audio Scenarios
     category: All scenarios
     subgroups:
-      # TODO: add Fairness and Bias
+      # add bias -Tony
       - auditory_perception
       - emotion_detection
       - knowledge
@@ -241,6 +241,7 @@ run_groups:
       - multilinguality
       - toxicity_detection
       - safety
+      - fairness
 
   - name: auditory_perception
     display_name: Auditory Perception
@@ -296,6 +297,14 @@ run_groups:
     category: Core scenarios
     subgroups:
       - voice_jailbreak_attacks
+
+  - name: fairness
+    display_name: Fairness
+    description: Whether the model is fair to all groups or demographics.
+    category: Core scenarios
+    subgroups:
+      - fleurs_fairness
+      - librispeech_fairness
 
   - name: covost2
     display_name: CoVost-2
