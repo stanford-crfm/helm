@@ -21,29 +21,30 @@ const ServeBenchmarkOutputPlugin = {
 }
 
 // https://vitejs.dev/config/
-export default () => {return defineConfig({
-  base: process.env.VITE_BASE || "",
-  plugins: [react(), ServeBenchmarkOutputPlugin],
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
+export default () => {
+  return defineConfig({
+    base: process.env.VITE_BASE || "",
+    plugins: [react(), ServeBenchmarkOutputPlugin],
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "./src"),
+      },
     },
-  },
-  test: {
-    globals: true,
-    environment: "jsdom",
-  },
-  build: {
-    rollupOptions: {
-      output: {
-        // Manually chunk large libraries to keep chunk size under 500 KB
-        manualChunks: {
-          react: ["react", "react-dom", "react-markdown", "react-router-dom", "react-spinners"],
-          tremor: ["@tremor/react"],
-          recharts: ["recharts"],
+    test: {
+      globals: true,
+      environment: "jsdom",
+    },
+    build: {
+      rollupOptions: {
+        output: {
+          // Manually chunk large libraries to keep chunk size under 500 KB
+          manualChunks: {
+            react: ["react", "react-dom", "react-markdown", "react-router-dom", "react-spinners"],
+            tremor: ["@tremor/react"],
+            recharts: ["recharts"],
+          }
         }
       }
-    }
-  },
-})
+    },
+  })
 };
