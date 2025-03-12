@@ -722,3 +722,23 @@ run_groups:
       who: real speakers
       when: "2015"
       language: English
+
+  - name: parade
+    display_name: PARADE
+    description: >
+      The PARADE dataset is inspired by the PAIRS dataset for evaluating occupation and status 
+      bias in vision-language models. We collect a new dataset of audio-text multi-choice QA 
+      task that involves exploring occupation and status bias. The dataset consists of 436 
+      audio-text QA pairs with 3 options each.
+    metric_groups:
+      - accuracy
+      - bias
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: audio, question and answer given the audio
+      who: OpenAI's TTS
+      when: "2025"
+      language: English

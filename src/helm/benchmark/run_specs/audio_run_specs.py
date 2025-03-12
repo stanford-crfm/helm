@@ -591,3 +591,23 @@ def get_air_bench_foundation_run_spec(subject: str) -> RunSpec:
         metric_specs=metric_specs,
         groups=[run_spec_name],
     )
+
+
+@run_spec_function("parade")
+def get_parade_run_spec(voice: str, subset: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.parade_scenario.PARADEScenario",
+        args={"subset": subset, "voice": voice},
+    )
+    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
+        input_noun=None, output_noun="Answer", max_train_instances=0
+    )
+    metric_specs = get_exact_match_metric_specs()
+    run_spec_name: str = "parade"
+    return RunSpec(
+        name=f"{run_spec_name},voice={voice},subset={subset}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
