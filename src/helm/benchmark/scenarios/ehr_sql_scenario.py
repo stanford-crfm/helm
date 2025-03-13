@@ -92,9 +92,14 @@ class EhrSqlScenario(Scenario):
                     instance = Instance(
                         input=Input(text=input_text),
                         references=[Reference(Output(text=entry["query"]), tags=[CORRECT_TAG])],
-                        extra_data={"db_path": "eicu.sqlite", "value": entry.get("value", {}), "is_impossible": is_impossible},
+                        extra_data={
+                            "db_path": "eicu.sqlite",
+                            "value": entry.get("value", {}),
+                            "is_impossible": is_impossible,
+                        },
                         split=split,
                     )
+
                     instances.append(instance)
 
         return instances
