@@ -64,7 +64,11 @@ class EhrSqlMetric(Metric):
 
         # Check if the ground truth is answerable based on `is_impossible` flag
         ground_truth_query = references[0].output.text.strip() if references else None
-        is_impossible = request_state.instance.extra_data["is_impossible"]
+        is_impossible = (
+            request_state.instance.extra_data.get("is_impossible", False)
+            if request_state.instance.extra_data
+            else False
+        )
 
         is_answerable = not is_impossible and bool(ground_truth_query)  # True if the ground truth is answerable
         is_predicted_answerable = bool(prediction)  # True if the model generated a non-empty SQL query
