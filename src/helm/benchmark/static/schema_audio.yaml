@@ -255,7 +255,7 @@ run_groups:
 
   - name: emotion_detection
     display_name: Emotion Detection
-    description: TODO
+    description: Detecting emotions in audio clips.
     category: Core scenarios
     subgroups:
       - meld_audio
