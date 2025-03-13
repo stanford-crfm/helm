@@ -508,10 +508,11 @@ class OpenAITranscriptionThenCompletionClient(Client):
                 )
                 response = self._openai_client.make_request(request)
 
+                transcribed_text: str
                 if response.success and response.completions:
-                    transcribed_text: str = response.completions[0].text
+                    transcribed_text = response.completions[0].text
                 else:
-                    transcribed_text: str = ""
+                    transcribed_text = ""
                     hlog(f"Failed to transcribe audio: {response.error}")
 
                 text_content.append(self.wrap_transcribed_indicator(transcribed_text))
