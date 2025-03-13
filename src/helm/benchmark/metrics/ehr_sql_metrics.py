@@ -1,5 +1,4 @@
 from typing import List
-import re
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.metric import Metric
@@ -56,7 +55,6 @@ class EhrSqlMetric(Metric):
 
         # Extract references and input text
         references = getattr(request_state.instance, "references", None)
-        input_text = request_state.instance.input.text  # Read input text
 
         if not references or len(references) == 0:
             hlog(f"Warning: Missing references for instance {request_state.instance}")
