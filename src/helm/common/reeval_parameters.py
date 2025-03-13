@@ -12,7 +12,7 @@ class ReevalParameters:
     """The inital ability of the model to perform the task. Used for reeval evaluation."""
 
     max_samples: Optional[int] = None
-    """Maximum number of samples to evaluate in reeval mode"""
+    """Maximum number of samples to evaluate in reeval mode."""
 
     metric_name: Optional[str] = None
-    """The main metric name for the scenario. For MMLU, it should be exact_match"""
+    """The main metric name for the scenario. For MMLU, it should be exact_match."""

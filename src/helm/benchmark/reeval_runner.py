@@ -7,6 +7,7 @@ from typing import Any, Dict, List
 import torch
 
 from tqdm import tqdm
+from dataclasses import replace
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.general import ensure_directory_exists, write, asdict_without_nones
@@ -19,7 +20,6 @@ from helm.benchmark.scenarios.scenario import (
     Instance,
     get_scenario_cache_path,
     with_instance_ids,
-    with_instance_difficulties,
 )
 from helm.benchmark.adaptation.adapters.adapter import Adapter
 from helm.benchmark.adaptation.adapters.adapter_factory import AdapterFactory
@@ -32,11 +32,18 @@ from helm.benchmark.metrics.dry_run_metrics import DryRunMetric
 from helm.benchmark.metrics.metric import MetricInterface, MetricResult, PerInstanceStats, create_metric, Stat
 from helm.benchmark.runner import (
     Runner,
-    RunSpec,
     remove_stats_nans,
     downsample_eval_instances,
     remove_per_instance_stats_nans,
 )
+
+
+def with_instance_difficulties(instances: List[Instance], difficulties: List[float]) -> List[Instance]:
+    """Return the instances with a difficulty in extra_data"""
+    return [
+        replace(instance, extra_data={"difficulty": difficulty})
+        for instance, difficulty in zip(instances, difficulties)
+    ]
 
 
 class RelEffEvalRunner(Runner):
@@ -79,7 +86,7 @@ class RelEffEvalRunner(Runner):
     def _estimate_model_ability(
         self,
         old_ability: float,
-        response_correctness: List[bool],
+        response_correctness: List[float],
         instance_difficulties: List[float],
     ) -> float:
         def closure():
@@ -118,7 +125,7 @@ class RelEffEvalRunner(Runner):
             return
         ensure_directory_exists(run_path)
 
-        # TODO: is this necessary? Check reeval mode
+        # TODO: Reeval mode only support parallelism = 1
         if self.executor.execution_spec.parallelism > 1:
             hlog("Reeval mode is not supported with parallelism > 1. Running with parallelism = 1.")
             raise RuntimeError("Reeval mode does not support parallelism > 1")
@@ -189,7 +196,7 @@ class RelEffEvalRunner(Runner):
         asked_request_states: List[RequestState] = []
         stats: List[Stat] = []
         per_instance_stats: List[PerInstanceStats] = []
-        reeval_trajectory = {
+        reeval_trajectory: Dict[str, List[float]] = {
             "model_ability": [],
             "response_correctness": [],
             "instance_difficulties": [],

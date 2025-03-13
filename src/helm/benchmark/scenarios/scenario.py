@@ -255,14 +255,6 @@ def with_instance_ids(instances: List[Instance]) -> List[Instance]:
     return [replace(instance, id=f"id{i}") for i, instance in enumerate(instances)]
 
 
-def with_instance_difficulties(instances: List[Instance], difficulties: List[float]) -> List[Instance]:
-    """Return the instances with a difficulty in extra_data"""
-    return [
-        replace(instance, extra_data={"difficulty": difficulty})
-        for instance, difficulty in zip(instances, difficulties)
-    ]
-
-
 class ScenarioSpec(ObjectSpec):
     pass
 
