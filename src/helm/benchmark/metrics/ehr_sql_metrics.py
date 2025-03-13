@@ -18,11 +18,6 @@ class EhrSqlMetric(Metric):
     4. Recall for Answerable Questions (Rans).
     """
 
-    def extract_is_impossible(self, input_text: str) -> bool:
-        """Extracts `is_impossible` from input_text using regex."""
-        match = re.search(r'"is_impossible":\s*(true|false)', input_text, re.IGNORECASE)
-        return bool(match and match.group(1).lower() == "true")
-
     def evaluate_generation(
         self,
         adapter_spec: AdapterSpec,
@@ -69,7 +64,7 @@ class EhrSqlMetric(Metric):
 
         # Check if the ground truth is answerable based on `is_impossible` flag
         ground_truth_query = references[0].output.text.strip() if references else None
-        is_impossible = self.extract_is_impossible(input_text)
+        is_impossible = request_state.instance.extra_data["is_impossible"]
 
         is_answerable = not is_impossible and bool(ground_truth_query)  # True if the ground truth is answerable
         is_predicted_answerable = bool(prediction)  # True if the model generated a non-empty SQL query

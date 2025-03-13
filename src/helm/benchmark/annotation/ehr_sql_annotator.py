@@ -34,13 +34,29 @@ class EhrSqlAnnotator(Annotator):
         except (sqlite3.OperationalError, sqlite3.Warning) as e:
             hlog(f"WARNING: Ground truth SQL failed with error: {e}")
 
-        # If the database query returns empty, use `value` field as ground truth
-        if (
-            not ground_truth_result
-            and request_state.instance.extra_data is not None
-            and "value" in request_state.instance.extra_data
-        ):
-            ground_truth_result = list(request_state.instance.extra_data["value"].values())
+        # If ground truth SQL execution didn't return results, attempt to use extra_data["value"]
+        if not ground_truth_result and request_state.instance.extra_data is not None:
+            if "value" in request_state.instance.extra_data:
+                extra_values = list(request_state.instance.extra_data["value"].values())
+
+                # Try inferring types from the database schema if possible
+                with sqlite3.connect(database_path) as conn:
+                    cursor = conn.cursor()
+                    try:
+                        cursor.execute(ground_truth_sql)
+                        fetched_result = cursor.fetchone()
+                        if fetched_result:
+                            # Convert extra_values to match SQLite's expected types
+                            converted_values = [
+                                type(fetched_result[i])(extra_values[i]) for i in range(len(extra_values))
+                            ]
+                            ground_truth_result = converted_values
+                        else:
+                            # If no rows were fetched, use `extra_values` as-is
+                            ground_truth_result = extra_values
+                    except sqlite3.OperationalError:
+                        # If query fails (syntax error, etc.), just use `extra_values` as-is
+                        ground_truth_result = extra_values
 
         assert request_state.result is not None
         assert len(request_state.result.completions) == 1

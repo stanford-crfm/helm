@@ -87,12 +87,12 @@ class EhrSqlScenario(Scenario):
                 if "question" in entry and "query" in entry:
                     is_impossible = entry.get("is_impossible", False)
                     input_text = f"-- Database Schema:\n{schema_prompt}\n\n-- \
-                    Question:\n{entry['question']}\n\n -- Is Impossible: {is_impossible}"
+                    Question:\n{entry['question']}\n\n"
 
                     instance = Instance(
                         input=Input(text=input_text),
                         references=[Reference(Output(text=entry["query"]), tags=[CORRECT_TAG])],
-                        extra_data={"db_path": "eicu.sqlite", "value": entry.get("value", {})},
+                        extra_data={"db_path": "eicu.sqlite", "value": entry.get("value", {}), "is_impossible": is_impossible},
                         split=split,
                     )
                     instances.append(instance)
