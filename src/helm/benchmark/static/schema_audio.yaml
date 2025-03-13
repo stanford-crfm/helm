@@ -251,6 +251,7 @@ run_groups:
       - audiocaps
       - voxceleb2
       - vocal_sound
+      - librispeech
 
   - name: emotion_detection
     display_name: Emotion Detection
