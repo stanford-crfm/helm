@@ -45,8 +45,9 @@ class MedecScenario(Scenario):
     and reasoning capabilities.
     """
 
-    TRAIN_URL = "https://raw.githubusercontent.com/abachaa/MEDEC/refs/heads/main/MEDEC-MS/MEDEC-Full-TrainingSet-with-ErrorType.csv"  # noqa: E501
-    TEST_URL = "https://raw.githubusercontent.com/abachaa/MEDEC/refs/heads/main/MEDEC-MS/MEDEC-MS-TestSet-with-GroundTruth-and-ErrorType.csv"  # noqa: E501
+    GIT_HASH = "49c59dcba43a7af8717590a405b11a57f42b04df"
+    TRAIN_URL = f"https://raw.githubusercontent.com/abachaa/MEDEC/{GIT_HASH}/MEDEC-MS/MEDEC-Full-TrainingSet-with-ErrorType.csv"  # noqa: E501
+    TEST_URL = f"https://raw.githubusercontent.com/abachaa/MEDEC/{GIT_HASH}/MEDEC-MS/MEDEC-MS-TestSet-with-GroundTruth-and-ErrorType.csv"  # noqa: E501
 
     name = "medec"
     description = "A dataset containing medical narratives with error detection and correction pairs."

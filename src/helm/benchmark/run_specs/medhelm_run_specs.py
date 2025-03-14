@@ -782,7 +782,8 @@ def get_ehr_sql_run_spec() -> RunSpec:
             "that retrieves the required information from the database. "
             "Output only the SQL query without explanations.\n\n"
             "Input: A database schema followed by a natural language question.\n"
-            "Output: A valid SQL query ending with ;. Only return SQL query, don't add additional text."
+            "Output: A valid SQL query ending with ;. Only return SQL query, don't add additional text.\n\n"
+            "If the question is unanswerable, return an empty string without additional text or comments."
         ),
         input_noun="Medical Question + Schema",
         output_noun="SQL Query",

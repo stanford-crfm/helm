@@ -1,7 +1,6 @@
 import os
 import requests
 import re
-from bs4 import BeautifulSoup
 from typing import List
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -13,14 +12,16 @@ from helm.benchmark.scenarios.scenario import (
     Output,
 )
 from helm.common.general import ensure_directory_exists
+import json
 
 
 class MTSamplesProceduresScenario(Scenario):
     """
-    Processes the MTSamples dataset from raw text files.
+    Processes the MTSamples Procedure dataset, a subset of MTSamples,
+    specifically focusing on procedure-related medical notes.
+    This dataset contains transcribed medical reports detailing various procedures,
+    treatments, and surgical interventions, making it valuable for training AI models in medical transcription and clinical NLP tasks.
 
-    - Dynamically fetches the list of text files from GitHub.
-    - Downloads and processes medical transcription files.
     - Extracts `PLAN`, `SUMMARY`, or `FINDINGS` sections as references.
     - Ensures these sections are excluded from the input text.
     - Filters out files that do not contain any of the three reference sections.
@@ -28,8 +29,9 @@ class MTSamplesProceduresScenario(Scenario):
     Data source: https://github.com/raulista1997/benchmarkdata/tree/main/mtsample_procedure
     """
 
-    GITHUB_DIR_URL = "https://github.com/raulista1997/benchmarkdata/tree/main/mtsample_procedure"
-    RAW_BASE_URL = "https://raw.githubusercontent.com/raulista1997/benchmarkdata/refs/heads/main/mtsample_procedure/"
+    GIT_HASH = "c4c252443fa9c52afb6960f53e51be278639bea2"
+    GITHUB_DIR_URL = f"https://github.com/raulista1997/benchmarkdata/tree/{GIT_HASH}/mtsample_procedure"
+    RAW_BASE_URL = f"https://raw.githubusercontent.com/raulista1997/benchmarkdata/{GIT_HASH}/mtsample_procedure/"
 
     name = "mtsamples"
     description = (
@@ -39,20 +41,17 @@ class MTSamplesProceduresScenario(Scenario):
 
     def fetch_file_list(self) -> List[str]:
         """
-        Scrapes the GitHub directory page to get a list of all `.txt` files.
+        Uses the GitHub API to fetch the list of `.txt` files in the dataset directory.
         """
-        response = requests.get(self.GITHUB_DIR_URL)
-        if response.status_code != 200:
-            raise Exception(f"Failed to fetch file list from GitHub ({self.GITHUB_DIR_URL})")
+        api_url = "https://api.github.com/repos/raulista1997/benchmarkdata/contents/mtsample_procedure"
+        headers = {"Accept": "application/vnd.github+json"}
 
-        soup = BeautifulSoup(response.text, "html.parser")
-        file_links = [
-            link.text
-            for link in soup.find_all(
-                "a", {"href": re.compile(r"/raulista1997/benchmarkdata/blob/main/mtsample_procedure/.*\.txt$")}
-            )
-        ]
-        return file_links
+        response = requests.get(api_url, headers=headers)
+        if response.status_code != 200:
+            raise Exception(f"Failed to fetch file list from GitHub API ({api_url})")
+
+        files = response.json()
+        return [file["name"] for file in files if file["name"].endswith(".txt")]
 
     def download_file(self, file_name: str, output_dir: str) -> str:
         """

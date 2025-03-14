@@ -1,5 +1,4 @@
 from typing import List
-import re
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.metric import Metric
@@ -17,11 +16,6 @@ class EhrSqlMetric(Metric):
     3. Precision for Answerable Questions (Pans).
     4. Recall for Answerable Questions (Rans).
     """
-
-    def extract_is_impossible(self, input_text: str) -> bool:
-        """Extracts `is_impossible` from input_text using regex."""
-        match = re.search(r'"is_impossible":\s*(true|false)', input_text, re.IGNORECASE)
-        return bool(match and match.group(1).lower() == "true")
 
     def evaluate_generation(
         self,
@@ -61,7 +55,6 @@ class EhrSqlMetric(Metric):
 
         # Extract references and input text
         references = getattr(request_state.instance, "references", None)
-        input_text = request_state.instance.input.text  # Read input text
 
         if not references or len(references) == 0:
             hlog(f"Warning: Missing references for instance {request_state.instance}")
@@ -69,7 +62,11 @@ class EhrSqlMetric(Metric):
 
         # Check if the ground truth is answerable based on `is_impossible` flag
         ground_truth_query = references[0].output.text.strip() if references else None
-        is_impossible = self.extract_is_impossible(input_text)
+        is_impossible = (
+            request_state.instance.extra_data.get("is_impossible", False)
+            if request_state.instance.extra_data
+            else False
+        )
 
         is_answerable = not is_impossible and bool(ground_truth_query)  # True if the ground truth is answerable
         is_predicted_answerable = bool(prediction)  # True if the model generated a non-empty SQL query
