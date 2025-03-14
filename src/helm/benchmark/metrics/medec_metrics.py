@@ -64,8 +64,10 @@ class MedecMetric(Metric):
             ground_truth_sentence_id = -1  # No sentence should be flagged
         else:
             ground_truth_flag = 1  # Medical error exists
-            match = re.match(r"(\d+)", ground_truth_text)
-            ground_truth_sentence_id = int(match.group(1)) if match else -1
+            try:
+                ground_truth_sentence_id = int(ground_truth_text)
+            except ValueError:
+                ground_truth_sentence_id = -1
 
         # Determine model predictions
         prediction = prediction.strip()
