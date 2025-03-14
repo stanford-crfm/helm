@@ -24,10 +24,10 @@ class EhrSqlScenario(Scenario):
     - Includes `value` field as alternative ground truth result.
     """
 
-    BASE_URL: str = "https://raw.githubusercontent.com/glee4810/EHRSQL/refs/heads/main/dataset/ehrsql/eicu"
-    DB_URL: str = "https://raw.githubusercontent.com/raulista1997/benchmarkdata/main/eicu.sqlite"
+    BASE_URL: str = "https://raw.githubusercontent.com/glee4810/EHRSQL/e172ec8e61391ecae2d872c8d0ba02a622222f54/dataset/ehrsql/eicu"
+    DB_URL: str = "https://github.com/raulista1997/benchmarkdata/raw/c4c252443fa9c52afb6960f53e51be278639bea2/eicu.sqlite"
     SQL_SCHEMA_URL: str = (
-        "https://raw.githubusercontent.com/glee4810/EHRSQL/refs/heads/main/dataset/ehrsql/eicu/eicu.sql"
+        "https://raw.githubusercontent.com/glee4810/EHRSQL/e172ec8e61391ecae2d872c8d0ba02a622222f54/dataset/ehrsql/eicu/eicu.sql"
     )
 
     name = "ehr_sql"

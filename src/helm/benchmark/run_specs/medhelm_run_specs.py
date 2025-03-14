@@ -640,6 +640,7 @@ def get_med_dialog_spec(subset: str) -> RunSpec:
         input_noun="Patient-Doctor",
         output_noun="Summary",
         max_tokens=80,
+        max_train_instances=0
     )
 
     metric_args = {

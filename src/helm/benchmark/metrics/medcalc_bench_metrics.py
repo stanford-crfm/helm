@@ -120,5 +120,5 @@ class MedCalcBenchMetric(Metric):
             exact_match = self.check_in_range(prediction, reference, request_state.instance.extra_data, category)
 
         return [
-            Stat(MetricName("medcalc_bench_exact_match")).add(exact_match),
+            Stat(MetricName("medcalc_bench_accuracy")).add(exact_match),
         ]

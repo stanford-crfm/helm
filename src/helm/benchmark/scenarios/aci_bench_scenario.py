@@ -60,16 +60,16 @@ class ACIBenchScenario(Scenario):
     focusing on the chief complaint, history of present illness, and other relevant clinical information.
     """
 
+    PREFIX = (
+        "https://raw.githubusercontent.com/wyim/aci-bench/e75b383172195414a7a68843ec4876e83e5409f7/data/challenge_data_json"
+    )
     TRAIN_URL = (
-        "https://raw.githubusercontent.com/wyim/aci-bench/refs/heads/main/data/challenge_data_json/train_full.json"
+        f"{PREFIX}/train_full.json"
     )
     TEST_URLS = [
-        "https://raw.githubusercontent.com/wyim/aci-bench/refs/heads/main/data/"
-        "challenge_data_json/clinicalnlp_taskB_test1_full.json",
-        "https://raw.githubusercontent.com/wyim/aci-bench/refs/heads/main/data/"
-        "challenge_data_json/clef_taskC_test3_full.json",
-        "https://raw.githubusercontent.com/wyim/aci-bench/refs/heads/main/data/"
-        "challenge_data_json/clinicalnlp_taskC_test2_full.json",
+        f"{PREFIX}/clinicalnlp_taskB_test1_full.json",
+        f"{PREFIX}/clef_taskC_test3_full.json",
+        f"{PREFIX}/clinicalnlp_taskC_test2_full.json",
     ]
 
     name = "aci_bench"

@@ -120,11 +120,11 @@ class HeadQAScenario(Scenario):
                             ],
                             split=helm_split_name,
                             extra_data={
-                                "id": example["qid"],
                                 "name": example["name"],
                                 "category": example["category"],
                                 "year": example["year"],
                             },
+                            id=example["qid"]
                         )
                     )
 

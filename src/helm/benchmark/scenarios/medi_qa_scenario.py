@@ -55,9 +55,6 @@ class MediQAScenario(Scenario):
     )
     tags = ["knowledge", "biomedical"]
 
-    def __init__(self):
-        super().__init__()
-
     def _get_highest_ranked_answer(self, answers: List[Dict[str, Dict[str, str]]]) -> str:
         best_answer: str = ""
         for answer in answers:

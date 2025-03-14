@@ -30,9 +30,9 @@ class SHCSEIMedScenario(Scenario):
 
     name = "shc_sei_med"
     description = (
-        "A dataset that classifies whether a clinical note contains a clinician "
-        "recommendation for parent training in behavior management, which is the first-line "
-        "evidence-based treatment for young children with ADHD."
+        "A dataset that classifies whether a clinical note contains documentation "
+        "of side effect monitoring (recording of absence or presence of medication "
+        "side effects), as recommended in clinical practice guidelines."
     )
     tags = ["knowledge", "reasoning", "biomedical"]
 

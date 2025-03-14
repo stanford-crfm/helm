@@ -1,6 +1,7 @@
 import csv
 import os
 
+from filelock import FileLock
 from typing import Dict, List
 from docx import Document
 
@@ -116,9 +117,11 @@ class RaceBasedMedScenario(Scenario):
     def get_instances(self, output_path: str) -> List[Instance]:
         data_path = "/share/pi/nigam/data/medhelm/race_based/race_based.csv"
         word_file = (
-            "TODO"  # Path to the word file from supplement: https://www.nature.com/articles/s41746-023-00939-z#Sec3
+            "/share/pi/nigam/data/medhelm/race_based/race_based.docx"  # Path to the word file from supplement: https://www.nature.com/articles/s41746-023-00939-z#Sec3
         )
-        if not os.path.exists(data_path):
+        lock_path = data_path + ".lock"
+        with FileLock(lock_path):
+            # if not os.path.exists(data_path):
             create_csv_from_word(word_file, data_path)
 
         instances: List[Instance] = []

@@ -350,9 +350,9 @@ metrics:
     description: Total number of answerable questions in the ground truth.
     lower_is_better: false
 
-  - name: medcalc_bench_exact_match
-    display_name: MedCalc Bench Exact match
-    short_display_name: MedCalcBench-EM
+  - name: medcalc_bench_accuracy
+    display_name: MedCalc Accuracy
+    short_display_name: MedCalc Accuracy
     description: Comparison based on category. Exact match for categories risk, severity and diagnosis. Check if within range for the other categories.
     lower_is_better: false
 
@@ -476,7 +476,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: medcalc_bench_exact_match
+      main_name: medcalc_bench_accuracy
       main_split: test
     taxonomy:
       task: Computational reasoning
@@ -969,7 +969,7 @@ run_groups:
 
   - name: shc_ptbm_med
     display_name: ADHD-Behavior
-    description: A dataset that classifies whether a clinical note contains documentation of side effect monitoring (recording of absence or presence of medication side effects), as recommended in clinical practice guidelines [(Pillai et al., 2024)](https://doi.org/10.1093/jamia/ocae001).
+    description: A dataset that classifies whether a clinical note contains a clinician recommendation for parent training in behavior management, which is the first-line evidence-based treatment for young children with ADHD [(Pillai et al., 2024)](https://doi.org/10.1093/jamia/ocae001).
     metric_groups:
       - accuracy
       - efficiency
@@ -986,7 +986,7 @@ run_groups:
 
   - name: shc_sei_med
     display_name:  ADHD-MedEffects
-    description: A dataset that classifies whether a clinical note contains a clinician recommendation for parent training in behavior management, which is the first-line evidence-based treatment for young children with ADHD [(Bannet et al., 2024)](https://doi.org/10.1542/peds.2024-067223).
+    description: A dataset that classifies whether a clinical note contains documentation of side effect monitoring (recording of absence or presence of medication side effects), as recommended in clinical practice guidelines [(Bannet et al., 2024)](https://doi.org/10.1542/peds.2024-067223).
     metric_groups:
       - accuracy
       - efficiency

@@ -43,8 +43,10 @@ class CLEARScenario(Scenario):
     """
 
     name = "clear_alcohol_dependence"
-    description = "A dataset for evaluating alcohol dependence history"
-    "detection from patient notes with yes/no/maybe classifications."
+    description = (
+        "A dataset for evaluating alcohol dependence history "
+        "detection from patient notes with yes/no/maybe classifications."
+    )
     tags = ["classification", "biomedical"]
 
     POSSIBLE_ANSWER_CHOICES: List[str] = [

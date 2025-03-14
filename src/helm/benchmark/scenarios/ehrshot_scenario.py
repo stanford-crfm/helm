@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import tiktoken
 
+from filelock import FileLock
 from functools import partial
 from tqdm import tqdm
 from typing import Any, Dict, List, Optional
@@ -1125,11 +1126,7 @@ def lumia_prompt(
         else CONFIG["lab"] if task_name.startswith("lab") else CONFIG["new"]
     )
     tmpl: Dict[str, Any]
-    if isinstance(task_config, dict):
-        tmpl = base_prompt(task_name, **task_config)
-    else:
-        # Fallback in case it's not a dict
-        tmpl = base_prompt(task_name, is_include_persona=True)
+    tmpl = base_prompt(task_name, **task_config)
 
     # EHR => String converter
     if config.get("ehr_converter") == "codes_and_timestamps":
@@ -1475,9 +1472,11 @@ class EHRSHOTScenario(Scenario):
 
     def get_instances(self, output_path: str) -> List[Instance]:
         path_to_input_csv: str = os.path.join(self.path_to_tmp_dir, self.subject, "medhelm_prompts.parquet")
-        if not os.path.exists(path_to_input_csv):
-            print(f"Creating benchmark from SCRATCH for {self.subject}...")
-            self.create_benchmark()
+        lock_path = path_to_input_csv + ".lock"
+        with FileLock(lock_path):
+            if not os.path.exists(path_to_input_csv):
+                print(f"Creating benchmark from SCRATCH for {self.subject}...")
+                self.create_benchmark() # Create benchmark from scratch
 
         # Load data for this task
         df = pd.read_parquet(path_to_input_csv)
