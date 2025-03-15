@@ -1,6 +1,5 @@
 import os
 import requests
-import re
 from typing import List
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -12,7 +11,6 @@ from helm.benchmark.scenarios.scenario import (
     Output,
 )
 from helm.common.general import ensure_directory_exists
-import json
 
 
 class MTSamplesProceduresScenario(Scenario):
@@ -20,7 +18,7 @@ class MTSamplesProceduresScenario(Scenario):
     Processes the MTSamples Procedure dataset, a subset of MTSamples,
     specifically focusing on procedure-related medical notes.
     This dataset contains transcribed medical reports detailing various procedures,
-    treatments, and surgical interventions, making it valuable for training AI models in medical transcription and clinical NLP tasks.
+    treatments, and surgical interventions.
 
     - Extracts `PLAN`, `SUMMARY`, or `FINDINGS` sections as references.
     - Ensures these sections are excluded from the input text.
