@@ -36,6 +36,16 @@ export default function SEAHELMLanding() {
             users to understand models' multilingual and multicultural
             performance in a systematic and user-friendly manner.
           </p>
+          <p className="mb-4 italic">
+            Additional evaluation results are available on the external{" "}
+            <a
+              href="https://leaderboard.sea-lion.ai/"
+              className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+            >
+              AI Singapore (AISG) SEA-HELM leaderboard
+            </a>
+            .
+          </p>
 
           <div className="flex flex-row justify-center mt-4">
             <a
@@ -45,7 +55,13 @@ export default function SEAHELMLanding() {
               Paper
             </a>
             <a className="px-10 btn rounded-md mx-4" href="#/leaderboard">
-              Full Leaderboard
+              HELM Leaderboard
+            </a>
+            <a
+              className="px-10 btn rounded-md mx-4"
+              href="https://leaderboard.sea-lion.ai/"
+            >
+              AISG Leaderboard
             </a>
           </div>
         </div>
