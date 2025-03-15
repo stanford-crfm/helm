@@ -31,7 +31,7 @@ class MedicationQAScenario(Scenario):
     FILENAME = "MedInfo2019-QA-Medications.xlsx"
 
     name = "medication_qa"
-    description = "MedInfo 2019 MedicationQA medication question answering task"
+    description = "Open text question-answer pairs regarding consumer health questions about medication."
     tags = ["knowledge", "generation", "question_answering", "biomedical"]
 
     def download_medication_qa(self, path: str):
