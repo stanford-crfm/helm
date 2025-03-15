@@ -124,7 +124,7 @@ class HeadQAScenario(Scenario):
                                 "category": example["category"],
                                 "year": example["year"],
                             },
-                            id=example["qid"]
+                            id=example["qid"],
                         )
                     )
 
