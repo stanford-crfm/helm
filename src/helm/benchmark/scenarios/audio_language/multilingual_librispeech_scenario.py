@@ -58,15 +58,17 @@ class MultilingualLibriSpeechScenario(Scenario):
     def get_instances(self, output_path: str) -> List[Instance]:
         instances: List[Instance] = []
         audio_save_dir = os.path.join(output_path, "audio_files")
-        for row in tqdm(
-            load_dataset(
-                MultilingualLibriSpeechScenario.HF_DATASET_NAME,
-                name=self._language,
-                cache_dir=output_path,
-                split=TEST_SPLIT,
+        for idx, row in enumerate(
+            tqdm(
+                load_dataset(
+                    MultilingualLibriSpeechScenario.HF_DATASET_NAME,
+                    name=self._language,
+                    cache_dir=output_path,
+                    split=TEST_SPLIT,
+                )
             )
         ):
-            local_audio_path = os.path.join(audio_save_dir, row["original_path"].split("/")[-1])
+            local_audio_path = os.path.join(audio_save_dir, str(idx) + "_" + row["original_path"].split("/")[-1])
             # download to the local path
             ensure_audio_file_exists_from_array(local_audio_path, row["audio"]["array"], row["audio"]["sampling_rate"])
             answer = row["transcript"]

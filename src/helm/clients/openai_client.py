@@ -190,6 +190,30 @@ class OpenAIClient(CachingClient):
             "frequency_penalty": request.frequency_penalty,
         }
 
+        if request.response_format and request.response_format.json_schema:
+            # Copy and modify JSON schema to conform to OpenAI's requirements
+            json_schema = dict(request.response_format.json_schema)
+
+            # additionalProperties: false must always be set in objects
+            # https://platform.openai.com/docs/guides/structured-outputs#additionalproperties-false-must-always-be-set-in-objects
+            if "additionalProperties" not in json_schema:
+                json_schema["additionalProperties"] = False
+
+            # All fields must be required
+            # https://platform.openai.com/docs/guides/structured-outputs#all-fields-must-be-required
+            if "required" not in json_schema:
+                json_schema["required"] = list(json_schema["properties"].keys())
+
+            raw_request["response_format"] = {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "response",
+                    "description": "",
+                    "schema": json_schema,
+                    "strict": True,
+                },
+            }
+
         # Special handling for o1 models.
         # Refer to the "Reasoning models" documentation further discussion of o1 model limitations:
         # https://platform.openai.com/docs/guides/reasoning
@@ -483,8 +507,14 @@ class OpenAITranscriptionThenCompletionClient(Client):
                     multimodal_prompt=MultimediaObject(media_objects=[media_object]),
                 )
                 response = self._openai_client.make_request(request)
-                assert response.success and response.completions, f"Transcription request failed: {response.error}"
-                transcribed_text: str = response.completions[0].text
+
+                transcribed_text: str
+                if response.success and response.completions:
+                    transcribed_text = response.completions[0].text
+                else:
+                    transcribed_text = ""
+                    hlog(f"Failed to transcribe audio: {response.error}")
+
                 text_content.append(self.wrap_transcribed_indicator(transcribed_text))
             elif media_object.is_type(TEXT_TYPE):
                 assert media_object.text is not None, "Expected text content"
