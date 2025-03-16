@@ -253,7 +253,7 @@ class AnthropicMessagesClient(CachingClient):
         super().__init__(cache_config=cache_config)
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
-        self.client = Anthropic(api_key=api_key)
+        self.client = Anthropic(api_key=api_key, timeout=30 * 60)
         self.api_key: Optional[str] = api_key
 
     def make_request(self, request: Request) -> RequestResult:
