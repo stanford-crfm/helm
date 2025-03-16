@@ -377,7 +377,6 @@ class AnthropicMessagesClient(CachingClient):
             del raw_request["top_p"]
             del raw_request["top_k"]
             del raw_request["temperature"]
-        print(f"Tony: {raw_request}")
 
         completions: List[GeneratedOutput] = []
 
