@@ -1,3 +1,4 @@
+import uuid
 from abc import ABC
 from abc import abstractmethod
 
@@ -22,23 +23,30 @@ from helm.common.request import (
     GeneratedOutput,
 )
 
-from .client import CachingClient
+from helm.clients.client import CachingClient
 from ibm_watsonx_ai import Credentials
 from ibm_watsonx_ai.foundation_models import ModelInference
 from ibm_watsonx_ai.metanames import GenTextParamsMetaNames as GenParams
-from typing import Any, Dict, List, TypedDict, Callable
-from threading import Lock
+from typing import Any, Dict, List, TypedDict, Callable, Union
+from threading import Lock, Semaphore
 import threading
 
 # import time
 
 # Define the maximum number of parallel executions is limited by IBM API
-MAX_CONCURRENT_REQUESTS = 7
+MAX_CONCURRENT_REQUESTS = 4
+__semaphores: Dict[str, Semaphore] = dict()
 
+
+def get_semaphore(model: str):
+    if model not in __semaphores:
+        __semaphores[model] = threading.Semaphore(MAX_CONCURRENT_REQUESTS)
+
+    return __semaphores[model]
 
 class IBMRequest(TypedDict):
     """Data passed between make_request and serve_request. Used as the cache key."""
-
+    model :str
     engine: str
     prompt: str
     temperature: float
@@ -58,6 +66,8 @@ class ModelInferenceHandler(ABC):
         """
         self.inference_engine = inference_engine
 
+
+
     @abstractmethod
     def serve_request(self, raw_request: IBMRequest) -> Dict:
         pass
@@ -67,12 +77,12 @@ class ModelInferenceHandler(ABC):
         pass
 
     @abstractmethod
-    def create_params(self, request: IBMRequest) -> TextGenParameters | TextChatParameters:
+    def create_params(self, request: IBMRequest) -> Union[TextGenParameters, TextChatParameters]:
         pass
 
-    @abstractmethod
-    def tokenize(self, text: str) -> dict:
-        pass
+    # @abstractmethod
+    # def tokenize(self, text: str) -> dict:
+    #     pass
 
     @staticmethod
     def pre_processing(text: str) -> str:
@@ -87,6 +97,10 @@ class GenerateInferenceHandler(ModelInferenceHandler):
 
     def __init__(self, inference_engine: ModelInference):
         self.inference_engine = inference_engine
+
+
+
+
 
     def create_params(self, raw_request: IBMRequest) -> TextGenParameters:
         return TextGenParameters(
@@ -151,8 +165,13 @@ class GenerateInferenceHandler(ModelInferenceHandler):
 
 
 class ChatModelInferenceHandler(ModelInferenceHandler):
+    # _lock = threading.Lock()  # Lock to protect the counter
     def __init__(self, inference_engine: ModelInference):
         self.inference_engine = inference_engine
+
+    def active_threads(self):
+        active_semaphore_threads = IBMServer._semaphore._value
+        return MAX_CONCURRENT_REQUESTS - active_semaphore_threads
 
     def create_params(self, raw_request: IBMRequest) -> TextChatParameters:
         return TextChatParameters(
@@ -185,19 +204,28 @@ class ChatModelInferenceHandler(ModelInferenceHandler):
         return completions
 
     def serve_request(self, raw_request: IBMRequest) -> Dict:
+        semaphore = get_semaphore(raw_request["model"])
 
-        response = self.inference_engine.chat(
-            messages=[{"role": "user", "content": GenerateInferenceHandler.pre_processing(raw_request["prompt"])}],
-            params=self.create_params(raw_request),
-        )
+        with semaphore:
+            tid = str(uuid.uuid4().hex)[:8]
+            hlog(f"ENTER Active threads : {MAX_CONCURRENT_REQUESTS - semaphore._value}")
+            hlog(f"Request: {tid} - {raw_request['prompt']}")
+            response = self.inference_engine.chat(
+                messages=[{"role": "user", "content": GenerateInferenceHandler.pre_processing(raw_request["prompt"])}],
+                params=self.create_params(raw_request),
+            )
+            hlog(f"Response :{tid} - {response}")
+        hlog(f"EXIT Active threads : {MAX_CONCURRENT_REQUESTS - semaphore._value}")
         return response
 
-    def tokenize(self, text: str) -> dict:
-        try:
-            return self.inference_engine.tokenize(GenerateInferenceHandler.pre_processing(text), return_tokens=True)
-        except Exception as e:
-            hlog(f"ChatModelInferenceHandler : Tokenization failed with exception {e} during tokenization of {text}")
-        return {}
+    # def tokenize(self, text: str) -> dict:
+    #     semaphore = get_semaphore(raw_request["model"])
+    #     with semaphore:
+    #         try:
+    #             return self.inference_engine.tokenize(GenerateInferenceHandler.pre_processing(text), return_tokens=True)
+    #         except Exception as e:
+    #             hlog(f"ChatModelInferenceHandler : Tokenization failed with exception {e} during tokenization of {text}")
+    #     return {}
 
 
 class IBMServer:
@@ -206,7 +234,7 @@ class IBMServer:
     # _method_counts: DefaultDict[str, int] = defaultdict(int)
 
     def __init__(
-        self, model_name: str, api_key: str, project_id: str, location: str, inference_nandler: Callable, **kwargs
+        self, model_name: str, api_key: str, project_id: str, location: str, inference_handler: Callable, **kwargs
     ):
         self.model_name = model_name
 
@@ -217,7 +245,7 @@ class IBMServer:
                 credentials=Credentials(api_key=api_key, url=location),
                 project_id=project_id,
             )
-            self.__inference_handler: ModelInferenceHandler = inference_nandler(inference_engine=model)
+            self.__inference_handler: ModelInferenceHandler = inference_handler(inference_engine=model)
 
     # def counter_key(self, method) -> str:
     #     return f"{self.model_name}:{method}"
@@ -250,14 +278,14 @@ class IBMServer:
     #         self._log_active_threads(thread_id=thread_id, method_name=method_name, duration=duration, data=data)
     #         hlog(f"Exit : Active threads : {self.active_threads()}")
 
-    def encode(self, text: str, **kwargs) -> List[int]:
-        # start_time = time.perf_counter()
-        with IBMServer._semaphore:
-            # tid = threading.get_ident()
-            # self._enter_api(thread_id=tid, method_name="encode")
-            encoding_result = self.__inference_handler.tokenize(text)
-            # self._exit_api(thread_id=tid, method_name="encode", start_time=start_time, data=text)
-            return encoding_result["result"]["tokens"]
+    # def encode(self, text: str, **kwargs) -> List[int]:
+    #     # start_time = time.perf_counter()
+    #     with IBMServer._semaphore:
+    #         # tid = threading.get_ident()
+    #         # self._enter_api(thread_id=tid, method_name="encode")
+    #         encoding_result = self.__inference_handler.tokenize(text)
+    #         # self._exit_api(thread_id=tid, method_name="encode", start_time=start_time, data=text)
+    #         return encoding_result["result"]["tokens"]
 
     def parse_response(self, response: dict) -> List[GeneratedOutput]:
         return self.__inference_handler.parse_response(response)
@@ -285,7 +313,7 @@ class IBMServerFactory:
         api_key: str,
         project_id: str,
         location: str,
-        inference_nadler: Callable,
+        inference_handler: Callable,
         **kwargs,
     ) -> Any:
         """
@@ -300,7 +328,7 @@ class IBMServerFactory:
                         api_key=api_key,
                         project_id=project_id,
                         location=location,
-                        inference_nandler=inference_nadler,
+                        inference_handler=inference_handler,
                         **kwargs,
                     )
 
@@ -318,6 +346,8 @@ class IbmClient(CachingClient, ABC):
         **kwargs,
     ):
         super().__init__(cache_config=cache_config)
+        self.project_id = None
+        self.url = None
         self.inner_model_name = inner_model_name
         self.api_key = api_key
         self.region = region
@@ -329,6 +359,15 @@ class IbmClient(CachingClient, ABC):
             if entry["region"].lower() == self.region.lower():
                 self.project_id = entry["project_id"]
                 self.url = entry["url"]
+
+    def get_model_inference(self, model_name: str, api_key: str, location: str, project_id: str) -> ModelInference:
+        with htrack_block(f"Loading IBM model {model_name} {location}"):
+            return  ModelInference(
+                                    model_id=model_name,
+                                    params={GenParams.MAX_NEW_TOKENS: 2000},
+                                    credentials=Credentials(api_key=api_key, url=location),
+                                    project_id=project_id,
+                                  )
 
     @abstractmethod
     def make_request(self, request: Request) -> RequestResult:
@@ -343,6 +382,7 @@ class IbmChatClient(IbmClient):
             return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
 
         raw_request: IBMRequest = {
+            "model" : self.inner_model_name,
             "engine": request.model_engine,
             "prompt": request.prompt,
             "temperature": 1e-7 if request.temperature == 0 else request.temperature,
@@ -355,22 +395,29 @@ class IbmChatClient(IbmClient):
         }
 
         try:
-            ibm_model: IBMServer = IBMServerFactory.get_server(
-                model_name=request.model,
-                ibm_model_name=self.inner_model_name,
-                api_key=self.api_key,
-                project_id=self.project_id,
-                location=self.url,
-                inference_nadler=ChatModelInferenceHandler,
-                **self.kwargs,
-            )
+            inference_engine = self.get_model_inference(
+                                                            model_name=self.inner_model_name,
+                                                            api_key=self.api_key,
+                                                            project_id=self.project_id,
+                                                            location=self.url,
+                                                        )
+            chat_inference_handler = ChatModelInferenceHandler(inference_engine=inference_engine)
+            # ibm_model: IBMServer = IBMServerFactory.get_server(
+            #     model_name=request.model,
+            #     ibm_model_name=self.inner_model_name,
+            #     api_key=self.api_key,
+            #     project_id=self.project_id,
+            #     location=self.url,
+            #     inference_handler=ChatModelInferenceHandler,
+            #     **self.kwargs,
+            # )
 
             def do_it() -> Dict[str, Any]:
-                return ibm_model.serve_request(raw_request)
+                return chat_inference_handler.serve_request(raw_request)
 
             cache_key = CachingClient.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-            completions = ibm_model.parse_response(response)
+            completions = chat_inference_handler.parse_response(response)
             return RequestResult(
                 success=True,
                 cached=cached,
@@ -392,6 +439,7 @@ class IbmTextClient(IbmClient):
             return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
 
         raw_request: IBMRequest = {
+            "model": self.inner_model_name,
             "engine": request.model_engine,
             "prompt": request.prompt,
             "temperature": 1e-7 if request.temperature == 0 else request.temperature,
@@ -410,7 +458,7 @@ class IbmTextClient(IbmClient):
                 api_key=self.api_key,
                 project_id=self.project_id,
                 location=self.url,
-                inference_nadler=GenerateInferenceHandler,
+                inference_handler=GenerateInferenceHandler,
                 **self.kwargs,
             )
 

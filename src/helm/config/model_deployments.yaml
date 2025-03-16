@@ -3416,24 +3416,3 @@ model_deployments:
       args:
         inner_model_name: ibm/granite-8b-code-instruct
         region: Dallas
-#
-#  - name: ibm/granite-guardian-3-2b
-#    model_name: ibm/granite-guardian-3-2b
-#    tokenizer_name: ibm-granite/granite-guardian-3.1-2b
-#    max_sequence_length: 128000
-#    client_spec:
-#      class_name: "helm.clients.ibm_client.IbmTextClient"
-#      args:
-#        inner_model_name: ibm/granite-guardian-3-2b
-#        region: Dallas
-##
-#  - name: ibm/granite-guardian-3-8b
-#    model_name: ibm/granite-guardian-3-8b
-#    tokenizer_name: ibm-granite/granite-guardian-3.1-8b
-#    max_sequence_length: 128000
-#    client_spec:
-#      class_name: "helm.clients.ibm_client.IbmTextClient"
-#      args:
-#        inner_model_name: ibm/granite-guardian-3-8b
-#        region: Dallas
-#
