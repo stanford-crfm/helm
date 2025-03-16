@@ -362,15 +362,16 @@ class AnthropicMessagesClient(CachingClient):
             raw_request["system"] = cast(str, system_message["content"])
         if "thinking-64k" in request.model_engine:
             raw_request["model"] = raw_request["model"].replace("-thinking-64k", "")
-            # What was reported in the announcement: https://www.anthropic.com/news/claude-3-7-sonnet
+            # 64K was reported in the announcement: https://www.anthropic.com/news/claude-3-7-sonnet
             # How to set the thinking parameter: https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking
-            thinking_budget_tokens: int = 64_000
+            # `max_tokens` must be greater than `thinking.budget_tokens` otherwise the request will fail
+            max_tokens: int = 64_000
+            thinking_budget_tokens: int = max_tokens - request.max_tokens
             raw_request["thinking"] = {
                 "type": "enabled",
                 "budget_tokens": thinking_budget_tokens,
             }
-            # `max_tokens` must be greater than `thinking.budget_tokens` otherwise the request will fail
-            raw_request["max_tokens"] = thinking_budget_tokens
+            raw_request["max_tokens"] = max_tokens
             # According to https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking,
             # "Thinking isn’t compatible with temperature, top_p, or top_k modifications as well as forced tool use."
             del raw_request["top_p"]
