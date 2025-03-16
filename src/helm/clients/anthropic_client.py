@@ -370,6 +370,8 @@ class AnthropicMessagesClient(CachingClient):
             }
             # `max_tokens` must be greater than `thinking.budget_tokens` otherwise the request will fail
             raw_request["max_tokens"] += thinking_budget_tokens
+            # `temperature` may only be set to 1 when thinking is enabled
+            raw_request["temperature"] = 1.0
         print(f"Tony: {raw_request}")
 
         completions: List[GeneratedOutput] = []
