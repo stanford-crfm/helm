@@ -507,8 +507,14 @@ class OpenAITranscriptionThenCompletionClient(Client):
                     multimodal_prompt=MultimediaObject(media_objects=[media_object]),
                 )
                 response = self._openai_client.make_request(request)
-                assert response.success and response.completions, f"Transcription request failed: {response.error}"
-                transcribed_text: str = response.completions[0].text
+
+                transcribed_text: str
+                if response.success and response.completions:
+                    transcribed_text = response.completions[0].text
+                else:
+                    transcribed_text = ""
+                    hlog(f"Failed to transcribe audio: {response.error}")
+
                 text_content.append(self.wrap_transcribed_indicator(transcribed_text))
             elif media_object.is_type(TEXT_TYPE):
                 assert media_object.text is not None, "Expected text content"

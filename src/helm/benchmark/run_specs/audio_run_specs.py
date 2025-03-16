@@ -243,7 +243,8 @@ def get_covost2_run_spec(source_language: str, target_language: str) -> RunSpec:
         args={"source_language": source_language, "target_language": target_language},
     )
     adapter_spec = _get_generation_adapter_spec(
-        instructions=f"Translate from {source_language} to {target_language}.",
+        instructions=f"Translate from {source_language} to {target_language}. "
+        "Just give the translation and nothing else.",
         max_tokens=50,
     )
     metric_specs = get_machine_translation_metric_specs()
@@ -349,13 +350,14 @@ def get_fleurs_fairness_run_spec(gender: str) -> RunSpec:
 
 
 @run_spec_function("audiocaps")
-def get_audiocaps_run_spec(num_respondents: int) -> RunSpec:
+def get_audiocaps_run_spec(num_respondents: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.audio_language.audiocaps_scenario.AudioCapsScenario"
     )
     adapter_spec = _get_generation_adapter_spec(
-        instructions="Generate a caption for the following audio. The caption should be short and does "
-        "not need to be a complete sentence.",
+        instructions="Generate a caption describing what you hear in the following audio. "
+        "The caption should be short and does not need to be a complete sentence. Respond with "
+        "only the caption and nothing else.",
         max_tokens=50,
     )
     metric_specs: List[MetricSpec] = (
@@ -483,7 +485,7 @@ def get_casual_conversations2_run_spec(subject: str) -> RunSpec:
 
 
 @run_spec_function("air_bench_chat")
-def get_air_bench_chat_run_spec(subject: str, num_respondents: int) -> RunSpec:
+def get_air_bench_chat_run_spec(subject: str, num_respondents: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.audio_language.air_bench_chat_scenario." "AirBenchChatScenario",
         args={"subject": subject},

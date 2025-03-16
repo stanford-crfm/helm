@@ -57,7 +57,7 @@ export default function Home() {
     return <CapabilitiesLanding />;
   } else if (window.PROJECT_ID === "mmlu-winogrande-afr") {
     return <MMLUWinograndeAfrLanding />;
-  } else if (window.PROJECT_ID === "sea-helm") {
+  } else if (window.PROJECT_ID === "seahelm") {
     return <SEAHELMLanding />;
   } else if (window.PROJECT_ID === "speech") {
     return <SpeechLanding />;
