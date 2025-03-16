@@ -18,7 +18,6 @@ class StanfordHealthCareOpenAIClient(AzureOpenAIClient):
     ```
     """
 
-    API_VERSION = "2023-05-15"
     CREDENTIAL_HEADER_NAME = "Ocp-Apim-Subscription-Key"
 
     def __init__(
@@ -26,8 +25,10 @@ class StanfordHealthCareOpenAIClient(AzureOpenAIClient):
         tokenizer: Tokenizer,
         tokenizer_name: str,
         cache_config: CacheConfig,
+        openai_model_name: str,
+        api_version: str,
         api_key: Optional[str] = None,
-        endpoint: Optional[str] = None,
+        endpoint: Optional[str] = None
     ):
         if not api_key:
             raise NonRetriableException("Must provide API key through credentials.conf")
@@ -37,6 +38,7 @@ class StanfordHealthCareOpenAIClient(AzureOpenAIClient):
             cache_config=cache_config,
             api_key="unused",
             endpoint=endpoint,
-            api_version=StanfordHealthCareOpenAIClient.API_VERSION,
+            openai_model_name=openai_model_name,
+            api_version=api_version,
             default_headers={StanfordHealthCareOpenAIClient.CREDENTIAL_HEADER_NAME: api_key},
         )

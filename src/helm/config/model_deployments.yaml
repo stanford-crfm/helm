@@ -40,32 +40,44 @@ model_deployments:
         deployment: gcpgemini/apim-gcp-oauth-fa
 
   - name: stanfordhealthcare/gpt-4o-mini-2024-07-18
-    model_name: openai/gpt-4o-mini
+    model_name: openai/gpt-4o-mini-2024-07-18
     tokenizer_name: openai/o200k_base
     max_sequence_length: 128000
     client_spec:
       class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      args:
+        openai_model_name: gpt-4o-mini
+        api_version: 2023-05-15
 
   - name: stanfordhealthcare/gpt-4o-2024-05-13
-    model_name: openai/gpt-4o
+    model_name: openai/gpt-4o-2024-05-13
     tokenizer_name: openai/o200k_base
     max_sequence_length: 128000
     client_spec:
       class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      args:
+        openai_model_name: gpt-4o
+        api_version: 2023-05-15
   
-  - name: stanfordhealthcare/gpt-4-2023-03-14
-    model_name: openai/gpt-4
+  - name: stanfordhealthcare/gpt-4-0613
+    model_name: openai/gpt-4-0613
     tokenizer_name: openai/o200k_base
     max_sequence_length: 8192
     client_spec:
       class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      args:
+        openai_model_name: gpt-4
+        api_version: 2023-05-15
 
   - name: stanfordhealthcare/gpt-4-turbo-2024-04-09
-    model_name: openai/gpt-4-turbo
+    model_name: openai/gpt-4-turbo-2024-04-09
     tokenizer_name: openai/cl100k_base
     max_sequence_length: 128000
     client_spec:
       class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      args:
+        openai_model_name: gpt-4-turbo
+        api_version: 2023-05-15
 
   - name: stanfordhealthcare/deepseek-r1
     model_name: deepseek-ai/deepseek-r1
@@ -81,16 +93,16 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.stanfordhealthcare_llama_client.StanfordHealthCareLlamaClient"
 
-  - name: stanfordhealthcare_shc/gpt-4o
-    model_name: openai/gpt-4o
+  - name: stanfordhealthcare_shc/gpt-4o-2024-05-13
+    model_name: openai/gpt-4o-2024-05-13
     tokenizer_name: openai/o200k_base
     max_sequence_length: 128000
     client_spec:
       class_name: "helm.clients.stanfordhealthcare_shc_openai_client.StanfordHealthCareSHCOpenAIClient"
       deployment: gpt-4o
 
-  - name: stanfordhealthcare_shc/gpt-4o-mini
-    model_name: openai/gpt-4o-mini
+  - name: stanfordhealthcare_shc/gpt-4o-mini-2024-07-18
+    model_name: openai/gpt-4o-mini-2024-07-18
     tokenizer_name: openai/o200k_base
     max_sequence_length: 128000
     client_spec:

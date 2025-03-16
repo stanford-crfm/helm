@@ -25,9 +25,14 @@ class AzureOpenAIClient(OpenAIClient):
         endpoint: Optional[str] = None,
         api_version: Optional[str] = None,
         default_headers: Optional[Dict[str, str]] = None,
+        openai_model_name: Optional[str] = None,
     ):
         super().__init__(
-            tokenizer=tokenizer, tokenizer_name=tokenizer_name, cache_config=cache_config, api_key="unused"
+            tokenizer=tokenizer,
+            tokenizer_name=tokenizer_name,
+            cache_config=cache_config,
+            api_key="unused",
+            openai_model_name=openai_model_name
         )
         azure_endpoint = endpoint or os.getenv("AZURE_OPENAI_ENDPOINT")
         if not azure_endpoint:

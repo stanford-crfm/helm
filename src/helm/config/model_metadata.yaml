@@ -2609,14 +2609,6 @@ models:
     release_date: 2023-11-06
     tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  - name: openai/gpt-4
-    display_name: GPT-4 (0314)
-    description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 from 2023-03-14.
-    creator_organization_name: OpenAI
-    access: limited
-    release_date: 2023-03-14
-    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-
   - name: openai/gpt-4-0314
     display_name: GPT-4 (0314)
     description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 from 2023-03-14.
@@ -2661,14 +2653,6 @@ models:
 
   ## GPT-4o
 
-  - name: openai/gpt-4-turbo
-    display_name: GPT-4 Turbo (2024-04-09)
-    description: GPT-4 Turbo (2024-04-09) is a large multimodal model that is optimized for chat but works well for traditional completions tasks. The model is cheaper and faster than the original GPT-4 model. Snapshot from 2024-04-09.
-    creator_organization_name: OpenAI
-    access: limited
-    release_date: 2024-04-09
-    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-
   - name: openai/gpt-4-turbo-2024-04-09
     display_name: GPT-4 Turbo (2024-04-09)
     description: GPT-4 Turbo (2024-04-09) is a large multimodal model that is optimized for chat but works well for traditional completions tasks. The model is cheaper and faster than the original GPT-4 model. Snapshot from 2024-04-09.
@@ -2676,15 +2660,6 @@ models:
     access: limited
     release_date: 2024-04-09
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-
-  - name: openai/gpt-4o
-    display_name: GPT-4o (2024-05-13)
-    description: GPT-4o (2024-05-13) is a large multimodal model that accepts as input any combination of text, audio, and image and generates any combination of text, audio, and image outputs. ([blog](https://openai.com/index/hello-gpt-4o/))
-    creator_organization_name: OpenAI
-    access: limited
-    release_date: 2024-04-09
-    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-
 
   - name: openai/gpt-4o-2024-05-13
     display_name: GPT-4o (2024-05-13)
@@ -2709,15 +2684,6 @@ models:
     access: limited
     release_date: 2024-11-20
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-
-  - name: openai/gpt-4o-mini
-    display_name: GPT-4o mini (2024-07-18)
-    description: GPT-4o mini (2024-07-18) is a multimodal model with a context window of 128K tokens and improved handling of non-English text. ([blog](https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/))
-    creator_organization_name: OpenAI
-    access: limited
-    release_date: 2024-07-18
-    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-
 
   - name: openai/gpt-4o-mini-2024-07-18
     display_name: GPT-4o mini (2024-07-18)
