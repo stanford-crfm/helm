@@ -83,7 +83,7 @@ class AnthropicClient(CachingClient):
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
         self.api_key: Optional[str] = api_key
-        self.client = Anthropic(api_key=api_key, timeout=30 * 60)
+        self.client = Anthropic(api_key=api_key)
 
     def _send_request(self, raw_request: AnthropicCompletionRequest) -> Dict[str, Any]:
         if self.api_key is None:
