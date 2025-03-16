@@ -326,7 +326,8 @@ model_deployments:
 
   - name: anthropic/claude-3-7-sonnet-20250219-thinking-64k
     model_name: anthropic/claude-3-7-sonnet-20250219-thinking-64k
-    tokenizer_name: anthropic/claude
+    # TODO: Set a different tokenizer until https://github.com/stanford-crfm/helm/issues/3212 is resolved
+    tokenizer_name: openai/cl100k_base
     max_sequence_length: 200000
     client_spec:
       class_name: "helm.clients.anthropic_client.AnthropicMessagesClient"
