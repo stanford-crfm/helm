@@ -22,22 +22,39 @@ model_deployments:
     model_name: anthropic/claude-3-5-sonnet-20241022
     tokenizer_name: anthropic/claude
     max_sequence_length: 200000
-    max_sequence_and_generated_tokens_length: 8192
     client_spec:
       class_name: "helm.clients.stanfordhealthcare_claude_client.StanfordHealthCareClaudeClient"
       args:
         model: anthropic.claude-3-5-sonnet-20241022-v2:0
         deployment: Claude35Sonnetv2/awssig4fa
+  
+  - name: stanfordhealthcare/claude-3-7-sonnet-20250219
+    model_name: anthropic/claude-3-7-sonnet-20250219
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_claude_client.StanfordHealthCareClaudeClient"
+      args:
+        model: arn:aws:bedrock:us-west-2:679683451337:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0
+        deployment: awssig4claude37/aswsig4claude37
 
-  - name: stanfordhealthcare/gemini-1.5-pro
+  - name: stanfordhealthcare/gemini-1.5-pro-001
     model_name: google/gemini-1.5-pro-001
     tokenizer_name: google/gemma-2b
     max_sequence_length: 1000000
-    max_sequence_and_generated_tokens_length: 8192
     client_spec:
       class_name: "helm.clients.stanfordhealthcare_google_client.StanfordHealthCareGoogleClient"
       args:
         deployment: gcpgemini/apim-gcp-oauth-fa
+
+  - name: stanfordhealthcare/gemini-2.0-flash-001
+    model_name: google/gemini-2.0-flash-001
+    tokenizer_name: google/gemma-2b
+    max_sequence_length: 1000000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_google_client.StanfordHealthCareGoogleClient"
+      args:
+        deployment: gcp-gem20flash-fa/apim-gcp-gem20flash-fa
 
   - name: stanfordhealthcare/gpt-4o-mini-2024-07-18
     model_name: openai/gpt-4o-mini-2024-07-18
@@ -78,6 +95,28 @@ model_deployments:
       args:
         openai_model_name: gpt-4-turbo
         api_version: 2023-05-15
+
+  - name: stanfordhealthcare/o3-mini-2025-01-31
+    model_name: openai/o3-mini-2025-01-31
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      args:
+        openai_model_name: o3-mini
+        api_version: 2024-12-01-preview
+        base_url: "{endpoint}/openai-eastus2"
+
+  - name: stanfordhealthcare/o1-2024-12-17
+    model_name: openai/o1-2024-12-17
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      args:
+        openai_model_name: o1
+        api_version: 2024-12-01-preview
+        base_url: "{endpoint}/openai-eastus2"
 
   - name: stanfordhealthcare/deepseek-r1
     model_name: deepseek-ai/deepseek-r1
