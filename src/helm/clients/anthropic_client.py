@@ -361,6 +361,7 @@ class AnthropicMessagesClient(CachingClient):
         if system_message is not None:
             raw_request["system"] = cast(str, system_message["content"])
         if "thinking-64k" in request.model_engine:
+            raw_request["model"] = raw_request["model"].replace("-thinking-64k", "")
             # What was reported in the announcement: https://www.anthropic.com/news/claude-3-7-sonnet
             # How to set the thinking parameter: https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking
             thinking_budget_tokens: int = 64_000
