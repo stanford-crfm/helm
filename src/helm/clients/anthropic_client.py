@@ -370,8 +370,11 @@ class AnthropicMessagesClient(CachingClient):
             }
             # `max_tokens` must be greater than `thinking.budget_tokens` otherwise the request will fail
             raw_request["max_tokens"] += thinking_budget_tokens
-            # `temperature` may only be set to 1 when thinking is enabled
-            raw_request["temperature"] = 1.0
+            # According to https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking,
+            # "Thinking isn’t compatible with temperature, top_p, or top_k modifications as well as forced tool use."
+            del raw_request["top_p"]
+            del raw_request["top_k"]
+            del raw_request["temperature"]
         print(f"Tony: {raw_request}")
 
         completions: List[GeneratedOutput] = []
