@@ -363,10 +363,13 @@ class AnthropicMessagesClient(CachingClient):
         if "thinking-64k" in request.model_engine:
             # What was reported in the announcement: https://www.anthropic.com/news/claude-3-7-sonnet
             # How to set the thinking parameter: https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking
+            thinking_budget_tokens: int = 64_000
             raw_request["thinking"] = {
                 "type": "enabled",
-                "budget_tokens": 64000,
+                "budget_tokens": thinking_budget_tokens,
             }
+            # `max_tokens` must be greater than `thinking.budget_tokens` otherwise the request will fail
+            raw_request["max_tokens"] += thinking_budget_tokens
         print(f"Tony: {raw_request}")
 
         completions: List[GeneratedOutput] = []
