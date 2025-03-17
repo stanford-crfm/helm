@@ -14,14 +14,22 @@ export default function FinanceLanding() {
             <strong className="font-bold">HELM Finance</strong> leaderboard. The
             HELM Finance leaderboard evaluates leading LLMs on a three financial
             benchmarks (FinQA, FinanceBench, BANKING77) that utilize real
-            financial documents, using the HELM open-source framework for
-            transparent and reproducible evaluations. We hope that this
-            leaderboard provides valuable insights for financial practitioners.
+            financial documents. Like all other HELM leaderboards, the HELM
+            Finance leaderboard provides full prompt-level transparency, and the
+            results can be fully reproduced using the open-source HELM
+            framework. We hope that this leaderboard provides valuable insights
+            for financial practitioners.
           </p>
 
           <p className="my-4">
-            This leaderboard was produced through a collaboration with Wells
-            Fargo, and was funded by the{" "}
+            This leaderboard was produced through a collaboration with
+            <a
+              className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+              href="https://www.wellsfargo.com/"
+            >
+              Wells Fargo
+            </a>
+            , and was funded by the{" "}
             <a
               className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
               href="https://hai.stanford.edu/corporate-affiliate-program"
