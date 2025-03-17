@@ -69,7 +69,7 @@ class HeadQAScenario(Scenario):
         """
         super().__init__()
         self.language: str = language
-        self.category: str = category if category is not None else ""
+        self.category: str = category
         assert (
             self.SKIP_VQA or self.SKIP_TEXTQA
         ), "Failed to initialize HeadQAScenario, one of `SKIP_VQA` or `SKIP_TEXTQA` must be True."
@@ -120,11 +120,11 @@ class HeadQAScenario(Scenario):
                             ],
                             split=helm_split_name,
                             extra_data={
+                                "id": example["qid"],
                                 "name": example["name"],
                                 "category": example["category"],
                                 "year": example["year"],
                             },
-                            id=example["qid"]
                         )
                     )
 
