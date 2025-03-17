@@ -1476,7 +1476,7 @@ class EHRSHOTScenario(Scenario):
         with FileLock(lock_path):
             if not os.path.exists(path_to_input_csv):
                 print(f"Creating benchmark from SCRATCH for {self.subject}...")
-                self.create_benchmark() # Create benchmark from scratch
+                self.create_benchmark()  # Create benchmark from scratch
 
         # Load data for this task
         df = pd.read_parquet(path_to_input_csv)
