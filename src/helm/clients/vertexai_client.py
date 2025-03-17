@@ -380,6 +380,7 @@ class VertexAIChatClient(VertexAIClient):
             "candidate_count": 1,
         }
         if request.model_engine == "gemini-2.0-flash-thinking-exp-01-21":
+            # To account for thinking tokens. 8192 is the maximum output tokens for this model.
             parameters["max_output_tokens"] = 8192
 
         completions: List[GeneratedOutput] = []
