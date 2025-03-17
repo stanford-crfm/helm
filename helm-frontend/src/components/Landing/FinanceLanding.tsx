@@ -22,7 +22,7 @@ export default function FinanceLanding() {
           </p>
 
           <p className="my-4">
-            This leaderboard was produced through a collaboration with
+            This leaderboard was produced through a collaboration with{" "}
             <a
               className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
               href="https://www.wellsfargo.com/"
