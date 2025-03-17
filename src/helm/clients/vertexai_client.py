@@ -379,6 +379,8 @@ class VertexAIChatClient(VertexAIClient):
             "stop_sequences": request.stop_sequences,
             "candidate_count": 1,
         }
+        if request.model_engine == "gemini-2.0-flash-thinking-exp-01-21":
+            parameters["max_output_tokens"] = 8192
 
         completions: List[GeneratedOutput] = []
         model_name: str = self._get_model_name_for_request(request)
