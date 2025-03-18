@@ -14,7 +14,7 @@ anthropic==0.38.0
 antlr4-python3-runtime==4.9.3
 anyio==4.8.0
 astunparse==1.6.3
-async-timeout==5.0.1
+async-timeout==4.0.3
 attrs==24.3.0
 audioread==3.0.1
 autokeras==1.0.20
