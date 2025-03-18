@@ -14,8 +14,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  upgrade-requirements:
-    name: Upgrade requirements.txt
+  update-requirements:
+    name: Update requirements.txt
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -46,7 +46,7 @@ jobs:
         # and dependencies installed from outside PyPI.
         # sed is used to loosen the version matches for PyTorch
         # so that any CUDA version matches.
-        run: uv pip freeze | grep -v -E "( @ |^-e)" | sed -E 's/==([A-Za-z0-9.]+)\+[A-Za-z0-9.]+/~=\1/' >> requirements.txt
+        run: pip freeze | grep -v -E "( @ |^-e)" | sed -E 's/==([A-Za-z0-9.]+)\+[A-Za-z0-9.]+/~=\1/' >> requirements.txt
         # Need to manually run tests here because the pull request opened later will not
         # run the test workflow.
         #
