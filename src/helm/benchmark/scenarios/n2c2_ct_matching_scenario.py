@@ -1,7 +1,7 @@
 import os
 import re
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Optional
 import xml.etree.ElementTree as ET
 
 from helm.common.general import ensure_directory_exists
@@ -96,7 +96,7 @@ class XMLDataLoader:
         return data
 
     @staticmethod
-    def get_date_of_note(patient: Dict[str, Any], note_idx: int) -> str:
+    def get_date_of_note(patient: Dict[str, Any], note_idx: int) -> Optional[str]:
         """Get date of note for patient"""
         if not isinstance(note_idx, int):
             if isinstance(eval(note_idx), list):
@@ -104,15 +104,15 @@ class XMLDataLoader:
         assert note_idx <= len(patient["ehr"]), f"{note_idx} out of bounds for {patient['patient_id']}"
         note: str = patient["ehr"][note_idx]
         match = re.search(r"Record date: (\d{4}-\d{2}-\d{2})", note)
-        date = match.group(1) if match else ""
+        date = match.group(1) if match else None
         if not date:
             print(f"ERROR - Could not find the date for patient {patient['patient_id']}")
         return date
 
     @staticmethod
-    def get_current_date_for_patient(patient: Dict[str, Any]) -> str:
+    def get_current_date_for_patient(patient: Dict[str, Any]) -> Optional[str]:
         """Get most recent date visible in files for a given patient"""
-        most_recent_date = ""
+        most_recent_date = None
         for note in patient["ehr"]:
             match = re.search(r"Record date: (\d{4}-\d{2}-\d{2})", note)
             most_recent_date = match.group(1) if match else most_recent_date
@@ -120,22 +120,24 @@ class XMLDataLoader:
             print(f"ERROR - Could not find the date for patient {patient['patient_id']}")
         return most_recent_date
 
-    def parse_xml(self, XML_file) -> Tuple[str, Dict[str, str]]:
+    def parse_xml(self, XML_file) -> Tuple[List[str], Dict[str, str]]:
         tree = ET.parse(XML_file)
         root = tree.getroot()
-        text = ""
+        text_content = ""
+        result_text: List[str] = []
         tags = {}
         for elem in root.iter():
             if elem.tag == "TEXT":
-                text = elem.text if elem.text is not None else ""
+                text_content = elem.text if elem.text else ""
                 if self.is_remove_excessive_new_lines:
-                    text = self.remove_excessive_newlines(text)
+                    text_content = self.remove_excessive_newlines(text_content)
                 if self.is_split_text:
-                    parts = self.split_text(text)
-                    text = "\n".join(parts)
+                    result_text = self.split_text(text_content)
+                else:
+                    result_text = [text_content]
             elif elem.tag == "TAGS":
                 tags = self.read_tags(root)
-        return (text, tags)
+        return (result_text, tags)
 
     def read_tags(self, root) -> Dict[str, str]:
         """Reads the tags from an XML file and returns a dictionary of tags"""
@@ -205,12 +207,12 @@ class N2C2CTMatchingScenario(Scenario):
         self.path_to_test_dir: str = "/share/pi/nigam/data/medhelm/n2c2_ct_matching/test/"
 
     def create_prompt(self, patient: Dict[str, Any]) -> str:
-        note_texts = ("\n" + "*" * 50 + "\n\n").join(
-            [
-                f"## Note #{i+1}\nDate: {XMLDataLoader.get_date_of_note(patient, i)}\n{note}"
-                for i, note in enumerate(patient["ehr"])
-            ]
-        )
+        # Cast None values to empty strings during string formatting, but keep the original functions returning None
+        notes_list = [
+            f"## Note #{i+1}\nDate: {XMLDataLoader.get_date_of_note(patient, i) or ''}\n{note}"
+            for i, note in enumerate(patient["ehr"])
+        ]
+        notes: str = ("\n" + "*" * 50 + "\n\n").join(notes_list)
         current_date = XMLDataLoader.get_current_date_for_patient(patient)
         prompt = f"""
     # Task
@@ -226,7 +228,7 @@ class N2C2CTMatchingScenario(Scenario):
 
     {'-' * 100}
 
-    {note_texts}
+    {notes}
 
     {'-' * 100}
 
