@@ -141,15 +141,6 @@ class GenerateInferenceHandler(ModelInferenceHandler):
             hlog(f"GenerateInferenceHandler failed with exception {e} during parse_response {response}")
         return completions
 
-    # def tokenize(self, text: str) -> dict:
-    #     tokens = {}
-    #     try:
-    #         tokens = self.inference_engine.tokenize(GenerateInferenceHandler.pre_processing(text), return_tokens=True)
-    #     except Exception as e:
-    #         hlog(f"GenerateInferenceHandler : Tokenization failed with exception {e} during tokenization of  {text}")
-    #
-    #     return tokens
-
 class ChatModelInferenceHandler(ModelInferenceHandler):
     def __init__(self, inference_engine: ModelInference):
         self.inference_engine = inference_engine
@@ -216,8 +207,8 @@ class IbmClient(CachingClient, ABC):
                 self.project_id = entry["project_id"]
                 self.url = entry["url"]
 
-        assert self.project_id is not None
-        assert self.url is not None
+        assert self.project_id is not None, "Missed project_id for specified region configuration in credentials.conf, should be in list of JSON objects with 'region', 'url', 'project_id' per region"
+        assert self.url is not None, "Missed url for specified region configuration in credentials.conf, should be in list of JSON objects with 'region', 'url', 'project_id' per region"
 
         self.inference_engine = ModelInference(
             model_id=self.inner_model_name,
@@ -281,27 +272,6 @@ class IbmChatClient(IbmClient):
         if request.embedding:
             return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
         try:
-            # inference_handler = ChatModelInferenceHandler(inference_engine=self.inference_engine)
-            #
-            # def do_it() -> Dict[str, Any]:
-            #     return inference_handler.serve_request(raw_request)
-            #
-            # request_params = {
-            #     "prompt": inference_handler.pre_processing(raw_request["prompt"]),
-            #     "params": inference_handler.create_params(raw_request).to_dict(),
-            # }
-            #
-            # cache_key = CachingClient.make_cache_key(request_params, request)
-            # response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-            # completions = inference_handler.parse_response(response)
-            # return RequestResult(
-            #     success=True,
-            #     cached=cached,
-            #     request_time=response["request_time"],
-            #     request_datetime=response.get("request_datetime"),
-            #     completions=completions,
-            #     embedding=[],
-            # )
             return self.do_call(inference_handler=ChatModelInferenceHandler(inference_engine=self.inference_engine),request=request )
 
         except Exception as e:
@@ -331,26 +301,6 @@ class IbmTextClient(IbmClient):
         if request.embedding:
             return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
         try:
-            # inference_handler = GenerateInferenceHandler(inference_engine=self.inference_engine)
-
-            # def do_it() -> Dict[str, Any]:
-            #     return inference_handler.serve_request(raw_request)
-            #
-            # request_params = {
-            #     "prompt": inference_handler.pre_processing(raw_request["prompt"]),
-            #     "params": inference_handler.create_params(raw_request).to_dict(),
-            # }
-            # cache_key = CachingClient.make_cache_key(request_params, request)
-            # response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-            # completions = inference_handler.parse_response(response)
-            # return RequestResult(
-            #     success=True,
-            #     cached=cached,
-            #     request_time=response["request_time"],
-            #     request_datetime=response.get("request_datetime"),
-            #     completions=completions,
-            #     embedding=[],
-            # )
             return self.do_call(inference_handler=GenerateInferenceHandler(inference_engine=self.inference_engine), request=request)
         except Exception as e:
             error: str = f"IBM Text client Model error: {e}"
