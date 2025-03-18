@@ -13,6 +13,7 @@ on:
       - '.github/workflows/update-requirements.yml'
   schedule:
     - cron: "30 15 * * 1"
+  workflow_dispatch:
 
 jobs:
   update-requirements:
