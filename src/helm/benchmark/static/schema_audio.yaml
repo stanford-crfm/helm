@@ -189,6 +189,11 @@ metrics:
     lower_is_better: true
     description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).
 
+  - name: gpt4_audio_critique
+    display_name: GPT-4o Judge Critique
+    lower_is_better: false
+    description: Judgements by GPT-4o
+
 ############################################################
 perturbations: []
 
@@ -228,48 +233,86 @@ run_groups:
     description: Audio Scenarios
     category: All scenarios
     subgroups:
-      # Auditory Perception
+      - auditory_perception
+      - emotion_detection
+      - knowledge
+      - robustness
+      - multilinguality
+      - toxicity_detection
+      - safety
+      - fairness
+      - bias
+
+  - name: auditory_perception
+    display_name: Auditory Perception
+    description: Interpreting fundamental information in an audio clip
+    category: Core scenarios
+    subgroups:
       - audiocaps
       - voxceleb2
       - vocal_sound
-      # Fairness
-      # Emotion Detection
+      - librispeech
+
+  - name: emotion_detection
+    display_name: Emotion Detection
+    description: Detecting emotions in audio clips.
+    category: Core scenarios
+    subgroups:
       - meld_audio
       - mustard
-      # Knowledge
+
+  - name: knowledge
+    display_name: Knowledge
+    description: Recalling facts or information contained in the audio LLM.
+    category: Core scenarios
+    subgroups:
       - air_bench_chat
       - air_bench_foundation
-      # Robustness
+
+  - name: robustness
+    display_name: Robustness
+    description: Producing desired answers under invariant perturbations to the audio.
+    category: Core scenarios
+    subgroups:
       - speech_robust_bench
-      # Bias
-      # Multilinguality
+
+  - name: multilinguality
+    display_name: Multilinguality
+    description: Performs the same task when the language is changed
+    category: Core scenarios
+    subgroups:
       - covost2
       - fleurs
-      - common_voice_15
       - multilingual_librispeech
-      # Toxicity Detection
+
+  - name: toxicity_detection
+    display_name: Toxicity detection
+    description: Identifying and avoiding offensive or damaging materials.
+    category: Core scenarios
+    subgroups:
       - mutox
-      # Safety
+
+  - name: safety
+    display_name: Safety
+    description: Refusing to produce answers that cause harm to humans.
+    category: Core scenarios
+    subgroups:
       - voice_jailbreak_attacks
 
-  - name: audio_mnist
-    display_name: AudioMNIST
-    description: >
-      The AudioMNIST dataset consists of a dataset of 30000 audio samples of
-      spoken digits (0-9) of 60 different speakers. The task is to classify the digit from the
-      audio sample ([Becker et al, 2023](https://arxiv.org/abs/1807.03418)).
-    metric_groups:
-      - accuracy
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: audio classification
-      what: audio samples of spoken digits (0-9)
-      who: 60 different speakers
-      when: "2018"
-      language: English
+  - name: fairness
+    display_name: Fairness
+    description: Whether the model is fair to all groups or demographics.
+    category: Core scenarios
+    subgroups:
+      - fleurs_fairness
+      - librispeech_fairness
+
+  - name: bias
+    display_name: Bias
+    description: Whether the model is biased towards certain groups or demographics.
+    category: Core scenarios
+    subgroups:
+      - parade
 
   - name: covost2
     display_name: CoVost-2
@@ -360,6 +403,29 @@ run_groups:
       when: "2022"
       language: 102 languages
 
+  - name: fleurs_fairness
+    display_name: FLEURS Fairness
+    description: >
+      FLEURS is an n-way parallel speech dataset in 102 languages built on top of the machine translation FLoRes-101 
+      benchmark, with approximately 12 hours of speech supervision per language. FLEURS can be used for a variety of 
+      speech tasks, including Automatic Speech Recognition (ASR), Speech Language Identification (Speech LangID), 
+      Translation and Retrieval.
+
+      We only use the English subset of the dataset for the fairness task. We ask the model to do ASR on
+      audio files from different gender groups ([Conneau et al, 2022](https://arxiv.org/abs/2205.12446)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: wer_score
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: audio, transcripts, and gender of the speaker
+      who: real speakers
+      when: "2022"
+      language: English
+
   - name: audiocaps
     display_name: AudioCaps
     description: >
@@ -371,7 +437,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: f1_score
+      main_name: gpt4_audio_critique
       main_split: test
     taxonomy:
       task: audio captioning
@@ -400,29 +466,6 @@ run_groups:
       who: real speakers
       when: "2018"
       language: English, Germany, French
-
-  - name: common_voice_15
-    display_name: Common Voice 15
-    description: >
-      The most recent release of CommonVoice15 (Ardila et al, 2019) includes 114 languages. Over 50,000 
-      individuals have participated so far, resulting in 2,500 hours of collected audio. This is the largest 
-      audio corpus in the public domain for speech recognition, both in terms of number of hours and number 
-      of languages. The task is to recognize the speech from the audio sample.
-
-      The dataset contains the audio, transcriptions, location, speaker's gender, age, and accent 
-      ([Ardila et al, 2020](https://arxiv.org/abs/1912.06670)).
-    metric_groups:
-      - accuracy
-      - general_information
-    environment:
-      main_name: wer_score
-      main_split: test
-    taxonomy:
-      task: audio recognition
-      what: audio, transcripts, location, speaker's information in 114 languages
-      who: real speakers
-      when: "2019"
-      language: 114 languages
 
   - name: speech_robust_bench
     display_name: Robust Speech Bench
@@ -528,7 +571,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: f1_score
+      main_name: gpt4_audio_critique
       main_split: test
     taxonomy:
       task: audio question answering
@@ -661,4 +704,49 @@ run_groups:
       what: audio, transcripts of audio samples in daily scenarios
       who: real speakers
       when: "2015"
+      language: English
+
+  - name: librispeech_fairness
+    display_name: LibriSpeech Fairness
+    description: >
+      The LibriSpeech corpus (Vassil et al. 2015) is derived from audiobooks that are part 
+      of the LibriVox project, and contains 1000 hours of speech sampled at 16 kHz. The 
+      data has separately prepared language-model training data and pre-built language models. 
+      This corpus is one of the most widely-used ASR corpus, which has been extended to many 
+      applicaitons such as robust ASR and multilingual ASR tasks.
+
+      The dataset contains the audio, transcriptions for all subsets. We ask the model to do 
+      ASR on audio files from different gender groups 
+      ([Vassil et al. 2015](https://ieeexplore.ieee.org/document/7178964)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: wer_score
+      main_split: test
+    taxonomy:
+      task: audio recognition
+      what: audio, transcripts of audio samples in daily scenarios
+      who: real speakers
+      when: "2015"
+      language: English
+
+  - name: parade
+    display_name: PARADE
+    description: >
+      The PARADE dataset is inspired by the PAIRS dataset for evaluating occupation and status 
+      bias in vision-language models. We collect a new dataset of audio-text multi-choice QA 
+      task that involves exploring occupation and status bias. The dataset consists of 436 
+      audio-text QA pairs with 3 options each.
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: audio, question and answer given the audio
+      who: OpenAI's TTS
+      when: "2025"
       language: English

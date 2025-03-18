@@ -58,10 +58,13 @@ def get_mmlu_pro_spec(subject: str, use_chain_of_thought: str = "true", use_few_
             adapter_spec=adapter_spec,
             metric_specs=get_basic_metric_specs([])
             + [
-                MetricSpec(class_name="helm.benchmark.metrics.chain_of_thought_metric.ChainOfThoughtMetric", args={}),
+                MetricSpec(
+                    class_name="helm.benchmark.metrics.gpqa_chain_of_thought_metric.GPQAChainOfThoughtMetric", args={}
+                ),
             ],
             groups=["mmlu_pro"],
         )
+
     else:
         adapter_spec = AdapterSpec(
             method=ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -167,7 +170,9 @@ def get_gpqa_spec(subset: str, use_chain_of_thought: str = "true", use_few_shot:
         (
             get_basic_metric_specs([])
             + [
-                MetricSpec(class_name="helm.benchmark.metrics.chain_of_thought_metric.ChainOfThoughtMetric", args={}),
+                MetricSpec(
+                    class_name="helm.benchmark.metrics.gpqa_chain_of_thought_metric.GPQAChainOfThoughtMetric", args={}
+                ),
             ]
         )
         if use_chain_of_thought_bool
@@ -238,6 +243,7 @@ def get_wildbench_spec(subset: str) -> RunSpec:
     )
 
 
+# TODO: Remove BigCodeBench from capabilities_run_specs.py because it is no longer part of HELM Capabilities
 @run_spec_function("bigcodebench")
 def get_bigcodebench_spec(version: str) -> RunSpec:
 
@@ -280,6 +286,7 @@ def get_omni_math_spec() -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
+        instructions="Answer the question, giving your reasoning beforehand. Wrap the final answer with the \\boxed{} command.",  # noqa: E501
         input_prefix="",
         output_prefix="",
         max_tokens=4096,  # original: 2048

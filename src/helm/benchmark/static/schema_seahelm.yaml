@@ -69,15 +69,19 @@ metrics:
   - name: chr_f_plus_plus
     display_name: ChrF++
     description: Character n-gram F-score with word n-gram order (ChrF++) [(Popovic, 2015)](https://aclanthology.org/W15-3049/). Code can be found [here](https://github.com/mjpost/sacrebleu).
+    lower_is_better: false
   - name: squad_exact_match_score
     display_name: SQuAD exact match
     description: SQuAD exact match score [(Rajpurkar, 2016)](https://aclanthology.org/D16-1264). Code can be found [here](https://github.com/allenai/bi-att-flow/blob/master/squad/evaluate-v1.1.py)
+    lower_is_better: false
   - name: squad_f1_score
     display_name: SQuAD macro-averaged F1 score
     description: SQuAD macro-averaged F1 score [(Rajpurkar, 2016)](https://aclanthology.org/D16-1264). Code can be found [here](https://github.com/allenai/bi-att-flow/blob/master/squad/evaluate-v1.1.py)
+    lower_is_better: false
   - name: classification_macro_f1
     display_name: Macro F1 score
     description: Macro F1 score
+    lower_is_better: false
 
 ############################################################
 perturbations: []
@@ -113,10 +117,10 @@ metric_groups:
 ############################################################
 
 run_groups:
-  - name: bhasa_nlu
-    display_name: BHASA natural language understanding (NLU)
-    description: BHASA natural language understanding (NLU) scenarios
-    category: BHASA scenarios
+  - name: seahelm_nlu
+    display_name: SEA-HELM natural language understanding (NLU)
+    description: SEA-HELM natural language understanding (NLU) scenarios
+    category: SEA-HELM scenarios
     subgroups:
       - tydiqa
       - xquad_vi
@@ -130,10 +134,10 @@ run_groups:
       - vihsd
       - thaitoxicitytweets
 
-  - name: bhasa_nlg
-    display_name: BHASA natural language generation (NLG)
-    description: BHASA natural language generation (NLG) scenarios
-    category: BHASA scenarios
+  - name: seahelm_nlg
+    display_name: SEA-HELM natural language generation (NLG)
+    description: SEA-HELM natural language generation (NLG) scenarios
+    category: SEA-HELM scenarios
     subgroups:
     - flores_id_en
     - flores_vi_en
@@ -144,10 +148,10 @@ run_groups:
     - flores_en_th
     - flores_en_ta
 
-  - name: bhasa_nlr
-    display_name: BHASA natural language reasoning (NLR)
-    description: BHASA natural language reasoning (NLR) scenarios
-    category: BHASA scenarios
+  - name: seahelm_nlr
+    display_name: SEA-HELM natural language reasoning (NLR)
+    description: SEA-HELM natural language reasoning (NLR) scenarios
+    category: SEA-HELM scenarios
     subgroups:
     - indonli
     - xnli_vi
@@ -158,10 +162,10 @@ run_groups:
     - xcopa_th
     - xcopa_ta
 
-  - name: bhasa_lindsea
-    display_name: BHASA Linguistic Diagnostics for Southeast Asian Languages (LINDSEA)
-    description: BHASA Linguistic Diagnostics for Southeast Asian Languages (LINDSEA) scenarios
-    category: BHASA scenarios
+  - name: seahelm_lindsea
+    display_name: SEA-HELM Linguistic Diagnostics for Southeast Asian Languages (LINDSEA)
+    description: SEA-HELM Linguistic Diagnostics for Southeast Asian Languages (LINDSEA) scenarios
+    category: SEA-HELM scenarios
     subgroups:
     - lindsea_syntax_minimal_pairs_id
     - lindsea_pragmatics_presuppositions_id

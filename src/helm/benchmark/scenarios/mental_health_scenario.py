@@ -52,7 +52,6 @@ class MentalHealthScenario(Scenario):
                     generate an empathetic counselor response."
     tags = ["dialogue", "counseling", "mental_health", "empathy", "healthcare"]
 
-
     def process_dialogue_data(self, data: pd.DataFrame) -> List[Instance]:
         """
         Process the dialogue data into evaluation instances.

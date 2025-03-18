@@ -9,26 +9,7 @@ from helm.benchmark.scenarios.scenario import (
     PassageQuestionInput,
     Output,
 )
-from helm.benchmark.scenarios.medalign_scenario_helper import (
-    get_instructions,
-    extract_patient_id_from_fname,
-    get_ehrs,
-    get_tokenizer,
-    tag_rgx_expression,
-    fetch_nodes_with_tag,
-    cast_dtype,
-    check_condition,
-    check_all_conditions,
-    remove_node,
-    query_xml_str,
-    filter_events,
-    retrieve_most_relevant_visits,
-    get_prompt_template,
-    pack_and_trim_prompts,
-    preprocess_prompts,
-    add_reference_responses,
-    return_dataset_dataframe,
-)
+from helm.benchmark.scenarios.medalign_scenario_helper import return_dataset_dataframe
 
 
 class MedalignScenario(Scenario):

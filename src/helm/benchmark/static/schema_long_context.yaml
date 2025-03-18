@@ -1,6 +1,4 @@
 ---
-# EXPERIMENTAL: DO NOT USE IN PROD
-# Temporary schema for prototyping HELM Lite v2
 ############################################################
 metrics:
   # Infrastructure metrics:
@@ -65,11 +63,6 @@ metrics:
   - name: predicted_index
     display_name: Predicted index
     description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
-  - name: inference_runtime
-    display_name: Observed inference runtime (s)
-    short_display_name: Observed inference time (s)
-    lower_is_better: true
-    description: Average observed time to process a request to the model (via an API, and thus depends on particular deployment).
 
   # Accuracy metrics:
   - name: exact_match
@@ -77,47 +70,53 @@ metrics:
     short_display_name: EM
     description: Fraction of instances that the predicted output matches a correct reference exactly.
     lower_is_better: false
-  - name: quasi_exact_match
-    display_name: Quasi-exact match
-    short_display_name: EM
-    description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+  - name: f1_score
+    display_name: F1
+    description: Average F1 score in terms of word overlap between the model output and correct reference.
     lower_is_better: false
-  - name: prefix_exact_match
-    display_name: Prefix exact match
-    short_display_name: PEM
-    description: Fraction of instances that the predicted output matches the prefix of a correct reference exactly.
+  - name: safety_score
+    display_name: LM Evaluated Safety score
+    description: LM Evaluated Safety score (mean of Llama3.1 and GPT4o ratings) representing whether the output constitutes a successful refusal of unsafe actions (0 is worst, 1 is best).
     lower_is_better: false
-  - name: quasi_prefix_exact_match
-    # TODO: should call this prefix_quasi_exact_match
-    display_name: Prefix quasi-exact match
-    short_display_name: PEM
-    description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
+  - name: bbq_accuracy
+    display_name: BBQ accuracy
+    description: BBQ accuracy
     lower_is_better: false
-  - name: ifeval_strict_accuracy
-    display_name: IFEval strict accuracy
-    short_display_name: IFEval Strict Acc
-    description: Fraction of instructions in the instance that are correctly followed.
+  - name: rouge_1
+    display_name: ROUGE-1
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 1-gram overlap.
     lower_is_better: false
-  - name: chain_of_thought_correctness
-    display_name: COT correct
-    short_display_name: COT correct
-    description: Fraction of correct answers after chain of thought
+  - name: rouge_2
+    display_name: ROUGE-2
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 2-gram overlap.
     lower_is_better: false
-  - name: wildbench_score
-    display_name: WildBench Score
-    short_display_name: WB Score
-    description: Score of the AI output judged by GPT-4o.
+  - name: rouge_l
+    display_name: ROUGE-L
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on longest common subsequence overlap.
     lower_is_better: false
-  - name: wildbench_score_rescaled
-    display_name: WildBench Score
-    short_display_name: WB Score
-    description: Score of the AI output judged by GPT-4o, rescaled to be between 0 and 1.
-    lower_is_better: false
-  - name: omni_math_accuracy
-    display_name: Omni-MATH Accuracy
-    short_display_name: Acc
-    description: Accuracy of the AI output judged by GPT-4.
-    lower_is_better: false
+
+  # Toxicity metrics
+  - name: expected_max_toxicity
+    display_name: Average max toxicity
+    short_display_name: Avg. max toxicity
+    lower_is_better: true
+    description: Average max toxicity score across all completions (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
+  - name: max_toxicity_probability
+    display_name: max toxicity
+    lower_is_better: true
+    description: Fraction of instances where most toxic completion is above 0.5 toxicity (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
+  - name: toxic_frac
+    display_name: Toxic fraction
+    lower_is_better: true
+    description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).
+
+  # Annotation metrics
+  - name: safety_llama_annotator_success
+    display_name: Llama Annotator Success Rate
+    description: Fraction of annotator requests to Llama that succeeded.
+  - name: safety_gpt_annotator_success
+    display_name: GPT Annotator Success Rate
+    description: Fraction of annotator requests to GPT that succeeded.
 
 ############################################################
 perturbations: []
@@ -134,8 +133,6 @@ metric_groups:
 
   - name: efficiency
     display_name: Efficiency
-    aggregation_strategies: 
-      - mean
     metrics:
     - name: inference_runtime
       split: ${main_split}
@@ -155,100 +152,89 @@ metric_groups:
     - name: num_output_tokens
       split: ${main_split}
 
+  - name: annotation_metrics
+    display_name: Annotation
+    hide_win_rates: true
+    metrics:
+    - name: safety_llama_annotator_success
+      split: ${main_split}
+    - name: safety_gpt_annotator_success
+      split: ${main_split}
+
+  - name: toxicity
+    display_name: Toxicity
+    metrics:
+    - name: toxic_frac
+      split: ${main_split}
+
+  - name: bbq_metrics
+    display_name: BBQ metrics
+    description: Metrics used for the BBQ bias benchmark.
+    metrics:
+      - name: bbq_metric_ambiguous_bias
+        split: ${main_split}
+      - name: bbq_metric_unambiguous_bias
+        split: ${main_split}
+
 ############################################################
 run_groups:
-  - name: core_scenarios
-    display_name: Core Scenarios
-    description: Core Scenarios
+  - name: long_context_scenarios
+    display_name: Long Context Scenarios
+    description: Scenarios for the model safety
     category: All scenarios
     subgroups:
-      - mmlu_pro
-      - gpqa
-      - ifeval
-      - wildbench
-      - omni_math
+      - ruler_hotpotqa
+      - ruler_squad
+      - infinite_bench_sum
 
-  - name: mmlu_pro
-    display_name: MMLU-Pro
-    description: MMLU-Pro
+  - name: ruler_hotpotqa
+    display_name: RULER HotPotQA
+    description: RULER HotPotQA
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
+      - annotation_metrics
     environment:
-      main_name: chain_of_thought_correctness
-      main_split: test
+      main_name: f1_score
+      main_split: valid
     taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
       language: English
 
-  - name: gpqa
-    display_name: GPQA
-    description: GPQA
+
+  - name: ruler_squad
+    display_name: RULER SQuAD
+    description: RULER SQuAD
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
+      - annotation_metrics
     environment:
-      main_name: chain_of_thought_correctness
-      main_split: test
+      main_name: f1_score
+      main_split: valid
     taxonomy:
-      task: "question answering"
-      what: "graduate-level questions in biology, physics, and chemistry"
-      who: "domain experts"
-      when: "2023"
-      language: English
-  
-  - name: ifeval
-    display_name: IFEval
-    description: IFEval
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: ifeval_strict_accuracy
-      main_split: test
-    taxonomy:
-      task: "instruction following"
-      what: "verifiable general domain instruction following"
-      who: "human annotators"
-      when: "2023"
-      language: English
-  
-  - name: wildbench
-    display_name: WildBench
-    description: WildBench
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: wildbench_score_rescaled
-      main_split: test
-    taxonomy:
-      task: "instruction following"
-      what: "GPT-judged instruction following with instructions collected from real-user conversations"
-      who: "real-world users"
-      when: "2024"
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
       language: English
 
-  - name: omni_math
-    display_name: Omni-MATH
-    description: Omni-MATH
+  - name: infinite_bench_sum
+    display_name: ∞Bench Sum
+    description: ∞Bench Sum
     metric_groups:
       - accuracy
-      - efficiency
       - general_information
+      - annotation_metrics
     environment:
-      main_name: omni_math_accuracy
+      main_name: rouge_l
       main_split: test
     taxonomy:
-      task: "mathematics"
-      what: "universal Olympiad level mathematic benchmark"
-      who: "human annotators"
-      when: "2024"
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
       language: English

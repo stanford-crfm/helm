@@ -24,7 +24,7 @@ class StanfordHealthCareClaudeClient(StanfordHealthCareHTTPModelClient):
             "model_id": self.model,
             "prompt_text": request.prompt,
             "max_tokens": request.max_tokens,
-            "temperature": request.temperature
+            "temperature": request.temperature,
         }
 
     def parse_response(self, response: Dict[str, Any]) -> List[GeneratedOutput]:

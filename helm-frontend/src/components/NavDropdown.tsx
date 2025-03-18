@@ -26,9 +26,7 @@ function NavDropdown() {
   }, [currProjectMetadata]);
 
   useEffect(() => {
-    fetch(
-      "https://raw.githubusercontent.com/stanford-crfm/helm/main/helm-frontend/project_metadata.json",
-    )
+    fetch("https://crfm.stanford.edu/helm/project_metadata.json")
       .then((response) => response.json())
       .then((data: ProjectMetadata[]) => {
         setProjectMetadata(data);

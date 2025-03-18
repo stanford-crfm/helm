@@ -45,5 +45,5 @@ def get_mmlu_clinical_afr_spec(subject: str, lang: str, method: str = ADAPT_MULT
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["low_resource_languages"],
+        groups=[f"mmlu_clinical_afr_{subject}", f"mmlu_clinical_afr_{subject}_{lang}"],
     )
