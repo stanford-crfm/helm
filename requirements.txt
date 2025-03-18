@@ -242,7 +242,6 @@ referencing==0.35.1
 qwen-vl-utils==0.0.10
 RapidFuzz==3.12.2
 regex==2024.11.6
-RapidFuzz==3.11.0
 reka-api==2.0.0
 requests==2.32.3
 retrying==1.3.4
