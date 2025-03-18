@@ -98,9 +98,6 @@ class XMLDataLoader:
     @staticmethod
     def get_date_of_note(patient: Dict[str, Any], note_idx: int) -> Optional[str]:
         """Get date of note for patient"""
-        if not isinstance(note_idx, int):
-            if isinstance(eval(note_idx), list):
-                note_idx = sorted(eval(note_idx))[-1]
         assert note_idx <= len(patient["ehr"]), f"{note_idx} out of bounds for {patient['patient_id']}"
         note: str = patient["ehr"][note_idx]
         match = re.search(r"Record date: (\d{4}-\d{2}-\d{2})", note)

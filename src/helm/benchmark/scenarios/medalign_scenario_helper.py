@@ -15,7 +15,7 @@ import tiktoken
 
 from langchain_community.retrievers import BM25Retriever
 from tqdm import tqdm
-from typing import Any, Dict, Optional, Union, List
+from typing import Any, Dict, Optional, Union
 
 
 def get_instructions(path_to_instructions: str) -> Dict[int, Dict[str, Any]]:
