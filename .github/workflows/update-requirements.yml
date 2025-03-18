@@ -11,7 +11,8 @@ on:
     paths:
       - "setup.cfg"
       - '.github/workflows/update-requirements.yml'
-  workflow_dispatch:
+  schedule:
+    - cron: "30 15 * * 1"
 
 jobs:
   update-requirements:
@@ -19,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10"]
+        python-version: ["3.9"]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
