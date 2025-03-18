@@ -63,7 +63,8 @@ def _get_multiple_choice_joint_adapter_spec(
     return AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
         global_prefix="",
-        instructions="Answer the multiple choice question by just giving the letter of the correct answer.",
+        instructions="Answer the multiple choice question by just giving the letter of the correct answer "
+        "and nothing else.",
         input_prefix=f"{input_noun}: " if input_noun is not None else "",
         input_suffix="\n",
         output_prefix=f"{output_noun}: ",
@@ -98,6 +99,18 @@ def _get_open_ended_generation_metric_specs() -> List[MetricSpec]:
 
 def _get_chinese_audio_recognition_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(["chinese_wer_score", "chinese_mer_score", "chinese_wip_score", "chinese_cer_score"])
+
+
+def _get_gpt4_critique_metric_specs(num_respondents: int, max_tokens: int) -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.gpt4_audio_critique_metrics.GPT4AudioCritiqueMetric",
+            args={
+                "num_respondents": num_respondents,
+                "max_tokens": max_tokens,
+            },
+        )
+    ]
 
 
 ########################################################################################################################
@@ -230,7 +243,8 @@ def get_covost2_run_spec(source_language: str, target_language: str) -> RunSpec:
         args={"source_language": source_language, "target_language": target_language},
     )
     adapter_spec = _get_generation_adapter_spec(
-        instructions=f"Translate from {source_language} to {target_language}.",
+        instructions=f"Translate from {source_language} to {target_language}. "
+        "Just give the translation and nothing else.",
         max_tokens=50,
     )
     metric_specs = get_machine_translation_metric_specs()
@@ -314,17 +328,45 @@ def get_fleurs_run_spec(language: str) -> RunSpec:
     )
 
 
+@run_spec_function("fleurs_fairness")
+def get_fleurs_fairness_run_spec(gender: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.fleurs_fairness_scenario.FLEURSFairnessScenario",
+        args={"gender": gender},
+    )
+    adapter_spec = _get_generation_adapter_spec(
+        instructions=ASR_INSTRUCTIONS,
+        max_tokens=100,
+    )
+    metric_specs = _get_audio_recognition_metric_specs()
+    run_spec_name: str = "fleurs_fairness"
+    return RunSpec(
+        name=f"{run_spec_name}:gender={gender}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
 @run_spec_function("audiocaps")
-def get_audiocaps_run_spec() -> RunSpec:
+def get_audiocaps_run_spec(num_respondents: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.audio_language.audiocaps_scenario.AudioCapsScenario"
     )
     adapter_spec = _get_generation_adapter_spec(
-        instructions="Generate a caption for the following audio. The caption should be short and does "
-        "not need to be a complete sentence.",
+        instructions="Generate a caption describing what you hear in the following audio. "
+        "The caption should be short and does not need to be a complete sentence. Respond with "
+        "only the caption and nothing else.",
         max_tokens=50,
     )
-    metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
+    metric_specs: List[MetricSpec] = (
+        _get_gpt4_critique_metric_specs(
+            num_respondents=num_respondents,
+            max_tokens=200,
+        )
+        + _get_open_ended_generation_metric_specs()
+    )
     run_spec_name: str = "audiocaps"
     return RunSpec(
         name=run_spec_name,
@@ -443,16 +485,22 @@ def get_casual_conversations2_run_spec(subject: str) -> RunSpec:
 
 
 @run_spec_function("air_bench_chat")
-def get_air_bench_chat_run_spec(subject: str) -> RunSpec:
+def get_air_bench_chat_run_spec(subject: str, num_respondents: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.audio_language.air_bench_chat_scenario." "AirBenchChatScenario",
         args={"subject": subject},
     )
     adapter_spec = _get_generation_adapter_spec(
-        instructions="Answer the question with a short answer and not in a complete sentence.",
-        max_tokens=50,
+        instructions="",
+        max_tokens=200,
     )
-    metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
+    metric_specs: List[MetricSpec] = (
+        _get_gpt4_critique_metric_specs(
+            num_respondents=num_respondents,
+            max_tokens=200,
+        )
+        + _get_open_ended_generation_metric_specs()
+    )
     run_spec_name: str = "air_bench_chat"
     return RunSpec(
         name=f"{run_spec_name}:subject={subject}",
@@ -504,6 +552,27 @@ def get_librispeech_run_spec() -> RunSpec:
     )
 
 
+@run_spec_function("librispeech_fairness")
+def get_librispeech_fairness_run_spec(gender: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.librispeech_fairness_scenario.LibriSpeechFairnessScenario",
+        args={"gender": gender},
+    )
+    adapter_spec = _get_generation_adapter_spec(
+        instructions=ASR_INSTRUCTIONS,
+        max_tokens=100,
+    )
+    metric_specs = _get_audio_recognition_metric_specs()
+    run_spec_name: str = "librispeech_fairness"
+    return RunSpec(
+        name=f"{run_spec_name}:gender={gender}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
 @run_spec_function("air_bench_foundation")
 def get_air_bench_foundation_run_spec(subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -517,6 +586,26 @@ def get_air_bench_foundation_run_spec(subject: str) -> RunSpec:
     run_spec_name: str = "air_bench_foundation"
     return RunSpec(
         name=f"{run_spec_name},subject={subject}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("parade")
+def get_parade_run_spec(voice: str, subset: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.parade_scenario.PARADEScenario",
+        args={"subset": subset, "voice": voice},
+    )
+    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
+        input_noun=None, output_noun="Answer", max_train_instances=0
+    )
+    metric_specs = get_exact_match_metric_specs()
+    run_spec_name: str = "parade"
+    return RunSpec(
+        name=f"{run_spec_name},voice={voice},subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,

@@ -282,6 +282,7 @@ def cer_score(gold: str, pred: str) -> float:
     gold = normalize_text(gold, should_remove_articles=False)
     pred = normalize_text(pred, should_remove_articles=False)
     cer_ret = cer(gold, pred)
+    assert isinstance(cer_ret, float)
     return cer_ret
 
 

@@ -41,7 +41,7 @@ class StanfordHealthCareOpenAIClient(AzureOpenAIClient):
                 cache_config=cache_config,
                 api_key="unused",
                 base_url=base_url,
-                openai_model_name=openai_model_name,
+                azure_openai_deployment_name=openai_model_name,
                 api_version=api_version,
                 default_headers={StanfordHealthCareOpenAIClient.CREDENTIAL_HEADER_NAME: api_key},
             )
@@ -52,7 +52,7 @@ class StanfordHealthCareOpenAIClient(AzureOpenAIClient):
                 cache_config=cache_config,
                 api_key="unused",
                 endpoint=endpoint,
-                openai_model_name=openai_model_name,
+                azure_openai_deployment_name=openai_model_name,
                 api_version=api_version,
                 default_headers={StanfordHealthCareOpenAIClient.CREDENTIAL_HEADER_NAME: api_key},
             )
