@@ -8,13 +8,13 @@ import torch
 
 from tqdm import tqdm
 from dataclasses import replace
+from datasets import load_dataset
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.general import ensure_directory_exists, write, asdict_without_nones
 from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.cache import cache_stats
 from helm.benchmark.scenarios.scenario import (
-    EVAL_SPLITS,
     Scenario,
     create_scenario,
     Instance,
@@ -33,17 +33,8 @@ from helm.benchmark.metrics.metric import MetricInterface, MetricResult, PerInst
 from helm.benchmark.runner import (
     Runner,
     remove_stats_nans,
-    downsample_eval_instances,
     remove_per_instance_stats_nans,
 )
-
-
-def with_instance_difficulties(instances: List[Instance], difficulties: List[float]) -> List[Instance]:
-    """Return the instances with a difficulty in extra_data"""
-    return [
-        replace(instance, extra_data={"difficulty": difficulty})
-        for instance, difficulty in zip(instances, difficulties)
-    ]
 
 
 class RelEffEvalRunner(Runner):
@@ -125,11 +116,6 @@ class RelEffEvalRunner(Runner):
             return
         ensure_directory_exists(run_path)
 
-        # TODO: Reeval mode only support parallelism = 1
-        if self.executor.execution_spec.parallelism > 1:
-            hlog("Reeval mode is not supported with parallelism > 1. Running with parallelism = 1.")
-            raise RuntimeError("Reeval mode does not support parallelism > 1")
-
         # Load the scenario
         scenario: Scenario = create_scenario(run_spec.scenario_spec)
 
@@ -166,20 +152,6 @@ class RelEffEvalRunner(Runner):
         if any([instance.id is None for instance in instances]):
             instances = with_instance_ids(instances)
 
-        # Get the instances necessary for this run.
-        max_eval_instances = run_spec.adapter_spec.max_eval_instances
-        eval_splits = run_spec.adapter_spec.eval_splits or EVAL_SPLITS
-        if max_eval_instances is not None:
-            instances = downsample_eval_instances(instances, max_eval_instances, eval_splits)
-
-        # get difficulty information
-        import numpy as np
-
-        np.random.seed(42)
-        difficulties = np.random.randn(len(instances)).tolist()
-        if any([instance.extra_data is None for instance in instances]):
-            instances = with_instance_difficulties(instances, difficulties)
-
         # Data preprocessing
         instances = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(
             instances, self.executor.execution_spec.parallelism
@@ -187,7 +159,27 @@ class RelEffEvalRunner(Runner):
 
         # Adapt (convert to requests)
         adapter: Adapter = AdapterFactory.get_adapter(run_spec.adapter_spec, self.tokenizer_service)
-        unasked_request_states: List[RequestState] = adapter.adapt(instances, self.executor.execution_spec.parallelism)
+        unasked_request_states_without_z: List[RequestState] = adapter.adapt(
+            instances, self.executor.execution_spec.parallelism
+        )
+
+        # load difficulty
+        scenario_name = scenario.name
+        try:
+            difficulty_dataset = load_dataset("stair-lab/reeval-difficulty", split=scenario_name)
+            lookup = {row["request.prompt"]: row["z"] for row in difficulty_dataset}
+        except Exception as e:
+            hlog(f"WARNING: no available difficulty for {scenario_name}, skipping")
+            lookup = {}
+
+        unasked_request_states: List[RequestState] = []
+        for request_state in unasked_request_states_without_z:
+            prompt = request_state.request.prompt
+            if prompt in lookup:
+                difficulty = lookup[prompt]
+                new_instance = replace(request_state.instance, extra_data={"difficulty": difficulty})
+                new_request_state = replace(request_state, instance=new_instance)
+                unasked_request_states.append(new_request_state)
 
         # Execute the requests in an reeval manner
         model_ability = run_spec.adapter_spec.reeval_parameters.model_ability

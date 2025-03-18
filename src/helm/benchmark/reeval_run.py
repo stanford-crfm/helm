@@ -1,29 +1,29 @@
 import argparse
 from dataclasses import replace
-import os
 import re
 from typing import List, Optional
 
-
 from helm.benchmark import model_metadata_registry
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
-from helm.common.cache_backend_config import MongoCacheBackendConfig, SqliteCacheBackendConfig
 from helm.common.general import ensure_directory_exists
-from helm.common.hierarchical_logger import hlog, htrack, htrack_block
+from helm.common.hierarchical_logger import hlog, htrack
 from helm.common.authentication import Authentication
-from helm.common.object_spec import parse_object_spec, get_class_by_name
+from helm.common.object_spec import parse_object_spec
 from helm.proxy.services.remote_service import create_authentication, add_service_args
-from helm.proxy.services.service import CACHE_DIR
 
 from helm.benchmark.config_registry import (
     register_configs_from_directory,
     register_builtin_configs_from_helm_package,
 )
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.benchmark.executor import ExecutionSpec
-from helm.benchmark.runner import Runner, RunSpec, LATEST_SYMLINK, set_benchmark_output_path
+from helm.benchmark.runner import RunSpec, set_benchmark_output_path
 from helm.benchmark.run_spec_factory import construct_run_specs
 from helm.common.reeval_parameters import ReevalParameters
+from helm.benchmark.run import (
+    run_benchmarking,
+    add_run_args,
+    validate_args,
+)
 
 
 def run_entries_to_run_specs(
@@ -76,134 +76,6 @@ def run_entries_to_run_specs(
             run_specs.append(run_spec)
 
     return run_specs
-
-
-def run_benchmarking(
-    run_specs: List[RunSpec],
-    auth: Authentication,
-    url: Optional[str],
-    local_path: str,
-    num_threads: int,
-    output_path: str,
-    suite: str,
-    dry_run: bool,
-    skip_instances: bool,
-    cache_instances: bool,
-    cache_instances_only: bool,
-    skip_completed_runs: bool,
-    exit_on_error: bool,
-    runner_class_name: Optional[str],
-    mongo_uri: Optional[str] = None,
-    disable_cache: Optional[bool] = None,
-) -> List[RunSpec]:
-    """Runs RunSpecs given a list of RunSpec descriptions."""
-    sqlite_cache_backend_config: Optional[SqliteCacheBackendConfig] = None
-    mongo_cache_backend_config: Optional[MongoCacheBackendConfig] = None
-
-    if not disable_cache:
-        if mongo_uri:
-            mongo_cache_backend_config = MongoCacheBackendConfig(mongo_uri)
-        else:
-            sqlite_cache_path = os.path.join(local_path, CACHE_DIR)
-            ensure_directory_exists(sqlite_cache_path)
-            sqlite_cache_backend_config = SqliteCacheBackendConfig(sqlite_cache_path)
-
-    execution_spec = ExecutionSpec(
-        auth=auth,
-        url=url,
-        local_path=local_path,
-        parallelism=num_threads,
-        dry_run=dry_run,
-        sqlite_cache_backend_config=sqlite_cache_backend_config,
-        mongo_cache_backend_config=mongo_cache_backend_config,
-    )
-    with htrack_block("run_specs"):
-        for run_spec in run_specs:
-            hlog(run_spec)
-    runner_cls = get_class_by_name(runner_class_name) if runner_class_name else Runner
-    runner: Runner = runner_cls(
-        execution_spec,
-        output_path,
-        suite,
-        skip_instances,
-        cache_instances,
-        cache_instances_only,
-        skip_completed_runs,
-        exit_on_error,
-    )
-    runner.run_all(run_specs)
-    return run_specs
-
-
-def add_run_args(parser: argparse.ArgumentParser):
-    parser.add_argument(
-        "-o", "--output-path", type=str, help="Where to save all the output", default="benchmark_output"
-    )
-    parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads to make requests", default=4)
-    parser.add_argument(
-        "--skip-instances",
-        action="store_true",
-        help="Skip creation of instances (basically do nothing but just parse everything).",
-    )
-    parser.add_argument(
-        "--cache-instances",
-        action="store_true",
-        help="Save generated instances input to model to disk. If already cached, read instances from file.",
-    )
-    parser.add_argument(
-        "--cache-instances-only",
-        action="store_true",
-        help="Generate and save instances for scenario ONLY (i.e. do not evaluate models on instances).",
-    )
-    parser.add_argument(
-        "-d",
-        "--dry-run",
-        action="store_true",
-        help="Skip execution, only output scenario states and estimate token usage.",
-    )
-    parser.add_argument(
-        "-m",
-        "--max-eval-instances",
-        type=int,
-        required=True,
-        help="Maximum number of instances to evaluate on, overrides the value in Adapter spec.",
-    )
-    parser.add_argument(
-        "-t",
-        "--num-train-trials",
-        type=int,
-        help="Number of trials where each trial samples a different set of in-context examples. "
-        "Overrides the value in Adapter spec.",
-    )
-    parser.add_argument(
-        "--suite",
-        type=str,
-        help="Name of the suite this run belongs to (default is today's date).",
-        required=True,
-    )
-    parser.add_argument(
-        "--local-path",
-        type=str,
-        help="If running locally, the path for `ServerService`.",
-        default="prod_env",
-    )
-    parser.add_argument(
-        "--mongo-uri",
-        type=str,
-        help="If non-empty, the URL of the MongoDB database that will be used for caching instead of SQLite",
-        default="",
-    )
-    parser.add_argument(
-        "--disable-cache",
-        action="store_true",
-        help="If true, the request-response cache for model clients and tokenizers will be disabled.",
-    )
-
-
-def validate_args(args):
-    assert args.suite != LATEST_SYMLINK, f"Suite name can't be '{LATEST_SYMLINK}'"
-    if args.cache_instances_only:
-        assert args.cache_instances, "If --cache-instances-only is set, --cache-instances must also be set."
 
 
 @htrack(None)
