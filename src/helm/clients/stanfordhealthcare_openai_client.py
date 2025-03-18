@@ -29,7 +29,7 @@ class StanfordHealthCareOpenAIClient(AzureOpenAIClient):
         api_version: str,
         api_key: Optional[str] = None,
         endpoint: Optional[str] = None,
-        base_url: Optional[str] = None
+        base_url: Optional[str] = None,
     ):
         if not api_key:
             raise NonRetriableException("Must provide API key through credentials.conf")
