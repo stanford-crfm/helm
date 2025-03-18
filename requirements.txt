@@ -20,7 +20,6 @@ audioread==3.0.1
 autokeras==1.0.20
 av==14.2.0
 awscli==1.33.44
-bert_score==0.3.13
 beautifulsoup4==4.13.3
 bert_score==0.3.13
 black==24.3.0
