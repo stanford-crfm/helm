@@ -40,7 +40,7 @@ jobs:
         # See: https://stackoverflow.com/a/54329850
         run: uv pip install --system torch==2.2.2 torchvision==0.17.2 --index-url https://download.pytorch.org/whl/cpu --no-cache-dir
       - name: Upgrade dependencies
-        run: uv pip install --system --upgrade --upgrade-strategy eager -e .[all,dev] torch==2.2.2 torchvision==0.17.2
+        run: uv pip install --system --upgrade -e .[all,dev] torch==2.2.2 torchvision==0.17.2
       - name: Verify dependencies
         run: uv pip check && pip check
       - name: Write header to requirements.txt
