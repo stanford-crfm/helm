@@ -22,7 +22,7 @@ from helm.benchmark.scenarios.scenario import (
 ##################################
 # Config
 ##################################
-CONFIG = {
+CONFIG: Dict[str, Any] = {
     "seed": 1,
     "n_shots": 0,
     "ehr_converter": "codes_only",
