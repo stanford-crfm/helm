@@ -73,8 +73,8 @@ metrics:
     description: Weighted F1 score
     lower_is_better: false
   - name: float_equiv
-    display_name: Equivalent
-    description: Equivalent
+    display_name: Float Equivalence
+    description: Float Equivalence
     lower_is_better: false
 
 ############################################################
@@ -172,10 +172,10 @@ run_groups:
       main_name: float_equiv
       main_split: valid
     taxonomy:
-      task: numerical reasoning
-      what: "?"
-      who: "?"
-      when: "?"
+      task: question answering with numeric reasoning
+      what: financial reports
+      who: financial experts
+      when: 1999 to 2019
       language: English
 
   - name: gold_commodity_news
