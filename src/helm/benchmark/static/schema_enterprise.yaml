@@ -165,6 +165,8 @@ run_groups:
     display_name: ConvFinQA Financial Conversations (Numerical Reasoning)
     description: ConvFinQA - Exploring the Chain of Numerical Reasoning in Conversational Finance Question Answering [(Chen ey al., 2022)](https://arxiv.org/pdf/2210.03849.pdf).
     metric_groups:
+      - accuracy
+      - efficiency
       - general_information
     environment:
       main_name: float_equiv
