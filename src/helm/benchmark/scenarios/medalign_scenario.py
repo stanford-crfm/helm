@@ -9,7 +9,7 @@ from helm.benchmark.scenarios.scenario import (
     PassageQuestionInput,
     Output,
 )
-from helm.benchmark.scenarios.medalign_scenario_helper import return_dataset_dataframe
+from helm.benchmark.scenarios.medalign_scenario_helper import return_dataset_dataframe  # type: ignore
 
 
 class MedalignScenario(Scenario):

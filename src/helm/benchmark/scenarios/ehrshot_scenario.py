@@ -6,7 +6,7 @@ import tiktoken
 from filelock import FileLock
 from functools import partial
 from tqdm import tqdm
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Mapping
 
 from helm.common.general import ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
@@ -1120,7 +1120,7 @@ def lumia_prompt(
     task_name: str, config: Dict[str, Any], examples: List[Dict[str, Any]], timeline: Dict[str, Any]
 ) -> str:
     # Base template
-    task_config = (
+    task_config: Mapping[str, Any] = (
         CONFIG["guo"]
         if task_name.startswith("guo")
         else CONFIG["lab"] if task_name.startswith("lab") else CONFIG["new"]

@@ -36,7 +36,7 @@ class AzureOpenAIClient(OpenAIClient):
             openai_model_name=azure_openai_deployment_name,
         )
         azure_endpoint = endpoint or os.getenv("AZURE_OPENAI_ENDPOINT")
-        assert (base_url is None) != (endpoint is None), "Exactly one of endoint or base_url must be provided"
+        assert (base_url is None) != (azure_endpoint is None), "Exactly one of endoint or base_url must be provided"
         if base_url:
             self.client = AzureOpenAI(
                 api_key=api_key,

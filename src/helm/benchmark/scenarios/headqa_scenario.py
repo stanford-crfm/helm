@@ -69,7 +69,7 @@ class HeadQAScenario(Scenario):
         """
         super().__init__()
         self.language: str = language
-        self.category: str = category
+        self.category: Optional[str] = category
         assert (
             self.SKIP_VQA or self.SKIP_TEXTQA
         ), "Failed to initialize HeadQAScenario, one of `SKIP_VQA` or `SKIP_TEXTQA` must be True."
