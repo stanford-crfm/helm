@@ -82,7 +82,7 @@ def get_conv_fin_qa_calc_spec() -> RunSpec:
     )
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="Based on the table, answer the final question. Respond with the answer only, with no additional explanation.",
+        instructions="Based on the table, answer the final question. Respond with the answer only, with no additional explanation.",  # noqa: E501
         input_noun=None,
         output_noun="Answer",
     )

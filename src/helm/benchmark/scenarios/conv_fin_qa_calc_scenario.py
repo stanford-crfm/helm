@@ -1,6 +1,5 @@
 import json
 import os
-import re
 from typing import Dict, List, Any
 
 from helm.benchmark.scenarios.scenario import (
