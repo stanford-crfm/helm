@@ -1,7 +1,7 @@
 import json
 import os
 import re
-from typing import Dict, List, Tuple, Any, Optional
+from typing import Dict, List, Any
 
 from helm.benchmark.scenarios.scenario import (
     Input,
@@ -13,41 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Output,
 )
-from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-
-
-def _strip_string(str: str) -> Any:
-    # from https://stackoverflow.com/a/4703508
-    numeric_const_pattern = r"[-+]?(?:(?:\d*\.\d+)|(?:\d+\.?))(?:[Ee][+-]?\d+)?"
-    match = re.search(numeric_const_pattern, str)
-    if match:
-        try:
-            return float(str[match.start() : match.end()])
-        except Exception:
-            return None
-    return None
-
-
-def float_equiv(str1: Optional[str], str2: Optional[str], eps: float = 1e-6) -> float:
-    """
-    extract the first numbers in the two strings and compare them
-    """
-    if str1 is None and str2 is None:
-        print("WARNING: Both None")
-        return 1.0
-    if str1 is None or str2 is None:
-        return 0.0
-
-    try:
-        ss1 = _strip_string(str1)
-        ss2 = _strip_string(str2)
-        print(f"{str1}: ({ss1}) == {str2}: ({ss2})? {float(abs(ss1 - ss2) < eps)}")
-
-        if ss1 is None or ss2 is None:
-            return 0.0
-        return float(abs(ss1 - ss2) < eps)
-    except Exception:
-        return float(str1 == str2)
+from helm.common.general import ensure_file_downloaded
 
 
 class ConvFinQACalcScenario(Scenario):

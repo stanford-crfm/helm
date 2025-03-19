@@ -19,7 +19,6 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.nltk_helper import install_nltk_resources
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.scenarios.code_scenario import CodeReference
-from helm.benchmark.scenarios.conv_fin_qa_calc_scenario import float_equiv
 from helm.benchmark.scenarios.math_scenario import is_equiv, is_equiv_chain_of_thought
 from helm.benchmark.scenarios.scenario import Reference
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -473,7 +472,6 @@ def compute_reference_metrics(
         "chinese_rouge_2": get_chinese_rouge_function("rouge2"),
         "cleva_math_result_match": cleva_math_result_match,
         "absolute_value_difference": absolute_value_difference,
-        "float_equiv": float_equiv,
         "wer_score": wer_score,
         "mer_score": mer_score,
         "wip_score": wip_score,
