@@ -162,8 +162,8 @@ run_groups:
       language: English
 
   - name: conv_fin_qa_calc
-    display_name: ConvFinQA Financial Conversations (Numerical Reasoning)
-    description: ConvFinQA - Exploring the Chain of Numerical Reasoning in Conversational Finance Question Answering [(Chen ey al., 2022)](https://arxiv.org/pdf/2210.03849.pdf).
+    display_name: ConvFinQACalc
+    description: "A mathematical calculation benchmark based on ConvFinQA: Exploring the Chain of Numerical Reasoning in Conversational Finance Question Answering [(Chen ey al., 2022)](https://arxiv.org/pdf/2210.03849.pdf)."
     metric_groups:
       - accuracy
       - efficiency

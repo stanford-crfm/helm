@@ -19,7 +19,7 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.nltk_helper import install_nltk_resources
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.scenarios.code_scenario import CodeReference
-from helm.benchmark.scenarios.conv_fin_qa_scenario import float_equiv
+from helm.benchmark.scenarios.conv_fin_qa_calc_scenario import float_equiv
 from helm.benchmark.scenarios.math_scenario import is_equiv, is_equiv_chain_of_thought
 from helm.benchmark.scenarios.scenario import Reference
 from helm.common.optional_dependencies import handle_module_not_found_error
