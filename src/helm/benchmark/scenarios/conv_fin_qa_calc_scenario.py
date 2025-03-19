@@ -39,7 +39,7 @@ class ConvFinQACalcScenario(Scenario):
 
     _SPLIT_TO_JSON_FILE_NAME: Dict[str, str] = {TRAIN_SPLIT: "train_turn.json", VALID_SPLIT: "dev_turn.json"}
 
-    def make_pseudo_markdown_table(self, table: List[List[Any]], sep: str = "\n"):
+    def make_pseudo_markdown_table(self, table: List[List[Any]], sep: str = "\n") -> str:
         markdown_lines: List[str] = []
 
         for row in table:
@@ -49,7 +49,7 @@ class ConvFinQACalcScenario(Scenario):
 
         return sep.join(markdown_lines)
 
-    def get_instance_dict(self, dic, split: str, sep: str = "\n") -> Instance:
+    def convert_to_instance(self, dic: Dict[str, Any], split: str, sep: str = "\n") -> Instance:
         linearized_table = self.make_pseudo_markdown_table(dic["table"])
         input_text = f"Table: {sep}{linearized_table}{sep}{sep}"
 
@@ -93,5 +93,5 @@ class ConvFinQACalcScenario(Scenario):
             with open(json_file_path) as f:
                 raw_instances = json.load(f)
                 for raw_instance in raw_instances:
-                    instances.append(self.get_instance_dict(raw_instance, split))
+                    instances.append(self.convert_to_instance(raw_instance, split))
         return instances
