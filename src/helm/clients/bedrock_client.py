@@ -2,7 +2,7 @@ from abc import abstractmethod
 from copy import deepcopy
 import json
 import os
-from typing import Any, Dict, List, Mapping, Optional
+from typing import Any, Dict, List, Mapping, Optional, TypedDict
 from datetime import datetime
 
 from helm.common.cache import CacheConfig
@@ -95,6 +95,15 @@ class BedrockClient(CachingClient):
         )
 
 
+class _ContentBlock(TypedDict):
+    text: str
+
+
+class _Message(TypedDict):
+    role: str
+    content: List[_ContentBlock]
+
+
 class BedrockNovaClient(CachingClient):
     """
     Amazon Bedrock is a fully managed service that provides s selection of leading foundation models (FMs) from Amazon
@@ -117,9 +126,22 @@ class BedrockNovaClient(CachingClient):
             region=region,
         )
 
+    def _get_messages_from_request(self, request: Request) -> List[_Message]:
+        if request.prompt and request.messages:
+            raise ValueError(f"Only one of `prompt` and `messages` may be set in request: {request}")
+        if request.multimodal_prompt:
+            raise ValueError(f"`multimodal_prompt` is not supported in request: {request}")
+
+        if request.messages:
+            return [
+                {"role": message["role"], "content": [{"text": message["content"]}]} for message in request.messages
+            ]
+        else:
+            return [{"role": "user", "content": [{"text": request.prompt}]}]
+
     def convert_request_to_raw_request(self, request: Request) -> Dict:
         model_id = request.model.replace("/", ".")
-        messages = [{"role": "user", "content": [{"text": request.prompt}]}]
+        messages = self._get_messages_from_request(request)
 
         return {
             "modelId": model_id,

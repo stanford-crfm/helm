@@ -27,7 +27,7 @@ export default function MediaObjectDisplay({ mediaObject }: Props) {
     }
     const url = getBenchmarkEndpoint(
       mediaObject.location
-        .replace("benchmark_output/", "")
+        .replace(/^.*benchmark_output\//, "")
         .replace("prod_env/", "../"),
     );
     return (

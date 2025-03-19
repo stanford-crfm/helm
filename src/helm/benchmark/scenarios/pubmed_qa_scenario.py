@@ -125,7 +125,7 @@ class PubMedQAScenario(Scenario):
     """
 
     name = "pubmed_qa"
-    description = "A biomedical question answering (QA) dataset collected from PubMed abstracts."
+    description = "A dataset that provides pubmed abstracts and asks associated questions yes/no/maybe questions."
     tags = ["question_answering", "biomedical"]
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["yes", "no", "maybe"]
@@ -133,48 +133,51 @@ class PubMedQAScenario(Scenario):
     def get_instances(self, output_path: str) -> List[Instance]:
         data_path: str = os.path.join(output_path, "data")
         ensure_directory_exists(data_path)
-
+        url = (
+            "https://raw.githubusercontent.com/pubmedqa/pubmedqa/"
+            "1f00b98d5cc626844bf8c4ca513b6e62c40071ec/data/ori_pqal.json"
+        )
         instances: List[Instance] = []
         for split in ALL_SPLITS:
-            split_file_name: str = f"{split}_set.json"
-            split_path: str = os.path.join(data_path, split_file_name)
-            ensure_file_downloaded(
-                source_url="https://worksheets.codalab.org/rest/bundles/0x531c9c54d8314d289da812af608b86fb/"
-                f"contents/blob/{split_file_name}",
-                target_path=split_path,
-                unpack=False,
-            )
+            if split == "test":
+                split_file_name: str = f"{split}_set.json"
+                split_path: str = os.path.join(data_path, split_file_name)
+                ensure_file_downloaded(
+                    source_url=url,
+                    target_path=split_path,
+                    unpack=False,
+                )
 
-            with open(split_path, "r") as f:
-                split_examples: Dict = json.load(f)
-                for example in split_examples.values():
-                    context_labels: List[str] = example["LABELS"]
-                    contexts: List[str] = example["CONTEXTS"]
-                    assert len(contexts) == len(context_labels)
+                with open(split_path, "r") as f:
+                    split_examples: Dict = json.load(f)
+                    for example in split_examples.values():
+                        context_labels: List[str] = example["LABELS"]
+                        contexts: List[str] = example["CONTEXTS"]
+                        assert len(contexts) == len(context_labels)
 
-                    # Format: <Label>. <context>
-                    #         <Label>. <context>
-                    # Example: Methods. Sixteen swine were used...
-                    #          Results. Application of QC led to...
-                    background: str = "\n".join(
-                        [f"{label.title()}. {context}" for label, context in zip(context_labels, contexts)]
-                    )
+                        # Format: <Label>. <context>
+                        #         <Label>. <context>
+                        # Example: Methods. Sixteen swine were used...
+                        #          Results. Application of QC led to...
+                        background: str = "\n".join(
+                            [f"{label.title()}. {context}" for label, context in zip(context_labels, contexts)]
+                        )
 
-                    # Build `Reference`s. The possible answer choices are one of: "yes", "no" or "maybe"
-                    correct_answer: str = example["final_decision"]
-                    assert correct_answer in PubMedQAScenario.POSSIBLE_ANSWER_CHOICES
-                    references: List[Reference] = [
-                        Reference(Output(text=answer), tags=[CORRECT_TAG] if answer == correct_answer else [])
-                        for answer in PubMedQAScenario.POSSIBLE_ANSWER_CHOICES
-                    ]
+                        # Build `Reference`s. The possible answer choices are one of: "yes", "no" or "maybe"
+                        correct_answer: str = example["final_decision"]
+                        assert correct_answer in PubMedQAScenario.POSSIBLE_ANSWER_CHOICES
+                        references: List[Reference] = [
+                            Reference(Output(text=answer), tags=[CORRECT_TAG] if answer == correct_answer else [])
+                            for answer in PubMedQAScenario.POSSIBLE_ANSWER_CHOICES
+                        ]
 
-                    # Following Liévin et al., prepend the question with the provided context.
-                    # Examples can be found here: https://vlievin.github.io/medical-reasoning/samples/pubmedqa.html.
-                    question: str = example["QUESTION"]
-                    prompt = PassageQuestionInput(
-                        passage=background, question=question + "\n", passage_prefix="Context: ", separator="\n\n"
-                    )
-                    instance: Instance = Instance(input=prompt, references=references, split=split)
-                    instances.append(instance)
+                        # Following Liévin et al., prepend the question with the provided context.
+                        # Examples can be found here: https://vlievin.github.io/medical-reasoning/samples/pubmedqa.html.
+                        question: str = example["QUESTION"]
+                        prompt = PassageQuestionInput(
+                            passage=background, question=question + "\n", passage_prefix="Context: ", separator="\n\n"
+                        )
+                        instance: Instance = Instance(input=prompt, references=references, split=split)
+                        instances.append(instance)
 
         return instances

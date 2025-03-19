@@ -243,6 +243,7 @@ def get_wildbench_spec(subset: str) -> RunSpec:
     )
 
 
+# TODO: Remove BigCodeBench from capabilities_run_specs.py because it is no longer part of HELM Capabilities
 @run_spec_function("bigcodebench")
 def get_bigcodebench_spec(version: str) -> RunSpec:
 
