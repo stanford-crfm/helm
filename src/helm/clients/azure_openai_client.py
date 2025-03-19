@@ -44,10 +44,12 @@ class AzureOpenAIClient(OpenAIClient):
                 base_url=base_url,
                 default_headers=default_headers,
             )
-        else:
+        elif azure_endpoint:
             self.client = AzureOpenAI(
                 api_key=api_key,
                 api_version=api_version or AzureOpenAIClient.API_VERSION,
                 azure_endpoint=azure_endpoint,
                 default_headers=default_headers,
             )
+        else:
+            raise NonRetriableException("Must provide either endpoint or base_url")

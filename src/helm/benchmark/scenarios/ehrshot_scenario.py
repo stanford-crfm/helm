@@ -1116,15 +1116,20 @@ ACTION_COT_TMPL = (
 )
 
 
+def get_task_config(task_name: str) -> Mapping[str, Any]:
+    if task_name.startswith("guo"):
+        return CONFIG["guo"]
+    elif task_name.startswith("lab"):
+        return CONFIG["lab"]
+    else:
+        return CONFIG["new"]
+
+
 def lumia_prompt(
     task_name: str, config: Dict[str, Any], examples: List[Dict[str, Any]], timeline: Dict[str, Any]
 ) -> str:
     # Base template
-    task_config: Mapping[str, Any] = (
-        CONFIG["guo"]
-        if task_name.startswith("guo")
-        else CONFIG["lab"] if task_name.startswith("lab") else CONFIG["new"]
-    )
+    task_config: Mapping[str, Any] = get_task_config(task_name)
     tmpl: Dict[str, Any]
     tmpl = base_prompt(task_name, **task_config)
 
