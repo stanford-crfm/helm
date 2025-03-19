@@ -34,9 +34,7 @@ class ConvFinQACalcScenario(Scenario):
     description = "A mathematical calculation benchmark based on ConvFinQA: Exploring the Chain of Numerical Reasoning in Conversational Finance Question Answering [(Chen ey al., 2022)](https://arxiv.org/pdf/2210.03849.pdf)."  # noqa: E501
     tags = ["question_answering", "finance"]
 
-    """ Class variables """
-    # Dataset file name
-    DATASET_DOWNLOAD_URL: str = "https://github.com/czyssrs/ConvFinQA/raw/main/data.zip"
+    DATASET_DOWNLOAD_URL: str = "https://github.com/czyssrs/ConvFinQA/raw/cf3eed2d5984960bf06bb8145bcea5e80b0222a6/data.zip"
 
     _SPLIT_TO_JSON_FILE_NAME: Dict[str, str] = {TRAIN_SPLIT: "train_turn.json", VALID_SPLIT: "dev_turn.json"}
 
