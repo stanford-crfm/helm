@@ -17,7 +17,7 @@ from helm.common.general import ensure_file_downloaded
 
 
 class ConvFinQACalcScenario(Scenario):
-    """"A mathematical calculation benchmark based on ConvFinQA.
+    """ "A mathematical calculation benchmark based on ConvFinQA.
 
     Data source:
     https://github.com/czyssrs/ConvFinQA
@@ -38,10 +38,7 @@ class ConvFinQACalcScenario(Scenario):
     # Dataset file name
     DATASET_DOWNLOAD_URL: str = "https://github.com/czyssrs/ConvFinQA/raw/main/data.zip"
 
-    _SPLIT_TO_JSON_FILE_NAME: Dict[str, str] = {
-        TRAIN_SPLIT: "train_turn.json",
-        VALID_SPLIT: "dev_turn.json"
-    }
+    _SPLIT_TO_JSON_FILE_NAME: Dict[str, str] = {TRAIN_SPLIT: "train_turn.json", VALID_SPLIT: "dev_turn.json"}
 
     def make_pseudo_markdown_table(self, table: List[List[Any]], sep: str = "\n"):
         markdown_lines: List[str] = []
@@ -82,7 +79,6 @@ class ConvFinQACalcScenario(Scenario):
             references=[Reference(Output(text=answer), tags=[CORRECT_TAG])],
             split=split,
         )
-
 
     def get_instances(self, output_path: str) -> List[Instance]:
         data_path = os.path.join(output_path, "data")

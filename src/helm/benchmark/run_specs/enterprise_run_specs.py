@@ -81,11 +81,15 @@ def get_conv_fin_qa_calc_spec() -> RunSpec:
         class_name="helm.benchmark.scenarios.conv_fin_qa_calc_scenario.ConvFinQACalcScenario", args={}
     )
 
-    adapter_spec = get_generation_adapter_spec(instructions="Based on the table, answer the final question. Respond with the answer only, with no additional explanation.", input_noun=None, output_noun="Answer")
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Based on the table, answer the final question. Respond with the answer only, with no additional explanation.",
+        input_noun=None,
+        output_noun="Answer",
+    )
 
-    metric_specs = [MetricSpec(
-            class_name="helm.benchmark.metrics.conv_fin_qa_calc_metrics.ConvFinQACalcMetric"
-        )] + get_basic_metric_specs([])
+    metric_specs = [
+        MetricSpec(class_name="helm.benchmark.metrics.conv_fin_qa_calc_metrics.ConvFinQACalcMetric")
+    ] + get_basic_metric_specs([])
 
     return RunSpec(
         name="conv_fin_qa_calc",
