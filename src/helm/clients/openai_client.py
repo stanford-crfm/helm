@@ -310,6 +310,7 @@ class OpenAIClient(CachingClient):
             # Handle Azure OpenAI content filter
             # See: https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter
             if raw_completion["finish_reason"] == "content_filter":
+                hlog(f"Content blocked by OpenAI filter: {str(raw_request)}")
                 return RequestResult(
                     success=False,
                     cached=False,
