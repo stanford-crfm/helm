@@ -118,7 +118,7 @@ run_groups:
     subgroups:
       - gold_commodity_news
       - financial_phrasebank
-      - conv_fin_qa
+      - conv_fin_qa_calc
 
   - name: legal_scenarios
     display_name: Legal Scenarios
@@ -161,7 +161,7 @@ run_groups:
       when: before 2013
       language: English
 
-  - name: conv_fin_qa
+  - name: conv_fin_qa_calc
     display_name: ConvFinQA Financial Conversations (Numerical Reasoning)
     description: ConvFinQA - Exploring the Chain of Numerical Reasoning in Conversational Finance Question Answering [(Chen ey al., 2022)](https://arxiv.org/pdf/2210.03849.pdf).
     metric_groups:

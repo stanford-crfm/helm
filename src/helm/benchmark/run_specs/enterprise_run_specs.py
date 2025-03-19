@@ -75,18 +75,18 @@ def get_financial_phrasebank_spec(agreement: int = 50) -> RunSpec:
     )
 
 
-@run_spec_function("conv_fin_qa")
+@run_spec_function("conv_fin_qa_calc")
 def get_conv_fin_qa_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.conv_fin_qa_scenario.ConvFinQAScenario", args={})
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.conv_fin_qa_calc_scenario.ConvFinCalcQAScenario", args={})
 
     adapter_spec = get_generation_adapter_spec(input_noun="Passage", output_noun="Answer")
 
     return RunSpec(
-        name="conv_fin_qa",
+        name="conv_fin_qa_calc",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_basic_metric_specs(["float_equiv"]),
-        groups=["conv_fin_qa"],
+        groups=["conv_fin_qa_calc"],
     )
 
 
