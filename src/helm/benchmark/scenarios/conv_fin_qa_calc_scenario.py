@@ -16,7 +16,7 @@ from helm.common.general import ensure_file_downloaded
 
 
 class ConvFinQACalcScenario(Scenario):
-    """ "A mathematical calculation benchmark based on ConvFinQA.
+    """A mathematical calculation benchmark based on ConvFinQA.
 
     Data source:
     https://github.com/czyssrs/ConvFinQA
