@@ -52,33 +52,33 @@ def float_equiv(str1: Optional[str], str2: Optional[str], eps: float = 1e-6) -> 
 
 class ConvFinQACalcScenario(Scenario):
     """A mathematical reasoning benchmark based on the ConvFinQA paper.
-    
 
-    Prompt:
-Passage: Table: 
-{Table}
-Text: 
-Questions:  Question: {Question}? The answer is {Answer} 
-{Question}? The answer is {Answer}
-{Question}? The answer is {Answer}
-{Question}? The answer is 
-Answer:
 
-    Data source:
-    https://github.com/czyssrs/ConvFinQA
+        Prompt:
+    Passage: Table:
+    {Table}
+    Text:
+    Questions:  Question: {Question}? The answer is {Answer}
+    {Question}? The answer is {Answer}
+    {Question}? The answer is {Answer}
+    {Question}? The answer is
+    Answer:
 
-    Reference:
-    Zhiyu Chen, Shiyang Li, Charese Smiley, Zhiqiang Ma, Sameena Shah, and William Yang Wang. 2022. 
-    ConvFinQA: Exploring the Chain of Numerical Reasoning in Conversational Finance Question Answering. 
-    In Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing, 
-    pages 6279–6292, Abu Dhabi, United Arab Emirates. Association for Computational Linguistics.
-    https://aclanthology.org/2022.emnlp-main.421
-    
+        Data source:
+        https://github.com/czyssrs/ConvFinQA
+
+        Reference:
+        Zhiyu Chen, Shiyang Li, Charese Smiley, Zhiqiang Ma, Sameena Shah, and William Yang Wang. 2022.
+        ConvFinQA: Exploring the Chain of Numerical Reasoning in Conversational Finance Question Answering.
+        In Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing,
+        pages 6279–6292, Abu Dhabi, United Arab Emirates. Association for Computational Linguistics.
+        https://aclanthology.org/2022.emnlp-main.421
+
     """  # noqa
 
     """ Information on this class"""
-    name = "conv_fin_qa"
-    description = "Conversitional Finance QA"
+    name = "conv_fin_qa_calc"
+    description = "A mathematical calculation benchmark based on the ConvFinQA paper"
     tags = ["question_answering", "finance"]
 
     """ Class variables """
@@ -182,5 +182,4 @@ Answer:
         valid_instances = [
             Instance(input=d["input"], references=d["references"], split=VALID_SPLIT) for d in dev_data[:1000]
         ]
-        print("length of validate:", len(valid_instances))
         return train_instances + valid_instances
