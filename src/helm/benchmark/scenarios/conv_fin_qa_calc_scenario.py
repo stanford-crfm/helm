@@ -11,7 +11,6 @@ from helm.benchmark.scenarios.scenario import (
     TRAIN_SPLIT,
     VALID_SPLIT,
     CORRECT_TAG,
-    PassageQuestionInput,
     Output,
 )
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
@@ -78,29 +77,19 @@ class ConvFinQACalcScenario(Scenario):
         VALID_SPLIT: "dev_turn.json"
     }
 
-    def get_table_text(self, table: List[List[str]]) -> str:
-        """table in the format of List of columns"""
-        return "~".join(["|".join(col) for col in table])
+    def make_pseudo_markdown_table(self, table: List[List[Any]], sep: str = "\n"):
+        markdown_lines: List[str] = []
 
-    def make_pseudo_markdown_table(self, array, line_sep="\n"):
-        markdown = str("|")
+        for row in table:
+            row_inner_markdown = " | ".join([str(cell) for cell in row])
+            row_markdown = f"| {row_inner_markdown} |"
+            markdown_lines.append(row_markdown)
 
-        for e in array[0]:
-            to_add = " " + str(e) + str(" |")
-            markdown += to_add
-            markdown += line_sep
-
-        for entry in array[1:]:
-            markdown += str("| ")
-            for e in entry:
-                to_add = str(e) + str(" | ")
-                markdown += to_add
-                markdown += line_sep
-
-        return markdown
+        return sep.join(markdown_lines)
 
     def get_instance_dict(self, dic, split: str, sep: str = "\n") -> Instance:
-        linearized_table = self.make_pseudo_markdown_table(dic["table"], line_sep=sep)
+        linearized_table = self.make_pseudo_markdown_table(dic["table"])
+        input_text = f"Table: {sep}{linearized_table}{sep}{sep}"
 
         if "gold_ind" in dic["annotation"]:
             facts = dic["annotation"]["gold_ind"]
@@ -108,54 +97,40 @@ class ConvFinQACalcScenario(Scenario):
             facts = dic["annotation"]["gold_inds"]
         else:
             facts = {}
-
-        text = ""
+        table_text = ""
         for fact_type, fact in facts.items():
             if "text" in fact_type:
-                text += fact
-        context = ""
+                table_text += fact
+        if table_text:
+            input_text += f"Text: {sep}{table_text}{sep}{sep}"
+
         for ind, q in enumerate(dic["annotation"]["cur_dial"]):
             if ind < len(dic["annotation"]["cur_dial"]) - 1:
-                context += q + " The answer is " + str(dic["annotation"]["exe_ans_list"][ind]) + " " + sep
+                input_text += f"Question: {q}{sep}Answer: {dic['annotation']['exe_ans_list'][ind]}{sep}"
             else:
-                context += q + " The answer is "
-        doc = f"Table: {sep}{linearized_table}{sep}Text: {text}{sep}Questions: "
+                input_text += f"Question: {q}"
+
         answer = str(dic["annotation"]["exe_ans"])
         return Instance(
-            input=Input(text="".join(doc) + " " + context),
+            input=Input(text=input_text),
             references=[Reference(Output(text=answer), tags=[CORRECT_TAG])],
             split=split,
         )
 
-    def load_dataset(self, output_path: str) -> Tuple[List[Instance], List[Instance]]:
-        """Loads the dataset downloaded in download_dataset()."""
-        folder_path = os.path.join(output_path, "data")
-        train_data = []
-        dev_data = []
-
-        with open(os.path.join(folder_path, "train_turn.json"), encoding="utf-8") as f:
-            train_raw_data = json.load(f)
-
-        for problem in train_raw_data:
-            train_data.append(self.get_instance_dict(problem, TRAIN_SPLIT))
-
-        with open(os.path.join(folder_path, "dev_turn.json"), encoding="utf-8") as f:
-            dev_raw_data = json.load(f)
-
-        for problem in dev_raw_data:
-            dev_data.append(self.get_instance_dict(problem, VALID_SPLIT))
-
-        return train_data, dev_data
 
     def get_instances(self, output_path: str) -> List[Instance]:
+        data_path = os.path.join(output_path, "data")
         ensure_file_downloaded(
             source_url=self.DATASET_DOWNLOAD_URL,
             target_path=os.path.join(output_path, "data"),
             unpack=True,
             unpack_type="unzip",
         )
-
-        train_data, dev_data = self.load_dataset(output_path)
-        print(len(train_data))
-        print(len(dev_data))
-        return train_data + dev_data
+        instances: List[Instance] = []
+        for split, json_file_name in self._SPLIT_TO_JSON_FILE_NAME.items():
+            json_file_path = os.path.join(data_path, json_file_name)
+            with open(json_file_path) as f:
+                raw_instances = json.load(f)
+                for raw_instance in raw_instances:
+                    instances.append(self.get_instance_dict(raw_instance, split))
+        return instances
