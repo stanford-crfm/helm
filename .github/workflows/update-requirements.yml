@@ -46,6 +46,8 @@ jobs:
         #     push events occur.
       - name: Install HELM 
         run: ./install-dev.sh
+      - name: Verify dependencies
+        run: pip check
       - name: Run linter
         run: ./pre-commit.sh
       - name: Run tests
