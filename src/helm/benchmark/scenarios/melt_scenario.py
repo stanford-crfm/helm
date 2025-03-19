@@ -80,16 +80,16 @@ class QAScenario(Scenario):
         """
         instances: List[Instance] = []
         dataset = load_dataset(
-            path=self.dataset_name,
-            name=self.subset,
+            self.dataset_name,
+            self.subset,
             trust_remote_code=True,
         )
-        for split_name, split in splits:
+        for split_name, split in splits.items():
             if split is None:
                 continue
 
             if split_name not in dataset:
-                print(f"Warning: Error loading dataset {self.dataset_name} with split {split}")
+                print(f"Warning: Error loading dataset {self.dataset_name} with split {split_name}")
                 continue
 
             for sample in dataset[split_name]:
@@ -107,11 +107,14 @@ class QAScenario(Scenario):
         if self.splits is None:
             splits = {"train": TRAIN_SPLIT, "validation": VALID_SPLIT, "test": TEST_SPLIT}
         else:
-            splits = {
-                self.splits["train"]: TRAIN_SPLIT if "train" in self.splits else None,
-                self.splits["validation"]: VALID_SPLIT if "validation" in self.splits else None,
-                self.splits["test"]: TEST_SPLIT if "test" in self.splits else None,
-            }
+            splits = {}
+            if "train" in self.splits:
+                splits[self.splits["train"]] = TRAIN_SPLIT
+            if "validation" in self.splits:
+                splits[self.splits["validation"]] = VALID_SPLIT
+            if "test" in self.splits:
+                splits[self.splits["test"]] = TEST_SPLIT
+            
         random.seed(0)  # randomness needed to pick question at random
         instances: List[Instance] = self._get_instances(splits=splits)
         return instances
@@ -181,16 +184,16 @@ class SummarizationScenario(Scenario):
         """
         instances: List[Instance] = []
         dataset = load_dataset(
-            path=self.dataset_name,
-            name=self.subset,
+            self.dataset_name,
+            self.subset,
             trust_remote_code=True,
         )
-        for split_name, split in splits:
+        for split_name, split in splits.items():
             if split is None:
                 continue
 
             if split_name not in dataset:
-                print(f"Warning: Error loading dataset {self.dataset_name} with split {split}")
+                print(f"Warning: Error loading dataset {self.dataset_name} with split {split_name}")
                 continue
 
             for sample in dataset[split_name]:
@@ -218,11 +221,13 @@ class SummarizationScenario(Scenario):
         if self.splits is None:
             splits = {"train": TRAIN_SPLIT, "validation": VALID_SPLIT, "test": TEST_SPLIT}
         else:
-            splits = {
-                self.splits["train"]: TRAIN_SPLIT if "train" in self.splits else None,
-                self.splits["validation"]: VALID_SPLIT if "validation" in self.splits else None,
-                self.splits["test"]: TEST_SPLIT if "test" in self.splits else None,
-            }
+            if "train" in self.splits:
+                splits[self.splits["train"]] = TRAIN_SPLIT
+            if "validation" in self.splits:
+                splits[self.splits["validation"]] = VALID_SPLIT
+            if "test" in self.splits:
+                splits[self.splits["test"]] = TEST_SPLIT
+
         random.seed(0)  # randomness needed to pick question at random
         instances: List[Instance] = self._get_instances(splits=splits)
         return instances

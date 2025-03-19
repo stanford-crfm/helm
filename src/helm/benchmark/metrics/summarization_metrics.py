@@ -46,6 +46,7 @@ class SummarizationMetric(Metric):
     def __init__(
         self,
         task: str,
+        language: str = "en",
         device: str = "cpu",
         bertscore_model: str = "microsoft/deberta-large-mnli",
         rescale_with_baseline: bool = True,
@@ -77,7 +78,7 @@ class SummarizationMetric(Metric):
         else:
             self.compute_bertscore = True
             self.bert_scorer = BERTScorer(
-                model_type=bertscore_model, lang="en", rescale_with_baseline=rescale_with_baseline, device=device
+                model_type=bertscore_model, lang=language, rescale_with_baseline=rescale_with_baseline, device=device
             )
             # Need GPU for faithfulness metrics since they are model-based.
             self.compute_faithfulness = True

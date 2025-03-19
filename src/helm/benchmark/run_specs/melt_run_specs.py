@@ -34,7 +34,7 @@ from helm.benchmark.metrics.common_metric_specs import (
 def get_question_answering_mlqa_spec(prompt_style: str = "normal") -> RunSpec:
     assert prompt_style in ["weak", "medium", "normal"], f"Invalid prompt style: {prompt_style}"
 
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.melt_scenario.MLQAScenario", args={
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.melt_scenario.QAScenario", args={
         "dataset_name": "facebook/mlqa",
         "subset": "mlqa.vi.vi",
         "passage_prefix": "Ngữ cảnh: ",
@@ -65,7 +65,7 @@ def get_question_answering_mlqa_spec(prompt_style: str = "normal") -> RunSpec:
 def get_question_answering_xquad_spec(prompt_style: str = "normal") -> RunSpec:
     assert prompt_style in ["weak", "medium", "normal"], f"Invalid prompt style: {prompt_style}"
 
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.melt_scenario.XQuADScenario", args={
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.melt_scenario.QAScenario", args={
         "dataset_name": "juletxara/xquad_xtreme",
         "subset": "vi",
         "passage_prefix": "Ngữ cảnh: ",
@@ -95,7 +95,7 @@ def get_summarization_vietnews_spec(prompt_style: str = "normal", temperature: f
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.melt_scenario.SummarizationScenario",
         args={
-            "dataset_name": "vietnews",
+            "dataset_name": "Yuhthe/vietnews",
             "sampling_min_length": 64,
             "sampling_max_length": 256,
             "doc_max_length": 2048,
@@ -122,7 +122,7 @@ def get_summarization_vietnews_spec(prompt_style: str = "normal", temperature: f
         name=f"summarization_vietnews:temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs({"task": "summarization_vietnews"})
+        metric_specs=get_summarization_metric_specs({"task": "summarization_vietnews", "language": "vi"})
         + get_generative_harms_metric_specs(),
         groups=["melt", "summarization_vietnews"],
     )
@@ -134,7 +134,7 @@ def get_wsummarization_wikilingua_spec(prompt_style: str = "normal", temperature
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.melt_scenario.SummarizationScenario",
         args={
-            "dataset_name": "wikilingua",
+            "dataset_name": "GEM/wiki_lingua",
             "sampling_min_length": 64,
             "sampling_max_length": 256,
             "doc_max_length": 2048,
@@ -161,7 +161,7 @@ def get_wsummarization_wikilingua_spec(prompt_style: str = "normal", temperature
         name=f"summarization_wikilingua:temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs({"task": "summarization_wikilingua"})
+        metric_specs=get_summarization_metric_specs({"task": "summarization_wikilingua", "language": "vi"})
         + get_generative_harms_metric_specs(),
         groups=["melt", "summarization_wikilingua"],
     )
@@ -241,7 +241,8 @@ def get_reasoning_synthetic_reasoning_spec(mode: str) -> RunSpec:
 
     adapter_spec = get_generation_adapter_spec(
         instructions="Hãy giải bài toán sau.",
-        output_noun="Mục tiêu",
+        input_noun="Bài toán",
+        output_noun="Lời giải",
         max_train_instances=5,
         stop_sequences=["\n"],
         max_tokens=50,  # answer upperbounded by 50 tokens
@@ -264,8 +265,8 @@ def get_reasoning_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
     )
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="Hãy giải bài toán sau.",
-        input_noun="Các quy luật",
+        instructions="Hãy dựa vào `Quy luật` được cho để suy luận ra quy tắc.",
+        input_noun="Quy luật",
         newline_after_input_noun=True,
         output_noun=None,
         max_train_instances=3,  # limited by the context length
