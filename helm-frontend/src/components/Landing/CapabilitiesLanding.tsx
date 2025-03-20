@@ -18,12 +18,12 @@ export default function CapabilitiesLanding() {
             and the results can be fully reproduced using the HELM framework.
           </p>
           <div className="flex flex-row justify-center my-4">
-            <Link
-              to="https://crfm.stanford.edu/2025/03/20/helm-capabilities.html"
+            <a
+              href="https://crfm.stanford.edu/2025/03/20/helm-capabilities.html"
               className="px-10 btn rounded-md mx-4"
             >
               Blog Post
-            </Link>
+            </a>
             <Link to="leaderboard" className="px-10 btn rounded-md mx-4">
               Leaderboard
             </Link>
