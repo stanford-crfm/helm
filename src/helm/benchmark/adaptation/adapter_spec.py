@@ -132,7 +132,7 @@ class AdapterSpec:
 
     image_generation_parameters: Optional[ImageGenerationParameters] = None
     """Parameters for image generation."""
-    
+
     reeval_parameters: Optional[ReevalParameters] = None
     """Parameters for reeval evaluation."""
 

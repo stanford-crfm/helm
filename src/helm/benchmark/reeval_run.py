@@ -168,6 +168,12 @@ def main():
     args = parser.parse_args()
     validate_args(args)
 
+    if args.max_eval_instances:
+        hlog(
+            "WARNING: In reeval mode, max-eval-instances will not be used to downsample the evaluation instances. "
+            "Use --max-samples"
+        )
+
     register_builtin_configs_from_helm_package()
     register_configs_from_directory(args.local_path)
 

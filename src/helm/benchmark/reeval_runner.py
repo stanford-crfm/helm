@@ -94,13 +94,11 @@ class RelEffEvalRunner(Runner):
         optim = torch.optim.LBFGS([ability], lr=0.1, max_iter=20, history_size=10, line_search_fn="strong_wolfe")
 
         for iteration in range(100):
-            if iteration > 0:
-                prev_ability = ability.clone()
-                prev_loss = loss.clone()
-
             loss = optim.step(closure)
 
             if iteration > 0:
+                prev_ability = ability.clone()
+                prev_loss = loss.clone()
                 d_loss = prev_loss - loss
                 d_theta = torch.norm(prev_ability - ability, p=2)
                 grad_norm = torch.norm(optim.param_groups[0]["params"][0].grad, p=2)
@@ -167,10 +165,10 @@ class RelEffEvalRunner(Runner):
         scenario_name = scenario.name
         try:
             difficulty_dataset = load_dataset("stair-lab/reeval-difficulty", split=scenario_name)
-            lookup = {row["request.prompt"]: row["z"] for row in difficulty_dataset}
-        except Exception as e:
+            lookup: dict[str, float] = {row["request.prompt"]: row["z"] for row in difficulty_dataset}
+        except Exception:
             hlog(f"WARNING: no available difficulty for {scenario_name}, skipping")
-            lookup = {}
+            return
 
         unasked_request_states: List[RequestState] = []
         for request_state in unasked_request_states_without_z:
@@ -182,8 +180,17 @@ class RelEffEvalRunner(Runner):
                 unasked_request_states.append(new_request_state)
 
         # Execute the requests in an reeval manner
-        model_ability = run_spec.adapter_spec.reeval_parameters.model_ability
-        scenario_metric_name = run_spec.adapter_spec.reeval_parameters.metric_name
+        # TODO: look for better way to fix the type-checker error
+        # model_ability = run_spec.adapter_spec.reeval_parameters.model_ability
+        # scenario_metric_name = run_spec.adapter_spec.reeval_parameters.metric_name
+        # max_samples = run_spec.adapter_spec.reeval_parameters.max_samples
+        if run_spec.adapter_spec.reeval_parameters:
+            if run_spec.adapter_spec.reeval_parameters.model_ability:
+                model_ability = run_spec.adapter_spec.reeval_parameters.model_ability
+            if run_spec.adapter_spec.reeval_parameters.metric_name:
+                scenario_metric_name = run_spec.adapter_spec.reeval_parameters.metric_name
+            if run_spec.adapter_spec.reeval_parameters.max_samples:
+                max_samples = run_spec.adapter_spec.reeval_parameters.max_samples
 
         asked_request_states: List[RequestState] = []
         stats: List[Stat] = []
@@ -194,13 +201,24 @@ class RelEffEvalRunner(Runner):
             "instance_difficulties": [],
         }
 
-        for _ in tqdm(range(run_spec.adapter_spec.reeval_parameters.max_samples), desc="Reeval execution"):
+        for _ in tqdm(range(max_samples), desc="Reeval execution"):
             if not unasked_request_states:
                 break
 
-            selected_item = min(
-                unasked_request_states, key=lambda item: abs(item.instance.extra_data["difficulty"] - model_ability)
-            )
+            # TODO: look for better way to fix the type-checker error
+            # selected_item = min(
+            #     unasked_request_states, key=lambda item: abs(item.instance.extra_data["difficulty"] - model_ability)
+            # )
+            # unasked_request_states.remove(selected_item)
+            selected_item = None
+            min_diff = float("inf")
+            for item in unasked_request_states:
+                assert item.instance.extra_data
+                diff = abs(item.instance.extra_data["difficulty"] - model_ability)
+                if diff < min_diff:
+                    min_diff = diff
+                    selected_item = item
+            assert type(selected_item) is RequestState
             unasked_request_states.remove(selected_item)
 
             # Execute the request
@@ -256,7 +274,11 @@ class RelEffEvalRunner(Runner):
             scenario_metric_value = [s for s in per_instance_stat[0].stats if s.name.name == scenario_metric_name][
                 0
             ].mean
+
+            # TODO: look for better way to fix the type-checker error
+            assert scenario_metric_value
             reeval_trajectory["response_correctness"].append(scenario_metric_value)
+            assert selected_item.instance.extra_data
             reeval_trajectory["instance_difficulties"].append(selected_item.instance.extra_data["difficulty"])
 
             # Estimate the model ability
