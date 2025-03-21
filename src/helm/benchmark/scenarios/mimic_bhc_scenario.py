@@ -16,9 +16,9 @@ from helm.benchmark.scenarios.scenario import (
 
 class MIMICBHCScenario(Scenario):
     """
-    MIMIC-IV-BHC presents a curated collection of preprocessed clinical discharge notes with labeled brief hospital course (BHC) summaries.
-    This dataset is derived from MIMIC-IV (https://doi.org/10.1093/jamia/ocae312).
-    
+    MIMIC-IV-BHC presents a curated collection of preprocessed clinical discharge notes with labeled brief
+    hospital course (BHC) summaries. This dataset is derived from MIMIC-IV (https://doi.org/10.1093/jamia/ocae312).
+
     In total, the dataset contains 270,033 clinical notes.
     The splits are provided by the dataset itself.
 
@@ -47,7 +47,7 @@ class MIMICBHCScenario(Scenario):
         year={2024},
         publisher={Oxford University Press}
     }
-    
+
     @article{aali2024mimic,
         title={MIMIC-IV-Ext-BHC: Labeled Clinical Notes Dataset for Hospital Course Summarization},
         author={Aali, Asad and Van Veen, Dave and Arefeen, YI and Hom, Jason and Bluethgen, Christian
@@ -81,8 +81,8 @@ class MIMICBHCScenario(Scenario):
         with open(file, "r") as f:
             data = [json.loads(line) for line in f]
         os.remove(file)
-        
-        for data_split, split in splits.items():                
+
+        for data_split, split in splits.items():
             clinical_notes: List[str] = [x["input"] for x in data]
             bhc_summaries: List[str] = [x["target"] for x in data]
             assert len(clinical_notes) == len(bhc_summaries), "Notes and summaries must have the same length"

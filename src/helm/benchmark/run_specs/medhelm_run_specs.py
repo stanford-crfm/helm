@@ -523,9 +523,7 @@ def get_mimic_bhc_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mimic_bhc_scenario.MIMICBHCScenario", args={})
 
     adapter_spec = get_generation_adapter_spec(
-        instructions=(
-            "Summarize the clinical note into a brief hospital course."
-        ),
+        instructions=("Summarize the clinical note into a brief hospital course."),
         input_noun="Clinical Note",
         output_noun="Brief Hospital Course",
         newline_after_input_noun=True,
