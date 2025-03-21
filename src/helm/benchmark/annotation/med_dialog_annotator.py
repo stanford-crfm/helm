@@ -10,48 +10,36 @@ from helm.clients.auto_client import AutoClient
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import Request
 
-PROMPT_TEMPLATE = """You are a medical expert tasked with evaluating responses to consumer medication questions.
+PROMPT_TEMPLATE = """You are a medical expert tasked with evaluating the quality of medical dialogue summaries.
 
-<medication_question>
+<conversation>
 {{QUESTION}}
-</medication_question>
+</conversation>
 
-<model_response>
+<model_summary>
 {{MODEL_OUTPUT}}
-</model_response>
+</model_summary>
 
-<gold_answer>
+<reference_summary>
 {{REFERENCE_ANSWER}}
-</gold_answer>
+</reference_summary>
 
-Please evaluate the model's response on a scale of 1-5 (1 = poor, 5 = excellent) for each of these three key dimensions:
+Please evaluate the model-generated summary on a scale of 1-5 (1 = poor, 5 = excellent) for each of these three key dimensions:
 
-1. Medical Accuracy (1-5)
-- Does the response provide factually correct information about the medication?
-- Does it match the medical content found in the gold answer?
-- Is it free from potentially harmful misinformation?
+1. Medical Content Accuracy (1-5)
+- Does the summary accurately capture the primary medical complaint or condition?
 
-2. Answer Completeness (1-5)
-- Does the response fully address the specific question type (e.g., interaction, action, information)?
-- Does it cover the key points found in the gold answer?
-- For conditional answers (that depend on manufacturer, patient condition, etc.), does it acknowledge the variability?
+2. Informational Completeness (1-5)
+- Does the summary include all essential medical details from the conversation?
 
-3. Consumer Suitability (1-5)
-- Is the response written in language consumers can understand?
-- Does it include appropriate cautions or advice to consult healthcare professionals when needed?
-- Does it cite or reference reliable sources when appropriate?
 
 Output your evaluation as a single valid JSON object matching the following structure:
 {
-    "medical_accuracy": {
+    "medical_content_accuracy": {
         "score": 0,
         "explanation": "Brief explanation of why this score was given."
     },
-    "answer_completeness": {
-        "score": 0,
-        "explanation": "Brief explanation of why this score was given."
-    },
-    "consumer_suitability": {
+    "informational_completeness": {
         "score": 0,
         "explanation": "Brief explanation of why this score was given."
     }
@@ -62,16 +50,15 @@ Do not include any additional information in the output.
 """
 
 EXPECTED_ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
-    "medical_accuracy": {"score", "explanation"},
-    "answer_completeness": {"score", "explanation"},
-    "consumer_suitability": {"score", "explanation"},
+    "medical_content_accuracy": {"score", "explanation"},
+    "informational_completeness": {"score", "explanation"},
 }
 
 
-class MedicationQAAnnotator(Annotator):
-    """The MedicationQA autograder."""
+class MedDialogAnnotator(Annotator):
+    """The MedDialog autograder."""
 
-    name = "medication_qa"
+    name = "med_dialog"
 
     def __init__(self, auto_client: AutoClient, template_name: Optional[str] = None):
         self._auto_client = auto_client
@@ -96,7 +83,7 @@ class MedicationQAAnnotator(Annotator):
         )
         if not model_output_text.strip():
             hlog(
-                "WARNING: MedicationQAAnnotator skipped sending requests to annotator models "
+                "WARNING: MedDialogAnnotator skipped sending requests to annotator models "
                 "because the model response was empty"
             )
             return {
@@ -142,7 +129,7 @@ class MedicationQAAnnotator(Annotator):
             annotator_response = self._auto_client.make_request(annotator_request)
             if not annotator_response.success:
                 hlog(
-                    "WARNING: MedicationQAAnnotator got an error response from "
+                    "WARNING: MedDialogAnnotator got an error response from "
                     f"{annotator_model_info.model_name}: {annotator_response.error}. Model output: {annotator_response}"
                 )
                 failed = True
@@ -153,7 +140,7 @@ class MedicationQAAnnotator(Annotator):
                     annotator_criteria = json.loads(annotator_output)
                 except Exception as e:
                     hlog(
-                        "WARNING: MedicationQAAnnotator got an error parsing the response from "
+                        "WARNING: MedDialogAnnotator got an error parsing the response from "
                         f"{annotator_model_info.model_name}: {e}. Model output: {annotator_output}"
                     )
                     failed = True
@@ -161,7 +148,7 @@ class MedicationQAAnnotator(Annotator):
                 for key, value in EXPECTED_ANNOTATION_CRITERIA.items():
                     if key not in annotator_criteria:
                         hlog(
-                            f"WARNING: MedicationQAAnnotator did not find the expected key "
+                            f"WARNING: MedDialogAnnotator did not find the expected key "
                             f"'{key}' in the response from {annotator_model_info.model_name}. Model output: {annotator_output}"
                         )
                         failed = True
@@ -169,7 +156,7 @@ class MedicationQAAnnotator(Annotator):
                         for subkey in value:
                             if subkey not in annotator_criteria[key]:
                                 hlog(
-                                    f"WARNING: MedicationQAAnnotator did not find the expected subkey "
+                                    f"WARNING: MedDialogAnnotator did not find the expected subkey "
                                     f"'{subkey}' in the response from {annotator_model_info.model_name}. Model output: {annotator_output}"
                                 )
                                 failed = True

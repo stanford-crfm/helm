@@ -10,50 +10,70 @@ from helm.clients.auto_client import AutoClient
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import Request
 
-PROMPT_TEMPLATE = """You are a medical expert tasked with evaluating responses to consumer medication questions.
+PROMPT_TEMPLATE = """You are a medical expert tasked with evaluating the quality of a response to a consumer health question. Your goal is to assess how well the model-generated response answers the medical question and compare it to a reference answer (gold standard).
 
-<medication_question>
+The question will be provided in these tags:
+<question>
 {{QUESTION}}
-</medication_question>
+</question>
 
+The model's generated response will be provided in these tags:
 <model_response>
 {{MODEL_OUTPUT}}
 </model_response>
 
-<gold_answer>
+The reference answer will be provided in these tags:
+<gold_response>
 {{REFERENCE_ANSWER}}
-</gold_answer>
+</gold_response>
 
-Please evaluate the model's response on a scale of 1-5 (1 = poor, 5 = excellent) for each of these three key dimensions:
+Carefully analyze the <model_response> compared to the <gold_response> and the original <question>. For each of the following criteria, rate the model's response on a scale of 1 to 5 (1 = very poor, 5 = excellent), and provide a short justification for your score.
 
-1. Medical Accuracy (1-5)
-- Does the response provide factually correct information about the medication?
-- Does it match the medical content found in the gold answer?
-- Is it free from potentially harmful misinformation?
+Evaluation Criteria:
 
-2. Answer Completeness (1-5)
-- Does the response fully address the specific question type (e.g., interaction, action, information)?
-- Does it cover the key points found in the gold answer?
-- For conditional answers (that depend on manufacturer, patient condition, etc.), does it acknowledge the variability?
+Correctness (1-5):
+- Is the medical information presented factually accurate?
+- Are there any errors, hallucinations, or misinterpretations of medical concepts?
 
-3. Consumer Suitability (1-5)
-- Is the response written in language consumers can understand?
-- Does it include appropriate cautions or advice to consult healthcare professionals when needed?
-- Does it cite or reference reliable sources when appropriate?
+Completeness (1-5):
+- Does the response cover all important medical information found in the reference answer?
+- Are all key details about diagnosis, symptoms, treatments, and management captured?
 
-Output your evaluation as a single valid JSON object matching the following structure:
+Helpfulness (1-5):
+- Does the response directly address the user's question and concerns?
+- Is the advice practical and actionable for someone seeking medical information?
+
+Clarity (1-5):
+- Is the response presented in clear, understandable language appropriate for a non-medical audience?
+- Is medical terminology explained when necessary?
+
+Alignment with Reference (1-5):
+- To what extent does the model's response align with the reference answer in terms of content, approach, and recommendations?
+- Are there significant discrepancies between the model's response and the reference?
+
+Output Format:
+Output the evaluation as a single valid JSON object matching the following structure:
+
 {
-    "medical_accuracy": {
-        "score": 0,
-        "explanation": "Brief explanation of why this score was given."
+    "correctness": {
+        "score": 1,
+        "explanation": "Explain why this score was given."
     },
-    "answer_completeness": {
-        "score": 0,
-        "explanation": "Brief explanation of why this score was given."
+    "completeness": {
+        "score": 1,
+        "explanation": "Explain why this score was given."
     },
-    "consumer_suitability": {
-        "score": 0,
-        "explanation": "Brief explanation of why this score was given."
+    "helpfulness": {
+        "score": 1,
+        "explanation": "Explain why this score was given."
+    },
+    "clarity": {
+        "score": 1,
+        "explanation": "Explain why this score was given."
+    },
+    "alignment_with_reference": {
+        "score": 1,
+        "explanation": "Explain why this score was given."
     }
 }
 Ensure the output is valid JSON.
@@ -62,16 +82,18 @@ Do not include any additional information in the output.
 """
 
 EXPECTED_ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
-    "medical_accuracy": {"score", "explanation"},
-    "answer_completeness": {"score", "explanation"},
-    "consumer_suitability": {"score", "explanation"},
+    "correctness": {"score", "explanation"},
+    "completeness": {"score", "explanation"},
+    "helpfulness": {"score", "explanation"},
+    "clarity": {"score", "explanation"},
+    "alignment_with_reference": {"score", "explanation"},
 }
 
 
-class MedicationQAAnnotator(Annotator):
-    """The MedicationQA autograder."""
+class MediQAAnnotator(Annotator):
+    """The MediQA autograder."""
 
-    name = "medication_qa"
+    name = "medi_qa"
 
     def __init__(self, auto_client: AutoClient, template_name: Optional[str] = None):
         self._auto_client = auto_client
@@ -96,7 +118,7 @@ class MedicationQAAnnotator(Annotator):
         )
         if not model_output_text.strip():
             hlog(
-                "WARNING: MedicationQAAnnotator skipped sending requests to annotator models "
+                "WARNING: MediQAAnnotator skipped sending requests to annotator models "
                 "because the model response was empty"
             )
             return {
@@ -142,7 +164,7 @@ class MedicationQAAnnotator(Annotator):
             annotator_response = self._auto_client.make_request(annotator_request)
             if not annotator_response.success:
                 hlog(
-                    "WARNING: MedicationQAAnnotator got an error response from "
+                    "WARNING: MediQAAnnotator got an error response from "
                     f"{annotator_model_info.model_name}: {annotator_response.error}. Model output: {annotator_response}"
                 )
                 failed = True
@@ -153,7 +175,7 @@ class MedicationQAAnnotator(Annotator):
                     annotator_criteria = json.loads(annotator_output)
                 except Exception as e:
                     hlog(
-                        "WARNING: MedicationQAAnnotator got an error parsing the response from "
+                        "WARNING: MediQAAnnotator got an error parsing the response from "
                         f"{annotator_model_info.model_name}: {e}. Model output: {annotator_output}"
                     )
                     failed = True
@@ -161,7 +183,7 @@ class MedicationQAAnnotator(Annotator):
                 for key, value in EXPECTED_ANNOTATION_CRITERIA.items():
                     if key not in annotator_criteria:
                         hlog(
-                            f"WARNING: MedicationQAAnnotator did not find the expected key "
+                            f"WARNING: MediQAAnnotator did not find the expected key "
                             f"'{key}' in the response from {annotator_model_info.model_name}. Model output: {annotator_output}"
                         )
                         failed = True
@@ -169,7 +191,7 @@ class MedicationQAAnnotator(Annotator):
                         for subkey in value:
                             if subkey not in annotator_criteria[key]:
                                 hlog(
-                                    f"WARNING: MedicationQAAnnotator did not find the expected subkey "
+                                    f"WARNING: MediQAAnnotator did not find the expected subkey "
                                     f"'{subkey}' in the response from {annotator_model_info.model_name}. Model output: {annotator_output}"
                                 )
                                 failed = True

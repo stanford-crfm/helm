@@ -10,51 +10,58 @@ from helm.clients.auto_client import AutoClient
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import Request
 
-PROMPT_TEMPLATE = """You are a medical expert tasked with evaluating responses to consumer medication questions.
-
-<medication_question>
-{{QUESTION}}
-</medication_question>
-
-<model_response>
-{{MODEL_OUTPUT}}
+PROMPT_TEMPLATE = """You are a medical expert tasked with evaluating the quality of a generated clinical note based on a doctor-patient conversation.
+Your goal is to assess how well the model-generated note captures the clinical information from the conversation and compare it to a reference note (gold standard).
+The conversation will be provided in these tags: 
+<conversation> 
+{{CONVERSATION}} 
+</conversation>
+The model's generated note will be provided in these tags: 
+<model_response> 
+{{MODEL_OUTPUT}} 
 </model_response>
+The reference note will be provided in these tags: 
+<gold_response> 
+{{REFERENCE_NOTE}} 
+</gold_response>
+Carefully analyze the <model_response> compared to the <gold_response> and the original <conversation>. For each of the following criteria, rate the model's response on a scale of 1 to 5 (1 = very poor, 5 = excellent), and provide a short justification for your score.
 
-<gold_answer>
-{{REFERENCE_ANSWER}}
-</gold_answer>
+Evaluation Criteria
+Completeness (1-5): 
+- Does the model's note include all important medical information found in the reference?
+- Are all key details about patient history, symptoms, exam findings, results, and treatment plans captured?
 
-Please evaluate the model's response on a scale of 1-5 (1 = poor, 5 = excellent) for each of these three key dimensions:
+Accuracy (1-5):
+- Is the information presented factually correct compared to the reference?
+- Are there any errors, hallucinations, or misinterpretations?
 
-1. Medical Accuracy (1-5)
-- Does the response provide factually correct information about the medication?
-- Does it match the medical content found in the gold answer?
-- Is it free from potentially harmful misinformation?
+Clarity and Structure (1-5):
+- Is the note well-organized into the four standard sections (HPI, Physical Exam, Results, Assessment & Plan)?
+- Does the note follow logical clinical documentation conventions?
 
-2. Answer Completeness (1-5)
-- Does the response fully address the specific question type (e.g., interaction, action, information)?
-- Does it cover the key points found in the gold answer?
-- For conditional answers (that depend on manufacturer, patient condition, etc.), does it acknowledge the variability?
+Alignment with Gold Response (1-5)
+- To what extent does the model's note align with the reference note in terms of content, clinical approach, and terminology?
+- Are there significant discrepancies between the model's note and the reference?
 
-3. Consumer Suitability (1-5)
-- Is the response written in language consumers can understand?
-- Does it include appropriate cautions or advice to consult healthcare professionals when needed?
-- Does it cite or reference reliable sources when appropriate?
-
-Output your evaluation as a single valid JSON object matching the following structure:
+Output Format
+Output the evaluation as a single valid JSON object matching the following structure:
 {
-    "medical_accuracy": {
-        "score": 0,
-        "explanation": "Brief explanation of why this score was given."
-    },
-    "answer_completeness": {
-        "score": 0,
-        "explanation": "Brief explanation of why this score was given."
-    },
-    "consumer_suitability": {
-        "score": 0,
-        "explanation": "Brief explanation of why this score was given."
-    }
+  "completeness": {
+    "score": 3,
+    "explanation": "Explain why this score was given."
+  },
+  "accuracy": {
+    "score": 4,
+    "explanation": "Explain why this score was given."
+  },
+  "clarity_and_structure": {
+    "score": 2,
+    "explanation": "Explain why this score was given."
+  },
+  "alignment_with_gold_response": {
+    "score":3,
+    "explanation": "Explain why this score was given."
+  }
 }
 Ensure the output is valid JSON.
 Use single quotes (') inside the explanation fields when quoting text or sections to avoid invalid JSON formatting.
@@ -62,16 +69,17 @@ Do not include any additional information in the output.
 """
 
 EXPECTED_ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
-    "medical_accuracy": {"score", "explanation"},
-    "answer_completeness": {"score", "explanation"},
-    "consumer_suitability": {"score", "explanation"},
+    "completeness": {"score", "explanation"},
+    "accuracy": {"score", "explanation"},
+    "clarity_and_structure": {"score", "explanation"},
+    "alignment_with_gold_response": {"score", "explanation"},
 }
 
 
-class MedicationQAAnnotator(Annotator):
-    """The MedicationQA autograder."""
+class ACIBenchAnnotator(Annotator):
+    """The ACIBench autograder."""
 
-    name = "medication_qa"
+    name = "aci_bench"
 
     def __init__(self, auto_client: AutoClient, template_name: Optional[str] = None):
         self._auto_client = auto_client
@@ -90,13 +98,13 @@ class MedicationQAAnnotator(Annotator):
         prompt_template = PROMPT_TEMPLATE
         model_output_text = request_state.result.completions[0].text
         annotator_prompt = (
-            prompt_template.replace("{{QUESTION}}", request_state.instance.input.text)
-            .replace("{{REFERENCE_ANSWER}}", request_state.instance.references[0].output.text)
+            prompt_template.replace("{{CONVERSATION}}", request_state.instance.input.text)
+            .replace("{{REFERENCE_NOTE}}", request_state.instance.references[0].output.text)
             .replace("{{MODEL_OUTPUT}}", model_output_text)
         )
         if not model_output_text.strip():
             hlog(
-                "WARNING: MedicationQAAnnotator skipped sending requests to annotator models "
+                "WARNING: ACIBenchAnnotator skipped sending requests to annotator models "
                 "because the model response was empty"
             )
             return {
@@ -142,7 +150,7 @@ class MedicationQAAnnotator(Annotator):
             annotator_response = self._auto_client.make_request(annotator_request)
             if not annotator_response.success:
                 hlog(
-                    "WARNING: MedicationQAAnnotator got an error response from "
+                    "WARNING: ACIBenchAnnotator got an error response from "
                     f"{annotator_model_info.model_name}: {annotator_response.error}. Model output: {annotator_response}"
                 )
                 failed = True
@@ -153,7 +161,7 @@ class MedicationQAAnnotator(Annotator):
                     annotator_criteria = json.loads(annotator_output)
                 except Exception as e:
                     hlog(
-                        "WARNING: MedicationQAAnnotator got an error parsing the response from "
+                        "WARNING: ACIBenchAnnotator got an error parsing the response from "
                         f"{annotator_model_info.model_name}: {e}. Model output: {annotator_output}"
                     )
                     failed = True
@@ -161,7 +169,7 @@ class MedicationQAAnnotator(Annotator):
                 for key, value in EXPECTED_ANNOTATION_CRITERIA.items():
                     if key not in annotator_criteria:
                         hlog(
-                            f"WARNING: MedicationQAAnnotator did not find the expected key "
+                            f"WARNING: ACIBenchAnnotator did not find the expected key "
                             f"'{key}' in the response from {annotator_model_info.model_name}. Model output: {annotator_output}"
                         )
                         failed = True
@@ -169,7 +177,7 @@ class MedicationQAAnnotator(Annotator):
                         for subkey in value:
                             if subkey not in annotator_criteria[key]:
                                 hlog(
-                                    f"WARNING: MedicationQAAnnotator did not find the expected subkey "
+                                    f"WARNING: ACIBenchAnnotator did not find the expected subkey "
                                     f"'{subkey}' in the response from {annotator_model_info.model_name}. Model output: {annotator_output}"
                                 )
                                 failed = True
