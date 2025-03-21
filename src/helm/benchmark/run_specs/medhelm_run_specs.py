@@ -518,6 +518,37 @@ def get_mimic_rrs_spec() -> RunSpec:
     )
 
 
+@run_spec_function("mimic_bhc")
+def get_mimic_bhc_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mimic_bhc_scenario.MIMICBHCScenario", args={})
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=(
+            "Summarize the clinical note into a brief hospital course."
+        ),
+        input_noun="Clinical Note",
+        output_noun="Brief Hospital Course",
+        newline_after_input_noun=True,
+        newline_after_output_noun=True,
+        max_tokens=1024,
+        max_train_instances=0,
+        stop_sequences=[],
+    )
+    metric_args = {
+        "task": "mimic_bhc",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
+    return RunSpec(
+        name="mimic_bhc",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs(metric_args),
+        groups=["mimic_bhc"],
+    )
+
+
 @run_spec_function("chw_care_plan")
 def get_chw_care_plan_run_spec() -> RunSpec:
     """
