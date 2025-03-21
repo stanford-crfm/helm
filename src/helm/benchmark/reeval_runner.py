@@ -48,8 +48,8 @@ class RelEffEvalRunner(Runner):
     the authors of the paper will supply a Python package for calculating these difficulties.
     At each iteration, the runner estimates the model's ability based on all previously
     administered questions and their corresponding responses. It then selects the next question
-    whose difficulty is closest to the estimated ability, thereby optimally eliciting the
-    model's ability.
+    whose difficulty is closest to the estimated ability, thereby reliably and efficiently
+    eliciting the model's ability.
     """
 
     def __init__(
@@ -184,12 +184,12 @@ class RelEffEvalRunner(Runner):
         # model_ability = run_spec.adapter_spec.reeval_parameters.model_ability
         # scenario_metric_name = run_spec.adapter_spec.reeval_parameters.metric_name
         # max_samples = run_spec.adapter_spec.reeval_parameters.max_samples
-        if run_spec.adapter_spec.reeval_parameters:
-            if run_spec.adapter_spec.reeval_parameters.model_ability:
+        if run_spec.adapter_spec.reeval_parameters is not None:
+            if run_spec.adapter_spec.reeval_parameters.model_ability is not None:
                 model_ability = run_spec.adapter_spec.reeval_parameters.model_ability
-            if run_spec.adapter_spec.reeval_parameters.metric_name:
+            if run_spec.adapter_spec.reeval_parameters.metric_name is not None:
                 scenario_metric_name = run_spec.adapter_spec.reeval_parameters.metric_name
-            if run_spec.adapter_spec.reeval_parameters.max_samples:
+            if run_spec.adapter_spec.reeval_parameters.max_samples is not None:
                 max_samples = run_spec.adapter_spec.reeval_parameters.max_samples
 
         asked_request_states: List[RequestState] = []
@@ -213,7 +213,7 @@ class RelEffEvalRunner(Runner):
             selected_item = None
             min_diff = float("inf")
             for item in unasked_request_states:
-                assert item.instance.extra_data
+                assert item.instance.extra_data is not None
                 diff = abs(item.instance.extra_data["difficulty"] - model_ability)
                 if diff < min_diff:
                     min_diff = diff
@@ -276,9 +276,9 @@ class RelEffEvalRunner(Runner):
             ].mean
 
             # TODO: look for better way to fix the type-checker error
-            assert scenario_metric_value
+            assert scenario_metric_value is not None
             reeval_trajectory["response_correctness"].append(scenario_metric_value)
-            assert selected_item.instance.extra_data
+            assert selected_item.instance.extra_data is not None
             reeval_trajectory["instance_difficulties"].append(selected_item.instance.extra_data["difficulty"])
 
             # Estimate the model ability

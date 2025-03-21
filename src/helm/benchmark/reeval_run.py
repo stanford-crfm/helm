@@ -21,7 +21,6 @@ from helm.benchmark.run_spec_factory import construct_run_specs
 from helm.common.reeval_parameters import ReevalParameters
 from helm.benchmark.run import (
     run_benchmarking,
-    add_run_args,
     validate_args,
 )
 
@@ -33,6 +32,9 @@ def run_entries_to_run_specs(
     models_to_run: Optional[List[str]] = None,
     groups_to_run: Optional[List[str]] = None,
     priority: Optional[int] = None,
+    model_ability: Optional[float] = None,
+    max_samples: Optional[int] = None,
+    metric_name: Optional[str] = None,
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
     run_specs: List[RunSpec] = []
@@ -63,7 +65,11 @@ def run_entries_to_run_specs(
             # Add reeval_parameters
             adapter_spec = replace(
                 adapter_spec,
-                reeval_parameters=ReevalParameters(model_ability=0.0, max_samples=50, metric_name="exact_match"),
+                reeval_parameters=ReevalParameters(
+                    model_ability=model_ability,
+                    max_samples=max_samples,
+                    metric_name=metric_name,
+                ),
             )
 
             run_spec = replace(run_spec, adapter_spec=adapter_spec)
@@ -76,6 +82,64 @@ def run_entries_to_run_specs(
             run_specs.append(run_spec)
 
     return run_specs
+
+
+def add_run_args(parser: argparse.ArgumentParser):
+    parser.add_argument(
+        "-o", "--output-path", type=str, help="Where to save all the output", default="benchmark_output"
+    )
+    parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads to make requests", default=4)
+    parser.add_argument(
+        "--skip-instances",
+        action="store_true",
+        help="Skip creation of instances (basically do nothing but just parse everything).",
+    )
+    parser.add_argument(
+        "--cache-instances",
+        action="store_true",
+        help="Save generated instances input to model to disk. If already cached, read instances from file.",
+    )
+    parser.add_argument(
+        "--cache-instances-only",
+        action="store_true",
+        help="Generate and save instances for scenario ONLY (i.e. do not evaluate models on instances).",
+    )
+    parser.add_argument(
+        "-d",
+        "--dry-run",
+        action="store_true",
+        help="Skip execution, only output scenario states and estimate token usage.",
+    )
+    parser.add_argument(
+        "-t",
+        "--num-train-trials",
+        type=int,
+        help="Number of trials where each trial samples a different set of in-context examples. "
+        "Overrides the value in Adapter spec.",
+    )
+    parser.add_argument(
+        "--suite",
+        type=str,
+        help="Name of the suite this run belongs to (default is today's date).",
+        required=True,
+    )
+    parser.add_argument(
+        "--local-path",
+        type=str,
+        help="If running locally, the path for `ServerService`.",
+        default="prod_env",
+    )
+    parser.add_argument(
+        "--mongo-uri",
+        type=str,
+        help="If non-empty, the URL of the MongoDB database that will be used for caching instead of SQLite",
+        default="",
+    )
+    parser.add_argument(
+        "--disable-cache",
+        action="store_true",
+        help="If true, the request-response cache for model clients and tokenizers will be disabled.",
+    )
 
 
 @htrack(None)
@@ -150,7 +214,7 @@ def main():
         "--model-ability",
         type=float,
         default=0.0,
-        help="The inital ability of the model for reeval evaluation.",
+        help="The initial ability of the model for reeval evaluation.",
     )
     parser.add_argument(
         "--max-samples",
@@ -167,13 +231,6 @@ def main():
     add_run_args(parser)
     args = parser.parse_args()
     validate_args(args)
-
-    if args.max_eval_instances:
-        hlog(
-            "WARNING: In reeval mode, max-eval-instances will not be used to downsample the evaluation instances. "
-            "Use --max-samples"
-        )
-
     register_builtin_configs_from_helm_package()
     register_configs_from_directory(args.local_path)
 
@@ -222,11 +279,13 @@ def main():
 
     run_specs = run_entries_to_run_specs(
         run_entries=run_entries,
-        max_eval_instances=args.max_eval_instances,
         num_train_trials=args.num_train_trials,
         models_to_run=args.models_to_run,
         groups_to_run=args.groups_to_run,
         priority=args.priority,
+        model_ability=args.model_ability,
+        max_samples=args.max_samples,
+        metric_name=args.metric_name,
     )
     hlog(f"{len(run_entries)} entries produced {len(run_specs)} run specs")
 
