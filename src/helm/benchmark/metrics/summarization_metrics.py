@@ -21,7 +21,11 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.metrics.summac.model_summac import SummaCZS
-from bert_score import BERTScorer  # type: ignore
+
+try:
+    from bert_score import BERTScorer  # type: ignore
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["summarization"])
 
 
 QAFACTEVAL_URL: str = (
