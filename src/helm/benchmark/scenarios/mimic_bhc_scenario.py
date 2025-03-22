@@ -1,7 +1,7 @@
-import os
 import json
 from typing import Dict, List
 
+from helm.common.general import ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     Input,
     Scenario,
