@@ -432,6 +432,7 @@ run_groups:
       - aci_bench
       - mtsamples_procedures
       - mimic_rrs
+      - mimic_bhc
       - chw_care_plan
   
   - name: patient_communication
@@ -675,6 +676,24 @@ run_groups:
       what: Generate radiology report summaries from findings sections
       who: Radiologist
       when: Post-imaging
+      language: English
+
+  - name: mimic_bhc
+    display_name: MIMIC-IV-BHC
+    short_display_name: MIMIC-BHC
+    description: A summarization task using a curated collection of preprocessed discharge notes paired with their corresponding brief hospital course (BHC) summaries [(Aali et al., 2024)](https://doi.org/10.1093/jamia/ocae312).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: BERTScore-F
+      main_split: test
+    taxonomy:
+      task: Text generation
+      what: Summarize the clinical note into a brief hospital course
+      who: Clinician
+      when: Upon hospital discharge
       language: English
   
   - name: mimiciv_billing_code
