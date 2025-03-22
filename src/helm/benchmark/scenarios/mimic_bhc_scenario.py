@@ -1,6 +1,5 @@
 import os
 import json
-import gdown
 from typing import Dict, List
 
 from helm.benchmark.scenarios.scenario import (
@@ -16,8 +15,8 @@ from helm.benchmark.scenarios.scenario import (
 
 class MIMICBHCScenario(Scenario):
     """
-    MIMIC-IV-BHC presents a curated collection of preprocessed clinical discharge notes with labeled brief
-    hospital course (BHC) summaries. This dataset is derived from MIMIC-IV (https://doi.org/10.1093/jamia/ocae312).
+    MIMIC-IV-BHC presents a curated collection of preprocessed discharge notes with labeled brief hospital
+    course (BHC) summaries. This dataset is derived from MIMIC-IV (https://doi.org/10.1093/jamia/ocae312).
 
     In total, the dataset contains 270,033 clinical notes.
     The splits are provided by the dataset itself.
@@ -60,15 +59,14 @@ class MIMICBHCScenario(Scenario):
 
     name = "mimic_bhc"
     description = (
-        "A curated collection of preprocessed clinical discharge notes from MIMIC-IV paired with"
-        " their corresponding brief hospital course (BHC) summaries."
+        "A summarization task using a curated collection of preprocessed discharge notes"
+        " paired with their corresponding brief hospital course (BHC) summaries."
     )
-    tags = ["question_answering", "biomedical"]
+    tags = ["summarization", "biomedical"]
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        url = "https://drive.google.com/uc?id=1SegKUbUZ72D5GMhgmIFHomF0DHV5Wkrn"
-        file = "mimic_iv_bhc.jsonl"
-        gdown.download(url, file, quiet=False)
+        data_path = "/share/pi/nigam/data/bhc-mimiciv/mimic_iv_bhc.json"
+        ensure_directory_exists(data_path)
 
         instances: List[Instance] = []
         # Limit to zero shot setting for now
@@ -78,9 +76,8 @@ class MIMICBHCScenario(Scenario):
             "test": TEST_SPLIT,
         }
 
-        with open(file, "r") as f:
+        with open(data_path, "r") as f:
             data = [json.loads(line) for line in f]
-        os.remove(file)
 
         for data_split, split in splits.items():
             clinical_notes: List[str] = [x["input"] for x in data]

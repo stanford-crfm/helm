@@ -681,7 +681,7 @@ run_groups:
   - name: mimic_bhc
     display_name: MIMIC-IV-BHC
     short_display_name: MIMIC-BHC
-    description: A curated collection of preprocessed clinical discharge notes from MIMIC-IV paired with their corresponding brief hospital course (BHC) summaries [(Aali et al., 2024)](https://doi.org/10.1093/jamia/ocae312).
+    description: A summarization task using a curated collection of preprocessed discharge notes paired with their corresponding brief hospital course (BHC) summaries [(Aali et al., 2024)](https://doi.org/10.1093/jamia/ocae312).
     metric_groups:
       - accuracy
       - efficiency
