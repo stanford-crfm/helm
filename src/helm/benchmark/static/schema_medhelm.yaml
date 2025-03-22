@@ -589,6 +589,23 @@ run_groups:
       when: Any
       language: English
 
+  - name: medhallu
+    display_name: MedHallu
+    description: A dataset of PubMed articles and associated questions, with the objective being to classify whether the answer is factual or hallucinated.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: Classification
+      what: Identify whether the answer is factual or hallucinated
+      who: Researcher
+      when: Any
+      language: English
+
   - name: n2c2_ct_matching
     display_name: N2C2-CT Matching
     short_display_name: N2C2-CT
