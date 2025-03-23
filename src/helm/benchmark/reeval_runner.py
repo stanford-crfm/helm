@@ -82,7 +82,7 @@ class RelEffEvalRunner(Runner):
     ) -> float:
         def closure():
             optim.zero_grad()
-            probs = torch.sigmoid(ability - difficulties)
+            probs = torch.sigmoid(ability + difficulties)
             loss = -torch.distributions.Bernoulli(probs=probs).log_prob(responses).mean()
             loss.backward()
             return loss
