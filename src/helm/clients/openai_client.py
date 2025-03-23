@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, cast, Union
 from helm.benchmark.model_metadata_registry import is_vlm
 from helm.common import multimodal_request_utils
 from helm.common.cache import CacheConfig
-from helm.common.media_object import TEXT_TYPE, MultimediaObject
+from helm.common.media_object import TEXT_TYPE, MultimediaObject, MediaObject
 from helm.common.request import ErrorFlags, wrap_request_time, Request, RequestResult, GeneratedOutput, Token
 from helm.common.hierarchical_logger import hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -529,6 +529,18 @@ class OpenAITranscriptionThenCompletionClient(Client):
         # Now make the request to the completion model with just a text-only prompt and no audio
         # Use the same decoding parameters as the original request
         # Ensure to set multimodal_prompt to None so the request is treated as text-only.
-        return self._openai_client.make_request(
+        request_result: RequestResult = self._openai_client.make_request(
             replace(request, prompt=text_prompt, model=f"openai/{completion_model}", multimodal_prompt=None)
         )
+
+        # Also include the generated transcript to the request result
+        completions_with_transcript: List[GeneratedOutput] = [
+            replace(
+                completion,
+                multimodal_content=MultimediaObject(
+                    media_objects=[MediaObject(text=text_prompt, content_type="text/plain")]
+                ),
+            )
+            for completion in request_result.completions
+        ]
+        return replace(request_result, completions=completions_with_transcript)
