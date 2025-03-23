@@ -452,7 +452,7 @@ class OpenAIClient(CachingClient):
     def make_request(self, request: Request) -> RequestResult:
         if request.embedding:
             return self._make_embedding_request(request)
-        elif "whisper" in request.model_engine:
+        elif "whisper" in request.model_engine or "transcribe" in request.model_engine:
             return self._make_transcription_request(request)
         else:
             return self._make_chat_request(request)

@@ -2745,6 +2745,22 @@ models:
     release_date: 2024-11-20
     tags: [AUDIO_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG]
 
+  - name: openai/gpt-4o-transcribe_gpt-4o-2024-11-20
+    display_name: GPT-4o Transcribe + GPT-4o (2024-11-20)
+    description: Transcribes the text with GPT-4o Transcribe and then uses GPT-4o to generate a response.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-03-20
+    tags: [AUDIO_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG]
+
+  - name: openai/gpt-4o-mini-transcribe_gpt-4o-2024-11-20
+    display_name: GPT-4o mini Transcribe + GPT-4o (2024-11-20)
+    description: Transcribes the text with GPT-4o mini Transcribe and then uses GPT-4o to generate a response.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-03-20
+    tags: [AUDIO_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG]
+
   - name: openai/gpt-4o-audio-preview-2024-10-01
     display_name: GPT-4o Audio (Preview 2024-10-01)
     description: GPT-4o Audio (Preview 2024-10-01) is a preview model that allows using use audio inputs to prompt the model ([documentation](https://platform.openai.com/docs/guides/audio)).
