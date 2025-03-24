@@ -179,10 +179,10 @@ run_groups:
       main_name: chain_of_thought_correctness
       main_split: test
     taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
+      task: "question answering"
+      what: "complex questions across various disciplines"
+      who: "2024"
+      when: "domain experts"
       language: English
 
   - name: gpqa

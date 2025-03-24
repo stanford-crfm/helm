@@ -6,7 +6,7 @@ This tutorial will show you how to locally add your model into the HELM Classic 
 
 ## Download HELM leaderboard results
 
-First, in order to compare your model to the latest and greatest models found in the [HELM leaderboard](https://crfm.stanford.edu/helm/latest/?group=core_scenarios), use the following command to obtain a zip file of all previous HELM results
+First, in order to compare your model to the latest and greatest models found in the [HELM Classic leaderboard](https://crfm.stanford.edu/helm/classic/latest/?group=core_scenarios), use the following command to obtain a zip file of all previous HELM Classic results
 
 ```bash
 export LEADERBOARD_VERSION=v0.3.0
