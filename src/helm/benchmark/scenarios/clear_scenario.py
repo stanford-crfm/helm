@@ -85,7 +85,7 @@ class CLEARScenario(Scenario):
 
         self.condition = condition
         self.name = f"clear_{condition}"
-        self.description = f"A dataset for evaluating {self.CONDITION_PROMPTS[condition]} detection from patient notes with yes/no/maybe classifications."
+        self.description = f"A dataset for evaluating {self.CONDITION_PROMPTS[condition]} detection from patient notes with yes/no/maybe classifications." # noqa: E501
         self.tags = ["classification", "biomedical", condition.replace("_", "-")]
 
     def get_answer_choices(self) -> List[str]:
