@@ -242,7 +242,6 @@ python-dateutil==2.8.2
 python-utils==3.9.1
 pytorch-fid==0.3.0
 pytorch-lightning==2.0.9.post0
-pytrec-eval==0.5
 pytz==2024.2
 pywavelets==1.6.0
 pywin32==310 ; sys_platform == 'win32'
