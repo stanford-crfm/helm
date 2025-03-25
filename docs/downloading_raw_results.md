@@ -23,6 +23,7 @@ Locations of the `benchmark_output` folders for each project:
 - Classic: `gs://crfm-helm-public/benchmark_output` (see warning above)
 - HEIM: `gs://crfm-helm-public/heim/benchmark_output`
 - Instruct: `gs://crfm-helm-public/instruct/benchmark_output`
+- MedHELM: `gs://crfm-helm-public/medhelm/benchmark_output`
 
 ## Download a whole project
 
