@@ -73,7 +73,6 @@ def get_clear_spec(condition: str) -> RunSpec:
         input_noun=None,
         output_noun="Respond only with 'A', 'B', or 'C'. Do not add any other text, punctuation, or symbols",
         max_train_instances=0,
-        max_eval_instances=100,
         max_tokens=1,
     )
 
