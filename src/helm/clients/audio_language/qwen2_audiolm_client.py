@@ -143,9 +143,11 @@ class Qwen2AudioLMClient(CachingClient):
                             padding=True,
                         )
                         inputs = inputs.to(self._device)
-                        pred = model.generate(**inputs, **generation_args)
-                        completion = tokenizer.decode(pred.cpu()[0], skip_special_tokens=False)
+                        pred = model.generate(**inputs, **generation_args)[:, inputs.input_ids.size(1) :]
 
+                        completion = tokenizer.decode(
+                            pred.cpu()[0], skip_special_tokens=True, clean_up_tokenization_spaces=False
+                        )
                         # The processor of Qwen2-Audio-Instruct consists an AutoTokenizer and a WhisperFeatureExtractor
                         tokens: List[str] = tokenizer.tokenizer.tokenize(completion)
                         return {"output": (completion, tokens)}
