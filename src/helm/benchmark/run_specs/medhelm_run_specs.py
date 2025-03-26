@@ -56,14 +56,19 @@ def get_medcalc_bench_spec() -> RunSpec:
 
 
 @run_spec_function("clear")
-def get_clear_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.clear_scenario.CLEARScenario", args={})
+def get_clear_spec(condition: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.clear_scenario.CLEARScenario", args={"condition": condition}
+    )
+
+    condition_display = condition.replace("_", " ")
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions=(
-            "Answer 'A' for 'Has a history of alcohol dependence', "
-            "'B' for 'Does not have a history of alcohol dependence;, or 'C' for 'Uncertain'"
+            f"Answer 'A' for 'Has a history of {condition_display}', "
+            f"'B' for 'Does not have a history of {condition_display}', or "
+            f"'C' for 'Uncertain'"
         ),
         input_noun=None,
         output_noun="Respond only with 'A', 'B', or 'C'. Do not add any other text, punctuation, or symbols",
@@ -72,7 +77,7 @@ def get_clear_spec() -> RunSpec:
     )
 
     return RunSpec(
-        name="clear",
+        name=f"clear:condition={condition}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
@@ -515,6 +520,35 @@ def get_mimic_rrs_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_summarization_metric_specs(metric_args),
         groups=["mimic_rrs"],
+    )
+
+
+@run_spec_function("mimic_bhc")
+def get_mimic_bhc_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mimic_bhc_scenario.MIMICBHCScenario", args={})
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=("Summarize the clinical note into a brief hospital course."),
+        input_noun="Clinical Note",
+        output_noun="Brief Hospital Course",
+        newline_after_input_noun=True,
+        newline_after_output_noun=True,
+        max_tokens=1024,
+        max_train_instances=0,
+        stop_sequences=[],
+    )
+    metric_args = {
+        "task": "mimic_bhc",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
+    return RunSpec(
+        name="mimic_bhc",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs(metric_args),
+        groups=["mimic_bhc"],
     )
 
 

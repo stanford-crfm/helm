@@ -75,6 +75,31 @@ def get_financial_phrasebank_spec(agreement: int = 50) -> RunSpec:
     )
 
 
+@run_spec_function("conv_fin_qa_calc")
+def get_conv_fin_qa_calc_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.conv_fin_qa_calc_scenario.ConvFinQACalcScenario", args={}
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Based on the table, answer the final question. Respond with the answer only, with no additional explanation.",  # noqa: E501
+        input_noun=None,
+        output_noun="Answer",
+    )
+
+    metric_specs = [
+        MetricSpec(class_name="helm.benchmark.metrics.conv_fin_qa_calc_metrics.ConvFinQACalcMetric")
+    ] + get_basic_metric_specs([])
+
+    return RunSpec(
+        name="conv_fin_qa_calc",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["conv_fin_qa_calc"],
+    )
+
+
 # Legal
 
 

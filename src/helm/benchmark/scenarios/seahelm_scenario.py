@@ -95,7 +95,12 @@ class TyDiQAScenario(Scenario):
         self.splits = {"train": TRAIN_SPLIT, "validation": TEST_SPLIT}
 
     def get_instances(self, output_path) -> List[Instance]:
-        dataset = datasets.load_dataset("khalidalt/tydiqa-goldp", "indonesian")
+        dataset = datasets.load_dataset(
+            "khalidalt/tydiqa-goldp",
+            "indonesian",
+            revision="7d69b53c9c8187ae7e21d8441362efa1a7e3013d",
+            trust_remote_code=True,
+        )
 
         outputs = []
         for split in self.splits.keys():

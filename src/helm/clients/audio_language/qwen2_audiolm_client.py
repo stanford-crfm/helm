@@ -41,9 +41,6 @@ class Qwen2AudioLMClient(CachingClient):
     """
 
     END_OF_TEXT_TOKEN: str = "<|im_end|>"
-    # The official recommendation is to set the prefix length to 256
-    # https://huggingface.co/Qwen/Qwen2-Audio-7B-Instruct
-    PREFIX_TOKEN_LENGTH: int = 256
 
     def __init__(self, cache_config: CacheConfig):
         super().__init__(cache_config=cache_config)
@@ -83,11 +80,6 @@ class Qwen2AudioLMClient(CachingClient):
         loaded_model_processor: LoadedQwenModelProcessor = self._get_model(request.model_engine)
         model = loaded_model_processor.model
         tokenizer = loaded_model_processor.tokenizer
-
-        # Qwen2-Audio-Instruct counts input into the max_length, so we need to add the length of the prompt
-        generation_args = {
-            "max_length": request.max_tokens + self.PREFIX_TOKEN_LENGTH,
-        }
 
         input_query: List[Dict[str, Any]] = []
         query: List[Dict[str, str]] = []
@@ -142,10 +134,15 @@ class Qwen2AudioLMClient(CachingClient):
                             return_tensors="pt",
                             padding=True,
                         )
+                        input_length = inputs.input_ids.size(1)
+                        # Qwen2-Audio-Instruct counts input into the max_length,
+                        # so we need to add the length of the prompt
                         inputs = inputs.to(self._device)
-                        pred = model.generate(**inputs, **generation_args)
-                        completion = tokenizer.decode(pred.cpu()[0], skip_special_tokens=False)
+                        pred = model.generate(**inputs, max_length=request.max_tokens + input_length)[:, input_length:]
 
+                        completion = tokenizer.decode(
+                            pred.cpu()[0], skip_special_tokens=True, clean_up_tokenization_spaces=False
+                        )
                         # The processor of Qwen2-Audio-Instruct consists an AutoTokenizer and a WhisperFeatureExtractor
                         tokens: List[str] = tokenizer.tokenizer.tokenize(completion)
                         return {"output": (completion, tokens)}
@@ -156,7 +153,7 @@ class Qwen2AudioLMClient(CachingClient):
                             "completion_index": completion_index,
                             "model": request.model,
                             "prompt": generate_uid_for_multimodal_prompt(request.multimodal_prompt),
-                            **generation_args,
+                            "max_tokens": request.max_tokens,
                         },
                         request=request,
                     )
@@ -167,11 +164,7 @@ class Qwen2AudioLMClient(CachingClient):
                     )
 
                 text, tokens = result["output"]
-
-                # Truncate the output text as the original Qwen includes the prompt in the output sequence
-                text = text[len(prompt_text) :]
-                text = text.replace(self.END_OF_TEXT_TOKEN, "")
-                hlog(f"Truncated: {text}")
+                hlog(f"Generated: {text}")
 
                 # Tokenize truncated text to get the list of tokens
                 completions.append(

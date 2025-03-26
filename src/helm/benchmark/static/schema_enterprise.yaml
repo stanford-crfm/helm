@@ -72,6 +72,10 @@ metrics:
     display_name: Weighted F1
     description: Weighted F1 score
     lower_is_better: false
+  - name: float_equiv
+    display_name: Float Equivalence
+    description: Float Equivalence
+    lower_is_better: false
 
 ############################################################
 perturbations: []
@@ -114,6 +118,7 @@ run_groups:
     subgroups:
       - gold_commodity_news
       - financial_phrasebank
+      - conv_fin_qa_calc
 
   - name: legal_scenarios
     display_name: Legal Scenarios
@@ -154,6 +159,23 @@ run_groups:
       what: phrases from financial news texts and company press releases
       who: annotators with adequate business education background
       when: before 2013
+      language: English
+
+  - name: conv_fin_qa_calc
+    display_name: ConvFinQACalc
+    description: "A mathematical calculation benchmark based on ConvFinQA: Exploring the Chain of Numerical Reasoning in Conversational Finance Question Answering [(Chen ey al., 2022)](https://arxiv.org/pdf/2210.03849.pdf)."
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: float_equiv
+      main_split: valid
+    taxonomy:
+      task: question answering with numeric reasoning
+      what: financial reports
+      who: financial experts
+      when: 1999 to 2019
       language: English
 
   - name: gold_commodity_news
