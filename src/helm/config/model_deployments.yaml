@@ -3340,7 +3340,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.ibm_client.IbmChatClient"
       args:
-        inner_model_name: meta-llama/llama-3-3-70b-instruct
+        watsonx_model_name: meta-llama/llama-3-3-70b-instruct
         region: Dallas
 
   - name: ibm/granite-3-2b-instruct
@@ -3350,7 +3350,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.ibm_client.IbmChatClient"
       args:
-        inner_model_name: ibm/granite-3-2b-instruct
+        watsonx_model_name: ibm/granite-3-2b-instruct
         region: Dallas
 
 
@@ -3362,7 +3362,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.ibm_client.IbmChatClient"
       args:
-        inner_model_name: ibm/granite-3-8b-instruct
+        watsonx_model_name: ibm/granite-3-8b-instruct
         region: Dallas
 #
 
@@ -3374,7 +3374,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.ibm_client.IbmTextClient"
       args:
-        inner_model_name: ibm/granite-13b-instruct-v2
+        watsonx_model_name: ibm/granite-13b-instruct-v2
         region: Dallas
 #
   - name: ibm/granite-20b-code-instruct-8k
@@ -3384,7 +3384,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.ibm_client.IbmChatClient"
       args:
-        inner_model_name: ibm/granite-20b-code-instruct
+        watsonx_model_name: ibm/granite-20b-code-instruct
         region: Dallas
 #
   - name: ibm/granite-34b-code-instruct
@@ -3394,7 +3394,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.ibm_client.IbmChatClient"
       args:
-        inner_model_name: ibm/granite-34b-code-instruct
+        watsonx_model_name: ibm/granite-34b-code-instruct
         region: Dallas
 #
   - name: ibm/granite-3b-code-instruct
@@ -3404,7 +3404,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.ibm_client.IbmTextClient"
       args:
-        inner_model_name: ibm/granite-3b-code-instruct
+        watsonx_model_name: ibm/granite-3b-code-instruct
         region: Dallas
 #
   - name: ibm/granite-8b-code-instruct
@@ -3414,5 +3414,5 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.ibm_client.IbmTextClient"
       args:
-        inner_model_name: ibm/granite-8b-code-instruct
+        watsonx_model_name: ibm/granite-8b-code-instruct
         region: Dallas

@@ -1,16 +1,5 @@
-import uuid
 from abc import ABC
 from abc import abstractmethod
-
-# from collections import defaultdict
-
-from ibm_watsonx_ai.foundation_models.schema import (
-    TextChatParameters,
-    TextGenParameters,
-    # TextGenDecodingMethod,
-    # TextGenLengthPenalty,
-    ReturnOptionProperties,
-)
 
 from helm.common.hierarchical_logger import htrack_block, hlog
 from helm.common.cache import CacheConfig
@@ -24,39 +13,62 @@ from helm.common.request import (
 )
 
 from helm.clients.client import CachingClient
-from ibm_watsonx_ai import Credentials
-from ibm_watsonx_ai.foundation_models import ModelInference
-from ibm_watsonx_ai.metanames import GenTextParamsMetaNames as GenParams
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+try:
+    from ibm_watsonx_ai import Credentials
+    from ibm_watsonx_ai.foundation_models import ModelInference
+    from ibm_watsonx_ai.metanames import GenTextParamsMetaNames as GenParams
+    from ibm_watsonx_ai.foundation_models.schema import (
+        TextChatParameters,
+        TextGenParameters,
+        # TextGenDecodingMethod,
+        # TextGenLengthPenalty,
+        ReturnOptionProperties,
+    )
+
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["ibm"])
+
 from typing import Any, Dict, List, TypedDict, Callable, Union, Optional
-from threading import Lock, Semaphore
+from threading import Semaphore
 import threading
 
 # Define the maximum number of parallel executions is limited by IBM API
 MAX_CONCURRENT_REQUESTS = 8
 __semaphores: Dict[str, Semaphore] = dict()
+__semaphores_lock = threading.Lock()
 
 
 def get_semaphore(model: str):
-    if model not in __semaphores:
-        __semaphores[model] = threading.Semaphore(MAX_CONCURRENT_REQUESTS)
+    with __semaphores_lock:
+        if model not in __semaphores:
+            __semaphores[model] = threading.Semaphore(MAX_CONCURRENT_REQUESTS)
 
     return __semaphores[model]
 
-class IBMRequest(TypedDict):
-    """Data passed between make_request and serve_request. Used as the cache key."""
-    model :str
-    engine: str
-    prompt: str
-    temperature: float
-    num_return_sequences: int
-    max_new_tokens: int
-    top_p: float
-    echo_prompt: bool
-    top_k_per_token: int
-    stop_sequences: List
+
+#
+# class IBMRequest(TypedDict):
+#     """Data passed between make_request and serve_request. Used as the cache key."""
+#
+#     model: str
+#     engine: str
+#     prompt: str
+#     temperature: float
+#     num_return_sequences: int
+#     max_new_tokens: int
+#     top_p: float
+#     echo_prompt: bool
+#     top_k_per_token: int
+#     stop_sequences: List
+
+from typing import TypeVar, Generic
+
+T = TypeVar("T", TextGenParameters, TextChatParameters)
 
 
-class ModelInferenceHandler(ABC):
+class ModelInferenceHandler(ABC, Generic[T]):
     @abstractmethod
     def __init__(self, inference_engine: ModelInference):
         """
@@ -65,7 +77,7 @@ class ModelInferenceHandler(ABC):
         self.inference_engine = inference_engine
 
     @abstractmethod
-    def serve_request(self, raw_request: IBMRequest) -> Dict:
+    def serve_request(self, prompt: str, params: T) -> Dict:
         pass
 
     @abstractmethod
@@ -73,7 +85,7 @@ class ModelInferenceHandler(ABC):
         pass
 
     @abstractmethod
-    def create_params(self, request: IBMRequest) -> Union[TextGenParameters, TextChatParameters]:
+    def create_params(self, request: Request) -> T:
         pass
 
     @staticmethod
@@ -84,22 +96,23 @@ class ModelInferenceHandler(ABC):
         return text.encode("unicode_escape").decode("utf-8")
 
 
-class GenerateInferenceHandler(ModelInferenceHandler):
+class GenerateInferenceHandler(ModelInferenceHandler[TextGenParameters]):
 
     def __init__(self, inference_engine: ModelInference):
         self.inference_engine = inference_engine
 
-    def create_params(self, raw_request: IBMRequest) -> TextGenParameters:
+    def create_params(self, request: Request) -> TextGenParameters:
         return TextGenParameters(
             # decoding_method=TextGenDecodingMethod.GREEDY,
             # length_penalty=TextGenLengthPenalty.get_sample_params(),
-            temperature=0.05,
-            top_p=raw_request["top_p"],
+            # TODO check if 0.05 still needed or default implementation working well
+            temperature=1e-7 if request.temperature == 0 else request.temperature,
+            top_p=request.top_p,
             # top_k = 5,
             # random_seed = 42,
             # repetition_penalty = 1.7,
             # min_new_tokens = 3,
-            max_new_tokens=raw_request["max_new_tokens"],
+            max_new_tokens=request.max_tokens,
             # stop_sequences = None,
             # time_limit = None,
             # truncate_input_tokens = 300,
@@ -115,11 +128,14 @@ class GenerateInferenceHandler(ModelInferenceHandler):
             prompt_variables=None,
         )
 
-    def serve_request(self, raw_request: IBMRequest) -> Dict:
-        response = self.inference_engine.generate(
-            prompt=GenerateInferenceHandler.pre_processing(raw_request["prompt"]),
-            params=self.create_params(raw_request),
-        )
+    def serve_request(self, prompt: str, params: TextGenParameters) -> Dict:
+        semaphore = get_semaphore(self.inference_engine.model_id)
+
+        with semaphore:
+            response = self.inference_engine.generate(
+                prompt=prompt,
+                params=params,
+            )
         return response
 
     def parse_response(self, response: dict) -> List[GeneratedOutput]:
@@ -141,18 +157,19 @@ class GenerateInferenceHandler(ModelInferenceHandler):
             hlog(f"GenerateInferenceHandler failed with exception {e} during parse_response {response}")
         return completions
 
-class ChatModelInferenceHandler(ModelInferenceHandler):
+
+class ChatModelInferenceHandler(ModelInferenceHandler[TextChatParameters]):
     def __init__(self, inference_engine: ModelInference):
         self.inference_engine = inference_engine
 
-    def create_params(self, raw_request: IBMRequest) -> TextChatParameters:
+    def create_params(self, request: Request) -> TextChatParameters:
         return TextChatParameters(
             logprobs=True,
             presence_penalty=0,
             frequency_penalty=0,
-            temperature=raw_request["temperature"],
-            max_tokens=raw_request["max_new_tokens"],
-            top_p=raw_request["top_p"],
+            temperature=request.temperature,
+            max_tokens=request.max_tokens,
+            top_p=request.top_p,
         )
 
     def parse_response(self, response: dict) -> List[GeneratedOutput]:
@@ -175,30 +192,31 @@ class ChatModelInferenceHandler(ModelInferenceHandler):
             hlog(f"ChatModelInferenceHandler failed with exception {e} during parse_response {response}")
         return completions
 
-    def serve_request(self, raw_request: IBMRequest) -> Dict:
-        semaphore = get_semaphore(raw_request["model"])
+    def serve_request(self, prompt: str, params: TextChatParameters) -> Dict:
+        semaphore = get_semaphore(self.inference_engine.model_id)
 
         with semaphore:
             response = self.inference_engine.chat(
-                messages=[{"role": "user", "content": ChatModelInferenceHandler.pre_processing(raw_request["prompt"])}],
-                params=self.create_params(raw_request),
+                messages=[{"role": "user", "content": ChatModelInferenceHandler.pre_processing(prompt)}],
+                params=params,
             )
         return response
 
+
 class IbmClient(CachingClient, ABC):
     def __init__(
-        self,
-        cache_config: CacheConfig,
-        api_key: str,
-        region: str,
-        location: str,
-        inner_model_name: str,
-        **kwargs,
+            self,
+            cache_config: CacheConfig,
+            api_key: str,
+            region: str,
+            location: dict,
+            watsonx_model_name: str,
+            **kwargs,
     ):
         super().__init__(cache_config=cache_config)
         self.project_id = None
         self.url = None
-        self.inner_model_name = inner_model_name
+        self.watsonx_model_name = watsonx_model_name
         self.api_key = api_key
         self.region = region
         self.kwargs = kwargs
@@ -207,34 +225,39 @@ class IbmClient(CachingClient, ABC):
                 self.project_id = entry["project_id"]
                 self.url = entry["url"]
 
-        assert self.project_id is not None, "Missed project_id for specified region configuration in credentials.conf, should be in list of JSON objects with 'region', 'url', 'project_id' per region"
-        assert self.url is not None, "Missed url for specified region configuration in credentials.conf, should be in list of JSON objects with 'region', 'url', 'project_id' per region"
+        assert (
+                self.project_id is not None
+        ), "Missed project_id for specified region configuration in credentials.conf, should be in list of JSON objects with 'region', 'url', 'project_id' per region"
+        assert (
+                self.url is not None
+        ), "Missed url for specified region configuration in credentials.conf, should be in list of JSON objects with 'region', 'url', 'project_id' per region"
 
         self.inference_engine = ModelInference(
-            model_id=self.inner_model_name,
+            model_id=self.watsonx_model_name,
             params={GenParams.MAX_NEW_TOKENS: 2000},
             credentials=Credentials(api_key=api_key, url=self.url),
-            project_id=self.project_id)
-
+            project_id=self.project_id,
+        )
 
         hlog("Started IBM Client")
-
 
     @abstractmethod
     def make_request(self, request: Request) -> RequestResult:
         pass
 
-    def do_call(self, inference_handler: ModelInferenceHandler, request : Request)-> RequestResult:
-        raw_request = self.convert_to_raw_request(request=request)
-        def do_it() -> Dict[str, Any]:
-            return inference_handler.serve_request(raw_request)
+    def do_call(self, inference_handler: ModelInferenceHandler, request: Request) -> RequestResult:
+        params = inference_handler.create_params(request=request)
 
-        request_params = {
-            "prompt": inference_handler.pre_processing(raw_request["prompt"]),
-            "params": inference_handler.create_params(raw_request).to_dict(),
+        def do_it() -> Dict[str, Any]:
+            return inference_handler.serve_request(prompt=request.prompt, params=params)
+
+        raw_request = {
+            "prompt": request.prompt,
+            "params": params.to_dict(),
+            "model": request.model
         }
 
-        cache_key = CachingClient.make_cache_key(request_params, request)
+        cache_key = CachingClient.make_cache_key(raw_request, request)
         response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         completions = inference_handler.parse_response(response)
         return RequestResult(
@@ -246,33 +269,36 @@ class IbmClient(CachingClient, ABC):
             embedding=[],
         )
 
-    @abstractmethod
-    def convert_to_raw_request(self, request : Request) ->IBMRequest:
-        pass
+    # @abstractmethod
+    # def convert_to_raw_request(self, request: Request) -> IBMRequest:
+    #     pass
+
 
 class IbmChatClient(IbmClient):
 
-    def convert_to_raw_request(self, request: Request) -> IBMRequest:
-        raw_request: IBMRequest = {
-            "model": self.inner_model_name,
-            "engine": request.model_engine,
-            "prompt": request.prompt,
-            "temperature": 1e-7 if request.temperature == 0 else request.temperature,
-            "num_return_sequences": request.num_completions,
-            "max_new_tokens": request.max_tokens,
-            "top_p": request.top_p,
-            "echo_prompt": request.echo_prompt,
-            "top_k_per_token": request.top_k_per_token,
-            "stop_sequences": request.stop_sequences,
-        }
-        return raw_request
+    # def convert_to_raw_request(self, request: Request) -> IBMRequest:
+    #     raw_request: IBMRequest = {
+    #         "model": self.watsonx_model_name,
+    #         "engine": request.model_engine,
+    #         "prompt": request.prompt,
+    #         "temperature": 1e-7 if request.temperature == 0 else request.temperature,
+    #         "num_return_sequences": request.num_completions,
+    #         "max_new_tokens": request.max_tokens,
+    #         "top_p": request.top_p,
+    #         "echo_prompt": request.echo_prompt,
+    #         "top_k_per_token": request.top_k_per_token,
+    #         "stop_sequences": request.stop_sequences,
+    #     }
+    #     return raw_request
 
     def make_request(self, request: Request) -> RequestResult:
         # Embedding not supported for this model
         if request.embedding:
             return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
         try:
-            return self.do_call(inference_handler=ChatModelInferenceHandler(inference_engine=self.inference_engine),request=request )
+            return self.do_call(
+                inference_handler=ChatModelInferenceHandler(inference_engine=self.inference_engine), request=request
+            )
 
         except Exception as e:
             error: str = f"IBM Chat client Model error: {e}"
@@ -280,28 +306,30 @@ class IbmChatClient(IbmClient):
 
 
 class IbmTextClient(IbmClient):
-    def convert_to_raw_request(self, request: Request) -> IBMRequest:
-        raw_request: IBMRequest = {
-            "model": self.inner_model_name,
-            "engine": request.model_engine,
-            "prompt": request.prompt,
-            "temperature": 1e-7 if request.temperature == 0 else request.temperature,
-            "num_return_sequences": request.num_completions,
-            "max_new_tokens": request.max_tokens,
-            "top_p": request.top_p,
-            "echo_prompt": request.echo_prompt,
-            "top_k_per_token": request.top_k_per_token,
-            "stop_sequences": request.stop_sequences,
-            "random": request.random
-        }
-        return raw_request
+    # def convert_to_raw_request(self, request: Request) -> IBMRequest:
+    #     raw_request: IBMRequest = {
+    #         "model": self.watsonx_model_name,
+    #         "engine": request.model_engine,
+    #         "prompt": request.prompt,
+    #         "temperature": 1e-7 if request.temperature == 0 else request.temperature,
+    #         "num_return_sequences": request.num_completions,
+    #         "max_new_tokens": request.max_tokens,
+    #         "top_p": request.top_p,
+    #         "echo_prompt": request.echo_prompt,
+    #         "top_k_per_token": request.top_k_per_token,
+    #         "stop_sequences": request.stop_sequences,
+    #         "random": request.random,
+    #     }
+    #     return raw_request
 
     def make_request(self, request: Request) -> RequestResult:
         # Embedding not supported for this model
         if request.embedding:
             return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
         try:
-            return self.do_call(inference_handler=GenerateInferenceHandler(inference_engine=self.inference_engine), request=request)
+            return self.do_call(
+                inference_handler=GenerateInferenceHandler(inference_engine=self.inference_engine), request=request
+            )
         except Exception as e:
             error: str = f"IBM Text client Model error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
