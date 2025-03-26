@@ -41,9 +41,6 @@ class Qwen2AudioLMClient(CachingClient):
     """
 
     END_OF_TEXT_TOKEN: str = "<|im_end|>"
-    # The official recommendation is to set the prefix length to 256
-    # https://huggingface.co/Qwen/Qwen2-Audio-7B-Instruct
-    PREFIX_TOKEN_LENGTH: int = 256
 
     def __init__(self, cache_config: CacheConfig):
         super().__init__(cache_config=cache_config)
@@ -67,9 +64,11 @@ class Qwen2AudioLMClient(CachingClient):
                 model = Qwen2AudioForConditionalGeneration.from_pretrained(
                     model_name,
                     device_map=self._device,
+                    cache_dir="/data-2u-1/tuhq/hf_models"
                 ).eval()
                 tokenizer = AutoProcessor.from_pretrained(
                     model_name,
+                    cache_dir="/data-2u-1/tuhq/hf_models"
                 )
                 _models[model_name] = LoadedQwenModelProcessor(model, tokenizer)
                 loaded_model_processor = _models[model_name]
@@ -83,11 +82,6 @@ class Qwen2AudioLMClient(CachingClient):
         loaded_model_processor: LoadedQwenModelProcessor = self._get_model(request.model_engine)
         model = loaded_model_processor.model
         tokenizer = loaded_model_processor.tokenizer
-
-        # Qwen2-Audio-Instruct counts input into the max_length, so we need to add the length of the prompt
-        generation_args = {
-            "max_length": request.max_tokens + self.PREFIX_TOKEN_LENGTH,
-        }
 
         input_query: List[Dict[str, Any]] = []
         query: List[Dict[str, str]] = []
@@ -142,8 +136,10 @@ class Qwen2AudioLMClient(CachingClient):
                             return_tensors="pt",
                             padding=True,
                         )
+                        input_length = inputs.input_ids.size(1)
+                        # Qwen2-Audio-Instruct counts input into the max_length, so we need to add the length of the prompt
                         inputs = inputs.to(self._device)
-                        pred = model.generate(**inputs, **generation_args)[:, inputs.input_ids.size(1) :]
+                        pred = model.generate(**inputs, max_length=request.max_tokens + input_length)[:, input_length:]
 
                         completion = tokenizer.decode(
                             pred.cpu()[0], skip_special_tokens=True, clean_up_tokenization_spaces=False
@@ -158,7 +154,7 @@ class Qwen2AudioLMClient(CachingClient):
                             "completion_index": completion_index,
                             "model": request.model,
                             "prompt": generate_uid_for_multimodal_prompt(request.multimodal_prompt),
-                            **generation_args,
+                            "max_tokens": request.max_tokens,
                         },
                         request=request,
                     )
