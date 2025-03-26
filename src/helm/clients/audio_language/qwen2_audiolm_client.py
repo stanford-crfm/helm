@@ -62,14 +62,9 @@ class Qwen2AudioLMClient(CachingClient):
             if loaded_model_processor is None:
                 hlog(f"Loading model {model_name} and caching in memory...")
                 model = Qwen2AudioForConditionalGeneration.from_pretrained(
-                    model_name,
-                    device_map=self._device,
-                    cache_dir="/data-2u-1/tuhq/hf_models"
+                    model_name, device_map=self._device, cache_dir="/data-2u-1/tuhq/hf_models"
                 ).eval()
-                tokenizer = AutoProcessor.from_pretrained(
-                    model_name,
-                    cache_dir="/data-2u-1/tuhq/hf_models"
-                )
+                tokenizer = AutoProcessor.from_pretrained(model_name, cache_dir="/data-2u-1/tuhq/hf_models")
                 _models[model_name] = LoadedQwenModelProcessor(model, tokenizer)
                 loaded_model_processor = _models[model_name]
 
@@ -137,7 +132,8 @@ class Qwen2AudioLMClient(CachingClient):
                             padding=True,
                         )
                         input_length = inputs.input_ids.size(1)
-                        # Qwen2-Audio-Instruct counts input into the max_length, so we need to add the length of the prompt
+                        # Qwen2-Audio-Instruct counts input into the max_length, so we need to add
+                        # the length of the prompt
                         inputs = inputs.to(self._device)
                         pred = model.generate(**inputs, max_length=request.max_tokens + input_length)[:, input_length:]
 
