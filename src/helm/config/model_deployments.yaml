@@ -3072,6 +3072,14 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.palmyra_client.PalmyraChatClient"
 
+  - name: writer/palmyra-fin
+    model_name: writer/palmyra-fin
+    tokenizer_name: meta/llama-3-8b-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.palmyra_client.PalmyraChatClient"
+
+
   # xAI
 
   - name: xai/grok-beta
