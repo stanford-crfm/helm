@@ -4,7 +4,7 @@ from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo, LLMAsJu
 from helm.clients.auto_client import AutoClient
 
 
-PROMPT_TEMPLATE = """You are a medical expert tasked with evaluating the quality of a 
+PROMPT_TEMPLATE = """You are a medical expert tasked with evaluating the quality of a
 generated response of a clinical scenario.
 Your goal is to assess how well the generated response captures the necessary information and
 how it compares to the gold response in terms of accuracy, completeness, and clarity.

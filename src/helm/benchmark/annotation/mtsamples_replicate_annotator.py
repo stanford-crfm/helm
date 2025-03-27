@@ -4,7 +4,7 @@ from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo, LLMAsJu
 from helm.clients.auto_client import AutoClient
 
 
-PROMPT_TEMPLATE = """You are a medical expert responsible for evaluating a proposed treatment plan 
+PROMPT_TEMPLATE = """You are a medical expert responsible for evaluating a proposed treatment plan
 based on provided patient information.
 
 Your goal is to assess whether the treatment plan uses the patient's medical history,

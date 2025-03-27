@@ -25,7 +25,7 @@ The gold response (reference answer) will be provided in these tags:
 {{GOLD_RESPONSE}}
 </gold_response>
 
-Carefully review the <response> based on the <user_request> and compare it to 
+Carefully review the <response> based on the <user_request> and compare it to
 the <gold_response> when needed.
 For each category below, rate the response on a scale of 1 to 5 (1 = very poor, 5 = excellent)
 and provide a brief explanation for your score:
@@ -35,7 +35,7 @@ Accuracy (1-5)
 - Does the response provide correct medical information based on the EHR and clinical guidelines?
 
 Completeness (1-5)
-- Does the response include all important patient information and address the clinical question? 
+- Does the response include all important patient information and address the clinical question?
 
 Clarity (1-5)
 - Is the response written clearly so clinicians can easily understand it?
