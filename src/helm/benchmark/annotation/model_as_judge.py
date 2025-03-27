@@ -156,7 +156,11 @@ class LLMAsJuryAnnotator(Annotator):
         """
         base_replacements = {
             "{{QUESTION}}": request_state.instance.input.text,
-            "{{RESPONSE}}": request_state.result.completions[0].text,
+            "{{RESPONSE}}": (
+                request_state.result.completions[0].text
+                if request_state.result and request_state.result.completions
+                else ""
+            ),
             "{{GOLD_RESPONSE}}": request_state.instance.references[0].output.text,
         }
 

@@ -9,7 +9,7 @@ Your goal is to assess how well the generated response demonstrates therapeutic 
 
 The conversation history and question will be provided in these tags:
 <conversation>
-{{CONVERSATION_HISTORY}}
+{{QUESTION}}
 </conversation>
 
 The response will be provided in these tags:
