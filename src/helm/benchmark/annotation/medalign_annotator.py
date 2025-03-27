@@ -4,9 +4,11 @@ from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo, LLMAsJu
 from helm.clients.auto_client import AutoClient
 
 
-PROMPT_TEMPLATE = """You are a medical expert responsible for evaluating the quality of a response to a clinical instruction, given an associated Electronic Health Record (EHR).
+PROMPT_TEMPLATE = """You are a medical expert responsible for evaluating the quality of a
+response to a clinical instruction, given an associated Electronic Health Record (EHR).
 
-Your goal is to assess how well the response interprets the EHR, follows clinical best practices, and aligns with the gold response in terms of accuracy, completeness, and clarity.
+Your goal is to assess how well the response interprets the EHR, follows clinical best practices,
+and aligns with the gold response in terms of accuracy, completeness, and clarity.
 
 The instruction and EHR pair will be provided in these tags:
 <user_request>
@@ -23,8 +25,10 @@ The gold response (reference answer) will be provided in these tags:
 {{GOLD_RESPONSE}}
 </gold_response>
 
-Carefully review the <response> based on the <user_request> and compare it to the <gold_response> when needed.
-For each category below, rate the response on a scale of 1 to 5 (1 = very poor, 5 = excellent) and provide a brief explanation for your score:
+Carefully review the <response> based on the <user_request> and compare it to 
+the <gold_response> when needed.
+For each category below, rate the response on a scale of 1 to 5 (1 = very poor, 5 = excellent)
+and provide a brief explanation for your score:
 
 Evaluation Criteria:
 Accuracy (1-5)
@@ -55,7 +59,8 @@ Generate a valid JSON object with your evaluation:
 
 Ensure the output is valid JSON:
 - Use **double quotes** (") for all keys and string values.
-- When quoting text or sections inside the explanations, use escaped double quotes (\") to maintain valid JSON formatting.
+- When quoting text or sections inside the explanations, use escaped double quotes (\") to
+  maintain valid JSON formatting.
 - Do not include any additional information in the output.
 """
 

@@ -6,7 +6,8 @@ from helm.clients.auto_client import AutoClient
 
 PROMPT_TEMPLATE = """You are a medical expert tasked with evaluating responses to consumer medication questions.
 
-Your goal is to assess how well the response captures the information asked, and how it compares to the gold response in terms of accuracy, completeness, and clarity.
+Your goal is to assess how well the response captures the information asked,
+and how it compares to the gold response in terms of accuracy, completeness, and clarity.
 
 The question provided in these tags:
 <medication_question>
@@ -28,10 +29,10 @@ Please evaluate the response on a scale of 1-5 (1 = poor, 5 = excellent) for eac
 
 Evaluation Criteria:
 Accuracy (1-5)
-- Is the information about the medication factually correct? 
+- Is the information about the medication factually correct?
 
 Completeness (1-5)
-- Does the response fully answer the question, covering all important points? 
+- Does the response fully answer the question, covering all important points?
 
 Clarity (1-5)
 - Is the response easy for a consumer to understand?
@@ -55,7 +56,8 @@ Output your evaluation as a single valid JSON object matching the following stru
 
 Ensure the output is valid JSON:
 - Use **double quotes** (") for all keys and string values.
-- When quoting text or sections inside the explanations, use escaped double quotes (\") to maintain valid JSON formatting.
+- When quoting text or sections inside the explanations, use escaped double quotes (\") to
+  maintain valid JSON formatting.
 - Do not include any additional information in the output.
 """
 

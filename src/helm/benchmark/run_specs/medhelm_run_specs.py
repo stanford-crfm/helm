@@ -704,7 +704,9 @@ def get_starr_patient_instructions_run_spec() -> RunSpec:
     )
     annotator_specs = [
         AnnotatorSpec(
-            class_name="helm.benchmark.annotation.starr_patient_instructions_annotator.StarrPatientInstructionsAnnotator"
+            class_name=(
+                "helm.benchmark.annotation.starr_patient_instructions_annotator.StarrPatientInstructionsAnnotator"
+            )
         )
     ]
 

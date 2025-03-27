@@ -6,7 +6,8 @@ from helm.clients.auto_client import AutoClient
 
 PROMPT_TEMPLATE = """You are a medical expert tasked with evaluating the quality of after-surgery care instructions.
 
-Your goal is to assess how well the care instructions capture the next steps the patient should follow after their procedure, and how it compares to the gold response in terms of accuracy, completeness, and clarity.
+Your goal is to assess how well the care instructions capture the next steps the patient should follow after their
+procedure, and how it compares to the gold response in terms of accuracy, completeness, and clarity.
 
 The case will be provided in these tags:
 <case_details>
@@ -29,10 +30,10 @@ Please evaluate the instructions on a scale of 1-5 (1 = poor, 5 = excellent) for
 
 Evaluation Criteria:
 Accuracy (1-5)
-- Are the instructions medically correct for the patient’s specific case?
+- Are the instructions medically correct for the patient's specific case?
 
 Completeness (1-5)
-- Do the instructions cover all important post-surgical care details? 
+- Do the instructions cover all important post-surgical care details?
 
 Clarity (1-5)
 - Are the instructions easy for the patient to understand?
@@ -56,7 +57,8 @@ Output your evaluation as a single valid JSON object matching the following stru
 
 Ensure the output is valid JSON:
 - Use **double quotes** (") for all keys and string values.
-- When quoting text or sections inside the explanations, use escaped double quotes (\") to maintain valid JSON formatting.
+- When quoting text or sections inside the explanations, use escaped double quotes (\") to
+  maintain valid JSON formatting.
 - Do not include any additional information in the output.
 """
 

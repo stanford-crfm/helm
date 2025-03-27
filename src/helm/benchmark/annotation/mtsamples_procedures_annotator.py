@@ -4,8 +4,10 @@ from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo, LLMAsJu
 from helm.clients.auto_client import AutoClient
 
 
-PROMPT_TEMPLATE = """You are a medical expert tasked with evaluating the quality of a generated response of a clinical scenario.
-Your goal is to assess how well the response addresses the patient case, follows clinical best practices, and compares to the gold response in terms of accuracy, completeness, and clarity.
+PROMPT_TEMPLATE = """You are a medical expert tasked with evaluating the quality of a
+generated response of a clinical scenario.
+Your goal is to assess how well the response addresses the patient case, follows clinical best practices,
+and compares to the gold response in terms of accuracy, completeness, and clarity.
 
 The user's request will be provided in these tags:
 <user_request>
@@ -23,7 +25,8 @@ Some potential correct responses will be provided in these tags:
 </gold_response>
 
 Carefully analyze the <response>.
-For each of the following categories, rate the Response on a scale of 1 to 5 (1 = very poor, 5 = excellent), and provide a short justification for your score.
+For each of the following categories, rate the Response on a scale of 1 to 5 (1 = very poor, 5 = excellent),
+and provide a short justification for your score.
 
 Evaluation Criteria:
 Accuracy (1-5)
@@ -54,7 +57,8 @@ Output the evaluation as a single valid JSON object matching the following struc
 
 Ensure the output is valid JSON:
 - Use **double quotes** (") for all keys and string values.
-- When quoting text or sections inside the explanations, use escaped double quotes (\") to maintain valid JSON formatting.
+- When quoting text or sections inside the explanations, use escaped double quotes (\") to
+  maintain valid JSON formatting.
 - Do not include any additional information in the output.
 """
 

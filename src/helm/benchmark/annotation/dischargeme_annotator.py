@@ -4,11 +4,16 @@ from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo, LLMAsJu
 from helm.clients.auto_client import AutoClient
 
 
-PROMPT_TEMPLATE = """You are a medical expert responsible for evaluating a hospital document. The task requires generating either discharge instructions or a brief hospital course based on the provided discharge summary and radiology report.
+PROMPT_TEMPLATE = """You are a medical expert responsible for evaluating a hospital document.
+The task requires generating either discharge instructions or a brief hospital course based
+on the provided discharge summary and radiology report.
 
-Your goal is to assess whether the generated text is clinically accurate, complete, and clear for the intended document type. The evaluation should ensure the document aligns with the gold response in terms of accuracy, completeness, and clarity.
+Your goal is to assess whether the generated text is clinically accurate, complete, and clear
+for the intended document type. The evaluation should ensure the document aligns with the
+gold response in terms of accuracy, completeness, and clarity.
 
-The target task of either generating a discharge instruction or brief hospital course along with the patient discharge text and radiology report will be provided in these tags:
+The target task of either generating a discharge instruction or brief hospital course along with
+the patient discharge text and radiology report will be provided in these tags:
 <patient_information>
 {{QUESTION}}
 </patient_information>
@@ -19,14 +24,17 @@ The document will be provided in these tags:
 {{RESPONSE}}
 </response>
 
-The gold standard target document (either discharge instructions or a brief hospital course) will be provided in these tags:
+The gold standard target document (either discharge instructions or a brief hospital course)
+will be provided in these tags:
 <gold_response>
 {{GOLD_RESPONSE}}
 </gold_response>
 
-Carefully analyze the <response> based on the <patient_information> and compare it to the <gold_response> when necessary.
+Carefully analyze the <response> based on the <patient_information> and compare
+it to the <gold_response> when necessary.
 
-For each of the following categories, rate the response on a scale of 1 to 5 (1 = very poor, 5 = excellent) and provide a brief justification for the score.
+For each of the following categories, rate the response on a scale of 1 to 5 (1 = very poor, 5 = excellent)
+and provide a brief justification for the score.
 
 Evaluation Criteria:
 Accuracy (1-5)
@@ -36,7 +44,8 @@ Completeness (1-5)
 - Does the document include all important information needed for the specific document type?
 
 Clarity (1-5)
-- Is the document easy to understand for the right audience — patients for discharge instructions or clinicians for the hospital course?
+- Is the document easy to understand for the right audience — patients for discharge
+  instructions or clinicians for the hospital course?
 
 Output Format:
 Generate a valid JSON object with the following structure:
@@ -57,7 +66,8 @@ Generate a valid JSON object with the following structure:
 
 Ensure the output is valid JSON:
 - Use **double quotes** (") for all keys and string values.
-- When quoting text or sections inside the explanations, use escaped double quotes (\") to maintain valid JSON formatting.
+- When quoting text or sections inside the explanations, use escaped double quotes (\") to
+  maintain valid JSON formatting.
 - Do not include any additional information in the output.
 """
 

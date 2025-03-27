@@ -4,8 +4,10 @@ from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo, LLMAsJu
 from helm.clients.auto_client import AutoClient
 
 
-PROMPT_TEMPLATE = """You are a mental health expert tasked with evaluating the quality of a counselor response in a therapy conversation. 
-Your goal is to assess how well the generated response demonstrates therapeutic skills, and how it compares to the gold response in terms of accuracy, completeness, and clarity..
+PROMPT_TEMPLATE = """You are a mental health expert tasked with evaluating the quality
+of a counselor response in a therapy conversation.
+Your goal is to assess how well the generated response demonstrates therapeutic skills, 
+and how it compares to the gold response in terms of accuracy, completeness, and clarity..
 
 The conversation history and question will be provided in these tags:
 <conversation>
@@ -22,7 +24,9 @@ The reference response will be provided in these tags:
 {{GOLD_RESPONSE}}
 </gold_response>
 
-Carefully analyze the <response> compared to the <gold_response> and the original <conversation>. For each of the following criteria, rate the response on a scale of 1 to 5 (1 = very poor, 5 = excellent), and provide a short justification for your score.
+Carefully analyze the <response> compared to the <gold_response> and the original <conversation>. 
+For each of the following criteria, rate the response on a scale of 1 to 5 (1 = very poor, 5 = excellent),
+and provide a short justification for your score.
 
 Evaluation Criteria:
 Accuracy (1-5)
@@ -53,7 +57,8 @@ Output the evaluation as a single valid JSON object matching the following struc
 
 Ensure the output is valid JSON:
 - Use **double quotes** (") for all keys and string values.
-- When quoting text or sections inside the explanations, use escaped double quotes (\") to maintain valid JSON formatting.
+- When quoting text or sections inside the explanations, use escaped double quotes (\") to
+  maintain valid JSON formatting.
 - Do not include any additional information in the output.
 """
 
