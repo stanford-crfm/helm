@@ -3688,6 +3688,14 @@ models:
     release_date: 2024-07-31
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: writer/palmyra-fin
+    display_name: Palmyra Fin
+    description: Palmyra Fin is a financial LLM built using combining a well-curated set of financial training data with custom fine-tuning instruction data([blog](https://writer.com/blog/palmyra-med-fin-models/)).
+    creator_organization_name: Writer
+    access: limited
+    release_date: 2024-07-31
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   # xAI
 
   - name: xai/grok-beta
