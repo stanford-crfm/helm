@@ -10,10 +10,10 @@ export default function FinanceLanding() {
           <p className="my-4">
             LLMs show great potential for applications in the financial domain,
             yet there is a lack of financial-domain evaluations for LLMs. To
-            address this, we introduce the{" "}
+            help address this, we introduce the{" "}
             <strong className="font-bold">HELM Finance</strong> leaderboard. The
-            HELM Finance leaderboard evaluates leading LLMs on a three financial
-            benchmarks (FinQA, FinanceBench, BANKING77) that utilize real
+            HELM Finance leaderboard evaluates leading LLMs on three financial
+            benchmarks (i.e., FinQA, FinanceBench, BANKING77) that utilize real
             financial documents. Like all other HELM leaderboards, the HELM
             Finance leaderboard provides full prompt-level transparency, and the
             results can be fully reproduced using the open-source HELM

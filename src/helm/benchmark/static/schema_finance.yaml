@@ -90,12 +90,16 @@ perturbations: []
 metric_groups:
   - name: accuracy
     display_name: Accuracy
+    aggregation_strategies: 
+      - mean
     metrics:
       - name: ${main_name}
         split: ${main_split}
 
   - name: efficiency
     display_name: Efficiency
+    aggregation_strategies: 
+      - mean
     metrics:
     - name: inference_runtime
       split: ${main_split}
