@@ -25,8 +25,8 @@ from helm.benchmark.scenarios.scenario import (
 )
 
 
-class QAScenario(Scenario):
-    name = "question_answering"
+class MELTQAScenario(Scenario):
+    name = "melt_question_answering"
     description = "Question answering scenario."
     tags = ["question_answering"]
 
@@ -36,8 +36,18 @@ class QAScenario(Scenario):
         subset: Optional[str] = "",
         passage_prefix: Optional[str] = "Passage: ",
         question_prefix: Optional[str] = "Question: ",
-        splits: Optional[str] = None,
+        splits: Dict[str, str] = None,
     ):
+        """
+        Initializes the question answering scenario.
+
+        Args:
+            dataset_name: The name of the dataset.
+            subset: The subset of the dataset to use. Defaults to "".
+            passage_prefix: The prefix to use for the context passage. Defaults to "Passage: ".
+            question_prefix: The prefix to use for the question. Defaults to "Question: ".
+            splits: The splits to use for the dataset. Defaults to None.
+        """
         super().__init__()
         self.dataset_name = dataset_name
         self.subset = subset
@@ -70,7 +80,7 @@ class QAScenario(Scenario):
 
         return prompt, answers
 
-    def _get_instances(self, splits: Dict) -> List[Instance]:
+    def get_instances_for_splits(self, splits: Dict[str, str]) -> List[Instance]:
         """
         Helper for generating instances for a split.
         Args:
@@ -89,8 +99,7 @@ class QAScenario(Scenario):
                 continue
 
             if split_name not in dataset:
-                print(f"Warning: Error loading dataset {self.dataset_name} with split {split_name}")
-                continue
+                raise ValueError(f"Error loading dataset {self.dataset_name} with split {split_name}")
 
             for sample in dataset[split_name]:
                 prompt, answers = self.process_example(sample)
@@ -109,23 +118,22 @@ class QAScenario(Scenario):
         else:
             splits = {}
             if "train" in self.splits:
-                splits[self.splits["train"]] = TRAIN_SPLIT
+                splits[self.splits[TRAIN_SPLIT]] = TRAIN_SPLIT
             if "validation" in self.splits:
-                splits[self.splits["validation"]] = VALID_SPLIT
+                splits[self.splits[VALID_SPLIT]] = VALID_SPLIT
             if "test" in self.splits:
-                splits[self.splits["test"]] = TEST_SPLIT
+                splits[self.splits[TEST_SPLIT]] = TEST_SPLIT
             
-        random.seed(0)  # randomness needed to pick question at random
-        instances: List[Instance] = self._get_instances(splits=splits)
+        instances: List[Instance] = self.get_instances_for_splits(splits=splits)
         return instances
 
 
-class SummarizationScenario(Scenario):
+class MELTSummarizationScenario(Scenario):
     """
     Scenario for single document text summarization.
     """
 
-    name = "summarization"
+    name = "melt_summarization"
     description = "Scenario for summarization tasks"
     tags = ["summarization"]
 
@@ -133,38 +141,43 @@ class SummarizationScenario(Scenario):
         self,
         dataset_name: str,
         subset: Optional[str] = "",
-        sampling_min_length: Optional[int] = None,
-        sampling_max_length: Optional[int] = None,
+        train_min_length: Optional[int] = None,
+        train_max_length: Optional[int] = None,
         doc_max_length: Optional[int] = None,
         article_key: Optional[str] = "source",
         summary_key: Optional[str] = "target",
-        splits: Optional[str] = None,
+        splits: Dict[str, str] = None,
     ):
         """
         Initializes summarization scenario.
         Args:
             dataset_name: String identifier for dataset. Currently
-                          supported options ["Xsum", "cnn-dm"].
-            sampling_min_length: Int indicating minimum length for training
+                          supported options ["xsum", "cnn-dm"].
+            subset: Dataset subset to use. Defaults to "".
+            train_min_length: Int indicating minimum length for training
                                  documents. Training examples smaller than
-                                 sampling_min_length will be filtered out.
+                                 train_min_length will be filtered out.
                                  Useful for preventing the adapter from sampling
                                  really small documents.
-            sampling_max_length: Int indicating maximum length for training
+            train_max_length: Int indicating maximum length for training
                                  documents. Training examples larger than
-                                 sampling_max_length will be filtered out.
+                                 train_max_length will be filtered out.
                                  Useful for preventing the adapter from
                                  sampling really large documents.
             doc_max_length: Int indicating the maximum length to truncate
                             documents. Documents in all splits will be
                             truncated to doc_max_length tokens.
                             NOTE: Currently uses whitespace tokenization.
+            article_key: String key for article text in dataset. Defaults to "source".
+            summary_key: String key for summary text in dataset. Defaults to "target".
+            splits: Dict containing split names and corresponding split. If
+                    None, defaults to {"train": TRAIN_SPLIT, "validation": VALID_SPLIT, "test": TEST_SPLIT}.
         """
         super().__init__()
         self.dataset_name = dataset_name
         self.subset = subset
-        self.sampling_min_length = sampling_min_length
-        self.sampling_max_length = sampling_max_length
+        self.train_min_length = train_min_length
+        self.train_max_length = train_max_length
         self.doc_max_length = doc_max_length
         self.article_key = article_key
         self.summary_key = summary_key
@@ -174,7 +187,7 @@ class SummarizationScenario(Scenario):
         text = text.replace("\n", " ")
         return " ".join(text.split()[:max_length])
 
-    def _get_instances(self, splits: Dict) -> List[Instance]:
+    def get_instances_for_splits(self, splits: Dict[str, str]) -> List[Instance]:
         """
         Helper for generating instances for a split.
         Args:
@@ -193,8 +206,7 @@ class SummarizationScenario(Scenario):
                 continue
 
             if split_name not in dataset:
-                print(f"Warning: Error loading dataset {self.dataset_name} with split {split_name}")
-                continue
+                raise ValueError(f"Error loading dataset {self.dataset_name} with split {split_name}")
 
             for sample in dataset[split_name]:
                 article: str = self._clean_and_truncate(sample[self.article_key], self.doc_max_length)
@@ -202,9 +214,9 @@ class SummarizationScenario(Scenario):
 
                 if split == "train":
                     art_len = len(article.split())
-                    if self.sampling_max_length and art_len > self.sampling_max_length:
+                    if self.train_max_length and art_len > self.train_max_length:
                         continue
-                    if self.sampling_min_length and art_len < self.sampling_min_length:
+                    if self.train_min_length and art_len < self.train_min_length:
                         continue
 
                 instances.append(
@@ -221,20 +233,20 @@ class SummarizationScenario(Scenario):
         if self.splits is None:
             splits = {"train": TRAIN_SPLIT, "validation": VALID_SPLIT, "test": TEST_SPLIT}
         else:
+            splits = {}
             if "train" in self.splits:
-                splits[self.splits["train"]] = TRAIN_SPLIT
+                splits[self.splits[TRAIN_SPLIT]] = TRAIN_SPLIT
             if "validation" in self.splits:
-                splits[self.splits["validation"]] = VALID_SPLIT
+                splits[self.splits[VALID_SPLIT]] = VALID_SPLIT
             if "test" in self.splits:
-                splits[self.splits["test"]] = TEST_SPLIT
+                splits[self.splits[TEST_SPLIT]] = TEST_SPLIT
 
-        random.seed(0)  # randomness needed to pick question at random
-        instances: List[Instance] = self._get_instances(splits=splits)
+        instances: List[Instance] = self.get_instances_for_splits(splits=splits)
         return instances
 
 
 @dataclass(frozen=True)
-class LanguageLogicalStatement:
+class MELTLanguageLogicalStatement:
     subject: str  # e.g. either the individual or group to which this statement applies
     subject_category: str  # e.g. the group to which this fact applies
     specifier_type: Literal["a", "the"]  # the specifier used for the subject
@@ -261,7 +273,7 @@ class LanguageLogicalStatement:
 
 
 @dataclass(frozen=True)
-class LanguageRule(LanguageLogicalStatement):
+class MELTLanguageRule(MELTLanguageLogicalStatement):
     """Class describing how a set of attributes about an individual/group imply another attribute."""
 
     condition: List[str]  # a list of attributes which must apply for the rule to apply
@@ -287,11 +299,11 @@ class LanguageRule(LanguageLogicalStatement):
         condition = f" {self.condition_conjunction} ".join(self.condition)
         specified_subject = self.generate_specified_subject()
         specified_particular_subject = self.generate_specified_subject(specifier_type="the")
-        return f"If {specified_subject} is {condition}, then {specified_particular_subject} is {self.consequent}."
+        return f"Nếu {specified_subject} là {condition}, thì {specified_particular_subject} là {self.consequent}."
 
 
 @dataclass(frozen=True)
-class LanguageFact(LanguageLogicalStatement):
+class MELTLanguageFact(MELTLanguageLogicalStatement):
     """Class describing a statement that a subject has some attributes."""
 
     specific_attributes: List[str]  # more specific versions of the attributes
@@ -307,10 +319,10 @@ class LanguageFact(LanguageLogicalStatement):
         """
 
         if len(self.generic_attributes) == 0:
-            return "Nothing."
+            return "Không có gì."
         target_attributes = self.specific_attributes if self.use_specific_attributes else self.generic_attributes
         specified_subject = self.generate_specified_subject(upper=self.upper)
-        return f"{specified_subject} is {' and '.join(target_attributes)}."
+        return f"{specified_subject} là {' và '.join(target_attributes)}."
 
 
 def get_vocab() -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
@@ -327,40 +339,40 @@ def get_vocab() -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
 
     # A list of subjects and their categories
     subjects: Dict[str, List[str]] = {
-        "person": ["Alice", "Bob", "Carol", "Dan", "Erin", "Frank"],
+        "person": ["An", "Bình", "Cường", "Duy", "Đạt", "Phương"],
         "animal": [
-            "dog",
-            "cat",
-            "rabbit",
-            "mouse",
-            "tiger",
-            "lion",
-            "bear",
-            "squirrel",
-            "cow",
-            "panda",
-            "hedgehog",
-            "elephant",
-            "giraffe",
-            "hippo",
+            "chó",
+            "mèo",
+            "thỏ",
+            "chuột",
+            "hổ",
+            "sư tử",
+            "gấu",
+            "sóc",
+            "bò",
+            "gấu trúc",
+            "nhím",
+            "voi",
+            "hươu cao cổ",
+            "hà mã",
         ],
-        "plant": ["poppy", "dandelion", "tree", "rose", "sunflower"],
+        "plant": ["anh túc", "bồ công anh", "cây", "hoa hồng", "hoa hướng dương"],
     }
 
     # Convert list of attributes into dictionary
     # A list of attributes and their overarching meaning (used in hard difficulty)
     attribute_groups = {
-        "young": ["young"],
-        "soft": ["soft"],
-        "sad": ["sad"],
-        "scary": ["scary"],
-        "cold": ["cold", "chill", "cool"],
-        "hot": ["hot", "warm"],
-        "smart": ["smart", "clever", "wise", "intelligent"],
-        "clean": ["clean", "tidy"],
-        "small": ["small", "little", "tiny"],
-        "big": ["big", "enormous", "giant", "huge"],
-        "good": ["good", "kind", "nice"],
+        "trẻ": ["trẻ"],
+        "mềm": ["mềm"],
+        "buồn": ["buồn"],
+        "sợ": ["sợ"],
+        "lạnh": ["lạnh", "lạnh buốt", "mát mẻ"],
+        "nóng": ["nóng", "ấm"],
+        "thông minh": ["thông minh", "giỏi", "không", "sáng trí"],
+        "sạch": ["sạch", "ngăn nắp"],
+        "nhỏ": ["nhỏ", "little", "tiny"],
+        "to": ["to", "enormous", "giant", "huge"],
+        "tốt": ["tốt", "kind", "nice"],
         "beautiful": ["beautiful", "pretty"],
         "red": ["red", "crimson"],
         "blue": ["blue", "cobalt"],
@@ -392,7 +404,7 @@ def generate_rules(
     subject_category: str,
     max_rules: int = 5,
     specific_category: bool = False,
-) -> List[LanguageRule]:
+) -> List[MELTLanguageRule]:
     """Generates a random set of rules about a subject as dictionaries,
     given a list of potential attributes and the category (e.g. person) of the subject (e.g. Alice)
 
@@ -401,7 +413,7 @@ def generate_rules(
     """
     attributes_shuffled = list(attribute_groups.keys()).copy()
     random.shuffle(attributes_shuffled)
-    rules: List[LanguageRule] = []
+    rules: List[MELTLanguageRule] = []
 
     while len(attributes_shuffled) > 2 and len(rules) < max_rules:
         rule_subject = subject if specific_category else random.choice([subject_category, subject])
@@ -411,7 +423,7 @@ def generate_rules(
             attributes_shuffled[n_rule_attributes:],
         )
         rules.append(
-            LanguageRule(
+            MELTLanguageRule(
                 subject=rule_subject,
                 subject_category=subject_category,
                 specifier_type="a",
@@ -427,10 +439,10 @@ def generate_test(
     attribute_groups: Dict[str, List[str]],
     subject: str,
     subject_category: str,
-    rules: List[LanguageRule],
+    rules: List[MELTLanguageRule],
     use_specific_attributes: bool,
     p_consequenceless=0.1,
-) -> Tuple[LanguageFact, List[LanguageRule], LanguageFact]:
+) -> Tuple[MELTLanguageFact, List[MELTLanguageRule], MELTLanguageFact]:
     """Generates a test case given a set of rules, i.e. a statement about the subject from which something
     can be potentially deduced given the rules. We include an argument, p_consequenceless, to re-roll with
     some probability if the generated fact does not allow anything to be determined.
@@ -443,7 +455,7 @@ def generate_test(
         random.choice(attribute_groups[subcondition]) for subcondition in test_attributes
     ]
     test_consequents: List[str] = []  # The attributes implied by the test attributes and rules
-    test_rules_used: List[LanguageRule] = []
+    test_rules_used: List[MELTLanguageRule] = []
     for rule in rules:
         if rule.consequent in test_attributes:
             continue
@@ -460,7 +472,7 @@ def generate_test(
             attribute_groups, subject, subject_category, rules, use_specific_attributes, p_consequenceless
         )
 
-    test_fact: LanguageFact = LanguageFact(
+    test_fact: MELTLanguageFact = MELTLanguageFact(
         subject,
         subject_category,
         specifier_type="the",
@@ -469,7 +481,7 @@ def generate_test(
         use_specific_attributes=use_specific_attributes,
     )
 
-    target_fact: LanguageFact = dataclasses.replace(
+    target_fact: MELTLanguageFact = dataclasses.replace(
         test_fact,
         specific_attributes=test_consequents,
         generic_attributes=test_consequents,
@@ -478,7 +490,7 @@ def generate_test(
     return test_fact, test_rules_used, target_fact
 
 
-class SRNScenario(Scenario):
+class MELTSRNScenario(Scenario):
     """
     Synthetic Reasoning Natural Language benchmark inspired by "Transformers as Soft Reasoners over Language"
         https://arxiv.org/abs/2002.05867
@@ -504,7 +516,7 @@ class SRNScenario(Scenario):
         self.num_test_instances: int = 5000
         self.random_seed = random_seed
 
-    def generate_problem(self) -> Tuple[List[LanguageRule], LanguageFact, List[LanguageRule], LanguageFact]:
+    def generate_problem(self) -> Tuple[List[MELTLanguageRule], MELTLanguageFact, List[MELTLanguageRule], MELTLanguageFact]:
         subject_category = random.choice(list(self.subjects.keys()))
         subject = random.choice(self.subjects[subject_category])
         rules = generate_rules(
@@ -605,7 +617,7 @@ def pattern_subst(pattern: List[str], rule_symbols: List[str], substitute_dict: 
     return out
 
 
-class SyntheticReasoningScenario(Scenario):
+class MELTSyntheticReasoningScenario(Scenario):
     """
     Synthetic Reasoning benchmark inspired by
     "LIME: Learning Inductive Bias for Primitives of Mathematical Reasoning"

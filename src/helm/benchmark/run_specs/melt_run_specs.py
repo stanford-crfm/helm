@@ -2,7 +2,7 @@ from helm.benchmark.adaptation.adapter_spec import ADAPT_GENERATION, AdapterSpec
 from helm.benchmark.annotation.annotator import AnnotatorSpec
 from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
-from helm.benchmark.scenarios.scenario import ScenarioSpec
+from helm.benchmark.scenarios.scenario import ScenarioSpec, TRAIN_SPLIT, TEST_SPLIT, VALID_SPLIT
 from helm.benchmark.adaptation.common_adapter_specs import (
     get_completion_adapter_spec,
     get_generation_adapter_spec,
@@ -34,14 +34,14 @@ from helm.benchmark.metrics.common_metric_specs import (
 def get_question_answering_mlqa_spec(prompt_style: str = "normal") -> RunSpec:
     assert prompt_style in ["weak", "medium", "normal"], f"Invalid prompt style: {prompt_style}"
 
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.melt_scenario.QAScenario", args={
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.melt_scenario.MELTQAScenario", args={
         "dataset_name": "facebook/mlqa",
         "subset": "mlqa.vi.vi",
         "passage_prefix": "Ngữ cảnh: ",
         "question_prefix": "Câu hỏi: ",
         "splits": {
-            "train": "translate_train",
-            "test": "test",
+            VALID_SPLIT: "validation",
+            TEST_SPLIT: "test",
         }
     })
     if prompt_style == "weak":
@@ -53,7 +53,7 @@ def get_question_answering_mlqa_spec(prompt_style: str = "normal") -> RunSpec:
     adapter_spec = get_generation_adapter_spec(instructions=instruction, output_noun="Trả lời", max_tokens=128)
 
     return RunSpec(
-        name="question_answering_mlqa",
+        name=f"question_answering_mlqa:prompt_style={prompt_style}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_f1_metric_specs() + get_generative_harms_metric_specs(),
@@ -65,11 +65,15 @@ def get_question_answering_mlqa_spec(prompt_style: str = "normal") -> RunSpec:
 def get_question_answering_xquad_spec(prompt_style: str = "normal") -> RunSpec:
     assert prompt_style in ["weak", "medium", "normal"], f"Invalid prompt style: {prompt_style}"
 
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.melt_scenario.QAScenario", args={
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.melt_scenario.MELTQAScenario", args={
         "dataset_name": "juletxara/xquad_xtreme",
         "subset": "vi",
         "passage_prefix": "Ngữ cảnh: ",
         "question_prefix": "Câu hỏi: ",
+        "splits": {
+            VALID_SPLIT: "translate_train",
+            TEST_SPLIT: "test",
+        }
     })
 
     if prompt_style == "weak":
@@ -81,7 +85,7 @@ def get_question_answering_xquad_spec(prompt_style: str = "normal") -> RunSpec:
     adapter_spec = get_generation_adapter_spec(instructions=instruction, output_noun="Trả lời", max_tokens=128)
 
     return RunSpec(
-        name="question_answering_xquad",
+        name=f"question_answering_xquad:prompt_style={prompt_style},",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_f1_metric_specs() + get_generative_harms_metric_specs(),
@@ -93,14 +97,19 @@ def get_question_answering_xquad_spec(prompt_style: str = "normal") -> RunSpec:
 def get_summarization_vietnews_spec(prompt_style: str = "normal", temperature: float = 1.0) -> RunSpec:
     assert prompt_style in ["weak", "medium", "normal"], f"Invalid prompt style: {prompt_style}"
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.melt_scenario.SummarizationScenario",
+        class_name="helm.benchmark.scenarios.melt_scenario.MELTSummarizationScenario",
         args={
             "dataset_name": "Yuhthe/vietnews",
-            "sampling_min_length": 64,
-            "sampling_max_length": 256,
+            "train_min_length": 64,
+            "train_max_length": 256,
             "doc_max_length": 2048,
             "article_key": "article",
             "summary_key": "abstract",
+            "splits": {
+                TRAIN_SPLIT: "train",
+                VALID_SPLIT: "validation",
+                TEST_SPLIT: "test",
+            }
         },
     )
 
@@ -119,7 +128,7 @@ def get_summarization_vietnews_spec(prompt_style: str = "normal", temperature: f
     )
 
     return RunSpec(
-        name=f"summarization_vietnews:temperature={temperature}",
+        name=f"summarization_vietnews:prompt_style={prompt_style},temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_summarization_metric_specs({"task": "summarization_vietnews", "language": "vi"})
@@ -132,14 +141,19 @@ def get_summarization_vietnews_spec(prompt_style: str = "normal", temperature: f
 def get_wsummarization_wikilingua_spec(prompt_style: str = "normal", temperature: float = 1.0) -> RunSpec:
     assert prompt_style in ["weak", "medium", "normal"], f"Invalid prompt style: {prompt_style}"
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.melt_scenario.SummarizationScenario",
+        class_name="helm.benchmark.scenarios.melt_scenario.MELTSummarizationScenario",
         args={
             "dataset_name": "GEM/wiki_lingua",
-            "sampling_min_length": 64,
-            "sampling_max_length": 256,
+            "train_min_length": 64,
+            "train_max_length": 256,
             "doc_max_length": 2048,
             "article_key": "source",
             "summary_key": "target",
+            "splits": {
+                TRAIN_SPLIT: "train",
+                VALID_SPLIT: "validation",
+                TEST_SPLIT: "test",
+            }
         },
     )
 
@@ -158,7 +172,7 @@ def get_wsummarization_wikilingua_spec(prompt_style: str = "normal", temperature
     )
 
     return RunSpec(
-        name=f"summarization_wikilingua:temperature={temperature}",
+        name=f"summarization_wikilingua:prompt_style={prompt_style},temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_summarization_metric_specs({"task": "summarization_wikilingua", "language": "vi"})
@@ -169,125 +183,84 @@ def get_wsummarization_wikilingua_spec(prompt_style: str = "normal", temperature
 
 @run_spec_function("melt_sentiment_analysis_uitvsfc")
 def get_sentiment_analysis_uitvsfc_spec() -> RunSpec:
-    pass
+    raise NotImplementedError()
 
 
 @run_spec_function("melt_sentiment_analysis_vlsp2016")
 def get_sentiment_analysis_vlsp2016_spec() -> RunSpec:
-    pass
+    raise NotImplementedError()
 
 
 @run_spec_function("melt_text_classification_phoatis")
 def get_text_classification_phoatis_spec() -> RunSpec:
-    pass
+    raise NotImplementedError()
 
 
 @run_spec_function("melt_text_classification_uitvsmec")
 def get_text_classification_uitvsmec_spec() -> RunSpec:
-    pass
+    raise NotImplementedError()
 
 
 @run_spec_function("melt_knowledge_uitvimmrc")
 def get_knowledge_uitvimmrc_spec() -> RunSpec:
-    pass
+    raise NotImplementedError()
 
 
 @run_spec_function("melt_knowledge_zaloe2e")
 def get_knowledge_zaloe2e_spec() -> RunSpec:
-    pass
+    raise NotImplementedError()
 
 
 @run_spec_function("melt_toxicity_detection_uitvictsd")
 def get_toxicity_detection_uitvictsd_spec() -> RunSpec:
-    pass
+    raise NotImplementedError()
 
 
 @run_spec_function("melt_toxicity_detection_uitvihsd")
 def get_toxicity_detection_uitvihsd_spec() -> RunSpec:
-    pass
+    raise NotImplementedError()
 
 
 @run_spec_function("melt_information_retrieval_mmarco")
 def get_information_retrieval_mmarco_spec() -> RunSpec:
-    pass
+    raise NotImplementedError()
 
 
 @run_spec_function("melt_information_retrieval_mrobust04")
 def get_information_retrieval_mrobust04_spec() -> RunSpec:
-    pass
+    raise NotImplementedError()
 
 
 @run_spec_function("melt_language_modeling_mlqa")
 def get_language_modeling_mlqa_spec() -> RunSpec:
-    pass
+    raise NotImplementedError()
 
 
 @run_spec_function("melt_language_modeling_vsec")
 def get_language_modeling_vsec_spec() -> RunSpec:
-    pass
+    raise NotImplementedError()
 
 
 @run_spec_function("melt_reasoning_math")
 def get_math_reasoning_spec() -> RunSpec:
-    pass
+    raise NotImplementedError()
 
 
 @run_spec_function("melt_reasoning_synthetic_reasoning")
 def get_reasoning_synthetic_reasoning_spec(mode: str) -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.synthetic_reasoning_scenario.SyntheticReasoningScenario",
-        args={"mode": mode},
-    )
-
-    adapter_spec = get_generation_adapter_spec(
-        instructions="Hãy giải bài toán sau.",
-        input_noun="Bài toán",
-        output_noun="Lời giải",
-        max_train_instances=5,
-        stop_sequences=["\n"],
-        max_tokens=50,  # answer upperbounded by 50 tokens
-    )
-
-    return RunSpec(
-        name=f"synthetic_reasoning:mode={mode}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_generative_harms_metric_specs(),
-        groups=["melt", "synthetic_reasoning", f"synthetic_reasoning_{mode}"],
-    )
+    raise NotImplementedError()
 
 
 @run_spec_function("melt_reasoning_synthetic_reasoning_natural")
 def get_reasoning_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.synthetic_reasoning_natural_scenario.SRNScenario",
-        args={"difficulty": difficulty},
-    )
-
-    adapter_spec = get_generation_adapter_spec(
-        instructions="Hãy dựa vào `Quy luật` được cho để suy luận ra quy tắc.",
-        input_noun="Quy luật",
-        newline_after_input_noun=True,
-        output_noun=None,
-        max_train_instances=3,  # limited by the context length
-        max_tokens=20,
-    )
-    srn_metric_specs = get_basic_metric_specs(["f1_set_match", "iou_set_match", "exact_set_match"])
-
-    return RunSpec(
-        name=f"synthetic_reasoning_natural:difficulty={difficulty}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=srn_metric_specs + get_generative_harms_metric_specs(),
-        groups=["melt", "synthetic_reasoning", "synthetic_reasoning_natural"],
-    )
+    raise NotImplementedError()
 
 
 @run_spec_function("melt_translation_opus100")
 def get_translation_opus100_spec() -> RunSpec:
-    pass
+    raise NotImplementedError()
 
 
 @run_spec_function("melt_translation_phomt")
 def get_translation_phomt_spec() -> RunSpec:
-    pass
+    raise NotImplementedError()
