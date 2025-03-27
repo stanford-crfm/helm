@@ -1,180 +1,95 @@
-import json
-import re
+from typing import Dict, Optional, Set
 
-from typing import Any, Dict, Optional, Union, Set
-
-from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.annotation.annotator import Annotator
-from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo
+from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo, LLMAsJuryAnnotator
 from helm.clients.auto_client import AutoClient
-from helm.common.hierarchical_logger import hlog
-from helm.common.request import Request
+
 
 PROMPT_TEMPLATE = """You are a medical expert tasked with evaluating responses to consumer medication questions.
 
+Your goal is to assess how well the response captures the information asked, and how it compares to the gold response in terms of accuracy, completeness, and clarity.
+
+The question provided in these tags:
 <medication_question>
 {{QUESTION}}
 </medication_question>
 
-<model_response>
-{{MODEL_OUTPUT}}
-</model_response>
+The response will be provided in these tags:
+<response>
+{{RESPONSE}}
+</response>
 
-<gold_answer>
-{{REFERENCE_ANSWER}}
-</gold_answer>
+The reference response will be provided in these tags:
+<gold_response>
+{{GOLD_RESPONSE}}
+</gold_response>
 
-Please evaluate the model's response on a scale of 1-5 (1 = poor, 5 = excellent) for each of these three key dimensions:
+Carefully review the <response> and compare it to the <gold_response> when needed.
+Please evaluate the response on a scale of 1-5 (1 = poor, 5 = excellent) for each of these three key dimensions:
 
-1. Medical Accuracy (1-5)
-- Does the response provide factually correct information about the medication?
-- Does it match the medical content found in the gold answer?
-- Is it free from potentially harmful misinformation?
+Evaluation Criteria:
+Accuracy (1-5)
+- Is the information about the medication factually correct? 
 
-2. Answer Completeness (1-5)
-- Does the response fully address the specific question type (e.g., interaction, action, information)?
-- Does it cover the key points found in the gold answer?
-- For conditional answers (that depend on manufacturer, patient condition, etc.), does it acknowledge the variability?
+Completeness (1-5)
+- Does the response fully answer the question, covering all important points? 
 
-3. Consumer Suitability (1-5)
-- Is the response written in language consumers can understand?
-- Does it include appropriate cautions or advice to consult healthcare professionals when needed?
-- Does it cite or reference reliable sources when appropriate?
+Clarity (1-5)
+- Is the response easy for a consumer to understand?
 
+Output Format:
 Output your evaluation as a single valid JSON object matching the following structure:
 {
-    "medical_accuracy": {
+    "accuracy": {
         "score": 0,
         "explanation": "Brief explanation of why this score was given."
     },
-    "answer_completeness": {
+    "completeness": {
         "score": 0,
         "explanation": "Brief explanation of why this score was given."
     },
-    "consumer_suitability": {
+    "clarity": {
         "score": 0,
         "explanation": "Brief explanation of why this score was given."
     }
 }
-Ensure the output is valid JSON.
-Use single quotes (') inside the explanation fields when quoting text or sections to avoid invalid JSON formatting.
-Do not include any additional information in the output.
+
+Ensure the output is valid JSON:
+- Use **double quotes** (") for all keys and string values.
+- When quoting text or sections inside the explanations, use escaped double quotes (\") to maintain valid JSON formatting.
+- Do not include any additional information in the output.
 """
 
-EXPECTED_ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
-    "medical_accuracy": {"score", "explanation"},
-    "answer_completeness": {"score", "explanation"},
-    "consumer_suitability": {"score", "explanation"},
+ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
+    "accuracy": {"score", "explanation"},
+    "completeness": {"score", "explanation"},
+    "clarity": {"score", "explanation"},
+}
+
+ANNOTATOR_MODELS: Dict[str, AnnotatorModelInfo] = {
+    "gpt": AnnotatorModelInfo(
+        model_name="openai/gpt-4o-2024-05-13",
+        model_deployment="stanfordhealthcare/gpt-4o-2024-05-13",
+    ),
+    "llama": AnnotatorModelInfo(
+        model_name="meta/llama-3.3-70b-instruct",
+        model_deployment="stanfordhealthcare/llama-3.3-70b-instruct",
+    ),
+    "claude": AnnotatorModelInfo(
+        model_name="anthropic/claude-3-7-sonnet-20250219",
+        model_deployment="stanfordhealthcare/claude-3-7-sonnet-20250219",
+    ),
 }
 
 
-class MedicationQAAnnotator(Annotator):
+class MedicationQAAnnotator(LLMAsJuryAnnotator):
     """The MedicationQA autograder."""
 
     name = "medication_qa"
 
     def __init__(self, auto_client: AutoClient, template_name: Optional[str] = None):
-        self._auto_client = auto_client
-
-    def _sanitize_model_response(self, model_response: str) -> str:
-        json_match = re.search(r'\{.*\}', model_response, re.DOTALL)
-        if json_match:
-            json_output = json_match.group(0)
-        else:
-            json_output = model_response
-        return json_output
-    
-    def annotate(self, request_state: RequestState) -> Any:
-        assert request_state.result
-        assert len(request_state.result.completions) == 1
-        prompt_template = PROMPT_TEMPLATE
-        model_output_text = request_state.result.completions[0].text
-        annotator_prompt = (
-            prompt_template.replace("{{QUESTION}}", request_state.instance.input.text)
-            .replace("{{REFERENCE_ANSWER}}", request_state.instance.references[0].output.text)
-            .replace("{{MODEL_OUTPUT}}", model_output_text)
+        super().__init__(
+            auto_client=auto_client,
+            prompt_template=PROMPT_TEMPLATE,
+            annotation_criteria=ANNOTATION_CRITERIA,
+            annotator_models=ANNOTATOR_MODELS,
         )
-        if not model_output_text.strip():
-            hlog(
-                "WARNING: MedicationQAAnnotator skipped sending requests to annotator models "
-                "because the model response was empty"
-            )
-            return {
-                "prompt_text": None,
-                "empty_output_equivalence_judgement": False,
-            }
-
-        SHORT_NAME_TO_MODEL_INFO: Dict[str, AnnotatorModelInfo] = {
-            "gpt": AnnotatorModelInfo(
-                model_name="openai/gpt-4o-2024-05-13",
-                model_deployment="stanfordhealthcare/gpt-4o-2024-05-13",
-            ),
-            "llama": AnnotatorModelInfo(
-                model_name="meta/llama-3.3-70b-instruct",
-                model_deployment="stanfordhealthcare/llama-3.3-70b-instruct",
-            ),
-            "claude": AnnotatorModelInfo(
-                model_name="anthropic/claude-3-7-sonnet-20250219",
-                model_deployment="stanfordhealthcare/claude-3-7-sonnet-20250219",
-            ),
-            # "gemini": AnnotatorModelInfo(
-            #     model_name="google/gemini-2.0-flash-001",
-            #     model_deployment="stanfordhealthcare/gemini-2.0-flash-001",
-            # ),
-        }
-        annotations: Dict[str, Union[Optional[str], Optional[bool]]] = {"prompt_text": annotator_prompt}
-        failed_counts: Dict[str, int] = {
-            "gpt": 0,
-            "llama": 0,
-            "claude": 0,
-            # "gemini": 0
-        }
-        for annotator_name, annotator_model_info in SHORT_NAME_TO_MODEL_INFO.items():
-            failed = False
-            annotator_criteria: Dict[str, Any] = {}
-            annotator_request = Request(
-                model=annotator_model_info.model_name,
-                model_deployment=annotator_model_info.model_deployment,
-                prompt=annotator_prompt,
-                temperature=0.0,
-                max_tokens=4096,
-            )
-            annotator_response = self._auto_client.make_request(annotator_request)
-            if not annotator_response.success:
-                hlog(
-                    "WARNING: MedicationQAAnnotator got an error response from "
-                    f"{annotator_model_info.model_name}: {annotator_response.error}. Model output: {annotator_response}"
-                )
-                failed = True
-            else:
-                try:
-                    annotator_output = annotator_response.completions[0].text
-                    annotator_output = self._sanitize_model_response(annotator_output)
-                    annotator_criteria = json.loads(annotator_output)
-                except Exception as e:
-                    hlog(
-                        "WARNING: MedicationQAAnnotator got an error parsing the response from "
-                        f"{annotator_model_info.model_name}: {e}. Model output: {annotator_output}"
-                    )
-                    failed = True
-                
-                for key, value in EXPECTED_ANNOTATION_CRITERIA.items():
-                    if key not in annotator_criteria:
-                        hlog(
-                            f"WARNING: MedicationQAAnnotator did not find the expected key "
-                            f"'{key}' in the response from {annotator_model_info.model_name}. Model output: {annotator_output}"
-                        )
-                        failed = True
-                    else:
-                        for subkey in value:
-                            if subkey not in annotator_criteria[key]:
-                                hlog(
-                                    f"WARNING: MedicationQAAnnotator did not find the expected subkey "
-                                    f"'{subkey}' in the response from {annotator_model_info.model_name}. Model output: {annotator_output}"
-                                )
-                                failed = True
-            failed_counts[annotator_name] += failed
-
-            annotations[annotator_name] = annotator_criteria
-        hlog(f"Failed model annotations: {failed_counts}")
-        return annotations
