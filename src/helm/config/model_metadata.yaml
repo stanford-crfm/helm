@@ -2283,6 +2283,15 @@ models:
     release_date: 2025-01-30
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: mistralai/mistral-small-2503
+    display_name: Mistral Small 3.1 (2503)
+    description: Mistral Small 3.1 (2503) is a model with improved text performance, multimodal understanding, and an expanded context window of up to 128k tokens. ([blog](https://mistral.ai/news/mistral-small-3-1))
+    creator_organization_name: Mistral AI
+    access: open
+    num_parameters: 23600000000
+    release_date: 2025-03-17
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: mistralai/mistral-medium-2312
     display_name: Mistral Medium (2312)
     description: Mistral is a transformer model that uses Grouped-Query Attention (GQA) and Sliding-Window Attention (SWA).
