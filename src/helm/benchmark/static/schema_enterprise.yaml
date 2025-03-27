@@ -125,12 +125,9 @@ run_groups:
     category: All scenarios
     subgroups:
       - gold_commodity_news
-<<<<<<< HEAD
       - financial_phrasebank
       - conv_fin_qa_calc
-=======
       - kpi_edgar
->>>>>>> f19fec8e5... Add kpi_edgar scenario
 
   - name: legal_scenarios
     display_name: Legal Scenarios

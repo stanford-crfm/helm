@@ -1,4 +1,4 @@
-from typing import List, Dict, Set, Sequence, Tuple, Callable, Union, cast
+from typing import List, Dict, Set, Tuple, Callable, Union
 import logging
 import re
 import itertools
@@ -10,7 +10,6 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.metric_service import MetricService
-from helm.benchmark.scenarios.scenario import Reference
 from helm.benchmark.scenarios.kpi_edgar_scenario import TAG_DICT, TAG_PAREN_RE
 
 
@@ -209,9 +208,10 @@ class NERAdjustedF1Metric(Metric):
     ) -> List[Stat]:
         """Evaluate free-form generation."""
         assert len(request_state.instance.references) == 1
+        assert request_state.result
         assert len(request_state.result.completions) == 1
-        golds = [reference.output.text for reference in request_state.instance.references if reference.is_correct]
-        preds = [completion.text.strip() for completion in request_state.result.completions]
+        # golds = [reference.output.text for reference in request_state.instance.references if reference.is_correct]
+        # preds = [completion.text.strip() for completion in request_state.result.completions]
 
         pred_text = request_state.instance.references[0].output.text
         gold_text = request_state.result.completions[0].text
@@ -227,16 +227,14 @@ class NERAdjustedF1Metric(Metric):
 
         gold_len = len(gold_token_list)
         # TODO: if the length are different, then the score should be 0.
-        tagged_size_dict = get_tagged_size_dict(
-            gold_token_list, pred_token_list, self.ignore_index, self.re_tag_paren
-        )
+        tagged_size_dict = get_tagged_size_dict(gold_token_list, pred_token_list, self.ignore_index, self.re_tag_paren)
         tag_stat_tpl_list = [
             (
                 Stat(MetricName(self.NAME + "." + tag + "." + "gold")).add(vals[0]),
                 Stat(MetricName(self.NAME + "." + tag + "." + "pred")).add(vals[1]),
                 Stat(MetricName(self.NAME + "." + tag + "." + "intersection")).add(vals[2]),
             )
-            for (tag, vals) in tagged_size_dict.items() 
+            for (tag, vals) in tagged_size_dict.items()
         ]
         tag_stat_list = list(itertools.chain.from_iterable(tag_stat_tpl_list))
         len_stat = Stat(MetricName(self.NAME + "." + "len")).add(gold_len)
