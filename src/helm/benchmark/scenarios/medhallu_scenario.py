@@ -24,6 +24,7 @@ class MedHalluScenario(Scenario):
         "A dataset which consists of a PubMed article and a question "
     )
     tags = ["knowledge", "reasoning", "biomedical"]
+    POSSIBLE_ANSWER_CHOICES: List[str] = ["1", "0"]
 
     def __init__(self):
         super().__init__()
@@ -58,7 +59,7 @@ class MedHalluScenario(Scenario):
         return instances
 
     def create_instance(self, question, knowledge, answer, label, split):
-        prompt_text="""
+        prompt_text=f"""
             World Knowledge: {knowledge}
 
             Question: {question}
