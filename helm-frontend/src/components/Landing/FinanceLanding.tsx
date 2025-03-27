@@ -13,12 +13,32 @@ export default function FinanceLanding() {
             help address this, we introduce the{" "}
             <strong className="font-bold">HELM Finance</strong> leaderboard. The
             HELM Finance leaderboard evaluates leading LLMs on three financial
-            benchmarks (i.e., FinQA, FinanceBench, BANKING77) that utilize real
-            financial documents. Like all other HELM leaderboards, the HELM
-            Finance leaderboard provides full prompt-level transparency, and the
-            results can be fully reproduced using the open-source HELM
-            framework. We hope that this leaderboard provides valuable insights
-            for financial practitioners.
+            benchmarks (i.e.,{" "}
+            <a
+              className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+              href="https://arxiv.org/abs/2109.00122/"
+            >
+              FinQA
+            </a>
+            ,{" "}
+            <a
+              className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+              href="https://arxiv.org/abs/2311.11944/"
+            >
+              FinanceBench
+            </a>
+            ,{" "}
+            <a
+              className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+              href="https://aclanthology.org/2020.nlp4convai-1.5/"
+            >
+              BANKING77
+            </a>
+            ) that utilize real financial documents. Like all other HELM
+            leaderboards, the HELM Finance leaderboard provides full
+            prompt-level transparency, and the results can be fully reproduced
+            using the open-source HELM framework. We hope that this leaderboard
+            provides valuable insights for financial practitioners.
           </p>
 
           <p className="my-4">
