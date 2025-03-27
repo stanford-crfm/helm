@@ -24,7 +24,6 @@ class MedHalluScenario(Scenario):
         "A dataset which consists of a PubMed article and a question "
     )
     tags = ["knowledge", "reasoning", "biomedical"]
-    POSSIBLE_ANSWER_CHOICES: List[str] = ["1", "0"]
 
     def __init__(self):
         super().__init__()

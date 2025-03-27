@@ -859,8 +859,8 @@ def get_medhallu_spec() -> RunSpec:
         class_name="helm.benchmark.scenarios.medhallu_scenario.MedHalluScenario", args={}
     )
 
-    adapter_spec = get_multiple_choice_adapter_spec(
-        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+    adapter_spec = get_generation_adapter_spec(
+        # method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions="""You are an AI assistant with extensive knowledge in the field of medicine. I want you act as an answer judge. Given a question and an
 answer, your objective is to determine if the
 
