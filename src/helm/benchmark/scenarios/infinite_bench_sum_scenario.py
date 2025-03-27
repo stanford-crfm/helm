@@ -27,9 +27,9 @@ class InfiniteBenchSumScenario(Scenario):
     description = "Summarize a novel from InfiniteBench"
     tags = ["summarization"]
 
-    def __init__(self, min_num_word: float = 0.0, max_num_word: float = 100e6):
-        self.min_num_word = min_num_word
-        self.max_num_word = max_num_word
+    def __init__(self, min_num_words: int, max_num_words: int):
+        self.min_num_words = min_num_words
+        self.max_num_words = max_num_words
         super().__init__()
 
     def get_instances(self, output_path: str) -> List[Instance]:
@@ -63,7 +63,7 @@ class InfiniteBenchSumScenario(Scenario):
 
         dataset = dataset.map(
             lambda example: {"prompt_wc": count_words(example["context"]) + count_words(example["input"])}
-        ).filter(lambda example: self.min_num_word <= example["prompt_wc"] <= self.max_num_word)
+        ).filter(lambda example: self.min_num_words <= example["prompt_wc"] <= self.max_num_words)
 
         # Read all instances
         instances: List[Instance] = []
