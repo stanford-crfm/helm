@@ -23,7 +23,6 @@ class AnnotatorFactory:
 
     def get_annotator(self, annotator_spec: AnnotatorSpec) -> Annotator:
         """Return a annotator based on the name."""
-        print("[debug] get_annotator called")
         annotator_name: str = annotator_spec.class_name.split(".")[-1].lower().replace("annotator", "")
 
         cache_config: CacheConfig = self.cache_backend_config.get_cache_config(annotator_name)
