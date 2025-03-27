@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import List
 from datasets import load_dataset
 
 from helm.common.hierarchical_logger import hlog
@@ -15,14 +15,13 @@ from helm.benchmark.scenarios.scenario import (
 
 class MedHalluScenario(Scenario):
     """
-    MedHallu is a medical hallucination dataset that consists of PubMed articles and associated questions, with the objective being to classify whether the answer is factual or hallucinated.
+    MedHallu is a medical hallucination dataset that consists of PubMed articles and associated questions,
+    with the objective being to classify whether the answer is factual or hallucinated.
     MedHallu: https://medhallu.github.io/
     """
 
     name = "medhallu"
-    description = (
-        "A dataset which consists of a PubMed article and a question "
-    )
+    description = "A dataset which consists of a PubMed article and a question "
     tags = ["knowledge", "reasoning", "biomedical"]
 
     def __init__(self):
@@ -58,7 +57,7 @@ class MedHalluScenario(Scenario):
         return instances
 
     def create_instance(self, question, knowledge, answer, label, split):
-        prompt_text=f"""
+        prompt_text = f"""
             World Knowledge: {knowledge}
 
             Question: {question}
@@ -66,18 +65,21 @@ class MedHalluScenario(Scenario):
             Answer: {answer}
 
 
-            Return just an integer value, '0' if the answer is factual and '1' if the answer is hallucinated. No letter or word, just the integer value.
+            Return just an integer value, '0' if the answer is factual and '1' if the answer is hallucinated.
+            No letter or word, just the integer value.
 
 
             Your Judgment:
             """
         return Instance(
             input=PassageQuestionInput(
-                passage="", question=prompt_text,
+                passage="",
+                question=prompt_text,
             ),
             references=[Reference(Output(text=label), tags=[CORRECT_TAG])],
             split=split,
         )
+
     def get_instances(self, output_path: str) -> List[Instance]:
         # Load the MedCalc-Bench dataset from Hugging Face
         dataset = load_dataset("UTAustin-AIHealth/MedHallu", "pqa_labeled", split="train")
@@ -91,10 +93,11 @@ class MedHalluScenario(Scenario):
             knowledge = row["Knowledge"]
             hallucinated_answer = row["Hallucinated Answer"]
 
-
             gt_instance = self.create_instance(question, knowledge, ground_truth_answer, label="0", split=TEST_SPLIT)
             instances.append(gt_instance)
 
-            hallucinated_instance = self.create_instance(question, knowledge, hallucinated_answer, label="1", split=TEST_SPLIT)
+            hallucinated_instance = self.create_instance(
+                question, knowledge, hallucinated_answer, label="1", split=TEST_SPLIT
+            )
             instances.append(hallucinated_instance)
         return instances
