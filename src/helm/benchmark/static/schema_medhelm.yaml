@@ -591,7 +591,7 @@ run_groups:
 
   - name: medhallu
     display_name: MedHallu
-    description: A dataset of PubMed articles and associated questions, with the objective being to classify whether the answer is factual or hallucinated.
+    description: A dataset of PubMed articles and associated questions, with the objective being to classify whether the answer is factual or hallucinated [Pandit et al, 2025](https://arxiv.org/abs/2502.14302).
     metric_groups:
       - accuracy
       - efficiency
