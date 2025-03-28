@@ -4,53 +4,56 @@ from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo, LLMAsJu
 from helm.clients.auto_client import AutoClient
 
 
-PROMPT_TEMPLATE = """You are a medical expert tasked with evaluating responses to consumer medication questions.
+PROMPT_TEMPLATE = """You are a medical expert responsible for evaluating the quality of a
+response to a clinical instruction, given an associated Electronic Health Record (EHR).
 
-Your goal is to assess how well the response captures the information asked,
-and how it compares to the gold response in terms of accuracy, completeness, and clarity.
+Your goal is to assess how well the response interprets the EHR, follows clinical best practices,
+and aligns with the gold response in terms of accuracy, completeness, and clarity.
 
-The question provided in these tags:
-<medication_question>
+The instruction and EHR pair will be provided in these tags:
+<user_request>
 {{QUESTION}}
-</medication_question>
+</user_request>
 
 The response will be provided in these tags:
 <response>
 {{RESPONSE}}
 </response>
 
-The reference response will be provided in these tags:
+The gold response (reference answer) will be provided in these tags:
 <gold_response>
 {{GOLD_RESPONSE}}
 </gold_response>
 
-Carefully review the <response> and compare it to the <gold_response> when needed.
-Please evaluate the response on a scale of 1-5 (1 = poor, 5 = excellent) for each of these three key dimensions:
+Carefully review the <response> based on the <user_request> and compare it to
+the <gold_response> when needed.
+For each category below, rate the response on a scale of 1 to 5 (1 = very poor, 5 = excellent)
+and provide a brief explanation for your score:
 
 Evaluation Criteria:
 Accuracy (1-5)
-- Is the information about the medication factually correct?
+- Does the response provide correct medical information based on the EHR and clinical guidelines?
 
 Completeness (1-5)
-- Does the response fully answer the question, covering all important points?
+- Does the response include all important patient information and address the clinical question?
 
 Clarity (1-5)
-- Is the response easy for a consumer to understand?
+- Is the response written clearly so clinicians can easily understand it?
 
 Output Format:
-Output your evaluation as a single valid JSON object matching the following structure:
+Generate a valid JSON object with your evaluation:
 {
     "accuracy": {
         "score": 0,
-        "explanation": "Brief explanation of why this score was given."
+        "explanation": "Explain why this score was given."
     },
     "completeness": {
         "score": 0,
-        "explanation": "Brief explanation of why this score was given."
+        "explanation": "Explain why this score was given."
     },
     "clarity": {
         "score": 0,
-        "explanation": "Brief explanation of why this score was given."
+        "explanation": "Explain why this score was given."
     }
 }
 
@@ -83,10 +86,10 @@ ANNOTATOR_MODELS: Dict[str, AnnotatorModelInfo] = {
 }
 
 
-class MedicationQAAnnotator(LLMAsJuryAnnotator):
-    """The MedicationQA autograder."""
+class MedalignAnnotator(LLMAsJuryAnnotator):
+    """The Medalign autograder."""
 
-    name = "medication_qa"
+    name = "medalign"
 
     def __init__(self, auto_client: AutoClient, template_name: Optional[str] = None):
         super().__init__(

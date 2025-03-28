@@ -9,8 +9,8 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 
 
-class MedicationQAMetric(Metric):
-    """Score metrics for MedicationQA."""
+class MediQAMetric(Metric):
+    """Score metrics for MediQA."""
 
     def evaluate_generation(
         self,
@@ -20,7 +20,7 @@ class MedicationQAMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         assert request_state.annotations
-        annotations: Dict[str, Any] = request_state.annotations["medication_qa"]
+        annotations: Dict[str, Any] = request_state.annotations["medi_qa"]
         scores: List[int] = []
         score = 0.0
         for annotation_key, annotation_dict in annotations.items():
@@ -30,5 +30,5 @@ class MedicationQAMetric(Metric):
         if scores:
             score = sum(scores) / len(scores)
         return [
-            Stat(MetricName("medication_qa_accuracy")).add(score),
+            Stat(MetricName("medi_qa_accuracy")).add(score),
         ]
