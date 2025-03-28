@@ -1,6 +1,6 @@
 # mypy: check_untyped_defs = False
 from dataclasses import replace
-from typing import Any, Dict, List, Optional, cast, Union
+from typing import Any, Dict, List, Optional, cast, Union, Callable
 
 from helm.benchmark.model_metadata_registry import is_vlm
 from helm.common import multimodal_request_utils
@@ -8,6 +8,7 @@ from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE, MultimediaObject, MediaObject
 from helm.common.request import ErrorFlags, wrap_request_time, Request, RequestResult, GeneratedOutput, Token
 from helm.common.hierarchical_logger import hlog
+from helm.common.object_spec import get_class_by_name
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -58,6 +59,7 @@ class OpenAIClient(CachingClient):
         base_url: Optional[str] = None,
         reasoning_effort: Optional[str] = None,
         openai_model_name: Optional[str] = None,
+        output_processor: Optional[str] = None,
     ):
         super().__init__(cache_config=cache_config)
         self.tokenizer = tokenizer
@@ -65,6 +67,9 @@ class OpenAIClient(CachingClient):
         self.client = OpenAI(api_key=api_key, organization=org_id, base_url=base_url)
         self.reasoning_effort = reasoning_effort
         self.openai_model_name = openai_model_name
+        self.output_processor: Optional[Callable[[str], str]] = (
+            get_class_by_name(output_processor) if output_processor else None
+        )
 
     def _get_model_for_request(self, request: Request) -> str:
         return self.openai_model_name or request.model_engine
@@ -322,6 +327,8 @@ class OpenAIClient(CachingClient):
             # The OpenAI chat completion API doesn't support echo.
             # If `echo_prompt` is true, combine the prompt and completion.
             raw_completion_content = raw_completion["message"]["content"]
+            if self.output_processor:
+                raw_completion_content = self.output_processor(raw_completion_content)
             text: str = request.prompt + raw_completion_content if request.echo_prompt else raw_completion_content
             # The OpenAI chat completion API doesn't return us tokens or logprobs, so we tokenize ourselves.
             tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(

@@ -38,7 +38,10 @@ class Banking77Scenario(Scenario):
 
         # TODO: Switch this to the production dataset when available.
         dataset = datasets.load_dataset(
-            "PolyAI/banking77", cache_dir=cache_dir, revision="90d4e2ee5521c04fc1488f065b8b083658768c57"
+            "PolyAI/banking77",
+            cache_dir=cache_dir,
+            revision="90d4e2ee5521c04fc1488f065b8b083658768c57",
+            trust_remote_code=True,
         )
 
         instances: List[Instance] = []

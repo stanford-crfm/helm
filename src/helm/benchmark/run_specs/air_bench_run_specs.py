@@ -38,7 +38,11 @@ def get_air_bench_2024_spec(
             f"annotator_model={annotator_args['model']},"
             f"annotator_model_deployment={annotator_args['model_deployment']}"
         )
-    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.air_bench_annotator.AIRBench2024Annotator")]
+    annotator_specs = [
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.air_bench_annotator.AIRBench2024Annotator", args=annotator_args
+        )
+    ]
     metric_specs = [
         MetricSpec(class_name="helm.benchmark.metrics.air_bench_metrics.AIRBench2024ScoreMetric"),
         MetricSpec(class_name="helm.benchmark.metrics.air_bench_metrics.AIRBench2024BasicGenerationMetric"),

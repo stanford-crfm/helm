@@ -82,6 +82,12 @@ metrics:
     display_name: Macro F1 score
     description: Macro F1 score
     lower_is_better: false
+  - name: inference_runtime
+    display_name: Observed inference runtime (s)
+    short_display_name: Observed inference time (s)
+    lower_is_better: true
+    description: Average observed time to process a request to the model (via an API, and thus depends on particular deployment).
+
 
 ############################################################
 perturbations: []
@@ -90,12 +96,16 @@ perturbations: []
 metric_groups:
   - name: accuracy
     display_name: Accuracy
+    aggregation_strategies: 
+      - mean
     metrics:
       - name: ${main_name}
         split: ${main_split}
 
   - name: efficiency
     display_name: Efficiency
+    aggregation_strategies: 
+      - mean
     metrics:
     - name: inference_runtime
       split: ${main_split}
