@@ -13,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
 from tqdm import tqdm
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_file_downloaded
+from helm.common.audio_utils import is_invalid_audio_file
 import json
 
 
@@ -91,7 +92,8 @@ class AirBenchChatScenario(Scenario):
         ensure_file_downloaded(source_url=AirBenchChatScenario.META_DATA_FILE_PATH, target_path=meta_data_path)
         meta_data = json.load(open(meta_data_path))
         subject_indices = self._get_subject_indices(meta_data)
-        for _, row in enumerate(tqdm(subject_indices)):
+        valid_testing_indices = []
+        for _, row in enumerate(subject_indices):
             audio_meda_data = meta_data[row]
             hf_audio_file_path = os.path.join(
                 self.HF_DATA_PATH_PREFIX,
@@ -101,17 +103,26 @@ class AirBenchChatScenario(Scenario):
                 data_dir, f'{audio_meda_data["task_name"]}_{audio_meda_data["dataset_name"]}_{audio_meda_data["path"]}'
             )
             ensure_file_downloaded(source_url=hf_audio_file_path, target_path=local_audio_file_path)
+            if not is_invalid_audio_file(local_audio_file_path):
+                valid_testing_indices.append(row)
+        for _, row in enumerate(tqdm(valid_testing_indices)):
+            audio_meda_data_valid = meta_data[row]
+            local_audio_file_path_valid = os.path.join(
+                data_dir,
+                f'{audio_meda_data_valid["task_name"]}'
+                f'_{audio_meda_data_valid["dataset_name"]}_{audio_meda_data_valid["path"]}',
+            )
             input = Input(
                 multimedia_content=MultimediaObject(
                     [
                         MediaObject(
-                            content_type=self._get_content_type(audio_meda_data["path"]),
-                            location=local_audio_file_path,
+                            content_type=self._get_content_type(audio_meda_data_valid["path"]),
+                            location=local_audio_file_path_valid,
                         ),
-                        MediaObject(content_type="text/plain", text=audio_meda_data["question"]),
+                        MediaObject(content_type="text/plain", text=audio_meda_data_valid["question"]),
                     ]
                 )
             )
-            references = [Reference(Output(text=audio_meda_data["answer_gt"]), tags=[CORRECT_TAG])]
+            references = [Reference(Output(text=audio_meda_data_valid["answer_gt"]), tags=[CORRECT_TAG])]
             instances.append(Instance(input=input, references=references, split=TEST_SPLIT))
         return instances
