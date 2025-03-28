@@ -20,7 +20,7 @@ class MedHalluScenario(Scenario):
     """
 
     name = "medhallu"
-    description = "A dataset of PubMed articles and associated questions, with the objective being to classify whether the answer is factual or hallucinated."   # noqa: E501
+    description = "A dataset of PubMed articles and associated questions, with the objective being to classify whether the answer is factual or hallucinated."  # noqa: E501
     tags = ["knowledge", "reasoning", "biomedical"]
 
     def create_instance(self, question, knowledge, answer, label, split):
