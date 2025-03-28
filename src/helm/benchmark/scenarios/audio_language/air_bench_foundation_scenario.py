@@ -13,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
 from tqdm import tqdm
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_file_downloaded
+from helm.common.audio_utils import is_invalid_audio_file
 import json
 
 
@@ -100,7 +101,8 @@ class AirBenchFoundationScenario(Scenario):
         ensure_file_downloaded(source_url=AirBenchFoundationScenario.META_DATA_FILE_PATH, target_path=meta_data_path)
         meta_data = json.load(open(meta_data_path))
         subject_indices = self._get_subject_indices(meta_data)
-        for _, row in enumerate(tqdm(subject_indices)):
+        valid_testing_indices = []
+        for _, row in enumerate(subject_indices):
             audio_meda_data = meta_data[row]
             hf_audio_file_path = os.path.join(
                 self.HF_DATA_PATH_PREFIX,
@@ -110,11 +112,21 @@ class AirBenchFoundationScenario(Scenario):
                 data_dir, f'{audio_meda_data["task_name"]}_{audio_meda_data["dataset_name"]}_{audio_meda_data["path"]}'
             )
             ensure_file_downloaded(source_url=hf_audio_file_path, target_path=local_audio_file_path)
+            if not is_invalid_audio_file(local_audio_file_path):
+                valid_testing_indices.append(row)
 
-            answer: str = audio_meda_data["answer_gt"]
+        for _, row in enumerate(tqdm(valid_testing_indices)):
+            audio_meda_data_valid = meta_data[row]
+            local_audio_file_path = os.path.join(
+                data_dir,
+                f'{audio_meda_data_valid["task_name"]}'
+                f'_{audio_meda_data_valid["dataset_name"]}_{audio_meda_data_valid["path"]}',
+            )
+
+            answer: str = audio_meda_data_valid["answer_gt"]
             references: List[Reference] = []
 
-            answer = self._get_label_from_answer(audio_meda_data, answer)
+            answer = self._get_label_from_answer(audio_meda_data_valid, answer)
             # The given correct answer is a letter, but we need an index
             correct_answer_index: int = ord(answer) - ord("A")
             # The options are originally appended to the question
@@ -123,7 +135,7 @@ class AirBenchFoundationScenario(Scenario):
                 reference: Reference
                 is_correct: bool = i == correct_answer_index
                 reference = Reference(
-                    Output(text=audio_meda_data[option_key]), tags=[CORRECT_TAG] if is_correct else []
+                    Output(text=audio_meda_data_valid[option_key]), tags=[CORRECT_TAG] if is_correct else []
                 )
                 references.append(reference)
 
@@ -131,10 +143,10 @@ class AirBenchFoundationScenario(Scenario):
                 multimedia_content=MultimediaObject(
                     [
                         MediaObject(
-                            content_type=self._get_content_type(audio_meda_data["path"]),
+                            content_type=self._get_content_type(audio_meda_data_valid["path"]),
                             location=local_audio_file_path,
                         ),
-                        MediaObject(content_type="text/plain", text=audio_meda_data["question"]),
+                        MediaObject(content_type="text/plain", text=audio_meda_data_valid["question"]),
                     ]
                 )
             )
