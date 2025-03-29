@@ -235,6 +235,7 @@ run_groups:
     subgroups:
       - auditory_perception
       - emotion_detection
+      - reasoning
       - knowledge
       - robustness
       - multilinguality
@@ -261,12 +262,19 @@ run_groups:
       - meld_audio
       - mustard
 
+  - name: reasoning
+    display_name: Reasoning
+    description: Reasoning about the audio
+    category: Core scenarios
+    subgroups:
+      - air_bench_chat_reasoning
+
   - name: knowledge
     display_name: Knowledge
     description: Recalling facts or information contained in the audio LLM.
     category: Core scenarios
     subgroups:
-      - air_bench_chat
+      - air_bench_chat_knowledge
       - air_bench_foundation
 
   - name: robustness
@@ -558,8 +566,30 @@ run_groups:
       when: "2023"
       language: 10 languages
 
-  - name: air_bench_chat
-    display_name: Air-Bench Chat
+  - name: air_bench_chat_knowledge
+    display_name: Air-Bench Chat (knowledge subsets)
+    description: >
+      Air-Bench (Yang et al, 2024) encompasses two dimensions: foundation and chat benchmarks. The former consists of 19 tasks with 
+      approximately 19k single-choice questions. The latter one contains 2k instances of open-ended question-and-answer data. 
+      We consider the chat benchmark in this scenario.
+
+      The dataset contains the audio question answering task in four subjects: sound, speech, music, and mixed.
+      ([Yang et al, 2024](https://aclanthology.org/2024.acl-long.109.pdf)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: gpt4_audio_critique
+      main_split: test
+    taxonomy:
+      task: audio question answering
+      what: audio, question, and answer of audio samples
+      who: real speakers
+      when: "2024"
+      language: English
+
+  - name: air_bench_chat_reasoning
+    display_name: Air-Bench Chat (reasoning subsets)
     description: >
       Air-Bench (Yang et al, 2024) encompasses two dimensions: foundation and chat benchmarks. The former consists of 19 tasks with 
       approximately 19k single-choice questions. The latter one contains 2k instances of open-ended question-and-answer data. 

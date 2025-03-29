@@ -501,13 +501,20 @@ def get_air_bench_chat_run_spec(subject: str, num_respondents: int = 1) -> RunSp
         )
         + _get_open_ended_generation_metric_specs()
     )
+
     run_spec_name: str = "air_bench_chat"
+    group_name: str = run_spec_name
+    if subject in ["mix", "speech"]:
+        group_name += "_reasoning"
+    elif subject in ["sound", "music"]:
+        group_name += "_knowledge"
+
     return RunSpec(
         name=f"{run_spec_name}:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=[run_spec_name],
+        groups=[group_name],
     )
 
 
