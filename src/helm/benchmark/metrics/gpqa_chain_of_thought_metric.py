@@ -35,6 +35,11 @@ def extract_answer(output_text: str) -> Optional[str]:
     if match:
         return match.group(1)
 
+    # Fourth regex: Matches "answer is (A-J)" with optional leading non-capital alpha characters
+    match = re.search(r"correct answer is [^A-Z]*([A-J])", output_text)
+    if match:
+        return match.group(1)
+
     # If no regex matches, return None
     return None
 

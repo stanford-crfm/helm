@@ -25,6 +25,7 @@ class AzureOpenAIClient(OpenAIClient):
         endpoint: Optional[str] = None,
         api_version: Optional[str] = None,
         default_headers: Optional[Dict[str, str]] = None,
+        base_url: Optional[str] = None,
         azure_openai_deployment_name: Optional[str] = None,
     ):
         super().__init__(
@@ -35,11 +36,20 @@ class AzureOpenAIClient(OpenAIClient):
             openai_model_name=azure_openai_deployment_name,
         )
         azure_endpoint = endpoint or os.getenv("AZURE_OPENAI_ENDPOINT")
-        if not azure_endpoint:
-            raise NonRetriableException("Must provide Azure endpoint through credentials.conf or AZURE_OPENAI_ENDPOINT")
-        self.client = AzureOpenAI(
-            api_key=api_key,
-            api_version=api_version or AzureOpenAIClient.API_VERSION,
-            azure_endpoint=azure_endpoint,
-            default_headers=default_headers,
-        )
+        assert (base_url is None) != (azure_endpoint is None), "Exactly one of endoint or base_url must be provided"
+        if base_url:
+            self.client = AzureOpenAI(
+                api_key=api_key,
+                api_version=api_version or AzureOpenAIClient.API_VERSION,
+                base_url=base_url,
+                default_headers=default_headers,
+            )
+        elif azure_endpoint:
+            self.client = AzureOpenAI(
+                api_key=api_key,
+                api_version=api_version or AzureOpenAIClient.API_VERSION,
+                azure_endpoint=azure_endpoint,
+                default_headers=default_headers,
+            )
+        else:
+            raise NonRetriableException("Must provide either endpoint or base_url")

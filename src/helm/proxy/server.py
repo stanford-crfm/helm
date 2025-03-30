@@ -6,6 +6,7 @@ Look at `index.js` to see how the functionality is invoked.
 from urllib.parse import unquote_plus
 import argparse
 import dataclasses
+import importlib_resources as resources
 import json
 import os
 import sys
@@ -86,7 +87,7 @@ def handle_root():
 
 @app.get("/static/<filename:path>")
 def handle_static_filename(filename):
-    resp = bottle.static_file(filename, root=os.path.join(os.path.dirname(__file__), "static"))
+    resp = bottle.static_file(filename, root=app.config["helm.staticpath"])
     resp.add_header("Cache-Control", "no-store, must-revalidate ")
     return resp
 
@@ -283,6 +284,12 @@ def main():
         sqlite_cache_path = os.path.join(args.base_path, CACHE_DIR)
         ensure_directory_exists(sqlite_cache_path)
         cache_backend_config = SqliteCacheBackendConfig(sqlite_cache_path)
+
+    static_package_name = "helm.proxy.static"
+    resource_path = resources.files(static_package_name).joinpath("index.html")
+    with resources.as_file(resource_path) as resource_filename:
+        static_path = str(resource_filename.parent)
+    app.config["helm.staticpath"] = static_path
 
     service = ServerService(base_path=args.base_path, cache_backend_config=cache_backend_config)
 

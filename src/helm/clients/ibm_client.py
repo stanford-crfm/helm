@@ -31,13 +31,23 @@ except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["ibm"])
 
 from typing import Any, Dict, List, TypedDict, Callable, Union, Optional
-from threading import Semaphore
+from threading import Semaphore, Lock
 import threading
 
 # Define the maximum number of parallel executions is limited by IBM API
 MAX_CONCURRENT_REQUESTS = 8
 __semaphores: Dict[str, Semaphore] = dict()
-__semaphores_lock = threading.Lock()
+__semaphores_lock = Lock()
+__counter_lock = Lock()
+counter = 0
+__DEBUG = True
+
+def debug(prompt):
+    global counter
+    if __DEBUG:
+        with __counter_lock:
+            counter += 1
+            hlog(f"<<{counter}>> - {prompt}")
 
 
 def get_semaphore(model: str):
@@ -88,12 +98,12 @@ class ModelInferenceHandler(ABC, Generic[T]):
     def create_params(self, request: Request) -> T:
         pass
 
-    @staticmethod
-    def pre_processing(text: str) -> str:
-        """
-        :rtype: object
-        """
-        return text.encode("unicode_escape").decode("utf-8")
+    # @staticmethod
+    # def pre_processing(text: str) -> str:
+    #     """
+    #     :rtype: object
+    #     """
+    #     return text.encode("unicode_escape").decode("utf-8")
 
 
 class GenerateInferenceHandler(ModelInferenceHandler[TextGenParameters]):
@@ -132,6 +142,7 @@ class GenerateInferenceHandler(ModelInferenceHandler[TextGenParameters]):
         semaphore = get_semaphore(self.inference_engine.model_id)
 
         with semaphore:
+            debug(prompt)
             response = self.inference_engine.generate(
                 prompt=prompt,
                 params=params,
@@ -196,8 +207,9 @@ class ChatModelInferenceHandler(ModelInferenceHandler[TextChatParameters]):
         semaphore = get_semaphore(self.inference_engine.model_id)
 
         with semaphore:
+            debug(prompt)
             response = self.inference_engine.chat(
-                messages=[{"role": "user", "content": ChatModelInferenceHandler.pre_processing(prompt)}],
+                messages=[{"role": "user", "content": prompt}],
                 params=params,
             )
         return response

@@ -14,7 +14,6 @@ from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_RANKING_BINARY,
     AdapterSpec,
-    ADAPT_EHR_INSTRUCTION,
 )
 from helm.benchmark.adaptation.adapters.binary_ranking_adapter import BinaryRankingAdapter
 from helm.benchmark.adaptation.common_adapter_specs import (
@@ -1083,27 +1082,6 @@ def get_me_q_sum_spec() -> RunSpec:
     )
 
 
-@run_spec_function("med_dialog")
-def get_med_dialog_spec(subset: str) -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.med_dialog_scenario.MedDialogScenario", args={"subset": subset}
-    )
-
-    adapter_spec = get_summarization_adapter_spec(
-        num_sents=1,
-        max_tokens=128,
-        temperature=0.3,
-    )
-
-    return RunSpec(
-        name=f"med_dialog,subset={subset}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
-        groups=["MedDialog"],
-    )
-
-
 @run_spec_function("med_mcqa")
 def get_med_mcqa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.med_mcqa_scenario.MedMCQAScenario", args={})
@@ -1146,26 +1124,6 @@ def get_med_paragraph_simplification_spec() -> RunSpec:
     )
 
 
-@run_spec_function("pubmed_qa")
-def get_pubmed_qa_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.pubmed_qa_scenario.PubMedQAScenario", args={})
-
-    adapter_spec = get_multiple_choice_adapter_spec(
-        method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="Answer A for yes, B for no or C for maybe.",
-        input_noun="Question",
-        output_noun="Answer",
-    )
-
-    return RunSpec(
-        name="pubmed_qa",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs(),
-        groups=["pubmed_qa"],
-    )
-
-
 @run_spec_function("live_qa")
 def get_live_qa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.live_qa_scenario.LiveQAScenario")
@@ -1189,68 +1147,6 @@ def get_live_qa_spec() -> RunSpec:
         annotators=annotator_specs,
         metric_specs=metric_specs,
         groups=["live_qa"],
-    )
-
-
-@run_spec_function("medication_qa")
-def get_medication_qa_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.medication_qa_scenario.MedicationQAScenario")
-
-    adapter_spec = get_generation_adapter_spec(
-        instructions="Please answer the following consumer health question.",
-        input_noun="Question",
-        output_noun="Answer",
-        max_train_instances=0,
-        max_tokens=512,
-    )
-
-    annotator_specs = [
-        AnnotatorSpec(class_name="helm.benchmark.annotation.medication_qa_annotator.MedicationQAAnnotator")
-    ]
-    metric_specs = [MetricSpec(class_name="helm.benchmark.metrics.medication_qa_metrics.MedicationQAScoreMetric")]
-
-    return RunSpec(
-        name="medication_qa",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        annotators=annotator_specs,
-        metric_specs=metric_specs,
-        groups=["medication_qa"],
-    )
-
-
-def get_medalign_adapter_spec() -> AdapterSpec:
-    return AdapterSpec(
-        method=ADAPT_EHR_INSTRUCTION,
-        max_train_instances=0,
-        max_eval_instances=None,
-        num_outputs=1,
-        max_tokens=256,  # MedAlign default number of generation tokens
-    )
-
-
-def get_comet_metric_specs(args: Dict[str, Any]) -> List[MetricSpec]:
-    return [MetricSpec(class_name="helm.benchmark.metrics.comet_metric.CometMetric", args=args)]
-
-
-@run_spec_function("medalign")
-def get_medalign_spec(prompt_template: str = "generic.txt") -> RunSpec:
-    from helm.common.gpu_utils import get_torch_device_name
-
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.medalign_scenario.MedAlignScenario",
-        args={"prompt_template": prompt_template},
-    )
-
-    adapter_spec = get_medalign_adapter_spec()
-
-    metric_args = {"task": "medalign", "device": get_torch_device_name()}
-    return RunSpec(
-        name="medalign",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args) + get_comet_metric_specs(metric_args),
-        groups=["medalign", "med_helm"],
     )
 
 

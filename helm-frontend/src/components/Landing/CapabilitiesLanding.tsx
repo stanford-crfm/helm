@@ -8,14 +8,22 @@ export default function CapabilitiesLanding() {
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 text-l">
           <p>
-            HELM Capabilities is a new leaderboard for benchmarking the
-            capabilities of foundation models, featuring 6 challenging
-            scenarios.
+            Building on the HELM framework, we introduce{" "}
+            <strong className="font-bold">HELM Capabilities</strong> to capture
+            our latest thinking on the evaluation of general capabilities. HELM
+            Capabilities is a new benchmark and leaderboard that consists of a
+            curated set of scenarios for measuring various capabilities of
+            language models. Like all other HELM leaderboards, the HELM
+            Capabilities leaderboard provides full prompt-level transparency,
+            and the results can be fully reproduced using the HELM framework.
           </p>
           <div className="flex flex-row justify-center my-4">
-            <Link to="#" className="px-10 btn rounded-md mx-4">
+            <a
+              href="https://crfm.stanford.edu/2025/03/20/helm-capabilities.html"
+              className="px-10 btn rounded-md mx-4"
+            >
               Blog Post
-            </Link>
+            </a>
             <Link to="leaderboard" className="px-10 btn rounded-md mx-4">
               Leaderboard
             </Link>

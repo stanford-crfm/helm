@@ -6,3 +6,4 @@ recursive-include src/helm/benchmark/static_build/ *.css *.html *.js *.png *.yam
 recursive-include src/helm/config/ *.yaml
 recursive-include src/helm/benchmark/annotation/omni_math/ *.txt
 recursive-include src/helm/benchmark/annotation/wildbench/ *.md
+recursive-include src/helm/proxy/static/ *.css *.html *.js *.png

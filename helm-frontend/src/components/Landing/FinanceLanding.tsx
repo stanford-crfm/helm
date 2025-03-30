@@ -7,20 +7,36 @@ export default function FinanceLanding() {
       <h1 className="text-3xl my-8 font-bold text-center">HELM Finance</h1>
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 text-l">
-          <p>
-            In collaboration with{" "}
+          <p className="my-4">
+            LLMs show great potential for applications in the financial domain,
+            yet there is a lack of financial-domain evaluations for LLMs. To
+            address this, we introduce the{" "}
+            <strong className="font-bold">HELM Finance</strong> leaderboard. The
+            HELM Finance leaderboard evaluates leading LLMs on a three financial
+            benchmarks (FinQA, FinanceBench, BANKING77) that utilize real
+            financial documents. Like all other HELM leaderboards, the HELM
+            Finance leaderboard provides full prompt-level transparency, and the
+            results can be fully reproduced using the open-source HELM
+            framework. We hope that this leaderboard provides valuable insights
+            for financial practitioners.
+          </p>
+
+          <p className="my-4">
+            This leaderboard was produced through a collaboration with{" "}
             <a
-              href="https://www.wellsfargo.com/"
               className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+              href="https://www.wellsfargo.com/"
             >
               Wells Fargo
             </a>
-            , we introduce the <span className="font-bold">HELM Finance</span>{" "}
-            leaderboard for ecologically-valid evaluations of leading language
-            models in the financial domain. The leaderboard evaluates the
-            ability of language models to perform tasks from financial
-            professions on publicly financial documents across a range of
-            scenarios.
+            , and was funded by the{" "}
+            <a
+              className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+              href="https://hai.stanford.edu/corporate-affiliate-program"
+            >
+              HAI Corporate Affiliate Program
+            </a>
+            .
           </p>
           <div className="flex flex-row justify-center my-4">
             <Link to="leaderboard" className="px-10 btn rounded-md mx-4">

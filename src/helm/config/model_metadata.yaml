@@ -18,7 +18,7 @@ models:
     access: open
     release_date: 2023-01-01
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
-
+    
   # Adobe
   - name: adobe/giga-gan
     display_name: GigaGAN (1B)
@@ -1821,6 +1821,15 @@ models:
     release_date: 2024-07-23
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: meta/llama-3.2-1b-instruct
+    display_name: Llama 3.2 Instruct (1.23B)
+    description: The Meta Llama 3.2 collection of multilingual large language models (LLMs) is a collection of pretrained and instruction-tuned text-only generative models in 1B and 3B sizes. ([blog](https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 1230000000
+    release_date: 2024-09-25
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: meta/llama-3.2-3b-instruct-turbo
     display_name: Llama 3.2 Instruct Turbo (3B)
     description: The Meta Llama 3.2 collection of multilingual large language models (LLMs) is a collection of pretrained and instruction-tuned text-only generative models in 1B and 3B sizes. ([blog](https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
@@ -2020,13 +2029,13 @@ models:
     num_parameters: 14000000000
     release_date: 2024-05-21
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-
+  
   - name: microsoft/phi-3.5-mini-instruct
-    display_name: Phi-3.5 Mini
-    description: Phi-3.5 Mini is a lightweight, state-of-the-art open model built upon datasets used for Phi-3 - synthetic data and filtered publicly available documents - with a focus on very high-quality, reasoning dense data. ([paper](https://arxiv.org/abs/2404.14219), [blog](https://techcommunity.microsoft.com/blog/azure-ai-services-blog/discover-the-new-multi-lingual-high-quality-phi-3-5-slms/4225280))
+    display_name: Phi-3.5-mini-instruct (3.8B)
+    description: Phi-3.5-mini is a lightweight, state-of-the-art open model built upon datasets used for Phi-3 - synthetic data and filtered publicly available websites. ([paper](https://arxiv.org/abs/2404.14219), [blog](https://techcommunity.microsoft.com/blog/azure-ai-services-blog/discover-the-new-multi-lingual-high-quality-phi-3-5-slms/4225280))
     creator_organization_name: Microsoft
     access: open
-    num_parameters: 3820000000
+    num_parameters: 3800000000
     release_date: 2024-08-22
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
@@ -2170,6 +2179,15 @@ models:
     tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: mistralai/mistral-7b-instruct-v0.3
+    display_name: Mistral Instruct v0.3 (7B)
+    description: Mistral v0.3 Instruct 7B is a 7.3B parameter transformer model that uses Grouped-Query Attention (GQA). Compared to v0.1, v0.2 has a 32k context window and no Sliding-Window Attention (SWA). ([blog post](https://mistral.ai/news/la-plateforme/))
+    creator_organization_name: Mistral AI
+    access: open
+    num_parameters: 7300000000
+    release_date: 2024-05-22
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+  
+  - name: mistralai/mistral-7b-instruct-v0.3-hf
     display_name: Mistral Instruct v0.3 (7B)
     description: Mistral v0.3 Instruct 7B is a 7.3B parameter transformer model that uses Grouped-Query Attention (GQA). Compared to v0.1, v0.2 has a 32k context window and no Sliding-Window Attention (SWA). ([blog post](https://mistral.ai/news/la-plateforme/))
     creator_organization_name: Mistral AI
@@ -3096,6 +3114,14 @@ models:
     release_date: 2024-09-19
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: qwen/qwen2.5-7b-instruct
+    display_name: Qwen2.5 Instruct (7B)
+    description: Qwen2.5 Instruct (7B) was trained on 18 trillion tokens and supports 29 languages, and shows improvements over Qwen2 in knowledge, coding, mathematics, instruction following, generating long texts, and processing structure data. ([blog](https://qwenlm.github.io/blog/qwen2.5/)) Turbo is Together's cost-efficient implementation, providing fast FP8 performance while maintaining quality, closely matching FP16 reference models. ([blog](https://www.together.ai/blog/together-inference-engine-2))
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2024-09-19
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: qwen/qwen2.5-72b-instruct-turbo
     display_name: Qwen2.5 Instruct Turbo (72B)
     description: Qwen2.5 Instruct Turbo (72B) was trained on 18 trillion tokens and supports 29 languages, and shows improvements over Qwen2 in knowledge, coding, mathematics, instruction following, generating long texts, and processing structure data. ([blog](https://qwenlm.github.io/blog/qwen2.5/)) Turbo is Together's cost-efficient implementation, providing fast FP8 performance while maintaining quality, closely matching FP16 reference models. ([blog](https://www.together.ai/blog/together-inference-engine-2))
@@ -3357,8 +3383,6 @@ models:
     num_parameters: 7000000000
     release_date: 2023-04-20
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
-
-
 
   # Stanford
   - name: stanford/alpaca-7b
