@@ -1,5 +1,5 @@
 import os
-from typing import List, Optional
+from typing import List
 
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded
 from helm.benchmark.scenarios.ruler_qa_scenario_helper import generate_samples  # type: ignore
@@ -35,10 +35,10 @@ Answer the question based on the given documents. Only give me the answer and do
 
 Question: {query} Answer:"""  # noqa: E501
 
-    def __init__(self, dataset: str, max_sequence_length: Optional[int] = None):
+    def __init__(self, dataset: str, max_num_words: int):
         super().__init__()
         self.dataset = dataset or "hotpotqa"
-        self.max_sequence_length = max_sequence_length or 32768
+        self.max_num_words = max_num_words
 
     def get_instances(self, output_path: str) -> List[Instance]:
         data_dir = os.path.join(output_path, "data")
@@ -50,7 +50,7 @@ Question: {query} Answer:"""  # noqa: E501
         samples = generate_samples(
             dataset=self.dataset,
             dataset_path=file_path,
-            max_seq_length=self.max_sequence_length,
+            max_seq_length=self.max_num_words,
             tokens_to_generate=32,
             num_samples=500,
             random_seed=42,
@@ -75,8 +75,8 @@ class RULERHotpotQAScenario(_RULERQAScenario):
     description = "The HotpotQA long-context multi-hop RAG question answering scenario from RULER"
     tags = ["long_context", "rag"]
 
-    def __init__(self, dataset: Optional[str] = None, max_sequence_length: Optional[int] = None):
-        super().__init__("hotpotqa", max_sequence_length)
+    def __init__(self, max_num_words: int):
+        super().__init__("hotpotqa", max_num_words)
 
 
 class RULERSQuADScenario(_RULERQAScenario):
@@ -84,5 +84,5 @@ class RULERSQuADScenario(_RULERQAScenario):
     description = "The SQuAD question answering scenario from RULER"
     tags = ["long_context", "rag"]
 
-    def __init__(self, dataset: Optional[str] = None, max_sequence_length: Optional[int] = None):
-        super().__init__("squad", max_sequence_length)
+    def __init__(self, max_num_words: int):
+        super().__init__("squad", max_num_words)

@@ -1,5 +1,5 @@
 import os
-from typing import Any, Dict, Mapping, Optional
+from typing import Any, Mapping
 
 from helm.clients.auto_client import AutoClient
 from helm.common.credentials_utils import provide_api_key
@@ -21,23 +21,10 @@ class AnnotatorFactory:
         hlog(f"AnnotatorFactory: file_storage_path = {file_storage_path}")
         hlog(f"AnnotatorFactory: cache_backend_config = {cache_backend_config}")
 
-        # Cache for annotators
-        # This is used to prevent duplicate creation of annotators
-        # It is especially important as annotation is a multi-threaded
-        # process and creating a new annotator for each request can cause
-        # race conditions.
-        self.annotators: Dict[str, Annotator] = {}
-
     def get_annotator(self, annotator_spec: AnnotatorSpec) -> Annotator:
         """Return a annotator based on the name."""
-        # First try to find the annotator in the cache
-        assert annotator_spec.args is None or annotator_spec.args == {}
         annotator_name: str = annotator_spec.class_name.split(".")[-1].lower().replace("annotator", "")
-        annotator: Optional[Annotator] = self.annotators.get(annotator_name)
-        if annotator is not None:
-            return annotator
 
-        # Otherwise, create the client
         cache_config: CacheConfig = self.cache_backend_config.get_cache_config(annotator_name)
         annotator_spec = inject_object_spec_args(
             annotator_spec,
@@ -55,12 +42,7 @@ class AnnotatorFactory:
                 ),
             },
         )
-        annotator = create_object(annotator_spec)
-
-        # Cache the client
-        self.annotators[annotator_name] = annotator
-
-        return annotator
+        return create_object(annotator_spec)
 
     def _get_file_storage_path(self, annotator_name: str) -> str:
         # Returns the path to use for a local file cache for the given annotator

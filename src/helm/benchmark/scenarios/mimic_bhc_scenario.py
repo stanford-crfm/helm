@@ -65,8 +65,9 @@ class MIMICBHCScenario(Scenario):
     tags = ["summarization", "biomedical"]
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        data_path = "/share/pi/nigam/data/bhc-mimiciv/mimic_iv_bhc.json"
+        data_path = "/share/pi/nigam/data/bhc-mimiciv/"
         ensure_directory_exists(data_path)
+        data_path = data_path + "mimic_iv_bhc.json"
 
         instances: List[Instance] = []
         # Limit to zero shot setting for now
