@@ -258,9 +258,10 @@ def get_covost2_run_spec(source_language: str, target_language: str) -> RunSpec:
 
 
 @run_spec_function("vocal_sound")
-def get_vocal_sound_run_spec() -> RunSpec:
+def get_vocal_sound_run_spec(sound: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.audio_language.vocal_sound_scenario.VocalSoundScenario",
+        args={"sound": sound},
     )
     adapter_spec = _get_generation_adapter_spec(
         instructions="Listen to the audio and classify the speaker behavior. Choose only from these options:"
@@ -270,7 +271,7 @@ def get_vocal_sound_run_spec() -> RunSpec:
     metric_specs = get_exact_match_metric_specs() + get_classification_metric_specs()
     run_spec_name: str = "vocal_sound"
     return RunSpec(
-        name=run_spec_name,
+        name=f"{run_spec_name}:sound={sound}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
