@@ -47,6 +47,7 @@ class VocalSoundScenario(Scenario):
     tags: List[str] = ["audio", "classification"]
 
     def __init__(self, sound: str) -> None:
+        super().__init__()
         self._sound: str = sound
 
     def get_instances(self, output_path: str) -> List[Instance]:

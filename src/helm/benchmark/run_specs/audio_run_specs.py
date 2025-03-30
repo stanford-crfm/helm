@@ -268,7 +268,7 @@ def get_vocal_sound_run_spec(sound: str) -> RunSpec:
         '"Cough", "Laughter", "Sigh", "Sneeze", "Sniff", or "Throat clearing". Respond with just the behavior.',
         max_tokens=5,
     )
-    metric_specs = get_exact_match_metric_specs() + get_classification_metric_specs()
+    metric_specs = get_exact_match_metric_specs()
     run_spec_name: str = "vocal_sound"
     return RunSpec(
         name=f"{run_spec_name}:sound={sound}",
