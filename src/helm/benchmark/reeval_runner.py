@@ -3,7 +3,7 @@ import json
 import os
 import typing
 from collections import Counter
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 import torch
 
 from tqdm import tqdm
@@ -36,8 +36,34 @@ from helm.benchmark.runner import (
     remove_per_instance_stats_nans,
 )
 
+scenario_to_metric_name = {
+    "air_bench_2024": "air_score",
+    "babi_qa": "quasi_exact_match",
+    "bbq": "quasi_exact_match",
+    "blimp": "exact_match",
+    "boolq": "quasi_exact_match",
+    "civil_comments": "quasi_exact_match",
+    "dyck_language": "exact_match_indicator",
+    "entity_data_imputation": "quasi_exact_match",
+    "entity_matching": "quasi_exact_match",
+    "imdb": "quasi_exact_match",
+    "legal_support": "quasi_exact_match",
+    "raft": "quasi_exact_match",
+    "synthetic_reasoning": "quasi_exact_match",
+    "truthful_qa": "exact_match",
+    "wikifact": "quasi_exact_match",
+    "mmlu": "exact_match",
+    "commonsense": "exact_match",
+    "gsm": "final_number_exact_match",
+    # "gsm": ["exact_match_indicator", "final_number_exact_match"],
+    "legalbench": "quasi_exact_match",
+    "math": "math_equiv_chain_of_thought",
+    "med_qa": "quasi_exact_match",
+    "thai_exam": "exact_match",
+}
 
-class RelEffEvalRunner(Runner):
+
+class REEvalRunner(Runner):
     """
     This runner implements the basic (non-amortized) method described in the paper
     `Reliable and Efficient Amortized Model-Based Evaluation`. This approach, which is
@@ -157,68 +183,60 @@ class RelEffEvalRunner(Runner):
 
         # Adapt (convert to requests)
         adapter: Adapter = AdapterFactory.get_adapter(run_spec.adapter_spec, self.tokenizer_service)
-        unasked_request_states_without_z: List[RequestState] = adapter.adapt(
+        unasked_request_states_without_difficulty: List[RequestState] = adapter.adapt(
             instances, self.executor.execution_spec.parallelism
         )
 
         # load difficulty
-        scenario_name = scenario.name
+        split_name = "dyck_language_np_3" if scenario.name == "dyck_language" else scenario.name
         try:
-            difficulty_dataset = load_dataset("stair-lab/reeval-difficulty", split=scenario_name)
-            lookup: dict[str, float] = {row["request.prompt"]: row["z"] for row in difficulty_dataset}
-        except Exception:
-            hlog(f"WARNING: no available difficulty for {scenario_name}, skipping")
+            difficulty_dataset = load_dataset("stair-lab/reeval-difficulty", split=split_name)
+            prompt_to_difficulty: dict[str, float] = {row["request.prompt"]: row["z"] for row in difficulty_dataset}
+        except ValueError:
+            hlog(f"WARNING: no available difficulty for {split_name}, skipping")
             return
 
         unasked_request_states: List[RequestState] = []
-        for request_state in unasked_request_states_without_z:
+        for request_state in unasked_request_states_without_difficulty:
             prompt = request_state.request.prompt
-            if prompt in lookup:
-                difficulty = lookup[prompt]
-                new_instance = replace(request_state.instance, extra_data={"difficulty": difficulty})
+            if prompt in prompt_to_difficulty:
+                difficulty = prompt_to_difficulty[prompt]
+                current_extra_data = request_state.instance.extra_data or {}
+                if "difficulty" in current_extra_data:
+                    raise Exception("Extra_data already contains a 'difficulty' key.")
+                new_extra_data = current_extra_data.copy()
+                new_extra_data["difficulty"] = difficulty
+                new_instance = replace(request_state.instance, extra_data=new_extra_data)
                 new_request_state = replace(request_state, instance=new_instance)
                 unasked_request_states.append(new_request_state)
+        assert unasked_request_states
 
         # Execute the requests in an reeval manner
-        # TODO: look for better way to fix the type-checker error
-        # model_ability = run_spec.adapter_spec.reeval_parameters.model_ability
-        # scenario_metric_name = run_spec.adapter_spec.reeval_parameters.metric_name
-        # max_samples = run_spec.adapter_spec.reeval_parameters.max_samples
-        if run_spec.adapter_spec.reeval_parameters is not None:
-            if run_spec.adapter_spec.reeval_parameters.model_ability is not None:
-                model_ability = run_spec.adapter_spec.reeval_parameters.model_ability
-            if run_spec.adapter_spec.reeval_parameters.metric_name is not None:
-                scenario_metric_name = run_spec.adapter_spec.reeval_parameters.metric_name
-            if run_spec.adapter_spec.reeval_parameters.max_samples is not None:
-                max_samples = run_spec.adapter_spec.reeval_parameters.max_samples
+        assert run_spec.adapter_spec.reeval_parameters is not None
+        model_ability: float = run_spec.adapter_spec.reeval_parameters.model_ability or 0.0
+        scenario_metric_name: str = scenario_to_metric_name[scenario.name]
 
         asked_request_states: List[RequestState] = []
-        stats: List[Stat] = []
-        per_instance_stats: List[PerInstanceStats] = []
         reeval_trajectory: Dict[str, List[float]] = {
             "model_ability": [],
             "response_correctness": [],
             "instance_difficulties": [],
         }
 
-        for _ in tqdm(range(max_samples), desc="Reeval execution"):
+        assert run_spec.adapter_spec.max_eval_instances is not None
+        for _ in tqdm(range(run_spec.adapter_spec.max_eval_instances), desc="REEval Execution"):
             if not unasked_request_states:
                 break
 
-            # TODO: look for better way to fix the type-checker error
-            # selected_item = min(
-            #     unasked_request_states, key=lambda item: abs(item.instance.extra_data["difficulty"] - model_ability)
-            # )
-            # unasked_request_states.remove(selected_item)
-            selected_item = None
+            selected_item: Optional[RequestState] = None
             min_diff = float("inf")
             for item in unasked_request_states:
                 assert item.instance.extra_data is not None
-                diff = abs(item.instance.extra_data["difficulty"] - model_ability)
+                diff = abs(item.instance.extra_data["difficulty"] + model_ability)
                 if diff < min_diff:
                     min_diff = diff
                     selected_item = item
-            assert type(selected_item) is RequestState
+            assert selected_item is not None
             unasked_request_states.remove(selected_item)
 
             # Execute the request
@@ -242,40 +260,28 @@ class RelEffEvalRunner(Runner):
                 if self.dry_run
                 else [create_metric(metric_spec) for metric_spec in run_spec.metric_specs]
             )
-            stat: List[Stat] = []
-            per_instance_stat: List[PerInstanceStats] = []
+
+            temp_per_instance_stats: List[PerInstanceStats] = []
             with htrack_block(f"{len(metrics)} metrics"):
                 for metric in metrics:
                     with htrack_block(metric):
-                        metric_result: MetricResult = metric.evaluate(
+                        temp_metric_result: MetricResult = metric.evaluate(
                             single_scenario_state,
                             self.metric_service,
                             self.eval_cache_path,
                             self.executor.execution_spec.parallelism,
                         )
-                        stat.extend(metric_result.aggregated_stats)
-                        per_instance_stat.extend(metric_result.per_instance_stats)
+                        temp_per_instance_stats.extend(temp_metric_result.per_instance_stats)
 
             # Update the reeval request states
             asked_request_states.extend(single_scenario_state.request_states)
 
-            # Update the aggregated stats
-            if len(stats) > 0:
-                for idx, s in enumerate(stat):
-                    stats[idx].merge(s)
-            else:
-                stats = stat
-
-            # Update the per instance stats
-            per_instance_stats.extend(per_instance_stat)
-
             # Update the reeval trajectory
             reeval_trajectory["model_ability"].append(model_ability)
-            scenario_metric_value = [s for s in per_instance_stat[0].stats if s.name.name == scenario_metric_name][
-                0
-            ].mean
+            scenario_metric_value = [
+                s for s in temp_per_instance_stats[0].stats if s.name.name == scenario_metric_name
+            ][0].mean
 
-            # TODO: look for better way to fix the type-checker error
             assert scenario_metric_value is not None
             reeval_trajectory["response_correctness"].append(scenario_metric_value)
             assert selected_item.instance.extra_data is not None
@@ -294,6 +300,20 @@ class RelEffEvalRunner(Runner):
             request_states=asked_request_states,
             annotator_specs=run_spec.annotators,
         )
+
+        stats: List[Stat] = []
+        per_instance_stats: List[PerInstanceStats] = []
+        with htrack_block(f"{len(metrics)} metrics"):
+            for metric in metrics:
+                with htrack_block(metric):
+                    metric_result: MetricResult = metric.evaluate(
+                        scenario_state,
+                        self.metric_service,
+                        self.eval_cache_path,
+                        self.executor.execution_spec.parallelism,
+                    )
+                    stats.extend(metric_result.aggregated_stats)
+                    per_instance_stats.extend(metric_result.per_instance_stats)
 
         # Check that there aren't duplicate `Stat`s
         # Note: doesn't catch near misses.

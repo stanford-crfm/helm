@@ -8,23 +8,19 @@ Reliable and Efficient Amortized Model-based Evaluation (Reeval) is an extension
 
 # Getting Started
 
-Use Git to clone the `stanford-crfm` repository and set up the environment as a developer as in [Developer Setup](https://crfm-helm.readthedocs.io/en/latest/developer_setup/):
-
-The following is an example of adaptively evaluating Openai GPT2 on the MMLU scenario using 50 instances. The argument `--model-ability` is the initial ability of the model for reeval evaluation. The argument `--max-samples` is the maximum number of samples to evaluate in the reeval mode. The argument `--metric-name` is the main metric name for the scenario. Note that the reeval mode does not support the argument `--max-eval-instances`, because it can potentially contradict the argument `--max-samples`. Other arguments stay the same as HELM.
+The following is an example of adaptively evaluating Openai GPT2 on the MMLU scenario using 50 instances. The argument `--model-ability` is the initial ability of the model for reeval evaluation. The argument `--max-eval-instances` is the maximum number of samples to evaluate in the reeval mode. Other arguments stay the same as HELM.
 
 ```
 # Run benchmark
-cd src
 export SUITE_NAME=reeval_mmlu_openai_gpt2
 export MODELS_TO_RUN=openai/gpt2
-export RUN_ENTRIES_CONF_PATH=helm/benchmark/presentation/run_entries_mmlu.conf
+export RUN_ENTRIES_CONF_PATH=run_entries_mmlu.conf
 export SCHEMA_PATH=schema_mmlu.yaml
 export NUM_TRAIN_TRIALS=1
 export PRIORITY=4
 export MODEL_ABILITY=0.0
-export MAX_SAMPLES=50
-export METRIC_NAME=exact_match
-python3 -m helm.benchmark.reeval_run --conf-paths $RUN_ENTRIES_CONF_PATH --num-train-trials $NUM_TRAIN_TRIALS --priority $PRIORITY --suite $SUITE_NAME --models-to-run $MODELS_TO_RUN --runner-class-name helm.benchmark.reeval_runner.RelEffEvalRunner --model-ability $MODEL_ABILITY --max-samples $MAX_SAMPLES --metric-name $METRIC_NAME
+export MAX_EVAL_INSTANCES=50
+python3 -m helm.benchmark.reeval_run --conf-paths $RUN_ENTRIES_CONF_PATH --num-train-trials $NUM_TRAIN_TRIALS --priority $PRIORITY --suite $SUITE_NAME --models-to-run $MODELS_TO_RUN --model-ability $MODEL_ABILITY --max-eval-instances $MAX_EVAL_INSTANCES
 
 # Summarize benchmark results
 helm-summarize --schema $SCHEMA_PATH --suite $SUITE_NAME

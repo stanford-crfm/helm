@@ -1,145 +1,27 @@
 import argparse
 from dataclasses import replace
 import re
-from typing import List, Optional
+from typing import List
 
 from helm.benchmark import model_metadata_registry
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
 from helm.common.general import ensure_directory_exists
 from helm.common.hierarchical_logger import hlog, htrack
 from helm.common.authentication import Authentication
-from helm.common.object_spec import parse_object_spec
 from helm.proxy.services.remote_service import create_authentication, add_service_args
 
 from helm.benchmark.config_registry import (
     register_configs_from_directory,
     register_builtin_configs_from_helm_package,
 )
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.benchmark.runner import RunSpec, set_benchmark_output_path
-from helm.benchmark.run_spec_factory import construct_run_specs
-from helm.common.reeval_parameters import ReevalParameters
+from helm.benchmark.runner import set_benchmark_output_path
+from helm.common.reeval_parameters import REEvalParameters
 from helm.benchmark.run import (
     run_benchmarking,
     validate_args,
+    add_run_args,
+    run_entries_to_run_specs,
 )
-
-
-def run_entries_to_run_specs(
-    run_entries: List[RunEntry],
-    max_eval_instances: Optional[int] = None,
-    num_train_trials: Optional[int] = None,
-    models_to_run: Optional[List[str]] = None,
-    groups_to_run: Optional[List[str]] = None,
-    priority: Optional[int] = None,
-    model_ability: Optional[float] = None,
-    max_samples: Optional[int] = None,
-    metric_name: Optional[str] = None,
-) -> List[RunSpec]:
-    """Runs RunSpecs given a list of RunSpec descriptions."""
-    run_specs: List[RunSpec] = []
-    for entry in run_entries:
-        # Filter by priority
-        if priority is not None and entry.priority > priority:
-            continue
-
-        for run_spec in construct_run_specs(parse_object_spec(entry.description)):
-            # Filter by models
-            if models_to_run and run_spec.adapter_spec.model not in models_to_run:
-                continue
-
-            # Filter by groups
-            if groups_to_run and not any(group in groups_to_run for group in run_spec.groups):
-                continue
-
-            # Modify AdapterSpec
-            adapter_spec: AdapterSpec = run_spec.adapter_spec
-            if max_eval_instances is not None and adapter_spec.max_eval_instances is None:
-                adapter_spec = replace(adapter_spec, max_eval_instances=max_eval_instances)
-
-            if adapter_spec.max_train_instances == 0:
-                adapter_spec = replace(adapter_spec, num_train_trials=1)
-            elif num_train_trials is not None:
-                adapter_spec = replace(adapter_spec, num_train_trials=num_train_trials)
-
-            # Add reeval_parameters
-            adapter_spec = replace(
-                adapter_spec,
-                reeval_parameters=ReevalParameters(
-                    model_ability=model_ability,
-                    max_samples=max_samples,
-                    metric_name=metric_name,
-                ),
-            )
-
-            run_spec = replace(run_spec, adapter_spec=adapter_spec)
-
-            # Append groups
-            if entry.groups is not None:
-                groups_name: str = "" if len(entry.groups) == 0 else f",groups={'-'.join(sorted(entry.groups))}"
-                run_spec = replace(run_spec, name=run_spec.name + groups_name, groups=run_spec.groups + entry.groups)
-
-            run_specs.append(run_spec)
-
-    return run_specs
-
-
-def add_run_args(parser: argparse.ArgumentParser):
-    parser.add_argument(
-        "-o", "--output-path", type=str, help="Where to save all the output", default="benchmark_output"
-    )
-    parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads to make requests", default=4)
-    parser.add_argument(
-        "--skip-instances",
-        action="store_true",
-        help="Skip creation of instances (basically do nothing but just parse everything).",
-    )
-    parser.add_argument(
-        "--cache-instances",
-        action="store_true",
-        help="Save generated instances input to model to disk. If already cached, read instances from file.",
-    )
-    parser.add_argument(
-        "--cache-instances-only",
-        action="store_true",
-        help="Generate and save instances for scenario ONLY (i.e. do not evaluate models on instances).",
-    )
-    parser.add_argument(
-        "-d",
-        "--dry-run",
-        action="store_true",
-        help="Skip execution, only output scenario states and estimate token usage.",
-    )
-    parser.add_argument(
-        "-t",
-        "--num-train-trials",
-        type=int,
-        help="Number of trials where each trial samples a different set of in-context examples. "
-        "Overrides the value in Adapter spec.",
-    )
-    parser.add_argument(
-        "--suite",
-        type=str,
-        help="Name of the suite this run belongs to (default is today's date).",
-        required=True,
-    )
-    parser.add_argument(
-        "--local-path",
-        type=str,
-        help="If running locally, the path for `ServerService`.",
-        default="prod_env",
-    )
-    parser.add_argument(
-        "--mongo-uri",
-        type=str,
-        help="If non-empty, the URL of the MongoDB database that will be used for caching instead of SQLite",
-        default="",
-    )
-    parser.add_argument(
-        "--disable-cache",
-        action="store_true",
-        help="If true, the request-response cache for model clients and tokenizers will be disabled.",
-    )
 
 
 @htrack(None)
@@ -203,12 +85,6 @@ def main():
         default=[],
         help="Experimental: Enable using AutoModelForCausalLM models from a local path.",
     )
-    parser.add_argument(
-        "--runner-class-name",
-        type=str,
-        default=None,
-        help="Full class name of the Runner class to use. If unset, uses the default Runner.",
-    )
     # reeval parameters
     parser.add_argument(
         "--model-ability",
@@ -216,21 +92,10 @@ def main():
         default=0.0,
         help="The initial ability of the model for reeval evaluation.",
     )
-    parser.add_argument(
-        "--max-samples",
-        type=int,
-        default=50,
-        help="Maximum number of samples to evaluate in reeval mode.",
-    )
-    parser.add_argument(
-        "--metric-name",
-        type=str,
-        required=True,
-        help="The main metric name for the scenario.",
-    )
     add_run_args(parser)
     args = parser.parse_args()
     validate_args(args)
+
     register_builtin_configs_from_helm_package()
     register_configs_from_directory(args.local_path)
 
@@ -279,19 +144,28 @@ def main():
 
     run_specs = run_entries_to_run_specs(
         run_entries=run_entries,
+        max_eval_instances=args.max_eval_instances,
         num_train_trials=args.num_train_trials,
         models_to_run=args.models_to_run,
         groups_to_run=args.groups_to_run,
         priority=args.priority,
-        model_ability=args.model_ability,
-        max_samples=args.max_samples,
-        metric_name=args.metric_name,
     )
     hlog(f"{len(run_entries)} entries produced {len(run_specs)} run specs")
 
     if len(run_specs) == 0:
         hlog("There were no RunSpecs or they got filtered out.")
         return
+
+    # Add reeval_parameters
+    run_specs = [
+        replace(
+            run_spec,
+            adapter_spec=replace(
+                run_spec.adapter_spec, reeval_parameters=REEvalParameters(model_ability=args.model_ability)
+            ),
+        )
+        for run_spec in run_specs
+    ]
 
     auth: Authentication = (
         Authentication("") if args.skip_instances or not args.server_url else create_authentication(args)
@@ -311,7 +185,7 @@ def main():
         cache_instances_only=args.cache_instances_only,
         skip_completed_runs=args.skip_completed_runs,
         exit_on_error=args.exit_on_error,
-        runner_class_name=args.runner_class_name,
+        runner_class_name="helm.benchmark.reeval_runner.REEvalRunner",
         mongo_uri=args.mongo_uri,
         disable_cache=args.disable_cache,
     )
