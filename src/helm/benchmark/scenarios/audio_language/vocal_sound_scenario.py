@@ -46,6 +46,9 @@ class VocalSoundScenario(Scenario):
     description = "Classify an audio sample of a spoken digit ([Gong et al, 2022](https://arxiv.org/abs/2205.03433))."
     tags: List[str] = ["audio", "classification"]
 
+    def __init__(self, sound: str) -> None:
+        self._sound: str = sound
+
     def get_instances(self, output_path: str) -> List[Instance]:
         instances: List[Instance] = []
         down_loading_path = os.path.join(output_path, "download")
@@ -61,9 +64,14 @@ class VocalSoundScenario(Scenario):
             )
 
             answer: str = file_name.split("_")[-1].split(".")[0]
+            if answer.lower() != self._sound:
+                continue
+
             if answer == "throatclearing":
                 answer = "throat clearing"
 
             references = [Reference(Output(text=str(answer)), tags=[CORRECT_TAG])]
             instances.append(Instance(input=input, references=references, split=TEST_SPLIT))
+
+        assert len(instances) > 0, f"No instances found for sound: {self._sound}"
         return instances
