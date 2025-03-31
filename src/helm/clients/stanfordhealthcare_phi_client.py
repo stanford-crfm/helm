@@ -12,9 +12,9 @@ except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["openai"])
 
 
-class StanfordHealthCareDeepSeekClient(OpenAIClient):
+class StanfordHealthCarePhiClient(OpenAIClient):
     """
-    Client for accessing DeepSeek models hosted on Stanford Health Care's model API.
+    Client for accessing Llama models hosted on Stanford Health Care's model API.
 
     Configure by setting the following in prod_env/credentials.conf:
 
@@ -34,27 +34,22 @@ class StanfordHealthCareDeepSeekClient(OpenAIClient):
         model_name: str,
         api_key: Optional[str] = None,
         endpoint: Optional[str] = None,
-        output_processor: Optional[str] = None,
+        base_url: Optional[str] = None,
     ):
         super().__init__(
-            tokenizer=tokenizer,
-            tokenizer_name=tokenizer_name,
-            cache_config=cache_config,
-            api_key="unused",
-            openai_model_name="deepseek-chat",
-            output_processor=output_processor,
+            tokenizer=tokenizer, tokenizer_name=tokenizer_name, cache_config=cache_config, api_key="unused"
         )
         if not endpoint:
             raise NonRetriableException("Must provide endpoint through credentials.conf")
         if not api_key:
             raise NonRetriableException("Must provide API key through credentials.conf")
+        if not base_url:
+            raise NonRetriableException("Must provide base url through model_deployments")
         # Guess the base URL part based on the model name
         # Maybe make this configurable instead?
-        base_url_part = model_name.split("/")[1].lower().replace("-", "")
-
-        base_url = f"{endpoint.strip('/')}/{base_url_part}/v1"
+        base_url = base_url.format(endpoint=endpoint)
         self.client = OpenAI(
             api_key="dummy",
             base_url=base_url,
-            default_headers={StanfordHealthCareDeepSeekClient.CREDENTIAL_HEADER_NAME: api_key},
+            default_headers={StanfordHealthCarePhiClient.CREDENTIAL_HEADER_NAME: api_key},
         )

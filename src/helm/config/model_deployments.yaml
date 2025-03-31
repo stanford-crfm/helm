@@ -61,7 +61,7 @@ model_deployments:
     tokenizer_name: openai/o200k_base
     max_sequence_length: 128000
     client_spec:
-      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
       args:
         openai_model_name: gpt-4o-mini
         api_version: 2023-05-15
@@ -71,7 +71,7 @@ model_deployments:
     tokenizer_name: openai/o200k_base
     max_sequence_length: 128000
     client_spec:
-      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
       args:
         openai_model_name: gpt-4o
         api_version: 2023-05-15
@@ -81,7 +81,7 @@ model_deployments:
     tokenizer_name: openai/o200k_base
     max_sequence_length: 8192
     client_spec:
-      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
       args:
         openai_model_name: gpt-4
         api_version: 2023-05-15
@@ -91,7 +91,7 @@ model_deployments:
     tokenizer_name: openai/cl100k_base
     max_sequence_length: 128000
     client_spec:
-      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
       args:
         openai_model_name: gpt-4-turbo
         api_version: 2023-05-15
@@ -101,7 +101,7 @@ model_deployments:
     tokenizer_name: openai/cl100k_base
     max_sequence_length: 200000
     client_spec:
-      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
       args:
         openai_model_name: o3-mini
         api_version: 2024-12-01-preview
@@ -112,7 +112,7 @@ model_deployments:
     tokenizer_name: openai/cl100k_base
     max_sequence_length: 128000
     client_spec:
-      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
       args:
         openai_model_name: o1
         api_version: 2024-12-01-preview
@@ -123,16 +123,29 @@ model_deployments:
     tokenizer_name: deepseek-ai/deepseek-r1
     max_sequence_length: 128000
     client_spec:
-      class_name: "helm.clients.stanfordhealthcare_deepseek_client.StanfordHealthCareDeepSeekClient"
+      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
       args:
+        openai_model_name: deepseek-chat
         output_processor: helm.benchmark.metrics.output_processors.remove_deepseek_r1_thinking
+        base_url: "{endpoint}/deepseekr1/v1"
 
   - name: stanfordhealthcare/llama-3.3-70b-instruct
     model_name: meta/llama-3.3-70b-instruct
     tokenizer_name: meta/llama-3.3-70b-instruct
     max_sequence_length: 128000
     client_spec:
-      class_name: "helm.clients.stanfordhealthcare_llama_client.StanfordHealthCareLlamaClient"
+      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      args:
+        base_url: "{endpoint}/llama3370b/v1"
+
+  - name: stanfordhealthcare/phi-3.5-mini-instruct
+    model_name: microsoft/phi-3.5-mini-instruct
+    tokenizer_name: microsoft/phi-3.5-mini-instruct
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      args:
+        base_url: "{endpoint}/phi35mi/v1"
 
   - name: stanfordhealthcare_shc/gpt-4o-2024-05-13
     model_name: openai/gpt-4o-2024-05-13

@@ -35,8 +35,9 @@ def get_medcalc_bench_spec() -> RunSpec:
         input_noun=None,
         newline_after_input_noun=False,
         output_noun="Answer only the requested quantity without units. No explanation needed",
-        max_tokens=10,
+        max_tokens=4000,
         max_train_instances=0,
+        stop_sequences=[],
     )
 
     metric_specs = [
