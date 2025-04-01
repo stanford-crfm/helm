@@ -979,6 +979,40 @@ def get_race_based_med_spec() -> RunSpec:
     )
 
 
+@run_spec_function("medhallu")
+def get_medhallu_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.medhallu_scenario.MedHalluScenario", args={})
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="""You are an AI assistant with extensive knowledge in the field of medicine. I want you act as an answer judge. Given a question and an answer, your objective is to determine if the provided answer contains non-factual or hallucinated information. You SHOULD give your judgement based on the following hallucination types and the world knowledge.
+
+You are trying to determine if there is a factual contradiction between the answer and the world knowledge. Some information in the answer might be fabricated. Answer '0' if the answer is factual and '1' if the answer is hallucinated. You can categorize the answer as hallucinated if it falls in either of the category:
+Type: Misinterpretation of #Question#: These are hallucinated answers that misunderstands the question, leading to an off-topic or irrelevant response.
+Type: Incomplete Information: These are hallucinated answers that Point out what is not true without providing correct information.
+Type: Mechanism and Pathway Misattribution - These are hallucinated answer that falsely attribution of biological mechanisms, molecular pathways, or disease processes that contradicts established medical knowledge
+Type: Methodological and Evidence Fabrication - Inventing false research methods, statistical data, or specific clinical outcomes
+
+Do not return anything else, just the answer.
+Return just an integer value, '0' if the answer is factual and '1' if the answer is hallucinated. No letter or word, just the integer value.""",  # noqa: E501
+        input_noun=None,
+        output_noun=(
+            """Return just an integer value, '0' if the answer is factual and '1' if the answer is hallucinated.
+No letter or word, just the integer value.
+
+Your Judgment"""  # noqa: E501
+        ),
+        max_train_instances=0,
+    )
+
+    return RunSpec(
+        name="medhallu",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["medhallu"],
+    )
+
+
 @run_spec_function("n2c2_ct_matching")
 def get_n2c2_ct_matching_spec(subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
