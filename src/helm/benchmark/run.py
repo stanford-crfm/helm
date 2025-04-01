@@ -310,11 +310,15 @@ def main():
             if model_to_run not in all_models:
                 raise Exception(f"Unknown model '{model_to_run}' passed to --models-to-run")
     else:
-        model_expander_pattern = re.compile(
+        model_expander_wildcard_pattern = re.compile(
             r"\bmodel=(?:all|text_code|text|code|instruction_following|full_functionality_text|limited_functionality_text)\b"  # noqa: E501
         )
-        if any(model_expander_pattern.search(run_entry.description) for run_entry in run_entries):
+        if any(model_expander_wildcard_pattern.search(run_entry.description) for run_entry in run_entries):
             raise Exception("--models-to-run must be set if the `models=` run expander expands to multiple models")
+
+        model_expander_pattern = re.compile(r"\bmodel=\b")
+        if not any(model_expander_pattern.search(run_entry.description) for run_entry in run_entries):
+            raise Exception("--models-to-run must be set if the `models=` run expander is omitted")
 
     run_specs = run_entries_to_run_specs(
         run_entries=run_entries,
