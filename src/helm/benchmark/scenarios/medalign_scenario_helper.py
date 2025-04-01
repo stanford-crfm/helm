@@ -184,8 +184,9 @@ def retrieve_most_relevant_visits(ehr_visit_strs, query, target_length, tokenize
     Returns:
         list[str]: List of EHR visit strings sorted chronologically and constrained by the target length.
     """
+    ehr_visits=re.split(r'(?=</encounter>\n)',ehr_visit_strs)
     langchain_docs = [
-        langchain.schema.Document(page_content=doc) for doc in ehr_visit_strs #broken since ehr_visit_strs is one string of all visits
+        langchain.schema.Document(page_content=doc) for doc in ehr_visits #broken since ehr_visit_strs is one string of all visits
     ]
     # `k` is the number of documents to retrieve
     # We retrieve everything and just use the BM25Retriever to sort the documents
