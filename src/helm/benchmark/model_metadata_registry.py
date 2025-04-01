@@ -78,7 +78,7 @@ DEPRECATED_MODEL_TAG: str = "DEPRECATED_MODEL_TAG"
 
 # Unsupported models.
 # These are models that we have chosen not to support because they are
-# private, old, not notable, or hard to implement.
+# private, stale, non-notable, or difficult to implement.
 UNSUPPORTED_MODEL_TAG: str = "UNSUPPORTED_MODEL_TAG"
 
 # Frozen is set to false as the model_deployment_registry.py file
