@@ -75,7 +75,9 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         ]
 
     def alter_run_spec(run_spec: RunSpec) -> RunSpec:
-        if not run_spec.adapter_spec.model and run_spec.adapter_spec.model_deployment:
+        if not run_spec.adapter_spec.model and not run_spec.adapter_spec.model_deployment:
+            raise ValueError("At least one of model_deployment and model must be specified")
+        elif not run_spec.adapter_spec.model and run_spec.adapter_spec.model_deployment:
             # Infer model from model deployment
             default_model_name = get_model_deployment(run_spec.adapter_spec.model_deployment).model_name
             if not default_model_name:
