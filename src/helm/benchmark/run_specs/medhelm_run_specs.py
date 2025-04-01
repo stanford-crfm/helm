@@ -101,6 +101,10 @@ def get_mtsamples_spec() -> RunSpec:
         stop_sequences=[],
     )
 
+    annotator_specs = [
+        AnnotatorSpec(class_name="helm.benchmark.annotation.mtsamples_replicate_annotator.MTSamplesReplicateAnnotator")
+    ]
+
     metric_args = {
         "task": "mtsamples_replicate",
         "device": get_torch_device_name(),
@@ -108,11 +112,16 @@ def get_mtsamples_spec() -> RunSpec:
         "rescale_with_baseline": False,
     }
 
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.mtsamples_replicate_metrics.MTSamplesReplicateMetric", args={})
+    ]
+
     return RunSpec(
         name="mtsamples_replicate",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["mtsamples_replicate"],
     )
 
@@ -325,17 +334,25 @@ def get_medalign_spec(max_length: int = 128000) -> RunSpec:
         stop_sequences=[],
         max_train_instances=0,
     )
+
+    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.medalign_annotator.MedalignAnnotator")]
+
     metric_args = {
         "task": "medalign",
         "device": get_torch_device_name(),
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.medalign_metrics.MedalignMetric", args={})
+    ]
+
     return RunSpec(
         name="medalign",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["medalign"],
     )
 
@@ -397,17 +414,24 @@ def get_dischargeme_spec() -> RunSpec:
         stop_sequences=[],
         max_train_instances=0,
     )
+
+    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.dischargeme_annotator.DischargeMeAnnotator")]
+
     metric_args = {
         "task": "dischargeme",
         "device": get_torch_device_name(),
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.dischargeme_metrics.DischargeMeMetric", args={})
+    ]
     return RunSpec(
         name="dischargeme",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["dischargeme"],
     )
 
@@ -442,6 +466,8 @@ def get_aci_bench_run_spec() -> RunSpec:
         stop_sequences=[],
     )
 
+    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.aci_bench_annotator.ACIBenchAnnotator")]
+
     # Define the metrics
     metric_args = {
         "task": "aci_bench",
@@ -449,13 +475,17 @@ def get_aci_bench_run_spec() -> RunSpec:
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.aci_bench_metrics.ACIBenchMetric", args={})
+    ]
 
     # Return the RunSpec
     return RunSpec(
         name="aci_bench",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["clinical", "aci_bench"],
     )
 
@@ -475,6 +505,13 @@ def get_mtsamples_procedures_spec() -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
+
+    annotator_specs = [
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.mtsamples_procedures_annotator.MTSamplesProceduresAnnotator"
+        )
+    ]
+
     metric_args = {
         "task": "mtsamples_procedures",
         "device": get_torch_device_name(),
@@ -482,11 +519,16 @@ def get_mtsamples_procedures_spec() -> RunSpec:
         "rescale_with_baseline": False,
     }
 
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.mtsamples_procedures_metrics.MTSamplesProceduresMetric", args={})
+    ]
+
     return RunSpec(
         name="mtsamples_procedures",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["mtsamples_procedures"],
     )
 
@@ -508,17 +550,23 @@ def get_mimic_rrs_spec() -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
+    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.mimic_rrs_annotator.MIMICRRSAnnotator")]
+
     metric_args = {
         "task": "mimic_rrs",
         "device": get_torch_device_name(),
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.mimic_rrs_metrics.MIMICRRSMetric", args={})
+    ]
     return RunSpec(
         name="mimic_rrs",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["mimic_rrs"],
     )
 
@@ -559,13 +607,11 @@ def get_chw_care_plan_run_spec() -> RunSpec:
     This configuration evaluates the model's ability to summarize
     doctor-patient dialogues into structured clinical notes.
     """
-    # Define the scenario
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.chw_care_plan_scenario.CHWCarePlanScenario",
         args={},
     )
 
-    # Define the adapter
     adapter_spec = get_generation_adapter_spec(
         instructions=(
             "Follow the instructions provided regarding conversion of a patient note into a specified format."
@@ -576,21 +622,26 @@ def get_chw_care_plan_run_spec() -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
+    annotator_specs = [
+        AnnotatorSpec(class_name="helm.benchmark.annotation.chw_care_plan_annotator.CHWCarePlanAnnotator")
+    ]
 
-    # Define the metrics
     metric_args = {
         "task": "chw_care_plan",
         "device": get_torch_device_name(),
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
-
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.chw_care_plan_metrics.CHWCarePlanMetric", args={})
+    ]
     # Return the RunSpec
     return RunSpec(
         name="chw_care_plan",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["clinical", "chw_care_plan"],
     )
 
@@ -607,18 +658,24 @@ def get_medication_qa_spec() -> RunSpec:
         max_tokens=512,
         stop_sequences=[],
     )
-
+    annotator_specs = [
+        AnnotatorSpec(class_name="helm.benchmark.annotation.medication_qa_annotator.MedicationQAAnnotator")
+    ]
     metric_args = {
         "task": "medication_qa",
         "device": get_torch_device_name(),
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.medication_qa_metrics.MedicationQAMetric", args={})
+    ]
     return RunSpec(
         name="medication_qa",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["medication_qa"],
     )
 
@@ -645,6 +702,13 @@ def get_starr_patient_instructions_run_spec() -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
+    annotator_specs = [
+        AnnotatorSpec(
+            class_name=(
+                "helm.benchmark.annotation.starr_patient_instructions_annotator.StarrPatientInstructionsAnnotator"
+            )
+        )
+    ]
 
     metric_args = {
         "task": "starr_patient_instructions",
@@ -652,12 +716,21 @@ def get_starr_patient_instructions_run_spec() -> RunSpec:
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
-    metric_specs = get_summarization_metric_specs(metric_args) + get_basic_metric_specs([])
-
+    metric_specs = (
+        get_summarization_metric_specs(metric_args)
+        + [
+            MetricSpec(
+                class_name="helm.benchmark.metrics.starr_patient_instructions_metrics.StarrPatientInstructionsMetric",
+                args={},
+            )
+        ]
+        + get_basic_metric_specs([])
+    )
     return RunSpec(
         name="starr_patient_instructions",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
+        annotators=annotator_specs,
         metric_specs=metric_specs,
         groups=["starr_patient_instructions"],
     )
@@ -676,6 +749,7 @@ def get_med_dialog_spec(subset: str) -> RunSpec:
         max_tokens=80,
         max_train_instances=0,
     )
+    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.med_dialog_annotator.MedDialogAnnotator")]
 
     metric_args = {
         "task": "med_dialog",
@@ -683,11 +757,15 @@ def get_med_dialog_spec(subset: str) -> RunSpec:
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.med_dialog_metrics.MedDialogMetric", args={})
+    ]
     return RunSpec(
         name=f"med_dialog,subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["med_dialog"],
     )
 
@@ -724,17 +802,23 @@ def get_medi_qa_spec() -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
+    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.medi_qa_annotator.MediQAAnnotator")]
+
     metric_args = {
         "task": "medi_qa",
         "device": get_torch_device_name(),
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.medi_qa_metrics.MediQAMetric", args={})
+    ]
     return RunSpec(
         name="medi_qa",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["medi_qa"],
     )
 
@@ -757,6 +841,9 @@ def get_mental_health_spec() -> RunSpec:
         output_noun="Counselor response",
         max_tokens=512,
     )
+    annotator_specs = [
+        AnnotatorSpec(class_name="helm.benchmark.annotation.mental_health_annotator.MentalHealthAnnotator")
+    ]
 
     metric_args = {
         "task": "mental_health",
@@ -764,12 +851,16 @@ def get_mental_health_spec() -> RunSpec:
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.mental_health_metrics.MentalHealthMetric", args={})
+    ]
 
     return RunSpec(
         name="mental_health",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["mental_health"],
     )
 
