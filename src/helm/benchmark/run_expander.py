@@ -12,6 +12,7 @@ from helm.benchmark.model_metadata_registry import (
     get_model_metadata,
     get_model_names_with_tag,
     DEPRECATED_MODEL_TAG,
+    UNSUPPORTED_MODEL_TAG,
     FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
     LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
     ABLATION_MODEL_TAG,
@@ -630,8 +631,10 @@ class ModelRunExpander(ReplaceValueRunExpander):
 
         # For each of the keys above, filter out deprecated models.
         deprecated_models = set(get_model_names_with_tag(DEPRECATED_MODEL_TAG))
+        unsupported_models = set(get_model_names_with_tag(UNSUPPORTED_MODEL_TAG))
+        excluded_models = deprecated_models | unsupported_models
         for family_name in values_dict.keys():
-            values_dict[family_name] = [model for model in values_dict[family_name] if model not in deprecated_models]
+            values_dict[family_name] = [model for model in values_dict[family_name] if model not in excluded_models]
 
         return values_dict
 
