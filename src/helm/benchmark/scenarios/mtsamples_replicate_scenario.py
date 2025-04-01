@@ -1,7 +1,5 @@
 import os
 import requests
-import re
-from bs4 import BeautifulSoup
 from typing import List
 from helm.benchmark.scenarios.scenario import (
     Scenario,
