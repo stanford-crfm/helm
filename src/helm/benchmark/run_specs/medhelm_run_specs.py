@@ -320,7 +320,7 @@ def get_medbullets_freetext_run_spec() -> RunSpec:
 
 
 @run_spec_function("medalign")
-def get_medalign_spec(max_length: int = 128000) -> RunSpec:
+def get_medalign_spec(max_length: int = 40000) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.medalign_scenario.MedalignScenario", args={"max_length": max_length}
     )

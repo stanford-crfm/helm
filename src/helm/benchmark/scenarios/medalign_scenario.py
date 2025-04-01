@@ -67,7 +67,7 @@ class MedalignScenario(Scenario):
         super().__init__()
         self.max_length = max_length
 
-    def process_csv(self, data) -> List[Instance]:
+    def process_tsv(self, data) -> List[Instance]:
         instances: List[Instance] = []
         for index, row in data.iterrows():
             question = row["prompt"]
@@ -85,4 +85,4 @@ class MedalignScenario(Scenario):
 
     def get_instances(self, output_path: str) -> List[Instance]:
         dataset = return_dataset_dataframe(self.max_length)
-        return self.process_csv(dataset)
+        return self.process_tsv(dataset)
