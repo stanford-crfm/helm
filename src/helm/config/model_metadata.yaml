@@ -4040,24 +4040,7 @@ models:
     tags: [ TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG ]
 
 
-#  - name: ibm/granite-guardian-3-2b
-#    display_name: Granite Gurdian 3.1 (2B)
-#    description: Granite Guardian 3.1 2B is a fine-tuned Granite 3.1 2B Instruct model designed to detect risks in prompts and responses. It can help with risk detection along many key dimensions catalogued in the IBM AI Risk Atlas. It is trained on unique data comprising human annotations and synthetic data informed by internal red-teaming. It outperforms other open-source models in the same space on standard benchmarks.
-#    creator_organization_name: IBM
-#    access: open
-#    num_parameters: 2000000000
-#    release: 2024-10-21
-#    tags: [ TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG ]
-#
-#
-#  - name: ibm/granite-guardian-3-8b
-#    display_name: Granite Gurdian 3.1 (8B)
-#    description: Granite Guardian 3.1 8B is a fine-tuned Granite 3.1 8B Instruct model designed to detect risks in prompts and responses. It can help with risk detection along many key dimensions catalogued in the IBM AI Risk Atlas. It is trained on unique data comprising human annotations and synthetic data informed by internal red-teaming. It outperforms other open-source models in the same space on standard benchmarks.
-#    creator_organization_name: IBM
-#    access: open
-#    num_parameters: 8000000000
-#    release: 2024-12-18
-#    tags: [ TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG ]
+
 
 
 
@@ -4079,15 +4062,10 @@ models:
     release_date: 2024-12-18
     tags: [ TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG ]
 
-
-# DALLAS
-# ibm/granite-13b-instruct-v2
-# ibm/granite-20b-code-instruct
-#ibm/granite-20b-multilingual
-#ibm/granite-3-2b-instruct (granite 3.1)
-#ibm/granite-3-8b-instruct (granite 3.1)
-#ibm/granite-34b-code-instruct-8k
-#ibm/granite-3b-code-instruct
-#ibm/granite-8b-code-instruct
-#ibm/granite-guardian-3-2b
-#ibm/granite-guardian-3-8b
+  - name: mistralai/mixtral-8x7b-instruct-v0:1
+    display_name: Mixtral 8x7B Instruct on IBM WatsonX
+    description: A 7B sparse Mixture-of-Experts model with stronger capabilities than Mistral 7B. Uses 12B active parameters out of 45B total. Supports multiple languages, code and 32k context window.
+    creator_organization_name: Mistral
+    access: limited
+    release_date: 2023-12-11
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]

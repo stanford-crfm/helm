@@ -112,11 +112,17 @@ class GenerateInferenceHandler(ModelInferenceHandler[TextGenParameters]):
         self.inference_engine = inference_engine
 
     def create_params(self, request: Request) -> TextGenParameters:
+        def set_temperature_requirements():
+            # Default temperature 0.05 required by ibm/granite-13b-instruct-v2
+            if self.inference_engine.model_id == "ibm/granite-13b-instruct-v2":
+                return 0.05
+            return 1e-7 if request.temperature == 0 else request.temperature
+
         return TextGenParameters(
             # decoding_method=TextGenDecodingMethod.GREEDY,
             # length_penalty=TextGenLengthPenalty.get_sample_params(),
-            # TODO check if 0.05 still needed or default implementation working well
-            temperature=1e-7 if request.temperature == 0 else request.temperature,
+
+            temperature=set_temperature_requirements(),
             top_p=request.top_p,
             # top_k = 5,
             # random_seed = 42,

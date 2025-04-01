@@ -3617,3 +3617,13 @@ model_deployments:
       args:
         watsonx_model_name: ibm/granite-8b-code-instruct
         region: Dallas
+
+  - name: ibm/mixtral-8x7b-instruct-v0:1
+    model_name: mistralai/mixtral-8x7b-instruct-v0:1
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 4000
+    client_spec:
+      class_name: "helm.clients.ibm_client.IbmChatClient"
+      args:
+        watsonx_model_name: mistralai/mixtral-8x7b-instruct-v01
+        region: Dallas
