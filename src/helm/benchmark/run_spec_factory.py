@@ -37,6 +37,7 @@ from helm.benchmark.run_expander import (
     IncreaseTemperatureRunExpander,
     IncreaseMaxTokensRunExpander,
     LlavaRunExpander,
+    ModelRunExpander,
     OpenFlamingoRunExpander,
     StopRunExpander,
 )
@@ -61,6 +62,10 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
     expanders = [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]  # type: ignore
     args = dict((key, value) for key, value in args.items() if key not in RUN_EXPANDERS)
 
+    # If no model run expander was specified, add the model=all run expander
+    if not any([expander for expander in expanders if isinstance(expander, ModelRunExpander)]):
+        expanders.append(ModelRunExpander("all"))
+
     run_specs: List[RunSpec] = [run_spec_function(**args)]
 
     # Apply expanders
@@ -70,9 +75,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         ]
 
     def alter_run_spec(run_spec: RunSpec) -> RunSpec:
-        if not run_spec.adapter_spec.model and not run_spec.adapter_spec.model_deployment:
-            raise ValueError("At least one of model_deployment and model must be specified")
-        elif not run_spec.adapter_spec.model and run_spec.adapter_spec.model_deployment:
+        if not run_spec.adapter_spec.model and run_spec.adapter_spec.model_deployment:
             # Infer model from model deployment
             default_model_name = get_model_deployment(run_spec.adapter_spec.model_deployment).model_name
             if not default_model_name:
