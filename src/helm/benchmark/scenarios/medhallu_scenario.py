@@ -24,20 +24,12 @@ class MedHalluScenario(Scenario):
     tags = ["knowledge", "reasoning", "biomedical"]
 
     def create_instance(self, question, knowledge, answer, label, split):
-        prompt_text = f"""
-            World Knowledge: {knowledge}
+        prompt_text = f"""World Knowledge: {knowledge}
 
-            Question: {question}
+Question: {question}
 
-            Answer: {answer}
-
-
-            Return just an integer value, '0' if the answer is factual and '1' if the answer is hallucinated.
-            No letter or word, just the integer value.
-
-
-            Your Judgment:
-            """
+Answer: {answer}
+"""
         return Instance(
             input=Input(
                 text=prompt_text,
