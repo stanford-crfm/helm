@@ -526,7 +526,7 @@ models:
     access: open
     num_parameters: 13000000000
     release_date: 2022-04-03
-    tags: [] # TODO: add tags
+    tags: [DEPRECATED_MODEL_TAG] # TODO: add tags
 
 
 
@@ -547,7 +547,7 @@ models:
     access: open
     num_parameters: 176000000000
     release_date: 2022-11-03
-    tags: [] # TODO: add tags
+    tags: [DEPRECATED_MODEL_TAG] # TODO: add tags
 
   - name: bigscience/t0pp
     display_name: T0pp (11B)
@@ -602,7 +602,7 @@ models:
     access: limited
     num_parameters: 6700000000
     release_date: 2023-04-06
-    tags: [] # TODO: add tags
+    tags: [DEPRECATED_MODEL_TAG] # TODO: add tags
 
   - name: cerebras/cerebras-gpt-13b # NOT SUPPORTED
     display_name: Cerebras GPT (13B)
@@ -611,7 +611,7 @@ models:
     access: limited
     num_parameters: 13000000000
     release_date: 2023-04-06
-    tags: [] # TODO: add tags
+    tags: [DEPRECATED_MODEL_TAG] # TODO: add tags
 
 
 
@@ -828,7 +828,7 @@ models:
     access: closed
     num_parameters: 280000000000
     release_date: 2021-12-08
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   - name: deepmind/chinchilla # NOT SUPPORTED
     display_name: Chinchilla (70B)
@@ -837,7 +837,7 @@ models:
     access: closed
     num_parameters: 70000000000
     release_date: 2022-03-31
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
 
   # Deepseek
@@ -982,7 +982,7 @@ models:
     access: closed
     num_parameters: 540000000000
     release_date: 2023-03-01 # was first announced on 2022-04 but remained private.
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
     # Note: This is aliased to a snapshot of gemini-pro. When possible, please use a versioned snapshot instead.
   - name: google/gemini-pro
@@ -1581,7 +1581,7 @@ models:
     access: open
     num_parameters: 175000000000
     release_date: 2022-12-22
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   - name: meta/opt-iml-30b # NOT SUPPORTED
     display_name: OPT-IML (30B)
@@ -1590,7 +1590,7 @@ models:
     access: open
     num_parameters: 30000000000
     release_date: 2022-12-22
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   - name: meta/opt-175b
     display_name: OPT (175B)
@@ -1637,7 +1637,7 @@ models:
     access: open
     num_parameters: 120000000000
     release_date: 2022-11-15
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   - name: meta/galactica-30b # NOT SUPPORTED
     display_name: Galactica (30B)
@@ -1646,7 +1646,7 @@ models:
     access: open
     num_parameters: 30000000000
     release_date: 2022-11-15
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   - name: meta/llama-7b
     display_name: LLaMA (7B)
@@ -2369,7 +2369,7 @@ models:
     access: open
     num_parameters: 6700000000
     release_date: 2023-05-05
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   - name: mosaicml/mpt-instruct-7b
     display_name: MPT-Instruct (7B)
@@ -2396,7 +2396,7 @@ models:
     access: open
     num_parameters: 30000000000
     release_date: 2023-06-22
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   - name: mosaicml/mpt-instruct-30b
     display_name: MPT-Instruct (30B)
@@ -3241,7 +3241,7 @@ models:
     access: open
     num_parameters: 16000000000
     release_date: 2022-03-25
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   # SambaNova
   - name: sambanova/sambalingo-thai-base
@@ -3488,7 +3488,7 @@ models:
     access: open
     num_parameters: 3000000000
     release_date: 2023-05-05
-    tafs: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   - name: together/redpajama-incite-base-7b
     display_name: RedPajama-INCITE-Base (7B)
@@ -3539,7 +3539,7 @@ models:
     access: open
     num_parameters: 13000000000
     release_date: 2022-09-19
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   # Upstage
   - name: upstage/solar-pro-preview-instruct
