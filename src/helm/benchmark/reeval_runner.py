@@ -124,7 +124,7 @@ class REEvalRunner(Runner):
 
             if iteration > 0:
                 prev_ability = ability.clone()
-                prev_loss = loss.clone()
+                prev_loss = loss
                 d_loss = prev_loss - loss
                 d_theta = torch.norm(prev_ability - ability, p=2)
                 grad_norm = torch.norm(optim.param_groups[0]["params"][0].grad, p=2)
