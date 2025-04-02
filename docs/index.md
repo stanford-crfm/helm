@@ -1,7 +1,5 @@
 {%
    include-markdown "../README.md"
-   start="<!--intro-start-->"
-   end="<!--intro-end-->"
 %}
 
 The code is [hosted on GitHub here](https://github.com/stanford-crfm/helm/).
