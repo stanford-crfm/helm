@@ -11,7 +11,7 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.scenarios.kpi_edgar_scenario import TAG_DICT
+from helm.benchmark.scenarios.kpi_edgar_scenario import KPIEDGARScenario
 
 
 @dataclass
@@ -69,7 +69,7 @@ class EntityTypeClassificationMetric(EvaluateInstancesMetric):
     """Word-level entity type classification F1 score, macro-averaged across entity types."""
 
     def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
-        all_classes = list(TAG_DICT.keys())
+        all_classes = list(KPIEDGARScenario.TAG_DICT.keys())
         pred_indicator_matrixes: List[np.ndarray] = []
         gold_indicator_matrixes: List[np.ndarray] = []
         for request_state in request_states:
