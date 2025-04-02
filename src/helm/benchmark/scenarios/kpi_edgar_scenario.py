@@ -20,39 +20,37 @@ from helm.benchmark.scenarios.scenario import (
 class KPIEDGARScenario(Scenario):
     """A financial named entity recognition (NER) scenario based on KPI-EDGAR (T. Deußer et al., 2022).
 
-        This scenario has been modified from the paper. The original paper has 12 entity types and requires the model
-        to extract pairs of related entities. This scenario only use four named entity types (kpi, cy, py, py1) and only
-        requires the model to extract individual entities.
+    This scenario has been modified from the paper. The original paper has 12 entity types and requires the model
+    to extract pairs of related entities. This scenario only use four named entity types (kpi, cy, py, py1) and only
+    requires the model to extract individual entities.
 
-        Paper:
-        T. Deußer et al.,
-        “KPI-EDGAR: A Novel Dataset and Accompanying Metric for Relation Extraction from Financial Documents.” 2022.
-        https://arxiv.org/abs/2210.09163
-        
-        Prompt format:
+    Paper:
+    T. Deußer et al.,
+    “KPI-EDGAR: A Novel Dataset and Accompanying Metric for Relation Extraction from Financial Documents.” 2022.
+    https://arxiv.org/abs/2210.09163
 
-        ```
-        Context: {Sentence}
-        Task: Extract key performance indicators (KPIs) and values from the above text. Also, specify one of the following categories to each of the extracted KPIs and values in brackets.
-        kpi: Key Performance Indicators expressible in numerical and monetary value, cy: Current Year monetary value, py: Prior Year monetary value, py1: Two Year Past Value.
-        Answer:
-        ```
+    Prompt format:
 
-        Example input:
+    ```
+    Context: {Sentence}
+    Task: Extract key performance indicators (KPIs) and values from the above text. Also, specify one of the following categories to each of the extracted KPIs and values in brackets.
+    kpi: Key Performance Indicators expressible in numerical and monetary value, cy: Current Year monetary value, py: Prior Year monetary value, py1: Two Year Past Value.
+    Answer:
+    ```
 
-        ```
-        Context: The following table summarizes our total share-based compensation expense and excess tax benefits recognized : As of December 28 , 2019 , there was $ 284 million of total unrecognized compensation cost related to nonvested share-based compensation grants .
-        Task: Extract key performance indicators (KPIs) and values from the above text. Also, specify one of the following categories to each of the extracted KPIs and values in brackets.
-        kpi: Key Performance Indicators expressible in numerical and monetary value, cy: Current Year monetary value, py: Prior Year monetary value, py1: Two Year Past Value.
-        Answer:
-        ```
+    Example input:
 
-        Example reference:
-        ```
-        284 [cy], total unrecognized compensation cost [kpi]
-        ```
+    ```
+    Context: The following table summarizes our total share-based compensation expense and excess tax benefits recognized : As of December 28 , 2019 , there was $ 284 million of total unrecognized compensation cost related to nonvested share-based compensation grants .
+    Task: Extract key performance indicators (KPIs) and values from the above text. Also, specify one of the following categories to each of the extracted KPIs and values in brackets.
+    kpi: Key Performance Indicators expressible in numerical and monetary value, cy: Current Year monetary value, py: Prior Year monetary value, py1: Two Year Past Value.
+    Answer:
+    ```
 
-    """  # noqa: E501
+    Example reference:
+    ```
+    284 [cy], total unrecognized compensation cost [kpi]
+    ```"""  # noqa: E501
 
     name = "kpi_edgar"
     description = "Named Entity Recognition from financial documents."
@@ -102,7 +100,9 @@ class KPIEDGARScenario(Scenario):
             end_idx = annotation["end"]
             annotated_words = words[start_idx:end_idx]
             phrase = KPIEDGARScenario.escape_parenthesis(" ".join(annotated_words))
-            entities.append("%s %s%s%s" % (phrase, KPIEDGARScenario.TAG_PAREN[0], annotation_type, KPIEDGARScenario.TAG_PAREN[1]))
+            entities.append(
+                "%s %s%s%s" % (phrase, KPIEDGARScenario.TAG_PAREN[0], annotation_type, KPIEDGARScenario.TAG_PAREN[1])
+            )
 
         return ", ".join(entities)
 
