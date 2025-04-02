@@ -196,10 +196,12 @@ class IbmClient(CachingClient, ABC):
 
         assert (
             self.project_id is not None
-        ), "Missed project_id for specified region configuration in credentials.conf, should be in list of JSON objects with 'region', 'url', 'project_id' per region"
+        ), ("Missed project_id for specified region configuration in credentials.conf, should be in list "
+            "of JSON objects with 'region', 'url', 'project_id' per region")
         assert (
             self.url is not None
-        ), "Missed url for specified region configuration in credentials.conf, should be in list of JSON objects with 'region', 'url', 'project_id' per region"
+        ), ("Missed url for specified region configuration in credentials.conf, should be in list "
+            "of JSON objects with 'region', 'url', 'project_id' per region")
 
         self.inference_engine = ModelInference(
             model_id=self.watsonx_model_name,
