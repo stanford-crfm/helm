@@ -76,8 +76,8 @@ metrics:
     display_name: Float Equivalence
     description: Float Equivalence
     lower_is_better: false
-  - name: kpi_edgar_adjusted_f1.macro
-    display_name: KPI-EDGAR Adjusted F1 Score (macro average)
+  - name: easy_f1_score
+    display_name: Easy Macro F1
     short_display_name: KPI_EDGAR_Adj_F1
     description: Adjusted F1 Score defined in the KPI-EDGAR paper. The score is a macro average over various tags. This is used for kpi_edgar scenario only.
   - name: kpi_edgar_adjusted_f1.modified_macro
@@ -117,6 +117,7 @@ metric_groups:
     - name: num_output_tokens
       split: ${main_split}
 
+############################################################
 run_groups:
   - name: financial_scenarios
     display_name: Financial Scenarios
@@ -210,7 +211,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: kpi_edgar_adjusted_f1.modified_macro
+      main_name: easy_f1_score
       main_split: test
     taxonomy:
       task: named entity recognition

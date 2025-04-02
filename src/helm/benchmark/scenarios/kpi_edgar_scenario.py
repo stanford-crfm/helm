@@ -4,7 +4,17 @@ import json
 import re
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    TEST_SPLIT,
+    CORRECT_TAG,
+    Input,
+    Output,
+)
 
 TAG_DICT = {
     "kpi": "Key Performance Indicators expressible in numerical and monetary value",
@@ -12,6 +22,7 @@ TAG_DICT = {
     "py": "Prior Year monetary value",
     "py1": "Two Year Past Value",
 }
+TAG_DESCRIPTIONS = ", ".join(["%s: %s" % (key, val) for (key, val) in TAG_DICT.items()]) + "."
 TAG_PAREN_RE = (r"\[", r"\]")
 TAG_PAREN = tuple((e.strip("\\") for e in TAG_PAREN_RE))
 TAG_PAREN_ESC = ("(", ")")
@@ -59,21 +70,17 @@ class KPIEDGARScenario(Scenario):
     description = "Named Entity Recognition from financial documents."
     tags = ["named_entity_recognition", "finance"]
 
-    JSON_URL = "https://raw.githubusercontent.com/tobideusser/kpi-edgar/2ec7084dcd55b4979bbe288d4aa1e962c685c9ab/data/kpi_edgar.json"
+    JSON_URL = "https://raw.githubusercontent.com/tobideusser/kpi-edgar/2ec7084dcd55b4979bbe288d4aa1e962c685c9ab/data/kpi_edgar.json"  # noqa: E501
     JSON_FILENAME = "kpi_edgar.json"
 
     @staticmethod
-    def get_sentences(dataset_obj: List[Dict]) -> List[Dict]:
-        sentences = []
-        for doc in dataset_obj:
-            segments = doc["segments"]
-            assert isinstance(segments, list)
-            for segment in segments:
-                segment_sentences = segment.get("sentences")
-                if isinstance(segment_sentences, list):
-                    for segment_sentence in segment_sentences:
-                        sentences.append(segment_sentence)
-        return sentences
+    def get_sentences(dataset: List[Dict]) -> List[Dict]:
+        return [
+            sentence
+            for document in dataset
+            for segment in document["segments"]
+            for sentence in segment["sentences"] or []
+        ]
 
     @staticmethod
     def escape_parenthesis(text: str) -> str:
@@ -86,39 +93,49 @@ class KPIEDGARScenario(Scenario):
         words: List[str],
         annotations: List[Dict],
     ) -> str:
-        def get_entity_for_annotation(words: List[str], annotation: Dict):
+        # def get_entity_for_annotation(words: List[str], annotation: Dict) -> str
+        entities: List[str] = []
+        for annotation in annotations:
+            annotation_type = annotation["type_"]
+            if annotation_type not in TAG_DICT:
+                continue
             start_idx = annotation["start"]
             end_idx = annotation["end"]
             annotated_words = words[start_idx:end_idx]
             phrase = KPIEDGARScenario.escape_parenthesis(" ".join(annotated_words))
-            return "%s %s%s%s" % (phrase, TAG_PAREN[0], annotation["type_"], TAG_PAREN[1])
+            entities.append("%s %s%s%s" % (phrase, TAG_PAREN[0], annotation_type, TAG_PAREN[1]))
 
-        entities = [get_entity_for_annotation(words, anno) for anno in annotations]
         return ", ".join(entities)
 
     @staticmethod
     def sentences_to_instances(sentences: List[Dict]) -> List[Instance]:
-        tag_descriptions = ", ".join(["%s: %s" % (key, val) for (key, val) in TAG_DICT.items()]) + "."
-        instances = []
+        instances: List[Instance] = []
         for sentence in sentences:
-            words = [word_dict["value"] for word_dict in sentence["words"]]
-            annotations = sentence["entities_anno"]
-            passage = KPIEDGARScenario.escape_parenthesis(" ".join(words))
-            input_text = (
-                "Context: %s\n"
-                "Task: Extract key performance indicators (KPIs) and values from the above text. Also, specify one of the following categories to each of the extracted KPIs and values in brackets.\n"
-                "%s" % (passage, tag_descriptions)
-            )
-            dataset_split = sentence["split_type"]
+            dataset_split: str = sentence["split_type"]
             if dataset_split is None:
                 continue
             split = DATASET_SPLIT_TO_HELM_SPLIT[dataset_split]
+
+            words: List[str] = [word_dict["value"] for word_dict in sentence["words"]]
+            passage = KPIEDGARScenario.escape_parenthesis(" ".join(words))
+            input_text = (
+                "Context: %s\n"
+                "Task: Extract key performance indicators (KPIs) and values from the above text. Also, specify one of the following categories to each of the extracted KPIs and values in brackets.\n"  # noqa: E501
+                "%s" % (passage, TAG_DESCRIPTIONS)
+            )
+
+            annotations = sentence["entities_anno"]
             output_text = KPIEDGARScenario.get_output_text(words, annotations)
-            instances.append(Instance(
-                input=Input(text=input_text),
-                references=[Reference(Output(text=output_text), tags=[CORRECT_TAG])],
-                split=split,
-            ))
+            if not output_text:
+                continue
+
+            instances.append(
+                Instance(
+                    input=Input(text=input_text),
+                    references=[Reference(Output(text=output_text), tags=[CORRECT_TAG])],
+                    split=split,
+                )
+            )
         return instances
 
     def get_instances(self, output_path: str) -> List[Instance]:

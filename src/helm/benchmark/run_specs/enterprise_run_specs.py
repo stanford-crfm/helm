@@ -104,7 +104,6 @@ def get_conv_fin_qa_calc_spec() -> RunSpec:
 def get_kpi_edgar_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.kpi_edgar_scenario.KPIEDGARScenario",
-        args={},
     )
 
     adapter_spec = get_generation_adapter_spec(
@@ -115,7 +114,9 @@ def get_kpi_edgar_spec() -> RunSpec:
         name="kpi_edgar",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=[MetricSpec(class_name="helm.benchmark.metrics.kpi_edgar_metrics.NERAdjustedF1Metric", args={})],
+        metric_specs=get_basic_metric_specs([])
+        + [MetricSpec(class_name="helm.benchmark.metrics.kpi_edgar_metrics.SimpleNERAdjustedMetric"),
+           MetricSpec(class_name="helm.benchmark.metrics.kpi_edgar_old_metrics.NERAdjustedF1Metric")],
         groups=["kpi_edgar"],
     )
 
