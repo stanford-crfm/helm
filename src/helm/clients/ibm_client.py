@@ -1,7 +1,7 @@
 from abc import ABC
 from abc import abstractmethod
 
-from helm.common.hierarchical_logger import htrack_block, hlog
+from helm.common.hierarchical_logger import hlog
 from helm.common.cache import CacheConfig
 from helm.common.request import (
     Request,
@@ -14,6 +14,10 @@ from helm.common.request import (
 
 from helm.clients.client import CachingClient
 from helm.common.optional_dependencies import handle_module_not_found_error
+from typing import TypeVar, Generic
+from typing import Any, Dict, List
+from threading import Semaphore, Lock
+import threading
 
 try:
     from ibm_watsonx_ai import Credentials
@@ -22,58 +26,25 @@ try:
     from ibm_watsonx_ai.foundation_models.schema import (
         TextChatParameters,
         TextGenParameters,
-        # TextGenDecodingMethod,
-        # TextGenLengthPenalty,
         ReturnOptionProperties,
     )
 
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["ibm"])
 
-from typing import Any, Dict, List, TypedDict, Callable, Union, Optional
-from threading import Semaphore, Lock
-import threading
-
 # Define the maximum number of parallel executions is limited by IBM API
 MAX_CONCURRENT_REQUESTS = 8
 __semaphores: Dict[str, Semaphore] = dict()
 __semaphores_lock = Lock()
-__counter_lock = Lock()
-counter = 0
-__DEBUG = True
-
-def debug(prompt):
-    global counter
-    if __DEBUG:
-        with __counter_lock:
-            counter += 1
-            hlog(f"<<{counter}>> - {prompt}")
 
 
-def get_semaphore(model: str):
+def _get_semaphore(model: str) -> Semaphore:
     with __semaphores_lock:
         if model not in __semaphores:
             __semaphores[model] = threading.Semaphore(MAX_CONCURRENT_REQUESTS)
 
     return __semaphores[model]
 
-
-#
-# class IBMRequest(TypedDict):
-#     """Data passed between make_request and serve_request. Used as the cache key."""
-#
-#     model: str
-#     engine: str
-#     prompt: str
-#     temperature: float
-#     num_return_sequences: int
-#     max_new_tokens: int
-#     top_p: float
-#     echo_prompt: bool
-#     top_k_per_token: int
-#     stop_sequences: List
-
-from typing import TypeVar, Generic
 
 T = TypeVar("T", TextGenParameters, TextChatParameters)
 
@@ -98,13 +69,6 @@ class ModelInferenceHandler(ABC, Generic[T]):
     def create_params(self, request: Request) -> T:
         pass
 
-    # @staticmethod
-    # def pre_processing(text: str) -> str:
-    #     """
-    #     :rtype: object
-    #     """
-    #     return text.encode("unicode_escape").decode("utf-8")
-
 
 class GenerateInferenceHandler(ModelInferenceHandler[TextGenParameters]):
 
@@ -119,36 +83,24 @@ class GenerateInferenceHandler(ModelInferenceHandler[TextGenParameters]):
             return 1e-7 if request.temperature == 0 else request.temperature
 
         return TextGenParameters(
-            # decoding_method=TextGenDecodingMethod.GREEDY,
-            # length_penalty=TextGenLengthPenalty.get_sample_params(),
-
             temperature=set_temperature_requirements(),
             top_p=request.top_p,
-            # top_k = 5,
-            # random_seed = 42,
-            # repetition_penalty = 1.7,
-            # min_new_tokens = 3,
             max_new_tokens=request.max_tokens,
-            # stop_sequences = None,
-            # time_limit = None,
-            # truncate_input_tokens = 300,
             return_options=ReturnOptionProperties(
                 input_text=True,
                 generated_tokens=True,
                 input_tokens=False,
                 token_logprobs=True,
                 token_ranks=False,
-                # top_n_tokens = 1
             ),
             include_stop_sequence=False,
             prompt_variables=None,
         )
 
     def serve_request(self, prompt: str, params: TextGenParameters) -> Dict:
-        semaphore = get_semaphore(self.inference_engine.model_id)
+        semaphore = _get_semaphore(self.inference_engine.model_id)
 
         with semaphore:
-            debug(prompt)
             response = self.inference_engine.generate(
                 prompt=prompt,
                 params=params,
@@ -210,10 +162,9 @@ class ChatModelInferenceHandler(ModelInferenceHandler[TextChatParameters]):
         return completions
 
     def serve_request(self, prompt: str, params: TextChatParameters) -> Dict:
-        semaphore = get_semaphore(self.inference_engine.model_id)
+        semaphore = _get_semaphore(self.inference_engine.model_id)
 
         with semaphore:
-            debug(prompt)
             response = self.inference_engine.chat(
                 messages=[{"role": "user", "content": prompt}],
                 params=params,
@@ -269,11 +220,7 @@ class IbmClient(CachingClient, ABC):
         def do_it() -> Dict[str, Any]:
             return inference_handler.serve_request(prompt=request.prompt, params=params)
 
-        raw_request = {
-            "prompt": request.prompt,
-            "params": params.to_dict(),
-            "model": request.model
-        }
+        raw_request = {"prompt": request.prompt, "params": params.to_dict(), "model": request.model}
 
         cache_key = CachingClient.make_cache_key(raw_request, request)
         response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
@@ -287,27 +234,8 @@ class IbmClient(CachingClient, ABC):
             embedding=[],
         )
 
-    # @abstractmethod
-    # def convert_to_raw_request(self, request: Request) -> IBMRequest:
-    #     pass
-
 
 class IbmChatClient(IbmClient):
-
-    # def convert_to_raw_request(self, request: Request) -> IBMRequest:
-    #     raw_request: IBMRequest = {
-    #         "model": self.watsonx_model_name,
-    #         "engine": request.model_engine,
-    #         "prompt": request.prompt,
-    #         "temperature": 1e-7 if request.temperature == 0 else request.temperature,
-    #         "num_return_sequences": request.num_completions,
-    #         "max_new_tokens": request.max_tokens,
-    #         "top_p": request.top_p,
-    #         "echo_prompt": request.echo_prompt,
-    #         "top_k_per_token": request.top_k_per_token,
-    #         "stop_sequences": request.stop_sequences,
-    #     }
-    #     return raw_request
 
     def make_request(self, request: Request) -> RequestResult:
         # Embedding not supported for this model
@@ -324,22 +252,6 @@ class IbmChatClient(IbmClient):
 
 
 class IbmTextClient(IbmClient):
-    # def convert_to_raw_request(self, request: Request) -> IBMRequest:
-    #     raw_request: IBMRequest = {
-    #         "model": self.watsonx_model_name,
-    #         "engine": request.model_engine,
-    #         "prompt": request.prompt,
-    #         "temperature": 1e-7 if request.temperature == 0 else request.temperature,
-    #         "num_return_sequences": request.num_completions,
-    #         "max_new_tokens": request.max_tokens,
-    #         "top_p": request.top_p,
-    #         "echo_prompt": request.echo_prompt,
-    #         "top_k_per_token": request.top_k_per_token,
-    #         "stop_sequences": request.stop_sequences,
-    #         "random": request.random,
-    #     }
-    #     return raw_request
-
     def make_request(self, request: Request) -> RequestResult:
         # Embedding not supported for this model
         if request.embedding:
