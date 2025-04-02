@@ -210,7 +210,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: kpi_edgar_adjusted_f1.macro
+      main_name: kpi_edgar_adjusted_f1.modified_macro
       main_split: test
     taxonomy:
       task: named entity recognition
