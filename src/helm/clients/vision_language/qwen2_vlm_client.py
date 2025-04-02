@@ -27,6 +27,9 @@ _models: Dict[str, Optional[LoadedModelProcessor]] = {
     "Qwen/Qwen2-VL-7B-Instruct": None,
     "Qwen/Qwen2-VL-72B-Instruct": None,
     "Qwen/Qwen2.5-VL-3B-Instruct": None,
+    "Qwen/Qwen2.5-VL-7B-Instruct": None,
+    "Qwen/Qwen2.5-VL-32B-Instruct": None,
+    "Qwen/Qwen2.5-VL-72B-Instruct": None,
 }
 
 
@@ -42,6 +45,12 @@ class Qwen2VLMClient(CachingClient):
             return "Qwen/Qwen2-VL-72B-Instruct"
         elif helm_model_name == "qwen2.5-vl-3b-instruct":
             return "Qwen/Qwen2.5-VL-3B-Instruct"
+        elif helm_model_name == "qwen2.5-vl-7b-instruct":
+            return "Qwen/Qwen2.5-VL-7B-Instruct"
+        elif helm_model_name == "qwen2.5-vl-32b-instruct":
+            return "Qwen/Qwen2.5-VL-32B-Instruct"
+        elif helm_model_name == "qwen2.5-vl-72b-instruct":
+            return "Qwen/Qwen2.5-VL-72B-Instruct"
         else:
             raise ValueError(f"Unhandled model name: {helm_model_name}")
 
