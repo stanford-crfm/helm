@@ -215,9 +215,9 @@ run_groups:
       main_split: test
     taxonomy:
       task: named entity recognition
-      what: "?"
-      who: "?"
-      when: "?"
+      what: financial reports
+      who: financial experts
+      when: before 2022
       language: English
 
   - name: legal_contract_summarization
