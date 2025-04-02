@@ -202,7 +202,7 @@ run_groups:
 
   - name: kpi_edgar
     display_name: KPI-EDGAR Financial Documents (Named Entity Recognition)
-    description: KPI-EDGAR - A Novel Dataset and Accompanying Metric for Relation Extraction from Financial Documents [(Deußer et al., 2022)](https://arxiv.org/pdf/2210.09163.pdf).
+    description: A named entity recognition beenchmark based on the paper KPI-EDGAR - A Novel Dataset and Accompanying Metric for Relation Extraction from Financial Documents [(Deußer et al., 2022)](https://arxiv.org/pdf/2210.09163.pdf).
     metric_groups:
       - accuracy
       - general_information

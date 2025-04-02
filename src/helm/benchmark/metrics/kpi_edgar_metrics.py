@@ -64,8 +64,10 @@ def _get_request_state_indicator_matrices(
         pred_entities=pred_entities, gold_entities=gold_entities, all_classes=all_classes
     )
 
+
 class EntityTypeClassificationMetric(EvaluateInstancesMetric):
     """Word-level entity type classification F1 score, macro-averaged across entity types."""
+
     def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         all_classes = list(TAG_DICT.keys())
         pred_indicator_matrixes: List[np.ndarray] = []
