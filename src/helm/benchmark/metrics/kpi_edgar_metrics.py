@@ -64,8 +64,8 @@ def _get_request_state_indicator_matrices(
         pred_entities=pred_entities, gold_entities=gold_entities, all_classes=all_classes
     )
 
-
-class SimpleNERAdjustedMetric(EvaluateInstancesMetric):
+class EntityTypeClassificationMetric(EvaluateInstancesMetric):
+    """Word-level entity type classification F1 score, macro-averaged across entity types."""
     def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         all_classes = list(TAG_DICT.keys())
         pred_indicator_matrixes: List[np.ndarray] = []
@@ -81,4 +81,4 @@ class SimpleNERAdjustedMetric(EvaluateInstancesMetric):
         computed_f1_score = f1_score(
             y_pred=pred_indicator_matrix, y_true=gold_indicator_matrix, average="macro", zero_division=0.0
         )
-        return [Stat(MetricName("easy_f1_score")).add(computed_f1_score)]
+        return [Stat(MetricName("entity_type_classification_macro_f1")).add(computed_f1_score)]

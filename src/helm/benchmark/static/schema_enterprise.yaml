@@ -76,14 +76,10 @@ metrics:
     display_name: Float Equivalence
     description: Float Equivalence
     lower_is_better: false
-  - name: easy_f1_score
-    display_name: Easy Macro F1
-    short_display_name: KPI_EDGAR_Adj_F1
-    description: Adjusted F1 Score defined in the KPI-EDGAR paper. The score is a macro average over various tags. This is used for kpi_edgar scenario only.
-  - name: kpi_edgar_adjusted_f1.modified_macro
-    display_name: Modified KPI-EDGAR Adjusted F1 Score (macro average)
-    short_display_name: Mod_KPI_EDGAR_Adj_F1
-    description: Adjusted F1 Score defined in a standard manner. The score is a macro average over various tags. This is used for kpi_edgar scenario only.
+  - name: entity_type_classification_macro_f1
+    display_name: Word-level Entity Type Classification Macro F1 Score
+    short_display_name: Entity Type Classification Macro F1
+    description: Word-level entity type classification F1 score, macro-averaged across entity types
 
 ############################################################
 perturbations: []
@@ -211,7 +207,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: easy_f1_score
+      main_name: entity_type_classification_macro_f1
       main_split: test
     taxonomy:
       task: named entity recognition
