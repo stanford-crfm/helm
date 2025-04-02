@@ -145,6 +145,12 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             # prompts require, you can adjust this buffer accordingly."
             run_spec = singleton(IncreaseMaxTokensRunExpander(value=25_000).expand(run_spec))
 
+        if model.name == "google/gemini-2.5-pro-exp-03-25":
+            # Based on https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-2.5-pro-exp-03-25,
+            # max out on the number of tokens for the thinking model
+            max_tokens: int = 64_000 - run_spec.adapter_spec.max_tokens
+            run_spec = singleton(IncreaseMaxTokensRunExpander(value=max_tokens).expand(run_spec))
+
         # IDEFICS special handling
         if IDEFICS_MODEL_TAG in model.tags:
             if IDEFICS_INSTRUCT_MODEL_TAG in model.tags:
