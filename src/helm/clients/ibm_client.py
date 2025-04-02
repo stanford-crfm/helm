@@ -174,13 +174,13 @@ class ChatModelInferenceHandler(ModelInferenceHandler[TextChatParameters]):
 
 class IbmClient(CachingClient, ABC):
     def __init__(
-            self,
-            cache_config: CacheConfig,
-            api_key: str,
-            region: str,
-            location: dict,
-            watsonx_model_name: str,
-            **kwargs,
+        self,
+        cache_config: CacheConfig,
+        api_key: str,
+        region: str,
+        location: dict,
+        watsonx_model_name: str,
+        **kwargs,
     ):
         super().__init__(cache_config=cache_config)
         self.project_id = None
@@ -195,10 +195,10 @@ class IbmClient(CachingClient, ABC):
                 self.url = entry["url"]
 
         assert (
-                self.project_id is not None
+            self.project_id is not None
         ), "Missed project_id for specified region configuration in credentials.conf, should be in list of JSON objects with 'region', 'url', 'project_id' per region"
         assert (
-                self.url is not None
+            self.url is not None
         ), "Missed url for specified region configuration in credentials.conf, should be in list of JSON objects with 'region', 'url', 'project_id' per region"
 
         self.inference_engine = ModelInference(
