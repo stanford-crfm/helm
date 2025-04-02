@@ -1,9 +1,29 @@
 # Holistic Evaluation of Language Models (HELM)
 
-[comment]: <> (When using the img tag, which allows us to specify size, src has to be a URL.)
-<img src="https://github.com/stanford-crfm/helm/raw/v0.5.4/helm-frontend/src/assets/helm-logo.png" alt=""  width="480"/>
 
-**Holistic Evaluation of Language Models (HELM)** is an open source Python framework for holistic, reproducible and transparent evaluation of foundation models, including large language models (LLMs) and multimodal models. This framework includes the following features:
+<a href="https://github.com/stanford-crfm/helm">
+    <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/stanford-crfm/helm">
+</a>
+<a href="https://github.com/stanford-crfm/helm/graphs/contributors">
+    <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/stanford-crfm/helm">
+</a>
+<a href="https://github.com/stanford-crfm/helm/actions/workflows/test.yml?query=branch%3Amain">
+    <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/stanford-crfm/helm/test.yml">
+</a>
+<a href="https://crfm-helm.readthedocs.io/en/latest/">
+    <img alt="Documentation Status" src="https://readthedocs.org/projects/helm/badge/?version=latest">
+</a>
+<a href="https://github.com/stanford-crfm/helm/blob/main/LICENSE">
+    <img alt="License" src="https://img.shields.io/github/license/stanford-crfm/helm?color=blue" />
+</a>
+<a href="https://pypi.org/project/crfm-helm/">
+    <img alt="PyPI" src="https://img.shields.io/pypi/v/crfm-helm?color=blue" />
+</a>
+
+[comment]: <> (When using the img tag, which allows us to specify size, src has to be a URL.)
+<img src="https://github.com/stanford-crfm/helm/raw/v0.5.4/helm-frontend/src/assets/helm-logo.png" alt="HELM logo"  width="480"/>
+
+**Holistic Evaluation of Language Models (HELM)** is an open source Python framework created by the [Center for Research on Foundation Models (CRFM) at Stanford](https://crfm.stanford.edu/) for holistic, reproducible and transparent evaluation of foundation models, including large language models (LLMs) and multimodal models. This framework includes the following features:
 
 - Datasets and benchmarks in a standardized format (e.g. MMLU-Pro, GPQA, IFEval, WildBench)
 - Models from various providers accessible through a unified interface (e.g. OpenAI models, Anthropic Claude, Google Gemini)
