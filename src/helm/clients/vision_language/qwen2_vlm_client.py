@@ -130,7 +130,6 @@ class Qwen2VLMClient(CachingClient):
                         # For simplicity, we split tokens by whitespace.
                         completion = output_text[0]
                         tokens = completion.split()
-                        hlog(f"Generated: {completion}")
                         return {"output": (completion, tokens)}
 
                     cache_key = CachingClient.make_cache_key(
