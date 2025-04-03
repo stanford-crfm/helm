@@ -47,9 +47,9 @@ class AnthropicCompletionRequest(TypedDict):
     top_k: int
 
 
-class AnthropicClient(CachingClient):
+class AnthropicLegacyClaude2Client(CachingClient):
     """
-    Client for the Anthropic models (https://arxiv.org/abs/2204.05862).
+    Legacy client for the Anthropic Claude 1 and 2 models (https://arxiv.org/abs/2204.05862).
     They use their own tokenizer.
     Here are a list of bugs that we deal with in this client:
     - The prompt must contains anthropic.HUMAN_PROMPT ('\n\nHuman:') and anthropic.AI_PROMPT ('\n\nAssistant:')
@@ -94,7 +94,7 @@ class AnthropicClient(CachingClient):
 
     def _filter_completion(self, completion: str, max_tokens: int) -> str:
         # If the completion starts with a colon, space, or newline, remove it.
-        for _ in range(AnthropicClient.ADDITIONAL_TOKENS):
+        for _ in range(AnthropicLegacyClaude2Client.ADDITIONAL_TOKENS):
             if len(completion) == 0:
                 return completion
             elif completion[0] in [":", " ", "\n"]:
@@ -115,10 +115,10 @@ class AnthropicClient(CachingClient):
         return completion
 
     def make_request(self, request: Request) -> RequestResult:
-        if request.max_tokens > AnthropicClient.MAX_COMPLETION_LENGTH:
+        if request.max_tokens > AnthropicLegacyClaude2Client.MAX_COMPLETION_LENGTH:
             raise ValueError(
                 "The value for `max_tokens` exceeds the currently supported maximum "
-                f"({request.max_tokens} > {AnthropicClient.MAX_COMPLETION_LENGTH})."
+                f"({request.max_tokens} > {AnthropicLegacyClaude2Client.MAX_COMPLETION_LENGTH})."
             )
         if request.max_tokens == 0 and not request.echo_prompt:
             raise ValueError("echo_prompt must be True when max_tokens=0.")
@@ -290,12 +290,12 @@ class AnthropicMessagesClient(CachingClient):
 
                     image_width, image_height = get_dimensions(media_object.location)
                     if (
-                        image_width > AnthropicClient.MAX_IMAGE_DIMENSION
-                        or image_height > AnthropicClient.MAX_IMAGE_DIMENSION
+                        image_width > AnthropicLegacyClaude2Client.MAX_IMAGE_DIMENSION
+                        or image_height > AnthropicLegacyClaude2Client.MAX_IMAGE_DIMENSION
                     ):
                         hlog(
                             f"WARNING: Image {image_location} exceeds max allowed size: "
-                            f"{AnthropicClient.MAX_IMAGE_DIMENSION} pixels"
+                            f"{AnthropicLegacyClaude2Client.MAX_IMAGE_DIMENSION} pixels"
                         )
                         # Save the resized image to a temporary file
                         with tempfile.NamedTemporaryFile(suffix=".jpg") as temp_file:
@@ -303,8 +303,8 @@ class AnthropicMessagesClient(CachingClient):
                             copy_image(
                                 src=image_location,
                                 dest=temp_file.name,
-                                width=min(image_width, AnthropicClient.MAX_IMAGE_DIMENSION),
-                                height=min(image_height, AnthropicClient.MAX_IMAGE_DIMENSION),
+                                width=min(image_width, AnthropicLegacyClaude2Client.MAX_IMAGE_DIMENSION),
+                                height=min(image_height, AnthropicLegacyClaude2Client.MAX_IMAGE_DIMENSION),
                             )
                             base64_image = encode_base64(temp_file.name, format="JPEG")
 
@@ -434,7 +434,7 @@ class AnthropicRequestError(Exception):
     pass
 
 
-class AnthropicLegacyClient(CachingClient):
+class AnthropicLegacyPreviewClient(CachingClient):
     """
     Legacy client for the Anthropic models (https://arxiv.org/abs/2204.05862).
     This was used before they officially released their API on March 17, 2023.
@@ -472,7 +472,7 @@ class AnthropicLegacyClient(CachingClient):
     def is_valid_logprobs_response(raw_response: str) -> bool:
         try:
             response: Dict = json.loads(raw_response)
-            for key in AnthropicLegacyClient.LOGPROBS_RESPONSE_KEYS:
+            for key in AnthropicLegacyPreviewClient.LOGPROBS_RESPONSE_KEYS:
                 if key not in response:
                     hlog(f"Invalid logprobs response: {raw_response}. Missing key: {key}")
                     return False
@@ -482,7 +482,7 @@ class AnthropicLegacyClient(CachingClient):
             return False
 
     def __init__(self, api_key: str, cache_config: CacheConfig):
-        hlog("This client is deprecated. Please use AnthropicClient instead.")
+        hlog("This client is deprecated. Please use AnthropicMessagesClient instead.")
         super().__init__(cache_config=cache_config)
         self.api_key = api_key
 
@@ -493,10 +493,10 @@ class AnthropicLegacyClient(CachingClient):
         # Validate the fields of `Request`
         if request.model_engine != "stanford-online-all-v4-s3":
             raise ValueError(f"Invalid model: {request.model}")
-        if request.max_tokens > AnthropicLegacyClient.MAX_COMPLETION_LENGTH:
+        if request.max_tokens > AnthropicLegacyPreviewClient.MAX_COMPLETION_LENGTH:
             raise ValueError(
                 "The value for `max_tokens` exceeds the currently supported maximum "
-                f"({request.max_tokens} > {AnthropicLegacyClient.MAX_COMPLETION_LENGTH})."
+                f"({request.max_tokens} > {AnthropicLegacyPreviewClient.MAX_COMPLETION_LENGTH})."
             )
         if request.max_tokens == 0 and not request.echo_prompt:
             raise ValueError("echo_prompt must be True when max_tokens=0.")
@@ -533,7 +533,7 @@ class AnthropicLegacyClient(CachingClient):
                     start: float = time.time()
                     auth: Dict[str, str] = {"key": f"Bearer {self.api_key}"}
                     endpoint: str = (
-                        f"wss://{AnthropicLegacyClient.BASE_ENDPOINT}/model/{request.model_engine}/sample"
+                        f"wss://{AnthropicLegacyPreviewClient.BASE_ENDPOINT}/model/{request.model_engine}/sample"
                         f"?{urllib.parse.urlencode(auth)}"
                     )
                     ws = websocket.create_connection(endpoint, header=auth)
@@ -589,7 +589,7 @@ class AnthropicLegacyClient(CachingClient):
                         # so we have to stop early ourselves.
                         if any(stop in token_text for stop in request.stop_sequences):
                             hlog(f"Received {repr(token_text)}, which has a stop sequence - early stopping.")
-                            stop_reason = AnthropicLegacyClient.STOP_SEQUENCE_STOP_REASON
+                            stop_reason = AnthropicLegacyPreviewClient.STOP_SEQUENCE_STOP_REASON
                             break
 
                         tokens.append(token_text)
@@ -608,7 +608,7 @@ class AnthropicLegacyClient(CachingClient):
 
                 check_logprobs: bool = False
                 if not request.echo_prompt:
-                    for key in AnthropicLegacyClient.LOGPROBS_RESPONSE_KEYS:
+                    for key in AnthropicLegacyPreviewClient.LOGPROBS_RESPONSE_KEYS:
                         # This is a naive approach where we just take the last k tokens and log probs,
                         # where k is the number of tokens in the completion. Ideally, log probs would
                         # be included as part of the response for the inference endpoint.
@@ -670,7 +670,7 @@ class AnthropicLegacyClient(CachingClient):
 
             finish_reason: str = response["stop_reason"]
             # Maintain uniformity with other APIs
-            if finish_reason == AnthropicLegacyClient.STOP_SEQUENCE_STOP_REASON:
+            if finish_reason == AnthropicLegacyPreviewClient.STOP_SEQUENCE_STOP_REASON:
                 finish_reason = "stop"
 
             completion = GeneratedOutput(
@@ -701,15 +701,15 @@ class AnthropicLegacyClient(CachingClient):
         """
         # Sending an empty string results in 'non cancel Cannot evaluate top logprobs of empty string' error
         if len(text) == 0:
-            return AnthropicLegacyClient.EMPTY_LOGPROBS_RESPONSE
+            return AnthropicLegacyPreviewClient.EMPTY_LOGPROBS_RESPONSE
 
         raw_response: str
 
         try:
             logprobs_response = requests.request(
                 method="POST",
-                url=f"https://{AnthropicLegacyClient.BASE_ENDPOINT}/model/{model_engine}/"
-                f"{AnthropicLegacyClient.TOP_K_LOGPROBS_ENDPOINT}",
+                url=f"https://{AnthropicLegacyPreviewClient.BASE_ENDPOINT}/model/{model_engine}/"
+                f"{AnthropicLegacyPreviewClient.TOP_K_LOGPROBS_ENDPOINT}",
                 headers={
                     "Authorization": f"BEARER {self.api_key}",
                     "Content-Type": "application/json",
@@ -720,9 +720,9 @@ class AnthropicLegacyClient(CachingClient):
         except requests.exceptions.RequestException as error:
             hlog(str(error))
             raise AnthropicRequestError(
-                f"Anthropic {AnthropicLegacyClient.TOP_K_LOGPROBS_ENDPOINT} error: {str(error)}"
+                f"Anthropic {AnthropicLegacyPreviewClient.TOP_K_LOGPROBS_ENDPOINT} error: {str(error)}"
             )
 
-        if not AnthropicLegacyClient.is_valid_logprobs_response(raw_response):
+        if not AnthropicLegacyPreviewClient.is_valid_logprobs_response(raw_response):
             raise AnthropicRequestError(f"Invalid logprobs response: {raw_response}")
         return json.loads(raw_response)
