@@ -585,17 +585,23 @@ def get_mimic_bhc_spec() -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
+    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.mimic_bhc_annotator.MIMICBHCAnnotator")]
+
     metric_args = {
         "task": "mimic_bhc",
         "device": get_torch_device_name(),
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.mimic_bhc_metrics.MIMICBHCMetric", args={})
+    ]
     return RunSpec(
         name="mimic_bhc",
+        annotators=annotator_specs,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        metric_specs=metric_specs,
         groups=["mimic_bhc"],
     )
 
