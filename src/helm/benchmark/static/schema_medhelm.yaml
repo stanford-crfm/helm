@@ -752,7 +752,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: BERTScore-F
+      main_name: mimic_bhc_accuracy
       main_split: test
     taxonomy:
       task: Text generation
