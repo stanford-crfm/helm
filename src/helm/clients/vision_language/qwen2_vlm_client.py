@@ -2,7 +2,7 @@ from threading import Lock
 from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
 
-from transformers import Qwen2VLForConditionalGeneration, Qwen2_5_VLForConditionalGeneration, AutoProcessor
+from transformers import AutoProcessor
 from qwen_vl_utils import process_vision_info
 import torch
 
@@ -55,6 +55,8 @@ class Qwen2VLMClient(CachingClient):
             raise ValueError(f"Unhandled model name: {helm_model_name}")
 
     def _get_model(self, helm_model_name: str) -> LoadedModelProcessor:
+        from transformers import Qwen2VLForConditionalGeneration, Qwen2_5_VLForConditionalGeneration
+
         global _models_lock, _models
 
         model_name = self._get_model_name(helm_model_name)
@@ -85,9 +87,6 @@ class Qwen2VLMClient(CachingClient):
 
     def make_request(self, request: Request) -> RequestResult:
         assert request.multimodal_prompt is not None, "Multimodal prompt is required"
-        loaded = self._get_model(request.model_engine)
-        model = loaded.model
-        processor = loaded.processor
 
         # Build messages by collating all media objects into a single "user" message.
         message_content = []
@@ -103,17 +102,6 @@ class Qwen2VLMClient(CachingClient):
 
         messages = [{"role": "user", "content": message_content}]
 
-        # Prepare text and vision inputs.
-        text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-        image_inputs, video_inputs = process_vision_info(messages)
-        inputs = processor(
-            text=[text],
-            images=image_inputs,
-            videos=video_inputs,
-            padding=True,
-            return_tensors="pt",
-        ).to(self._device)
-
         generation_args = {
             "max_new_tokens": request.max_tokens,
         }
@@ -123,11 +111,26 @@ class Qwen2VLMClient(CachingClient):
         request_datetime: Optional[int] = None
         all_cached: bool = True
 
-        with htrack_block(f"Generating for prompt: {text}"):
+        with htrack_block(f"Generating for prompt: {request.multimodal_prompt.text}"):
             for completion_index in range(request.num_completions):
                 try:
 
                     def do_it() -> Dict[str, Any]:
+                        loaded = self._get_model(request.model_engine)
+                        model = loaded.model
+                        processor = loaded.processor
+
+                        # Prepare text and vision inputs.
+                        text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+                        image_inputs, video_inputs = process_vision_info(messages)
+                        inputs = processor(
+                            text=[text],
+                            images=image_inputs,
+                            videos=video_inputs,
+                            padding=True,
+                            return_tensors="pt",
+                        ).to(self._device)
+
                         generated_ids = model.generate(**inputs, **generation_args)
                         # Remove the input prefix from outputs.
                         generated_ids_trimmed = [
