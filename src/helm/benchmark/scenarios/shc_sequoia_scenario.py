@@ -38,7 +38,7 @@ class SHCSequoiaMedScenario(Scenario):
                 context = row["context"]
                 answer = row["label"]
                 prompt = (
-                    f" {counter} Provide an answer to the following {question} with the following context:"
+                    f" {counter} Provide an answer to the following question: {question} with the following context:"
                     f" {context} , Answer the question with a 'A' for yes or 'B' for no. Do not provide any "
                     "additional details or response, just a simple A or B response."
                 )

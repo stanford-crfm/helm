@@ -41,7 +41,7 @@ class SHCENTMedScenario(Scenario):
                     context = row["context"]
                     answer = row["label"]
                     prompt = (
-                        f"{counter} Provide an answer to the following {question} with the following context:"
+                        f"{counter} Provide an answer to the following question: {question} with the following context:"
                         f" {context} , Answer the question with either 'A' for yes, 'B' for no, or 'C' for no mention."
                         " Do not provide any additional details or response, just a simple A, B, or C response."
                     )

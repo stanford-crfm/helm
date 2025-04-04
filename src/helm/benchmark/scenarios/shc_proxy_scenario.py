@@ -15,21 +15,15 @@ from helm.benchmark.scenarios.scenario import (
 csv.field_size_limit(sys.maxsize)
 
 
-class SHCPTBMMedScenario(Scenario):
+class SHCPROXYMedScenario(Scenario):
     """
-    This dataset contains clinical notes from primary care visit encounters of
-    children ages 4-6 years old with ADHD seen at Stanford's community-based primary
-    care network, Packard Children's Health Alliance, between 2015-2019. In this classification
-    task, the LLM is tasked with classifying whether the note contains clinician recommendation
-    for parent training in behavior management, which is the first-line evidence-based treatment
-    for young children with ADHD. From publication: https://doi.org/10.1093/jamia/ocae001
+    This dataset features messages sent by proxy users and non proxy users, for evaluation of 
+    LLM capabilities to determine the sender. From publication: https://doi.org/10.1001/jamapediatrics.2024.4438
     """
 
-    name = "shc_ptbm_med"
+    name = "shc_proxy_med"
     description = (
-        "A dataset that classifies whether a clinical note contains a clinician "
-        "recommendation for parent training in behavior management, which is the first-line "
-        "evidence-based treatment for young children with ADHD."
+        "A dataset that determines if a message was sent by a proxy user "
     )
     tags = ["knowledge", "reasoning", "biomedical"]
 
@@ -44,9 +38,8 @@ class SHCPTBMMedScenario(Scenario):
                 context = row["context"]
                 answer = row["label"]
                 prompt = (
-                    "You are reviewing a clinical note from health records of children with "
-                    "attention deficit hyperactivity disorder (ADHD) and classifying mentions of "
-                    f"behavioral therapy. Provide an answer to the following question: {question} with the "
+                    "You are reviewing a clinical messages in order to determine if they have been "
+                    f"sent by a proxy user. Please determine the following: {question} with the "
                     f"following context: {context} , Answer the question with a 'A' for yes or 'B' "
                     "for no. Do not provide any additional details or response, just a simple A or B response."
                 )
@@ -54,16 +47,16 @@ class SHCPTBMMedScenario(Scenario):
         return data
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        data_path = "/dbfs/mnt/azure_adbfs/Files/medhelm/medhelm-PTBM-dataset_filtered.csv"
+        data_path = "/dbfs/mnt/azure_adbfs/Files/medhelm/medhelm-PROXY-dataset_filtered.csv"
 
         instances: List[Instance] = []
         benchmark_data = self.create_benchmark(data_path)
 
         for prompt, answer in benchmark_data.items():
-            assert answer in SHCPTBMMedScenario.POSSIBLE_ANSWER_CHOICES
+            assert answer in SHCPROXYMedScenario.POSSIBLE_ANSWER_CHOICES
             references: List[Reference] = [
                 Reference(Output(text=pred_answer), tags=[CORRECT_TAG] if pred_answer == answer else [])
-                for pred_answer in SHCPTBMMedScenario.POSSIBLE_ANSWER_CHOICES
+                for pred_answer in SHCPROXYMedScenario.POSSIBLE_ANSWER_CHOICES
             ]
             instances.append(
                 Instance(
