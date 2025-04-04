@@ -526,7 +526,7 @@ models:
     access: open
     num_parameters: 13000000000
     release_date: 2022-04-03
-    tags: [] # TODO: add tags
+    tags: [DEPRECATED_MODEL_TAG] # TODO: add tags
 
 
 
@@ -547,7 +547,7 @@ models:
     access: open
     num_parameters: 176000000000
     release_date: 2022-11-03
-    tags: [] # TODO: add tags
+    tags: [DEPRECATED_MODEL_TAG] # TODO: add tags
 
   - name: bigscience/t0pp
     display_name: T0pp (11B)
@@ -602,7 +602,7 @@ models:
     access: limited
     num_parameters: 6700000000
     release_date: 2023-04-06
-    tags: [] # TODO: add tags
+    tags: [DEPRECATED_MODEL_TAG] # TODO: add tags
 
   - name: cerebras/cerebras-gpt-13b # NOT SUPPORTED
     display_name: Cerebras GPT (13B)
@@ -611,7 +611,7 @@ models:
     access: limited
     num_parameters: 13000000000
     release_date: 2023-04-06
-    tags: [] # TODO: add tags
+    tags: [DEPRECATED_MODEL_TAG] # TODO: add tags
 
 
 
@@ -828,7 +828,7 @@ models:
     access: closed
     num_parameters: 280000000000
     release_date: 2021-12-08
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   - name: deepmind/chinchilla # NOT SUPPORTED
     display_name: Chinchilla (70B)
@@ -837,7 +837,7 @@ models:
     access: closed
     num_parameters: 70000000000
     release_date: 2022-03-31
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
 
   # Deepseek
@@ -982,7 +982,7 @@ models:
     access: closed
     num_parameters: 540000000000
     release_date: 2023-03-01 # was first announced on 2022-04 but remained private.
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
     # Note: This is aliased to a snapshot of gemini-pro. When possible, please use a versioned snapshot instead.
   - name: google/gemini-pro
@@ -1597,7 +1597,7 @@ models:
     access: open
     num_parameters: 175000000000
     release_date: 2022-12-22
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   - name: meta/opt-iml-30b # NOT SUPPORTED
     display_name: OPT-IML (30B)
@@ -1606,7 +1606,7 @@ models:
     access: open
     num_parameters: 30000000000
     release_date: 2022-12-22
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   - name: meta/opt-175b
     display_name: OPT (175B)
@@ -1653,7 +1653,7 @@ models:
     access: open
     num_parameters: 120000000000
     release_date: 2022-11-15
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   - name: meta/galactica-30b # NOT SUPPORTED
     display_name: Galactica (30B)
@@ -1662,7 +1662,7 @@ models:
     access: open
     num_parameters: 30000000000
     release_date: 2022-11-15
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   - name: meta/llama-7b
     display_name: LLaMA (7B)
@@ -2385,7 +2385,7 @@ models:
     access: open
     num_parameters: 6700000000
     release_date: 2023-05-05
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   - name: mosaicml/mpt-instruct-7b
     display_name: MPT-Instruct (7B)
@@ -2412,7 +2412,7 @@ models:
     access: open
     num_parameters: 30000000000
     release_date: 2023-06-22
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   - name: mosaicml/mpt-instruct-30b
     display_name: MPT-Instruct (30B)
@@ -3329,7 +3329,7 @@ models:
     access: open
     num_parameters: 16000000000
     release_date: 2022-03-25
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   # SambaNova
   - name: sambanova/sambalingo-thai-base
@@ -3576,7 +3576,7 @@ models:
     access: open
     num_parameters: 3000000000
     release_date: 2023-05-05
-    tafs: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   - name: together/redpajama-incite-base-7b
     display_name: RedPajama-INCITE-Base (7B)
@@ -3627,7 +3627,7 @@ models:
     access: open
     num_parameters: 13000000000
     release_date: 2022-09-19
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   # Upstage
   - name: upstage/solar-pro-preview-instruct
@@ -3994,7 +3994,7 @@ models:
   - name: ibm-granite/granite-3.1-8b-instruct
     display_name: Granite 3.1 - 8B - Instruct
     description: Granite-3.1-8B-Instruct is a 8B parameter long-context instruct model finetuned from Granite-3.1-8B-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets tailored for solving long context problems.
-    creator_organization_name: IBM-GRANITE
+    creator_organization_name: IBM
     access: open
     num_parameters: 8170000000
     release_date: 2024-12-18
@@ -4004,7 +4004,7 @@ models:
   - name: ibm-granite/granite-3.1-2b-instruct
     display_name: Granite 3.1 - 2B - Instruct
     description: Granite-3.1-2B-Instruct is a 2B parameter long-context instruct model finetuned from Granite-3.1-2B-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets tailored for solving long context problems.
-    creator_organization_name: IBM-GRANITE
+    creator_organization_name: IBM
     access: open
     num_parameters: 2530000000
     release_date: 2024-12-18
@@ -4079,3 +4079,81 @@ models:
     num_parameters: 6740000000
     release_date: 2025-01-20
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+# WatsonX - IBM
+  - name: ibm/granite-13b-instruct-v2
+    display_name: Granite 13b instruct v2
+    description: Granite Base (13B) Instruct V2.0 is a large decoder-only transformer model.The following features were used in the design of the model Decoder-only model
+    creator_organization_name: IBM
+    access: limited
+    num_parameters: 13000000000
+    release: 2023-11-30
+    tags: [ TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG ]
+
+  - name: ibm/granite-20b-code-instruct-8k
+    display_name: Granite 20b code instruct (8K)
+    description: Granite-20B-Code-Base-8K is a decoder-only code model designed for code generative tasks (e.g., code generation, code explanation, code fixing, etc.). It is trained from scratch with a two-phase training strategy. In phase 1, our model is trained on 3 trillion tokens sourced from 116 programming languages, ensuring a comprehensive understanding of programming languages and syntax. In phase 2, our model is trained on 500 billion tokens with a carefully designed mixture of high-quality data from code and natural language domains to improve the models’ ability to reason and follow instructions.
+    creator_organization_name: IBM
+    access: limited
+    num_parameters: 20000000000
+    release: 2024-18-4
+    tags: [ TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG ]
+
+  - name: ibm/granite-34b-code-instruct
+    display_name: Granite 34b code instruct
+    description: Granite Base (34B) Code Instruct is a 34B parameter model fine tuned from Granite-34B-Code-Base on a combination of permissively licensed instruction data to enhance instruction following capabilities including logical reasoning and problem-solving skills.
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 34000000000
+    release: 2024-6-5
+    tags: [ TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG ]
+
+
+  - name: ibm/granite-3b-code-instruct
+    display_name: Granite 3b code instruct
+    description: Granite-3B-Code-Instruct-128K is a 3B parameter long-context instruct model fine tuned from Granite-3B-Code-Base-128K on a combination of permissively licensed data used in training the original Granite code instruct models, in addition to synthetically generated code instruction datasets tailored for solving long context problems. By exposing the model to both short and long context data, we aim to enhance its long-context capability without sacrificing code generation performance at short input context.
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 3000000000
+    release: 2024-6-18
+    tags: [ TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG ]
+
+  - name: ibm/granite-8b-code-instruct
+    display_name: Granite 8b code instruct
+    description: Granite-8B-Code-Instruct-128K is a 8B parameter long-context instruct model fine tuned from Granite-8B-Code-Base-128K on a combination of permissively licensed data used in training the original Granite code instruct models, in addition to synthetically generated code instruction datasets tailored for solving long context problems. By exposing the model to both short and long context data, we aim to enhance its long-context capability without sacrificing code generation performance at short input context.
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 8000000000
+    release: 2024-6-18
+    tags: [ TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG ]
+
+
+
+
+
+
+  - name: ibm/granite-3.1-8b-instruct
+    display_name: Granite 3.1 - 8B - Instruct
+    description: Granite-3.1-8B-Instruct is a 8B parameter long-context instruct model finetuned from Granite-3.1-8B-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets tailored for solving long context problems.
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 8170000000
+    release_date: 2024-12-18
+    tags: [ TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG ]
+
+  - name: ibm/granite-3.1-2b-instruct
+    display_name: Granite 3.1 - 2B - Instruct
+    description: Granite-3.1-2B-Instruct is a 2B parameter long-context instruct model finetuned from Granite-3.1-2B-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets tailored for solving long context problems.
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 2530000000
+    release_date: 2024-12-18
+    tags: [ TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG ]
+
+  - name: mistralai/mixtral-8x7b-instruct-v0:1
+    display_name: Mixtral 8x7B Instruct on IBM WatsonX
+    description: A 7B sparse Mixture-of-Experts model with stronger capabilities than Mistral 7B. Uses 12B active parameters out of 45B total. Supports multiple languages, code and 32k context window.
+    creator_organization_name: Mistral
+    access: limited
+    release_date: 2023-12-11
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]

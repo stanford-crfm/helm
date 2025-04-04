@@ -1,7 +1,5 @@
 import os
 import requests
-import re
-from bs4 import BeautifulSoup
 from typing import List
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -30,30 +28,29 @@ class MTSamplesReplicateScenario(Scenario):
     - Ignores files that do not contain any of these reference sections.
     """
 
-    GITHUB_DIR_URL = "https://github.com/raulista1997/benchmarkdata/tree/main/mtsamples_processed"
-    RAW_BASE_URL = "https://raw.githubusercontent.com/raulista1997/benchmarkdata/refs/heads/main/mtsamples_processed/"
+    GIT_HASH = "ebc104a4f96c5b7602242f301e081e9934a23344"
+    API_BASE_URL = (
+        f"https://api.github.com/repos/raulista1997/benchmarkdata/contents/mtsamples_processed?ref={GIT_HASH}"
+    )
+    RAW_BASE_URL = f"https://raw.githubusercontent.com/raulista1997/benchmarkdata/{GIT_HASH}/mtsamples_processed/"
 
     name = "mtsamples_replicate"
-    description = "A dataset of clinical notes where the model is prompted to generate "
-    "the apprioriate treatment plan for this patient."
+    description = (
+        "A dataset of clinical notes where the model is prompted to generate "
+        "a reasonable treatment plan for the patient based on transcribed medical reports."
+    )
     tags = ["medical", "transcription", "plan_generation"]
 
     def fetch_file_list(self) -> List[str]:
         """
-        Scrapes the GitHub directory page to get a list of all `.txt` files.
+        Uses the GitHub API to fetch the list of `.txt` files at a specific commit.
         """
-        response = requests.get(self.GITHUB_DIR_URL)
+        response = requests.get(self.API_BASE_URL)
         if response.status_code != 200:
-            raise Exception(f"Failed to fetch file list from GitHub ({self.GITHUB_DIR_URL})")
+            raise Exception(f"Failed to fetch file list from GitHub API: {response.text}")
 
-        soup = BeautifulSoup(response.text, "html.parser")
-        file_links = [
-            link.text
-            for link in soup.find_all(
-                "a", {"href": re.compile(r"/raulista1997/benchmarkdata/blob/main/mtsamples_processed/.*\.txt$")}
-            )
-        ]
-        return file_links
+        files = response.json()
+        return [f["name"] for f in files if f["name"].endswith(".txt")]
 
     def download_file(self, file_name: str, output_dir: str) -> str:
         """
@@ -62,11 +59,10 @@ class MTSamplesReplicateScenario(Scenario):
         file_url = self.RAW_BASE_URL + file_name
         file_path = os.path.join(output_dir, file_name)
 
-        if not os.path.exists(file_path):  # Avoid redundant downloads
+        if not os.path.exists(file_path):
             response = requests.get(file_url)
             if response.status_code != 200:
                 raise Exception(f"Failed to download {file_url}")
-
             with open(file_path, "w", encoding="utf-8") as f:
                 f.write(response.text)
 

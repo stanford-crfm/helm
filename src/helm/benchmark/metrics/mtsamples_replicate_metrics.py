@@ -2,15 +2,15 @@ from typing import Any, Dict, List
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.annotation.medi_qa_annotator import ANNOTATOR_MODELS
+from helm.benchmark.annotation.mtsamples_replicate_annotator import ANNOTATOR_MODELS
 from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 
 
-class MedicationQAMetric(Metric):
-    """Score metrics for MedicationQA."""
+class MTSamplesReplicateMetric(Metric):
+    """Score metrics for MTSamplesReplicate."""
 
     def evaluate_generation(
         self,
@@ -20,7 +20,7 @@ class MedicationQAMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         assert request_state.annotations
-        annotations: Dict[str, Any] = request_state.annotations["medication_qa"]
+        annotations: Dict[str, Any] = request_state.annotations["mtsamples_replicate"]
         scores: List[int] = []
         score = 0.0
         for annotation_key, annotation_dict in annotations.items():
@@ -30,5 +30,5 @@ class MedicationQAMetric(Metric):
         if scores:
             score = sum(scores) / len(scores)
         return [
-            Stat(MetricName("medication_qa_accuracy")).add(score),
+            Stat(MetricName("mtsamples_replicate_accuracy")).add(score),
         ]

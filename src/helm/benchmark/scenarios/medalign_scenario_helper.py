@@ -15,7 +15,10 @@ import tiktoken
 
 from langchain_community.retrievers import BM25Retriever
 from tqdm import tqdm
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Union, Callable
+from langchain.schema import Document
+import langchain_community
+
 
 
 def get_instructions(path_to_instructions: str) -> Dict[int, Dict[str, Any]]:
@@ -45,19 +48,22 @@ def get_instructions(path_to_instructions: str) -> Dict[int, Dict[str, Any]]:
         ValueError: If the CSV file does not contain the expected columns.
     """
     if not os.path.exists(path_to_instructions):
-        raise FileNotFoundError(f"The specified file {path_to_instructions} does not exist.")
+        raise FileNotFoundError(
+            f"The specified file {path_to_instructions} does not exist."
+        )
 
-    instructions_df = pd.read_csv(path_to_instructions)
+    instructions_df = pd.read_csv(path_to_instructions, sep='\t')
     required_columns = {
         "instruction_id",
         "question",
         "person_id",
-        "is_selected_ehr",
     }
     if not required_columns.issubset(instructions_df.columns):
-        raise ValueError(f"The CSV file is missing one or more of the required columns: {required_columns}")
+        raise ValueError(
+            f"The CSV file is missing one or more of the required columns: {required_columns}"
+        )
 
-    selected_instructions_df = instructions_df.query("is_selected_ehr == 'yes'")
+    selected_instructions_df = instructions_df #.query("is_selected_ehr == 'yes'")
     instructions_map = {
         row["instruction_id"]: {
             "instruction": row["question"],
@@ -82,10 +88,8 @@ def extract_patient_id_from_fname(fname: str) -> Optional[int]:
         Optional[int]: The extracted patient ID as an integer, or None if
                     the filename doesn't match the expected format.
     """
-    regex_result = re.search(r"EHR_(\d+)\.xml", fname)
-    if regex_result is None:
-        return None
-    return int(regex_result.group(1))
+    name=fname.split('.')[0]
+    return int(name)
 
 
 def get_ehrs(path_to_ehrs: str) -> Dict[int, str]:
@@ -108,13 +112,18 @@ def get_ehrs(path_to_ehrs: str) -> Dict[int, str]:
         FileNotFoundError: If the specified directory does not exist.
     """
     if not os.path.isdir(path_to_ehrs):
-        raise FileNotFoundError(f"The specified directory {path_to_ehrs} does not exist.")
+        raise FileNotFoundError(
+            f"The specified directory {path_to_ehrs} does not exist."
+        )
 
     ehr_map = {}
     for fname in os.listdir(path_to_ehrs):
         pt_id = extract_patient_id_from_fname(fname)
         if pt_id is None:
-            print(f"Warning: File '{fname}' does not match the expected format " "and will be skipped.")
+            print(
+                f"Warning: File '{fname}' does not match the expected format "
+                "and will be skipped."
+            )
             continue
 
         file_path = os.path.join(path_to_ehrs, fname)
@@ -125,7 +134,7 @@ def get_ehrs(path_to_ehrs: str) -> Dict[int, str]:
     return ehr_map
 
 
-def get_tokenizer(tokenizer_name: str):
+def get_tokenizer(tokenizer_name: str) -> Callable:
     """
     Returns a tokenizer based on the given tokenizer name.
 
@@ -157,146 +166,6 @@ def get_tokenizer(tokenizer_name: str):
     return transformers.AutoTokenizer.from_pretrained(tokenizer_name, legacy=False)
 
 
-def tag_rgx_expression(include, exclude):
-    """Create rgx expression to determine which tags should be included or excluded"""
-    if include:
-        return re.compile("|".join(include))
-    elif exclude:
-        return re.compile(f'^((?!({"|".join(exclude)})))')
-    return re.compile(".*")
-
-
-def fetch_nodes_with_tag(start_node, tag_str):
-    """Fetch nodes with certain tag value"""
-    return start_node.xpath(tag_str)
-
-
-def cast_dtype(i: str) -> Union[str, datetime.datetime, int, float]:
-    """Convert string to its appropriate type"""
-    try:
-        return ast.literal_eval(i)
-    except (ValueError, SyntaxError, TypeError):
-        try:
-
-            if isinstance(i, (datetime.datetime, list)):
-                return i
-            else:
-                raise ValueError
-        except ValueError:
-            return i
-
-
-def check_condition(node_value, value, condition):
-    """Check a single condition"""
-
-    casted_node_value = cast_dtype(node_value)
-    casted_value = cast_dtype(value)
-
-    condition_mapping = {
-        "$eq": (lambda x, y: x == y),
-        "$ne": (lambda x, y: x != y),
-        "$gte": (lambda x, y: x >= y),
-        "$gt": (lambda x, y: x > y),
-        "$lte": (lambda x, y: x <= y),
-        "$lt": (lambda x, y: x < y),
-        "$in": (lambda x, y: x in y),
-        "$nin": (lambda x, y: x not in y),
-    }
-
-    return condition_mapping.get(condition, lambda x, y: False)(casted_node_value, casted_value)
-
-
-def check_all_conditions(node, conditions):
-    """Check that a node meets all conditions"""
-    match = True
-    for key, value_conditions in conditions.items():
-
-        if not (key in node.attrib):
-            match = False
-        elif not value_conditions:
-            return True
-
-        for condition, value in value_conditions.items():
-            if not check_condition(node.attrib[key], value, condition):
-                match = False
-
-    return match
-
-
-def remove_node(start_node, bad_node, remove_children=True):
-    """Remove specified node from its direct parent"""
-    parent = bad_node.getparent()
-    if parent is not None:
-        if not remove_children:
-            for child in bad_node:
-                parent.append(child)
-        parent.remove(bad_node)
-    return start_node
-
-
-def query_xml_str(xml_str, filters):
-    """Apply filters to an XML string"""
-
-    tree = lxml.etree.ElementTree(lxml.etree.fromstring(xml_str))
-    root = tree.getroot()
-
-    parent_tag = filters.get("@parent", None)
-    first_n = filters.get("@first", None)
-    last_n = filters.get("@last", None)
-
-    parent_nodes = []
-    for parent_node in fetch_nodes_with_tag(root, f".//{parent_tag}"):
-
-        if not check_all_conditions(parent_node, filters.get(parent_tag, {})):
-            continue
-        if parent_node.findall(".//"):
-            # After performing the filtering, add the XML-as-string to the list
-            # of parent_nodes (essentially comprises a document)
-            parent_str = lxml.etree.tostring(parent_node, pretty_print=False).decode()
-            parent_nodes.append(parent_str)
-
-    if first_n:
-        return parent_nodes[:first_n]
-    elif last_n:
-        return parent_nodes[-last_n:]
-
-    return parent_nodes
-
-
-def filter_events(ehrs, codes_only=False, notes_only=False):
-    print("Filtering events...")
-
-    assert not (codes_only and notes_only), "Only one of `notes_only` and `codes_only` should be true"
-
-    pt_ids = ehrs.keys()
-    for pt_id_key in pt_ids:
-        ehr_as_xml_str = ehrs[pt_id_key]
-        if notes_only:
-            filters = {"@parent": "visit", "@include_children": ["note"]}
-            ehr_visit_strs = query_xml_str(
-                xml_str=ehr_as_xml_str,
-                filters=filters,
-            )
-
-        elif codes_only:
-            filters = {"@parent": "visit", "@exclude_children": ["note"]}
-            ehr_visit_strs = query_xml_str(
-                xml_str=ehr_as_xml_str,
-                filters=filters,
-            )
-
-        else:
-            filters = {"@parent": "visit"}
-            ehr_visit_strs = query_xml_str(
-                xml_str=ehr_as_xml_str,
-                filters=filters,
-            )
-
-        ehrs[pt_id_key] = ehr_visit_strs  # Each pt timeline is a list of visits as xml strs
-
-    return ehrs
-
-
 def retrieve_most_relevant_visits(ehr_visit_strs, query, target_length, tokenizer):
     """
     Retrieve and filter relevant EHR visits based on a query and target length.
@@ -315,11 +184,15 @@ def retrieve_most_relevant_visits(ehr_visit_strs, query, target_length, tokenize
     Returns:
         list[str]: List of EHR visit strings sorted chronologically and constrained by the target length.
     """
-    langchain_docs = [langchain.schema.Document(page_content=doc) for doc in ehr_visit_strs]
-
+    ehr_visits=re.split(r'(?=</encounter>\n)',ehr_visit_strs)
+    langchain_docs = [
+        langchain.schema.Document(page_content=doc) for doc in ehr_visits #broken since ehr_visit_strs is one string of all visits
+    ]
     # `k` is the number of documents to retrieve
     # We retrieve everything and just use the BM25Retriever to sort the documents
-    retriever = BM25Retriever.from_documents(langchain_docs, k=len(langchain_docs))
+    retriever = langchain_community.retrievers.BM25Retriever.from_documents(
+        langchain_docs, k=len(langchain_docs)
+    )
 
     # Invoking the retriever means the most relevant documents are sorted first
     sorted_docs = retriever.invoke(query)
@@ -355,7 +228,7 @@ def retrieve_most_relevant_visits(ehr_visit_strs, query, target_length, tokenize
                 print(f"Error parsing date: {start_dt}")
                 continue
         else:
-            print("Start time not found.")
+            print(f"Start time not found., {doc_content}")
             dts.append(datetime.datetime.min)
         docs.append(doc_content)
 
@@ -379,12 +252,6 @@ def retrieve_most_relevant_visits(ehr_visit_strs, query, target_length, tokenize
 
     return final_docs_content
 
-
-def get_prompt_template(path_to_template="prompt_templates/generic.txt"):
-    with open(path_to_template, encoding="utf-8", mode="r") as f:
-        prompt_template_str = f.read()
-    prompt_template_obj = langchain.prompts.PromptTemplate.from_template(prompt_template_str)
-    return prompt_template_obj
 
 
 def pack_and_trim_prompts(
@@ -427,8 +294,6 @@ def pack_and_trim_prompts(
                     tokenizer=tokenizer,
                 )
                 relevant_ehr = "\n".join(most_relevant_visits)
-            else:
-                relevant_ehr = "\n".join(relevant_ehr)
 
             # Do a first pass with a fast tokenizer
             fast_tokenizer = tiktoken.get_encoding("cl100k_base")
@@ -452,7 +317,6 @@ def pack_and_trim_prompts(
 
 
 def preprocess_prompts(
-    path_to_prompt_template,
     target_context_length,
     generation_length,
     path_to_instructions,
@@ -464,7 +328,6 @@ def preprocess_prompts(
     notes_only=False,
 ):
     print(
-        f"\n\twith prompt template = {path_to_prompt_template} "
         f"\n\twith target context length = {target_context_length} "
         f"\n\twith target generation length = {generation_length} "
     )
@@ -481,13 +344,10 @@ def preprocess_prompts(
     print("Loading tokenizer...")
     tokenizer = get_tokenizer(tokenizer)
 
-    # FILTER OUT EVENTS BY TYPE #
-    print("Filtering events...")
-    ehrs = filter_events(ehrs, codes_only=codes_only, notes_only=notes_only)
-
     # CONSTRUCT & TRUNCATE PROMPTS #
     print("Constructing prompts using instructions and EHRs...")
-    prompt_template = get_prompt_template(path_to_prompt_template)
+    prompt_string="Instruction: Answer the following question based on the EHR:\n\nEHR: {ehr}\n\nQuestion: {question}\n\nAnswer:"
+    prompt_template = langchain.prompts.PromptTemplate.from_template(prompt_string)
     filled_prompts = pack_and_trim_prompts(
         instructions=instructions,
         ehrs=ehrs,
@@ -510,13 +370,11 @@ def preprocess_prompts(
         row["instruction"] = instructions[instruction_id]["instruction"]
         row["ehr"] = "".join(ehrs[patient_id])
         row["prompt"] = filled_prompts[instruction_id]
-        row["prompt_template"] = path_to_prompt_template
         row["context_length"] = target_context_length
         row["generation_length"] = generation_length
         df_rows.append(row)
 
     prompts_df = pd.DataFrame(df_rows)
-    # prompts_df.to_csv(path_to_save, index=False)
     instructionid_to_prompt_map = (
         prompts_df[["instruction_id", "prompt"]].set_index("instruction_id").to_dict().get("prompt")
     )
@@ -527,7 +385,6 @@ def preprocess_prompts(
     )
 
     print("...Prompt construction complete")
-    # instructionid_to_prompt_map.to_csv(path_to_save, index=False)
     return instructionid_to_prompt_df
 
 
@@ -542,7 +399,6 @@ def add_reference_responses(prompts_df, path_to_reference_responses) -> pd.DataF
     Returns:
     pd.DataFrame: DataFrame containing the processed data.
     """
-    # TODO: We should be able to just read this in from `merged_df`
     gold_df = pd.read_csv(path_to_reference_responses)
     gold_df = gold_df.query("annotator_num == 'Annotator_1'")
     gold_df = gold_df[["instruction_id", "clinician_response"]]
@@ -551,18 +407,16 @@ def add_reference_responses(prompts_df, path_to_reference_responses) -> pd.DataF
 
 
 def return_dataset_dataframe(max_length: int) -> pd.DataFrame:
-    path_to_prompt_template = "/share/pi/nigam/scottyf/medalign-clean/src/medalign/prompt_templates/generic.txt"
     target_context_length = max_length
     generation_length = 256
-    path_to_instructions = "/share/pi/nigam/data/MedAlign/ehr-relevance-labels.csv"
-    path_to_ehrs = "/share/pi/nigam/data/MedAlign/full_patient_ehrs"
+    path_to_instructions = "/share/pi/nigam/datasets/medalign_release_fixes/clinician-reviewed-model-responses.tsv"
+    path_to_ehrs = "/share/pi/nigam/datasets/medalign_release_fixes/medalign_ehr_xml"
+    path_to_reference_responses = "/share/pi/nigam/scottyf/clinician-instruction-responses.csv"
     use_RAG = False
     include_ehr = True
     tokenizer = "tiktoken"
-    path_to_reference_responses = "/share/pi/nigam/scottyf/clinician-instruction-responses.csv"
 
     instructionid_to_prompt_df = preprocess_prompts(
-        path_to_prompt_template=path_to_prompt_template,
         target_context_length=target_context_length,
         generation_length=generation_length,
         path_to_instructions=path_to_instructions,

@@ -37,6 +37,7 @@ from helm.benchmark.run_expander import (
     IncreaseTemperatureRunExpander,
     IncreaseMaxTokensRunExpander,
     LlavaRunExpander,
+    ModelRunExpander,
     OpenFlamingoRunExpander,
     StopRunExpander,
 )
@@ -60,6 +61,10 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
     # Peel off the run expanders (e.g., model)
     expanders = [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]  # type: ignore
     args = dict((key, value) for key, value in args.items() if key not in RUN_EXPANDERS)
+
+    # If no model run expander was specified, add the model=all run expander
+    if not any([expander for expander in expanders if isinstance(expander, ModelRunExpander)]):
+        expanders.append(ModelRunExpander("all"))
 
     run_specs: List[RunSpec] = [run_spec_function(**args)]
 
