@@ -5,9 +5,9 @@ from helm.clients.auto_client import AutoClient
 
 
 PROMPT_TEMPLATE = """You are a medical expert tasked with evaluating the quality of a
-generated response of a clinical scenario.
-Your goal is to assess how well the generated response captures the necessary information and
-how it compares to the gold response in terms of accuracy, completeness, and clarity.
+generated clinical note given unstructured clinical text.
+Your goal is to assess how well the generated response captures the necessary information
+and follows provided instructions in terms of accuracy, structure, and clarity.
 
 The user's request will be provided in these tags:
 <user_request>
@@ -19,11 +19,6 @@ The response will be provided in these tags:
 {{RESPONSE}}
 </response>
 
-The reference response will be provided in these tags:
-<gold_response>
-{{GOLD_RESPONSE}}
-</gold_response>
-
 Carefully analyze the <response>.
 For each of the following categories, rate the response on a scale of 1 to 5 (1 = very poor, 5 = excellent),
 and provide a short justification for your score.
@@ -32,8 +27,8 @@ Evaluation Criteria:
 Accuracy (1-5)
 - Is all the information in the response factually correct?
 
-Completeness (1-5)
-- Does the response include all necessary information from the gold response?
+Structure (1-5)
+- Does the response contain all parts for the provided note generation structure?
 
 Clarity (1-5)
 - Is the response easy to understand for a clinician?
@@ -45,7 +40,7 @@ Output the evaluation as a single valid JSON object matching the following struc
         "score": 0,
         "explanation": "Explain why this score was given."
     },
-    "completeness": {
+    "structure": {
         "score": 0,
         "explanation": "Explain why this score was given."
     },
@@ -64,7 +59,7 @@ Ensure the output is valid JSON:
 
 ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
     "accuracy": {"score", "explanation"},
-    "completeness": {"score", "explanation"},
+    "structure": {"score", "explanation"},
     "clarity": {"score", "explanation"},
 }
 
