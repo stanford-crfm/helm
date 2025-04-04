@@ -2295,6 +2295,33 @@ model_deployments:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
   ## o1 Models
+  - name: openai/o1-pro-2025-03-19
+    model_name: openai/o1-pro-2025-03-19
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
+  - name: openai/o1-pro-2025-03-19-low-reasoning-effort
+    model_name: openai/o1-pro-2025-03-19-low-reasoning-effort
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+      args:
+        openai_model_name: o1-pro-2025-03-19
+        reasoning_effort: low
+
+  - name: openai/o1-pro-2025-03-19-high-reasoning-effort
+    model_name: openai/o1-pro-2025-03-19-high-reasoning-effort
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+      args:
+        openai_model_name: o1-pro-2025-03-19
+        reasoning_effort: high
+
   - name: openai/o1-2024-12-17
     model_name: openai/o1-2024-12-17
     tokenizer_name: openai/cl100k_base

@@ -138,7 +138,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         ):
             run_spec = singleton(IncreaseMaxTokensRunExpander(value=1).expand(run_spec))
 
-        if model.name == "openai/o1-2024-12-17":
+        if model.name.startswith("openai/o1"):
             # From https://platform.openai.com/docs/guides/reasoning,
             # "OpenAI recommends reserving at least 25,000 tokens for reasoning and outputs when you start
             # experimenting with these models. As you become familiar with the number of reasoning tokens your
