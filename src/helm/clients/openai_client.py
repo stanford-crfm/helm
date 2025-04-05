@@ -242,7 +242,7 @@ class OpenAIClient(CachingClient):
             raw_request.pop("temperature", None)
 
             if self.reasoning_effort:
-                raw_request["reasoning_effort"] = "self.reasoning_effort"
+                raw_request["reasoning_effort"] = self.reasoning_effort
         elif is_vlm(request.model):
             # Avoid error:
             # "Invalid type for 'stop': expected an unsupported value, but got null instead."
