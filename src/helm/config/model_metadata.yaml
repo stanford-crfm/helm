@@ -1146,12 +1146,28 @@ models:
     release_date: 2025-02-05
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: google/gemini-2.0-flash-lite-001
+    display_name: Gemini 2.0 Flash Lite
+    description: Gemini 2.0 Flash Lite ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-03-25
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: google/gemini-2.0-flash-thinking-exp-01-21
     display_name: Gemini 2.0 Flash Thinking (01-21 preview)
     description: Gemini 2.0 Flash Thinking (01-21 preview) ([documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/thinking))
     creator_organization_name: Google
     access: limited
     release_date: 2025-01-21
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-2.5-pro-exp-03-25
+    display_name: Gemini 2.5 Pro (03-25 preview)
+    description: Gemini 2.5 Pro (03-25 preview) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-03-25
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemini-2.0-pro-exp-02-05
@@ -2754,6 +2770,22 @@ models:
     release_date: 2024-11-20
     tags: [AUDIO_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG]
 
+  - name: openai/gpt-4o-transcribe_gpt-4o-2024-11-20
+    display_name: GPT-4o Transcribe + GPT-4o (2024-11-20)
+    description: Transcribes the text with GPT-4o Transcribe and then uses GPT-4o to generate a response.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-03-20
+    tags: [AUDIO_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG]
+
+  - name: openai/gpt-4o-mini-transcribe_gpt-4o-2024-11-20
+    display_name: GPT-4o mini Transcribe + GPT-4o (2024-11-20)
+    description: Transcribes the text with GPT-4o mini Transcribe and then uses GPT-4o to generate a response.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-03-20
+    tags: [AUDIO_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG]
+
   - name: openai/gpt-4o-audio-preview-2024-10-01
     display_name: GPT-4o Audio (Preview 2024-10-01)
     description: GPT-4o Audio (Preview 2024-10-01) is a preview model that allows using use audio inputs to prompt the model ([documentation](https://platform.openai.com/docs/guides/audio)).
@@ -2807,6 +2839,31 @@ models:
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   ## o1 Models
+  # TODO: support the new `responses` endpoint to get these to work
+  - name: openai/o1-pro-2025-03-19
+    display_name: o1 pro (2025-03-19)
+    description: o1 is a new large language model trained with reinforcement learning to perform complex reasoning. ([model card](https://openai.com/index/openai-o1-system-card/), [blog post](https://openai.com/index/learning-to-reason-with-llms/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-03-19
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/o1-pro-2025-03-19-low-reasoning-effort
+    display_name: o1 pro (2025-03-19, low reasoning effort)
+    description: o1 is a new large language model trained with reinforcement learning to perform complex reasoning. ([model card](https://openai.com/index/openai-o1-system-card/), [blog post](https://openai.com/index/learning-to-reason-with-llms/)) The requests' reasoning effort parameter in is set to low.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-03-19
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/o1-pro-2025-03-19-high-reasoning-effort
+    display_name: o1 pro (2025-03-19, high reasoning effort)
+    description: o1 is a new large language model trained with reinforcement learning to perform complex reasoning. ([model card](https://openai.com/index/openai-o1-system-card/), [blog post](https://openai.com/index/learning-to-reason-with-llms/)) The requests' reasoning effort parameter in is set to high.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-03-19
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: openai/o1-2024-12-17
     display_name: o1 (2024-12-17)
     description: o1 is a new large language model trained with reinforcement learning to perform complex reasoning. ([model card](https://openai.com/index/openai-o1-system-card/), [blog post](https://openai.com/index/learning-to-reason-with-llms/))
@@ -3178,6 +3235,38 @@ models:
     creator_organization_name: Alibaba Group
     access: open
     release_date: 2024-08-29
+    tags: [VISION_LANGUAGE_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
+
+  - name: qwen/qwen2.5-vl-3b-instruct
+    display_name: Qwen2.5-VL Instruct (3B)
+    description: The second generation of Qwen2.5-VL models ([blog](https://qwenlm.github.io/blog/qwen2.5-vl/)).
+    creator_organization_name: Alibaba Group
+    access: open
+    release_date: 2025-01-26
+    tags: [VISION_LANGUAGE_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
+
+  - name: qwen/qwen2.5-vl-7b-instruct
+    display_name: Qwen2.5-VL Instruct (7B)
+    description: The second generation of Qwen2.5-VL models ([blog](https://qwenlm.github.io/blog/qwen2.5-vl/)).
+    creator_organization_name: Alibaba Group
+    access: open
+    release_date: 2025-01-26
+    tags: [VISION_LANGUAGE_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
+
+  - name: qwen/qwen2.5-vl-32b-instruct
+    display_name: Qwen2.5-VL Instruct (32B)
+    description: The second generation of Qwen2.5-VL models ([blog](https://qwenlm.github.io/blog/qwen2.5-vl/)).
+    creator_organization_name: Alibaba Group
+    access: open
+    release_date: 2025-01-26
+    tags: [VISION_LANGUAGE_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
+
+  - name: qwen/qwen2.5-vl-72b-instruct
+    display_name: Qwen2.5-VL Instruct (72B)
+    description: The second generation of Qwen2.5-VL models ([blog](https://qwenlm.github.io/blog/qwen2.5-vl/)).
+    creator_organization_name: Alibaba Group
+    access: open
+    release_date: 2025-01-26
     tags: [VISION_LANGUAGE_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
 
   - name: qwen/qwen-audio-chat

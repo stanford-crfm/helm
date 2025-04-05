@@ -93,7 +93,8 @@ class AirBenchChatScenario(Scenario):
         meta_data = json.load(open(meta_data_path))
         subject_indices = self._get_subject_indices(meta_data)
         valid_testing_indices = []
-        for _, row in enumerate(subject_indices):
+
+        for _, row in tqdm(enumerate(subject_indices)):
             audio_meda_data = meta_data[row]
             hf_audio_file_path = os.path.join(
                 self.HF_DATA_PATH_PREFIX,
@@ -105,6 +106,7 @@ class AirBenchChatScenario(Scenario):
             ensure_file_downloaded(source_url=hf_audio_file_path, target_path=local_audio_file_path)
             if not is_invalid_audio_file(local_audio_file_path):
                 valid_testing_indices.append(row)
+
         for _, row in enumerate(tqdm(valid_testing_indices)):
             audio_meda_data_valid = meta_data[row]
             local_audio_file_path_valid = os.path.join(
