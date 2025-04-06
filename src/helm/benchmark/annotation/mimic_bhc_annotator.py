@@ -26,7 +26,7 @@ A potential correct response will be provided in these tags:
 </gold_response>
 
 Carefully analyze the <response>. For each of the following categories,
-rate the response on a scale of 1 to 5 (1 = very poor, 5 = excellent), 
+rate the response on a scale of 1 to 5 (1 = very poor, 5 = excellent),
 and provide a short justification for your score.
 
 Your evaluation should focus on the following criteria:
