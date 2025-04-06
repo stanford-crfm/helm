@@ -53,9 +53,9 @@ class AirBenchFoundationScenario(Scenario):
     META_DATA_FILE_PATH = (
         "https://huggingface.co/datasets/qyang1021/AIR-Bench-Dataset/resolve/main/Foundation/Foundation_meta.json"
     )
-    SUJECTS_DICT = {
+    SUBJECTS_DICT = {
         "music_instrument_classification": "Music_Instruments_Classfication",
-        "music_genera_recognition": "Music_Genre_Recognition",
+        "music_genre_recognition": "Music_Genre_Recognition",
         "music_qa": "Music_AQA",
     }
     OPTION_KEYS = ["choice_a", "choice_b", "choice_c", "choice_d"]
@@ -68,15 +68,15 @@ class AirBenchFoundationScenario(Scenario):
     def __init__(self, subject: str) -> None:
         super().__init__()
 
-        if subject not in AirBenchFoundationScenario.SUJECTS_DICT.keys():
-            raise ValueError(f"Invalid subject. Valid subjects are: {AirBenchFoundationScenario.SUJECTS_DICT.keys()}")
+        if subject not in AirBenchFoundationScenario.SUBJECTS_DICT.keys():
+            raise ValueError(f"Invalid subject. Valid subjects are: {AirBenchFoundationScenario.SUBJECTS_DICT.keys()}")
 
         self._subject: str = subject
 
     def _get_subject_indices(self, meta_data) -> List[int]:
         subject_indices = []
         for idx, line in enumerate(meta_data):
-            if line["task_name"] == self.SUJECTS_DICT[self._subject]:
+            if line["task_name"] == self.SUBJECTS_DICT[self._subject]:
                 subject_indices.append(idx)
         return subject_indices
 

@@ -40,8 +40,7 @@ class VoxCeleb2Scenario(Scenario):
         "https://huggingface.co/datasets/LAOS-Y/VoxCeleb2-AudioIdentity/resolve/main/voxceleb2_audioidentity.csv"
     )
     IDENTITY_INSTRUCTION = (
-        "Listen to the audio and take your best guess to determine if the two speakers are the same person. "
-        "Give just the letter of your answer and nothing else."
+        "Listen to the audio and take your best guess to determine if the two speakers are the same person."
     )
 
     name = "voxceleb2"
