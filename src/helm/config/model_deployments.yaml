@@ -2723,9 +2723,8 @@ model_deployments:
 
   - name: together/llama-4-scout-17b-16e-instruct
     model_name: meta/llama-4-scout-17b-16e-instruct
-    # tokenizer_name: meta-llama/Llama-4-Scout-17B-16E-Instruct
-    tokenizer_name: huggingface/gpt2
-    # According to https://docs.together.ai/docs/llama4-quickstart
+    tokenizer_name: meta-llama/Llama-4-Scout-17B-16E-Instruct
+    # Limit set by Together according to https://docs.together.ai/docs/llama4-quickstart
     # TODO: increase later
     max_sequence_length: 327680
     client_spec:
@@ -2735,9 +2734,8 @@ model_deployments:
 
   - name: together/llama-4-maverick-17b-128e-instruct-fp8
     model_name: meta/llama-4-maverick-17b-128e-instruct-fp8
-    # tokenizer_name: meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
-    tokenizer_name: huggingface/gpt2
-    # According to https://docs.together.ai/docs/llama4-quickstart
+    tokenizer_name: meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
+    # Limit set by Together according to https://docs.together.ai/docs/llama4-quickstart
     # TODO: increase later
     max_sequence_length: 524288
     client_spec:
