@@ -378,7 +378,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_prefix_exact_match
       main_split: valid
     taxonomy:
       task: multiple-choice question answering
@@ -394,7 +394,7 @@ run_groups:
       - fairness
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_prefix_exact_match
       main_split: valid
     taxonomy:
       task: multiple-choice question answering
@@ -410,7 +410,7 @@ run_groups:
       - translate
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_prefix_exact_match
       main_split: valid
     taxonomy:
       task: multiple-choice question answering
@@ -426,7 +426,7 @@ run_groups:
       - translate
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_prefix_exact_match
       main_split: valid
     taxonomy:
       task: multiple-choice question answering
@@ -442,7 +442,7 @@ run_groups:
       - translate
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_prefix_exact_match
       main_split: valid
     taxonomy:
       task: multiple-choice question answering
@@ -458,7 +458,7 @@ run_groups:
       - translate
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_prefix_exact_match
       main_split: valid
     taxonomy:
       task: multiple-choice question answering
@@ -474,7 +474,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_prefix_exact_match
       main_split: valid
     taxonomy:
       task: multiple-choice question answering
@@ -490,7 +490,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_prefix_exact_match
       main_split: valid
     taxonomy:
       task: multiple-choice question answering
@@ -506,7 +506,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_prefix_exact_match
       main_split: valid
     taxonomy:
       task: multiple-choice question answering
@@ -522,7 +522,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_prefix_exact_match
       main_split: valid
     taxonomy:
       task: multiple-choice question answering
@@ -538,7 +538,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_prefix_exact_match
       main_split: valid
     taxonomy:
       task: multiple-choice question answering
@@ -554,7 +554,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_prefix_exact_match
       main_split: valid
     taxonomy:
       task: multiple-choice question answering
@@ -602,7 +602,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: quasi_exact_match
+      main_name: quasi_prefix_exact_match
       main_split: valid
     taxonomy:
       task: short-answer question answering
@@ -618,7 +618,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_prefix_exact_match
       main_split: test
     taxonomy:
       task: toxicity identification
@@ -651,7 +651,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: quasi_exact_match
+      main_name: quasi_prefix_exact_match
       main_split: valid
     taxonomy:
       task: short-answer question answering
@@ -667,7 +667,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: quasi_exact_match
+      main_name: quasi_prefix_exact_match
       main_split: valid
     taxonomy:
       task: short-answer question answering
@@ -683,7 +683,7 @@ run_groups:
       - fairness
       - general_information
     environment:
-      main_name: quasi_exact_match
+      main_name: quasi_prefix_exact_match
       main_split: valid
     taxonomy:
       task: short-answer question answering
@@ -699,7 +699,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_prefix_exact_match
       main_split: test
     taxonomy:
       task: multiple-choice question answering
@@ -715,7 +715,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_prefix_exact_match
       main_split: valid
     taxonomy:
       task: multiple-choice question answering
@@ -795,7 +795,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_prefix_exact_match
       main_split: test
     taxonomy:
       task: short-answer question answering
@@ -811,7 +811,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_prefix_exact_match
       main_split: test
     taxonomy:
       task: multiple-choice question answering
@@ -827,7 +827,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_prefix_exact_match
       main_split: test
     taxonomy:
       task: multiple-choice question answering
@@ -875,7 +875,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_prefix_exact_match
       main_split: test
     taxonomy:
       task: multiple-choice question answering
@@ -891,7 +891,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_prefix_exact_match
       main_split: valid
     taxonomy:
       task: multiple-choice question answering
@@ -923,7 +923,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_prefix_exact_match
       main_split: test
     taxonomy:
       task: multiple-choice question answering
