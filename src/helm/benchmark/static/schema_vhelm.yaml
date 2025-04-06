@@ -307,6 +307,8 @@ run_groups:
     description: Does the model understand objects, counts and spatial relations? Can the model reason about both the text and image input?
     category: Core scenarios
     subgroups:
+      - mmmu
+      - exams_v
       - gqa
       - math_vista
       - seed_bench
@@ -320,7 +322,6 @@ run_groups:
     category: Core scenarios
     subgroups:
       - a_okvqa_base
-      - mmmu
       - mme
       - vibe_eval
       - mm_star_knowledge
@@ -369,7 +370,6 @@ run_groups:
       - a_okvqa_hindi
       - a_okvqa_spanish
       - a_okvqa_swahili
-      - exams_v
       - bingo_multilinguality
   - name: a_okvqa_base
     display_name: A-OKVQA

@@ -235,6 +235,7 @@ run_groups:
     subgroups:
       - auditory_perception
       - emotion_detection
+      - reasoning
       - knowledge
       - robustness
       - multilinguality
@@ -261,12 +262,19 @@ run_groups:
       - meld_audio
       - mustard
 
+  - name: reasoning
+    display_name: Reasoning
+    description: Reasoning about the audio
+    category: Core scenarios
+    subgroups:
+      - air_bench_chat_reasoning
+
   - name: knowledge
     display_name: Knowledge
     description: Recalling facts or information contained in the audio LLM.
     category: Core scenarios
     subgroups:
-      - air_bench_chat
+      - air_bench_chat_knowledge
       - air_bench_foundation
 
   - name: robustness
@@ -458,7 +466,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_exact_match
       main_split: test
     taxonomy:
       task: audio identification
@@ -491,28 +499,6 @@ run_groups:
       when: "2024"
       language: English, Spanish
 
-  - name: audio_pairs
-    display_name: Audio PAIRS
-    description: >
-      Audio PAIRS is an audio extension of the PAIRS dataset (Fraser et al, 2024) to examine gender and 
-      racial bias in audio large language models. We convert the questions in the PAIRS dataset to audio
-      clips using OpenAI's TTS-1-HD API. This dataset is also modified to add an option to opt-out with 
-      "unclear" as a choice.
-
-      The dataset contains the audio and question for three subsets: occupation, status, and potential_crime.
-    metric_groups:
-      - accuracy
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: audio classification
-      what: audio and question of audio samples to examine models' gender and racial bias
-      who: OpenAI's TTS-1-HD
-      when: "2024"
-      language: English
-
   - name: meld_audio
     display_name: Multimodal EmotionLines Dataset (MELD) Audio
     description: >
@@ -533,33 +519,30 @@ run_groups:
       when: "2018"
       language: English
 
-  - name: casual_conversations2
-    display_name: Casual Conversations 2
+  - name: air_bench_chat_knowledge
+    display_name: Air-Bench Chat (knowledge subsets)
     description: >
-      Casual Conversation v2 (Porgali et al, 2023) is composed of over 5,567 participants (26,467 videos). 
-      The videos feature paid individuals who agreed to participate in the project and explicitly provided 
-      Age, Gender, Language/Dialect, Geo-location, Disability, Physical adornments, Physical attributes labels 
-      themselves. The videos were recorded in Brazil, India, Indonesia, Mexico, Philippines, United States, 
-      and Vietnam with a diverse set of adults in various categories.
+      Air-Bench (Yang et al, 2024) encompasses two dimensions: foundation and chat benchmarks. The former consists of 19 tasks with 
+      approximately 19k single-choice questions. The latter one contains 2k instances of open-ended question-and-answer data. 
+      We consider the chat benchmark in this scenario.
 
-      The dataset contains two classification tasks: age and gender classification
-      ([Porgali et al., 2023](https://arxiv.org/abs/2303.04838)). We phrase these two tasks as the multi-choice
-      questions answering task.
+      The dataset contains the audio question answering task in four subjects: sound, speech, music, and mixed.
+      ([Yang et al, 2024](https://aclanthology.org/2024.acl-long.109.pdf)).
     metric_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: gpt4_audio_critique
       main_split: test
     taxonomy:
-      task: audio classification
-      what: audio, spoken language, speaker's gender, age information of audio samples
+      task: audio question answering
+      what: audio, question, and answer of audio samples
       who: real speakers
-      when: "2023"
-      language: 10 languages
+      when: "2024"
+      language: English
 
-  - name: air_bench_chat
-    display_name: Air-Bench Chat
+  - name: air_bench_chat_reasoning
+    display_name: Air-Bench Chat (reasoning subsets)
     description: >
       Air-Bench (Yang et al, 2024) encompasses two dimensions: foundation and chat benchmarks. The former consists of 19 tasks with 
       approximately 19k single-choice questions. The latter one contains 2k instances of open-ended question-and-answer data. 
@@ -594,7 +577,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_exact_match
       main_split: test
     taxonomy:
       task: audio question answering
@@ -612,7 +595,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_exact_match
       main_split: test
     taxonomy:
       task: toxicity detection
@@ -631,7 +614,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_exact_match
       main_split: test
     taxonomy:
       task: sarcasm detection
@@ -742,7 +725,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: exact_match
+      main_name: quasi_exact_match
       main_split: test
     taxonomy:
       task: audio classification

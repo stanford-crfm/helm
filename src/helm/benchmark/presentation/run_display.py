@@ -266,6 +266,11 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
             request_state.instance
         )
 
+        if request_state.result.completions[0].multimodal_content:
+            additional_prediction: str = request_state.result.completions[0].multimodal_content.text
+            if additional_prediction:
+                predicted_text = f"{additional_prediction} {predicted_text}"
+
         # Process images and include if they exist
         images: List[str] = [
             encode_base64(image_location)
