@@ -1159,9 +1159,7 @@ class Qwen2_5OmniPreTrainedModelForConditionalGeneration(Qwen2_5OmniPreTrainedMo
             # In this case we assume that the mask comes already in inverted form and requires no inversion or slicing.
             causal_mask = attention_mask
         else:
-            causal_mask = torch.full(
-                (sequence_length, target_length), fill_value=min_dtype, dtype=dtype, device=device
-            )
+            causal_mask = torch.full((sequence_length, target_length), fill_value=min_dtype, dtype=dtype, device=device)
             if sequence_length != 1:
                 causal_mask = torch.triu(causal_mask, diagonal=1)
             causal_mask *= torch.arange(target_length, device=device) > cache_position.reshape(-1, 1)
@@ -1664,9 +1662,7 @@ class Qwen2_5OmniAudioSdpaAttention(Qwen2_5OmniAudioAttention):
         key_states = self.k_proj(hidden_states).reshape(seq_length, self.num_heads, -1)
         value_states = self.v_proj(hidden_states).reshape(seq_length, self.num_heads, -1)
 
-        attention_mask = torch.zeros(
-            [1, seq_length, key_states.shape[0]], device=query_states.device, dtype=torch.bool
-        )
+        attention_mask = torch.zeros([1, seq_length, key_states.shape[0]], device=query_states.device, dtype=torch.bool)
         for i in range(1, len(cu_seqlens)):
             attention_mask[..., cu_seqlens[i - 1] : cu_seqlens[i], cu_seqlens[i - 1] : cu_seqlens[i]] = True
 
@@ -3795,9 +3791,12 @@ class RungeKutta4ODESolver:
 
     def _compute_step(self, function, time_start, time_step, time_end, value_start):
         function_value_start = function(time_start, value_start)
-        return self._rk4_step(
-            function, time_start, time_step, time_end, value_start, function_value_start=function_value_start
-        ), function_value_start
+        return (
+            self._rk4_step(
+                function, time_start, time_step, time_end, value_start, function_value_start=function_value_start
+            ),
+            function_value_start,
+        )
 
     def _linear_interpolation(self, time_start, time_end, value_start, value_end, time_point):
         if time_point == time_start:

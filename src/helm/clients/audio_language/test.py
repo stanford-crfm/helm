@@ -35,7 +35,15 @@ USE_AUDIO_IN_VIDEO = True
 # Preparation for inference
 text = processor.apply_chat_template(conversation, add_generation_prompt=True, tokenize=False)
 audios, images, videos = process_mm_info(conversation, use_audio_in_video=USE_AUDIO_IN_VIDEO)
-inputs = processor(text=text, audios=audios, images=images, videos=videos, return_tensors="pt", padding=True, use_audio_in_video=USE_AUDIO_IN_VIDEO)
+inputs = processor(
+    text=text,
+    audios=audios,
+    images=images,
+    videos=videos,
+    return_tensors="pt",
+    padding=True,
+    use_audio_in_video=USE_AUDIO_IN_VIDEO,
+)
 inputs = inputs.to(model.device).to(model.dtype)
 
 # Inference: Generation of the output text and audio

@@ -15,7 +15,6 @@ from helm.common.request import wrap_request_time
 from helm.clients.client import CachingClient, generate_uid_for_multimodal_prompt
 
 
-
 @dataclass(frozen=True)
 class LoadedQwen2_5OmniModelProcessor:
     """Loaded model and processor for Qwen."""
@@ -33,9 +32,9 @@ _models: Dict[str, Optional[LoadedQwen2_5OmniModelProcessor]] = {
 class Qwen2_5OmniAudioLMClient(CachingClient):
     """
     From https://huggingface.co/Qwen/Qwen2.5-Omni-7B,
-    Qwen2.5-Omni is an end-to-end multimodal model designed to perceive diverse modalities, including text, 
+    Qwen2.5-Omni is an end-to-end multimodal model designed to perceive diverse modalities, including text,
     images, audio, and video, while simultaneously generating text and natural speech responses in a streaming manner.
-    
+
     [Todo]
 
     Paper: https://arxiv.org/abs/2503.20215
@@ -63,13 +62,9 @@ class Qwen2_5OmniAudioLMClient(CachingClient):
             if loaded_model_processor is None:
                 hlog(f"Loading model {model_name} and caching in memory...")
                 model = Qwen2_5OmniModel.from_pretrained(
-                    model_name,
-                    device_map=self._device,
-                    cache_dir="/data-2u-1/tuhq/hf_models"
+                    model_name, device_map=self._device, cache_dir="/data-2u-2/tuhq/hf_models"
                 ).eval()
-                tokenizer = Qwen2_5OmniProcessor.from_pretrained(
-                    model_name, cache_dir="/data-2u-1/tuhq/hf_models"
-                )
+                tokenizer = Qwen2_5OmniProcessor.from_pretrained(model_name, cache_dir="/data-2u-2/tuhq/hf_models")
                 _models[model_name] = LoadedQwen2_5OmniModelProcessor(model, tokenizer)
                 loaded_model_processor = _models[model_name]
 
@@ -87,7 +82,16 @@ class Qwen2_5OmniAudioLMClient(CachingClient):
         query: List[Dict[str, str]] = []
         prompt_text: str = ""
 
-        input_query.append({"role": "system", "content": "You are a helpful assistant."})
+        input_query.append(
+            {
+                "role": "system",
+                "content": (
+                    "You are Qwen, a virtual human developed by the Qwen Team,"
+                    " Alibaba Group, capable of perceiving auditory and visual inputs,"
+                    " as well as generating text and speech."
+                ),
+            }
+        )
         # prompt_text += "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n"
         for media_num, media_object in enumerate(request.multimodal_prompt.media_objects):
             if media_object.is_type("audio") and media_object.location:
@@ -105,7 +109,7 @@ class Qwen2_5OmniAudioLMClient(CachingClient):
         # prompt_text += "<|im_end|>\n<|im_start|>assistant\n"
 
         input_query.append({"role": "user", "content": query})
-        
+
         completions: List[GeneratedOutput] = []
         request_time: float = 0
         request_datetime: Optional[int] = None
@@ -137,20 +141,28 @@ class Qwen2_5OmniAudioLMClient(CachingClient):
                         #     return_tensors="pt",
                         #     padding=True,
                         # )
-                        
+
                         # Refer to the official Qwen2.5-Omni documentation for the format of the input query
                         # https://huggingface.co/Qwen/Qwen2.5-Omni-7B
                         USE_AUDIO_IN_VIDEO = True
                         text = tokenizer.apply_chat_template(input_query, add_generation_prompt=True, tokenize=False)
                         audios, images, videos = process_mm_info(input_query, use_audio_in_video=USE_AUDIO_IN_VIDEO)
-                        inputs = tokenizer(text=text, audios=audios, images=images, videos=videos, return_tensors="pt", padding=True, use_audio_in_video=USE_AUDIO_IN_VIDEO)
+                        inputs = tokenizer(
+                            text=text,
+                            audios=audios,
+                            images=images,
+                            videos=videos,
+                            return_tensors="pt",
+                            padding=True,
+                            use_audio_in_video=USE_AUDIO_IN_VIDEO,
+                        )
                         input_length = inputs.input_ids.size(1)
-                        
+
                         # # Qwen2-Audio-Instruct counts input into the max_length,
                         # # so we need to add the length of the prompt
                         # inputs = inputs.to(self._device)
                         # pred = model.generate(**inputs, max_length=request.max_tokens + input_length)[:, input_length:]
-                        
+
                         inputs = inputs.to(self._device)
                         pred, _ = model.generate(**inputs, use_audio_in_video=USE_AUDIO_IN_VIDEO)
 
