@@ -1881,7 +1881,7 @@ models:
     creator_organization_name: Meta
     access: open
     num_parameters: 109000000000
-    release_date: 2024-12-06
+    release_date: 2025-04-05
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: meta/llama-4-maverick-17b-128e-instruct-fp8
@@ -1890,7 +1890,7 @@ models:
     creator_organization_name: Meta
     access: open
     num_parameters: 402000000000
-    release_date: 2024-12-06
+    release_date: 2025-04-05
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: meta/llama-3-8b-chat
