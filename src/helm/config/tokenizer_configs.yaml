@@ -396,6 +396,14 @@ tokenizer_configs:
     prefix_token: "<|begin_of_text|>"
     end_of_text_token: "<|eot_id|>"
 
+  - name: meta/llama-4-scout-17b-16e-instruct
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: meta-llama/Llama-4-Scout-17B-16E-Instruct
+    prefix_token: "<|begin_of_text|>"
+    end_of_text_token: "<|end_of_text|>"
+
   # 01-ai
   - name: 01-ai/Yi-6B
     tokenizer_spec:
