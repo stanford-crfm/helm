@@ -60,9 +60,12 @@ class Qwen2_5OmniAudioLMClient(CachingClient):
             if loaded_model_processor is None:
                 hlog(f"Loading model {model_name} and caching in memory...")
                 model = Qwen2_5OmniModel.from_pretrained(
-                    model_name, device_map=self._device, cache_dir="/data-2u-2/tuhq/hf_models"
+                    model_name,
+                    device_map=self._device,
                 ).eval()
-                tokenizer = Qwen2_5OmniProcessor.from_pretrained(model_name, cache_dir="/data-2u-2/tuhq/hf_models")
+                tokenizer = Qwen2_5OmniProcessor.from_pretrained(
+                    model_name,
+                )
                 _models[model_name] = LoadedQwen2_5OmniModelProcessor(model, tokenizer)
                 loaded_model_processor = _models[model_name]
 
