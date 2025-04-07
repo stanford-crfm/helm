@@ -1,5 +1,4 @@
 from threading import Lock
-import librosa
 from typing import Any, Dict, List, Optional
 
 from dataclasses import dataclass
@@ -53,7 +52,7 @@ class Qwen2_5OmniAudioLMClient(CachingClient):
         global _models
 
         model_name: str
-        if helm_model_name == "qwen-2.5-7b-omni":
+        if helm_model_name == "qwen2.5-omni-7b":
             model_name = "Qwen/Qwen2.5-Omni-7B"
         else:
             raise ValueError(f"Unhandled model name: {helm_model_name}")
@@ -66,9 +65,10 @@ class Qwen2_5OmniAudioLMClient(CachingClient):
                 model = Qwen2_5OmniModel.from_pretrained(
                     model_name,
                     device_map=self._device,
+                    cache_dir="/data-2u-1/tuhq/hf_models"
                 ).eval()
                 tokenizer = Qwen2_5OmniProcessor.from_pretrained(
-                    model_name,
+                    model_name, cache_dir="/data-2u-1/tuhq/hf_models"
                 )
                 _models[model_name] = LoadedQwen2_5OmniModelProcessor(model, tokenizer)
                 loaded_model_processor = _models[model_name]

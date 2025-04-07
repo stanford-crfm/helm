@@ -23,10 +23,10 @@ from typing import List, Optional, Union
 import numpy as np
 import torch
 
-from ...feature_extraction_utils import BatchFeature
-from ...image_utils import ImageInput, VideoInput
-from ...processing_utils import ProcessingKwargs, ProcessorMixin, Unpack
-from ...tokenization_utils_base import PaddingStrategy, PreTokenizedInput, TextInput
+from transformers.feature_extraction_utils import BatchFeature
+from transformers.image_utils import ImageInput, VideoInput
+from transformers.processing_utils import ProcessingKwargs, ProcessorMixin, Unpack
+from transformers.tokenization_utils_base import PaddingStrategy, PreTokenizedInput, TextInput
 
 
 class Qwen2_5OmniProcessorKwargs(ProcessingKwargs, total=False):
