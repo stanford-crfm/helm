@@ -31,6 +31,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn import ConvTranspose1d, Parameter
+from helm.common.optional_dependencies import handle_module_not_found_error
 
 from transformers.activations import ACT2FN
 from transformers.cache_utils import Cache, DynamicCache, EncoderDecoderCache, SlidingWindowCache, StaticCache
@@ -38,7 +39,11 @@ from transformers.generation import GenerationMixin
 from transformers.modeling_attn_mask_utils import AttentionMaskConverter
 from transformers.modeling_outputs import BaseModelOutput, BaseModelOutputWithPast, ModelOutput
 from transformers.modeling_rope_utils import ROPE_INIT_FUNCTIONS
-from transformers.modeling_utils import ALL_ATTENTION_FUNCTIONS, PreTrainedModel
+
+try:
+    from transformers.modeling_utils import ALL_ATTENTION_FUNCTIONS, PreTrainedModel
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["audiolm"])
 from transformers.utils import (
     add_start_docstrings,
     is_flash_attn_2_available,
