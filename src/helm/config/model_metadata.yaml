@@ -1875,6 +1875,24 @@ models:
     release_date: 2024-12-06
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: meta/llama-4-scout-17b-16e-instruct
+    display_name: Llama 4 Scout (17Bx16E) Instruct
+    description: Llama 4 Scout (17Bx16E) Instruct is part of the Llama 4 collection of models are natively multimodal AI models that enable text and multimodal experiences using a mixture-of-experts architecture. ([blog](https://ai.meta.com/blog/llama-4-multimodal-intelligence/))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 109000000000
+    release_date: 2024-12-06
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: meta/llama-4-maverick-17b-128e-instruct-fp8
+    display_name: Llama 4 Maverick (17Bx128E) Instruct FP8
+    description: Llama 4 Maverick (17Bx128E) Instruct FP8 is part of the Llama 4 collection of models are natively multimodal AI models that enable text and multimodal experiences using a mixture-of-experts architecture. ([blog](https://ai.meta.com/blog/llama-4-multimodal-intelligence/))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 402000000000
+    release_date: 2024-12-06
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: meta/llama-3-8b-chat
     display_name: Llama 3 Instruct (8B)
     description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability. It used SFT, rejection sampling, PPO and DPO for post-training. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/)
