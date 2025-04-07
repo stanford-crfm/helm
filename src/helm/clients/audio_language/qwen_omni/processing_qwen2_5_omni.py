@@ -29,7 +29,7 @@ from transformers.processing_utils import ProcessingKwargs, ProcessorMixin, Unpa
 from transformers.tokenization_utils_base import PaddingStrategy, PreTokenizedInput, TextInput
 
 
-class Qwen2_5OmniProcessorKwargs(ProcessingKwargs, total=False):
+class Qwen2_5OmniProcessorKwargs(ProcessingKwargs):
     _defaults = {
         "text_kwargs": {
             "padding": False,
@@ -39,21 +39,6 @@ class Qwen2_5OmniProcessorKwargs(ProcessingKwargs, total=False):
 
 
 class Qwen2_5OmniProcessor(ProcessorMixin):
-    r"""
-    Constructs a Qwen2.5Omni processor.
-    [`Qwen2_5OmniProcessor`] offers all the functionalities of [`Qwen2VLImageProcessor`], [`WhisperFeatureExtractor`], and [`Qwen2TokenizerFast`]. See the
-    [`~Qwen2_5OmniProcessor.__call__`] and [`~Qwen2_5OmniProcessor.decode`] for more information.
-
-    Args:
-        omni_processor ([`Qwen2VLImageProcessor`], *optional*):
-            The image processor.
-        feature_extractor ([`WhisperFeatureExtractor`], *optional*):
-            The audio feature extractor.
-        tokenizer ([`Qwen2TokenizerFast`], *optional*):
-            The text tokenizer.
-        chat_template (`Optional[str]`, *optional*):
-            The Jinja template to use for formatting the conversation. If not provided, the default chat template is used.
-    """
 
     attributes = ["omni_processor", "feature_extractor", "tokenizer"]
     omni_processor_class = "Qwen2VLImageProcessor"
@@ -76,42 +61,15 @@ class Qwen2_5OmniProcessor(ProcessorMixin):
         text: Union[TextInput, PreTokenizedInput, List[TextInput], List[PreTokenizedInput]] = None,
         images: ImageInput = None,
         videos: VideoInput = None,
-        audios: Union[np.ndarray, List[np.ndarray]] = None,
+        audios: Optional[Union[np.ndarray, List[np.ndarray]]] = None,
         sampling_rate: Optional[int] = 16000,
         fps: Optional[List[float]] = None,
         padding: Union[bool, str, PaddingStrategy] = False,
         use_audio_in_video: Optional[bool] = False,
-        position_id_per_seconds: Optional[int] = 25,
-        seconds_per_chunk: Optional[float] = 2.0,
+        position_id_per_seconds: int = 25,
+        seconds_per_chunk: float = 2.0,
         **kwargs: Unpack[Qwen2_5OmniProcessorKwargs],
     ) -> BatchFeature:
-        """
-        Main method to prepare for the model one or several sequences(s) and audio(s). This method forwards the `text`
-        and `kwargs` arguments to Qwen2TokenizerFast's [`~Qwen2TokenizerFast.__call__`] if `text` is not `None` to encode
-        the text. To prepare the audio(s), this method forwards the `audios` and `kwrags` arguments to
-        WhisperFeatureExtractor's [`~WhisperFeatureExtractor.__call__`] if `audios` is not `None`. To prepare the vision inputs,
-        this method forwards the `vision_infos` and `kwrags` arguments to Qwen2VLImageProcessor's [`~Qwen2VLImageProcessor.__call__`]
-        if `vision_infos` is not `None`. Please refer to the doctsring
-        of the above two methods for more information.
-
-        Args:
-            text (`str`, `List[str]`, `List[List[str]]`):
-                The sequence or batch of sequences to be encoded. Each sequence can be a string or a list of strings
-                (pretokenized string). If the sequences are provided as list of strings (pretokenized), you must set
-                `is_split_into_words=True` (to lift the ambiguity with a batch of sequences).
-            images (`PIL.Image.Image`, `np.ndarray`, `torch.Tensor`, `List[PIL.Image.Image]`, `List[np.ndarray]`, `List[torch.Tensor]`):
-                The image or batch of images to be prepared. Each image can be a PIL image, NumPy array or PyTorch
-                tensor. Both channels-first and channels-last formats are supported.
-            videos (`np.ndarray`, `torch.Tensor`, `List[np.ndarray]`, `List[torch.Tensor]`):
-                The image or batch of videos to be prepared. Each video can be a 4D NumPy array or PyTorch
-                tensor, or a nested list of 3D frames. Both channels-first and channels-last formats are supported.
-            audios (`np.ndarray`, `List[np.ndarray]`):
-                The audio or batch of audios to be prepared. Each audio can be a NumPy array.
-            sampling_rate (`int`, defaults to 16000):
-                The sampling rate at which the audio files should be digitalized expressed in hertz (Hz).
-            fps (`int`, defaults to 2):
-                The frames per second of video input.
-        """
 
         output_kwargs = self._merge_kwargs(
             Qwen2_5OmniProcessorKwargs,
@@ -281,14 +239,15 @@ class Qwen2_5OmniProcessor(ProcessorMixin):
         if isinstance(conversations[0], dict):
             conversations = [conversations]
         for conversation in conversations:
-            if (
-                conversation[0]["role"] != "system"
-                or conversation[0]["content"]
-                != "You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech."
+            if conversation[0]["role"] != "system" or conversation[0]["content"] != (
+                "You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable"
+                " of perceiving auditory and visual inputs, as well as generating text and speech."
             ):
                 logging.warning(
                     "System prompt modified, audio output may not work as expected. "
-                    + "Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'"
+                    "Audio output mode only works when using default system prompt 'You are Qwen,"
+                    " a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving"
+                    " auditory and visual inputs, as well as generating text and speech.'"
                 )
         return super().apply_chat_template(conversations, chat_template, **kwargs)
 
@@ -308,4 +267,4 @@ class Qwen2_5OmniProcessor(ProcessorMixin):
         )
 
 
-__all__ = [Qwen2_5OmniProcessor]
+__all__ = ["Qwen2_5OmniProcessor"]

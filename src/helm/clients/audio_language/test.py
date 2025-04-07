@@ -19,7 +19,11 @@ processor = Qwen2_5OmniProcessor.from_pretrained("Qwen/Qwen2.5-Omni-7B")
 conversation = [
     {
         "role": "system",
-        "content": "You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.",
+        "content": (
+            "You are Qwen, a virtual human developed by the Qwen Team,"
+            " Alibaba Group, capable of perceiving auditory and visual"
+            " inputs, as well as generating text and speech."
+        ),
     },
     {
         "role": "user",

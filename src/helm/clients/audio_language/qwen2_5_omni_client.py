@@ -118,30 +118,7 @@ class Qwen2_5OmniAudioLMClient(CachingClient):
         with htrack_block(f"Generating for prompt: {prompt_text}"):
             for completion_index in range(request.num_completions):
                 try:
-
                     def do_it() -> Dict[str, Any]:
-                        # inputs = tokenizer.apply_chat_template(input_query, add_generation_prompt=True, tokenize=False)
-                        # audios: List[Any] = []
-                        # # Refer to the official Qwen2-Audio documentation for the format of the input query
-                        # # https://huggingface.co/Qwen/Qwen2-Audio-7B-Instruct
-                        # for message in input_query:
-                        #     if isinstance(message["content"], list):
-                        #         for element in message["content"]:
-                        #             if element["type"] == "audio":
-                        #                 audios.append(
-                        #                     librosa.load(
-                        #                         element["audio_url"],
-                        #                         sr=tokenizer.feature_extractor.sampling_rate,
-                        #                     )[0]
-                        #                 )
-                        # inputs = tokenizer(
-                        #     text=inputs,
-                        #     audios=audios,
-                        #     sampling_rate=tokenizer.feature_extractor.sampling_rate,
-                        #     return_tensors="pt",
-                        #     padding=True,
-                        # )
-
                         # Refer to the official Qwen2.5-Omni documentation for the format of the input query
                         # https://huggingface.co/Qwen/Qwen2.5-Omni-7B
                         USE_AUDIO_IN_VIDEO = True
@@ -156,18 +133,11 @@ class Qwen2_5OmniAudioLMClient(CachingClient):
                             padding=True,
                             use_audio_in_video=USE_AUDIO_IN_VIDEO,
                         )
-                        input_length = inputs.input_ids.size(1)
-
-                        # # Qwen2-Audio-Instruct counts input into the max_length,
-                        # # so we need to add the length of the prompt
-                        # inputs = inputs.to(self._device)
-                        # pred = model.generate(**inputs, max_length=request.max_tokens + input_length)[:, input_length:]
-
                         inputs = inputs.to(self._device)
                         pred, _ = model.generate(**inputs, use_audio_in_video=USE_AUDIO_IN_VIDEO)
-
+                        input_seq_length = len(inputs.input_ids)
                         completion = tokenizer.decode(
-                            pred.cpu()[0], skip_special_tokens=True, clean_up_tokenization_spaces=False
+                            pred.cpu()[0][input_seq_length:], skip_special_tokens=True, clean_up_tokenization_spaces=False
                         )
                         # The processor of Qwen2-Audio-Instruct consists an AutoTokenizer and a WhisperFeatureExtractor
                         tokens: List[str] = tokenizer.tokenizer.tokenize(completion)

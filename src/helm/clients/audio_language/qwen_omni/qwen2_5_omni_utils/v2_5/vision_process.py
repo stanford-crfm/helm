@@ -9,7 +9,6 @@ import time
 import warnings
 from functools import lru_cache
 from io import BytesIO
-from typing import Optional
 
 import requests
 import torch
@@ -18,6 +17,7 @@ from packaging import version
 from PIL import Image
 from torchvision import io, transforms
 from torchvision.transforms import InterpolationMode
+from typing import List, Optional, Union
 
 
 logger = logging.getLogger(__name__)
@@ -76,12 +76,12 @@ def smart_resize(
     w_bar = max(factor, round_by_factor(width, factor))
     if h_bar * w_bar > max_pixels:
         beta = math.sqrt((height * width) / max_pixels)
-        h_bar = floor_by_factor(height / beta, factor)
-        w_bar = floor_by_factor(width / beta, factor)
+        h_bar = floor_by_factor(int(height / beta), factor)
+        w_bar = floor_by_factor(int(width / beta), factor)
     elif h_bar * w_bar < min_pixels:
         beta = math.sqrt(min_pixels / (height * width))
-        h_bar = ceil_by_factor(height * beta, factor)
-        w_bar = ceil_by_factor(width * beta, factor)
+        h_bar = ceil_by_factor(int(height * beta), factor)
+        w_bar = ceil_by_factor(int(width * beta), factor)
     return h_bar, w_bar
 
 
@@ -94,7 +94,7 @@ def to_rgb(pil_image: Image.Image) -> Image.Image:
         return pil_image.convert("RGB")
 
 
-def fetch_image(ele: dict[str, str | Image.Image], size_factor: int = IMAGE_FACTOR) -> Image.Image:
+def fetch_image(ele, size_factor: int = IMAGE_FACTOR) -> Image.Image:
     if "image" in ele:
         image = ele["image"]
     else:
@@ -117,17 +117,17 @@ def fetch_image(ele: dict[str, str | Image.Image], size_factor: int = IMAGE_FACT
     if image_obj is None:
         raise ValueError(f"Unrecognized image input, support local path, http url, base64 and PIL.Image, got {image}")
     image = to_rgb(image_obj)
-    ## resize
+    # resize
     if "resized_height" in ele and "resized_width" in ele:
         resized_height, resized_width = smart_resize(
-            ele["resized_height"],
-            ele["resized_width"],
+            int(ele["resized_height"]),
+            int(ele["resized_width"]),
             factor=size_factor,
         )
     else:
         width, height = image.size
-        min_pixels = ele.get("min_pixels", MIN_PIXELS)
-        max_pixels = ele.get("max_pixels", MAX_PIXELS)
+        min_pixels = int(ele.get("min_pixels", MIN_PIXELS))
+        max_pixels = int(ele.get("max_pixels", MAX_PIXELS))
         resized_height, resized_width = smart_resize(
             height,
             width,
@@ -143,7 +143,7 @@ def fetch_image(ele: dict[str, str | Image.Image], size_factor: int = IMAGE_FACT
 def smart_nframes(
     ele: dict,
     total_frames: int,
-    video_fps: int | float,
+    video_fps: Union[int, float],
 ) -> int:
     """calculate the number of frames for video used for model inputs.
 
@@ -182,7 +182,7 @@ def smart_nframes(
 
 def _read_video_torchvision(
     ele: dict,
-) -> (torch.Tensor, float):
+):
     """read video using torchvision.io.read_video
 
     Args:
@@ -225,7 +225,7 @@ def is_decord_available() -> bool:
 
 def _read_video_decord(
     ele: dict,
-) -> (torch.Tensor, float):
+):
     """read video using decord.VideoReader
 
     Args:
@@ -275,9 +275,7 @@ def get_video_reader_backend() -> str:
     return video_reader_backend
 
 
-def fetch_video(
-    ele: dict, image_factor: int = IMAGE_FACTOR, return_video_sample_fps: bool = False
-) -> torch.Tensor | list[Image.Image]:
+def fetch_video(ele: dict, image_factor: int = IMAGE_FACTOR, return_video_sample_fps: bool = False):
     if isinstance(ele["video"], str):
         video_reader_backend = get_video_reader_backend()
         try:
@@ -334,11 +332,11 @@ def fetch_video(
         return images
 
 
-def extract_vision_info(conversations: list[dict] | list[list[dict]]) -> list[dict]:
+def extract_vision_info(conversations) -> list[dict]:
     vision_infos = []
     if isinstance(conversations[0], dict):
-        conversations = [conversations]
-    for conversation in conversations:
+        conversations_p = [conversations]
+    for conversation in conversations_p:
         for message in conversation:
             if isinstance(message["content"], list):
                 for ele in message["content"]:
@@ -355,25 +353,27 @@ def extract_vision_info(conversations: list[dict] | list[list[dict]]) -> list[di
 def process_vision_info(
     conversations: list[dict] | list[list[dict]],
     return_video_kwargs: bool = False,
-) -> tuple[list[Image.Image] | None, list[torch.Tensor | list[Image.Image]] | None, Optional[dict]]:
+):
 
     vision_infos = extract_vision_info(conversations)
-    ## Read images or videos
-    image_inputs = []
-    video_inputs = []
+    # Read images or videos
+    image_inputs: Optional[List] = []
+    video_inputs: Optional[List] = []
     video_sample_fps_list = []
     for vision_info in vision_infos:
         if "image" in vision_info or "image_url" in vision_info:
+            assert image_inputs is not None
             image_inputs.append(fetch_image(vision_info))
         elif "video" in vision_info:
+            assert video_inputs is not None
             video_input, video_sample_fps = fetch_video(vision_info, return_video_sample_fps=True)
             video_sample_fps_list.append(video_sample_fps)
             video_inputs.append(video_input)
         else:
             raise ValueError("image, image_url or video should in content.")
-    if len(image_inputs) == 0:
+    if image_inputs is not None and len(image_inputs) == 0:
         image_inputs = None
-    if len(video_inputs) == 0:
+    if video_inputs is not None and len(video_inputs) == 0:
         video_inputs = None
     if return_video_kwargs:
         return image_inputs, video_inputs, {"fps": video_sample_fps_list}

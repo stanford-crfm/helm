@@ -2,7 +2,6 @@ import audioread
 import av
 import librosa
 import numpy as np
-from typing import Union, List, Dict
 
 
 def _check_if_video_has_audio(video_path):
@@ -13,11 +12,11 @@ def _check_if_video_has_audio(video_path):
     return True
 
 
-def process_audio_info(conversations: Union[List[Dict], List[List[Dict]]], use_audio_in_video: bool):
+def process_audio_info(conversations, use_audio_in_video: bool):
     audios = []
     if isinstance(conversations[0], dict):
-        conversations = [conversations]
-    for conversation in conversations:
+        conversations_p = [conversations]
+    for conversation in conversations_p:
         for message in conversation:
             if not isinstance(message["content"], list):
                 continue
@@ -52,5 +51,6 @@ def process_audio_info(conversations: Union[List[Dict], List[List[Dict]]], use_a
                     else:
                         raise ValueError("Unknown video {}".format(ele))
     if len(audios) == 0:
-        audios = None
-    return audios
+        return None
+    else:
+        return audios
