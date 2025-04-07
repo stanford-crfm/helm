@@ -35,12 +35,10 @@ class Qwen2_5OmniAudioLMClient(CachingClient):
     Qwen2.5-Omni is an end-to-end multimodal model designed to perceive diverse modalities, including text,
     images, audio, and video, while simultaneously generating text and natural speech responses in a streaming manner.
 
-    [Todo]
-
     Paper: https://arxiv.org/abs/2503.20215
     """
 
-    END_OF_TEXT_TOKEN: str = "<|im_end|>"
+    END_OF_TEXT_TOKEN: str = "<|endoftext|>>"
 
     def __init__(self, cache_config: CacheConfig):
         super().__init__(cache_config=cache_config)
@@ -118,6 +116,7 @@ class Qwen2_5OmniAudioLMClient(CachingClient):
         with htrack_block(f"Generating for prompt: {prompt_text}"):
             for completion_index in range(request.num_completions):
                 try:
+
                     def do_it() -> Dict[str, Any]:
                         # Refer to the official Qwen2.5-Omni documentation for the format of the input query
                         # https://huggingface.co/Qwen/Qwen2.5-Omni-7B
@@ -135,9 +134,11 @@ class Qwen2_5OmniAudioLMClient(CachingClient):
                         )
                         inputs = inputs.to(self._device)
                         pred, _ = model.generate(**inputs, use_audio_in_video=USE_AUDIO_IN_VIDEO)
-                        input_seq_length = len(inputs.input_ids)
+                        input_seq_length = len(inputs.input_ids[0])
                         completion = tokenizer.decode(
-                            pred.cpu()[0][input_seq_length:], skip_special_tokens=True, clean_up_tokenization_spaces=False
+                            pred.cpu()[0][input_seq_length:],
+                            skip_special_tokens=True,
+                            clean_up_tokenization_spaces=False,
                         )
                         # The processor of Qwen2-Audio-Instruct consists an AutoTokenizer and a WhisperFeatureExtractor
                         tokens: List[str] = tokenizer.tokenizer.tokenize(completion)

@@ -1869,6 +1869,7 @@ class Qwen2_5OmniDecoderLayer(nn.Module):
         hidden_states = self.mlp(hidden_states)
         hidden_states = residual + hidden_states
 
+        outputs: Tuple[Any, ...]
         outputs = (hidden_states,)
 
         if output_attentions:
@@ -2722,7 +2723,7 @@ class Qwen2_5OmniTalkerForConditionalGeneration(Qwen2_5OmniPreTrainedModelForCon
         attention_mask: Optional[torch.Tensor] = None,
         position_ids: Optional[torch.Tensor] = None,
         past_key_values: Optional[List[torch.FloatTensor]] = None,
-        thinker_reply_part: Optional[torch.FloatTensor] = None,
+        thinker_reply_part: Optional[torch.Tensor] = None,
         inputs_embeds: Optional[torch.FloatTensor] = None,
         rope_deltas: Optional[torch.LongTensor] = None,
         use_cache: Optional[bool] = None,
