@@ -4169,7 +4169,7 @@ class Qwen2_5OmniModel(Qwen2_5OmniPreTrainedModel):
         thinker_kwargs = {
             "max_new_tokens": thinker_max_new_tokens,
         }
-        talker_kwargs = {
+        talker_kwargs: dict[str, Union[torch.Tensor, Any]] = {
             "max_new_tokens": talker_max_new_tokens,
             "do_sample": talker_do_sample,
             "top_k": talker_top_k,
