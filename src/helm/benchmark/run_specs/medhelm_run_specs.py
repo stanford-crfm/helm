@@ -27,7 +27,7 @@ from helm.common.gpu_utils import get_torch_device_name
 
 
 @run_spec_function("medcalc_bench")
-def get_medcalc_bench_spec() -> RunSpec:
+def get_medcalc_bench_spec(max_tokens: int = 10) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.medcalc_bench_scenario.MedCalcBenchScenario")
 
     adapter_spec = get_generation_adapter_spec(
@@ -35,9 +35,8 @@ def get_medcalc_bench_spec() -> RunSpec:
         input_noun=None,
         newline_after_input_noun=False,
         output_noun="Answer only the requested quantity without units. No explanation needed",
-        max_tokens=10,
+        max_tokens=max_tokens,
         max_train_instances=0,
-        stop_sequences=[],
     )
 
     metric_specs = [
@@ -57,7 +56,7 @@ def get_medcalc_bench_spec() -> RunSpec:
 
 
 @run_spec_function("clear")
-def get_clear_spec(condition: str) -> RunSpec:
+def get_clear_spec(condition: str, max_tokens: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.clear_scenario.CLEARScenario", args={"condition": condition}
     )
@@ -74,7 +73,7 @@ def get_clear_spec(condition: str) -> RunSpec:
         input_noun=None,
         output_noun="Respond only with 'A', 'B', or 'C'. Do not add any other text, punctuation, or symbols",
         max_train_instances=0,
-        max_tokens=1,
+        max_tokens=max_tokens,
     )
 
     return RunSpec(
@@ -87,7 +86,7 @@ def get_clear_spec(condition: str) -> RunSpec:
 
 
 @run_spec_function("mtsamples_replicate")
-def get_mtsamples_spec() -> RunSpec:
+def get_mtsamples_spec(max_tokens: int = 512) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mtsamples_replicate_scenario.MTSamplesReplicateScenario"
     )
@@ -97,7 +96,7 @@ def get_mtsamples_spec() -> RunSpec:
         input_noun=None,
         newline_after_input_noun=False,
         output_noun="Answer",
-        max_tokens=512,
+        max_tokens=max_tokens,
         max_train_instances=0,
         stop_sequences=[],
     )
@@ -128,7 +127,7 @@ def get_mtsamples_spec() -> RunSpec:
 
 
 @run_spec_function("medec")
-def get_medec_run_spec() -> RunSpec:
+def get_medec_run_spec(max_tokens: int = 256) -> RunSpec:
     """
     RunSpec for the MEDEC dataset.
     This configuration evaluates the model's ability to summarize doctor-patient
@@ -156,7 +155,7 @@ def get_medec_run_spec() -> RunSpec:
         ),
         input_noun="Clinical Note",
         output_noun="Answer",
-        max_tokens=256,
+        max_tokens=max_tokens,
         max_train_instances=0,
     )
 
@@ -179,7 +178,7 @@ def get_medec_run_spec() -> RunSpec:
 
 
 @run_spec_function("ehrshot")
-def get_ehrshot_spec(subject: str, max_length: int = 100000) -> RunSpec:
+def get_ehrshot_spec(subject: str, max_length: int = 100000, max_tokens: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.ehrshot_scenario.EHRSHOTScenario",
         args={"subject": subject, "max_length": max_length},
@@ -191,7 +190,7 @@ def get_ehrshot_spec(subject: str, max_length: int = 100000) -> RunSpec:
         input_noun="",
         output_noun="Respond with only 'A' for yes or 'B' for no. Do not add any other text, punctuation, or symbols",
         max_train_instances=0,
-        max_tokens=1,
+        max_tokens=max_tokens,
     )
 
     return RunSpec(
@@ -204,7 +203,7 @@ def get_ehrshot_spec(subject: str, max_length: int = 100000) -> RunSpec:
 
 
 @run_spec_function("head_qa")
-def get_head_qa_run_spec(language: str = "en", category: Union[str, None] = None) -> RunSpec:
+def get_head_qa_run_spec(language: str = "en", category: Union[str, None] = None, max_tokens: int = 1) -> RunSpec:
     """
     RunSpec for the HEAD-QA dataset.
     This configuration evaluates the model's ability to answer challenging multiple-choice biomedical questions.
@@ -223,11 +222,12 @@ def get_head_qa_run_spec(language: str = "en", category: Union[str, None] = None
             "multiple-choice questions accurately based on the options provided. "
             "Each question will relate to biomedical concepts, "
             "and you will be asked to choose the most appropriate answer.\n\n"
-            "Select the correct answer by outputting only the letter corresponding to your choice (A, B, C, or D)."
+            # "Select the correct answer by outputting only the letter corresponding to your choice (A, B, C, or D)."
+            "Select the correct answer by outputting the letter corresponding to your choice (A, B, C, or D)."
         ),
         input_noun="Question",
         output_noun="Answer",
-        max_tokens=1,
+        max_tokens=max_tokens,
         max_train_instances=0,
     )
 
@@ -245,7 +245,7 @@ def get_head_qa_run_spec(language: str = "en", category: Union[str, None] = None
 
 
 @run_spec_function("medbullets")
-def get_medbullets_run_spec() -> RunSpec:
+def get_medbullets_run_spec(max_tokens: int = 1) -> RunSpec:
     """
     RunSpec for the MedBullets dataset.
     This configuration evaluates the model's ability to answer challenging multiple-choice clinical questions.
@@ -263,11 +263,12 @@ def get_medbullets_run_spec() -> RunSpec:
             "You are a highly knowledgeable AI assistant specializing in medicine. "
             "Your task is to answer medical questions similar to those found on the USMLE Step 2/3 exams. "
             "You will be provided with a clinical scenario followed by several multiple-choice options.\n\n"
-            "Select the correct answer by outputting only the letter corresponding to your choice (A, B, C, D, or E)."
+            # "Select the correct answer by outputting only the letter corresponding to your choice (A, B, C, D, or E)."
+            "Select the correct answer by outputting the letter corresponding to your choice (A, B, C, D, or E)."
         ),
         input_noun="Clinical Scenario",
         output_noun="Answer",
-        max_tokens=1,
+        max_tokens=max_tokens,
         max_train_instances=0,
     )
 
@@ -285,7 +286,7 @@ def get_medbullets_run_spec() -> RunSpec:
 
 
 @run_spec_function("medbullets_freetext")
-def get_medbullets_freetext_run_spec() -> RunSpec:
+def get_medbullets_freetext_run_spec(max_tokens: int = 4000) -> RunSpec:
     """RunSpec for the MedBullets Free-text dataset."""
     # Define the scenario
     scenario_spec = ScenarioSpec(
@@ -305,6 +306,7 @@ def get_medbullets_freetext_run_spec() -> RunSpec:
         ),
         input_noun="Clinical Scenario",
         output_noun="Answer",
+        max_tokens=max_tokens,
     )
 
     # Define the metrics
@@ -321,7 +323,7 @@ def get_medbullets_freetext_run_spec() -> RunSpec:
 
 
 @run_spec_function("medalign")
-def get_medalign_spec(max_length: int = 40000) -> RunSpec:
+def get_medalign_spec(max_length: int = 40000, max_tokens: int = 256) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.medalign_scenario.MedalignScenario", args={"max_length": max_length}
     )
@@ -331,7 +333,7 @@ def get_medalign_spec(max_length: int = 40000) -> RunSpec:
         input_noun=None,
         newline_after_input_noun=False,
         output_noun=None,
-        max_tokens=256,
+        max_tokens=max_tokens,
         stop_sequences=[],
         max_train_instances=0,
     )
@@ -359,7 +361,7 @@ def get_medalign_spec(max_length: int = 40000) -> RunSpec:
 
 
 @run_spec_function("shc_ptbm_med")
-def get_shc_ptbm_spec() -> RunSpec:
+def get_shc_ptbm_spec(max_tokens: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_ptbm_scenario.SHCPTBMMedScenario", args={})
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -367,6 +369,7 @@ def get_shc_ptbm_spec() -> RunSpec:
         instructions="Answer A or B.",
         input_noun="",
         output_noun="",
+        max_tokens=max_tokens,
     )
 
     return RunSpec(
@@ -379,7 +382,7 @@ def get_shc_ptbm_spec() -> RunSpec:
 
 
 @run_spec_function("shc_sei_med")
-def get_shc_sei_spec() -> RunSpec:
+def get_shc_sei_spec(max_tokens: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_sei_scenario.SHCSEIMedScenario", args={})
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -387,6 +390,7 @@ def get_shc_sei_spec() -> RunSpec:
         instructions="Answer A or B.",
         input_noun="",
         output_noun="",
+        max_tokens=max_tokens,
     )
 
     return RunSpec(
@@ -399,7 +403,7 @@ def get_shc_sei_spec() -> RunSpec:
 
 
 @run_spec_function("dischargeme")
-def get_dischargeme_spec() -> RunSpec:
+def get_dischargeme_spec(max_tokens: int = 300) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.dischargeme_scenario.DischargeMeScenario")
 
     adapter_spec = get_generation_adapter_spec(
@@ -411,7 +415,7 @@ def get_dischargeme_spec() -> RunSpec:
         input_noun=None,
         newline_after_input_noun=False,
         output_noun="Answer",
-        max_tokens=300,
+        max_tokens=max_tokens,
         stop_sequences=[],
         max_train_instances=0,
     )
@@ -438,7 +442,7 @@ def get_dischargeme_spec() -> RunSpec:
 
 
 @run_spec_function("aci_bench")
-def get_aci_bench_run_spec() -> RunSpec:
+def get_aci_bench_run_spec(max_tokens: int = 768) -> RunSpec:
     """
     RunSpec for the ACI-Bench dataset.
     This configuration evaluates the model's ability to summarize
@@ -462,7 +466,7 @@ def get_aci_bench_run_spec() -> RunSpec:
         ),
         input_noun="Conversation",
         output_noun="Clinical Note",
-        max_tokens=768,  # avg tokens in response is 618.9
+        max_tokens=max_tokens,  # avg tokens in response is 618.9
         max_train_instances=0,
         stop_sequences=[],
     )
@@ -492,7 +496,7 @@ def get_aci_bench_run_spec() -> RunSpec:
 
 
 @run_spec_function("mtsamples_procedures")
-def get_mtsamples_procedures_spec() -> RunSpec:
+def get_mtsamples_procedures_spec(max_tokens: int = 512) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mtsamples_procedures_scenario.MTSamplesProceduresScenario"
     )
@@ -502,7 +506,7 @@ def get_mtsamples_procedures_spec() -> RunSpec:
         input_noun="Patient Notes",
         newline_after_input_noun=False,
         output_noun="Answer",
-        max_tokens=512,
+        max_tokens=max_tokens,
         max_train_instances=0,
         stop_sequences=[],
     )
@@ -535,7 +539,7 @@ def get_mtsamples_procedures_spec() -> RunSpec:
 
 
 @run_spec_function("mimic_rrs")
-def get_mimic_rrs_spec() -> RunSpec:
+def get_mimic_rrs_spec(max_tokens: int = 128) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mimic_rrs_scenario.MIMICRRSScenario", args={})
 
     adapter_spec = get_generation_adapter_spec(
@@ -547,7 +551,7 @@ def get_mimic_rrs_spec() -> RunSpec:
         output_noun="Impression",
         newline_after_input_noun=True,
         newline_after_output_noun=True,
-        max_tokens=128,
+        max_tokens=max_tokens,
         max_train_instances=0,
         stop_sequences=[],
     )
@@ -573,7 +577,7 @@ def get_mimic_rrs_spec() -> RunSpec:
 
 
 @run_spec_function("mimic_bhc")
-def get_mimic_bhc_spec() -> RunSpec:
+def get_mimic_bhc_spec(max_tokens: int = 1024) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mimic_bhc_scenario.MIMICBHCScenario", args={})
 
     adapter_spec = get_generation_adapter_spec(
@@ -582,27 +586,33 @@ def get_mimic_bhc_spec() -> RunSpec:
         output_noun="Brief Hospital Course",
         newline_after_input_noun=True,
         newline_after_output_noun=True,
-        max_tokens=1024,
+        max_tokens=max_tokens,
         max_train_instances=0,
         stop_sequences=[],
     )
+    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.mimic_bhc_annotator.MIMICBHCAnnotator")]
+
     metric_args = {
         "task": "mimic_bhc",
         "device": get_torch_device_name(),
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.mimic_bhc_metrics.MIMICBHCMetric", args={})
+     ]
     return RunSpec(
         name="mimic_bhc",
+        annotators=annotator_specs,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        metric_specs=metric_specs,
         groups=["mimic_bhc"],
     )
 
 
 @run_spec_function("chw_care_plan")
-def get_chw_care_plan_run_spec() -> RunSpec:
+def get_chw_care_plan_run_spec(max_tokens: int = 768) -> RunSpec:
     """
     RunSpec for the chw_care_plan dataset.
     This configuration evaluates the model's ability to summarize
@@ -619,7 +629,7 @@ def get_chw_care_plan_run_spec() -> RunSpec:
         ),
         input_noun="",
         output_noun="",
-        max_tokens=768,
+        max_tokens=max_tokens,
         max_train_instances=0,
         stop_sequences=[],
     )
@@ -648,7 +658,7 @@ def get_chw_care_plan_run_spec() -> RunSpec:
 
 
 @run_spec_function("medication_qa")
-def get_medication_qa_spec() -> RunSpec:
+def get_medication_qa_spec(max_tokens: int = 512) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.medication_qa_scenario.MedicationQAScenario")
 
     adapter_spec = get_generation_adapter_spec(
@@ -656,7 +666,7 @@ def get_medication_qa_spec() -> RunSpec:
         input_noun="Question",
         output_noun="Answer",
         max_train_instances=0,
-        max_tokens=512,
+        max_tokens=max_tokens,
         stop_sequences=[],
     )
     annotator_specs = [
@@ -682,7 +692,7 @@ def get_medication_qa_spec() -> RunSpec:
 
 
 @run_spec_function("starr_patient_instructions")
-def get_starr_patient_instructions_run_spec() -> RunSpec:
+def get_starr_patient_instructions_run_spec(max_tokens: int = 256) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.starr_patient_instructions_scenario.StarrPatientInstructionsScenario",
         args={},
@@ -699,7 +709,7 @@ def get_starr_patient_instructions_run_spec() -> RunSpec:
         ),
         input_noun="Case Details",
         output_noun="Patient Instructions",
-        max_tokens=256,
+        max_tokens=max_tokens,
         max_train_instances=0,
         stop_sequences=[],
     )
@@ -738,7 +748,7 @@ def get_starr_patient_instructions_run_spec() -> RunSpec:
 
 
 @run_spec_function("med_dialog")
-def get_med_dialog_spec(subset: str) -> RunSpec:
+def get_med_dialog_spec(subset: str, max_tokens: int = 80) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.med_dialog_scenario.MedDialogScenario", args={"subset": subset}
     )
@@ -747,7 +757,7 @@ def get_med_dialog_spec(subset: str) -> RunSpec:
         instructions="Generate a one sentence summary of this patient-doctor conversation.",
         input_noun="Patient-Doctor",
         output_noun="Summary",
-        max_tokens=80,
+        max_tokens=max_tokens,
         max_train_instances=0,
     )
     annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.med_dialog_annotator.MedDialogAnnotator")]
@@ -772,7 +782,7 @@ def get_med_dialog_spec(subset: str) -> RunSpec:
 
 
 @run_spec_function("shc_conf_med")
-def get_shc_conf_spec() -> RunSpec:
+def get_shc_conf_spec(max_tokens: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_conf_scenario.SHCCONFMedScenario", args={})
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -780,6 +790,7 @@ def get_shc_conf_spec() -> RunSpec:
         instructions="Answer A or B.",
         input_noun="",
         output_noun="",
+        max_tokens=max_tokens,
     )
 
     return RunSpec(
@@ -792,14 +803,14 @@ def get_shc_conf_spec() -> RunSpec:
 
 
 @run_spec_function("medi_qa")
-def get_medi_qa_spec() -> RunSpec:
+def get_medi_qa_spec(max_tokens: int = 1024) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.medi_qa_scenario.MediQAScenario", args={})
 
     adapter_spec = get_generation_adapter_spec(
         instructions="Answer the following consumer health question.",
         input_noun="Question",
         output_noun="Answer",
-        max_tokens=1024,
+        max_tokens=max_tokens,
         max_train_instances=0,
         stop_sequences=[],
     )
@@ -825,7 +836,7 @@ def get_medi_qa_spec() -> RunSpec:
 
 
 @run_spec_function("mental_health")
-def get_mental_health_spec() -> RunSpec:
+def get_mental_health_spec(max_tokens: int = 512) -> RunSpec:
     """
     Returns the run specification for the mental health counseling scenario.
     This scenario evaluates a model's ability to generate appropriate counseling responses
@@ -840,7 +851,7 @@ def get_mental_health_spec() -> RunSpec:
         input_noun=None,  # No specific input noun needed as format is defined in scenario
         newline_after_input_noun=False,
         output_noun="Counselor response",
-        max_tokens=512,
+        max_tokens=max_tokens,
     )
     annotator_specs = [
         AnnotatorSpec(class_name="helm.benchmark.annotation.mental_health_annotator.MentalHealthAnnotator")
@@ -867,7 +878,7 @@ def get_mental_health_spec() -> RunSpec:
 
 
 @run_spec_function("pubmed_qa")
-def get_pubmed_qa_spec() -> RunSpec:
+def get_pubmed_qa_spec(max_tokens: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.pubmed_qa_scenario.PubMedQAScenario", args={})
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -876,6 +887,7 @@ def get_pubmed_qa_spec() -> RunSpec:
         input_noun="Question",
         output_noun="Answer",
         max_train_instances=0,
+        max_tokens=max_tokens
     )
 
     return RunSpec(
@@ -888,7 +900,7 @@ def get_pubmed_qa_spec() -> RunSpec:
 
 
 @run_spec_function("ehr_sql")
-def get_ehr_sql_run_spec() -> RunSpec:
+def get_ehr_sql_run_spec(max_tokens: int = 1024) -> RunSpec:
     """
     RunSpec for the EHR SQL dataset.
     This configuration evaluates the model's ability to generate accurate SQL queries from natural language questions.
@@ -913,7 +925,7 @@ def get_ehr_sql_run_spec() -> RunSpec:
         ),
         input_noun="Medical Question + Schema",
         output_noun="SQL Query",
-        max_tokens=1024,
+        max_tokens=max_tokens,
         temperature=0,
         max_train_instances=0,
         stop_sequences=[],
@@ -938,7 +950,7 @@ def get_ehr_sql_run_spec() -> RunSpec:
 
 
 @run_spec_function("shc_bmt_med")
-def get_shc_bmt_spec() -> RunSpec:
+def get_shc_bmt_spec(max_tokens: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_bmt_scenario.SHCBMTMedScenario", args={})
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -946,6 +958,7 @@ def get_shc_bmt_spec() -> RunSpec:
         instructions="Answer A or B.",
         input_noun="",
         output_noun="",
+        max_tokens=max_tokens,
     )
 
     return RunSpec(
@@ -958,7 +971,7 @@ def get_shc_bmt_spec() -> RunSpec:
 
 
 @run_spec_function("race_based_med")
-def get_race_based_med_spec() -> RunSpec:
+def get_race_based_med_spec(max_tokens: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.race_based_med_scenario.RaceBasedMedScenario", args={}
     )
@@ -967,8 +980,10 @@ def get_race_based_med_spec() -> RunSpec:
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions="Answer A for yes, B for no.",
         input_noun=None,
-        output_noun="Respond with only 'A' for yes or 'B' for no. Do not add any other text, punctuation, or symbols",
+        # output_noun="Respond with only 'A' for yes or 'B' for no. Do not add any other text, punctuation, or symbols",
+        output_noun="",
         max_train_instances=0,
+        max_tokens=max_tokens
     )
 
     return RunSpec(
@@ -981,7 +996,7 @@ def get_race_based_med_spec() -> RunSpec:
 
 
 @run_spec_function("medhallu")
-def get_medhallu_spec() -> RunSpec:
+def get_medhallu_spec(max_tokens: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.medhallu_scenario.MedHalluScenario", args={})
 
     adapter_spec = get_generation_adapter_spec(
@@ -1003,7 +1018,7 @@ No letter or word, just the integer value.
 Your Judgment"""  # noqa: E501
         ),
         max_train_instances=0,
-        stop_sequences=[],
+        max_tokens=max_tokens
     )
 
     return RunSpec(
@@ -1016,7 +1031,7 @@ Your Judgment"""  # noqa: E501
 
 
 @run_spec_function("n2c2_ct_matching")
-def get_n2c2_ct_matching_spec(subject: str) -> RunSpec:
+def get_n2c2_ct_matching_spec(subject: str, max_tokens: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.n2c2_ct_matching_scenario.N2C2CTMatchingScenario",
         args={"subject": subject},
@@ -1027,7 +1042,9 @@ def get_n2c2_ct_matching_spec(subject: str) -> RunSpec:
         instructions="Answer A for yes, B for no.",
         input_noun="",
         output_noun="Answer A for yes, B for no",
+        # output_noun="",
         max_train_instances=0,
+        max_tokens=max_tokens
     )
 
     return RunSpec(
@@ -1040,7 +1057,7 @@ def get_n2c2_ct_matching_spec(subject: str) -> RunSpec:
 
 
 @run_spec_function("shc_gip_med")
-def get_shc_gip_spec() -> RunSpec:
+def get_shc_gip_spec(max_tokens: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_gip_scenario.SHCGIPMedScenario", args={})
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -1048,6 +1065,7 @@ def get_shc_gip_spec() -> RunSpec:
         instructions="Answer A or B.",
         input_noun="",
         output_noun="",
+        max_tokens=max_tokens
     )
 
     return RunSpec(
@@ -1060,7 +1078,7 @@ def get_shc_gip_spec() -> RunSpec:
 
 
 @run_spec_function("mimiciv_billing_code")
-def get_mimiciv_billing_code_spec() -> RunSpec:
+def get_mimiciv_billing_code_spec(max_tokens: int = 256) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mimiciv_billing_code_scenario.MIMICIVBillingCodeScenario",
         args={
@@ -1073,7 +1091,7 @@ def get_mimiciv_billing_code_spec() -> RunSpec:
         output_noun="Predicted ICD-10 Codes",
         newline_after_input_noun=True,
         newline_after_output_noun=True,
-        max_tokens=256,
+        max_tokens=max_tokens,
         max_train_instances=0,
         stop_sequences=[],
     )
@@ -1096,7 +1114,7 @@ def get_mimiciv_billing_code_spec() -> RunSpec:
 
 
 @run_spec_function("shc_sequoia_med")
-def get_shc_sequoia_spec() -> RunSpec:
+def get_shc_sequoia_spec(max_tokens: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.shc_sequoia_scenario.SHCSequoiaMedScenario", args={}
     )
@@ -1106,6 +1124,7 @@ def get_shc_sequoia_spec() -> RunSpec:
         instructions="Answer A or B.",
         input_noun="",
         output_noun="",
+        max_tokens=max_tokens,
     )
 
     return RunSpec(
@@ -1118,7 +1137,7 @@ def get_shc_sequoia_spec() -> RunSpec:
 
 
 @run_spec_function("shc_cdi_med")
-def get_shc_cdi_spec() -> RunSpec:
+def get_shc_cdi_spec(max_tokens: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_cdi_scenario.SHCCDIMedScenario", args={})
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -1126,6 +1145,7 @@ def get_shc_cdi_spec() -> RunSpec:
         instructions="Answer A or B.",
         input_noun="",
         output_noun="",
+        max_tokens=max_tokens,
     )
 
     return RunSpec(
@@ -1138,7 +1158,7 @@ def get_shc_cdi_spec() -> RunSpec:
 
 
 @run_spec_function("shc_ent_med")
-def get_shc_ent_spec() -> RunSpec:
+def get_shc_ent_spec(max_tokens: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_ent_scenario.SHCENTMedScenario", args={})
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -1146,6 +1166,7 @@ def get_shc_ent_spec() -> RunSpec:
         instructions="Answer A, B, or C.",
         input_noun="",
         output_noun="",
+        max_tokens=max_tokens,
     )
 
     return RunSpec(
@@ -1154,44 +1175,4 @@ def get_shc_ent_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
         groups=["shc_ent_med"],
-    )
-
-
-@run_spec_function("shc_privacy_med")
-def get_shc_privacy_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_cdi_scenario.SHCPRIVACYMedScenario", args={})
-
-    adapter_spec = get_multiple_choice_adapter_spec(
-        method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="Answer A or B.",
-        input_noun="",
-        output_noun="",
-    )
-
-    return RunSpec(
-        name="shc_privacy_med",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs(),
-        groups=["shc_privacy_med"],
-    )
-
-
-@run_spec_function("shc_proxy_med")
-def get_shc_proxy_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_cdi_scenario.SHCPROXYMedScenario", args={})
-
-    adapter_spec = get_multiple_choice_adapter_spec(
-        method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="Answer A or B.",
-        input_noun="",
-        output_noun="",
-    )
-
-    return RunSpec(
-        name="shc_proxy_med",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs(),
-        groups=["shc_proxy_med"],
     )
