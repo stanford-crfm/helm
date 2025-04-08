@@ -105,7 +105,7 @@ class ServerService(Service):
                 return "gpt4"
             elif model_deployment.startswith("openai/gpt-3"):
                 return "gpt3"
-            elif model_deployment.startswith("openai/o1"):
+            elif model_deployment.startswith("openai/o1") or model_deployment.startswith("openai/o3"):
                 return "o1"
             else:
                 return "openai"

@@ -770,6 +770,14 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
 
+  - name: google/gemini-2.5-pro-exp-03-25
+    model_name: google/gemini-2.5-pro-exp-03-25
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+    # TODO: Max output tokens: 8192
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+
   - name: google/gemini-2.0-pro-exp-02-05
     model_name: google/gemini-2.0-pro-exp-02-05
     tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
@@ -796,6 +804,14 @@ model_deployments:
 
   - name: google/gemini-2.0-flash-lite-preview-02-05
     model_name: google/gemini-2.0-flash-lite-preview-02-05
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+    # TODO: Max output tokens: 8192
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+
+  - name: google/gemini-2.0-flash-lite-001
+    model_name: google/gemini-2.0-flash-lite-001
     tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
     max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
     # TODO: Max output tokens: 8192
@@ -2230,6 +2246,20 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.openai_client.OpenAITranscriptionThenCompletionClient"
 
+  - name: openai/gpt-4o-transcribe_gpt-4o-2024-11-20
+    model_name: openai/gpt-4o-transcribe_gpt-4o-2024-11-20
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAITranscriptionThenCompletionClient"
+
+  - name: openai/gpt-4o-mini-transcribe_gpt-4o-2024-11-20
+    model_name: openai/gpt-4o-mini-transcribe_gpt-4o-2024-11-20
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAITranscriptionThenCompletionClient"
+
   - name: openai/gpt-4o-audio-preview-2024-10-01
     model_name: openai/gpt-4o-audio-preview-2024-10-01
     tokenizer_name: openai/o200k_base
@@ -2278,6 +2308,34 @@ model_deployments:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
   ## o1 Models
+  # TODO: support the new `responses` endpoint to get these to work
+  - name: openai/o1-pro-2025-03-19
+    model_name: openai/o1-pro-2025-03-19
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
+  - name: openai/o1-pro-2025-03-19-low-reasoning-effort
+    model_name: openai/o1-pro-2025-03-19-low-reasoning-effort
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+      args:
+        openai_model_name: o1-pro-2025-03-19
+        reasoning_effort: low
+
+  - name: openai/o1-pro-2025-03-19-high-reasoning-effort
+    model_name: openai/o1-pro-2025-03-19-high-reasoning-effort
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+      args:
+        openai_model_name: o1-pro-2025-03-19
+        reasoning_effort: high
+
   - name: openai/o1-2024-12-17
     model_name: openai/o1-2024-12-17
     tokenizer_name: openai/cl100k_base
@@ -2609,6 +2667,24 @@ model_deployments:
       class_name: "helm.clients.together_client.TogetherChatClient"
       args:
         together_model: meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo
+
+  - name: together/llama-4-scout-17b-16e-instruct
+    model_name: meta/llama-4-scout-17b-16e-instruct
+    tokenizer_name: meta/llama-4-scout-17b-16e-instruct
+    max_sequence_length: 327680
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        together_model: meta-llama/Llama-4-Scout-17B-16E-Instruct
+
+  - name: together/llama-4-maverick-17b-128e-instruct-fp8
+    model_name: meta/llama-4-maverick-17b-128e-instruct-fp8
+    tokenizer_name: meta/llama-4-scout-17b-16e-instruct
+    max_sequence_length: 524288
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        together_model: meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
 
   - name: together/llama-3-8b-chat
     model_name: meta/llama-3-8b-chat
@@ -3270,6 +3346,34 @@ model_deployments:
 
   - name: huggingface/qwen2-vl-72b-instruct
     model_name: qwen/qwen2-vl-72b-instruct
+    tokenizer_name: qwen/qwen-vl-chat
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.vision_language.qwen2_vlm_client.Qwen2VLMClient"
+
+  - name: huggingface/qwen2.5-vl-3b-instruct
+    model_name: qwen/qwen2.5-vl-3b-instruct
+    tokenizer_name: qwen/qwen-vl-chat
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.vision_language.qwen2_vlm_client.Qwen2VLMClient"
+
+  - name: huggingface/qwen2.5-vl-7b-instruct
+    model_name: qwen/qwen2.5-vl-7b-instruct
+    tokenizer_name: qwen/qwen-vl-chat
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.vision_language.qwen2_vlm_client.Qwen2VLMClient"
+
+  - name: huggingface/qwen2.5-vl-32b-instruct
+    model_name: qwen/qwen2.5-vl-32b-instruct
+    tokenizer_name: qwen/qwen-vl-chat
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.vision_language.qwen2_vlm_client.Qwen2VLMClient"
+
+  - name: huggingface/qwen2.5-vl-72b-instruct
+    model_name: qwen/qwen2.5-vl-72b-instruct
     tokenizer_name: qwen/qwen-vl-chat
     max_sequence_length: 8191
     client_spec:
