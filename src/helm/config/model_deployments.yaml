@@ -2739,28 +2739,6 @@ model_deployments:
       args:
         together_model: meta-llama/Llama-3.3-70B-Instruct-Turbo
 
-  - name: together/llama-4-scout-17b-16e-instruct
-    model_name: meta/llama-4-scout-17b-16e-instruct
-    tokenizer_name: meta-llama/Llama-4-Scout-17B-16E-Instruct
-    # Limit set by Together according to https://docs.together.ai/docs/llama4-quickstart
-    # TODO: increase later
-    max_sequence_length: 327680
-    client_spec:
-      class_name: "helm.clients.together_client.TogetherChatClient"
-      args:
-        together_model: meta-llama/Llama-4-Scout-17B-16E-Instruct
-
-  - name: together/llama-4-maverick-17b-128e-instruct-fp8
-    model_name: meta/llama-4-maverick-17b-128e-instruct-fp8
-    tokenizer_name: meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
-    # Limit set by Together according to https://docs.together.ai/docs/llama4-quickstart
-    # TODO: increase later
-    max_sequence_length: 524288
-    client_spec:
-      class_name: "helm.clients.together_client.TogetherChatClient"
-      args:
-        together_model: meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
-
   - name: together/llama-guard-7b
     model_name: meta/llama-guard-7b
     tokenizer_name: meta-llama/Llama-2-7b-hf
