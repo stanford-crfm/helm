@@ -136,10 +136,16 @@ class Qwen2_5OmniAudioLMClient(CachingClient):
                             use_audio_in_video=USE_AUDIO_IN_VIDEO,
                         )
                         inputs = inputs.to(self._device)
-                        pred, _ = model.generate(**inputs, use_audio_in_video=USE_AUDIO_IN_VIDEO)
                         input_seq_length = len(inputs.input_ids[0])
+                        # The model runs into errors when setting thinker_max_new_tokens to 1
+                        if request.max_tokens != 1:
+                            pred, _ = model.generate(**inputs, thinker_max_new_tokens=request.max_tokens)
+                            pred_decode = pred.cpu()[0][input_seq_length:]
+                        else:
+                            pred, _ = model.generate(**inputs)
+                            pred_decode = pred.cpu()[0][input_seq_length : input_seq_length + 1]
                         completion = tokenizer.decode(
-                            pred.cpu()[0][input_seq_length:],
+                            pred_decode,
                             skip_special_tokens=True,
                             clean_up_tokenization_spaces=False,
                         )
