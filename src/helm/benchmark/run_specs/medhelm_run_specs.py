@@ -1176,3 +1176,45 @@ def get_shc_ent_spec(max_tokens: int = 1) -> RunSpec:
         metric_specs=get_exact_match_metric_specs(),
         groups=["shc_ent_med"],
     )
+
+
+@run_spec_function("shc_privacy_med")
+def get_shc_privacy_spec(max_tokens: int = 1) -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_cdi_scenario.SHCPRIVACYMedScenario", args={})
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="Answer A or B.",
+        input_noun="",
+        output_noun="",
+        max_tokens=max_tokens
+    )
+
+    return RunSpec(
+        name="shc_privacy_med",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["shc_privacy_med"],
+    )
+
+
+@run_spec_function("shc_proxy_med")
+def get_shc_proxy_spec(max_tokens: int = 1) -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_cdi_scenario.SHCPROXYMedScenario", args={})
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="Answer A or B.",
+        input_noun="",
+        output_noun="",
+        max_tokens=max_tokens
+    )
+
+    return RunSpec(
+        name="shc_proxy_med",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["shc_proxy_med"],
+    )
