@@ -158,6 +158,7 @@ def get_medec_run_spec() -> RunSpec:
         output_noun="Answer",
         max_tokens=256,
         max_train_instances=0,
+        stop_sequences=[],
     )
 
     # Define the metrics
