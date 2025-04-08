@@ -600,7 +600,7 @@ def get_mimic_bhc_spec(max_tokens: int = 1024) -> RunSpec:
     }
     metric_specs = get_summarization_metric_specs(metric_args) + [
         MetricSpec(class_name="helm.benchmark.metrics.mimic_bhc_metrics.MIMICBHCMetric", args={})
-     ]
+    ]
     return RunSpec(
         name="mimic_bhc",
         annotators=annotator_specs,
@@ -887,7 +887,7 @@ def get_pubmed_qa_spec(max_tokens: int = 1) -> RunSpec:
         input_noun="Question",
         output_noun="Answer",
         max_train_instances=0,
-        max_tokens=max_tokens
+        max_tokens=max_tokens,
     )
 
     return RunSpec(
@@ -983,7 +983,7 @@ def get_race_based_med_spec(max_tokens: int = 1) -> RunSpec:
         # output_noun="Respond with only 'A' for yes or 'B' for no. Do not add any other text, punctuation, or symbols",
         output_noun="",
         max_train_instances=0,
-        max_tokens=max_tokens
+        max_tokens=max_tokens,
     )
 
     return RunSpec(
@@ -1018,7 +1018,7 @@ No letter or word, just the integer value.
 Your Judgment"""  # noqa: E501
         ),
         max_train_instances=0,
-        max_tokens=max_tokens
+        max_tokens=max_tokens,
     )
 
     return RunSpec(
@@ -1044,7 +1044,7 @@ def get_n2c2_ct_matching_spec(subject: str, max_tokens: int = 1) -> RunSpec:
         output_noun="Answer A for yes, B for no",
         # output_noun="",
         max_train_instances=0,
-        max_tokens=max_tokens
+        max_tokens=max_tokens,
     )
 
     return RunSpec(
@@ -1065,7 +1065,7 @@ def get_shc_gip_spec(max_tokens: int = 1) -> RunSpec:
         instructions="Answer A or B.",
         input_noun="",
         output_noun="",
-        max_tokens=max_tokens
+        max_tokens=max_tokens,
     )
 
     return RunSpec(
@@ -1187,7 +1187,7 @@ def get_shc_privacy_spec(max_tokens: int = 1) -> RunSpec:
         instructions="Answer A or B.",
         input_noun="",
         output_noun="",
-        max_tokens=max_tokens
+        max_tokens=max_tokens,
     )
 
     return RunSpec(
@@ -1208,7 +1208,7 @@ def get_shc_proxy_spec(max_tokens: int = 1) -> RunSpec:
         instructions="Answer A or B.",
         input_noun="",
         output_noun="",
-        max_tokens=max_tokens
+        max_tokens=max_tokens,
     )
 
     return RunSpec(
