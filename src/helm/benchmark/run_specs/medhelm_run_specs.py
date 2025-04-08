@@ -37,6 +37,7 @@ def get_medcalc_bench_spec() -> RunSpec:
         output_noun="Answer only the requested quantity without units. No explanation needed",
         max_tokens=10,
         max_train_instances=0,
+        stop_sequences=[],
     )
 
     metric_specs = [
@@ -56,14 +57,19 @@ def get_medcalc_bench_spec() -> RunSpec:
 
 
 @run_spec_function("clear")
-def get_clear_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.clear_scenario.CLEARScenario", args={})
+def get_clear_spec(condition: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.clear_scenario.CLEARScenario", args={"condition": condition}
+    )
+
+    condition_display = condition.replace("_", " ")
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions=(
-            "Answer 'A' for 'Has a history of alcohol dependence', "
-            "'B' for 'Does not have a history of alcohol dependence;, or 'C' for 'Uncertain'"
+            f"Answer 'A' for 'Has a history of {condition_display}', "
+            f"'B' for 'Does not have a history of {condition_display}', or "
+            f"'C' for 'Uncertain'"
         ),
         input_noun=None,
         output_noun="Respond only with 'A', 'B', or 'C'. Do not add any other text, punctuation, or symbols",
@@ -72,7 +78,7 @@ def get_clear_spec() -> RunSpec:
     )
 
     return RunSpec(
-        name="clear",
+        name=f"clear:condition={condition}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
@@ -96,6 +102,10 @@ def get_mtsamples_spec() -> RunSpec:
         stop_sequences=[],
     )
 
+    annotator_specs = [
+        AnnotatorSpec(class_name="helm.benchmark.annotation.mtsamples_replicate_annotator.MTSamplesReplicateAnnotator")
+    ]
+
     metric_args = {
         "task": "mtsamples_replicate",
         "device": get_torch_device_name(),
@@ -103,11 +113,16 @@ def get_mtsamples_spec() -> RunSpec:
         "rescale_with_baseline": False,
     }
 
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.mtsamples_replicate_metrics.MTSamplesReplicateMetric", args={})
+    ]
+
     return RunSpec(
         name="mtsamples_replicate",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["mtsamples_replicate"],
     )
 
@@ -306,7 +321,7 @@ def get_medbullets_freetext_run_spec() -> RunSpec:
 
 
 @run_spec_function("medalign")
-def get_medalign_spec(max_length: int = 128000) -> RunSpec:
+def get_medalign_spec(max_length: int = 40000) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.medalign_scenario.MedalignScenario", args={"max_length": max_length}
     )
@@ -320,17 +335,25 @@ def get_medalign_spec(max_length: int = 128000) -> RunSpec:
         stop_sequences=[],
         max_train_instances=0,
     )
+
+    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.medalign_annotator.MedalignAnnotator")]
+
     metric_args = {
         "task": "medalign",
         "device": get_torch_device_name(),
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.medalign_metrics.MedalignMetric", args={})
+    ]
+
     return RunSpec(
         name="medalign",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["medalign"],
     )
 
@@ -392,17 +415,24 @@ def get_dischargeme_spec() -> RunSpec:
         stop_sequences=[],
         max_train_instances=0,
     )
+
+    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.dischargeme_annotator.DischargeMeAnnotator")]
+
     metric_args = {
         "task": "dischargeme",
         "device": get_torch_device_name(),
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.dischargeme_metrics.DischargeMeMetric", args={})
+    ]
     return RunSpec(
         name="dischargeme",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["dischargeme"],
     )
 
@@ -437,6 +467,8 @@ def get_aci_bench_run_spec() -> RunSpec:
         stop_sequences=[],
     )
 
+    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.aci_bench_annotator.ACIBenchAnnotator")]
+
     # Define the metrics
     metric_args = {
         "task": "aci_bench",
@@ -444,13 +476,17 @@ def get_aci_bench_run_spec() -> RunSpec:
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.aci_bench_metrics.ACIBenchMetric", args={})
+    ]
 
     # Return the RunSpec
     return RunSpec(
         name="aci_bench",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["clinical", "aci_bench"],
     )
 
@@ -470,6 +506,13 @@ def get_mtsamples_procedures_spec() -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
+
+    annotator_specs = [
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.mtsamples_procedures_annotator.MTSamplesProceduresAnnotator"
+        )
+    ]
+
     metric_args = {
         "task": "mtsamples_procedures",
         "device": get_torch_device_name(),
@@ -477,11 +520,16 @@ def get_mtsamples_procedures_spec() -> RunSpec:
         "rescale_with_baseline": False,
     }
 
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.mtsamples_procedures_metrics.MTSamplesProceduresMetric", args={})
+    ]
+
     return RunSpec(
         name="mtsamples_procedures",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["mtsamples_procedures"],
     )
 
@@ -503,18 +551,53 @@ def get_mimic_rrs_spec() -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
+    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.mimic_rrs_annotator.MIMICRRSAnnotator")]
+
     metric_args = {
         "task": "mimic_rrs",
         "device": get_torch_device_name(),
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.mimic_rrs_metrics.MIMICRRSMetric", args={})
+    ]
     return RunSpec(
         name="mimic_rrs",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["mimic_rrs"],
+    )
+
+
+@run_spec_function("mimic_bhc")
+def get_mimic_bhc_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mimic_bhc_scenario.MIMICBHCScenario", args={})
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=("Summarize the clinical note into a brief hospital course."),
+        input_noun="Clinical Note",
+        output_noun="Brief Hospital Course",
+        newline_after_input_noun=True,
+        newline_after_output_noun=True,
+        max_tokens=1024,
+        max_train_instances=0,
+        stop_sequences=[],
+    )
+    metric_args = {
+        "task": "mimic_bhc",
+        "device": get_torch_device_name(),
+        "bertscore_model": "distilbert-base-uncased",
+        "rescale_with_baseline": False,
+    }
+    return RunSpec(
+        name="mimic_bhc",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs(metric_args),
+        groups=["mimic_bhc"],
     )
 
 
@@ -525,13 +608,11 @@ def get_chw_care_plan_run_spec() -> RunSpec:
     This configuration evaluates the model's ability to summarize
     doctor-patient dialogues into structured clinical notes.
     """
-    # Define the scenario
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.chw_care_plan_scenario.CHWCarePlanScenario",
         args={},
     )
 
-    # Define the adapter
     adapter_spec = get_generation_adapter_spec(
         instructions=(
             "Follow the instructions provided regarding conversion of a patient note into a specified format."
@@ -542,21 +623,26 @@ def get_chw_care_plan_run_spec() -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
+    annotator_specs = [
+        AnnotatorSpec(class_name="helm.benchmark.annotation.chw_care_plan_annotator.CHWCarePlanAnnotator")
+    ]
 
-    # Define the metrics
     metric_args = {
         "task": "chw_care_plan",
         "device": get_torch_device_name(),
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
-
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.chw_care_plan_metrics.CHWCarePlanMetric", args={})
+    ]
     # Return the RunSpec
     return RunSpec(
         name="chw_care_plan",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["clinical", "chw_care_plan"],
     )
 
@@ -573,18 +659,24 @@ def get_medication_qa_spec() -> RunSpec:
         max_tokens=512,
         stop_sequences=[],
     )
-
+    annotator_specs = [
+        AnnotatorSpec(class_name="helm.benchmark.annotation.medication_qa_annotator.MedicationQAAnnotator")
+    ]
     metric_args = {
         "task": "medication_qa",
         "device": get_torch_device_name(),
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.medication_qa_metrics.MedicationQAMetric", args={})
+    ]
     return RunSpec(
         name="medication_qa",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["medication_qa"],
     )
 
@@ -611,6 +703,13 @@ def get_starr_patient_instructions_run_spec() -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
+    annotator_specs = [
+        AnnotatorSpec(
+            class_name=(
+                "helm.benchmark.annotation.starr_patient_instructions_annotator.StarrPatientInstructionsAnnotator"
+            )
+        )
+    ]
 
     metric_args = {
         "task": "starr_patient_instructions",
@@ -618,12 +717,21 @@ def get_starr_patient_instructions_run_spec() -> RunSpec:
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
-    metric_specs = get_summarization_metric_specs(metric_args) + get_basic_metric_specs([])
-
+    metric_specs = (
+        get_summarization_metric_specs(metric_args)
+        + [
+            MetricSpec(
+                class_name="helm.benchmark.metrics.starr_patient_instructions_metrics.StarrPatientInstructionsMetric",
+                args={},
+            )
+        ]
+        + get_basic_metric_specs([])
+    )
     return RunSpec(
         name="starr_patient_instructions",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
+        annotators=annotator_specs,
         metric_specs=metric_specs,
         groups=["starr_patient_instructions"],
     )
@@ -642,6 +750,7 @@ def get_med_dialog_spec(subset: str) -> RunSpec:
         max_tokens=80,
         max_train_instances=0,
     )
+    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.med_dialog_annotator.MedDialogAnnotator")]
 
     metric_args = {
         "task": "med_dialog",
@@ -649,11 +758,15 @@ def get_med_dialog_spec(subset: str) -> RunSpec:
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.med_dialog_metrics.MedDialogMetric", args={})
+    ]
     return RunSpec(
         name=f"med_dialog,subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["med_dialog"],
     )
 
@@ -690,17 +803,23 @@ def get_medi_qa_spec() -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
+    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.medi_qa_annotator.MediQAAnnotator")]
+
     metric_args = {
         "task": "medi_qa",
         "device": get_torch_device_name(),
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.medi_qa_metrics.MediQAMetric", args={})
+    ]
     return RunSpec(
         name="medi_qa",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["medi_qa"],
     )
 
@@ -723,6 +842,9 @@ def get_mental_health_spec() -> RunSpec:
         output_noun="Counselor response",
         max_tokens=512,
     )
+    annotator_specs = [
+        AnnotatorSpec(class_name="helm.benchmark.annotation.mental_health_annotator.MentalHealthAnnotator")
+    ]
 
     metric_args = {
         "task": "mental_health",
@@ -730,12 +852,16 @@ def get_mental_health_spec() -> RunSpec:
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.mental_health_metrics.MentalHealthMetric", args={})
+    ]
 
     return RunSpec(
         name="mental_health",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["mental_health"],
     )
 
@@ -851,6 +977,41 @@ def get_race_based_med_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
         groups=["race_based_med"],
+    )
+
+
+@run_spec_function("medhallu")
+def get_medhallu_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.medhallu_scenario.MedHalluScenario", args={})
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="""You are an AI assistant with extensive knowledge in the field of medicine. I want you act as an answer judge. Given a question and an answer, your objective is to determine if the provided answer contains non-factual or hallucinated information. You SHOULD give your judgement based on the following hallucination types and the world knowledge.
+
+You are trying to determine if there is a factual contradiction between the answer and the world knowledge. Some information in the answer might be fabricated. Answer '0' if the answer is factual and '1' if the answer is hallucinated. You can categorize the answer as hallucinated if it falls in either of the category:
+Type: Misinterpretation of #Question#: These are hallucinated answers that misunderstands the question, leading to an off-topic or irrelevant response.
+Type: Incomplete Information: These are hallucinated answers that Point out what is not true without providing correct information.
+Type: Mechanism and Pathway Misattribution - These are hallucinated answer that falsely attribution of biological mechanisms, molecular pathways, or disease processes that contradicts established medical knowledge
+Type: Methodological and Evidence Fabrication - Inventing false research methods, statistical data, or specific clinical outcomes
+
+Do not return anything else, just the answer.
+Return just an integer value, '0' if the answer is factual and '1' if the answer is hallucinated. No letter or word, just the integer value.""",  # noqa: E501
+        input_noun=None,
+        output_noun=(
+            """Return just an integer value, '0' if the answer is factual and '1' if the answer is hallucinated.
+No letter or word, just the integer value.
+
+Your Judgment"""  # noqa: E501
+        ),
+        max_train_instances=0,
+        stop_sequences=[],
+    )
+
+    return RunSpec(
+        name="medhallu",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["medhallu"],
     )
 
 

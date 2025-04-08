@@ -83,6 +83,14 @@ metrics:
     description: Fraction of instances that the predicted output matches a correct reference up to light processing.
     lower_is_better: false
 
+  # Efficiency metrics:
+  - name: inference_runtime
+    display_name: Observed inference runtime (s)
+    short_display_name: Observed inference time (s)
+    lower_is_better: true
+    description: Average observed time to process a request to the model (via an API, and thus depends on particular deployment).
+
+
 ############################################################
 perturbations: []
 
@@ -90,12 +98,16 @@ perturbations: []
 metric_groups:
   - name: accuracy
     display_name: Accuracy
+    aggregation_strategies: 
+      - mean
     metrics:
       - name: ${main_name}
         split: ${main_split}
 
   - name: efficiency
     display_name: Efficiency
+    aggregation_strategies: 
+      - mean
     metrics:
     - name: inference_runtime
       split: ${main_split}
@@ -145,7 +157,7 @@ run_groups:
 
   - name: financebench
     display_name: FinanceBench
-    description: FinanceBench is a benchmark for open book financial question answering. It comprises 10,231 questions about publicly traded companies, with corresponding answers and evidence strings
+    description: FinanceBench is a benchmark for open book financial question answering. It comprises 10,231 questions about publicly traded companies, with corresponding answers and evidence strings [(Islam et al., 2023)](https://arxiv.org/abs/2311.11944/).
     metric_groups:
       - accuracy
       - efficiency
@@ -163,7 +175,7 @@ run_groups:
   - name: banking77
     display_name: BANKING77
     short_display_name: BANKING77
-    description: BANKING77 is a benchmark for intent classification of customer service queries in the banking domain [(Casanueva et al., 2020)](https://aclanthology.org/2020.nlp4convai-1.5/)).
+    description: BANKING77 is a benchmark for intent classification of customer service queries in the banking domain [(Casanueva et al., 2020)](https://aclanthology.org/2020.nlp4convai-1.5/).
     metric_groups:
       - accuracy
       - efficiency
@@ -177,13 +189,3 @@ run_groups:
       who: banking customers
       when: During or before 2020
       language: English
-
-  # - name: financial_scenarios_ablations
-  #   display_name: Financial Scenarios Ablations
-  #   description: Scenarios for the financial domain with ablations
-  #   category: All scenarios
-  #   subgroups:
-  #     - fin_qa
-  #   adapter_keys_shown:
-  #     - model
-  #     - max_train_instances

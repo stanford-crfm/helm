@@ -1,13 +1,14 @@
 # mypy: check_untyped_defs = False
 from dataclasses import replace
-from typing import Any, Dict, List, Optional, cast, Union
+from typing import Any, Dict, List, Optional, cast, Union, Callable
 
 from helm.benchmark.model_metadata_registry import is_vlm
 from helm.common import multimodal_request_utils
 from helm.common.cache import CacheConfig
-from helm.common.media_object import TEXT_TYPE, MultimediaObject
+from helm.common.media_object import TEXT_TYPE, MultimediaObject, MediaObject
 from helm.common.request import ErrorFlags, wrap_request_time, Request, RequestResult, GeneratedOutput, Token
 from helm.common.hierarchical_logger import hlog
+from helm.common.object_spec import get_class_by_name
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -58,6 +59,7 @@ class OpenAIClient(CachingClient):
         base_url: Optional[str] = None,
         reasoning_effort: Optional[str] = None,
         openai_model_name: Optional[str] = None,
+        output_processor: Optional[str] = None,
     ):
         super().__init__(cache_config=cache_config)
         self.tokenizer = tokenizer
@@ -65,6 +67,9 @@ class OpenAIClient(CachingClient):
         self.client = OpenAI(api_key=api_key, organization=org_id, base_url=base_url)
         self.reasoning_effort = reasoning_effort
         self.openai_model_name = openai_model_name
+        self.output_processor: Optional[Callable[[str], str]] = (
+            get_class_by_name(output_processor) if output_processor else None
+        )
 
     def _get_model_for_request(self, request: Request) -> str:
         return self.openai_model_name or request.model_engine
@@ -237,7 +242,7 @@ class OpenAIClient(CachingClient):
             raw_request.pop("temperature", None)
 
             if self.reasoning_effort:
-                raw_request["reasoning_effort"] = "self.reasoning_effort"
+                raw_request["reasoning_effort"] = self.reasoning_effort
         elif is_vlm(request.model):
             # Avoid error:
             # "Invalid type for 'stop': expected an unsupported value, but got null instead."
@@ -322,6 +327,8 @@ class OpenAIClient(CachingClient):
             # The OpenAI chat completion API doesn't support echo.
             # If `echo_prompt` is true, combine the prompt and completion.
             raw_completion_content = raw_completion["message"]["content"]
+            if self.output_processor:
+                raw_completion_content = self.output_processor(raw_completion_content)
             text: str = request.prompt + raw_completion_content if request.echo_prompt else raw_completion_content
             # The OpenAI chat completion API doesn't return us tokens or logprobs, so we tokenize ourselves.
             tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
@@ -452,7 +459,7 @@ class OpenAIClient(CachingClient):
     def make_request(self, request: Request) -> RequestResult:
         if request.embedding:
             return self._make_embedding_request(request)
-        elif "whisper" in request.model_engine:
+        elif "whisper" in request.model_engine or "transcribe" in request.model_engine:
             return self._make_transcription_request(request)
         else:
             return self._make_chat_request(request)
@@ -529,6 +536,18 @@ class OpenAITranscriptionThenCompletionClient(Client):
         # Now make the request to the completion model with just a text-only prompt and no audio
         # Use the same decoding parameters as the original request
         # Ensure to set multimodal_prompt to None so the request is treated as text-only.
-        return self._openai_client.make_request(
+        request_result: RequestResult = self._openai_client.make_request(
             replace(request, prompt=text_prompt, model=f"openai/{completion_model}", multimodal_prompt=None)
         )
+
+        # Also include the generated transcript to the request result
+        completions_with_transcript: List[GeneratedOutput] = [
+            replace(
+                completion,
+                multimodal_content=MultimediaObject(
+                    media_objects=[MediaObject(text=text_prompt, content_type="text/plain")]
+                ),
+            )
+            for completion in request_result.completions
+        ]
+        return replace(request_result, completions=completions_with_transcript)

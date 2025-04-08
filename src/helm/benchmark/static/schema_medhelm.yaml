@@ -203,6 +203,66 @@ metrics:
     short_display_name: EHRSQLQueryValid
     description: Measures the proportion of correctly predicted answerable questions among all answerable questions in the dataset.
     lower_is_better: false
+  - name: aci_bench_accuracy
+    display_name: ACI-Bench Accuracy
+    short_display_name: Accuracy
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
+  - name: mtsamples_replicate_accuracy
+    display_name: MTSamples Replicate Accuracy
+    short_display_name: Accuracy
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
+  - name: medalign_accuracy
+    display_name: Medalign Accuracy
+    short_display_name: Accuracy
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
+  - name: dischargeme_accuracy
+    display_name: DischargeMe Accuracy
+    short_display_name: Accuracy
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
+  - name: mtsamples_procedures_accuracy
+    display_name: MTSamples Procedures Accuracy
+    short_display_name: Accuracy
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
+  - name: mimic_rrs_accuracy
+    display_name: MIMIC-RRS Accuracy
+    short_display_name: Accuracy
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
+  - name: chw_care_plan_accuracy
+    display_name: NoteExtract Accuracy
+    short_display_name: Accuracy
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
+  - name: medication_qa_accuracy
+    display_name: MedicationQA Accuracy
+    short_display_name: Accuracy
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
+  - name: starr_patient_instructions_accuracy
+    display_name: PatientInstruct Accuracy
+    short_display_name: Accuracy
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
+  - name: med_dialog_accuracy
+    display_name: MedDialog Accuracy
+    short_display_name: Accuracy
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
+  - name: medi_qa_accuracy
+    display_name: MediQA Accuracy
+    short_display_name: Accuracy
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
+  - name: mental_health_accuracy
+    display_name: MentalHealth Accuracy
+    short_display_name: Accuracy
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
 
   # Summariazation metrics
   - name: summac
@@ -432,6 +492,7 @@ run_groups:
       - aci_bench
       - mtsamples_procedures
       - mimic_rrs
+      - mimic_bhc
       - chw_care_plan
   
   - name: patient_communication
@@ -494,7 +555,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: BERTScore-F
+      main_name: medalign_accuracy
       main_split: test
     taxonomy:
       task: Text generation
@@ -512,7 +573,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: BERTScore-F
+      main_name: mtsamples_replicate_accuracy
       main_split: test
     taxonomy:
       task: Text generation
@@ -546,7 +607,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: BERTScore-F
+      main_name: starr_patient_instructions_accuracy
       main_split: test
     taxonomy:
       task: Text generation
@@ -556,8 +617,8 @@ run_groups:
       language: English
     
   - name: clear
-    display_name: CLEAR-AD
-    description: "A dataset for evaluating alcohol dependence history detection from patient notes with yes/no/maybe classifications [(Lopez et al., 2025)](https://www.nature.com/articles/s41746-024-01377-1)."
+    display_name: CLEAR
+    description: "A dataset for evaluating the presence of a specific medical condition from patient notes with yes/no/maybe classifications [(Lopez et al., 2025)](https://www.nature.com/articles/s41746-024-01377-1)."
     metric_groups:
       - accuracy
       - efficiency
@@ -567,7 +628,7 @@ run_groups:
       main_split: test
     taxonomy:
       task: Classification
-      what: Classify alcohol dependence history from patient notes
+      what: Classify medical condition presence from patient notes
       who: Clinician
       when: Any
       language: English
@@ -616,7 +677,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: BERTScore-F
+      main_name: med_dialog_accuracy
       main_split: test
     taxonomy:
       task: Text generation
@@ -633,7 +694,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: BERTScore-F
+      main_name: medi_qa_accuracy
       main_split: test
     taxonomy:
       task: Text generation
@@ -650,7 +711,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: BERTScore-F
+      main_name: mental_health_accuracy
       main_split: test
     taxonomy:
       task: Text generation
@@ -668,13 +729,31 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: BERTScore-F
+      main_name: mimic_rrs_accuracy
       main_split: test
     taxonomy:
       task: Text generation
       what: Generate radiology report summaries from findings sections
       who: Radiologist
       when: Post-imaging
+      language: English
+
+  - name: mimic_bhc
+    display_name: MIMIC-IV-BHC
+    short_display_name: MIMIC-BHC
+    description: A summarization task using a curated collection of preprocessed discharge notes paired with their corresponding brief hospital course (BHC) summaries [(Aali et al., 2024)](https://doi.org/10.1093/jamia/ocae312).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: BERTScore-F
+      main_split: test
+    taxonomy:
+      task: Text generation
+      what: Summarize the clinical note into a brief hospital course
+      who: Clinician
+      when: Upon hospital discharge
       language: English
   
   - name: mimiciv_billing_code
@@ -703,7 +782,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: BERTScore-F
+      main_name: dischargeme_accuracy
       main_split: test
     taxonomy:
       task: Text generation
@@ -754,7 +833,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: BERTScore-F
+      main_name: aci_bench_accuracy
       main_split: test
     taxonomy:
       task: Text generation
@@ -771,7 +850,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: BERTScore-F
+      main_name: chw_care_plan_accuracy
       main_split: test
     taxonomy:
       task: Text generation
@@ -839,7 +918,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: BERTScore-F
+      main_name: mtsamples_procedures_accuracy
       main_split: test
     taxonomy:
       task: Text generation
@@ -856,7 +935,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: BERTScore-F
+      main_name: medication_qa_accuracy
       main_split: test
     taxonomy:
       task: Question answering

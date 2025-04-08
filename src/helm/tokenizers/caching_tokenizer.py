@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from dataclasses import asdict
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from helm.common.cache import Cache, CacheConfig
 from helm.common.request import wrap_request_time
@@ -153,31 +153,3 @@ class CachingTokenizer(Tokenizer):
             )
         except Exception as error:
             raise ValueError(f"Failed to decode tokens with {self.__class__.__name__} tokenizer: {error}") from error
-
-
-def cleanup_str(token: str, tokenizer_name: Optional[str] = None) -> str:
-    """
-    Certain tokenizers introduce special characters to represent spaces, such as
-    "Ġ" or "▁". This function removes those characters.
-    """
-    if tokenizer_name in [
-        "TsinghuaKEG/ice",
-        "bigscience/T0pp",
-        "google/t5-11b",
-        "google/flan-t5-xxl",
-        "google/ul2",
-        "Yandex/yalm",
-        "ai21/j1",
-        "together",
-    ]:
-        return token.replace("▁", " ")
-    elif tokenizer_name is not None and tokenizer_name.startswith("huggingface"):
-        return token.replace("Ġ", " ")
-    return token
-
-
-def cleanup_tokens(tokens: List[str], tokenizer_name: Optional[str] = None) -> List[str]:
-    """
-    Applies `cleanup_str` to each token in `tokens`.
-    """
-    return [cleanup_str(token, tokenizer_name) for token in tokens]

@@ -1,73 +1,97 @@
-import os
-import re
-from typing import Any
+from typing import Dict, Optional, Set
 
-from helm.common.general import ensure_directory_exists
-from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.annotation.annotator import Annotator
-from helm.benchmark.annotation.model_as_judge import score_with_reasoning
+from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo, LLMAsJuryAnnotator
 from helm.clients.auto_client import AutoClient
 
-PROMPT_TEMPLATE = """You are a medical judge will be given a user request and a model response to that request.
-Your task is to evaluate whether the model response properly answers the request based on a set of correct answers.
-The user's request will be provided in these tags:
-<user_request>
+
+PROMPT_TEMPLATE = """You are a medical expert tasked with evaluating responses to consumer medication questions.
+
+Your goal is to assess how well the response captures the information asked,
+and how it compares to the gold response in terms of accuracy, completeness, and clarity.
+
+The question provided in these tags:
+<medication_question>
 {{QUESTION}}
-</user_request>
-The model's response will be provided in these tags:
-<model_response>
-{{ANSWER}}
-</model_response>
-Some potential correct responses will be provided in these tags:
-<correct_response>
-{{CORRECT_RESPONSE}}
-</correct_response>
-Carefully analyze the <model_response>.
-Determine if the model is correct with respect to one or more of the <correct_responses> on a range from 0 to 1.
-# 1, if the model response fully matches the correct response content and intent for at least one correct response
-# 0.5, if the model response contains some correct information but is incomplete and/or incorrect
-# 0, if the model response is completely unrelated or incorrect relative to the correct response(s)
-Please output your one-sentence concise reasoning within the "reasoning" tags and your score within the "score" tags.
-Your reasoning should be less than 20 tokens. The score should be a single number with no other output.
-Only output a tag-delimited object with the following format:
-<reasoning>
-INSERT_YOUR_REASONING_HERE
-</reasoning>
-<score>
-INSERT_YOUR_SCORE_HERE
-</score>
+</medication_question>
+
+The response will be provided in these tags:
+<response>
+{{RESPONSE}}
+</response>
+
+The reference response will be provided in these tags:
+<gold_response>
+{{GOLD_RESPONSE}}
+</gold_response>
+
+Carefully review the <response> and compare it to the <gold_response> when needed.
+Please evaluate the response on a scale of 1-5 (1 = poor, 5 = excellent) for each of these three key dimensions:
+
+Evaluation Criteria:
+Accuracy (1-5)
+- Is the information about the medication factually correct?
+
+Completeness (1-5)
+- Does the response fully answer the question, covering all important points?
+
+Clarity (1-5)
+- Is the response easy for a consumer to understand?
+
+Output Format:
+Output your evaluation as a single valid JSON object matching the following structure:
+{
+    "accuracy": {
+        "score": 0,
+        "explanation": "Brief explanation of why this score was given."
+    },
+    "completeness": {
+        "score": 0,
+        "explanation": "Brief explanation of why this score was given."
+    },
+    "clarity": {
+        "score": 0,
+        "explanation": "Brief explanation of why this score was given."
+    }
+}
+
+Ensure the output is valid JSON:
+- Use **double quotes** (") for all keys and string values.
+- When quoting text or sections inside the explanations, use escaped double quotes (\") to
+  maintain valid JSON formatting.
+- Do not include any additional information in the output.
 """
 
+ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
+    "accuracy": {"score", "explanation"},
+    "completeness": {"score", "explanation"},
+    "clarity": {"score", "explanation"},
+}
 
-class MedicationQAAnnotator(Annotator):
-    """The LiveQA autograder."""
+ANNOTATOR_MODELS: Dict[str, AnnotatorModelInfo] = {
+    "gpt": AnnotatorModelInfo(
+        model_name="openai/gpt-4o-2024-05-13",
+        model_deployment="stanfordhealthcare/gpt-4o-2024-05-13",
+    ),
+    "llama": AnnotatorModelInfo(
+        model_name="meta/llama-3.3-70b-instruct",
+        model_deployment="stanfordhealthcare/llama-3.3-70b-instruct",
+    ),
+    "claude": AnnotatorModelInfo(
+        model_name="anthropic/claude-3-7-sonnet-20250219",
+        model_deployment="stanfordhealthcare/claude-3-7-sonnet-20250219",
+    ),
+}
+
+
+class MedicationQAAnnotator(LLMAsJuryAnnotator):
+    """The MedicationQA autograder."""
 
     name = "medication_qa"
 
-    def __init__(self, auto_client: AutoClient, file_storage_path: str):
-        self._auto_client = auto_client
-        cache_dir = os.path.join(file_storage_path, "data")
-        ensure_directory_exists(cache_dir)
-        # Regex pattern is lenient to allow for typos e.g. extra whitespace
-        self._pattern = re.compile("##\s*short_reasoning\s*:(.*)##\s*the_score\s*:(.*)", re.DOTALL)
-
-    def annotate(self, request_state: RequestState) -> Any:
-        assert request_state.result
-        assert len(request_state.result.completions) == 1
-        model_input_text = request_state.request.prompt
-        model_output_text = request_state.result.completions[0].text
-        if not model_output_text.strip():
-            return {"prompt_text": "", "reasoning": "BLOCKED_REQUEST_OR_EMPTY_RESPONSE", "score": 0.0}
-        correct_response = request_state.instance.references[0].output.text
-        annotator_prompt = (
-            PROMPT_TEMPLATE.strip()
-            .replace("{{QUESTION}}", model_input_text)
-            .replace("{{ANSWER}}", model_output_text)
-            .replace("{{CORRECT_RESPONSE}}", correct_response)
+    def __init__(self, auto_client: AutoClient, template_name: Optional[str] = None):
+        super().__init__(
+            auto_client=auto_client,
+            prompt_template=PROMPT_TEMPLATE,
+            annotation_criteria=ANNOTATION_CRITERIA,
+            annotator_models=ANNOTATOR_MODELS,
         )
-        result = score_with_reasoning(
-            self._auto_client, annotator_prompt, "openai/gpt-4o-2024-05-13", "openai/gpt-4o-2024-05-13"
-        )
-        reasoning = result["reasoning"]
-        score = result["score"]
-        return {"prompt_text": annotator_prompt, "reasoning": reasoning, "score": score}

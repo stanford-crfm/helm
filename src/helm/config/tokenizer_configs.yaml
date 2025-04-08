@@ -86,7 +86,9 @@ tokenizer_configs:
   # Anthropic
   - name: anthropic/claude
     tokenizer_spec:
-      class_name: "helm.tokenizers.anthropic_tokenizer.AnthropicTokenizer"
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: Xenova/claude-tokenizer
     end_of_text_token: "<|endoftext|>"
     prefix_token: "<|endoftext|>"
 
@@ -187,6 +189,7 @@ tokenizer_configs:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "<|endoftext|>"
     prefix_token: "<|endoftext|>"
+
   - name: EleutherAI/gpt-neox-20b
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
@@ -392,6 +395,14 @@ tokenizer_configs:
         pretrained_model_name_or_path: meta-llama/Llama-3.3-70B-Instruct
     prefix_token: "<|begin_of_text|>"
     end_of_text_token: "<|eot_id|>"
+
+  - name: meta/llama-4-scout-17b-16e-instruct
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: meta-llama/Llama-4-Scout-17B-16E-Instruct
+    prefix_token: "<|begin_of_text|>"
+    end_of_text_token: "<|end_of_text|>"
 
   # 01-ai
   - name: 01-ai/Yi-6B
@@ -891,7 +902,60 @@ tokenizer_configs:
     prefix_token: ""
     end_of_text_token: ""
 
-# DeepSeek-R1-Distill-Llama-3.1-8b
+  - name: ibm-granite/granite-20b-code-instruct-8k
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+          pretrained_model_name_or_path: ibm-granite/granite-20b-code-instruct-8k
+    prefix_token: ""
+    end_of_text_token: ""
+
+  - name:  ibm-granite/granite-3b-code-instruct-128k
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path:  ibm-granite/granite-3b-code-instruct-128k
+    prefix_token: ""
+    end_of_text_token: ""
+
+
+
+  - name: ibm-granite/granite-34b-code-instruct-8k
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+           pretrained_model_name_or_path: ibm-granite/granite-34b-code-instruct-8k
+    prefix_token: ""
+    end_of_text_token: ""
+
+  - name: ibm-granite/granite-8b-code-instruct-128k
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+          pretrained_model_name_or_path: ibm-granite/granite-8b-code-instruct-128k
+    prefix_token: ""
+    end_of_text_token: ""
+
+
+  - name: ibm-granite/granite-guardian-3.1-2b
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+          pretrained_model_name_or_path: ibm-granite/granite-guardian-3.1-2b
+    prefix_token: ""
+    end_of_text_token: ""
+
+  - name: ibm-granite/granite-guardian-3.1-8b
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+          pretrained_model_name_or_path: ibm-granite/granite-guardian-3.1-8b
+    prefix_token: ""
+    end_of_text_token: ""
+
+
+
+  # DeepSeek-R1-Distill-Llama-3.1-8b
   - name: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
     tokenizer_spec:
         class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"

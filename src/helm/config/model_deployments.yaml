@@ -61,7 +61,7 @@ model_deployments:
     tokenizer_name: openai/o200k_base
     max_sequence_length: 128000
     client_spec:
-      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
       args:
         openai_model_name: gpt-4o-mini
         api_version: 2023-05-15
@@ -71,7 +71,7 @@ model_deployments:
     tokenizer_name: openai/o200k_base
     max_sequence_length: 128000
     client_spec:
-      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
       args:
         openai_model_name: gpt-4o
         api_version: 2023-05-15
@@ -81,7 +81,7 @@ model_deployments:
     tokenizer_name: openai/o200k_base
     max_sequence_length: 8192
     client_spec:
-      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
       args:
         openai_model_name: gpt-4
         api_version: 2023-05-15
@@ -91,7 +91,7 @@ model_deployments:
     tokenizer_name: openai/cl100k_base
     max_sequence_length: 128000
     client_spec:
-      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
       args:
         openai_model_name: gpt-4-turbo
         api_version: 2023-05-15
@@ -101,7 +101,7 @@ model_deployments:
     tokenizer_name: openai/cl100k_base
     max_sequence_length: 200000
     client_spec:
-      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
       args:
         openai_model_name: o3-mini
         api_version: 2024-12-01-preview
@@ -112,7 +112,7 @@ model_deployments:
     tokenizer_name: openai/cl100k_base
     max_sequence_length: 128000
     client_spec:
-      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
       args:
         openai_model_name: o1
         api_version: 2024-12-01-preview
@@ -123,14 +123,29 @@ model_deployments:
     tokenizer_name: deepseek-ai/deepseek-r1
     max_sequence_length: 128000
     client_spec:
-      class_name: "helm.clients.stanfordhealthcare_deepseek_client.StanfordHealthCareDeepSeekClient"
+      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      args:
+        openai_model_name: deepseek-chat
+        output_processor: helm.benchmark.metrics.output_processors.remove_deepseek_r1_thinking
+        base_url: "{endpoint}/deepseekr1/v1"
 
   - name: stanfordhealthcare/llama-3.3-70b-instruct
     model_name: meta/llama-3.3-70b-instruct
     tokenizer_name: meta/llama-3.3-70b-instruct
     max_sequence_length: 128000
     client_spec:
-      class_name: "helm.clients.stanfordhealthcare_llama_client.StanfordHealthCareLlamaClient"
+      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      args:
+        base_url: "{endpoint}/llama3370b/v1"
+
+  - name: stanfordhealthcare/phi-3.5-mini-instruct
+    model_name: microsoft/phi-3.5-mini-instruct
+    tokenizer_name: microsoft/phi-3.5-mini-instruct
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      args:
+        base_url: "{endpoint}/phi35mi/v1"
 
   - name: stanfordhealthcare_shc/gpt-4o-2024-05-13
     model_name: openai/gpt-4o-2024-05-13
@@ -755,6 +770,14 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
 
+  - name: google/gemini-2.5-pro-exp-03-25
+    model_name: google/gemini-2.5-pro-exp-03-25
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+    # TODO: Max output tokens: 8192
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+
   - name: google/gemini-2.0-pro-exp-02-05
     model_name: google/gemini-2.0-pro-exp-02-05
     tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
@@ -781,6 +804,14 @@ model_deployments:
 
   - name: google/gemini-2.0-flash-lite-preview-02-05
     model_name: google/gemini-2.0-flash-lite-preview-02-05
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+    # TODO: Max output tokens: 8192
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+
+  - name: google/gemini-2.0-flash-lite-001
+    model_name: google/gemini-2.0-flash-lite-001
     tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
     max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
     # TODO: Max output tokens: 8192
@@ -1951,6 +1982,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.mistral_client.MistralAIClient"
 
+  - name: mistralai/mistral-small-2503
+    model_name: mistralai/mistral-small-2503
+    tokenizer_name: mistralai/Mistral-Small-24B-Instruct-2501
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.mistral_client.MistralAIClient"
+
   - name: mistralai/mistral-medium-2312
     model_name: mistralai/mistral-medium-2312
     tokenizer_name: mistralai/Mistral-7B-v0.1
@@ -2208,6 +2246,20 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.openai_client.OpenAITranscriptionThenCompletionClient"
 
+  - name: openai/gpt-4o-transcribe_gpt-4o-2024-11-20
+    model_name: openai/gpt-4o-transcribe_gpt-4o-2024-11-20
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAITranscriptionThenCompletionClient"
+
+  - name: openai/gpt-4o-mini-transcribe_gpt-4o-2024-11-20
+    model_name: openai/gpt-4o-mini-transcribe_gpt-4o-2024-11-20
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAITranscriptionThenCompletionClient"
+
   - name: openai/gpt-4o-audio-preview-2024-10-01
     model_name: openai/gpt-4o-audio-preview-2024-10-01
     tokenizer_name: openai/o200k_base
@@ -2256,6 +2308,34 @@ model_deployments:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
   ## o1 Models
+  # TODO: support the new `responses` endpoint to get these to work
+  - name: openai/o1-pro-2025-03-19
+    model_name: openai/o1-pro-2025-03-19
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
+  - name: openai/o1-pro-2025-03-19-low-reasoning-effort
+    model_name: openai/o1-pro-2025-03-19-low-reasoning-effort
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+      args:
+        openai_model_name: o1-pro-2025-03-19
+        reasoning_effort: low
+
+  - name: openai/o1-pro-2025-03-19-high-reasoning-effort
+    model_name: openai/o1-pro-2025-03-19-high-reasoning-effort
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+      args:
+        openai_model_name: o1-pro-2025-03-19
+        reasoning_effort: high
+
   - name: openai/o1-2024-12-17
     model_name: openai/o1-2024-12-17
     tokenizer_name: openai/cl100k_base
@@ -2587,6 +2667,24 @@ model_deployments:
       class_name: "helm.clients.together_client.TogetherChatClient"
       args:
         together_model: meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo
+
+  - name: together/llama-4-scout-17b-16e-instruct
+    model_name: meta/llama-4-scout-17b-16e-instruct
+    tokenizer_name: meta/llama-4-scout-17b-16e-instruct
+    max_sequence_length: 327680
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        together_model: meta-llama/Llama-4-Scout-17B-16E-Instruct
+
+  - name: together/llama-4-maverick-17b-128e-instruct-fp8
+    model_name: meta/llama-4-maverick-17b-128e-instruct-fp8
+    tokenizer_name: meta/llama-4-scout-17b-16e-instruct
+    max_sequence_length: 524288
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        together_model: meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
 
   - name: together/llama-3-8b-chat
     model_name: meta/llama-3-8b-chat
@@ -3072,6 +3170,14 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.palmyra_client.PalmyraChatClient"
 
+  - name: writer/palmyra-fin
+    model_name: writer/palmyra-fin
+    tokenizer_name: meta/llama-3-8b-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.palmyra_client.PalmyraChatClient"
+
+
   # xAI
 
   - name: xai/grok-beta
@@ -3240,6 +3346,34 @@ model_deployments:
 
   - name: huggingface/qwen2-vl-72b-instruct
     model_name: qwen/qwen2-vl-72b-instruct
+    tokenizer_name: qwen/qwen-vl-chat
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.vision_language.qwen2_vlm_client.Qwen2VLMClient"
+
+  - name: huggingface/qwen2.5-vl-3b-instruct
+    model_name: qwen/qwen2.5-vl-3b-instruct
+    tokenizer_name: qwen/qwen-vl-chat
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.vision_language.qwen2_vlm_client.Qwen2VLMClient"
+
+  - name: huggingface/qwen2.5-vl-7b-instruct
+    model_name: qwen/qwen2.5-vl-7b-instruct
+    tokenizer_name: qwen/qwen-vl-chat
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.vision_language.qwen2_vlm_client.Qwen2VLMClient"
+
+  - name: huggingface/qwen2.5-vl-32b-instruct
+    model_name: qwen/qwen2.5-vl-32b-instruct
+    tokenizer_name: qwen/qwen-vl-chat
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.vision_language.qwen2_vlm_client.Qwen2VLMClient"
+
+  - name: huggingface/qwen2.5-vl-72b-instruct
+    model_name: qwen/qwen2.5-vl-72b-instruct
     tokenizer_name: qwen/qwen-vl-chat
     max_sequence_length: 8191
     client_spec:
@@ -3515,3 +3649,98 @@ model_deployments:
         class_name: "helm.clients.huggingface_client.HuggingFaceClient"
         args:
             pretrained_model_name_or_path: deepseek-ai/deepseek-coder-6.7b-instruct
+
+# IBM WatsonX
+  - name: ibm/llama-3.3-70b-instruct
+    model_name: meta/llama-3.3-70b-instruct
+    tokenizer_name: meta/llama-3.3-70b-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.ibm_client.IbmChatClient"
+      args:
+        watsonx_model_name: meta-llama/llama-3-3-70b-instruct
+        region: Dallas
+
+  - name: ibm/granite-3-2b-instruct
+    model_name: ibm/granite-3.1-2b-instruct
+    tokenizer_name: ibm-granite/granite-3.1-2b-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.ibm_client.IbmChatClient"
+      args:
+        watsonx_model_name: ibm/granite-3-2b-instruct
+        region: Dallas
+
+
+#
+  - name: ibm/granite-3-8b-instruct
+    model_name: ibm/granite-3.1-8b-instruct
+    tokenizer_name: ibm-granite/granite-3.1-8b-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.ibm_client.IbmChatClient"
+      args:
+        watsonx_model_name: ibm/granite-3-8b-instruct
+        region: Dallas
+#
+
+#
+  - name: ibm/granite-13b-instruct-v2
+    model_name: ibm/granite-13b-instruct-v2
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.ibm_client.IbmTextClient"
+      args:
+        watsonx_model_name: ibm/granite-13b-instruct-v2
+        region: Dallas
+#
+  - name: ibm/granite-20b-code-instruct-8k
+    model_name: ibm/granite-20b-code-instruct-8k
+    tokenizer_name: ibm-granite/granite-20b-code-instruct-8k
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.ibm_client.IbmChatClient"
+      args:
+        watsonx_model_name: ibm/granite-20b-code-instruct
+        region: Dallas
+#
+  - name: ibm/granite-34b-code-instruct
+    model_name: ibm/granite-34b-code-instruct
+    tokenizer_name: ibm-granite/granite-34b-code-instruct-8k
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.ibm_client.IbmChatClient"
+      args:
+        watsonx_model_name: ibm/granite-34b-code-instruct
+        region: Dallas
+#
+  - name: ibm/granite-3b-code-instruct
+    model_name: ibm/granite-3b-code-instruct
+    tokenizer_name: ibm-granite/granite-3b-code-instruct-128k
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.ibm_client.IbmTextClient"
+      args:
+        watsonx_model_name: ibm/granite-3b-code-instruct
+        region: Dallas
+#
+  - name: ibm/granite-8b-code-instruct
+    model_name: ibm/granite-8b-code-instruct
+    tokenizer_name: ibm-granite/granite-8b-code-instruct-128k
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.ibm_client.IbmTextClient"
+      args:
+        watsonx_model_name: ibm/granite-8b-code-instruct
+        region: Dallas
+
+  - name: ibm/mixtral-8x7b-instruct-v0:1
+    model_name: mistralai/mixtral-8x7b-instruct-v0:1
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 4000
+    client_spec:
+      class_name: "helm.clients.ibm_client.IbmChatClient"
+      args:
+        watsonx_model_name: mistralai/mixtral-8x7b-instruct-v01
+        region: Dallas

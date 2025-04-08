@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 from helm.common.image_generation_parameters import ImageGenerationParameters
+from helm.common.reeval_parameters import REEvalParameters
 
 
 # Adaptation methods
@@ -131,6 +132,9 @@ class AdapterSpec:
 
     image_generation_parameters: Optional[ImageGenerationParameters] = None
     """Parameters for image generation."""
+
+    reeval_parameters: Optional[REEvalParameters] = None
+    """Parameters for reeval evaluation."""
 
     # Set hash=False to make `AdapterSpec` hashable
     eval_splits: Optional[List[str]] = field(default=None, hash=False)

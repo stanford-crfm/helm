@@ -12,7 +12,7 @@ def count_words(text: str) -> int:
 @pytest.mark.scenarios
 def test_infinite_bench_sum_scenario():
     with TemporaryDirectory() as tmpdir:
-        scenario = InfiniteBenchSumScenario(min_num_word=0, max_num_word=1e7)
+        scenario = InfiniteBenchSumScenario(min_num_words=0, max_num_words=10000000)
         instances = scenario.get_instances(tmpdir)
         assert len(instances) == 103
         assert instances[0].split == "test"
@@ -23,7 +23,7 @@ def test_infinite_bench_sum_scenario():
         assert len(references[0].output.text) == 2865
         assert references[0].tags == [CORRECT_TAG]
 
-        scenario = InfiniteBenchSumScenario(min_num_word=0, max_num_word=100e3)
+        scenario = InfiniteBenchSumScenario(min_num_words=0, max_num_words=100000)
         instances = scenario.get_instances(tmpdir)
         assert len(instances) == 48
         assert instances[0].split == "test"
@@ -34,7 +34,7 @@ def test_infinite_bench_sum_scenario():
         assert len(references[0].output.text) == 4217
         assert references[0].tags == [CORRECT_TAG]
 
-        scenario = InfiniteBenchSumScenario(min_num_word=30e3, max_num_word=80e3)
+        scenario = InfiniteBenchSumScenario(min_num_words=30000, max_num_words=80000)
         instances = scenario.get_instances(tmpdir)
         assert len(instances) == 32
         assert instances[0].split == "test"

@@ -526,7 +526,7 @@ models:
     access: open
     num_parameters: 13000000000
     release_date: 2022-04-03
-    tags: [] # TODO: add tags
+    tags: [DEPRECATED_MODEL_TAG] # TODO: add tags
 
 
 
@@ -547,7 +547,7 @@ models:
     access: open
     num_parameters: 176000000000
     release_date: 2022-11-03
-    tags: [] # TODO: add tags
+    tags: [DEPRECATED_MODEL_TAG] # TODO: add tags
 
   - name: bigscience/t0pp
     display_name: T0pp (11B)
@@ -602,7 +602,7 @@ models:
     access: limited
     num_parameters: 6700000000
     release_date: 2023-04-06
-    tags: [] # TODO: add tags
+    tags: [DEPRECATED_MODEL_TAG] # TODO: add tags
 
   - name: cerebras/cerebras-gpt-13b # NOT SUPPORTED
     display_name: Cerebras GPT (13B)
@@ -611,7 +611,7 @@ models:
     access: limited
     num_parameters: 13000000000
     release_date: 2023-04-06
-    tags: [] # TODO: add tags
+    tags: [DEPRECATED_MODEL_TAG] # TODO: add tags
 
 
 
@@ -828,7 +828,7 @@ models:
     access: closed
     num_parameters: 280000000000
     release_date: 2021-12-08
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   - name: deepmind/chinchilla # NOT SUPPORTED
     display_name: Chinchilla (70B)
@@ -837,7 +837,7 @@ models:
     access: closed
     num_parameters: 70000000000
     release_date: 2022-03-31
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
 
   # Deepseek
@@ -982,7 +982,7 @@ models:
     access: closed
     num_parameters: 540000000000
     release_date: 2023-03-01 # was first announced on 2022-04 but remained private.
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
     # Note: This is aliased to a snapshot of gemini-pro. When possible, please use a versioned snapshot instead.
   - name: google/gemini-pro
@@ -1146,12 +1146,28 @@ models:
     release_date: 2025-02-05
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: google/gemini-2.0-flash-lite-001
+    display_name: Gemini 2.0 Flash Lite
+    description: Gemini 2.0 Flash Lite ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-03-25
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: google/gemini-2.0-flash-thinking-exp-01-21
     display_name: Gemini 2.0 Flash Thinking (01-21 preview)
     description: Gemini 2.0 Flash Thinking (01-21 preview) ([documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/thinking))
     creator_organization_name: Google
     access: limited
     release_date: 2025-01-21
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-2.5-pro-exp-03-25
+    display_name: Gemini 2.5 Pro (03-25 preview)
+    description: Gemini 2.5 Pro (03-25 preview) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-03-25
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemini-2.0-pro-exp-02-05
@@ -1581,7 +1597,7 @@ models:
     access: open
     num_parameters: 175000000000
     release_date: 2022-12-22
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   - name: meta/opt-iml-30b # NOT SUPPORTED
     display_name: OPT-IML (30B)
@@ -1590,7 +1606,7 @@ models:
     access: open
     num_parameters: 30000000000
     release_date: 2022-12-22
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   - name: meta/opt-175b
     display_name: OPT (175B)
@@ -1637,7 +1653,7 @@ models:
     access: open
     num_parameters: 120000000000
     release_date: 2022-11-15
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   - name: meta/galactica-30b # NOT SUPPORTED
     display_name: Galactica (30B)
@@ -1646,7 +1662,7 @@ models:
     access: open
     num_parameters: 30000000000
     release_date: 2022-11-15
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   - name: meta/llama-7b
     display_name: LLaMA (7B)
@@ -1873,6 +1889,24 @@ models:
     access: open
     num_parameters: 70000000000
     release_date: 2024-12-06
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: meta/llama-4-scout-17b-16e-instruct
+    display_name: Llama 4 Scout (17Bx16E) Instruct
+    description: Llama 4 Scout (17Bx16E) Instruct is part of the Llama 4 collection of models are natively multimodal AI models that enable text and multimodal experiences using a mixture-of-experts architecture. ([blog](https://ai.meta.com/blog/llama-4-multimodal-intelligence/))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 109000000000
+    release_date: 2025-04-05
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: meta/llama-4-maverick-17b-128e-instruct-fp8
+    display_name: Llama 4 Maverick (17Bx128E) Instruct FP8
+    description: Llama 4 Maverick (17Bx128E) Instruct FP8 is part of the Llama 4 collection of models are natively multimodal AI models that enable text and multimodal experiences using a mixture-of-experts architecture. ([blog](https://ai.meta.com/blog/llama-4-multimodal-intelligence/))
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 402000000000
+    release_date: 2025-04-05
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: meta/llama-3-8b-chat
@@ -2283,6 +2317,15 @@ models:
     release_date: 2025-01-30
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: mistralai/mistral-small-2503
+    display_name: Mistral Small 3.1 (2503)
+    description: Mistral Small 3.1 (2503) is a model with improved text performance, multimodal understanding, and an expanded context window of up to 128k tokens. ([blog](https://mistral.ai/news/mistral-small-3-1))
+    creator_organization_name: Mistral AI
+    access: open
+    num_parameters: 23600000000
+    release_date: 2025-03-17
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: mistralai/mistral-medium-2312
     display_name: Mistral Medium (2312)
     description: Mistral is a transformer model that uses Grouped-Query Attention (GQA) and Sliding-Window Attention (SWA).
@@ -2360,7 +2403,7 @@ models:
     access: open
     num_parameters: 6700000000
     release_date: 2023-05-05
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   - name: mosaicml/mpt-instruct-7b
     display_name: MPT-Instruct (7B)
@@ -2387,7 +2430,7 @@ models:
     access: open
     num_parameters: 30000000000
     release_date: 2023-06-22
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   - name: mosaicml/mpt-instruct-30b
     display_name: MPT-Instruct (30B)
@@ -2745,6 +2788,22 @@ models:
     release_date: 2024-11-20
     tags: [AUDIO_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG]
 
+  - name: openai/gpt-4o-transcribe_gpt-4o-2024-11-20
+    display_name: GPT-4o Transcribe + GPT-4o (2024-11-20)
+    description: Transcribes the text with GPT-4o Transcribe and then uses GPT-4o to generate a response.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-03-20
+    tags: [AUDIO_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG]
+
+  - name: openai/gpt-4o-mini-transcribe_gpt-4o-2024-11-20
+    display_name: GPT-4o mini Transcribe + GPT-4o (2024-11-20)
+    description: Transcribes the text with GPT-4o mini Transcribe and then uses GPT-4o to generate a response.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-03-20
+    tags: [AUDIO_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG]
+
   - name: openai/gpt-4o-audio-preview-2024-10-01
     display_name: GPT-4o Audio (Preview 2024-10-01)
     description: GPT-4o Audio (Preview 2024-10-01) is a preview model that allows using use audio inputs to prompt the model ([documentation](https://platform.openai.com/docs/guides/audio)).
@@ -2798,6 +2857,31 @@ models:
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   ## o1 Models
+  # TODO: support the new `responses` endpoint to get these to work
+  - name: openai/o1-pro-2025-03-19
+    display_name: o1 pro (2025-03-19)
+    description: o1 is a new large language model trained with reinforcement learning to perform complex reasoning. ([model card](https://openai.com/index/openai-o1-system-card/), [blog post](https://openai.com/index/learning-to-reason-with-llms/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-03-19
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/o1-pro-2025-03-19-low-reasoning-effort
+    display_name: o1 pro (2025-03-19, low reasoning effort)
+    description: o1 is a new large language model trained with reinforcement learning to perform complex reasoning. ([model card](https://openai.com/index/openai-o1-system-card/), [blog post](https://openai.com/index/learning-to-reason-with-llms/)) The requests' reasoning effort parameter in is set to low.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-03-19
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/o1-pro-2025-03-19-high-reasoning-effort
+    display_name: o1 pro (2025-03-19, high reasoning effort)
+    description: o1 is a new large language model trained with reinforcement learning to perform complex reasoning. ([model card](https://openai.com/index/openai-o1-system-card/), [blog post](https://openai.com/index/learning-to-reason-with-llms/)) The requests' reasoning effort parameter in is set to high.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-03-19
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: openai/o1-2024-12-17
     display_name: o1 (2024-12-17)
     description: o1 is a new large language model trained with reinforcement learning to perform complex reasoning. ([model card](https://openai.com/index/openai-o1-system-card/), [blog post](https://openai.com/index/learning-to-reason-with-llms/))
@@ -3171,6 +3255,38 @@ models:
     release_date: 2024-08-29
     tags: [VISION_LANGUAGE_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
 
+  - name: qwen/qwen2.5-vl-3b-instruct
+    display_name: Qwen2.5-VL Instruct (3B)
+    description: The second generation of Qwen2.5-VL models ([blog](https://qwenlm.github.io/blog/qwen2.5-vl/)).
+    creator_organization_name: Alibaba Group
+    access: open
+    release_date: 2025-01-26
+    tags: [VISION_LANGUAGE_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
+
+  - name: qwen/qwen2.5-vl-7b-instruct
+    display_name: Qwen2.5-VL Instruct (7B)
+    description: The second generation of Qwen2.5-VL models ([blog](https://qwenlm.github.io/blog/qwen2.5-vl/)).
+    creator_organization_name: Alibaba Group
+    access: open
+    release_date: 2025-01-26
+    tags: [VISION_LANGUAGE_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
+
+  - name: qwen/qwen2.5-vl-32b-instruct
+    display_name: Qwen2.5-VL Instruct (32B)
+    description: The second generation of Qwen2.5-VL models ([blog](https://qwenlm.github.io/blog/qwen2.5-vl/)).
+    creator_organization_name: Alibaba Group
+    access: open
+    release_date: 2025-01-26
+    tags: [VISION_LANGUAGE_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
+
+  - name: qwen/qwen2.5-vl-72b-instruct
+    display_name: Qwen2.5-VL Instruct (72B)
+    description: The second generation of Qwen2.5-VL models ([blog](https://qwenlm.github.io/blog/qwen2.5-vl/)).
+    creator_organization_name: Alibaba Group
+    access: open
+    release_date: 2025-01-26
+    tags: [VISION_LANGUAGE_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
+
   - name: qwen/qwen-audio-chat
     display_name: Qwen-Audio Chat
     description: Auditory multimodal version of the Qwen large language model series ([paper](https://arxiv.org/abs/2311.07919)).
@@ -3232,7 +3348,7 @@ models:
     access: open
     num_parameters: 16000000000
     release_date: 2022-03-25
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   # SambaNova
   - name: sambanova/sambalingo-thai-base
@@ -3479,7 +3595,7 @@ models:
     access: open
     num_parameters: 3000000000
     release_date: 2023-05-05
-    tafs: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   - name: together/redpajama-incite-base-7b
     display_name: RedPajama-INCITE-Base (7B)
@@ -3530,7 +3646,7 @@ models:
     access: open
     num_parameters: 13000000000
     release_date: 2022-09-19
-    tags: [] # TODO: add tags
+    tags: [UNSUPPORTED_MODEL_TAG]
 
   # Upstage
   - name: upstage/solar-pro-preview-instruct
@@ -3685,6 +3801,14 @@ models:
     creator_organization_name: Writer
     access: open
     num_parameters: 70600000000
+    release_date: 2024-07-31
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: writer/palmyra-fin
+    display_name: Palmyra Fin
+    description: Palmyra Fin is a financial LLM built using combining a well-curated set of financial training data with custom fine-tuning instruction data([blog](https://writer.com/blog/palmyra-med-fin-models/)).
+    creator_organization_name: Writer
+    access: limited
     release_date: 2024-07-31
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
@@ -3889,7 +4013,7 @@ models:
   - name: ibm-granite/granite-3.1-8b-instruct
     display_name: Granite 3.1 - 8B - Instruct
     description: Granite-3.1-8B-Instruct is a 8B parameter long-context instruct model finetuned from Granite-3.1-8B-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets tailored for solving long context problems.
-    creator_organization_name: IBM-GRANITE
+    creator_organization_name: IBM
     access: open
     num_parameters: 8170000000
     release_date: 2024-12-18
@@ -3899,7 +4023,7 @@ models:
   - name: ibm-granite/granite-3.1-2b-instruct
     display_name: Granite 3.1 - 2B - Instruct
     description: Granite-3.1-2B-Instruct is a 2B parameter long-context instruct model finetuned from Granite-3.1-2B-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets tailored for solving long context problems.
-    creator_organization_name: IBM-GRANITE
+    creator_organization_name: IBM
     access: open
     num_parameters: 2530000000
     release_date: 2024-12-18
@@ -3974,3 +4098,81 @@ models:
     num_parameters: 6740000000
     release_date: 2025-01-20
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+# WatsonX - IBM
+  - name: ibm/granite-13b-instruct-v2
+    display_name: Granite 13b instruct v2
+    description: Granite Base (13B) Instruct V2.0 is a large decoder-only transformer model.The following features were used in the design of the model Decoder-only model
+    creator_organization_name: IBM
+    access: limited
+    num_parameters: 13000000000
+    release: 2023-11-30
+    tags: [ TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG ]
+
+  - name: ibm/granite-20b-code-instruct-8k
+    display_name: Granite 20b code instruct (8K)
+    description: Granite-20B-Code-Base-8K is a decoder-only code model designed for code generative tasks (e.g., code generation, code explanation, code fixing, etc.). It is trained from scratch with a two-phase training strategy. In phase 1, our model is trained on 3 trillion tokens sourced from 116 programming languages, ensuring a comprehensive understanding of programming languages and syntax. In phase 2, our model is trained on 500 billion tokens with a carefully designed mixture of high-quality data from code and natural language domains to improve the models’ ability to reason and follow instructions.
+    creator_organization_name: IBM
+    access: limited
+    num_parameters: 20000000000
+    release: 2024-18-4
+    tags: [ TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG ]
+
+  - name: ibm/granite-34b-code-instruct
+    display_name: Granite 34b code instruct
+    description: Granite Base (34B) Code Instruct is a 34B parameter model fine tuned from Granite-34B-Code-Base on a combination of permissively licensed instruction data to enhance instruction following capabilities including logical reasoning and problem-solving skills.
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 34000000000
+    release: 2024-6-5
+    tags: [ TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG ]
+
+
+  - name: ibm/granite-3b-code-instruct
+    display_name: Granite 3b code instruct
+    description: Granite-3B-Code-Instruct-128K is a 3B parameter long-context instruct model fine tuned from Granite-3B-Code-Base-128K on a combination of permissively licensed data used in training the original Granite code instruct models, in addition to synthetically generated code instruction datasets tailored for solving long context problems. By exposing the model to both short and long context data, we aim to enhance its long-context capability without sacrificing code generation performance at short input context.
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 3000000000
+    release: 2024-6-18
+    tags: [ TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG ]
+
+  - name: ibm/granite-8b-code-instruct
+    display_name: Granite 8b code instruct
+    description: Granite-8B-Code-Instruct-128K is a 8B parameter long-context instruct model fine tuned from Granite-8B-Code-Base-128K on a combination of permissively licensed data used in training the original Granite code instruct models, in addition to synthetically generated code instruction datasets tailored for solving long context problems. By exposing the model to both short and long context data, we aim to enhance its long-context capability without sacrificing code generation performance at short input context.
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 8000000000
+    release: 2024-6-18
+    tags: [ TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG ]
+
+
+
+
+
+
+  - name: ibm/granite-3.1-8b-instruct
+    display_name: Granite 3.1 - 8B - Instruct
+    description: Granite-3.1-8B-Instruct is a 8B parameter long-context instruct model finetuned from Granite-3.1-8B-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets tailored for solving long context problems.
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 8170000000
+    release_date: 2024-12-18
+    tags: [ TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG ]
+
+  - name: ibm/granite-3.1-2b-instruct
+    display_name: Granite 3.1 - 2B - Instruct
+    description: Granite-3.1-2B-Instruct is a 2B parameter long-context instruct model finetuned from Granite-3.1-2B-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets tailored for solving long context problems.
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 2530000000
+    release_date: 2024-12-18
+    tags: [ TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG ]
+
+  - name: mistralai/mixtral-8x7b-instruct-v0:1
+    display_name: Mixtral 8x7B Instruct on IBM WatsonX
+    description: A 7B sparse Mixture-of-Experts model with stronger capabilities than Mistral 7B. Uses 12B active parameters out of 45B total. Supports multiple languages, code and 32k context window.
+    creator_organization_name: Mistral
+    access: limited
+    release_date: 2023-12-11
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]

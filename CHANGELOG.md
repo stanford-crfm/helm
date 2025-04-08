@@ -2,6 +2,250 @@
 
 ## [Upcoming]
 
+## [v0.5.5] - 2025-04-04
+
+### Breaking Changes
+
+-  Optimum Intel OpenVINO is no longer supported (#3153)
+
+### Scenarios
+
+- HELM Capabilities scenarios
+    - Add GPQA scenario (#3068, #3078, #3079, #3100, #3096, #3420, #3445)
+    - Add MMLU-Pro scenario (#3108, #3125, #3200, #3272, #3458)
+    - Add IFEval scenario (#3122, #3275)
+    - Add WildBench (#3150, #3283, #3299, #3339, #3318, #3360)#3476
+    - Add Omni-MATH (#3271, #3299, #3271, #3299, #3291, #3322, #3348, #3372, #3373, #3407, #3407)
+- IBM enterprise scenarios
+    - Add Gold Commodity News scenario (#3065)
+    - Add Legal Contract Summarization scenario (#3131)
+    - Add CASEHold scenario (#3164)
+    - Add SUMO Web Claims Summarization scenario (#3112)
+    - Add CTI-to-MITRE scenario (#3249)
+    - Add Legal Opinion Sentiment Classification scenario (#3286)
+    - Add Financial Phrasebank scenario (#3302)
+    - Add ConvFinQACalc (#3453)
+    - Add ECHR Judgment Classification scenario (#3311)
+- Vision-language model scenarios
+    - Fix Image2struct v1.0.1 (#3061)
+    - Fix "science & technology" subset of MMSTAR (#3107)
+    - Fix R/B channel switch in skin tone calculation (#2589)
+- Speech / audio model scenarios
+    - Add AudioMNIST scenario (#3093)
+    - Add CoVost-2: Speech Machine Translation (#3106)
+    - Add Vocal Sound scenario (#3130)
+    - Add Multilingual Librispeech (#3130, #3423)
+    - Add AudioCaps scenario (#3137)
+    - Add IEMOCAP Audio scenario (#3139)
+    - Add MELD Audio scenario (#3142)
+    - Add FLEURS scenario (#3130, #3151, #3287, #3299)
+    - Add Casual Conversation V2 audio scenario (#3158)
+    - Add Common_Voice_15 and RSB audio scenarios (#3147)
+    - Add Audio PAIRS audio scenario (#3149)
+    - Add VoxCeleb2Scenario for audio identification (#3179)
+    - Add AIR-Bench chat and foundation audio scenarios (#3189, #3362, #3486)
+    - Add MuTox Scenario (#3343)
+    - Add MUStARDScenario for sarcasm detection (#3345)
+    - Add AMI, LibriSpeech audio scenarios (#3355)
+    - Add VoiceJailbreakAttacksScenario (#3361)
+    - Add GPT4 evaluator for open-ended audio scenarios (#3417)
+    - Add LibriSpeech and FLEURS gender fairness audio scenarios (#3418)
+    - Add PARADE audio scenario (#3424)
+- Misc
+    - Add AutoBencher Capabilities scenario (#3178)
+    - Add AutoBencher Safety Scenario (#3165)
+    - Add ENEM Challenge Scenario (#3185)
+    - Add BigCodeBench (#3186, #3310)
+    - Add experimental CzechBankQA scenario (#3222, #3240)
+    - Add TweetSentBR Scenario (#3219)
+    - Add HarmBench GCG-T (#3035)
+    - Add MMLU and Winogrande human-translated into 11 African languages (#3237, #3256)
+    - Pin revision in many invocations of Hugging Face load_datasets() (#3124)
+    - Add BIRD SQL scenario (#3292, #3312)
+    - Add Spider 1.0 scenario (#3300, #3371)
+    - Add helpdesk call summarization scenario (#3303, #3387, #3388)
+    - Adding IMDB_PTBR Scenario (#3284)
+    - Adding OAB Exams Scenario (#3329)
+    - Disable test_math_scenario due to DMCA takedown (#3315)
+    - Add InfiniteBenchSum scenario (#3409, #3476)
+    - Add HotPotQA and SQuAD scenarios from RULER (#3411, #3476)
+    - Allow using alternate annotator models for AIR-Bench 2024 (#3468, #3488)
+    - Set trust_remote_code for TyDiQA and BANKING77 (#3473, #3477)
+- MedHELM scenarios
+    - Fix LiveQA scenario (#3244)
+    - Add MedHallu scenario (#3483)
+    - Add MIMIC-IV-BHC scenario (#3459)
+    - Add all conditions in CLEAR scenario (#3466)
+    - Add judges to many MedHELM scenarios (#3484)
+    - Add or update 31 scenarios for MedHELM v1.0.0 (#3038, #3403, #3492, #3493) -
+        ACI-Bench,
+        ADHD-Behavior,
+        ADHD-MedEffects,
+        BMT-Status,
+        CDI-QA,
+        CLEAR-AD,
+        ClinicReferral,
+        DischargeMe,
+        EHRSHOT,
+        EHRSQL,
+        ENT-Referral,
+        HeadQA,
+        HospiceReferral,
+        MedAlign,
+        Medbullets,
+        MedCalc-Bench,
+        MedConfInfo,
+        MedDialog,
+        Medec,
+        MedicationQA,
+        MEDIQA,
+        MentalHealth,
+        MIMIC-IV Billing Code,
+        MIMIC-RRS,
+        MTSamples,
+        MTSamples Procedures,
+        N2C2-CT Matching,
+        NoteExtract,
+        PatientInstruct,
+        PubMedQA,
+        RaceBias
+
+### Models
+
+- Add Mistral and Llama models on AWS Bedrock (#3034, #3092, #3095)
+- Add Gemini-1.5-Pro-002 and Gemini-1.5-Flash-002 models (#3032, #3085)
+- Add Qwen2.5 Instruct Turbo models on Together AI (#3063)
+- Add Anthropic Claude 3.5 Sonnet (20241022) models (#3082)
+- Add Mistral Pixtral (2409) (#3073)
+- Add GPT-4o Audio Preview (2024-10-01) model (#3091)
+- Add Qwen-Audio-Chat and Qwen2-Audio-Instruct (#3104, #3298, #3474)
+- Allow setting device for Hugging Face models (#3109)
+- Add Mistral Small and Ministral models (#3110)
+- Add Llama-Omni-8B (#3119)
+- Treat missing AI21 message content as empty string (#3123)
+- Add stop sequence support to MistralClient (#3120)
+- Deprecate OpenAI legacy completions API (#3144)
+- Add Grok Beta model (#3145)
+- Add Diva Llama model (#3148)
+- Remove OpenVino support (#3153)
+- Add support for IBM Granite models on Hugging Face (#3166, #3261)
+- Add Claude 3.5 Haiku model (#3171)
+- Add Pixtral Large and Mistral Large (2411) models (#3177)
+- Add Upstage Solar models (#3181, #3198)
+- Add Llama 3.1 Nemotron Instruct (70B) model on Together AI (#3172)
+- Add NECTEC model (#3197)
+- Add Llama 3.3 model (#3202)
+- Add Maritaca AI model (Sabiá 7B) (#3185)
+- Add gemini-2.0-flash-exp model (#3210)
+- Add Qwen 2 VLM (#3247)
+- Add Amazon Nova models (#3251, #3252, #3263, #3264, #3408, #3442)
+- Add DeepSeek v3 model (#3253)
+- Simplify credential management for Bedrock client (#3255)
+- Add Llama 3.1 Instruct on Vertex AI (#3278)
+- Add Phi 3.5 models (#3306)
+- Add Mistral Small 3 model (#3308)
+- Add QwQ model on Together AI (#3307)
+- Add Deepseek-R1 model (#3305)
+- Add o3-mini model (#3304)
+- Handle content filtering from Azure OpenAI (#3319, #3321, #3327)
+- Add DeepSeek R1 Distill Llama 8B and DeepSeek Code Instruct 6.7B (#3332)
+- Add a version of DeepSeek R1 that hides thinking tokens from output (#3335, #3485)
+- Add OpenAI audio models (#3346)
+- Add Claude 3.7 model (#3366)
+- Add GPT-4.5 model (#3382)
+- Added `gemini-2.0-flash-thinking-exp-01-21` (#3410)
+- Add SEA-HELM leaderboard and SEA-LIONv3 models (#3347)
+- Added `OpenAITranscriptionThenCompletionClient` (#3416)
+- Add request response format JSON schema support (#3415)
+- Make Azure OpenAI deployment name configurable (#3421)
+- Use Anthropic tokenizer from Hugging Face (#3467)
+- Add Palmyra Fin model (#3475)
+- Add Mistral Small 3.1 model (#3478)
+- Added support for phi-3.5 through Azure (#3489)
+- Add IBM Granite models hosted on IBM WatsonX (#3441)
+
+### Frontend
+
+- Add web player for audio objects (#3098)
+- Add a badge indicating if the release is latest or stale (#3116, #3126)
+- Change title for HELM leaderboards (#3117)
+- Add functionality for linking directly to instances in Predictions page (#3121)
+- Improve leaderboard frontend navigation (#3330)
+- Display messages in instances and reuqests in frontend (#3336, #3341)
+- Add latest to the frontend version dropdown (#3338)
+- Allow overriding Vite base URL with VITE_HELM_FRONTEND_BASE environment variable (#3426, #3428)
+- Load project_metadata.json from the website rather than GitHub (#3427)
+
+### Framework
+
+- Add extra_data field to Instance (#3094)
+- Fix mean aggregation for tables (#3127, #3309)
+- Add encryption for stored data for GPQA (#3216, #3242)
+- Allow running recipes from the Unitxt catalog (#3267)
+- Add support to redact model outputs (#3301)
+- Allow processing output before metrics for reasoning models (#3333)
+- Display instances extra_data in frontend (#3340)
+- Allow arguments to be passed into annotators (#3487)
+- Automatically apply the model=all run expander (#3491)
+- Add support for adaptive sampling based on Reliable and Efficient Amortized Model-based Evaluation [(Truong et al., 2025)](https://arxiv.org/abs/2503.13335) (#3397)
+
+### Metrics
+
+- Flip LPIPS so that '1' is better (#3055)
+- Fix incorrect handling of labels in ClassificationMetric (#3289)
+- Fix ASR WER and MER metrics (#3296)
+
+### Misc
+
+- Change GCS download docs to use gcloud storage instead of gsutil (#3083)
+- Fix minor bug in punkt installation logic (#3111)
+- Improvements to audio utilities (#3128)
+- New arg for quasi-exact match (#3257)
+- Use uv for Update Requirements GitHub Action (#3444, #3452)
+- Resolve static files using importlib_resources for crfm-proxy-server (#3460, #3461)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @Adam-Kasumovic
+- @aptandre
+- @arseniy-klimovskiy
+- @asad-aali
+- @asillycat
+- @aunell
+- @chiheem
+- @farzaank
+- @haoqiu1
+- @HennyJie
+- @ImKeTT
+- @JackJessada
+- @jessicalundin
+- @jmbanda
+- @LAOS-Y
+- @liamjxu
+- @lucas-s-p
+- @MiguelAFH
+- @Miking98
+- @mtake
+- @raileymontalan
+- @raulista1997
+- @rbitr
+- @RonalddMatias
+- @ryokawajp
+- @saikiranjakka
+- @sangttruong
+- @shakatoday
+- @siyagoel
+- @subhaviv
+- @suhana13
+- @teetone
+- @thallysonjsa
+- @vz-ibm
+- @yifanmai
+- @YiZeng623
+- @yuhengtu
+
 ## [v0.5.4] - 2024-10-09
 
 ### Breaking Changes
@@ -677,8 +921,9 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.4...HEAD
-[v0.5.3]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.4
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.5...HEAD
+[v0.5.5]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.5
+[v0.5.4]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.4
 [v0.5.3]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.3
 [v0.5.2]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.2
 [v0.5.1]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.1

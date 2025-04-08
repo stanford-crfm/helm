@@ -10,7 +10,7 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
-from helm.tokenizers.anthropic_tokenizer import AnthropicTokenizer
+from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 
 
 class TestAnthropicTokenizer:
@@ -21,7 +21,11 @@ class TestAnthropicTokenizer:
     def setup_method(self, method):
         cache_file = tempfile.NamedTemporaryFile(delete=False)
         self.cache_path: str = cache_file.name
-        self.tokenizer = AnthropicTokenizer(SqliteCacheConfig(self.cache_path))
+        self.tokenizer = HuggingFaceTokenizer(
+            SqliteCacheConfig(self.cache_path),
+            tokenizer_name="anthropic/claude",
+            pretrained_model_name_or_path="Xenova/claude-tokenizer",
+        )
 
     def teardown_method(self, method):
         os.remove(self.cache_path)
