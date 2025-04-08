@@ -152,3 +152,54 @@ def get_melt_summarization_wikilingua_spec(prompt_style: str = "normal", tempera
         + get_generative_harms_metric_specs(),
         groups=["melt", "summarization_wikilingua"],
     )
+
+
+@run_spec_function("melt_reasoning_synthetic_reasoning")
+def get_melt_reasoning_synthetic_reasoning_spec(mode: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.melt_scenarios.MELTSyntheticReasoningScenario",
+        args={"mode": mode},
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Hãy giải bài toán sau.",
+        input_noun="Bài toán",
+        output_noun="Lời giải",
+        max_train_instances=5,
+        stop_sequences=["\n"],
+        max_tokens=50,  # answer upperbounded by 50 tokens
+    )
+
+    return RunSpec(
+        name=f"synthetic_reasoning:mode={mode}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs() + get_generative_harms_metric_specs(),
+        groups=["melt", "synthetic_reasoning", f"synthetic_reasoning_{mode}"],
+    )
+
+
+@run_spec_function("melt_reasoning_synthetic_reasoning_natural")
+def get_melt_reasoning_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.melt_scenarios.MELTSRNScenario",
+        args={"difficulty": difficulty},
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Hãy dựa vào `Quy luật` được cho để suy luận ra quy tắc.",
+        input_noun="Quy luật",
+        newline_after_input_noun=True,
+        output_noun=None,
+        max_train_instances=3,  # limited by the context length
+        max_tokens=20,
+    )
+    srn_metric_specs = get_basic_metric_specs(["f1_set_match", "iou_set_match", "exact_set_match"])
+
+    return RunSpec(
+        name=f"synthetic_reasoning_natural:difficulty={difficulty}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=srn_metric_specs + get_generative_harms_metric_specs(),
+        groups=["melt", "synthetic_reasoning", "synthetic_reasoning_natural"],
+    )
