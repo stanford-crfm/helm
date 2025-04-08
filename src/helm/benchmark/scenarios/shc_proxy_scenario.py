@@ -17,14 +17,12 @@ csv.field_size_limit(sys.maxsize)
 
 class SHCPROXYMedScenario(Scenario):
     """
-    This dataset features messages sent by proxy users and non proxy users, for evaluation of 
+    This dataset features messages sent by proxy users and non proxy users, for evaluation of
     LLM capabilities to determine the sender. From publication: https://doi.org/10.1001/jamapediatrics.2024.4438
     """
 
     name = "shc_proxy_med"
-    description = (
-        "A dataset that determines if a message was sent by a proxy user "
-    )
+    description = "A dataset that determines if a message was sent by a proxy user "
     tags = ["knowledge", "reasoning", "biomedical"]
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["A", "B"]

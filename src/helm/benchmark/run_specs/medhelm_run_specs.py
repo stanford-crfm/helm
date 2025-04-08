@@ -1154,6 +1154,7 @@ def get_shc_ent_spec() -> RunSpec:
         groups=["shc_ent_med"],
     )
 
+
 @run_spec_function("shc_privacy_med")
 def get_shc_privacy_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_cdi_scenario.SHCPRIVACYMedScenario", args={})
@@ -1172,6 +1173,7 @@ def get_shc_privacy_spec() -> RunSpec:
         metric_specs=get_exact_match_metric_specs(),
         groups=["shc_privacy_med"],
     )
+
 
 @run_spec_function("shc_proxy_med")
 def get_shc_proxy_spec() -> RunSpec:
