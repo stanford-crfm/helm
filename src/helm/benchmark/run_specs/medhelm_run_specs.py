@@ -37,6 +37,7 @@ def get_medcalc_bench_spec() -> RunSpec:
         output_noun="Answer only the requested quantity without units. No explanation needed",
         max_tokens=10,
         max_train_instances=0,
+        stop_sequences=[]
     )
 
     metric_specs = [
@@ -1002,6 +1003,7 @@ No letter or word, just the integer value.
 Your Judgment"""  # noqa: E501
         ),
         max_train_instances=0,
+        stop_sequences=[]
     )
 
     return RunSpec(
