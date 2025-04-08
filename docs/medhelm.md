@@ -50,11 +50,11 @@ This categorization ensures that evaluations reflect the **complexity, diversity
 
 - [Stanford HAI Article](https://hai.stanford.edu/news/holistic-evaluation-of-large-language-models-for-medical-applications)
 - [HELM Website](https://crfm.stanford.edu/helm/latest/)
-- [Publication (Coming Soon)](https://arxiv.org/abs/XXXX.XXXXX)
+- Publication (Coming Soon)
 
 ## Installation
 
-First, follow the [HELM installation guide](https://github.com/stanford-crfm/helm#installation) to install the base HELM framework.
+First, follow the [installation instructions](installation.md) to install the base HELM framework.
 
 To install MedHELM-specific dependencies:
 
@@ -84,9 +84,9 @@ To contribute a new benchmark scenario to MedHELM, follow the steps below:
 
 Start by adding a new scenario class under the [scenarios directory](https://github.com/stanford-crfm/helm/tree/main/src/helm/benchmark/scenarios). This class should transform your dataset into HELM’s standardized input format. Your implementation should define:
 
-- The prompt structure  
-- The input-output schema  
-- Any relevant metadata (e.g., references, categories, licenses)
+- The prompt context
+- The reference response(s)
+- Any relevant metadata for post-processing
 
 For detailed guidance, see the [Adding New Scenarios](adding_new_scenarios.md) documentation.
 
@@ -94,8 +94,8 @@ For detailed guidance, see the [Adding New Scenarios](adding_new_scenarios.md) d
 
 Next, define a run specification for your scenario in the [`medhelm_run_specs.py`](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/run_specs/medhelm_run_specs.py) file. This links your scenario to HELM’s command-line interface, and specifies:
 
-- The model(s) to evaluate  
-- The metrics to compute  
+- The instruction models should follow
+- The metrics to compute
 - Any optional annotation steps
 
 #### a. Response Annotations
