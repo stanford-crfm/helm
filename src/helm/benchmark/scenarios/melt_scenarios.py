@@ -1,16 +1,6 @@
-import os
-import json
-import pickle
-import dataclasses
-import random
-import numpy as np
-
-from copy import copy
-from dataclasses import dataclass
-from typing import Dict, List, Tuple, Optional, Literal
+from typing import Dict, List, Tuple, Optional
 
 from datasets import load_dataset
-from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -35,9 +25,9 @@ class MELTQAScenario(Scenario):
         dataset_name: str,
         revision: str,
         subset: Optional[str] = "",
-        passage_prefix: Optional[str] = "Passage: ",
-        question_prefix: Optional[str] = "Question: ",
-        splits: Dict[str, str] = None,
+        passage_prefix: str = "Passage: ",
+        question_prefix: str = "Question: ",
+        splits: Optional[Dict[str, str]] = None,
     ):
         """
         Initializes the question answering scenario.
@@ -198,9 +188,9 @@ class MELTSummarizationScenario(Scenario):
         train_min_length: Optional[int] = None,
         train_max_length: Optional[int] = None,
         doc_max_length: Optional[int] = None,
-        article_key: Optional[str] = "source",
-        summary_key: Optional[str] = "target",
-        splits: Dict[str, str] = None,
+        article_key: str = "source",
+        summary_key: str = "target",
+        splits: Optional[Dict[str, str]] = None,
     ):
         """
         Initializes summarization scenario.
@@ -302,10 +292,16 @@ class MELTSummarizationScenario(Scenario):
 class MELTSummarizationVietnewsScenario(MELTSummarizationScenario):
     """
     Scenario for summarization on Vietnews dataset.
+    Vietnews includes a collection of news articles in Vietnamese from
+    online news such as Tuoi Tre, VnExpress, and Nguoi Dua Tin between 2016 and 2019.
+    The topic of the articles is about the world, news, law, and business.
+    The dataset also contains the corresponding summary for each article.
     """
 
     name = "melt_summarization_vietnews"
-    description = "Vietnews is a Vietnamese summarization dataset."
+    description = (
+        "Vietnews is a Vietnamese news summarization dataset collected from online news articles between 2016 and 2019."
+    )
     tags = ["summarization"]
 
     def __init__(self, **kwargs):
