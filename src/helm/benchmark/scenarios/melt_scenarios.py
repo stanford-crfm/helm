@@ -1,5 +1,11 @@
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Literal
 
+import random
+import dataclasses
+import numpy as np
+
+from copy import copy
+from dataclasses import dataclass
 from datasets import load_dataset
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -349,27 +355,22 @@ class MELTSummarizationWikilinguaScenario(MELTSummarizationScenario):
 class MELTLanguageLogicalStatement:
     subject: str  # e.g. either the individual or group to which this statement applies
     subject_category: str  # e.g. the group to which this fact applies
-    specifier_type: Literal["a", "the"]  # the specifier used for the subject
+    specifier_type: Literal["một", "cái"]  # the specifier used for the subject
 
     def generate_specified_subject(self, upper=False, specifier_type=None) -> str:
-        """Figure out whether to use "A" or "An" (heuristic), handles "the" and "The" too
-        specifier_type can be used to optionally override the class property specifier_type
+        """Handle the specification of the subject in the statement.
+        It is similar to the English "a" or "the" in the statement.
 
         Example:
-            if (subject="cat", subject_category="animal", specifier_type="the", upper=False) -> "the cat"
-            if (subject="apple", subject_category="plant", specifier_type="a", upper=True) -> "An apple"
+            if (subject="con mèo", subject_category="animal", specifier_type="cái", upper=False) -> "Cái con mèo"
+            if (subject="quả táo", subject_category="plant", specifier_type="a", upper=True) -> "Một quả táo"
         """
 
         specifier_type = self.specifier_type if specifier_type is None else specifier_type
         if not (self.subject_category != "person") or (self.subject == "person"):
             return self.subject
         base_char = specifier_type[0].upper() if upper else specifier_type[0].lower()
-        if specifier_type == "a":
-            if self.subject[0].lower() in ["a", "e", "i", "o", "u"]:
-                return f"{base_char}n {self.subject}"
-        else:
-            return f"{base_char}{specifier_type[1:]} {self.subject}"
-        return f"{base_char} {self.subject}"
+        return f"{base_char}{specifier_type[1:]} {self.subject}"
 
 
 @dataclass(frozen=True)
@@ -385,20 +386,20 @@ class MELTLanguageRule(MELTLanguageLogicalStatement):
 
         Rules should have the following format:
         {
-            'subject': 'Alice',
+            'subject': 'An',
             'subject_category': 'person',
-            'specifier_type': 'the' or 'a'
-            'condition': ['red', 'kind'],
-            'condition_conjunction': 'and',
+            'specifier_type': 'cái' or 'một'
+            'condition': ['đỏ', 'tốt'],
+            'condition_conjunction': 'và',
             'consequent': 'cold'
         }
 
-        and this example will output a string: "If Alice is red and kind, then Alice is cold."
+        and this example will output a string: "Nếu An là đỏ và tốt, thì An là lạnh."
         """
 
         condition = f" {self.condition_conjunction} ".join(self.condition)
         specified_subject = self.generate_specified_subject()
-        specified_particular_subject = self.generate_specified_subject(specifier_type="the")
+        specified_particular_subject = self.generate_specified_subject(specifier_type="cái")
         return f"Nếu {specified_subject} là {condition}, thì {specified_particular_subject} là {self.consequent}."
 
 
@@ -414,8 +415,8 @@ class MELTLanguageFact(MELTLanguageLogicalStatement):
     def __str__(self) -> str:
         """Maps from a set of attributes about a subject to a string
 
-        e.g. if (subject="dog", attributes=["big", "red"], specifier="The") ->
-        "The dog is big and red."
+        e.g. if (subject="con chó", attributes=["to", "đỏ"], specifier="cái") ->
+        "Cái con chó thì to và đỏ."
         """
 
         if len(self.generic_attributes) == 0:
@@ -441,22 +442,22 @@ def get_vocab() -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
     subjects: Dict[str, List[str]] = {
         "person": ["An", "Bình", "Cường", "Duy", "Đạt", "Phương"],
         "animal": [
-            "chó",
-            "mèo",
-            "thỏ",
-            "chuột",
-            "hổ",
-            "sư tử",
-            "gấu",
-            "sóc",
-            "bò",
-            "gấu trúc",
-            "nhím",
-            "voi",
-            "hươu cao cổ",
-            "hà mã",
+            "con chó",
+            "con mèo",
+            "con thỏ",
+            "con chuột",
+            "con hổ",
+            "con sư tử",
+            "con gấu",
+            "con sóc",
+            "con bò",
+            "con gấu trúc",
+            "con nhím",
+            "con voi",
+            "con hươu cao cổ",
+            "con hà mã",
         ],
-        "plant": ["anh túc", "bồ công anh", "cây", "hoa hồng", "hoa hướng dương"],
+        "plant": ["hoa anh túc", "hoa bồ công anh", "cây", "hoa hồng", "hoa hướng dương"],
     }
 
     # Convert list of attributes into dictionary
@@ -468,10 +469,10 @@ def get_vocab() -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
         "sợ": ["sợ"],
         "lạnh": ["lạnh", "lạnh buốt", "mát mẻ"],
         "nóng": ["nóng", "ấm"],
-        "thông minh": ["thông minh", "giỏi", "không", "sáng trí"],
+        "thông minh": ["thông minh", "tài giỏi", "khôn", "sáng trí"],
         "sạch": ["sạch", "ngăn nắp"],
-        "nhỏ": ["nhỏ", "nhỏ xíu", "tí nị"],
-        "to": ["to", "khổng lồ", "to lớn", "lớn"],
+        "nhỏ": ["nhỏ", "bé", "tí nị"],
+        "to": ["to", "khổng lồ", "bự", "lớn"],
         "tốt": ["tốt", "tử tế", "tốt bụng"],
         "đẹp": ["đẹp", "xinh"],
         "đỏ": ["đỏ", "đỏ thẫm"],
@@ -484,7 +485,7 @@ def get_vocab() -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
         "yếu": ["yếu", "yếu đuối", "mỏng manh"],
         "nhanh": ["nhanh", "mau"],
         "chậm": ["chậm", "chậm chạp"],
-        "dở": ["dở", "tệ", "ác", "đê tiện"],
+        "xấu": ["xấu", "xấu xa", "ác", "độc ác"],
         "hạnh phúc": ["hạnh phúc", "hân hoan", "vui mừng", "vui vẻ"],
         "tròn": ["tròn", "hình tròn", "hình cầu"],
     }
@@ -506,7 +507,7 @@ def generate_rules(
     specific_category: bool = False,
 ) -> List[MELTLanguageRule]:
     """Generates a random set of rules about a subject as dictionaries,
-    given a list of potential attributes and the category (e.g. person) of the subject (e.g. Alice)
+    given a list of potential attributes and the category (e.g. person) of the subject (e.g. An)
 
     These rules are guaranteed to not contradict one another, and attributes implied by a single rule will
     not imply any attributes in any other rules (i.e. there is only a single step of reasoning).
@@ -526,7 +527,7 @@ def generate_rules(
             MELTLanguageRule(
                 subject=rule_subject,
                 subject_category=subject_category,
-                specifier_type="a",
+                specifier_type="một",
                 condition=rule_attributes[:-1],
                 condition_conjunction=random.choice(["và", "hoặc"]),
                 consequent=rule_attributes[-1],
@@ -575,7 +576,7 @@ def generate_test(
     test_fact: MELTLanguageFact = MELTLanguageFact(
         subject,
         subject_category,
-        specifier_type="the",
+        specifier_type="cái",
         specific_attributes=test_attributes_specific,
         generic_attributes=test_attributes,
         use_specific_attributes=use_specific_attributes,
@@ -662,20 +663,31 @@ class MELTSRNScenario(Scenario):
 
 
 ANIMALS = [
-    "ngựa vằn",
-    "rắn hổ mang",
-    "cò",
-    "chim cánh cụt",
-    "cá mập",
-    "sư tử",
-    "trâu",
-    "cá voi",
-    "hải cẩu",
-    "đại bàng",
-    "ngựa",
-    "chuột",
+    "con ngựa vằn",
+    "con rắn hổ mang",
+    "con cò",
+    "con chim cánh cụt",
+    "con cá mập",
+    "con sư tử",
+    "con trâu",
+    "con cá voi",
+    "con hải cẩu",
+    "con đại bàng",
+    "con ngựa",
+    "con chuột",
 ]
-FRUITS = ["táo", "đào", "dưa hấu", "chuối", "nho", "kiwi", "lê", "dâu tây", "việt quất", "mâm xôi"]
+FRUITS = [
+    "quả táo",
+    "quả đào",
+    "quả dưa hấu",
+    "quả chuối",
+    "quả nho",
+    "quả kiwi",
+    "quả lê",
+    "quả dâu tây",
+    "quả việt quất",
+    "quả mâm xôi",
+]
 RULE_SYMBOLS = ["X", "Y", "Z"]
 MATH_SYMBOLS = ["+", "-", "*", "="]
 
@@ -687,8 +699,8 @@ def subst(pattern: List[str], rule_symbol: str, substitute_str: str) -> List[str
     example:
     pattern = "A+B=B+A"
     rule_symbol = "A"
-    substitute_str = "apple"
-    return: "apple+B=B+apple"
+    substitute_str = "quả táo"
+    return: "quả táo+B=B+quả táo"
 
     :param pattern: A Pattern representing the rule.
     :param rule_symbol: One rule symbol.
@@ -716,8 +728,8 @@ def pattern_subst(pattern: List[str], rule_symbols: List[str], substitute_dict: 
     example:
     pattern = "A+B=B+A"
     rule_symbols = ["A", "B"]
-    substitute_dict = {"A":"apple", "B":"peach"}
-    return: "apple+peach=peach+apple"
+    substitute_dict = {"A":"quả táo", "B":"quả đào"}
+    return: "quả táo+quả đào=quả đào+quả táo"
 
     :param pattern: A Pattern representing the rule.
     :param rule_symbols: The set of rule symbols.
@@ -822,9 +834,9 @@ class MELTSyntheticReasoningScenario(Scenario):
             if self.mode == "induction":
                 result_string_2 = " ".join(result_2)
                 src = f"Hai kết quả: {result_string} | {result_string_2}"
-                tgt = f"Luật: {pattern_string}"
+                tgt = f"Quy luật: {pattern_string}"
             elif self.mode == "variable_substitution":
-                src = f"Các luật: {pattern_string} | Substitutions: {substitute_dict_str}"
+                src = f"Các quy luật: {pattern_string} | Thay thế: {substitute_dict_str}"
                 tgt = " ".join(result)
             elif self.mode == "pattern_match":
                 # we sample 3 other pattern strings as negatives for patterns matching.
@@ -834,7 +846,7 @@ class MELTSyntheticReasoningScenario(Scenario):
                 all_patterns = other_patterns + [pattern_string]
                 self.rng.shuffle(all_patterns)
                 all_pattern_string = " | ".join(all_patterns)
-                src = f"Các luật: {all_pattern_string} | Kết quả: {result_string}"
+                src = f"Các quy luật: {all_pattern_string} | Kết quả: {result_string}"
                 tgt = pattern_string
             else:
                 raise ValueError(f"Invalid mode: {self.mode}")

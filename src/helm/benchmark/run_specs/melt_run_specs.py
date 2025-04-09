@@ -8,6 +8,7 @@ from helm.benchmark.metrics.common_metric_specs import (
     get_f1_metric_specs,
     get_generative_harms_metric_specs,
     get_summarization_metric_specs,
+    get_basic_metric_specs,
 )
 
 
@@ -169,8 +170,8 @@ def get_melt_summarization_wikilingua_spec(prompt_style: str = "normal", tempera
     )
 
 
-@run_spec_function("melt_reasoning_synthetic_reasoning")
-def get_melt_reasoning_synthetic_reasoning_spec(mode: str) -> RunSpec:
+@run_spec_function("melt_reasoning_vie_synthetic_reasoning")
+def get_melt_reasoning_vie_synthetic_reasoning_spec(mode: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.melt_scenarios.MELTSyntheticReasoningScenario",
         args={"mode": mode},
@@ -186,7 +187,7 @@ def get_melt_reasoning_synthetic_reasoning_spec(mode: str) -> RunSpec:
     )
 
     return RunSpec(
-        name=f"synthetic_reasoning:mode={mode}",
+        name=f"vie_synthetic_reasoning:mode={mode}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_generative_harms_metric_specs(),
@@ -194,15 +195,15 @@ def get_melt_reasoning_synthetic_reasoning_spec(mode: str) -> RunSpec:
     )
 
 
-@run_spec_function("melt_reasoning_synthetic_reasoning_natural")
-def get_melt_reasoning_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
+@run_spec_function("melt_reasoning_vie_synthetic_reasoning_natural")
+def get_melt_reasoning_vie_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.melt_scenarios.MELTSRNScenario",
         args={"difficulty": difficulty},
     )
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="Hãy dựa vào `Quy luật` được cho để suy luận ra quy tắc.",
+        instructions="Hãy giải quyết vấn đề sau.",
         input_noun="Quy luật",
         newline_after_input_noun=True,
         output_noun=None,
@@ -212,7 +213,7 @@ def get_melt_reasoning_synthetic_reasoning_natural_spec(difficulty: str) -> RunS
     srn_metric_specs = get_basic_metric_specs(["f1_set_match", "iou_set_match", "exact_set_match"])
 
     return RunSpec(
-        name=f"synthetic_reasoning_natural:difficulty={difficulty}",
+        name=f"vie_synthetic_reasoning_natural:difficulty={difficulty}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=srn_metric_specs + get_generative_harms_metric_specs(),
