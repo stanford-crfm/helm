@@ -10,7 +10,9 @@ import MetricField from "@/types/MetricField";
 
 export default function Scenarios() {
   const [runGroups, setRunGroups] = useState<RunGroup[]>([] as RunGroup[]);
-  const [nameToMetric, setNameToMetric] = useState<Record<string, MetricField>>({});
+  const [nameToMetric, setNameToMetric] = useState<Record<string, MetricField>>(
+    {},
+  );
 
   useEffect(() => {
     const controller = new AbortController();
@@ -20,7 +22,6 @@ export default function Scenarios() {
        * Currently just filtering out on a couple
        * falsey values. This can likely be more robust
        */
-      
       setRunGroups(
         schema.run_groups.filter(
           (runGroup) =>
@@ -30,9 +31,11 @@ export default function Scenarios() {
         ),
       );
 
-      const nameToMetricResponse: Record<string, MetricField> = {}
-      schema.metrics.forEach(metric => nameToMetricResponse[metric.name] = metric);
-      setNameToMetric(nameToMetricResponse);
+      setNameToMetric(
+        Object.fromEntries(
+          schema.metrics.map((metric) => [metric.name, metric]),
+        ) as Record<string, MetricField>,
+      );
     }
     void fetchData();
 
@@ -41,12 +44,17 @@ export default function Scenarios() {
 
   const getMetricForRunGroup = (runGroup: RunGroup): string => {
     const mainName: string | undefined = runGroup.environment?.main_name;
-    const metric: MetricField | undefined = mainName ? nameToMetric[mainName] : undefined;
+    const metric: MetricField | undefined = mainName
+      ? nameToMetric[mainName]
+      : undefined;
     if (metric === undefined) {
       return "";
     }
-    const metricName = metric.display_name || metric.short_display_name || metric.name
-    return metric.description ? `${metricName} \u2013 ${metric.description}` : metricName;
+    const metricName =
+      metric.display_name || metric.short_display_name || metric.name;
+    return metric.description
+      ? `${metricName} \u2013 ${metric.description}`
+      : metricName;
   };
 
   const taskBuckets = Object.values(
@@ -81,6 +89,7 @@ export default function Scenarios() {
         title="Scenarios"
         subtitle="A scenario represents a use case and consists of a dataset of instances."
       />
+      <div className="overflow-x-auto mt-12">
         <table className="table">
           <thead>
             <tr>
@@ -111,7 +120,9 @@ export default function Scenarios() {
                 <td>
                   <MarkdownValue value={runGroup.description} />
                 </td>
-                <td><MarkdownValue value={getMetricForRunGroup(runGroup)} /></td>
+                <td>
+                  <MarkdownValue value={getMetricForRunGroup(runGroup)} />
+                </td>
               </tr>
             ))}
           </tbody>
@@ -135,6 +146,7 @@ export default function Scenarios() {
             </div>
           </Card>
         </div>
+      </div>
     </>
   );
 }
