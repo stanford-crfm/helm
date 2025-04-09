@@ -47,7 +47,7 @@ def get_melt_question_answering_mlqa_spec(prompt_style: str = "normal") -> RunSp
 
 
 @run_spec_function("melt_question_answering_xquad")
-def get_question_answering_xquad_spec(prompt_style: str = "normal") -> RunSpec:
+def get_melt_question_answering_xquad_spec(prompt_style: str = "normal") -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.melt_scenarios.MELTQAXQuADScenario")
 
     if prompt_style == "weak":
@@ -82,7 +82,7 @@ def get_question_answering_xquad_spec(prompt_style: str = "normal") -> RunSpec:
 
 
 @run_spec_function("melt_summarization_vietnews")
-def get_summarization_vietnews_spec(prompt_style: str = "normal", temperature: float = 1.0) -> RunSpec:
+def get_melt_summarization_vietnews_spec(prompt_style: str = "normal", temperature: float = 1.0) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.melt_scenarios.MELTSummarizationVietnewsScenario",
         args={
@@ -126,7 +126,7 @@ def get_summarization_vietnews_spec(prompt_style: str = "normal", temperature: f
 
 
 @run_spec_function("melt_summarization_wikilingua")
-def get_wsummarization_wikilingua_spec(prompt_style: str = "normal", temperature: float = 1.0) -> RunSpec:
+def get_melt_summarization_wikilingua_spec(prompt_style: str = "normal", temperature: float = 1.0) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.melt_scenarios.MELTSummarizationWikilinguaScenario",
         args={
