@@ -3303,6 +3303,14 @@ models:
     release_date: 2024-07-15
     tags: [AUDIO_LANGUAGE_MODEL_TAG]
 
+  - name: qwen/qwen2.5-omni-7b
+    display_name: Qwen2.5-Omni (7B)
+    description: The new flagship end-to-end multimodal model in the Qwen series that can process inputs including text, images, audio, and video ([paper](https://arxiv.org/abs/2503.20215)).
+    creator_organization_name: Alibaba Cloud
+    access: open
+    release_date: 2025-03-27
+    tags: [AUDIO_LANGUAGE_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
+
   # SAIL (Sea AI Lab)
   - name: sail/sailor-7b
     display_name: Sailor (7B)
