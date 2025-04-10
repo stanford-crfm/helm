@@ -1,6 +1,6 @@
 # mypy: check_untyped_defs = False
 from dataclasses import replace
-from typing import Any, Dict, List, Optional, cast, Union, Callable
+from typing import Any, Dict, List, Optional, Union, Callable
 
 from helm.benchmark.model_metadata_registry import is_vlm
 from helm.common import multimodal_request_utils
@@ -10,11 +10,13 @@ from helm.common.request import ErrorFlags, wrap_request_time, Request, RequestR
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import get_class_by_name
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.tokenization_request import (
-    TokenizationRequest,
-    TokenizationRequestResult,
+from helm.clients.client import (
+    Client,
+    CachingClient,
+    truncate_and_tokenize_response_text,
+    truncate_sequence,
+    generate_uid_for_multimodal_prompt,
 )
-from helm.clients.client import Client, CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
 from helm.tokenizers.tokenizer import Tokenizer
 
 try:
@@ -60,6 +62,7 @@ class OpenAIClient(CachingClient):
         reasoning_effort: Optional[str] = None,
         openai_model_name: Optional[str] = None,
         output_processor: Optional[str] = None,
+        end_of_text_token: Optional[str] = None,
     ):
         super().__init__(cache_config=cache_config)
         self.tokenizer = tokenizer
@@ -70,6 +73,7 @@ class OpenAIClient(CachingClient):
         self.output_processor: Optional[Callable[[str], str]] = (
             get_class_by_name(output_processor) if output_processor else None
         )
+        self.end_of_text_token = end_of_text_token
 
     def _get_model_for_request(self, request: Request) -> str:
         return self.openai_model_name or request.model_engine
@@ -331,20 +335,17 @@ class OpenAIClient(CachingClient):
                 raw_completion_content = self.output_processor(raw_completion_content)
             text: str = request.prompt + raw_completion_content if request.echo_prompt else raw_completion_content
             # The OpenAI chat completion API doesn't return us tokens or logprobs, so we tokenize ourselves.
-            tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-                TokenizationRequest(text, tokenizer=self.tokenizer_name)
-            )
             # Log probs are not currently not supported by the OpenAI chat completion API, so set to 0 for now.
-            tokens: List[Token] = [
-                Token(text=cast(str, raw_token), logprob=0) for raw_token in tokenization_result.raw_tokens
-            ]
-            completion = GeneratedOutput(
-                text=text,
-                logprob=0,  # OpenAI does not provide logprobs
-                tokens=tokens,
-                finish_reason={"reason": raw_completion["finish_reason"]},
+            completions.append(
+                truncate_and_tokenize_response_text(
+                    text,
+                    request,
+                    self.tokenizer,
+                    self.tokenizer_name,
+                    end_of_text_token=self.end_of_text_token,
+                    original_finish_reason=raw_completion["finish_reason"],
+                )
             )
-            completions.append(truncate_sequence(completion, request))  # Truncate the text by stop sequences
 
         return RequestResult(
             success=True,
