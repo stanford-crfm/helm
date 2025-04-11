@@ -32,8 +32,9 @@ class SpeechDisorderScenario(Scenario):
     options: List[str] = ["typically developing", "has a speech disorder"]
     instruction: str = "Listen to the audio and determine if the child speaker has a speech disorder or is typically developing."
 
-    def __init__(self) -> None:
+    def __init__(self, subject: str) -> None:
         super().__init__()
+        self.subject = subject
 
     def _convert_answer_to_label(self, answer: str) -> str:
         """Convert the answer from the JSON to a label (A or B)"""

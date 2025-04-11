@@ -488,10 +488,11 @@ def get_casual_conversations2_run_spec(subject: str) -> RunSpec:
     )
 
 @run_spec_function("speech_disorder_detection")
-def get_speech_disorder_detection_run_spec() -> RunSpec:
+def get_speech_disorder_detection_run_spec(subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.audio_language.speech_disorder_scenario."
         "SpeechDisorderScenario",
+        args={"subject": subject},
     )
     adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
         input_noun=None, output_noun="Answer", max_train_instances=0
