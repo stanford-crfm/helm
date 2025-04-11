@@ -252,6 +252,19 @@ tokenizer_configs:
     end_of_text_token: "<eos>"
     prefix_token: "<bos>"
 
+  # Grok
+  - name: xai/grok-3-beta
+    tokenizer_spec:
+      class_name: "helm.tokenizers.grok_tokenizer.GrokAPITokenizer"
+    end_of_text_token: ""
+    prefix_token: ""
+
+  - name: xai/grok-3-mini-beta
+    tokenizer_spec:
+      class_name: "helm.tokenizers.grok_tokenizer.GrokAPITokenizer"
+    end_of_text_token: ""
+    prefix_token: ""
+
   # Hf-internal-testing
 
   # Tokenizer name hf-internal-testing/llama-tokenizer is taken from:
