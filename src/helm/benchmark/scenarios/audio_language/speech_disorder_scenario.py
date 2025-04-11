@@ -32,9 +32,8 @@ class SpeechDisorderScenario(Scenario):
     options: List[str] = ["typically developing", "has a speech disorder"]
     instruction: str = "Listen to the audio and determine if the child speaker has a speech disorder or is typically developing."
 
-    def __init__(self, data_dir: str) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self.data_dir = data_dir
 
     def _convert_answer_to_label(self, answer: str) -> str:
         """Convert the answer from the JSON to a label (A or B)"""
@@ -45,25 +44,25 @@ class SpeechDisorderScenario(Scenario):
         else:
             raise ValueError(f"Invalid answer: {answer}")
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         """
         Create instances from the audio files and their corresponding JSON annotations.
         The data directory should contain:
         - Audio files (e.g., .mp3, .wav)
         - A JSON file with annotations containing 'answer' field
         """
-        ensure_directory_exists(self.data_dir)
+        ensure_directory_exists(output_path)
         
         instances: List[Instance] = []
         split: str = TEST_SPLIT
 
         # Get all audio files in the directory
-        audio_files = [f for f in os.listdir(self.data_dir) if f.endswith(('.mp3', '.wav'))]
+        audio_files = [f for f in os.listdir(output_path) if f.endswith(('.mp3', '.wav'))]
         
         for audio_file in tqdm(audio_files):
             # Construct paths
-            audio_path = os.path.join(self.data_dir, audio_file)
-            json_path = os.path.join(self.data_dir, f"{os.path.splitext(audio_file)[0]}.json")
+            audio_path = os.path.join(output_path, audio_file)
+            json_path = os.path.join(output_path, f"{os.path.splitext(audio_file)[0]}.json")
             
             # Load the annotation
             with open(json_path, 'r') as f:
