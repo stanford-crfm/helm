@@ -3191,21 +3191,21 @@ model_deployments:
 
   - name: xai/grok-3-beta
     model_name: xai/grok-3-beta
-    # No public information on tokenizer, so just pick an arbitrary one.
-    # It shouldn't matter since the context is long.
-    tokenizer_name: openai/o200k_base
+    tokenizer_name: xai/grok-3-beta
     max_sequence_length: 131072
     client_spec:
       class_name: "helm.clients.grok_client.GrokChatClient"
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
 
   - name: xai/grok-3-mini-beta
     model_name: xai/grok-3-mini-beta
-    # No public information on tokenizer, so just pick an arbitrary one.
-    # It shouldn't matter since the context is long.
-    tokenizer_name: openai/o200k_base
+    tokenizer_name: xai/grok-3-mini-beta
     max_sequence_length: 131072
     client_spec:
       class_name: "helm.clients.grok_client.GrokChatClient"
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
 
   # Qwen
 
