@@ -13,9 +13,9 @@ from helm.tokenizers.caching_tokenizer import CachingTokenizer
 
 
 class GrokAPITokenizer(CachingTokenizer):
-    """Google Vertex AI API for tokenization.
+    """Tokenizer that uses the xAI Grok Tokenize Text API
 
-    Doc: https://cloud.google.com/vertex-ai/docs/generative-ai/compute-token"""
+    Doc: https://docs.x.ai/docs/api-reference#tokenize-text"""
 
     def __init__(self, cache_config: CacheConfig, api_key: Optional[str] = None) -> None:
         super().__init__(cache_config)
