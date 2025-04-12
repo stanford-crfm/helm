@@ -357,7 +357,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: quasi_exact_match
+      main_name: quasi_prefix_exact_match
       main_split: test
     taxonomy:
       task: audio classification
@@ -510,7 +510,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: quasi_exact_match
+      main_name: quasi_prefix_exact_match
       main_split: test
     taxonomy:
       task: audio classification
