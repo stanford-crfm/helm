@@ -6,9 +6,13 @@ import MarkdownValue from "@/components/MarkdownValue";
 import PageTitle from "@/components/PageTitle";
 import Link from "@/components/Link";
 import Loading from "@/components/Loading";
+import MetricField from "@/types/MetricField";
 
 export default function Scenarios() {
   const [runGroups, setRunGroups] = useState<RunGroup[]>([] as RunGroup[]);
+  const [nameToMetric, setNameToMetric] = useState<Record<string, MetricField>>(
+    {},
+  );
 
   useEffect(() => {
     const controller = new AbortController();
@@ -26,11 +30,32 @@ export default function Scenarios() {
             !runGroup.display_name.includes("CLEVA"),
         ),
       );
+
+      setNameToMetric(
+        Object.fromEntries(
+          schema.metrics.map((metric) => [metric.name, metric]),
+        ) as Record<string, MetricField>,
+      );
     }
     void fetchData();
 
     return () => controller.abort();
   }, []);
+
+  const getMetricForRunGroup = (runGroup: RunGroup): string => {
+    const mainName: string | undefined = runGroup.environment?.main_name;
+    const metric: MetricField | undefined = mainName
+      ? nameToMetric[mainName]
+      : undefined;
+    if (metric === undefined) {
+      return "";
+    }
+    const metricName =
+      metric.display_name || metric.short_display_name || metric.name;
+    return metric.description
+      ? `${metricName} \u2013 ${metric.description}`
+      : metricName;
+  };
 
   const taskBuckets = Object.values(
     runGroups.reduce(
@@ -75,6 +100,7 @@ export default function Scenarios() {
               <th>When</th>
               <th>Language</th>
               <th>Description</th>
+              <th>Metric</th>
             </tr>
           </thead>
           <tbody>
@@ -93,6 +119,9 @@ export default function Scenarios() {
                 <td>{runGroup.taxonomy?.language || ""}</td>
                 <td>
                   <MarkdownValue value={runGroup.description} />
+                </td>
+                <td>
+                  <MarkdownValue value={getMetricForRunGroup(runGroup)} />
                 </td>
               </tr>
             ))}

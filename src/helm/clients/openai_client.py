@@ -118,7 +118,7 @@ class OpenAIClient(CachingClient):
             embedding=embedding,
         )
 
-    def _make_chat_request(self, request: Request) -> RequestResult:
+    def _make_chat_raw_request(self, request: Request) -> Dict[str, Any]:
         messages: Optional[List[Dict[str, Union[str, Any]]]] = request.messages
         if (
             (request.prompt and request.messages)
@@ -258,6 +258,10 @@ class OpenAIClient(CachingClient):
             # OpenAI error: Error code: 400 - {'error': {'message': "[{'type': 'string_type', 'loc': ('body', 'stop', 'str'), 'msg': 'Input should be a valid string', 'input': None}, {'type': 'list_type', 'loc': ('body', 'stop', 'list[str]'), 'msg': 'Input should be a valid list', 'input': None}, {'type': 'list_type', 'loc': ('body', 'stop', 'list[list[int]]'), 'msg': 'Input should be a valid list', 'input': None}]", 'type': 'invalid_request_error', 'param': None, 'code': None}}  # noqa: 3501
             if raw_request["stop"] is None:
                 raw_request.pop("stop")
+        return raw_request
+
+    def _make_chat_request(self, request: Request) -> RequestResult:
+        raw_request = self._make_chat_raw_request(request)
 
         def do_it() -> Dict[str, Any]:
             return self.client.chat.completions.create(**raw_request).model_dump(mode="json")

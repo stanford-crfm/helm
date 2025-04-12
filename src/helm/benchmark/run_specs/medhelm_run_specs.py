@@ -37,6 +37,7 @@ def get_medcalc_bench_spec() -> RunSpec:
         output_noun="Answer only the requested quantity without units. No explanation needed",
         max_tokens=10,
         max_train_instances=0,
+        stop_sequences=[],
     )
 
     metric_specs = [
@@ -157,6 +158,7 @@ def get_medec_run_spec() -> RunSpec:
         output_noun="Answer",
         max_tokens=256,
         max_train_instances=0,
+        stop_sequences=[],
     )
 
     # Define the metrics
@@ -585,17 +587,23 @@ def get_mimic_bhc_spec() -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
+    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.mimic_bhc_annotator.MIMICBHCAnnotator")]
+
     metric_args = {
         "task": "mimic_bhc",
         "device": get_torch_device_name(),
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(class_name="helm.benchmark.metrics.mimic_bhc_metrics.MIMICBHCMetric", args={})
+    ]
     return RunSpec(
         name="mimic_bhc",
+        annotators=annotator_specs,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(metric_args),
+        metric_specs=metric_specs,
         groups=["mimic_bhc"],
     )
 
@@ -1002,6 +1010,7 @@ No letter or word, just the integer value.
 Your Judgment"""  # noqa: E501
         ),
         max_train_instances=0,
+        stop_sequences=[],
     )
 
     return RunSpec(
@@ -1152,4 +1161,44 @@ def get_shc_ent_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
         groups=["shc_ent_med"],
+    )
+
+
+@run_spec_function("shc_privacy_med")
+def get_shc_privacy_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_cdi_scenario.SHCPRIVACYMedScenario", args={})
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="Answer A or B.",
+        input_noun="",
+        output_noun="",
+    )
+
+    return RunSpec(
+        name="shc_privacy_med",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["shc_privacy_med"],
+    )
+
+
+@run_spec_function("shc_proxy_med")
+def get_shc_proxy_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_cdi_scenario.SHCPROXYMedScenario", args={})
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="Answer A or B.",
+        input_noun="",
+        output_noun="",
+    )
+
+    return RunSpec(
+        name="shc_proxy_med",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["shc_proxy_med"],
     )

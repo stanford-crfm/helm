@@ -59,7 +59,7 @@ class SHCSEIMedScenario(Scenario):
                     "categorized as SEI because they consist of a plan or an explanation about "
                     "side effects without actual side effect monitoring taking place, and "
                     "No Side Effects Inquiry (NSEI): No evidence of side effects monitoring. "
-                    f"Provide an answer to the following {question} with the following context: {context} "
+                    f"Provide an answer to the following question: {question} with the following context: {context} "
                     ", Answer the question with a 'A' for yes or 'B' for no. Do not provide any additional "
                     "details or response, just a simple A or B response."
                 )
