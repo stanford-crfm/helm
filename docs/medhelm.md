@@ -76,11 +76,13 @@ To reproduce the [entire MedHELM leaderboard](https://crfm.stanford.edu/helm/med
 
 ## Contributing to MedHELM
 
-We welcome contributions from both the research and clinical communities to expand MedHELM with new benchmarks and real-world clinical tasks.
+We welcome contributions from both the research and clinical communities to expand MedHELM with new scenarios and models.
+
+### Scenario Contributions
 
 To contribute a new benchmark scenario to MedHELM, follow the steps below:
 
-### 1. Create a New Scenario
+#### 1. Create a New Scenario
 
 Start by adding a new scenario class under the [scenarios directory](https://github.com/stanford-crfm/helm/tree/main/src/helm/benchmark/scenarios). This class should transform your dataset into HELM’s standardized input format. Your implementation should define:
 
@@ -90,7 +92,7 @@ Start by adding a new scenario class under the [scenarios directory](https://git
 
 For detailed guidance, see the [Adding New Scenarios](adding_new_scenarios.md) documentation.
 
-### 2. Define a Run Spec
+#### 2. Define a Run Spec
 
 Next, define a run specification for your scenario in the [`medhelm_run_specs.py`](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/run_specs/medhelm_run_specs.py) file. This links your scenario to HELM’s command-line interface, and specifies:
 
@@ -98,18 +100,22 @@ Next, define a run specification for your scenario in the [`medhelm_run_specs.py
 - The metrics to compute
 - Any optional annotation steps
 
-#### a. Response Annotations
+##### a. Response Annotations
 
-If your benchmark requires additional processing of model outputs before metric evaluation (e.g., scoring with an LLM-as-a-judge), add an annotation step. This step is executed after obtaining the model responses.
+If your benchmark requires additional processing of model outputs before metric evaluation (e.g., scoring with a LLM-as-a-judge), add an annotation step. This step is executed after obtaining the model responses.
 
 See this [example annotator](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/annotation/med_dialog_annotator.py) for reference.
 
-#### b. Custom Metrics
+##### b. Custom Metrics
 
 If your scenario needs a custom evaluation metric not currently supported in HELM, you can define one under the [metrics directory](https://github.com/stanford-crfm/helm/tree/main/src/helm/benchmark/metrics).
 
 See this [example metric implementation](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/metrics/med_dialog_metrics.py) for guidance.
 
-### 3. Register Your Run Entries
+#### 3. Register Your Run Entries
 
-Finally, register your model-scenario combinations in the [`run_entries_medhelm.conf`](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm.conf) file. Each entry defines a (model, benchmark) pair that will be included in the MedHELM leaderboard.
+Finally, register your model-scenario combinations in the [`run_entries_medhelm.conf`](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm.conf) file. Each entry defines a (model, benchmark) pair in the MedHELM leaderboard.
+
+### Model Contributions
+
+To contribute with a new model, follow the steps in the [Adding New Models](adding_new_models.md) page.
