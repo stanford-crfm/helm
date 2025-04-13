@@ -29,12 +29,14 @@ class SpeechDisorderScenario(Scenario):
     tags = ["audio", "classification", "speech_disorder"]
 
     # Classification options
-    options: List[str] = ["typically developing", "has a speech disorder"]
-    instruction: str = "Listen to the audio and determine if the child speaker has a speech disorder or is typically developing."
+    options: List[str] = ["typically developing", "has a speech disorder", "Unsure"]
 
     def __init__(self, subject: str) -> None:
         super().__init__()
         self.subject = subject
+    
+    def get_instruction(self, words: str, age: str, gender: str) -> str:
+        return f"Listen to the audio and determine if the child speaker has a speech disorder or is typically developing. The speaker is a {age}-year-old {gender} trying to say {words}. The options are: {', '.join(self.options)}."
 
     def _convert_answer_to_label(self, answer: str) -> str:
         """Convert the answer from the JSON to a label (A or B)"""
@@ -42,6 +44,8 @@ class SpeechDisorderScenario(Scenario):
             return "A"
         elif answer == "has a speech disorder":
             return "B"
+        elif answer == "Unsure":
+            return "C"
         else:
             raise ValueError(f"Invalid answer: {answer}")
 
@@ -64,6 +68,18 @@ class SpeechDisorderScenario(Scenario):
             # Construct paths
             audio_path = os.path.join(output_path, audio_file)
             json_path = os.path.join(output_path, f"{os.path.splitext(audio_file)[0]}.json")
+            text_path = os.path.join(output_path, f"{os.path.splitext(audio_file)[0]}.txt")
+
+            # Load the text
+            with open(text_path, 'r') as f:
+                lines = f.readlines()
+                words = lines[0].strip()  # First line: words
+                age_gender = lines[2].strip()  # Third line: age and gender
+                # Decode age and gender (format: 01M)
+                age = age_gender[:2]  # First two digits are age
+                gender = age_gender[2]  # Last character is gender (M/F)
+            
+            
             
             # Load the annotation
             with open(json_path, 'r') as f:
@@ -83,7 +99,7 @@ class SpeechDisorderScenario(Scenario):
             # Create the input with audio and instruction
             content = [
                 MediaObject(content_type="audio/mpeg", location=audio_path),
-                MediaObject(content_type="text/plain", text=self.instruction),
+                MediaObject(content_type="text/plain", text=self.get_instruction(words, age, gender)),
             ]
             
             input = Input(multimedia_content=MultimediaObject(content))
