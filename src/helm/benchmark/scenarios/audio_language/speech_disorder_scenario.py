@@ -58,7 +58,7 @@ class SpeechDisorderScenario(Scenario):
         split: str = TEST_SPLIT
 
         # Get all audio files in the directory
-        audio_files = [f for f in os.listdir(output_path) if f.endswith(('.mp3', '.wav'))]
+        audio_files = [f for f in os.listdir(output_path) if f.endswith(('.mp3'))]
         
         for audio_file in tqdm(audio_files):
             # Construct paths
