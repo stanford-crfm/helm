@@ -29,14 +29,14 @@ class SpeechDisorderScenario(Scenario):
     tags = ["audio", "classification", "speech_disorder"]
 
     # Classification options
-    options: List[str] = ["typically developing", "has a speech disorder", "Unsure"]
+    options: List[str] = ["typically developing", "has a speech disorder"]
 
     def __init__(self, subject: str) -> None:
         super().__init__()
         self.subject = subject
     
     def get_instruction(self, words: str, age: str, gender: str) -> str:
-        return f"Listen to the audio and determine if the child speaker has a speech disorder or is typically developing. The speaker is a {age}-year-old {gender} trying to say {words}. The options are: {', '.join(self.options)}."
+        return f"Listen to the audio and determine if the child speaker has a speech disorder or is typically developing. The speaker is a {age}-year-old {gender} trying to say {words}."
 
     def _convert_answer_to_label(self, answer: str) -> str:
         """Convert the answer from the JSON to a label (A or B)"""
@@ -44,8 +44,6 @@ class SpeechDisorderScenario(Scenario):
             return "A"
         elif answer == "has a speech disorder":
             return "B"
-        elif answer == "Unsure":
-            return "C"
         else:
             raise ValueError(f"Invalid answer: {answer}")
 
