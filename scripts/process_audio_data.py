@@ -40,6 +40,7 @@ def convert_wav_to_mp3(wav_path, output_path):
 def process_directory(input_path, output_path, speech_condition):
     input_path = Path(input_path)
     output_path = Path(output_path)
+    print(f"Processing {os.path.abspath(input_path)} to {os.path.abspath(output_path)}")
     
     # Create output directory if it doesn't exist
     output_path.mkdir(parents=True, exist_ok=True)
@@ -78,9 +79,9 @@ if __name__ == "__main__":
     import argparse
     
     parser = argparse.ArgumentParser(description='Process audio files and text files')
-    parser.add_argument('input_path', help='Path to input directory containing .wav and .txt files')
-    parser.add_argument('output_path', help='Path to output directory')
-    parser.add_argument('speech_condition', choices=['typically developing', 'speech disorder'],
+    parser.add_argument('--input-path', help='Path to input directory containing .wav and .txt files')
+    parser.add_argument('--output-path', help='Path to output directory')
+    parser.add_argument('--speech_condition', choices=['typically developing', 'speech disorder'],
                        help='Speech condition of the samples')
     
     args = parser.parse_args()
