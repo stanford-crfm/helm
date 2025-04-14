@@ -2239,6 +2239,27 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
+  - name: openai/gpt-4.1-2025-04-14
+    model_name: openai/gpt-4.1-2025-04-14
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 1047576
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
+  - name: openai/gpt-4.1-mini-2025-04-14
+    model_name: openai/gpt-4.1-mini-2025-04-14
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 1047576
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
+  - name: openai/gpt-4.1-nano-2025-04-14
+    model_name: openai/gpt-4.1-nano-2025-04-14
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 1047576
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
   - name: openai/whisper-1_gpt-4o-2024-11-20
     model_name: openai/whisper-1_gpt-4o-2024-11-20
     tokenizer_name: openai/o200k_base
