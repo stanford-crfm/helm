@@ -50,3 +50,5 @@ notes.otl
 .nfs*
 
 node_modules
+
+credentials.conf
