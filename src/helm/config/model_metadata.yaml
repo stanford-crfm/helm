@@ -2789,16 +2789,16 @@ models:
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: openai/gpt-4.1-mini-2025-04-14
-    display_name: GPT-4.1 (2025-04-14)
-    description: GPT-4.1 (2025-04-14) is a multimdodal model in the GPT-4.1 family, which outperforms the GPT-4o family, with major gains in coding and instruction following. They also have larger context windows of 1 million tokens and are able to better use that context with improved long-context comprehension. ([blog](https://openai.com/index/gpt-4-1/))
+    display_name: GPT-4.1 mini (2025-04-14)
+    description: GPT-4.1 mini (2025-04-14) is a multimdodal model in the GPT-4.1 family, which outperforms the GPT-4o family, with major gains in coding and instruction following. They also have larger context windows of 1 million tokens and are able to better use that context with improved long-context comprehension. ([blog](https://openai.com/index/gpt-4-1/))
     creator_organization_name: OpenAI
     access: limited
     release_date: 2025-04-14
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: openai/gpt-4.1-nano-2025-04-14
-    display_name: GPT-4.1 mini (2025-04-14)
-    description: GPT-4.1 (2025-04-14) is a multimdodal model in the GPT-4.1 family, which outperforms the GPT-4o family, with major gains in coding and instruction following. They also have larger context windows of 1 million tokens and are able to better use that context with improved long-context comprehension. ([blog](https://openai.com/index/gpt-4-1/))
+    display_name: GPT-4.1 nano (2025-04-14)
+    description: GPT-4.1 nano (2025-04-14) is a multimdodal model in the GPT-4.1 family, which outperforms the GPT-4o family, with major gains in coding and instruction following. They also have larger context windows of 1 million tokens and are able to better use that context with improved long-context comprehension. ([blog](https://openai.com/index/gpt-4-1/))
     creator_organization_name: OpenAI
     access: limited
     release_date: 2025-04-14
