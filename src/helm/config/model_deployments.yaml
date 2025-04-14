@@ -3187,9 +3187,25 @@ model_deployments:
     tokenizer_name: openai/o200k_base
     max_sequence_length: 128000
     client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
-      args:
-        base_url: https://api.x.ai/v1
+      class_name: "helm.clients.grok_client.GrokChatClient"
+
+  - name: xai/grok-3-beta
+    model_name: xai/grok-3-beta
+    tokenizer_name: xai/grok-3-beta
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.grok_client.GrokChatClient"
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
+
+  - name: xai/grok-3-mini-beta
+    model_name: xai/grok-3-mini-beta
+    tokenizer_name: xai/grok-3-mini-beta
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.grok_client.GrokChatClient"
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
 
   # Qwen
 
