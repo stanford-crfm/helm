@@ -1,4 +1,5 @@
 from threading import Lock
+import torch
 from typing import Any, Dict, List, Optional
 
 from dataclasses import dataclass
@@ -61,6 +62,8 @@ class Qwen2_5OmniAudioLMClient(CachingClient):
                 hlog(f"Loading model {model_name} and caching in memory...")
                 model = Qwen2_5OmniModel.from_pretrained(
                     model_name,
+                    attn_implementation="flash_attention_2",
+                    torch_dtype=torch.bfloat16,
                     device_map=self._device,
                 ).eval()
                 tokenizer = Qwen2_5OmniProcessor.from_pretrained(
@@ -135,7 +138,7 @@ class Qwen2_5OmniAudioLMClient(CachingClient):
                             padding=True,
                             use_audio_in_video=USE_AUDIO_IN_VIDEO,
                         )
-                        inputs = inputs.to(self._device)
+                        inputs = inputs.to(self._device, torch.bfloat16)
                         input_seq_length = len(inputs.input_ids[0])
                         # The model runs into errors when setting thinker_max_new_tokens to 1
                         if request.max_tokens != 1:
