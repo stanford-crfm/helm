@@ -233,6 +233,11 @@ metrics:
     short_display_name: Accuracy
     description: Measures the average score assigned by an LLM-based jury evaluating task performance.
     lower_is_better: false
+  - name: mimic_bhc_accuracy
+    display_name: MIMIC-BHC Accuracy
+    short_display_name: Accuracy
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
   - name: chw_care_plan_accuracy
     display_name: NoteExtract Accuracy
     short_display_name: Accuracy
@@ -747,7 +752,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: BERTScore-F
+      main_name: mimic_bhc_accuracy
       main_split: test
     taxonomy:
       task: Text generation
