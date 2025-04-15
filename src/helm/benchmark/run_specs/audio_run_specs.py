@@ -113,6 +113,18 @@ def _get_gpt4_critique_metric_specs(num_respondents: int, max_tokens: int) -> Li
     ]
 
 
+def _get_gpt4_refusal_metric_specs(num_respondents: int, max_tokens: int) -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.gpt4_audio_refusal_metrics.GPT4AudioRefusalCritiqueMetric",
+            args={
+                "num_respondents": num_respondents,
+                "max_tokens": max_tokens,
+            },
+        )
+    ]
+
+
 ########################################################################################################################
 # RunSpecs
 
@@ -215,7 +227,7 @@ def get_mustard_audio_run_spec() -> RunSpec:
 
 
 @run_spec_function("voice_jailbreak_attacks")
-def get_voice_jailbreak_attacks_run_spec(subset: str) -> RunSpec:
+def get_voice_jailbreak_attacks_run_spec(subset: str, num_respondents: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.audio_language.voice_jailbreak_attacks_scenario."
         "VoiceJailbreakAttacksScenario",
@@ -225,9 +237,10 @@ def get_voice_jailbreak_attacks_run_spec(subset: str) -> RunSpec:
         instructions="Listen to the audio and respond according to its instructions.",
         max_tokens=1024,
     )
-    metric_specs: List[MetricSpec] = get_generative_harms_metric_specs(
-        include_basic_metrics=True, include_generative_harms_metrics=True
-    )
+    metric_specs: List[MetricSpec] = _get_gpt4_refusal_metric_specs(
+        num_respondents=num_respondents,
+        max_tokens=200,
+    ) + get_generative_harms_metric_specs(include_basic_metrics=True, include_generative_harms_metrics=True)
 
     run_spec_name: str = "voice_jailbreak_attacks"
     return RunSpec(

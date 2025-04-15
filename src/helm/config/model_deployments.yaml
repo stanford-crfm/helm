@@ -2329,20 +2329,19 @@ model_deployments:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
   ## o1 Models
-  # TODO: support the new `responses` endpoint to get these to work
   - name: openai/o1-pro-2025-03-19
     model_name: openai/o1-pro-2025-03-19
     tokenizer_name: openai/cl100k_base
     max_sequence_length: 128000
     client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
+      class_name: "helm.clients.openai_client.OpenAIResponseClient"
 
   - name: openai/o1-pro-2025-03-19-low-reasoning-effort
     model_name: openai/o1-pro-2025-03-19-low-reasoning-effort
     tokenizer_name: openai/cl100k_base
     max_sequence_length: 128000
     client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
+      class_name: "helm.clients.openai_client.OpenAIResponseClient"
       args:
         openai_model_name: o1-pro-2025-03-19
         reasoning_effort: low
@@ -2352,7 +2351,7 @@ model_deployments:
     tokenizer_name: openai/cl100k_base
     max_sequence_length: 128000
     client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
+      class_name: "helm.clients.openai_client.OpenAIResponseClient"
       args:
         openai_model_name: o1-pro-2025-03-19
         reasoning_effort: high
