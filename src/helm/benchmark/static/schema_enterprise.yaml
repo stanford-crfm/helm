@@ -76,10 +76,10 @@ metrics:
     display_name: Float Equivalence
     description: Float Equivalence
     lower_is_better: false
-  - name: entity_type_classification_macro_f1
-    display_name: Word-level Entity Type Classification Macro F1 Score
-    short_display_name: Entity Type Classification Macro F1
-    description: Word-level entity type classification F1 score, macro-averaged across entity types
+  - name: adjusted_macro_f1_score
+    display_name: Adjusted Macro F1 Score
+    short_display_name: Adjusted Macro F1 Score
+    description: Entity type classification F1 score, adjusted for partial matches following the KPI-Edgar paper, macro-averaged across entity types
 
 ############################################################
 perturbations: []
@@ -207,7 +207,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: entity_type_classification_macro_f1
+      main_name: adjusted_macro_f1_score
       main_split: test
     taxonomy:
       task: named entity recognition

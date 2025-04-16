@@ -67,7 +67,7 @@ class Stat:
                 return "NaN"
             if int(x) == x:
                 return str(int(x))
-            return str(round(x, 3))
+            return str(round(x, 10))
 
         if self.count > 0:
             return (
