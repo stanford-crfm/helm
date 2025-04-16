@@ -115,10 +115,7 @@ def get_kpi_edgar_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_basic_metric_specs([])
-        + [
-            MetricSpec(class_name="helm.benchmark.metrics.kpi_edgar_metrics.KPIEdgarMetric"),
-            MetricSpec(class_name="helm.benchmark.metrics.kpi_edgar_old_metrics.NERAdjustedF1Metric"),
-        ],
+        + [MetricSpec(class_name="helm.benchmark.metrics.kpi_edgar_metrics.KPIEdgarMetric")],
         groups=["kpi_edgar"],
     )
 
