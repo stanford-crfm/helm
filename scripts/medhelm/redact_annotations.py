@@ -40,7 +40,7 @@ def write_scenario_state(scenario_state_path: str, scenario_state: ScenarioState
 def redact_annotations(annotations: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
     if annotations is None:
         return None
-    
+
     result = {}
     for key, val in annotations.items():
         if isinstance(val, dict):
@@ -52,8 +52,9 @@ def redact_annotations(annotations: Optional[Dict[str, Any]]) -> Optional[Dict[s
                 result[key] = val
         else:
             result[key] = val
-    
+
     return result
+
 
 def redact_request_state(request_state: RequestState) -> RequestState:
     annotations = redact_annotations(request_state.annotations)
@@ -64,9 +65,7 @@ def redact_request_state(request_state: RequestState) -> RequestState:
 
 
 def redact_scenario_state(scenario_state: ScenarioState) -> ScenarioState:
-    redacted_request_states = [
-        redact_request_state(request_state) for request_state in scenario_state.request_states
-    ]
+    redacted_request_states = [redact_request_state(request_state) for request_state in scenario_state.request_states]
     return dataclasses.replace(scenario_state, request_states=redacted_request_states)
 
 
