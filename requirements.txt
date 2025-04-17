@@ -181,7 +181,7 @@ nvidia-nvtx-cu12==12.1.105 ; platform_machine == 'x86_64' and sys_platform == 'l
 omegaconf==2.3.0
 onnxruntime==1.19.2
 open-clip-torch==2.30.0
-openai==1.66.5
+openai==1.74.0
 opencc==1.1.9
 opencv-python==4.8.1.78
 opencv-python-headless==4.10.0.84

@@ -143,3 +143,13 @@ export NUM_TRAIN_TRIALS=1
 export NUM_EVAL_INSTANCES=1000
 export PRIORITY=2
 ```
+
+### MedHELM
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_medhelm.conf
+export SCHEMA_PATH=schema_medhelm.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=1000
+export PRIORITY=2
+```
