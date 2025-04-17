@@ -41,7 +41,7 @@ def redact_annotations(annotations: Optional[Dict[str, Any]]) -> Optional[Dict[s
     if annotations is None:
         return None
 
-    result = {}
+    result: Optional[Dict[str, Any]] = {}
     for key, val in annotations.items():
         if isinstance(val, dict):
             result[key] = redact_annotations(val)
