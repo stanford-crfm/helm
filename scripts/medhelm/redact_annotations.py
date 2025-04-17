@@ -37,10 +37,7 @@ def write_scenario_state(scenario_state_path: str, scenario_state: ScenarioState
         f.write(to_json(scenario_state))
 
 
-def redact_annotations(annotations: Dict[str, Any] | None) -> Dict[str, Any]:
-    if annotations is None:
-        return {}
-
+def redact_annotations(annotations: Dict[str, Any]) -> Dict[str, Any]:
     result: Dict[str, Any] = {}
     for key, val in annotations.items():
         if isinstance(val, dict):
@@ -57,6 +54,8 @@ def redact_annotations(annotations: Dict[str, Any] | None) -> Dict[str, Any]:
 
 
 def redact_request_state(request_state: RequestState) -> RequestState:
+    if request_state.annotations is None:
+        return request_state
     annotations = redact_annotations(request_state.annotations)
     return dataclasses.replace(
         request_state,
