@@ -507,6 +507,27 @@ def get_speech_disorder_detection_run_spec(subject: str) -> RunSpec:
         groups=[run_spec_name],
     )
 
+@run_spec_function("speech_disorder_detection_explain")
+def get_speech_disorder_detection_run_spec(subject: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.speech_disorder_explain_scenario."
+        "SpeechDisorderScenarioExplain",
+        args={"subject": subject},
+    )
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(
+        instructions="Explain the answer to the question.",
+        max_tokens=400,
+    )
+    metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
+    run_spec_name: str = "speech_disorder_detection_explain"
+    return RunSpec(
+        name=f"{run_spec_name}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
 
 @run_spec_function("air_bench_chat")
 def get_air_bench_chat_run_spec(subject: str, num_respondents: int = 1) -> RunSpec:
