@@ -12,7 +12,7 @@ update other JSON files used by the web frontend."""
 import argparse
 import dataclasses
 import os
-from typing import Dict, Optional, Any
+from typing import Dict, Any
 from tqdm import tqdm
 
 from helm.benchmark.adaptation.request_state import RequestState
