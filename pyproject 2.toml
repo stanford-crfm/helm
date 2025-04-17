@@ -1,0 +1,7 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+# Settings for Black: The Uncompromising Code Formatter
+[tool.black]
+line-length = 120

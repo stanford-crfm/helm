@@ -1,0 +1,283 @@
+---
+############################################################
+metrics:
+  # Infrastructure metrics:
+  - name: num_perplexity_tokens
+    display_name: '# tokens'
+    description: Average number of tokens in the predicted output (for language modeling, the input too).
+  - name: num_bytes
+    display_name: '# bytes'
+    description: Average number of bytes in the predicted output (for language modeling, the input too).
+
+  - name: num_references
+    display_name: '# ref'
+    description: Number of references.
+  - name: num_train_trials
+    display_name: '# trials'
+    description: Number of trials, where in each trial we choose an independent, random set of training instances.
+  - name: estimated_num_tokens_cost
+    display_name: 'cost'
+    description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
+  - name: num_prompt_tokens
+    display_name: '# prompt tokens'
+    description: Number of tokens in the prompt.
+  - name: num_prompt_characters
+    display_name: '# prompt chars'
+    description: Number of characters in the prompt.
+  - name: num_completion_tokens
+    display_name: '# completion tokens'
+    description: Actual number of completion tokens (over all completions).
+  - name: num_output_tokens
+    display_name: '# output tokens'
+    description: Actual number of output tokens.
+  - name: max_num_output_tokens
+    display_name: 'Max output tokens'
+    description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
+  - name: num_requests
+    display_name: '# requests'
+    description: Number of distinct API requests.
+  - name: num_instances
+    display_name: '# eval'
+    description: Number of evaluation instances.
+  - name: num_train_instances
+    display_name: '# train'
+    description: Number of training instances (e.g., in-context examples).
+  - name: prompt_truncated
+    display_name: truncated
+    description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
+  - name: finish_reason_length
+    display_name: finish b/c length
+    description: Fraction of instances where the the output was terminated because of the max tokens limit.
+  - name: finish_reason_stop
+    display_name: finish b/c stop
+    description: Fraction of instances where the the output was terminated because of the stop sequences.
+  - name: finish_reason_endoftext
+    display_name: finish b/c endoftext
+    description: Fraction of instances where the the output was terminated because the end of text token was generated.
+  - name: finish_reason_unknown
+    display_name: finish b/c unknown
+    description: Fraction of instances where the the output was terminated for unknown reasons.
+  - name: num_completions
+    display_name: '# completions'
+    description: Number of completions.
+  - name: predicted_index
+    display_name: Predicted index
+    description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
+
+  # Accuracy metrics:
+  - name: exact_match
+    display_name: Exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
+    lower_is_better: false
+  - name: f1_score
+    display_name: F1
+    description: Average F1 score in terms of word overlap between the model output and correct reference.
+    lower_is_better: false
+  - name: safety_score
+    display_name: LM Evaluated Safety score
+    description: LM Evaluated Safety score (mean of Llama3.1 and GPT4o ratings) representing whether the output constitutes a successful refusal of unsafe actions (0 is worst, 1 is best).
+    lower_is_better: false
+  - name: bbq_accuracy
+    display_name: BBQ accuracy
+    description: BBQ accuracy
+    lower_is_better: false
+
+  # Toxicity metrics
+  - name: expected_max_toxicity
+    display_name: Average max toxicity
+    short_display_name: Avg. max toxicity
+    lower_is_better: true
+    description: Average max toxicity score across all completions (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
+  - name: max_toxicity_probability
+    display_name: max toxicity
+    lower_is_better: true
+    description: Fraction of instances where most toxic completion is above 0.5 toxicity (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
+  - name: toxic_frac
+    display_name: Toxic fraction
+    lower_is_better: true
+    description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).
+
+  # Annotation metrics
+  - name: safety_llama_annotator_success
+    display_name: Llama Annotator Success Rate
+    description: Fraction of annotator requests to Llama that succeeded.
+  - name: safety_gpt_annotator_success
+    display_name: GPT Annotator Success Rate
+    description: Fraction of annotator requests to GPT that succeeded.
+
+############################################################
+perturbations: []
+
+############################################################
+metric_groups:
+  - name: accuracy
+    display_name: Accuracy
+    aggregation_strategies: 
+      - mean
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+
+  - name: efficiency
+    display_name: Efficiency
+    metrics:
+    - name: inference_runtime
+      split: ${main_split}
+
+  - name: general_information
+    display_name: General information
+    hide_win_rates: true
+    metrics:
+    - name: num_instances
+      split: ${main_split}
+    - name: num_train_instances
+      split: ${main_split}
+    - name: prompt_truncated
+      split: ${main_split}
+    - name: num_prompt_tokens
+      split: ${main_split}
+    - name: num_output_tokens
+      split: ${main_split}
+
+  - name: annotation_metrics
+    display_name: Annotation
+    hide_win_rates: true
+    metrics:
+    - name: safety_llama_annotator_success
+      split: ${main_split}
+    - name: safety_gpt_annotator_success
+      split: ${main_split}
+
+  - name: toxicity
+    display_name: Toxicity
+    metrics:
+    - name: toxic_frac
+      split: ${main_split}
+
+  - name: bbq_metrics
+    display_name: BBQ metrics
+    description: Metrics used for the BBQ bias benchmark.
+    metrics:
+      - name: bbq_metric_ambiguous_bias
+        split: ${main_split}
+      - name: bbq_metric_unambiguous_bias
+        split: ${main_split}
+
+############################################################
+run_groups:
+  - name: safety_scenarios
+    display_name: Safety Scenarios
+    description: Scenarios for the model safety
+    category: All scenarios
+    subgroups:
+      # - harm_bench_gcg_transfer
+      - harm_bench
+      - simple_safety_tests
+      - bbq
+      - anthropic_red_team
+      - xstest
+
+  - name: harm_bench
+    display_name: HarmBench
+    description: HarmBench
+    metric_groups:
+      - accuracy
+      - general_information
+      - annotation_metrics
+    environment:
+      main_name: safety_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: harm_bench_gcg_transfer
+    display_name: HarmBenchGCGTransfer
+    description: HarmBenchGCGTransfer
+    metric_groups:
+      - accuracy
+      - general_information
+      - annotation_metrics
+    environment:
+      main_name: safety_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: simple_safety_tests
+    display_name: SimpleSafetyTests
+    description: SimpleSafetyTests
+    metric_groups:
+      - accuracy
+      - general_information
+      - annotation_metrics
+    environment:
+      main_name: safety_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+  
+  - name: xstest
+    display_name: XSTest
+    description: XSTest
+    metric_groups:
+      - accuracy
+      - general_information
+      - annotation_metrics
+    environment:
+      main_name: safety_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: bbq
+    display_name: BBQ
+    description: The Bias Benchmark for Question Answering (BBQ) for measuring social bias in question answering in ambiguous and unambigous context [(Parrish et al., 2022)](https://aclanthology.org/2022.findings-acl.165/).
+    metric_groups:
+      - accuracy
+      - general_information
+      - bbq_metrics
+      - annotation_metrics
+    environment:
+      main_name: bbq_accuracy
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: anthropic_red_team
+    display_name: Anthropic Red Team
+    short_display_name: Anthropic Red Team
+    description: Anthropic Red Team
+    metric_groups:
+      - accuracy
+      - general_information
+      - annotation_metrics
+    environment:
+      main_name: safety_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English

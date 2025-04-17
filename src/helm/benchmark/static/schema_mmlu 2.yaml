@@ -1,0 +1,1449 @@
+---
+############################################################
+# For backwards compatibility with older versions of HELM.
+# TODO: Remove this after 2024-09-01.
+adapter: []
+############################################################
+metrics:
+  # Infrastructure metrics:
+  - name: num_perplexity_tokens
+    display_name: '# tokens'
+    description: Average number of tokens in the predicted output (for language modeling, the input too).
+  - name: num_bytes
+    display_name: '# bytes'
+    description: Average number of bytes in the predicted output (for language modeling, the input too).
+
+  - name: num_references
+    display_name: '# ref'
+    description: Number of references.
+  - name: num_train_trials
+    display_name: '# trials'
+    description: Number of trials, where in each trial we choose an independent, random set of training instances.
+  - name: estimated_num_tokens_cost
+    display_name: 'cost'
+    description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
+  - name: num_prompt_tokens
+    display_name: '# prompt tokens'
+    description: Number of tokens in the prompt.
+  - name: num_prompt_characters
+    display_name: '# prompt chars'
+    description: Number of characters in the prompt.
+  - name: num_completion_tokens
+    display_name: '# completion tokens'
+    description: Actual number of completion tokens (over all completions).
+  - name: num_output_tokens
+    display_name: '# output tokens'
+    description: Actual number of output tokens.
+  - name: max_num_output_tokens
+    display_name: 'Max output tokens'
+    description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
+  - name: num_requests
+    display_name: '# requests'
+    description: Number of distinct API requests.
+  - name: num_instances
+    display_name: '# eval'
+    description: Number of evaluation instances.
+  - name: num_train_instances
+    display_name: '# train'
+    description: Number of training instances (e.g., in-context examples).
+  - name: prompt_truncated
+    display_name: truncated
+    description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
+  - name: finish_reason_length
+    display_name: finish b/c length
+    description: Fraction of instances where the the output was terminated because of the max tokens limit.
+  - name: finish_reason_stop
+    display_name: finish b/c stop
+    description: Fraction of instances where the the output was terminated because of the stop sequences.
+  - name: finish_reason_endoftext
+    display_name: finish b/c endoftext
+    description: Fraction of instances where the the output was terminated because the end of text token was generated.
+  - name: finish_reason_unknown
+    display_name: finish b/c unknown
+    description: Fraction of instances where the the output was terminated for unknown reasons.
+  - name: num_completions
+    display_name: '# completions'
+    description: Number of completions.
+  - name: predicted_index
+    display_name: Predicted index
+    description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
+
+  # Accuracy metrics:
+  - name: exact_match
+    display_name: Exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_exact_match
+    display_name: Quasi-exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+    lower_is_better: false
+  - name: prefix_exact_match
+    display_name: Prefix exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_prefix_exact_match
+    # TODO: should call this prefix_quasi_exact_match
+    display_name: Prefix quasi-exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
+    lower_is_better: false
+
+  - name: exact_match@5
+    display_name: Exact match @5
+    short_display_name: EM@5
+    description: Fraction of instances where at least one predicted output among the top 5 matches a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_exact_match@5
+    display_name: Quasi-exact match @5
+    short_display_name: EM@5
+    description: Fraction of instances where at least one predicted output among the top 5 matches a correct reference up to light processing.
+    lower_is_better: false
+  - name: prefix_exact_match@5
+    display_name: Prefix exact match @5
+    short_display_name: PEM@5
+    description: Fraction of instances that the predicted output among the top 5 matches the prefix of a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_prefix_exact_match@5
+    display_name: Prefix quasi-exact match @5
+    short_display_name: PEM@5
+    description: Fraction of instances that the predicted output among the top 5 matches the prefix of a correct reference up to light processing.
+    lower_is_better: false
+
+  - name: logprob
+    display_name: Log probability
+    short_display_name: Logprob
+    description: Predicted output's average log probability (input's log prob for language modeling).
+    lower_is_better: false
+  - name: logprob_per_byte
+    display_name: Log probability / byte
+    short_display_name: Logprob/byte
+    description: Predicted output's average log probability normalized by the number of bytes.
+    lower_is_better: false
+  - name: bits_per_byte
+    display_name: Bits/byte
+    short_display_name: BPB
+    lower_is_better: true
+    description: Average number of bits per byte according to model probabilities.
+  - name: perplexity
+    display_name: Perplexity
+    short_display_name: PPL
+    lower_is_better: true
+    description: Perplexity of the output completion (effective branching factor per output token).
+  - name: rouge_1
+    display_name: ROUGE-1
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 1-gram overlap.
+    lower_is_better: false
+  - name: rouge_2
+    display_name: ROUGE-2
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 2-gram overlap.
+    lower_is_better: false
+  - name: rouge_l
+    display_name: ROUGE-L
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on longest common subsequence overlap.
+    lower_is_better: false
+  - name: bleu_1
+    display_name: BLEU-1
+    description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 1-gram overlap.
+    lower_is_better: false
+  - name: bleu_4
+    display_name: BLEU-4
+    description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 4-gram overlap.
+    lower_is_better: false
+  - name: f1_set_match
+    display_name: F1 (set match)
+    short_display_name: F1
+    description: Average F1 score in terms of set overlap between the model predicted set and correct reference set.
+    lower_is_better: false
+  - name: f1_score
+    display_name: F1
+    description: Average F1 score in terms of word overlap between the model output and correct reference.
+    lower_is_better: false
+  - name: classification_macro_f1
+    display_name: Macro-F1
+    description: Population-level macro-averaged F1 score.
+    lower_is_better: false
+  - name: classification_micro_f1
+    display_name: Micro-F1
+    description: Population-level micro-averaged F1 score.
+    lower_is_better: false
+  - name: absolute_value_difference
+    display_name: Absolute difference
+    short_display_name: Diff.
+    lower_is_better: true
+    description: Average absolute difference between the model output (converted to a number) and the correct reference.
+  - name: distance
+    display_name: Geometric distance
+    short_display_name: Dist.
+    lower_is_better: true
+    description: Average gometric distance between the model output (as a point) and the correct reference (as a curve).
+  - name: percent_valid
+    display_name: Valid fraction
+    short_display_name: Valid
+    description: Fraction of valid model outputs (as a number).
+    lower_is_better: false
+  - name: NDCG@10
+    display_name: NDCG@10
+    description: Normalized discounted cumulative gain at 10 in information retrieval.
+    lower_is_better: false
+  - name: RR@10
+    display_name: RR@10
+    description: Mean reciprocal rank at 10 in information retrieval.
+    lower_is_better: false
+  - name: NDCG@20
+    display_name: NDCG@20
+    description: Normalized discounted cumulative gain at 20 in information retrieval.
+    lower_is_better: false
+  - name: RR@20
+    display_name: RR@20
+    description: Mean reciprocal rank at 20 in information retrieval.
+    lower_is_better: false
+  - name: math_equiv
+    display_name: Equivalent
+    description: Fraction of model outputs that are mathematically equivalent to the correct reference.
+    lower_is_better: false
+  - name: math_equiv_chain_of_thought
+    display_name: Equivalent (CoT)
+    description: Fraction of model outputs that are mathematically equivalent to the correct reference when using chain-of-thought prompting.
+    lower_is_better: false
+  - name: exact_match_indicator
+    display_name: Exact match (final)
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly, ignoring text preceding the specified indicator (e.g., space).
+    lower_is_better: false
+  - name: final_number_exact_match
+    display_name: Exact match (final number)
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly, ignoring text preceding the specified indicator.
+    lower_is_better: false
+  - name: exact_set_match
+    display_name: Exact match (at sets)
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly as sets.
+    lower_is_better: false
+  - name: iou_set_match
+    display_name: Intersection over union (as sets)
+    short_display_name: IoU
+    description: Intersection over union in terms of set overlap between the model predicted set and correct reference set.
+    lower_is_better: false
+
+  # Efficiency metrics:
+  - name: training_co2_cost
+    display_name: Estimated training emissions (kg CO2)
+    short_display_name: Training emissions (kg CO2)
+    lower_is_better: true
+    description: Estimate of the CO2 emissions from training the model.
+  - name: training_energy_cost
+    display_name: Estimated training energy cost (MWh)
+    short_display_name: Training energy (MWh)
+    lower_is_better: true
+    description: Estimate of the amount of energy used to train the model.
+  - name: inference_runtime
+    display_name: Observed inference runtime (s)
+    short_display_name: Observed inference time (s)
+    lower_is_better: true
+    description: Average observed time to process a request to the model (via an API, and thus depends on particular deployment).
+  - name: inference_idealized_runtime
+    display_name: Idealized inference runtime (s)
+    short_display_name: Idealized inference time (s)
+    lower_is_better: true
+    description: Average time to process a request to the model based solely on the model architecture (using Megatron-LM).
+  - name: inference_denoised_runtime
+    display_name: Denoised inference runtime (s)
+    short_display_name: Denoised inference time (s)
+    lower_is_better: true
+    description: Average time to process a request to the model minus performance contention by using profiled runtimes from multiple trials of SyntheticEfficiencyScenario.
+  - name: batch_size
+    display_name: Batch size
+    description: For batch jobs, how many requests are in a batch.
+
+  # Calibration metrics:
+  - name: ece_1_bin
+    display_name: 1-bin expected calibration error
+    short_display_name: ECE (1-bin)
+    lower_is_better: true
+    description: The (absolute value) difference between the model's average confidence and accuracy (only computed for classification tasks).
+  - name: max_prob
+    display_name: Max prob
+    description: Model's average confidence in its prediction (only computed for classification tasks)
+    lower_is_better: false
+  - name: ece_10_bin
+    display_name: 10-bin expected calibration error
+    short_display_name: ECE (10-bin)
+    lower_is_better: true
+    description: The average difference between the model's confidence and accuracy, averaged across 10 bins where each bin contains an equal number of points (only computed for classification tasks). Warning - not reliable for small datasets (e.g., with < 300 examples) because each bin will have very few examples.
+  - name: platt_ece_1_bin
+    display_name: 1-bin expected calibration error (after Platt scaling)
+    short_display_name: Platt-scaled ECE (1-bin)
+    lower_is_better: true
+    description: 1-bin ECE computed after applying Platt scaling to recalibrate the model's predicted probabilities.
+  - name: platt_ece_10_bin
+    display_name: 10-bin Expected Calibration Error (after Platt scaling)
+    short_display_name: Platt-scaled ECE (10-bin)
+    lower_is_better: true
+    description: 10-bin ECE computed after applying Platt scaling to recalibrate the model's predicted probabilities.
+  - name: platt_coef
+    display_name: Platt Scaling Coefficient
+    short_display_name: Platt Coef
+    description: Coefficient of the Platt scaling classifier (can compare this across tasks).
+    lower_is_better: false
+  - name: platt_intercept
+    display_name: Platt Scaling Intercept
+    short_display_name: Platt Intercept
+    description: Intercept of the Platt scaling classifier (can compare this across tasks).
+    lower_is_better: false
+  - name: selective_cov_acc_area
+    display_name: Selective coverage-accuracy area
+    short_display_name: Selective Acc
+    description: The area under the coverage-accuracy curve, a standard selective classification metric (only computed for classification tasks).
+    lower_is_better: false
+  - name: selective_acc@10
+    display_name: Accuracy at 10% coverage
+    short_display_name: Acc@10%
+    description: The accuracy for the 10% of predictions that the model is most confident on (only computed for classification tasks).
+    lower_is_better: false
+
+############################################################
+perturbations: []
+############################################################
+metric_groups:
+  - name: accuracy
+    display_name: Accuracy
+    hide_win_rates: true
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+
+  - name: efficiency
+    display_name: Efficiency
+    metrics:
+    - name: inference_runtime
+      split: ${main_split}
+
+  - name: general_information
+    display_name: General information
+    hide_win_rates: true
+    metrics:
+    - name: num_instances
+      split: ${main_split}
+    - name: num_train_instances
+      split: ${main_split}
+    - name: prompt_truncated
+      split: ${main_split}
+    - name: num_prompt_tokens
+      split: ${main_split}
+    - name: num_output_tokens
+      split: ${main_split}
+
+############################################################
+run_groups:
+  - name: mmlu_subjects
+    display_name: MMLU Subjects
+    short_display_name: MMLU Subjects
+    description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intensive question answering across 57 domains [(Hendrycks et al., 2021)](https://arxiv.org/pdf/2009.03300.pdf).
+    category: All Scenarios
+    subgroups:
+      - mmlu
+      - mmlu_abstract_algebra
+      - mmlu_anatomy
+      - mmlu_college_chemistry
+      - mmlu_computer_security
+      - mmlu_econometrics
+      - mmlu_global_facts
+      - mmlu_jurisprudence
+      - mmlu_philosophy
+      - mmlu_professional_medicine
+      - mmlu_us_foreign_policy
+      - mmlu_astronomy
+      - mmlu_business_ethics
+      - mmlu_clinical_knowledge
+      - mmlu_college_biology
+      - mmlu_college_computer_science
+      - mmlu_college_mathematics
+      - mmlu_college_medicine
+      - mmlu_college_physics
+      - mmlu_conceptual_physics
+      - mmlu_electrical_engineering
+      - mmlu_elementary_mathematics
+      - mmlu_formal_logic
+      - mmlu_high_school_biology
+      - mmlu_high_school_chemistry
+      - mmlu_high_school_computer_science
+      - mmlu_high_school_european_history
+      - mmlu_high_school_geography
+      - mmlu_high_school_government_and_politics
+      - mmlu_high_school_macroeconomics
+      - mmlu_high_school_mathematics
+      - mmlu_high_school_microeconomics
+      - mmlu_high_school_physics
+      - mmlu_high_school_psychology
+      - mmlu_high_school_statistics
+      - mmlu_high_school_us_history
+      - mmlu_high_school_world_history
+      - mmlu_human_aging
+      - mmlu_human_sexuality
+      - mmlu_international_law
+      - mmlu_logical_fallacies
+      - mmlu_machine_learning
+      - mmlu_management
+      - mmlu_marketing
+      - mmlu_medical_genetics
+      - mmlu_miscellaneous
+      - mmlu_moral_disputes
+      - mmlu_moral_scenarios
+      - mmlu_nutrition
+      - mmlu_prehistory
+      - mmlu_professional_accounting
+      - mmlu_professional_law
+      - mmlu_professional_psychology
+      - mmlu_public_relations
+      - mmlu_security_studies
+      - mmlu_sociology
+      - mmlu_virology
+      - mmlu_world_religions
+
+  - name: mmlu
+    display_name: Massive Multitask Language Understanding (MMLU) All Subjects
+    short_display_name: MMLU All Subjects
+    description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intensive question answering across 57 domains [(Hendrycks et al., 2021)](https://arxiv.org/pdf/2009.03300.pdf).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: math, science, history, etc.
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_abstract_algebra
+    display_name: Abstract Algebra
+    short_display_name: Abstract Algebra
+    description: The abstract algebra subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: abstract algebra
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_anatomy
+    display_name: Anatomy
+    short_display_name: Anatomy
+    description: The anatomy subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: anatomy
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_college_chemistry
+    display_name: College Chemistry
+    short_display_name: College Chemistry
+    description: The college chemistry subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: college chemistry
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_computer_security
+    display_name: Computer Security
+    short_display_name: Computer Security
+    description: The computer security subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: computer security
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_econometrics
+    display_name: Econometrics
+    short_display_name: Econometrics
+    description: The econometrics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: econometrics
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_global_facts
+    display_name: Global Facts
+    short_display_name: Global Facts
+    description: The global facts subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: global facts
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_jurisprudence
+    display_name: Jurisprudence
+    short_display_name: Jurisprudence
+    description: The jurisprudence subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: jurisprudence
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_philosophy
+    display_name: Philosophy
+    short_display_name: Philosophy
+    description: The philosophy subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: philosophy
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_professional_medicine
+    display_name: Professional Medicine
+    short_display_name: Professional Medicine
+    description: The professional medicine subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: professional medicine
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_us_foreign_policy
+    display_name: Us Foreign Policy
+    short_display_name: Us Foreign Policy
+    description: The us foreign policy subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: us foreign policy
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_astronomy
+    display_name: Astronomy
+    short_display_name: Astronomy
+    description: The astronomy subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: astronomy
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_business_ethics
+    display_name: Business Ethics
+    short_display_name: Business Ethics
+    description: The business ethics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: business ethics
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_clinical_knowledge
+    display_name: Clinical Knowledge
+    short_display_name: Clinical Knowledge
+    description: The clinical knowledge subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: clinical knowledge
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_college_biology
+    display_name: College Biology
+    short_display_name: College Biology
+    description: The college biology subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: college biology
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_college_computer_science
+    display_name: College Computer Science
+    short_display_name: College Computer Science
+    description: The college computer science subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: college computer science
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_college_mathematics
+    display_name: College Mathematics
+    short_display_name: College Mathematics
+    description: The college mathematics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: college mathematics
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_college_medicine
+    display_name: College Medicine
+    short_display_name: College Medicine
+    description: The college medicine subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: college medicine
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_college_physics
+    display_name: College Physics
+    short_display_name: College Physics
+    description: The college physics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: college physics
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_conceptual_physics
+    display_name: Conceptual Physics
+    short_display_name: Conceptual Physics
+    description: The conceptual physics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: conceptual physics
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_electrical_engineering
+    display_name: Electrical Engineering
+    short_display_name: Electrical Engineering
+    description: The electrical engineering subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: electrical engineering
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_elementary_mathematics
+    display_name: Elementary Mathematics
+    short_display_name: Elementary Mathematics
+    description: The elementary mathematics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: elementary mathematics
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_formal_logic
+    display_name: Formal Logic
+    short_display_name: Formal Logic
+    description: The formal logic subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: formal logic
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_high_school_biology
+    display_name: High School Biology
+    short_display_name: High School Biology
+    description: The high school biology subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: high school biology
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_high_school_chemistry
+    display_name: High School Chemistry
+    short_display_name: High School Chemistry
+    description: The high school chemistry subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: high school chemistry
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_high_school_computer_science
+    display_name: High School Computer Science
+    short_display_name: High School Computer Science
+    description: The high school computer science subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: high school computer science
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_high_school_european_history
+    display_name: High School European History
+    short_display_name: High School European History
+    description: The high school european history subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: high school european history
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_high_school_geography
+    display_name: High School Geography
+    short_display_name: High School Geography
+    description: The high school geography subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: high school geography
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_high_school_government_and_politics
+    display_name: High School Government And Politics
+    short_display_name: High School Government And Politics
+    description: The high school government and politics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: high school government and politics
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_high_school_macroeconomics
+    display_name: High School Macroeconomics
+    short_display_name: High School Macroeconomics
+    description: The high school macroeconomics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: high school macroeconomics
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_high_school_mathematics
+    display_name: High School Mathematics
+    short_display_name: High School Mathematics
+    description: The high school mathematics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: high school mathematics
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_high_school_microeconomics
+    display_name: High School Microeconomics
+    short_display_name: High School Microeconomics
+    description: The high school microeconomics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: high school microeconomics
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_high_school_physics
+    display_name: High School Physics
+    short_display_name: High School Physics
+    description: The high school physics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: high school physics
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_high_school_psychology
+    display_name: High School Psychology
+    short_display_name: High School Psychology
+    description: The high school psychology subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: high school psychology
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_high_school_statistics
+    display_name: High School Statistics
+    short_display_name: High School Statistics
+    description: The high school statistics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: high school statistics
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_high_school_us_history
+    display_name: High School US History
+    short_display_name: High School US History
+    description: The high school us history subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: high school us history
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_high_school_world_history
+    display_name: High School World History
+    short_display_name: High School World History
+    description: The high school world history subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: high school world history
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_human_aging
+    display_name: Human Aging
+    short_display_name: Human Aging
+    description: The human aging subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: human aging
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_human_sexuality
+    display_name: Human Sexuality
+    short_display_name: Human Sexuality
+    description: The human sexuality subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: human sexuality
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_international_law
+    display_name: International Law
+    short_display_name: International Law
+    description: The international law subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: international law
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_logical_fallacies
+    display_name: Logical Fallacies
+    short_display_name: Logical Fallacies
+    description: The logical fallacies subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: logical fallacies
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_machine_learning
+    display_name: Machine Learning
+    short_display_name: Machine Learning
+    description: The machine learning subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: machine learning
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_management
+    display_name: Management
+    short_display_name: Management
+    description: The management subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: management
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_marketing
+    display_name: Marketing
+    short_display_name: Marketing
+    description: The marketing subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: marketing
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_medical_genetics
+    display_name: Medical Genetics
+    short_display_name: Medical Genetics
+    description: The medical genetics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: medical genetics
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_miscellaneous
+    display_name: Miscellaneous
+    short_display_name: Miscellaneous
+    description: The miscellaneous subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: miscellaneous
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_moral_disputes
+    display_name: Moral Disputes
+    short_display_name: Moral Disputes
+    description: The moral disputes subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: moral disputes
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_moral_scenarios
+    display_name: Moral Scenarios
+    short_display_name: Moral Scenarios
+    description: The moral scenarios subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: moral scenarios
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_nutrition
+    display_name: Nutrition
+    short_display_name: Nutrition
+    description: The nutrition subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: nutrition
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_prehistory
+    display_name: Prehistory
+    short_display_name: Prehistory
+    description: The prehistory subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: prehistory
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_professional_accounting
+    display_name: Professional Accounting
+    short_display_name: Professional Accounting
+    description: The professional accounting subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: professional accounting
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_professional_law
+    display_name: Professional Law
+    short_display_name: Professional Law
+    description: The professional law subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: professional law
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_professional_psychology
+    display_name: Professional Psychology
+    short_display_name: Professional Psychology
+    description: The professional psychology subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: professional psychology
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_public_relations
+    display_name: Public Relations
+    short_display_name: Public Relations
+    description: The public relations subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: public relations
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_security_studies
+    display_name: Security Studies
+    short_display_name: Security Studies
+    description: The security studies subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: security studies
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_sociology
+    display_name: Sociology
+    short_display_name: Sociology
+    description: The sociology subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: sociology
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_virology
+    display_name: Virology
+    short_display_name: Virology
+    description: The virology subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: virology
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: mmlu_world_religions
+    display_name: World Religions
+    short_display_name: World Religions
+    description: The world religions subject in the Massive Multitask Language Understanding (MMLU) benchmark.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: world religions
+      who: various online sources
+      when: before 2021
+      language: English

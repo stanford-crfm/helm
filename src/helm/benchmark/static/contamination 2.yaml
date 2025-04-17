@@ -1,0 +1,95 @@
+---
+
+points:
+
+# Models trained on The Pile
+  - models:
+    - together/bloom
+    groups:
+    - the_pile
+    level: strong
+    description: BLOOM is explicitly trained on the Pile, i.e. data from the same distribution as the test set. See https://huggingface.co/spaces/bigscience/BigScienceCorpus.
+
+  - models:
+    - together/gpt-j-6b
+    groups:
+    - the_pile
+    level: strong
+    description: GPT-J is explicitly trained on the Pile, i.e. data from the same distribution as the test set. See https://arankomatsuzaki.wordpress.com/2021/06/04/gpt-j/.
+
+  - models:
+    - together/gpt-neox-20b
+    groups:
+    - the_pile
+    level: strong
+    description: GPT-NeoX is explicitly trained on the Pile, i.e. data from the same distribution as the test set. See https://arxiv.org/abs/2204.06745.
+
+  - models:
+    - together/opt-66b
+    - together/opt-175b
+    groups:
+    - the_pile
+    level: strong
+    description: OPT is explicitly trained on the Pile, i.e. data from the same distribution as the test set. See https://arxiv.org/abs/2205.01068.
+
+  - models:
+    - microsoft/TNLGv2_7B
+    - microsoft/TNLGv2_530B
+    groups:
+    - the_pile
+    level: strong
+    description: MT-NLG is explicitly trained on the Pile, i.e. data from the same distribution as the test set. See https://arxiv.org/abs/2201.11990.
+
+  - models:
+    - anthropic/stanford-online-all-v4-s3
+    - anthropic/claude-v1.3
+    - anthropic/claude-instant-v1
+    - anthropic/claude-instant-1.2
+    groups:
+    - the_pile
+    level: strong
+    description: Anthropic is explicitly trained on the Pile, i.e. data from the same distribution as the test set. See https://arxiv.org/abs/2112.00861.
+
+  - models:
+    - together/yalm
+    groups:
+    - the_pile
+    level: strong
+    description: YaLM is explicitly trained on the Pile, i.e. data from the same distribution as the test set. See https://github.com/yandex/YaLM-100B.
+
+# Models explicitly trained on specific downstream scenarios
+  - models:
+    - together/t0pp
+    groups:
+    - hellaswag
+    - openbookqa
+    - boolq
+    - summarization_xsum
+    - summarization_cnndm
+    - imdb
+    level: strong
+    description: T0++ is explicitly trained on these datasets, i.e. data from the same distribution as the test set. See Table 5 on page 24 of https://arxiv.org/pdf/2110.08207.pdf.
+
+# Models with contamination analyses.
+  - models:
+    - openai/davinci
+    - openai/curie
+    - openai/babbage
+    - openai/ada
+    - openai/text-curie-001
+    - openai/text-babbage-001
+    - openai/text-ada-001
+    - openai/text-davinci-002
+    - openai/text-davinci-003
+    - openai/code-davinci-002
+    - openai/code-davinci-001
+    - openai/code-cushman-001
+    groups:
+    - natural_qa_closedbook
+    - natural_qa_openbook_longans
+    - hellaswag
+    - openbookqa
+    - boolq
+    - quac
+    level: weak
+    description: Brown et al. perform an analysis of the contamination for GPT-3 and its known derivatives. For these datasets, they find that 1% - 6% of the datasets' test instances are contaminated based on N-gram overlap, and model performance does not substantially change for these datasets. See Table C.1 on page 45 of https://arxiv.org/pdf/2005.14165.pdf.

@@ -1,0 +1,370 @@
+---
+############################################################
+# For backwards compatibility with older versions of HELM.
+# TODO: Remove this after 2024-09-01.
+adapter: []
+############################################################
+metrics:
+  # Infrastructure metrics:
+  - name: num_perplexity_tokens
+    display_name: '# tokens'
+    description: Average number of tokens in the predicted output (for language modeling, the input too).
+  - name: num_bytes
+    display_name: '# bytes'
+    description: Average number of bytes in the predicted output (for language modeling, the input too).
+  - name: num_references
+    display_name: '# ref'
+    description: Number of references.
+  - name: num_train_trials
+    display_name: '# trials'
+    description: Number of trials, where in each trial we choose an independent, random set of training instances.
+  - name: estimated_num_tokens_cost
+    display_name: 'cost'
+    description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
+  - name: num_prompt_tokens
+    display_name: '# prompt tokens'
+    description: Number of tokens in the prompt.
+  - name: num_prompt_characters
+    display_name: '# prompt chars'
+    description: Number of characters in the prompt.
+  - name: num_completion_tokens
+    display_name: '# completion tokens'
+    description: Actual number of completion tokens (over all completions).
+  - name: num_output_tokens
+    display_name: '# output tokens'
+    description: Actual number of output tokens.
+  - name: max_num_output_tokens
+    display_name: 'Max output tokens'
+    description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
+  - name: num_requests
+    display_name: '# requests'
+    description: Number of distinct API requests.
+  - name: num_instances
+    display_name: '# eval'
+    description: Number of evaluation instances.
+  - name: num_train_instances
+    display_name: '# train'
+    description: Number of training instances (e.g., in-context examples).
+  - name: prompt_truncated
+    display_name: truncated
+    description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
+  - name: finish_reason_length
+    display_name: finish b/c length
+    description: Fraction of instances where the the output was terminated because of the max tokens limit.
+  - name: finish_reason_stop
+    display_name: finish b/c stop
+    description: Fraction of instances where the the output was terminated because of the stop sequences.
+  - name: finish_reason_endoftext
+    display_name: finish b/c endoftext
+    description: Fraction of instances where the the output was terminated because the end of text token was generated.
+  - name: finish_reason_unknown
+    display_name: finish b/c unknown
+    description: Fraction of instances where the the output was terminated for unknown reasons.
+  - name: num_completions
+    display_name: '# completions'
+    description: Number of completions.
+  - name: predicted_index
+    display_name: Predicted index
+    description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
+
+  # Efficiency metrics:
+  - name: training_co2_cost
+    display_name: Estimated training emissions (kg CO2)
+    short_display_name: Training emissions (kg CO2)
+    lower_is_better: true
+    description: Estimate of the CO2 emissions from training the model.
+  - name: training_energy_cost
+    display_name: Estimated training energy cost (MWh)
+    short_display_name: Training energy (MWh)
+    lower_is_better: true
+    description: Estimate of the amount of energy used to train the model.
+  - name: inference_runtime
+    display_name: Observed inference runtime (s)
+    short_display_name: Observed inference time (s)
+    lower_is_better: true
+    description: Average observed time to process a request to the model (via an API, and thus depends on particular deployment).
+  - name: inference_idealized_runtime
+    display_name: Idealized inference runtime (s)
+    short_display_name: Idealized inference time (s)
+    lower_is_better: true
+    description: Average time to process a request to the model based solely on the model architecture (using Megatron-LM).
+  - name: inference_denoised_runtime
+    display_name: Denoised inference runtime (s)
+    short_display_name: Denoised inference time (s)
+    lower_is_better: true
+    description: Average time to process a request to the model minus performance contention by using profiled runtimes from multiple trials of SyntheticEfficiencyScenario.
+  - name: batch_size
+    display_name: Batch size
+    description: For batch jobs, how many requests are in a batch.
+
+  # Unitxt Metrics
+  - name: accuracy
+    display_name: accuracy
+    short_display_name: accuracy
+    description: accuracy
+  - name: accuracy_ci_high
+    display_name: accuracy_ci_high
+    short_display_name: accuracy_ci_high
+    description: accuracy_ci_high
+  - name: accuracy_ci_low
+    display_name: accuracy_ci_low
+    short_display_name: accuracy_ci_low
+    description: accuracy_ci_low
+  - name: f1_audio_volume_up
+    display_name: f1_audio_volume_up
+    short_display_name: f1_audio_volume_up
+    description: f1_audio_volume_up
+  - name: f1_calendar_remove
+    display_name: f1_calendar_remove
+    short_display_name: f1_calendar_remove
+    description: f1_calendar_remove
+  - name: f1_contradiction
+    display_name: f1_contradiction
+    short_display_name: f1_contradiction
+    description: f1_contradiction
+  - name: f1_cooking_recipe
+    display_name: f1_cooking_recipe
+    short_display_name: f1_cooking_recipe
+    description: f1_cooking_recipe
+  - name: f1_datetime_query
+    display_name: f1_datetime_query
+    short_display_name: f1_datetime_query
+    description: f1_datetime_query
+  - name: f1_entailment
+    display_name: f1_entailment
+    short_display_name: f1_entailment
+    description: f1_entailment
+  - name: f1_lists_remove
+    display_name: f1_lists_remove
+    short_display_name: f1_lists_remove
+    description: f1_lists_remove
+  - name: f1_macro
+    display_name: f1_macro
+    short_display_name: f1_macro
+    description: f1_macro
+  - name: f1_macro_ci_high
+    display_name: f1_macro_ci_high
+    short_display_name: f1_macro_ci_high
+    description: f1_macro_ci_high
+  - name: f1_macro_ci_low
+    display_name: f1_macro_ci_low
+    short_display_name: f1_macro_ci_low
+    description: f1_macro_ci_low
+  - name: f1_micro
+    display_name: f1_micro
+    short_display_name: f1_micro
+    description: f1_micro
+  - name: f1_micro_ci_high
+    display_name: f1_micro_ci_high
+    short_display_name: f1_micro_ci_high
+    description: f1_micro_ci_high
+  - name: f1_micro_ci_low
+    display_name: f1_micro_ci_low
+    short_display_name: f1_micro_ci_low
+    description: f1_micro_ci_low
+  - name: f1_music_query
+    display_name: f1_music_query
+    short_display_name: f1_music_query
+    description: f1_music_query
+  - name: f1_neutral
+    display_name: f1_neutral
+    short_display_name: f1_neutral
+    description: f1_neutral
+  - name: f1_news_query
+    display_name: f1_news_query
+    short_display_name: f1_news_query
+    description: f1_news_query
+  - name: f1_play_game
+    display_name: f1_play_game
+    short_display_name: f1_play_game
+    description: f1_play_game
+  - name: f1_play_music
+    display_name: f1_play_music
+    short_display_name: f1_play_music
+    description: f1_play_music
+  - name: fairness
+    display_name: fairness
+    short_display_name: fairness
+    description: fairness
+  - name: groups_mean_score
+    display_name: groups_mean_score
+    short_display_name: groups_mean_score
+    description: groups_mean_score
+  - name: max_prob
+    display_name: max_prob
+    short_display_name: max_prob
+    description: max_prob
+  - name: perplexity
+    display_name: perplexity
+    short_display_name: perplexity
+    description: perplexity
+  - name: robustness
+    display_name: robustness
+    short_display_name: robustness
+    description: robustness
+  - name: rouge1
+    display_name: rouge1
+    short_display_name: rouge1
+    description: rouge1
+  - name: rouge2
+    display_name: rouge2
+    short_display_name: rouge2
+    description: rouge2
+  - name: rougeL
+    display_name: rougeL
+    short_display_name: rougeL
+    description: rougeL
+  - name: rougeLsum
+    display_name: rougeLsum
+    short_display_name: rougeLsum
+    description: rougeLsum
+  - name: score_ci_high
+    display_name: score_ci_high
+    short_display_name: score_ci_high
+    description: score_ci_high
+  - name: score_ci_low
+    display_name: score_ci_low
+    short_display_name: score_ci_low
+    description: score_ci_low
+
+perturbations: []
+
+metric_groups:
+  - name: main_score
+    display_name: Main Score
+    metrics:
+      - name: ${main_name}
+        split: __all__
+
+  - name: efficiency
+    display_name: Efficiency
+    metrics:
+    - name: inference_runtime
+      split: ${main_split}
+
+  - name: general_information
+    display_name: General information
+    metrics:
+    - name: num_instances
+      split: ${main_split}
+    - name: num_train_instances
+      split: ${main_split}
+    - name: prompt_truncated
+      split: ${main_split}
+    - name: num_prompt_tokens
+      split: ${main_split}
+    - name: num_output_tokens
+      split: ${main_split}
+
+  - name: classification_metrics
+    display_name: Main Score
+    metrics:
+      # Not included because already in main_score
+      # - name: accuracy
+      #   split: __all__
+      - name: f1_macro
+        split: __all__
+      - name: f1_micro
+        split: __all__
+
+  - name: summarization_metrics
+    display_name: Main Score
+    metrics:
+      - name: rouge1
+        split: __all__
+      - name: rouge2
+        split: __all__
+      # Not included because already in main_score
+      # - name: rougeL
+      #   split: __all__
+      - name: rougeLsum
+        split: __all__
+
+run_groups:
+  - name: spanish_scenarios
+    display_name: Spanish Scenarios
+    description: Spanish Scenarios
+    category: Multi-lingual Scenarios
+    subgroups:
+      - unitxt_cards.amazon_mass.es_ES
+      - unitxt_cards.xnli.es
+      - unitxt_cards.xlsum.spanish
+      - unitxt_cards.mlsum.es
+
+  - name: unitxt_cards.amazon_mass.es_ES
+    display_name: Amazon MASS
+    short_display_name: Amazon MASS
+    description: Amazon MASS
+    metric_groups:
+      - main_score
+      - classification_metrics
+      - efficiency
+      - general_information
+    environment:
+      # TODO: f1_macro instead?
+      main_name: accuracy
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: Spanish
+
+  - name: unitxt_cards.xnli.es
+    display_name: XNLI
+    short_display_name: XNLI
+    description: XNLI
+    metric_groups:
+      - main_score
+      - classification_metrics
+      - efficiency
+      - general_information
+    environment:
+      # TODO: f1_macro instead?
+      main_name: accuracy
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: Spanish
+
+  - name: unitxt_cards.xlsum.spanish
+    display_name: XL-Sum
+    short_display_name: XL-Sum
+    description: XL-Sum
+    metric_groups:
+      - main_score
+      - summarization_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: rougeL
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: Spanish
+
+  - name: unitxt_cards.mlsum.es
+    display_name: MLSUM
+    short_display_name: MLSUM
+    description: MLSUM
+    metric_groups:
+      - main_score
+      - summarization_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: rougeL
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: Spanish

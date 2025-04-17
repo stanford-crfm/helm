@@ -1,0 +1,5 @@
+# Dependency version constraints for `uv pip compile`
+# See: https://docs.astral.sh/uv/pip/compile/#adding-constraints
+# Constraint PyTorch versions to the same versions in install-dev.sh
+torch==2.2.2
+torchvision==0.17.2

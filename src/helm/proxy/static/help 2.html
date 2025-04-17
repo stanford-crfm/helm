@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>CRFM Models API</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+		<link rel="stylesheet" type="text/css" href="index.css">
+	</head>
+
+	<body>
+		<div class="container-fluid">
+      <nav class="navbar navbar-expand-sm navbar-light bg-faded">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav-content" aria-controls="nav-content" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="nav-content">
+          <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="index.html">Query</a></li>
+            <li class="nav-item"><a class="nav-link active" href="help.html">Help</a></li>
+            <li class="nav-item" id="loginInfo"></li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="row">
+        <div class="col-sm-12">
+          <p>
+            This web interface and API allows you to experiment with multiple large language models using a unified interface.
+            To log in, you need an API key.
+          </p>
+          <h2>Query</h2>
+          <ul>
+            <li>In the web interface, you can enter a <b>query</b>, which consists of the following components:
+              <ul>
+                <li><b>prompt</b>, which is what text we want to feed into the language model.  The prompt can have variables (e.g., <tt>${name}</tt>) which are filled in later.</li>
+                <li><b>settings</b>, which configures how we're going to call the backend API (HOCON format):
+                  <ul>
+                    <li><tt>model</tt>: which model to query; options are:
+                      <div id="help-models" />
+                    </li>
+                    <li><tt>temperature</tt>: a non-negative number determining amount of stochasticity (e.g., <tt>1</tt> is sampling from the model, <tt>0</tt> is returning the maximum probability output)</li>
+                    <li><tt>num_completions</tt>: number of completions (sequences, independent sampled) to return</li>
+                    <li><tt>top_k_per_token</tt>: number of candidates per token position in each completion</li>
+                    <li><tt>max_tokens</tt>: maximum number of tokens before generation stops</li>
+                    <li><tt>stop_sequences</tt>: list of strings that will stop generation (e.g., <tt>'.'</tt> or <tt>'\n'</tt>)</li>
+                    <li><tt>echo_prompt</tt>: Whether to include the prompt as a prefix of the completion</li>
+                    <li><tt>top_p</tt>: An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.</li>
+                    <li><tt>presence_penalty</tt>: Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics. (OpenAI only)</li>
+                    <li><tt>frequency_penalty</tt>: Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim. (OpenAI only)</li>
+                  </ul>
+                  Settings can also have variables in them (e.g., <tt>temperature</tt>).
+                </li>
+                <li><b>environments</b>, which specifies for each variable, a list of values (HOCON format).
+              </ul>
+            </li>
+            <li>
+              When the query is submitted,
+              we consider all possible assignments of values to variables.
+              For example:
+              <ul>
+                <li>environments has <tt>name: [Boston, New York]</tt> and <tt>temperature: [0, 1]</tt></li>
+                <li>prompt is <tt>${name} is a</tt></li>
+                <li>settings is <tt>temperature: ${temperature}</tt></li>
+              </ul>
+              This gives rise to 4 <b>requests</b>:
+              <ul>
+                <li>prompt: <tt>Boston is a</tt>, temperature: <tt>0</tt></li>
+                <li>prompt: <tt>Boston is a</tt>, temperature: <tt>1</tt></li>
+                <li>prompt: <tt>New York is a</tt>, temperature: <tt>0</tt></li>
+                <li>prompt: <tt>New York is a</tt>, temperature: <tt>1</tt></li>
+              </ul>
+            </li>
+          </ul>
+
+          <h2><a name="quotas">Quotas</a></h2>
+          <p>
+            For each model group (e.g., <tt>gpt3</tt>) and time granularity
+            (e.g., <tt>daily</tt>, <tt>monthly</tt>, <tt>total</tt>), you are
+            given a quota of a certain number of tokens.
+            Once you go over that number, you won't be able to use the API.
+            However, note that requests that have already been made (by you or
+            anyone) that are cached are not counted towards your quota.
+            For example, if your daily quota for <tt>gpt3</tt> is <tt>10000</tt>,
+            that means each day, you will get 10000 tokens.
+          </p>
+        </div>
+      </div>
+		</div>
+
+		<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.29.0/js/jquery.tablesorter.min.js"></script>
+		<script src="general.js"></script>
+		<script src="index.js"></script>
+	</body>
+</html>

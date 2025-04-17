@@ -1,0 +1,200 @@
+{
+  "ai21/j1-large": {
+    "runtime_per_output_token": 0.016,
+    "runtime_for_prompt_tokens": {
+      "1": 0.016,
+      "256": 0.065,
+      "512": 0.184,
+      "1024": 0.34,
+      "1536": 0.449
+    },
+    "overhead": 0.237
+  },
+  "ai21/j1-grande": {
+    "runtime_per_output_token": 0.021,
+    "runtime_for_prompt_tokens": {
+      "1": 0.021,
+      "256": 0.219,
+      "512": 0.172,
+      "1024": 0.351,
+      "1536": 0.519
+    },
+    "overhead": 0.277
+  },
+  "ai21/j1-jumbo": {
+    "runtime_per_output_token": 0.042,
+    "runtime_for_prompt_tokens": {
+      "1": 0.042,
+      "256": 0.109,
+      "512": 0.268,
+      "1024": 0.463,
+      "1536": 0.655
+    },
+    "overhead": 0.257
+  },
+  "anthropic/stanford-online-all-v4-s3": {
+    "runtime_per_output_token": 0.057,
+    "runtime_for_prompt_tokens": {
+      "1": 0.057,
+      "256": 0.183,
+      "512": 0.193,
+      "1024": 0.191,
+      "1536": 0.38
+    },
+    "overhead": 0.442
+  },
+  "openai/ada": {
+    "runtime_per_output_token": 0.006,
+    "runtime_for_prompt_tokens": {
+      "1": 0.006,
+      "256": 0.006,
+      "512": 0.006,
+      "1024": 0.006,
+      "1536": 0.006
+    },
+    "overhead": 0.136
+  },
+  "openai/text-ada-001": {
+    "runtime_per_output_token": 0.006,
+    "runtime_for_prompt_tokens": {
+      "1": 0.006,
+      "256": 0.01,
+      "512": 0.014,
+      "1024": 0.022,
+      "1536": 0.033
+    },
+    "overhead": 0.076
+  },
+  "openai/babbage": {
+    "runtime_per_output_token": 0.006,
+    "runtime_for_prompt_tokens": {
+      "1": 0.006,
+      "256": 0.007,
+      "512": 0.011,
+      "1024": 0.012,
+      "1536": 0.017
+    },
+    "overhead": 0.111
+  },
+  "openai/text-babbage-001": {
+    "runtime_per_output_token": 0.007,
+    "runtime_for_prompt_tokens": {
+      "1": 0.007,
+      "256": 0.008,
+      "512": 0.012,
+      "1024": 0.022,
+      "1536": 0.035
+    },
+    "overhead": 0.122
+  },
+  "openai/curie": {
+    "runtime_per_output_token": 0.007,
+    "runtime_for_prompt_tokens": {
+      "1": 0.007,
+      "256": 0.014,
+      "512": 0.016,
+      "1024": 0.026,
+      "1536": 0.031
+    },
+    "overhead": 0.079
+  },
+  "openai/text-curie-001": {
+    "runtime_per_output_token": 0.007,
+    "runtime_for_prompt_tokens": {
+      "1": 0.007,
+      "256": 0.018,
+      "512": 0.014,
+      "1024": 0.034,
+      "1536": 0.028
+    },
+    "overhead": 0.119
+  },
+  "openai/code-cushman-001": {
+    "runtime_per_output_token": 0.008,
+    "runtime_for_prompt_tokens": {
+      "1": 0.008,
+      "256": 0.024,
+      "512": 0.025,
+      "1024": 0.027,
+      "1536": 0.029
+    },
+    "overhead": 0.079
+  },
+  "openai/code-davinci-002": {
+    "runtime_per_output_token": 0.025,
+    "runtime_for_prompt_tokens": {
+      "1": 0.025,
+      "256": 0.091,
+      "512": 0.064,
+      "1024": 0.144,
+      "1536": 0.124
+    },
+    "overhead": 0.108
+  },
+  "openai/davinci": {
+    "runtime_per_output_token": 0.03,
+    "runtime_for_prompt_tokens": {
+      "1": 0.03,
+      "256": 0.03,
+      "512": 0.045,
+      "1024": 0.033,
+      "1536": 0.042
+    },
+    "overhead": 0.183
+  },
+  "openai/text-davinci-002": {
+    "runtime_per_output_token": 0.029,
+    "runtime_for_prompt_tokens": {
+      "1": 0.029,
+      "256": 0.041,
+      "512": 0.068,
+      "1024": 0.029,
+      "1536": 0.073
+    },
+    "overhead": 0.157
+  },
+  "cohere/small-20220720": {
+    "runtime_per_output_token": 0.006,
+    "runtime_for_prompt_tokens": {
+      "1": 0.006,
+      "256": 0.03,
+      "512": 0.071,
+      "1024": 0.162,
+      "1536": 0.27
+    },
+    "overhead": 0.213
+  },
+  "cohere/medium-20220720": {
+    "runtime_per_output_token": 0.012,
+    "runtime_for_prompt_tokens": {
+      "1": 0.012,
+      "256": 0.051,
+      "512": 0.108,
+      "1024": 0.187,
+      "1536": 0.261
+    },
+    "overhead": 0.186
+  },
+  "cohere/large-20220720": {
+    "runtime_per_output_token": 0.023,
+    "runtime_for_prompt_tokens": {
+      "1": 0.023,
+      "256": 0.071,
+      "512": 0.127,
+      "1024": 0.243,
+      "1536": 0.369
+    },
+    "overhead": 0.2
+  },
+  "cohere/xlarge-20220609": {
+    "runtime_per_output_token": 0.04,
+    "runtime_for_prompt_tokens": {
+      "1": 0.04,
+      "256": 0.138,
+      "512": 0.219,
+      "1024": 0.318,
+      "1536": 0.477
+    },
+    "overhead": 0.311
+  }
+}

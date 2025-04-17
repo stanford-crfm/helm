@@ -1,0 +1,7 @@
+/* From https://mkdocstrings.github.io/python/customization/#recommended-style-readthedocs */
+
+/* Indentation. */
+div.doc-contents:not(.first), div.doc-class > div.doc-contents {
+  padding-left: 25px;
+  border-left: .05rem solid rgba(200, 200, 200, 0.2);
+}

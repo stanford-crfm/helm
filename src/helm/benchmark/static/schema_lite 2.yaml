@@ -1,0 +1,766 @@
+---
+############################################################
+# For backwards compatibility with older versions of HELM.
+# TODO: Remove this in the future.
+adapter: []
+############################################################
+metrics:
+  # Infrastructure metrics:
+  - name: num_perplexity_tokens
+    display_name: '# tokens'
+    description: Average number of tokens in the predicted output (for language modeling, the input too).
+  - name: num_bytes
+    display_name: '# bytes'
+    description: Average number of bytes in the predicted output (for language modeling, the input too).
+
+  - name: num_references
+    display_name: '# ref'
+    description: Number of references.
+  - name: num_train_trials
+    display_name: '# trials'
+    description: Number of trials, where in each trial we choose an independent, random set of training instances.
+  - name: estimated_num_tokens_cost
+    display_name: 'cost'
+    description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
+  - name: num_prompt_tokens
+    display_name: '# prompt tokens'
+    description: Number of tokens in the prompt.
+  - name: num_prompt_characters
+    display_name: '# prompt chars'
+    description: Number of characters in the prompt.
+  - name: num_completion_tokens
+    display_name: '# completion tokens'
+    description: Actual number of completion tokens (over all completions).
+  - name: num_output_tokens
+    display_name: '# output tokens'
+    description: Actual number of output tokens.
+  - name: max_num_output_tokens
+    display_name: 'Max output tokens'
+    description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
+  - name: num_requests
+    display_name: '# requests'
+    description: Number of distinct API requests.
+  - name: num_instances
+    display_name: '# eval'
+    description: Number of evaluation instances.
+  - name: num_train_instances
+    display_name: '# train'
+    description: Number of training instances (e.g., in-context examples).
+  - name: prompt_truncated
+    display_name: truncated
+    description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
+  - name: finish_reason_length
+    display_name: finish b/c length
+    description: Fraction of instances where the the output was terminated because of the max tokens limit.
+  - name: finish_reason_stop
+    display_name: finish b/c stop
+    description: Fraction of instances where the the output was terminated because of the stop sequences.
+  - name: finish_reason_endoftext
+    display_name: finish b/c endoftext
+    description: Fraction of instances where the the output was terminated because the end of text token was generated.
+  - name: finish_reason_unknown
+    display_name: finish b/c unknown
+    description: Fraction of instances where the the output was terminated for unknown reasons.
+  - name: num_completions
+    display_name: '# completions'
+    description: Number of completions.
+  - name: predicted_index
+    display_name: Predicted index
+    description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
+
+  # Accuracy metrics:
+  - name: exact_match
+    display_name: Exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_exact_match
+    display_name: Quasi-exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+    lower_is_better: false
+  - name: prefix_exact_match
+    display_name: Prefix exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_prefix_exact_match
+    # TODO: should call this prefix_quasi_exact_match
+    display_name: Prefix quasi-exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
+    lower_is_better: false
+
+  - name: exact_match@5
+    display_name: Exact match @5
+    short_display_name: EM@5
+    description: Fraction of instances where at least one predicted output among the top 5 matches a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_exact_match@5
+    display_name: Quasi-exact match @5
+    short_display_name: EM@5
+    description: Fraction of instances where at least one predicted output among the top 5 matches a correct reference up to light processing.
+    lower_is_better: false
+  - name: prefix_exact_match@5
+    display_name: Prefix exact match @5
+    short_display_name: PEM@5
+    description: Fraction of instances that the predicted output among the top 5 matches the prefix of a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_prefix_exact_match@5
+    display_name: Prefix quasi-exact match @5
+    short_display_name: PEM@5
+    description: Fraction of instances that the predicted output among the top 5 matches the prefix of a correct reference up to light processing.
+    lower_is_better: false
+
+  - name: logprob
+    display_name: Log probability
+    short_display_name: Logprob
+    description: Predicted output's average log probability (input's log prob for language modeling).
+    lower_is_better: false
+  - name: logprob_per_byte
+    display_name: Log probability / byte
+    short_display_name: Logprob/byte
+    description: Predicted output's average log probability normalized by the number of bytes.
+    lower_is_better: false
+  - name: bits_per_byte
+    display_name: Bits/byte
+    short_display_name: BPB
+    lower_is_better: true
+    description: Average number of bits per byte according to model probabilities.
+  - name: perplexity
+    display_name: Perplexity
+    short_display_name: PPL
+    lower_is_better: true
+    description: Perplexity of the output completion (effective branching factor per output token).
+  - name: rouge_1
+    display_name: ROUGE-1
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 1-gram overlap.
+    lower_is_better: false
+  - name: rouge_2
+    display_name: ROUGE-2
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 2-gram overlap.
+    lower_is_better: false
+  - name: rouge_l
+    display_name: ROUGE-L
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on longest common subsequence overlap.
+    lower_is_better: false
+  - name: bleu_1
+    display_name: BLEU-1
+    description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 1-gram overlap.
+    lower_is_better: false
+  - name: bleu_4
+    display_name: BLEU-4
+    description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 4-gram overlap.
+    lower_is_better: false
+  - name: f1_set_match
+    display_name: F1 (set match)
+    short_display_name: F1
+    description: Average F1 score in terms of set overlap between the model predicted set and correct reference set.
+    lower_is_better: false
+  - name: f1_score
+    display_name: F1
+    description: Average F1 score in terms of word overlap between the model output and correct reference.
+    lower_is_better: false
+  - name: classification_macro_f1
+    display_name: Macro-F1
+    description: Population-level macro-averaged F1 score.
+    lower_is_better: false
+  - name: classification_micro_f1
+    display_name: Micro-F1
+    description: Population-level micro-averaged F1 score.
+    lower_is_better: false
+  - name: absolute_value_difference
+    display_name: Absolute difference
+    short_display_name: Diff.
+    lower_is_better: true
+    description: Average absolute difference between the model output (converted to a number) and the correct reference.
+  - name: distance
+    display_name: Geometric distance
+    short_display_name: Dist.
+    lower_is_better: true
+    description: Average gometric distance between the model output (as a point) and the correct reference (as a curve).
+  - name: percent_valid
+    display_name: Valid fraction
+    short_display_name: Valid
+    description: Fraction of valid model outputs (as a number).
+    lower_is_better: false
+  - name: NDCG@10
+    display_name: NDCG@10
+    description: Normalized discounted cumulative gain at 10 in information retrieval.
+    lower_is_better: false
+  - name: RR@10
+    display_name: RR@10
+    description: Mean reciprocal rank at 10 in information retrieval.
+    lower_is_better: false
+  - name: NDCG@20
+    display_name: NDCG@20
+    description: Normalized discounted cumulative gain at 20 in information retrieval.
+    lower_is_better: false
+  - name: RR@20
+    display_name: RR@20
+    description: Mean reciprocal rank at 20 in information retrieval.
+    lower_is_better: false
+  - name: math_equiv
+    display_name: Equivalent
+    description: Fraction of model outputs that are mathematically equivalent to the correct reference.
+    lower_is_better: false
+  - name: math_equiv_chain_of_thought
+    display_name: Equivalent (CoT)
+    description: Fraction of model outputs that are mathematically equivalent to the correct reference when using chain-of-thought prompting.
+    lower_is_better: false
+  - name: exact_match_indicator
+    display_name: Exact match (final)
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly, ignoring text preceding the specified indicator (e.g., space).
+    lower_is_better: false
+  - name: final_number_exact_match
+    display_name: Exact match (final number)
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly, ignoring text preceding the specified indicator.
+    lower_is_better: false
+  - name: exact_set_match
+    display_name: Exact match (at sets)
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly as sets.
+    lower_is_better: false
+  - name: iou_set_match
+    display_name: Intersection over union (as sets)
+    short_display_name: IoU
+    description: Intersection over union in terms of set overlap between the model predicted set and correct reference set.
+    lower_is_better: false
+
+  # Summarization metrics
+  - name: summac
+    display_name: SummaC
+    description: Faithfulness scores based on the SummaC method of [Laban et al. (2022)](https://aclanthology.org/2022.tacl-1.10/).
+    lower_is_better: false
+  - name: QAFactEval
+    display_name: QAFactEval
+    description: Faithfulness scores based on the SummaC method of [Laban et al. (2022)](https://aclanthology.org/2022.tacl-1.10/).
+    lower_is_better: false
+  - name: summarization_coverage
+    display_name: Coverage
+    description: Extent to which the model-generated summaries are extractive fragments from the source document [(Grusky et al., 2018)](https://aclanthology.org/N18-1065/).
+  - name: summarization_density
+    display_name: Density
+    description: Extent to which the model-generated summaries are extractive summaries based on the source document [(Grusky et al., 2018)](https://aclanthology.org/N18-1065/).
+  - name: summarization_compression
+    display_name: Compression
+    description: Extent to which the model-generated summaries are compressed relative to the source document [(Grusky et al., 2018)](https://aclanthology.org/N18-1065/).
+  - name: BERTScore-P
+    display_name: BERTScore (P)
+    description: Average BERTScore precision [(Zhang et al., 2020)](https://openreview.net/pdf?id=SkeHuCVFDr) between model generation and reference summary.
+    lower_is_better: false
+  - name: BERTScore-R
+    display_name: BERTScore (R)
+    description: Average BERTScore recall [(Zhang et al., 2020)](https://openreview.net/pdf?id=SkeHuCVFDr) between model generation and reference summary.
+    lower_is_better: false
+  - name: BERTScore-F
+    display_name: BERTScore (F1)
+    description: Average BERTScore F1 [(Zhang et al., 2020)](https://openreview.net/pdf?id=SkeHuCVFDr) between model generation and reference summary.
+    lower_is_better: false
+  - name: HumanEval-faithfulness
+    display_name: HumanEval-faithfulness
+    description: Human evaluation score for faithfulness.
+    lower_is_better: false
+  - name: HumanEval-relevance
+    display_name: HumanEval-relevance
+    description: Human evaluation score for relevance.
+    lower_is_better: false
+  - name: HumanEval-coherence
+    display_name: HumanEval-coherence
+    description: Human evaluation score for coherence.
+    lower_is_better: false
+
+  #  Code metrics
+  - name: code_eval_acc
+    display_name: Correctness
+    short_display_name: Correctness
+    description: Fraction of instances that the model output evaluates to the correct answer.
+    lower_is_better: false
+  - name: pass
+    display_name: pass@1
+    description: Fraction of model outputs that pass the associated test cases.
+    lower_is_better: false
+  - name: test_avg
+    display_name: 'Avg. # tests passed'
+    description: Average number of tests passed by model outputs.
+    lower_is_better: false
+  - name: strict_acc
+    display_name: Strict correctness
+    short_display_name: Strict correctness
+    description: Fraction of models outputs that pass all associated test cases.
+    lower_is_better: false
+
+  # Disinformation metrics (measure diversity):
+  - name: self_bleu
+    display_name: Self-BLEU
+    description: Self-BLEU metric of [Zhu et al. (2018)](https://arxiv.org/pdf/1802.01886.pdf) as a measure of diversity in model generations.
+  - name: monte_carlo_entropy
+    display_name: Entropy (Monte Carlo)
+    short_display_name: Entropy
+    description: Monte Carlo estimate of the entropy as a measure of diversity in model generations.
+  # Disinformation wedging metrics (measure quality of disinformation):
+  - name: wedging_eval_address_intended_audience
+    display_name: Address intended audience (human)
+    short_display_name: Intended audience (human)
+    description: Human judgment of fraction of model generations that target the intended audience.
+  - name: wedging_eval_include_intended_goal
+    display_name: Include intended goal (human)
+    short_display_name: Intended goal (human)
+    description: Human judgment of fraction of model generations that support the intended goal.
+  - name: wedging_eval_style
+    display_name: Correct style (human)
+    short_display_name: Style (human)
+    description: Average human judgment of whether model generations are of the specified style.
+  - name: wedging_eval_divisiveness
+    display_name: Divisiveness (human)
+    description: Average human judgment of the extent to which model generations are divisive.
+  - name: wedging_eval_toxicity
+    display_name: Toxicity (human)
+    description: Average human judgment of the extent to which model generations are toxicity.
+  # Disinformation reiteration metrics (measure quality of disinformation):
+  - name: reiteration_eval_support_thesis
+    display_name: Support thesis (human)
+    description: Average human judgment of the extent to which model generations support the stated thesis.
+  - name: reiteration_eval_style
+    display_name: Style (human)
+    description: Average human judgment of whether model generations are of the specified style.
+
+  # Copyright metrics (measure copying/overlap):
+  - name: longest_common_prefix_length
+    display_name: Longest common prefix length
+    short_display_name: LCS
+    lower_is_better: true
+    description: Average length of longest common prefix between model generation and reference.
+  - name: edit_distance
+    display_name: Edit distance (Levenshtein)
+    short_display_name: Edit dist.
+    description: Average Levenshtein edit distance between model generation and reference.
+    lower_is_better: false
+  - name: edit_similarity
+    display_name: Edit similarity (Levenshtein)
+    short_display_name: Edit sim.
+    lower_is_better: true
+    description: Average Levenshtein edit similarity (1 - distance normalized by length of longer sequence) between model generation and reference.
+
+  # Bias metrics:
+  - name: bias_metric:mode=associations,demographic_category=race,target_category=profession
+    display_name: Stereotypical associations (race, profession)
+    short_display_name: Stereotypes (race)
+    lower_is_better: true
+    description: Measures uneven association of racial groups (Asian, Hispanic, White) with target professions. This measurement is based on cooccurence statistics between the racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics) and the target professions (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+  - name: bias_metric:mode=associations,demographic_category=race,target_category=adjective
+    display_name: Stereotypical associations (race, adjectives)
+    short_display_name: Stereotypes (race)
+    lower_is_better: true
+    description: Measures uneven association of racial groups (Asian, Hispanic, White) with target adjectives. This measurement is based on cooccurence statistics between the racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics) and the target adjectives (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+
+  - name: bias_metric:mode=associations,demographic_category=gender,target_category=profession
+    display_name: Stereotypical associations (gender, profession)
+    short_display_name: Stereotypes (gender)
+    lower_is_better: true
+    description: Measures uneven association of gender groups (male, female) with target professions. This measurement is based on cooccurence statistics between the gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)) and the target professions (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+  - name: bias_metric:mode=associations,demographic_category=gender,target_category=adjective
+    display_name: Stereotypical associations (gender, adjectives)
+    short_display_name: Stereotypes (gender)
+    lower_is_better: true
+    description: Measures uneven association of gender groups (male, female) with target adjectives. This measurement is based on cooccurence statistics between the gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)) and the target adjectives (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+
+  - name: bias_metric:mode=representation,demographic_category=race
+    display_name: Demographic representation (race)
+    short_display_name: Representation (race)
+    lower_is_better: true
+    description: Measures uneven representation of racial groups (Asian, Hispanic, White). This measurement is based on disparities in the frequency statistics across racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics).
+  - name: bias_metric:mode=representation,demographic_category=gender
+    display_name: Demographic representation (gender)
+    short_display_name: Representation (gender)
+    lower_is_better: true
+    description: Measures uneven representation of gender groups (male, female). This measurement is based on disparities in the frequency statistics across gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+
+  - name: bbq_metric_ambiguous_bias
+    display_name: BBQ (ambiguous)
+    lower_is_better: true
+    description: Metric of [Parrish et al. (2022)](https://aclanthology.org/2022.findings-acl.165/) for BBQ on ambiguous examples.
+  - name: bbq_metric_unambiguous_bias
+    display_name: BBQ (unambiguous)
+    lower_is_better: true
+    description: Metric of [Parrish et al. (2022)](https://aclanthology.org/2022.findings-acl.165/) for BBQ on unambiguous examples.
+
+  # Toxicity metrics
+  - name: expected_max_toxicity
+    display_name: Average max toxicity
+    short_display_name: Avg. max toxicity
+    lower_is_better: true
+    description: Average max toxicity score across all completions (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
+  - name: max_toxicity_probability
+    display_name: max toxicity
+    lower_is_better: true
+    description: Fraction of instances where most toxic completion is above 0.5 toxicity (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
+  - name: toxic_frac
+    display_name: Toxic fraction
+    lower_is_better: true
+    description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).
+
+  # Efficiency metrics:
+  - name: training_co2_cost
+    display_name: Estimated training emissions (kg CO2)
+    short_display_name: Training emissions (kg CO2)
+    lower_is_better: true
+    description: Estimate of the CO2 emissions from training the model.
+  - name: training_energy_cost
+    display_name: Estimated training energy cost (MWh)
+    short_display_name: Training energy (MWh)
+    lower_is_better: true
+    description: Estimate of the amount of energy used to train the model.
+  - name: inference_runtime
+    display_name: Observed inference runtime (s)
+    short_display_name: Observed inference time (s)
+    lower_is_better: true
+    description: Average observed time to process a request to the model (via an API, and thus depends on particular deployment).
+  - name: inference_idealized_runtime
+    display_name: Idealized inference runtime (s)
+    short_display_name: Idealized inference time (s)
+    lower_is_better: true
+    description: Average time to process a request to the model based solely on the model architecture (using Megatron-LM).
+  - name: inference_denoised_runtime
+    display_name: Denoised inference runtime (s)
+    short_display_name: Denoised inference time (s)
+    lower_is_better: true
+    description: Average time to process a request to the model minus performance contention by using profiled runtimes from multiple trials of SyntheticEfficiencyScenario.
+  - name: batch_size
+    display_name: Batch size
+    description: For batch jobs, how many requests are in a batch.
+
+  # Calibration metrics:
+  - name: ece_1_bin
+    display_name: 1-bin expected calibration error
+    short_display_name: ECE (1-bin)
+    lower_is_better: true
+    description: The (absolute value) difference between the model's average confidence and accuracy (only computed for classification tasks).
+  - name: max_prob
+    display_name: Max prob
+    description: Model's average confidence in its prediction (only computed for classification tasks)
+    lower_is_better: false
+  - name: ece_10_bin
+    display_name: 10-bin expected calibration error
+    short_display_name: ECE (10-bin)
+    lower_is_better: true
+    description: The average difference between the model's confidence and accuracy, averaged across 10 bins where each bin contains an equal number of points (only computed for classification tasks). Warning - not reliable for small datasets (e.g., with < 300 examples) because each bin will have very few examples.
+  - name: platt_ece_1_bin
+    display_name: 1-bin expected calibration error (after Platt scaling)
+    short_display_name: Platt-scaled ECE (1-bin)
+    lower_is_better: true
+    description: 1-bin ECE computed after applying Platt scaling to recalibrate the model's predicted probabilities.
+  - name: platt_ece_10_bin
+    display_name: 10-bin Expected Calibration Error (after Platt scaling)
+    short_display_name: Platt-scaled ECE (10-bin)
+    lower_is_better: true
+    description: 10-bin ECE computed after applying Platt scaling to recalibrate the model's predicted probabilities.
+  - name: platt_coef
+    display_name: Platt Scaling Coefficient
+    short_display_name: Platt Coef
+    description: Coefficient of the Platt scaling classifier (can compare this across tasks).
+    lower_is_better: false
+  - name: platt_intercept
+    display_name: Platt Scaling Intercept
+    short_display_name: Platt Intercept
+    description: Intercept of the Platt scaling classifier (can compare this across tasks).
+    lower_is_better: false
+  - name: selective_cov_acc_area
+    display_name: Selective coverage-accuracy area
+    short_display_name: Selective Acc
+    description: The area under the coverage-accuracy curve, a standard selective classification metric (only computed for classification tasks).
+    lower_is_better: false
+  - name: selective_acc@10
+    display_name: Accuracy at 10% coverage
+    short_display_name: Acc@10%
+    description: The accuracy for the 10% of predictions that the model is most confident on (only computed for classification tasks).
+    lower_is_better: false
+
+  # CLEVA (Chinese) metrics:
+  # Accuracy metrics (Chinese)
+  - name: chinese_ibleu
+    display_name: Chinese iBLEU
+    short_display_name: iBLEU (Chinese)
+    description: A special BLEU score [(Sun and Zhou, 2008)](https://aclanthology.org/P12-2008.pdf) that balances the lexical similarity between references and hypotheses as well as the lexical diversity between raw inputs and hypotheses.
+    lower_is_better: false
+  - name: cleva_top1_accuracy
+    display_name: Chinese Top-1 Accuracy
+    short_display_name: Acc@Top-1 (Chinese)
+    description: A special accuracy [(Patel and Pavlick, 2022)](https://openreview.net/pdf?id=gJcEM8sxHK) that gives perfect precision as long as a substring of the answer appears in the most confident model prediction.
+    lower_is_better: false
+  - name: cleva_machine_translation_bleu
+    display_name: BLEU
+    short_display_name: BLEU
+    description: BLEU score based on [Post, (2018)](https://aclanthology.org/W18-6319/).
+    lower_is_better: false
+  - name: chinese_rouge_2
+    display_name: Chinese ROUGE-2 score
+    short_display_name: ROUGE-2 (Chinese)
+    description: ROUGE-2 score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on a Chinese tokenizer that segments Chinese strings by character.
+    lower_is_better: false
+  - name: chinese_bleu_1
+    display_name: Chinese BLEU-1 score
+    short_display_name: BLEU-1 (Chinese)
+    description: BLEU-1 score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on a Chinese tokenizer that segments Chinese strings by character.
+    lower_is_better: false
+  - name: cleva_math_result_match
+    display_name: CLEVA Math Exact Match
+    short_display_name: EM (Math)
+    description: Exact match that cares only the last math expression (numbers and fractions) in the model's prediction.
+    lower_is_better: false
+  # CLEVA Chinese bias, copyright and toxicity metrics share the same name as the original HELM metrics
+
+############################################################
+perturbations:
+  - name: robustness
+    display_name: Robustness
+    description: Computes worst case over different robustness perturbations (misspellings, formatting, contrast sets).
+  - name: fairness
+    display_name: Fairness
+    description: Computes worst case over different fairness perturbations (changing dialect, race of names, gender).
+  - name: typos
+    display_name: Typos
+    description: >
+      Randomly adds typos to each token in the input with probability 0.05 and computes the per-instance worst-case
+      performance between perturbed and unperturbed versions.
+  - name: synonym
+    display_name: Synonyms
+    description: >
+      Randomly substitutes words in the input with WordNet synonyms with probability 0.5 and computes the per-instance
+      worst-case performance between perturbed and unperturbed versions.
+  - name: dialect
+    display_name: SAE -> AAE
+    short_display_name: Dialect
+    description: >
+      Deterministically substitutes SAE words in input with AAE counterparts using validated dictionary of [Ziems et al. (2022)](https://aclanthology.org/2022.acl-long.258/) and computes the per-instance worst-case performance between perturbed and unperturbed versions.
+  - name: race
+    display_name: First names by race (White -> Black)
+    short_display_name: Race
+    description: >
+      Deterministically substitutes White first names with Black first names sampled from the lists of [Caliskan et al. (2017)](https://www.science.org/doi/10.1126/science.aal4230) and computes the per-instance worst-case performance between perturbed and unperturbed versions.
+  - name: gender
+    display_name: Pronouns by gender (Male -> Female)
+    short_display_name: Gender
+    description: >
+      Deterministically substitutes male pronouns with female pronouns and computes the per-instance worst-case
+      performance between perturbed and unperturbed versions.
+
+############################################################
+metric_groups:
+  - name: accuracy
+    display_name: Accuracy
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+
+  - name: efficiency
+    display_name: Efficiency
+    metrics:
+    - name: inference_runtime
+      split: ${main_split}
+
+  - name: general_information
+    display_name: General information
+    metrics:
+    - name: num_instances
+      split: ${main_split}
+    - name: num_train_instances
+      split: ${main_split}
+    - name: prompt_truncated
+      split: ${main_split}
+    - name: num_prompt_tokens
+      split: ${main_split}
+    - name: num_output_tokens
+      split: ${main_split}
+
+############################################################
+run_groups:
+  - name: core_scenarios
+    display_name: Core scenarios
+    description: The scenarios where we evaluate all the models.
+    category: All scenarios
+    subgroups:
+      - narrative_qa
+      - natural_qa_openbook_longans
+      - natural_qa_closedbook
+      - openbookqa
+      - mmlu
+      - math_chain_of_thought
+      - gsm
+      - legalbench
+      - med_qa
+      - wmt_14
+
+  - name: narrative_qa
+    display_name: NarrativeQA
+    description: The NarrativeQA benchmark for reading comprehension over narratives [(Kočiský et al., 2017)](https://aclanthology.org/Q18-1023/).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: short-answer question answering
+      what: passages are books and movie scripts, questions are unknown
+      who: annotators from summaries
+      when: "2018"
+      language: English
+
+  - name: natural_qa_closedbook
+    display_name: NaturalQuestions (closed-book)
+    description: The NaturalQuestions [(Kwiatkowski et al., 2019)](https://aclanthology.org/Q19-1026/) benchmark for question answering based on naturally-occurring queries through Google Search. The input does not include the Wikipedia page with the answer.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: valid
+    taxonomy:
+      task: short-answer question answering
+      what: passages from Wikipedia, questions from search queries
+      who: web users
+      when: 2010s
+      language: English
+
+  - name: natural_qa_openbook_longans
+    display_name: NaturalQuestions (open-book)
+    description: The NaturalQuestions [(Kwiatkowski et al., 2019)](https://aclanthology.org/Q19-1026/) benchmark for question answering based on naturally-occurring queries through Google Search. The input includes the Wikipedia page with the answer.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: valid
+    taxonomy:
+      task: short-answer question answering
+      what: passages from Wikipedia, questions from search queries
+      who: web users
+      when: 2010s
+      language: English
+
+  - name: openbookqa
+    display_name: OpenbookQA
+    description: The OpenbookQA benchmark for commonsense-intensive open book question answering [(Mihaylov et al., 2018)](https://aclanthology.org/D18-1260/).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: elementary science
+      who: Amazon Mechnical Turk workers
+      when: "2018"
+      language: English
+
+  - name: mmlu
+    display_name: MMLU (Massive Multitask Language Understanding)
+    short_display_name: MMLU
+    description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intensive question answering across 57 domains [(Hendrycks et al., 2021)](https://arxiv.org/pdf/2009.03300.pdf).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: math, science, history, etc.
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: gsm
+    display_name: GSM8K (Grade School Math)
+    short_display_name: GSM8K
+    description: The grade school math word problems dataset (GSM8K) for testing mathematical reasoning on grade-school math problems [(Cobbe et al., 2021)](https://arxiv.org/pdf/2110.14168.pdf).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: final_number_exact_match
+      main_split: test
+    taxonomy:
+      task: numeric answer question answering
+      what: grade school math word problems
+      who: contractors on Upwork and Surge AI
+      when: "2021"
+      language: English
+
+  - name: math_chain_of_thought
+    display_name: MATH
+    description: The MATH benchmark for measuring mathematical problem solving on competition math problems with chain-of-thought style reasoning [(Hendrycks et al., 2021)](https://arxiv.org/pdf/2103.03874.pdf).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: math_equiv_chain_of_thought
+      main_split: test
+    taxonomy:
+      task: numeric answer question answering
+      what: math competitions (AMC, AIME, etc.)
+      who: problem setters
+      when: before 2021
+      language: synthetic
+
+  - name: legalbench
+    display_name: LegalBench
+    description: LegalBench is a large collaboratively constructed benchmark of legal reasoning tasks [(Guha et al, 2023)](https://arxiv.org/pdf/2308.11462.pdf).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: public legal and admininstrative documents, manually constructed questions
+      who: lawyers
+      when: before 2023
+      language: English
+
+  - name: med_qa
+    display_name: MedQA
+    description: MedQA is an open domain question answering dataset composed of questions from professional medical board exams ([Jin et al. 2020](https://arxiv.org/pdf/2009.13081.pdf)).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: US medical licensing exams
+      who: problem setters
+      when: before 2020
+      language: English
+
+  - name: wmt_14
+    display_name: WMT 2014
+    description: WMT 2014 is a collection of machine translation datasets [(website)](https://www.statmt.org/wmt14/index.html).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: bleu_4
+      main_split: test
+    taxonomy:
+      task: machine translation
+      what: multilingual sentences
+      who: Europarl, news, Common Crawl, etc.
+      when: before 2014
+      language: English, French, Czech, etc.

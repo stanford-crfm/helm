@@ -1,0 +1,269 @@
+---
+############################################################
+metrics:
+  # Infrastructure metrics:
+  - name: num_perplexity_tokens
+    display_name: '# tokens'
+    description: Average number of tokens in the predicted output (for language modeling, the input too).
+  - name: num_bytes
+    display_name: '# bytes'
+    description: Average number of bytes in the predicted output (for language modeling, the input too).
+
+  - name: num_references
+    display_name: '# ref'
+    description: Number of references.
+  - name: num_train_trials
+    display_name: '# trials'
+    description: Number of trials, where in each trial we choose an independent, random set of training instances.
+  - name: estimated_num_tokens_cost
+    display_name: 'cost'
+    description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
+  - name: num_prompt_tokens
+    display_name: '# prompt tokens'
+    description: Number of tokens in the prompt.
+  - name: num_prompt_characters
+    display_name: '# prompt chars'
+    description: Number of characters in the prompt.
+  - name: num_completion_tokens
+    display_name: '# completion tokens'
+    description: Actual number of completion tokens (over all completions).
+  - name: num_output_tokens
+    display_name: '# output tokens'
+    description: Actual number of output tokens.
+  - name: max_num_output_tokens
+    display_name: 'Max output tokens'
+    description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
+  - name: num_requests
+    display_name: '# requests'
+    description: Number of distinct API requests.
+  - name: num_instances
+    display_name: '# eval'
+    description: Number of evaluation instances.
+  - name: num_train_instances
+    display_name: '# train'
+    description: Number of training instances (e.g., in-context examples).
+  - name: prompt_truncated
+    display_name: truncated
+    description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
+  - name: finish_reason_length
+    display_name: finish b/c length
+    description: Fraction of instances where the the output was terminated because of the max tokens limit.
+  - name: finish_reason_stop
+    display_name: finish b/c stop
+    description: Fraction of instances where the the output was terminated because of the stop sequences.
+  - name: finish_reason_endoftext
+    display_name: finish b/c endoftext
+    description: Fraction of instances where the the output was terminated because the end of text token was generated.
+  - name: finish_reason_unknown
+    display_name: finish b/c unknown
+    description: Fraction of instances where the the output was terminated for unknown reasons.
+  - name: num_completions
+    display_name: '# completions'
+    description: Number of completions.
+  - name: predicted_index
+    display_name: Predicted index
+    description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
+
+  # Accuracy metrics:
+  - name: exact_match
+    display_name: Exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
+    lower_is_better: false
+
+  # Summarization metrics:
+  - name: annotation_call_center_summarization_faithfulness
+    display_name: Faithfulness
+    short_display_name: Faithfulness
+    description: Whether all the information expressed by the summary can be inferred from the source transcript.
+    lower_is_better: false
+  - name: annotation_call_center_summarization_relevance
+    display_name: Relevance
+    short_display_name: Relevance
+    description: Whether the summary includes only important information from the source.
+    lower_is_better: false
+  - name: annotation_call_center_summarization_coherence
+    display_name: Coherence
+    short_display_name: Coherence
+    description: Whether the summary organizes the relevant information into a well-structured summary.
+    lower_is_better: false
+
+  - name: annotation_call_center_summarization_pairwise_comparison_score
+    display_name: Pairwise
+    short_display_name: Pairwise
+    description: Whether the model's summary was preferred by the evaluator model
+    lower_is_better: false
+    
+  - name: annotation_call_center_summarization_key_points_recall_score
+    display_name: Recall
+    short_display_name: Recall
+    description: How many key items were recalled
+    lower_is_better: false
+
+  - name: annotation_helpdesk_call_center_summarization_score
+    display_name: Score
+    short_display_name: Score
+    description: Score
+    lower_is_better: false
+
+
+  - name: call_summarization_score
+    display_name: Score
+    short_display_name: Score
+    description: Score
+    lower_is_better: false
+
+
+############################################################
+perturbations: []
+
+############################################################
+metric_groups:
+  - name: summarization_metrics
+    display_name: Summarization
+    hide_win_rates: true
+    metrics:
+      - name: call_summarization_score
+        split: ${main_split}
+      # - name: annotation_helpdesk_call_center_summarization_score
+      #   split: ${main_split}
+      # - name: annotation_call_center_summarization_faithfulness
+      #   split: ${main_split}
+      # - name: annotation_call_center_summarization_relevance
+      #   split: ${main_split}
+      # - name: annotation_call_center_summarization_coherence
+      #   split: ${main_split}
+
+  - name: pairwise_comparison_metrics
+    display_name: Pairwise Comparison
+    hide_win_rates: true
+    metrics:
+      - name: annotation_call_center_summarization_pairwise_comparison_score
+        split: ${main_split}
+
+  - name: key_points_recall_metrics
+    display: Key Points Recall
+    hide_win_rates: true
+    metrics:
+      - name: annotation_call_center_summarization_key_points_recall_score
+        split: ${main_split}
+
+  - name: efficiency
+    display_name: Efficiency
+    metrics:
+    - name: inference_runtime
+      split: ${main_split}
+
+  - name: general_information
+    display_name: General information
+    hide_win_rates: true
+    metrics:
+    - name: num_instances
+      split: ${main_split}
+    - name: num_train_instances
+      split: ${main_split}
+    - name: prompt_truncated
+      split: ${main_split}
+    - name: num_prompt_tokens
+      split: ${main_split}
+    - name: num_output_tokens
+      split: ${main_split}
+
+############################################################
+
+run_groups:
+  - name: call_center_scenarios
+    display_name: Call Center Scenarios
+    description: Scenarios representating realistic tasks from the call center.
+    category: All scenarios
+    subgroups:
+      - helpdesk_call_summarization
+      # - call_center_summarization
+      # - call_center_summarization_real_call_transcripts
+      # - call_center_summarization_pairwise_comparison
+      # - call_center_summarization_key_points_recall
+
+  # - name: call_center_summarization
+  #   display_name: Summarization
+  #   description: summarization
+  #   metric_groups:
+  #     # - accuracy
+  #     - summarization_metrics
+  #     - efficiency
+  #     - general_information
+  #   environment:
+  #     main_split: test
+  #   taxonomy:
+  #     task: summarization
+  #     what: n/a
+  #     who: n/a
+  #     when: "?"
+  #     language: English
+
+  - name: helpdesk_call_summarization
+    display_name: Helpdesk Call summarization
+    description: Helpdesk Call summarization
+    metric_groups:
+      # - accuracy
+      - summarization_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_split: test
+    taxonomy:
+      task: summarization
+      what: n/a
+      who: n/a
+      when: "?"
+      language: English
+
+  # - name: call_center_summarization_real_call_transcripts
+  #   display_name: Summarization (Real)
+  #   description: Summarization with real call transcripts
+  #   metric_groups:
+  #     # - accuracy
+  #     - summarization_metrics
+  #     - efficiency
+  #     - general_information
+  #   environment:
+  #     main_split: test
+  #   taxonomy:
+  #     task: summarization
+  #     what: n/a
+  #     who: n/a
+  #     when: "?"
+  #     language: English
+
+  # - name: call_center_summarization_pairwise_comparison
+  #   display_name: Summarization (Pairwise)
+  #   description: summarization
+  #   metric_groups:
+  #     # - accuracy
+  #     - pairwise_comparison_metrics
+  #     - efficiency
+  #     - general_information
+  #   environment:
+  #     main_split: test
+  #   taxonomy:
+  #     task: summarization
+  #     what: n/a
+  #     who: n/a
+  #     when: "?"
+  #     language: English
+
+  # - name: call_center_summarization_key_points_recall
+  #   display_name: Summarization (Key Points Recall)
+  #   description: summarization
+  #   metric_groups:
+  #     # - accuracy
+  #     - key_points_recall_metrics
+  #     - efficiency
+  #     - general_information
+  #   environment:
+  #     main_split: test
+  #   taxonomy:
+  #     task: summarization
+  #     what: n/a
+  #     who: n/a
+  #     when: "?"
+  #     language: English
