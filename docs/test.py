@@ -5,8 +5,12 @@ def delete_files_with_suffix():
     # Get the current directory
     current_dir = os.getcwd()
     
-    # Find all files ending with " 2"
-    files_to_delete = glob.glob(os.path.join(current_dir, "* 2*"))
+    # Find all files ending with " 2" recursively
+    files_to_delete = []
+    for root, dirs, files in os.walk(current_dir):
+        for file in files:
+            if " 2" in file:
+                files_to_delete.append(os.path.join(root, file))
     
     # Delete each file
     for file_path in files_to_delete:
