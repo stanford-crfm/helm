@@ -39,7 +39,7 @@ class SHCBMTMedScenario(Scenario):
                 context = row["context"]
                 answer = row["label"]
                 prompt = (
-                    f"Provide an answer to the following {question} with the following context: {context} "
+                    f"Provide an answer to the following question: {question} with the following context: {context} "
                     ", Answer the question with a 'A' for yes or 'B' for no. Do not provide any additional "
                     "details or response, just a simple A or B response."
                 )

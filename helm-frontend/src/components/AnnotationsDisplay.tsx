@@ -2,9 +2,6 @@ import CompletionAnnotation from "@/types/CompletionAnnotation";
 import Preview from "./Preview";
 import MediaObjectDisplay from "./MediaObjectDisplay";
 
-// TODO: This is a dirty hack to support annotations from
-// Image2Structure and AIRBench, but eventually we should make sure
-// all annotations are supported generally.
 type Props = {
   predictionAnnotations:
     | Record<
@@ -15,6 +12,7 @@ type Props = {
 };
 
 function listAnnotationDisplay(listAnnotation: Array<CompletionAnnotation>) {
+  // This is a dirty hack to support annotations from Image2Struct.
   return (
     <div>
       {listAnnotation.map((annotation, idx) => (
@@ -40,15 +38,40 @@ function listAnnotationDisplay(listAnnotation: Array<CompletionAnnotation>) {
   );
 }
 
-function dictAnnotationDisplay(
-  dictAnnotation: Record<string, string | number>,
-) {
+function annotationToEntries(
+  annotation: unknown,
+  keyPrefix?: string | undefined,
+): Array<[string, string]> {
+  if (Array.isArray(annotation)) {
+    return annotation.flatMap((item, index) =>
+      annotationToEntries(item, `${keyPrefix || ""}[${index}]`),
+    );
+  } else if (
+    annotation instanceof Object &&
+    annotation.constructor === Object
+  ) {
+    return Object.entries(annotation).flatMap(([key, value]) =>
+      annotationToEntries(value, keyPrefix ? `${keyPrefix}.${key}` : key),
+    );
+  } else {
+    return [
+      [
+        keyPrefix || "",
+        typeof annotation === "string"
+          ? annotation
+          : JSON.stringify(annotation),
+      ],
+    ];
+  }
+}
+
+function dictAnnotationDisplay(dictAnnotation: Record<string, unknown>) {
   return (
     <div>
-      {Object.entries(dictAnnotation).map(([key, value]) => (
-        <div>
+      {annotationToEntries(dictAnnotation).map(([key, value]) => (
+        <div key={key}>
           <h3 className="ml-1">{key}</h3>
-          <Preview value={value === null ? "null" : value.toString()} />
+          <Preview value={value} />
         </div>
       ))}
     </div>

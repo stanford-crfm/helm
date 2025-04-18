@@ -252,6 +252,19 @@ tokenizer_configs:
     end_of_text_token: "<eos>"
     prefix_token: "<bos>"
 
+  # Grok
+  - name: xai/grok-3-beta
+    tokenizer_spec:
+      class_name: "helm.tokenizers.grok_tokenizer.GrokAPITokenizer"
+    end_of_text_token: ""
+    prefix_token: ""
+
+  - name: xai/grok-3-mini-beta
+    tokenizer_spec:
+      class_name: "helm.tokenizers.grok_tokenizer.GrokAPITokenizer"
+    end_of_text_token: ""
+    prefix_token: ""
+
   # Hf-internal-testing
 
   # Tokenizer name hf-internal-testing/llama-tokenizer is taken from:
@@ -668,6 +681,15 @@ tokenizer_configs:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
       args:
         pretrained_model_name_or_path: Qwen/Qwen2-Audio-7B-Instruct
+        trust_remote_code: false
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: ""
+
+  - name: qwen/qwen2.5-omni-7b
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: Qwen/Qwen2.5-Omni-7B
         trust_remote_code: false
     end_of_text_token: "<|endoftext|>"
     prefix_token: ""

@@ -10,8 +10,8 @@ export default interface RunGroup {
   short_display_name?: string;
   description: string;
   environment?: {
-    main_name: string;
-    main_split: string;
+    main_name?: string;
+    main_split?: string;
   };
   metric_groups?: string[];
   taxonomy?: Taxonomy;

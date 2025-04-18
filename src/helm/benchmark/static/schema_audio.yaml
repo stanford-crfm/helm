@@ -194,6 +194,11 @@ metrics:
     lower_is_better: false
     description: Judgements by GPT-4o
 
+  - name: refusal_rate
+    display_name: Refusal rate for safety
+    lower_is_better: false
+    description: Judgements by GPT-4o
+
 ############################################################
 perturbations: []
 
@@ -357,7 +362,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: quasi_exact_match
+      main_name: quasi_prefix_exact_match
       main_split: test
     taxonomy:
       task: audio classification
@@ -510,7 +515,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: quasi_exact_match
+      main_name: quasi_prefix_exact_match
       main_split: test
     taxonomy:
       task: audio classification
@@ -631,7 +636,7 @@ run_groups:
       - accuracy
       - general_information
     environment:
-      main_name: toxic_frac
+      main_name: refusal_rate
       main_split: test
     taxonomy:
       task: refusal for safety
