@@ -76,6 +76,8 @@ class SpeechDisorderScenarioExplain(Scenario):
             2. Conclude your analysis with one of the following labels only: 
             'Typically developing' or 'Speech disorder'.
             3. Provide your response with additional explanation and commentary, 
+            4. Make the last tokens of your response one of the following:
+            'Typically developing' or 'Speech disorder'.
             The prompt text and the utterance recording date/time are as follows: {words}"""
 
     def _convert_answer_to_label(self, answer: str) -> str:
