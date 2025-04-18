@@ -380,7 +380,7 @@ model_deployments:
     max_sequence_length: 8000
     max_sequence_and_generated_tokens_length: 9016
     client_spec:
-      class_name: "helm.clients.anthropic_client.AnthropicClient"
+      class_name: "helm.clients.anthropic_client.AnthropicLegacyClaude2Client"
 
   - name: anthropic/claude-instant-v1
     model_name: anthropic/claude-instant-v1
@@ -388,7 +388,7 @@ model_deployments:
     max_sequence_length: 8000
     max_sequence_and_generated_tokens_length: 9016
     client_spec:
-      class_name: "helm.clients.anthropic_client.AnthropicClient"
+      class_name: "helm.clients.anthropic_client.AnthropicLegacyClaude2Client"
 
   - name: anthropic/claude-instant-1.2
     model_name: anthropic/claude-instant-1.2
@@ -396,7 +396,7 @@ model_deployments:
     max_sequence_length: 8000
     max_sequence_and_generated_tokens_length: 9016
     client_spec:
-      class_name: "helm.clients.anthropic_client.AnthropicClient"
+      class_name: "helm.clients.anthropic_client.AnthropicLegacyClaude2Client"
 
   - name: anthropic/claude-2.0
     model_name: anthropic/claude-2.0
@@ -404,7 +404,7 @@ model_deployments:
     max_sequence_length: 8000
     max_sequence_and_generated_tokens_length: 9016
     client_spec:
-      class_name: "helm.clients.anthropic_client.AnthropicClient"
+      class_name: "helm.clients.anthropic_client.AnthropicLegacyClaude2Client"
 
   - name: anthropic/claude-2.1
     model_name: anthropic/claude-2.1
@@ -412,7 +412,7 @@ model_deployments:
     max_sequence_length: 8000
     max_sequence_and_generated_tokens_length: 9016
     client_spec:
-      class_name: "helm.clients.anthropic_client.AnthropicClient"
+      class_name: "helm.clients.anthropic_client.AnthropicLegacyClaude2Client"
 
   - name: anthropic/claude-3-sonnet-20240229
     model_name: anthropic/claude-3-sonnet-20240229
