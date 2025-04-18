@@ -223,7 +223,7 @@ class OpenAIClient(CachingClient):
         # Refer to the "Reasoning models" documentation further discussion of o1 model limitations:
         # https://platform.openai.com/docs/guides/reasoning
         model_engine: str = request.model_engine
-        if (model_engine.startswith("o1") or model_engine.startswith("o3") or model_engine.startswith("o4")):
+        if model_engine.startswith("o1") or model_engine.startswith("o3") or model_engine.startswith("o4"):
             # Avoid error:
             # "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead."  # noqa: E501
             # Note that openai>=1.45 is needed for this
