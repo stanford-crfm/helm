@@ -330,3 +330,4 @@ xxhash==3.5.0
 yarl==1.18.3
 zipp==3.21.0
 zstandard==0.18.0
+pydub==0.25.1
