@@ -522,6 +522,7 @@ run_groups:
       - shc_bmt_med
       - race_based_med
       - n2c2_ct_matching
+      - medhallu
   
   - name: administration_and_workflow
     display_name: Administration and Workflow
@@ -877,6 +878,23 @@ run_groups:
     taxonomy:
       task: Code generation
       what: Generate SQL queries from natural language for clinical research
+      who: Researcher
+      when: Any
+      language: English
+
+  - name: medhallu
+    display_name: MedHallu
+    description: A dataset of PubMed articles and associated questions, with the objective being to classify whether the answer is factual or hallucinated.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: Classification
+      what: Verify whether answers to questions from PubMed articles are factual or hallucinated
       who: Researcher
       when: Any
       language: English
