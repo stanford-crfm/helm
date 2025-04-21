@@ -1086,7 +1086,7 @@ run_groups:
       when: During Treatment
       language: English
 
-  - name: shc_conf_med
+  - name: shc_sei_med
     display_name:  ADHD-MedEffects
     description: A dataset that classifies whether a clinical note contains documentation of side effect monitoring (recording of absence or presence of medication side effects), as recommended in clinical practice guidelines [(Bannet et al., 2024)](https://doi.org/10.1542/peds.2024-067223).
     metric_groups:
