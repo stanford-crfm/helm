@@ -48,7 +48,7 @@ def find_audio_json_pairs(directory: str) -> List[Tuple[str, str]]:
     return pairs
 
 
-class SpeechDisorderScenario(Scenario):
+class SpeechDisorderScenarioExplain(Scenario):
     """
     A scenario for evaluating whether a child speaker has a speech disorder or not.
     The audio files contain speech from children, potentially with an adult present.
@@ -67,8 +67,18 @@ class SpeechDisorderScenario(Scenario):
         self.subject = subject
 
     def get_instruction(self, words: str) -> str:
-        return f"""
-The prompt text and the utterance recording date/time are as follows: {words}"""
+        return f"""You are a highly experienced Speech-Language Pathologist (SLP). 
+            An audio recording will be provided, typically consisting of a speech prompt 
+            from a pathologist followed by a child's repetition. 
+            Based on your professional expertise:
+            1. Assess the child's speech in the recording for signs of typical development 
+            or potential speech-language disorder.
+            2. Conclude your analysis with one of the following labels only: 
+            'Typically developing' or 'Speech disorder'.
+            3. Provide your response with additional explanation and commentary, 
+            4. Make the last tokens of your response one of the following:
+            'Typically developing' or 'Speech disorder'.
+            The prompt text and the utterance recording date/time are as follows: {words}"""
 
     def _convert_answer_to_label(self, answer: str) -> str:
         """Convert the answer from the JSON to a label (A or B)"""
@@ -109,8 +119,10 @@ The prompt text and the utterance recording date/time are as follows: {words}"""
             print(f"Label: {label}")
             # Create references for each option
             references: List[Reference] = []
-            reference = Reference(Output(text=label), tags=[CORRECT_TAG])
-            references.append(reference)
+            for i, option in enumerate(self.options):
+                is_correct = i == (ord(label) - ord('A'))
+                reference = Reference(Output(text=option), tags=[CORRECT_TAG] if is_correct else [])
+                references.append(reference)
 
             # Create the input with audio and instruction
             content = [

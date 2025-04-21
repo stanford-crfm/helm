@@ -29,11 +29,15 @@ def find_audio_json_pairs(directory: str) -> List[Tuple[str, str]]:
         List of tuples where each tuple contains (mp3_path, json_path)
     """
     pairs = []
+    print(os.path.abspath(directory))
 
     # Walk through all directories and subdirectories
     for root, _, files in os.walk(directory):
         # Get all MP3 files in current directory
         mp3_files = [f for f in files if f.endswith('.mp3')]
+        
+        print("here")
+        print(mp3_files)
 
         for mp3_file in mp3_files:
             base_name = os.path.splitext(mp3_file)[0]
@@ -48,16 +52,16 @@ def find_audio_json_pairs(directory: str) -> List[Tuple[str, str]]:
     return pairs
 
 
-class SpeechDisorderScenario(Scenario):
+class SpeechDisorderScenarioASR(Scenario):
     """
     A scenario for evaluating whether a child speaker has a speech disorder or not.
     The audio files contain speech from children, potentially with an adult present.
     The task is to classify whether the child speaker is typically developing or has a speech disorder.
     """
 
-    name = "speech_disorder"
+    name = "speech_disorder_asr"
     description = "A scenario for evaluating speech disorders in children"
-    tags = ["audio", "classification", "speech_disorder"]
+    tags = ["audio", "classification", "speech_disorder", "asr"]
 
     # Classification options
     options: List[str] = ["Healthy", "Unhealthy"]
@@ -66,19 +70,14 @@ class SpeechDisorderScenario(Scenario):
         super().__init__()
         self.subject = subject
 
-    def get_instruction(self, words: str) -> str:
-        return f"""
-The prompt text and the utterance recording date/time are as follows: {words}"""
-
-    def _convert_answer_to_label(self, answer: str) -> str:
-        """Convert the answer from the JSON to a label (A or B)"""
-        answer = answer.lower()
-        if answer == "typically developing":
-            return "A"
-        elif answer == "speech disorder":
-            return "B"
-        else:
-            raise ValueError(f"Invalid answer: {answer}")
+    def get_instruction(self) -> str:
+        return f"""You are a highly experienced Speech-Language Pathologist (SLP). 
+            An audio recording will be provided, typically consisting of a speech prompt 
+            from a pathologist followed by a child's repetition. 
+            Based on your expertise transcribe the child's speech into text.
+            Only respond with the text transcription, no other text or commentary.
+            Respond with each word/sylable comma separated, and end with a period.
+            """
 
     def get_instances(self, output_path: str) -> List[Instance]:
         """
@@ -102,20 +101,16 @@ The prompt text and the utterance recording date/time are as follows: {words}"""
                 annotation = json.load(f)
 
             # Get the correct answer and convert to label
-            answer = annotation['answer']
+            answer = " ,".join(annotation['words']) + "."
             print(f"Answer: {answer}, path: {audio_path}")
-            words = " ".join(annotation['words'])
-            label = self._convert_answer_to_label(answer)
-            print(f"Label: {label}")
             # Create references for each option
             references: List[Reference] = []
-            reference = Reference(Output(text=label), tags=[CORRECT_TAG])
+            reference = Reference(Output(text=answer), tags=[CORRECT_TAG])
             references.append(reference)
 
             # Create the input with audio and instruction
             content = [
                 MediaObject(content_type="audio/mpeg", location=audio_path),
-                MediaObject(content_type="text/plain", text=self.get_instruction(words)),
             ]
 
             input = Input(multimedia_content=MultimediaObject(content))
