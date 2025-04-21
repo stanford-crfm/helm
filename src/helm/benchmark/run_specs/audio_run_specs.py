@@ -391,7 +391,8 @@ def get_speech_disorder_detection_run_spec(subject: str) -> RunSpec:
             An audio recording will be provided, typically consisting of a speech prompt 
             from a pathologist followed by a child's repetition. 
             Based on your expertise transcribe the child's speech into text.
-            Only respond with the text transcription, no other text or commentary.""",
+            Only respond with the text transcription, no other text or commentary.
+            Comma separated words, and end with a period.""",
         max_tokens=50,
     )
     metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
@@ -518,10 +519,23 @@ def get_speech_disorder_detection_run_spec(subject: str) -> RunSpec:
         "SpeechDisorderScenario",
         args={"subject": subject},
     )
-    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
-        input_noun=None, output_noun="Answer", max_train_instances=0
+    adapter_spec = _get_generation_adapter_spec(
+        instructions="""You are a highly experienced Speech-Language Pathologist (SLP). 
+            An audio recording will be provided, typically consisting of a speech prompt 
+            from a pathologist followed by a child's repetition. 
+            Based on your professional expertise:
+            1. Assess the child's speech in the recording for signs of typical development 
+            or potential speech-language disorder. A child would be considered typically developing if they are able to pronounce the expected words correctly.
+            Whereas a child would be considered to have a speech disorder if they are unable to pronounce the expected words correctly.
+            2. Provide your response without any additional explanation, commentary, 
+            or unnecessary text. 
+            Only respond with 'A' (typically developing) or 'B' (speech disorder) or 'C' (unsure).""",  # noqa: E501
+        max_tokens=1,
     )
-    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+    # adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
+    #     input_noun=None, output_noun="Answer", max_train_instances=0
+    # )
+    metric_specs: List[MetricSpec] = get_classification_metric_specs()
     run_spec_name: str = "speech_disorder_detection"
     return RunSpec(
         name=f"{run_spec_name}",
