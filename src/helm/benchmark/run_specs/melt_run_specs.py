@@ -2,6 +2,7 @@ from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.benchmark.adaptation.common_adapter_specs import (
     get_generation_adapter_spec,
+    get_machine_translation_adapter_spec,
 )
 from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_GENERATION,
@@ -15,6 +16,7 @@ from helm.benchmark.metrics.common_metric_specs import (
     get_basic_metric_specs,
     get_bias_metric_specs,
     get_classification_metric_specs,
+    get_open_ended_generation_metric_specs,
 )
 
 
@@ -404,4 +406,60 @@ def get_melt_sentiment_analysis_vsfc_spec(fewshot: bool = False) -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_bias_metric_specs() + get_classification_metric_specs(),
         groups=["melt", "sentiment_analysis_vsfc"],
+    )
+
+
+@run_spec_function("melt_translation_opus100")
+def get_melt_translation_opus100_spec(language_pair: str, max_train_instances: int = 1) -> RunSpec:
+    FULL_LANGUAGE_NAMES = {
+        "vi": "Vietnamese",
+        "en": "English",
+    }
+    source_language, target_language = language_pair.split("-")
+
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.melt_scenarios.MELTTranslationOPUS100Scenario",
+        args={"source_language": source_language, "target_language": target_language},
+    )
+
+    adapter_spec = get_machine_translation_adapter_spec(
+        source_language=FULL_LANGUAGE_NAMES[source_language],
+        target_language=FULL_LANGUAGE_NAMES[target_language],
+        max_train_instances=max_train_instances,
+    )
+
+    return RunSpec(
+        name=f"melt_translation_opus100:language_pair={language_pair}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_open_ended_generation_metric_specs(),
+        groups=["melt", "translation_opus100", f"translation_{language_pair}"],
+    )
+
+
+@run_spec_function("melt_translation_phomt")
+def get_melt_translation_phomt_spec(language_pair: str, max_train_instances: int = 1) -> RunSpec:
+    FULL_LANGUAGE_NAMES = {
+        "vi": "Vietnamese",
+        "en": "English",
+    }
+    source_language, target_language = language_pair.split("-")
+
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.melt_scenarios.MELTTranslationPhoMTScenario",
+        args={"source_language": source_language, "target_language": target_language},
+    )
+
+    adapter_spec = get_machine_translation_adapter_spec(
+        source_language=FULL_LANGUAGE_NAMES[source_language],
+        target_language=FULL_LANGUAGE_NAMES[target_language],
+        max_train_instances=max_train_instances,
+    )
+
+    return RunSpec(
+        name=f"melt_translation_phomt:language_pair={language_pair}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_open_ended_generation_metric_specs(),
+        groups=["melt", "translation_phomt", f"translation_{language_pair}"],
     )
