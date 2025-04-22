@@ -85,7 +85,7 @@ class CostCalculator:
 
                 assert (
                     num_prompt_tokens >= 0 and num_completion_tokens >= 0 and num_instances >= 0
-                ), f"invalid metrics: {metrics}"
+                ), f"For {run_path} invalid metrics: {metrics}"
                 cost.add_prompt_tokens(num_prompt_tokens * num_instances)
                 cost.add_num_completion_tokens(num_completion_tokens * num_instances)
                 cost.add_num_instances(num_instances)
