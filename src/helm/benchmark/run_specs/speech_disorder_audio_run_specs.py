@@ -3,7 +3,7 @@ from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.common_metric_specs import get_exact_match_metric_specs
 from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
-from helm.benchmark.run_specs.audio_run_specs import _get_multiple_choice_joint_adapter_spec
+from helm.benchmark.run_specs.audio_run_specs import _get_generation_adapter_spec, _get_multiple_choice_joint_adapter_spec, _get_open_ended_generation_metric_specs
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 
@@ -19,6 +19,25 @@ def get_ultra_suite_classification_run_spec() -> RunSpec:
     run_spec_name: str = "ultra_suite_classification"
     return RunSpec(
         name=f"{run_spec_name}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+@run_spec_function("ultra_suite_asr_classification")
+def get_ultra_suite_asr_classification_run_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.ultra_suite_asr_classification.UltraSuiteASRClassificationScenario",
+    )
+    adapter_spec = _get_generation_adapter_spec(
+        instructions="",
+        max_tokens=50,
+    )   
+    metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
+    run_spec_name: str = "ultra_suite_asr_classification"
+    return RunSpec(
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
