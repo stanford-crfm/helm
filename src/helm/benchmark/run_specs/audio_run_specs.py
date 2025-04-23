@@ -487,26 +487,6 @@ def get_casual_conversations2_run_spec(subject: str) -> RunSpec:
         groups=[run_spec_name],
     )
 
-@run_spec_function("speech_disorder_detection")
-def get_speech_disorder_detection_run_spec(subject: str) -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.audio_language.speech_disorder_scenario."
-        "SpeechDisorderScenario",
-        args={"subject": subject},
-    )
-    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
-        input_noun=None, output_noun="Answer", max_train_instances=0
-    )
-    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
-    run_spec_name: str = "speech_disorder_detection"
-    return RunSpec(
-        name=f"{run_spec_name}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=metric_specs,
-        groups=[run_spec_name],
-    )
-
 
 @run_spec_function("air_bench_chat")
 def get_air_bench_chat_run_spec(subject: str, num_respondents: int = 1) -> RunSpec:
