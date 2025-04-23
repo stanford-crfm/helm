@@ -67,7 +67,7 @@ class MedBulletsScenario(Scenario):
         "https://raw.githubusercontent.com/HanjieChen/ChallengeClinicalQA/refs/heads/main/medbullets/"
     )
 
-    name = "medbullet"
+    name = "medbullets"
     description = "A USMLE-style medical question dataset with multiple-choice answers and explanations."
     tags = ["reasoning", "biomedical"]
 
