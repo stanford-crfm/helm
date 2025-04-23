@@ -53,6 +53,15 @@ class UltraSuiteScenario(Scenario):
     A scenario for evaluating whether a child speaker has a speech disorder or not.
     The audio files contain speech from children, potentially with an adult present.
     The task is to classify whether the child speaker is typically developing or has a speech disorder.
+    You can find the dataset at https://ultrasuite.github.io/. The base dataset is pre-processed to do the following:
+    1. Convert the audio to MP3 format
+    2. Build a JSON file with the following format:
+    {
+        "words": ["word1", "word2", "word3"],
+        "answer": "typically developing" or "speech disorder"
+    }
+    where "words" is a list of words that the child is expected to say and "answer" is the correct label.
+    The word ground truth is derived from a .txt file associated with each audio file.
     """
 
     name = "speech_disorder"

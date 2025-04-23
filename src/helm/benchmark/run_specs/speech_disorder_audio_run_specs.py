@@ -7,16 +7,16 @@ from helm.benchmark.run_specs.audio_run_specs import _get_multiple_choice_joint_
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 
-@run_spec_function("speech_disorder_detection")
-def get_speech_disorder_detection_run_spec() -> RunSpec:
+@run_spec_function("ultra_suite_classification")
+def get_ultra_suite_classification_run_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.audio_language.speech_disorder_scenario.UltraSuiteScenario",
+        class_name="helm.benchmark.scenarios.audio_language.speech_disorder_scenario.UltraSuiteClassificationScenario",
     )
     adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
         input_noun=None, output_noun="Answer", max_train_instances=0
     )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
-    run_spec_name: str = "speech_disorder_detection"
+    run_spec_name: str = "ultra_suite_classification"
     return RunSpec(
         name=f"{run_spec_name}",
         scenario_spec=scenario_spec,
