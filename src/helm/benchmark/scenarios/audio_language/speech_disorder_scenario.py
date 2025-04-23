@@ -21,30 +21,30 @@ def find_audio_json_pairs(directory: str) -> List[Tuple[str, str]]:
     """
     Find all pairs of MP3 and JSON files in the given directory and its subdirectories.
     Each pair consists of an MP3 file and its corresponding JSON file with the same base name.
-    
+
     Args:
         directory: Path to the directory containing the files
-        
+
     Returns:
         List of tuples where each tuple contains (mp3_path, json_path)
     """
     pairs = []
-    
+
     # Walk through all directories and subdirectories
     for root, _, files in os.walk(directory):
         # Get all MP3 files in current directory
-        mp3_files = [f for f in files if f.endswith('.mp3')]
-        
+        mp3_files = [f for f in files if f.endswith(".mp3")]
+
         for mp3_file in mp3_files:
             base_name = os.path.splitext(mp3_file)[0]
             json_file = f"{base_name}.json"
-            
+
             # Check if corresponding JSON file exists in the same directory
             if json_file in files:
                 mp3_path = os.path.join(root, mp3_file)
                 json_path = os.path.join(root, json_file)
                 pairs.append((mp3_path, json_path))
-    
+
     return pairs
 
 
@@ -58,7 +58,7 @@ class SpeechDisorderScenario(Scenario):
     name = "speech_disorder"
     description = "A scenario for evaluating speech disorders in children"
     tags = ["audio", "classification", "speech_disorder"]
-    
+
     def get_instruction(self, words: str) -> str:
         return f"""You are a highly experienced Speech-Language Pathologist (SLP). 
 An audio recording will be provided, typically consisting of a speech prompt 
@@ -92,37 +92,37 @@ The prompt text and the utterance recording date/time are as follows: {words}"""
         - A JSON file with annotations containing 'answer' field
         """
         ensure_directory_exists(output_path)
-        
+
         instances: List[Instance] = []
         split: str = TEST_SPLIT
 
         # Find all pairs of audio and JSON files
         pairs = find_audio_json_pairs(output_path)
-        
+
         for audio_path, json_path in tqdm(pairs):
-            
+
             # Load the annotation
-            with open(json_path, 'r') as f:
+            with open(json_path, "r") as f:
                 annotation = json.load(f)
-            
+
             # Get the correct answer and convert to label
-            answer = annotation['answer']
+            answer = annotation["answer"]
             print(f"Answer: {answer}, path: {audio_path}")
-            words = " ".join(annotation['words'])
+            words = " ".join(annotation["words"])
             label = self._convert_answer_to_label(answer)
             print(f"Label: {label}")
             # Create references for each option
             references: List[Reference] = []
             reference = Reference(Output(text=label), tags=[CORRECT_TAG])
             references.append(reference)
-            
+
             # Create the input with audio and instruction
             content = [
                 MediaObject(content_type="audio/mpeg", location=audio_path),
                 MediaObject(content_type="text/plain", text=self.get_instruction(words)),
             ]
-            
+
             input = Input(multimedia_content=MultimediaObject(content))
             instances.append(Instance(input=input, references=references, split=split))
-        
-        return instances 
+
+        return instances
