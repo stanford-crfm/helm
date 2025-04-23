@@ -58,13 +58,6 @@ class SpeechDisorderScenario(Scenario):
     name = "speech_disorder"
     description = "A scenario for evaluating speech disorders in children"
     tags = ["audio", "classification", "speech_disorder"]
-
-    # Classification options
-    options: List[str] = ["Healthy", "Unhealthy"]
-
-    def __init__(self, subject: str) -> None:
-        super().__init__()
-        self.subject = subject
     
     def get_instruction(self, words: str) -> str:
         return f"""You are a highly experienced Speech-Language Pathologist (SLP). 
@@ -120,10 +113,8 @@ The prompt text and the utterance recording date/time are as follows: {words}"""
             print(f"Label: {label}")
             # Create references for each option
             references: List[Reference] = []
-            for i, option in enumerate(self.options):
-                is_correct = i == (ord(label) - ord('A'))
-                reference = Reference(Output(text=option), tags=[CORRECT_TAG] if is_correct else [])
-                references.append(reference)
+            reference = Reference(Output(text=label), tags=[CORRECT_TAG])
+            references.append(reference)
             
             # Create the input with audio and instruction
             content = [
