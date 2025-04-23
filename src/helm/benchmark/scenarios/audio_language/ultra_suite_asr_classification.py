@@ -29,15 +29,11 @@ def find_audio_json_pairs(directory: str) -> List[Tuple[str, str]]:
         List of tuples where each tuple contains (mp3_path, json_path)
     """
     pairs = []
-    print(os.path.abspath(directory))
 
     # Walk through all directories and subdirectories
     for root, _, files in os.walk(directory):
         # Get all MP3 files in current directory
         mp3_files = [f for f in files if f.endswith('.mp3')]
-        
-        print("here")
-        print(mp3_files)
 
         for mp3_file in mp3_files:
             base_name = os.path.splitext(mp3_file)[0]
@@ -74,21 +70,6 @@ class UltraSuiteASRClassificationScenario(Scenario):
 
     # Classification options
     options: List[str] = ["Healthy", "Unhealthy"]
-
-    def __init__(self, subject: str) -> None:
-        super().__init__()
-        self.subject = subject
-
-    def get_instruction(self) -> str:
-        return f"""You are a highly experienced Speech-Language Pathologist (SLP). 
-            An audio recording will be provided, typically consisting of a speech prompt 
-            from a pathologist followed by a child's repetition. 
-            Based on your expertise transcribe the child's speech into text.
-            Do not make any assumptions about the words the child is expected to say.
-            Only transcribe based on the words that the child actually says.
-            Only respond with the text transcription, no other text or commentary.
-            Respond with each word comma separated.
-            """
 
     def get_instances(self, output_path: str) -> List[Instance]:
         """

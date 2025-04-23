@@ -31,7 +31,14 @@ def get_ultra_suite_asr_classification_run_spec() -> RunSpec:
         class_name="helm.benchmark.scenarios.audio_language.ultra_suite_asr_classification.UltraSuiteASRClassificationScenario",
     )
     adapter_spec = _get_generation_adapter_spec(
-        instructions="",
+        instructions="""You are a highly experienced Speech-Language Pathologist (SLP). 
+            An audio recording will be provided, typically consisting of a speech prompt 
+            from a pathologist followed by a child's repetition. 
+            Based on your expertise transcribe the child's speech into text.
+            Do not make any assumptions about the words the child is expected to say.
+            Only transcribe based on the words that the child actually says.
+            Only respond with the text transcription, no other text or commentary.
+            """,
         max_tokens=50,
     )   
     metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
