@@ -76,6 +76,10 @@ metrics:
     display_name: Float Equivalence
     description: Float Equivalence
     lower_is_better: false
+  - name: adjusted_macro_f1_score
+    display_name: Adjusted Macro F1 Score
+    short_display_name: Adjusted Macro F1 Score
+    description: Entity type classification F1 score, adjusted for partial matches following the KPI-Edgar paper, macro-averaged across entity types
 
 ############################################################
 perturbations: []
@@ -119,6 +123,7 @@ run_groups:
       - gold_commodity_news
       - financial_phrasebank
       - conv_fin_qa_calc
+      - kpi_edgar
 
   - name: legal_scenarios
     display_name: Legal Scenarios
@@ -193,6 +198,22 @@ run_groups:
       what: gold commodity news headlines
       who: financial journalists
       when: 2000-2019
+      language: English
+
+  - name: kpi_edgar
+    display_name: KPI-EDGAR Financial Documents (Named Entity Recognition)
+    description: A named entity recognition beenchmark based on the paper KPI-EDGAR - A Novel Dataset and Accompanying Metric for Relation Extraction from Financial Documents [(Deußer et al., 2022)](https://arxiv.org/pdf/2210.09163.pdf).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: adjusted_macro_f1_score
+      main_split: test
+    taxonomy:
+      task: named entity recognition
+      what: financial reports
+      who: financial experts
+      when: before 2022
       language: English
 
   - name: legal_contract_summarization

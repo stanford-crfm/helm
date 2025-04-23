@@ -773,8 +773,8 @@ model_deployments:
   - name: google/gemini-2.5-pro-exp-03-25
     model_name: google/gemini-2.5-pro-exp-03-25
     tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
-    max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
-    # TODO: Max output tokens: 8192
+    max_sequence_length: 1048576   # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
+    # TODO: Max output tokens: 65536
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
 
@@ -822,6 +822,22 @@ model_deployments:
     model_name: google/gemini-2.0-flash-thinking-exp-01-21
     tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
     max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+
+  - name: google/gemini-2.5-flash-preview-04-17
+    model_name: google/gemini-2.5-flash-preview-04-17
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1048576  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-flash
+    # TODO: Max output tokens: 65536
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+
+  - name: google/gemini-2.5-pro-preview-03-25
+    model_name: google/gemini-2.5-pro-preview-03-25
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1048576   # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
+    # TODO: Max output tokens: 65536
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
 
@@ -2239,6 +2255,27 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
+  - name: openai/gpt-4.1-2025-04-14
+    model_name: openai/gpt-4.1-2025-04-14
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 1047576
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
+  - name: openai/gpt-4.1-mini-2025-04-14
+    model_name: openai/gpt-4.1-mini-2025-04-14
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 1047576
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
+  - name: openai/gpt-4.1-nano-2025-04-14
+    model_name: openai/gpt-4.1-nano-2025-04-14
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 1047576
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
   - name: openai/whisper-1_gpt-4o-2024-11-20
     model_name: openai/whisper-1_gpt-4o-2024-11-20
     tokenizer_name: openai/o200k_base
@@ -2308,20 +2345,19 @@ model_deployments:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
   ## o1 Models
-  # TODO: support the new `responses` endpoint to get these to work
   - name: openai/o1-pro-2025-03-19
     model_name: openai/o1-pro-2025-03-19
     tokenizer_name: openai/cl100k_base
     max_sequence_length: 128000
     client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
+      class_name: "helm.clients.openai_client.OpenAIResponseClient"
 
   - name: openai/o1-pro-2025-03-19-low-reasoning-effort
     model_name: openai/o1-pro-2025-03-19-low-reasoning-effort
     tokenizer_name: openai/cl100k_base
     max_sequence_length: 128000
     client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
+      class_name: "helm.clients.openai_client.OpenAIResponseClient"
       args:
         openai_model_name: o1-pro-2025-03-19
         reasoning_effort: low
@@ -2331,7 +2367,7 @@ model_deployments:
     tokenizer_name: openai/cl100k_base
     max_sequence_length: 128000
     client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
+      class_name: "helm.clients.openai_client.OpenAIResponseClient"
       args:
         openai_model_name: o1-pro-2025-03-19
         reasoning_effort: high
@@ -2403,6 +2439,24 @@ model_deployments:
       args:
         openai_model_name: o3-mini-2025-01-31
         reasoning_effort: high
+
+  - name: openai/o3-2025-04-16
+    model_name: openai/o3-2025-04-16
+    tokenizer_name: openai/cl100k_base
+    # Source: https://platform.openai.com/docs/models/o3
+    max_sequence_length: 200000
+    # TODO: max_output_tokens: 100000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
+  - name: openai/o4-mini-2025-04-16
+    model_name: openai/o4-mini-2025-04-16
+    tokenizer_name: openai/cl100k_base
+    # Source: https://platform.openai.com/docs/models/o4-mini
+    max_sequence_length: 200000
+    # TODO: max_output_tokens: 100000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
 
   ## Text Similarity Models
   # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
@@ -3179,15 +3233,6 @@ model_deployments:
 
 
   # xAI
-
-  - name: xai/grok-beta
-    model_name: xai/grok-beta
-    # No public information on tokenizer, so just pick an arbitrary one.
-    # It shouldn't matter since the context is long.
-    tokenizer_name: openai/o200k_base
-    max_sequence_length: 128000
-    client_spec:
-      class_name: "helm.clients.grok_client.GrokChatClient"
 
   - name: xai/grok-3-beta
     model_name: xai/grok-3-beta
