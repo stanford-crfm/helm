@@ -113,7 +113,6 @@ class UltraSuiteASRClassificationScenario(Scenario):
 
             # Get the correct answer and convert to label
             answer = " ,".join(annotation['words'])
-            print(f"Answer: {answer}, path: {audio_path}")
             # Create references for each option
             references: List[Reference] = []
             reference = Reference(Output(text=answer), tags=[CORRECT_TAG])
