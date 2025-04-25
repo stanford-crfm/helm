@@ -2449,6 +2449,30 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
+  - name: openai/o3-2025-04-16-low-reasoning-effort
+    model_name: openai/o3-2025-04-16-low-reasoning-effort
+    tokenizer_name: openai/cl100k_base
+    # Source: https://platform.openai.com/docs/models/o3
+    max_sequence_length: 200000
+    # TODO: max_output_tokens: 100000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+      args:
+        openai_model_name: o3-2025-04-16
+        reasoning_effort: low
+
+  - name: openai/o3-2025-04-16-high-reasoning-effort
+    model_name: openai/o3-2025-04-16-high-reasoning-effort
+    tokenizer_name: openai/cl100k_base
+    # Source: https://platform.openai.com/docs/models/o3
+    max_sequence_length: 200000
+    # TODO: max_output_tokens: 100000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+      args:
+        openai_model_name: o3-2025-04-16
+        reasoning_effort: high
+
   - name: openai/o4-mini-2025-04-16
     model_name: openai/o4-mini-2025-04-16
     tokenizer_name: openai/cl100k_base
@@ -2457,6 +2481,31 @@ model_deployments:
     # TODO: max_output_tokens: 100000
     client_spec:
       class_name: "helm.clients.openai_client.OpenAIClient"
+
+  - name: openai/o4-mini-2025-04-16-low-reasoning-effort
+    model_name: openai/o4-mini-2025-04-16-low-reasoning-effort
+    tokenizer_name: openai/cl100k_base
+    # Source: https://platform.openai.com/docs/models/o4-mini
+    max_sequence_length: 200000
+    # TODO: max_output_tokens: 100000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+      args:
+        openai_model_name: o4-mini-2025-04-16
+        reasoning_effort: low
+
+
+  - name: openai/o4-mini-2025-04-16-high-reasoning-effort
+    model_name: openai/o4-mini-2025-04-16-high-reasoning-effort
+    tokenizer_name: openai/cl100k_base
+    # Source: https://platform.openai.com/docs/models/o4-mini
+    max_sequence_length: 200000
+    # TODO: max_output_tokens: 100000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+      args:
+        openai_model_name: o4-mini-2025-04-16
+        reasoning_effort: high
 
   ## Text Similarity Models
   # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
