@@ -511,6 +511,8 @@ run_groups:
       - shc_conf_med
       - medi_qa
       - mental_health
+      - shc_proxy_med
+      - shc_privacy_med
   
   - name: medical_research
     display_name: Medical Research Assistance
