@@ -40,7 +40,7 @@ class MMLUProScenario(Scenario):
 
     def __init__(self, subject: str):
         super().__init__()
-        self.subject: str = subject
+        self.subject: str = subject.replace("_", " ")
 
     def process_dataset(self, data: Dataset, split: str) -> List[Instance]:
         """
