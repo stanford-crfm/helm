@@ -65,9 +65,7 @@ class CostCalculator:
                     media_objects = multimodal_prompt.get("media_objects", [])
 
                     prompt_chars = sum(
-                        len(obj.get("text", ""))
-                        for obj in media_objects
-                        if obj.get("content_type") == "text/plain"
+                        len(obj.get("text", "")) for obj in media_objects if obj.get("content_type") == "text/plain"
                     )
 
                     num_audio_files = sum(
