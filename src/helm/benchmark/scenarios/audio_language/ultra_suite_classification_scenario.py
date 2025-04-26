@@ -63,33 +63,50 @@ class UltraSuiteClassificationScenario(Scenario):
     where "words" is a list of words that the child is expected to say and "answer" is the correct label.
     The word ground truth is derived from a .txt file associated with each audio file.
     """
+    
+    def __init__(self, breakdown_disorder: bool = False) -> None:
+        super().__init__()
+        self.breakdown_disorder = breakdown_disorder
 
     name = "speech_disorder"
     description = "A scenario for evaluating speech disorders in children"
     tags = ["audio", "classification", "speech_disorder"]
 
     def get_instruction(self, words: str) -> str:
-        return f"""You are a highly experienced Speech-Language Pathologist (SLP). 
-An audio recording will be provided, typically consisting of a speech prompt 
-from a pathologist followed by a child's repetition. 
-Based on your professional expertise:
+        disorder_classification = f"""You are a highly experienced Speech-Language Pathologist (SLP). 
+            An audio recording will be provided, typically consisting of a speech prompt 
+            from a pathologist followed by a child's repetition. 
+            Based on your professional expertise:
 
-1. Assess the child's speech in the recording for signs of typical development 
-or potential speech-language disorder.
-2. Conclude your analysis with one of the following labels only: 
-'Typically developing' or 'Speech disorder'.
-3. Provide your response without any additional explanation, commentary, 
-or unnecessary text. Only 'Typically developing' or 'Speech disorder'.
+            1. Assess the child's speech in the recording for signs of typical development 
+            or potential speech-language disorder.
+            2. Conclude your analysis with one of the following options only: 
+            A - 'typically developing' or B - 'speech disorder'.
+            3. Provide your response without any additional explanation, commentary, 
+            or unnecessary text. Only 'A' or 'B'.
+            The prompt text and the utterance recording date/time are as follows: {words}"""
 
-The prompt text and the utterance recording date/time are as follows: {words}"""
+        disorder_breakdown = f"""You are a highly experienced Speech-Language Pathologist (SLP). An audio recording will be provided, typically consisting of a speech prompt from a pathologist followed by a child's repetition. Based on your professional expertise:1. Assess the child's speech in the recording for signs of typical development or potential speech-language disorder.2. Conclude your analysis with one of the following labels only: A - 'typically developing', B - 'articulation', or C - 'phonological'. 3. Answer the multiple choice question by just giving the letter of the correct answer and nothing else. Only 'A', 'B', or 'C'. The prompt text and the utterance recording date/time are as follows: {words}"""
+
+        if self.breakdown_disorder:
+            return disorder_breakdown
+        else:
+            return disorder_classification
 
     def _convert_answer_to_label(self, answer: str) -> str:
         """Convert the answer from the JSON to a label (A or B)"""
         answer = answer.lower()
         if answer == "typically developing":
             return "A"
+        elif answer == "typical":
+            return 'A'
         elif answer == "speech disorder":
             return "B"
+        # To be used for different scenario
+        elif answer == "articulation":
+            return "B"
+        elif answer == "phonological":
+            return "C"
         else:
             raise ValueError(f"Invalid answer: {answer}")
 
@@ -115,8 +132,9 @@ The prompt text and the utterance recording date/time are as follows: {words}"""
                 annotation = json.load(f)
 
             # Get the correct answer and convert to label
-            answer = annotation["answer"]
-            print(f"Answer: {answer}, path: {audio_path}")
+            answer_key = "answer" if not self.breakdown_disorder else "disorder_class"
+            answer = annotation[answer_key]
+            print(f"Answer: {answer}") 
             words = " ".join(annotation["words"])
             label = self._convert_answer_to_label(answer)
             print(f"Label: {label}")
