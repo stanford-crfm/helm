@@ -25,6 +25,25 @@ def get_ultra_suite_classification_run_spec() -> RunSpec:
         groups=[run_spec_name],
     )
 
+@run_spec_function("ultra_suite_classification_breakdown")
+def get_ultra_suite_disorder_breakdown_run_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.ultra_suite_classification_scenario.UltraSuiteClassificationScenario",
+        args={"breakdown_disorder": True},
+    )
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(
+        instructions="", max_tokens=20
+    )
+    metric_specs: List[MetricSpec] = get_basic_generation_metric_specs(["f1_score"])
+    run_spec_name: str = "ultra_suite_classification_breakdown"
+    return RunSpec(
+        name=f"{run_spec_name}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
 @run_spec_function("ultra_suite_asr_classification")
 def get_ultra_suite_asr_classification_run_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
