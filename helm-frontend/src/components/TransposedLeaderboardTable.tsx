@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ChevronUpDownIcon } from "@heroicons/react/24/solid";
+import { AdjustmentsHorizontalIcon } from "@heroicons/react/24/solid";
 import type GroupsTable from "@/types/GroupsTable";
 import RowValue from "@/components/RowValue";
 import Schema from "@/types/Schema";
@@ -27,8 +28,6 @@ export default function LeaderboardTable({
   const [selectedColumnIndex, setSelectedColumnIndex] =
     useState<number>(sortColumnIndex);
 
-
-  // TODO remove truncation once a visually suitable version of wrapping is determined
   const getHeaderValue = (headerValueObject: HeaderValue): string => {
     return headerValueObject.value;
   };
@@ -136,7 +135,7 @@ export default function LeaderboardTable({
   columns.push(groupTable.header
     .map((headerValue: HeaderValue, idx) => (
         <td
-        key={`$${idx}`}
+        key={`scenario-${idx}`}
         className={`${
             idx === selectedColumnIndex ? "bg-gray-100" : (idx % 2 === 0 ? "bg-gray-50" : "bg-white")
         } ${idx === 0 ? "left-0 z-40" : ""} ${
@@ -155,6 +154,12 @@ export default function LeaderboardTable({
         >
             <span className={`inline-block w-full break-words`}>
             {getHeaderValue(headerValue)}
+
+                              {sortable ? (
+                                <button className="link" onClick={() => handleSort(idx)}>
+                                  <AdjustmentsHorizontalIcon className="w-6 h-6" />
+                                </button>
+                              ) : null}
             </span>
 
         </div>
@@ -165,8 +170,8 @@ export default function LeaderboardTable({
       columns.push(row
         .map((rowValue, cellIdx) => (
           <td
-            key={`${cellIdx}`}
-            className={`${cellIdx % 2 === 0 ? "bg-gray-50" : "bg-white"}`}
+            key={`${idx}-${cellIdx}`}
+            className={`${cellIdx % 2 === 0 ? "bg-gray-50" : "bg-white"} ${cellIdx === 0 ? "whitespace-nowrap px-4 sticky top-0" : ""}`}
           >
             {cellIdx == 1 ? (
               <div
@@ -237,8 +242,8 @@ export default function LeaderboardTable({
         </tr>
       </thead>
       <tbody>
-        {rows.slice(1).map((row) => (
-          <tr key={`$${row[0].value}`}>
+        {rows.slice(1).map((row, idx) => (
+          <tr key={`${idx}-${row[0].value}`}>
             {row}
           </tr>
         ))}
