@@ -14,6 +14,7 @@ from helm.benchmark.metrics.common_metric_specs import (
 from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
+from helm.common.gpu_utils import get_torch_device_name
 
 
 @run_spec_function("ci_mcqa")
@@ -198,8 +199,32 @@ def get_czech_bank_qa_spec(config_name: str = "berka_queries_1024_2024_12_18") -
     )
 
 
-@run_spec_function("medi_qa_without_annotator")
-def get_medi_qa_without_annotator_spec() -> RunSpec:
+@run_spec_function("experimental_omni_math_without_annotator")
+def get_experimental_omni_math_without_annotator_spec() -> RunSpec:
+
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.omni_math_scenario.OmniMATHScenario")
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Answer the question, giving your reasoning beforehand. Wrap the final answer with the \\boxed{} command.",  # noqa: E501
+        input_prefix="",
+        output_prefix="",
+        max_tokens=4096,  # original: 2048
+        num_outputs=1,
+        temperature=0.0,
+    )
+    metric_specs = get_basic_metric_specs([])
+
+    return RunSpec(
+        name="omni_math",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["omni_math"],
+    )
+
+@run_spec_function("experimental_medi_qa_without_annotator")
+def get_experimental_medi_qa_without_annotator_spec() -> RunSpec:
     """A version of medi_qa that does not use annotators.
 
     EXPERIMENTAL: You should probably use medi_qa instead."""
@@ -214,7 +239,9 @@ def get_medi_qa_without_annotator_spec() -> RunSpec:
         stop_sequences=[],
     )
 
-    metric_specs = get_open_ended_generation_metric_specs()
+    metric_specs = [
+        MetricSpec(class_name="helm.benchmark.metrics.summarization_metrics.SummarizationMetric", args=args)
+    ] + get_basic_metric_specs(["exact_match", "quasi_exact_match", "f1_score", "rouge_l", "bleu_1", "bleu_4"])
     return RunSpec(
         name="medi_qa",
         scenario_spec=scenario_spec,

@@ -3,6 +3,7 @@ import type Schema from "@/types/Schema";
 import Tab from "@/components/Tab";
 import Tabs from "@/components/Tabs";
 import LeaderboardTable from "@/components/LeaderboardTable";
+import TransposedLeaderboardTable from "@/components/TransposedLeaderboardTable";
 import type GroupsTable from "@/types/GroupsTable";
 import getGroupsTablesByName from "@/services/getGroupTablesByName";
 import Loading from "@/components/Loading";
@@ -59,7 +60,7 @@ export default function GroupLeaderboard({
           ))}
         </Tabs>
       ) : null}
-      <LeaderboardTable
+      <TransposedLeaderboardTable
         key={`${runGroupName}-${tableIndex}`}
         schema={schema}
         groupTable={groupTables[tableIndex]}
