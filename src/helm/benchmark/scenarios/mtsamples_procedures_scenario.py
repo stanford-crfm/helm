@@ -31,7 +31,7 @@ class MTSamplesProceduresScenario(Scenario):
     GITHUB_DIR_URL = f"https://github.com/raulista1997/benchmarkdata/tree/{GIT_HASH}/mtsample_procedure"
     RAW_BASE_URL = f"https://raw.githubusercontent.com/raulista1997/benchmarkdata/{GIT_HASH}/mtsample_procedure/"
 
-    name = "mtsamples"
+    name = "mtsamples_procedures"
     description = (
         "A dataset that provides a patient note regarding an operation, with the objective to document the procedure."
     )

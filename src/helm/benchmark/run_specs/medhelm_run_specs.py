@@ -515,7 +515,7 @@ def get_mtsamples_procedures_spec() -> RunSpec:
     ]
 
     metric_args = {
-        "task": "mtsamples_procedures",
+        "task": "mtsamples_procedures",git s
         "device": get_torch_device_name(),
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
