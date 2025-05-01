@@ -3,15 +3,23 @@ import json
 from pathlib import Path
 from pydub import AudioSegment
 import re
-
+import time
 def extract_age_gender(line):
-    # Pattern to match age and gender (e.g., "01M-BL2")
-    pattern = r'(\d{2})([MF])-.*'
-    match = re.match(pattern, line.strip())
-    if match:
-        age = match.group(1)
-        gender = match.group(2)
-        return age, gender
+    # Clean the line and split by any common separators
+    line = line.strip().replace(',', ' ').replace('-', ' ')
+    parts = line.split()
+    
+    for part in parts:
+        # Look for a part that contains both digits and M/F
+        if any(c.isdigit() for c in part) and any(c in 'MF' for c in part):
+            # Extract digits and letters separately
+            digits = ''.join(c for c in part if c.isdigit())
+            letters = ''.join(c for c in part if c.isalpha())
+            
+            # Validate the extracted parts
+            if len(digits) == 2 and letters in ['M', 'F']:
+                return digits, letters
+    
     return None, None
 
 def process_text_file(txt_path):
@@ -21,7 +29,10 @@ def process_text_file(txt_path):
     if len(lines) < 3:
         raise ValueError(f"Invalid text file format in {txt_path}")
     
+    # First line contains the words/prompt
     words = lines[0].strip().split()
+    
+    # Third line contains age and gender
     age, gender = extract_age_gender(lines[2])
     
     if age is None or gender is None:
@@ -74,6 +85,7 @@ def process_directory(input_path, output_path, speech_condition):
             
         except Exception as e:
             print(f"Error processing {wav_file}: {str(e)}")
+    
 
 if __name__ == "__main__":
     import argparse
@@ -81,9 +93,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process audio files and text files')
     parser.add_argument('--input-path', help='Path to input directory containing .wav and .txt files')
     parser.add_argument('--output-path', help='Path to output directory')
-    parser.add_argument('--speech_condition', choices=['typically developing', 'speech disorder'],
+    parser.add_argument('--speech-condition', choices=['typically_developing', 'speech_disorder'],
                        help='Speech condition of the samples')
     
     args = parser.parse_args()
-    
+
     process_directory(args.input_path, args.output_path, args.speech_condition) 
