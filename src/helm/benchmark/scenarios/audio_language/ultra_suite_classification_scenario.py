@@ -131,7 +131,9 @@ class UltraSuiteClassificationScenario(Scenario):
                 annotation = json.load(f)
 
             # Get the correct answer and convert to label
-            answer = annotation["answer"]
+            answer_key = "answer" if not self.breakdown_disorder else "disorder_class"
+            answer = annotation[answer_key]
+            print(f"Answer: {answer}") 
             words = " ".join(annotation["words"])
             label = self._convert_answer_to_label(answer)
             # Create references for each option
