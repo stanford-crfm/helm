@@ -58,7 +58,7 @@ class UltraSuiteClassificationScenario(Scenario):
     2. Build a JSON file with the following format:
     {
         "words": ["word1", "word2", "word3"],
-        "answer": "typically developing" or "speech disorder"
+        "answer": "typically_developing" or "speech_disorder"
     }
     where "words" is a list of words that the child is expected to say and "answer" is the correct label.
     The word ground truth is derived from a .txt file associated with each audio file.
@@ -77,18 +77,18 @@ Based on your professional expertise:
 1. Assess the child's speech in the recording for signs of typical development 
 or potential speech-language disorder.
 2. Conclude your analysis with one of the following labels only: 
-'Typically developing' or 'Speech disorder'.
+'typically_developing' or 'speech_disorder'.
 3. Provide your response without any additional explanation, commentary, 
-or unnecessary text. Only 'Typically developing' or 'Speech disorder'.
+or unnecessary text. Only A for 'typically_developing' or B for 'speech_disorder'.
 
 The prompt text and the utterance recording date/time are as follows: {words}"""
 
     def _convert_answer_to_label(self, answer: str) -> str:
         """Convert the answer from the JSON to a label (A or B)"""
         answer = answer.lower()
-        if answer == "typically developing":
+        if answer == "typically_developing":
             return "A"
-        elif answer == "speech disorder":
+        elif answer == "speech_disorder":
             return "B"
         else:
             raise ValueError(f"Invalid answer: {answer}")
@@ -104,9 +104,10 @@ The prompt text and the utterance recording date/time are as follows: {words}"""
 
         instances: List[Instance] = []
         split: str = TEST_SPLIT
-
+        print(f"Output path: {os.path.abspath(output_path)}")
         # Find all pairs of audio and JSON files
         pairs = find_audio_json_pairs(output_path)
+        print(f"Num pairs: {len(pairs)}")
 
         for audio_path, json_path in tqdm(pairs):
 
@@ -116,10 +117,8 @@ The prompt text and the utterance recording date/time are as follows: {words}"""
 
             # Get the correct answer and convert to label
             answer = annotation["answer"]
-            print(f"Answer: {answer}, path: {audio_path}")
             words = " ".join(annotation["words"])
             label = self._convert_answer_to_label(answer)
-            print(f"Label: {label}")
             # Create references for each option
             references: List[Reference] = []
             reference = Reference(Output(text=label), tags=[CORRECT_TAG])
