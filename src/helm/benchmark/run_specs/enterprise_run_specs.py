@@ -100,6 +100,26 @@ def get_conv_fin_qa_calc_spec() -> RunSpec:
     )
 
 
+@run_spec_function("kpi_edgar")
+def get_kpi_edgar_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.kpi_edgar_scenario.KPIEDGARScenario",
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        input_noun=None, output_noun="Answer", max_tokens=100, max_train_instances=20
+    )
+
+    return RunSpec(
+        name="kpi_edgar",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_basic_metric_specs([])
+        + [MetricSpec(class_name="helm.benchmark.metrics.kpi_edgar_metrics.KPIEdgarMetric")],
+        groups=["kpi_edgar"],
+    )
+
+
 # Legal
 
 

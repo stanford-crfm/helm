@@ -96,6 +96,17 @@ model_deployments:
         openai_model_name: gpt-4-turbo
         api_version: 2023-05-15
 
+  - name: stanfordhealthcare/gpt-4.1-2025-04-14
+    model_name: openai/gpt-4.1-2025-04-14
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 1047576
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
+      args:
+        openai_model_name: gpt-4.1
+        api_version: 2025-01-01-preview
+        base_url: "{endpoint}/openai-eastus2"
+
   - name: stanfordhealthcare/o3-mini-2025-01-31
     model_name: openai/o3-mini-2025-01-31
     tokenizer_name: openai/cl100k_base
@@ -138,6 +149,24 @@ model_deployments:
       args:
         base_url: "{endpoint}/llama3370b/v1"
 
+  - name: stanfordhealthcare/llama-4-scout-17b-16e-instruct
+    model_name: meta/llama-4-scout-17b-16e-instruct
+    tokenizer_name: meta/llama-4-scout-17b-16e-instruct
+    max_sequence_length: 327680
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      args:
+        base_url: "{endpoint}/llama4-scout/v1"
+  
+  - name: stanfordhealthcare/llama-4-maverick-17b-128e-instruct-fp8
+    model_name: meta/llama-4-maverick-17b-128e-instruct-fp8
+    tokenizer_name: meta/llama-4-scout-17b-16e-instruct
+    max_sequence_length: 524288
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      args:
+        base_url: "{endpoint}/llama4-maverick/v1"
+
   - name: stanfordhealthcare/phi-3.5-mini-instruct
     model_name: microsoft/phi-3.5-mini-instruct
     tokenizer_name: microsoft/phi-3.5-mini-instruct
@@ -170,6 +199,17 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.stanfordhealthcare_shc_openai_client.StanfordHealthCareSHCOpenAIClient"
       deployment: gpt-4-turbo-2024-04-09
+# url = https://apim.stanfordhealthcare.org/openai-eastus2/deployments/gpt-4.1/chat/completions?api-version=2025-01-01-preview
+# url = https://apim.stanfordhealthcare.org/openai-eastus2/deployments/o3-mini/chat/completions?api-version=2024-12-01-preview
+
+#   - name: stanfordhealthcare/gpt-4.1-2025-04-14
+#     model_name: openai/gpt-4.1-2025-04-14
+#     tokenizer_name: openai/o200k_base
+#     max_sequence_length: 1047576
+#     client_spec:
+#       class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+#       args:
+#         base_url: "{endpoint}/llama4-maverick/v1"
 
   # Adobe
   - name: adobe/giga-gan
@@ -773,8 +813,8 @@ model_deployments:
   - name: google/gemini-2.5-pro-exp-03-25
     model_name: google/gemini-2.5-pro-exp-03-25
     tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
-    max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
-    # TODO: Max output tokens: 8192
+    max_sequence_length: 1048576   # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
+    # TODO: Max output tokens: 65536
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
 
@@ -822,6 +862,22 @@ model_deployments:
     model_name: google/gemini-2.0-flash-thinking-exp-01-21
     tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
     max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+
+  - name: google/gemini-2.5-flash-preview-04-17
+    model_name: google/gemini-2.5-flash-preview-04-17
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1048576  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-flash
+    # TODO: Max output tokens: 65536
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+
+  - name: google/gemini-2.5-pro-preview-03-25
+    model_name: google/gemini-2.5-pro-preview-03-25
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1048576   # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
+    # TODO: Max output tokens: 65536
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
 
@@ -2424,6 +2480,24 @@ model_deployments:
         openai_model_name: o3-mini-2025-01-31
         reasoning_effort: high
 
+  - name: openai/o3-2025-04-16
+    model_name: openai/o3-2025-04-16
+    tokenizer_name: openai/cl100k_base
+    # Source: https://platform.openai.com/docs/models/o3
+    max_sequence_length: 200000
+    # TODO: max_output_tokens: 100000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
+  - name: openai/o4-mini-2025-04-16
+    model_name: openai/o4-mini-2025-04-16
+    tokenizer_name: openai/cl100k_base
+    # Source: https://platform.openai.com/docs/models/o4-mini
+    max_sequence_length: 200000
+    # TODO: max_output_tokens: 100000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
   ## Text Similarity Models
   # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
   # The number of parameters is guessed based on the number of parameters of the
@@ -3199,15 +3273,6 @@ model_deployments:
 
 
   # xAI
-
-  - name: xai/grok-beta
-    model_name: xai/grok-beta
-    # No public information on tokenizer, so just pick an arbitrary one.
-    # It shouldn't matter since the context is long.
-    tokenizer_name: openai/o200k_base
-    max_sequence_length: 128000
-    client_spec:
-      class_name: "helm.clients.grok_client.GrokChatClient"
 
   - name: xai/grok-3-beta
     model_name: xai/grok-3-beta

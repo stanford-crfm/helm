@@ -881,7 +881,11 @@ def get_pubmed_qa_spec() -> RunSpec:
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="Answer A for yes, B for no or C for maybe.",
+        instructions=(
+            "Answer A for yes, B for no or C for maybe. "
+            "Do not include any explanation or additional text. "
+            "Output only the letter on a single line."
+        ),
         input_noun="Question",
         output_noun="Answer",
         max_train_instances=0,

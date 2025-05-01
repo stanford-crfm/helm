@@ -522,6 +522,7 @@ run_groups:
       - shc_bmt_med
       - race_based_med
       - n2c2_ct_matching
+      - medhallu
   
   - name: administration_and_workflow
     display_name: Administration and Workflow
@@ -881,6 +882,23 @@ run_groups:
       when: Any
       language: English
 
+  - name: medhallu
+    display_name: MedHallu
+    description: A dataset of PubMed articles and associated questions, with the objective being to classify whether the answer is factual or hallucinated.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: Classification
+      what: Verify whether answers to questions from PubMed articles are factual or hallucinated
+      who: Researcher
+      when: Any
+      language: English
+
   - name: head_qa
     display_name: HeadQA
     description: A collection of biomedical multiple-choice questions for testing medical knowledge [(Vilares et al., 2019)](https://arxiv.org/abs/1906.04701).
@@ -1083,4 +1101,38 @@ run_groups:
       what: Classify clinician recommendations for ADHD behavior management
       who: Clinician, Caregiver
       when: Early Intervention
+      language: English
+
+  - name: shc_privacy_med
+    display_name:  PrivacyDetection
+    description: A dataset that determines if a message leaks any confidential information from the patient [(Tse G, et al., 2025)](https://doi.org/10.1001/jamapediatrics.2024.4438).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: Classification
+      what: Classify if a document leaks private information
+      who: Clinician, Caregiver
+      when: Any
+      language: English
+
+  - name: shc_proxy_med
+    display_name:  ProxySender
+    description: This dataset features messages sent by proxy users and non proxy users, for evaluation of LLM capabilities to determine the sender [(Tse G, et al., 2025)](https://doi.org/10.1001/jamapediatrics.2024.4438).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: Classification
+      what: Classify if a document was sent by a proxy user
+      who: Clinician, Caregiver
+      when: Any
       language: English
