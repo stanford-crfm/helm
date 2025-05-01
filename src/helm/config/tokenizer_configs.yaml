@@ -994,3 +994,58 @@ tokenizer_configs:
             pretrained_model_name_or_path: deepseek-ai/deepseek-coder-6.7b-instruct
     end_of_text_token: "<｜end▁of▁sentence｜>"
     prefix_token: "<｜begin▁of▁sentence｜>"
+
+
+# vilm/vinallama-2.7b-chat
+  - name: vilm/vinallama-2.7b-chat
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: vilm/vinallama-2.7b-chat
+    end_of_text_token: "<im_end>"
+    prefix_token: "<im_start>"
+
+# vilm/vinallama-7b-chat
+  - name: vilm/vinallama-7b-chat
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: vilm/vinallama-7b-chat
+    end_of_text_token: "<im_end>"
+    prefix_token: "<im_start>"
+
+# vilm/vietcuna-7b-v3
+  - name: vilm/vietcuna-7b-v3
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: vilm/vietcuna-7b-v3
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+
+# Viet-Mistral/Vistral-7B-Chat
+  - name: Viet-Mistral/Vistral-7B-Chat
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: Viet-Mistral/Vistral-7B-Chat
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+
+# vinai/PhoGPT-7B5-Instruct
+  - name: vinai/PhoGPT-7B5-Instruct
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: vinai/PhoGPT-7B5-Instruct
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+
+# vinai/PhoGPT-4B-Chat
+  - name: vinai/PhoGPT-4B-Chat
+    tokenizer_spec:
+        class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+        args:
+            pretrained_model_name_or_path: vinai/PhoGPT-4B-Chat
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"

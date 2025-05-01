@@ -3852,3 +3852,193 @@ model_deployments:
       args:
         watsonx_model_name: mistralai/mixtral-8x7b-instruct-v01
         region: Dallas
+
+  # Vietnamese
+  - name: ura-hcmut/ura-llama-2.1-8b
+    model_name: ura-hcmut/ura-llama-2.1-8b
+    tokenizer_name: meta/llama-3.1-8b-instruct
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: ura-hcmut/ura-llama-2.1-8b
+
+  - name: ura-hcmut/ura-llama-2-8b
+    model_name: ura-hcmut/ura-llama-2-8b
+    tokenizer_name: meta/llama-3-8b-instruct
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: ura-hcmut/ura-llama-2-8b
+
+  - name: ura-hcmut/ura-llama-7b
+    model_name: ura-hcmut/ura-llama-7b
+    tokenizer_name: meta-llama/Llama-2-7b-hf
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: ura-hcmut/ura-llama-7b
+
+  - name: ura-hcmut/ura-llama-13b
+    model_name: ura-hcmut/ura-llama-13b
+    tokenizer_name: meta-llama/Llama-2-7b-hf
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: ura-hcmut/ura-llama-13b
+
+  - name: ura-hcmut/ura-llama-70b
+    model_name: ura-hcmut/ura-llama-70b
+    tokenizer_name: meta-llama/Llama-2-7b-hf
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: ura-hcmut/ura-llama-70b
+
+  - name: ura-hcmut/GemSUra-7B
+    model_name: ura-hcmut/GemSUra-7B
+    tokenizer_name: google/gemma-2b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: ura-hcmut/GemSUra-7B
+
+  - name: ura-hcmut/GemSUra-2B
+    model_name: ura-hcmut/GemSUra-2B
+    tokenizer_name: google/gemma-2b
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: ura-hcmut/GemSUra-2B
+
+  - name: ura-hcmut/MixSUra
+    model_name: ura-hcmut/MixSUra
+    tokenizer_name: mistralai/Mistral-7B-v0.1
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: ura-hcmut/MixSUra
+
+  - name: vilm/vinallama-7b-chat
+    model_name: vilm/vinallama-7b-chat
+    tokenizer_name: vilm/vinallama-7b-chat
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: vilm/vinallama-7b-chat
+
+  - name: vilm/vinallama-2.7b-chat
+    model_name: vilm/vinallama-2.7b-chat
+    tokenizer_name: vilm/vinallama-2.7b-chat
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: vilm/vinallama-2.7b-chat
+
+  - name: vilm/vietcuna-7b-v3
+    model_name: vilm/vietcuna-7b-v3
+    tokenizer_name: vilm/vietcuna-7b-v3
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: vilm/vietcuna-7b-v3
+
+  - name: vilm/vietcuna-3b-v2
+    model_name: vilm/vietcuna-3b-v2
+    tokenizer_name: vilm/vietcuna-7b-v3
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: vilm/vietcuna-3b-v2
+
+  - name: vilm/Quyen-v0.1
+    model_name: vilm/Quyen-v0.1
+    tokenizer_name: qwen/qwen2-72b-instruct
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: vilm/Quyen-v0.1
+
+  - name: vilm/Quyen-Plus-v0.1
+    model_name: vilm/Quyen-Plus-v0.1
+    tokenizer_name: qwen/qwen2-72b-instruct
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: vilm/Quyen-Plus-v0.1
+
+  - name: vilm/Quyen-Pro-v0.1
+    model_name: vilm/Quyen-Pro-v0.1
+    tokenizer_name: qwen/qwen2-72b-instruct
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: vilm/Quyen-Pro-v0.1
+  
+  - name: vilm/Quyen-Pro-Max-v0.1
+    model_name: vilm/Quyen-Pro-Max-v0.1
+    tokenizer_name: qwen/qwen2-72b-instruct
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: vilm/Quyen-Pro-Max-v0.1
+
+  - name: vilm/Quyen-Mini-v0.1
+    model_name: vilm/Quyen-Mini-v0.1
+    tokenizer_name: qwen/qwen2-72b-instruct
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: vilm/Quyen-Mini-v0.1
+
+  - name: vilm/Quyen-SE-v0.1
+    model_name: vilm/Quyen-SE-v0.1
+    tokenizer_name: qwen/qwen2-72b-instruct
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: vilm/Quyen-SE-v0.1
+
+  - name: Viet-Mistral/Vistral-7B-Chat
+    model_name: Viet-Mistral/Vistral-7B-Chat
+    tokenizer_name: Viet-Mistral/Vistral-7B-Chat
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: Viet-Mistral/Vistral-7B-Chat
+
+  - name: vinai/PhoGPT-7B5-Instruct
+    model_name: vinai/PhoGPT-7B5-Instruct
+    tokenizer_name: vinai/PhoGPT-7B5-Instruct
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: vinai/PhoGPT-7B5-Instruct
+
+  - name: vinai/PhoGPT-4B-Chat
+    model_name: vinai/PhoGPT-4B-Chat
+    tokenizer_name: vinai/PhoGPT-4B-Chat
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: vinai/PhoGPT-4B-Chat
