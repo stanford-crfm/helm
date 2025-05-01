@@ -756,7 +756,7 @@ def get_med_dialog_spec(subset: str) -> RunSpec:
         output_noun="Summary",
         max_tokens=80,
         max_train_instances=0,
-        stop_sequences=[]
+        stop_sequences=[],
     )
     annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.med_dialog_annotator.MedDialogAnnotator")]
 
@@ -849,7 +849,7 @@ def get_mental_health_spec() -> RunSpec:
         newline_after_input_noun=False,
         output_noun="Counselor response",
         max_tokens=512,
-        stop_sequences=[]
+        stop_sequences=[],
     )
     annotator_specs = [
         AnnotatorSpec(class_name="helm.benchmark.annotation.mental_health_annotator.MentalHealthAnnotator")
