@@ -15,58 +15,19 @@ from helm.benchmark.scenarios.scenario import (
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_directory_exists
+from .ultra_suite_classification_scenario import find_audio_json_pairs
 
 
-def find_audio_json_pairs(directory: str) -> List[Tuple[str, str]]:
+class UltraSuiteDisorderBreakdownScenario(Scenario):
     """
-    Find all pairs of MP3 and JSON files in the given directory and its subdirectories.
-    Each pair consists of an MP3 file and its corresponding JSON file with the same base name.
-
-    Args:
-        directory: Path to the directory containing the files
-
-    Returns:
-        List of tuples where each tuple contains (mp3_path, json_path)
-    """
-    pairs = []
-
-    # Walk through all directories and subdirectories
-    for root, _, files in os.walk(directory):
-        # Get all MP3 files in current directory
-        mp3_files = [f for f in files if f.endswith(".mp3")]
-
-        for mp3_file in mp3_files:
-            base_name = os.path.splitext(mp3_file)[0]
-            json_file = f"{base_name}.json"
-
-            # Check if corresponding JSON file exists in the same directory
-            if json_file in files:
-                mp3_path = os.path.join(root, mp3_file)
-                json_path = os.path.join(root, json_file)
-                pairs.append((mp3_path, json_path))
-
-    return pairs
-
-
-class UltraSuiteClassificationScenario(Scenario):
-    """
-    A scenario for evaluating whether a child speaker has a speech disorder or not.
-    The audio files contain speech from children, potentially with an adult present.
-    The task is to classify whether the child speaker is typically developing or has a speech disorder.
-    You can find the dataset at https://ultrasuite.github.io/. The base dataset is pre-processed to do the following:
-    1. Convert the audio to MP3 format
-    2. Build a JSON file with the following format:
-    {
-        "words": ["word1", "word2", "word3"],
-        "answer": "typically_developing" or "speech_disorder"
-    }
-    where "words" is a list of words that the child is expected to say and "answer" is the correct label.
-    The word ground truth is derived from a .txt file associated with each audio file.
+    A scenario for evaluating and classifying specific types of speech disorders in children.
+    This scenario extends the basic speech disorder classification by breaking down disorders
+    into specific categories: articulation and phonological disorders.
     """
     
-    name = "speech_disorder"
-    description = "A scenario for evaluating speech disorders in children"
-    tags = ["audio", "classification", "speech_disorder"]
+    name = "speech_disorder_breakdown"
+    description = "A scenario for evaluating and classifying specific types of speech disorders in children"
+    tags = ["audio", "classification", "speech_disorder", "disorder_breakdown"]
 
     def get_instruction(self, words: str) -> str:
         return f"""You are a highly experienced Speech-Language Pathologist (SLP). 
@@ -79,20 +40,23 @@ class UltraSuiteClassificationScenario(Scenario):
 
             2. Conclude your analysis with one of the following labels only: 
             A - 'typically developing' (child's speech patterns and development are within normal age-appropriate ranges)
-            B - 'speech disorder' (any type of speech or language difficulty that affects communication)
+            B - 'articulation' (difficulty producing specific speech sounds correctly, such as substituting, omitting, or distorting sounds)
+            C - 'phonological' (difficulty understanding and using the sound system of language, affecting sounds of a particular type)
 
             3. Answer the multiple choice question by just giving the letter of the correct answer 
-            and nothing else. Only 'A' or 'B'.
+            and nothing else. Only 'A', 'B', or 'C'.
 
             The prompt text the child is trying to repeat is as follows: {words}"""
 
     def _convert_answer_to_label(self, answer: str) -> str:
-        """Convert the answer from the JSON to a label (A or B)"""
+        """Convert the answer from the JSON to a label (A, B, or C)"""
         answer = answer.lower()
         if answer == "typically_developing":
             return "A"
-        elif answer == "speech_disorder":
+        elif answer == "articulation":
             return "B"
+        elif answer == "phonological":
+            return "C"
         else:
             raise ValueError(f"Invalid answer: {answer}")
 
@@ -101,7 +65,7 @@ class UltraSuiteClassificationScenario(Scenario):
         Create instances from the audio files and their corresponding JSON annotations.
         The data directory should contain:
         - Audio files (e.g., .mp3)
-        - A JSON file with annotations containing 'answer' field
+        - A JSON file with annotations containing 'disorder_class' field
         """
         ensure_directory_exists(output_path)
 
@@ -119,7 +83,7 @@ class UltraSuiteClassificationScenario(Scenario):
                 annotation = json.load(f)
 
             # Get the correct answer and convert to label
-            answer = annotation["answer"]
+            answer = annotation["disorder_class"]
             words = " ".join(annotation["words"])
             label = self._convert_answer_to_label(answer)
 
@@ -137,4 +101,4 @@ class UltraSuiteClassificationScenario(Scenario):
             input = Input(multimedia_content=MultimediaObject(content))
             instances.append(Instance(input=input, references=references, split=split))
 
-        return instances
+        return instances 
