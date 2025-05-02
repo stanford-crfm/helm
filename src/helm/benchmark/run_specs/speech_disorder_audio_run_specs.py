@@ -51,16 +51,16 @@ def get_ultra_suite_asr_classification_run_spec() -> RunSpec:
     )
     adapter_spec = _get_generation_adapter_spec(
         instructions="""You are a highly experienced Speech-Language Pathologist (SLP). 
-            An audio recording will be provided, typically consisting of a speech prompt 
+            An audio recording is provided to you, typically consisting of a speech prompt 
             from a pathologist followed by a child's repetition. 
             Based on your expertise transcribe the child's speech into text.
             Do not make any assumptions about the words the child is expected to say.
             Only transcribe based on the words that the child actually says.
             Only respond with the text transcription, no other text or commentary.
             """,
-        max_tokens=50,
+        max_tokens=10,
     )   
-    metric_specs: List[MetricSpec] = get_basic_generation_metric_specs(["f1_score"])
+    metric_specs: List[MetricSpec] = audio_classification_metric_specs()
     run_spec_name: str = "ultra_suite_asr_classification"
     return RunSpec(
         name=run_spec_name,
@@ -82,11 +82,12 @@ def get_ultra_suite_asr_transcription_run_spec() -> RunSpec:
             Based on your expertise transcribe the child's speech into text.
             Do not make any assumptions about the words the child is expected to say.
             Only transcribe based on the words that the child actually says.
-            Only respond with the text transcription, no other text or commentary.
+            And only respond with the transcription of the child's speech. Not the pathologist's prompt or any other commentary.
+            Only respond with the text transcription, no other text, commentary or punctuations.
             """,
         max_tokens=50,
     )   
-    metric_specs: List[MetricSpec] = get_basic_generation_metric_specs(["wer_score", "mer_score", "wip_score", "cer_score"])
+    metric_specs: List[MetricSpec] = get_basic_generation_metric_specs(["wer_score", "mer_score", "wip_score"])
     run_spec_name: str = "ultra_suite_asr_transcription"
     return RunSpec(
         name=run_spec_name,

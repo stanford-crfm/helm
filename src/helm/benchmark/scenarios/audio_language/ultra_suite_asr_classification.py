@@ -64,7 +64,7 @@ class UltraSuiteASRClassificationScenario(Scenario):
     The word ground truth is derived from a .txt file associated with each audio file.
     """
 
-    name = "speech_disorder_asr"
+    name = "speech_disorder"
     description = "A scenario for evaluating speech disorders in children"
     tags = ["audio", "classification", "speech_disorder", "asr"]
 
@@ -79,6 +79,7 @@ class UltraSuiteASRClassificationScenario(Scenario):
         - A JSON file with annotations containing 'answer' field
         """
         ensure_directory_exists(output_path)
+        print(f"Output path: {os.path.abspath(output_path)}")
 
         instances: List[Instance] = []
         split: str = TEST_SPLIT
@@ -93,7 +94,7 @@ class UltraSuiteASRClassificationScenario(Scenario):
                 annotation = json.load(f)
 
             # Get the correct answer and convert to label
-            answer = " ,".join(annotation['words'])
+            answer = " ".join(annotation['words'])
             # Create references for each option
             references: List[Reference] = []
             reference = Reference(Output(text=answer), tags=[CORRECT_TAG])
