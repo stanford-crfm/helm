@@ -28,13 +28,12 @@ def get_ultra_suite_classification_run_spec() -> RunSpec:
 @run_spec_function("ultra_suite_classification_breakdown")
 def get_ultra_suite_disorder_breakdown_run_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.audio_language.ultra_suite_classification_scenario.UltraSuiteClassificationScenario",
-        args={"breakdown_disorder": True},
+        class_name="helm.benchmark.scenarios.audio_language.ultra_suite_disorder_breakdown_scenario.UltraSuiteDisorderBreakdownScenario",
     )
-    adapter_spec: AdapterSpec = _get_generation_adapter_spec(
-        instructions="", max_tokens=20
+    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
+        input_noun=None, output_noun="Answer", max_train_instances=0
     )
-    metric_specs: List[MetricSpec] = get_basic_generation_metric_specs(["f1_score"])
+    metric_specs: List[MetricSpec] = audio_classification_metric_specs()
     run_spec_name: str = "ultra_suite_classification_breakdown"
     return RunSpec(
         name=f"{run_spec_name}",
