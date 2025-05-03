@@ -199,17 +199,6 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.stanfordhealthcare_shc_openai_client.StanfordHealthCareSHCOpenAIClient"
       deployment: gpt-4-turbo-2024-04-09
-# url = https://apim.stanfordhealthcare.org/openai-eastus2/deployments/gpt-4.1/chat/completions?api-version=2025-01-01-preview
-# url = https://apim.stanfordhealthcare.org/openai-eastus2/deployments/o3-mini/chat/completions?api-version=2024-12-01-preview
-
-#   - name: stanfordhealthcare/gpt-4.1-2025-04-14
-#     model_name: openai/gpt-4.1-2025-04-14
-#     tokenizer_name: openai/o200k_base
-#     max_sequence_length: 1047576
-#     client_spec:
-#       class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
-#       args:
-#         base_url: "{endpoint}/llama4-maverick/v1"
 
   # Adobe
   - name: adobe/giga-gan
