@@ -2320,7 +2320,7 @@ class MELTInformationRetrievalScenario(Scenario):
         return train_instances + valid_instances
 
 
-class MELTInformationRetrievalMMARCOScenario(MELTTextClassificationScenario):
+class MELTInformationRetrievalMMARCOScenario(MELTInformationRetrievalScenario):
     """
     Scenario for the MMARCO dataset.
     """
@@ -2338,7 +2338,7 @@ class MELTInformationRetrievalMMARCOScenario(MELTTextClassificationScenario):
         )
 
 
-class MELTInformationRetrievalMRobustScenario(MELTTextClassificationScenario):
+class MELTInformationRetrievalMRobustScenario(MELTInformationRetrievalScenario):
     """
     Scenario for the MRobust dataset.
     """
