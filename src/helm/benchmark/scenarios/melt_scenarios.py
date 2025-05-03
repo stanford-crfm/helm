@@ -1839,7 +1839,8 @@ class MELTLMSpellingCorrectionScenario(Scenario):
             trust_remote_code=True,
         )
         if len(splits) == 1:
-            dataset = dataset[splits.keys()[0]].train_test_split(test_size=0.33)
+            all_keys = list(splits.keys())
+            dataset = dataset[all_keys[0]].train_test_split(test_size=0.33)
             splits = {
                 "train": TRAIN_SPLIT,
                 "test": TEST_SPLIT,
