@@ -88,7 +88,11 @@ class MediQAScenario(Scenario):
 
     def get_instances(self, output_path: str) -> List[Instance]:
         # Load the MEDIQA dataset from Hugging Face
-        dataset = load_dataset("bigbio/mediqa_qa")
+        dataset = load_dataset(
+            "bigbio/mediqa_qa",
+            trust_remote_code=True,
+            revision="9288641f4c785c95dc9079fa526dabb12efdb041",
+        )
 
         # Process all the instances
         instances: List[Instance] = []
