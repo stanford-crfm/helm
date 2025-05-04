@@ -1452,7 +1452,7 @@ class MELTTextClassificationPhoATISScenario(MELTTextClassificationScenario):
         list of answers for the instance.
         """
 
-        return sample[self.text_key], [sample[self.label_key].lower().split("#")]
+        return sample[self.text_key], sample[self.label_key].lower().split("#")
 
 
 class MELTTSentimentAnalysisVLSPScenario(MELTTextClassificationScenario):
