@@ -364,12 +364,12 @@ class MELTLanguageLogicalStatement:
         It is similar to the English "a" or "the" in the statement.
 
         Example:
-            if (subject="con mèo", subject_category="animal", specifier_type="cái", upper=False) -> "Cái con mèo"
-            if (subject="quả táo", subject_category="plant", specifier_type="a", upper=True) -> "Một quả táo"
+            if (subject="con mèo", subject_category="động vật", specifier_type="cái", upper=False) -> "Cái con mèo"
+            if (subject="quả táo", subject_category="thực vật", specifier_type="a", upper=True) -> "Một quả táo"
         """
 
         specifier_type = self.specifier_type if specifier_type is None else specifier_type
-        if not (self.subject_category != "person") or (self.subject == "person"):
+        if not (self.subject_category != "người") or (self.subject == "người"):
             return self.subject
         base_char = specifier_type[0].upper() if upper else specifier_type[0].lower()
         return f"{base_char}{specifier_type[1:]} {self.subject}"
@@ -389,7 +389,7 @@ class MELTLanguageRule(MELTLanguageLogicalStatement):
         Rules should have the following format:
         {
             'subject': 'An',
-            'subject_category': 'person',
+            'subject_category': 'người',
             'specifier_type': 'cái' or 'một'
             'condition': ['đỏ', 'tốt'],
             'condition_conjunction': 'và',
@@ -430,7 +430,7 @@ class MELTLanguageFact(MELTLanguageLogicalStatement):
 
 def get_vocab() -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
     """All potential subjects for the facts and rules for sythetic_reasoning_natural as well as their categories.
-    Subjects is a dictionary of subject categories like "person" and "animal" which correspond to
+    Subjects is a dictionary of subject categories like "người" and "động vật" which correspond to
     a list of potential subjects.
 
     Attributes corresponds to an initial list of attributes which are only synonymous with themselves.
@@ -442,8 +442,8 @@ def get_vocab() -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
 
     # A list of subjects and their categories
     subjects: Dict[str, List[str]] = {
-        "person": ["An", "Bình", "Cường", "Duy", "Đạt", "Phương"],
-        "animal": [
+        "người": ["An", "Bình", "Cường", "Duy", "Đạt", "Phương"],
+        "động vật": [
             "con chó",
             "con mèo",
             "con thỏ",
@@ -459,7 +459,7 @@ def get_vocab() -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
             "con hươu cao cổ",
             "con hà mã",
         ],
-        "plant": ["hoa anh túc", "hoa bồ công anh", "cây", "hoa hồng", "hoa hướng dương"],
+        "thực vật": ["hoa anh túc", "hoa bồ công anh", "cây", "hoa hồng", "hoa hướng dương"],
     }
 
     # Convert list of attributes into dictionary
@@ -478,7 +478,7 @@ def get_vocab() -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
         "tốt": ["tốt", "tử tế", "tốt bụng"],
         "đẹp": ["đẹp", "xinh"],
         "đỏ": ["đỏ", "đỏ thẫm"],
-        "xanh dưogn": ["xanh dương", "xanh lam"],
+        "xanh dương": ["xanh dương", "xanh lam"],
         "xanh lục": ["xanh lục", "xanh lá cây"],
         "tím": ["tím", "tím than"],
         "chán": ["chán", "đần"],
@@ -509,7 +509,7 @@ def generate_rules(
     specific_category: bool = False,
 ) -> List[MELTLanguageRule]:
     """Generates a random set of rules about a subject as dictionaries,
-    given a list of potential attributes and the category (e.g. person) of the subject (e.g. An)
+    given a list of potential attributes and the category (e.g. người) of the subject (e.g. An)
 
     These rules are guaranteed to not contradict one another, and attributes implied by a single rule will
     not imply any attributes in any other rules (i.e. there is only a single step of reasoning).
@@ -608,7 +608,7 @@ class MELTSRNScenario(Scenario):
         self.attribute_groups, self.subjects = get_vocab()
 
         # specific_category specifies that the specific category should always be used
-        # e.g. "dog" instead of "an animal"
+        # e.g. "dog" instead of "an động vật"
         self.specific_category: bool = difficulty == "easy"
         # use_specific_attributes specifies that the synonymous attributes can be used
         # e.g. "chill" instead of "cold"
@@ -1279,7 +1279,7 @@ class MELTMATHScenario(Scenario):
                     else:
                         maybe_answer = get_answer(example["solution_vi"])
                         if maybe_answer is None:
-                            continue
+                            maybe_answer = "Không có đáp án"
                         answer = maybe_answer
                     list_answers.append(answer)
 
