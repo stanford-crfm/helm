@@ -8,7 +8,7 @@ import numpy as np
 
 from copy import copy
 from dataclasses import dataclass
-from datasets import load_dataset
+from datasets import load_dataset, Dataset
 from helm.common.hierarchical_logger import hlog
 from helm.common.general import ensure_directory_exists
 from helm.common.hierarchical_logger import htrack_block
@@ -2289,7 +2289,7 @@ class MELTInformationRetrievalScenario(Scenario):
         for sample in dataset["bm25"]:
             references = []
 
-            for k, passage_dict in enumerate(sample["passages"]):
+            for k, passage_dict in enumerate(Dataset.from_dict(sample["passages"])):
                 if self.valid_topk is None or k >= self.valid_topk:
                     break
                 tags = []
