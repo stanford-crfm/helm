@@ -644,7 +644,7 @@ def get_melt_information_retrieval_mmarco_spec(valid_topk: Optional[int] = None)
 
     valid_topk = None if valid_topk is None else int(valid_topk)
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.melt_scenarios.MELTInformationRetrievalMSMARCOScenario",
+        class_name="helm.benchmark.scenarios.melt_scenarios.MELTInformationRetrievalMMARCOScenario",
         args={"valid_topk": valid_topk},
     )
 
