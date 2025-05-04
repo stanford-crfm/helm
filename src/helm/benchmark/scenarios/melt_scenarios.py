@@ -1621,7 +1621,7 @@ class MELTTranslationScenario(Scenario):
         return instances
 
 
-class MELTTranslationOPUS100Scenario(MELTTextClassificationScenario):
+class MELTTranslationOPUS100Scenario(MELTTranslationScenario):
     """
     Scenario for the OPUS100 dataset.
     """
@@ -1643,7 +1643,7 @@ class MELTTranslationOPUS100Scenario(MELTTextClassificationScenario):
         )
 
 
-class MELTTranslationPhoMTScenario(MELTTextClassificationScenario):
+class MELTTranslationPhoMTScenario(MELTTranslationScenario):
     """
     Scenario for the PhoMT dataset.
     """
