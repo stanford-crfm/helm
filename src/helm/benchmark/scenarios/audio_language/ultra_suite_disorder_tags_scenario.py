@@ -64,7 +64,7 @@ class UltraSuiteDisorderTagsScenario(Scenario):
     The word ground truth is derived from a .txt file associated with each audio file.
     """
 
-    name = "speech_disorder"
+    name = "speech_disorder_breakdown"
     description = "A scenario for evaluating speech disorders in children"
     tags = ["audio", "classification", "speech_disorder"]
 
@@ -76,16 +76,17 @@ class UltraSuiteDisorderTagsScenario(Scenario):
 
             1. Assess the child's speech in the recording and recognize any abnormal features in the child's speech.
             2. These features can be on of the following:
-            A - 'repetition', B - 'prolongation', C - 'substitution', D - 'omission', E - 'addition' or F - 'typical'.
+            A - 'repetition', B - 'prolongation', C - 'substitution', D - 'omission', E - 'addition', F - 'typically_developing', or G - 'stuttering'.
             Here, 
             'repetition' is when the child repeats the same word/phrase/syllable multiple times.
             'prolongation' is when the child elongates the sound of a word/phrase/syllable.
             'substitution' is when the child substitutes one word/phrase/syllable for another.
             'omission' is when the child omits one word/phrase/syllable.
             'addition' is when the child adds one word/phrase/syllable.
-            'typical' is when the child's speech is typical of a child of their age.
+            'typically_developing' is when the child's speech is typical of a child of their age.
+            'stuttering' is when the child stutters or has difficulty speaking.
             3. Provide your response without any additional explanation, commentary, 
-            or unnecessary text. Only 'A', 'B', 'C', 'D', or 'E'.
+            or unnecessary text. Only 'A', 'B', 'C', 'D', 'E', 'F', or 'G'.
             Do not include any other text or characters. No /n or /t.
             The prompt text is: {words}"""
 
@@ -110,8 +111,10 @@ class UltraSuiteDisorderTagsScenario(Scenario):
             return "D"
         elif answer == "addition":
             return "E"
-        elif answer == "typical":
+        elif answer == "typically_developing":
             return "F"
+        elif answer == "stuttering":
+            return "G"
         else:
             raise ValueError(f"Invalid answer: {answer}")
 
@@ -138,10 +141,8 @@ class UltraSuiteDisorderTagsScenario(Scenario):
 
             # Get the correct answer and convert to label
             answer = annotation["tag"]
-            print(f"Answer: {answer}") 
             words = " ".join(annotation["words"])
             label = self._convert_answer_to_label(answer)
-            print(f"Label: {label}")
             # Create references for each option
             references: List[Reference] = []
             reference = Reference(Output(text=label), tags=[CORRECT_TAG])
