@@ -1592,6 +1592,7 @@ class MELTTranslationScenario(Scenario):
                 hf_dataset[dataset_split_name] = hf_dataset[dataset_split_name].shuffle(seed=42)[
                     : self.MAX_TRAIN_INSTANCES
                 ]
+                hf_dataset[dataset_split_name] = Dataset.from_dict(hf_dataset[dataset_split_name])
 
             for example in hf_dataset[dataset_split_name]:
                 source_sentence = example[self.source_language]
