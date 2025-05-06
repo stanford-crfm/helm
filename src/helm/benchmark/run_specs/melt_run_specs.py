@@ -650,7 +650,14 @@ def get_melt_information_retrieval_mmarco_spec(valid_topk: Optional[int] = None)
         args={"valid_topk": valid_topk},
     )
 
-    adapter_spec: AdapterSpec = get_ranking_binary_adapter_spec(max_train_instances=4, stop_sequences=["\n"])
+    adapter_spec: AdapterSpec = get_ranking_binary_adapter_spec(
+        document_noun="Đoạn văn",
+        query_noun="Câu hỏi",
+        output_prefix="Đoạn văn này có trả lời được câu hỏi không?",
+        output_noun="Trả lời",
+        max_train_instances=4,
+        stop_sequences=["\n"],
+    )
 
     # Names of the measures we want to compute.
     measure_names = MSMARCOScenario.MEASURE_NAMES["regular"]
@@ -693,7 +700,14 @@ def get_melt_information_retrieval_mrobust_spec(valid_topk: Optional[int] = None
         args={"valid_topk": valid_topk},
     )
 
-    adapter_spec: AdapterSpec = get_ranking_binary_adapter_spec(max_train_instances=4, stop_sequences=["\n"])
+    adapter_spec: AdapterSpec = get_ranking_binary_adapter_spec(
+        document_noun="Đoạn văn",
+        query_noun="Câu hỏi",
+        output_prefix="Đoạn văn này có trả lời được câu hỏi không?",
+        output_noun="Trả lời",
+        max_train_instances=4,
+        stop_sequences=["\n"],
+    )
 
     # Names of the measures we want to compute.
     measure_names = MSMARCOScenario.MEASURE_NAMES["trec"]
