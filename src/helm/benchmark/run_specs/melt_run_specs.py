@@ -334,7 +334,7 @@ def get_melt_text_classification_phoatis_spec(fewshot: bool = False) -> RunSpec:
         "Hãy phân loại yêu cầu của khách hàng vào trong các nhóm sau: "
         "flight, airfare, ground_service, day_name, meal, airport, airline, flight_time, city, "
         "ground_fare, quantity, abbreviation, distance, aircraft, capacity, flight_no, restriction. "
-        "Yêu cầu của khách hàng có thể thuộc tối đa 2 nhóm."
+        "Yêu cầu của khách hàng có thể thuộc tối đa 2 loại và phân biệt nhau bằng dấu phẩy."
     )
 
     adapter_spec = get_generation_adapter_spec(
@@ -350,7 +350,9 @@ def get_melt_text_classification_phoatis_spec(fewshot: bool = False) -> RunSpec:
         name=f"melt_text_classification_phoatis:fewshot={fewshot}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_bias_metric_specs() + get_classification_metric_specs(),
+        metric_specs=get_exact_match_metric_specs()
+        + get_bias_metric_specs()
+        + get_classification_metric_specs(delimiter=","),
         groups=["melt", "text_classification_phoatis"],
     )
 
