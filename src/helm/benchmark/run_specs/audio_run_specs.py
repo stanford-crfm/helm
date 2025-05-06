@@ -635,3 +635,23 @@ def get_parade_run_spec(voice: str, subset: str) -> RunSpec:
         metric_specs=metric_specs,
         groups=[run_spec_name],
     )
+
+
+@run_spec_function("corebench")
+def get_corebench_run_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.corebench_scenario.COREBenchScenario",
+    )
+    adapter_spec = _get_generation_adapter_spec(
+        instructions="",
+        max_tokens=10,
+    )
+    metric_specs = get_exact_match_metric_specs()
+    run_spec_name: str = "corebench"
+    return RunSpec(
+        name=f"{run_spec_name}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
