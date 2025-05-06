@@ -563,6 +563,7 @@ def get_melt_knowledge_vimmrc_spec(randomize_order: bool = False, fewshot: bool 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions="Sau đây là các câu hỏi trắc nghiệm (có đáp án).",
+        input_noun=None,
         output_noun="Trả lời",
         max_train_instances=5 if fewshot else 0,
     )
