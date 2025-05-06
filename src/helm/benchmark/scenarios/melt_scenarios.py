@@ -1947,7 +1947,7 @@ class MELTClosedBookQAScenario(Scenario):
 
             for sample in dataset[dataset_split_name]:
                 instance = Instance(
-                    input=sample["question"],
+                    input=Input(text=sample["question"]),
                     references=[Reference(Output(text=sample["answer"]), tags=[CORRECT_TAG])],
                     split=helm_split_name,
                 )
