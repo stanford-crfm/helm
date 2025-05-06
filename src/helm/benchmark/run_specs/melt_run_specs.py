@@ -641,7 +641,7 @@ def get_melt_toxicity_detection_victsd_spec(fewshot: bool = False) -> RunSpec:
 
 
 @run_spec_function("melt_information_retrieval_mmarco")
-def get_melt_information_retrieval_mmarco_spec(valid_topk: Optional[int] = None) -> RunSpec:
+def get_melt_information_retrieval_mmarco_spec(valid_topk: Optional[int] = None, fewshot: bool = False) -> RunSpec:
     from helm.benchmark.scenarios.msmarco_scenario import MSMARCOScenario
 
     valid_topk = None if valid_topk is None else int(valid_topk)
@@ -655,7 +655,7 @@ def get_melt_information_retrieval_mmarco_spec(valid_topk: Optional[int] = None)
         query_noun="Câu hỏi",
         output_prefix="Đoạn văn này có trả lời được câu hỏi không?",
         output_noun="Trả lời",
-        max_train_instances=4,
+        max_train_instances=4 if fewshot else 0,
         stop_sequences=["\n"],
     )
 
@@ -691,7 +691,7 @@ def get_melt_information_retrieval_mmarco_spec(valid_topk: Optional[int] = None)
 
 
 @run_spec_function("melt_information_retrieval_mrobust")
-def get_melt_information_retrieval_mrobust_spec(valid_topk: Optional[int] = None) -> RunSpec:
+def get_melt_information_retrieval_mrobust_spec(valid_topk: Optional[int] = None, fewshot: bool = False) -> RunSpec:
     from helm.benchmark.scenarios.msmarco_scenario import MSMARCOScenario
 
     valid_topk = None if valid_topk is None else int(valid_topk)
@@ -705,7 +705,7 @@ def get_melt_information_retrieval_mrobust_spec(valid_topk: Optional[int] = None
         query_noun="Câu hỏi",
         output_prefix="Đoạn văn này có trả lời được câu hỏi không?",
         output_noun="Trả lời",
-        max_train_instances=4,
+        max_train_instances=4 if fewshot else 0,
         stop_sequences=["\n"],
     )
 
