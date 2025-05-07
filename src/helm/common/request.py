@@ -130,6 +130,10 @@ class Token:
             f"{format_text(self.text)} logprob={self.logprob}",
         ]
 
+@dataclass(frozen=True)
+class Reasoning:
+    text: Optional[str] = None
+
 
 @dataclass(frozen=True)
 class GeneratedOutput:
@@ -149,6 +153,9 @@ class GeneratedOutput:
 
     # Could be a sequence made up of multimedia content
     multimodal_content: Optional[MultimediaObject] = None
+
+    # Could be reasoning
+    reasoning: Optional[Reasoning] = None
 
     def __add__(self, other: "GeneratedOutput") -> "GeneratedOutput":
         return GeneratedOutput(self.text + other.text, self.logprob + other.logprob, self.tokens + other.tokens)

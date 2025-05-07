@@ -992,78 +992,6 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.vision_language.paligemma_client.PaliGemmaClient"
 
-  ## PaLM 2
-  - name: google/text-bison@001
-    model_name: google/text-bison@001
-    tokenizer_name: google/text-bison@001
-    max_sequence_length: 6000 # Officially 8192
-    max_sequence_and_generated_tokens_length: 7000 # Officially 9216
-    client_spec:
-      class_name: "helm.clients.vertexai_client.VertexAITextClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
-
-  - name: google/text-bison@002
-    model_name: google/text-bison@002
-    tokenizer_name: google/text-bison@002
-    max_sequence_length: 6000 # Officially 8192
-    max_sequence_and_generated_tokens_length: 9216
-    client_spec:
-      class_name: "helm.clients.vertexai_client.VertexAITextClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
-
-  - name: google/text-bison-32k
-    model_name: google/text-bison-32k
-    tokenizer_name: google/text-bison@001
-    max_sequence_length: 32000
-    max_sequence_and_generated_tokens_length: 32000
-    client_spec:
-      class_name: "helm.clients.vertexai_client.VertexAITextClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
-
-
-  - name: google/text-unicorn@001
-    model_name: google/text-unicorn@001
-    tokenizer_name: google/text-unicorn@001
-    max_sequence_length: 6000 # Officially 8192
-    max_sequence_and_generated_tokens_length: 7000 # Officially 9216
-    client_spec:
-      class_name: "helm.clients.vertexai_client.VertexAITextClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
-
-  - name: google/code-bison@001
-    model_name: google/code-bison@001
-    tokenizer_name: google/mt5-base # TODO #2188: change to actual tokenizer
-    max_sequence_length: 6000 # Officially 6144
-    max_sequence_and_generated_tokens_length: 7000 # Officially 7168
-    client_spec:
-      class_name: "helm.clients.vertexai_client.VertexAITextClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
-
-  - name: google/code-bison@002
-    model_name: google/code-bison@002
-    tokenizer_name: google/mt5-base # TODO #2188: change to actual tokenizer
-    max_sequence_length: 6000 # Officially 6144
-    max_sequence_and_generated_tokens_length: 7168
-    client_spec:
-      class_name: "helm.clients.vertexai_client.VertexAITextClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
-
-  - name: google/code-bison-32k
-    model_name: google/code-bison-32k
-    tokenizer_name: google/mt5-base # TODO #2188: change to actual tokenizer
-    max_sequence_length: 32000
-    max_sequence_and_generated_tokens_length: 32000
-    client_spec:
-      class_name: "helm.clients.vertexai_client.VertexAITextClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
-
   # HuggingFace
 
   ## AI Singapore
@@ -3437,6 +3365,13 @@ model_deployments:
   - name: together/qwen2.5-72b-instruct-turbo
     model_name: qwen/qwen2.5-72b-instruct-turbo
     tokenizer_name: qwen/qwen2.5-7b-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+
+  - name: together/qwen3-235b-a22b-fp8-tput
+    model_name: qwen/qwen3-235b-a22b-fp8-tput
+    tokenizer_name: qwen/qwen3-235b-a22b
     max_sequence_length: 128000
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"

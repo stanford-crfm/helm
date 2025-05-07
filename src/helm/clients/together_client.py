@@ -328,12 +328,14 @@ class TogetherChatClient(CachingClient):
         together_model: Optional[str] = None,
         disable_logprobs: Optional[bool] = None,
         output_processor: Optional[str] = None,
+        extract_reasoning: Optional[bool] = None,
     ):
         super().__init__(cache_config=cache_config)
         self._client = Together(api_key=api_key)
         self._together_model = together_model
         self._disable_logprobs = bool(disable_logprobs)
         # self.output_processor is actually a function, not a class
+        self._extract_reasoning = bool(extract_reasoning)
 
         self.output_processor: Optional[Callable[[str], str]] = (
             get_class_by_name(output_processor) if output_processor else None
