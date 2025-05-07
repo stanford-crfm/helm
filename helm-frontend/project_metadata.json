@@ -90,6 +90,12 @@
 		"releases": ["v1.0.0"]
 	},
 	{
+		"title": "MELT",
+		"description": "A benchmark by for Vietnmese language models",
+		"id": "melt",
+		"releases": ["v1.0.0"]
+	},
+	{
 		"title": "All Leaderboards",
 		"description": "Home page for all HELM leaderboards",
 		"id": "home",
