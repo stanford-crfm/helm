@@ -8,7 +8,7 @@ import numpy as np
 
 from copy import copy
 from dataclasses import dataclass
-from datasets import load_dataset
+from datasets import load_dataset, Dataset
 from helm.common.general import ensure_directory_exists
 from helm.common.hierarchical_logger import htrack_block
 from helm.benchmark.scenarios.scenario import (
