@@ -9,7 +9,10 @@ export default function CallTranscriptSummarizationLanding() {
       </h1>
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-[3] text-l">
-          <img src="https://storage.googleapis.com/crfm-helm-public/assets/images/call-center-banner-narrow.jpg" className="shadow-xl" />
+          <img
+            src="https://storage.googleapis.com/crfm-helm-public/assets/images/call-center-banner-narrow.jpg"
+            className="shadow-xl"
+          />
           <p className="my-4">
             Large language models (LLMs) show great potential for call center
             applications, yet there is a lack of domain-specific and
