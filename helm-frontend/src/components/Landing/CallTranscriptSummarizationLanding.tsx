@@ -8,7 +8,8 @@ export default function CallTranscriptSummarizationLanding() {
         HELM Call Transcript Summarization Leaderboard
       </h1>
       <div className="flex flex-col lg:flex-row gap-8">
-        <div className="flex-1 text-l">
+        <div className="flex-[3] text-l">
+          <img src="https://storage.googleapis.com/crfm-helm-public/assets/images/call-center-banner-narrow.jpg" className="shadow-xl" />
           <p className="my-4">
             Large language models (LLMs) show great potential for call center
             applications, yet there is a lack of domain-specific and
@@ -59,8 +60,7 @@ export default function CallTranscriptSummarizationLanding() {
           </p>
         </div>
         <div
-          className="py-2 pb-6 rounded-3xl bg-gray-100 h-full" // Stretched to full height
-          style={{ maxWidth: "100%" }}
+          className="flex-[2] py-2 rounded-3xl bg-gray-100 h-full" // Stretched to full height
         >
           <MiniLeaderboard />
           <div className="flex justify-end">
