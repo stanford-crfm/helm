@@ -12,6 +12,8 @@ export default function CallTranscriptSummarizationLanding() {
           <img
             src="https://storage.googleapis.com/crfm-helm-public/assets/images/call-center-banner-narrow.jpg"
             className="shadow-xl"
+            width="1200"
+            height="400"
           />
           <p className="my-4">
             Large language models (LLMs) show great potential for call center
