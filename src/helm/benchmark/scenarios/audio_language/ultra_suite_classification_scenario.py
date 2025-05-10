@@ -44,6 +44,9 @@ def find_audio_json_pairs(directory: str) -> List[Tuple[str, str]]:
                 mp3_path = os.path.join(root, mp3_file)
                 json_path = os.path.join(root, json_file)
                 pairs.append((mp3_path, json_path))
+    
+    if len(pairs) == 0:
+        raise ValueError(f"No pairs of MP3 and JSON files found in {directory}")
 
     return pairs
 
@@ -69,19 +72,7 @@ class UltraSuiteClassificationScenario(Scenario):
     tags = ["audio", "classification", "speech_disorder"]
 
     def get_instruction(self, words: str) -> str:
-        return f"""You are a highly experienced Speech-Language Pathologist (SLP). 
-An audio recording will be provided, typically consisting of a speech prompt 
-from a pathologist followed by a child's repetition. 
-Based on your professional expertise:
-
-1. Assess the child's speech in the recording for signs of typical development 
-or potential speech-language disorder.
-2. Conclude your analysis with one of the following labels only: 
-'typically_developing' or 'speech_disorder'.
-3. Provide your response without any additional explanation, commentary, 
-or unnecessary text. Only A for 'typically_developing' or B for 'speech_disorder'.
-
-The prompt text and the utterance recording date/time are as follows: {words}"""
+        return f"""You are a highly experienced Speech-Language Pathologist (SLP). An audio recording will be provided, typically consisting of a speech prompt from a pathologist followed by a child's repetition. The prompt the child is trying to repeat is as follows: {words}. Based on your professional expertise: 1. Assess the child's speech in the recording for signs of typical development or potential speech-language disorder.2. Conclude your analysis with one of the following labels only: 'typically_developing' or 'speech_disorder'. 3. Provide your response as a single letter without any additional explanation, commentary, or unnecessary text."""
 
     def _convert_answer_to_label(self, answer: str) -> str:
         """Convert the answer from the JSON to a label (A or B)"""
@@ -118,11 +109,11 @@ The prompt text and the utterance recording date/time are as follows: {words}"""
             # Get the correct answer and convert to label
             answer = annotation["answer"]
             words = " ".join(annotation["words"])
-            label = self._convert_answer_to_label(answer)
             # Create references for each option
             references: List[Reference] = []
-            reference = Reference(Output(text=label), tags=[CORRECT_TAG])
-            references.append(reference)
+            for option in ["typically_developing", "speech_disorder"]:
+                reference = Reference(Output(text=option), tags=[CORRECT_TAG] if option == answer else [])
+                references.append(reference)
 
             # Create the input with audio and instruction
             content = [
