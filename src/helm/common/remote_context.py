@@ -16,13 +16,16 @@ from helm.common.tokenization_request import (
 from helm.common.request import Request, RequestResult
 from helm.proxy.query import Query, QueryResult
 from helm.proxy.services.remote_service import RemoteService
-from helm.proxy.services.service import Service
+from helm.proxy.services.service import GeneralInfo, Service
 
 
 class RemoteContext(Context):
     def __init__(self, base_url: str, auth: Authentication):
         self.service: Service = RemoteService(base_url)
         self.auth = auth
+
+    def get_general_info(self) -> GeneralInfo:
+        return self.service.get_general_info()
 
     def expand_query(self, query: Query) -> QueryResult:
         return self.service.expand_query(query)

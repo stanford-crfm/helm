@@ -15,9 +15,15 @@ from helm.common.tokenization_request import (
 from helm.common.request import Request, RequestResult
 from helm.proxy.query import Query, QueryResult
 from helm.common.cache import CacheConfig
+from helm.proxy.services.service import GeneralInfo
 
 
 class Context(ABC):
+    @abstractmethod
+    def get_general_info(self) -> GeneralInfo:
+        """Get general info."""
+        pass
+
     @abstractmethod
     def expand_query(self, query: Query) -> QueryResult:
         """Turn the `query` into requests."""
