@@ -1,0 +1,104 @@
+from typing import List, Tuple
+import os
+import json
+
+from tqdm import tqdm
+
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TEST_SPLIT,
+    CORRECT_TAG,
+    Input,
+    Output,
+)
+from helm.common.media_object import MediaObject, MultimediaObject
+from helm.common.general import ensure_directory_exists
+from .ultra_suite_classification_scenario import find_audio_json_pairs
+
+
+class UltraSuiteDisorderBreakdownScenario(Scenario):
+    """
+    A scenario for evaluating and classifying specific types of speech disorders in children.
+    This scenario extends the basic speech disorder classification by breaking down disorders
+    into specific categories: articulation and phonological disorders.
+    """
+    
+    name = "speech_disorder_breakdown"
+    description = "A scenario for evaluating and classifying specific types of speech disorders in children"
+    tags = ["audio", "classification", "speech_disorder", "disorder_breakdown"]
+
+    def get_instruction(self, words: str) -> str:
+        return f"""You are a highly experienced Speech-Language Pathologist (SLP). 
+            An audio recording will be provided, typically consisting of a speech prompt 
+            from a pathologist followed by a child's repetition. 
+            Based on your professional expertise:
+
+            1. Assess the child's speech in the recording for signs of typical development 
+            or potential speech-language disorder.
+
+            2. Conclude your analysis with one of the following labels only: 
+            A - 'typically developing' (child's speech patterns and development are within normal age-appropriate ranges)
+            B - 'articulation' (difficulty producing specific speech sounds correctly, such as substituting, omitting, or distorting sounds)
+            C - 'phonological' (difficulty understanding and using the sound system of language, affecting sounds of a particular type)
+
+            3. Answer the multiple choice question by just giving the letter of the correct answer 
+            and nothing else. Only 'A', 'B', or 'C'.
+
+            The prompt text the child is trying to repeat is as follows: {words}"""
+
+    def _convert_answer_to_label(self, answer: str) -> str:
+        """Convert the answer from the JSON to a label (A, B, or C)"""
+        answer = answer.lower()
+        if answer == "typically_developing":
+            return "A"
+        elif answer == "articulation":
+            return "B"
+        elif answer == "phonological":
+            return "C"
+        else:
+            raise ValueError(f"Invalid answer: {answer}")
+
+    def get_instances(self, output_path: str) -> List[Instance]:
+        """
+        Create instances from the audio files and their corresponding JSON annotations.
+        The data directory should contain:
+        - Audio files (e.g., .mp3)
+        - A JSON file with annotations containing 'disorder_class' field
+        """
+        ensure_directory_exists(output_path)
+
+        instances: List[Instance] = []
+        split: str = TEST_SPLIT
+        print(f"Output path: {os.path.abspath(output_path)}")
+        
+        # Find all pairs of audio and JSON files
+        pairs = find_audio_json_pairs(output_path)
+        print(f"Num pairs: {len(pairs)}")
+
+        for audio_path, json_path in tqdm(pairs):
+            # Load the annotation
+            with open(json_path, "r") as f:
+                annotation = json.load(f)
+
+            # Get the correct answer and convert to label
+            answer = annotation["disorder_class"]
+            words = " ".join(annotation["words"])
+            label = self._convert_answer_to_label(answer)
+
+            # Create references for each option
+            references: List[Reference] = []
+            reference = Reference(Output(text=label), tags=[CORRECT_TAG])
+            references.append(reference)
+
+            # Create the input with audio and instruction
+            content = [
+                MediaObject(content_type="audio/mpeg", location=audio_path),
+                MediaObject(content_type="text/plain", text=self.get_instruction(words)),
+            ]
+
+            input = Input(multimedia_content=MultimediaObject(content))
+            instances.append(Instance(input=input, references=references, split=split))
+
+        return instances 
