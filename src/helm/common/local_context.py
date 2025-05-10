@@ -27,7 +27,6 @@ from helm.clients.clip_score_client import CLIPScoreClient
 from helm.clients.toxicity_classifier_client import ToxicityClassifierClient
 from helm.proxy.example_queries import example_queries
 from helm.benchmark.model_metadata_registry import ALL_MODELS_METADATA
-from helm.benchmark.model_deployment_registry import get_model_deployment_host_organization
 from helm.proxy.query import Query, QueryResult
 from helm.proxy.retry import retry_request
 from helm.tokenizers.auto_tokenizer import AutoTokenizer
@@ -84,29 +83,6 @@ class LocalContext(Context):
             request = synthesize_request(prompt, settings, environment)
             requests.append(request)
         return QueryResult(requests=requests)
-
-    def _get_model_group_for_model_deployment(self, model_deployment: str) -> str:
-        if model_deployment.startswith("openai/"):
-            if model_deployment.startswith("openai/code-"):
-                return "codex"
-            elif model_deployment.startswith("openai/dall-e-"):
-                return "dall_e"
-            elif model_deployment.startswith("openai/gpt-4"):
-                return "gpt4"
-            elif model_deployment.startswith("openai/gpt-3"):
-                return "gpt3"
-            elif (
-                model_deployment.startswith("openai/o1")
-                or model_deployment.startswith("openai/o3")
-                or model_deployment.startswith("openai/o4")
-            ):
-                return "o1"
-            else:
-                return "openai"
-        elif model_deployment.startswith("ai21/"):
-            return "jurassic"
-        else:
-            return get_model_deployment_host_organization(model_deployment)
 
     def make_request(self, request: Request) -> RequestResult:
         """Actually make a request to an API."""
