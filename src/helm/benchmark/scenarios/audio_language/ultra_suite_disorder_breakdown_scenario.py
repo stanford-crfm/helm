@@ -25,7 +25,7 @@ class UltraSuiteDisorderBreakdownScenario(Scenario):
     into specific categories: articulation and phonological disorders.
     """
     
-    name = "speech_disorder_breakdown"
+    name = "speech_disorder"
     description = "A scenario for evaluating and classifying specific types of speech disorders in children"
     tags = ["audio", "classification", "speech_disorder", "disorder_breakdown"]
 
@@ -55,7 +55,9 @@ class UltraSuiteDisorderBreakdownScenario(Scenario):
                 annotation = json.load(f)
 
             # Get the correct answer and convert to label
-            label = annotation["disorder_class"]
+            if "disorder_type" not in annotation or "transcription" not in annotation:
+                continue
+            label = annotation["disorder_type"]
             prompt = annotation["transcription"]
 
             # Create references for each option
