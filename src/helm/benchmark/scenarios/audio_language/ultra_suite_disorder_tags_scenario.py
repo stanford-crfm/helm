@@ -52,71 +52,17 @@ class UltraSuiteDisorderTagsScenario(Scenario):
     """
     A scenario identifying features of speech disorders within the provided audio.
     The audio files contain speech from children, potentially with an adult present.
-    You can find the dataset at https://ultrasuite.github.io/. The base dataset is pre-processed to do the following:
-    1. Convert the audio to MP3 format
-    2. Build a JSON file with the following format:
-    {
-        "words": ["word1", "word2", "word3"],
-        "answer": "typically developing" or "speech disorder"
-        "tag": AnyOf['repetition', 'prolongation', 'substitution', 'omission', 'addition']
-    }
-    where "words" is a list of words that the child is expected to say and "answer" is the correct label.
-    The word ground truth is derived from a .txt file associated with each audio file.
+    You can find the dataset at https://huggingface.co/datasets/SAA-Lab/UltraSuite/tree/main
     """
 
-    name = "speech_disorder_breakdown"
+    name = "speech_disorder"
     description = "A scenario for evaluating speech disorders in children"
     tags = ["audio", "classification", "speech_disorder"]
 
     def get_instruction(self, words: str) -> str:
-        prompt = f"""You are a highly experienced Speech-Language Pathologist (SLP). 
-            An audio recording will be provided, typically consisting of a speech prompt 
-            from a pathologist followed by a child's repetition. 
-            Based on your professional expertise:
-
-            1. Assess the child's speech in the recording and recognize any abnormal features in the child's speech.
-            2. These features can be on of the following:
-            A - 'repetition', B - 'prolongation', C - 'substitution', D - 'omission', E - 'addition', F - 'typically_developing', or G - 'stuttering'.
-            Here, 
-            'repetition' is when the child repeats the same word/phrase/syllable multiple times.
-            'prolongation' is when the child elongates the sound of a word/phrase/syllable.
-            'substitution' is when the child substitutes one word/phrase/syllable for another.
-            'omission' is when the child omits one word/phrase/syllable.
-            'addition' is when the child adds one word/phrase/syllable.
-            'typically_developing' is when the child's speech is typical of a child of their age.
-            'stuttering' is when the child stutters or has difficulty speaking.
-            3. Provide your response without any additional explanation, commentary, 
-            or unnecessary text. Only 'A', 'B', 'C', 'D', 'E', 'F', or 'G'.
-            Do not include any other text or characters. No /n or /t.
-            The prompt text is: {words}"""
+        prompt = f"""You are a highly experienced Speech-Language Pathologist (SLP). An audio recording will be provided, typically consisting of a speech prompt from a pathologist followed by a child's repetition. The prompt the child is trying to repeat is as follows: {words}. Based on your professional expertise: 1. Assess the child's speech in the recording and recognize any abnormal features in the child's speech. 2. These features can be on of the following: A - 'substitution', B - 'omission', C - 'addition', D - 'typically_developing', or E - 'stuttering'. Here, 'substitution' is when the child substitutes one word/phrase/syllable for another. 'omission' is when the child omits one word/phrase/syllable. 'addition' is when the child adds one word/phrase/syllable. 'typically_developing' is when the child's speech is typical of a child of their age.    'stuttering' is when the child stutters, has difficulty speaking, repeats sounds/words or prolongs sounds/words. 3. Provide your response as a single letter without any additional explanation, commentary, or unnecessary text."""
 
         return prompt
-
-    def _convert_answer_to_label(self, answer: str) -> str:
-        """Convert the answer from the JSON to a label (A through E)
-        A: repetition
-        B: prolongation
-        C: substitution
-        D: omission
-        E: addition
-        """
-        answer = answer.lower()
-        if answer == "repetition":
-            return "A"
-        elif answer == "prolongation":
-            return "B"
-        elif answer == "substitution":
-            return "C"
-        elif answer == "omission":
-            return "D"
-        elif answer == "addition":
-            return "E"
-        elif answer == "typically_developing":
-            return "F"
-        elif answer == "stuttering":
-            return "G"
-        else:
-            raise ValueError(f"Invalid answer: {answer}")
 
     def get_instances(self, output_path: str) -> List[Instance]:
         """
@@ -140,18 +86,20 @@ class UltraSuiteDisorderTagsScenario(Scenario):
                 annotation = json.load(f)
 
             # Get the correct answer and convert to label
-            answer = annotation["tag"]
-            words = " ".join(annotation["words"])
-            label = self._convert_answer_to_label(answer)
+            if "disorder_symptom" not in annotation or "transcription" not in annotation:
+                continue
+            label = annotation["disorder_symptom"]
+            prompt = annotation["transcription"]
             # Create references for each option
             references: List[Reference] = []
-            reference = Reference(Output(text=label), tags=[CORRECT_TAG])
-            references.append(reference)
+            for option in ["substitution", "omission", "addition", "typically_developing", "stuttering"]:
+                reference = Reference(Output(text=option), tags=[CORRECT_TAG] if option == label else [])
+                references.append(reference)
 
             # Create the input with audio and instruction
             content = [
                 MediaObject(content_type="audio/mpeg", location=audio_path),
-                MediaObject(content_type="text/plain", text=self.get_instruction(words)),
+                MediaObject(content_type="text/plain", text=self.get_instruction(prompt)),
             ]
 
             input = Input(multimedia_content=MultimediaObject(content))
