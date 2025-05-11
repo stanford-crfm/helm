@@ -147,7 +147,7 @@ def get_ultra_suite_asr_transcription_run_spec() -> RunSpec:
 @run_spec_function("ultra_suite_disorder_symptoms")
 def get_ultra_suite_disorder_symptoms_run_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.audio_language.ultra_suite_disorder_tags_scenario.UltraSuiteDisorderTagsScenario",
+        class_name="helm.benchmark.scenarios.audio_language.ultra_suite_disorder_symptoms_scenario.UltraSuiteDisorderSymptomsScenario",
     )
     adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
         input_noun=None, output_noun="Answer", max_train_instances=0

@@ -48,7 +48,7 @@ def find_audio_json_pairs(directory: str) -> List[Tuple[str, str]]:
     return pairs
 
 
-class UltraSuiteDisorderTagsScenario(Scenario):
+class UltraSuiteDisorderSymptomsScenario(Scenario):
     """
     A scenario identifying features of speech disorders within the provided audio.
     The audio files contain speech from children, potentially with an adult present.
