@@ -1,10 +1,58 @@
-from typing import List
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.benchmark.metrics.common_metric_specs import audio_classification_metric_specs, get_basic_generation_metric_specs, get_exact_match_metric_specs
+from typing import List, Optional
+from helm.benchmark.adaptation.adapter_spec import ADAPT_GENERATION_MULTIMODAL, ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL, AdapterSpec
+from helm.benchmark.metrics.common_metric_specs import get_basic_generation_metric_specs, get_basic_metric_specs, get_multiple_choice_classification_metric_specs
 from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
-from helm.benchmark.run_specs.audio_run_specs import _get_audio_recognition_metric_specs, _get_generation_adapter_spec, _get_multiple_choice_joint_adapter_spec, _get_open_ended_generation_metric_specs
 from helm.benchmark.scenarios.scenario import ScenarioSpec
+
+def audio_classification_metric_specs() -> List[MetricSpec]:
+    return get_multiple_choice_classification_metric_specs() + get_basic_metric_specs(["exact_match", "quasi_exact_match"])
+
+def _get_multiple_choice_joint_adapter_spec(
+    input_noun: Optional[str],
+    output_noun: str,
+    max_train_instances: int = 0,
+    num_outputs: int = 1,
+) -> AdapterSpec:
+    return AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
+        global_prefix="",
+        instructions="Answer the multiple choice question by just giving the letter of the correct answer "
+        "and nothing else.",
+        input_prefix=f"{input_noun}: " if input_noun is not None else "",
+        input_suffix="\n",
+        output_prefix=f"{output_noun}: ",
+        output_suffix="\n",
+        instance_prefix="\n",
+        max_train_instances=max_train_instances,
+        num_outputs=num_outputs,
+        max_tokens=1,
+        stop_sequences=["\n"],
+        temperature=0.0,
+        random=None,
+    )
+
+def _get_generation_adapter_spec(
+    max_tokens: int,
+    instructions: str = "",
+    max_train_instances: int = 0,
+    temperature: float = 0.0,
+    stop_sequences: Optional[List[str]] = None,
+) -> AdapterSpec:
+    return AdapterSpec(
+        method=ADAPT_GENERATION_MULTIMODAL,
+        instructions=instructions,
+        input_prefix="",
+        input_suffix="",
+        output_prefix="",
+        output_suffix="",
+        instance_prefix="",
+        max_train_instances=max_train_instances,
+        num_outputs=1,
+        max_tokens=max_tokens,
+        temperature=temperature,
+        stop_sequences=stop_sequences if stop_sequences is not None else [],
+    )
 
 
 @run_spec_function("ultra_suite_classification")
