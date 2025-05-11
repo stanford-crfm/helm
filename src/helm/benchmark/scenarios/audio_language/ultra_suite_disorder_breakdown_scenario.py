@@ -30,35 +30,7 @@ class UltraSuiteDisorderBreakdownScenario(Scenario):
     tags = ["audio", "classification", "speech_disorder", "disorder_breakdown"]
 
     def get_instruction(self, words: str) -> str:
-        return f"""You are a highly experienced Speech-Language Pathologist (SLP). 
-            An audio recording will be provided, typically consisting of a speech prompt 
-            from a pathologist followed by a child's repetition. 
-            Based on your professional expertise:
-
-            1. Assess the child's speech in the recording for signs of typical development 
-            or potential speech-language disorder.
-
-            2. Conclude your analysis with one of the following labels only: 
-            A - 'typically developing' (child's speech patterns and development are within normal age-appropriate ranges)
-            B - 'articulation' (difficulty producing specific speech sounds correctly, such as substituting, omitting, or distorting sounds)
-            C - 'phonological' (difficulty understanding and using the sound system of language, affecting sounds of a particular type)
-
-            3. Answer the multiple choice question by just giving the letter of the correct answer 
-            and nothing else. Only 'A', 'B', or 'C'.
-
-            The prompt text the child is trying to repeat is as follows: {words}"""
-
-    def _convert_answer_to_label(self, answer: str) -> str:
-        """Convert the answer from the JSON to a label (A, B, or C)"""
-        answer = answer.lower()
-        if answer == "typically_developing":
-            return "A"
-        elif answer == "articulation":
-            return "B"
-        elif answer == "phonological":
-            return "C"
-        else:
-            raise ValueError(f"Invalid answer: {answer}")
+        return f"""You are a highly experienced Speech-Language Pathologist (SLP). An audio recording will be provided, typically consisting of a speech prompt from a pathologist followed by a child's repetition. The prompt text the child is trying to repeat is as follows: {words}. Based on your professional expertise: 1. Assess the child's speech in the recording for signs of typical development or potential speech-language disorder. 2. Conclude your analysis with one of the following labels only: A - 'typically developing' (child's speech patterns and development are within normal age-appropriate ranges), B - 'articulation' (difficulty producing specific speech sounds correctly, such as substituting, omitting, or distorting sounds), C - 'phonological' (difficulty understanding and using the sound system of language, affecting sounds of a particular type). 3. Provide your response as a single letter without any additional explanation, commentary, or unnecessary text."""
 
     def get_instances(self, output_path: str) -> List[Instance]:
         """
@@ -83,19 +55,19 @@ class UltraSuiteDisorderBreakdownScenario(Scenario):
                 annotation = json.load(f)
 
             # Get the correct answer and convert to label
-            answer = annotation["disorder_class"]
-            words = " ".join(annotation["words"])
-            label = self._convert_answer_to_label(answer)
+            label = annotation["disorder_class"]
+            prompt = annotation["transcription"]
 
             # Create references for each option
             references: List[Reference] = []
-            reference = Reference(Output(text=label), tags=[CORRECT_TAG])
-            references.append(reference)
+            for option in ["typically_developing", "articulation", "phonological"]:
+                reference = Reference(Output(text=option), tags=[CORRECT_TAG] if option == label else [])
+                references.append(reference)
 
             # Create the input with audio and instruction
             content = [
                 MediaObject(content_type="audio/mpeg", location=audio_path),
-                MediaObject(content_type="text/plain", text=self.get_instruction(words)),
+                MediaObject(content_type="text/plain", text=self.get_instruction(prompt)),
             ]
 
             input = Input(multimedia_content=MultimediaObject(content))

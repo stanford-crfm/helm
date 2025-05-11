@@ -1,6 +1,6 @@
 from typing import List, Optional
-from helm.benchmark.adaptation.adapter_spec import ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL, AdapterSpec
-from helm.benchmark.metrics.common_metric_specs import get_basic_metric_specs, get_multiple_choice_classification_metric_specs
+from helm.benchmark.adaptation.adapter_spec import ADAPT_GENERATION_MULTIMODAL, ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL, AdapterSpec
+from helm.benchmark.metrics.common_metric_specs import get_basic_generation_metric_specs, get_basic_metric_specs, get_multiple_choice_classification_metric_specs
 from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
@@ -30,6 +30,28 @@ def _get_multiple_choice_joint_adapter_spec(
         stop_sequences=["\n"],
         temperature=0.0,
         random=None,
+    )
+
+def _get_generation_adapter_spec(
+    max_tokens: int,
+    instructions: str = "",
+    max_train_instances: int = 0,
+    temperature: float = 0.0,
+    stop_sequences: Optional[List[str]] = None,
+) -> AdapterSpec:
+    return AdapterSpec(
+        method=ADAPT_GENERATION_MULTIMODAL,
+        instructions=instructions,
+        input_prefix="",
+        input_suffix="",
+        output_prefix="",
+        output_suffix="",
+        instance_prefix="",
+        max_train_instances=max_train_instances,
+        num_outputs=1,
+        max_tokens=max_tokens,
+        temperature=temperature,
+        stop_sequences=stop_sequences if stop_sequences is not None else [],
     )
 
 
