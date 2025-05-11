@@ -44,6 +44,9 @@ def find_audio_json_pairs(directory: str) -> List[Tuple[str, str]]:
                 mp3_path = os.path.join(root, mp3_file)
                 json_path = os.path.join(root, json_file)
                 pairs.append((mp3_path, json_path))
+    
+    if len(pairs) == 0:
+        raise ValueError(f"No pairs of MP3 and JSON files found in {directory}")
 
     return pairs
 
@@ -53,38 +56,14 @@ class UltraSuiteClassificationScenario(Scenario):
     A scenario for evaluating whether a child speaker has a speech disorder or not.
     The audio files contain speech from children, potentially with an adult present.
     The task is to classify whether the child speaker is typically developing or has a speech disorder.
-    You can find the dataset at https://ultrasuite.github.io/. The base dataset is pre-processed to do the following:
-    1. Convert the audio to MP3 format
-    2. Build a JSON file with the following format:
-    {
-        "words": ["word1", "word2", "word3"],
-        "answer": "typically_developing" or "speech_disorder"
-    }
-    where "words" is a list of words that the child is expected to say and "answer" is the correct label.
-    The word ground truth is derived from a .txt file associated with each audio file.
+    You can find the dataset at https://huggingface.co/datasets/SAA-Lab/UltraSuite/tree/main
     """
-    
     name = "speech_disorder"
     description = "A scenario for evaluating speech disorders in children"
     tags = ["audio", "classification", "speech_disorder"]
 
     def get_instruction(self, words: str) -> str:
-        return f"""You are a highly experienced Speech-Language Pathologist (SLP). 
-            An audio recording will be provided, typically consisting of a speech prompt 
-            from a pathologist followed by a child's repetition. 
-            Based on your professional expertise:
-
-            1. Assess the child's speech in the recording for signs of typical development 
-            or potential speech-language disorder.
-
-            2. Conclude your analysis with one of the following labels only: 
-            A - 'typically developing' (child's speech patterns and development are within normal age-appropriate ranges)
-            B - 'speech disorder' (any type of speech or language difficulty that affects communication)
-
-            3. Answer the multiple choice question by just giving the letter of the correct answer 
-            and nothing else. Only 'A' or 'B'.
-
-            The prompt text the child is trying to repeat is as follows: {words}"""
+        return f"""You are a highly experienced Speech-Language Pathologist (SLP). An audio recording will be provided, typically consisting of a speech prompt from a pathologist followed by a child's repetition. The prompt the child is trying to repeat is as follows: {words}. Based on your professional expertise: 1. Assess the child's speech in the recording for signs of typical development or potential speech-language disorder.2. Conclude your analysis with one of the following labels only: 'typically_developing' or 'speech_disorder'. 3. Provide your response as a single letter without any additional explanation, commentary, or unnecessary text."""
 
     def _convert_answer_to_label(self, answer: str) -> str:
         """Convert the answer from the JSON to a label (A or B)"""
@@ -120,13 +99,12 @@ class UltraSuiteClassificationScenario(Scenario):
 
             # Get the correct answer and convert to label
             answer = annotation["answer"]
-            words = " ".join(annotation["words"])
-            label = self._convert_answer_to_label(answer)
-
+            words = annotation["transcription"]
             # Create references for each option
             references: List[Reference] = []
-            reference = Reference(Output(text=label), tags=[CORRECT_TAG])
-            references.append(reference)
+            for option in ["typically_developing", "speech_disorder"]:
+                reference = Reference(Output(text=option), tags=[CORRECT_TAG] if option == answer else [])
+                references.append(reference)
 
             # Create the input with audio and instruction
             content = [
