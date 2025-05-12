@@ -63,17 +63,7 @@ class UltraSuiteClassificationScenario(Scenario):
     tags = ["audio", "classification", "speech_disorder"]
 
     def get_instruction(self, words: str) -> str:
-        return f"""You are a highly experienced Speech-Language Pathologist (SLP). An audio recording will be provided, typically consisting of a speech prompt from a pathologist followed by a child's repetition. The prompt the child is trying to repeat is as follows: {words}. Based on your professional expertise: 1. Assess the child's speech in the recording for signs of typical development or potential speech-language disorder.2. Conclude your analysis with one of the following labels only: 'typically_developing' or 'speech_disorder'. 3. Provide your response as a single letter without any additional explanation, commentary, or unnecessary text."""
-
-    def _convert_answer_to_label(self, answer: str) -> str:
-        """Convert the answer from the JSON to a label (A or B)"""
-        answer = answer.lower()
-        if answer == "typically_developing":
-            return "A"
-        elif answer == "speech_disorder":
-            return "B"
-        else:
-            raise ValueError(f"Invalid answer: {answer}")
+        return f"""You are a highly experienced Speech-Language Pathologist (SLP). An audio recording will be provided, typically consisting of a speech prompt from a pathologist followed by a child's repetition. The prompt the child is trying to repeat is as follows: {words}. Based on your professional expertise: 1. Assess the child's speech in the recording for signs of typical development or potential speech-language disorder. 2. Conclude your analysis with one of the following labels only: 'typically_developing' or 'speech_disorder'. 3. Provide your response as a single letter without any additional explanation, commentary, or unnecessary text."""
 
     def get_instances(self, output_path: str) -> List[Instance]:
         """
