@@ -34,7 +34,7 @@ export default function Predictions({
               <h2>Trial {prediction.train_trial_index}</h2>
             ) : null}
             <div className="mt-2 w-full">
-              {(prediction.thinking_text) ? (
+              {prediction.thinking_text ? (
                 <>
                   <h3>
                     <span className="mr-4">Thinking</span>
