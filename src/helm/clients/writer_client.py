@@ -44,7 +44,7 @@ class WriterClient(CachingClient):
                 ]
             generated_output = GeneratedOutput(
                 text=text,
-                logprob=sum(token.logprob for token in tokens),
+                logprob=sum(token.logprob for token in tokens) if tokens else 0.0,
                 tokens=tokens,
                 finish_reason={"reason": choice.finish_reason},
             )
