@@ -3880,6 +3880,14 @@ models:
     release_date: 2024-09-12
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: writer/palmyra-x5
+    display_name: Palmyra-x5
+    description: Palmyra-X5
+    creator_organization_name: Writer
+    access: limited
+    release_date: 2024-09-12
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: writer/palmyra-med-32k
     display_name: Palmyra-Med 32K (70B)
     description: Palmyra-Med 32K (70B) is a model finetuned from Palmyra-X-003 intended for medical applications.
