@@ -2,10 +2,14 @@ from typing import Any, Dict, List, Mapping, Optional
 
 from helm.clients.client import CachingClient
 from helm.common.cache import CacheConfig
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
 
-from writerai import Writer
-from writerai.types.chat_completion import ChatCompletion
+try:
+    from writerai import Writer
+    from writerai.types.chat_completion import ChatCompletion
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["openai"])
 
 
 class WriterClient(CachingClient):
