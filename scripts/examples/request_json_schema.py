@@ -38,8 +38,8 @@ prompt = """Extract information from the following voice message transcript. Ans
 Good morning! It's 7:00 AM, and I'm just waking up. Today is going to be a busy day, so let's get started. First, I need to make a quick breakfast. I think I'll have some scrambled eggs and toast with a cup of coffee. While I'm cooking, I'll also check my emails to see if there's anything urgent."""  # noqa: E501
 
 request = Request(
-    model_deployment="writer/palmyra-x5",
-    model="writer/palmyra-x5",
+    model_deployment="openai/gpt-4o-2024-11-20",
+    model="openai/gpt-4o-2024-11-20",
     embedding=False,
     prompt=prompt,
     temperature=0.0,
