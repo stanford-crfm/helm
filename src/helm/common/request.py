@@ -130,6 +130,7 @@ class Token:
             f"{format_text(self.text)} logprob={self.logprob}",
         ]
 
+
 @dataclass(frozen=True)
 class Thinking:
     text: Optional[str] = None

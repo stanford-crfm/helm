@@ -105,11 +105,11 @@ def _parse_thinking(input: str) -> Tuple[str, str]:
     match = re.match(r"<think>\n(.*)\n</think>\n{0,2}(.*)", input, re.DOTALL)
     if match:
         return (match.group(1), match.group(2))
-    
+
     match = re.match(r"<think>\n?(.*)", input)
     if match:
         return (match.group(1), "")
-    
+
     return (input, "")
 
 
@@ -446,7 +446,9 @@ class TogetherChatClient(CachingClient):
 
             if self._parse_thinking:
                 thinking_text, output_text = _parse_thinking(output_text)
-                generated_outputs.append(GeneratedOutput(text=output_text, logprob=0.0, tokens=tokens, thinking=Thinking(text=thinking_text)))
+                generated_outputs.append(
+                    GeneratedOutput(text=output_text, logprob=0.0, tokens=tokens, thinking=Thinking(text=thinking_text))
+                )
             else:
                 generated_outputs.append(GeneratedOutput(text=output_text, logprob=0.0, tokens=tokens))
         return RequestResult(
@@ -551,6 +553,7 @@ class TogetherCompletionClient(CachingClient):
             completions=generated_outputs,
             embedding=[],
         )
+
 
 # def parse_thinking(input: str) -> str:
 #     if "<think>" not in input:

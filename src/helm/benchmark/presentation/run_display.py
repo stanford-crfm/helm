@@ -281,7 +281,9 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
             if os.path.exists(image_location)
         ]
 
-        thinking_text: Optional[str] = request_state.result.completions[0].thinking.text if request_state.result.completions[0].thinking else None
+        thinking_text: Optional[str] = (
+            request_state.result.completions[0].thinking.text if request_state.result.completions[0].thinking else None
+        )
 
         predictions.append(
             DisplayPrediction(
