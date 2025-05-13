@@ -59,6 +59,9 @@ class DisplayPrediction:
 
     annotations: Optional[Dict[str, Any]]
 
+    thinking_text: Optional[str]
+    """Thinking text from thinking models."""
+
 
 @dataclass(frozen=True)
 class DisplayRequest:
@@ -278,6 +281,8 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
             if os.path.exists(image_location)
         ]
 
+        thinking_text: Optional[str] = request_state.result.completions[0].thinking.text if request_state.result.completions[0].thinking else None
+
         predictions.append(
             DisplayPrediction(
                 instance_id=request_state.instance.id,
@@ -290,6 +295,7 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
                 reference_index=request_state.reference_index,
                 stats=trial_stats,
                 annotations=request_state.annotations,
+                thinking_text=thinking_text,
             )
         )
         requests.append(

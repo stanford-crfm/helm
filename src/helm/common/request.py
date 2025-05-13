@@ -131,7 +131,7 @@ class Token:
         ]
 
 @dataclass(frozen=True)
-class Reasoning:
+class Thinking:
     text: Optional[str] = None
 
 
@@ -155,7 +155,7 @@ class GeneratedOutput:
     multimodal_content: Optional[MultimediaObject] = None
 
     # Could be reasoning
-    reasoning: Optional[Reasoning] = None
+    thinking: Optional[Thinking] = None
 
     def __add__(self, other: "GeneratedOutput") -> "GeneratedOutput":
         return GeneratedOutput(self.text + other.text, self.logprob + other.logprob, self.tokens + other.tokens)
