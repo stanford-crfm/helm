@@ -1,12 +1,19 @@
 from typing import List, Optional
 from helm.benchmark.adaptation.adapter_spec import ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL, AdapterSpec
-from helm.benchmark.metrics.common_metric_specs import get_basic_metric_specs, get_multiple_choice_classification_metric_specs
+from helm.benchmark.metrics.common_metric_specs import (
+    get_basic_metric_specs,
+    get_multiple_choice_classification_metric_specs,
+)
 from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
+
 def audio_classification_metric_specs() -> List[MetricSpec]:
-    return get_multiple_choice_classification_metric_specs() + get_basic_metric_specs(["exact_match", "quasi_exact_match"])
+    return get_multiple_choice_classification_metric_specs() + get_basic_metric_specs(
+        ["exact_match", "quasi_exact_match"]
+    )
+
 
 def _get_multiple_choice_joint_adapter_spec(
     input_noun: Optional[str],

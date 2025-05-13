@@ -44,7 +44,7 @@ def find_audio_json_pairs(directory: str) -> List[Tuple[str, str]]:
                 mp3_path = os.path.join(root, mp3_file)
                 json_path = os.path.join(root, json_file)
                 pairs.append((mp3_path, json_path))
-    
+
     if len(pairs) == 0:
         raise ValueError(f"No pairs of MP3 and JSON files found in {directory}")
 
@@ -59,6 +59,7 @@ class UltraSuiteClassificationScenario(Scenario):
     You can find the dataset at https://huggingface.co/datasets/SAA-Lab/UltraSuite/tree/main
     Please download the dataset and place it in the benchmark_output/scenarios/speech_disorder directory
     """
+
     name = "speech_disorder"
     description = "A scenario for evaluating speech disorders in children"
     tags = ["audio", "classification", "speech_disorder"]
