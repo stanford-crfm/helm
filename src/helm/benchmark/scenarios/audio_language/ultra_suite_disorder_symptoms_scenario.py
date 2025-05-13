@@ -53,6 +53,7 @@ class UltraSuiteDisorderSymptomsScenario(Scenario):
     A scenario identifying features of speech disorders within the provided audio.
     The audio files contain speech from children, potentially with an adult present.
     You can find the dataset at https://huggingface.co/datasets/SAA-Lab/UltraSuite/tree/main
+    Please download the dataset and place it in the benchmark_output/scenarios/speech_disorder directory
     """
 
     name = "speech_disorder"

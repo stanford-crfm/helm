@@ -23,8 +23,10 @@ class UltraSuiteDisorderBreakdownScenario(Scenario):
     A scenario for evaluating and classifying specific types of speech disorders in children.
     This scenario extends the basic speech disorder classification by breaking down disorders
     into specific categories: articulation and phonological disorders.
+    You can find the dataset at https://huggingface.co/datasets/SAA-Lab/UltraSuite/tree/main
+    Please download the dataset and place it in the benchmark_output/scenarios/speech_disorder directory
     """
-    
+
     name = "speech_disorder"
     description = "A scenario for evaluating and classifying specific types of speech disorders in children"
     tags = ["audio", "classification", "speech_disorder", "disorder_breakdown"]
@@ -44,7 +46,7 @@ class UltraSuiteDisorderBreakdownScenario(Scenario):
         instances: List[Instance] = []
         split: str = TEST_SPLIT
         print(f"Output path: {os.path.abspath(output_path)}")
-        
+
         # Find all pairs of audio and JSON files
         pairs = find_audio_json_pairs(output_path)
         print(f"Num pairs: {len(pairs)}")
@@ -75,4 +77,4 @@ class UltraSuiteDisorderBreakdownScenario(Scenario):
             input = Input(multimedia_content=MultimediaObject(content))
             instances.append(Instance(input=input, references=references, split=split))
 
-        return instances 
+        return instances
