@@ -44,7 +44,7 @@ def find_audio_json_pairs(directory: str) -> List[Tuple[str, str]]:
                 mp3_path = os.path.join(root, mp3_file)
                 json_path = os.path.join(root, json_file)
                 pairs.append((mp3_path, json_path))
-    
+
     if len(pairs) == 0:
         raise ValueError(f"No pairs of MP3 and JSON files found in {directory}")
 
@@ -57,23 +57,15 @@ class UltraSuiteClassificationScenario(Scenario):
     The audio files contain speech from children, potentially with an adult present.
     The task is to classify whether the child speaker is typically developing or has a speech disorder.
     You can find the dataset at https://huggingface.co/datasets/SAA-Lab/UltraSuite/tree/main
+    Please download the dataset and place it in the benchmark_output/scenarios/speech_disorder directory
     """
+
     name = "speech_disorder"
     description = "A scenario for evaluating speech disorders in children"
     tags = ["audio", "classification", "speech_disorder"]
 
     def get_instruction(self, words: str) -> str:
-        return f"""You are a highly experienced Speech-Language Pathologist (SLP). An audio recording will be provided, typically consisting of a speech prompt from a pathologist followed by a child's repetition. The prompt the child is trying to repeat is as follows: {words}. Based on your professional expertise: 1. Assess the child's speech in the recording for signs of typical development or potential speech-language disorder.2. Conclude your analysis with one of the following labels only: 'typically_developing' or 'speech_disorder'. 3. Provide your response as a single letter without any additional explanation, commentary, or unnecessary text."""
-
-    def _convert_answer_to_label(self, answer: str) -> str:
-        """Convert the answer from the JSON to a label (A or B)"""
-        answer = answer.lower()
-        if answer == "typically_developing":
-            return "A"
-        elif answer == "speech_disorder":
-            return "B"
-        else:
-            raise ValueError(f"Invalid answer: {answer}")
+        return f"""You are a highly experienced Speech-Language Pathologist (SLP). An audio recording will be provided, typically consisting of a speech prompt from a pathologist followed by a child's repetition. The prompt the child is trying to repeat is as follows: {words}. Based on your professional expertise: 1. Assess the child's speech in the recording for signs of typical development or potential speech-language disorder. 2. Conclude your analysis with one of the following labels only: 'typically_developing' or 'speech_disorder'. 3. Provide your response as a single letter without any additional explanation, commentary, or unnecessary text."""
 
     def get_instances(self, output_path: str) -> List[Instance]:
         """
@@ -82,6 +74,8 @@ class UltraSuiteClassificationScenario(Scenario):
         - Audio files (e.g., .mp3)
         - A JSON file with annotations containing 'answer' field
         """
+
+        # TODO: Automate downloading the dataset
         ensure_directory_exists(output_path)
 
         instances: List[Instance] = []
