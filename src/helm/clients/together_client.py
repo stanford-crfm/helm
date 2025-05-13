@@ -102,6 +102,7 @@ class JobNotFinishedError(TogetherClientError):
 
 
 def _parse_thinking(input: str) -> Tuple[str, str]:
+    """Return a tuple of thinking text and output text."""
     match = re.match(r"<think>\n(.*)\n</think>\n{0,2}(.*)", input, re.DOTALL)
     if match:
         return (match.group(1), match.group(2))
