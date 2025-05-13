@@ -46,10 +46,10 @@ export default function MediaObjectDisplay({ mediaObject }: Props) {
     );
     return (
       <div>
-        <video controls style={{width: "720px"}}>
-          <source src={url} type={mediaObject.content_type}/>
+        <video controls style={{ width: "720px" }}>
+          <source src={url} type={mediaObject.content_type} />
         </video>
-        <br/>
+        <br />
       </div>
     );
   } else {

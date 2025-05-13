@@ -63,9 +63,7 @@ class MSRVTTScenario(Scenario):
             content: List[MediaObject] = [
                 MediaObject(location=video_path, content_type="video/mp4"),
             ]
-            references: List[Reference] = [
-                Reference(Output(text=caption), tags=[CORRECT_TAG]) for caption in captions
-            ]
+            references: List[Reference] = [Reference(Output(text=caption), tags=[CORRECT_TAG]) for caption in captions]
             instances.append(
                 Instance(
                     Input(multimedia_content=MultimediaObject(content)),

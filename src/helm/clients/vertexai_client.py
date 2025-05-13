@@ -365,9 +365,7 @@ class VertexAIChatClient(VertexAIClient):
                 # https://cloud.google.com/vertex-ai/generative-ai/docs/samples/googlegenaisdk-textgen-with-local-video
                 with open(media_object.location, "rb") as fp:
                     video_content = fp.read()
-                contents.append(
-                    Part.from_data(data=video_content, mime_type=media_object.content_type)
-                )
+                contents.append(Part.from_data(data=video_content, mime_type=media_object.content_type))
             elif media_object.is_type("audio") and media_object.location:
                 contents.append(
                     Part.from_data(get_contents_as_bytes(media_object.location), mime_type=media_object.content_type)

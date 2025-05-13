@@ -1032,6 +1032,7 @@ def get_vqa_rad_spec() -> RunSpec:
 ############################################################
 # Video understanding run specs
 
+
 @run_spec_function("msr_vtt")
 def get_msr_vtt_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
