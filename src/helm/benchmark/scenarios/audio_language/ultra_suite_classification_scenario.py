@@ -81,7 +81,7 @@ class UltraSuiteClassificationScenario(Scenario):
         instances: List[Instance] = []
         split: str = TEST_SPLIT
         print(f"Output path: {os.path.abspath(output_path)}")
-        
+
         # Find all pairs of audio and JSON files
         pairs = find_audio_json_pairs(output_path)
         print(f"Num pairs: {len(pairs)}")
@@ -92,7 +92,7 @@ class UltraSuiteClassificationScenario(Scenario):
                 annotation = json.load(f)
 
             # Get the correct answer and convert to label
-            answer = annotation["answer"]
+            answer = annotation["disorder_class"]
             words = annotation["transcription"]
             # Create references for each option
             references: List[Reference] = []
