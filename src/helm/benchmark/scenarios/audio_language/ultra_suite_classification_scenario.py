@@ -57,6 +57,7 @@ class UltraSuiteClassificationScenario(Scenario):
     The audio files contain speech from children, potentially with an adult present.
     The task is to classify whether the child speaker is typically developing or has a speech disorder.
     You can find the dataset at https://huggingface.co/datasets/SAA-Lab/UltraSuite/tree/main
+    Please download the dataset and place it in the benchmark_output/scenarios/speech_disorder directory
     """
     name = "speech_disorder"
     description = "A scenario for evaluating speech disorders in children"
@@ -72,6 +73,8 @@ class UltraSuiteClassificationScenario(Scenario):
         - Audio files (e.g., .mp3)
         - A JSON file with annotations containing 'answer' field
         """
+
+        # TODO: Automate downloading the dataset
         ensure_directory_exists(output_path)
 
         instances: List[Instance] = []
