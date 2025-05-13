@@ -1,7 +1,8 @@
 from copy import deepcopy
 from itertools import zip_longest
+import re
 import threading
-from typing import Callable, List, Dict, Any, Mapping, Optional, TypedDict, Union
+from typing import Callable, List, Dict, Any, Mapping, Optional, Tuple, TypedDict, Union
 from typing_extensions import NotRequired
 
 import requests
@@ -11,7 +12,7 @@ from helm.common.cache import CacheConfig
 from helm.common.media_object import IMAGE_TYPE, TEXT_TYPE
 from helm.common.object_spec import get_class_by_name
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
+from helm.common.request import Thinking, wrap_request_time, Request, RequestResult, GeneratedOutput, Token
 from helm.clients.client import CachingClient, truncate_sequence, cleanup_str
 
 try:
@@ -98,6 +99,19 @@ class JobNotFinishedError(TogetherClientError):
     """Exception raised when trying to get a response for a Together async job that has not finished"""
 
     pass
+
+
+def _parse_thinking(input: str) -> Tuple[str, str]:
+    """Return a tuple of thinking text and output text."""
+    match = re.match(r"<think>\n(.*)\n</think>\n{0,2}(.*)", input, re.DOTALL)
+    if match:
+        return (match.group(1), match.group(2))
+
+    match = re.match(r"<think>\n?(.*)", input)
+    if match:
+        return (match.group(1), "")
+
+    return (input, "")
 
 
 class TogetherClient(CachingClient):
@@ -328,12 +342,14 @@ class TogetherChatClient(CachingClient):
         together_model: Optional[str] = None,
         disable_logprobs: Optional[bool] = None,
         output_processor: Optional[str] = None,
+        parse_thinking: Optional[bool] = None,
     ):
         super().__init__(cache_config=cache_config)
         self._client = Together(api_key=api_key)
         self._together_model = together_model
         self._disable_logprobs = bool(disable_logprobs)
         # self.output_processor is actually a function, not a class
+        self._parse_thinking = bool(parse_thinking)
 
         self.output_processor: Optional[Callable[[str], str]] = (
             get_class_by_name(output_processor) if output_processor else None
@@ -428,7 +444,14 @@ class TogetherChatClient(CachingClient):
             output_text = choice.message.content
             if self.output_processor:
                 output_text = self.output_processor(output_text)
-            generated_outputs.append(GeneratedOutput(text=output_text, logprob=0.0, tokens=tokens))
+
+            if self._parse_thinking:
+                thinking_text, output_text = _parse_thinking(output_text)
+                generated_outputs.append(
+                    GeneratedOutput(text=output_text, logprob=0.0, tokens=tokens, thinking=Thinking(text=thinking_text))
+                )
+            else:
+                generated_outputs.append(GeneratedOutput(text=output_text, logprob=0.0, tokens=tokens))
         return RequestResult(
             success=True,
             cached=cached,

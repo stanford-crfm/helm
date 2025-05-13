@@ -3440,6 +3440,15 @@ model_deployments:
     max_sequence_length: 128000
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
+
+  - name: together/qwen3-235b-a22b-fp8-tput
+    model_name: qwen/qwen3-235b-a22b-fp8-tput
+    tokenizer_name: qwen/qwen3-235b-a22b
+    max_sequence_length: 40960
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        parse_thinking: true
   
   - name: huggingface/qwen2.5-7b-instruct-4bit
     model_name: qwen/qwen2.5-7b-instruct
