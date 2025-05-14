@@ -43,7 +43,7 @@ def _get_multiple_choice_joint_adapter_spec(
 @run_spec_function("ultra_suite_classification")
 def get_ultra_suite_classification_run_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.audio_language.ultra_suite_classification_scenario.UltraSuiteClassificationScenario",
+        class_name="helm.benchmark.scenarios.audio_language.ultra_suite_classification_scenario.UltraSuiteClassificationScenario",  # noqa: E501
     )
     adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
         input_noun=None, output_noun="Answer", max_train_instances=0
