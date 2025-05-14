@@ -440,6 +440,7 @@ class TogetherChatClient(CachingClient):
                     if token_text is None:
                         break
                     tokens.append(Token(text=token_text, logprob=token_logprob or 0.0))
+            logprob = sum([token.logprob for token in tokens]) if tokens else 0.0
             assert choice.message.role == "assistant"
             output_text = choice.message.content
             if self.output_processor:
@@ -448,10 +449,12 @@ class TogetherChatClient(CachingClient):
             if self._parse_thinking:
                 thinking_text, output_text = _parse_thinking(output_text)
                 generated_outputs.append(
-                    GeneratedOutput(text=output_text, logprob=0.0, tokens=tokens, thinking=Thinking(text=thinking_text))
+                    GeneratedOutput(
+                        text=output_text, logprob=logprob, tokens=tokens, thinking=Thinking(text=thinking_text)
+                    )
                 )
             else:
-                generated_outputs.append(GeneratedOutput(text=output_text, logprob=0.0, tokens=tokens))
+                generated_outputs.append(GeneratedOutput(text=output_text, logprob=logprob, tokens=tokens))
         return RequestResult(
             success=True,
             cached=cached,
@@ -544,8 +547,9 @@ class TogetherCompletionClient(CachingClient):
                     if token_text is None:
                         break
                     tokens.append(Token(text=token_text, logprob=token_logprob or 0.0))
+            logprob = sum([token.logprob for token in tokens]) if tokens else 0.0
             assert choice.text
-            generated_outputs.append(GeneratedOutput(text=choice.text, logprob=0.0, tokens=tokens))
+            generated_outputs.append(GeneratedOutput(text=choice.text, logprob=logprob, tokens=tokens))
         return RequestResult(
             success=True,
             cached=cached,
