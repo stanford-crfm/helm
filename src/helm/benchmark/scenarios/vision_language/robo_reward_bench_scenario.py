@@ -47,13 +47,17 @@ class RoboRewardBenchScenario(Scenario):
             def add_policy_videos(policy_label: str, insert_newline_before: bool = False):
                 if insert_newline_before:
                     content.append(MediaObject(text="\n", content_type="text/plain"))
-                content.append(MediaObject(text=f"Policy {policy_label}", content_type="text/plain"))
+
+                policy_title: str = f"Policy {policy_label}"
+                content.append(MediaObject(text=policy_title, content_type="text/plain"))
                 for cam_type in ["left", "right", "wrist"]:
                     key = f"policy_{policy_label.lower()}_{cam_type}_cam_path"
                     cam_path = get_full_cam_path(annotation.get(key))
                     if cam_path is not None:
                         content.extend([
-                            MediaObject(text=f"{cam_type.capitalize()} camera:", content_type="text/plain"),
+                            MediaObject(
+                                text=f"{policy_title} - {cam_type.capitalize()} camera:", content_type="text/plain"
+                            ),
                             MediaObject(location=cam_path, content_type="video/mp4"),
                         ])
 
