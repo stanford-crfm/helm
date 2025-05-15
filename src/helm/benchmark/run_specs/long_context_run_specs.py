@@ -87,3 +87,22 @@ def get_infinite_bench_sum_spec(min_num_words: int = 0, max_num_words: int = 655
         metric_specs=metric_specs,
         groups=["infinite_bench_sum"],
     )
+
+
+@run_spec_function("infinite_bench_en_qa")
+def get_infinite_bench_en_qa_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.infinite_bench_en_qa_scenario.InfiniteBenchEnQAScenario",
+    )
+
+    # No official number for max tokens
+    adapter_spec = _get_long_context_generation_adapter_spec(max_tokens=100)
+    metric_specs = get_basic_metric_specs(["rouge_l"])
+
+    return RunSpec(
+        name="infinite_bench_en_qa",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["infinite_bench_en_qa"],
+    )
