@@ -1,5 +1,7 @@
 """
-This script generates audio files using OpenAI's TTS API for different characters and creates a structured annotation file for downstream tasks.
+For the creation of PARADE scenario.
+This script generates audio files using OpenAI's TTS API for different characters and creates a structured annotation
+file for downstream tasks.
 It reads input scripts from 'audio_pairs_inst.json', generates audio, and saves metadata in JSON format.
 """
 
