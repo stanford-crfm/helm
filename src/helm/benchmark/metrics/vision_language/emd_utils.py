@@ -320,8 +320,10 @@ def compute_emd_recursive(
         mask1 = np.any(sig1[:, 1:-2] != gray_most_frequent_color, axis=1)
         mask2 = np.any(sig2[:, 1:-2] != gray_most_frequent_color, axis=1)
         mask = np.logical_or(mask1, mask2)
-        sig1 = sig1[mask]
-        sig2 = sig2[mask]
+
+        if np.any(mask):
+            sig1 = sig1[mask]
+            sig2 = sig2[mask]
 
     # Normalize the weights
     weight1 = sig1[:, 0]
