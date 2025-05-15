@@ -1,5 +1,9 @@
 from typing import List, Optional
-from helm.benchmark.adaptation.adapter_spec import ADAPT_GENERATION_MULTIMODAL, ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL, AdapterSpec
+from helm.benchmark.adaptation.adapter_spec import (
+    ADAPT_GENERATION_MULTIMODAL,
+    ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
+    AdapterSpec,
+)
 from helm.benchmark.metrics.common_metric_specs import (
     get_basic_generation_metric_specs,
     get_basic_metric_specs,
