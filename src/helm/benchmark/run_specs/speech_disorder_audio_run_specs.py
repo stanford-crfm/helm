@@ -67,7 +67,7 @@ def _get_generation_adapter_spec(
 @run_spec_function("ultra_suite_classification")
 def get_ultra_suite_classification_run_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.audio_language.ultra_suite_classification_scenario.UltraSuiteClassificationScenario",
+        class_name="helm.benchmark.scenarios.audio_language.ultra_suite_classification_scenario.UltraSuiteClassificationScenario",  # noqa: E501
     )
     adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
         input_noun=None, output_noun="Answer", max_train_instances=0
@@ -86,7 +86,7 @@ def get_ultra_suite_classification_run_spec() -> RunSpec:
 @run_spec_function("ultra_suite_classification_breakdown")
 def get_ultra_suite_disorder_breakdown_run_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.audio_language.ultra_suite_disorder_breakdown_scenario.UltraSuiteDisorderBreakdownScenario",
+        class_name="helm.benchmark.scenarios.audio_language.ultra_suite_disorder_breakdown_scenario.UltraSuiteDisorderBreakdownScenario",  # noqa: E501
     )
     adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
         input_noun=None, output_noun="Answer", max_train_instances=0
@@ -108,7 +108,7 @@ def get_ultra_suite_asr_classification_run_spec() -> RunSpec:
         class_name="helm.benchmark.scenarios.audio_language.ultra_suite_asr_classification.UltraSuiteASRClassificationScenario",
     )
     adapter_spec = _get_generation_adapter_spec(
-        instructions="""You are a highly experienced Speech-Language Pathologist (SLP). An audio recording is provided to you, typically consisting of a speech prompt from a pathologist followed by a child's repetition. Based on your expertise transcribe the child's speech into text. Do not make any assumptions about the words the child is expected to say. Only transcribe based on the words that the child actually says. Only respond with the text transcription, no other text or commentary.""",
+        instructions="""You are a highly experienced Speech-Language Pathologist (SLP). An audio recording is provided to you, typically consisting of a speech prompt from a pathologist followed by a child's repetition. Based on your expertise transcribe the child's speech into text. Do not make any assumptions about the words the child is expected to say. Only transcribe based on the words that the child actually says. Only respond with the text transcription, no other text or commentary.""",  # noqa: E501
         max_tokens=10,
     )
     metric_specs: List[MetricSpec] = audio_classification_metric_specs()
@@ -128,7 +128,7 @@ def get_ultra_suite_asr_transcription_run_spec() -> RunSpec:
         class_name="helm.benchmark.scenarios.audio_language.ultra_suite_asr_classification.UltraSuiteASRClassificationScenario",
     )
     adapter_spec = _get_generation_adapter_spec(
-        instructions="""You are a highly experienced Speech-Language Pathologist (SLP). An audio recording will be provided, typically consisting of a speech prompt from a pathologist followed by a child's repetition. Based on your expertise transcribe the child's speech into text. Try to understand what the child is expected to say. And only respond with the transcription of the child's speech. Not the pathologist's prompt or any other commentary. Only respond with the text transcription, no other text, commentary or punctuations.""",
+        instructions="""You are a highly experienced Speech-Language Pathologist (SLP). An audio recording will be provided, typically consisting of a speech prompt from a pathologist followed by a child's repetition. Based on your expertise transcribe the child's speech into text. Try to understand what the child is expected to say. And only respond with the transcription of the child's speech. Not the pathologist's prompt or any other commentary. Only respond with the text transcription, no other text, commentary or punctuations.""",  # noqa: E501
         max_tokens=50,
     )
     metric_specs: List[MetricSpec] = get_basic_generation_metric_specs(["wer_score", "mer_score", "wip_score"])
