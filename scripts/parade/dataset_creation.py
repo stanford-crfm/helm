@@ -1,6 +1,8 @@
 """
-This script generates audio files using OpenAI's TTS API for different characters and creates a structured annotation file for downstream tasks.
-It reads input scripts from 'audio_pairs_inst.json', generates audio, and saves metadata in JSON format.
+This script generates audio files using OpenAI's TTS API for different
+characters and creates a structured annotation file for downstream tasks.
+It reads input scripts from 'audio_pairs_inst.json', generates audio, and
+saves metadata in JSON format.
 """
 
 import json
@@ -10,7 +12,7 @@ from tqdm import tqdm
 import os
 from typing import Dict, Any, Tuple, List
 
-API_KEY = os.getenv("OPENAI_API_KEY")  # Retrieve API_KEY from system environment variable
+API_KEY = os.getenv("OPENAI_API_KEY")
 CHARACTERS = ["onyx", "nova"]
 CATEGORIES = ["occupation", "status"]
 OUTPUT_DIR = "ahelm_results"
@@ -18,11 +20,13 @@ OUTPUT_DIR = "ahelm_results"
 
 def generate_audio() -> Dict[str, Dict[str, Dict[str, Dict[str, str]]]]:
     """
-    Generate audio files for each character and script line using OpenAI's TTS API.
-    Returns a nested dictionary mapping character, occupation/status, key, and line to the generated audio file path.
+    Generate audio files for each character and script line using OpenAI's TTS
+    API.
+    Returns a nested dictionary mapping character, occupation/status, key, and
+    line to the generated audio file path.
     """
     scripts = json.load(open("audio_pairs_inst.json"))
-    client = OpenAI(api_key=API_KEY)  # Use the global API_KEY
+    client = OpenAI(api_key=API_KEY)
 
     result_path_mapping: Dict[str, Dict[str, Dict[str, Dict[str, str]]]] = {}
     for character in CHARACTERS:
@@ -60,7 +64,8 @@ def create_final_annotation(
 ) -> Dict[str, Dict[str, Dict[str, Dict[str, Any]]]]:
     """
     Create the final annotation structure for the generated audio files.
-    Returns a nested dictionary with metadata for each audio file, including path, question, options, and label.
+    Returns a nested dictionary with metadata for each audio file, including
+    path, question, options, and label.
     """
     final_annot: Dict[str, Dict[str, Dict[str, Dict[str, Any]]]] = {
         char: {cat: {} for cat in CATEGORIES} for char in CHARACTERS
