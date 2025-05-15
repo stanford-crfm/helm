@@ -57,12 +57,17 @@ class UltraSuiteDisorderBreakdownScenario(Scenario):
                 annotation = json.load(f)
 
             # Get the correct answer and convert to label
-            label = annotation["disorder_class"]
+            label = annotation["disorder_type"]
             prompt = annotation["transcription"]
+
+            options = ["typically_developing", "articulation", "phonological"]
+            if label not in options:
+                print(f"Label {label} not in options")
+                continue
 
             # Create references for each option
             references: List[Reference] = []
-            for option in ["typically_developing", "articulation", "phonological"]:
+            for option in options:
                 reference = Reference(Output(text=option), tags=[CORRECT_TAG] if option == label else [])
                 references.append(reference)
 
