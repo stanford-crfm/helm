@@ -1,4 +1,3 @@
-window.RELEASE = "v1.9.0";
-window.BENCHMARK_OUTPUT_BASE_URL =
-	"https://storage.googleapis.com/crfm-helm-public/lite/benchmark_output/";
-window.PROJECT_ID = "lite";
+window.RELEASE = "robo_reward_bench";
+window.BENCHMARK_OUTPUT_BASE_URL = "http://localhost:5173/benchmark_output";
+window.PROJECT_ID = "robo_reward_bench";

@@ -1055,3 +1055,46 @@ def get_msr_vtt_spec() -> RunSpec:
         metric_specs=metric_specs,
         groups=[run_spec_name],
     )
+
+
+@run_spec_function("robo_reward_bench")
+def get_robo_reward_bench_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.robo_reward_bench_scenario.RoboRewardBenchScenario",
+        args={},
+    )
+
+    instructions: str = (
+        "You will be shown two video rollouts (Policy A and Policy B) of a robot attempting to complete the same task, "
+        "captured from multiple camera angles. Your goal is to evaluate which policy performs the task "
+        "more effectively.\n\n"
+        "Carefully analyze each policy's actions based on the task objective. Consider task completion, precision, "
+        "efficiency, and any mistakes or hesitations.\n\n"
+        "First, describe how each policy performed and explain your reasoning for the final answer. Then, on a new "
+        "line, write your final answer in **exactly** the following format:\n"
+        "ANSWER: A  (if Policy A is better)\n"
+        "ANSWER: B  (if Policy B is better)\n"
+        "ANSWER: tie  (if both are equally good)\n\n"
+        "**Do not include any additional commentary, punctuation, or variations in the format. Only use one of the "
+        "three options exactly as written above.**"
+    )
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(
+        instructions=instructions,
+        max_tokens=1024,
+        max_train_instances=0,
+    )
+    metric_specs: List[MetricSpec] = [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.robo_reward_bench_metrics.RoboRewardBenchMetric",
+            args={},
+        )
+    ]
+
+    run_spec_name: str = "robo_reward_bench"
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )

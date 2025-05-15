@@ -200,7 +200,7 @@ run_groups:
     description: All scenarios across capabilities
     category: All scenarios
     subgroups:
-      - msr_vtt
+      - robo_reward_bench
 
   - name: msr_vtt
     display_name: MST-VTT
@@ -217,3 +217,19 @@ run_groups:
       who: Human experts
       when: "2016"
       language: English
+
+  - name: robo_reward_bench
+    display_name: Robo Reward Bench
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
