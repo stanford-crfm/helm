@@ -186,6 +186,7 @@ run_groups:
       - ruler_hotpotqa
       - ruler_squad
       - infinite_bench_sum
+      - infinite_bench_en_qa
 
   - name: ruler_hotpotqa
     display_name: RULER HotPotQA
@@ -225,6 +226,23 @@ run_groups:
   - name: infinite_bench_sum
     display_name: ∞Bench Sum
     description: ∞Bench Sum
+    metric_groups:
+      - accuracy
+      - general_information
+      - annotation_metrics
+    environment:
+      main_name: rouge_l
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: infinite_bench_en_qa
+    display_name: ∞Bench En.QA
+    description: ∞Bench En.QA
     metric_groups:
       - accuracy
       - general_information

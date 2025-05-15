@@ -3309,6 +3309,14 @@ models:
     release_date: 2024-09-19
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: qwen/qwen3-235b-a22b-fp8-tput
+    display_name: Qwen3 235B A22B FP8 Throughput
+    description: Qwen3 235B A22B FP8 Throughput is a hybrid instruct and reasoning mixture-of-experts model ([blog](https://qwenlm.github.io/blog/qwen3/)).
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2025-04-29
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: qwen/qwq-32b-preview
     display_name: QwQ (32B Preview)
     description: QwQ-32B-Preview is an experimental research model developed by the Qwen Team, focused on advancing AI reasoning capabilities. ([blog post](https://qwenlm.github.io/blog/qwq-32b-preview/)).
@@ -3878,6 +3886,14 @@ models:
     creator_organization_name: Writer
     access: limited
     release_date: 2024-09-12
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: writer/palmyra-x5
+    display_name: Palmyra X5
+    description: Palmyra X5 is a language model for enterprise that uses a Mixture of Experts (MoE) architecture and a hybrid attention mechanism that blends linear and softmax attention. ([blog](https://writer.com/engineering/long-context-palmyra-x5/))
+    creator_organization_name: Writer
+    access: limited
+    release_date: 2024-04-28
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: writer/palmyra-med-32k
