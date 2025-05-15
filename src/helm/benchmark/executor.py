@@ -1,19 +1,19 @@
 from typing import Optional
 from dataclasses import dataclass, replace
+
+from helm.common.context import Context
+from helm.common.local_context import LocalContext
+from helm.common.remote_context import RemoteContext
 from helm.common.cache_backend_config import (
     CacheBackendConfig,
     BlackHoleCacheBackendConfig,
     MongoCacheBackendConfig,
     SqliteCacheBackendConfig,
 )
-
 from helm.common.general import parallel_map
 from helm.common.hierarchical_logger import htrack, hlog
 from helm.common.request import RequestResult, GeneratedOutput
 from helm.common.authentication import Authentication
-from helm.proxy.services.remote_service import RemoteService
-from helm.proxy.services.server_service import ServerService
-from helm.proxy.services.service import Service
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.request_state import RequestState
 
@@ -29,7 +29,7 @@ class ExecutionSpec:
     """If non-empty, URL of the proxy server we send requests to (e.g., http://localhost:1959)."""
 
     auth: Authentication
-    """Authentication that will be passed into the local service, if using the local service."""
+    """Authentication that will be passed into the remote service, if using the remote context."""
 
     local_path: Optional[str]
     """Path where API credentials and cache is stored.
@@ -75,15 +75,14 @@ class Executor:
         else:
             cache_backend_config = BlackHoleCacheBackendConfig()
 
-        self.service: Service
+        self.context: Context
         if execution_spec.url:
             hlog(f"Running using remote API proxy server: {execution_spec.url}")
-            self.service = RemoteService(execution_spec.url)
+            self.context = RemoteContext(execution_spec.url, execution_spec.auth)
         elif execution_spec.local_path:
             hlog(f"Running in local mode with base path: {execution_spec.local_path}")
-            self.service = ServerService(
+            self.context = LocalContext(
                 base_path=execution_spec.local_path,
-                root_mode=True,
                 cache_backend_config=cache_backend_config,
             )
         else:
@@ -111,7 +110,7 @@ class Executor:
 
     def process(self, state: RequestState) -> RequestState:
         try:
-            result: RequestResult = self.service.make_request(self.execution_spec.auth, state.request)
+            result: RequestResult = self.context.make_request(state.request)
         except Exception as e:
             raise ExecutorError(f"{str(e)} Request: {state.request}") from e
         if not result.success:

@@ -204,68 +204,68 @@ metrics:
     description: Measures the proportion of correctly predicted answerable questions among all answerable questions in the dataset.
     lower_is_better: false
   - name: aci_bench_accuracy
-    display_name: ACI-Bench Accuracy
-    short_display_name: Accuracy
+    display_name: ACI-Bench Jury Score
+    short_display_name: Jury Score
     description: Measures the average score assigned by an LLM-based jury evaluating task performance.
     lower_is_better: false
   - name: mtsamples_replicate_accuracy
-    display_name: MTSamples Replicate Accuracy
-    short_display_name: Accuracy
+    display_name: MTSamples Replicate Jury Score
+    short_display_name: Jury Score
     description: Measures the average score assigned by an LLM-based jury evaluating task performance.
     lower_is_better: false
   - name: medalign_accuracy
-    display_name: Medalign Accuracy
-    short_display_name: Accuracy
+    display_name: Medalign Jury Score
+    short_display_name: Jury Score
     description: Measures the average score assigned by an LLM-based jury evaluating task performance.
     lower_is_better: false
   - name: dischargeme_accuracy
-    display_name: DischargeMe Accuracy
-    short_display_name: Accuracy
+    display_name: DischargeMe Jury Score
+    short_display_name: Jury Score
     description: Measures the average score assigned by an LLM-based jury evaluating task performance.
     lower_is_better: false
   - name: mtsamples_procedures_accuracy
-    display_name: MTSamples Procedures Accuracy
-    short_display_name: Accuracy
+    display_name: MTSamples Procedures Jury Score
+    short_display_name: Jury Score
     description: Measures the average score assigned by an LLM-based jury evaluating task performance.
     lower_is_better: false
   - name: mimic_rrs_accuracy
-    display_name: MIMIC-RRS Accuracy
-    short_display_name: Accuracy
+    display_name: MIMIC-RRS Jury Score
+    short_display_name: Jury Score
     description: Measures the average score assigned by an LLM-based jury evaluating task performance.
     lower_is_better: false
   - name: mimic_bhc_accuracy
-    display_name: MIMIC-BHC Accuracy
-    short_display_name: Accuracy
+    display_name: MIMIC-BHC Jury Score
+    short_display_name: Jury Score
     description: Measures the average score assigned by an LLM-based jury evaluating task performance.
     lower_is_better: false
   - name: chw_care_plan_accuracy
-    display_name: NoteExtract Accuracy
-    short_display_name: Accuracy
+    display_name: NoteExtract Jury Score
+    short_display_name: Jury Score
     description: Measures the average score assigned by an LLM-based jury evaluating task performance.
     lower_is_better: false
   - name: medication_qa_accuracy
-    display_name: MedicationQA Accuracy
-    short_display_name: Accuracy
+    display_name: MedicationQA Jury Score
+    short_display_name: Jury Score
     description: Measures the average score assigned by an LLM-based jury evaluating task performance.
     lower_is_better: false
   - name: starr_patient_instructions_accuracy
-    display_name: PatientInstruct Accuracy
-    short_display_name: Accuracy
+    display_name: PatientInstruct Jury Score
+    short_display_name: Jury Score
     description: Measures the average score assigned by an LLM-based jury evaluating task performance.
     lower_is_better: false
   - name: med_dialog_accuracy
-    display_name: MedDialog Accuracy
-    short_display_name: Accuracy
+    display_name: MedDialog Jury Score
+    short_display_name: Jury Score
     description: Measures the average score assigned by an LLM-based jury evaluating task performance.
     lower_is_better: false
   - name: medi_qa_accuracy
-    display_name: MediQA Accuracy
-    short_display_name: Accuracy
+    display_name: MediQA Jury Score
+    short_display_name: Jury Score
     description: Measures the average score assigned by an LLM-based jury evaluating task performance.
     lower_is_better: false
   - name: mental_health_accuracy
-    display_name: MentalHealth Accuracy
-    short_display_name: Accuracy
+    display_name: MentalHealth Jury Score
+    short_display_name: Jury Score
     description: Measures the average score assigned by an LLM-based jury evaluating task performance.
     lower_is_better: false
 
@@ -511,6 +511,8 @@ run_groups:
       - shc_conf_med
       - medi_qa
       - mental_health
+      - shc_proxy_med
+      - shc_privacy_med
   
   - name: medical_research
     display_name: Medical Research Assistance
@@ -1101,4 +1103,38 @@ run_groups:
       what: Classify clinician recommendations for ADHD behavior management
       who: Clinician, Caregiver
       when: Early Intervention
+      language: English
+
+  - name: shc_privacy_med
+    display_name:  PrivacyDetection
+    description: A dataset that determines if a message leaks any confidential information from the patient [(Tse G, et al., 2025)](https://doi.org/10.1001/jamapediatrics.2024.4438).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: Classification
+      what: Classify if a document leaks private information
+      who: Clinician, Caregiver
+      when: Any
+      language: English
+
+  - name: shc_proxy_med
+    display_name:  ProxySender
+    description: This dataset features messages sent by proxy users and non proxy users, for evaluation of LLM capabilities to determine the sender [(Tse G, et al., 2025)](https://doi.org/10.1001/jamapediatrics.2024.4438).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: Classification
+      what: Classify if a document was sent by a proxy user
+      who: Clinician, Caregiver
+      when: Any
       language: English

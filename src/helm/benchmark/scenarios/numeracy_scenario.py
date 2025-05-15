@@ -11,6 +11,7 @@ from typing import List, Optional, Tuple, Dict
 
 from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.common.local_context import LocalContext
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.common.authentication import Authentication
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -39,7 +40,7 @@ except ModuleNotFoundError as e:
 #       https://github.com/stanford-crfm/benchmarking/issues/569
 def get_test_tokenizer_service() -> TokenizerService:
     # Pointed to the default local path set in run.py (--local-path)
-    return TokenizerService(ServerService(base_path="prod_env", root_mode=True), Authentication("test"))
+    return TokenizerService(LocalContext(base_path="prod_env"))
 
 
 SOLUTION_TAG: str = "solution"

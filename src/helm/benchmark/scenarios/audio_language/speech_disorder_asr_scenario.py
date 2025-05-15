@@ -21,19 +21,23 @@ def find_audio_json_pairs(directory: str) -> List[Tuple[str, str]]:
     """
     Find all pairs of MP3 and JSON files in the given directory and its subdirectories.
     Each pair consists of an MP3 file and its corresponding JSON file with the same base name.
-
+    
     Args:
         directory: Path to the directory containing the files
-
+        
     Returns:
         List of tuples where each tuple contains (mp3_path, json_path)
     """
     pairs = []
+    print(os.path.abspath(directory))
 
     # Walk through all directories and subdirectories
     for root, _, files in os.walk(directory):
         # Get all MP3 files in current directory
-        mp3_files = [f for f in files if f.endswith(".mp3")]
+        mp3_files = [f for f in files if f.endswith('.mp3')]
+        
+        print("here")
+        print(mp3_files)
 
         for mp3_file in mp3_files:
             base_name = os.path.splitext(mp3_file)[0]
@@ -45,27 +49,35 @@ def find_audio_json_pairs(directory: str) -> List[Tuple[str, str]]:
                 json_path = os.path.join(root, json_file)
                 pairs.append((mp3_path, json_path))
 
-    if len(pairs) == 0:
-        raise ValueError(f"No pairs of MP3 and JSON files found in {directory}")
-
     return pairs
 
 
-class UltraSuiteClassificationScenario(Scenario):
+class SpeechDisorderScenarioASR(Scenario):
     """
     A scenario for evaluating whether a child speaker has a speech disorder or not.
     The audio files contain speech from children, potentially with an adult present.
     The task is to classify whether the child speaker is typically developing or has a speech disorder.
-    You can find the dataset at https://huggingface.co/datasets/SAA-Lab/UltraSuite/tree/main
-    Please download the dataset and place it in the benchmark_output/scenarios/speech_disorder directory
     """
 
-    name = "speech_disorder"
+    name = "speech_disorder_asr"
     description = "A scenario for evaluating speech disorders in children"
-    tags = ["audio", "classification", "speech_disorder"]
+    tags = ["audio", "classification", "speech_disorder", "asr"]
 
-    def get_instruction(self, words: str) -> str:
-        return f"""You are a highly experienced Speech-Language Pathologist (SLP). An audio recording will be provided, typically consisting of a speech prompt from a pathologist followed by a child's repetition. The prompt the child is trying to repeat is as follows: {words}. Based on your professional expertise: 1. Assess the child's speech in the recording for signs of typical development or potential speech-language disorder. 2. Conclude your analysis with one of the following labels only: 'typically_developing' or 'speech_disorder'. 3. Provide your response as a single letter without any additional explanation, commentary, or unnecessary text."""  # noqa: E501
+    # Classification options
+    options: List[str] = ["Healthy", "Unhealthy"]
+
+    def __init__(self, subject: str) -> None:
+        super().__init__()
+        self.subject = subject
+
+    def get_instruction(self) -> str:
+        return f"""You are a highly experienced Speech-Language Pathologist (SLP). 
+            An audio recording will be provided, typically consisting of a speech prompt 
+            from a pathologist followed by a child's repetition. 
+            Based on your expertise transcribe the child's speech into text.
+            Only respond with the text transcription, no other text or commentary.
+            Respond with each word/sylable comma separated, and end with a period.
+            """
 
     def get_instances(self, output_path: str) -> List[Instance]:
         """
@@ -74,35 +86,31 @@ class UltraSuiteClassificationScenario(Scenario):
         - Audio files (e.g., .mp3)
         - A JSON file with annotations containing 'answer' field
         """
-
-        # TODO: Automate downloading the dataset
         ensure_directory_exists(output_path)
 
         instances: List[Instance] = []
         split: str = TEST_SPLIT
-        print(f"Output path: {os.path.abspath(output_path)}")
+
         # Find all pairs of audio and JSON files
         pairs = find_audio_json_pairs(output_path)
-        print(f"Num pairs: {len(pairs)}")
 
         for audio_path, json_path in tqdm(pairs):
+
             # Load the annotation
-            with open(json_path, "r") as f:
+            with open(json_path, 'r') as f:
                 annotation = json.load(f)
 
             # Get the correct answer and convert to label
-            answer = annotation["disorder_class"]
-            words = annotation["transcription"]
+            answer = " ,".join(annotation['words']) + "."
+            print(f"Answer: {answer}, path: {audio_path}")
             # Create references for each option
             references: List[Reference] = []
-            for option in ["typically_developing", "speech_disorder"]:
-                reference = Reference(Output(text=option), tags=[CORRECT_TAG] if option == answer else [])
-                references.append(reference)
+            reference = Reference(Output(text=answer), tags=[CORRECT_TAG])
+            references.append(reference)
 
             # Create the input with audio and instruction
             content = [
                 MediaObject(content_type="audio/mpeg", location=audio_path),
-                MediaObject(content_type="text/plain", text=self.get_instruction(words)),
             ]
 
             input = Input(multimedia_content=MultimediaObject(content))
