@@ -738,3 +738,25 @@ run_groups:
       who: OpenAI's TTS
       when: "2025"
       language: English
+  
+  - name: corebench
+    display_name: COREBench
+    description: >
+      The COREBench is a new audio benchmark incorporating multi-speaker conversations. 
+      It consists of conversational audio, transcript, question, and answer. There 
+      are two challenging features of this benchmark: (1) the questions are designed 
+      to require reasoning over multiple turns of conversation, and (2) the average 
+      audio length is longer than 1 minute, which is significantly longer than 
+      existing benchmarks.
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: audio question-answering
+      what: audio, question, transcripts and answer given the audio
+      who: OpenAI's TTS
+      when: "2025"
+      language: English
