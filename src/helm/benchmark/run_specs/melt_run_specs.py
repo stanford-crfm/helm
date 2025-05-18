@@ -177,7 +177,7 @@ def get_melt_summarization_wikilingua_spec(prompt_style: str = "normal", tempera
 @run_spec_function("melt_reasoning_vie_synthetic_reasoning")
 def get_melt_reasoning_vie_synthetic_reasoning_spec(mode: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.melt_scenarios.MELTSyntheticReasoningScenario",
+        class_name="helm.benchmark.scenarios.melt_synthetic_reasoning_scenario.MELTSyntheticReasoningScenario",
         args={"mode": mode},
     )
 
@@ -202,7 +202,7 @@ def get_melt_reasoning_vie_synthetic_reasoning_spec(mode: str) -> RunSpec:
 @run_spec_function("melt_reasoning_vie_synthetic_reasoning_natural")
 def get_melt_reasoning_vie_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.melt_scenarios.MELTSRNScenario",
+        class_name="helm.benchmark.scenarios.melt_srn_scenario.MELTSRNScenario",
         args={"difficulty": difficulty},
     )
 
