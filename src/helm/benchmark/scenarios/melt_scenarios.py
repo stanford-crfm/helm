@@ -1,6 +1,8 @@
+import os
 from typing import Dict, List, Tuple, Optional
 
 from datasets import load_dataset
+from helm.common.general import ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -13,6 +15,7 @@ from helm.benchmark.scenarios.scenario import (
     Input,
     Output,
 )
+from helm.benchmark.scenarios.math_scenario import get_answer
 
 
 class MELTQAScenario(Scenario):
@@ -343,3 +346,156 @@ class MELTSummarizationWikilinguaScenario(MELTSummarizationScenario):
             },
             **kwargs,
         )
+
+
+class MELTMATHScenario(Scenario):
+    """
+    The MATH dataset from the paper
+    "Measuring Mathematical Problem Solving With the MATH Dataset"
+    by Hendrycks et al. (2021):
+    https://arxiv.org/pdf/2103.03874.pdf
+
+    Example input, using official examples:
+
+    ```
+    Given a mathematics problem, determine the answer. Simplify your answer as much as possible.
+    ###
+    Problem: What is $\left(\frac{7}{8}\right)^3 \cdot \left(\frac{7}{8}\right)^{-3}$?
+    Answer: $1$
+    ###
+    Problem: In how many ways can 4 books be selected from a shelf of 6 books if the order in which the books are selected does not matter?
+    Answer: $15$
+    ###
+    Problem: Find the distance between the points $(2,1,-4)$ and $(5,8,-3).$
+    Answer: $\sqrt{59}$
+    ###
+    Problem: The faces of an octahedral die are labeled with digits $1$ through $8$. What is the probability, expressed as a common fraction, of rolling a sum of $15$ with a pair of such octahedral dice?
+    Answer: $\frac{1}{32}$
+    ###
+    Problem: The first three terms of an arithmetic sequence are 1, 10 and 19, respectively. What is the value of the 21st term?
+    Answer: $181$
+    ###
+    Problem: Calculate $6 \cdot 8\frac{1}{3}
+    Answer: $50$
+    ###
+    Problem: When the binary number $100101110010_2$ is divided by 4, what is the remainder (give your answer in base 10)?
+    Answer: $2$
+    ###
+    Problem: How many zeros are at the end of the product 25 $\times$ 240?
+    Answer: $3$
+    ###
+    Problem: What is $\dbinom{n}{n}$ for any positive integer $n$?
+    Answer: $
+    ```
+
+    Example expected output
+
+    ```
+    1$
+    ```
+    """  # noqa
+
+    name = "MATH"
+    description = "Mathematical Problem Solving in Vietnamese"
+    tags = ["knowledge", "reasoning"]
+
+    subjects_mapping = {
+        "number_theory": "Number Theory",
+        "intermediate_algebra": "Intermediate Algebra",
+        "algebra": "Algebra",
+        "prealgebra": "Prealgebra",
+        "geometry": "Geometry",
+        "counting_and_probability": "Counting & Probability",
+        "precalculus": "Precalculus",
+    }
+    levels = ["1", "2", "3", "4", "5"]
+
+    def __init__(
+        self, subject: str, level: str, use_official_examples: bool = False, use_chain_of_thought: bool = False
+    ):
+        super().__init__()
+        self.subject_name: str = MELTMATHScenario.subjects_mapping[subject]
+        self.subject: str = subject
+        self.level: str = f"Level {level}"
+        self.use_official_examples: bool = use_official_examples
+        self.use_chain_of_thought: bool = use_chain_of_thought
+        if use_chain_of_thought:
+            assert not use_official_examples, "Cannot use official examples when use_chain_of_thought is True."
+
+    def get_instances(self, output_path: str) -> List[Instance]:
+        dataset = {}
+        cache_dir = os.path.join(output_path, "data")
+        ensure_directory_exists(cache_dir)
+        dataset = load_dataset(
+            "ura-hcmut/Vietnamese-MATH",
+            self.subject,
+            trust_remote_code=True,
+            cache_dir=cache_dir,
+            revision="4ee16aadb78aef3b1337e0a7267da565862673ae",
+        )
+
+        instances = []
+        for split, split_name in zip([TRAIN_SPLIT, TEST_SPLIT], ["train", "test"]):
+            if split == TRAIN_SPLIT and self.use_official_examples:
+                train_instances = [
+                    ("Kết quả của $\left(\\frac{7}{8}\\right)^3 \cdot \left(\\frac{7}{8}\\right)^{-3}$ là gì?", "1"),
+                    (
+                        "Có bao nhiêu cách chọn 4 quyển sách từ một kệ sách có 6 quyển,"
+                        + " nếu thứ tự các cuốn sách được chọn không quan trọng?",
+                        "15",
+                    ),
+                    ("Tìm khoảng cách giữa các điểm $(2,1,-4)$ và $(5,8,-3).$", "\sqrt{59}"),
+                    (
+                        "Các mặt của khối xúc xắc bát diện được dán nhãn bằng các số từ $1$ đến $8$."
+                        + " Xác suất tung một cặp xúc xắc bát diện để được tổng số bằng $15$ là bao nhiêu?"
+                        + " Biểu diễn kết quả dưới dạng phân số tối giản.",
+                        "\\frac{1}{32}",
+                    ),
+                    (
+                        "Ba số hạng đầu tiên của một dãy số cộng lần lượt là 1, 10 và 19."
+                        + " Giá trị của số hạng thứ 21 là?",
+                        "181",
+                    ),
+                    ("Tính $6 \\cdot 8\\frac{1}{3}", "50"),
+                    (
+                        "Khi chia số nhị phân $100101110010_2$ cho 4,"
+                        + " phần dư của phép chia là bao nhiêu (biểu diễn kết quả với cơ số 10)?",
+                        "2",
+                    ),
+                    ("Có bao nhiêu số 0 ở cuối kết quả của tích 25 $\\times$ 240?", "3"),
+                ]
+                dataset[TRAIN_SPLIT] = [
+                    {"problem_vi": problem, "answer_vi": answer} for problem, answer in train_instances
+                ]
+
+            else:
+                examples = dataset[split].filter(lambda example: example["level"] == self.level)
+                list_answers = []
+
+                for example in examples:
+                    # Sanity check that we filtered correctly
+                    assert (
+                        example["type"] == self.subject_name and example["level"] == self.level
+                    ), f"Wrong example was included after filtering: {example}"
+
+                    if self.use_chain_of_thought:
+                        answer = example["solution_vi"]
+                    else:
+                        maybe_answer = get_answer(example["solution_vi"])
+                        if maybe_answer is None:
+                            maybe_answer = "Không có đáp án"
+                        answer = maybe_answer
+                    list_answers.append(answer)
+
+                # Add column answer_vi to examples
+                dataset[split] = examples.add_column("answer_vi", list_answers)
+
+            for example in dataset[split]:
+                instance = Instance(
+                    input=Input(text=example["problem_vi"]),
+                    references=[Reference(Output(text=example["answer_vi"]), tags=[CORRECT_TAG])],
+                    split=split,
+                )
+                instances.append(instance)
+
+        return instances
