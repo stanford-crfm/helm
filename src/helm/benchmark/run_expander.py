@@ -21,7 +21,10 @@ from helm.benchmark.model_metadata_registry import (
     AUDIO_LANGUAGE_MODEL_TAG,
     INSTRUCTION_FOLLOWING_MODEL_TAG,
 )
-from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION
+from helm.benchmark.adaptation.adapters.adapter_factory import (
+    ADAPT_GENERATION,
+    ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT,
+)
 from helm.benchmark.model_deployment_registry import get_model_names_with_tokenizer
 from helm.benchmark.run_spec import RunSpec
 from helm.benchmark.adaptation.adapter_spec import ADAPT_MULTIPLE_CHOICE_JOINT, AdapterSpec, Substitution
@@ -1476,6 +1479,8 @@ class OutputFormatInstructions(RunExpander):
                 instructions = "Answer with only a single letter."
             elif self.scenario == "mcqa":
                 instructions = "Answer with only a single letter."
+            elif self.scenario == "mcqa_no_period":
+                instructions = "Answer with only a single letter. Do not include a period in your answer."
             elif self.scenario == "mcqa_only_last_question":
                 instructions = "Answer only the last question with only a single letter."
             else:
@@ -1519,6 +1524,11 @@ class OutputFormatInstructions(RunExpander):
                     "Answer only the last question with a short answer. "
                     "Avoid extra, unnecessary information in the answer."
                 )
+            else:
+                raise ValueError(f"Unknown scenario {self.scenario}")
+        elif run_spec.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT:
+            if self.scenario == "mmlu_pro" or self.scenario == "gpqa":
+                instructions = 'In your response, replace "insert answer here" with the single uppercase letter corresponding to your answer.'  # noqa: E501
             else:
                 raise ValueError(f"Unknown scenario {self.scenario}")
 

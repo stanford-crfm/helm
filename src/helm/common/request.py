@@ -132,6 +132,11 @@ class Token:
 
 
 @dataclass(frozen=True)
+class Thinking:
+    text: Optional[str] = None
+
+
+@dataclass(frozen=True)
 class GeneratedOutput:
     """A `GeneratedOutput` is a single generated output that may contain text or multimodal content."""
 
@@ -149,6 +154,9 @@ class GeneratedOutput:
 
     # Could be a sequence made up of multimedia content
     multimodal_content: Optional[MultimediaObject] = None
+
+    # Could be reasoning
+    thinking: Optional[Thinking] = None
 
     def __add__(self, other: "GeneratedOutput") -> "GeneratedOutput":
         return GeneratedOutput(self.text + other.text, self.logprob + other.logprob, self.tokens + other.tokens)

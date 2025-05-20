@@ -1027,3 +1027,31 @@ def get_vqa_rad_spec() -> RunSpec:
         metric_specs=metric_specs,
         groups=[run_spec_name],
     )
+
+
+############################################################
+# Video understanding run specs
+
+
+@run_spec_function("msr_vtt")
+def get_msr_vtt_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.msr_vtt_scenario.MSRVTTScenario",
+        args={},
+    )
+
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(
+        instructions="Generate a short caption for the video in plain words. Just give the caption and nothing else.",
+        max_tokens=30,
+        max_train_instances=0,
+    )
+    metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
+
+    run_spec_name: str = "msr_vtt"
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )

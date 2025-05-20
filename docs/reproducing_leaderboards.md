@@ -134,6 +134,16 @@ export NUM_EVAL_INSTANCES=1000
 export PRIORITY=2
 ```
 
+### ToRR
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_torr.conf
+export SCHEMA_PATH=schema_torr.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=100
+export PRIORITY=2
+```
+
 ### SEA-HELM
 
 ```bash
