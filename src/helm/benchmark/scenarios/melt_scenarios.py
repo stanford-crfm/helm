@@ -1,13 +1,7 @@
 import os
 from abc import abstractmethod
-from typing import Dict, List, Tuple, Optional, Literal
+from typing import Dict, List, Tuple, Optional
 
-import random
-import dataclasses
-import numpy as np
-
-from copy import copy
-from dataclasses import dataclass
 from datasets import load_dataset
 from helm.common.general import ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
