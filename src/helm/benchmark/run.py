@@ -9,7 +9,7 @@ from helm.benchmark import model_metadata_registry
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
 from helm.common.cache_backend_config import MongoCacheBackendConfig, SqliteCacheBackendConfig
 from helm.common.general import ensure_directory_exists
-from helm.common.hierarchical_logger import hlog, htrack, htrack_block, setup_default_logging
+from helm.common.hierarchical_logger import hlog, htrack, htrack_block, setup_default_logging, hwarn
 from helm.common.authentication import Authentication
 from helm.common.object_spec import parse_object_spec, get_class_by_name
 from helm.proxy.services.remote_service import create_authentication, add_service_args
@@ -290,9 +290,8 @@ def helm_run(args):
     )
 
     if args.run_specs:
-        hlog(
-            "WARNING: The --run-specs flag is deprecated and will be removed in a future release. "
-            "Use --run-entries instead."
+        hwarn(
+            "The --run-specs flag is deprecated and will be removed in a future release. " "Use --run-entries instead."
         )
 
     hlog("Done.")

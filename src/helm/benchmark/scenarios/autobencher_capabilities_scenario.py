@@ -12,7 +12,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
 )
 from helm.common.general import ensure_directory_exists
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hwarn
 
 
 class AutoBencherCapabilitiesScenario(Scenario):
@@ -61,7 +61,7 @@ class AutoBencherCapabilitiesScenario(Scenario):
             # References are category ID, followed by level 2, 3 and 4 category names.
             references = [Reference(output=Output(text=row["gold_answer"]), tags=[CORRECT_TAG])]
             if row["gold_answer"] is None:
-                hlog(f"WARNING: Row had no gold_answer: {row}")
+                hwarn(f"Row had no gold_answer: {row}")
                 continue
             instance = Instance(input=input, references=references, split=TEST_SPLIT)
             instances.append(instance)

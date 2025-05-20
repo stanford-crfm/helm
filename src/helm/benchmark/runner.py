@@ -13,7 +13,7 @@ from tqdm import tqdm
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.general import ensure_directory_exists, write, asdict_without_nones
-from helm.common.hierarchical_logger import hlog, htrack_block
+from helm.common.hierarchical_logger import hlog, htrack_block, hwarn
 from helm.common.cache import cache_stats
 from helm.benchmark.scenarios.scenario import (
     EVAL_SPLITS,
@@ -82,7 +82,7 @@ def remove_stats_nans(stats: List[Stat]) -> List[Stat]:
     result: List[Stat] = []
     for stat in stats:
         if math.isnan(stat.sum):
-            hlog(f"WARNING: Removing stat {stat.name.name} because its value is NaN")
+            hwarn(f"Removing stat {stat.name.name} because its value is NaN")
             continue
         result.append(stat)
     return result
@@ -318,7 +318,7 @@ class Runner:
         metric_counts: typing.Counter[MetricName] = Counter([stat.name for stat in stats])
         for metric_name, count in metric_counts.items():
             if count > 1:
-                hlog(f"WARNING: duplicate metric name {metric_name}")
+                hwarn(f"duplicate metric name {metric_name}")
 
         # Print out the number of stats
         hlog(f"Generated {len(stats)} stats.")

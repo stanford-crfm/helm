@@ -12,7 +12,7 @@ from datasets import load_dataset
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.general import ensure_directory_exists, write, asdict_without_nones
-from helm.common.hierarchical_logger import hlog, htrack_block
+from helm.common.hierarchical_logger import hlog, htrack_block, hwarn
 from helm.common.cache import cache_stats
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -193,7 +193,7 @@ class REEvalRunner(Runner):
             difficulty_dataset = load_dataset("stair-lab/reeval-difficulty", split=split_name)
             prompt_to_difficulty: dict[str, float] = {row["request.prompt"]: row["z"] for row in difficulty_dataset}
         except ValueError:
-            hlog(f"WARNING: no available difficulty for {split_name}, skipping")
+            hwarn(f"no available difficulty for {split_name}, skipping")
             return
 
         unasked_request_states: List[RequestState] = []
@@ -320,7 +320,7 @@ class REEvalRunner(Runner):
         metric_counts: typing.Counter[MetricName] = Counter([stat.name for stat in stats])
         for metric_name, count in metric_counts.items():
             if count > 1:
-                hlog(f"WARNING: duplicate metric name {metric_name}")
+                hwarn(f"duplicate metric name {metric_name}")
 
         # Print out the number of stats
         hlog(f"Generated {len(stats)} stats.")

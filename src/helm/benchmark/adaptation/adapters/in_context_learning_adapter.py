@@ -10,7 +10,7 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.scenarios.scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS, Reference
 from helm.common.general import parallel_map
 from helm.common.request import Request
-from helm.common.hierarchical_logger import hlog, htrack, htrack_block
+from helm.common.hierarchical_logger import hlog, htrack, htrack_block, hwarn
 from helm.benchmark.adaptation.adapters.adapter import Adapter
 
 
@@ -39,8 +39,8 @@ class InContextLearningAdapter(Adapter, ABC):
         # Pick out training instances
         all_train_instances: List[Instance] = [instance for instance in instances if instance.split == TRAIN_SPLIT]
         if len(all_train_instances) < self.adapter_spec.max_train_instances:
-            hlog(
-                f"WARNING: only {len(all_train_instances)} training instances, "
+            hwarn(
+                f"only {len(all_train_instances)} training instances, "
                 f"wanted {self.adapter_spec.max_train_instances}"
             )
 
