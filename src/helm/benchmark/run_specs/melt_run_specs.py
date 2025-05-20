@@ -421,7 +421,7 @@ def get_melt_translation_opus100_spec(language_pair: str, fewshot: bool = False)
     source_language, target_language = language_pair.split("-")
 
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.melt_scenarios.MELTTranslationOPUS100Scenario",
+        class_name="helm.benchmark.scenarios.melt_translation_scenario.MELTTranslationOPUS100Scenario",
         args={"source_language": source_language, "target_language": target_language},
     )
 
@@ -449,7 +449,7 @@ def get_melt_translation_phomt_spec(language_pair: str, fewshot: bool = False) -
     source_language, target_language = language_pair.split("-")
 
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.melt_scenarios.MELTTranslationPhoMTScenario",
+        class_name="helm.benchmark.scenarios.melt_translation_scenario.MELTTranslationPhoMTScenario",
         args={"source_language": source_language, "target_language": target_language},
     )
 
@@ -470,7 +470,7 @@ def get_melt_translation_phomt_spec(language_pair: str, fewshot: bool = False) -
 
 @run_spec_function("melt_lm_mask_filling_mlqa")
 def get_melt_lm_mask_filling_mlqaa_spec(fewshot: bool = False) -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.melt_scenarios.MELTLMMaskFillingMLQAScenario")
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.melt_lm_scenarios.MELTLMMaskFillingMLQAScenario")
 
     instruction = "Hãy hoàn thành câu sau bằng cách điền vào các vị trí trống được đánh dấu bằng [MASK]."
     adapter_spec = get_generation_adapter_spec(
@@ -495,7 +495,7 @@ def get_melt_lm_mask_filling_mlqaa_spec(fewshot: bool = False) -> RunSpec:
 @run_spec_function("melt_lm_spelling_correction_vsec")
 def get_melt_lm_spelling_correction_vsec_spec(fewshot: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.melt_scenarios.MELTLMSpellingCorrectionVSECScenario"
+        class_name="helm.benchmark.scenarios.melt_lm_scenarios.MELTLMSpellingCorrectionVSECScenario"
     )
 
     instruction = "Hãy sửa lỗi chính tả trong câu sau."
