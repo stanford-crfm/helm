@@ -164,8 +164,8 @@ class Runner:
             )
         )
         self.dry_run: bool = execution_spec.dry_run
-        self.tokenizer_service = TokenizerService(self.executor.service, execution_spec.auth)
-        self.metric_service = MetricService(self.executor.service, execution_spec.auth)
+        self.tokenizer_service = TokenizerService(self.executor.context)
+        self.metric_service = MetricService(self.executor.context)
         self.skip_instances: bool = skip_instances
         self.cache_instances: bool = cache_instances
         self.cache_instances_only: bool = cache_instances_only

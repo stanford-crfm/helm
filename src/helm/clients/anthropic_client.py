@@ -243,7 +243,7 @@ class AnthropicMessagesResponseError(Exception):
 
 class AnthropicMessagesClient(CachingClient):
     # Source: https://docs.anthropic.com/claude/docs/models-overview
-    MAX_OUTPUT_TOKENS: int = 4096
+    MAX_OUTPUT_TOKENS: int = 64000
 
     MAX_IMAGE_SIZE_BYTES: int = 5242880  # 5MB
 

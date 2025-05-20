@@ -1162,12 +1162,20 @@ models:
     release_date: 2025-01-21
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  - name: google/gemini-2.5-pro-exp-03-25
+  - name: google/gemini-2.5-pro-preview-03-25
     display_name: Gemini 2.5 Pro (03-25 preview)
     description: Gemini 2.5 Pro (03-25 preview) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
     creator_organization_name: Google
     access: limited
-    release_date: 2025-03-25
+    release_date: 2025-04-09  # source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-2.5-pro-preview-05-06
+    display_name: Gemini 2.5 Pro (05-06 preview)
+    description: Gemini 2.5 Pro (05-06 preview) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-05-06  # source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemini-2.0-pro-exp-02-05
@@ -1176,6 +1184,22 @@ models:
     creator_organization_name: Google
     access: limited
     release_date: 2025-02-05
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-2.5-flash-preview-04-17
+    display_name: Gemini 2.5 Flash (04-17 preview)
+    description: Gemini 2.5 Flash (04-17 preview) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-04-17
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-2.5-pro-exp-03-25
+    display_name: Gemini 2.5 Pro (03-25 experimental)
+    description: Gemini 2.5 Pro (03-25 experimental) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-03-25
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemma-2b
@@ -2969,6 +2993,54 @@ models:
     release_date: 2025-01-31
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: openai/o3-2025-04-16
+    display_name: o3 (2025-04-16)
+    description: o3 is a reasoning model for math, science, coding, and visual reasoning tasks. ([blog post](https://openai.com/index/introducing-o3-and-o4-mini/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-04-16
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/o3-2025-04-16-low-reasoning-effort
+    display_name: o3 (2025-04-16, low reasoning effort)
+    description: o3 is a reasoning model for math, science, coding, and visual reasoning tasks. ([blog post](https://openai.com/index/introducing-o3-and-o4-mini/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-04-16
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/o3-2025-04-16-high-reasoning-effort
+    display_name: o3 (2025-04-16, high reasoning effort)
+    description: o3 is a reasoning model for math, science, coding, and visual reasoning tasks. ([blog post](https://openai.com/index/introducing-o3-and-o4-mini/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-04-16
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/o4-mini-2025-04-16
+    display_name: o4-mini (2025-04-16)
+    description: o4-mini is an o-series model optimized for fast, effective reasoning with exceptionally efficient performance in coding and visual tasks. ([blog post](https://openai.com/index/introducing-o3-and-o4-mini/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-04-16
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/o4-mini-2025-04-16-low-reasoning-effort
+    display_name: o4-mini (2025-04-16, low reasoning effort)
+    description: o4-mini is an o-series model optimized for fast, effective reasoning with exceptionally efficient performance in coding and visual tasks. ([blog post](https://openai.com/index/introducing-o3-and-o4-mini/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-04-16
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/o4-mini-2025-04-16-high-reasoning-effort
+    display_name: o4-mini (2025-04-16, high reasoning effort)
+    description: o4-mini is an o-series model optimized for fast, effective reasoning with exceptionally efficient performance in coding and visual tasks. ([blog post](https://openai.com/index/introducing-o3-and-o4-mini/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-04-16
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   ## Codex Models
   # DEPRECATED: Codex models have been shut down on March 23 2023.
 
@@ -3235,6 +3307,14 @@ models:
     creator_organization_name: Qwen
     access: open
     release_date: 2024-09-19
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: qwen/qwen3-235b-a22b-fp8-tput
+    display_name: Qwen3 235B A22B FP8 Throughput
+    description: Qwen3 235B A22B FP8 Throughput is a hybrid instruct and reasoning mixture-of-experts model ([blog](https://qwenlm.github.io/blog/qwen3/)).
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2025-04-29
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: qwen/qwq-32b-preview
@@ -3808,6 +3888,14 @@ models:
     release_date: 2024-09-12
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: writer/palmyra-x5
+    display_name: Palmyra X5
+    description: Palmyra X5 is a language model for enterprise that uses a Mixture of Experts (MoE) architecture and a hybrid attention mechanism that blends linear and softmax attention. ([blog](https://writer.com/engineering/long-context-palmyra-x5/))
+    creator_organization_name: Writer
+    access: limited
+    release_date: 2024-04-28
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: writer/palmyra-med-32k
     display_name: Palmyra-Med 32K (70B)
     description: Palmyra-Med 32K (70B) is a model finetuned from Palmyra-X-003 intended for medical applications.
@@ -3818,11 +3906,10 @@ models:
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: writer/palmyra-med
-    display_name: Palmyra-Med (70B)
-    description: Palmyra-Med (70B) is a model finetuned from Palmyra-X-003 intended for medical applications.
+    display_name: Palmyra Med
+    description: Palmyra Med is a model intended for medical applications.
     creator_organization_name: Writer
     access: open
-    num_parameters: 70600000000
     release_date: 2024-07-31
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
@@ -4215,3 +4302,192 @@ models:
     access: limited
     release_date: 2023-12-11
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: ura-hcmut/ura-llama-2.1-8b
+    display_name: URA-Llama 2.1 (8B)
+    description: URA-Llama 2.1 (8B) is a model trained on a large corpus of Vietnamese text data, including books, articles, and websites. It is designed to understand and generate Vietnamese text.
+    creator_organization_name: URA
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-08-04
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: ura-hcmut/ura-llama-2-8b
+    display_name: URA-Llama 2 (8B)
+    description: URA-Llama 2 (8B) is a model trained on a large corpus of Vietnamese text data, including books, articles, and websites. It is designed to understand and generate Vietnamese text.
+    creator_organization_name: URA
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-08-04
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: ura-hcmut/ura-llama-7b
+    display_name: URA-Llama 7B (7B)
+    description: URA-Llama 7B (7B) is a model trained on a large corpus of Vietnamese text data, including books, articles, and websites. It is designed to understand and generate Vietnamese text.
+    creator_organization_name: URA
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-10-10
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: ura-hcmut/ura-llama-13b
+    display_name: URA-Llama 13B (13B)
+    description: URA-Llama 13B (13B) is a model trained on a large corpus of Vietnamese text data, including books, articles, and websites. It is designed to understand and generate Vietnamese text.
+    creator_organization_name: URA
+    access: open
+    num_parameters: 13000000000
+    release_date: 2023-10-10
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: ura-hcmut/ura-llama-70b
+    display_name: URA-Llama 70B (70B)
+    description: URA-Llama 70B (70B) is a model trained on a large corpus of Vietnamese text data, including books, articles, and websites. It is designed to understand and generate Vietnamese text.
+    creator_organization_name: URA
+    access: open
+    num_parameters: 70000000000
+    release_date: 2023-10-10
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: ura-hcmut/GemSUra-7B
+    display_name: GemSUra 7B
+    description: GemSUra 7B is a model trained on a large corpus of Vietnamese text data, including books, articles, and websites. It is designed to understand and generate Vietnamese text.
+    creator_organization_name: URA
+    access: open
+    num_parameters: 7000000000
+    release_date: 2024-03-12
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: ura-hcmut/GemSUra-2B
+    display_name: GemSUra 2B
+    description: GemSUra 2B is a model trained on a large corpus of Vietnamese text data, including books, articles, and websites. It is designed to understand and generate Vietnamese text.
+    creator_organization_name: URA
+    access: open
+    num_parameters: 2000000000
+    release_date: 2024-03-12
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: ura-hcmut/MixSUra
+    display_name: MixSUra
+    description: MixSUra is a model trained on a large corpus of Vietnamese text data, including books, articles, and websites. It is designed to understand and generate Vietnamese text. It is a mixture of experts model with 8 active experts.
+    creator_organization_name: URA
+    access: open
+    num_parameters: 46700000000
+    release_date: 2024-03-12
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: vilm/vinallama-7b-chat
+    display_name: VinaLLaMa
+    description: VinaLLaMa is a model trained on a large corpus of Vietnamese text data, including books, articles, and websites. It is designed to understand and generate Vietnamese text.
+    creator_organization_name: ViLM
+    access: open
+    num_parameters: 7000000000
+    release_date: 2024-03-12
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: vilm/vinallama-2.7b-chat
+    display_name: VinaLLaMa 2.7B
+    description: VinaLLaMa 2.7B is a model trained on a large corpus of Vietnamese text data, including books, articles, and websites. It is designed to understand and generate Vietnamese text.
+    creator_organization_name: ViLM
+    access: open
+    num_parameters: 2700000000
+    release_date: 2024-03-12
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: vilm/vietcuna-7b-v3
+    display_name: VietCuna 7B (v3)
+    description: VietCuna 7B is a model trained on a large corpus of Vietnamese text data, including books, articles, and websites. It is designed to understand and generate Vietnamese text.
+    creator_organization_name: ViLM
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-08-07
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: vilm/vietcuna-3b-v2
+    display_name: VietCuna 3B (v2)
+    description: VietCuna 3B is a model trained on a large corpus of Vietnamese text data, including books, articles, and websites. It is designed to understand and generate Vietnamese text.
+    creator_organization_name: ViLM
+    access: open
+    num_parameters: 3000000000
+    release_date: 2023-07-15
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: vilm/Quyen-v0.1
+    display_name: Quyen (v0.1)
+    description: Quyen is a model trained on a large corpus of Vietnamese text data, including books, articles, and websites. It is designed to understand and generate Vietnamese text.
+    creator_organization_name: ViLM
+    access: open
+    num_parameters: 4000000000
+    release_date: 2024-02-26
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: vilm/Quyen-Plus-v0.1
+    display_name: Quyen Plus (v0.1)
+    description: Quyen Plus is a model trained on a large corpus of Vietnamese text data, including books, articles, and websites. It is designed to understand and generate Vietnamese text.
+    creator_organization_name: ViLM
+    access: open
+    num_parameters: 7000000000
+    release_date: 2024-02-26
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: vilm/Quyen-Pro-v0.1
+    display_name: Quyen Pro (v0.1)
+    description: Quyen Pro is a model trained on a large corpus of Vietnamese text data, including books, articles, and websites. It is designed to understand and generate Vietnamese text.
+    creator_organization_name: ViLM
+    access: open
+    num_parameters: 14000000000
+    release_date: 2024-02-26
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: vilm/Quyen-Pro-Max-v0.1
+    display_name: Quyen Pro Max (v0.1)
+    description: Quyen Pro Max is a model trained on a large corpus of Vietnamese text data, including books, articles, and websites. It is designed to understand and generate Vietnamese text.
+    creator_organization_name: ViLM
+    access: open
+    num_parameters: 72000000000
+    release_date: 2024-02-26
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: vilm/Quyen-Mini-v0.1
+    display_name: Quyen Mini (v0.1)
+    description: Quyen Mini is a model trained on a large corpus of Vietnamese text data, including books, articles, and websites. It is designed to understand and generate Vietnamese text.
+    creator_organization_name: ViLM
+    access: open
+    num_parameters: 1800000000
+    release_date: 2024-02-26
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: vilm/Quyen-SE-v0.1
+    display_name: Quyen SE (v0.1)
+    description: Quyen SE is a model trained on a large corpus of Vietnamese text data, including books, articles, and websites. It is designed to understand and generate Vietnamese text.
+    creator_organization_name: ViLM
+    access: open
+    num_parameters: 500000000
+    release_date: 2024-02-26
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: Viet-Mistral/Vistral-7B-Chat
+    display_name: Vistral 7B Chat
+    description: Vistral 7B Chat is a model trained on a large corpus of Vietnamese text data, including books, articles, and websites. It is designed to understand and generate Vietnamese text.
+    creator_organization_name: Viet-Mistral
+    access: open
+    num_parameters: 7000000000
+    release_date: 2024-02-28
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: vinai/PhoGPT-7B5-Instruct
+    display_name: PhoGPT 7B5 Instruct
+    description: PhoGPT 7B5 Instruct is a model trained on a large corpus of Vietnamese text data, including books, articles, and websites. It is designed to understand and generate Vietnamese text.
+    creator_organization_name: VinAI
+    access: open
+    num_parameters: 7500000000
+    release_date: 2024-02-19
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: vinai/PhoGPT-4B-Chat
+    display_name: PhoGPT 4B Chat
+    description: PhoGPT 4B Chat is a model trained on a large corpus of Vietnamese text data, including books, articles, and websites. It is designed to understand and generate Vietnamese text.
+    creator_organization_name: VinAI
+    access: open
+    num_parameters: 4000000000
+    release_date: 2024-04-02
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]

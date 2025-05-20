@@ -4,25 +4,54 @@ import { Link } from "react-router-dom";
 export default function LongContextLanding() {
   return (
     <div className="container mx-auto px-16">
-      <h1 className="text-3xl my-8 font-bold text-center">HELM Long Context</h1>
+      <h1 className="text-3xl my-8 font-bold text-center">
+        HELM Long Context Leaderboard
+      </h1>
       <div className="flex flex-col lg:flex-row gap-8">
-        <div className="flex-1 text-l">
+        <div className="flex-[3] text-l">
           <p className="my-4">
-            We present a HELM leaderboard for long context tasks.
+            Recent Large language models (LLMs) claim long context lengths, but
+            there. To address this, we introduce the{" "}
+            <strong className="font-bold">HELM Long Context</strong>{" "}
+            leaderboard, which evaluates leading LLMs on a broad set of long
+            context tasks.
           </p>
-
-          <div className="flex flex-row justify-center mt-4">
-            <a className="px-10 btn rounded-md mx-4 hidden" href="#">
-              Paper
+          <p className="my-4">
+            The benchmark consists of evaluations on context answering over
+            retrieved passages (RULER HotPotQA, RULER SQuAD), question answering
+            over a long passage (InfiniteBench En.QA) and summarization of a
+            long passage (InfiniteBench Summarization). The leaderboard
+            demonstrates that even though significant progress has been made on
+            long context capabilities, there is still considerable room for
+            improvement.
+          </p>
+          <p className="my-4">
+            As with all HELM leaderboards, this leaderboard provides full
+            transparency into all LLM requests and responses, and the results
+            are reproducible using the HELM open source framework. We hope that
+            this leaderboard offers initial insights into the potential of LLMs
+            for this task.
+          </p>
+          <p className="my-4">
+            This leaderboard was produced through research collaboration with{" "}
+            <a
+              className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+              href="https://www.lvmh.com/"
+            >
+              LVMH
             </a>
-            <a className="px-10 btn rounded-md mx-4" href="#/leaderboard">
-              Full Leaderboard
+            , and was funded by the{" "}
+            <a
+              className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+              href="https://hai.stanford.edu/corporate-affiliate-program"
+            >
+              HAI Corporate Affiliate Program
             </a>
-          </div>
+            .
+          </p>
         </div>
         <div
-          className="py-2 pb-6 rounded-3xl bg-gray-100 h-full" // Stretched to full height
-          style={{ maxWidth: "100%" }}
+          className="flex-[2] py-2 rounded-3xl bg-gray-100 h-full" // Stretched to full height
         >
           <MiniLeaderboard />
           <div className="flex justify-end">

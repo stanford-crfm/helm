@@ -3,7 +3,6 @@ import os
 import pandas as pd
 import tiktoken
 
-from filelock import FileLock
 from functools import partial
 from tqdm import tqdm
 from typing import Any, Dict, List, Optional, Mapping
@@ -1477,11 +1476,9 @@ class EHRSHOTScenario(Scenario):
 
     def get_instances(self, output_path: str) -> List[Instance]:
         path_to_input_csv: str = os.path.join(self.path_to_tmp_dir, self.subject, "medhelm_prompts.parquet")
-        lock_path = path_to_input_csv + ".lock"
-        with FileLock(lock_path):
-            if not os.path.exists(path_to_input_csv):
-                print(f"Creating benchmark from SCRATCH for {self.subject}...")
-                self.create_benchmark()  # Create benchmark from scratch
+        if not os.path.exists(path_to_input_csv):
+            print(f"Creating benchmark from SCRATCH for {self.subject}...")
+            self.create_benchmark()  # Create benchmark from scratch
 
         # Load data for this task
         df = pd.read_parquet(path_to_input_csv)
