@@ -308,229 +308,11 @@ def get_math_spec(
     )
 
 
-@run_spec_function("melt_text_classification_vsmec")
-def get_melt_text_classification_vsmec_spec(fewshot: bool = False) -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.melt_scenarios.MELTTextClassificationVSMECScenario"
-    )
-
-    instruction = (
-        "Hãy phân loại cảm xúc của bình luận sau vào một trong các nhóm: "
-        "sadness, surprise, disgust, fear, anger, enjoyment, other."
-    )
-
-    adapter_spec = get_generation_adapter_spec(
-        instructions=instruction,
-        input_noun="Bình luận",
-        output_noun="Loại cảm xúc",
-        max_tokens=50,
-        max_train_instances=5 if fewshot else 0,
-        multi_label=False,
-    )
-
-    return RunSpec(
-        name=f"melt_text_classification_vsmec:fewshot={fewshot}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_bias_metric_specs() + get_classification_metric_specs(),
-        groups=["melt", "text_classification_vsmec"],
-    )
-
-
-@run_spec_function("melt_text_classification_phoatis")
-def get_melt_text_classification_phoatis_spec(fewshot: bool = False) -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.melt_scenarios.MELTTextClassificationPhoATISScenario"
-    )
-
-    instruction = (
-        "Hãy phân loại yêu cầu của khách hàng vào trong các nhóm sau: "
-        "flight, airfare, ground_service, day_name, meal, airport, airline, flight_time, city, "
-        "ground_fare, quantity, abbreviation, distance, aircraft, capacity, flight_no, restriction. "
-        "Yêu cầu của khách hàng có thể thuộc tối đa 2 loại và phân biệt nhau bằng dấu phẩy."
-    )
-
-    adapter_spec = get_generation_adapter_spec(
-        instructions=instruction,
-        input_noun="Yêu cầu của khách hàng",
-        output_noun="Loại yêu cầu",
-        max_tokens=50,
-        max_train_instances=5 if fewshot else 0,
-        multi_label=True,
-    )
-
-    return RunSpec(
-        name=f"melt_text_classification_phoatis:fewshot={fewshot}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs()
-        + get_bias_metric_specs()
-        + get_classification_metric_specs(delimiter=","),
-        groups=["melt", "text_classification_phoatis"],
-    )
-
-
-@run_spec_function("melt_sentiment_analysis_vlsp")
-def get_melt_sentiment_analysis_vlsp_spec(fewshot: bool = False) -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.melt_scenarios.MELTTSentimentAnalysisVLSPScenario"
-    )
-
-    instruction = "Hãy phân tích quan điểm của nhận xét sau vào một trong các nhóm: negative, neutral, positive."
-
-    adapter_spec = get_generation_adapter_spec(
-        instructions=instruction,
-        input_noun="Nhận xét",
-        output_noun="Quan điểm",
-        max_tokens=50,
-        max_train_instances=5 if fewshot else 0,
-        multi_label=False,
-    )
-
-    return RunSpec(
-        name=f"melt_sentiment_analysis_vlsp:fewshot={fewshot}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_bias_metric_specs() + get_classification_metric_specs(),
-        groups=["melt", "sentiment_analysis_vlsp"],
-    )
-
-
-@run_spec_function("melt_sentiment_analysis_vsfc")
-def get_melt_sentiment_analysis_vsfc_spec(fewshot: bool = False) -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.melt_scenarios.MELTTSentimentAnalysisVSFCScenario"
-    )
-
-    instruction = "Hãy phân tích quan điểm của nhận xét sau vào một trong các nhóm: negative, neutral, positive."
-
-    adapter_spec = get_generation_adapter_spec(
-        instructions=instruction,
-        input_noun="Nhận xét",
-        output_noun="Quan điểm",
-        max_tokens=50,
-        max_train_instances=5 if fewshot else 0,
-        multi_label=False,
-    )
-
-    return RunSpec(
-        name=f"melt_sentiment_analysis_vsfc:fewshot={fewshot}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_bias_metric_specs() + get_classification_metric_specs(),
-        groups=["melt", "sentiment_analysis_vsfc"],
-    )
-
-
-@run_spec_function("melt_translation_opus100")
-def get_melt_translation_opus100_spec(language_pair: str, fewshot: bool = False) -> RunSpec:
-    FULL_LANGUAGE_NAMES = {
-        "vi": "Vietnamese",
-        "en": "English",
-    }
-    source_language, target_language = language_pair.split("-")
-
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.melt_scenarios.MELTTranslationOPUS100Scenario",
-        args={"source_language": source_language, "target_language": target_language},
-    )
-
-    adapter_spec = get_machine_translation_adapter_spec(
-        source_language=FULL_LANGUAGE_NAMES[source_language],
-        target_language=FULL_LANGUAGE_NAMES[target_language],
-        max_train_instances=5 if fewshot else 0,
-    )
-
-    return RunSpec(
-        name=f"melt_translation_opus100:language_pair={language_pair},fewshot={fewshot}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_open_ended_generation_metric_specs(),
-        groups=["melt", "translation_opus100", f"translation_{language_pair}"],
-    )
-
-
-@run_spec_function("melt_translation_phomt")
-def get_melt_translation_phomt_spec(language_pair: str, fewshot: bool = False) -> RunSpec:
-    FULL_LANGUAGE_NAMES = {
-        "vi": "Vietnamese",
-        "en": "English",
-    }
-    source_language, target_language = language_pair.split("-")
-
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.melt_scenarios.MELTTranslationPhoMTScenario",
-        args={"source_language": source_language, "target_language": target_language},
-    )
-
-    adapter_spec = get_machine_translation_adapter_spec(
-        source_language=FULL_LANGUAGE_NAMES[source_language],
-        target_language=FULL_LANGUAGE_NAMES[target_language],
-        max_train_instances=5 if fewshot else 0,
-    )
-
-    return RunSpec(
-        name=f"melt_translation_phomt:language_pair={language_pair},fewshot={fewshot}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_open_ended_generation_metric_specs(),
-        groups=["melt", "translation_phomt", f"translation_{language_pair}"],
-    )
-
-
-@run_spec_function("melt_lm_mask_filling_mlqa")
-def get_melt_lm_mask_filling_mlqaa_spec(fewshot: bool = False) -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.melt_scenarios.MELTLMMaskFillingMLQAScenario")
-
-    instruction = "Hãy hoàn thành câu sau bằng cách điền vào các vị trí trống được đánh dấu bằng [MASK]."
-    adapter_spec = get_generation_adapter_spec(
-        instructions=instruction,
-        input_noun="Câu có chỗ trống",
-        output_noun="Câu đã hoàn thành",
-        max_train_instances=5 if fewshot else 0,
-        num_outputs=1,
-        max_tokens=1024,
-        temperature=0.0,
-    )
-
-    return RunSpec(
-        name=f"melt_lm_mask_filling_mlqa:fewshot={fewshot}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_language_modeling_metric_specs([]) + get_exact_match_metric_specs() + get_f1_metric_specs(),
-        groups=["melt", "language_modeling_mlqa", "mask_filling_mlqa"],
-    )
-
-
-@run_spec_function("melt_lm_spelling_correction_vsec")
-def get_melt_lm_spelling_correction_vsec_spec(fewshot: bool = False) -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.melt_scenarios.MELTLMSpellingCorrectionVSECScenario"
-    )
-
-    instruction = "Hãy sửa lỗi chính tả trong câu sau."
-    adapter_spec = get_generation_adapter_spec(
-        instructions=instruction,
-        input_noun="Câu có lỗi",
-        output_noun="Câu đã sửa",
-        max_train_instances=5 if fewshot else 0,
-        num_outputs=1,
-        max_tokens=1024,
-        temperature=0.0,
-    )
-
-    return RunSpec(
-        name=f"melt_lm_spelling_correction_vsec:fewshot={fewshot}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_language_modeling_metric_specs([]) + get_exact_match_metric_specs() + get_f1_metric_specs(),
-        groups=["melt", "language_modeling_vsec", "spelling_correction_vsec"],
-    )
-
-
 @run_spec_function("melt_knowledge_zalo")
 def get_melt_knowledge_zalo_spec(fewshot: bool = False) -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.melt_scenarios.MELTKnowledgeZaloScenario")
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.melt_knowledge_scenario.MELTKnowledgeZaloScenario"
+    )
 
     instruction = (
         "Hãy trả lời câu hỏi bên dưới bằng cách sử dụng các kiến thức thông thường trong cuộc sống. "
@@ -556,7 +338,7 @@ def get_melt_knowledge_zalo_spec(fewshot: bool = False) -> RunSpec:
 @run_spec_function("melt_knowledge_vimmrc")
 def get_melt_knowledge_vimmrc_spec(randomize_order: bool = False, fewshot: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.melt_scenarios.MELTKnowledgeViMMRCScenario",
+        class_name="helm.benchmark.scenarios.melt_knowledge_scenario.MELTKnowledgeViMMRCScenario",
         args={"randomize_order": randomize_order},
     )
 
@@ -646,7 +428,7 @@ def get_melt_information_retrieval_mmarco_spec(valid_topk: Optional[int] = None,
 
     valid_topk = None if valid_topk is None else int(valid_topk)
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.melt_scenarios.MELTInformationRetrievalMMARCOScenario",
+        class_name="helm.benchmark.scenarios.melt_ir_scenario.MELTInformationRetrievalMMARCOScenario",
         args={"valid_topk": valid_topk},
     )
 
@@ -696,7 +478,7 @@ def get_melt_information_retrieval_mrobust_spec(valid_topk: Optional[int] = None
 
     valid_topk = None if valid_topk is None else int(valid_topk)
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.melt_scenarios.MELTInformationRetrievalMRobustScenario",
+        class_name="helm.benchmark.scenarios.melt_ir_scenario.MELTInformationRetrievalMRobustScenario",
         args={"valid_topk": valid_topk},
     )
 
