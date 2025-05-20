@@ -200,7 +200,7 @@ def validate_args(args):
 
 
 @htrack(None)
-def start_helm(args):
+def helm_run(args):
 
     register_builtin_configs_from_helm_package()
     register_configs_from_directory(args.local_path)
@@ -368,7 +368,7 @@ def main():
     add_run_args(parser)
     args = parser.parse_args()
     setup_default_logging()
-    return start_helm(args)
+    return helm_run(args)
 
 
 if __name__ == "__main__":

@@ -30,7 +30,7 @@ from helm.common.general import (
     unique_simplification,
 )
 from helm.common.codec import from_json
-from helm.common.hierarchical_logger import hlog, htrack, htrack_block
+from helm.common.hierarchical_logger import hlog, htrack, htrack_block, setup_default_logging
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.metric_name import MetricName
@@ -1232,60 +1232,7 @@ class Summarizer:
 
 
 @htrack("summarize")
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-o", "--output-path", type=str, help="Where the benchmarking output lives", default="benchmark_output"
-    )
-    parser.add_argument(
-        "--schema-path",
-        type=str,
-        help="Path to the schema file (e.g., schema_classic.yaml).",
-    )
-    parser.add_argument(
-        "--suite",
-        type=str,
-        help="Name of the suite this summarization should go under.",
-    )
-    parser.add_argument(
-        "--release",
-        type=str,
-        help="Experimental: Name of the release this summarization should go under.",
-    )
-    parser.add_argument(
-        "--suites", type=str, nargs="+", help="Experimental: List of suites to summarize for this this release."
-    )
-    parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads used to summarize", default=8)
-    parser.add_argument(
-        "--debug",
-        action="store_true",
-        help="Display debugging information.",
-    )
-    parser.add_argument(
-        "--skip-completed-run-display-json",
-        action="store_true",
-        help="Skip write_run_display_json() for runs which already have all output display JSON files",
-    )
-    parser.add_argument(
-        "--local-path",
-        type=str,
-        help="If running locally, the path for `ServerService`.",
-        default="prod_env",
-    )
-    parser.add_argument(
-        "--allow-unknown-models",
-        type=bool,
-        help="Whether to allow unknown models in the metadata file",
-        default=True,
-    )
-    parser.add_argument(
-        "--summarizer-class-name",
-        type=str,
-        default=None,
-        help="EXPERIMENTAL: Full class name of the Summarizer class to use. If unset, uses the default Summarizer.",
-    )
-    args = parser.parse_args()
-
+def summarize(args):
     release: Optional[str] = None
     suites: Optional[str] = None
     suite: Optional[str] = None
@@ -1326,6 +1273,76 @@ def main():
     )
     summarizer.run_pipeline(skip_completed=args.skip_completed_run_display_json)
     hlog("Done.")
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-o",
+        "--output-path",
+        type=str,
+        help="Where the benchmarking output lives",
+        default="benchmark_output",
+    )
+    parser.add_argument(
+        "--schema-path",
+        type=str,
+        help="Path to the schema file (e.g., schema_classic.yaml).",
+    )
+    parser.add_argument(
+        "--suite",
+        type=str,
+        help="Name of the suite this summarization should go under.",
+    )
+    parser.add_argument(
+        "--release",
+        type=str,
+        help="Experimental: Name of the release this summarization should go under.",
+    )
+    parser.add_argument(
+        "--suites",
+        type=str,
+        nargs="+",
+        help="Experimental: List of suites to summarize for this this release.",
+    )
+    parser.add_argument(
+        "-n",
+        "--num-threads",
+        type=int,
+        help="Max number of threads used to summarize",
+        default=8,
+    )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Display debugging information.",
+    )
+    parser.add_argument(
+        "--skip-completed-run-display-json",
+        action="store_true",
+        help="Skip write_run_display_json() for runs which already have all output display JSON files",
+    )
+    parser.add_argument(
+        "--local-path",
+        type=str,
+        help="If running locally, the path for `ServerService`.",
+        default="prod_env",
+    )
+    parser.add_argument(
+        "--allow-unknown-models",
+        type=bool,
+        help="Whether to allow unknown models in the metadata file",
+        default=True,
+    )
+    parser.add_argument(
+        "--summarizer-class-name",
+        type=str,
+        default=None,
+        help="EXPERIMENTAL: Full class name of the Summarizer class to use. If unset, uses the default Summarizer.",
+    )
+    args = parser.parse_args()
+    setup_default_logging()
+    summarize(args)
 
 
 if __name__ == "__main__":
