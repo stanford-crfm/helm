@@ -2,6 +2,7 @@ import logging
 import sys
 import time
 from typing import Any, Callable, List, Optional
+from colorlog import ColoredFormatter
 
 
 class HierarchicalLogger(object):
@@ -119,3 +120,29 @@ class htrack:
                 return fn(*args, **kwargs)
 
         return wrapper
+
+
+def setup_default_logging():
+    """
+    Setup a default logger to STDOUT for HELM via Python logging
+    """
+    formatter = ColoredFormatter(
+        "%(black)s%(asctime)s %(log_color)s%(levelname)-8s%(reset)s %(message)s",
+        datefmt=None,
+        reset=True,
+        log_colors={
+            "DEBUG": "cyan",
+            "INFO": "green",
+            "WARNING": "yellow",
+            "ERROR": "red",
+            "CRITICAL": "red,bg_white",
+        },
+        secondary_log_colors={},
+        style="%",
+    )
+
+    logger = logging.getLogger("helm")
+    logger.setLevel(logging.INFO)
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
