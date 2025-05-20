@@ -5,7 +5,6 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.benchmark.adaptation.adapters.binary_ranking_adapter import BinaryRankingAdapter
 from helm.benchmark.adaptation.common_adapter_specs import (
     get_generation_adapter_spec,
-    get_machine_translation_adapter_spec,
     get_multiple_choice_adapter_spec,
     get_ranking_binary_adapter_spec,
 )
@@ -21,10 +20,7 @@ from helm.benchmark.metrics.common_metric_specs import (
     get_generative_harms_metric_specs,
     get_summarization_metric_specs,
     get_basic_metric_specs,
-    get_bias_metric_specs,
     get_classification_metric_specs,
-    get_language_modeling_metric_specs,
-    get_open_ended_generation_metric_specs,
     get_basic_reference_metric_specs,
     get_generic_metric_specs,
 )
