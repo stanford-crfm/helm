@@ -15,10 +15,6 @@ from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_RANKING_BINARY,
     AdapterSpec,
 )
-from helm.benchmark.adaptation.adapter_spec import (
-    ADAPT_GENERATION,
-    AdapterSpec,
-)
 from helm.benchmark.metrics.common_metric_specs import (
     get_exact_match_metric_specs,
     get_f1_metric_specs,
