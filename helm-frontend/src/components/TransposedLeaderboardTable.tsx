@@ -227,7 +227,7 @@ export default function LeaderboardTable({
   );
 
   const rows: Element[][] = columns[0].map((_, rowIndex): Element[] =>
-    columns.map((column: Element[]): Element => column[rowIndex] ),
+    columns.map((column: Element[]): Element => column[rowIndex]),
   );
 
   return (
@@ -242,9 +242,11 @@ export default function LeaderboardTable({
         <tr>{rows[0]}</tr>
       </thead>
       <tbody>
-        {rows.slice(1).map((row: Element[], idx: number): Element => (
-          <tr key={idx}>{row}</tr>
-        ))}
+        {rows.slice(1).map(
+          (row: Element[], idx: number): Element => (
+            <tr key={idx}>{row}</tr>
+          ),
+        )}
       </tbody>
     </table>
   );
