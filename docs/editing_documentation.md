@@ -16,8 +16,10 @@ You should now be able to run MkDocs from the root of the repository:
 mkdocs serve
 ```
 
-Then navigate to [http://localhost:8000/] to view your locally-built documentation.
+Then navigate to [http://localhost:8000/](http://localhost:8000/) to view your locally-built documentation.
 
 The source Markdown files for the documentation are stored in the `docs/` folder. By default, MkDocs watches the source directories for changes and automatically re-renders the web pages when it detects changes.
+
+If you are creating a new page, you should add your page to the `nav` section in `mkdocs.yml`. This will create add your page to the table of contents in the side menu.
 
 We make heavy use of plugins and macros for auto-generating documentation from code and docstrings. For more information, please refer to the documentation for these plugins e.g. [mkdocs-macros](https://mkdocs-macros-plugin.readthedocs.io/en/latest/), [mkdocstrings](https://mkdocstrings.github.io/python/) and [mkdocstrings-python](https://mkdocstrings.github.io/python/).
