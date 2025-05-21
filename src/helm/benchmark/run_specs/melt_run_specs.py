@@ -316,7 +316,10 @@ def get_melt_translation_opus100_spec(language_pair: str) -> RunSpec:
     )
 
     return RunSpec(
-        name=f"melt_translation_opus100:language_pair={language_pair},max_train_instances={adapter_spec.max_train_instances}",
+        name=(
+            f"melt_translation_opus100:language_pair={language_pair},"
+            f"max_train_instances={adapter_spec.max_train_instances}"
+        ),
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_open_ended_generation_metric_specs(),
@@ -344,7 +347,10 @@ def get_melt_translation_phomt_spec(language_pair: str) -> RunSpec:
     )
 
     return RunSpec(
-        name=f"melt_translation_phomt:language_pair={language_pair},max_train_instances={adapter_spec.max_train_instances}",
+        name=(
+            f"melt_translation_phomt:language_pair={language_pair},"
+            f"max_train_instances={adapter_spec.max_train_instances}"
+        ),
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_open_ended_generation_metric_specs(),
