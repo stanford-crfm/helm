@@ -28,7 +28,7 @@ class MELTQAScenario(Scenario):
         self,
         dataset_name: str,
         revision: str,
-        subset: Optional[str] = "",
+        subset: Optional[str] = None,
         passage_prefix: str = "Passage: ",
         question_prefix: str = "Question: ",
         splits: Optional[Dict[str, str]] = None,
@@ -188,7 +188,7 @@ class MELTSummarizationScenario(Scenario):
         self,
         dataset_name: str,
         revision: str,
-        subset: Optional[str] = "",
+        subset: Optional[str] = None,
         train_min_length: Optional[int] = None,
         train_max_length: Optional[int] = None,
         doc_max_length: Optional[int] = None,
@@ -511,7 +511,7 @@ class MELTTextClassificationScenario(Scenario):
         self,
         dataset_name: str,
         revision: str,
-        subset: Optional[str] = "",
+        subset: Optional[str] = None,
         text_key: str = "text",
         label_key: str = "label",
         splits: Optional[Dict[str, str]] = None,
@@ -531,8 +531,6 @@ class MELTTextClassificationScenario(Scenario):
         self.dataset_name = dataset_name
         self.subset = subset
         self.revision = revision
-        self.text_key = text_key
-        self.label_key = label_key
         self.splits = splits
 
     @abstractmethod
@@ -605,14 +603,15 @@ class MELTTextClassificationVSMECScenario(MELTTextClassificationScenario):
         super().__init__(
             dataset_name="ura-hcmut/UIT-VSMEC",
             revision="ab642b189eff31fdb781cca7c4c34dee3ee0f1de",
-            text_key="Sentence",
-            label_key="Emotion",
             splits={
                 TRAIN_SPLIT: "train",
                 VALID_SPLIT: "validation",
                 TEST_SPLIT: "test",
             },
         )
+
+        self.text_key = "Sentence"
+        self.label_key = "Emotion"
 
     def process_example(self, sample: dict) -> Tuple[str, List[str]]:
         """
@@ -640,14 +639,14 @@ class MELTTextClassificationPhoATISScenario(MELTTextClassificationScenario):
         super().__init__(
             dataset_name="ura-hcmut/PhoATIS",
             revision="bd026c9b276d7fb083d19ec3d6870fca90e1834f",
-            text_key="text",
-            label_key="label",
             splits={
                 TRAIN_SPLIT: "train",
                 VALID_SPLIT: "validation",
                 TEST_SPLIT: "test",
             },
         )
+        self.text_key = "text"
+        self.label_key = "label"
 
     def process_example(self, sample: dict) -> Tuple[str, List[str]]:
         """
@@ -676,13 +675,13 @@ class MELTTSentimentAnalysisVLSPScenario(MELTTextClassificationScenario):
         super().__init__(
             dataset_name="ura-hcmut/vlsp2016",
             revision="9531ec0ccabcafb7d51020fe69d8f9faebb91953",
-            text_key="Data",
-            label_key="Class",
             splits={
                 TRAIN_SPLIT: "train",
                 TEST_SPLIT: "test",
             },
         )
+        self.text_key = "Data"
+        self.label_key = "Class"
 
     def process_example(self, sample: dict) -> Tuple[str, List[str]]:
         """
@@ -710,14 +709,14 @@ class MELTTSentimentAnalysisVSFCScenario(MELTTextClassificationScenario):
         super().__init__(
             dataset_name="ura-hcmut/UIT-VSFC",
             revision="c572aed01a811a1dbc68e9aed9f9e684980a10a2",
-            text_key="text",
-            label_key="label",
             splits={
                 TRAIN_SPLIT: "train",
                 VALID_SPLIT: "validation",
                 TEST_SPLIT: "test",
             },
         )
+        self.text_key = "text"
+        self.label_key = "label"
 
     def process_example(self, sample: dict) -> Tuple[str, List[str]]:
         """

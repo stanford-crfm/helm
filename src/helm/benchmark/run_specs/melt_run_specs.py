@@ -13,7 +13,6 @@ from helm.benchmark.metrics.common_metric_specs import (
     get_generative_harms_metric_specs,
     get_summarization_metric_specs,
     get_basic_metric_specs,
-    get_bias_metric_specs,
     get_classification_metric_specs,
 )
 
@@ -296,7 +295,7 @@ def get_math_spec(
 
 
 @run_spec_function("melt_text_classification_vsmec")
-def get_melt_text_classification_vsmec_spec(fewshot: bool = False) -> RunSpec:
+def get_melt_text_classification_vsmec_spec(max_train_instances: int = 0) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.melt_scenarios.MELTTextClassificationVSMECScenario"
     )
@@ -311,21 +310,24 @@ def get_melt_text_classification_vsmec_spec(fewshot: bool = False) -> RunSpec:
         input_noun="Bình luận",
         output_noun="Loại cảm xúc",
         max_tokens=50,
-        max_train_instances=5 if fewshot else 0,
+        max_train_instances=max_train_instances,
         multi_label=False,
     )
 
     return RunSpec(
-        name=f"melt_text_classification_vsmec:fewshot={fewshot}",
+        name=f"melt_text_classification_vsmec:max_train_instances={max_train_instances}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_bias_metric_specs() + get_classification_metric_specs(),
-        groups=["melt", "text_classification_vsmec"],
+        metric_specs=get_exact_match_metric_specs()
+        + get_classification_metric_specs(
+            labels=["sadness", "surprise", "disgust", "fear", "anger", "enjoyment", "other"]
+        ),
+        groups=["melt", "melt_text_classification_vsmec"],
     )
 
 
 @run_spec_function("melt_text_classification_phoatis")
-def get_melt_text_classification_phoatis_spec(fewshot: bool = False) -> RunSpec:
+def get_melt_text_classification_phoatis_spec(max_train_instances: int = 0) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.melt_scenarios.MELTTextClassificationPhoATISScenario"
     )
@@ -342,23 +344,43 @@ def get_melt_text_classification_phoatis_spec(fewshot: bool = False) -> RunSpec:
         input_noun="Yêu cầu của khách hàng",
         output_noun="Loại yêu cầu",
         max_tokens=50,
-        max_train_instances=5 if fewshot else 0,
+        max_train_instances=max_train_instances,
         multi_label=True,
     )
 
     return RunSpec(
-        name=f"melt_text_classification_phoatis:fewshot={fewshot}",
+        name=f"melt_text_classification_phoatis:max_train_instances={max_train_instances}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs()
-        + get_bias_metric_specs()
-        + get_classification_metric_specs(delimiter=","),
-        groups=["melt", "text_classification_phoatis"],
+        + get_classification_metric_specs(
+            delimiter=",",
+            labels=[
+                "flight",
+                "airfare",
+                "ground_service",
+                "day_name",
+                "meal",
+                "airport",
+                "airline",
+                "flight_time",
+                "city",
+                "ground_fare",
+                "quantity",
+                "abbreviation",
+                "distance",
+                "aircraft",
+                "capacity",
+                "flight_no",
+                "restriction",
+            ],
+        ),
+        groups=["melt", "melt_text_classification_phoatis"],
     )
 
 
 @run_spec_function("melt_sentiment_analysis_vlsp")
-def get_melt_sentiment_analysis_vlsp_spec(fewshot: bool = False) -> RunSpec:
+def get_melt_sentiment_analysis_vlsp_spec(max_train_instances: int = 0) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.melt_scenarios.MELTTSentimentAnalysisVLSPScenario"
     )
@@ -370,21 +392,22 @@ def get_melt_sentiment_analysis_vlsp_spec(fewshot: bool = False) -> RunSpec:
         input_noun="Nhận xét",
         output_noun="Quan điểm",
         max_tokens=50,
-        max_train_instances=5 if fewshot else 0,
+        max_train_instances=max_train_instances,
         multi_label=False,
     )
 
     return RunSpec(
-        name=f"melt_sentiment_analysis_vlsp:fewshot={fewshot}",
+        name=f"melt_sentiment_analysis_vlsp:max_train_instances={max_train_instances}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_bias_metric_specs() + get_classification_metric_specs(),
-        groups=["melt", "sentiment_analysis_vlsp"],
+        metric_specs=get_exact_match_metric_specs()
+        + get_classification_metric_specs(labels=["negative", "neutral", "positive"]),
+        groups=["melt", "melt_sentiment_analysis_vlsp"],
     )
 
 
 @run_spec_function("melt_sentiment_analysis_vsfc")
-def get_melt_sentiment_analysis_vsfc_spec(fewshot: bool = False) -> RunSpec:
+def get_melt_sentiment_analysis_vsfc_spec(max_train_instances: int = 0) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.melt_scenarios.MELTTSentimentAnalysisVSFCScenario"
     )
@@ -396,14 +419,15 @@ def get_melt_sentiment_analysis_vsfc_spec(fewshot: bool = False) -> RunSpec:
         input_noun="Nhận xét",
         output_noun="Quan điểm",
         max_tokens=50,
-        max_train_instances=5 if fewshot else 0,
+        max_train_instances=max_train_instances,
         multi_label=False,
     )
 
     return RunSpec(
-        name=f"melt_sentiment_analysis_vsfc:fewshot={fewshot}",
+        name=f"melt_sentiment_analysis_vsfc:max_train_instances={max_train_instances}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_bias_metric_specs() + get_classification_metric_specs(),
-        groups=["melt", "sentiment_analysis_vsfc"],
+        metric_specs=get_exact_match_metric_specs()
+        + get_classification_metric_specs(labels=["negative", "neutral", "positive"]),
+        groups=["melt", "melt_sentiment_analysis_vsfc"],
     )
