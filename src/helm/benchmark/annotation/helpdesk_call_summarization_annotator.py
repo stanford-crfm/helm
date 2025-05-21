@@ -5,7 +5,7 @@ from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
 from helm.clients.auto_client import AutoClient
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hwarn
 from helm.common.request import Request
 from helm.proxy.retry import NonRetriableException
 
@@ -107,8 +107,8 @@ Please respond with your output and reasoning in the following format, your reas
             if reasoning_match:
                 reasoning = reasoning_match.group(1).strip()
             else:
-                hlog(
-                    "WARNING: HelpdeskCallSummarizationAnnotator could not get Reasoning from annotation from "
+                hwarn(
+                    "HelpdeskCallSummarizationAnnotator could not get Reasoning from annotation from "
                     f"{annotator_model_info.model_name}: {annotator_response_text}"
                 )
 
@@ -116,13 +116,13 @@ Please respond with your output and reasoning in the following format, your reas
                 try:
                     score = float(score_match.group(1).strip())
                 except ValueError:
-                    hlog(
-                        "WARNING: HelpdeskCallSummarizationAnnotator could not parse Score from annotation from "
+                    hwarn(
+                        "HelpdeskCallSummarizationAnnotator could not parse Score from annotation from "
                         f"{annotator_model_info.model_name}: {annotator_response_text}"
                     )
             else:
-                hlog(
-                    "WARNING: HelpdeskCallSummarizationAnnotator could not get Score from annotation from "
+                hwarn(
+                    "HelpdeskCallSummarizationAnnotator could not get Score from annotation from "
                     f"{annotator_model_info.model_name}: {annotator_response_text}"
                 )
 
