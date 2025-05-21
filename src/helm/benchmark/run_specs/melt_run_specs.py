@@ -1,11 +1,18 @@
+from typing import Optional
+
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
+from helm.benchmark.adaptation.adapters.binary_ranking_adapter import BinaryRankingAdapter
 from helm.benchmark.adaptation.common_adapter_specs import (
     get_generation_adapter_spec,
     get_machine_translation_adapter_spec,
+    get_multiple_choice_adapter_spec,
+    get_ranking_binary_adapter_spec,
 )
 from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_GENERATION,
+    ADAPT_MULTIPLE_CHOICE_JOINT,
+    ADAPT_RANKING_BINARY,
     AdapterSpec,
 )
 from helm.benchmark.metrics.common_metric_specs import (
@@ -16,7 +23,10 @@ from helm.benchmark.metrics.common_metric_specs import (
     get_basic_metric_specs,
     get_open_ended_generation_metric_specs,
     get_classification_metric_specs,
+    get_basic_reference_metric_specs,
+    get_generic_metric_specs,
 )
+from helm.benchmark.metrics.metric import MetricSpec
 
 
 @run_spec_function("melt_question_answering_mlqa")
@@ -28,7 +38,7 @@ def get_melt_question_answering_mlqa_spec(prompt_style: str = "normal") -> RunSp
     elif prompt_style == "medium":
         instruction = (
             "Hãy trả lời câu hỏi bên dưới bằng tiếng Việt với các thông tin được cung cấp trong phần ngữ cảnh. "
-            'Nếu trong ngữ cảnh không có đủ thông tin , hãy trả lời "Tôi không biết".'
+            'Nếu trong ngữ cảnh không có đủ thông tin, hãy trả lời "Tôi không biết".'
         )
     elif prompt_style == "normal":
         instruction = (
@@ -63,7 +73,7 @@ def get_melt_question_answering_xquad_spec(prompt_style: str = "normal") -> RunS
     elif prompt_style == "medium":
         instruction = (
             "Hãy trả lời câu hỏi bên dưới bằng tiếng Việt với các thông tin được cung cấp trong phần ngữ cảnh. "
-            'Nếu trong ngữ cảnh không có đủ thông tin , hãy trả lời "Tôi không biết".'
+            'Nếu trong ngữ cảnh không có đủ thông tin, hãy trả lời "Tôi không biết".'
         )
     elif prompt_style == "normal":
         instruction = (
@@ -541,4 +551,213 @@ def get_melt_sentiment_analysis_vsfc_spec() -> RunSpec:
         metric_specs=get_exact_match_metric_specs()
         + get_classification_metric_specs(labels=["negative", "neutral", "positive"]),
         groups=["melt", "melt_sentiment_analysis_vsfc"],
+    )
+
+
+@run_spec_function("melt_knowledge_zalo")
+def get_melt_knowledge_zalo_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.melt_knowledge_scenario.MELTKnowledgeZaloScenario"
+    )
+
+    instruction = (
+        "Hãy trả lời câu hỏi bên dưới bằng cách sử dụng các kiến thức thông thường trong cuộc sống. "
+        "Nếu bạn không biết câu trả lời, hãy trả lời 'không có đáp án'."
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=instruction,
+        output_noun="Trả lời",
+        max_tokens=128,
+    )
+
+    return RunSpec(
+        name=f"melt_knowledge_zalo:max_train_instances={adapter_spec.max_train_instances}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs() + get_f1_metric_specs(),
+        groups=["melt", "melt_knowledge_zalo"],
+    )
+
+
+@run_spec_function("melt_knowledge_vimmrc")
+def get_melt_knowledge_vimmrc_spec(randomize_order: bool = False) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.melt_knowledge_scenario.MELTKnowledgeViMMRCScenario",
+        args={"randomize_order": randomize_order},
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="Sau đây là các câu hỏi trắc nghiệm (có đáp án).",
+        input_noun=None,
+        output_noun="Trả lời",
+    )
+
+    return RunSpec(
+        name=f"melt_knowledge_vimmrc:max_train_instances={adapter_spec.max_train_instances}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs() + get_f1_metric_specs(),
+        groups=["melt", "melt_knowledge_vimmrc"],
+    )
+
+
+@run_spec_function("melt_toxicity_detection_vihsd")
+def get_melt_toxicity_detection_vihsd_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.melt_scenarios.MELTToxicityDetectionViHSDScenario"
+    )
+
+    instruction = (
+        "Hãy phân loại độc hại của bình luận sau vào một trong các nhóm:\n"
+        "- clean: Không độc hại\n"
+        "- offensive: Ngôn từ xúc phạm\n"
+        "- hate: Ngôn từ thù địch\n"
+        "Chỉ trả lời một trong các nhóm trên mà không cần giải thích thêm."
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=instruction,
+        input_noun="Bình luận",
+        output_noun="Phân loại độc hại",
+        max_tokens=50,
+        multi_label=False,
+    )
+
+    return RunSpec(
+        name=f"melt_toxicity_detection_vihsd:max_train_instances={adapter_spec.max_train_instances}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs()
+        + get_classification_metric_specs(labels=["clean", "offensive", "hate"]),
+        groups=["melt", "melt_toxicity_detection_vihsd"],
+    )
+
+
+@run_spec_function("melt_toxicity_detection_victsd")
+def get_melt_toxicity_detection_victsd_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.melt_scenarios.MELTToxicityDetectionViCTSDScenario"
+    )
+
+    instruction = (
+        "Hãy phân loại độc hại của bình luận sau vào một trong các nhóm:\n"
+        "- clean: Không độc hại\n"
+        "- toxic: Ngôn từ độc hại\n"
+        "Chỉ trả lời một trong các nhóm trên mà không cần giải thích thêm."
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=instruction,
+        input_noun="Bình luận",
+        output_noun="Phân loại độc hại",
+        max_tokens=50,
+        multi_label=True,
+    )
+
+    return RunSpec(
+        name=f"melt_toxicity_detection_victsd:max_train_instances={adapter_spec.max_train_instances}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(labels=["clean", "toxic"]),
+        groups=["melt", "melt_toxicity_detection_victsd"],
+    )
+
+
+@run_spec_function("melt_information_retrieval_mmarco")
+def get_melt_information_retrieval_mmarco_spec(valid_topk: Optional[int] = None) -> RunSpec:
+    from helm.benchmark.scenarios.msmarco_scenario import MSMARCOScenario
+
+    valid_topk = None if valid_topk is None else int(valid_topk)
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.melt_ir_scenario.MELTInformationRetrievalMMARCOScenario",
+        args={"valid_topk": valid_topk},
+    )
+
+    adapter_spec: AdapterSpec = get_ranking_binary_adapter_spec(
+        document_noun="Đoạn văn",
+        query_noun="Câu hỏi",
+        output_prefix="Đoạn văn này có trả lời được câu hỏi không?",
+        output_noun="Trả lời",
+        stop_sequences=["\n"],
+    )
+
+    # Names of the measures we want to compute.
+    measure_names = MSMARCOScenario.MEASURE_NAMES["regular"]
+    multiple_relevance_values = set(MSMARCOScenario.GOLD_RELATIONS["regular"]) != {1}
+
+    metric_specs = (
+        [
+            MetricSpec(
+                class_name="helm.benchmark.metrics.ranking_metrics.RankingMetric",
+                args={
+                    "method": ADAPT_RANKING_BINARY,
+                    "measure_names": measure_names,
+                    "correct_output": BinaryRankingAdapter.RANKING_CORRECT_LABEL,
+                    "wrong_output": BinaryRankingAdapter.RANKING_WRONG_LABEL,
+                    "rank": valid_topk,
+                    "multiple_relevance_values": multiple_relevance_values,
+                },
+            ),
+        ]
+        + get_basic_reference_metric_specs()
+        + get_generic_metric_specs()
+    )
+
+    return RunSpec(
+        name=f"melt_information_retrieval_mmarco:valid_topk={valid_topk}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["melt", "melt_information_retrieval_mmarco"],
+    )
+
+
+@run_spec_function("melt_information_retrieval_mrobust")
+def get_melt_information_retrieval_mrobust_spec(valid_topk: Optional[int] = None) -> RunSpec:
+    from helm.benchmark.scenarios.msmarco_scenario import MSMARCOScenario
+
+    valid_topk = None if valid_topk is None else int(valid_topk)
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.melt_ir_scenario.MELTInformationRetrievalMRobustScenario",
+        args={"valid_topk": valid_topk},
+    )
+
+    adapter_spec: AdapterSpec = get_ranking_binary_adapter_spec(
+        document_noun="Đoạn văn",
+        query_noun="Câu hỏi",
+        output_prefix="Đoạn văn này có trả lời được câu hỏi không?",
+        output_noun="Trả lời",
+        stop_sequences=["\n"],
+    )
+
+    # Names of the measures we want to compute.
+    measure_names = MSMARCOScenario.MEASURE_NAMES["trec"]
+    multiple_relevance_values = set(MSMARCOScenario.GOLD_RELATIONS["trec"]) != {1}
+
+    metric_specs = (
+        [
+            MetricSpec(
+                class_name="helm.benchmark.metrics.ranking_metrics.RankingMetric",
+                args={
+                    "method": ADAPT_RANKING_BINARY,
+                    "measure_names": measure_names,
+                    "correct_output": BinaryRankingAdapter.RANKING_CORRECT_LABEL,
+                    "wrong_output": BinaryRankingAdapter.RANKING_WRONG_LABEL,
+                    "rank": valid_topk,
+                    "multiple_relevance_values": multiple_relevance_values,
+                },
+            ),
+        ]
+        + get_basic_reference_metric_specs()
+        + get_generic_metric_specs()
+    )
+
+    return RunSpec(
+        name=f"melt_information_retrieval_mrobust:valid_topk={valid_topk}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["melt", "melt_information_retrieval_mrobust"],
     )
