@@ -175,7 +175,7 @@ export default function LeaderboardTable({
                   headerValue.description
                     ? "underline decoration-dashed decoration-gray-300	"
                     : ""
-                }  whitespace-nowrap px-4 sticky top-0`}
+                }  px-4 sticky top-0`}
                 title={headerValue.description ? headerValue.description : ""}
               >
                 <div

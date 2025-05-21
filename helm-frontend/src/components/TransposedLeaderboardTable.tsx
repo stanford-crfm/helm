@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { ChevronUpDownIcon } from "@heroicons/react/24/solid";
-import { AdjustmentsHorizontalIcon } from "@heroicons/react/24/solid";
 import type GroupsTable from "@/types/GroupsTable";
 import RowValue from "@/components/RowValue";
 import Schema from "@/types/Schema";
@@ -140,27 +139,27 @@ export default function LeaderboardTable({
             idx === selectedColumnIndex ? "bg-gray-100" : (idx % 2 === 0 ? "bg-gray-50" : "bg-white")
         } ${idx === 0 ? "left-0 z-40" : ""} ${
             headerValue.description
-            ? "underline decoration-dashed decoration-gray-300	"
+            ? "underline decoration-dashed decoration-gray-300"
             : ""
-        } z-20 text-lg sticky left-0`}
+        } z-20 sticky left-0 justify-between items-center`}
         title={headerValue.description ? headerValue.description : ""}
         >
         <div
             className={
             miniStyle
-                ? "flex gap-2 items-center"
-                : "z-20 flex justify-between items-center min-w-48 w-48 max-w-48 text-wrap"
+                ? "flex gap-2"
+                : "z-20 flex min-w-48 w-48 max-w-48 text-wrap"
             }
         >
             <span className={`inline-block w-full break-words`}>
             {getHeaderValue(headerValue)}
-
-                              {sortable ? (
+                              
+            </span>
+            {sortable ? (
                                 <button className="link" onClick={() => handleSort(idx)}>
-                                  <AdjustmentsHorizontalIcon className="w-6 h-6" />
+                                  <ChevronUpDownIcon className="w-6 h-6" />
                                 </button>
                               ) : null}
-            </span>
 
         </div>
         </td>
