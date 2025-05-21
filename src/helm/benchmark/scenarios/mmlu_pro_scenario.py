@@ -92,7 +92,4 @@ class MMLUProScenario(Scenario):
             data = dataset[hf_split].filter(lambda x: self.subject == "all" or self.subject == x["category"])
             instances.extend(self.process_dataset(data, split))
 
-        if not instances:
-            raise ValueError("is not a subject")
-
         return instances
