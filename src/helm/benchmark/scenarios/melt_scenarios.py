@@ -523,8 +523,6 @@ class MELTTextClassificationScenario(Scenario):
             dataset_name: The name of the dataset.
             revision: The revision of the dataset to use.
             subset: The subset of the dataset to use. Defaults to "".
-            text_key: The key to use for the text in the dataset. Defaults to "text".
-            label_key: The key to use for the label in the dataset. Defaults to "label".
             splits: The splits to use for the dataset. Defaults to None.
         """
         super().__init__()
@@ -609,7 +607,6 @@ class MELTTextClassificationVSMECScenario(MELTTextClassificationScenario):
                 TEST_SPLIT: "test",
             },
         )
-
         self.text_key = "Sentence"
         self.label_key = "Emotion"
 
@@ -618,7 +615,6 @@ class MELTTextClassificationVSMECScenario(MELTTextClassificationScenario):
         Given an sample from the dataset, create the input text and
         list of answers for the instance.
         """
-
         return sample[self.text_key], [sample[self.label_key].lower()]
 
 
@@ -653,7 +649,6 @@ class MELTTextClassificationPhoATISScenario(MELTTextClassificationScenario):
         Given an sample from the dataset, create the input text and
         list of answers for the instance.
         """
-
         return sample[self.text_key], sample[self.label_key].lower().split("#")
 
 
@@ -725,3 +720,74 @@ class MELTTSentimentAnalysisVSFCScenario(MELTTextClassificationScenario):
         """
 
         return sample[self.text_key], [sample[self.label_key].lower()]
+
+
+class MELTToxicityDetectionViHSDScenario(MELTTextClassificationScenario):
+    """
+    Scenario for the UIT-ViHSD dataset.
+    """
+
+    name = "melt_toxicity_detection_vihsd"
+    description = "UIT-ViHSD dataset for toxicity detection."
+    tags = ["toxicity_detection"]
+
+    def __init__(self):
+        super().__init__(
+            dataset_name="ura-hcmut/UIT-ViHSD",
+            revision="16c4f67cf509d4f9f36ca5b63c5503c7c8830557",
+            splits={
+                TRAIN_SPLIT: "train",
+                VALID_SPLIT: "validation",
+                TEST_SPLIT: "test",
+            },
+        )
+        self.label_mapping = {
+            0: "clean",
+            1: "offensive",
+            2: "hate",
+        }
+        self.text_key = "free_text"
+        self.label_key = "label_id"
+
+    def process_example(self, sample: dict) -> Tuple[str, List[str]]:
+        """
+        Given an sample from the dataset, create the input text and
+        list of answers for the instance.
+        """
+        label = sample[self.label_key]
+        return sample[self.text_key], [self.label_mapping[label]]
+
+
+class MELTToxicityDetectionViCTSDScenario(MELTTextClassificationScenario):
+    """
+    Scenario for the UIT-ViCTSD dataset.
+    """
+
+    name = "melt_toxicity_detection_victsd"
+    description = "UIT-ViCTSD dataset for toxicity detection."
+    tags = ["toxicity_detection"]
+
+    def __init__(self):
+        super().__init__(
+            dataset_name="tarudesu/ViCTSD",
+            revision="65a073f2c48401410b264213229a6c52417f367a",
+            splits={
+                TRAIN_SPLIT: "train",
+                VALID_SPLIT: "validation",
+                TEST_SPLIT: "test",
+            },
+        )
+        self.label_mapping = {
+            0: "clean",
+            1: "toxic",
+        }
+        self.text_key = "Comment"
+        self.label_key = "Toxicity"
+
+    def process_example(self, sample: dict) -> Tuple[str, List[str]]:
+        """
+        Given an sample from the dataset, create the input text and
+        list of answers for the instance.
+        """
+        label = sample[self.label_key]
+        return sample[self.text_key], [self.label_mapping[label]]
