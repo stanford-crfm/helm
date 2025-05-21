@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Element } from "react";
 import { ChevronUpDownIcon } from "@heroicons/react/24/solid";
 import type GroupsTable from "@/types/GroupsTable";
 import RowValue from "@/components/RowValue";
@@ -130,121 +130,120 @@ export default function LeaderboardTable({
     return "";
   };
 
-  const columns = []; // whitespace-nowrap px-4 sticky top-0
-  columns.push(groupTable.header
-    .map((headerValue: HeaderValue, idx) => (
-        <td
+  const columns: Element[][] = []; // whitespace-nowrap px-4 sticky top-0
+  columns.push(
+    groupTable.header.map((headerValue: HeaderValue, idx) => (
+      <td
         key={`scenario-${idx}`}
         className={`${
-            idx === selectedColumnIndex ? "bg-gray-100" : (idx % 2 === 0 ? "bg-gray-50" : "bg-white")
-        } ${idx === 0 ? "left-0 z-40" : ""} ${
-            headerValue.description
+          idx === selectedColumnIndex
+            ? "bg-gray-100"
+            : idx % 2 === 0
+            ? "bg-gray-50"
+            : "bg-white"
+        } ${idx === 0 ? "top-0 z-20" : "z-10"} ${
+          headerValue.description
             ? "underline decoration-dashed decoration-gray-300"
             : ""
-        } z-20 sticky left-0 justify-between items-center`}
+        } sticky left-0 justify-between items-center w-48`}
         title={headerValue.description ? headerValue.description : ""}
-        >
-        <div
-            className={
-            miniStyle
-                ? "flex gap-2"
-                : "z-20 flex min-w-48 w-48 max-w-48 text-wrap"
-            }
-        >
-            <span className={`inline-block w-full break-words`}>
+      >
+        <div className={miniStyle ? "flex gap-2" : "z-10 flex w-full"}>
+          <span className={`inline-block w-full break-words`}>
             {getHeaderValue(headerValue)}
-                              
-            </span>
-            {sortable ? (
-                                <button className="link" onClick={() => handleSort(idx)}>
-                                  <ChevronUpDownIcon className="w-6 h-6" />
-                                </button>
-                              ) : null}
-
+          </span>
+          {sortable ? (
+            <button className="link" onClick={() => handleSort(idx)}>
+              <ChevronUpDownIcon className="w-6 h-6" />
+            </button>
+          ) : null}
         </div>
+      </td>
+    )),
+  );
+
+  getSortedRows().forEach((row, idx) =>
+    columns.push(
+      row.map((rowValue, cellIdx) => (
+        <td
+          key={`${idx}-${cellIdx}`}
+          className={`${cellIdx % 2 === 0 ? "bg-gray-50" : "bg-white"} ${
+            cellIdx === 0 ? "px-4 sticky top-0" : ""
+          } w-32`}
+        >
+          {cellIdx == 1 ? (
+            <div
+              className={`${
+                rowValue &&
+                rowValue.style &&
+                rowValue.style["font-weight"] &&
+                rowValue.style["font-weight"] === "bold"
+                  ? "font-bold"
+                  : ""
+              }`}
+            >
+              <RowValue
+                value={{
+                  ...rowValue,
+                  href: "/runs/?q=" + getModelForRunName(String(row[0].value)),
+                }}
+                title={`Click value to see all predictions for: ${getModelForRunName(
+                  String(row[0].value),
+                )}`}
+              />
+            </div>
+          ) : (
+            <div
+              className={`${
+                rowValue &&
+                rowValue.style &&
+                rowValue.style["font-weight"] &&
+                rowValue.style["font-weight"] === "bold"
+                  ? "font-bold"
+                  : ""
+              } ${
+                cellIdx === 0
+                  ? "underline decoration-dashed decoration-gray-300 z-20"
+                  : "z-0"
+              }`}
+            >
+              <RowValue
+                value={{ ...rowValue }}
+                title={
+                  String(row[0].value) === rowValue.value
+                    ? getModelDesc(String(row[0].value))
+                    : `Click value to see predictions for ${String(
+                        row[0].value,
+                      )} for ${getGroupForRunName(
+                        getHeaderValue(groupTable.header[cellIdx]),
+                      )}: ${getModelForRunName(String(row[0].value))}`
+                }
+              />
+            </div>
+          )}
         </td>
-    )));
-  
-  getSortedRows().forEach((row, idx) => (
-      columns.push(row
-        .map((rowValue, cellIdx) => (
-          <td
-            key={`${idx}-${cellIdx}`}
-            className={`${cellIdx % 2 === 0 ? "bg-gray-50" : "bg-white"} ${cellIdx === 0 ? "whitespace-nowrap px-4 sticky top-0" : ""}`}
-          >
-            {cellIdx == 1 ? (
-              <div
-                className={`${
-                  rowValue &&
-                  rowValue.style &&
-                  rowValue.style["font-weight"] &&
-                  rowValue.style["font-weight"] === "bold"
-                    ? "font-bold"
-                    : ""
-                }`}
-              >
-                <RowValue
-                  value={{
-                    ...rowValue,
-                    href:
-                      "/runs/?q=" +
-                      getModelForRunName(String(row[0].value)),
-                  }}
-                  title={`Click value to see all predictions for: ${getModelForRunName(
-                    String(row[0].value),
-                  )}`}
-                />
-              </div>
-            ) : (
-              <div
-                className={`${
-                  rowValue &&
-                  rowValue.style &&
-                  rowValue.style["font-weight"] &&
-                  rowValue.style["font-weight"] === "bold"
-                    ? "font-bold"
-                    : ""
-                } ${
-                  cellIdx === 0
-                    ? "underline decoration-dashed decoration-gray-300 z-10"
-                    : "z-0"
-                }`}
-              >
-                <RowValue
-                  value={{ ...rowValue }}
-                  title={
-                    String(row[0].value) === rowValue.value
-                      ? getModelDesc(String(row[0].value))
-                      : `Click value to see predictions for ${String(
-                          row[0].value,
-                        )} for ${getGroupForRunName(
-                          getHeaderValue(groupTable.header[cellIdx]),
-                        )}: ${getModelForRunName(String(row[0].value))}`
-                  }
-                />
-              </div>
-            )}
-          </td>
-        )))
-    
-  ))
-  
-  const rows = columns[0].map((_, rowIndex) => columns.map(column => column[rowIndex]));
+      )),
+    ),
+  );
+
+  const rows: Element[][] = columns[0].map((_, rowIndex): Element[] =>
+    columns.map((column: Element[]): Element => column[rowIndex] ),
+  );
 
   return (
     <table
-      className={miniStyle ? "table w-full" : "rounded-lg shadow-md table"}
+      className={
+        miniStyle
+          ? "table table-fixed w-full"
+          : "rounded-lg shadow-md table table-fixed"
+      }
     >
       <thead>
-        <tr>
-          {rows[0]}
-        </tr>
+        <tr>{rows[0]}</tr>
       </thead>
       <tbody>
-        {rows.slice(1).map((row, idx) => (
-          <tr key={`${idx}-${row[0].value}`}>
-            {row}
-          </tr>
+        {rows.slice(1).map((row: Element[], idx: number): Element => (
+          <tr key={idx}>{row}</tr>
         ))}
       </tbody>
     </table>

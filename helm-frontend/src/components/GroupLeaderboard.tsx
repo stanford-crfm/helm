@@ -45,6 +45,8 @@ export default function GroupLeaderboard({
     return <div>Group currently has no tables.</div>;
   }
 
+  const isMedHELM = schema.run_groups[0].name == "medhelm_scenarios";
+
   return (
     <div>
       {groupTables.length > 1 ? (
@@ -60,13 +62,23 @@ export default function GroupLeaderboard({
           ))}
         </Tabs>
       ) : null}
-      <TransposedLeaderboardTable
-        key={`${runGroupName}-${tableIndex}`}
-        schema={schema}
-        groupTable={groupTables[tableIndex]}
-        numRowsToDisplay={numRowsToDisplay}
-        sortColumnIndex={1}
-      />
+      {isMedHELM ? (
+        <TransposedLeaderboardTable
+          key={`${runGroupName}-${tableIndex}`}
+          schema={schema}
+          groupTable={groupTables[tableIndex]}
+          numRowsToDisplay={numRowsToDisplay}
+          sortColumnIndex={1}
+        />
+      ) : (
+        <LeaderboardTable
+          key={`${runGroupName}-${tableIndex}`}
+          schema={schema}
+          groupTable={groupTables[tableIndex]}
+          numRowsToDisplay={numRowsToDisplay}
+          sortColumnIndex={1}
+        />
+      )}
     </div>
   );
 }
