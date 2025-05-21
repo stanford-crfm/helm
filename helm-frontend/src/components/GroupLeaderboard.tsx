@@ -45,6 +45,7 @@ export default function GroupLeaderboard({
     return <div>Group currently has no tables.</div>;
   }
 
+  // TODO: Add an flag to the schema for transposing tables.
   const isMedHELM = schema.run_groups[0].name == "medhelm_scenarios";
 
   return (
