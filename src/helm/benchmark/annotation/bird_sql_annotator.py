@@ -6,7 +6,7 @@ import sqlite3
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
 from helm.benchmark.runner import get_benchmark_output_path
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hwarn
 
 
 class BirdSQLAnnotator(Annotator):
@@ -34,7 +34,7 @@ class BirdSQLAnnotator(Annotator):
             cursor.execute(ground_truth_sql)
             ground_truth_result = cursor.fetchall()
         except (sqlite3.OperationalError, sqlite3.Warning) as e:
-            hlog(f"WARNING: Ground truth SQL failed with error: {e}")
+            hwarn(f"Ground truth SQL failed with error: {e}")
 
         assert request_state.result is not None
         assert len(request_state.result.completions) == 1

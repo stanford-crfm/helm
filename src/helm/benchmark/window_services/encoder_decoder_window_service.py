@@ -1,6 +1,6 @@
 from abc import ABC
 
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hwarn
 from helm.benchmark.window_services.local_window_service import LocalWindowService
 
 
@@ -21,8 +21,8 @@ class EncoderDecoderWindowService(LocalWindowService, ABC):
         vs. the completions, we check the two values separately.
         """
         if expected_completion_token_length > self.max_output_length:
-            hlog(
-                f"WARNING: The expected completion token length ({expected_completion_token_length}) "
+            hwarn(
+                f"The expected completion token length ({expected_completion_token_length}) "
                 f"exceeds the max output length ({self.max_output_length})."
             )
         return self.get_num_tokens(text) <= self.max_request_length

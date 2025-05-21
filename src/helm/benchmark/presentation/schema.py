@@ -11,6 +11,7 @@ import importlib_resources as resources
 from helm.common.general import hlog
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.augmentations.perturbation_description import PERTURBATION_WORST
+from helm.common.hierarchical_logger import hwarn
 
 
 # TODO: change to `helm.benchmark.config`
@@ -281,5 +282,5 @@ def read_schema(schema_path: str) -> Schema:
         raw = yaml.safe_load(f)
     schema = dacite.from_dict(Schema, raw)
     if schema.adapter:
-        hlog(f"WARNING: The `adapter` field is deprecated and should be removed from schema file {schema_path}")
+        hwarn(f"The `adapter` field is deprecated and should be removed from schema file {schema_path}")
     return dataclasses.replace(schema, adapter=get_adapter_fields())

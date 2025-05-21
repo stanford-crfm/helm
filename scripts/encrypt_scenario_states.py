@@ -24,7 +24,7 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.scenarios.scenario import Instance, Reference
 from helm.common.codec import from_json, to_json
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hlog, hwarn
 from helm.common.request import Request, RequestResult
 from helm.common.general import write
 
@@ -148,7 +148,7 @@ def modify_scenario_states_for_suite(run_suite_path: str, scenario: str) -> None
         run_path: str = os.path.join(run_suite_path, run_dir_name)
         scenario_state_path: str = os.path.join(run_path, _SCENARIO_STATE_FILE_NAME)
         if not os.path.exists(scenario_state_path):
-            hlog(f"WARNING: {run_dir_name} doesn't have {_SCENARIO_STATE_FILE_NAME}, skipping")
+            hwarn(f"{run_dir_name} doesn't have {_SCENARIO_STATE_FILE_NAME}, skipping")
             continue
         encryption_data_path: str = os.path.join(run_path, _ENCRYTED_DATA_JSON_FILE_NAME)
         if os.path.exists(encryption_data_path):
