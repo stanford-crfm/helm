@@ -30,7 +30,7 @@ class MELTLMMaskFillingScenario(Scenario):
         revision: str,
         masked_ratio: float = 0.1,
         text_key: str = "text",
-        subset: Optional[str] = "",
+        subset: Optional[str] = None,
         splits: Optional[Dict[str, str]] = None,
     ):
         """Initializes the question answering scenario.
@@ -51,7 +51,7 @@ class MELTLMMaskFillingScenario(Scenario):
         self.revision = revision
         self.splits = splits
 
-    def __mask_text__(self, text: str) -> str:
+    def _mask_text(self, text: str) -> str:
         """
         Mask a portion of the input text.
         Args:
@@ -85,7 +85,7 @@ class MELTLMMaskFillingScenario(Scenario):
         for dataset_split_name, helm_split_name in splits.items():
             for sample in dataset[dataset_split_name]:
                 target_sentence = sample[self.text_key]
-                source_sentence = self.__mask_text__(target_sentence)
+                source_sentence = self._mask_text(target_sentence)
                 instances.append(
                     Instance(
                         input=Input(text=source_sentence),
@@ -107,6 +107,7 @@ class MELTLMMaskFillingScenario(Scenario):
             if "test" in self.splits:
                 splits[self.splits[TEST_SPLIT]] = TEST_SPLIT
 
+        random.seed(42)
         instances: List[Instance] = self.get_instances_for_splits(splits=splits)
         return instances
 
@@ -152,7 +153,7 @@ class MELTLMSpellingCorrectionScenario(Scenario):
         revision: str,
         source_key: str = "text",
         target_key: str = "corrected_text",
-        subset: Optional[str] = "",
+        subset: Optional[str] = None,
         splits: Optional[Dict[str, str]] = None,
     ):
         """Initializes the question answering scenario.
@@ -190,7 +191,7 @@ class MELTLMSpellingCorrectionScenario(Scenario):
         )
         if len(splits) == 1:
             all_keys = list(splits.keys())
-            dataset = dataset[all_keys[0]].train_test_split(test_size=0.33)
+            dataset = dataset[all_keys[0]].train_test_split(test_size=0.33, seed=42)
             splits = {
                 "train": TRAIN_SPLIT,
                 "test": TEST_SPLIT,
@@ -221,6 +222,7 @@ class MELTLMSpellingCorrectionScenario(Scenario):
             if "test" in self.splits:
                 splits[self.splits[TEST_SPLIT]] = TEST_SPLIT
 
+        random.seed(42)
         instances: List[Instance] = self.get_instances_for_splits(splits=splits)
         return instances
 

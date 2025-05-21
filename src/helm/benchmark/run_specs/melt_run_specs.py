@@ -14,7 +14,6 @@ from helm.benchmark.metrics.common_metric_specs import (
     get_generative_harms_metric_specs,
     get_summarization_metric_specs,
     get_basic_metric_specs,
-    get_language_modeling_metric_specs,
     get_open_ended_generation_metric_specs,
 )
 
@@ -297,7 +296,7 @@ def get_math_spec(
 
 
 @run_spec_function("melt_translation_opus100")
-def get_melt_translation_opus100_spec(language_pair: str, fewshot: bool = False) -> RunSpec:
+def get_melt_translation_opus100_spec(language_pair: str, max_train_instances: int = 0) -> RunSpec:
     FULL_LANGUAGE_NAMES = {
         "vi": "Vietnamese",
         "en": "English",
@@ -312,20 +311,20 @@ def get_melt_translation_opus100_spec(language_pair: str, fewshot: bool = False)
     adapter_spec = get_machine_translation_adapter_spec(
         source_language=FULL_LANGUAGE_NAMES[source_language],
         target_language=FULL_LANGUAGE_NAMES[target_language],
-        max_train_instances=5 if fewshot else 0,
+        max_train_instances=max_train_instances,
     )
 
     return RunSpec(
-        name=f"melt_translation_opus100:language_pair={language_pair},fewshot={fewshot}",
+        name=f"melt_translation_opus100:language_pair={language_pair},max_train_instances={max_train_instances}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_open_ended_generation_metric_specs(),
-        groups=["melt", "translation_opus100", f"translation_{language_pair}"],
+        groups=["melt", "melt_translation_opus100"],
     )
 
 
 @run_spec_function("melt_translation_phomt")
-def get_melt_translation_phomt_spec(language_pair: str, fewshot: bool = False) -> RunSpec:
+def get_melt_translation_phomt_spec(language_pair: str, max_train_instances: int = 0) -> RunSpec:
     FULL_LANGUAGE_NAMES = {
         "vi": "Vietnamese",
         "en": "English",
@@ -340,63 +339,66 @@ def get_melt_translation_phomt_spec(language_pair: str, fewshot: bool = False) -
     adapter_spec = get_machine_translation_adapter_spec(
         source_language=FULL_LANGUAGE_NAMES[source_language],
         target_language=FULL_LANGUAGE_NAMES[target_language],
-        max_train_instances=5 if fewshot else 0,
+        max_train_instances=max_train_instances,
     )
 
     return RunSpec(
-        name=f"melt_translation_phomt:language_pair={language_pair},fewshot={fewshot}",
+        name=f"melt_translation_phomt:language_pair={language_pair},max_train_instances={max_train_instances}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_open_ended_generation_metric_specs(),
-        groups=["melt", "translation_phomt", f"translation_{language_pair}"],
+        groups=["melt", "melt_translation_phomt"],
     )
 
 
 @run_spec_function("melt_lm_mask_filling_mlqa")
-def get_melt_lm_mask_filling_mlqaa_spec(fewshot: bool = False) -> RunSpec:
+def get_melt_lm_mask_filling_mlqaa_spec(max_train_instances: int = 0) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.melt_lm_scenarios.MELTLMMaskFillingMLQAScenario")
 
-    instruction = "Hãy hoàn thành câu sau bằng cách điền vào các vị trí trống được đánh dấu bằng [MASK]."
+    instruction = (
+        "Hãy hoàn thành câu sau bằng cách điền vào các vị trí trống được đánh dấu bằng [MASK]. "
+        "Chỉ trả lời bằng câu đã hoàn thành và không thêm gì khác."
+    )
     adapter_spec = get_generation_adapter_spec(
         instructions=instruction,
         input_noun="Câu có chỗ trống",
         output_noun="Câu đã hoàn thành",
-        max_train_instances=5 if fewshot else 0,
+        max_train_instances=max_train_instances,
         num_outputs=1,
         max_tokens=1024,
         temperature=0.0,
     )
 
     return RunSpec(
-        name=f"melt_lm_mask_filling_mlqa:fewshot={fewshot}",
+        name=f"melt_lm_mask_filling_mlqa:max_train_instances={max_train_instances}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_language_modeling_metric_specs([]) + get_exact_match_metric_specs() + get_f1_metric_specs(),
-        groups=["melt", "language_modeling_mlqa", "mask_filling_mlqa"],
+        metric_specs=get_exact_match_metric_specs() + get_f1_metric_specs(),
+        groups=["melt", "melt_lm_mask_filling_mlqa"],
     )
 
 
 @run_spec_function("melt_lm_spelling_correction_vsec")
-def get_melt_lm_spelling_correction_vsec_spec(fewshot: bool = False) -> RunSpec:
+def get_melt_lm_spelling_correction_vsec_spec(max_train_instances: int = 0) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.melt_lm_scenarios.MELTLMSpellingCorrectionVSECScenario"
     )
 
-    instruction = "Hãy sửa lỗi chính tả trong câu sau."
+    instruction = "Hãy sửa lỗi chính tả trong câu sau. Chỉ trả lời bằng câu đã sửa đúng chính tả và không thêm gì khác."
     adapter_spec = get_generation_adapter_spec(
         instructions=instruction,
         input_noun="Câu có lỗi",
         output_noun="Câu đã sửa",
-        max_train_instances=5 if fewshot else 0,
+        max_train_instances=max_train_instances,
         num_outputs=1,
         max_tokens=1024,
         temperature=0.0,
     )
 
     return RunSpec(
-        name=f"melt_lm_spelling_correction_vsec:fewshot={fewshot}",
+        name=f"melt_lm_spelling_correction_vsec:max_train_instances={max_train_instances}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_language_modeling_metric_specs([]) + get_exact_match_metric_specs() + get_f1_metric_specs(),
-        groups=["melt", "language_modeling_vsec", "spelling_correction_vsec"],
+        metric_specs=get_exact_match_metric_specs() + get_f1_metric_specs(),
+        groups=["melt", "melt_lm_spelling_correction_vsec"],
     )

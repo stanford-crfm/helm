@@ -26,7 +26,7 @@ class MELTTranslationScenario(Scenario):
         revision: str,
         source_language: str,
         target_language: str,
-        subset: Optional[str] = "",
+        subset: Optional[str] = None,
         splits: Optional[Dict[str, str]] = None,
     ):
         """Initializes the question answering scenario.
