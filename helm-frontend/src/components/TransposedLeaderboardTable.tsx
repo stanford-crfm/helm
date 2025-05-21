@@ -1,4 +1,4 @@
-import { useState, Element } from "react";
+import { useState } from "react";
 import { ChevronUpDownIcon } from "@heroicons/react/24/solid";
 import type GroupsTable from "@/types/GroupsTable";
 import RowValue from "@/components/RowValue";
@@ -130,7 +130,7 @@ export default function LeaderboardTable({
     return "";
   };
 
-  const columns: Element[][] = []; // whitespace-nowrap px-4 sticky top-0
+  const columns: JSX.Element[][] = []; // whitespace-nowrap px-4 sticky top-0
   columns.push(
     groupTable.header.map((headerValue: HeaderValue, idx) => (
       <td
@@ -226,8 +226,8 @@ export default function LeaderboardTable({
     ),
   );
 
-  const rows: Element[][] = columns[0].map((_, rowIndex): Element[] =>
-    columns.map((column: Element[]): Element => column[rowIndex]),
+  const rows: JSX.Element[][] = columns[0].map((_, rowIndex): JSX.Element[] =>
+    columns.map((column: JSX.Element[]): JSX.Element => column[rowIndex]),
   );
 
   return (
@@ -243,7 +243,7 @@ export default function LeaderboardTable({
       </thead>
       <tbody>
         {rows.slice(1).map(
-          (row: Element[], idx: number): Element => (
+          (row: JSX.Element[], idx: number): JSX.Element => (
             <tr key={idx}>{row}</tr>
           ),
         )}
