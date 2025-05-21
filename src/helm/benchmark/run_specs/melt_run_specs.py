@@ -312,6 +312,7 @@ def get_melt_translation_opus100_spec(language_pair: str) -> RunSpec:
     adapter_spec = get_machine_translation_adapter_spec(
         source_language=FULL_LANGUAGE_NAMES[source_language],
         target_language=FULL_LANGUAGE_NAMES[target_language],
+        max_train_instances=5,
     )
 
     return RunSpec(
@@ -339,6 +340,7 @@ def get_melt_translation_phomt_spec(language_pair: str) -> RunSpec:
     adapter_spec = get_machine_translation_adapter_spec(
         source_language=FULL_LANGUAGE_NAMES[source_language],
         target_language=FULL_LANGUAGE_NAMES[target_language],
+        max_train_instances=5,
     )
 
     return RunSpec(
