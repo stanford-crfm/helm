@@ -304,8 +304,143 @@ def get_math_spec(
     )
 
 
+@run_spec_function("melt_text_classification_vsmec")
+def get_melt_text_classification_vsmec_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.melt_scenarios.MELTTextClassificationVSMECScenario"
+    )
+
+    instruction = (
+        "Hãy phân loại cảm xúc của bình luận sau vào một trong các nhóm: "
+        "sadness, surprise, disgust, fear, anger, enjoyment, other."
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=instruction,
+        input_noun="Bình luận",
+        output_noun="Loại cảm xúc",
+        max_tokens=50,
+        multi_label=False,
+    )
+
+    return RunSpec(
+        name=f"melt_text_classification_vsmec:max_train_instances={adapter_spec.max_train_instances}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs()
+        + get_classification_metric_specs(
+            labels=["sadness", "surprise", "disgust", "fear", "anger", "enjoyment", "other"]
+        ),
+        groups=["melt", "melt_text_classification_vsmec"],
+    )
+
+
+@run_spec_function("melt_text_classification_phoatis")
+def get_melt_text_classification_phoatis_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.melt_scenarios.MELTTextClassificationPhoATISScenario"
+    )
+
+    instruction = (
+        "Hãy phân loại yêu cầu của khách hàng vào trong các nhóm sau: "
+        "flight, airfare, ground_service, day_name, meal, airport, airline, flight_time, city, "
+        "ground_fare, quantity, abbreviation, distance, aircraft, capacity, flight_no, restriction. "
+        "Yêu cầu của khách hàng có thể thuộc tối đa 2 loại và phân biệt nhau bằng dấu phẩy."
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=instruction,
+        input_noun="Yêu cầu của khách hàng",
+        output_noun="Loại yêu cầu",
+        max_tokens=50,
+        multi_label=True,
+    )
+
+    return RunSpec(
+        name=f"melt_text_classification_phoatis:max_train_instances={adapter_spec.max_train_instances}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs()
+        + get_classification_metric_specs(
+            delimiter=",",
+            labels=[
+                "flight",
+                "airfare",
+                "ground_service",
+                "day_name",
+                "meal",
+                "airport",
+                "airline",
+                "flight_time",
+                "city",
+                "ground_fare",
+                "quantity",
+                "abbreviation",
+                "distance",
+                "aircraft",
+                "capacity",
+                "flight_no",
+                "restriction",
+            ],
+        ),
+        groups=["melt", "melt_text_classification_phoatis"],
+    )
+
+
+@run_spec_function("melt_sentiment_analysis_vlsp")
+def get_melt_sentiment_analysis_vlsp_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.melt_scenarios.MELTTSentimentAnalysisVLSPScenario"
+    )
+
+    instruction = "Hãy phân tích quan điểm của nhận xét sau vào một trong các nhóm: negative, neutral, positive."
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=instruction,
+        input_noun="Nhận xét",
+        output_noun="Quan điểm",
+        max_tokens=50,
+        multi_label=False,
+    )
+
+    return RunSpec(
+        name=f"melt_sentiment_analysis_vlsp:max_train_instances={adapter_spec.max_train_instances}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs()
+        + get_classification_metric_specs(labels=["negative", "neutral", "positive"]),
+        groups=["melt", "melt_sentiment_analysis_vlsp"],
+    )
+
+
+@run_spec_function("melt_sentiment_analysis_vsfc")
+def get_melt_sentiment_analysis_vsfc_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.melt_scenarios.MELTTSentimentAnalysisVSFCScenario"
+    )
+
+    instruction = "Hãy phân tích quan điểm của nhận xét sau vào một trong các nhóm: negative, neutral, positive."
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=instruction,
+        input_noun="Nhận xét",
+        output_noun="Quan điểm",
+        max_tokens=50,
+        multi_label=False,
+    )
+
+    return RunSpec(
+        name=f"melt_sentiment_analysis_vsfc:max_train_instances={adapter_spec.max_train_instances}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs()
+        + get_classification_metric_specs(labels=["negative", "neutral", "positive"]),
+        groups=["melt", "melt_sentiment_analysis_vsfc"],
+    )
+
+
 @run_spec_function("melt_knowledge_zalo")
-def get_melt_knowledge_zalo_spec(max_train_instances: int = 0) -> RunSpec:
+def get_melt_knowledge_zalo_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.melt_knowledge_scenario.MELTKnowledgeZaloScenario"
     )
@@ -318,12 +453,11 @@ def get_melt_knowledge_zalo_spec(max_train_instances: int = 0) -> RunSpec:
     adapter_spec = get_generation_adapter_spec(
         instructions=instruction,
         output_noun="Trả lời",
-        max_train_instances=max_train_instances,
         max_tokens=128,
     )
 
     return RunSpec(
-        name=f"melt_knowledge_zalo:max_train_instances={max_train_instances}",
+        name=f"melt_knowledge_zalo:max_train_instances={adapter_spec.max_train_instances}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_f1_metric_specs(),
@@ -332,7 +466,7 @@ def get_melt_knowledge_zalo_spec(max_train_instances: int = 0) -> RunSpec:
 
 
 @run_spec_function("melt_knowledge_vimmrc")
-def get_melt_knowledge_vimmrc_spec(randomize_order: bool = False, max_train_instances: int = 0) -> RunSpec:
+def get_melt_knowledge_vimmrc_spec(randomize_order: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.melt_knowledge_scenario.MELTKnowledgeViMMRCScenario",
         args={"randomize_order": randomize_order},
@@ -343,11 +477,10 @@ def get_melt_knowledge_vimmrc_spec(randomize_order: bool = False, max_train_inst
         instructions="Sau đây là các câu hỏi trắc nghiệm (có đáp án).",
         input_noun=None,
         output_noun="Trả lời",
-        max_train_instances=max_train_instances,
     )
 
     return RunSpec(
-        name=f"melt_knowledge_vimmrc:max_train_instances={max_train_instances}",
+        name=f"melt_knowledge_vimmrc:max_train_instances={adapter_spec.max_train_instances}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_f1_metric_specs(),
@@ -356,7 +489,7 @@ def get_melt_knowledge_vimmrc_spec(randomize_order: bool = False, max_train_inst
 
 
 @run_spec_function("melt_toxicity_detection_vihsd")
-def get_melt_toxicity_detection_vihsd_spec(max_train_instances: int = 0) -> RunSpec:
+def get_melt_toxicity_detection_vihsd_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.melt_scenarios.MELTToxicityDetectionViHSDScenario"
     )
@@ -374,12 +507,11 @@ def get_melt_toxicity_detection_vihsd_spec(max_train_instances: int = 0) -> RunS
         input_noun="Bình luận",
         output_noun="Phân loại độc hại",
         max_tokens=50,
-        max_train_instances=max_train_instances,
         multi_label=False,
     )
 
     return RunSpec(
-        name=f"melt_toxicity_detection_vihsd:max_train_instances={max_train_instances}",
+        name=f"melt_toxicity_detection_vihsd:max_train_instances={adapter_spec.max_train_instances}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs()
@@ -389,7 +521,7 @@ def get_melt_toxicity_detection_vihsd_spec(max_train_instances: int = 0) -> RunS
 
 
 @run_spec_function("melt_toxicity_detection_victsd")
-def get_melt_toxicity_detection_victsd_spec(max_train_instances: int = 0) -> RunSpec:
+def get_melt_toxicity_detection_victsd_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.melt_scenarios.MELTToxicityDetectionViCTSDScenario"
     )
@@ -406,12 +538,11 @@ def get_melt_toxicity_detection_victsd_spec(max_train_instances: int = 0) -> Run
         input_noun="Bình luận",
         output_noun="Phân loại độc hại",
         max_tokens=50,
-        max_train_instances=max_train_instances,
-        multi_label=False,
+        multi_label=True,
     )
 
     return RunSpec(
-        name=f"melt_toxicity_detection_victsd:max_train_instances={max_train_instances}",
+        name=f"melt_toxicity_detection_victsd:max_train_instances={adapter_spec.max_train_instances}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(labels=["clean", "toxic"]),
@@ -420,9 +551,7 @@ def get_melt_toxicity_detection_victsd_spec(max_train_instances: int = 0) -> Run
 
 
 @run_spec_function("melt_information_retrieval_mmarco")
-def get_melt_information_retrieval_mmarco_spec(
-    valid_topk: Optional[int] = None, max_train_instances: int = 0
-) -> RunSpec:
+def get_melt_information_retrieval_mmarco_spec(valid_topk: Optional[int] = None) -> RunSpec:
     from helm.benchmark.scenarios.msmarco_scenario import MSMARCOScenario
 
     valid_topk = None if valid_topk is None else int(valid_topk)
@@ -436,7 +565,6 @@ def get_melt_information_retrieval_mmarco_spec(
         query_noun="Câu hỏi",
         output_prefix="Đoạn văn này có trả lời được câu hỏi không?",
         output_noun="Trả lời",
-        max_train_instances=max_train_instances,
         stop_sequences=["\n"],
     )
 
@@ -472,9 +600,7 @@ def get_melt_information_retrieval_mmarco_spec(
 
 
 @run_spec_function("melt_information_retrieval_mrobust")
-def get_melt_information_retrieval_mrobust_spec(
-    valid_topk: Optional[int] = None, max_train_instances: int = 0
-) -> RunSpec:
+def get_melt_information_retrieval_mrobust_spec(valid_topk: Optional[int] = None) -> RunSpec:
     from helm.benchmark.scenarios.msmarco_scenario import MSMARCOScenario
 
     valid_topk = None if valid_topk is None else int(valid_topk)
@@ -488,7 +614,6 @@ def get_melt_information_retrieval_mrobust_spec(
         query_noun="Câu hỏi",
         output_prefix="Đoạn văn này có trả lời được câu hỏi không?",
         output_noun="Trả lời",
-        max_train_instances=max_train_instances,
         stop_sequences=["\n"],
     )
 

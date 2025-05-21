@@ -523,16 +523,12 @@ class MELTTextClassificationScenario(Scenario):
             dataset_name: The name of the dataset.
             revision: The revision of the dataset to use.
             subset: The subset of the dataset to use. Defaults to "".
-            text_key: The key to use for the text in the dataset. Defaults to "text".
-            label_key: The key to use for the label in the dataset. Defaults to "label".
             splits: The splits to use for the dataset. Defaults to None.
         """
         super().__init__()
         self.dataset_name = dataset_name
         self.subset = subset
         self.revision = revision
-        self.text_key = text_key
-        self.label_key = label_key
         self.splits = splits
 
     @abstractmethod
@@ -589,6 +585,143 @@ class MELTTextClassificationScenario(Scenario):
         return instances
 
 
+class MELTTextClassificationVSMECScenario(MELTTextClassificationScenario):
+    """
+    Scenario for the UIT-VSMEC dataset.
+    The UIT-VSMEC dataset is a Vietnamese emotion-labeled corpus consisting of
+    6,927 human-annotated sentences collected from social media, categorized
+    into six emotions: sadness, enjoyment, anger, disgust, fear, and surprise.
+    """
+
+    name = "melt_text_classification_vsmec"
+    description = "UIT-VSMEC dataset for emotion classification."
+    tags = ["text_classification"]
+
+    def __init__(self):
+        super().__init__(
+            dataset_name="ura-hcmut/UIT-VSMEC",
+            revision="ab642b189eff31fdb781cca7c4c34dee3ee0f1de",
+            splits={
+                TRAIN_SPLIT: "train",
+                VALID_SPLIT: "validation",
+                TEST_SPLIT: "test",
+            },
+        )
+        self.text_key = "Sentence"
+        self.label_key = "Emotion"
+
+    def process_example(self, sample: dict) -> Tuple[str, List[str]]:
+        """
+        Given an sample from the dataset, create the input text and
+        list of answers for the instance.
+        """
+        return sample[self.text_key], [sample[self.label_key].lower()]
+
+
+class MELTTextClassificationPhoATISScenario(MELTTextClassificationScenario):
+    """
+    Scenario for the PhoATIS dataset.
+    The PhoATIS dataset is a Vietnamese benchmark for intent detection and slot filling,
+    consisting of 5,871 fluent utterances collected from task-oriented dialogue systems.
+    It was later extended with manual disfluency annotations to create a disfluent variant,
+    enabling research on the impact of disfluencies in spoken language understanding for Vietnamese.
+    """
+
+    name = "melt_text_classification_phoatis"
+    description = "PhoATIS dataset for intent detection of flight booking."
+    tags = ["text_classification"]
+
+    def __init__(self):
+        super().__init__(
+            dataset_name="ura-hcmut/PhoATIS",
+            revision="bd026c9b276d7fb083d19ec3d6870fca90e1834f",
+            splits={
+                TRAIN_SPLIT: "train",
+                VALID_SPLIT: "validation",
+                TEST_SPLIT: "test",
+            },
+        )
+        self.text_key = "text"
+        self.label_key = "label"
+
+    def process_example(self, sample: dict) -> Tuple[str, List[str]]:
+        """
+        Given an sample from the dataset, create the input text and
+        list of answers for the instance.
+        """
+        return sample[self.text_key], sample[self.label_key].lower().split("#")
+
+
+class MELTTSentimentAnalysisVLSPScenario(MELTTextClassificationScenario):
+    """
+    Scenario for the VLSP 2016 sentiment analysis dataset.
+    The VLSP2016 dataset is a Vietnamese sentiment analysis corpus consisting of
+    short user-generated reviews from social media, each labeled with an overall
+    sentiment of positive, negative, or neutral. It was developed to support polarity
+    classification and benchmark Vietnamese sentiment analysis systems through the
+    VLSP 2016 evaluation campaign.
+    """
+
+    name = "melt_sentiment_analysis_vlsp"
+    description = "VLSP 2016 contains public comments from social media, used for sentiment analysis."
+    tags = ["sentiment_analysis"]
+
+    def __init__(self):
+        super().__init__(
+            dataset_name="ura-hcmut/vlsp2016",
+            revision="9531ec0ccabcafb7d51020fe69d8f9faebb91953",
+            splits={
+                TRAIN_SPLIT: "train",
+                TEST_SPLIT: "test",
+            },
+        )
+        self.text_key = "Data"
+        self.label_key = "Class"
+
+    def process_example(self, sample: dict) -> Tuple[str, List[str]]:
+        """
+        Given an sample from the dataset, create the input text and
+        list of answers for the instance.
+        """
+
+        return sample[self.text_key], [sample[self.label_key].lower()]
+
+
+class MELTTSentimentAnalysisVSFCScenario(MELTTextClassificationScenario):
+    """
+    Scenario for the UIT-VSFC dataset.
+    The UIT-VSFC dataset is a Vietnamese corpus of over 16,000 student feedback sentences,
+    annotated for both sentiment-based (positive, negative, neutral) and topic-based classifications.
+    It supports interdisciplinary research at the intersection of sentiment analysis and education,
+    with high inter-annotator agreement and strong baseline performance using a Maximum Entropy classifier.
+    """
+
+    name = "melt_sentiment_analysis_vsfc"
+    description = "UIT-VSFC dataset for analyzing sentiment of student feedback."
+    tags = ["sentiment_analysis"]
+
+    def __init__(self):
+        super().__init__(
+            dataset_name="ura-hcmut/UIT-VSFC",
+            revision="c572aed01a811a1dbc68e9aed9f9e684980a10a2",
+            splits={
+                TRAIN_SPLIT: "train",
+                VALID_SPLIT: "validation",
+                TEST_SPLIT: "test",
+            },
+        )
+        self.text_key = "text"
+        self.label_key = "label"
+
+    def process_example(self, sample: dict) -> Tuple[str, List[str]]:
+        """
+        Given an sample from the dataset, create the input text and
+        list of answers for the instance.
+        """
+
+        return sample[self.text_key], [sample[self.label_key].lower()]
+
+
 class MELTToxicityDetectionViHSDScenario(MELTTextClassificationScenario):
     """
     Scenario for the UIT-ViHSD dataset.
@@ -602,8 +735,6 @@ class MELTToxicityDetectionViHSDScenario(MELTTextClassificationScenario):
         super().__init__(
             dataset_name="ura-hcmut/UIT-ViHSD",
             revision="16c4f67cf509d4f9f36ca5b63c5503c7c8830557",
-            text_key="free_text",
-            label_key="label_id",
             splits={
                 TRAIN_SPLIT: "train",
                 VALID_SPLIT: "validation",
@@ -615,6 +746,8 @@ class MELTToxicityDetectionViHSDScenario(MELTTextClassificationScenario):
             1: "offensive",
             2: "hate",
         }
+        self.text_key = "free_text"
+        self.label_key = "label_id"
 
     def process_example(self, sample: dict) -> Tuple[str, List[str]]:
         """
@@ -638,8 +771,6 @@ class MELTToxicityDetectionViCTSDScenario(MELTTextClassificationScenario):
         super().__init__(
             dataset_name="tarudesu/ViCTSD",
             revision="65a073f2c48401410b264213229a6c52417f367a",
-            text_key="Comment",
-            label_key="Toxicity",
             splits={
                 TRAIN_SPLIT: "train",
                 VALID_SPLIT: "validation",
@@ -650,6 +781,8 @@ class MELTToxicityDetectionViCTSDScenario(MELTTextClassificationScenario):
             0: "clean",
             1: "toxic",
         }
+        self.text_key = "Comment"
+        self.label_key = "Toxicity"
 
     def process_example(self, sample: dict) -> Tuple[str, List[str]]:
         """
