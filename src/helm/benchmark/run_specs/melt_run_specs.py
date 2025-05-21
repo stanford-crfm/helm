@@ -305,7 +305,7 @@ def get_math_spec(
 
 
 @run_spec_function("melt_knowledge_zalo")
-def get_melt_knowledge_zalo_spec(fewshot: bool = False) -> RunSpec:
+def get_melt_knowledge_zalo_spec(max_train_instances: int = 0) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.melt_knowledge_scenario.MELTKnowledgeZaloScenario"
     )
@@ -318,21 +318,21 @@ def get_melt_knowledge_zalo_spec(fewshot: bool = False) -> RunSpec:
     adapter_spec = get_generation_adapter_spec(
         instructions=instruction,
         output_noun="Trả lời",
-        max_train_instances=5 if fewshot else 0,
+        max_train_instances=max_train_instances,
         max_tokens=128,
     )
 
     return RunSpec(
-        name=f"melt_knowledge_zalo:fewshot={fewshot}",
+        name=f"melt_knowledge_zalo:max_train_instances={max_train_instances}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_f1_metric_specs() + get_generative_harms_metric_specs(),
-        groups=["melt", "knowledge_zalo"],
+        metric_specs=get_exact_match_metric_specs() + get_f1_metric_specs(),
+        groups=["melt", "melt_knowledge_zalo"],
     )
 
 
 @run_spec_function("melt_knowledge_vimmrc")
-def get_melt_knowledge_vimmrc_spec(randomize_order: bool = False, fewshot: bool = False) -> RunSpec:
+def get_melt_knowledge_vimmrc_spec(randomize_order: bool = False, max_train_instances: int = 0) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.melt_knowledge_scenario.MELTKnowledgeViMMRCScenario",
         args={"randomize_order": randomize_order},
@@ -343,20 +343,20 @@ def get_melt_knowledge_vimmrc_spec(randomize_order: bool = False, fewshot: bool 
         instructions="Sau đây là các câu hỏi trắc nghiệm (có đáp án).",
         input_noun=None,
         output_noun="Trả lời",
-        max_train_instances=5 if fewshot else 0,
+        max_train_instances=max_train_instances,
     )
 
     return RunSpec(
-        name=f"melt_knowledge_vimmrc:fewshot={fewshot}",
+        name=f"melt_knowledge_vimmrc:max_train_instances={max_train_instances}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_f1_metric_specs() + get_generative_harms_metric_specs(),
-        groups=["melt", "knowledge_vimmrc"],
+        metric_specs=get_exact_match_metric_specs() + get_f1_metric_specs(),
+        groups=["melt", "melt_knowledge_vimmrc"],
     )
 
 
 @run_spec_function("melt_toxicity_detection_vihsd")
-def get_melt_toxicity_detection_vihsd_spec(fewshot: bool = False) -> RunSpec:
+def get_melt_toxicity_detection_vihsd_spec(max_train_instances: int = 0) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.melt_scenarios.MELTToxicityDetectionViHSDScenario"
     )
@@ -374,21 +374,22 @@ def get_melt_toxicity_detection_vihsd_spec(fewshot: bool = False) -> RunSpec:
         input_noun="Bình luận",
         output_noun="Phân loại độc hại",
         max_tokens=50,
-        max_train_instances=5 if fewshot else 0,
+        max_train_instances=max_train_instances,
         multi_label=False,
     )
 
     return RunSpec(
-        name=f"melt_toxicity_detection_vihsd:fewshot={fewshot}",
+        name=f"melt_toxicity_detection_vihsd:max_train_instances={max_train_instances}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
-        groups=["melt", "toxicity_detection_vihsd"],
+        metric_specs=get_exact_match_metric_specs()
+        + get_classification_metric_specs(labels=["clean", "offensive", "hate"]),
+        groups=["melt", "melt_toxicity_detection_vihsd"],
     )
 
 
 @run_spec_function("melt_toxicity_detection_victsd")
-def get_melt_toxicity_detection_victsd_spec(fewshot: bool = False) -> RunSpec:
+def get_melt_toxicity_detection_victsd_spec(max_train_instances: int = 0) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.melt_scenarios.MELTToxicityDetectionViCTSDScenario"
     )
@@ -396,7 +397,7 @@ def get_melt_toxicity_detection_victsd_spec(fewshot: bool = False) -> RunSpec:
     instruction = (
         "Hãy phân loại độc hại của bình luận sau vào một trong các nhóm:\n"
         "- clean: Không độc hại\n"
-        "- toxicity: Ngôn từ độc hại\n"
+        "- toxic: Ngôn từ độc hại\n"
         "Chỉ trả lời một trong các nhóm trên mà không cần giải thích thêm."
     )
 
@@ -405,21 +406,23 @@ def get_melt_toxicity_detection_victsd_spec(fewshot: bool = False) -> RunSpec:
         input_noun="Bình luận",
         output_noun="Phân loại độc hại",
         max_tokens=50,
-        max_train_instances=5 if fewshot else 0,
+        max_train_instances=max_train_instances,
         multi_label=False,
     )
 
     return RunSpec(
-        name=f"melt_toxicity_detection_victsd:fewshot={fewshot}",
+        name=f"melt_toxicity_detection_victsd:max_train_instances={max_train_instances}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
-        groups=["melt", "toxicity_detection_victsd"],
+        metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(labels=["clean", "toxic"]),
+        groups=["melt", "melt_toxicity_detection_victsd"],
     )
 
 
 @run_spec_function("melt_information_retrieval_mmarco")
-def get_melt_information_retrieval_mmarco_spec(valid_topk: Optional[int] = None, fewshot: bool = False) -> RunSpec:
+def get_melt_information_retrieval_mmarco_spec(
+    valid_topk: Optional[int] = None, max_train_instances: int = 0
+) -> RunSpec:
     from helm.benchmark.scenarios.msmarco_scenario import MSMARCOScenario
 
     valid_topk = None if valid_topk is None else int(valid_topk)
@@ -433,7 +436,7 @@ def get_melt_information_retrieval_mmarco_spec(valid_topk: Optional[int] = None,
         query_noun="Câu hỏi",
         output_prefix="Đoạn văn này có trả lời được câu hỏi không?",
         output_noun="Trả lời",
-        max_train_instances=4 if fewshot else 0,
+        max_train_instances=max_train_instances,
         stop_sequences=["\n"],
     )
 
@@ -464,12 +467,14 @@ def get_melt_information_retrieval_mmarco_spec(valid_topk: Optional[int] = None,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=["melt", "information_retrieval_mmarco"],
+        groups=["melt", "melt_information_retrieval_mmarco"],
     )
 
 
 @run_spec_function("melt_information_retrieval_mrobust")
-def get_melt_information_retrieval_mrobust_spec(valid_topk: Optional[int] = None, fewshot: bool = False) -> RunSpec:
+def get_melt_information_retrieval_mrobust_spec(
+    valid_topk: Optional[int] = None, max_train_instances: int = 0
+) -> RunSpec:
     from helm.benchmark.scenarios.msmarco_scenario import MSMARCOScenario
 
     valid_topk = None if valid_topk is None else int(valid_topk)
@@ -483,7 +488,7 @@ def get_melt_information_retrieval_mrobust_spec(valid_topk: Optional[int] = None
         query_noun="Câu hỏi",
         output_prefix="Đoạn văn này có trả lời được câu hỏi không?",
         output_noun="Trả lời",
-        max_train_instances=4 if fewshot else 0,
+        max_train_instances=max_train_instances,
         stop_sequences=["\n"],
     )
 
@@ -514,5 +519,5 @@ def get_melt_information_retrieval_mrobust_spec(valid_topk: Optional[int] = None
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=["melt", "information_retrieval_mrobust"],
+        groups=["melt", "melt_information_retrieval_mrobust"],
     )

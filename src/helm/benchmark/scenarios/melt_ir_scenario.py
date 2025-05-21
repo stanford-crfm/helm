@@ -33,7 +33,9 @@ class MELTInformationRetrievalScenario(Scenario):
     MAX_TRAIN_TOPK: int = 20
     MAX_VALID_TOPK: int = 1000
 
-    def __init__(self, dataset_name: str, revision: str, subset: Optional[str] = "", valid_topk: Optional[int] = None):
+    def __init__(
+        self, dataset_name: str, revision: str, subset: Optional[str] = None, valid_topk: Optional[int] = None
+    ):
         """The constructor for the MSMARCOScenario.
 
         Args:

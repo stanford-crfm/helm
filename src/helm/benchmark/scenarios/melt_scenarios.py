@@ -28,7 +28,7 @@ class MELTQAScenario(Scenario):
         self,
         dataset_name: str,
         revision: str,
-        subset: Optional[str] = "",
+        subset: Optional[str] = None,
         passage_prefix: str = "Passage: ",
         question_prefix: str = "Question: ",
         splits: Optional[Dict[str, str]] = None,
@@ -188,7 +188,7 @@ class MELTSummarizationScenario(Scenario):
         self,
         dataset_name: str,
         revision: str,
-        subset: Optional[str] = "",
+        subset: Optional[str] = None,
         train_min_length: Optional[int] = None,
         train_max_length: Optional[int] = None,
         doc_max_length: Optional[int] = None,
@@ -511,7 +511,7 @@ class MELTTextClassificationScenario(Scenario):
         self,
         dataset_name: str,
         revision: str,
-        subset: Optional[str] = "",
+        subset: Optional[str] = None,
         text_key: str = "text",
         label_key: str = "label",
         splits: Optional[Dict[str, str]] = None,
@@ -648,7 +648,7 @@ class MELTToxicityDetectionViCTSDScenario(MELTTextClassificationScenario):
         )
         self.label_mapping = {
             0: "clean",
-            1: "toxicity",
+            1: "toxic",
         }
 
     def process_example(self, sample: dict) -> Tuple[str, List[str]]:

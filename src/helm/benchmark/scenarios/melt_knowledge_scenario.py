@@ -26,7 +26,7 @@ class MELTClosedBookQAScenario(Scenario):
         self,
         dataset_name: str,
         revision: str,
-        subset: Optional[str] = "",
+        subset: Optional[str] = None,
         splits: Optional[Dict[str, str]] = None,
     ):
         """
@@ -116,7 +116,7 @@ class MELTMultipleChoiceQAScenario(Scenario):
         self,
         dataset_name: str,
         revision: str,
-        subset: Optional[str] = "",
+        subset: Optional[str] = None,
         splits: Optional[Dict[str, str]] = None,
     ):
         """
@@ -161,8 +161,6 @@ class MELTMultipleChoiceQAScenario(Scenario):
             for sample in dataset[dataset_split_name]:
                 inputs, references = self.process_example(sample)
                 instance = Instance(
-                    # input=sample["question"],
-                    # references=[Reference(Output(text=sample["answer"]), tags=[CORRECT_TAG])],
                     input=inputs,
                     references=references,
                     split=helm_split_name,
@@ -243,7 +241,6 @@ class MELTKnowledgeViMMRCScenario(MELTMultipleChoiceQAScenario):
             references.append(Reference(Output(text=answer), tags=tags))
 
         if self.randomize_order:
-            k = random.randint(0, len(references) - 1)
-            references = references[k:] + references[:k]
+            random.shuffle(references)
 
         return inputs, references
