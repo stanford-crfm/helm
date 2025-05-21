@@ -13,6 +13,7 @@ from helm.benchmark.metrics.common_metric_specs import (
     get_generative_harms_metric_specs,
     get_summarization_metric_specs,
     get_basic_metric_specs,
+    get_classification_metric_specs,
 )
 
 
@@ -290,4 +291,143 @@ def get_math_spec(
         )
         + get_generative_harms_metric_specs(),
         groups=["melt"] + groups,
+    )
+
+
+@run_spec_function("melt_text_classification_vsmec")
+def get_melt_text_classification_vsmec_spec(max_train_instances: int = 0) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.melt_scenarios.MELTTextClassificationVSMECScenario"
+    )
+
+    instruction = (
+        "Hãy phân loại cảm xúc của bình luận sau vào một trong các nhóm: "
+        "sadness, surprise, disgust, fear, anger, enjoyment, other."
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=instruction,
+        input_noun="Bình luận",
+        output_noun="Loại cảm xúc",
+        max_tokens=50,
+        max_train_instances=max_train_instances,
+        multi_label=False,
+    )
+
+    return RunSpec(
+        name=f"melt_text_classification_vsmec:max_train_instances={max_train_instances}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs()
+        + get_classification_metric_specs(
+            labels=["sadness", "surprise", "disgust", "fear", "anger", "enjoyment", "other"]
+        ),
+        groups=["melt", "melt_text_classification_vsmec"],
+    )
+
+
+@run_spec_function("melt_text_classification_phoatis")
+def get_melt_text_classification_phoatis_spec(max_train_instances: int = 0) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.melt_scenarios.MELTTextClassificationPhoATISScenario"
+    )
+
+    instruction = (
+        "Hãy phân loại yêu cầu của khách hàng vào trong các nhóm sau: "
+        "flight, airfare, ground_service, day_name, meal, airport, airline, flight_time, city, "
+        "ground_fare, quantity, abbreviation, distance, aircraft, capacity, flight_no, restriction. "
+        "Yêu cầu của khách hàng có thể thuộc tối đa 2 loại và phân biệt nhau bằng dấu phẩy."
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=instruction,
+        input_noun="Yêu cầu của khách hàng",
+        output_noun="Loại yêu cầu",
+        max_tokens=50,
+        max_train_instances=max_train_instances,
+        multi_label=True,
+    )
+
+    return RunSpec(
+        name=f"melt_text_classification_phoatis:max_train_instances={max_train_instances}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs()
+        + get_classification_metric_specs(
+            delimiter=",",
+            labels=[
+                "flight",
+                "airfare",
+                "ground_service",
+                "day_name",
+                "meal",
+                "airport",
+                "airline",
+                "flight_time",
+                "city",
+                "ground_fare",
+                "quantity",
+                "abbreviation",
+                "distance",
+                "aircraft",
+                "capacity",
+                "flight_no",
+                "restriction",
+            ],
+        ),
+        groups=["melt", "melt_text_classification_phoatis"],
+    )
+
+
+@run_spec_function("melt_sentiment_analysis_vlsp")
+def get_melt_sentiment_analysis_vlsp_spec(max_train_instances: int = 0) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.melt_scenarios.MELTTSentimentAnalysisVLSPScenario"
+    )
+
+    instruction = "Hãy phân tích quan điểm của nhận xét sau vào một trong các nhóm: negative, neutral, positive."
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=instruction,
+        input_noun="Nhận xét",
+        output_noun="Quan điểm",
+        max_tokens=50,
+        max_train_instances=max_train_instances,
+        multi_label=False,
+    )
+
+    return RunSpec(
+        name=f"melt_sentiment_analysis_vlsp:max_train_instances={max_train_instances}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs()
+        + get_classification_metric_specs(labels=["negative", "neutral", "positive"]),
+        groups=["melt", "melt_sentiment_analysis_vlsp"],
+    )
+
+
+@run_spec_function("melt_sentiment_analysis_vsfc")
+def get_melt_sentiment_analysis_vsfc_spec(max_train_instances: int = 0) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.melt_scenarios.MELTTSentimentAnalysisVSFCScenario"
+    )
+
+    instruction = "Hãy phân tích quan điểm của nhận xét sau vào một trong các nhóm: negative, neutral, positive."
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=instruction,
+        input_noun="Nhận xét",
+        output_noun="Quan điểm",
+        max_tokens=50,
+        max_train_instances=max_train_instances,
+        multi_label=False,
+    )
+
+    return RunSpec(
+        name=f"melt_sentiment_analysis_vsfc:max_train_instances={max_train_instances}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs()
+        + get_classification_metric_specs(labels=["negative", "neutral", "positive"]),
+        groups=["melt", "melt_sentiment_analysis_vsfc"],
     )
