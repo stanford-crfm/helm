@@ -127,8 +127,8 @@ def setup_default_logging():
     Setup a default logger to STDOUT for HELM via Python logging
     """
     formatter = ColoredFormatter(
-        "%(black)s%(asctime)s %(log_color)s%(levelname)-8s%(reset)s %(message)s",
-        datefmt=None,
+        "%(asctime)s %(log_color)s%(levelname)-8s%(reset)s %(message)s",
+        datefmt="%Y-%m-%dT%H:%M:%S",
         reset=True,
         log_colors={
             "DEBUG": "cyan",
