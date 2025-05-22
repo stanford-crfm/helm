@@ -58,9 +58,7 @@ class UltraSuiteASRClassificationScenario(Scenario):
     name = "speech_disorder"
     description = "A scenario for evaluating speech disorders in children"
     tags = ["audio", "classification", "speech_disorder", "asr"]
-    HF_MAPPING_URL = (
-        "https://https://huggingface.co/datasets/SAA-Lab/SLPHelmUltraSuite"
-    )
+    HF_MAPPING_URL = "https://https://huggingface.co/datasets/SAA-Lab/SLPHelmUltraSuite"
 
     # Classification options
     options: List[str] = ["Healthy", "Unhealthy"]

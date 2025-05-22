@@ -28,9 +28,7 @@ class UltraSuiteDisorderBreakdownScenario(Scenario):
     name = "speech_disorder"
     description = "A scenario for evaluating and classifying specific types of speech disorders in children"
     tags = ["audio", "classification", "speech_disorder", "disorder_breakdown"]
-    HF_MAPPING_URL = (
-        "https://https://huggingface.co/datasets/SAA-Lab/SLPHelmManualLabels"
-    )
+    HF_MAPPING_URL = "https://https://huggingface.co/datasets/SAA-Lab/SLPHelmManualLabels"
 
     def get_instruction(self, words: str) -> str:
         return f"""You are a highly experienced Speech-Language Pathologist (SLP). An audio recording will be provided, typically consisting of a speech prompt from a pathologist followed by a child's repetition. The prompt text the child is trying to repeat is as follows: {words}. Based on your professional expertise: 1. Assess the child's speech in the recording for signs of typical development or potential speech-language disorder. 2. Conclude your analysis with one of the following labels only: A - 'typically developing' (child's speech patterns and development are within normal age-appropriate ranges), B - 'articulation' (difficulty producing specific speech sounds correctly, such as substituting, omitting, or distorting sounds), C - 'phonological' (difficulty understanding and using the sound system of language, affecting sounds of a particular type). 3. Provide your response as a single letter without any additional explanation, commentary, or unnecessary text."""
