@@ -5,6 +5,7 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.benchmark.adaptation.adapters.binary_ranking_adapter import BinaryRankingAdapter
 from helm.benchmark.adaptation.common_adapter_specs import (
     get_generation_adapter_spec,
+    get_machine_translation_adapter_spec,
     get_multiple_choice_adapter_spec,
     get_ranking_binary_adapter_spec,
 )
@@ -20,6 +21,7 @@ from helm.benchmark.metrics.common_metric_specs import (
     get_generative_harms_metric_specs,
     get_summarization_metric_specs,
     get_basic_metric_specs,
+    get_open_ended_generation_metric_specs,
     get_classification_metric_specs,
     get_basic_reference_metric_specs,
     get_generic_metric_specs,
@@ -301,6 +303,119 @@ def get_math_spec(
         )
         + get_generative_harms_metric_specs(),
         groups=["melt"] + groups,
+    )
+
+
+@run_spec_function("melt_translation_opus100")
+def get_melt_translation_opus100_spec(language_pair: str) -> RunSpec:
+    FULL_LANGUAGE_NAMES = {
+        "vi": "Vietnamese",
+        "en": "English",
+    }
+    source_language, target_language = language_pair.split("-")
+
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.melt_translation_scenario.MELTTranslationOPUS100Scenario",
+        args={"source_language": source_language, "target_language": target_language},
+    )
+
+    adapter_spec = get_machine_translation_adapter_spec(
+        source_language=FULL_LANGUAGE_NAMES[source_language],
+        target_language=FULL_LANGUAGE_NAMES[target_language],
+        max_train_instances=5,
+    )
+
+    return RunSpec(
+        name=(
+            f"melt_translation_opus100:language_pair={language_pair},"
+            f"max_train_instances={adapter_spec.max_train_instances}"
+        ),
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_open_ended_generation_metric_specs(),
+        groups=["melt", "melt_translation_opus100"],
+    )
+
+
+@run_spec_function("melt_translation_phomt")
+def get_melt_translation_phomt_spec(language_pair: str) -> RunSpec:
+    FULL_LANGUAGE_NAMES = {
+        "vi": "Vietnamese",
+        "en": "English",
+    }
+    source_language, target_language = language_pair.split("-")
+
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.melt_translation_scenario.MELTTranslationPhoMTScenario",
+        args={"source_language": source_language, "target_language": target_language},
+    )
+
+    adapter_spec = get_machine_translation_adapter_spec(
+        source_language=FULL_LANGUAGE_NAMES[source_language],
+        target_language=FULL_LANGUAGE_NAMES[target_language],
+        max_train_instances=5,
+    )
+
+    return RunSpec(
+        name=(
+            f"melt_translation_phomt:language_pair={language_pair},"
+            f"max_train_instances={adapter_spec.max_train_instances}"
+        ),
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_open_ended_generation_metric_specs(),
+        groups=["melt", "melt_translation_phomt"],
+    )
+
+
+@run_spec_function("melt_lm_mask_filling_mlqa")
+def get_melt_lm_mask_filling_mlqaa_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.melt_lm_scenarios.MELTLMMaskFillingMLQAScenario")
+
+    instruction = (
+        "Hãy hoàn thành câu sau bằng cách điền vào các vị trí trống được đánh dấu bằng [MASK]. "
+        "Chỉ trả lời bằng câu đã hoàn thành và không thêm gì khác."
+    )
+    adapter_spec = get_generation_adapter_spec(
+        instructions=instruction,
+        input_noun="Câu có chỗ trống",
+        output_noun="Câu đã hoàn thành",
+        num_outputs=1,
+        max_tokens=1024,
+        temperature=0.0,
+    )
+
+    return RunSpec(
+        name=f"melt_lm_mask_filling_mlqa:max_train_instances={adapter_spec.max_train_instances}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs() + get_f1_metric_specs(),
+        groups=["melt", "melt_lm_mask_filling_mlqa"],
+    )
+
+
+@run_spec_function("melt_lm_spelling_correction_vsec")
+def get_melt_lm_spelling_correction_vsec_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.melt_lm_scenarios.MELTLMSpellingCorrectionVSECScenario"
+    )
+
+    instruction = "Hãy sửa lỗi chính tả trong câu sau. Chỉ trả lời bằng câu đã sửa đúng chính tả và không thêm gì khác."
+    adapter_spec = get_generation_adapter_spec(
+        instructions=instruction,
+        input_noun="Câu có lỗi",
+        output_noun="Câu đã sửa",
+        num_outputs=1,
+        max_tokens=1024,
+        temperature=0.0,
+    )
+
+    return RunSpec(
+        name=f"melt_lm_spelling_correction_vsec:max_train_instances={adapter_spec.max_train_instances}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs() + get_f1_metric_specs(),
+        groups=["melt", "melt_lm_spelling_correction_vsec"],
     )
 
 
