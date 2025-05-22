@@ -14,7 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
-from helm.common.general import ensure_directory_exists
+from helm.common.general import ensure_directory_exists, ensure_file_downloaded
 from .ultra_suite_classification_scenario import find_audio_json_pairs
 
 
@@ -23,13 +23,14 @@ class UltraSuiteDisorderBreakdownScenario(Scenario):
     A scenario for evaluating and classifying specific types of speech disorders in children.
     This scenario extends the basic speech disorder classification by breaking down disorders
     into specific categories: articulation and phonological disorders.
-    You can find the dataset at https://huggingface.co/datasets/SAA-Lab/UltraSuite/tree/main
-    Please download the dataset and place it in the benchmark_output/scenarios/speech_disorder directory
     """
 
     name = "speech_disorder"
     description = "A scenario for evaluating and classifying specific types of speech disorders in children"
     tags = ["audio", "classification", "speech_disorder", "disorder_breakdown"]
+    HF_MAPPING_URL = (
+        "https://https://huggingface.co/datasets/SAA-Lab/SLPHelmManualLabels"
+    )
 
     def get_instruction(self, words: str) -> str:
         return f"""You are a highly experienced Speech-Language Pathologist (SLP). An audio recording will be provided, typically consisting of a speech prompt from a pathologist followed by a child's repetition. The prompt text the child is trying to repeat is as follows: {words}. Based on your professional expertise: 1. Assess the child's speech in the recording for signs of typical development or potential speech-language disorder. 2. Conclude your analysis with one of the following labels only: A - 'typically developing' (child's speech patterns and development are within normal age-appropriate ranges), B - 'articulation' (difficulty producing specific speech sounds correctly, such as substituting, omitting, or distorting sounds), C - 'phonological' (difficulty understanding and using the sound system of language, affecting sounds of a particular type). 3. Provide your response as a single letter without any additional explanation, commentary, or unnecessary text."""
@@ -41,11 +42,11 @@ class UltraSuiteDisorderBreakdownScenario(Scenario):
         - Audio files (e.g., .mp3)
         - A JSON file with annotations containing 'disorder_class' field
         """
-        ensure_directory_exists(output_path)
+        print(f"Downloading dataset from {UltraSuiteDisorderBreakdownScenario.HF_MAPPING_URL} to {output_path}")
+        ensure_file_downloaded(source_url=UltraSuiteDisorderBreakdownScenario.HF_MAPPING_URL, target_path=output_path)
 
         instances: List[Instance] = []
         split: str = TEST_SPLIT
-        print(f"Output path: {os.path.abspath(output_path)}")
 
         # Find all pairs of audio and JSON files
         pairs = find_audio_json_pairs(output_path)

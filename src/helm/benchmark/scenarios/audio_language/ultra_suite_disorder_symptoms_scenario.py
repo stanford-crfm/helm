@@ -14,7 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
-from helm.common.general import ensure_directory_exists
+from helm.common.general import ensure_directory_exists, ensure_file_downloaded
 
 
 def find_audio_json_pairs(directory: str) -> List[Tuple[str, str]]:
@@ -52,13 +52,14 @@ class UltraSuiteDisorderSymptomsScenario(Scenario):
     """
     A scenario identifying features of speech disorders within the provided audio.
     The audio files contain speech from children, potentially with an adult present.
-    You can find the dataset at https://huggingface.co/datasets/SAA-Lab/UltraSuite/tree/main
-    Please download the dataset and place it in the benchmark_output/scenarios/speech_disorder directory
     """
 
     name = "speech_disorder"
     description = "A scenario for evaluating speech disorders in children"
     tags = ["audio", "classification", "speech_disorder"]
+    HF_MAPPING_URL = (
+        "https://https://huggingface.co/datasets/SAA-Lab/SLPHelmManualLabels"
+    )
 
     def get_instruction(self, words: str) -> str:
         prompt = f"""You are a highly experienced Speech-Language Pathologist (SLP). An audio recording will be provided, typically consisting of a speech prompt from a pathologist followed by a child's repetition. The prompt the child is trying to repeat is as follows: {words}. Based on your professional expertise: 1. Assess the child's speech in the recording and recognize any abnormal features in the child's speech. 2. These features can be on of the following: A - 'substitution', B - 'omission', C - 'addition', D - 'typically_developing', or E - 'stuttering'. Here, 'substitution' is when the child substitutes one word/phrase/syllable for another. 'omission' is when the child omits one word/phrase/syllable. 'addition' is when the child adds one word/phrase/syllable. 'typically_developing' is when the child's speech is typical of a child of their age. 'stuttering' is when the child stutters, has difficulty speaking, repeats sounds/words or prolongs sounds/words. 3. Provide your response as a single letter without any additional explanation, commentary, or unnecessary text."""
@@ -72,7 +73,8 @@ class UltraSuiteDisorderSymptomsScenario(Scenario):
         - Audio files (e.g., .mp3)
         - A JSON file with annotations containing 'answer' field
         """
-        ensure_directory_exists(output_path)
+        print(f"Downloading dataset from {UltraSuiteDisorderSymptomsScenario.HF_MAPPING_URL} to {output_path}")
+        ensure_file_downloaded(source_url=UltraSuiteDisorderSymptomsScenario.HF_MAPPING_URL, target_path=output_path)
 
         instances: List[Instance] = []
         split: str = TEST_SPLIT

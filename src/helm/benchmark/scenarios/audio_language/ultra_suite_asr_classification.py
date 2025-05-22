@@ -14,7 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
-from helm.common.general import ensure_directory_exists
+from helm.common.general import ensure_directory_exists, ensure_file_downloaded
 
 
 def find_audio_json_pairs(directory: str) -> List[Tuple[str, str]]:
@@ -53,13 +53,14 @@ class UltraSuiteASRClassificationScenario(Scenario):
     A scenario for evaluating whether a child speaker has a speech disorder or not.
     The audio files contain speech from children, potentially with an adult present.
     The task is to classify whether the child speaker is typically developing or has a speech disorder.
-    You can find the dataset at https://huggingface.co/datasets/SAA-Lab/UltraSuite/tree/main
-    Please download the dataset and place it in the benchmark_output/scenarios/speech_disorder directory
     """
 
     name = "speech_disorder"
     description = "A scenario for evaluating speech disorders in children"
     tags = ["audio", "classification", "speech_disorder", "asr"]
+    HF_MAPPING_URL = (
+        "https://https://huggingface.co/datasets/SAA-Lab/SLPHelmUltraSuite"
+    )
 
     # Classification options
     options: List[str] = ["Healthy", "Unhealthy"]
@@ -71,8 +72,8 @@ class UltraSuiteASRClassificationScenario(Scenario):
         - Audio files (e.g., .mp3)
         - A JSON file with annotations containing 'answer' field
         """
-        ensure_directory_exists(output_path)
-        print(f"Output path: {os.path.abspath(output_path)}")
+        print(f"Downloading dataset from {UltraSuiteASRClassificationScenario.HF_MAPPING_URL} to {output_path}")
+        ensure_file_downloaded(source_url=UltraSuiteASRClassificationScenario.HF_MAPPING_URL, target_path=output_path)
 
         instances: List[Instance] = []
         split: str = TEST_SPLIT
