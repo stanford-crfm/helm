@@ -86,13 +86,12 @@ class UltraSuiteClassificationScenario(Scenario):
         print(f"Num pairs: {len(pairs)}")
 
         for audio_path, json_path in tqdm(pairs):
-
             # Load the annotation
             with open(json_path, "r") as f:
                 annotation = json.load(f)
 
             # Get the correct answer and convert to label
-            answer = annotation["answer"]
+            answer = annotation["disorder_class"]
             words = annotation["transcription"]
             # Create references for each option
             references: List[Reference] = []

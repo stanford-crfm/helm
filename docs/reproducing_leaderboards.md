@@ -163,3 +163,13 @@ export NUM_TRAIN_TRIALS=1
 export NUM_EVAL_INSTANCES=1000
 export PRIORITY=2
 ```
+
+### MELT
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_melt.conf
+export SCHEMA_PATH=schema_melt.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=1000
+export PRIORITY=2
+```

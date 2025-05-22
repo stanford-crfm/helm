@@ -4,7 +4,7 @@ import re
 import sqlite3
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hwarn
 from helm.benchmark.runner import get_benchmark_output_path
 
 
@@ -32,7 +32,7 @@ class EhrSqlAnnotator(Annotator):
                 cursor.execute(ground_truth_sql)
                 ground_truth_result = cursor.fetchall()
         except (sqlite3.OperationalError, sqlite3.Warning) as e:
-            hlog(f"WARNING: Ground truth SQL failed with error: {e}")
+            hwarn(f"Ground truth SQL failed with error: {e}")
 
         # If ground truth SQL execution didn't return results, attempt to use extra_data["value"]
         if not ground_truth_result and request_state.instance.extra_data is not None:

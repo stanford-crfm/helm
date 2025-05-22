@@ -55,6 +55,8 @@ nav:
     - heim.md
     - vhelm.md
     - enterprise_benchmark.md
+    - reeval.md
+    - medhelm.md
   - Reference:
     - models.md
     - metrics.md

@@ -2,7 +2,7 @@ from typing import List
 
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from helm.common.request import RequestResult
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hlog, hwarn
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.clients.perspective_api_client import PerspectiveAPIClientCredentialsError
@@ -62,7 +62,7 @@ class ToxicityMetric(Metric):
             )
         except PerspectiveAPIClientCredentialsError as e:
             self._perspective_api_unavailable = True
-            hlog(f"WARNING: Skipping ToxicityMetrics because Perspective API Client unavailable due to error: {e}")
+            hwarn(f"Skipping ToxicityMetrics because Perspective API Client unavailable due to error: {e}")
             hlog(
                 "To enable ToxicityMetrics, see: https://crfm-helm.readthedocs.io/en/latest/benchmark/#perspective-api"
             )

@@ -1,6 +1,8 @@
+import logging
 import sys
 import time
 from typing import Any, Callable, List, Optional
+from colorlog import ColoredFormatter
 
 
 class HierarchicalLogger(object):
@@ -20,6 +22,12 @@ class HierarchicalLogger(object):
         } [0s]
     """
 
+    # Far too much effort to unwind every call to hlog to go via logging,
+    # And is a terrible idea to inspect the stack every time hlog is called
+    # to figure out the caller,
+    # So just log everything under "helm".
+    logger = logging.getLogger("helm")
+
     def __init__(self) -> None:
         self.start_times: List[float] = []
 
@@ -27,17 +35,21 @@ class HierarchicalLogger(object):
         return "  " * len(self.start_times)
 
     def track_begin(self, x: Any) -> None:
-        print(self.indent() + str(x) + " {")
+        self.logger.info(self.indent() + str(x) + " {")
         sys.stdout.flush()
         self.start_times.append(time.time())
 
     def track_end(self) -> None:
         t = time.time() - self.start_times.pop()
-        print(self.indent() + "} [%s]" % (format_time(t)))
+        self.logger.info(self.indent() + "} [%s]" % (format_time(t)))
         sys.stdout.flush()
 
     def log(self, x: Any) -> None:
-        print(self.indent() + str(x))
+        self.logger.info(self.indent() + str(x))
+        sys.stdout.flush()
+
+    def warn(self, x: Any) -> None:
+        self.logger.warning(self.indent() + str(x))
         sys.stdout.flush()
 
 
@@ -59,6 +71,10 @@ singleton = HierarchicalLogger()
 
 def hlog(x: Any) -> None:
     singleton.log(x)
+
+
+def hwarn(x: Any) -> None:
+    singleton.warn(x)
 
 
 class htrack_block:
@@ -104,3 +120,29 @@ class htrack:
                 return fn(*args, **kwargs)
 
         return wrapper
+
+
+def setup_default_logging():
+    """
+    Setup a default logger to STDOUT for HELM via Python logging
+    """
+    formatter = ColoredFormatter(
+        "%(black)s%(asctime)s %(log_color)s%(levelname)-8s%(reset)s %(message)s",
+        datefmt=None,
+        reset=True,
+        log_colors={
+            "DEBUG": "cyan",
+            "INFO": "green",
+            "WARNING": "yellow",
+            "ERROR": "red",
+            "CRITICAL": "red,bg_white",
+        },
+        secondary_log_colors={},
+        style="%",
+    )
+
+    logger = logging.getLogger("helm")
+    logger.setLevel(logging.INFO)
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)

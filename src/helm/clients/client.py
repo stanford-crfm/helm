@@ -2,7 +2,7 @@ import json
 from abc import ABC, abstractmethod
 from typing import List, Mapping, Optional, cast
 
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hwarn
 from helm.common.media_object import MultimediaObject, TEXT_TYPE
 from helm.common.request import Request, RequestResult, GeneratedOutput, Token
 from helm.common.cache import Cache, CacheConfig
@@ -65,7 +65,7 @@ def truncate_sequence(
     # where max_tokens = 0, so there's nothing to truncate.
     if request.echo_prompt:
         if request.max_tokens != 0:
-            hlog("WARNING: don't know how to handle echo_prompt and max_tokens > 0, not truncating")
+            hwarn("don't know how to handle echo_prompt and max_tokens > 0, not truncating")
         return sequence
 
     if end_of_text_token:
@@ -90,8 +90,8 @@ def truncate_sequence(
             new_tokens.append(token)
 
         if len(new_text) < len(sequence.text) and len(new_tokens) == len(sequence.tokens):
-            hlog(
-                f"WARNING: Stripped characters from text ({len(sequence.text)} -> {len(new_text)}), "
+            hwarn(
+                f"Stripped characters from text ({len(sequence.text)} -> {len(new_text)}), "
                 f"but wasn't able to strip the tokens"
             )
 
@@ -99,14 +99,14 @@ def truncate_sequence(
         new_logprob = sum(token.logprob for token in new_tokens)
 
         if print_warning:
-            hlog(f"WARNING: truncate_sequence needs to strip {json.dumps(stop)}")
+            hwarn(f"truncate_sequence needs to strip {json.dumps(stop)}")
 
         sequence = GeneratedOutput(text=new_text, logprob=new_logprob, tokens=new_tokens)
 
     # Truncate based on the max number of tokens.
     if len(sequence.tokens) > request.max_tokens:
         if print_warning:
-            hlog(f"WARNING: truncate_sequence needs to truncate {len(sequence.tokens)} down to {request.max_tokens}")
+            hwarn(f"truncate_sequence needs to truncate {len(sequence.tokens)} down to {request.max_tokens}")
         new_tokens = sequence.tokens[: request.max_tokens]
 
         # This is imperfect stitching together of tokens, so just to make sure this is okay
@@ -114,7 +114,7 @@ def truncate_sequence(
         # Usually, in our benchmark, max_tokens is active when it's 1, so hopefully this isn't an issue.
         new_text = "".join(token.text for token in new_tokens)
         if not sequence.text.startswith(new_text):
-            hlog(f"WARNING: {json.dumps(sequence.text)} does not start with truncated text {json.dumps(new_text)}")
+            hwarn(f"{json.dumps(sequence.text)} does not start with truncated text {json.dumps(new_text)}")
 
         new_logprob = sum(token.logprob for token in new_tokens)
 

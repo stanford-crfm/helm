@@ -21,7 +21,7 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.scenarios.scenario import Instance, Reference
 from helm.common.codec import from_json, to_json
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hwarn
 from helm.common.request import Request, RequestResult, GeneratedOutput, Token
 
 
@@ -116,7 +116,7 @@ def modify_scenario_states_for_suite(run_suite_path: str, redact_output: bool) -
     for run_dir_name in tqdm(run_dir_names, disable=None):
         scenario_state_path: str = os.path.join(run_suite_path, run_dir_name, SCENARIO_STATE_FILE_NAME)
         if not os.path.exists(scenario_state_path):
-            hlog(f"WARNING: {run_dir_name} doesn't have {SCENARIO_STATE_FILE_NAME}, skipping")
+            hwarn(f"{run_dir_name} doesn't have {SCENARIO_STATE_FILE_NAME}, skipping")
             continue
         run_path: str = os.path.join(run_suite_path, run_dir_name)
         modify_scenario_state_for_run(run_path, redact_output)

@@ -8,7 +8,7 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.scenarios.scenario import CORRECT_TAG
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hwarn
 
 
 def _strip_string(str: str) -> Any:
@@ -41,7 +41,7 @@ def float_equiv(str1: str, str2: str, eps: float = 1e-6) -> float:
         ss2 = _strip_string(str2)
 
         if ss1 is None or ss2 is None:
-            hlog("WARNING: float_equiv returning 1.0 because both values are non-floats")
+            hwarn("float_equiv returning 1.0 because both values are non-floats")
             return 0.0
         return float(abs(ss1 - ss2) < eps)
     except Exception:
