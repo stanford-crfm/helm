@@ -393,31 +393,6 @@ def get_audiocaps_run_spec(num_respondents: int = 1) -> RunSpec:
         groups=[run_spec_name],
     )
 
-@run_spec_function("speech_disorder_asr")
-def get_speech_disorder_detection_run_spec(subject: str) -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.audio_language.speech_disorder_asr_scenario.SpeechDisorderScenarioASR",
-        args={"subject": subject},
-    )
-    adapter_spec = _get_generation_adapter_spec(
-        instructions="""You are a highly experienced Speech-Language Pathologist (SLP). 
-            An audio recording will be provided, typically consisting of a speech prompt 
-            from a pathologist followed by a child's repetition. 
-            Based on your expertise transcribe the child's speech into text.
-            Only respond with the text transcription, no other text or commentary.
-            Comma separated words, and end with a period.""",
-        max_tokens=50,
-    )
-    metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
-    run_spec_name: str = "speech_disorder_asr"
-    return RunSpec(
-        name=run_spec_name,
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=metric_specs,
-        groups=[run_spec_name],
-    )
-
 
 @run_spec_function("voxceleb2")
 def get_voxceleb2_run_spec() -> RunSpec:
