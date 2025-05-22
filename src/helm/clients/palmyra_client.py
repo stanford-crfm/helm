@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 
 from helm.clients.openai_client import OpenAIClient
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hwarn
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token, ErrorFlags
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -103,10 +103,7 @@ class PalmyraClient(CachingClient):
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
             if _is_content_moderation_failure(response):
-                hlog(
-                    f"WARNING: Returning empty request for {request.model_deployment} "
-                    "due to content moderation filter"
-                )
+                hwarn(f"Returning empty request for {request.model_deployment} " "due to content moderation filter")
                 return RequestResult(
                     success=False,
                     cached=False,

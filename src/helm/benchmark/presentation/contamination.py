@@ -4,7 +4,7 @@ import dacite
 import importlib_resources as resources
 import yaml
 
-from helm.common.hierarchical_logger import htrack, hlog
+from helm.common.hierarchical_logger import htrack, hlog, hwarn
 from helm.benchmark.model_metadata_registry import MODEL_NAME_TO_MODEL_METADATA
 from helm.benchmark.presentation.schema import Schema
 
@@ -71,10 +71,10 @@ def validate_contamination(contamination: Contamination, schema: Schema):
     for point in contamination.points:
         for model in point.models:
             if model not in MODEL_NAME_TO_MODEL_METADATA:
-                hlog(f"WARNING: model {model} not defined in schema")
+                hwarn(f"model {model} not defined in schema")
         for group in point.groups:
             if group not in schema.name_to_run_group:
-                hlog(f"WARNING: group {group} not defined in schema")
+                hwarn(f"group {group} not defined in schema")
 
 
 def read_contamination():

@@ -42,6 +42,7 @@ cohere==5.13.6
 colorama==0.4.6
 colorcet==3.0.1
 coloredlogs==15.0.1
+colorlog==6.9.0
 confection==0.1.5
 contourpy==1.3.0
 cycler==0.12.1
@@ -324,6 +325,8 @@ websockets==12.0
 werkzeug==3.1.3
 wheel==0.45.1
 wrapt==1.17.0
+writer-sdk==2.2.0
+writerai==4.0.1
 wsproto==1.2.0
 xlrd==2.0.1
 xxhash==3.5.0

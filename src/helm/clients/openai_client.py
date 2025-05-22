@@ -7,7 +7,7 @@ from helm.common import multimodal_request_utils
 from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE, MultimediaObject, MediaObject
 from helm.common.request import ErrorFlags, wrap_request_time, Request, RequestResult, GeneratedOutput, Token
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hlog, hwarn
 from helm.common.object_spec import get_class_by_name
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.tokenization_request import (
@@ -137,7 +137,7 @@ class OpenAIClient(CachingClient):
             if request.messages[-1]["role"] != "user":
                 raise ValueError("Last message must have role 'user'")
             if request.prompt != "":
-                hlog("WARNING: Since message is set, prompt will be ignored")
+                hwarn("Since message is set, prompt will be ignored")
         else:
             # Convert prompt into a single message
             # For now, put the whole prompt in a single user message, and expect the response

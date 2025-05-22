@@ -9,7 +9,7 @@ from retrying import retry
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hlog, hwarn
 
 
 # Based on https://github.com/bigcode-project/bigcodebench/blob/0331489b29cbf2653b4669597ef431e158882aab/bigcodebench/syncheck.py#L14  # noqa: E501
@@ -60,8 +60,8 @@ class BigCodeBenchAnnotator(Annotator):
             hlog(f"BigCodeBenchAnnotator will use the configured endpoint {endpoint}")
             self.client = Client(endpoint, hf_token=api_key)
         else:
-            hlog(
-                f"WARNING: BigCodeBenchAnnotator will use the default public evaluator endpoint {self.DEFAULT_URL} - "
+            hwarn(
+                f"BigCodeBenchAnnotator will use the default public evaluator endpoint {self.DEFAULT_URL} - "
                 "set bigcodebenchApiKey and bigcodebenchEndpoint in credentials.conf to use a cloned evaluator instead"
             )
             self.client = Client(self.DEFAULT_URL)

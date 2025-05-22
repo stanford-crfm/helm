@@ -7,7 +7,7 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
 from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo
 from helm.clients.auto_client import AutoClient
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hwarn
 from helm.common.request import Request
 
 
@@ -32,8 +32,8 @@ class WildBenchAnnotator(Annotator):
         model_output_text = request_state.result.completions[0].text
         if not model_output_text.strip():
             # Following https://github.com/allenai/WildBench/blob/d6b8dcaf377d173d031980f97c16e1a82618c03d/src/eval.py
-            hlog(
-                "WARNING: WildBenchAnnotator skipped sending requests to annotator models "
+            hwarn(
+                "WildBenchAnnotator skipped sending requests to annotator models "
                 "because the model response was empty"
             )
             return {
@@ -87,8 +87,8 @@ class WildBenchAnnotator(Annotator):
             score: Optional[float] = None
             annotator_response = self._auto_client.make_request(annotator_request)
             if not annotator_response.success:
-                hlog(
-                    "WARNING: WildBenchAnnotator got an error response from "
+                hwarn(
+                    "WildBenchAnnotator got an error response from "
                     f"{annotator_model_info.model_name}: : {annotator_response.error}"
                 )
             else:
@@ -96,8 +96,8 @@ class WildBenchAnnotator(Annotator):
                 annotator_response_text = annotator_response.completions[0].text
                 annotator_response_parts = self._pattern.search(annotator_response_text)
                 if not annotator_response_parts:
-                    hlog(
-                        "WARNING: WildBenchAnnotator got a malformed annotation from "
+                    hwarn(
+                        "WildBenchAnnotator got a malformed annotation from "
                         f"{annotator_model_info.model_name}: {annotator_response_text}"
                     )
                 else:
@@ -107,8 +107,8 @@ class WildBenchAnnotator(Annotator):
                     try:
                         score = float(score_text)
                     except ValueError:
-                        hlog(
-                            "WARNING: WildBenchAnnotator could not parse the score from the annotation from "
+                        hwarn(
+                            "WildBenchAnnotator could not parse the score from the annotation from "
                             f"{annotator_model_info.model_name}: {annotator_response_text}"
                         )
 
