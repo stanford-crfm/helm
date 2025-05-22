@@ -14,7 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
-from helm.common.general import ensure_directory_exists, ensure_file_downloaded
+from helm.common.general import ensure_file_downloaded
 
 
 def find_audio_json_pairs(directory: str) -> List[Tuple[str, str]]:

@@ -1,5 +1,4 @@
-from typing import List, Tuple
-import os
+from typing import List
 import json
 
 from tqdm import tqdm
@@ -14,7 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
-from helm.common.general import ensure_directory_exists, ensure_file_downloaded
+from helm.common.general import ensure_file_downloaded
 from .ultra_suite_classification_scenario import find_audio_json_pairs
 
 
