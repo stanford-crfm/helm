@@ -34,14 +34,14 @@ export default function MELTLanding() {
               <li>
                 <strong>Question Answering:</strong>{" "}
                 <a
-                  class="link-primary"
+                  className="link-primary"
                   href="https://huggingface.co/datasets/juletxara/xquad_xtreme"
                 >
                   XQuAD
                 </a>
                 ,{" "}
                 <a
-                  class="link-primary"
+                  className="link-primary"
                   href="https://huggingface.co/datasets/facebook/mlqa"
                 >
                   MLQA
@@ -50,14 +50,14 @@ export default function MELTLanding() {
               <li>
                 <strong>Summarization:</strong>{" "}
                 <a
-                  class="link-primary"
+                  className="link-primary"
                   href="https://huggingface.co/datasets/Yuhthe/vietnews"
                 >
                   VietNews
                 </a>
                 ,{" "}
                 <a
-                  class="link-primary"
+                  className="link-primary"
                   href="https://huggingface.co/datasets/GEM/wiki_lingua"
                 >
                   WikiLingua
@@ -66,14 +66,14 @@ export default function MELTLanding() {
               <li>
                 <strong>Sentiment Analysis:</strong>{" "}
                 <a
-                  class="link-primary"
+                  className="link-primary"
                   href="https://huggingface.co/datasets/ura-hcmut/vlsp2016"
                 >
                   VLSP2016
                 </a>
                 ,{" "}
                 <a
-                  class="link-primary"
+                  className="link-primary"
                   href="https://huggingface.co/datasets/ura-hcmut/UIT-VSFC"
                 >
                   UiT-VSFC
@@ -82,14 +82,14 @@ export default function MELTLanding() {
               <li>
                 <strong>Text Classification:</strong>{" "}
                 <a
-                  class="link-primary"
+                  className="link-primary"
                   href="https://huggingface.co/datasets/ura-hcmut/PhoATIS"
                 >
                   PhoATIS
                 </a>
                 ,{" "}
                 <a
-                  class="link-primary"
+                  className="link-primary"
                   href="https://huggingface.co/datasets/ura-hcmut/UIT-VSMEC"
                 >
                   UiT-VSMEC
@@ -98,14 +98,14 @@ export default function MELTLanding() {
               <li>
                 <strong>Knowledge:</strong>{" "}
                 <a
-                  class="link-primary"
+                  className="link-primary"
                   href="https://huggingface.co/datasets/ura-hcmut/zalo_e2eqa"
                 >
                   ZaloE2E
                 </a>
                 ,{" "}
                 <a
-                  class="link-primary"
+                  className="link-primary"
                   href="https://huggingface.co/datasets/ura-hcmut/ViMMRC"
                 >
                   UiT-ViMMRC
@@ -114,14 +114,14 @@ export default function MELTLanding() {
               <li>
                 <strong>Toxic Detection:</strong>{" "}
                 <a
-                  class="link-primary"
+                  className="link-primary"
                   href="https://huggingface.co/datasets/ura-hcmut/UIT-ViHSD"
                 >
                   UiT-VIHSD
                 </a>
                 ,{" "}
                 <a
-                  class="link-primary"
+                  className="link-primary"
                   href="https://huggingface.co/datasets/tarudesu/ViCTSD"
                 >
                   UiT-ViCTSD
@@ -130,14 +130,14 @@ export default function MELTLanding() {
               <li>
                 <strong>Information Retrieval:</strong>{" "}
                 <a
-                  class="link-primary"
+                  className="link-primary"
                   href="https://huggingface.co/datasets/unicamp-dl/mmarco"
                 >
                   mMARCO
                 </a>
                 ,{" "}
                 <a
-                  class="link-primary"
+                  className="link-primary"
                   href="https://huggingface.co/datasets/unicamp-dl/mrobust"
                 >
                   mRobust04
@@ -146,14 +146,14 @@ export default function MELTLanding() {
               <li>
                 <strong>Language Modeling:</strong>{" "}
                 <a
-                  class="link-primary"
+                  className="link-primary"
                   href="https://huggingface.co/datasets/ura-hcmut/MLQA"
                 >
                   MLQA
                 </a>
                 ,{" "}
                 <a
-                  class="link-primary"
+                  className="link-primary"
                   href="https://huggingface.co/datasets/ura-hcmut/VSEC"
                 >
                   VSEC
@@ -161,18 +161,18 @@ export default function MELTLanding() {
               </li>
               <li>
                 <strong>Reasoning:</strong>{" "}
-                <a class="link-primary" href="">
+                <a className="link-primary" href="">
                   Synthetic reasoning
                 </a>
                 ,{" "}
-                <a class="link-primary" href="">
+                <a className="link-primary" href="">
                   Natural synthetic reasoning
                 </a>
               </li>
               <li>
                 <strong>Mathematic:</strong>{" "}
                 <a
-                  class="link-primary"
+                  className="link-primary"
                   href="https://huggingface.co/datasets/ura-hcmut/Vietnamese-MATH"
                 >
                   MATH
@@ -181,14 +181,14 @@ export default function MELTLanding() {
               <li>
                 <strong>Translation:</strong>{" "}
                 <a
-                  class="link-primary"
+                  className="link-primary"
                   href="https://huggingface.co/datasets/vietgpt/opus100_envi"
                 >
                   OPUS100
                 </a>
                 ,{" "}
                 <a
-                  class="link-primary"
+                  className="link-primary"
                   href="https://huggingface.co/datasets/ura-hcmut/PhoMT"
                 >
                   PhoMT
