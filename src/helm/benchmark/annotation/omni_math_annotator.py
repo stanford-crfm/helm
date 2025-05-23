@@ -5,7 +5,7 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
 from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo
 from helm.clients.auto_client import AutoClient
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hwarn
 from helm.common.request import Request
 
 
@@ -47,9 +47,8 @@ class OmniMATHAnnotator(Annotator):
             .replace("{{Solution}}", model_output_text)
         )
         if not model_output_text.strip():
-            hlog(
-                "WARNING: OmniMATHAnnotator skipped sending requests to annotator models "
-                "because the model response was empty"
+            hwarn(
+                "OmniMATHAnnotator skipped sending requests to annotator models " "because the model response was empty"
             )
             return {
                 "prompt_text": None,
@@ -85,8 +84,8 @@ class OmniMATHAnnotator(Annotator):
             )
             annotator_response = self._auto_client.make_request(annotator_request)
             if not annotator_response.success:
-                hlog(
-                    "WARNING: OmniMATHAnnotator got an error response from "
+                hwarn(
+                    "OmniMATHAnnotator got an error response from "
                     f"{annotator_model_info.model_name}: {annotator_response.error}"
                 )
             else:
@@ -96,16 +95,16 @@ class OmniMATHAnnotator(Annotator):
                 try:
                     student_final_answer = report_parts["Student Final Answer"]
                 except KeyError:
-                    hlog(
-                        "WARNING: OmniMATHAnnotator could not get Student Final Answer from annotation from "
+                    hwarn(
+                        "OmniMATHAnnotator could not get Student Final Answer from annotation from "
                         f"{annotator_model_info.model_name}: {annotator_response_text}"
                     )
 
                 try:
                     justification = report_parts["Justification"].strip().removesuffix("=== report over ===").strip()
                 except KeyError:
-                    hlog(
-                        "WARNING: OmniMATHAnnotator could not get Justification from annotation from "
+                    hwarn(
+                        "OmniMATHAnnotator could not get Justification from annotation from "
                         f"{annotator_model_info.model_name}: {annotator_response_text}"
                     )
 
@@ -116,13 +115,13 @@ class OmniMATHAnnotator(Annotator):
                     elif equivalence_judgement_str == "FALSE":
                         equivalence_judgement = False
                     else:
-                        hlog(
-                            "WARNING: OmniMATHAnnotator got a non-boolean Equivalence Judgement from annotation from "
+                        hwarn(
+                            "OmniMATHAnnotator got a non-boolean Equivalence Judgement from annotation from "
                             f"{annotator_model_info.model_name}: {equivalence_judgement_str}"
                         )
                 except KeyError:
-                    hlog(
-                        "WARNING: OmniMATHAnnotator could not get Equivalence Judgement from annotation from "
+                    hwarn(
+                        "OmniMATHAnnotator could not get Equivalence Judgement from annotation from "
                         f"{annotator_model_info.model_name}: {annotator_response_text}"
                     )
 

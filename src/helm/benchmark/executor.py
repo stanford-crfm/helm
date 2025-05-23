@@ -11,7 +11,7 @@ from helm.common.cache_backend_config import (
     SqliteCacheBackendConfig,
 )
 from helm.common.general import parallel_map
-from helm.common.hierarchical_logger import htrack, hlog
+from helm.common.hierarchical_logger import htrack, hlog, hwarn
 from helm.common.request import RequestResult, GeneratedOutput
 from helm.common.authentication import Authentication
 from helm.benchmark.adaptation.scenario_state import ScenarioState
@@ -115,7 +115,7 @@ class Executor:
             raise ExecutorError(f"{str(e)} Request: {state.request}") from e
         if not result.success:
             if result.error_flags and not result.error_flags.is_fatal:
-                hlog(f"WARNING: Non-fatal error treated as empty completion: {result.error}")
+                hwarn(f"Non-fatal error treated as empty completion: {result.error}")
                 result.completions = [GeneratedOutput(text="", logprob=0, tokens=[])]
             else:
                 raise ExecutorError(f"{str(result.error)} Request: {state.request}")

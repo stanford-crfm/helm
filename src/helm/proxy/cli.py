@@ -21,7 +21,7 @@ from typing import List, Dict
 import re
 import sys
 
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hlog, setup_default_logging
 from helm.common.authentication import Authentication
 from helm.proxy.accounts import Usage, Account
 from helm.proxy.services.remote_service import RemoteService, add_service_args, create_authentication
@@ -197,6 +197,8 @@ def main():
     add_account_arguments(delete_parser)
 
     args = parser.parse_args()
+
+    setup_default_logging()
 
     service = create_remote_service(args)
     auth = create_authentication(args)

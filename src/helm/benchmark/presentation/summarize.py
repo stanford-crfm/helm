@@ -30,7 +30,7 @@ from helm.common.general import (
     unique_simplification,
 )
 from helm.common.codec import from_json
-from helm.common.hierarchical_logger import hlog, htrack, htrack_block
+from helm.common.hierarchical_logger import hlog, htrack, htrack_block, hwarn, setup_default_logging
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.metric_name import MetricName
@@ -102,7 +102,7 @@ def get_unique_stat_by_matcher(stats: List[Stat], matcher: MetricNameMatcher) ->
         # This is necessary for prompting ablations at the moment, since some scenarios normally have quasi_exact_match
         # as the main metric but multiple_choice_separate_original only generates exact_match
         if matcher.name == "quasi_exact_match":
-            hlog("WARNING: No quasi_exact_match metric found, looking for exact_match instead")
+            hwarn("No quasi_exact_match metric found, looking for exact_match instead")
             matcher = replace(matcher, name="exact_match")
             matching_stats = [stat for stat in stats if matcher.matches(stat.name)]
             if len(matching_stats) == 0:
@@ -406,8 +406,8 @@ class Summarizer:
                 included = False
             for run_group_name in run.run_spec.groups:  # go through the groups of the run to determine visibility
                 if run_group_name not in self.schema.name_to_run_group:
-                    hlog(
-                        f"WARNING: group {run_group_name} mentioned in run spec {run.run_spec.name} "
+                    hwarn(
+                        f"group {run_group_name} mentioned in run spec {run.run_spec.name} "
                         f"but undefined in {self.schema_path}, skipping"
                     )
                     continue
@@ -440,14 +440,14 @@ class Summarizer:
             run_spec_path: str = os.path.join(run_suite_path, run_dir_name, "run_spec.json")
             stats_path: str = os.path.join(run_suite_path, run_dir_name, "stats.json")
             if not os.path.exists(run_spec_path) or not os.path.exists(stats_path):
-                hlog(f"WARNING: {run_dir_name} doesn't have run_spec.json or stats.json, skipping")
+                hwarn(f"{run_dir_name} doesn't have run_spec.json or stats.json, skipping")
                 continue
             run_path: str = os.path.join(run_suite_path, run_dir_name)
             run = self.read_run(run_path)
             self.runs.append(run)
             if run.run_spec.name in self.runs_to_run_suites:
-                hlog(
-                    f"WARNING: Run entry {run.run_spec.name} is present in two different Run Suites. "
+                hwarn(
+                    f"Run entry {run.run_spec.name} is present in two different Run Suites. "
                     f"Defaulting to the latest assigned suite: {suite}"
                 )
             self.runs_to_run_suites[run.run_spec.name] = suite
@@ -544,8 +544,8 @@ class Summarizer:
 
         for metric_name, run_spec_names in metric_name_to_run_spec_names.items():
             if metric_name not in defined_metric_names:
-                hlog(
-                    f"WARNING: metric name {metric_name} undefined in {self.schema_path} "
+                hwarn(
+                    f"metric name {metric_name} undefined in {self.schema_path} "
                     f"but appears in {len(run_spec_names)} run specs, including {run_spec_names[0]}"
                 )
 
@@ -738,8 +738,8 @@ class Summarizer:
             if stat is None:
                 # Print out near misses to provide a more informative warning
                 near_misses = [stat for stat in run.stats if stat.name.name == matcher.name]
-                hlog(
-                    f"WARNING: run spec {run.run_spec.name} does not have any stat matched by {matcher}, "
+                hwarn(
+                    f"run spec {run.run_spec.name} does not have any stat matched by {matcher}, "
                     f"{len(near_misses)} near misses matching just the name"
                 )
                 if len(near_misses) > 0:
@@ -810,7 +810,7 @@ class Summarizer:
         # Create header (cells to display) and the list of metric name filters
         # (to pull out information later).
         if not columns or not adapter_to_runs:
-            hlog(f"WARNING: table {title}, has no rows or columns, leaving empty")
+            hwarn(f"table {title}, has no rows or columns, leaving empty")
             return Table("empty", [], [])
 
         header: List[HeaderCell] = []
@@ -831,7 +831,7 @@ class Summarizer:
                     matcher = replace(matcher, sub_split=sub_split)
                 header_field = self.schema.name_to_metric.get(matcher.name)
                 if header_field is None:
-                    hlog(f"WARNING: metric name {matcher.name} undefined in {self.schema_path}, skipping")
+                    hwarn(f"metric name {matcher.name} undefined in {self.schema_path}, skipping")
                     continue
                 metadata = {
                     "metric": header_field.get_short_display_name(),
@@ -959,8 +959,8 @@ class Summarizer:
             all_run_spec_names = []
             for adapter_spec, runs in adapter_to_runs.items():
                 if len(runs) > 1:
-                    hlog(
-                        f"WARNING: table row corresponding to adapter spec {adapter_spec} has {len(runs)} > 1 runs:"
+                    hwarn(
+                        f"table row corresponding to adapter spec {adapter_spec} has {len(runs)} > 1 runs:"
                         f" {[run.run_spec.name for run in runs]}"
                     )
                 for run in runs:
@@ -1232,60 +1232,7 @@ class Summarizer:
 
 
 @htrack("summarize")
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-o", "--output-path", type=str, help="Where the benchmarking output lives", default="benchmark_output"
-    )
-    parser.add_argument(
-        "--schema-path",
-        type=str,
-        help="Path to the schema file (e.g., schema_classic.yaml).",
-    )
-    parser.add_argument(
-        "--suite",
-        type=str,
-        help="Name of the suite this summarization should go under.",
-    )
-    parser.add_argument(
-        "--release",
-        type=str,
-        help="Experimental: Name of the release this summarization should go under.",
-    )
-    parser.add_argument(
-        "--suites", type=str, nargs="+", help="Experimental: List of suites to summarize for this this release."
-    )
-    parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads used to summarize", default=8)
-    parser.add_argument(
-        "--debug",
-        action="store_true",
-        help="Display debugging information.",
-    )
-    parser.add_argument(
-        "--skip-completed-run-display-json",
-        action="store_true",
-        help="Skip write_run_display_json() for runs which already have all output display JSON files",
-    )
-    parser.add_argument(
-        "--local-path",
-        type=str,
-        help="If running locally, the path for `ServerService`.",
-        default="prod_env",
-    )
-    parser.add_argument(
-        "--allow-unknown-models",
-        type=bool,
-        help="Whether to allow unknown models in the metadata file",
-        default=True,
-    )
-    parser.add_argument(
-        "--summarizer-class-name",
-        type=str,
-        default=None,
-        help="EXPERIMENTAL: Full class name of the Summarizer class to use. If unset, uses the default Summarizer.",
-    )
-    args = parser.parse_args()
-
+def summarize(args):
     release: Optional[str] = None
     suites: Optional[str] = None
     suite: Optional[str] = None
@@ -1326,6 +1273,76 @@ def main():
     )
     summarizer.run_pipeline(skip_completed=args.skip_completed_run_display_json)
     hlog("Done.")
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-o",
+        "--output-path",
+        type=str,
+        help="Where the benchmarking output lives",
+        default="benchmark_output",
+    )
+    parser.add_argument(
+        "--schema-path",
+        type=str,
+        help="Path to the schema file (e.g., schema_classic.yaml).",
+    )
+    parser.add_argument(
+        "--suite",
+        type=str,
+        help="Name of the suite this summarization should go under.",
+    )
+    parser.add_argument(
+        "--release",
+        type=str,
+        help="Experimental: Name of the release this summarization should go under.",
+    )
+    parser.add_argument(
+        "--suites",
+        type=str,
+        nargs="+",
+        help="Experimental: List of suites to summarize for this this release.",
+    )
+    parser.add_argument(
+        "-n",
+        "--num-threads",
+        type=int,
+        help="Max number of threads used to summarize",
+        default=8,
+    )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Display debugging information.",
+    )
+    parser.add_argument(
+        "--skip-completed-run-display-json",
+        action="store_true",
+        help="Skip write_run_display_json() for runs which already have all output display JSON files",
+    )
+    parser.add_argument(
+        "--local-path",
+        type=str,
+        help="If running locally, the path for `ServerService`.",
+        default="prod_env",
+    )
+    parser.add_argument(
+        "--allow-unknown-models",
+        type=bool,
+        help="Whether to allow unknown models in the metadata file",
+        default=True,
+    )
+    parser.add_argument(
+        "--summarizer-class-name",
+        type=str,
+        default=None,
+        help="EXPERIMENTAL: Full class name of the Summarizer class to use. If unset, uses the default Summarizer.",
+    )
+    args = parser.parse_args()
+    setup_default_logging()
+    summarize(args)
 
 
 if __name__ == "__main__":

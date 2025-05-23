@@ -77,7 +77,8 @@ class TruthfulQAScenario(Scenario):
         """Downloads the TruthfulQA dataset."""
         # Download the raw data
         data_dir = os.path.join(output_path, "data")
-        url = "https://raw.githubusercontent.com/sylinrl/TruthfulQA/main/TruthfulQA.csv"
+
+        url = "https://raw.githubusercontent.com/sylinrl/TruthfulQA/d71c110897f5d31c5d7f309e7bc316c152f6f031/data/v1/TruthfulQA.csv"  # noqa: E501
         ensure_directory_exists(data_dir)
         ensure_file_downloaded(source_url=url, target_path=os.path.join(data_dir, self.DATASET_FILE_NAME))
 

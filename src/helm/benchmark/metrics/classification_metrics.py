@@ -9,7 +9,7 @@ from helm.benchmark.metrics.evaluate_reference_metrics import normalize_text
 from helm.benchmark.metrics.metric import MetricName
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.scenarios.scenario import Reference
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hwarn
 from helm.common.request import GeneratedOutput
 
 
@@ -75,8 +75,8 @@ class ClassificationMetric(EvaluateInstancesMetric):
         self.delimiter = delimiter
         self.labels = labels
         if not self.labels:
-            hlog(
-                "WARNING: `labels` were not set on `ClassificationMetric`, "
+            hwarn(
+                "`labels` were not set on `ClassificationMetric`, "
                 "so they will be inferred from target references. "
                 "It is recommend to explicitly set `labels` on `ClassificationMetric`."
             )

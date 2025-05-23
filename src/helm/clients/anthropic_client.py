@@ -7,7 +7,7 @@ import time
 import urllib.parse
 
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import htrack_block, hlog
+from helm.common.hierarchical_logger import htrack_block, hlog, hwarn
 from helm.common.media_object import IMAGE_TYPE, TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import (
@@ -293,8 +293,8 @@ class AnthropicMessagesClient(CachingClient):
                         image_width > AnthropicClient.MAX_IMAGE_DIMENSION
                         or image_height > AnthropicClient.MAX_IMAGE_DIMENSION
                     ):
-                        hlog(
-                            f"WARNING: Image {image_location} exceeds max allowed size: "
+                        hwarn(
+                            f"Image {image_location} exceeds max allowed size: "
                             f"{AnthropicClient.MAX_IMAGE_DIMENSION} pixels"
                         )
                         # Save the resized image to a temporary file
@@ -309,8 +309,8 @@ class AnthropicMessagesClient(CachingClient):
                             base64_image = encode_base64(temp_file.name, format="JPEG")
 
                     elif os.path.getsize(image_location) > AnthropicMessagesClient.MAX_IMAGE_SIZE_BYTES:
-                        hlog(
-                            f"WARNING: Image {image_location} exceeds max allowed size: "
+                        hwarn(
+                            f"Image {image_location} exceeds max allowed size: "
                             f"{AnthropicMessagesClient.MAX_IMAGE_SIZE_BYTES} bytes"
                         )
                         # Resize the image so it is smaller than the max allowed size
@@ -389,7 +389,7 @@ class AnthropicMessagesClient(CachingClient):
                 )
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             except AnthropicMessagesResponseError:
-                hlog("WARNING: Response has empty content")
+                hwarn("Response has empty content")
                 return RequestResult(
                     success=False,
                     cached=False,
@@ -400,10 +400,7 @@ class AnthropicMessagesClient(CachingClient):
                 )
 
             if _is_content_moderation_failure(response):
-                hlog(
-                    f"WARNING: Returning empty request for {request.model_deployment} "
-                    "due to content moderation filter"
-                )
+                hwarn(f"Returning empty request for {request.model_deployment} " "due to content moderation filter")
                 return RequestResult(
                     success=False,
                     cached=cached,
@@ -617,8 +614,8 @@ class AnthropicLegacyClient(CachingClient):
                     if logprobs["tokens"] != tokens:
                         # This is a known limitation with the Anthropic API. For now keep track of the
                         # entries with the mismatch.
-                        hlog(
-                            f"WARNING: naive truncation for logprobs did not work."
+                        hwarn(
+                            f"naive truncation for logprobs did not work."
                             f"\nRequest:{raw_request}\nExpected: {tokens}\nActual: {logprobs['tokens']}"
                         )
                         check_logprobs = True

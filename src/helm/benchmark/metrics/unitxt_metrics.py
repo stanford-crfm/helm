@@ -5,12 +5,12 @@ from typing import Dict, List, Set
 from datasets import load_dataset
 import evaluate
 
-from helm.common.general import hlog
 from helm.benchmark.metrics.metric import MetricInterface, MetricResult, PerInstanceStats
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
+from helm.common.hierarchical_logger import hwarn
 
 
 class UnitxtMetric(MetricInterface):
@@ -86,9 +86,8 @@ class UnitxtMetric(MetricInterface):
                 )
             )
         if non_number_instance_metric_names:
-            hlog(
-                "WARNING: Ignored Unitxt instance metrics because "
-                f"they were not numbers: {non_number_instance_metric_names}"
+            hwarn(
+                "Ignored Unitxt instance metrics because " f"they were not numbers: {non_number_instance_metric_names}"
             )
 
         # Extract global metrics
