@@ -1,20 +1,6 @@
 # MedHELM: Holistic Evaluation of Large Language Models for Medical Applications
 
-**MedHELM** is an extension of the HELM framework for evaluating **large language models (LLMs) in medical applications**.
-
-## Holistic Evaluation of Language Models for Medical Applications
-
-Large Language Models (LLMs) have shown impressive performance on medical knowledge benchmarks, achieving ~99% accuracy on standardized exams like MedQA. This has sparked interest in deploying them in healthcare settings: supporting clinical decision-making such as diagnosis and treatment, optimizing clinical workflows including documentation and scheduling, and enhancing patient education and communication.
-
-However, there is a large gap between performance on medical knowledge benchmarks and readiness for real-world deployment due to three key limitations in these existing benchmarks:
-
-1. *Questions do not match real-world settings* -- Existing benchmarks rely on synthetic vignettes or narrowly-scoped exam questions, failing to capture key aspects of real diagnostic processes such as extracting relevant details from patient records.
-
-2. *Limited use of real-world data* -- Only 5% of LLM evaluations use real-world electronic health record (EHR) data. EHRs contain ambiguities, inconsistencies, and domain-specific shorthand that synthetic data cannot replicate.
-
-3. *Limited task diversity* -- Around 64% of LLM evaluations in healthcare focus only on medical licensing exams and diagnostic tasks, ignoring essential hospital operations such as administrative tasks (e.g., generating prior authorization letters, identifying billing codes), clinical documentation (e.g., writing progress notes or discharge instructions), and patient communication (e.g., asynchronous messaging through electronic patient portals).
-
-To address these limitations, we introduce **MedHELM**, an extensible evaluation framework for assessing LLM performance in completing medical tasks.
+**MedHELM** is an extension of the HELM framework for evaluating **large language models (LLMs) in medicine**.
 
 ### Clinician-Validated Taxonomy
 
@@ -94,8 +80,8 @@ To contribute a new benchmark scenario to MedHELM, follow the steps below:
 
 Start by adding a new scenario class under the [scenarios directory](https://github.com/stanford-crfm/helm/tree/main/src/helm/benchmark/scenarios). This class should transform your dataset into HELM’s standardized input format. Your implementation should define:
 
-- The prompt context
-- The reference response(s)
+- The prompt (with any context like patient note, if present)
+- The gold standard response(s) (if any)
 - Any relevant metadata for post-processing
 
 For detailed guidance, see the [Adding New Scenarios](adding_new_scenarios.md) documentation.
