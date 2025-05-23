@@ -1,48 +1,42 @@
-# MedHELM (LLM Evaluation in Medical Applications)
+# MedHELM: Holistic Evaluation of Large Language Models for Medical Applications
 
-**MedHELM** is an extension of the HELM framework for evaluating **large language models (LLMs) in medical applications**.
+**MedHELM** is an extension of the HELM framework for evaluating **large language models (LLMs) in medicine**.
 
-## Holistic Evaluation of Language Models for Medical Applications
+### Clinician-Validated Taxonomy
 
-As large language models (LLMs) become increasingly integrated into clinical workflows, it is critical to understand their strengths and limitations across a broad range of **real-world medical tasks**. Existing evaluation benchmarks often focus narrowly on question-answering accuracy or single datasets, which fail to capture the complexity and risks of deploying LLMs in healthcare.
-
-To address this gap, we introduce **MedHELM**, a benchmark for the **Holistic Evaluation of Language Models for Medical Applications**. MedHELM evaluates models across **clinically grounded categories and subcategories** that reflect real-world tasks with real patient data.
-
-### HealtchCare Categories and Subcategories
-
-MedHELM evaluates models across **5 categories** and **22 subcategories**:
+MedHELM evaluates models across a clinician-validated taxonomy comprised of **5 categories**, **22 subcategories** and **121 tasks**:
 
 - **Clinical Decision Support**
-  - Supporting Diagnostic Decisions
-  - Planning Treatments
-  - Predicting Patient Risks and Outcomes
-  - Providing Clinical Knowledge Support
+    - Supporting Diagnostic Decisions
+    - Planning Treatments
+    - Predicting Patient Risks and Outcomes
+    - Providing Clinical Knowledge Support
 
 - **Clinical Note Generation**
-  - Documenting Patient Visits
-  - Recording Procedures
-  - Documenting Diagnostic Reports
-  - Documenting Care Plans
+    - Documenting Patient Visits
+    - Recording Procedures
+    - Documenting Diagnostic Reports
+    - Documenting Care Plans
 
 - **Patient Communication and Education**
-  - Providing Patient Education Resources
-  - Delivering Personalized Care Instructions
-  - Patient-Provider Messaging
-  - Enhancing Patient Understanding and Accessibility in Health Communication
-  - Facilitating Patient Engagement and Support
+    - Providing Patient Education Resources
+    - Delivering Personalized Care Instructions
+    - Patient-Provider Messaging
+    - Enhancing Patient Understanding and Accessibility in Health Communication
+    - Facilitating Patient Engagement and Support
 
 - **Medical Research Assistance**
-  - Conducting Literature Research
-  - Analyzing Clinical Research Data
-  - Recording Research Processes
-  - Ensuring Clinical Research Quality
-  - Managing Research Enrollment
+    - Conducting Literature Research
+    - Analyzing Clinical Research Data
+    - Recording Research Processes
+    - Ensuring Clinical Research Quality
+    - Managing Research Enrollment
 
 - **Administration and Workflow**
-  - Scheduling Resources and Staff
-  - Overseeing Financial Activities
-  - Organizing Workflow Processes
-  - Care Coordination and Planning
+    - Scheduling Resources and Staff
+    - Overseeing Financial Activities
+    - Organizing Workflow Processes
+    - Care Coordination and Planning
 
 This categorization ensures that evaluations reflect the **complexity, diversity, and stakes** of medical AI applications—from assisting clinicians in making critical decisions to safely interacting with patients.
 
@@ -86,8 +80,8 @@ To contribute a new benchmark scenario to MedHELM, follow the steps below:
 
 Start by adding a new scenario class under the [scenarios directory](https://github.com/stanford-crfm/helm/tree/main/src/helm/benchmark/scenarios). This class should transform your dataset into HELM’s standardized input format. Your implementation should define:
 
-- The prompt context
-- The reference response(s)
+- The prompt (with any context like patient note, if present)
+- The gold standard response(s) (if any)
 - Any relevant metadata for post-processing
 
 For detailed guidance, see the [Adding New Scenarios](adding_new_scenarios.md) documentation.

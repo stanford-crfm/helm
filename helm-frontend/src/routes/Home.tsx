@@ -21,6 +21,7 @@ import SEAHELMLanding from "@/components/Landing/SEAHELMLanding";
 import SpeechLanding from "@/components/Landing/SpeechLanding";
 import LongContextLanding from "@/components/Landing/LongContextLanding";
 import SQLLanding from "@/components/Landing/SQLLanding";
+import MELTLanding from "@/components/Landing/MELTLanding";
 
 export default function Home() {
   // TODO consider a more streamlined way to do this?
@@ -68,6 +69,8 @@ export default function Home() {
     return <SQLLanding />;
   } else if (window.PROJECT_ID === "long-context") {
     return <LongContextLanding />;
+  } else if (window.PROJECT_ID === "melt") {
+    return <MELTLanding />;
   } else if (window.PROJECT_ID === "home") {
     return <HomeLanding />;
   } else {

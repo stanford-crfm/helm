@@ -2,7 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field, replace
 from functools import cached_property
 from typing import List, Optional
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hwarn
 
 import dacite
 import re
@@ -111,7 +111,7 @@ def validate_grammar(grammar: Grammar):
             # Make sure all categories are defined
             for category in expansion.categories:
                 if category not in grammar.category_to_rules:
-                    hlog(f"WARNING: Category {category} is not defined")
+                    hwarn(f"Category {category} is not defined")
 
 
 def read_grammar(path: str) -> Grammar:
