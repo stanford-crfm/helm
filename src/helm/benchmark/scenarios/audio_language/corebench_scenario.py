@@ -26,11 +26,11 @@ class COREBenchScenario(Scenario):
     """
 
     ANNOT_URL = (
-        "https://huggingface.co/datasets/stanford-crfm/COnversationalREasoningBench_v0/resolve/"
+        "https://huggingface.co/datasets/stanford-crfm/COnversationalREasoningBench_v0.1/resolve/"
         "main/test/instances.jsonl"
     )
     HF_AUDIO_FOLDER = (
-        "https://huggingface.co/datasets/stanford-crfm/COnversationalREasoningBench_v0/resolve/main/test/audio"
+        "https://huggingface.co/datasets/stanford-crfm/COnversationalREasoningBench_v0.1/resolve/main/test/audio"
     )
 
     COREBENCH_INSTRUCTION = (

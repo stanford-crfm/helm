@@ -638,7 +638,7 @@ def get_parade_run_spec(voice: str, subset: str) -> RunSpec:
 
 
 @run_spec_function("corebench")
-def get_corebench_run_spec() -> RunSpec:
+def get_corebench_run_spec(num_respondents: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.audio_language.corebench_scenario.COREBenchScenario",
     )
@@ -646,7 +646,13 @@ def get_corebench_run_spec() -> RunSpec:
         instructions="",
         max_tokens=10,
     )
-    metric_specs = get_exact_match_metric_specs()
+    metric_specs: List[MetricSpec] = (
+        _get_gpt4_critique_metric_specs(
+            num_respondents=num_respondents,
+            max_tokens=200,
+        )
+        + get_exact_match_metric_specs()
+    )
     run_spec_name: str = "corebench"
     return RunSpec(
         name=f"{run_spec_name}",
