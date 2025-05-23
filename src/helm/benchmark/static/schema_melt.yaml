@@ -728,6 +728,57 @@ run_groups:
       - melt_synthetic_reasoning_variable_substitution
       - melt_synthetic_reasoning_induction
 
+  - name: melt_synthetic_reasoning_pattern_match
+    display_name: Synthetic reasoning (pattern match)
+    description: Synthetic reasoning tasks defined using abstract symbols based on LIME [(Wu et al., 2021)](https://proceedings.mlr.press/v139/wu21c.html).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: pattern_match
+      main_split: test
+    taxonomy:
+      task: "reasoning"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+  - name: melt_synthetic_reasoning_variable_substitution
+    display_name: Synthetic reasoning (variable substitution)
+    description: Synthetic reasoning tasks defined using abstract symbols based on LIME [(Wu et al., 2021)](https://proceedings.mlr.press/v139/wu21c.html).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: variable_substitution
+      main_split: test
+    taxonomy:
+      task: "reasoning"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+  - name: melt_synthetic_reasoning_induction
+    display_name: Synthetic reasoning (induction)
+    description: Synthetic reasoning tasks defined using abstract symbols based on LIME [(Wu et al., 2021)](https://proceedings.mlr.press/v139/wu21c.html).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: induction
+      main_split: test
+    taxonomy:
+      task: "reasoning"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
   - name: melt_synthetic_reasoning_natural
     display_name: Synthetic reasoning (natural language)
     description: Synthetic reasoning tasks defined using simple natural language based on LIME [(Wu et al., 2021)](https://proceedings.mlr.press/v139/wu21c.html).
