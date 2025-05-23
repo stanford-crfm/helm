@@ -1,16 +1,24 @@
-# MedHELM (LLM Evaluation in Medical Applications)
+# MedHELM: Holistic Evaluation of Large Language Models for Medical Applications
 
 **MedHELM** is an extension of the HELM framework for evaluating **large language models (LLMs) in medical applications**.
 
 ## Holistic Evaluation of Language Models for Medical Applications
 
-As large language models (LLMs) become increasingly integrated into clinical workflows, it is critical to understand their strengths and limitations across a broad range of **real-world medical tasks**. Existing evaluation benchmarks often focus narrowly on question-answering accuracy or single datasets, which fail to capture the complexity and risks of deploying LLMs in healthcare.
+Large Language Models (LLMs) have shown impressive performance on medical knowledge benchmarks, achieving ~99% accuracy on standardized exams like MedQA. This has sparked interest in deploying them in healthcare settings: supporting clinical decision-making such as diagnosis and treatment, optimizing clinical workflows including documentation and scheduling, and enhancing patient education and communication.
 
-To address this gap, we introduce **MedHELM**, a benchmark for the **Holistic Evaluation of Language Models for Medical Applications**. MedHELM evaluates models across **clinically grounded categories and subcategories** that reflect real-world tasks with real patient data.
+However, there is a large gap between performance on medical knowledge benchmarks and readiness for real-world deployment due to three key limitations in these existing benchmarks:
 
-### HealtchCare Categories and Subcategories
+1. *Questions do not match real-world settings* -- Existing benchmarks rely on synthetic vignettes or narrowly-scoped exam questions, failing to capture key aspects of real diagnostic processes such as extracting relevant details from patient records.
 
-MedHELM evaluates models across **5 categories** and **22 subcategories**:
+2. *Limited use of real-world data* -- Only 5% of LLM evaluations use real-world electronic health record (EHR) data. EHRs contain ambiguities, inconsistencies, and domain-specific shorthand that synthetic data cannot replicate.
+
+3. *Limited task diversity* -- Around 64% of LLM evaluations in healthcare focus only on medical licensing exams and diagnostic tasks, ignoring essential hospital operations such as administrative tasks (e.g., generating prior authorization letters, identifying billing codes), clinical documentation (e.g., writing progress notes or discharge instructions), and patient communication (e.g., asynchronous messaging through electronic patient portals).
+
+To address these limitations, we introduce **MedHELM**, an extensible evaluation framework for assessing LLM performance in completing medical tasks.
+
+### Clinician-Validated Taxonomy
+
+MedHELM evaluates models across a clinician-validated taxonomy comprised of **5 categories**, **22 subcategories** and **121 tasks**:
 
 - **Clinical Decision Support**
     - Supporting Diagnostic Decisions
