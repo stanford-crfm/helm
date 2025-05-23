@@ -1479,6 +1479,8 @@ class OutputFormatInstructions(RunExpander):
                 instructions = "Answer with only a single letter."
             elif self.scenario == "mcqa":
                 instructions = "Answer with only a single letter."
+            elif self.scenario == "mcqa_no_period":
+                instructions = "Answer with only a single letter. Do not include a period in your answer."
             elif self.scenario == "mcqa_only_last_question":
                 instructions = "Answer only the last question with only a single letter."
             else:

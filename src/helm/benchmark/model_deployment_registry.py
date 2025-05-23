@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import cattrs
 import yaml
 
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hlog, hwarn
 from helm.common.object_spec import ObjectSpec
 from helm.benchmark.model_metadata_registry import (
     ModelMetadata,
@@ -104,9 +104,7 @@ def register_model_deployment(model_deployment: ModelDeployment) -> None:
     try:
         model_metadata = get_model_metadata(model_name)
     except ValueError:
-        hlog(
-            f"WARNING: Could not find model metadata for model {model_name} of model deployment {model_deployment.name}"
-        )
+        hwarn(f"Could not find model metadata for model {model_name} of model deployment {model_deployment.name}")
         model_metadata = get_unknown_model_metadata(model_name)
         register_model_metadata(model_metadata)
     deployment_names: List[str] = model_metadata.deployment_names or [model_metadata.name]
@@ -130,7 +128,7 @@ def get_model_deployment(name: str, warn_deprecated: bool = False) -> ModelDeplo
         raise ValueError(f"Model deployment {name} not found")
     deployment: ModelDeployment = DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[name]
     if deployment.deprecated and warn_deprecated:
-        hlog(f"WARNING: DEPLOYMENT Model deployment {name} is deprecated")
+        hwarn(f"DEPLOYMENT Model deployment {name} is deprecated")
     return deployment
 
 
@@ -182,7 +180,7 @@ def get_default_model_deployment_for_model(
         deployment: ModelDeployment = DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[model_name]
         if deployment.deprecated and ignore_deprecated:
             if warn_arg_deprecated:
-                hlog(f"WARNING: Model deployment {model_name} is deprecated")
+                hwarn(f"Model deployment {model_name} is deprecated")
             return None
         return deployment.name
 
@@ -193,7 +191,7 @@ def get_default_model_deployment_for_model(
     if len(available_deployments) > 0:
         available_deployment_names: List[str] = [deployment.name for deployment in available_deployments]
         if warn_arg_deprecated:
-            hlog("WARNING: Model name is deprecated. Please use the model deployment name instead.")
+            hwarn("Model name is deprecated. Please use the model deployment name instead.")
             hlog(f"Available model deployments for model {model_name}: {available_deployment_names}")
 
         # Additionally, if there is a non-deprecated deployment, use it.
@@ -210,7 +208,7 @@ def get_default_model_deployment_for_model(
         else:
             chosen_deployment = available_deployments[0]
             if warn_arg_deprecated:
-                hlog(f"WARNING: All model deployments for model {model_name} are deprecated.")
+                hwarn(f"All model deployments for model {model_name} are deprecated.")
         if warn_arg_deprecated:
             hlog(
                 f"Choosing {chosen_deployment.name} (the first one) as "

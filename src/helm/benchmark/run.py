@@ -9,7 +9,7 @@ from helm.benchmark import model_metadata_registry
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
 from helm.common.cache_backend_config import MongoCacheBackendConfig, SqliteCacheBackendConfig
 from helm.common.general import ensure_directory_exists
-from helm.common.hierarchical_logger import hlog, htrack, htrack_block
+from helm.common.hierarchical_logger import hlog, htrack, htrack_block, setup_default_logging, hwarn
 from helm.common.authentication import Authentication
 from helm.common.object_spec import parse_object_spec, get_class_by_name
 from helm.proxy.services.remote_service import create_authentication, add_service_args
@@ -200,76 +200,9 @@ def validate_args(args):
 
 
 @htrack(None)
-def main():
-    parser = argparse.ArgumentParser()
-    add_service_args(parser)
-    parser.add_argument(
-        "-c",
-        "--conf-paths",
-        nargs="+",
-        help="Where to read RunSpecs to run from",
-        default=[],
-    )
-    parser.add_argument(
-        "--models-to-run",
-        nargs="+",
-        help="Only RunSpecs with these models specified. If no model is specified, runs with all models.",
-        default=None,
-    )
-    parser.add_argument(
-        "--groups-to-run",
-        nargs="+",
-        help="Only RunSpecs with these (scenario) groups specified. " "If no group is specified, runs with all groups.",
-        default=None,
-    )
-    parser.add_argument(
-        "--exit-on-error",
-        action="store_true",
-        help="Fail and exit immediately if a particular RunSpec fails.",
-    )
-    parser.add_argument(
-        "--skip-completed-runs",
-        action="store_true",
-        help="Skip RunSpecs that have completed i.e. output files exists.",
-    )
-    parser.add_argument(
-        "--priority",
-        type=int,
-        default=None,
-        help="Run RunSpecs with priority less than or equal to this number. "
-        "If a value for --priority is not specified, run on everything",
-    )
-    parser.add_argument(
-        "--run-specs",
-        nargs="*",
-        help="DEPRECATED: Use --run-entries instead. Will be removed in a future release. "
-        "Specifies run entries to run.",
-        default=[],
-    )
-    parser.add_argument("-r", "--run-entries", nargs="*", help="Specifies run entries to run", default=[])
-    parser.add_argument(
-        "--enable-huggingface-models",
-        nargs="+",
-        default=[],
-        help="Experimental: Enable using AutoModelForCausalLM models from Hugging Face Model Hub. "
-        "Format: namespace/model_name[@revision]",
-    )
-    parser.add_argument(
-        "--enable-local-huggingface-models",
-        nargs="+",
-        default=[],
-        help="Experimental: Enable using AutoModelForCausalLM models from a local path.",
-    )
-    parser.add_argument(
-        "--runner-class-name",
-        type=str,
-        default=None,
-        help="Full class name of the Runner class to use. If unset, uses the default Runner.",
-    )
-    add_run_args(parser)
-    args = parser.parse_args()
-    validate_args(args)
+def helm_run(args):
 
+    validate_args(args)
     register_builtin_configs_from_helm_package()
     register_configs_from_directory(args.local_path)
 
@@ -358,12 +291,84 @@ def main():
     )
 
     if args.run_specs:
-        hlog(
-            "WARNING: The --run-specs flag is deprecated and will be removed in a future release. "
-            "Use --run-entries instead."
+        hwarn(
+            "The --run-specs flag is deprecated and will be removed in a future release. " "Use --run-entries instead."
         )
 
     hlog("Done.")
+
+
+# Separate parsing from starting HELM so we can setup logging
+def main():
+    parser = argparse.ArgumentParser()
+    add_service_args(parser)
+    parser.add_argument(
+        "-c",
+        "--conf-paths",
+        nargs="+",
+        help="Where to read RunSpecs to run from",
+        default=[],
+    )
+    parser.add_argument(
+        "--models-to-run",
+        nargs="+",
+        help="Only RunSpecs with these models specified. If no model is specified, runs with all models.",
+        default=None,
+    )
+    parser.add_argument(
+        "--groups-to-run",
+        nargs="+",
+        help="Only RunSpecs with these (scenario) groups specified. " "If no group is specified, runs with all groups.",
+        default=None,
+    )
+    parser.add_argument(
+        "--exit-on-error",
+        action="store_true",
+        help="Fail and exit immediately if a particular RunSpec fails.",
+    )
+    parser.add_argument(
+        "--skip-completed-runs",
+        action="store_true",
+        help="Skip RunSpecs that have completed i.e. output files exists.",
+    )
+    parser.add_argument(
+        "--priority",
+        type=int,
+        default=None,
+        help="Run RunSpecs with priority less than or equal to this number. "
+        "If a value for --priority is not specified, run on everything",
+    )
+    parser.add_argument(
+        "--run-specs",
+        nargs="*",
+        help="DEPRECATED: Use --run-entries instead. Will be removed in a future release. "
+        "Specifies run entries to run.",
+        default=[],
+    )
+    parser.add_argument("-r", "--run-entries", nargs="*", help="Specifies run entries to run", default=[])
+    parser.add_argument(
+        "--enable-huggingface-models",
+        nargs="+",
+        default=[],
+        help="Experimental: Enable using AutoModelForCausalLM models from Hugging Face Model Hub. "
+        "Format: namespace/model_name[@revision]",
+    )
+    parser.add_argument(
+        "--enable-local-huggingface-models",
+        nargs="+",
+        default=[],
+        help="Experimental: Enable using AutoModelForCausalLM models from a local path.",
+    )
+    parser.add_argument(
+        "--runner-class-name",
+        type=str,
+        default=None,
+        help="Full class name of the Runner class to use. If unset, uses the default Runner.",
+    )
+    add_run_args(parser)
+    args = parser.parse_args()
+    setup_default_logging()
+    return helm_run(args)
 
 
 if __name__ == "__main__":

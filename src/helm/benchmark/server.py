@@ -9,7 +9,7 @@ import json
 from os import path
 import urllib
 
-from bottle import Bottle, static_file, HTTPResponse
+from bottle import Bottle, static_file, HTTPResponse, response
 import yaml
 
 from helm.benchmark.presentation.schema import SCHEMA_CLASSIC_YAML_FILENAME
@@ -21,6 +21,7 @@ app = Bottle()
 
 @app.get("/config.js")
 def serve_config():
+    response.content_type = "application/javascript; charset=UTF-8"
     if app.config["helm.release"]:
         return (
             f'window.BENCHMARK_OUTPUT_BASE_URL = "{app.config["helm.outputurl"]}";\n'

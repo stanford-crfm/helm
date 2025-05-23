@@ -1,6 +1,6 @@
 from typing import List
 
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hwarn
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.metric import Metric
@@ -46,7 +46,7 @@ class IFEvalMetric(Metric):
                 try:
                     is_following = instruction.check_following(response)
                 except Exception as e:
-                    hlog(f"WARNING: Instruction following checking failed with error message {e}")
+                    hwarn(f"Instruction following checking failed with error message {e}")
             if is_following:
                 is_following_list.append(1)
             else:

@@ -6,7 +6,7 @@ from typing import Dict, Optional, TypedDict, Union, Callable, Any, Set
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
 from helm.clients.auto_client import AutoClient
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hlog, hwarn
 from helm.common.request import Request
 
 
@@ -184,16 +184,13 @@ class LLMAsJuryAnnotator(Annotator):
         """
         for key, value in self._annotation_criteria.items():
             if key not in annotator_criteria:
-                hlog(
-                    f"WARNING: Annotator did not find the expected key "
-                    f"'{key}' in the response from {annotator_name}."
-                )
+                hwarn(f"Annotator did not find the expected key " f"'{key}' in the response from {annotator_name}.")
                 return False
 
             for subkey in value:
                 if subkey not in annotator_criteria[key]:
-                    hlog(
-                        f"WARNING: Annotator did not find the expected subkey "
+                    hwarn(
+                        f"Annotator did not find the expected subkey "
                         f"'{subkey}' in the response from {annotator_name}."
                     )
                     return False
@@ -212,7 +209,7 @@ class LLMAsJuryAnnotator(Annotator):
         # Check for empty model output
         model_output_text = request_state.result.completions[0].text
         if not model_output_text.strip():
-            hlog("WARNING: Annotator skipped sending requests because the model response was empty")
+            hwarn("Annotator skipped sending requests because the model response was empty")
             return {
                 "prompt_text": None,
                 "empty_output_equivalence_judgement": False,
@@ -264,7 +261,7 @@ class LLMAsJuryAnnotator(Annotator):
         annotator_response = self._auto_client.make_request(annotator_request)
 
         if not annotator_response.success:
-            hlog(f"WARNING: Got an error response from {model_info.model_name}: " f"{annotator_response.error}")
+            hwarn(f"Got an error response from {model_info.model_name}: " f"{annotator_response.error}")
             return None
 
         try:
@@ -280,17 +277,16 @@ class LLMAsJuryAnnotator(Annotator):
                     try:
                         annotator_criteria = json.loads(annotator_output)
                     except Exception as ex:
-                        hlog(
-                            f"WARNING: Error parsing response from {model_info.model_name} "
+                        hwarn(
+                            f"Error parsing response from {model_info.model_name} "
                             f"after adding closing brace: {ex}. "
                             f"Model output: {annotator_output}"
                         )
                         return None
                 else:
                     # For other JSON decoding errors
-                    hlog(
-                        f"WARNING: JSON decoding error from {model_info.model_name}: {e}. "
-                        f"Model output: {annotator_output}"
+                    hwarn(
+                        f"JSON decoding error from {model_info.model_name}: {e}. " f"Model output: {annotator_output}"
                     )
                     return None
 
@@ -301,8 +297,8 @@ class LLMAsJuryAnnotator(Annotator):
             return annotator_criteria
 
         except Exception as e:
-            hlog(
-                f"WARNING: Unexpected error processing response from {model_info.model_name}: {e}. "
+            hwarn(
+                f"Unexpected error processing response from {model_info.model_name}: {e}. "
                 f"Model output: {annotator_output}"
             )
             return None

@@ -35,6 +35,23 @@ export default function MediaObjectDisplay({ mediaObject }: Props) {
         <audio controls src={url}></audio>
       </div>
     );
+  } else if (mediaObject.content_type.includes("video")) {
+    if (mediaObject.location === undefined) {
+      return null;
+    }
+    const url = getBenchmarkEndpoint(
+      mediaObject.location
+        .replace(/^.*benchmark_output\//, "")
+        .replace("prod_env/", "../"),
+    );
+    return (
+      <div>
+        <video controls style={{ width: "720px" }}>
+          <source src={url} type={mediaObject.content_type} />
+        </video>
+        <br />
+      </div>
+    );
   } else {
     if (
       mediaObject.text &&
