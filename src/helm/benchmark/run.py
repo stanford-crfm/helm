@@ -88,6 +88,7 @@ def run_benchmarking(
     runner_class_name: Optional[str],
     mongo_uri: Optional[str] = None,
     disable_cache: Optional[bool] = None,
+    contamination: Optional[List[str]] = None
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
     sqlite_cache_backend_config: Optional[SqliteCacheBackendConfig] = None
@@ -100,6 +101,18 @@ def run_benchmarking(
             sqlite_cache_path = os.path.join(local_path, CACHE_DIR)
             ensure_directory_exists(sqlite_cache_path)
             sqlite_cache_backend_config = SqliteCacheBackendConfig(sqlite_cache_path)
+
+        # Process contamination arguments
+        contamination_values: List[str] = []
+
+        if contamination:
+            for contamination_item in contamination:
+                parts = contamination_item.split(":")
+                contamination_values.extend(parts)
+
+            while len(contamination_values) < 2:
+                contamination_values.append("")
+            contamination_values = contamination_values[:2]
 
     execution_spec = ExecutionSpec(
         auth=auth,
@@ -123,6 +136,7 @@ def run_benchmarking(
         cache_instances_only,
         skip_completed_runs,
         exit_on_error,
+        contamination_values,
     )
     runner.run_all(run_specs)
     return run_specs
@@ -288,6 +302,7 @@ def helm_run(args):
         runner_class_name=args.runner_class_name,
         mongo_uri=args.mongo_uri,
         disable_cache=args.disable_cache,
+        contamination=args.contamination,
     )
 
     if args.run_specs:
@@ -365,6 +380,13 @@ def main():
         default=None,
         help="Full class name of the Runner class to use. If unset, uses the default Runner.",
     )
+    parser.add_argument(
+        "--contamination",
+        nargs="*",
+        help="Contamination strategies in format key:value. Each item will be processed and passed to the Runner.",
+        default=[],
+    )
+
     add_run_args(parser)
     args = parser.parse_args()
     setup_default_logging()
