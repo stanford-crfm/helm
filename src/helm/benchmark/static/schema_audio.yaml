@@ -273,6 +273,7 @@ run_groups:
     category: Core scenarios
     subgroups:
       - air_bench_chat_reasoning
+      - corebench
 
   - name: knowledge
     display_name: Knowledge

@@ -34,13 +34,13 @@ class COREBenchScenario(Scenario):
     )
 
     COREBENCH_INSTRUCTION = (
-        "\n\n Answer the question by just giving the final answer "
-        "and nothing else. Answer 'unanswerable' if the question is not answerable."
+        "\n\n Answer the question by just giving the final answer and nothing else. "
+        "Answer 'unanswerable' if the question is irrelevant to the audio or cannot be inferred."
     )
 
     name = "corebench"
     description = "Exploring multi-speaker conversational audio reasoning task."
-    tags: List[str] = ["audio", "bias"]
+    tags: List[str] = ["audio", "reasoning"]
 
     def load_jsonl(self, file_path):
         with open(file_path, "r", encoding="utf-8") as f:
