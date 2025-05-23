@@ -2,97 +2,220 @@ import MiniLeaderboard from "@/components/MiniLeaderboard";
 import { Link } from "react-router-dom";
 
 export default function MELTLanding() {
-  const benchmarkName = <strong className="font-bold">MELT</strong>;
+  const benchmarkName = <strong className="font-bold">ViLLM</strong>;
   return (
     <div className="container mx-auto px-16">
-      <h1 className="text-3xl my-4 font-bold text-center">MELT</h1>
+      <h1 className="text-3xl my-8 font-bold text-center">
+        ViLLM: Crossing Linguistic Horizon
+      </h1>
       <p className="text-xl my-4 italic text-center">
-        {benchmarkName} is collection of benchmarks for evaluating language
-        models in Vietnamese.
+        {benchmarkName} is a comprehensive benchmark suite for evaluating the
+        performance of language models in <strong>Vietnamese</strong>.
       </p>
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 text-l">
           <p className="my-4">
-            The recent emergence of multilingual large language models (LLMs) is
-            revolutionizing natural language processing, bridging communication
-            gaps across diverse cultures and languages. However, to truly
-            harness the potential of these models, it's crucial to understand
-            their strengths and limitations across a wide range of languages and
-            tasks.
-            {benchmarkName} is designed with this in mind, offering a
-            comprehensive approach to evaluate LLMs in various linguistic
-            contexts. Recognizing that proficiency in one language or task does
-            not guarantee similar performance elsewhere, {benchmarkName} enables
-            users to pinpoint specific areas for improvement, fostering the
-            development of robust and reliable multilingual language
-            technologies.
+            As multilingual large language models (LLMs) continue to advance
+            natural language processing, bridging communication across diverse
+            cultures and languages, their effectiveness in lower-resourced
+            languages like Vietnamese remains limited. Despite being trained on
+            large multilingual corpora, most open-source LLMs struggle with
+            Vietnamese understanding and generation.
+            <strong> ViLLM</strong> addresses this gap by providing a robust
+            evaluation framework tailored specifically for Vietnamese. It
+            includes <strong>11 essential scenarios</strong>, each targeting a
+            core capability of Vietnamese LLMs:
           </p>
+
           <p className="my-4">
-            {benchmarkName} includes ten carefully selected evaluation
-            scenarios, each targeting a key aspect of LLM capability:
-            <ul className="list-disc list-inside">
+            <strong>ViLLM</strong> includes 11 carefully designed evaluation
+            scenarios, each addressing a core language modeling capability:
+            <ul className="list-disc list-inside mt-2">
               <li>
-                Summarization: Evaluates the model's ability to condense large
-                texts while retaining essential information.
+                <strong>Question Answering:</strong>{" "}
+                <a
+                  className="link-primary"
+                  href="https://huggingface.co/datasets/juletxara/xquad_xtreme"
+                >
+                  XQuAD
+                </a>
+                ,{" "}
+                <a
+                  className="link-primary"
+                  href="https://huggingface.co/datasets/facebook/mlqa"
+                >
+                  MLQA
+                </a>
               </li>
               <li>
-                Question-Answering: Assesses comprehension and accurate
-                extraction of answers from provided contexts.
+                <strong>Summarization:</strong>{" "}
+                <a
+                  className="link-primary"
+                  href="https://huggingface.co/datasets/Yuhthe/vietnews"
+                >
+                  VietNews
+                </a>
+                ,{" "}
+                <a
+                  className="link-primary"
+                  href="https://huggingface.co/datasets/GEM/wiki_lingua"
+                >
+                  WikiLingua
+                </a>
               </li>
               <li>
-                Knowledge: Tests the model's ability to recall and apply
-                information across different domains.
+                <strong>Sentiment Analysis:</strong>{" "}
+                <a
+                  className="link-primary"
+                  href="https://huggingface.co/datasets/ura-hcmut/vlsp2016"
+                >
+                  VLSP2016
+                </a>
+                ,{" "}
+                <a
+                  className="link-primary"
+                  href="https://huggingface.co/datasets/ura-hcmut/UIT-VSFC"
+                >
+                  UiT-VSFC
+                </a>
               </li>
               <li>
-                Sentiment Analysis: Measures the ability to detect and classify
-                emotional tones in text.
+                <strong>Text Classification:</strong>{" "}
+                <a
+                  className="link-primary"
+                  href="https://huggingface.co/datasets/ura-hcmut/PhoATIS"
+                >
+                  PhoATIS
+                </a>
+                ,{" "}
+                <a
+                  className="link-primary"
+                  href="https://huggingface.co/datasets/ura-hcmut/UIT-VSMEC"
+                >
+                  UiT-VSMEC
+                </a>
               </li>
               <li>
-                Text Classification: Evaluates accuracy in categorizing text
-                into predefined labels.
+                <strong>Knowledge:</strong>{" "}
+                <a
+                  className="link-primary"
+                  href="https://huggingface.co/datasets/ura-hcmut/zalo_e2eqa"
+                >
+                  ZaloE2E
+                </a>
+                ,{" "}
+                <a
+                  className="link-primary"
+                  href="https://huggingface.co/datasets/ura-hcmut/ViMMRC"
+                >
+                  UiT-ViMMRC
+                </a>
               </li>
               <li>
-                Toxic Detection: Identifies the model's capacity to flag harmful
-                or biased language.
+                <strong>Toxic Detection:</strong>{" "}
+                <a
+                  className="link-primary"
+                  href="https://huggingface.co/datasets/ura-hcmut/UIT-ViHSD"
+                >
+                  UiT-VIHSD
+                </a>
+                ,{" "}
+                <a
+                  className="link-primary"
+                  href="https://huggingface.co/datasets/tarudesu/ViCTSD"
+                >
+                  UiT-ViCTSD
+                </a>
               </li>
               <li>
-                Language Modeling: Tests fluency and coherence in generating
-                contextually appropriate text.
+                <strong>Information Retrieval:</strong>{" "}
+                <a
+                  className="link-primary"
+                  href="https://huggingface.co/datasets/unicamp-dl/mmarco"
+                >
+                  mMARCO
+                </a>
+                ,{" "}
+                <a
+                  className="link-primary"
+                  href="https://huggingface.co/datasets/unicamp-dl/mrobust"
+                >
+                  mRobust04
+                </a>
               </li>
               <li>
-                Reasoning: Measures logical deduction and understanding of
-                complex relationships.
+                <strong>Language Modeling:</strong>{" "}
+                <a
+                  className="link-primary"
+                  href="https://huggingface.co/datasets/ura-hcmut/MLQA"
+                >
+                  MLQA
+                </a>
+                ,{" "}
+                <a
+                  className="link-primary"
+                  href="https://huggingface.co/datasets/ura-hcmut/VSEC"
+                >
+                  VSEC
+                </a>
               </li>
               <li>
-                Math: Assesses competency in solving mathematical problems in
-                text form.
+                <strong>Reasoning:</strong>{" "}
+                <a className="link-primary" href="">
+                  Synthetic reasoning
+                </a>
+                ,{" "}
+                <a className="link-primary" href="">
+                  Natural synthetic reasoning
+                </a>
               </li>
               <li>
-                Information Retrieval: Tests effectiveness in searching,
-                retrieving, and synthesizing relevant information.
+                <strong>Mathematic:</strong>{" "}
+                <a
+                  className="link-primary"
+                  href="https://huggingface.co/datasets/ura-hcmut/Vietnamese-MATH"
+                >
+                  MATH
+                </a>
+              </li>
+              <li>
+                <strong>Translation:</strong>{" "}
+                <a
+                  className="link-primary"
+                  href="https://huggingface.co/datasets/vietgpt/opus100_envi"
+                >
+                  OPUS100
+                </a>
+                ,{" "}
+                <a
+                  className="link-primary"
+                  href="https://huggingface.co/datasets/ura-hcmut/PhoMT"
+                >
+                  PhoMT
+                </a>
               </li>
             </ul>
           </p>
+
           <p className="my-4">
-            {benchmarkName} also includes tools to ensure the ethical deployment
-            of LLMs:
-            <ul className="list-disc list-inside">
+            <strong>ViLLM</strong> also includes tools to promote the ethical
+            and responsible use of language models:
+            <ul className="list-disc list-inside mt-2">
               <li>
-                Bias Assessment: Identifies and mitigates potential biases in
-                model outputs.
+                <strong>Bias Assessment:</strong> Detects and mitigates biased
+                patterns in model outputs.
               </li>
               <li>
-                Toxicity Assessment: Measures and controls the generation of
-                harmful or offensive language.
+                <strong>Toxicity Assessment:</strong> Monitors and controls the
+                generation of harmful or offensive content.
               </li>
               <li>
-                Fairness Evaluation: Ensures equitable performance across
-                demographic groups and languages.
+                <strong>Fairness Evaluation:</strong> Ensures equitable
+                performance across demographic groups and languages.
               </li>
               <li>
-                Robustness Analysis: Examines resilience to noisy inputs and
-                adversarial attacks, ensuring reliable performance in real-world
-                scenarios.
+                <strong>Robustness Analysis:</strong> Evaluates model stability
+                against noisy or adversarial inputs in real-world scenarios.
               </li>
             </ul>
           </p>
