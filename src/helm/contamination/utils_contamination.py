@@ -7,8 +7,10 @@ from typing import Dict, List, Tuple, Any, Optional
 
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.model_deployment_registry import get_model_deployment, ModelDeployment
-from helm.common.tokenization_request import TokenizationRequest, TokenizationRequestResult
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
+from helm.benchmark.metrics.metric import Stat
+from helm.benchmark.metrics.metric_name import MetricName
+from helm.common.tokenization_request import TokenizationRequest, TokenizationRequestResult
 
 from .prompt_translations import TS_GUESSING_BASE, TS_GUESSING_MULTICHOICE
 
@@ -549,41 +551,41 @@ class UtilsContamination:
     @staticmethod
     def format_helm_stats(
         calculated_metrics: Dict[str, float], strategy_metric_name_prefix: str, split: str = "test"
-    ) -> List[Dict[str, Any]]:
+    ) -> List[Stat]:
         """
-        Formats calculated metrics into the list of dictionaries (serializable Stats) expected by HELM.
+        Formats calculated metrics into a list of HELM Stat objects.
 
         Args:
-            calculated_metrics (Dict[str, float]): Dictionary of metric names to their float values.
-            strategy_metric_name_prefix (str): A prefix string for each metric name,
-                                               e.g., "contamination (strategy_name". The closing parenthesis
-                                               and metric name will be appended by this function.
-            split (str, optional): The dataset split (e.g., "test", "valid"). Defaults to "test".
+            calculated_metrics (Dict[str, float]): Metric names and values.
+            strategy_metric_name_prefix (str): Prefix for each metric name.
+            split (str, optional): Dataset split (e.g., "test").
 
         Returns:
-            List[Dict[str, Any]]: A list of formatted metric entries (PinnedStat-like dicts).
+            List[Stat]: List of Stat objects.
         """
 
-        final_helm_stats: List[Dict[str, Any]] = []
+        final_helm_stats: List[Stat] = []
         for metric_name_suffix, metric_value in calculated_metrics.items():
             metric_value_rounded = np.round(metric_value, 2)
             sum_squared_rounded = np.round(metric_value_rounded**2, 2)
 
             full_metric_name_str = f"{strategy_metric_name_prefix} {metric_name_suffix})"
+            
+            metric_name_obj = MetricName(name=full_metric_name_str, split=split)
 
-            final_helm_stats.append(
-                {
-                    "name": {"name": full_metric_name_str, "split": split},
-                    "count": 1,
-                    "sum": metric_value_rounded,
-                    "sum_squared": sum_squared_rounded,
-                    "min": metric_value_rounded,
-                    "max": metric_value_rounded,
-                    "mean": metric_value_rounded,
-                    "variance": 0.0,
-                    "stddev": 0.0,
-                }
+            stat_obj = Stat(
+                name=metric_name_obj,
+                count=1,
+                sum=metric_value_rounded,
+                sum_squared=sum_squared_rounded,
+                min=metric_value_rounded,
+                max=metric_value_rounded,
+                mean=metric_value_rounded,
+                variance=0.0,
+                stddev=0.0
             )
+            final_helm_stats.append(stat_obj)
+            
         return final_helm_stats
 
     @staticmethod

@@ -4,11 +4,12 @@ import math
 import os
 import traceback
 import typing
-from collections import Counter
+import copy
 import dataclasses
-from typing import Any, Dict, List
 import numpy as np
 
+from collections import Counter
+from typing import Any, Dict, List
 from tqdm import tqdm
 
 from helm.benchmark.adaptation.request_state import RequestState
@@ -296,7 +297,7 @@ class Runner:
         scenario_state = self.annotator_executor.execute(scenario_state)
         
         # Contamination assessment stage
-        result_contamination: List[Dict[str, Any]] = []  # Ensure it's always a list
+        result_contamination: List[Stat] = []  # Ensure it's always a list
         if self.contamination and len(self.contamination) >= 2:  # Check if contamination params are provided
             # Deepcopy scenario_state to avoid unintended modifications by the contamination evaluator
             scenario_state_copy = copy.deepcopy(scenario_state)
@@ -333,6 +334,7 @@ class Runner:
                     )
                     stats.extend(metric_result.aggregated_stats)
                     per_instance_stats.extend(metric_result.per_instance_stats)
+
         stats = result_contamination + stats
         # Check that there aren't duplicate `Stat`s
         # Note: doesn't catch near misses.
