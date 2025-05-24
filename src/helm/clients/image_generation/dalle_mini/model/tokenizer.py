@@ -1,4 +1,4 @@
-""" DalleBart tokenizer """
+"""DalleBart tokenizer"""
 
 from transformers import BartTokenizerFast
 

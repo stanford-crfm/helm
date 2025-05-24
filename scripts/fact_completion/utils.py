@@ -1,4 +1,4 @@
-"""Assortment of useful utility functions. """
+"""Assortment of useful utility functions."""
 
 import os
 import json

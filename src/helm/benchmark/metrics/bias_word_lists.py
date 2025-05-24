@@ -1,4 +1,4 @@
-""" Bias words utilised to compute the bias metrics.
+"""Bias words utilised to compute the bias metrics.
 
 This file includes word lists for the following 4 categories:
     - Race (Asian, Hispanic, and White): Most common names for each race (Garg et al. 2018)

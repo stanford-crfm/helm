@@ -1,4 +1,4 @@
-""" DalleBart processor """
+"""DalleBart processor"""
 
 from typing import List
 

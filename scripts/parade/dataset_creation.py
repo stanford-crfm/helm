@@ -60,7 +60,7 @@ def get_question_and_answers_shuffle(key: str) -> Tuple[str, List[str]]:
 
 
 def create_final_annotation(
-    annot: Dict[str, Dict[str, Dict[str, Dict[str, str]]]]
+    annot: Dict[str, Dict[str, Dict[str, Dict[str, str]]]],
 ) -> Dict[str, Dict[str, Dict[str, Dict[str, Any]]]]:
     """
     Create the final annotation structure for the generated audio files.
