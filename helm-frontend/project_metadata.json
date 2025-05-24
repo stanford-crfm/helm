@@ -90,8 +90,8 @@
 		"releases": ["v1.0.0"]
 	},
 	{
-		"title": "MELT",
-		"description": "A benchmark by for Vietnmese language models",
+		"title": "ViLLM",
+		"description": "A benchmark for Vietnamese language models",
 		"id": "melt",
 		"releases": ["v1.0.0"]
 	},
