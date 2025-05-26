@@ -24,7 +24,7 @@ class TSGuessingQuestionBasedContaminationEvaluator:
     """
 
     STRATEGY_NAME: str = "ts_guessing_question_base"
-    STRATEGY_DISPLAY_NAME: str = "TS-Guessing (base/word-masking)"
+    STRATEGY_DISPLAY_NAME: str = "TS-Guessing Base"
 
     SMALL_MODEL_CONTEXT_THRESHOLD: int = 1024
     MAX_OUTPUT_TOKENS: int = 20

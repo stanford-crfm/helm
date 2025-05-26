@@ -25,7 +25,7 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
     """
 
     STRATEGY_NAME: str = "ts_guessing_question_multichoice"
-    STRATEGY_DISPLAY_NAME: str = "TS-Guessing (question-multichoice)"
+    STRATEGY_DISPLAY_NAME: str = "TS-Guessing Multichoice"
 
     SMALL_MODEL_CONTEXT_THRESHOLD: int = 1024
     MAX_OUTPUT_TOKENS: int = 100
