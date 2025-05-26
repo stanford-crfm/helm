@@ -88,7 +88,7 @@ def run_benchmarking(
     runner_class_name: Optional[str],
     mongo_uri: Optional[str] = None,
     disable_cache: Optional[bool] = None,
-    contamination: Optional[List[str]] = None
+    contamination: Optional[List[str]] = None,
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
     sqlite_cache_backend_config: Optional[SqliteCacheBackendConfig] = None

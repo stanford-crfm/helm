@@ -171,13 +171,20 @@ class TSGuessingQuestionBasedContaminationEvaluator:
 
                     if check_prompt_length_primary:
                         try:
-                            is_valid_len, num_prompt_tokens = UtilsContamination.check_prompt_length_tokenization_request(
-                                final_prompt_text, model_deployment_name_from_spec, tokenizer_service, max_allowable_prompt_tokens
+                            is_valid_len, num_prompt_tokens = (
+                                UtilsContamination.check_prompt_length_tokenization_request(
+                                    final_prompt_text,
+                                    model_deployment_name_from_spec,
+                                    tokenizer_service,
+                                    max_allowable_prompt_tokens,
+                                )
                             )
                         except Exception:
                             check_prompt_length_primary = False
-                            hlog(f"STRATEGY INFO: Switching to fallback tokenization for '{model_deployment_name_from_spec}' due to primary tokenizer failure.")
-                            
+                            hlog(
+                                f"STRATEGY INFO: Switching to fallback tokenization for '{model_deployment_name_from_spec}' due to primary tokenizer failure."
+                            )
+
                             is_valid_len, num_prompt_tokens = UtilsContamination.check_prompt_length_fallback_gpt2(
                                 final_prompt_text, model_deployment_name_from_spec, max_allowable_prompt_tokens
                             )

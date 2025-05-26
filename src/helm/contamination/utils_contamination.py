@@ -20,9 +20,12 @@ AutoTokenizer_class: Optional[type] = None
 if TRANSFORMERS_AVAILABLE:
     try:
         from transformers import AutoTokenizer
+
         AutoTokenizer_class = AutoTokenizer
     except ImportError as e_transformers_import:
-        hlog(f"UTIL WARNING: 'transformers' module found but could not be imported. GPT-2 fallback might not work. Error: {e_transformers_import}")
+        hlog(
+            f"UTIL WARNING: 'transformers' module found but could not be imported. GPT-2 fallback might not work. Error: {e_transformers_import}"
+        )
         TRANSFORMERS_AVAILABLE = False
 
 
@@ -41,7 +44,7 @@ class UtilsContamination:
 
     DEFAULT_MODEL_MAX_CONTEXT_TOKENS_UTIL: int = 4096
     AVG_CHARS_PER_TOKEN_HEURISTIC: int = 4
-    CONSERVATIVE_CHARS_PER_TOKEN_DIVISOR: int = max(1, AVG_CHARS_PER_TOKEN_HEURISTIC -1)
+    CONSERVATIVE_CHARS_PER_TOKEN_DIVISOR: int = max(1, AVG_CHARS_PER_TOKEN_HEURISTIC - 1)
 
     SPACY_MODEL_MAP: Dict[str, str] = {
         "en": "en_core_web_sm",
@@ -59,20 +62,27 @@ class UtilsContamination:
         """
         if not TRANSFORMERS_AVAILABLE or AutoTokenizer_class is None:
             if UtilsContamination.gpt2_tokenizer_fallback_cache is None:
-                 hlog("UTIL INFO: 'transformers' library not available or AutoTokenizer not imported. GPT-2 tokenizer fallback cannot be used.")
-                 UtilsContamination.gpt2_tokenizer_fallback_cache = False
+                hlog(
+                    "UTIL INFO: 'transformers' library not available or AutoTokenizer not imported. GPT-2 tokenizer fallback cannot be used."
+                )
+                UtilsContamination.gpt2_tokenizer_fallback_cache = False
             return None
 
         if UtilsContamination.gpt2_tokenizer_fallback_cache is None:
             try:
                 hlog("UTIL INFO: Loading GPT-2 tokenizer for fallback length check (first time).")
-                UtilsContamination.gpt2_tokenizer_fallback_cache = AutoTokenizer_class.from_pretrained("gpt2", trust_remote_code=True)
+                UtilsContamination.gpt2_tokenizer_fallback_cache = AutoTokenizer_class.from_pretrained(
+                    "gpt2", trust_remote_code=True
+                )
             except Exception as e_load_gpt2:
                 hlog(f"UTIL WARNING: Failed to load GPT-2 tokenizer for fallback: {e_load_gpt2}")
                 UtilsContamination.gpt2_tokenizer_fallback_cache = False
-        
-        return UtilsContamination.gpt2_tokenizer_fallback_cache if UtilsContamination.gpt2_tokenizer_fallback_cache is not False else None
 
+        return (
+            UtilsContamination.gpt2_tokenizer_fallback_cache
+            if UtilsContamination.gpt2_tokenizer_fallback_cache is not False
+            else None
+        )
 
     @staticmethod
     def get_choices(example: Any) -> List[str]:
@@ -486,12 +496,12 @@ class UtilsContamination:
 
         if not isinstance(prompt_text, str):
             hlog(f"UTIL ERROR: prompt_text must be a string, got {type(prompt_text)}. Length check aborted.")
-            return False, -1 
+            return False, -1
 
         if max_allowable_prompt_tokens <= 0:
             hlog(f"UTIL WARNING: max_allowable_prompt_tokens ({max_allowable_prompt_tokens}) is non-positive.")
             return False, 0
-        
+
         try:
             tokenization_request = TokenizationRequest(text=prompt_text, tokenizer=model_name_for_tokenizer)
             tokenization_result: TokenizationRequestResult = tokenizer_service.tokenize(tokenization_request)
@@ -501,15 +511,19 @@ class UtilsContamination:
                 fits_within_limit = num_prompt_tokens <= max_allowable_prompt_tokens
                 return fits_within_limit, num_prompt_tokens
             else:
-                error_msg = getattr(tokenization_result, 'error', 'Unknown error')
-                hlog(f"HELM TokenizerService failed for '{model_name_for_tokenizer}': {error_msg}. Switching to fallback.")
+                error_msg = getattr(tokenization_result, "error", "Unknown error")
+                hlog(
+                    f"HELM TokenizerService failed for '{model_name_for_tokenizer}': {error_msg}. Switching to fallback."
+                )
                 raise Exception(f"HELM tokenization failed: {error_msg}")
-                
+
         except Exception as e_helm_service:
-            hlog(f"HELM TokenizerService exception for '{model_name_for_tokenizer}': {type(e_helm_service).__name__}. Switching to fallback.")
+            hlog(
+                f"HELM TokenizerService exception for '{model_name_for_tokenizer}': {type(e_helm_service).__name__}. Switching to fallback."
+            )
             raise
 
-    @staticmethod  
+    @staticmethod
     def check_prompt_length_fallback_gpt2(
         prompt_text: str,
         model_name_for_tokenizer: str,
@@ -518,7 +532,7 @@ class UtilsContamination:
         """
         Fallback tokenization using GPT-2 tokenizer and character heuristic.
         """
-        
+
         num_prompt_tokens = -1
 
         # Try GPT-2 tokenizer first
@@ -527,7 +541,9 @@ class UtilsContamination:
             try:
                 num_prompt_tokens = len(gpt2_tokenizer.encode(prompt_text, add_special_tokens=False))
             except Exception as e_gpt2_fallback:
-                hlog(f"GPT-2 Fallback failed for '{model_name_for_tokenizer}': {type(e_gpt2_fallback).__name__}. Using character heuristic.")
+                hlog(
+                    f"GPT-2 Fallback failed for '{model_name_for_tokenizer}': {type(e_gpt2_fallback).__name__}. Using character heuristic."
+                )
                 num_prompt_tokens = -1
 
         # Character heuristic fallback
@@ -536,10 +552,12 @@ class UtilsContamination:
                 if not prompt_text:
                     num_prompt_tokens = 0
                 else:
-                    num_prompt_tokens = (len(prompt_text) + UtilsContamination.CONSERVATIVE_CHARS_PER_TOKEN_DIVISOR - 1) // UtilsContamination.CONSERVATIVE_CHARS_PER_TOKEN_DIVISOR
+                    num_prompt_tokens = (
+                        len(prompt_text) + UtilsContamination.CONSERVATIVE_CHARS_PER_TOKEN_DIVISOR - 1
+                    ) // UtilsContamination.CONSERVATIVE_CHARS_PER_TOKEN_DIVISOR
             except Exception as e_char_fallback:
                 hlog(f"Character heuristic failed for '{model_name_for_tokenizer}': {type(e_char_fallback).__name__}.")
-                return False, -1 
+                return False, -1
 
         if num_prompt_tokens == -1:
             hlog(f"All tokenization methods failed for '{model_name_for_tokenizer}'.")
@@ -570,7 +588,7 @@ class UtilsContamination:
             sum_squared_rounded = np.round(metric_value_rounded**2, 2)
 
             full_metric_name_str = f"{strategy_metric_name_prefix} {metric_name_suffix})"
-            
+
             metric_name_obj = MetricName(name=full_metric_name_str, split=split)
 
             stat_obj = Stat(
@@ -582,10 +600,10 @@ class UtilsContamination:
                 max=metric_value_rounded,
                 mean=metric_value_rounded,
                 variance=0.0,
-                stddev=0.0
+                stddev=0.0,
             )
             final_helm_stats.append(stat_obj)
-            
+
         return final_helm_stats
 
     @staticmethod
@@ -617,7 +635,7 @@ class UtilsContamination:
             )
             normalized_lang = "en"
             model_name = UtilsContamination.SPACY_MODEL_MAP.get(normalized_lang)
-            
+
             if not model_name:
                 hlog("UTIL ERROR: English fallback model not found in SPACY_MODEL_MAP.")
                 raise ValueError("English fallback model not configured in SPACY_MODEL_MAP")

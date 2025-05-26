@@ -188,20 +188,27 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
 
                     if check_prompt_length_primary:
                         try:
-                            is_valid_len, num_prompt_tokens = UtilsContamination.check_prompt_length_tokenization_request(
-                                combined_prompt, model_deployment_name_from_spec, tokenizer_service, max_allowable_prompt_tokens
+                            is_valid_len, num_prompt_tokens = (
+                                UtilsContamination.check_prompt_length_tokenization_request(
+                                    combined_prompt,
+                                    model_deployment_name_from_spec,
+                                    tokenizer_service,
+                                    max_allowable_prompt_tokens,
+                                )
                             )
                         except Exception:
                             check_prompt_length_primary = False
-                            hlog(f"STRATEGY INFO: Switching to fallback tokenization for '{model_deployment_name_from_spec}' due to primary tokenizer failure.")
-                            
+                            hlog(
+                                f"STRATEGY INFO: Switching to fallback tokenization for '{model_deployment_name_from_spec}' due to primary tokenizer failure."
+                            )
+
                             is_valid_len, num_prompt_tokens = UtilsContamination.check_prompt_length_fallback_gpt2(
                                 combined_prompt, model_deployment_name_from_spec, max_allowable_prompt_tokens
                             )
                     else:
                         is_valid_len, num_prompt_tokens = UtilsContamination.check_prompt_length_fallback_gpt2(
                             combined_prompt, model_deployment_name_from_spec, max_allowable_prompt_tokens
-            )
+                        )
                     if not is_valid_len:
                         log_msg = f"STRATEGY DEBUG: Instance {original_idx} (ID: {data_point_item.get('id', 'N/A')}) skipped. "
                         if num_prompt_tokens == -1:

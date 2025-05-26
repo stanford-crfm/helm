@@ -295,7 +295,7 @@ class Runner:
 
         # Annotate (post-process the results)
         scenario_state = self.annotator_executor.execute(scenario_state)
-        
+
         # Contamination assessment stage
         result_contamination: List[Stat] = []  # Ensure it's always a list
         if self.contamination and len(self.contamination) >= 2:  # Check if contamination params are provided
