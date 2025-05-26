@@ -1,17 +1,16 @@
-import re
 import numpy as np
 import spacy
 import asyncio
 import traceback
+import random
 from dataclasses import replace
 from typing import List, Dict, Any, Tuple, Optional
 
 from helm.common.hierarchical_logger import hlog, htrack_block
-from helm.benchmark.scenarios.scenario import Instance
-from helm.common.tokenization_request import TokenizationRequest
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.benchmark.runner import ScenarioState, RequestState
 from helm.benchmark.executor import Executor
+from helm.benchmark.metrics.metric import Stat
 from .utils_contamination import UtilsContamination
 
 
@@ -42,7 +41,7 @@ class TSGuessingQuestionBasedContaminationEvaluator:
         scenario_state: ScenarioState,
         language: str,
         tokenizer_service: TokenizerService,
-    ) -> List[Dict[str, Any]]:
+    ) -> List[Stat]:
         """
         Entry point for synchronous evaluation. Wraps the asynchronous evaluation.
 
@@ -66,7 +65,7 @@ class TSGuessingQuestionBasedContaminationEvaluator:
         scenario_state: ScenarioState,
         language: str,
         tokenizer_service: TokenizerService,
-    ) -> List[Dict[str, Any]]:
+    ) -> List[Stat]:
         """
         Asynchronous implementation of the evaluation logic.
         """
@@ -162,6 +161,11 @@ class TSGuessingQuestionBasedContaminationEvaluator:
                 current_request_state: RequestState = scenario_state.request_states[original_rs_idx]
 
                 try:
+                    if tagger is None:
+                        hlog("STRATEGY ERROR: spaCy tagger is None, cannot process instance.")
+                        skipped_instance_count += 1
+                        continue
+
                     final_prompt_text, masked_word_original = self._build_prompt(
                         data_point_item, tagger, prompt_components
                     )
@@ -390,7 +394,7 @@ class TSGuessingQuestionBasedContaminationEvaluator:
                 )
                 return "failed", ""
 
-            selected_token = np.random.choice(candidate_tokens)
+            selected_token = random.choice(candidate_tokens)
             word_to_mask_original_case = selected_token.text
 
             start_char = selected_token.idx

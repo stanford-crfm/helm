@@ -3,10 +3,11 @@ import traceback
 from helm.contamination.ts_guessing_question_based import TSGuessingQuestionBasedContaminationEvaluator
 from helm.contamination.ts_guessing_question_multichoice import TSGuessingQuestionMultiChoiceContaminationEvaluator
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
-from helm.common.hierarchical_logger import hlog
-from typing import List, Dict, Any
 from helm.benchmark.runner import ScenarioState
 from helm.benchmark.executor import Executor
+from helm.benchmark.metrics.metric import Stat
+from helm.common.hierarchical_logger import hlog
+from typing import List, Any
 
 
 class ContaminationEvaluator:
@@ -23,7 +24,7 @@ class ContaminationEvaluator:
         scenario_state: ScenarioState,
         language: str,
         tokenizer_service: TokenizerService,
-    ) -> List[Dict[str, Any]]:
+    ) -> List[Stat]:
         """
         Selects and runs the appropriate contamination evaluation strategy.
 

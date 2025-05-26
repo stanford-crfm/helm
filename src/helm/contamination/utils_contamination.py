@@ -11,6 +11,7 @@ from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.benchmark.metrics.metric import Stat
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.common.tokenization_request import TokenizationRequest, TokenizationRequestResult
+from transformers import GPT2Tokenizer
 
 from .prompt_translations import TS_GUESSING_BASE, TS_GUESSING_MULTICHOICE
 
@@ -71,7 +72,7 @@ class UtilsContamination:
         if UtilsContamination.gpt2_tokenizer_fallback_cache is None:
             try:
                 hlog("UTIL INFO: Loading GPT-2 tokenizer for fallback length check (first time).")
-                UtilsContamination.gpt2_tokenizer_fallback_cache = AutoTokenizer_class.from_pretrained(
+                UtilsContamination.gpt2_tokenizer_fallback_cache = GPT2Tokenizer.from_pretrained(
                     "gpt2", trust_remote_code=True
                 )
             except Exception as e_load_gpt2:

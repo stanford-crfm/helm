@@ -8,10 +8,10 @@ from typing import List, Dict, Any, Tuple
 
 from helm.common.hierarchical_logger import hlog, htrack_block
 from nltk.tokenize import sent_tokenize
-from helm.common.tokenization_request import TokenizationRequest
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.benchmark.runner import ScenarioState, RequestState
 from helm.benchmark.executor import Executor
+from helm.benchmark.metrics.metric import Stat
 from .utils_contamination import UtilsContamination
 
 
@@ -57,7 +57,7 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
         scenario_state: ScenarioState,
         language: str,
         tokenizer_service: TokenizerService,
-    ) -> List[Dict[str, Any]]:
+    ) -> List[Stat]:
         """
         Entry point to run the contamination evaluation synchronously.
 
@@ -81,7 +81,7 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
         scenario_state: ScenarioState,
         language: str,
         tokenizer_service: TokenizerService,
-    ) -> List[Dict[str, Any]]:
+    ) -> List[Stat]:
         """
         Main asynchronous routine that evaluates model contamination using
         a multiple-choice guessing strategy by masking an incorrect option.
