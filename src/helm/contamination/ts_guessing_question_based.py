@@ -79,7 +79,8 @@ class TSGuessingQuestionBasedContaminationEvaluator:
                 tagger = UtilsContamination.get_spacy_tagger(self.language)
             except Exception as e:
                 hlog(
-                    f"STRATEGY CRITICAL: Failed to load spaCy tagger for language '{self.language}': {e}\n{traceback.format_exc()}"
+                    "STRATEGY CRITICAL: Failed to load spaCy tagger for language"
+                    f" '{self.language}': {e}\n{traceback.format_exc()}"
                 )
                 return []
 
@@ -92,7 +93,8 @@ class TSGuessingQuestionBasedContaminationEvaluator:
             )
             if not model_deployment_name_from_spec:
                 hlog(
-                    "STRATEGY ERROR: Model identifier (model_deployment or model) not found in AdapterSpec. Cannot proceed."
+                    "STRATEGY ERROR: Model identifier (model_deployment or model)"
+                    " not found in AdapterSpec. Cannot proceed."
                 )
                 return []
 
@@ -103,7 +105,8 @@ class TSGuessingQuestionBasedContaminationEvaluator:
 
             if model_max_length <= self.SMALL_MODEL_CONTEXT_THRESHOLD:
                 hlog(
-                    f"STRATEGY WARNING: Model {model_deployment_name_from_spec} (context window {model_max_length} tokens) "
+                    f"STRATEGY WARNING: Model {model_deployment_name_from_spec}"
+                    f" (context window {model_max_length} tokens) "
                     "may skip many instances if prompts are too long."
                 )
 
@@ -122,7 +125,8 @@ class TSGuessingQuestionBasedContaminationEvaluator:
             prompt_components = UtilsContamination.get_prompt_fragments(self.STRATEGY_NAME, self.language)
             if not prompt_components:
                 hlog(
-                    f"STRATEGY ERROR: Could not load prompt components for strategy '{self.STRATEGY_DISPLAY_NAME}' and language '{self.language}'. "
+                    f"STRATEGY ERROR: Could not load prompt components for strategy"
+                    f" '{self.STRATEGY_DISPLAY_NAME}' and language '{self.language}'. "
                     f"Check PROMPT_CONFIGS_MASTER in UtilsContamination for key '{self.STRATEGY_DISPLAY_NAME}'."
                 )
                 return []
@@ -153,7 +157,8 @@ class TSGuessingQuestionBasedContaminationEvaluator:
 
                 if not (0 <= original_rs_idx < len(scenario_state.request_states)):
                     hlog(
-                        f"STRATEGY DEBUG: original_request_state_index {original_rs_idx} out of bounds or missing. Skipping."
+                        "STRATEGY DEBUG: original_request_state_index"
+                        f" {original_rs_idx} out of bounds or missing. Skipping."
                     )
                     skipped_instance_count += 1
                     continue
@@ -186,7 +191,8 @@ class TSGuessingQuestionBasedContaminationEvaluator:
                         except Exception:
                             check_prompt_length_primary = False
                             hlog(
-                                f"STRATEGY INFO: Switching to fallback tokenization for '{model_deployment_name_from_spec}' due to primary tokenizer failure."
+                                "STRATEGY INFO: Switching to fallback tokenization for"
+                                f" '{model_deployment_name_from_spec}' due to primary tokenizer failure."
                             )
 
                             is_valid_len, num_prompt_tokens = UtilsContamination.check_prompt_length_fallback_gpt2(
@@ -289,7 +295,8 @@ class TSGuessingQuestionBasedContaminationEvaluator:
                     hlog(f"STRATEGY ERROR: IndexError processing result for instance {i}. List length mismatch.")
                 except Exception as e:
                     hlog(
-                        f"STRATEGY ERROR: Error processing result for prepared instance index {i}: {e}\n{traceback.format_exc()}"
+                        "STRATEGY ERROR: Error processing result for prepared"
+                        f" instance index {i}: {e}\n{traceback.format_exc()}"
                     )
 
             if not processed_instance_results:
@@ -347,17 +354,21 @@ class TSGuessingQuestionBasedContaminationEvaluator:
                         )
                     else:
                         hlog(
-                            f"STRATEGY DEBUG: Skipping instance from request_state {i} (ID: {getattr(instance, 'id', 'N/A')}) "
-                            f"due to insufficient word count ({len(words_in_text)} <= 4) in text: '{text_content[:50]}...'"
+                            f"STRATEGY DEBUG: Skipping instance from request_state"
+                            f" {i} (ID: {getattr(instance, 'id', 'N/A')}) "
+                            f"due to insufficient word count ({len(words_in_text)} <= 4)"
+                            f" in text: '{text_content[:50]}...'"
                         )
                 else:
                     hlog(
-                        f"STRATEGY DEBUG: Skipping instance from request_state {i} (ID: {getattr(instance, 'id', 'N/A')}) "
-                        "due to missing or invalid text_content."
+                        f"STRATEGY DEBUG: Skipping instance from request_state"
+                        f" {i} (ID: {getattr(instance, 'id', 'N/A')}) "
+                        f"due to missing or invalid text_content."
                     )
             except Exception as e:
                 hlog(
-                    f"STRATEGY ERROR: Error filtering instance from request_state {i} (ID: {getattr(instance, 'id', 'N/A')}): {e}\n{traceback.format_exc()}"
+                    f"STRATEGY ERROR: Error filtering instance from request_state"
+                    f" {i} (ID: {getattr(instance, 'id', 'N/A')}): {e}\n{traceback.format_exc()}"
                 )
         return data_points
 
@@ -389,7 +400,8 @@ class TSGuessingQuestionBasedContaminationEvaluator:
 
             if not candidate_tokens:
                 hlog(
-                    f"STRATEGY DEBUG: No suitable candidate tokens (POS: {self.POS_TAGS_TO_MASK}, non-stop, non-punct, len>1) "
+                    f"STRATEGY DEBUG: No suitable candidate tokens"
+                    f" (POS: {self.POS_TAGS_TO_MASK}, non-stop, non-punct, len>1) "
                     f"found in text: '{text_to_process[:100]}...'"
                 )
                 return "failed", ""
@@ -402,7 +414,8 @@ class TSGuessingQuestionBasedContaminationEvaluator:
 
             if not (0 <= start_char < end_char <= len(text_to_process)):
                 hlog(
-                    f"STRATEGY WARNING: Token indices ({start_char}-{end_char}) for word '{word_to_mask_original_case}' "
+                    f"STRATEGY WARNING: Token indices ({start_char}-{end_char})"
+                    f" for word '{word_to_mask_original_case}' "
                     f"are out of bounds for text length {len(text_to_process)}. Text: '{text_to_process[:100]}...'. "
                     "This might indicate issues with tokenization or the source text."
                 )
@@ -410,7 +423,8 @@ class TSGuessingQuestionBasedContaminationEvaluator:
                 masked_text_fallback = text_to_process.replace(word_to_mask_original_case, "[MASK]", 1)
                 if masked_text_fallback == text_to_process:
                     hlog(
-                        f"STRATEGY ERROR: Fallback replace also failed for word '{word_to_mask_original_case}'. Cannot build prompt."
+                        "STRATEGY ERROR: Fallback replace also failed for"
+                        f" word '{word_to_mask_original_case}'. Cannot build prompt."
                     )
                     return "failed", ""
                 masked_text = masked_text_fallback
@@ -424,7 +438,8 @@ class TSGuessingQuestionBasedContaminationEvaluator:
                 sentence_formatted = sentence_template.format(masked_sentence=masked_text)
             except KeyError as e_format:
                 hlog(
-                    f"STRATEGY ERROR: 'sentence_template' from prompt_components is missing '{{masked_sentence}}' placeholder. Template: '{sentence_template}'. Error: {e_format}"
+                    "STRATEGY ERROR: 'sentence_template' from prompt_components"
+                    f" is missing '{{masked_sentence}}' placeholder. Template: '{sentence_template}'. Error: {e_format}"
                 )
                 return "failed", ""
 
@@ -437,7 +452,8 @@ class TSGuessingQuestionBasedContaminationEvaluator:
                 "id", f"from original_rs_idx {example_item.get('original_request_state_index', 'Unknown')}"
             )
             hlog(
-                f"STRATEGY EXCEPTION: Critical error in _build_prompt for item '{item_id_info}': {e}\n{traceback.format_exc()}"
+                f"STRATEGY EXCEPTION: Critical error in _build_prompt for"
+                f" item '{item_id_info}': {e}\n{traceback.format_exc()}"
             )
             return "failed", ""
 
@@ -468,7 +484,8 @@ class TSGuessingQuestionBasedContaminationEvaluator:
 
         except Exception as e:
             hlog(
-                f"STRATEGY ERROR: Error processing model response (base strategy): '{full_response_text[:50]}...': {e}\n{traceback.format_exc()}"
+                "STRATEGY ERROR: Error processing model response (base strategy):"
+                f" '{full_response_text[:50]}...': {e}\n{traceback.format_exc()}"
             )
             return ""
 

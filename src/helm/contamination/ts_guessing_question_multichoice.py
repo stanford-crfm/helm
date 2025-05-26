@@ -112,7 +112,8 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
             )
             if not model_deployment_name_from_spec:
                 hlog(
-                    "STRATEGY ERROR: Model identifier (model_deployment or model) not found in AdapterSpec. Cannot proceed."
+                    "STRATEGY ERROR: Model identifier (model_deployment or model)"
+                    " not found in AdapterSpec. Cannot proceed."
                 )
                 return []
 
@@ -121,7 +122,8 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
 
             if model_max_length <= self.SMALL_MODEL_CONTEXT_THRESHOLD:
                 hlog(
-                    f"STRATEGY WARNING: Model {model_deployment_name_from_spec} (context window {model_max_length} tokens) "
+                    f"STRATEGY WARNING: Model {model_deployment_name_from_spec}"
+                    f" (context window {model_max_length} tokens) "
                     "may skip many instances if prompts are too long."
                 )
 
@@ -141,7 +143,8 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
             prompt_components = UtilsContamination.get_prompt_fragments(self.STRATEGY_NAME, self.language)
             if not prompt_components:
                 hlog(
-                    f"STRATEGY ERROR: Could not load prompt components for strategy '{self.STRATEGY_NAME}' and language '{self.language}'. "
+                    f"STRATEGY ERROR: Could not load prompt components for"
+                    f" strategy '{self.STRATEGY_NAME}' and language '{self.language}'. "
                     f"Check PROMPT_CONFIGS_MASTER in UtilsContamination for key '{self.STRATEGY_NAME}'."
                 )
                 return []
@@ -199,7 +202,8 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
                         except Exception:
                             check_prompt_length_primary = False
                             hlog(
-                                f"STRATEGY INFO: Switching to fallback tokenization for '{model_deployment_name_from_spec}' due to primary tokenizer failure."
+                                f"STRATEGY INFO: Switching to fallback tokenization for"
+                                f" '{model_deployment_name_from_spec}' due to primary tokenizer failure."
                             )
 
                             is_valid_len, num_prompt_tokens = UtilsContamination.check_prompt_length_fallback_gpt2(
@@ -210,7 +214,8 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
                             combined_prompt, model_deployment_name_from_spec, max_allowable_prompt_tokens
                         )
                     if not is_valid_len:
-                        log_msg = f"STRATEGY DEBUG: Instance {original_idx} (ID: {data_point_item.get('id', 'N/A')}) skipped. "
+                        log_msg = f"STRATEGY DEBUG: Instance {original_idx}"
+                        f"(ID: {data_point_item.get('id', 'N/A')}) skipped. "
                         if num_prompt_tokens == -1:
                             log_msg += "Tokenization failed."
                         else:
@@ -245,7 +250,8 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
 
                 except Exception as e:
                     hlog(
-                        f"STRATEGY ERROR: Error preparing instance {original_idx} (ID: {data_point_item.get('id', 'Unknown')}): {e}\n{traceback.format_exc()}"
+                        f"STRATEGY ERROR: Error preparing instance {original_idx}"
+                        f" (ID: {data_point_item.get('id', 'Unknown')}): {e}\n{traceback.format_exc()}"
                     )
                     skipped_instance_count += 1
 
@@ -301,16 +307,19 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
                     )
                 except IndexError:
                     hlog(
-                        f"STRATEGY ERROR: IndexError processing result for instance {i}. List length mismatch with gold/masked_letter lists."
+                        f"STRATEGY ERROR: IndexError processing result for instance {i}."
+                        " List length mismatch with gold/masked_letter lists."
                     )
                 except Exception as e:
                     hlog(
-                        f"STRATEGY ERROR: Error processing result for prepared instance index {i}: {e}\n{traceback.format_exc()}"
+                        "STRATEGY ERROR: Error processing result for prepared"
+                        f" instance index {i}: {e}\n{traceback.format_exc()}"
                     )
 
             if not processed_instance_results and len(valid_request_states_for_execution) > 0:
                 hlog(
-                    "STRATEGY WARNING: All model responses resulted in empty processed results, but requests were sent."
+                    "STRATEGY WARNING: All model responses resulted"
+                    " in empty processed results, but requests were sent."
                 )
             elif not processed_instance_results:
                 hlog("STRATEGY INFO: No instances were processed or yielded results.")
@@ -393,12 +402,15 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
                     c_list_len = len(choices_list) if choices_list else 0
                     idx_ok = isinstance(true_correct_answer_idx, int) and 0 <= true_correct_answer_idx < c_list_len
                     hlog(
-                        f"STRATEGY DEBUG: Skipping instance from request_state {i} (ID: {getattr(instance, 'id', 'N/A')}) "
-                        f"during filtering due to missing/invalid data (Q_OK: {q_ok}, Choices_Count: {c_list_len}, AnswerIdx_OK: {idx_ok})."
+                        f"STRATEGY DEBUG: Skipping instance from request_state {i}"
+                        f" (ID: {getattr(instance, 'id', 'N/A')}) "
+                        f"during filtering due to missing/invalid data (Q_OK: {q_ok},"
+                        f" Choices_Count: {c_list_len}, AnswerIdx_OK: {idx_ok})."
                     )
             except Exception as e:
                 hlog(
-                    f"STRATEGY ERROR: Error filtering instance from request_state {i} (ID: {getattr(instance, 'id', 'N/A')}): {e}\n{traceback.format_exc()}"
+                    f"STRATEGY ERROR: Error filtering instance from request_state {i}"
+                    f" (ID: {getattr(instance, 'id', 'N/A')}): {e}\n{traceback.format_exc()}"
                 )
         return data_points
 
@@ -418,7 +430,8 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
             )
             part_instr_rule = prompt_components.get(
                 "instruction_rule",
-                "Provide only the text that should replace [MASK]. Do not include the option letter or any other surrounding text.",
+                "Provide only the text that should replace [MASK]. Do not include the "
+                "option letter or any other surrounding text.",
             )
             part_header_q = prompt_components.get("header_question", "Question:")
             part_header_opts = prompt_components.get("header_options", "Options:")
@@ -436,15 +449,19 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
                 and 0 <= true_correct_answer_idx < len(choices_list)
             ):
                 hlog(
-                    f"STRATEGY DEBUG: _build_prompt failed - invalid input data for ID: {example_item.get('id', 'Unknown')}. "
-                    f"Q: '{original_question_text[:30]}...', Choices: {len(choices_list)}, CorrectIdx: {true_correct_answer_idx}"
+                    "STRATEGY DEBUG: _build_prompt failed - invalid input"
+                    f" data for ID: {example_item.get('id', 'Unknown')}. "
+                    f"Q: '{original_question_text[:30]}...', Choices: {len(choices_list)},"
+                    f" CorrectIdx: {true_correct_answer_idx}"
                 )
                 return "failed", "", "", ""
 
             incorrect_option_indices = [i for i in range(len(choices_list)) if i != true_correct_answer_idx]
             if not incorrect_option_indices:
                 hlog(
-                    f"STRATEGY DEBUG: No incorrect options to mask for instance {example_item.get('id', 'Unknown')}. (Choices: {len(choices_list)}, CorrectIdx: {true_correct_answer_idx})"
+                    f"STRATEGY DEBUG: No incorrect options to mask for instance"
+                    f" {example_item.get('id', 'Unknown')}. (Choices: {len(choices_list)},"
+                    f" CorrectIdx: {true_correct_answer_idx})"
                 )
                 return "failed", "", "", ""
 
@@ -460,7 +477,8 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
             for i, choice_text_item in enumerate(choices_list):
                 if i >= len(self.alphabet):
                     hlog(
-                        f"STRATEGY WARNING: Number of choices ({len(choices_list)}) exceeds alphabet size ({len(self.alphabet)}) "
+                        f"STRATEGY WARNING: Number of choices ({len(choices_list)})"
+                        f" exceeds alphabet size ({len(self.alphabet)}) "
                         f"for instance {example_item.get('id', 'Unknown')}. Truncating options display in prompt."
                     )
                     break
@@ -468,12 +486,14 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
                 option_content = "[MASK]" if i == masked_choice_idx else f"{str(choice_text_item)}"
                 options_lines_segment += f"\n{letter}: {option_content}"
 
-            user_text_segment = f"{part_header_q} {original_question_text}\n{part_header_opts}{options_lines_segment}\n\n{part_footer_reply}"
+            user_text_segment = f"{part_header_q} {original_question_text}"
+            f"\n{part_header_opts}{options_lines_segment}\n\n{part_footer_reply}"
 
             return instruction_text_segment, user_text_segment, original_text_of_masked_option, masked_option_letter
         except Exception as e:
             hlog(
-                f"STRATEGY EXCEPTION: Critical error in _build_prompt for example {example_item.get('id', 'Unknown ID')}: {e}\n{traceback.format_exc()}"
+                "STRATEGY EXCEPTION: Critical error in _build_prompt for example"
+                f" {example_item.get('id', 'Unknown ID')}: {e}\n{traceback.format_exc()}"
             )
             return "failed", "", "", ""
 
@@ -515,7 +535,8 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
             return processed_text
         except Exception as e:
             hlog(
-                f"STRATEGY ERROR: Error processing model response: '{response_text_input[:50]}...': {e}\n{traceback.format_exc()}"
+                "STRATEGY ERROR: Error processing model response:"
+                f" '{response_text_input[:50]}...': {e}\n{traceback.format_exc()}"
             )
             return ""
 

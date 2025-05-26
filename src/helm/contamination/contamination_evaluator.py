@@ -65,6 +65,7 @@ class ContaminationEvaluator:
             )
         except Exception as e:
             hlog(
-                f"CONTAMINATION_EVALUATOR CRITICAL: An error occurred while running the '{method}' contamination strategy: {e}\n{traceback.format_exc()}"
+                f"CONTAMINATION_EVALUATOR CRITICAL: An error occurred while running the '{method}'"
+                f" contamination strategy: {e}\n{traceback.format_exc()}"
             )
             return []

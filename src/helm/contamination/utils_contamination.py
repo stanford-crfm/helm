@@ -25,7 +25,8 @@ if TRANSFORMERS_AVAILABLE:
         AutoTokenizer_class = AutoTokenizer
     except ImportError as e_transformers_import:
         hlog(
-            f"UTIL WARNING: 'transformers' module found but could not be imported. GPT-2 fallback might not work. Error: {e_transformers_import}"
+            "UTIL WARNING: 'transformers' module found but could not be imported."
+            f" GPT-2 fallback might not work. Error: {e_transformers_import}"
         )
         TRANSFORMERS_AVAILABLE = False
 
@@ -64,7 +65,8 @@ class UtilsContamination:
         if not TRANSFORMERS_AVAILABLE or AutoTokenizer_class is None:
             if UtilsContamination.gpt2_tokenizer_fallback_cache is None:
                 hlog(
-                    "UTIL INFO: 'transformers' library not available or AutoTokenizer not imported. GPT-2 tokenizer fallback cannot be used."
+                    "UTIL INFO: 'transformers' library not available or AutoTokenizer not imported."
+                    " GPT-2 tokenizer fallback cannot be used."
                 )
                 UtilsContamination.gpt2_tokenizer_fallback_cache = False
             return None
@@ -165,7 +167,8 @@ class UtilsContamination:
 
         hlog(
             f"UTIL WARNING: Could not extract choices from example of type: {type(example)}. "
-            f"Consider inspecting its structure. Keys/attrs might be: {list(example.keys()) if isinstance(example, dict) else dir(example)}"
+            "Consider inspecting its structure. Keys/attrs might be:"
+            f" {list(example.keys()) if isinstance(example, dict) else dir(example)}"
         )
         return []
 
@@ -213,7 +216,8 @@ class UtilsContamination:
                         return choices_list.index(correct_text_from_ref)
                     except ValueError:
                         hlog(
-                            f"UTIL WARNING: Correct text '{correct_text_from_ref}' from reference not found in choices extracted by get_choices."
+                            f"UTIL WARNING: Correct text '{correct_text_from_ref}'"
+                            " from reference not found in choices extracted by get_choices."
                         )
                 else:  # Fallback to try to interpret keys from output_mapping
                     for key, text_val in example.output_mapping.items():
@@ -227,7 +231,8 @@ class UtilsContamination:
                                 if len(key_lower) == 1 and key_lower in alphabet_options:
                                     return alphabet_options.index(key_lower)
                             hlog(
-                                f"UTIL WARNING: Found correct text in output_mapping for key '{key}', but key is not a recognized index format."
+                                f"UTIL WARNING: Found correct text in output_mapping for key '{key}',"
+                                " but key is not a recognized index format."
                             )
 
         if isinstance(example, dict):
@@ -245,7 +250,8 @@ class UtilsContamination:
                     return int(example["label"])
                 except (ValueError, TypeError):
                     hlog(
-                        f"UTIL WARNING: Could not convert 'label' field ('{example['label']}') to int for answer index."
+                        f"UTIL WARNING: Could not convert 'label' field ('{example['label']}')"
+                        " to int for answer index."
                     )
 
             if "answer" in example:
@@ -274,7 +280,8 @@ class UtilsContamination:
 
         hlog(
             f"UTIL WARNING: Could not determine answer index for example of type: {type(example)}. "
-            f"Consider inspecting its structure. Keys/attrs might be: {list(example.keys()) if isinstance(example, dict) else dir(example)}"
+            "Consider inspecting its structure. Keys/attrs might be:"
+            f" {list(example.keys()) if isinstance(example, dict) else dir(example)}"
         )
         return -1
 
@@ -321,7 +328,8 @@ class UtilsContamination:
 
         hlog(
             f"UTIL WARNING: Could not extract question text from example of type: {type(example)}. "
-            f"Consider inspecting its structure. Keys/attrs might be: {list(example.keys()) if isinstance(example, dict) else dir(example)}"
+            "Consider inspecting its structure. Keys/attrs might be:"
+            f" {list(example.keys()) if isinstance(example, dict) else dir(example)}"
         )
         return "Unknown question or context"
 
@@ -342,7 +350,8 @@ class UtilsContamination:
 
         if strategy_key not in PROMPT_CONFIGS_MASTER:
             hlog(
-                f"UTIL ERROR: Prompt configuration for strategy_key '{strategy_key}' not found in PROMPT_CONFIGS_MASTER. "
+                f"UTIL ERROR: Prompt configuration for strategy_key '{strategy_key}'"
+                " not found in PROMPT_CONFIGS_MASTER."
                 f"Available keys: {list(PROMPT_CONFIGS_MASTER.keys())}"
             )
             return {}
@@ -354,13 +363,15 @@ class UtilsContamination:
             return lang_prompts_for_strategy[normalized_lang]
         elif "en" in lang_prompts_for_strategy:
             hlog(
-                f"UTIL WARNING: Language '{language}' (normalized to '{normalized_lang}') not found for strategy '{strategy_key}'. "
+                f"UTIL WARNING: Language '{language}' (normalized to '{normalized_lang}')"
+                f" not found for strategy '{strategy_key}'. "
                 "Falling back to English prompts."
             )
             return lang_prompts_for_strategy["en"]
         else:
             hlog(
-                f"UTIL ERROR: English fallback prompts not found for strategy '{strategy_key}' when language '{language}' (normalized: {normalized_lang}) is missing."
+                f"UTIL ERROR: English fallback prompts not found for strategy '{strategy_key}'"
+                f" when language '{language}' (normalized: {normalized_lang}) is missing."
             )
             return {}
 
@@ -389,27 +400,32 @@ class UtilsContamination:
                 model_max_len = model_deployment.max_sequence_length
                 primary_source_found = True
                 hlog(
-                    f"UTIL INFO: Using model_max_length from ModelDeployment.max_sequence_length: {model_max_len} for {model_deployment_name}"
+                    "UTIL INFO: Using model_max_length from"
+                    f" ModelDeployment.max_sequence_length: {model_max_len} for {model_deployment_name}"
                 )
             elif model_deployment.max_request_length is not None and model_deployment.max_request_length > 0:
                 model_max_len = model_deployment.max_request_length
                 primary_source_found = True
                 hlog(
-                    f"UTIL INFO: Using model_max_length from ModelDeployment.max_request_length: {model_max_len} for {model_deployment_name}"
+                    f"UTIL INFO: Using model_max_length from"
+                    f" ModelDeployment.max_request_length: {model_max_len} for {model_deployment_name}"
                 )
 
             if not primary_source_found:
                 hlog(
-                    f"UTIL WARNING: max_sequence_length/max_request_length not set or invalid in ModelDeployment for '{model_deployment_name}'. Attempting fallback to AutoTokenizer."
+                    "UTIL WARNING: max_sequence_length/max_request_length not set or invalid in ModelDeployment"
+                    f" for '{model_deployment_name}'. Attempting fallback to AutoTokenizer."
                 )
 
         except KeyError as e_model_reg:
             hlog(
-                f"UTIL INFO: Could not get ModelDeployment (model not in registry or other KeyError) for '{model_deployment_name}': {e_model_reg}. Falling back to AutoTokenizer."
+                "UTIL INFO: Could not get ModelDeployment (model not in registry or other KeyError)"
+                f" for '{model_deployment_name}': {e_model_reg}. Falling back to AutoTokenizer."
             )
         except Exception as e_model_reg_other:
             hlog(
-                f"UTIL WARNING: Error accessing ModelDeployment for '{model_deployment_name}': {e_model_reg_other}. Falling back to AutoTokenizer."
+                f"UTIL WARNING: Error accessing ModelDeployment for '{model_deployment_name}':"
+                f" {e_model_reg_other}. Falling back to AutoTokenizer."
             )
 
         if not primary_source_found:
@@ -418,7 +434,8 @@ class UtilsContamination:
                 from transformers import AutoTokenizer
 
                 hlog(
-                    f"UTIL INFO: Fallback: Loading AutoTokenizer for '{model_deployment_name}' to get model_max_length."
+                    f"UTIL INFO: Fallback: Loading AutoTokenizer for '{model_deployment_name}'"
+                    " to get model_max_length."
                 )
                 temp_tokenizer_for_max_len = AutoTokenizer.from_pretrained(
                     model_deployment_name, trust_remote_code=True
@@ -433,20 +450,24 @@ class UtilsContamination:
                 ):
                     model_max_len = tokenizer_max_len_attr
                     hlog(
-                        f"UTIL INFO: Using model_max_length from AutoTokenizer.model_max_length: {model_max_len} for {model_deployment_name}"
+                        "UTIL INFO: Using model_max_length from AutoTokenizer.model_max_length:"
+                        f" {model_max_len} for {model_deployment_name}"
                     )
                 else:
                     hlog(
-                        f"UTIL WARNING: Fallback AutoTokenizer for {model_deployment_name} reported an unusual max length ({tokenizer_max_len_attr}). "
+                        f"UTIL WARNING: Fallback AutoTokenizer for {model_deployment_name}"
+                        f" reported an unusual max length ({tokenizer_max_len_attr}). "
                         f"Using previously determined or default value: {model_max_len}."
                     )
             except ImportError:
                 hlog(
-                    f"UTIL WARNING: 'transformers' library not installed. Cannot use AutoTokenizer fallback for '{model_deployment_name}'. Using: {model_max_len}."
+                    "UTIL WARNING: 'transformers' library not installed."
+                    f"Cannot use AutoTokenizer fallback for '{model_deployment_name}'. Using: {model_max_len}."
                 )
             except Exception as e_hf_tokenizer:
                 hlog(
-                    f"UTIL WARNING: Fallback using AutoTokenizer for '{model_deployment_name}' also failed: {e_hf_tokenizer}. "
+                    f"UTIL WARNING: Fallback using AutoTokenizer for '{model_deployment_name}'"
+                    f"also failed: {e_hf_tokenizer}. "
                     f"Using previously determined or default value: {model_max_len}."
                 )
             finally:
@@ -455,7 +476,8 @@ class UtilsContamination:
 
         if not (isinstance(model_max_len, int) and model_max_len > 0):
             hlog(
-                f"UTIL WARNING: Determined model_max_length ({model_max_len}) for '{model_deployment_name}' is invalid. Resetting to util default: {UtilsContamination.DEFAULT_MODEL_MAX_CONTEXT_TOKENS_UTIL}."
+                f"UTIL WARNING: Determined model_max_length ({model_max_len}) for '{model_deployment_name}' is invalid."
+                f"Resetting to util default: {UtilsContamination.DEFAULT_MODEL_MAX_CONTEXT_TOKENS_UTIL}."
             )
             model_max_len = UtilsContamination.DEFAULT_MODEL_MAX_CONTEXT_TOKENS_UTIL
         return model_max_len
@@ -467,7 +489,8 @@ class UtilsContamination:
         Ensures 'method' is always set to 'generation'.
 
         Args:
-            original_adapter_spec (Any): The base AdapterSpec (or any object with similar structure that supports dataclasses.replace).
+            original_adapter_spec (Any): The base AdapterSpec (or any object with similar structure
+            that supports dataclasses.replace).
             generation_method_params (Dict[str, Any]): Parameters to override/set in the new AdapterSpec.
                                                         'method' will be set to 'generation'. Any other
                                                         AdapterSpec fields (like instructions, input_prefix, etc.)
@@ -514,13 +537,15 @@ class UtilsContamination:
             else:
                 error_msg = getattr(tokenization_result, "error", "Unknown error")
                 hlog(
-                    f"HELM TokenizerService failed for '{model_name_for_tokenizer}': {error_msg}. Switching to fallback."
+                    f"HELM TokenizerService failed for '{model_name_for_tokenizer}':"
+                    f" {error_msg}. Switching to fallback."
                 )
                 raise Exception(f"HELM tokenization failed: {error_msg}")
 
         except Exception as e_helm_service:
             hlog(
-                f"HELM TokenizerService exception for '{model_name_for_tokenizer}': {type(e_helm_service).__name__}. Switching to fallback."
+                f"HELM TokenizerService exception for '{model_name_for_tokenizer}':"
+                f" {type(e_helm_service).__name__}. Switching to fallback."
             )
             raise
 
@@ -543,7 +568,8 @@ class UtilsContamination:
                 num_prompt_tokens = len(gpt2_tokenizer.encode(prompt_text, add_special_tokens=False))
             except Exception as e_gpt2_fallback:
                 hlog(
-                    f"GPT-2 Fallback failed for '{model_name_for_tokenizer}': {type(e_gpt2_fallback).__name__}. Using character heuristic."
+                    f"GPT-2 Fallback failed for '{model_name_for_tokenizer}':"
+                    f" {type(e_gpt2_fallback).__name__}. Using character heuristic."
                 )
                 num_prompt_tokens = -1
 
@@ -659,16 +685,19 @@ class UtilsContamination:
                 except SystemExit as e_download:
                     if e_download.code == 0:
                         hlog(
-                            f"UTIL INFO: spacy.cli.download for '{model_name}' exited with code 0 (likely success or already present)."
+                            f"UTIL INFO: spacy.cli.download for '{model_name}'"
+                            f" exited with code 0 (likely success or already present)."
                         )
                     else:
                         hlog(
-                            f"UTIL ERROR: Failed to download spaCy model '{model_name}'. spacy.cli.download exited with code: {e_download.code}"
+                            f"UTIL ERROR: Failed to download spaCy model '{model_name}'."
+                            f" spacy.cli.download exited with code: {e_download.code}"
                         )
                         raise Exception(f"Failed to download spaCy model {model_name}") from e_download
                 except Exception as e_download_other:
                     hlog(
-                        f"UTIL ERROR: An unexpected error occurred during spaCy model download for '{model_name}': {e_download_other}"
+                        f"UTIL ERROR: An unexpected error occurred during spaCy"
+                        f" model download for '{model_name}': {e_download_other}"
                     )
                     raise Exception(f"Unexpected error downloading spaCy model {model_name}") from e_download_other
 

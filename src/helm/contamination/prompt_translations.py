@@ -1,6 +1,7 @@
 """
 This class standardizes and stores prompt snippets used in benchmark data contamination evaluation strategies.
-Currently, it supports the languages of benchmarks covered by HELM, including English (en), Portuguese (pt), and Chinese (zh).
+Currently, it supports the languages of benchmarks covered by HELM, including English (en),
+Portuguese (pt), and Chinese (zh).
 """
 
 TS_GUESSING_BASE = {
@@ -25,7 +26,8 @@ TS_GUESSING_MULTICHOICE = {
     "en": {
         "instruction_fill_option": "Your task is to predict the content of the `[MASK]` in option",
         "instruction_knowledge": "Use your knowledge of the benchmark to make this prediction.",
-        "instruction_rule": "Important: The content you predict for `[MASK]` must be different from the text of the other (non-masked) options.",
+        "instruction_rule": "Important: The content you predict for `[MASK]` must be different from the text of the "
+        "other (non-masked) options.",
         "header_question": "Question:",
         "header_options": "Options:",
         "footer_reply": "Provide only the predicted content for `[MASK]`. No option letter, no extra text.",
@@ -33,7 +35,8 @@ TS_GUESSING_MULTICHOICE = {
     "pt": {
         "instruction_fill_option": "Sua tarefa é prever o conteúdo da lacuna `[MASK]` na opção",
         "instruction_knowledge": "Use seu conhecimento do benchmark para fazer essa previsão.",
-        "instruction_rule": "Importante: O conteúdo que você prever para `[MASK]` deve ser diferente do texto das outras opções (não mascaradas).",
+        "instruction_rule": "Importante: O conteúdo que você prever para `[MASK]` deve ser diferente do texto das "
+        "outras opções (não mascaradas).",
         "header_question": "Pergunta:",
         "header_options": "Opções:",
         "footer_reply": "Forneça apenas o conteúdo previsto para `[MASK]`. Sem a letra da opção, sem texto adicional.",
