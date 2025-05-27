@@ -1,3 +1,4 @@
+import dataclasses
 from typing import Any, Dict, List, Optional, TypedDict, Union, cast
 import json
 import os
@@ -11,6 +12,7 @@ from helm.common.hierarchical_logger import htrack_block, hlog, hwarn
 from helm.common.media_object import IMAGE_TYPE, TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import (
+    Thinking,
     wrap_request_time,
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
     Request,
@@ -31,6 +33,8 @@ try:
     from anthropic import Anthropic, BadRequestError
     from anthropic.types import MessageParam
     from anthropic.types.message import Message
+    from anthropic.types.text_block import TextBlock
+    from anthropic.types.thinking_block import ThinkingBlock
     from anthropic.types.image_block_param import ImageBlockParam
     from anthropic.types.text_block_param import TextBlockParam
     import websocket
@@ -426,9 +430,20 @@ class AnthropicMessagesClient(CachingClient):
                 )
 
             response_message: Message = Message.model_validate(raw_response)
+            response_text: Optional[str] = None
+            response_thinking: Optional[str] = None
+            for content in response_message.content:
+                if isinstance(content, TextBlock):
+                    response_text = content.text
+                elif isinstance(content, ThinkingBlock):
+                    response_thinking = content.thinking
+            if response_text is None:
+                raise Exception("Anthropic response did not contain text block")
             completion = truncate_and_tokenize_response_text(
-                response_message.content[-1].text, request, self.tokenizer, self.tokenizer_name, original_finish_reason=""
+                response_text, request, self.tokenizer, self.tokenizer_name, original_finish_reason=""
             )
+            if response_thinking is not None:
+                completion = dataclasses.replace(completion, thinking=Thinking(text=response_thinking))
             completions.append(completion)
 
         return RequestResult(
