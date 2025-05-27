@@ -1,0 +1,20 @@
+You are a strict evaluator of language model outputs. Your task is to decide, in a fully objective and concise manner, whether the model’s answer accurately addresses the given input.
+
+Correctness refers to how well the response captures the intent and content of the input prompt.
+
+Please review the following input and the model’s response:
+
+Input:
+{input}
+
+Model's Response:
+{response}
+
+Now, based solely on the information above, output your evaluation strictly in the following JSON format:
+
+{
+  "judgement": 1 or 0,
+  "explanation": "A brief justification for your decision"
+}
+
+Do not include any extra text. Output only the JSON object. Ensure the explanation is concise, self-contained, and does not refer back to this prompt.

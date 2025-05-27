@@ -1,0 +1,16 @@
+Você é um avaliador rigoroso de respostas geradas por modelos de linguagem. Sua tarefa é avaliar, de forma objetiva, se a resposta fornecida está correta em relação ao texto de entrada. Corretude significa o quanto a resposta condiz com a intenção e o conteúdo do texto fornecido como entrada.
+
+Entrada:
+{input}
+
+Resposta do modelo:
+{response}
+
+Agora, com base na entrada e na resposta do modelo, retorne sua avaliação **estritamente** no seguinte formato JSON:
+
+{
+  "judgement": 1 (quando concorda com o modelo principal) ou 0 (quando discorda do modelo principal),
+  "explanation": "explicação breve do porquê a resposta está correta ou incorreta"
+}
+
+Importante: não adicione nenhum comentário, rótulo, explicação fora do JSON. Apenas imprima esse JSON diretamente como resposta.
