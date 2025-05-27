@@ -1,21 +1,18 @@
-# This GitHub Actions workflow automatically resolves and updates the pinned versions
+# This GitHub Actions workflow automatically upgrades the pinned versions
 # in requirements.txt for all Python dependencies (including transitive dependencies)
-# whenever setup.cfg is modified or the workflow is manually triggered.
+# every Monday or whenever the workflow is manually triggered.
 
-name: Update requirements.txt
+name: Upgrade requirements.txt
 
 on:
   push:
-    branches:
-      - "main"
-    paths:
-      - "setup.cfg"
-      - '.github/workflows/update-requirements.yml'
+  schedule:
+    - cron: "30 15 * * 1"
   workflow_dispatch:
 
 jobs:
-  update-requirements:
-    name: Update requirements.txt
+  upgrade-requirements:
+    name: Upgrade requirements.txt
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -31,7 +28,7 @@ jobs:
       - name: Install uv
         run: pip install uv
       - name: Resolve dependencies
-        run: uv pip compile setup.cfg --extra all --extra dev --universal --no-annotate --constraints constraints.txt -o requirements.txt
+        run: uv pip compile setup.cfg --upgrade --extra all --extra dev --universal --no-annotate --constraints constraints.txt -o requirements.txt
         # Need to manually run tests here because the pull request opened later will not
         # run the test workflow.
         #
@@ -55,8 +52,8 @@ jobs:
       - name: Create pull request
         uses: peter-evans/create-pull-request@v6
         with:
-          commit-message: Update requirements.txt
-          title: "Update requirements.txt"
-          branch: actions/update-requirements
+          commit-message: Upgrade requirements.txt
+          title: "Upgrade requirements.txt"
+          branch: actions/upgrade-requirements
           delete-branch: true
           body: Auto-generated from GitHub Actions.
