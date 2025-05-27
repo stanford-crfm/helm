@@ -37,6 +37,7 @@ try:
     from anthropic.types.thinking_block import ThinkingBlock
     from anthropic.types.image_block_param import ImageBlockParam
     from anthropic.types.text_block_param import TextBlockParam
+    from anthropic.types.thinking_config_enabled_param import ThinkingConfigEnabledParam
     import websocket
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["anthropic"])
@@ -236,6 +237,7 @@ class AnthropicMessagesRequest(TypedDict, total=False):
     temperature: float
     top_k: int
     top_p: float
+    thinking: ThinkingConfigEnabledParam
 
 
 class AnthropicMessagesRequestError(NonRetriableException):
@@ -379,7 +381,7 @@ class AnthropicMessagesClient(CachingClient):
                 "budget_tokens": self.thinking_budget_tokens,
             }
             # Avoid error:
-            # `top_k` must be unset when thinking is enabled. Please consult our documentation at https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking#important-considerations-when-using-extended-thinking  # ignore: E501
+            # `top_k` must be unset when thinking is enabled. Please consult our documentation at https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking#important-considerations-when-using-extended-thinking  # noqa: E501
             del raw_request["top_k"]
 
         completions: List[GeneratedOutput] = []
