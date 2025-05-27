@@ -30,6 +30,7 @@ from helm.clients.client import CachingClient, truncate_sequence, truncate_and_t
 try:
     from anthropic import Anthropic, BadRequestError
     from anthropic.types import MessageParam
+    from anthropic.types.message import Message
     from anthropic.types.image_block_param import ImageBlockParam
     from anthropic.types.text_block_param import TextBlockParam
     import websocket
@@ -237,7 +238,7 @@ class AnthropicMessagesRequestError(NonRetriableException):
     pass
 
 
-class AnthropicMessagesResponseError(Exception):
+class AnthropicMessagesEmptyContentError(Exception):
     pass
 
 
@@ -248,13 +249,15 @@ class AnthropicMessagesClient(CachingClient):
     MAX_IMAGE_SIZE_BYTES: int = 5242880  # 5MB
 
     def __init__(
-        self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig, api_key: Optional[str] = None
+        self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig, thinking_budget_tokens: Optional[int] = None, anthropic_model_name: Optional[str] = None, api_key: Optional[str] = None,
     ):
         super().__init__(cache_config=cache_config)
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
         self.client = Anthropic(api_key=api_key)
         self.api_key: Optional[str] = api_key
+        self.anthropic_model_name: Optional[str] = anthropic_model_name
+        self.thinking_budget_tokens: Optional[int] = thinking_budget_tokens
 
     def make_request(self, request: Request) -> RequestResult:
         if request.max_tokens > AnthropicMessagesClient.MAX_OUTPUT_TOKENS:
@@ -351,7 +354,7 @@ class AnthropicMessagesClient(CachingClient):
 
         raw_request: AnthropicMessagesRequest = {
             "messages": messages,
-            "model": request.model_engine,
+            "model": self.anthropic_model_name or request.model_engine,
             "stop_sequences": request.stop_sequences,
             "max_tokens": request.max_tokens,
             "temperature": request.temperature,
@@ -360,6 +363,15 @@ class AnthropicMessagesClient(CachingClient):
         }
         if system_message is not None:
             raw_request["system"] = cast(str, system_message["content"])
+        if self.thinking_budget_tokens:
+            raw_request["thinking"] = {
+                "type": "enabled",
+                "budget_tokens": self.thinking_budget_tokens,
+            }
+            # Avoid error:
+            # `top_k` must be unset when thinking is enabled. Please consult our documentation at https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking#important-considerations-when-using-extended-thinking  # ignore: E501
+            del raw_request["top_k"]
+            
         completions: List[GeneratedOutput] = []
 
         # `num_completions` is not supported, so instead make `num_completions` separate requests.
@@ -369,9 +381,9 @@ class AnthropicMessagesClient(CachingClient):
                 try:
                     result = self.client.messages.create(**raw_request).model_dump()
                     if "content" not in result or not result["content"]:
-                        raise AnthropicMessagesResponseError(f"Anthropic response has empty content: {result}")
-                    elif "text" not in result["content"][0]:
-                        raise AnthropicMessagesResponseError(f"Anthropic response has non-text content: {result}")
+                        raise AnthropicMessagesEmptyContentError(f"Anthropic response has empty content: {result}")
+                    elif "text" not in result["content"][-1]:
+                        raise AnthropicMessagesEmptyContentError(f"Anthropic response has non-text content: {result}")
                     return result
                 except BadRequestError as e:
                     response = e.response.json()
@@ -387,9 +399,10 @@ class AnthropicMessagesClient(CachingClient):
                     },
                     request,
                 )
-                response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-            except AnthropicMessagesResponseError:
-                hwarn("Response has empty content")
+                raw_response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+                
+            except AnthropicMessagesEmptyContentError:
+                hwarn("Anthropic response has empty content")
                 return RequestResult(
                     success=False,
                     cached=False,
@@ -399,29 +412,30 @@ class AnthropicMessagesClient(CachingClient):
                     error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
                 )
 
-            if _is_content_moderation_failure(response):
+            if _is_content_moderation_failure(raw_response):
                 hwarn(f"Returning empty request for {request.model_deployment} " "due to content moderation filter")
                 return RequestResult(
                     success=False,
                     cached=cached,
-                    error=response["error"]["message"],
+                    error=raw_response["error"]["message"],
                     completions=[],
                     embedding=[],
                     error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
-                    request_time=response["request_time"],
-                    request_datetime=response["request_datetime"],
+                    request_time=raw_response["request_time"],
+                    request_datetime=raw_response["request_datetime"],
                 )
 
+            response_message: Message = Message.model_validate(raw_response)
             completion = truncate_and_tokenize_response_text(
-                response["content"][0]["text"], request, self.tokenizer, self.tokenizer_name, original_finish_reason=""
+                response_message.content[-1].text, request, self.tokenizer, self.tokenizer_name, original_finish_reason=""
             )
             completions.append(completion)
 
         return RequestResult(
             success=True,
             cached=cached,
-            request_time=response["request_time"],
-            request_datetime=response["request_datetime"],
+            request_time=raw_response["request_time"],
+            request_datetime=raw_response["request_datetime"],
             completions=completions,
             embedding=[],
         )
