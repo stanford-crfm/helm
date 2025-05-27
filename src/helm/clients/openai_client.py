@@ -241,6 +241,11 @@ class OpenAIClient(CachingClient):
             # 'code': 'unsupported_parameter'}}"
             raw_request.pop("temperature", None)
 
+            # The following parameters also happen to be unsupported by the o-series (code unsupported_parameter)
+            raw_request.pop("top_p", None)
+            raw_request.pop("frequency_penalty", None)
+            raw_request.pop("presence_penalty", None)
+
             if self.reasoning_effort:
                 raw_request["reasoning_effort"] = self.reasoning_effort
         elif is_vlm(request.model):
