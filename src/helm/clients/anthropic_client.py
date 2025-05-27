@@ -253,7 +253,13 @@ class AnthropicMessagesClient(CachingClient):
     MAX_IMAGE_SIZE_BYTES: int = 5242880  # 5MB
 
     def __init__(
-        self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig, thinking_budget_tokens: Optional[int] = None, anthropic_model_name: Optional[str] = None, api_key: Optional[str] = None,
+        self,
+        tokenizer: Tokenizer,
+        tokenizer_name: str,
+        cache_config: CacheConfig,
+        thinking_budget_tokens: Optional[int] = None,
+        anthropic_model_name: Optional[str] = None,
+        api_key: Optional[str] = None,
     ):
         super().__init__(cache_config=cache_config)
         self.tokenizer = tokenizer
@@ -375,7 +381,7 @@ class AnthropicMessagesClient(CachingClient):
             # Avoid error:
             # `top_k` must be unset when thinking is enabled. Please consult our documentation at https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking#important-considerations-when-using-extended-thinking  # ignore: E501
             del raw_request["top_k"]
-            
+
         completions: List[GeneratedOutput] = []
 
         # `num_completions` is not supported, so instead make `num_completions` separate requests.
@@ -404,7 +410,7 @@ class AnthropicMessagesClient(CachingClient):
                     request,
                 )
                 raw_response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-                
+
             except AnthropicMessagesEmptyContentError:
                 hwarn("Anthropic response has empty content")
                 return RequestResult(
