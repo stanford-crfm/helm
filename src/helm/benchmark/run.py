@@ -296,7 +296,7 @@ def helm_run(args):
         disable_cache=args.disable_cache,
         llm_judge=args.llm_judge,
         judge_model=args.judge_model,
-        prompt_file=args.prompt_file,
+        prompt_file=args.prompt,
     )
 
     if args.run_specs:
