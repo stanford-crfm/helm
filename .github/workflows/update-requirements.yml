@@ -10,6 +10,7 @@ on:
       - "main"
     paths:
       - "setup.cfg"
+      - "constraints.txt"
       - '.github/workflows/update-requirements.yml'
   workflow_dispatch:
 
