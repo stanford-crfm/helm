@@ -264,7 +264,7 @@ class Runner:
             cache_stats.print_status()
 
             llm_judge = LLMJudger(
-                self.executor.service,
+                self.executor.context,
                 judge_model=self.judge_model,
                 prompt_file=self.prompt_file
             )
