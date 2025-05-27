@@ -1,4 +1,4 @@
-# This GitHub Actions workflow automatically updates and upgrades the pinned versions
+# This GitHub Actions workflow automatically resolves and updates the pinned versions
 # in requirements.txt for all Python dependencies (including transitive dependencies)
 # whenever setup.cfg is modified or the workflow is manually triggered.
 

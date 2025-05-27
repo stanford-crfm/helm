@@ -1,6 +1,6 @@
-# This GitHub Actions workflow automatically updates and upgrades the pinned versions
+# This GitHub Actions workflow automatically upgrades the pinned versions
 # in requirements.txt for all Python dependencies (including transitive dependencies)
-# whenever setup.cfg is modified or the workflow is manually triggered.
+# every Monday or whenever the workflow is manually triggered.
 
 name: Upgrade requirements.txt
 
@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  update-requirements:
+  upgrade-requirements:
     name: Upgrade requirements.txt
     runs-on: ubuntu-latest
     strategy:
