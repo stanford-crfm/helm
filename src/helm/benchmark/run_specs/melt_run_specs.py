@@ -269,7 +269,7 @@ def get_math_spec(
         instance_prefix = "###\n"  # Don't include LaTeX '$' delimiters
         max_tokens = 400  # Increase the number of tokens to generate
         stop_sequences = ["###"]  # Break at the next instance; extraneous output will be stripped out
-        groups = ["melt_math_equiv_chain_of_thought"]
+        groups = ["melt_math_chain_of_thought"]
     else:
         output_prefix = "Lời giải: $"
         output_suffix = "$\n"
