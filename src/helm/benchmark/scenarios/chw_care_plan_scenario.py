@@ -61,7 +61,8 @@ Clinical Note:
 
 class CHWCarePlanScenario(Scenario):
     """
-    A scenario for MIMIC-IV discharge summaries where the task is to predict the ICD-10 code(s).
+    A scenario for a dataset containing free form text of a clinical health worker care plan, with the
+    associated goal being to restructure that text into a given format.
 
     - Input:  The clinical note (column "MO Note").
     - Output:  The clinical note (column "MO Note"). We will use this note as the reference for entailment.
