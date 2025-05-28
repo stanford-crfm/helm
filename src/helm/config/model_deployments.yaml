@@ -501,6 +501,7 @@ model_deployments:
       args:
         anthropic_model_name: claude-3-7-sonnet-20250219
         thinking_budget_tokens: 10000
+        stream: true
 
   - name: anthropic/claude-3-7-sonnet-20250219-thinking-20k
     model_name: anthropic/claude-3-7-sonnet-20250219-thinking-20k
@@ -511,6 +512,7 @@ model_deployments:
       args:
         anthropic_model_name: claude-3-7-sonnet-20250219
         thinking_budget_tokens: 20000
+        stream: true
 
   - name: anthropic/claude-sonnet-4-20250514
     model_name: anthropic/claude-sonnet-4-20250514
@@ -528,6 +530,7 @@ model_deployments:
       args:
         anthropic_model_name: claude-sonnet-4-20250514
         thinking_budget_tokens: 10000
+        stream: true
 
   - name: anthropic/claude-sonnet-4-20250514-thinking-20k
     model_name: anthropic/claude-sonnet-4-20250514-thinking-20k
@@ -538,6 +541,7 @@ model_deployments:
       args:
         anthropic_model_name: claude-sonnet-4-20250514
         thinking_budget_tokens: 20000
+        stream: true
 
   - name: anthropic/claude-opus-4-20250514
     model_name: anthropic/claude-opus-4-20250514
@@ -555,6 +559,7 @@ model_deployments:
       args:
         anthropic_model_name: claude-opus-4-20250514
         thinking_budget_tokens: 10000
+        stream: true
 
   - name: anthropic/claude-opus-4-20250514-thinking-20k
     model_name: anthropic/claude-opus-4-20250514-thinking-20k
@@ -565,6 +570,7 @@ model_deployments:
       args:
         anthropic_model_name: claude-opus-4-20250514
         thinking_budget_tokens: 20000
+        stream: true
 
   - name: anthropic/stanford-online-all-v4-s3
     deprecated: true # Closed model, not accessible via API
