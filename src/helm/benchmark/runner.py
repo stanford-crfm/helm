@@ -36,27 +36,32 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.metric import MetricInterface, MetricResult, PerInstanceStats, create_metric, Stat
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
-
-from helm.benchmark.llm_judge import LLMJudger  # <--- Importante
+from helm.benchmark.judge_llm import LLMJudger  # Importando o LLMJudger
+from typing import Optional
 
 LATEST_SYMLINK: str = "latest"
 _BENCHMARK_OUTPUT_PATH: str = "benchmark_output"
 _CACHED_MODELS_FOLDER: str = "models"
 
+
 def get_benchmark_output_path() -> str:
     return _BENCHMARK_OUTPUT_PATH
+
 
 def get_cached_models_path() -> str:
     path: str = os.path.join(get_benchmark_output_path(), _CACHED_MODELS_FOLDER)
     ensure_directory_exists(path)
     return path
 
+
 def set_benchmark_output_path(benchmark_output_path: str) -> None:
     global _BENCHMARK_OUTPUT_PATH
     _BENCHMARK_OUTPUT_PATH = benchmark_output_path
 
+
 class RunnerError(Exception):
     pass
+
 
 def remove_stats_nans(stats: List[Stat]) -> List[Stat]:
     result: List[Stat] = []
@@ -67,11 +72,13 @@ def remove_stats_nans(stats: List[Stat]) -> List[Stat]:
         result.append(stat)
     return result
 
+
 def remove_per_instance_stats_nans(per_instance_stats_list: List[PerInstanceStats]) -> List[PerInstanceStats]:
     result: List[PerInstanceStats] = []
     for per_instance_stats in per_instance_stats_list:
         result.append(dataclasses.replace(per_instance_stats, stats=remove_stats_nans(per_instance_stats.stats)))
     return result
+
 
 def downsample_eval_instances(
     instances: List[Instance], max_eval_instances: int, eval_splits: List[str]
@@ -96,9 +103,10 @@ def downsample_eval_instances(
     )
     return all_train_instances + selected_eval_instances
 
+
 class Runner:
     """
-    The main entry point for running the entire benchmark. 
+    The main entry point for running the entire benchmark.
     Supports both normal metrics and LLM-as-Judge flows.
     """
 
@@ -112,9 +120,9 @@ class Runner:
         cache_instances_only: bool,
         skip_completed_runs: bool,
         exit_on_error: bool,
+        judge_model: Optional[str] = None,
+        prompt_file: Optional[str] = None,
         llm_judge: bool = False,
-        judge_model: str = None,
-        prompt_file: str = None,
     ):
         self.executor = Executor(execution_spec)
         self.annotator_executor = AnnotationExecutor(
@@ -247,9 +255,6 @@ class Runner:
         # =============================
         #        JUDGING LOGIC
         # =============================
-
-        print("="*100)
-
         if self.llm_judge:
             predictions = self._extract_predictions(scenario_state)
             if self.skip_instances:
@@ -258,28 +263,38 @@ class Runner:
 
             write(os.path.join(run_path, "run_spec.json"), json.dumps(asdict_without_nones(run_spec), indent=2))
             write(os.path.join(run_path, "scenario.json"), json.dumps(asdict_without_nones(scenario), indent=2))
-            write(os.path.join(run_path, "scenario_state.json"), json.dumps(asdict_without_nones(scenario_state), indent=2))
+            write(
+                os.path.join(run_path, "scenario_state.json"),
+                json.dumps(asdict_without_nones(scenario_state), indent=2),
+            )
             predictions_file = os.path.join(run_path, "predictions.json")
             write(predictions_file, json.dumps(predictions, indent=2))
             cache_stats.print_status()
 
-            llm_judge = LLMJudger(
-                self.executor.context,
-                judge_model=self.judge_model,
-                prompt_file=self.prompt_file
-            )
+            if self.judge_model is None:
+                raise ValueError("judge_model must be specified when llm_judge is True.")
+            if self.prompt_file is None:
+                raise ValueError("prompt_file must be specified when llm_judge is True.")
+
+            llm_judge = LLMJudger(self.executor.context, judge_model=self.judge_model, prompt_file=self.prompt_file)
             judgements_file = os.path.join(run_path, "llm_judgements.json")
             llm_judge.judge_and_save(predictions_file, judgements_file)
 
             agreement = self.apply_agreement_level_metric(judgements_file)
-            self._save_llm_judge_summary(run_spec, run_path, self.judge_model, agreement)
+
+            if agreement is not None:
+                self._save_llm_judge_summary(run_spec, run_path, self.judge_model, agreement)
+            else:
+                hlog("Skipping LLM Judge summary saving because agreement level is None.")
 
         else:
             # =============================
             #      METRIC LOGIC (default)
             # =============================
             metrics: List[MetricInterface] = (
-                [DryRunMetric()] if self.dry_run else [create_metric(metric_spec) for metric_spec in run_spec.metric_specs]
+                [DryRunMetric()]
+                if self.dry_run
+                else [create_metric(metric_spec) for metric_spec in run_spec.metric_specs]
             )
             stats: List[Stat] = []
             per_instance_stats: List[PerInstanceStats] = []
@@ -308,14 +323,19 @@ class Runner:
 
             write(os.path.join(run_path, "run_spec.json"), json.dumps(asdict_without_nones(run_spec), indent=2))
             write(os.path.join(run_path, "scenario.json"), json.dumps(asdict_without_nones(scenario), indent=2))
-            write(os.path.join(run_path, "scenario_state.json"), json.dumps(asdict_without_nones(scenario_state), indent=2))
+            write(
+                os.path.join(run_path, "scenario_state.json"),
+                json.dumps(asdict_without_nones(scenario_state), indent=2),
+            )
             write(
                 os.path.join(run_path, "stats.json"),
                 json.dumps([asdict_without_nones(stat) for stat in remove_stats_nans(stats)], indent=2),
             )
             write(
                 os.path.join(run_path, "per_instance_stats.json"),
-                json.dumps(list(map(asdict_without_nones, remove_per_instance_stats_nans(per_instance_stats))), indent=2),
+                json.dumps(
+                    list(map(asdict_without_nones, remove_per_instance_stats_nans(per_instance_stats))), indent=2
+                ),
             )
 
             cache_stats.print_status()
@@ -331,55 +351,50 @@ class Runner:
                 continue
             completion = result.completions[0]
             completion_text = completion.text if hasattr(completion, "text") else None
-            prediction = {
-                "instance_id": instance.id,
-                "input": {},
-                "prediction": completion_text
-            }
+            # prediction = {"instance_id": instance.id, "input": {}, "prediction": completion_text}
+            prediction: Dict[str, Any] = {"instance_id": instance.id, "input": {}, "prediction": completion_text}
+
             if hasattr(instance, "input") and hasattr(instance.input, "text"):
                 prediction["input"] = instance.input.text
             predictions.append(prediction)
         return predictions
 
-    def apply_agreement_level_metric(self, judgements_file_path: str) -> float:
+    def apply_agreement_level_metric(self, judgements_file_path: str) -> Optional[float]:
         try:
             with open(judgements_file_path, "r", encoding="utf-8") as f:
                 judgements: List[Dict[str, Any]] = json.load(f)
         except Exception as e:
             hlog(f"ERROR: Could not read judgments file: {e}")
-            return
+            return None
 
         if not judgements:
             hlog("WARNING: No judgments to evaluate agreement level.")
-            return
+            return None
 
-        valid_judgements = [
-            j for j in judgements
-            if j.get("explanation") != "Malformed or incomplete response."
-        ]
+        valid_judgements = [j for j in judgements if j.get("explanation") != "Malformed or incomplete response."]
         total_valid = len(valid_judgements)
         agreements = sum(1 for j in judgements if j.get("judgement") == 1)
         agreement_level = agreements / total_valid if total_valid > 0 else 0.0
 
         hlog(f"LLM-Judge Agreement Level: {agreement_level:.2%} ({agreements}/{total_valid})")
         output_path = os.path.join(os.path.dirname(judgements_file_path), "llm_judge_agreement_level.json")
-        write(output_path, json.dumps({
-            "agreement_level": agreement_level,
-            "agreements": agreements,
-            "total_valid_instances": total_valid,
-            "total_judged_instances": len(judgements),
-            "invalid_instances": len(judgements) - total_valid,
-        }, indent=2))
+        write(
+            output_path,
+            json.dumps(
+                {
+                    "agreement_level": agreement_level,
+                    "agreements": agreements,
+                    "total_valid_instances": total_valid,
+                    "total_judged_instances": len(judgements),
+                    "invalid_instances": len(judgements) - total_valid,
+                },
+                indent=2,
+            ),
+        )
         hlog(f"Saved agreement level to {output_path}")
         return agreement_level
 
-    def _save_llm_judge_summary(
-        self,
-        run_spec: RunSpec,
-        run_path: str,
-        judge_model: str,
-        agreement_level: float
-    ):
+    def _save_llm_judge_summary(self, run_spec: RunSpec, run_path: str, judge_model: str, agreement_level: float):
         judgements_file = os.path.join(run_path, "llm_judgements.json")
         with open(judgements_file, "r", encoding="utf-8") as f:
             judgements = json.load(f)

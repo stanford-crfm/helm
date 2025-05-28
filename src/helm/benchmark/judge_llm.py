@@ -4,8 +4,8 @@ import re
 from typing import List, Dict, Any
 
 from helm.common.request import Request
-from helm.common.authentication import Authentication
 from helm.benchmark.model_deployment_registry import get_default_model_deployment_for_model
+
 
 class LLMJudger:
     def __init__(self, executor_service, judge_model: str = "openai/gpt2", prompt_file: str = "default_prompt.txt"):
@@ -25,20 +25,22 @@ class LLMJudger:
 
             prompt_tamplate = self._load_prompt_template(self.prompt_file)
             prompt = prompt_tamplate.replace("{input}", input_text).replace("{response}", model_response)
-
+        
             # Chamada ao modelo julgador
             judged_value, explanation = self.call_llm(prompt)
 
-            judgements.append({
-                "instance_id": prediction.get("instance_id"),
-                "input": input_text,
-                "prediction": model_response,
-                "judgement": judged_value,
-                "explanation": explanation,
-            })
+            judgements.append(
+                {
+                    "instance_id": prediction.get("instance_id"),
+                    "input": input_text,
+                    "prediction": model_response,
+                    "judgement": judged_value,
+                    "explanation": explanation,
+                }
+            )
 
         return judgements
-    
+
     def call_llm(self, prompt: str) -> tuple[int, str]:
 
         request = Request(
@@ -49,7 +51,8 @@ class LLMJudger:
             max_tokens=300,
         )
 
-        result = self.executor_service.make_request(Authentication(""), request)
+        result = self.executor_service.make_request(request)
+        print(result)
 
         if not result.success:
             raise Exception(f"LLM Judge request failed: {result.error}")
@@ -72,7 +75,6 @@ class LLMJudger:
 
         return 0, "No response from LLM judge."
 
-
     def judge_and_save(self, predictions_path: str, output_path: str):
         """
         Reads predictions.json, applies judgment and saves llm_judgements.json.
@@ -91,10 +93,12 @@ class LLMJudger:
     def _resolve_model_deployment(self) -> str:
         deployment_name = get_default_model_deployment_for_model(self.judge_model)
         if not deployment_name:
-            raise Exception(f"Could not find a model deployment for judge model '{self.judge_model}'. "
-                            f"Make sure the model is correctly registered in the HELM model YAML.")
+            raise Exception(
+                f"Could not find a model deployment for judge model '{self.judge_model}'. "
+                f"Make sure the model is correctly registered in the HELM model YAML."
+            )
         return deployment_name
-    
+
     # Load the prompt template from a file
     def _load_prompt_template(self, prompt_file: str) -> str:
         """

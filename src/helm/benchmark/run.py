@@ -126,9 +126,9 @@ def run_benchmarking(
         cache_instances_only,
         skip_completed_runs,
         exit_on_error,
-        llm_judge,
-        judge_model,
-        prompt_file,
+        judge_model if judge_model is not None else "",
+        prompt_file if prompt_file is not None else "",
+        llm_judge if llm_judge is not None else False,
     )
     runner.run_all(run_specs)
     return run_specs
@@ -377,13 +377,13 @@ def main():
     parser.add_argument(
         "--llm-judge",
         action="store_true",
-        help="Use LLM-as-Judge to evaluate the model's responses."
+        help="Use LLM-as-Judge to evaluate the model's responses.",
     )
     parser.add_argument(
         "--judge-model",
         type=str,
         default=None,
-        help="The model to use for LLM-as-Judge. If not specified, the default judge model will be used."
+        help="The model to use for LLM-as-Judge. If not specified, the default judge model will be used.",
     )
     parser.add_argument(
         "--prompt",
