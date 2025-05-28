@@ -1,7 +1,7 @@
 import signal
 import threading
 import traceback
-from typing import List
+from typing import List, Optional
 import os
 import time
 import torch
@@ -72,8 +72,8 @@ class MultiGPURunner(Runner):
         cache_instances_only: bool,
         skip_completed_runs: bool,
         exit_on_error: bool,
-        judge_model: str,
-        prompt_file: str,
+        judge_model: Optional[str] = None,
+        prompt_file: Optional[str] = None,
         llm_judge: bool = False,
     ):
         super().__init__(
