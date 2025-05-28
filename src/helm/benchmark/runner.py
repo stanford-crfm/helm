@@ -276,10 +276,12 @@ class Runner:
             if self.prompt_file is None:
                 raise ValueError("prompt_file must be specified when llm_judge is True.")
 
+            # Initialize the LLM judge
             llm_judge = LLMJudger(self.executor.context, judge_model=self.judge_model, prompt_file=self.prompt_file)
             judgements_file = os.path.join(run_path, "llm_judgements.json")
             llm_judge.judge_and_save(predictions_file, judgements_file)
 
+            # Apply the agreement level metric
             agreement = self.apply_agreement_level_metric(judgements_file)
 
             if agreement is not None:

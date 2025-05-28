@@ -32,7 +32,6 @@ class LLMJudger:
             prompt_tamplate = self._load_prompt_template(self.prompt_file)
             prompt = prompt_tamplate.replace("{input}", input_text).replace("{response}", model_response)
 
-            # Chamada ao modelo julgador
             judged_value, explanation = self.call_llm(prompt)
 
             judgements.append(
@@ -62,7 +61,6 @@ class LLMJudger:
         )
 
         result = self.executor_service.make_request(request)
-        print(result)
 
         if not result.success:
             raise Exception(f"LLM Judge request failed: {result.error}")
@@ -113,7 +111,6 @@ class LLMJudger:
             )
         return deployment_name
 
-    # Load the prompt template from a file
     def _load_prompt_template(self, prompt_file: str) -> str:
         """
         Load the prompt template from a .txt file located in prompts/
