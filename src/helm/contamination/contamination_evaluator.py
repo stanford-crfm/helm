@@ -27,35 +27,27 @@ class ContaminationEvaluator:
     ) -> List[Stat]:
         """
         Selects and runs the appropriate contamination evaluation strategy.
-
-        Args:
-            executor: The HELM executor for running model queries.
-            method: The contamination evaluation method/strategy to use (e.g., "base", "multichoice").
-            benchmark_path: Path to the benchmark data or relevant context.
-            scenario_state: The current scenario state (should be a deep copy).
-            language: Defines the language for prompts and language-specific processing.
-            tokenizer_service: The service for tokenizing text.
-
-        Returns:
-            A list of dictionaries, where each dictionary represents a PinnedStat
-            (serializable version of Stat) for contamination metrics.
-            Returns an empty list if the method is unknown or evaluation fails.
         """
         evaluator: Any
 
+        # Select the evaluation class based on the provided method string.
         if method == TSGuessingQuestionBasedContaminationEvaluator.STRATEGY_NAME:
             evaluator = TSGuessingQuestionBasedContaminationEvaluator()
         elif method == TSGuessingQuestionMultiChoiceContaminationEvaluator.STRATEGY_NAME:
             evaluator = TSGuessingQuestionMultiChoiceContaminationEvaluator()
         else:
+            # Log an error if the specified method is unknown.
             hlog(
                 f"CONTAMINATION_EVALUATOR ERROR: Unknown contamination evaluation method specified: '{method}'. "
                 "Available methods depend on registered strategy classes and their STRATEGY_NAME."
             )
             return []
 
-        # Run the selected evaluator
+        # Attempt to run the selected evaluator.
         try:
+            # Execute the evaluation using the chosen strategy.
+            # Parameters (executor, benchmark_path, etc.) are passed through
+            # to the specific strategy's 'evaluate' method.
             return evaluator.evaluate(
                 executor=executor,
                 benchmark_path=benchmark_path,
@@ -64,6 +56,8 @@ class ContaminationEvaluator:
                 tokenizer_service=tokenizer_service,
             )
         except Exception as e:
+            # Catch and log any critical exceptions during the evaluation.
+            # This ensures that an error within one strategy doesn't stop the entire process.
             hlog(
                 f"CONTAMINATION_EVALUATOR CRITICAL: An error occurred while running the '{method}'"
                 f" contamination strategy: {e}\n{traceback.format_exc()}"

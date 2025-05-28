@@ -3,7 +3,7 @@ import spacy.cli
 import numpy as np
 import importlib.util
 from dataclasses import replace
-from typing import Dict, List, Tuple, Any, Optional
+from typing import Dict, List, Tuple, Any, Optional, Union, Type, TYPE_CHECKING, Literal
 
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.model_deployment_registry import get_model_deployment, ModelDeployment
@@ -11,26 +11,29 @@ from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.benchmark.metrics.metric import Stat
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.common.tokenization_request import TokenizationRequest, TokenizationRequestResult
-from transformers import GPT2Tokenizer
 
 from .prompt_translations import TS_GUESSING_BASE, TS_GUESSING_MULTICHOICE
 
+if TYPE_CHECKING:
+    from transformers import AutoTokenizer as AutoTokenizerType, GPT2Tokenizer as GPT2TokenizerType
+    import spacy.language
+
+# Check if 'transformers' library is available for fallback tokenization.
 TRANSFORMERS_AVAILABLE = importlib.util.find_spec("transformers") is not None
-AutoTokenizer_class: Optional[type] = None
+AutoTokenizer_class: Optional[Type["AutoTokenizerType"]] = None
+GPT2Tokenizer_class: Optional[Type["GPT2TokenizerType"]] = None
 
 if TRANSFORMERS_AVAILABLE:
     try:
-        from transformers import AutoTokenizer
+        from transformers import AutoTokenizer, GPT2Tokenizer
 
         AutoTokenizer_class = AutoTokenizer
+        GPT2Tokenizer_class = GPT2Tokenizer
     except ImportError as e_transformers_import:
-        hlog(
-            "UTIL WARNING: 'transformers' module found but could not be imported."
-            f" GPT-2 fallback might not work. Error: {e_transformers_import}"
-        )
+        hlog(f"UTIL WARNING: 'transformers' found but failed import: {e_transformers_import}. Fallbacks disabled.")
         TRANSFORMERS_AVAILABLE = False
 
-
+# Master configuration mapping strategy names to their prompt sets.
 PROMPT_CONFIGS_MASTER = {
     "ts_guessing_question_base": TS_GUESSING_BASE,
     "ts_guessing_question_multichoice": TS_GUESSING_MULTICHOICE,
@@ -44,47 +47,52 @@ class UtilsContamination:
     prompt management, and result formatting.
     """
 
+    # Default model context length if detection fails.
     DEFAULT_MODEL_MAX_CONTEXT_TOKENS_UTIL: int = 4096
+    # Heuristic for character-based token length estimation.
     AVG_CHARS_PER_TOKEN_HEURISTIC: int = 4
     CONSERVATIVE_CHARS_PER_TOKEN_DIVISOR: int = max(1, AVG_CHARS_PER_TOKEN_HEURISTIC - 1)
+    MAX_REASONABLE_CONTEXT_LENGTH: int = 2_000_000
 
+    # Mapping of language codes to spaCy model names.
     SPACY_MODEL_MAP: Dict[str, str] = {
         "en": "en_core_web_sm",
         "pt": "pt_core_news_sm",
         "zh": "zh_core_web_sm",
     }
-    gpt2_tokenizer_fallback_cache: Optional[Any] = None
+
+    # Cache for tokenizers (None=not loaded, False=failed to load, object=loaded)
+    _gpt2_tokenizer_cache: Optional[Union["GPT2TokenizerType", Literal[False]]] = None
+    _spacy_models_cache: Dict[str, Optional["spacy.language.Language"]] = {}
 
     @staticmethod
-    def get_gpt2_fallback_tokenizer() -> Optional[Any]:
+    def get_gpt2_fallback_tokenizer() -> Optional["GPT2TokenizerType"]:
         """
         Loads and caches a GPT-2 tokenizer for fallback length estimation.
         Returns the tokenizer instance, None if transformers is not available,
         or False if loading failed previously.
         """
-        if not TRANSFORMERS_AVAILABLE or AutoTokenizer_class is None:
-            if UtilsContamination.gpt2_tokenizer_fallback_cache is None:
+        if not TRANSFORMERS_AVAILABLE or GPT2Tokenizer_class is None:
+            if UtilsContamination._gpt2_tokenizer_cache is None:
                 hlog(
                     "UTIL INFO: 'transformers' library not available or AutoTokenizer not imported."
                     " GPT-2 tokenizer fallback cannot be used."
                 )
-                UtilsContamination.gpt2_tokenizer_fallback_cache = False
+                UtilsContamination._gpt2_tokenizer_cache = False
             return None
 
-        if UtilsContamination.gpt2_tokenizer_fallback_cache is None:
+        if UtilsContamination._gpt2_tokenizer_cache is None:
             try:
-                hlog("UTIL INFO: Loading GPT-2 tokenizer for fallback length check (first time).")
-                UtilsContamination.gpt2_tokenizer_fallback_cache = GPT2Tokenizer.from_pretrained(
+                hlog("UTIL INFO: Loading GPT-2 tokenizer for fallback length check.")
+                UtilsContamination._gpt2_tokenizer_cache = GPT2Tokenizer_class.from_pretrained(
                     "gpt2", trust_remote_code=True
                 )
-            except Exception as e_load_gpt2:
-                hlog(f"UTIL WARNING: Failed to load GPT-2 tokenizer for fallback: {e_load_gpt2}")
-                UtilsContamination.gpt2_tokenizer_fallback_cache = False
+            except Exception as e:
+                hlog(f"UTIL WARNING: Failed to load GPT-2 tokenizer: {e}")
+                UtilsContamination._gpt2_tokenizer_cache = False
 
         return (
-            UtilsContamination.gpt2_tokenizer_fallback_cache
-            if UtilsContamination.gpt2_tokenizer_fallback_cache is not False
-            else None
+            UtilsContamination._gpt2_tokenizer_cache if UtilsContamination._gpt2_tokenizer_cache is not False else None
         )
 
     @staticmethod
@@ -92,16 +100,11 @@ class UtilsContamination:
         """
         Extracts a list of choices from a HELM Instance or a dictionary.
         Tries various common structures for multiple-choice questions.
-
-        Args:
-            example (Any): The input object or dictionary containing choices.
-
-        Returns:
-            List[str]: A list of choice strings. Returns empty list if no choices found.
         """
 
         choices_found: List[str] = []
 
+        # Try extracting from `references` (common in HELM).
         if hasattr(example, "references") and example.references:
             choices_found = [
                 str(ref.output.text)
@@ -111,11 +114,13 @@ class UtilsContamination:
             if choices_found:
                 return choices_found
 
+        # Try extracting from `output_mapping`.
         if hasattr(example, "output_mapping") and example.output_mapping and isinstance(example.output_mapping, dict):
             choices_found = [str(val) for val in example.output_mapping.values()]
             if choices_found:
                 return choices_found
 
+        # Try extracting from common dictionary keys.
         if isinstance(example, dict):
             if "choices" in example:
                 choices_val = example["choices"]
@@ -128,6 +133,7 @@ class UtilsContamination:
             if "options" in example and isinstance(example["options"], list):
                 return [str(o) for o in example["options"]]
 
+            # Try extracting A/B/C... or 1/2/3... style keys.
             alpha_keys = [chr(ord("A") + i) for i in range(26)]  # A-Z
             num_keys_0_idx = [str(i) for i in range(10)]  # 0-9
 
@@ -177,22 +183,18 @@ class UtilsContamination:
         """
         Extracts the 0-based index of the correct answer from a HELM Instance or dict.
         Handles various ways correct answers are specified.
-
-        Args:
-            example (Any): A HELM instance or dictionary containing the answer.
-
-        Returns:
-            int: The 0-based index of the correct answer, or -1 if not found.
         """
 
         alphabet_options = "abcdefghijklmnopqrstuvwxyz"
         numeric_options_1_indexed = "123456789"
 
+        # Try `references` with `correct` tag.
         if hasattr(example, "references") and example.references:
             for i, ref in enumerate(example.references):
                 if hasattr(ref, "tags") and "correct" in ref.tags:
                     return i
 
+        # Try matching `output_mapping` with `references`.
         if (
             hasattr(example, "output_mapping")
             and example.output_mapping
@@ -235,6 +237,7 @@ class UtilsContamination:
                                 " but key is not a recognized index format."
                             )
 
+        # Try common dictionary keys.
         if isinstance(example, dict):
             if "answerKey" in example:
                 key_val = str(example["answerKey"]).strip().lower()
@@ -289,17 +292,13 @@ class UtilsContamination:
     def get_question_text(example: Any) -> str:
         """
         Extracts the main question text or context from a HELM Instance or dictionary.
-
-        Args:
-            example (Any): A HELM instance or dictionary.
-
-        Returns:
-            str: The question text/context or a default warning string.
         """
 
+        # Primary: `instance.input.text`.
         if hasattr(example, "input") and hasattr(example.input, "text") and isinstance(example.input.text, str):
             return example.input.text
 
+        # Fallback: Search common keys in dictionaries.
         if isinstance(example, dict):
             preferred_keys = [
                 "question",
@@ -338,16 +337,9 @@ class UtilsContamination:
         """
         Loads prompt fragments for a given strategy and language.
         Falls back to English if the specified language is not found.
-
-        Args:
-            strategy_key (str): Key identifying the contamination strategy (e.g., "base", "multichoice").
-                                Should match keys in PROMPT_CONFIGS_MASTER.
-            language (str): Language code (e.g., "en", "pt").
-
-        Returns:
-            Dict[str, str]: A dictionary with prompt fragments. Empty if not found.
         """
 
+        # Check if the strategy key is valid.
         if strategy_key not in PROMPT_CONFIGS_MASTER:
             hlog(
                 f"UTIL ERROR: Prompt configuration for strategy_key '{strategy_key}'"
@@ -357,8 +349,10 @@ class UtilsContamination:
             return {}
 
         lang_prompts_for_strategy = PROMPT_CONFIGS_MASTER[strategy_key]
+        # Normalize language code (e.g., "en_US" -> "en").
         normalized_lang = language.lower().split("_")[0].split("-")[0]
 
+        # Return specific language prompts if available, else fall back to English.
         if normalized_lang in lang_prompts_for_strategy:
             return lang_prompts_for_strategy[normalized_lang]
         elif "en" in lang_prompts_for_strategy:
@@ -382,18 +376,11 @@ class UtilsContamination:
         """
         Determines the maximum sequence length for a model.
         Prioritizes ModelDeployment, then AutoTokenizer, then a default.
-
-        Args:
-            model_deployment_name (str): Name of the deployed model from HELM's registry.
-            default_max_len (int, optional): Default context length if detection fails.
-                                             Defaults to UtilsContamination.DEFAULT_MODEL_MAX_CONTEXT_TOKENS_UTIL.
-
-        Returns:
-            int: The determined maximum number of tokens for the model's context.
         """
 
         model_max_len = default_max_len
         primary_source_found = False
+        # 1. Try HELM's ModelDeployment registry.
         try:
             model_deployment: ModelDeployment = get_model_deployment(model_deployment_name)
             if model_deployment.max_sequence_length is not None and model_deployment.max_sequence_length > 0:
@@ -428,10 +415,10 @@ class UtilsContamination:
                 f" {e_model_reg_other}. Falling back to AutoTokenizer."
             )
 
+        # 2. If not found, try transformers' AutoTokenizer.
         if not primary_source_found:
             temp_tokenizer_for_max_len = None
             try:
-                from transformers import AutoTokenizer
 
                 hlog(
                     f"UTIL INFO: Fallback: Loading AutoTokenizer for '{model_deployment_name}'"
@@ -446,7 +433,7 @@ class UtilsContamination:
                 if (
                     isinstance(tokenizer_max_len_attr, int)
                     and tokenizer_max_len_attr > 0
-                    and tokenizer_max_len_attr < 2_000_000
+                    and tokenizer_max_len_attr < UtilsContamination.MAX_REASONABLE_CONTEXT_LENGTH
                 ):
                     model_max_len = tokenizer_max_len_attr
                     hlog(
@@ -474,6 +461,7 @@ class UtilsContamination:
                 if temp_tokenizer_for_max_len:
                     del temp_tokenizer_for_max_len
 
+        # 3. Use default if all else fails.
         if not (isinstance(model_max_len, int) and model_max_len > 0):
             hlog(
                 f"UTIL WARNING: Determined model_max_length ({model_max_len}) for '{model_deployment_name}' is invalid."
@@ -487,24 +475,12 @@ class UtilsContamination:
         """
         Creates a new AdapterSpec configured for generation, updating specified parameters.
         Ensures 'method' is always set to 'generation'.
-
-        Args:
-            original_adapter_spec (Any): The base AdapterSpec (or any object with similar structure
-            that supports dataclasses.replace).
-            generation_method_params (Dict[str, Any]): Parameters to override/set in the new AdapterSpec.
-                                                        'method' will be set to 'generation'. Any other
-                                                        AdapterSpec fields (like instructions, input_prefix, etc.)
-                                                        should be explicitly provided in this dict if they
-                                                        need to be changed from the original_adapter_spec
-                                                        or set to specific values for generation.
-
-        Returns:
-            Any: A new AdapterSpec-like instance.
         """
-
+        # Copy provided parameters and force method to 'generation'.
         params_to_update = generation_method_params.copy()
         params_to_update["method"] = "generation"
 
+        # Use dataclasses.replace to create a new spec.
         return replace(original_adapter_spec, **params_to_update)
 
     @staticmethod
@@ -518,6 +494,7 @@ class UtilsContamination:
         Checks if the tokenized prompt_text fits within max_allowable_prompt_tokens using HELM TokenizerService.
         """
 
+        # Ensure input is valid.
         if not isinstance(prompt_text, str):
             hlog(f"UTIL ERROR: prompt_text must be a string, got {type(prompt_text)}. Length check aborted.")
             return False, -1
@@ -527,9 +504,11 @@ class UtilsContamination:
             return False, 0
 
         try:
+            # Create and send tokenization request.
             tokenization_request = TokenizationRequest(text=prompt_text, tokenizer=model_name_for_tokenizer)
             tokenization_result: TokenizationRequestResult = tokenizer_service.tokenize(tokenization_request)
 
+            # Check result and return.
             if tokenization_result.success and tokenization_result.tokens is not None:
                 num_prompt_tokens = len(tokenization_result.tokens)
                 fits_within_limit = num_prompt_tokens <= max_allowable_prompt_tokens
@@ -561,7 +540,7 @@ class UtilsContamination:
 
         num_prompt_tokens = -1
 
-        # Try GPT-2 tokenizer first
+        # 1. Try GPT-2 tokenizer.
         gpt2_tokenizer = UtilsContamination.get_gpt2_fallback_tokenizer()
         if gpt2_tokenizer:
             try:
@@ -573,7 +552,7 @@ class UtilsContamination:
                 )
                 num_prompt_tokens = -1
 
-        # Character heuristic fallback
+        # 2. If GPT-2 fails, use character heuristic.
         if num_prompt_tokens == -1:
             try:
                 if not prompt_text:
@@ -599,23 +578,18 @@ class UtilsContamination:
     ) -> List[Stat]:
         """
         Formats calculated metrics into a list of HELM Stat objects.
-
-        Args:
-            calculated_metrics (Dict[str, float]): Metric names and values.
-            strategy_metric_name_prefix (str): Prefix for each metric name.
-            split (str, optional): Dataset split (e.g., "test").
-
-        Returns:
-            List[Stat]: List of Stat objects.
         """
 
         final_helm_stats: List[Stat] = []
         for metric_name_suffix, metric_value in calculated_metrics.items():
+            # Round values for presentation.
             metric_value_rounded = np.round(metric_value, 2)
             sum_squared_rounded = np.round(metric_value_rounded**2, 2)
 
+            # Create the full metric name.
             full_metric_name_str = f"{strategy_metric_name_prefix} {metric_name_suffix})"
 
+            # Create a Stat object.
             metric_name_obj = MetricName(name=full_metric_name_str, split=split)
 
             stat_obj = Stat(
@@ -634,78 +608,67 @@ class UtilsContamination:
         return final_helm_stats
 
     @staticmethod
-    def get_spacy_tagger(language: str) -> Any:
+    def get_spacy_tagger(language: str) -> Optional["spacy.language.Language"]:
         """
         Loads and returns a spaCy language model for POS tagging.
         Attempts to download the model if not found.
         Disables unnecessary components (parser, NER) for speed.
-
-        Args:
-            language (str): Language code (e.g., "en", "pt", "zh").
-
-        Returns:
-            spacy.language.Language: A spaCy language model instance.
-
-        Raises:
-            ValueError: If the language code is not supported or model name cannot be determined.
-            ImportError: If spaCy library is not installed.
-            Exception: For other errors during model download or loading.
         """
 
+        # Normalize language and find model name.
         normalized_lang = language.lower().split("_")[0].split("-")[0]
-        model_name = UtilsContamination.SPACY_MODEL_MAP.get(normalized_lang)
 
+        # Check cache first
+        if normalized_lang in UtilsContamination._spacy_models_cache:
+            return UtilsContamination._spacy_models_cache[normalized_lang]
+
+        # Get model name
+        model_name = UtilsContamination.SPACY_MODEL_MAP.get(normalized_lang)
         if not model_name:
-            hlog(
-                f"UTIL WARNING: No spaCy model mapped in SPACY_MODEL_MAP for language '{language}' "
-                f"(normalized to '{normalized_lang}'). Falling back to English model."
-            )
+            hlog(f"UTIL WARNING: No spaCy model found for '{language}'. Falling back to English.")
             normalized_lang = "en"
-            model_name = UtilsContamination.SPACY_MODEL_MAP.get(normalized_lang)
+            model_name = UtilsContamination.SPACY_MODEL_MAP.get("en")
 
             if not model_name:
-                hlog("UTIL ERROR: English fallback model not found in SPACY_MODEL_MAP.")
-                raise ValueError("English fallback model not configured in SPACY_MODEL_MAP")
+                hlog("UTIL CRITICAL: English fallback model not configured.")
+                UtilsContamination._spacy_models_cache[normalized_lang] = None
+                return None
 
+        # Try to load model
         try:
-            hlog(f"UTIL INFO: Attempting to load spaCy model: '{model_name}' for language '{normalized_lang}'")
+            nlp = spacy.load(model_name, disable=["parser", "ner"])
+            hlog(f"UTIL INFO: spaCy model '{model_name}' loaded successfully.")
+            UtilsContamination._spacy_models_cache[normalized_lang] = nlp
+            return nlp
 
-            model_is_installed = False
+        except OSError:
+            # Try to download and load
+            hlog(f"UTIL INFO: Downloading spaCy model '{model_name}'...")
             try:
-                spacy.load(model_name, disable=["parser", "ner"])
-                model_is_installed = True
-                hlog(f"UTIL INFO: spaCy model '{model_name}' found and loadable.")
-            except OSError:
-                hlog(f"UTIL INFO: spaCy model '{model_name}' not found by spacy.load(). Attempting download...")
+                spacy.cli.download(model_name)
+                nlp = spacy.load(model_name, disable=["parser", "ner"])
+                hlog(f"UTIL INFO: spaCy model '{model_name}' loaded after download.")
+                UtilsContamination._spacy_models_cache[normalized_lang] = nlp
+                return nlp
 
-            if not model_is_installed:
-                try:
-                    spacy.cli.download(model_name)
-                    hlog(f"UTIL INFO: spaCy model '{model_name}' downloaded successfully via spacy.cli.download.")
-                except SystemExit as e_download:
-                    if e_download.code == 0:
-                        hlog(
-                            f"UTIL INFO: spacy.cli.download for '{model_name}'"
-                            f" exited with code 0 (likely success or already present)."
-                        )
-                    else:
-                        hlog(
-                            f"UTIL ERROR: Failed to download spaCy model '{model_name}'."
-                            f" spacy.cli.download exited with code: {e_download.code}"
-                        )
-                        raise Exception(f"Failed to download spaCy model {model_name}") from e_download
-                except Exception as e_download_other:
-                    hlog(
-                        f"UTIL ERROR: An unexpected error occurred during spaCy"
-                        f" model download for '{model_name}': {e_download_other}"
-                    )
-                    raise Exception(f"Unexpected error downloading spaCy model {model_name}") from e_download_other
-
-            return spacy.load(model_name, disable=["parser", "ner"])
+            except (SystemExit, Exception) as e:
+                hlog(f"UTIL ERROR: Failed to download/load spaCy model '{model_name}': {e}")
+                UtilsContamination._spacy_models_cache[normalized_lang] = None
+                return None
 
         except ImportError:
-            hlog("UTIL CRITICAL: spaCy library not installed. Please install it: pip install spacy")
-            raise
+            hlog("UTIL CRITICAL: spaCy not installed. Run: pip install spacy")
+            UtilsContamination._spacy_models_cache[normalized_lang] = None
+            return None
+
         except Exception as e:
-            hlog(f"UTIL CRITICAL: Failed to ensure availability of or load spaCy model '{model_name}': {e}")
-            raise Exception(f"Could not load or download spaCy model {model_name}") from e
+            hlog(f"UTIL CRITICAL: General error loading spaCy model '{model_name}': {e}")
+            UtilsContamination._spacy_models_cache[normalized_lang] = None
+            return None
+
+    @classmethod
+    def clear_caches(cls) -> None:
+        """Clear all internal caches."""
+        cls._gpt2_tokenizer_cache = None
+        cls._spacy_models_cache.clear()
+        hlog("UTIL INFO: Cleared Caches")
