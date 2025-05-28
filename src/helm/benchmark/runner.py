@@ -340,9 +340,11 @@ class Runner:
 
             cache_stats.print_status()
 
-    # ========== Métodos auxiliares ==========
-
     def _extract_predictions(self, scenario_state: ScenarioState) -> List[Dict[str, Any]]:
+        """
+        Extracts predictions from the scenario state.
+        Returns a list of dictionaries with instance_id, input, and prediction text.
+        """
         predictions = []
         for request_state in scenario_state.request_states:
             instance = request_state.instance
@@ -360,6 +362,10 @@ class Runner:
         return predictions
 
     def apply_agreement_level_metric(self, judgements_file_path: str) -> Optional[float]:
+        """
+        Applies the LLM Judge agreement level metric to the judgments file.
+        Returns the agreement level as a float, or None if the file is not found or empty.
+        """
         try:
             with open(judgements_file_path, "r", encoding="utf-8") as f:
                 judgements: List[Dict[str, Any]] = json.load(f)
@@ -395,6 +401,11 @@ class Runner:
         return agreement_level
 
     def _save_llm_judge_summary(self, run_spec: RunSpec, run_path: str, judge_model: str, agreement_level: float):
+        """
+        Saves a summary of the LLM Judge results to a JSON file.
+        The summary includes the benchmark name, main model, judge model, agreement level, and task judgements.
+        """
+
         judgements_file = os.path.join(run_path, "llm_judgements.json")
         with open(judgements_file, "r", encoding="utf-8") as f:
             judgements = json.load(f)

@@ -8,15 +8,21 @@ from helm.benchmark.model_deployment_registry import get_default_model_deploymen
 
 
 class LLMJudger:
+    """
+    Class to judge model predictions.
+    """
+
     def __init__(self, executor_service, judge_model: str = "openai/gpt2", prompt_file: str = "default_prompt.txt"):
-        """
-        executor_service: self.executor.service vindo do Runner
-        """
         self.executor_service = executor_service
         self.judge_model = judge_model
         self.prompt_file = prompt_file
 
     def judge_predictions(self, predictions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Apply judgment to a list of predictions.
+        Each prediction should be a dictionary with keys "input", "prediction", and optionally "instance_id".
+        Returns a list of dictionaries with the same keys plus "judgement" and "explanation".
+        """
         judgements = []
 
         for prediction in predictions:
@@ -25,7 +31,7 @@ class LLMJudger:
 
             prompt_tamplate = self._load_prompt_template(self.prompt_file)
             prompt = prompt_tamplate.replace("{input}", input_text).replace("{response}", model_response)
-        
+
             # Chamada ao modelo julgador
             judged_value, explanation = self.call_llm(prompt)
 
@@ -42,7 +48,11 @@ class LLMJudger:
         return judgements
 
     def call_llm(self, prompt: str) -> tuple[int, str]:
-
+        """
+        Call the LLM judge with the given prompt and return the judgement and explanation.
+        The prompt should be a string formatted according to the judge model's requirements.
+        Returns a tuple (judgement, explanation).
+        """
         request = Request(
             model=self.judge_model,
             model_deployment=self._resolve_model_deployment(),
@@ -89,8 +99,12 @@ class LLMJudger:
 
         print(f"Julgmentos salvos em: {output_path}")
 
-    # Verify if the model deployment is available
     def _resolve_model_deployment(self) -> str:
+        """
+        Resolve the model deployment for the judge model.
+        Returns the name of the model deployment.
+        Raises an exception if the deployment cannot be found.
+        """
         deployment_name = get_default_model_deployment_for_model(self.judge_model)
         if not deployment_name:
             raise Exception(
