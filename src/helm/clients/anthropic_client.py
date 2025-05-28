@@ -262,6 +262,7 @@ class AnthropicMessagesClient(CachingClient):
         thinking_budget_tokens: Optional[int] = None,
         anthropic_model_name: Optional[str] = None,
         api_key: Optional[str] = None,
+        stream: Optional[bool] = None,
     ):
         super().__init__(cache_config=cache_config)
         self.tokenizer = tokenizer
@@ -270,6 +271,7 @@ class AnthropicMessagesClient(CachingClient):
         self.api_key: Optional[str] = api_key
         self.anthropic_model_name: Optional[str] = anthropic_model_name
         self.thinking_budget_tokens: Optional[int] = thinking_budget_tokens
+        self.stream: Optional[bool] = stream
 
     def make_request(self, request: Request) -> RequestResult:
         if request.max_tokens > AnthropicMessagesClient.MAX_OUTPUT_TOKENS:
@@ -391,7 +393,11 @@ class AnthropicMessagesClient(CachingClient):
 
             def do_it() -> Dict[str, Any]:
                 try:
-                    result = self.client.messages.create(**raw_request).model_dump()
+                    if self.stream:
+                        with self.client.messages.stream(**raw_request) as message_stream:
+                            result = message_stream.get_final_message().model_dump()
+                    else:
+                        result = self.client.messages.create(**raw_request).model_dump()
                     if "content" not in result or not result["content"]:
                         raise AnthropicMessagesEmptyContentError(f"Anthropic response has empty content: {result}")
                     elif "text" not in result["content"][-1]:
