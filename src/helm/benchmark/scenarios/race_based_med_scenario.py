@@ -1,6 +1,6 @@
 import csv
+import os
 
-from filelock import FileLock
 from typing import Dict, List
 from docx import Document
 
@@ -13,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     Reference,
     Output,
 )
+from helm.common.general import ensure_file_downloaded
 
 
 def extract_red_text_runs(document):
@@ -91,6 +92,10 @@ class RaceBasedMedScenario(Scenario):
     with the objective being to classify whether the output contains racially biased content."
     tags = ["knowledge", "reasoning", "biomedical"]
     POSSIBLE_ANSWER_CHOICES: List[str] = ["yes", "no"]
+    FILE_URL: str = (
+        "https://static-content.springer.com/esm/"
+        "art%3A10.1038%2Fs41746-023-00939-z/MediaObjects/41746_2023_939_MOESM1_ESM.docx"
+    )
 
     def create_benchmark(self, csv_path) -> Dict[str, str]:
         data = {}
@@ -114,12 +119,12 @@ class RaceBasedMedScenario(Scenario):
         return data
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        data_path = "/share/pi/nigam/data/medhelm/race_based/race_based.csv"
         # Path to the word file from supplement: https://www.nature.com/articles/s41746-023-00939-z#Sec3
-        word_file = "/share/pi/nigam/data/medhelm/race_based/race_based.docx"
-        lock_path = data_path + ".lock"
-        with FileLock(lock_path):
-            # if not os.path.exists(data_path):
+        data_path = os.path.join(output_path, "race_based.csv")
+
+        if not os.path.exists(data_path):
+            word_file = os.path.join(output_path, "race_based.docx")
+            ensure_file_downloaded(source_url=self.FILE_URL, target_path=word_file, unpack=False)
             create_csv_from_word(word_file, data_path)
 
         instances: List[Instance] = []
