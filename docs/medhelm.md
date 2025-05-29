@@ -1,6 +1,6 @@
 # MedHELM: Holistic Evaluation of Large Language Models for Medical Applications
 
-**MedHELM** is an extension of the HELM framework for evaluating **large language models (LLMs) in medicine**.
+**MedHELM** is an extension of the HELM framework for evaluating **large language models (LLMs) in medical applications**.
 
 ## Clinician-Validated Taxonomy
 
@@ -43,7 +43,7 @@ This categorization ensures that evaluations reflect the **complexity, diversity
 ## References
 
 - [Stanford HAI Article](https://hai.stanford.edu/news/holistic-evaluation-of-large-language-models-for-medical-applications)
-- [HELM Website](https://crfm.stanford.edu/helm/latest/)
+- [MedHELM Website](https://crfm.stanford.edu/medhelm/latest/)
 - Publication (Coming Soon)
 
 ## Installation
@@ -99,8 +99,7 @@ These benchmarks are based on proprietary or restricted datasets that are only a
 
 - **Access requirements**: Organization-specific authorization
 - **Example use case**: Internal clinical datasets available only to the originating institution
-- **Run entries file**: `run_entries_medhelm_private_{organization}.conf`  
-  _e.g., `run_entries_medhelm_private_stanford.conf`_
+- **Run entries file**: `run_entries_medhelm_private_{organization}.conf` (_e.g., `run_entries_medhelm_private_stanford.conf`_)
 - **Reproducibility**: Only authorized users within the organization can reproduce results from these benchmarks.
 
 ---
@@ -111,19 +110,19 @@ When contributing or reproducing results, ensure that you are using the correct 
 
 To reproduce the [MedHELM leaderboard](https://crfm.stanford.edu/helm/medhelm/latest/), refer to the detailed steps in the [Reproducing Leaderboards](reproducing_leaderboards.md) documentation.
 
-> **Note:** The ability to fully reproduce the leaderboard depends on your access to the underlying benchmark datasets.
+> **Note:** The ability to fully reproduce the leaderboard depends on your access to the underlying benchmarks.
 > See [Benchmark Access Levels](#benchmark-access-levels) for details on how access impacts which configuration files to use.
 
 - **Public benchmarks**:  
-  Everyone can reproduce the **public portion** of the leaderboard using datasets that are freely available (e.g., on HuggingFace). These entries are defined in [`run_entries_medhelm_public.conf`](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_public.conf).
+  Everyone can reproduce the **public portion** of the leaderboard using benchmarks that are freely available (e.g., on HuggingFace). These entries are defined in [`run_entries_medhelm_public.conf`](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_public.conf).
 
 - **Gated-access benchmarks**:  
-  Reproducing results on these benchmarks (e.g., PhysioNet) requires credentials or approval. These are listed in [`run_entries_medhelm_gated.conf`](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_gated.conf).
+  Reproducing results on these benchmarks (e.g., EHRSHOT) requires credentials or approval. These are listed in [`run_entries_medhelm_gated.conf`](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_gated.conf).
 
 - **Private benchmarks**:  
-  These results are specific to certain organizations and require access to private data. They are defined in files like `run_entries_medhelm_private_{organization}.conf` under `src/helm/benchmark/presentation/`.
+  These results are specific to certain organizations and require access to private data. They are defined in files following the format `run_entries_medhelm_private_{organization}.conf` under `src/helm/benchmark/presentation/`.
 
-As such, **only users with the necessary access credentials or data permissions** will be able to reproduce the full leaderboard. However, **anyone can reproduce and evaluate the public subset** to benchmark their models. See Benchmark Access Levels for details on how access impacts which configuration files to use.
+As such, **only users with the necessary access credentials or data permissions** will be able to reproduce the full leaderboard. However, **anyone can reproduce and evaluate the public subset** to benchmark their models.
 
 ## Contributing to MedHELM
 
@@ -167,14 +166,11 @@ See this [example metric implementation](https://github.com/stanford-crfm/helm/b
 
 Finally, register your `(model, benchmark)` combinations for the MedHELM leaderboard in the appropriate configuration file based on the type of dataset access.  
 
-- If the benchmark is **fully public** (e.g., available on HuggingFace datasets), add your entry to [`run_entries_medhelm_public.conf`](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_public.conf).
+- If the benchmark is **fully public** (i.e., doesn't require any credentialized access), add your entry to [`run_entries_medhelm_public.conf`](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_public.conf).
 
 - If the benchmark requires **gated access** (e.g., PhysioNet datasets or others requiring credentials), use [`run_entries_medhelm_gated.conf`](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_gated.conf).
 
-- If the benchmark is **private** to a specific organization, use a dedicated config file following the format:  
-  `run_entries_medhelm_private_{organization}.conf`  
-  (_e.g., `run_entries_medhelm_private_stanford.conf`_)  
-  Place the file under `src/helm/benchmark/presentation/`.
+- If the benchmark is **private** to a specific organization, use a dedicated config file under `src/helm/benchmark/presentation/` following the format: `run_entries_medhelm_private_{organization}.conf` (_e.g., `run_entries_medhelm_private_stanford.conf`_)
 
 Each entry specifies a `(model, benchmark)` pair to be evaluated and displayed on the MedHELM leaderboard.
 
@@ -195,9 +191,9 @@ To contribute with a new model, follow the steps in the [Adding New Models](addi
 
 If your contributed benchmark scenarios are **gated** or **private** and you would like to share your results with us, you must redact any sensitive data contained in the prompts and annotations (if applicable). Follow these steps to properly redact and prepare your results:
 
-#### **1. Redact prompt content** using the provided script
+#### 1. Redact prompt content using the provided script
 
-  Run the [`redact_scenario_states.py`](https://github.com/stanford-crfm/helm/blob/main/scripts/redact_scenario_states.py) script on your `benchmark_output` directory. Here’s an example:
+  Run the [`redact_scenario_states.py`](https://github.com/stanford-crfm/helm/blob/main/scripts/redact_scenario_states.py) script on your `benchmark_output` directory for a particular suite. This script will redact all prompts and responses present under the specified suite. Here’s a usage example:
 
   ```bash
   python3 scripts/redact_scenario_states.py \
@@ -206,9 +202,9 @@ If your contributed benchmark scenarios are **gated** or **private** and you wou
     --redact-output
   ```
 
-#### **2. Redact annotations** (if present)
+#### 2. Redact annotations (if applicable)
 
-If your scenario includes annotations (e.g., LLM-as-a-judge outputs or any metadata containing sensitive information), ensure these are redacted as well. You can skip this step if no annotations are included.
+If your scenario includes annotations (e.g., LLM-as-a-judge outputs or any metadata containing sensitive information), ensure these are redacted as well. The annotations are present in the `scenario_state.json` files. You can skip this step if no annotations are included as part of your scenario.
 
 #### **3. Propagate redacted data to leaderboard outputs**
 
@@ -217,3 +213,6 @@ Use helm-summarize to update the leaderboard summaries with the redacted content
 ```bash
 helm-summarize --suite my_suite --schema schema_medhelm.yaml
 ```
+
+> **Note:** This step is especially important if you previously ran `helm-summarize` _before_ redacting your outputs.  
+> The command copies prompts and responses into the leaderboard files, so rerunning it ensures only redacted content is displayed.
