@@ -10,20 +10,22 @@ export default function SLPHelmLanding() {
       </h1>
       <p className="text-xl my-4 italic text-center">
         {benchmarkName} is a comprehensive benchmark suite for evaluating the
-        performance of speech language models across multiple languages and tasks.
+        performance of speech language models across multiple languages and
+        tasks.
       </p>
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 text-l">
           <p className="my-4">
-            As speech language models continue to evolve and transform how we interact
-            with technology, there is a growing need for standardized evaluation
-            frameworks that can assess their capabilities across diverse languages and
-            tasks. Despite significant advances in speech processing, many models
-            struggle with multilingual understanding, accent recognition, and
-            domain-specific speech tasks. <strong>SLPHelm</strong> addresses these
-            challenges by providing a robust evaluation framework that includes
-            <strong> 5 key scenarios</strong> across <strong>15 models</strong>, each targeting essential speech
-            processing capabilities:
+            As speech language models continue to evolve and transform how we
+            interact with technology, there is a growing need for standardized
+            evaluation frameworks that can assess their capabilities across
+            diverse languages and tasks. Despite significant advances in speech
+            processing, many models struggle with multilingual understanding,
+            accent recognition, and domain-specific speech tasks.{" "}
+            <strong>SLPHelm</strong> addresses these challenges by providing a
+            robust evaluation framework that includes
+            <strong> 5 key scenarios</strong> across <strong>15 models</strong>,
+            each targeting essential speech processing capabilities:
           </p>
 
           <p className="my-4">
@@ -49,7 +51,8 @@ export default function SLPHelmLanding() {
           </p>
 
           <p className="my-4">
-            <strong>SLPHelm</strong> evaluates models using comprehensive datasets:
+            <strong>SLPHelm</strong> evaluates models using comprehensive
+            datasets:
             <ul className="list-disc list-inside mt-2">
               <li>
                 <strong>UltraSuite:</strong>{" "}
@@ -100,10 +103,7 @@ export default function SLPHelmLanding() {
           </p>
 
           <div className="flex flex-row justify-center mt-4">
-            <a
-              className="px-10 btn rounded-md mx-4"
-              href="#"
-            >
+            <a className="px-10 btn rounded-md mx-4" href="#">
               Paper
             </a>
             <a className="px-10 btn rounded-md mx-4" href="#/leaderboard">
@@ -127,4 +127,4 @@ export default function SLPHelmLanding() {
       </div>
     </div>
   );
-} 
+}
