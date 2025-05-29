@@ -96,6 +96,12 @@
 		"releases": ["v1.0.0"]
 	},
 	{
+		"title": "SLPHelm",
+		"description": "A benchmark for evaluationing models for Speech-Language Pathology tasks",
+		"id": "slphelm",
+		"releases": ["v1.0.0"]
+	},
+	{
 		"title": "All Leaderboards",
 		"description": "Home page for all HELM leaderboards",
 		"id": "home",
