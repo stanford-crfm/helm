@@ -77,7 +77,7 @@ These benchmarks are fully open and freely available to the public (e.g., benchm
 
 - **Access requirements**: None
 - **Example sources**: HuggingFace, GitHub
-- **Run entries file**: [`run_entries_medhelm_public.conf`](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_public.conf)
+- **Run entries file**: [run_entries_medhelm_public.conf](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_public.conf)
 - **Reproducibility**: Anyone can reproduce results from these benchmarks.
 
 ---
@@ -88,7 +88,7 @@ These benchmarks are publicly available but require special permissions or crede
 
 - **Access requirements**: User registration, credential verification, or data use agreement
 - **Example sources**: PhysioNet, Redivis
-- **Run entries file**: [`run_entries_medhelm_gated.conf`](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_gated.conf)
+- **Run entries file**: [run_entries_medhelm_gated.conf](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_gated.conf)
 - **Reproducibility**: Only users with the appropriate access can reproduce results from these benchmarks.
 
 ---
@@ -114,10 +114,10 @@ To reproduce the [MedHELM leaderboard](https://crfm.stanford.edu/helm/medhelm/la
 > See [Benchmark Access Levels](#benchmark-access-levels) for details on how access impacts which configuration files to use.
 
 - **Public benchmarks**:  
-  Everyone can reproduce the **public portion** of the leaderboard using benchmarks that are freely available (e.g., on HuggingFace). These entries are defined in [`run_entries_medhelm_public.conf`](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_public.conf).
+  Everyone can reproduce the **public portion** of the leaderboard using benchmarks that are freely available (e.g., on HuggingFace). These entries are defined in [run_entries_medhelm_public.conf](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_public.conf).
 
 - **Gated-access benchmarks**:  
-  Reproducing results on these benchmarks (e.g., EHRSHOT) requires credentials or approval. These are listed in [`run_entries_medhelm_gated.conf`](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_gated.conf).
+  Reproducing results on these benchmarks (e.g., EHRSHOT) requires credentials or approval. These are listed in [run_entries_medhelm_gated.conf](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_gated.conf).
 
 - **Private benchmarks**:  
   These results are specific to certain organizations and require access to private data. They are defined in files following the format `run_entries_medhelm_private_{organization}.conf` under `src/helm/benchmark/presentation/`.
@@ -144,7 +144,7 @@ For detailed guidance, see the [Adding New Scenarios](adding_new_scenarios.md) d
 
 #### 2. Define a Run Spec
 
-Next, define a run specification for your scenario in the [`medhelm_run_specs.py`](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/run_specs/medhelm_run_specs.py) file. This links your scenario to HELM’s command-line interface, and specifies:
+Next, define a run specification for your scenario in the [medhelm_run_specs.py](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/run_specs/medhelm_run_specs.py) file. This links your scenario to HELM’s command-line interface, and specifies:
 
 - The instruction models should follow
 - The metrics to compute
@@ -166,9 +166,9 @@ See this [example metric implementation](https://github.com/stanford-crfm/helm/b
 
 Finally, register your `(model, benchmark)` combinations for the MedHELM leaderboard in the appropriate configuration file based on the type of dataset access.  
 
-- If the benchmark is **fully public** (i.e., doesn't require any credentialized access), add your entry to [`run_entries_medhelm_public.conf`](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_public.conf).
+- If the benchmark is **fully public** (i.e., doesn't require any credentialized access), add your entry to [run_entries_medhelm_public.conf](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_public.conf).
 
-- If the benchmark requires **gated access** (e.g., PhysioNet datasets or others requiring credentials), use [`run_entries_medhelm_gated.conf`](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_gated.conf).
+- If the benchmark requires **gated access** (e.g., PhysioNet datasets or others requiring credentials), use [run_entries_medhelm_gated.conf](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_gated.conf).
 
 - If the benchmark is **private** to a specific organization, use a dedicated config file under `src/helm/benchmark/presentation/` following the format: `run_entries_medhelm_private_{organization}.conf` (_e.g., `run_entries_medhelm_private_stanford.conf`_)
 
@@ -176,7 +176,7 @@ Each entry specifies a `(model, benchmark)` pair to be evaluated and displayed o
 
 #### 4. Register Your Scenario in Schema MedHELM
 
-To have your scenario appear on the leaderboard, it must be included in the [`schema_medhelm.yaml`](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/static/schema_medhelm.yaml) file. To do this:
+To have your scenario appear on the leaderboard, it must be included in the [schema_medhelm.yaml](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/static/schema_medhelm.yaml) file. To do this:
 
 - **Add your scenario name** under the appropriate category in the task taxonomy.
 - **Include any new metrics** used by your scenario that are not already listed in the schema.
@@ -193,7 +193,7 @@ If your contributed benchmark scenarios are **gated** or **private** and you wou
 
 #### 1. Redact prompt content using the provided script
 
-  Run the [`redact_scenario_states.py`](https://github.com/stanford-crfm/helm/blob/main/scripts/redact_scenario_states.py) script on your `benchmark_output` directory for a particular suite. This script will redact all prompts and responses present under the specified suite. Here’s a usage example:
+  Run the [redact_scenario_states.py](https://github.com/stanford-crfm/helm/blob/main/scripts/redact_scenario_states.py) script on your `benchmark_output` directory for a particular suite. This script will redact all prompts and responses present under the specified suite. Here’s a usage example:
 
   ```bash
   python3 scripts/redact_scenario_states.py \
