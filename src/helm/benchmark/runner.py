@@ -36,7 +36,7 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.metric import MetricInterface, MetricResult, PerInstanceStats, create_metric, Stat
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
-from helm.benchmark.judge_llm import LLMJudger  # Importando o LLMJudger
+from helm.benchmark.judge_llm import LLMJudger
 from typing import Optional
 
 LATEST_SYMLINK: str = "latest"
@@ -252,9 +252,7 @@ class Runner:
         scenario_state = self.executor.execute(scenario_state)
         scenario_state = self.annotator_executor.execute(scenario_state)
 
-        # =============================
-        #        JUDGING LOGIC
-        # =============================
+        # LLM Judge Logic
         if self.llm_judge:
             predictions = self._extract_predictions(scenario_state)
             if self.skip_instances:
@@ -290,9 +288,6 @@ class Runner:
                 hlog("Skipping LLM Judge summary saving because agreement level is None.")
 
         else:
-            # =============================
-            #      METRIC LOGIC (default)
-            # =============================
             metrics: List[MetricInterface] = (
                 [DryRunMetric()]
                 if self.dry_run
@@ -323,6 +318,7 @@ class Runner:
                 hlog("skip_instances was True. Skipping writing results out.")
                 return
 
+            # Write scenario state
             write(os.path.join(run_path, "run_spec.json"), json.dumps(asdict_without_nones(run_spec), indent=2))
             write(os.path.join(run_path, "scenario.json"), json.dumps(asdict_without_nones(scenario), indent=2))
             write(
