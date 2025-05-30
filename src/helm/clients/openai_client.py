@@ -6,7 +6,7 @@ from helm.benchmark.model_metadata_registry import is_vlm
 from helm.common import multimodal_request_utils
 from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE, MultimediaObject, MediaObject
-from helm.common.request import ErrorFlags, wrap_request_time, Request, RequestResult, GeneratedOutput, Token
+from helm.common.request import ErrorFlags, Thinking, wrap_request_time, Request, RequestResult, GeneratedOutput, Token
 from helm.common.hierarchical_logger import hlog, hwarn
 from helm.common.object_spec import get_class_by_name
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -347,11 +347,19 @@ class OpenAIClient(CachingClient):
             tokens: List[Token] = [
                 Token(text=cast(str, raw_token), logprob=0) for raw_token in tokenization_result.raw_tokens
             ]
+            # vLLM has a optional `reasoning_content` field in the message
+            # that is not in the standard OpenAI API.
+            # This field is also used by some model providers such as Grok.
+            thinking = (
+                Thinking(text=raw_completion["message"]["reasoning_content"]) if "reasoning_content" in  raw_completion["message"]
+                else None
+            )
             completion = GeneratedOutput(
                 text=text,
                 logprob=0,  # OpenAI does not provide logprobs
                 tokens=tokens,
                 finish_reason={"reason": raw_completion["finish_reason"]},
+                thinking=thinking,
             )
             completions.append(truncate_sequence(completion, request))  # Truncate the text by stop sequences
 
