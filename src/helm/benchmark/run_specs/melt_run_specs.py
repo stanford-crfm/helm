@@ -18,7 +18,6 @@ from helm.benchmark.adaptation.adapter_spec import (
 from helm.benchmark.metrics.common_metric_specs import (
     get_exact_match_metric_specs,
     get_f1_metric_specs,
-    get_generative_harms_metric_specs,
     get_summarization_metric_specs,
     get_basic_metric_specs,
     get_open_ended_generation_metric_specs,
@@ -26,6 +25,7 @@ from helm.benchmark.metrics.common_metric_specs import (
     get_basic_reference_metric_specs,
     get_generic_metric_specs,
 )
+from helm.benchmark.metrics.melt_metrics import get_vietnamese_generative_harms_metric_specs
 from helm.benchmark.metrics.metric import MetricSpec
 
 
@@ -59,7 +59,9 @@ def get_melt_question_answering_mlqa_spec(prompt_style: str = "normal") -> RunSp
         name=f"melt_question_answering_mlqa:prompt_style={prompt_style}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_f1_metric_specs() + get_generative_harms_metric_specs(),
+        metric_specs=get_exact_match_metric_specs()
+        + get_f1_metric_specs()
+        + get_vietnamese_generative_harms_metric_specs(),
         groups=["melt", "melt_question_answering_mlqa"],
     )
 
@@ -94,7 +96,9 @@ def get_melt_question_answering_xquad_spec(prompt_style: str = "normal") -> RunS
         name=f"melt_question_answering_xquad:prompt_style={prompt_style},",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_f1_metric_specs() + get_generative_harms_metric_specs(),
+        metric_specs=get_exact_match_metric_specs()
+        + get_f1_metric_specs()
+        + get_vietnamese_generative_harms_metric_specs(),
         groups=["melt", "melt_question_answering_xquad"],
     )
 
@@ -137,8 +141,15 @@ def get_melt_summarization_vietnews_spec(prompt_style: str = "normal", temperatu
         name=f"melt_summarization_vietnews:prompt_style={prompt_style},temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs({"task": "summarization_vietnews", "language": "vi"})
-        + get_generative_harms_metric_specs(),
+        metric_specs=get_summarization_metric_specs(
+            {
+                "task": "summarization_vietnews",
+                "language": "vi",
+                "bertscore_model": "bert-base-multilingual-cased",
+                "rescale_with_baseline": False,
+            }
+        )
+        + get_vietnamese_generative_harms_metric_specs(),
         groups=["melt", "melt_summarization_vietnews"],
     )
 
@@ -181,8 +192,15 @@ def get_melt_summarization_wikilingua_spec(prompt_style: str = "normal", tempera
         name=f"melt_summarization_wikilingua:prompt_style={prompt_style},temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs({"task": "summarization_wikilingua", "language": "vi"})
-        + get_generative_harms_metric_specs(),
+        metric_specs=get_summarization_metric_specs(
+            {
+                "task": "summarization_wikilingua",
+                "language": "vi",
+                "bertscore_model": "bert-base-multilingual-cased",
+                "rescale_with_baseline": False,
+            }
+        )
+        + get_vietnamese_generative_harms_metric_specs(),
         groups=["melt", "melt_summarization_wikilingua"],
     )
 
@@ -207,7 +225,7 @@ def get_melt_synthetic_reasoning_spec(mode: str) -> RunSpec:
         name=f"melt_synthetic_reasoning:mode={mode}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_generative_harms_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_vietnamese_generative_harms_metric_specs(),
         groups=["melt", "melt_synthetic_reasoning", f"melt_synthetic_reasoning_{mode}"],
     )
 
@@ -233,7 +251,7 @@ def get_melt_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
         name=f"melt_synthetic_reasoning_natural:difficulty={difficulty}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=srn_metric_specs + get_generative_harms_metric_specs(),
+        metric_specs=srn_metric_specs + get_vietnamese_generative_harms_metric_specs(),
         groups=["melt", "melt_synthetic_reasoning", "melt_synthetic_reasoning_natural"],
     )
 
@@ -301,7 +319,7 @@ def get_math_spec(
         metric_specs=get_basic_metric_specs(
             ["math_equiv_chain_of_thought" if use_chain_of_thought_bool else "math_equiv"]
         )
-        + get_generative_harms_metric_specs(),
+        + get_vietnamese_generative_harms_metric_specs(),
         groups=["melt", "melt_math"] + groups,
     )
 
@@ -332,7 +350,7 @@ def get_melt_translation_opus100_spec(language_pair: str) -> RunSpec:
         ),
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_open_ended_generation_metric_specs(),
+        metric_specs=get_open_ended_generation_metric_specs() + get_vietnamese_generative_harms_metric_specs(),
         groups=["melt", "melt_translation_opus100"],
     )
 
@@ -363,7 +381,7 @@ def get_melt_translation_phomt_spec(language_pair: str) -> RunSpec:
         ),
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_open_ended_generation_metric_specs(),
+        metric_specs=get_open_ended_generation_metric_specs() + get_vietnamese_generative_harms_metric_specs(),
         groups=["melt", "melt_translation_phomt"],
     )
 

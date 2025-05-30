@@ -157,6 +157,10 @@ metrics:
     display_name: F1
     description: Average F1 score in terms of word overlap between the model output and correct reference.
     lower_is_better: false
+  - name: f1_score@5
+    display_name: F1@5
+    description: Average F1 score at top 5 in terms of word overlap between the model output and correct reference.
+    lower_is_better: false
   - name: classification_macro_f1
     display_name: Macro-F1
     description: Population-level macro-averaged F1 score.
@@ -180,6 +184,10 @@ metrics:
     short_display_name: Valid
     description: Fraction of valid model outputs (as a number).
     lower_is_better: false
+  - name: RR@5
+    display_name: RR@5
+    description: Mean reciprocal rank at 5 in information retrieval.
+    lower_is_better: false
   - name: NDCG@10
     display_name: NDCG@10
     description: Normalized discounted cumulative gain at 10 in information retrieval.
@@ -194,6 +202,114 @@ metrics:
     lower_is_better: false
   - name: RR@20
     display_name: RR@20
+    description: Mean reciprocal rank at 20 in information retrieval.
+    lower_is_better: false
+  - name: Success@1
+    display_name: Success@1
+    description: Success at top 1 in information retrieval.
+    lower_is_better: false
+  - name: Success@2
+    display_name: Success@2
+    description: Success at top 2 in information retrieval.
+    lower_is_better: false
+  - name: Success@3
+    display_name: Success@3
+    description: Success at top 3 in information retrieval.
+    lower_is_better: false
+  - name: Success@5
+    display_name: Success@5
+    description: Success at top 5 in information retrieval.
+    lower_is_better: false
+  - name: Success@10
+    display_name: Success@10
+    description: Success at top 10 in information retrieval.
+    lower_is_better: false
+  - name: Success@20
+    display_name: Success@20
+    description: Success at top 20 in information retrieval.
+    lower_is_better: false
+  - name: Recall@1
+    display_name: Recall@1
+    description: Recall at top 1 in information retrieval.
+    lower_is_better: false
+  - name: Recall@2
+    display_name: Recall@2
+    description: Recall at top 2 in information retrieval.
+    lower_is_better: false
+  - name: Recall@3
+    display_name: Recall@3
+    description: Recall at top 3 in information retrieval.
+    lower_is_better: false
+  - name: Recall@5
+    display_name: Recall@5
+    description: Recall at top 5 in information retrieval.
+    lower_is_better: false
+  - name: Recall@10
+    display_name: Recall@10
+    description: Recall at top 10 in information retrieval.
+    lower_is_better: false
+  - name: Recall@20
+    display_name: Recall@20
+    description: Recall at top 20 in information retrieval.
+    lower_is_better: false
+  - name: Success@1 (topk=30)
+    display_name: Success@1 (topk=30)
+    description: Success at top 1 in information retrieval.
+    lower_is_better: false
+  - name: Success@2 (topk=30)
+    display_name: Success@2 (topk=30)
+    description: Success at top 2 in information retrieval.
+    lower_is_better: false
+  - name: Success@3 (topk=30)
+    display_name: Success@3 (topk=30)
+    description: Success at top 3 in information retrieval.
+    lower_is_better: false
+  - name: Success@5 (topk=30)
+    display_name: Success@5 (topk=30)
+    description: Success at top 5 in information retrieval.
+    lower_is_better: false
+  - name: Success@10 (topk=30)
+    display_name: Success@10 (topk=30)
+    description: Success at top 10 in information retrieval.
+    lower_is_better: false
+  - name: Success@20 (topk=30)
+    display_name: Success@20 (topk=30)
+    description: Success at top 20 in information retrieval.
+    lower_is_better: false
+  - name: Recall@1 (topk=30)
+    display_name: Recall@1 (topk=30)
+    description: Recall at top 1 in information retrieval.
+    lower_is_better: false
+  - name: Recall@2 (topk=30)
+    display_name: Recall@2 (topk=30)
+    description: Recall at top 2 in information retrieval.
+    lower_is_better: false
+  - name: Recall@3 (topk=30)
+    display_name: Recall@3 (topk=30)
+    description: Recall at top 3 in information retrieval.
+    lower_is_better: false
+  - name: Recall@5 (topk=30)
+    display_name: Recall@5 (topk=30)
+    description: Recall at top 5 in information retrieval.
+    lower_is_better: false
+  - name: Recall@10 (topk=30)
+    display_name: Recall@10 (topk=30)
+    description: Recall at top 10 in information retrieval.
+    lower_is_better: false
+  - name: Recall@20 (topk=30)
+    display_name: Recall@20 (topk=30)
+    description: Recall at top 20 in information retrieval.
+    lower_is_better: false
+  - name: RR@5 (topk=30)
+    display_name: RR@5 (topk=30)
+    description: Mean reciprocal rank at 5 in information retrieval.
+    lower_is_better: false
+  - name: RR@10 (topk=30)
+    display_name: RR@10 (topk=30)
+    description: Mean reciprocal rank at 10 in information retrieval.
+    lower_is_better: false
+  - name: RR@20 (topk=30)
+    display_name: RR@20 (topk=30)
     description: Mean reciprocal rank at 20 in information retrieval.
     lower_is_better: false
   - name: math_equiv
