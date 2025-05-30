@@ -57,9 +57,13 @@ def get_medcalc_bench_spec() -> RunSpec:
 
 
 @run_spec_function("clear")
-def get_clear_spec(condition: str) -> RunSpec:
+def get_clear_spec(condition: str, data_path: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.clear_scenario.CLEARScenario", args={"condition": condition}
+        class_name="helm.benchmark.scenarios.clear_scenario.CLEARScenario",
+        args={
+            "condition": condition,
+            "data_path": data_path,
+        }
     )
 
     condition_display = condition.replace("_", " ")
@@ -180,10 +184,14 @@ def get_medec_run_spec() -> RunSpec:
 
 
 @run_spec_function("ehrshot")
-def get_ehrshot_spec(subject: str, max_length: int = 100000) -> RunSpec:
+def get_ehrshot_spec(subject: str, data_path: str, max_length: int = 100000) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.ehrshot_scenario.EHRSHOTScenario",
-        args={"subject": subject, "max_length": max_length},
+        args={
+            "subject": subject,
+            "max_length": max_length,
+            "data_path": data_path,
+        },
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -322,9 +330,13 @@ def get_medbullets_freetext_run_spec() -> RunSpec:
 
 
 @run_spec_function("medalign")
-def get_medalign_spec(max_length: int = 40000) -> RunSpec:
+def get_medalign_spec(data_path: str, max_length: int = 40000) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.medalign_scenario.MedalignScenario", args={"max_length": max_length}
+        class_name="helm.benchmark.scenarios.medalign_scenario.MedalignScenario",
+        args={
+            "max_length": max_length,
+            "data_path": data_path,
+        }
     )
 
     adapter_spec = get_generation_adapter_spec(
@@ -360,8 +372,11 @@ def get_medalign_spec(max_length: int = 40000) -> RunSpec:
 
 
 @run_spec_function("shc_ptbm_med")
-def get_shc_ptbm_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_ptbm_scenario.SHCPTBMMedScenario", args={})
+def get_shc_ptbm_spec(data_path: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.shc_ptbm_scenario.SHCPTBMMedScenario",
+        args={"data_path": data_path},
+    )
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -380,8 +395,11 @@ def get_shc_ptbm_spec() -> RunSpec:
 
 
 @run_spec_function("shc_sei_med")
-def get_shc_sei_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_sei_scenario.SHCSEIMedScenario", args={})
+def get_shc_sei_spec(data_path: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.shc_sei_scenario.SHCSEIMedScenario",
+        args={"data_path": data_path},
+    )
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -400,8 +418,11 @@ def get_shc_sei_spec() -> RunSpec:
 
 
 @run_spec_function("dischargeme")
-def get_dischargeme_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.dischargeme_scenario.DischargeMeScenario")
+def get_dischargeme_spec(data_path: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.dischargeme_scenario.DischargeMeScenario",
+        args={"data_path": data_path,},
+    )
 
     adapter_spec = get_generation_adapter_spec(
         instructions=(
@@ -536,8 +557,11 @@ def get_mtsamples_procedures_spec() -> RunSpec:
 
 
 @run_spec_function("mimic_rrs")
-def get_mimic_rrs_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mimic_rrs_scenario.MIMICRRSScenario", args={})
+def get_mimic_rrs_spec(data_path: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.mimic_rrs_scenario.MIMICRRSScenario",
+        args={"data_path": data_path},
+    )
 
     adapter_spec = get_generation_adapter_spec(
         instructions=(
@@ -574,8 +598,11 @@ def get_mimic_rrs_spec() -> RunSpec:
 
 
 @run_spec_function("mimic_bhc")
-def get_mimic_bhc_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mimic_bhc_scenario.MIMICBHCScenario", args={})
+def get_mimic_bhc_spec(data_path: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.mimic_bhc_scenario.MIMICBHCScenario",
+        args={"data_path": data_path},
+    )
 
     adapter_spec = get_generation_adapter_spec(
         instructions=("Summarize the clinical note into a brief hospital course."),
@@ -609,7 +636,7 @@ def get_mimic_bhc_spec() -> RunSpec:
 
 
 @run_spec_function("chw_care_plan")
-def get_chw_care_plan_run_spec() -> RunSpec:
+def get_chw_care_plan_run_spec(data_path: str) -> RunSpec:
     """
     RunSpec for the chw_care_plan dataset.
     This configuration evaluates the model's ability to summarize
@@ -617,7 +644,7 @@ def get_chw_care_plan_run_spec() -> RunSpec:
     """
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.chw_care_plan_scenario.CHWCarePlanScenario",
-        args={},
+        args={"data_path": data_path},
     )
 
     adapter_spec = get_generation_adapter_spec(
@@ -689,10 +716,10 @@ def get_medication_qa_spec() -> RunSpec:
 
 
 @run_spec_function("starr_patient_instructions")
-def get_starr_patient_instructions_run_spec() -> RunSpec:
+def get_starr_patient_instructions_run_spec(data_path: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.starr_patient_instructions_scenario.StarrPatientInstructionsScenario",
-        args={},
+        args={"data_path": data_path},
     )
 
     adapter_spec = get_generation_adapter_spec(
@@ -780,8 +807,11 @@ def get_med_dialog_spec(subset: str) -> RunSpec:
 
 
 @run_spec_function("shc_conf_med")
-def get_shc_conf_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_conf_scenario.SHCCONFMedScenario", args={})
+def get_shc_conf_spec(data_path: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.shc_conf_scenario.SHCCONFMedScenario",
+        args={"data_path": data_path},
+    )
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -833,13 +863,16 @@ def get_medi_qa_spec() -> RunSpec:
 
 
 @run_spec_function("mental_health")
-def get_mental_health_spec() -> RunSpec:
+def get_mental_health_spec(data_path: str) -> RunSpec:
     """
     Returns the run specification for the mental health counseling scenario.
     This scenario evaluates a model's ability to generate appropriate counseling responses
     in mental health conversations.
     """
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mental_health_scenario.MentalHealthScenario")
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.mental_health_scenario.MentalHealthScenario",
+        args={"data_path": data_path},
+    )
 
     adapter_spec = get_generation_adapter_spec(
         instructions=(
@@ -951,8 +984,11 @@ def get_ehr_sql_run_spec() -> RunSpec:
 
 
 @run_spec_function("shc_bmt_med")
-def get_shc_bmt_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_bmt_scenario.SHCBMTMedScenario", args={})
+def get_shc_bmt_spec(data_path: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.shc_bmt_scenario.SHCBMTMedScenario",
+        args={"data_path": data_path},
+    )
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -1029,10 +1065,13 @@ Your Judgment"""  # noqa: E501
 
 
 @run_spec_function("n2c2_ct_matching")
-def get_n2c2_ct_matching_spec(subject: str) -> RunSpec:
+def get_n2c2_ct_matching_spec(data_path: str, subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.n2c2_ct_matching_scenario.N2C2CTMatchingScenario",
-        args={"subject": subject},
+        args={
+            "data_path": data_path,
+            "subject": subject
+        },
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -1053,8 +1092,11 @@ def get_n2c2_ct_matching_spec(subject: str) -> RunSpec:
 
 
 @run_spec_function("shc_gip_med")
-def get_shc_gip_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_gip_scenario.SHCGIPMedScenario", args={})
+def get_shc_gip_spec(data_path: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.shc_gip_scenario.SHCGIPMedScenario",
+        args={"data_path": data_path}
+    )
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -1073,11 +1115,11 @@ def get_shc_gip_spec() -> RunSpec:
 
 
 @run_spec_function("mimiciv_billing_code")
-def get_mimiciv_billing_code_spec() -> RunSpec:
+def get_mimiciv_billing_code_spec(data_path: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mimiciv_billing_code_scenario.MIMICIVBillingCodeScenario",
         args={
-            "data_file": "/share/pi/nigam/data/medhelm/mimiciv_billing_codes/mimiciv_icd10.feather",
+            "data_path": data_path,
         },
     )
     adapter_spec = get_generation_adapter_spec(
@@ -1109,9 +1151,10 @@ def get_mimiciv_billing_code_spec() -> RunSpec:
 
 
 @run_spec_function("shc_sequoia_med")
-def get_shc_sequoia_spec() -> RunSpec:
+def get_shc_sequoia_spec(data_path: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.shc_sequoia_scenario.SHCSequoiaMedScenario", args={}
+        class_name="helm.benchmark.scenarios.shc_sequoia_scenario.SHCSequoiaMedScenario", 
+        args={"data_path": data_path}
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -1131,8 +1174,11 @@ def get_shc_sequoia_spec() -> RunSpec:
 
 
 @run_spec_function("shc_cdi_med")
-def get_shc_cdi_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_cdi_scenario.SHCCDIMedScenario", args={})
+def get_shc_cdi_spec(data_path: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.shc_cdi_scenario.SHCCDIMedScenario", 
+        args={"data_path": data_path}
+    )
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -1151,8 +1197,11 @@ def get_shc_cdi_spec() -> RunSpec:
 
 
 @run_spec_function("shc_ent_med")
-def get_shc_ent_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_ent_scenario.SHCENTMedScenario", args={})
+def get_shc_ent_spec(data_path: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.shc_ent_scenario.SHCENTMedScenario",
+        args={"data_path": data_path}
+    )
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -1171,8 +1220,11 @@ def get_shc_ent_spec() -> RunSpec:
 
 
 @run_spec_function("shc_privacy_med")
-def get_shc_privacy_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_cdi_scenario.SHCPRIVACYMedScenario", args={})
+def get_shc_privacy_spec(data_path: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.shc_cdi_scenario.SHCPRIVACYMedScenario",
+        args={"data_path": data_path},
+    )
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -1191,8 +1243,11 @@ def get_shc_privacy_spec() -> RunSpec:
 
 
 @run_spec_function("shc_proxy_med")
-def get_shc_proxy_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.shc_cdi_scenario.SHCPROXYMedScenario", args={})
+def get_shc_proxy_spec(data_path: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.shc_cdi_scenario.SHCPROXYMedScenario",
+        args={"data_path": data_path},
+    )
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,

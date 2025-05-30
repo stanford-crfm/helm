@@ -2,7 +2,7 @@ import os
 import pandas as pd
 from typing import List
 
-from helm.common.general import ensure_directory_exists
+from helm.common.general import ensure_file_exists
 from helm.benchmark.scenarios.scenario import (
     Input,
     Scenario,
@@ -73,17 +73,13 @@ class CHWCarePlanScenario(Scenario):
     associated goal being to restructure that text into a given format."
     tags = ["question_answering", "biomedical"]
 
-    def __init__(self):
-        """
-        :param data_file: Path to the mimiciv_icd10.feather file.
-        """
+    def __init__(self, data_path: str):
         super().__init__()
-        self.data_file = "/share/pi/nigam/datasets/CHW_Dataset.csv"
+        self.data_path = data_path
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        ensure_directory_exists(os.path.dirname(self.data_file))
-
-        df = pd.read_csv(self.data_file)  # columns: ["text", "target", ...]
+        ensure_file_exists(self.data_path, msg=f"[CHWCarePlanScenario] Required data file not found: '{self.data_path}'")
+        df = pd.read_csv(self.data_path)  # columns: ["text", "target", ...]
 
         instances: List[Instance] = []
 

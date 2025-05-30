@@ -19,6 +19,7 @@ from typing import Any, Dict, Optional, Union, Callable
 from langchain.schema import Document
 import langchain_community
 
+from helm.common.general import ensure_file_exists
 
 
 def get_instructions(path_to_instructions: str) -> Dict[int, Dict[str, Any]]:
@@ -399,19 +400,21 @@ def add_reference_responses(prompts_df, path_to_reference_responses) -> pd.DataF
     Returns:
     pd.DataFrame: DataFrame containing the processed data.
     """
-    gold_df = pd.read_csv(path_to_reference_responses)
+    gold_df = pd.read_csv(path_to_reference_responses, sep='\t')
     gold_df = gold_df.query("annotator_num == 'Annotator_1'")
     gold_df = gold_df[["instruction_id", "clinician_response"]]
     merged_df = gold_df.merge(prompts_df, on="instruction_id", how="inner")
     return merged_df
 
 
-def return_dataset_dataframe(max_length: int) -> pd.DataFrame:
+def return_dataset_dataframe(max_length: int, data_path: str) -> pd.DataFrame:
     target_context_length = max_length
     generation_length = 256
-    path_to_instructions = "/share/pi/nigam/datasets/medalign_release_fixes/clinician-reviewed-model-responses.tsv"
-    path_to_ehrs = "/share/pi/nigam/datasets/medalign_release_fixes/medalign_ehr_xml"
-    path_to_reference_responses = "/share/pi/nigam/scottyf/clinician-instruction-responses.csv"
+    path_to_instructions = os.path.join(data_path, "clinician-reviewed-model-responses.tsv")
+    ensure_file_exists(path_to_instructions, msg=f"[MedAlignScenario] Required instructions file not found: '{path_to_instructions}'")
+    path_to_ehrs = os.path.join(data_path, "medalign_ehr_xml")
+    path_to_reference_responses = os.path.join(data_path, "clinician-instruction-responses.tsv")
+    ensure_file_exists(path_to_reference_responses, msg=f"[MedAlignScenario] Required clinician responses file not found: '{path_to_reference_responses}'")
     use_RAG = False
     include_ehr = True
     tokenizer = "tiktoken"

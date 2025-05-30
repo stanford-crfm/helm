@@ -42,6 +42,13 @@ def ensure_directory_exists(path: str):
     os.makedirs(path, exist_ok=True)
 
 
+def ensure_file_exists(path: str, msg: Optional[str] = None):
+    """Checks that `path` exists, raises FileNotFoundError if it doesn't."""
+    if not os.path.exists(path):
+        error_msg = msg if msg else f"Required file not found: {path}"
+        raise FileNotFoundError(error_msg)
+
+
 def parse_hocon(text: str):
     """Parse `text` (in HOCON format) into a dict-like object."""
     return pyhocon.ConfigFactory.parse_string(text)
