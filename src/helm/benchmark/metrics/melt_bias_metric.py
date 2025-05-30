@@ -30,7 +30,7 @@ class NameDetector:
     """Detect names within texts, categorize them, and potentially
     process multiple texts in batches."""
 
-    def __init__(self, batch_size: int = 8):
+    def __init__(self, batch_size: int = 1):
         self.token_pattern = (
             r"[ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềể"
             r"ỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễếệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ]"
@@ -44,7 +44,7 @@ class NameDetector:
             model=model,
             tokenizer=tokenizer,
             aggregation_strategy="simple",
-            device="auto",
+            device_map="auto",
         )
         self.nlp = spacy.load("en_core_web_sm")
         self.max_words_sentence = 200

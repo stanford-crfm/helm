@@ -1,5 +1,7 @@
 from typing import Optional
 
+import torch
+
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.benchmark.adaptation.adapters.binary_ranking_adapter import BinaryRankingAdapter
@@ -61,7 +63,7 @@ def get_melt_question_answering_mlqa_spec(prompt_style: str = "normal") -> RunSp
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs()
         + get_f1_metric_specs()
-        + get_vietnamese_generative_harms_metric_specs(),
+        + get_vietnamese_generative_harms_metric_specs(include_generative_harms_metrics=True),
         groups=["melt", "melt_question_answering_mlqa"],
     )
 
@@ -98,7 +100,7 @@ def get_melt_question_answering_xquad_spec(prompt_style: str = "normal") -> RunS
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs()
         + get_f1_metric_specs()
-        + get_vietnamese_generative_harms_metric_specs(),
+        + get_vietnamese_generative_harms_metric_specs(include_generative_harms_metrics=True),
         groups=["melt", "melt_question_answering_xquad"],
     )
 
@@ -147,9 +149,10 @@ def get_melt_summarization_vietnews_spec(prompt_style: str = "normal", temperatu
                 "language": "vi",
                 "bertscore_model": "bert-base-multilingual-cased",
                 "rescale_with_baseline": False,
+                "device": "cuda" if torch.cuda.is_available() else "cpu",
             }
         )
-        + get_vietnamese_generative_harms_metric_specs(),
+        + get_vietnamese_generative_harms_metric_specs(include_generative_harms_metrics=True),
         groups=["melt", "melt_summarization_vietnews"],
     )
 
@@ -198,9 +201,10 @@ def get_melt_summarization_wikilingua_spec(prompt_style: str = "normal", tempera
                 "language": "vi",
                 "bertscore_model": "bert-base-multilingual-cased",
                 "rescale_with_baseline": False,
+                "device": "cuda" if torch.cuda.is_available() else "cpu",
             }
         )
-        + get_vietnamese_generative_harms_metric_specs(),
+        + get_vietnamese_generative_harms_metric_specs(include_generative_harms_metrics=True),
         groups=["melt", "melt_summarization_wikilingua"],
     )
 
@@ -225,7 +229,8 @@ def get_melt_synthetic_reasoning_spec(mode: str) -> RunSpec:
         name=f"melt_synthetic_reasoning:mode={mode}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_vietnamese_generative_harms_metric_specs(),
+        metric_specs=get_exact_match_metric_specs()
+        + get_vietnamese_generative_harms_metric_specs(include_generative_harms_metrics=True),
         groups=["melt", "melt_synthetic_reasoning", f"melt_synthetic_reasoning_{mode}"],
     )
 
@@ -251,7 +256,8 @@ def get_melt_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
         name=f"melt_synthetic_reasoning_natural:difficulty={difficulty}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=srn_metric_specs + get_vietnamese_generative_harms_metric_specs(),
+        metric_specs=srn_metric_specs
+        + get_vietnamese_generative_harms_metric_specs(include_generative_harms_metrics=True),
         groups=["melt", "melt_synthetic_reasoning", "melt_synthetic_reasoning_natural"],
     )
 
@@ -319,7 +325,7 @@ def get_math_spec(
         metric_specs=get_basic_metric_specs(
             ["math_equiv_chain_of_thought" if use_chain_of_thought_bool else "math_equiv"]
         )
-        + get_vietnamese_generative_harms_metric_specs(),
+        + get_vietnamese_generative_harms_metric_specs(include_generative_harms_metrics=True),
         groups=["melt", "melt_math"] + groups,
     )
 
@@ -340,17 +346,14 @@ def get_melt_translation_opus100_spec(language_pair: str) -> RunSpec:
     adapter_spec = get_machine_translation_adapter_spec(
         source_language=FULL_LANGUAGE_NAMES[source_language],
         target_language=FULL_LANGUAGE_NAMES[target_language],
-        max_train_instances=5,
     )
 
     return RunSpec(
-        name=(
-            f"melt_translation_opus100:language_pair={language_pair},"
-            f"max_train_instances={adapter_spec.max_train_instances}"
-        ),
+        name=(f"melt_translation_opus100:language_pair={language_pair}"),
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_open_ended_generation_metric_specs() + get_vietnamese_generative_harms_metric_specs(),
+        metric_specs=get_open_ended_generation_metric_specs()
+        + get_vietnamese_generative_harms_metric_specs(include_generative_harms_metrics=True),
         groups=["melt", "melt_translation_opus100"],
     )
 
@@ -371,17 +374,14 @@ def get_melt_translation_phomt_spec(language_pair: str) -> RunSpec:
     adapter_spec = get_machine_translation_adapter_spec(
         source_language=FULL_LANGUAGE_NAMES[source_language],
         target_language=FULL_LANGUAGE_NAMES[target_language],
-        max_train_instances=5,
     )
 
     return RunSpec(
-        name=(
-            f"melt_translation_phomt:language_pair={language_pair},"
-            f"max_train_instances={adapter_spec.max_train_instances}"
-        ),
+        name=(f"melt_translation_phomt:language_pair={language_pair}"),
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_open_ended_generation_metric_specs() + get_vietnamese_generative_harms_metric_specs(),
+        metric_specs=get_open_ended_generation_metric_specs()
+        + get_vietnamese_generative_harms_metric_specs(include_generative_harms_metrics=True),
         groups=["melt", "melt_translation_phomt"],
     )
 
@@ -404,7 +404,7 @@ def get_melt_lm_mask_filling_mlqaa_spec() -> RunSpec:
     )
 
     return RunSpec(
-        name=f"melt_lm_mask_filling_mlqa:max_train_instances={adapter_spec.max_train_instances}",
+        name="melt_lm_mask_filling_mlqa",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_f1_metric_specs(),
@@ -429,7 +429,7 @@ def get_melt_lm_spelling_correction_vsec_spec() -> RunSpec:
     )
 
     return RunSpec(
-        name=f"melt_lm_spelling_correction_vsec:max_train_instances={adapter_spec.max_train_instances}",
+        name="melt_lm_spelling_correction_vsec",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_f1_metric_specs(),
@@ -457,7 +457,7 @@ def get_melt_text_classification_vsmec_spec() -> RunSpec:
     )
 
     return RunSpec(
-        name=f"melt_text_classification_vsmec:max_train_instances={adapter_spec.max_train_instances}",
+        name="melt_text_classification_vsmec",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs()
@@ -490,7 +490,7 @@ def get_melt_text_classification_phoatis_spec() -> RunSpec:
     )
 
     return RunSpec(
-        name=f"melt_text_classification_phoatis:max_train_instances={adapter_spec.max_train_instances}",
+        name="melt_text_classification_phoatis",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs()
@@ -537,7 +537,7 @@ def get_melt_sentiment_analysis_vlsp_spec() -> RunSpec:
     )
 
     return RunSpec(
-        name=f"melt_sentiment_analysis_vlsp:max_train_instances={adapter_spec.max_train_instances}",
+        name="melt_sentiment_analysis_vlsp",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs()
@@ -563,7 +563,7 @@ def get_melt_sentiment_analysis_vsfc_spec() -> RunSpec:
     )
 
     return RunSpec(
-        name=f"melt_sentiment_analysis_vsfc:max_train_instances={adapter_spec.max_train_instances}",
+        name="melt_sentiment_analysis_vsfc",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs()
@@ -590,7 +590,7 @@ def get_melt_knowledge_zalo_spec() -> RunSpec:
     )
 
     return RunSpec(
-        name=f"melt_knowledge_zalo:max_train_instances={adapter_spec.max_train_instances}",
+        name="melt_knowledge_zalo",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_f1_metric_specs(),
@@ -613,10 +613,10 @@ def get_melt_knowledge_vimmrc_spec(randomize_order: bool = False) -> RunSpec:
     )
 
     return RunSpec(
-        name=f"melt_knowledge_vimmrc:max_train_instances={adapter_spec.max_train_instances}",
+        name="melt_knowledge_vimmrc",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_f1_metric_specs(),
+        metric_specs=get_exact_match_metric_specs(),
         groups=["melt", "melt_knowledge_vimmrc"],
     )
 
@@ -644,7 +644,7 @@ def get_melt_toxicity_detection_vihsd_spec() -> RunSpec:
     )
 
     return RunSpec(
-        name=f"melt_toxicity_detection_vihsd:max_train_instances={adapter_spec.max_train_instances}",
+        name="melt_toxicity_detection_vihsd",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs()
@@ -675,7 +675,7 @@ def get_melt_toxicity_detection_victsd_spec() -> RunSpec:
     )
 
     return RunSpec(
-        name=f"melt_toxicity_detection_victsd:max_train_instances={adapter_spec.max_train_instances}",
+        name="melt_toxicity_detection_victsd",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(labels=["clean", "toxic"]),

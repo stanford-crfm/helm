@@ -423,7 +423,7 @@ def get_summarization_adapter_spec(num_sents: Optional[int], max_train_instances
 
 
 def get_machine_translation_adapter_spec(
-    source_language, target_language, max_train_instances, **kwargs
+    source_language, target_language, max_train_instances: int = 5, **kwargs
 ) -> AdapterSpec:
     """
     Used for machine translation.
