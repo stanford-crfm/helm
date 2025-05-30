@@ -14,6 +14,7 @@ import HomeLanding from "@/components/Landing/HomeLanding";
 import Image2StructLanding from "@/components/Landing/Image2StructLanding";
 import EWoKLanding from "@/components/Landing/EWoKLanding";
 import MedHELMLanding from "@/components/Landing/MedHELMLanding";
+import MedHELMV1Landing from "@/components/Landing/MedHELMV1Landing";
 import SafetyLanding from "@/components/Landing/SafetyLanding";
 import CapabilitiesLanding from "@/components/Landing/CapabilitiesLanding";
 import MMLUWinograndeAfrLanding from "@/components/Landing/MMLUWinograndeAfrLanding";
@@ -21,7 +22,7 @@ import SEAHELMLanding from "@/components/Landing/SEAHELMLanding";
 import SpeechLanding from "@/components/Landing/SpeechLanding";
 import LongContextLanding from "@/components/Landing/LongContextLanding";
 import SQLLanding from "@/components/Landing/SQLLanding";
-import MELTLanding from "@/components/Landing/MELTLanding";
+import ViLLMLanding from "@/components/Landing/ViLLMLanding";
 
 export default function Home() {
   // TODO consider a more streamlined way to do this?
@@ -53,6 +54,8 @@ export default function Home() {
     return <ToRRLanding />;
   } else if (window.PROJECT_ID === "ewok") {
     return <EWoKLanding />;
+  } else if (window.PROJECT_ID === "medhelm" && window.RELEASE == "v1.0.0") {
+    return <MedHELMV1Landing />;
   } else if (window.PROJECT_ID === "medhelm") {
     return <MedHELMLanding />;
   } else if (window.PROJECT_ID === "safety") {
@@ -69,8 +72,8 @@ export default function Home() {
     return <SQLLanding />;
   } else if (window.PROJECT_ID === "long-context") {
     return <LongContextLanding />;
-  } else if (window.PROJECT_ID === "melt") {
-    return <MELTLanding />;
+  } else if (window.PROJECT_ID === "villm") {
+    return <ViLLMLanding />;
   } else if (window.PROJECT_ID === "home") {
     return <HomeLanding />;
   } else {

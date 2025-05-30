@@ -1,7 +1,7 @@
 import MiniLeaderboard from "@/components/MiniLeaderboard";
 import { Link } from "react-router-dom";
 
-export default function MELTLanding() {
+export default function ViLLMLanding() {
   const benchmarkName = <strong className="font-bold">ViLLM</strong>;
   return (
     <div className="container mx-auto px-16">

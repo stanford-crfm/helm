@@ -48,20 +48,21 @@ def find_audio_json_pairs(directory: str) -> List[Tuple[str, str]]:
     return pairs
 
 
-class UltraSuiteASRClassificationScenario(Scenario):
+class UltraSuiteDisorderSymptomsScenario(Scenario):
     """
-    A scenario for evaluating whether a child speaker has a speech disorder or not.
+    A scenario identifying features of speech disorders within the provided audio.
     The audio files contain speech from children, potentially with an adult present.
-    The task is to classify whether the child speaker is typically developing or has a speech disorder.
     """
 
     name = "speech_disorder"
     description = "A scenario for evaluating speech disorders in children"
-    tags = ["audio", "classification", "speech_disorder", "asr"]
-    HF_MAPPING_URL = "https://https://huggingface.co/datasets/SAA-Lab/SLPHelmUltraSuite"
+    tags = ["audio", "classification", "speech_disorder"]
+    HF_MAPPING_URL = "https://https://huggingface.co/datasets/SAA-Lab/SLPHelmManualLabels"
 
-    # Classification options
-    options: List[str] = ["Healthy", "Unhealthy"]
+    def get_instruction(self, words: str) -> str:
+        prompt = f"""You are a highly experienced Speech-Language Pathologist (SLP). An audio recording will be provided, typically consisting of a speech prompt from a pathologist followed by a child's repetition. The prompt the child is trying to repeat is as follows: {words}. Based on your professional expertise: 1. Assess the child's speech in the recording and recognize any abnormal features in the child's speech. 2. These features can be on of the following: A - 'substitution', B - 'omission', C - 'addition', D - 'typically_developing', or E - 'stuttering'. Here, 'substitution' is when the child substitutes one word/phrase/syllable for another. 'omission' is when the child omits one word/phrase/syllable. 'addition' is when the child adds one word/phrase/syllable. 'typically_developing' is when the child's speech is typical of a child of their age. 'stuttering' is when the child stutters, has difficulty speaking, repeats sounds/words or prolongs sounds/words. 3. Provide your response as a single letter without any additional explanation, commentary, or unnecessary text."""  # noqa: E501
+
+        return prompt
 
     def get_instances(self, output_path: str) -> List[Instance]:
         """
@@ -70,8 +71,8 @@ class UltraSuiteASRClassificationScenario(Scenario):
         - Audio files (e.g., .mp3)
         - A JSON file with annotations containing 'answer' field
         """
-        print(f"Downloading dataset from {UltraSuiteASRClassificationScenario.HF_MAPPING_URL} to {output_path}")
-        ensure_file_downloaded(source_url=UltraSuiteASRClassificationScenario.HF_MAPPING_URL, target_path=output_path)
+        print(f"Downloading dataset from {UltraSuiteDisorderSymptomsScenario.HF_MAPPING_URL} to {output_path}")
+        ensure_file_downloaded(source_url=UltraSuiteDisorderSymptomsScenario.HF_MAPPING_URL, target_path=output_path)
 
         instances: List[Instance] = []
         split: str = TEST_SPLIT
@@ -86,15 +87,20 @@ class UltraSuiteASRClassificationScenario(Scenario):
                 annotation = json.load(f)
 
             # Get the correct answer and convert to label
-            answer = annotation["disorder_class"]
+            if "disorder_symptom" not in annotation or "transcription" not in annotation:
+                continue
+            label = annotation["disorder_symptom"]
+            prompt = annotation["transcription"]
             # Create references for each option
             references: List[Reference] = []
-            reference = Reference(Output(text=answer), tags=[CORRECT_TAG])
-            references.append(reference)
+            for option in ["substitution", "omission", "addition", "typically_developing", "stuttering"]:
+                reference = Reference(Output(text=option), tags=[CORRECT_TAG] if option == label else [])
+                references.append(reference)
 
             # Create the input with audio and instruction
             content = [
                 MediaObject(content_type="audio/mpeg", location=audio_path),
+                MediaObject(content_type="text/plain", text=self.get_instruction(prompt)),
             ]
 
             input = Input(multimedia_content=MultimediaObject(content))
