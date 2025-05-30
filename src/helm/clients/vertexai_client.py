@@ -4,6 +4,7 @@ from threading import Lock
 from typing import Any, Dict, Mapping, Optional, List, Union
 
 from helm.common.cache import CacheConfig
+from helm.common.hierarchical_logger import hwarn
 from helm.common.multimodal_request_utils import get_contents_as_bytes
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -423,6 +424,12 @@ class VertexAIChatClient(VertexAIClient):
                         raise VertexAIContentBlockedError(f"No content in candidate: {candidate}")
                     if not candidate.content.parts:
                         raise VertexAIContentBlockedError(f"No content parts in candidate: {candidate}")
+                    if len(candidate.content.parts) > 1:
+                        hwarn(
+                            "Found multiple content parts in candidate, using the first one only: "
+                            f"{candidate.content.parts}"
+                        )
+                        return {"predictions": [{"text": candidate.content.parts[0].text}]}
                     return {"predictions": [{"text": candidate.text}]}
 
                 raw_cache_key = {"model_name": model_name, "prompt": prompt_key, **parameters}
