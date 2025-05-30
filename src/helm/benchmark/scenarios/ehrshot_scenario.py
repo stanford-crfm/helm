@@ -1429,16 +1429,22 @@ class EHRSHOTScenario(Scenario):
         """Loads the MEDS dataset and converts it to prompts"""
         # Load MEDS EHRSHOT patient timelines
         data_parquet_path = os.path.join(self.data_path, "data/data.parquet")
-        ensure_file_exists(data_parquet_path, msg=f"[EHRSHOTScenario] Required parquet data file not found: '{data_parquet_path}'")
+        ensure_file_exists(
+            data_parquet_path, msg=f"[EHRSHOTScenario] Required parquet data file not found: '{data_parquet_path}'"
+        )
         splits_parquet_path = os.path.join(self.data_path, "metadata/subject_splits.parquet")
-        ensure_file_exists(splits_parquet_path, msg=f"[EHRSHOTScenario] Required splits file not found: '{splits_parquet_path}'")
+        ensure_file_exists(
+            splits_parquet_path, msg=f"[EHRSHOTScenario] Required splits file not found: '{splits_parquet_path}'"
+        )
         df_data = pd.read_parquet(data_parquet_path)
         df_splits = pd.read_parquet(splits_parquet_path)
         # Load MEDS EHRSHOT labels
         tasks = sorted(os.listdir(os.path.join(self.data_path, "labels")))
         for t in tasks:
             path_to_labels: str = os.path.join(self.data_path, "labels", t, "labels.parquet")
-            ensure_file_exists(path_to_labels, msg=f"[EHRSHOTScenario] Required labels file not found: '{path_to_labels}'")
+            ensure_file_exists(
+                path_to_labels, msg=f"[EHRSHOTScenario] Required labels file not found: '{path_to_labels}'"
+            )
             if t != self.subject or not os.path.exists(path_to_labels):
                 continue
             df_labels = pd.read_parquet(path_to_labels)

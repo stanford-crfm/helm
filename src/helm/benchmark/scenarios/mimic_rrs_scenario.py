@@ -67,8 +67,12 @@ class MIMICRRSScenario(Scenario):
             split_impressions_name: str = f"{data_split}.impression.tok"
             findings_path: str = os.path.join(self.data_path, split_findings_name)
             impressions_path: str = os.path.join(self.data_path, split_impressions_name)
-            ensure_file_exists(findings_path, msg=f"[MIMICRRSScenario] Required findings file not found: '{findings_path}'")
-            ensure_file_exists(impressions_path, msg=f"[MIMICRRSScenario] Required impressions file not found: '{impressions_path}'")
+            ensure_file_exists(
+                findings_path, msg=f"[MIMICRRSScenario] Required findings file not found: '{findings_path}'"
+            )
+            ensure_file_exists(
+                impressions_path, msg=f"[MIMICRRSScenario] Required impressions file not found: '{impressions_path}'"
+            )
             findings: List[str] = self.read_file(findings_path)
             impressions: List[str] = self.read_file(impressions_path)
             assert len(findings) == len(impressions), "Findings and impressions must have the same length"

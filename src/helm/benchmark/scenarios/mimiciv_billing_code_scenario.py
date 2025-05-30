@@ -35,7 +35,9 @@ class MIMICIVBillingCodeScenario(Scenario):
         self.data_path = data_path
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        ensure_file_exists(self.data_path, msg=f"[MIMICIVBilligCodeScenario] Required data file not found: '{self.data_path}'")
+        ensure_file_exists(
+            self.data_path, msg=f"[MIMICIVBilligCodeScenario] Required data file not found: '{self.data_path}'"
+        )
 
         # Read the preprocessed MIMIC-IV data (.feather format)
         df = pd.read_feather(self.data_path)  # columns: ["text", "target", ...]

@@ -50,7 +50,9 @@ class SHCPROXYMedScenario(Scenario):
         return data
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        ensure_file_exists(self.data_path, msg=f"[SHCPROXYMedScenario] Required data file not found: '{self.data_path}'")
+        ensure_file_exists(
+            self.data_path, msg=f"[SHCPROXYMedScenario] Required data file not found: '{self.data_path}'"
+        )
         instances: List[Instance] = []
         benchmark_data = self.create_benchmark(self.data_path)
 

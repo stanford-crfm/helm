@@ -63,7 +63,7 @@ def get_clear_spec(condition: str, data_path: str) -> RunSpec:
         args={
             "condition": condition,
             "data_path": data_path,
-        }
+        },
     )
 
     condition_display = condition.replace("_", " ")
@@ -336,7 +336,7 @@ def get_medalign_spec(data_path: str, max_length: int = 40000) -> RunSpec:
         args={
             "max_length": max_length,
             "data_path": data_path,
-        }
+        },
     )
 
     adapter_spec = get_generation_adapter_spec(
@@ -421,7 +421,9 @@ def get_shc_sei_spec(data_path: str) -> RunSpec:
 def get_dischargeme_spec(data_path: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.dischargeme_scenario.DischargeMeScenario",
-        args={"data_path": data_path,},
+        args={
+            "data_path": data_path,
+        },
     )
 
     adapter_spec = get_generation_adapter_spec(
@@ -1068,10 +1070,7 @@ Your Judgment"""  # noqa: E501
 def get_n2c2_ct_matching_spec(data_path: str, subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.n2c2_ct_matching_scenario.N2C2CTMatchingScenario",
-        args={
-            "data_path": data_path,
-            "subject": subject
-        },
+        args={"data_path": data_path, "subject": subject},
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -1094,8 +1093,7 @@ def get_n2c2_ct_matching_spec(data_path: str, subject: str) -> RunSpec:
 @run_spec_function("shc_gip_med")
 def get_shc_gip_spec(data_path: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.shc_gip_scenario.SHCGIPMedScenario",
-        args={"data_path": data_path}
+        class_name="helm.benchmark.scenarios.shc_gip_scenario.SHCGIPMedScenario", args={"data_path": data_path}
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -1153,8 +1151,7 @@ def get_mimiciv_billing_code_spec(data_path: str) -> RunSpec:
 @run_spec_function("shc_sequoia_med")
 def get_shc_sequoia_spec(data_path: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.shc_sequoia_scenario.SHCSequoiaMedScenario", 
-        args={"data_path": data_path}
+        class_name="helm.benchmark.scenarios.shc_sequoia_scenario.SHCSequoiaMedScenario", args={"data_path": data_path}
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -1176,8 +1173,7 @@ def get_shc_sequoia_spec(data_path: str) -> RunSpec:
 @run_spec_function("shc_cdi_med")
 def get_shc_cdi_spec(data_path: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.shc_cdi_scenario.SHCCDIMedScenario", 
-        args={"data_path": data_path}
+        class_name="helm.benchmark.scenarios.shc_cdi_scenario.SHCCDIMedScenario", args={"data_path": data_path}
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -1199,8 +1195,7 @@ def get_shc_cdi_spec(data_path: str) -> RunSpec:
 @run_spec_function("shc_ent_med")
 def get_shc_ent_spec(data_path: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.shc_ent_scenario.SHCENTMedScenario",
-        args={"data_path": data_path}
+        class_name="helm.benchmark.scenarios.shc_ent_scenario.SHCENTMedScenario", args={"data_path": data_path}
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(

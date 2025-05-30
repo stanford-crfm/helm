@@ -22,37 +22,33 @@ def file_preprocessing(data_path: str, task_objective: str) -> pd.DataFrame:
     """
     # Load the first CSV file
     diagnosis_path = f"{data_path}/files/discharge-me/1.3/test_phase_1/diagnosis.csv.gz"
-    ensure_file_exists(diagnosis_path, msg=f"[DischargeMeScenario] Required diagnosis file not found: '{diagnosis_path}'")
+    ensure_file_exists(
+        diagnosis_path, msg=f"[DischargeMeScenario] Required diagnosis file not found: '{diagnosis_path}'"
+    )
     discharge_path = f"{data_path}/files/discharge-me/1.3/test_phase_1/discharge.csv.gz"
-    ensure_file_exists(discharge_path, msg=f"[DischargeMeScenario] Required discharge file not found: '{discharge_path}'")
+    ensure_file_exists(
+        discharge_path, msg=f"[DischargeMeScenario] Required discharge file not found: '{discharge_path}'"
+    )
     target_path = f"{data_path}/files/discharge-me/1.3/test_phase_1/discharge_target.csv.gz"
     ensure_file_exists(target_path, msg=f"[DischargeMeScenario] Required target file not found: '{target_path}'")
     radiology_path = f"{data_path}/files/discharge-me/1.3/test_phase_1/radiology.csv.gz"
-    ensure_file_exists(radiology_path, msg=f"[DischargeMeScenario] Required radiology file not found: '{radiology_path}'")
+    ensure_file_exists(
+        radiology_path, msg=f"[DischargeMeScenario] Required radiology file not found: '{radiology_path}'"
+    )
     ed_path = f"{data_path}/files/discharge-me/1.3/test_phase_1/edstays.csv.gz"
     ensure_file_exists(ed_path, msg=f"[DischargeMeScenario] Required ed file not found: '{ed_path}'")
     triage_path = f"{data_path}/files/discharge-me/1.3/test_phase_1/triage.csv.gz"
     ensure_file_exists(triage_path, msg=f"[DischargeMeScenario] Required triage file not found: '{triage_path}'")
-    df_diagnosis = pd.read_csv(
-        diagnosis_path, compression="gzip", keep_default_na=False
-    )
-    df_discharge = pd.read_csv(
-        discharge_path, compression="gzip", keep_default_na=False
-    )
+    df_diagnosis = pd.read_csv(diagnosis_path, compression="gzip", keep_default_na=False)
+    df_discharge = pd.read_csv(discharge_path, compression="gzip", keep_default_na=False)
     df_target = pd.read_csv(
         target_path,
         compression="gzip",
         keep_default_na=False,
     )
-    df_radiology = pd.read_csv(
-        radiology_path, compression="gzip", keep_default_na=False
-    )
-    df_ed = pd.read_csv(
-        ed_path, compression="gzip", keep_default_na=False
-    )
-    df_triage = pd.read_csv(
-        triage_path, compression="gzip", keep_default_na=False
-    )
+    df_radiology = pd.read_csv(radiology_path, compression="gzip", keep_default_na=False)
+    df_ed = pd.read_csv(ed_path, compression="gzip", keep_default_na=False)
+    df_triage = pd.read_csv(triage_path, compression="gzip", keep_default_na=False)
     df_diagnosis_triage = pd.merge(
         df_diagnosis, df_triage, on="subject_id", how="inner", suffixes=("_df_diagnosis", "_df_triage")
     )
