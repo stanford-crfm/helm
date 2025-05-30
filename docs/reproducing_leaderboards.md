@@ -175,3 +175,15 @@ export NUM_TRAIN_TRIALS=1
 export NUM_EVAL_INSTANCES=1000
 export PRIORITY=2
 ```
+
+### SLPHelm
+
+SLPHelm is experimental and is not intended for production use yet.
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_slphelm.conf
+export SCHEMA_PATH=schema_slphelm.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=1000
+export PRIORITY=2
+```
