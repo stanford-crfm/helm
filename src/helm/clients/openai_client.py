@@ -351,7 +351,8 @@ class OpenAIClient(CachingClient):
             # that is not in the standard OpenAI API.
             # This field is also used by some model providers such as Grok.
             thinking = (
-                Thinking(text=raw_completion["message"]["reasoning_content"]) if "reasoning_content" in  raw_completion["message"]
+                Thinking(text=raw_completion["message"]["reasoning_content"])
+                if "reasoning_content" in raw_completion["message"]
                 else None
             )
             completion = GeneratedOutput(
