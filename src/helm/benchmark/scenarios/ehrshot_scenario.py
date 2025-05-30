@@ -1514,38 +1514,3 @@ class EHRSHOTScenario(Scenario):
             )
 
         return instances
-
-
-if __name__ == "__main__":
-    # Generate statistics on prompts
-    from transformers import AutoTokenizer
-
-    tokenizer = AutoTokenizer.from_pretrained("gpt2")
-    tqdm.pandas()
-    n_procs: int = 10
-
-    os.makedirs("./ehrshot_stats", exist_ok=True)
-    for t in TASK_FULL_NAMES.keys():
-        # Skip if already exists
-        if os.path.exists(f"./ehrshot_stats/{t}.txt"):
-            print(f"Skipping {t} because it already exists")
-            continue
-
-        # Create benchmark
-        scenario = EHRSHOTScenario(subject=t)
-        scenario.create_benchmark(n_procs=n_procs)
-        instances = scenario.get_instances("test.csv")
-
-        # Calculate prompt token stats
-        path_to_input_csv = os.path.join(scenario.path_to_tmp_dir, scenario.subject, "medhelm_prompts.parquet")
-        df = pd.read_parquet(path_to_input_csv)
-        df["prompt_n_tokens"] = df["prompt"].progress_apply(lambda x: len(tokenizer.encode(x)))
-        with open(f"./ehrshot_stats/{t}.txt", "w") as f:
-            f.write("-" * 100 + "\n")
-            f.write(f"Task: {t}\n")
-            f.write(f"# of instances: {len(instances)}\n")
-            f.write(f"# of positives: {df['boolean_value'].sum()}\n")
-            f.write(f"Size of splits:\n{df['split'].value_counts()}\n")
-            f.write(f"# tokens per prompt:\n{df['prompt_n_tokens'].describe()}\n")
-            f.write("-" * 100 + "\n")
-        df.to_parquet(os.path.join(scenario.path_to_tmp_dir, scenario.subject, "medhelm_prompts.parquet"))
