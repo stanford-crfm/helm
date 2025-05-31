@@ -9,7 +9,7 @@ from helm.benchmark.scenarios.scenario import (
     PassageQuestionInput,
     Output,
 )
-from helm.common.general import ensure_file_exists
+from helm.common.general import check_file_exists
 
 
 class MentalHealthScenario(Scenario):
@@ -107,7 +107,7 @@ class MentalHealthScenario(Scenario):
         Returns:
             List[Instance]: List of processed instances for evaluation
         """
-        ensure_file_exists(
+        check_file_exists(
             self.data_path, msg=f"[MentalHealthScenario] Required data file not found: '{self.data_path}'"
         )
         dialogue_data = pd.read_csv(self.data_path)

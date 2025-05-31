@@ -11,7 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     Reference,
     Output,
 )
-from helm.common.general import ensure_file_exists
+from helm.common.general import check_file_exists
 
 csv.field_size_limit(sys.maxsize)
 
@@ -51,7 +51,7 @@ class SHCPRIVACYMedScenario(Scenario):
         return data
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        ensure_file_exists(
+        check_file_exists(
             self.data_path, msg=f"[SHCPRIVACYMedScenario] Required data file not found: '{self.data_path}'"
         )
         instances: List[Instance] = []

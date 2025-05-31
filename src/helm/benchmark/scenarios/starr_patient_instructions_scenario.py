@@ -1,7 +1,7 @@
 import csv
 from typing import List
 
-from helm.common.general import ensure_file_exists
+from helm.common.general import check_file_exists
 from helm.benchmark.scenarios.scenario import (
     Input,
     Scenario,
@@ -47,7 +47,7 @@ class StarrPatientInstructionsScenario(Scenario):
         self.data_path = data_path
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        ensure_file_exists(
+        check_file_exists(
             self.data_path, msg=f"[StarrPatientInstructiosScenario] Required data file not found: '{self.data_path}'"
         )
         instances: List[Instance] = []

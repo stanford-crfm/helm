@@ -7,43 +7,43 @@
 MedHELM evaluates models across a clinician-validated taxonomy comprised of **5 categories**, **22 subcategories** and **121 tasks**:
 
 - **Clinical Decision Support**
-  - Supporting Diagnostic Decisions
-  - Planning Treatments
-  - Predicting Patient Risks and Outcomes
-  - Providing Clinical Knowledge Support
+    - Supporting Diagnostic Decisions
+    - Planning Treatments
+    - Predicting Patient Risks and Outcomes
+    - Providing Clinical Knowledge Support
 
 - **Clinical Note Generation**
-  - Documenting Patient Visits
-  - Recording Procedures
-  - Documenting Diagnostic Reports
-  - Documenting Care Plans
+    - Documenting Patient Visits
+    - Recording Procedures
+    - Documenting Diagnostic Reports
+    - Documenting Care Plans
 
 - **Patient Communication and Education**
-  - Providing Patient Education Resources
-  - Delivering Personalized Care Instructions
-  - Patient-Provider Messaging
-  - Enhancing Patient Understanding and Accessibility in Health Communication
-  - Facilitating Patient Engagement and Support
+    - Providing Patient Education Resources
+    - Delivering Personalized Care Instructions
+    - Patient-Provider Messaging
+    - Enhancing Patient Understanding and Accessibility in Health Communication
+    - Facilitating Patient Engagement and Support
 
 - **Medical Research Assistance**
-  - Conducting Literature Research
-  - Analyzing Clinical Research Data
-  - Recording Research Processes
-  - Ensuring Clinical Research Quality
-  - Managing Research Enrollment
+    - Conducting Literature Research
+    - Analyzing Clinical Research Data
+    - Recording Research Processes
+    - Ensuring Clinical Research Quality
+    - Managing Research Enrollment
 
 - **Administration and Workflow**
-  - Scheduling Resources and Staff
-  - Overseeing Financial Activities
-  - Organizing Workflow Processes
-  - Care Coordination and Planning
+    - Scheduling Resources and Staff
+    - Overseeing Financial Activities
+    - Organizing Workflow Processes
+    - Care Coordination and Planning
 
 This categorization ensures that evaluations reflect the **complexity, diversity, and stakes** of medical AI applications—from assisting clinicians in making critical decisions to safely interacting with patients.
 
 ## References
 
 - [Stanford HAI Article](https://hai.stanford.edu/news/holistic-evaluation-of-large-language-models-for-medical-applications)
-- [MedHELM Website](https://crfm.stanford.edu/medhelm/latest/)
+- [MedHELM Website](https://crfm.stanford.edu/helm/medhelm/latest/)
 - Publication (Coming Soon)
 
 ## Installation

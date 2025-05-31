@@ -19,7 +19,7 @@ from typing import Any, Dict, Optional, Union, Callable
 from langchain.schema import Document
 import langchain_community
 
-from helm.common.general import ensure_file_exists
+from helm.common.general import check_file_exists
 
 
 def get_instructions(path_to_instructions: str) -> Dict[int, Dict[str, Any]]:
@@ -411,10 +411,10 @@ def return_dataset_dataframe(max_length: int, data_path: str) -> pd.DataFrame:
     target_context_length = max_length
     generation_length = 256
     path_to_instructions = os.path.join(data_path, "clinician-reviewed-model-responses.tsv")
-    ensure_file_exists(path_to_instructions, msg=f"[MedAlignScenario] Required instructions file not found: '{path_to_instructions}'")
+    check_file_exists(path_to_instructions, msg=f"[MedAlignScenario] Required instructions file not found: '{path_to_instructions}'")
     path_to_ehrs = os.path.join(data_path, "medalign_ehr_xml")
     path_to_reference_responses = os.path.join(data_path, "clinician-instruction-responses.tsv")
-    ensure_file_exists(path_to_reference_responses, msg=f"[MedAlignScenario] Required clinician responses file not found: '{path_to_reference_responses}'")
+    check_file_exists(path_to_reference_responses, msg=f"[MedAlignScenario] Required clinician responses file not found: '{path_to_reference_responses}'")
     use_RAG = False
     include_ehr = True
     tokenizer = "tiktoken"

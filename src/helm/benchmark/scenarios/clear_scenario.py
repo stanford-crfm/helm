@@ -2,7 +2,7 @@ import os
 import pandas as pd
 from typing import List
 
-from helm.common.general import ensure_file_exists
+from helm.common.general import check_file_exists
 from helm.benchmark.scenarios.scenario import (
     Input,
     Scenario,
@@ -96,7 +96,7 @@ class CLEARScenario(Scenario):
     def get_instances(self, output_path: str) -> List[Instance]:
         """Load and process the data for the specified conditon."""
         excel_path = os.path.join(self.data_path, f"{self.condition}.xlsx")
-        ensure_file_exists(excel_path, msg=f"[CLEARScenario] Required data file not found: '{excel_path}'")
+        check_file_exists(excel_path, msg=f"[CLEARScenario] Required data file not found: '{excel_path}'")
 
         df = pd.read_excel(excel_path)
 

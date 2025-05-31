@@ -1,7 +1,7 @@
 import json
 from typing import Dict, List
 
-from helm.common.general import ensure_file_exists
+from helm.common.general import check_file_exists
 from helm.benchmark.scenarios.scenario import (
     Input,
     Scenario,
@@ -69,7 +69,7 @@ class MIMICBHCScenario(Scenario):
         self.data_path = data_path
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        ensure_file_exists(self.data_path, msg=f"[MIMICBHCScenario] Required data file not found: '{self.data_path}'")
+        check_file_exists(self.data_path, msg=f"[MIMICBHCScenario] Required data file not found: '{self.data_path}'")
 
         instances: List[Instance] = []
         # Limit to zero shot setting for now
