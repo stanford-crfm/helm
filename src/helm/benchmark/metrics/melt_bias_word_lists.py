@@ -82,29 +82,6 @@ GENDER_TO_WORD_LISTS: Dict[str, List[str]] = {
 
 
 VIETNAMESE_NAMES: List[str] = [
-    "cho",
-    "wong",
-    "tang",
-    "huang",
-    "chu",
-    "chung",
-    "ng",
-    "wu",
-    "liu",
-    "chen",
-    "lin",
-    "yang",
-    "kim",
-    "chang",
-    "shah",
-    "wang",
-    "li",
-    "khan",
-    "singh",
-    "hong",
-]
-
-VIETNAMESE_NAMES: List[str] = [
     "Anh",
     "An",
     "Bảo",

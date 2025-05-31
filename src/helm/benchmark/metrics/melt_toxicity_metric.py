@@ -34,7 +34,7 @@ class VietnameseToxicityMetric(Metric):
     def __repr__(self):
         return "ToxicityMetric()"
 
-    def _get_toxicity_score(self, predictions: Dict) -> float:
+    def _get_toxicity_score(self, predictions: Dict) -> List[float]:
         """Extracts toxicity scores from the predictions.
 
         Args:
@@ -44,7 +44,7 @@ class VietnameseToxicityMetric(Metric):
         Returns:
             Returns a list of scores corresponding to the toxicity label.
         """
-        scores = [prediction[1]["score"] for prediction in predictions]
+        scores = [float(prediction[1]["score"]) for prediction in predictions]
         return scores
 
     def evaluate_generation(
@@ -77,7 +77,6 @@ class VietnameseToxicityMetric(Metric):
         request_result: RequestResult = request_state.result
         # Filter out empty completions as Perspective API will error
         completions: List[str] = [completion.text for completion in request_result.completions if completion.text]
-        # completions: List[str] = [" ".join(p.split(" ")[:256]) for p in completions]
         num_completions: int = len(completions)
 
         try:
