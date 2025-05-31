@@ -77,9 +77,7 @@ class CHWCarePlanScenario(Scenario):
         self.data_path = data_path
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        check_file_exists(
-            self.data_path, msg=f"[CHWCarePlanScenario] Required data file not found: '{self.data_path}'"
-        )
+        check_file_exists(self.data_path, msg=f"[CHWCarePlanScenario] Required data file not found: '{self.data_path}'")
         df = pd.read_csv(self.data_path)  # columns: ["text", "target", ...]
 
         instances: List[Instance] = []
