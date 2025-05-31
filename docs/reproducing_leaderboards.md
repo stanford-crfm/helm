@@ -156,8 +156,39 @@ export PRIORITY=2
 
 ### MedHELM
 
+> Benchmarks in MedHELM fall under three types of data access: **public**, **gated**, and **private**.  
+> See the [Benchmark Access Levels](medhelm.md#benchmark-access-levels) section in `medhelm.md` to learn more about each access type and example sources.
+
+#### Public Benchmarks
+
+Benchmarks that are fully open and freely available to the public.
+
 ```bash
-export RUN_ENTRIES_CONF_PATH=run_entries_medhelm.conf
+export RUN_ENTRIES_CONF_PATH=run_entries_medhelm_public.conf
+export SCHEMA_PATH=schema_medhelm.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=1000
+export PRIORITY=2
+```
+
+#### Gated Benchmarks
+
+Benchmarks that are publicly available but require credentials or approval to access (e.g., PhysioNet).
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_medhelm_gated.conf
+export SCHEMA_PATH=schema_medhelm.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=1000
+export PRIORITY=2
+```
+
+#### Private Benchmarks
+
+Benchmarks accessible only to specific organizations.
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_medhelm_private_{organization}.conf
 export SCHEMA_PATH=schema_medhelm.yaml
 export NUM_TRAIN_TRIALS=1
 export NUM_EVAL_INSTANCES=1000

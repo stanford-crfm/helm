@@ -7,7 +7,7 @@ from functools import partial
 from tqdm import tqdm
 from typing import Any, Dict, List, Optional, Mapping
 
-from helm.common.general import ensure_directory_exists
+from helm.common.general import check_file_exists, ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     Input,
@@ -1419,24 +1419,32 @@ class EHRSHOTScenario(Scenario):
         "no",
     ]
 
-    def __init__(self, subject: str, max_length: Optional[int] = None):
+    def __init__(self, subject: str, data_path: str, max_length: Optional[int] = None):
         super().__init__()
         self.subject: str = subject  # same as "task" or "labeling_function"
-        self.path_to_meds_dir: str = "/share/pi/nigam/data/medhelm/ehrshot/meds/"
-        self.path_to_tmp_dir: str = "/share/pi/nigam/data/medhelm/ehrshot/prompts/"
         self.max_length = max_length
+        self.data_path = data_path
 
-    def create_benchmark(self, n_procs: int = 4) -> Dict[str, str]:
+    def create_benchmark(self, output_path: str, n_procs: int = 4) -> Dict[str, str]:
         """Loads the MEDS dataset and converts it to prompts"""
-
         # Load MEDS EHRSHOT patient timelines
-        df_data = pd.read_parquet(os.path.join(self.path_to_meds_dir, "data/data.parquet"))
-        df_splits = pd.read_parquet(os.path.join(self.path_to_meds_dir, "metadata/subject_splits.parquet"))
-
+        data_parquet_path = os.path.join(self.data_path, "data/data.parquet")
+        check_file_exists(
+            data_parquet_path, msg=f"[EHRSHOTScenario] Required parquet data file not found: '{data_parquet_path}'"
+        )
+        splits_parquet_path = os.path.join(self.data_path, "metadata/subject_splits.parquet")
+        check_file_exists(
+            splits_parquet_path, msg=f"[EHRSHOTScenario] Required splits file not found: '{splits_parquet_path}'"
+        )
+        df_data = pd.read_parquet(data_parquet_path)
+        df_splits = pd.read_parquet(splits_parquet_path)
         # Load MEDS EHRSHOT labels
-        tasks = sorted(os.listdir(os.path.join(self.path_to_meds_dir, "labels")))
+        tasks = sorted(os.listdir(os.path.join(self.data_path, "labels")))
         for t in tasks:
-            path_to_labels: str = os.path.join(self.path_to_meds_dir, "labels", t, "labels.parquet")
+            path_to_labels: str = os.path.join(self.data_path, "labels", t, "labels.parquet")
+            check_file_exists(
+                path_to_labels, msg=f"[EHRSHOTScenario] Required labels file not found: '{path_to_labels}'"
+            )
             if t != self.subject or not os.path.exists(path_to_labels):
                 continue
             df_labels = pd.read_parquet(path_to_labels)
@@ -1469,16 +1477,16 @@ class EHRSHOTScenario(Scenario):
         df_labels["prompt"] = prompts
 
         # Save to parquet
-        path_to_output_dir: str = os.path.join(self.path_to_tmp_dir, self.subject)
+        path_to_output_dir: str = os.path.join(output_path, self.subject)
         ensure_directory_exists(path_to_output_dir)
         df_labels.to_parquet(os.path.join(path_to_output_dir, "medhelm_prompts.parquet"))
         return {"status": "success"}
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        path_to_input_csv: str = os.path.join(self.path_to_tmp_dir, self.subject, "medhelm_prompts.parquet")
+        path_to_input_csv: str = os.path.join(output_path, self.subject, "medhelm_prompts.parquet")
         if not os.path.exists(path_to_input_csv):
             print(f"Creating benchmark from SCRATCH for {self.subject}...")
-            self.create_benchmark()  # Create benchmark from scratch
+            self.create_benchmark(output_path=output_path)  # Create benchmark from scratch
 
         # Load data for this task
         df = pd.read_parquet(path_to_input_csv)
@@ -1506,38 +1514,3 @@ class EHRSHOTScenario(Scenario):
             )
 
         return instances
-
-
-if __name__ == "__main__":
-    # Generate statistics on prompts
-    from transformers import AutoTokenizer
-
-    tokenizer = AutoTokenizer.from_pretrained("gpt2")
-    tqdm.pandas()
-    n_procs: int = 10
-
-    os.makedirs("./ehrshot_stats", exist_ok=True)
-    for t in TASK_FULL_NAMES.keys():
-        # Skip if already exists
-        if os.path.exists(f"./ehrshot_stats/{t}.txt"):
-            print(f"Skipping {t} because it already exists")
-            continue
-
-        # Create benchmark
-        scenario = EHRSHOTScenario(subject=t)
-        scenario.create_benchmark(n_procs=n_procs)
-        instances = scenario.get_instances("test.csv")
-
-        # Calculate prompt token stats
-        path_to_input_csv = os.path.join(scenario.path_to_tmp_dir, scenario.subject, "medhelm_prompts.parquet")
-        df = pd.read_parquet(path_to_input_csv)
-        df["prompt_n_tokens"] = df["prompt"].progress_apply(lambda x: len(tokenizer.encode(x)))
-        with open(f"./ehrshot_stats/{t}.txt", "w") as f:
-            f.write("-" * 100 + "\n")
-            f.write(f"Task: {t}\n")
-            f.write(f"# of instances: {len(instances)}\n")
-            f.write(f"# of positives: {df['boolean_value'].sum()}\n")
-            f.write(f"Size of splits:\n{df['split'].value_counts()}\n")
-            f.write(f"# tokens per prompt:\n{df['prompt_n_tokens'].describe()}\n")
-            f.write("-" * 100 + "\n")
-        df.to_parquet(os.path.join(scenario.path_to_tmp_dir, scenario.subject, "medhelm_prompts.parquet"))
