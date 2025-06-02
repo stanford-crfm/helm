@@ -44,7 +44,7 @@ This categorization ensures that evaluations reflect the **complexity, diversity
 
 - [Stanford HAI Article](https://hai.stanford.edu/news/holistic-evaluation-of-large-language-models-for-medical-applications)
 - [MedHELM Website](https://crfm.stanford.edu/helm/medhelm/latest/)
-- Publication (Coming Soon)
+- [Publication](https://arxiv.org/abs/2505.23802)
 
 ## Installation
 
