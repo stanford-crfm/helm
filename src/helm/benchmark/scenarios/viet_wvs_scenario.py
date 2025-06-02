@@ -28,7 +28,7 @@ class VietnamWVSScenario(Scenario):
         self,
         personas_filename: str = "vn_personas_with_filtered_responses.json",
         questions_filename: str = "wvs_questions_dump.en.json",
-        repo_id: str = "simonvo125/helm-cultural-alignment",
+        repo_id: str = "stair-lab/cultural-alignment-dataset",
         num_personas: int = 10,
         num_question_variants: int = 2,
         include_examples: bool = False,
