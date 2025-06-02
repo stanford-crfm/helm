@@ -193,14 +193,14 @@ If your contributed benchmark scenarios are **gated** or **private** and you wou
 
 #### 1. Redact prompt content using the provided script
 
-  Run the [redact_scenario_states.py](https://github.com/stanford-crfm/helm/blob/main/scripts/redact_scenario_states.py) script on your `benchmark_output` directory for a particular suite. This script will redact all prompts and responses present under the specified suite. Here’s a usage example:
+Run the [redact_scenario_states.py](https://github.com/stanford-crfm/helm/blob/main/scripts/redact_scenario_states.py) script on your `benchmark_output` directory for a particular suite. This script will redact all prompts and responses present under the specified suite. Here’s a usage example:
 
-  ```bash
-  python3 scripts/redact_scenario_states.py \
-    --output benchmark_output \
-    --suite my_suite \
-    --redact-output
-  ```
+```sh
+python3 scripts/redact_scenario_states.py \
+  --output benchmark_output \
+  --suite my_suite \
+  --redact-output
+```
 
 #### 2. Redact annotations (if applicable)
 
@@ -210,7 +210,7 @@ If your scenario includes annotations (e.g., LLM-as-a-judge outputs or any metad
 
 Use helm-summarize to update the leaderboard summaries with the redacted content:
 
-```bash
+```sh
 helm-summarize --suite my_suite --schema schema_medhelm.yaml
 ```
 
