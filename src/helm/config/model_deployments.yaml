@@ -692,25 +692,16 @@ model_deployments:
       args:
         disable_logprobs: True
 
-  - name: together/deepseek-r1
-    model_name: deepseek-ai/deepseek-r1
-    tokenizer_name: deepseek-ai/deepseek-r1
-    max_sequence_length: 32768
-    client_spec:
-      class_name: "helm.clients.together_client.TogetherChatClient"
-      args:
-        disable_logprobs: True
-
-  - name: together/deepseek-r1-hide-reasoning
-    model_name: deepseek-ai/deepseek-r1-hide-reasoning
+  - name: together/deepseek-r1-0528
+    model_name: deepseek-ai/deepseek-r1-0528
     tokenizer_name: deepseek-ai/deepseek-r1
     max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
       args:
         together_model: deepseek-ai/deepseek-r1
+        parse_thinking: true
         disable_logprobs: True
-        output_processor: helm.benchmark.metrics.output_processors.remove_deepseek_r1_thinking
 
   # Gooseai
 
