@@ -25,6 +25,7 @@ from helm.benchmark.model_metadata_registry import (
     VISION_LANGUAGE_MODEL_TAG,
     IDEFICS_MODEL_TAG,
     ModelMetadata,
+    can_process_video,
     get_model_metadata,
 )
 from helm.benchmark.run_expander import (
@@ -40,6 +41,7 @@ from helm.benchmark.run_expander import (
     ModelRunExpander,
     OpenFlamingoRunExpander,
     StopRunExpander,
+    SampleVideoFramesExpander,
 )
 from helm.benchmark.run_spec import RunSpec, get_run_spec_function
 from helm.common.general import singleton
@@ -175,6 +177,12 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         # MedLM-Large
         if run_spec.adapter_spec.model == "google/medlm-large":
             run_spec = singleton(StopRunExpander("none").expand(run_spec))
+
+        # For VLMs that require sampling video frames because they don't support videos natively
+        if not can_process_video(run_spec.adapter_spec.model):
+            # Sample 1 frame per second as most VLMs can only support a limited number of frames
+            sample_video_frames_expander = SampleVideoFramesExpander(fps=1)
+            run_spec = singleton(sample_video_frames_expander.expand(run_spec))
 
         return run_spec
 

@@ -31,6 +31,8 @@ from helm.benchmark.adaptation.adapter_spec import ADAPT_MULTIPLE_CHOICE_JOINT, 
 from helm.benchmark.augmentations.perturbation import PerturbationSpec
 from helm.benchmark.augmentations.data_augmenter import DataAugmenterSpec
 from helm.benchmark.scenarios.scenario import TEST_SPLIT, VALID_SPLIT
+from helm.common.video_understanding_parameters import VideoUnderstandingParameters
+
 
 
 class RunExpander(ABC):
@@ -673,6 +675,32 @@ class EvalSplitRunExpander(RunExpander):
                 name=f"{run_spec.name}{',' if ':' in run_spec.name else ':'}eval_split={self.split}",
                 adapter_spec=replace(run_spec.adapter_spec, eval_splits=[self.split]),
             )
+        ]
+
+
+class SampleVideoFramesExpander(RunExpander):
+    """
+    To sample video frames as images for video understanding tasks.
+    """
+
+    name = "sample_video_frames"
+
+    def __init__(self, fps: int = 1):
+        self.fps = fps
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        video_understanding_parameters = VideoUnderstandingParameters(
+            sample_frames=True,
+            frames_per_second=self.fps,
+        )
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(
+                    run_spec.adapter_spec, video_understanding_parameters=video_understanding_parameters
+                ),
+            ),
         ]
 
 
@@ -1612,6 +1640,7 @@ RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     IncreaseTemperatureRunExpander,
     IncreaseMaxTokensRunExpander,
     ProcessOutputRunExpander,
+    SampleVideoFramesExpander,
 ]
 
 

@@ -72,6 +72,9 @@ FULL_FUNCTIONALITY_VLM_TAG: str = "FULL_FUNCTIONALITY_VLM_TAG"
 # For Audio-langauge models (AudioLMs)
 AUDIO_LANGUAGE_MODEL_TAG: str = "AUDIO_LANGUAGE_MODEL_TAG"
 
+# For models that can process videos natively
+CAN_PROCESS_VIDEO_MODEL_TAG: str = "CAN_PROCESS_VIDEO_MODEL_TAG"
+
 # Deprecated models that are no longer available.
 # These are usually closed API models that have been permanently removed
 DEPRECATED_MODEL_TAG: str = "DEPRECATED_MODEL_TAG"
@@ -217,6 +220,11 @@ def is_text_to_image_model(model_name: str) -> bool:
 def is_vlm(model_name: str) -> bool:
     """Returns True if the model is a vision-language model (VLM). False otherwise."""
     return model_has_tag(model_name, VISION_LANGUAGE_MODEL_TAG)
+
+
+def can_process_video(model_name: str) -> bool:
+    """Returns True if the model can process videos natively. False otherwise."""
+    return model_has_tag(model_name, CAN_PROCESS_VIDEO_MODEL_TAG)
 
 
 def is_audiolm(model_name: str) -> bool:

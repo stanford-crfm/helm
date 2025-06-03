@@ -14,6 +14,8 @@ from tqdm import tqdm
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.general import ensure_directory_exists, write, asdict_without_nones
 from helm.common.hierarchical_logger import hlog, htrack_block, hwarn
+from helm.common.images_utils import sample_frames
+from helm.common.media_object import MultimediaObject, MediaObject
 from helm.common.cache import cache_stats
 from helm.benchmark.scenarios.scenario import (
     EVAL_SPLITS,
@@ -277,6 +279,36 @@ class Runner:
         instances = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(
             instances, self.executor.execution_spec.parallelism
         )
+
+        video_understanding_parameters = run_spec.adapter_spec.video_understanding_parameters
+        if video_understanding_parameters and video_understanding_parameters.sample_frames:
+            fps_to_sample = video_understanding_parameters.frames_per_second
+            new_instances = []
+            with htrack_block(f"Sampling frames from video at {fps_to_sample} fps"):
+                for old_inst in tqdm(instances):
+                    mm = old_inst.input.multimedia_content
+                    if mm is None:
+                        new_instances.append(old_inst)
+                        continue
+
+                    new_media_objects = []
+                    for mo in mm.media_objects:
+                        if mo.content_type and mo.content_type.startswith("video"):
+                            image_paths = sample_frames(mo.location, fps_to_sample)
+                            for img_path in image_paths:
+                                new_media_objects.append(
+                                    MediaObject(
+                                        content_type="image/jpeg",
+                                        location=img_path,
+                                    )
+                                )
+                        else:
+                            new_media_objects.append(mo)
+
+                    new_mm = MultimediaObject(media_objects=new_media_objects)
+                    new_input = dataclasses.replace(old_inst.input, multimedia_content=new_mm)
+                    new_instances.append(dataclasses.replace(old_inst, input=new_input))
+                instances = new_instances
 
         # Adapt (convert to requests)
         adapter: Adapter = AdapterFactory.get_adapter(run_spec.adapter_spec, self.tokenizer_service)

@@ -3,6 +3,7 @@ from typing import List, Optional
 
 from helm.common.image_generation_parameters import ImageGenerationParameters
 from helm.common.reeval_parameters import REEvalParameters
+from helm.common.video_understanding_parameters import VideoUnderstandingParameters
 
 
 # Adaptation methods
@@ -132,6 +133,9 @@ class AdapterSpec:
 
     image_generation_parameters: Optional[ImageGenerationParameters] = None
     """Parameters for image generation."""
+
+    video_understanding_parameters: Optional[VideoUnderstandingParameters] = None
+    """Parameters for video understanding."""
 
     reeval_parameters: Optional[REEvalParameters] = None
     """Parameters for reeval evaluation."""

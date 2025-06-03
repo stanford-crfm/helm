@@ -6,6 +6,7 @@ from helm.common.media_object import MultimediaObject
 from helm.common.image_generation_parameters import ImageGenerationParameters
 from helm.common.general import indent_lines, format_text
 from helm.common.response_format import ResponseFormat
+from helm.common.video_understanding_parameters import VideoUnderstandingParameters
 
 
 @dataclass(frozen=True)
@@ -75,6 +76,9 @@ class Request:
 
     response_format: Optional[ResponseFormat] = None
     """EXPERIMENTAL: Response format. Currently only supported by OpenAI and Together."""
+
+    video_understanding_parameters: Optional[VideoUnderstandingParameters] = None
+    """Parameters for video understanding."""
 
     def validate(self):
         if (
