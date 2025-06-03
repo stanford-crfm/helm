@@ -508,16 +508,8 @@ models:
     tags: [ANTHROPIC_CLAUDE_3_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: anthropic/claude-3-7-sonnet-20250219-thinking-10k
-    display_name: Claude 3.7 Sonnet (20250219, extended thinking, 10k budget tokens)
-    description: Claude 3.7 Sonnet is a Claude 3 family hybrid reasoning model that can produce near-instant responses or extended, step-by-step thinking that is made visible to the user ([blog](https://www.anthropic.com/news/claude-3-7-sonnet)). Extended thinking is enabled with 10k budget tokens.
-    creator_organization_name: Anthropic
-    access: limited
-    release_date: 2025-02-24
-    tags: [ANTHROPIC_CLAUDE_3_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-
-  - name: anthropic/claude-3-7-sonnet-20250219-thinking-20k
     display_name: Claude 3.7 Sonnet (20250219, extended thinking)
-    description: Claude 3.7 Sonnet is a Claude 3 family hybrid reasoning model that can produce near-instant responses or extended, step-by-step thinking that is made visible to the user ([blog](https://www.anthropic.com/news/claude-3-7-sonnet)). Extended thinking is enabled with 20k budget tokens.
+    description: Claude 3.7 Sonnet is a Claude 3 family hybrid reasoning model that can produce near-instant responses or extended, step-by-step thinking that is made visible to the user ([blog](https://www.anthropic.com/news/claude-3-7-sonnet)). Extended thinking is enabled with 10k budget tokens.
     creator_organization_name: Anthropic
     access: limited
     release_date: 2025-02-24
@@ -532,16 +524,8 @@ models:
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: anthropic/claude-sonnet-4-20250514-thinking-10k
-    display_name: Claude 4 Sonnet (20250514, extended thinking, 10k budget tokens)
-    description: Claude 4 Sonnet is a hybrid model offering two modes - near-instant responses and extended thinking for deeper reasoning ([blog](https://www.anthropic.com/news/claude-4)). Extended thinking is enabled with 10k budget tokens.
-    creator_organization_name: Anthropic
-    access: limited
-    release_date: 2025-05-14
-    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-
-  - name: anthropic/claude-sonnet-4-20250514-thinking-20k
     display_name: Claude 4 Sonnet (20250514, extended thinking)
-    description: Claude 4 Sonnet is a hybrid model offering two modes - near-instant responses and extended thinking for deeper reasoning ([blog](https://www.anthropic.com/news/claude-4)). Extended thinking is enabled with 20k budget tokens.
+    description: Claude 4 Sonnet is a hybrid model offering two modes - near-instant responses and extended thinking for deeper reasoning ([blog](https://www.anthropic.com/news/claude-4)). Extended thinking is enabled with 10k budget tokens.
     creator_organization_name: Anthropic
     access: limited
     release_date: 2025-05-14
