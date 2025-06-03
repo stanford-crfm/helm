@@ -540,16 +540,8 @@ models:
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: anthropic/claude-opus-4-20250514-thinking-10k
-    display_name: Claude 4 Opus (20250514, extended thinking, 10k budget tokens)
-    description: Claude 4 Opus is a hybrid model offering two modes - near-instant responses and extended thinking for deeper reasoning ([blog](https://www.anthropic.com/news/claude-4)). Extended thinking is enabled with 10k budget tokens.
-    creator_organization_name: Anthropic
-    access: limited
-    release_date: 2025-05-14
-    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-
-  - name: anthropic/claude-opus-4-20250514-thinking-20k
     display_name: Claude 4 Opus (20250514, extended thinking)
-    description: Claude 4 Opus is a hybrid model offering two modes - near-instant responses and extended thinking for deeper reasoning ([blog](https://www.anthropic.com/news/claude-4)). Extended thinking is enabled with 20k budget tokens.
+    description: Claude 4 Opus is a hybrid model offering two modes - near-instant responses and extended thinking for deeper reasoning ([blog](https://www.anthropic.com/news/claude-4)). Extended thinking is enabled with 10k budget tokens.
     creator_organization_name: Anthropic
     access: limited
     release_date: 2025-05-14
