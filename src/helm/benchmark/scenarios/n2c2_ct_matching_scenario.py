@@ -197,11 +197,12 @@ class N2C2CTMatchingScenario(Scenario):
         "no",
     ]
 
-    def __init__(self, subject: str):
+    def __init__(self, data_path: str, subject: str):
         super().__init__()
         self.subject: str = subject  # specific inclusion criterion to assess
-        self.path_to_train_dir: str = "/share/pi/nigam/data/medhelm/n2c2_ct_matching/train/"
-        self.path_to_test_dir: str = "/share/pi/nigam/data/medhelm/n2c2_ct_matching/test/"
+        self.data_path: str = data_path
+        self.path_to_train_dir: str = os.path.join(self.data_path, "train/")
+        self.path_to_test_dir: str = os.path.join(self.data_path, "test/")
 
     def create_prompt(self, patient: Dict[str, Any]) -> str:
         # Cast None values to empty strings during string formatting, but keep the original functions returning None

@@ -44,6 +44,12 @@ export default function MedHELMLanding() {
           <div className="flex flex-row justify-center mt-4">
             <a
               className="px-10 btn rounded-md mx-4"
+              href="https://arxiv.org/abs/2505.23802"
+            >
+              Paper
+            </a>
+            <a
+              className="px-10 btn rounded-md mx-4"
               href="https://hai.stanford.edu/news/holistic-evaluation-of-large-language-models-for-medical-applications"
             >
               Blog Post
