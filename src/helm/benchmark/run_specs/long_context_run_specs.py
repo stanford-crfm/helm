@@ -1,5 +1,6 @@
-from helm.benchmark.adaptation.adapter_spec import ADAPT_GENERATION, AdapterSpec
+from helm.benchmark.adaptation.adapter_spec import ADAPT_CHAT, ADAPT_GENERATION, AdapterSpec
 from helm.benchmark.metrics.common_metric_specs import get_basic_metric_specs, get_open_ended_generation_metric_specs
+from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
@@ -105,4 +106,27 @@ def get_infinite_bench_en_qa_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
         groups=["infinite_bench_en_qa"],
+    )
+
+
+@run_spec_function("openai_mrcr")
+def get_openai_mrcr_spec(needles: int, max_num_tokens: int) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.openai_mrcr_scenario.OpenAIMRCRScenario",
+        args={"needles": 8, "max_num_tokens": max_num_tokens},
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_CHAT, input_prefix="", output_prefix="", max_tokens=2000, num_outputs=1, temperature=0.0
+    )
+    metric_specs = get_basic_metric_specs([]) + [
+        MetricSpec(class_name="helm.benchmark.metrics.openai_mrcr_metrics.OpenAIMRCRMetric")
+    ]
+
+    return RunSpec(
+        name=f"openai_mrcr:needles={needles},max_num_tokens={max_num_tokens}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["openai_mrcr"],
     )
