@@ -251,92 +251,79 @@ class Runner:
 
         scenario_state = self.executor.execute(scenario_state)
         scenario_state = self.annotator_executor.execute(scenario_state)
+        
+        metrics: List[MetricInterface] = (
+            [DryRunMetric()]
+            if self.dry_run
+            else [create_metric(metric_spec) for metric_spec in run_spec.metric_specs]
+        )
+        stats: List[Stat] = []
+        per_instance_stats: List[PerInstanceStats] = []
+        with htrack_block(f"{len(metrics)} metrics"):
+            for metric in metrics:
+                with htrack_block(metric):
+                    metric_result: MetricResult = metric.evaluate(
+                        scenario_state,
+                        self.metric_service,
+                        self.eval_cache_path,
+                        self.executor.execution_spec.parallelism,
+                    )
+                    stats.extend(metric_result.aggregated_stats)
+                    per_instance_stats.extend(metric_result.per_instance_stats)
 
-        # LLM Judge Logic
+        metric_counts: typing.Counter[MetricName] = Counter([stat.name for stat in stats])
+        for metric_name, count in metric_counts.items():
+            if count > 1:
+                hwarn(f"duplicate metric name {metric_name}")
+
+        hlog(f"Generated {len(stats)} stats.")
+
+        if self.skip_instances:
+            hlog("skip_instances was True. Skipping writing results out.")
+            return
+
+        # Write scenario state
+        write(os.path.join(run_path, "run_spec.json"), json.dumps(asdict_without_nones(run_spec), indent=2))
+        write(os.path.join(run_path, "scenario.json"), json.dumps(asdict_without_nones(scenario), indent=2))
+        write(
+            os.path.join(run_path, "scenario_state.json"),
+            json.dumps(asdict_without_nones(scenario_state), indent=2),
+        )
+        write(
+            os.path.join(run_path, "stats.json"),
+            json.dumps([asdict_without_nones(stat) for stat in remove_stats_nans(stats)], indent=2),
+        )
+        write(
+            os.path.join(run_path, "per_instance_stats.json"),
+            json.dumps(
+                list(map(asdict_without_nones, remove_per_instance_stats_nans(per_instance_stats))), indent=2
+            ),
+        )
+
+        cache_stats.print_status()
+        print("=" * 80)
+        print("CHEGAMOS NA VERIFICAÇÃO DO LLM JUDGE")
+        print("=" * 80)
         if self.llm_judge:
-            predictions = self._extract_predictions(scenario_state)
-            if self.skip_instances:
-                hlog("skip_instances was True. Skipping writing results out.")
-                return
-
-            write(os.path.join(run_path, "run_spec.json"), json.dumps(asdict_without_nones(run_spec), indent=2))
-            write(os.path.join(run_path, "scenario.json"), json.dumps(asdict_without_nones(scenario), indent=2))
-            write(
-                os.path.join(run_path, "scenario_state.json"),
-                json.dumps(asdict_without_nones(scenario_state), indent=2),
-            )
-            predictions_file = os.path.join(run_path, "predictions.json")
-            write(predictions_file, json.dumps(predictions, indent=2))
-            cache_stats.print_status()
-
+            hlog("Running LLM Judge...")
             if self.judge_model is None:
                 raise ValueError("judge_model must be specified when llm_judge is True.")
             if self.prompt_file is None:
                 raise ValueError("prompt_file must be specified when llm_judge is True.")
 
-            # Initialize the LLM judge
+            predictions = self._extract_predictions(scenario_state)
+            predictions_file = os.path.join(run_path, "predictions.json")
+            write(predictions_file, json.dumps(predictions, indent=2))
+
             llm_judge = LLMJudger(self.executor.context, judge_model=self.judge_model, prompt_file=self.prompt_file)
             judgements_file = os.path.join(run_path, "llm_judgements.json")
             llm_judge.judge_and_save(predictions_file, judgements_file)
 
-            # Apply the agreement level metric
             agreement = self.apply_agreement_level_metric(judgements_file)
-
             if agreement is not None:
                 self._save_llm_judge_summary(run_spec, run_path, self.judge_model, agreement)
             else:
                 hlog("Skipping LLM Judge summary saving because agreement level is None.")
-
-        else:
-            metrics: List[MetricInterface] = (
-                [DryRunMetric()]
-                if self.dry_run
-                else [create_metric(metric_spec) for metric_spec in run_spec.metric_specs]
-            )
-            stats: List[Stat] = []
-            per_instance_stats: List[PerInstanceStats] = []
-            with htrack_block(f"{len(metrics)} metrics"):
-                for metric in metrics:
-                    with htrack_block(metric):
-                        metric_result: MetricResult = metric.evaluate(
-                            scenario_state,
-                            self.metric_service,
-                            self.eval_cache_path,
-                            self.executor.execution_spec.parallelism,
-                        )
-                        stats.extend(metric_result.aggregated_stats)
-                        per_instance_stats.extend(metric_result.per_instance_stats)
-
-            metric_counts: typing.Counter[MetricName] = Counter([stat.name for stat in stats])
-            for metric_name, count in metric_counts.items():
-                if count > 1:
-                    hwarn(f"duplicate metric name {metric_name}")
-
-            hlog(f"Generated {len(stats)} stats.")
-
-            if self.skip_instances:
-                hlog("skip_instances was True. Skipping writing results out.")
-                return
-
-            # Write scenario state
-            write(os.path.join(run_path, "run_spec.json"), json.dumps(asdict_without_nones(run_spec), indent=2))
-            write(os.path.join(run_path, "scenario.json"), json.dumps(asdict_without_nones(scenario), indent=2))
-            write(
-                os.path.join(run_path, "scenario_state.json"),
-                json.dumps(asdict_without_nones(scenario_state), indent=2),
-            )
-            write(
-                os.path.join(run_path, "stats.json"),
-                json.dumps([asdict_without_nones(stat) for stat in remove_stats_nans(stats)], indent=2),
-            )
-            write(
-                os.path.join(run_path, "per_instance_stats.json"),
-                json.dumps(
-                    list(map(asdict_without_nones, remove_per_instance_stats_nans(per_instance_stats))), indent=2
-                ),
-            )
-
-            cache_stats.print_status()
 
     def _extract_predictions(self, scenario_state: ScenarioState) -> List[Dict[str, Any]]:
         """
@@ -351,7 +338,6 @@ class Runner:
                 continue
             completion = result.completions[0]
             completion_text = completion.text if hasattr(completion, "text") else None
-            # prediction = {"instance_id": instance.id, "input": {}, "prediction": completion_text}
             prediction: Dict[str, Any] = {"instance_id": instance.id, "input": {}, "prediction": completion_text}
 
             if hasattr(instance, "input") and hasattr(instance.input, "text"):
