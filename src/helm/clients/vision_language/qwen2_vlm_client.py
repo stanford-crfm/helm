@@ -93,6 +93,8 @@ class Qwen2VLMClient(CachingClient):
         for media_object in request.multimodal_prompt.media_objects:
             if media_object.is_type("image") and media_object.location:
                 message_content.append({"type": "image", "image": media_object.location})
+            elif media_object.is_type("video") and media_object.location:
+                message_content.append({"type": "video", "video": media_object.location})
             elif media_object.is_type(TEXT_TYPE):
                 if media_object.text is None:
                     raise ValueError("MediaObject of text type has missing text field value")
@@ -122,19 +124,23 @@ class Qwen2VLMClient(CachingClient):
 
                         # Prepare text and vision inputs.
                         text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-                        image_inputs, video_inputs = process_vision_info(messages)
+                        # Return video kwargs for fps, max_pixels, etc.
+                        image_inputs, video_inputs, video_kwargs = process_vision_info(
+                            messages, return_video_kwargs=True
+                        )
                         inputs = processor(
                             text=[text],
                             images=image_inputs,
                             videos=video_inputs,
                             padding=True,
                             return_tensors="pt",
+                            **video_kwargs,
                         ).to(self._device)
 
                         generated_ids = model.generate(**inputs, **generation_args)
                         # Remove the input prefix from outputs.
                         generated_ids_trimmed = [
-                            out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
+                            out_ids[len(in_ids):] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
                         ]
                         output_text = processor.batch_decode(
                             generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False

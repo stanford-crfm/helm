@@ -27,10 +27,11 @@ class LoadedQwen2_5OmniModelProcessor:
 _models_lock: Lock = Lock()
 _models: Dict[str, Optional[LoadedQwen2_5OmniModelProcessor]] = {
     "Qwen/Qwen2.5-Omni-7B": None,
+    "Qwen/Qwen2.5-Omni-3B": None,
 }
 
 
-class Qwen2_5OmniAudioLMClient(CachingClient):
+class Qwen2_5OmniClient(CachingClient):
     """
     From https://huggingface.co/Qwen/Qwen2.5-Omni-7B,
     Qwen2.5-Omni is an end-to-end multimodal model designed to perceive diverse modalities, including text,
@@ -52,6 +53,8 @@ class Qwen2_5OmniAudioLMClient(CachingClient):
         model_name: str
         if helm_model_name == "qwen2.5-omni-7b":
             model_name = "Qwen/Qwen2.5-Omni-7B"
+        elif helm_model_name == "qwen2.5-omni-3b":
+            model_name = "Qwen/Qwen2.5-Omni-3B"
         else:
             raise ValueError(f"Unhandled model name: {helm_model_name}")
 
@@ -101,13 +104,13 @@ class Qwen2_5OmniAudioLMClient(CachingClient):
             if media_object.is_type("audio") and media_object.location:
                 assert media_object.is_local_file, "Only local audio files are supported"
                 query.append({"type": "audio", "audio": media_object.location})
-
-                # prompt_text += f"<|im_start|>user\nAudio {media_num+1}: <|audio_bos|><|AUDIO|><|audio_eos|>\n"
+            elif media_object.is_type("video") and media_object.location:
+                assert media_object.is_local_file, "Only local video files are supported"
+                query.append({"type": "video", "video": media_object.location})
             elif media_object.is_type(TEXT_TYPE):
                 if media_object.text is None:
                     raise ValueError("MediaObject of text type has missing text field value")
                 query.append({"type": "text", "text": media_object.text})
-                # prompt_text += media_object.text
             else:
                 raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
         # prompt_text += "<|im_end|>\n<|im_start|>assistant\n"

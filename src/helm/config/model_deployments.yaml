@@ -3601,12 +3601,19 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.audio_language.qwen2_audiolm_client.Qwen2AudioLMClient"
 
+  - name: huggingface/qwen2.5-omni-3b
+    model_name: qwen/qwen2.5-omni-3b
+    tokenizer_name: qwen/qwen2.5-omni-3b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.audio_language.qwen2_5_omni_client.Qwen2_5OmniClient"
+
   - name: huggingface/qwen2.5-omni-7b
     model_name: qwen/qwen2.5-omni-7b
     tokenizer_name: qwen/qwen2.5-omni-7b
     max_sequence_length: 8191
     client_spec:
-      class_name: "helm.clients.audio_language.qwen2_5_omni_client.Qwen2_5OmniAudioLMClient"
+      class_name: "helm.clients.audio_language.qwen2_5_omni_client.Qwen2_5OmniClient"
 
 # Reka
   - name: reka/reka-core
