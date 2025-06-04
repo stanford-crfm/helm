@@ -83,19 +83,31 @@ class LLMJudger:
 
         return 0, "No response from LLM judge."
 
-    def judge_and_save(self, predictions_path: str, output_path: str):
+    def judge(self, predictions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
-        Reads predictions.json, applies judgment and saves llm_judgements.json.
+        Apply LLM judgment and return all complete judgments (without saving to file).
         """
-        with open(predictions_path, "r", encoding="utf-8") as f:
-            predictions = json.load(f)
+        judgements = []
 
-        judgements = self.judge_predictions(predictions)
+        for prediction in predictions:
+            input_text = prediction.get("input", "")
+            model_response = prediction.get("prediction", "")
 
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(judgements, f, indent=2)
+            prompt_template = self._load_prompt_template(self.prompt_file)
+            prompt = prompt_template.replace("{input}", input_text).replace("{response}", model_response)
 
-        print(f"Julgmentos salvos em: {output_path}")
+            judged_value, explanation = self.call_llm(prompt)
+
+            judgements.append({
+                "instance_id": prediction.get("instance_id"),
+                "input": input_text,
+                "prediction": model_response,
+                "judgement": judged_value,
+                "explanation": explanation,
+            })
+
+        return judgements
+
 
     def _resolve_model_deployment(self) -> str:
         """

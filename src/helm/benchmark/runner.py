@@ -304,6 +304,7 @@ class Runner:
         print("=" * 80)
         print("CHEGAMOS NA VERIFICAÇÃO DO LLM JUDGE")
         print("=" * 80)
+        
         if self.llm_judge:
             hlog("Running LLM Judge...")
             if self.judge_model is None:
@@ -312,18 +313,9 @@ class Runner:
                 raise ValueError("prompt_file must be specified when llm_judge is True.")
 
             predictions = self._extract_predictions(scenario_state)
-            predictions_file = os.path.join(run_path, "predictions.json")
-            write(predictions_file, json.dumps(predictions, indent=2))
-
             llm_judge = LLMJudger(self.executor.context, judge_model=self.judge_model, prompt_file=self.prompt_file)
-            judgements_file = os.path.join(run_path, "llm_judgements.json")
-            llm_judge.judge_and_save(predictions_file, judgements_file)
-
-            agreement = self.apply_agreement_level_metric(judgements_file)
-            if agreement is not None:
-                self._save_llm_judge_summary(run_spec, run_path, self.judge_model, agreement)
-            else:
-                hlog("Skipping LLM Judge summary saving because agreement level is None.")
+            judgements = llm_judge.judge(predictions)
+            self._save_llm_judge_summary(run_spec, run_path, self.judge_model, judgements)
 
     def _extract_predictions(self, scenario_state: ScenarioState) -> List[Dict[str, Any]]:
         """
@@ -345,61 +337,36 @@ class Runner:
             predictions.append(prediction)
         return predictions
 
-    def apply_agreement_level_metric(self, judgements_file_path: str) -> Optional[float]:
+    def _save_llm_judge_summary(self, run_spec: RunSpec, run_path: str, judge_model: str, judgements: List[Dict[str, Any]]):
         """
-        Applies the LLM Judge agreement level metric to the judgments file.
-        Returns the agreement level as a float, or None if the file is not found or empty.
+        Salva um único arquivo JSON com todas as informações do LLM-as-Judge.
+        Inclui: modelo, benchmark, tasks, e estatísticas de agreement.
         """
-        try:
-            with open(judgements_file_path, "r", encoding="utf-8") as f:
-                judgements: List[Dict[str, Any]] = json.load(f)
-        except Exception as e:
-            hlog(f"ERROR: Could not read judgments file: {e}")
-            return None
-
-        if not judgements:
-            hlog("WARNING: No judgments to evaluate agreement level.")
-            return None
-
+        # Cálculo direto das métricas de agreement
         valid_judgements = [j for j in judgements if j.get("explanation") != "Malformed or incomplete response."]
         total_valid = len(valid_judgements)
+        total_judged = len(judgements)
         agreements = sum(1 for j in judgements if j.get("judgement") == 1)
+        invalid_instances = total_judged - total_valid
         agreement_level = agreements / total_valid if total_valid > 0 else 0.0
 
-        hlog(f"LLM-Judge Agreement Level: {agreement_level:.2%} ({agreements}/{total_valid})")
-        output_path = os.path.join(os.path.dirname(judgements_file_path), "llm_judge_agreement_level.json")
-        write(
-            output_path,
-            json.dumps(
-                {
-                    "agreement_level": agreement_level,
-                    "agreements": agreements,
-                    "total_valid_instances": total_valid,
-                    "total_judged_instances": len(judgements),
-                    "invalid_instances": len(judgements) - total_valid,
-                },
-                indent=2,
-            ),
-        )
-        hlog(f"Saved agreement level to {output_path}")
-        return agreement_level
-
-    def _save_llm_judge_summary(self, run_spec: RunSpec, run_path: str, judge_model: str, agreement_level: float):
-        """
-        Saves a summary of the LLM Judge results to a JSON file.
-        The summary includes the benchmark name, main model, judge model, agreement level, and task judgements.
-        """
-
-        judgements_file = os.path.join(run_path, "llm_judgements.json")
-        with open(judgements_file, "r", encoding="utf-8") as f:
-            judgements = json.load(f)
+        # Construção do JSON completo
         summary = {
             "benchmark": run_spec.name,
             "main_model": run_spec.adapter_spec.model,
             "judge_model": judge_model,
             "agreement_level": round(agreement_level, 4),
+            "agreements": agreements,
+            "total_valid_instances": total_valid,
+            "total_judged_instances": total_judged,
+            "invalid_instances": invalid_instances,
             "tasks": judgements,
         }
+
         output_file = os.path.join(run_path, "llm_judge_summary.json")
         write(output_file, json.dumps(summary, indent=2, ensure_ascii=False))
         hlog(f"Saved LLM Judge summary to {output_file}")
+
+        print(f"\n✅ LLM-Judge Agreement Level: {round(agreement_level * 100, 2)}% "
+          f"({agreements}/{total_valid})\n")
+
