@@ -99,11 +99,15 @@ class Qwen2_5OmniClient(CachingClient):
                 ),
             }
         )
-        # prompt_text += "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n"
+
+        use_audio: bool = False
         for media_num, media_object in enumerate(request.multimodal_prompt.media_objects):
             if media_object.is_type("audio") and media_object.location:
                 assert media_object.is_local_file, "Only local audio files are supported"
                 query.append({"type": "audio", "audio": media_object.location})
+
+                # Set to true to process audio
+                use_audio = True
             elif media_object.is_type("video") and media_object.location:
                 assert media_object.is_local_file, "Only local video files are supported"
                 query.append({"type": "video", "video": media_object.location})
@@ -129,9 +133,8 @@ class Qwen2_5OmniClient(CachingClient):
                     def do_it() -> Dict[str, Any]:
                         # Refer to the official Qwen2.5-Omni documentation for the format of the input query
                         # https://huggingface.co/Qwen/Qwen2.5-Omni-7B
-                        USE_AUDIO_IN_VIDEO = True
                         text = tokenizer.apply_chat_template(input_query, add_generation_prompt=True, tokenize=False)
-                        audios, images, videos = process_mm_info(input_query, use_audio_in_video=USE_AUDIO_IN_VIDEO)
+                        audios, images, videos = process_mm_info(input_query, use_audio_in_video=use_audio)
                         inputs = tokenizer(
                             text=text,
                             audios=audios,
@@ -139,7 +142,7 @@ class Qwen2_5OmniClient(CachingClient):
                             videos=videos,
                             return_tensors="pt",
                             padding=True,
-                            use_audio_in_video=USE_AUDIO_IN_VIDEO,
+                            use_audio_in_video=use_audio,
                         )
                         inputs = inputs.to(self._device, torch.bfloat16)
                         input_seq_length = len(inputs.input_ids[0])
