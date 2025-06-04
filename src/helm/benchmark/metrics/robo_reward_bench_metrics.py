@@ -12,9 +12,15 @@ class RoboRewardBenchMetric(Metric):
     @staticmethod
     def extract_answer(raw_completion: str) -> Optional[str]:
         # Expected format: "ANSWER: a" or "ANSWER: b" or "ANSWER: tie"
-        if "ANSWER:" in raw_completion:
-            return raw_completion.split("ANSWER:")[1].strip()
-        return None
+        extracted_answer: str = raw_completion
+        if "ANSWER:" in extracted_answer:
+            extracted_answer = extracted_answer.split("ANSWER:")[1]
+
+        extracted_answer = extracted_answer.strip()
+        if extracted_answer.lower() in ["a", "b", "tie"]:
+            return extracted_answer
+        else:
+            return None
 
     def __repr__(self):
         return "RoboRewardBenchMetric"
