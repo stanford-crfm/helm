@@ -5,6 +5,12 @@ from typing import List, Dict, Any
 
 from helm.common.request import Request
 from helm.benchmark.model_deployment_registry import get_default_model_deployment_for_model
+from helm.benchmark.adaptation.scenario_state import ScenarioState
+from helm.common.hierarchical_logger import hlog
+from helm.common.general import write
+from helm.benchmark.run_spec import RunSpec
+
+
 
 
 class LLMJudger:
@@ -135,3 +141,47 @@ class LLMJudger:
 
         with open(prompt_path, "r", encoding="utf-8") as f:
             return f.read()
+        
+def extract_predictions(scenario_state: ScenarioState) -> List[Dict[str, Any]]:
+    predictions = []
+    for request_state in scenario_state.request_states:
+        instance = request_state.instance
+        result = request_state.result
+        if result is None or not result.completions:
+            continue
+        completion = result.completions[0]
+        prediction = {
+            "instance_id": instance.id,
+            "input": getattr(instance.input, "text", ""),
+            "prediction": getattr(completion, "text", None),
+        }
+        predictions.append(prediction)
+    return predictions
+    
+def save_judge_summary(run_spec: RunSpec, run_path: str, judge_model: str, judgements: List[Dict[str, Any]]):
+    valid_judgements = [j for j in judgements if j.get("explanation") != "Malformed or incomplete response."]
+    total_valid = len(valid_judgements)
+    total_judged = len(judgements)
+    agreements = sum(1 for j in judgements if j.get("judgement") == 1)
+    invalid_instances = total_judged - total_valid
+    agreement_level = agreements / total_valid if total_valid > 0 else 0.0
+
+    summary = {
+        "benchmark": run_spec.name,
+        "main_model": run_spec.adapter_spec.model,
+        "judge_model": judge_model,
+        "agreement_level": round(agreement_level, 4),
+        "agreements": agreements,
+        "total_valid_instances": total_valid,
+        "total_judged_instances": total_judged,
+        "invalid_instances": invalid_instances,
+        "tasks": judgements,
+    }
+
+    output_file = os.path.join(run_path, "llm_judge_summary.json")
+    write(output_file, json.dumps(summary, indent=2, ensure_ascii=False))
+    hlog(f"Saved LLM Judge summary to {output_file}")
+    print(f"\n✅ LLM-Judge Agreement Level: {round(agreement_level * 100, 2)}% "
+        f"({agreements}/{total_valid})\n")
+
+

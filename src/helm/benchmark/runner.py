@@ -36,7 +36,7 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.metric import MetricInterface, MetricResult, PerInstanceStats, create_metric, Stat
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
-from helm.benchmark.judge_llm import LLMJudger
+from helm.benchmark.judge_llm import LLMJudger, extract_predictions, save_judge_summary
 from typing import Optional
 
 LATEST_SYMLINK: str = "latest"
@@ -301,72 +301,17 @@ class Runner:
         )
 
         cache_stats.print_status()
-        print("=" * 80)
-        print("CHEGAMOS NA VERIFICAÇÃO DO LLM JUDGE")
-        print("=" * 80)
-        
+
         if self.llm_judge:
             hlog("Running LLM Judge...")
             if self.judge_model is None:
                 raise ValueError("judge_model must be specified when llm_judge is True.")
             if self.prompt_file is None:
                 raise ValueError("prompt_file must be specified when llm_judge is True.")
-
-            predictions = self._extract_predictions(scenario_state)
+            
             llm_judge = LLMJudger(self.executor.context, judge_model=self.judge_model, prompt_file=self.prompt_file)
+            predictions = extract_predictions(scenario_state)
             judgements = llm_judge.judge(predictions)
-            self._save_llm_judge_summary(run_spec, run_path, self.judge_model, judgements)
+            save_judge_summary(run_spec, run_path, self.judge_model, judgements)
 
-    def _extract_predictions(self, scenario_state: ScenarioState) -> List[Dict[str, Any]]:
-        """
-        Extracts predictions from the scenario state.
-        Returns a list of dictionaries with instance_id, input, and prediction text.
-        """
-        predictions = []
-        for request_state in scenario_state.request_states:
-            instance = request_state.instance
-            result = request_state.result
-            if result is None or not result.completions or len(result.completions) == 0:
-                continue
-            completion = result.completions[0]
-            completion_text = completion.text if hasattr(completion, "text") else None
-            prediction: Dict[str, Any] = {"instance_id": instance.id, "input": {}, "prediction": completion_text}
-
-            if hasattr(instance, "input") and hasattr(instance.input, "text"):
-                prediction["input"] = instance.input.text
-            predictions.append(prediction)
-        return predictions
-
-    def _save_llm_judge_summary(self, run_spec: RunSpec, run_path: str, judge_model: str, judgements: List[Dict[str, Any]]):
-        """
-        Salva um único arquivo JSON com todas as informações do LLM-as-Judge.
-        Inclui: modelo, benchmark, tasks, e estatísticas de agreement.
-        """
-        # Cálculo direto das métricas de agreement
-        valid_judgements = [j for j in judgements if j.get("explanation") != "Malformed or incomplete response."]
-        total_valid = len(valid_judgements)
-        total_judged = len(judgements)
-        agreements = sum(1 for j in judgements if j.get("judgement") == 1)
-        invalid_instances = total_judged - total_valid
-        agreement_level = agreements / total_valid if total_valid > 0 else 0.0
-
-        # Construção do JSON completo
-        summary = {
-            "benchmark": run_spec.name,
-            "main_model": run_spec.adapter_spec.model,
-            "judge_model": judge_model,
-            "agreement_level": round(agreement_level, 4),
-            "agreements": agreements,
-            "total_valid_instances": total_valid,
-            "total_judged_instances": total_judged,
-            "invalid_instances": invalid_instances,
-            "tasks": judgements,
-        }
-
-        output_file = os.path.join(run_path, "llm_judge_summary.json")
-        write(output_file, json.dumps(summary, indent=2, ensure_ascii=False))
-        hlog(f"Saved LLM Judge summary to {output_file}")
-
-        print(f"\n✅ LLM-Judge Agreement Level: {round(agreement_level * 100, 2)}% "
-          f"({agreements}/{total_valid})\n")
-
+    
