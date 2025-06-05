@@ -50,12 +50,18 @@ export default function MedHELMLanding() {
             </a>
             <a
               className="px-10 btn rounded-md mx-4"
+              href="https://crfm-helm.readthedocs.io/en/latest/medhelm/"
+            >
+              Documentation
+            </a>
+            <a
+              className="px-10 btn rounded-md mx-4"
               href="https://hai.stanford.edu/news/holistic-evaluation-of-large-language-models-for-medical-applications"
             >
               Blog Post
             </a>
             <a className="px-10 btn rounded-md mx-4" href="#/leaderboard">
-              Full Leaderboard
+              Leaderboard
             </a>
           </div>
         </div>
