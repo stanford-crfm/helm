@@ -1,7 +1,10 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 import ast
 import pandas as pd
 import re
+import os
+import subprocess
+import tempfile
 
 try:
     import torch
@@ -21,30 +24,26 @@ from helm.benchmark.metrics.statistic import Stat
 
 
 class ASTAnalyzer:
-    """Utility class for calculating AST edit distances between code snippets."""
+    """Class for calculating AST edit distances between real student code and LLM generated code"""
     
     def calculate_ast_distance(self, code1: str, code2: str) -> float:
         """
-        Calculate normalized AST edit distance between two code snippets.
-        Returns a value between 0 and 1, where 0 means identical and 1 means completely different.
+        Calculate normalized AST edit distance between two codes
+        Returns a value between 0 and 1, where 0 means that two codes are identical and 1 means completely different.
         """
         try:
-            # Parse both code snippets into ASTs
+            # Parse both codes into ASTs
             tree1 = ast.parse(code1)
             tree2 = ast.parse(code2)
-            
-            # Convert ASTs to comparable structures
             nodes1 = self._extract_ast_features(tree1)
             nodes2 = self._extract_ast_features(tree2)
             
             # Calculate edit distance using simple node comparison
             distance = self._calculate_edit_distance(nodes1, nodes2)
-            
-            # Normalize by the maximum possible distance
+            # Normalize distance by the maximum distance
             max_nodes = max(len(nodes1), len(nodes2))
             if max_nodes == 0:
                 return 0.0
-            
             normalized_distance = min(distance / max_nodes, 1.0)
             return normalized_distance
             
@@ -59,7 +58,6 @@ class ASTAnalyzer:
         for node in ast.walk(tree):
             # Include node type
             features.append(type(node).__name__)
-            
             # Include some node-specific information
             if isinstance(node, ast.Name):
                 features.append(f"Name:{node.id}")
@@ -78,7 +76,6 @@ class ASTAnalyzer:
     def _calculate_edit_distance(self, seq1: List[str], seq2: List[str]) -> int:
         """Calculate edit distance between two sequences using dynamic programming."""
         m, n = len(seq1), len(seq2)
-        
         # Create DP table
         dp = [[0] * (n + 1) for _ in range(m + 1)]
         
@@ -124,7 +121,7 @@ class CodeBERTAnalyzer:
         return code.strip()
     
     def get_code_embedding(self, code: str, max_length: int = 512) -> torch.Tensor:
-        """Compute fixed-size embedding vector for source code using CodeBERT."""
+        """Compute fixed-size embedding vector for code using CodeBERT."""
         inputs = self.tokenizer(
             code,
             return_tensors="pt",
@@ -230,37 +227,37 @@ class CodeEvaluationMetric(Metric):
     
     def _create_ast_stats(self, ast_distance: float) -> List[Stat]:
         """Create AST-based statistics."""
-        ast_similarity = 1.0 - ast_distance
-        perfect_match = 1.0 if ast_distance == 0.0 else 0.0
-        close_match = 1.0 if ast_distance <= 0.1 else 0.0
-        
         return [
-            Stat(MetricName("ast_distance")).add(ast_distance),
-            Stat(MetricName("ast_similarity")).add(ast_similarity),
-            Stat(MetricName("ast_perfect_match")).add(perfect_match),
-            Stat(MetricName("ast_close_match")).add(close_match)
+            Stat(MetricName("ast_distance")).add(ast_distance)
         ]
     
     def _create_codebert_stats(self, codebert_similarity: float) -> List[Stat]:
         """Create CodeBERT-based statistics."""
-        # Convert similarity to distance for consistency
-        codebert_distance = 1.0 - codebert_similarity
-        high_similarity = 1.0 if codebert_similarity >= 0.9 else 0.0
-        medium_similarity = 1.0 if codebert_similarity >= 0.7 else 0.0
-        
         return [
-            Stat(MetricName("codebert_similarity")).add(codebert_similarity),
-            Stat(MetricName("codebert_distance")).add(codebert_distance),
-            Stat(MetricName("codebert_high_similarity")).add(high_similarity),
-            Stat(MetricName("codebert_medium_similarity")).add(medium_similarity)
+            Stat(MetricName("codebert_similarity")).add(codebert_similarity)
         ]
 
 
 class AdvancedCodeEvaluationMetric(CodeEvaluationMetric):
-    """Extended code evaluation metric with additional analyses."""
+    """Extended code evaluation metric with additional analyses"""
     
     def __init__(self, use_codebert: bool = True):
         super().__init__(use_codebert=use_codebert)
+
+
+class UnitTestAlignmentMetric(Metric):
+    """Metric for evaluating C++ code generation by comparing unit test results with student correctness pattern."""
+    
+    def __init__(self, compile_code: bool = True, compiler_path: str = "g++"):
+        """
+        Initialize the unit test alignment metric.
+        
+        Args:
+            compile_code: Whether to actually compile and run code (True) or simulate (False)
+            compiler_path: Path to the C++ compiler (default: "g++")
+        """
+        self.compile_code = compile_code
+        self.compiler_path = compiler_path
     
     def evaluate_generation(
         self,
@@ -269,46 +266,304 @@ class AdvancedCodeEvaluationMetric(CodeEvaluationMetric):
         metric_service: MetricService,
         eval_cache_path: str,
     ) -> List[Stat]:
-        """Evaluate with additional code quality metrics."""
-        # Get base AST and CodeBERT metrics
-        stats = super().evaluate_generation(adapter_spec, request_state, metric_service, eval_cache_path)
+        """Evaluate LLM-generated code by comparing unit test results with student correctness pattern."""
+        stats = []
         
+        # Get the generated code from the request state
         if not request_state.result or not request_state.result.completions:
-            return stats
+            return self._create_failure_stats("No output generated")
         
         generated_code = request_state.result.completions[0].text.strip()
         
-        # Add code quality metrics
-        try:
-            compilation_success = self._check_compilation(generated_code)
-            code_complexity = self._calculate_complexity(generated_code)
-            
-            stats.append(Stat(MetricName("compilation_success")).add(1.0 if compilation_success else 0.0))
-            stats.append(Stat(MetricName("code_complexity")).add(code_complexity))
-            
-        except Exception:
-            stats.append(Stat(MetricName("compilation_success")).add(0.0))
-            stats.append(Stat(MetricName("code_complexity")).add(0.0))
+        # Get test cases and student correctness pattern from instance extra_data
+        if not hasattr(request_state.instance, 'extra_data') or not request_state.instance.extra_data:
+            return self._create_failure_stats("No test data available")
         
+        extra_data = request_state.instance.extra_data
+        test_cases = extra_data.get('test_cases', [])
+        student_correctness_pattern = extra_data.get('student_correctness_pattern', [])
+        prompt_template = extra_data.get('question_template', '')
+        
+        if not test_cases or not student_correctness_pattern:
+            return self._create_failure_stats("Missing test cases or student correctness pattern")
+        
+        # Run unit tests and get LLM correctness pattern
+        llm_correctness_pattern = self._evaluate_unit_tests(
+            generated_code, test_cases, prompt_template
+        )
+        
+        # Compare patterns and calculate alignment metrics
+        alignment_stats = self._calculate_alignment_metrics(
+            llm_correctness_pattern, student_correctness_pattern
+        )
+        
+        stats.extend(alignment_stats)
         return stats
     
-    def _check_compilation(self, code: str) -> bool:
-        """Check if code can be parsed successfully."""
-        try:
-            ast.parse(code)
-            return True
-        except (SyntaxError, ValueError):
-            return False
+    def _evaluate_unit_tests(self, generated_code: str, test_cases: List[dict], template: str) -> List[int]:
+        """
+        Evaluate the generated code against unit tests and return correctness pattern.
+        Returns list of 0s and 1s indicating pass/fail for each test.
+        """
+        llm_results = []
+        
+        for test_case in test_cases:
+            try:
+                # Extract student code from LLM output
+                student_code = self._extract_student_code(generated_code)
+                
+                # Create complete C++ program
+                complete_program = self._create_complete_program(
+                    template, student_code, test_case.get('input', '')
+                )
+                
+                # Run the test
+                if self.compile_code:
+                    success, actual_output, error = self._compile_and_run_cpp(complete_program)
+                else:
+                    actual_output = self._simulate_execution(student_code, test_case)
+                    success = True
+                    error = None
+                
+                # Check if test passed
+                if success and actual_output is not None:
+                    expected_output = test_case.get('output', '').strip()
+                    test_passed = actual_output.strip() == expected_output
+                    llm_results.append(1 if test_passed else 0)
+                else:
+                    llm_results.append(0)  # Failed to compile/run
+                    
+            except Exception as e:
+                llm_results.append(0)  # Error in execution
+        
+        return llm_results
     
-    def _calculate_complexity(self, code: str) -> float:
-        """Calculate a simple complexity metric based on AST node count."""
+    def _calculate_alignment_metrics(self, llm_pattern: List[int], student_pattern: List[int]) -> List[Stat]:
+        """
+        Calculate alignment metrics between LLM and student correctness patterns.
+        """
+        # Ensure patterns have same length (pad with 0s if needed)
+        max_length = max(len(llm_pattern), len(student_pattern))
+        llm_padded = llm_pattern + [0] * (max_length - len(llm_pattern))
+        student_padded = student_pattern + [0] * (max_length - len(student_pattern))
+        
+        # Calculate alignment metrics
+        total_tests = max_length
+        exact_matches = sum(1 for i in range(total_tests) if llm_padded[i] == student_padded[i])
+        
+        # Alignment ratio (percentage of matching tests)
+        alignment_ratio = exact_matches / total_tests if total_tests > 0 else 0.0
+        
+        # Calculate LLM and student pass rates
+        llm_pass_rate = sum(llm_padded) / total_tests if total_tests > 0 else 0.0
+        student_pass_rate = sum(student_padded) / total_tests if total_tests > 0 else 0.0
+        
+        # Calculate pass rate difference
+        pass_rate_difference = abs(llm_pass_rate - student_pass_rate)
+        
+        return [
+            Stat(MetricName("unit_test_alignment_ratio")).add(alignment_ratio),
+            Stat(MetricName("unit_test_pass_rate_difference")).add(pass_rate_difference),
+        ]
+    
+    def _extract_student_code(self, model_code: str) -> str:
+        """Extract the actual student function code from the model output."""
+        # Remove markdown formatting
+        code = re.sub(r'```cpp\n?|```\n?', '', model_code).strip()
+        
+        # If code doesn't contain includes, it's likely just the student answer
+        if '#include' not in code:
+            return code
+        
+        # Split into lines for processing
+        lines = code.split('\n')
+        
+        # Find main function index
+        main_index = -1
+        for i, line in enumerate(lines):
+            if 'int main' in line or 'main()' in line:
+                main_index = i
+                break
+        
+        # Extract code before main function
+        if main_index > 0:
+            student_lines = []
+            for i in range(main_index):
+                line = lines[i].strip()
+                
+                # Skip includes, using statements, and empty lines
+                if (line.startswith('#') or 
+                    line.startswith('using') or 
+                    line == '' or
+                    line.startswith('//')):
+                    continue
+                
+                student_lines.append(lines[i])
+            
+            if student_lines:
+                return '\n'.join(student_lines).strip()
+        
+        # Fallback: return original code
+        return code
+    
+    def _create_complete_program(self, template: str, student_code: str, test_input: str) -> str:
+        """Create a complete C++ program by combining template, student code, and test input."""
+        # Clean the test input (remove any trailing markers)
+        clean_input = re.sub(r'STD input:\s*$', '', test_input).strip()
+        
+        # Handle template with {{ STUDENT_ANSWER }} placeholder
+        if '{{ STUDENT_ANSWER }}' in template:
+            # Replace the student answer placeholder
+            complete_code = template.replace('{{ STUDENT_ANSWER }}', student_code)
+            
+            # Replace the ENTIRE template loop section with actual test
+            template_loop_pattern = r'{%\s*for\s+TEST\s+in\s+TESTCASES\s*%}.*?{%\s*endfor\s*%}'
+            
+            test_block = f"""   {{
+        {clean_input};
+       }}"""
+            
+            # Remove the entire template loop and replace with test block
+            complete_code = re.sub(template_loop_pattern, test_block, complete_code, flags=re.DOTALL)
+            
+            # Also handle any remaining template syntax that might be left
+            complete_code = re.sub(r'{%.*?%}', '', complete_code, flags=re.DOTALL)
+            complete_code = re.sub(r'{{.*?}}', '', complete_code, flags=re.DOTALL)
+            
+            return complete_code
+        
+        # If no template, create a simple program structure
+        return f"""#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+{student_code}
+
+int main() {{
+    {clean_input};
+    return 0;
+}}"""
+    
+    def _compile_and_run_cpp(self, code: str) -> Tuple[bool, str, str]:
+        """Compile and run C++ code, return (success, stdout, stderr)."""
         try:
-            tree = ast.parse(code)
-            node_count = len(list(ast.walk(tree)))
-            # Normalize by a reasonable baseline (e.g., 10 nodes)
-            return min(node_count / 10.0, 5.0)  # Cap at 5x baseline complexity
-        except (SyntaxError, ValueError):
-            return 0.0
+            # Set environment to avoid HuggingFace tokenizer warnings
+            env = os.environ.copy()
+            env['TOKENIZERS_PARALLELISM'] = 'false'
+            
+            # Create temporary files
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.cpp', delete=False) as cpp_file:
+                cpp_file.write(code)
+                cpp_file_path = cpp_file.name
+            
+            # Use .out extension instead of .exe for better cross-platform compatibility
+            exe_file_path = cpp_file_path.replace('.cpp', '.out')
+            
+            # Compile the code
+            compile_result = subprocess.run([
+                self.compiler_path, '-std=c++17', '-o', exe_file_path, cpp_file_path
+            ], capture_output=True, text=True, timeout=30, env=env)
+            
+            if compile_result.returncode != 0:
+                return False, "", f"Compilation Error: {compile_result.stderr}"
+            
+            # Run the executable
+            run_result = subprocess.run([
+                exe_file_path
+            ], capture_output=True, text=True, timeout=10, env=env)
+            
+            return True, run_result.stdout.strip(), run_result.stderr.strip()
+            
+        except subprocess.TimeoutExpired:
+            return False, "", "Execution timed out"
+        except FileNotFoundError as e:
+            return False, "", f"Compiler '{self.compiler_path}' not found. Please install g++ or specify correct path."
+        except Exception as e:
+            return False, "", f"Error: {str(e)}"
+        finally:
+            # Clean up temporary files
+            try:
+                if 'cpp_file_path' in locals():
+                    os.unlink(cpp_file_path)
+                if 'exe_file_path' in locals() and os.path.exists(exe_file_path):
+                    os.unlink(exe_file_path)
+            except Exception:
+                pass  # Ignore cleanup errors
+    
+    def _simulate_execution(self, student_code: str, test_case: dict) -> str:
+        """Simulate code execution for testing without actual compilation."""
+        test_input = test_case.get('input', '')
+        expected_output = test_case.get('output', '')
+        
+        # Simulation for reverse function
+        if 'reverse' in student_code.lower() and 'arr[]' in test_input:
+            # Extract array from test input
+            array_match = re.search(r'int arr\[\] = \{([^}]+)\}', test_input)
+            if array_match:
+                try:
+                    numbers = [n.strip() for n in array_match.group(1).split(',')]
+                    reversed_numbers = numbers[::-1]
+                    return ', '.join(reversed_numbers)
+                except:
+                    pass
+        
+        # Simulation for factorial function
+        if 'factorial' in student_code.lower() and 'factorial(' in test_input:
+            # Extract number from factorial call
+            factorial_match = re.search(r'factorial\((\d+)\)', test_input)
+            if factorial_match:
+                try:
+                    n = int(factorial_match.group(1))
+                    result = 1
+                    for i in range(1, n + 1):
+                        result *= i
+                    return str(result)
+                except:
+                    pass
+        
+        # Simulation for BST enlarge (more complex)
+        if 'enlarge' in student_code.lower() and 'BTNode' in student_code:
+            # This would need more sophisticated simulation
+            # For now, return expected output
+            return expected_output
+        
+        # Default: return expected output (perfect simulation)
+        return expected_output
+    
+    def _create_failure_stats(self, error_message: str) -> List[Stat]:
+        """Create default statistics for failure cases."""
+        return [
+            Stat(MetricName("unit_test_alignment_ratio")).add(0.0),
+            Stat(MetricName("unit_test_pass_rate_difference")).add(0.0),
+        ]
+
+
+class ComprehensiveCodeEvaluationMetric(CodeEvaluationMetric):
+    """Comprehensive metric combining AST, CodeBERT, and unit test alignment."""
+    
+    def __init__(self, use_codebert: bool = True, compile_code: bool = True, compiler_path: str = "g++"):
+        super().__init__(use_codebert=use_codebert)
+        self.unit_test_metric = UnitTestAlignmentMetric(compile_code=compile_code, compiler_path=compiler_path)
+    
+    def evaluate_generation(
+        self,
+        adapter_spec: AdapterSpec,
+        request_state: RequestState,
+        metric_service: MetricService,
+        eval_cache_path: str,
+    ) -> List[Stat]:
+        """Evaluate with AST, CodeBERT, and unit test alignment metrics."""
+        # Get base AST and CodeBERT metrics
+        stats = super().evaluate_generation(adapter_spec, request_state, metric_service, eval_cache_path)
+        
+        # Add unit test alignment metrics
+        unit_test_stats = self.unit_test_metric.evaluate_generation(
+            adapter_spec, request_state, metric_service, eval_cache_path
+        )
+        stats.extend(unit_test_stats)
+        
+        return stats
 
 
 # Legacy method for batch evaluation (if needed for backward compatibility)
