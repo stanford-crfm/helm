@@ -9,7 +9,7 @@ import dataclasses
 import numpy as np
 
 from collections import Counter
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from tqdm import tqdm
 
 from helm.benchmark.adaptation.request_state import RequestState
@@ -37,6 +37,7 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.metric import MetricInterface, MetricResult, PerInstanceStats, create_metric, Stat
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
+from helm.common.object_spec import ObjectSpec
 from helm.contamination.contamination_evaluator import ContaminationEvaluator
 
 LATEST_SYMLINK: str = "latest"
@@ -153,9 +154,9 @@ class Runner:
         cache_instances_only: bool,
         skip_completed_runs: bool,
         exit_on_error: bool,
-        contamination: List[str],
+        evaluate_contamination: Optional[ObjectSpec] = None,
     ):
-        self.contamination = contamination
+        self.evaluate_contamination = evaluate_contamination
         self.executor = Executor(execution_spec)
         self.annotator_executor = AnnotationExecutor(
             AnnotationExecutionSpec(
@@ -298,21 +299,23 @@ class Runner:
 
         # Contamination assessment stage
         result_contamination: List[Stat] = []  # Ensure it's always a list
-        if self.contamination and len(self.contamination) >= 2:  # Check if contamination params are provided
-            # Deepcopy scenario_state to avoid unintended modifications by the contamination evaluator
+        if self.evaluate_contamination:
             scenario_state_copy = copy.deepcopy(scenario_state)
+            args = getattr(self.evaluate_contamination, "args", {})
+            language = args.get("language") or "en"
+            # Deepcopy scenario_state to avoid unintended modifications by the contamination evaluator
             contamination_evaluator = ContaminationEvaluator()
 
             # Pass the TokenizerService to the contamination evaluator
             result_contamination = contamination_evaluator.evaluate(
                 executor=self.executor,
-                method=self.contamination[0],
+                method=self.evaluate_contamination.class_name,
                 benchmark_path=input_instances_output_path,
                 scenario_state=scenario_state_copy,
-                language=self.contamination[1],
+                language=language,
                 tokenizer_service=self.tokenizer_service,
             )
-        elif self.contamination:
+        else:
             hlog("WARNING: Contamination evaluation requested but parameters are incomplete. Skipping.")
 
         # Apply the metrics
@@ -335,7 +338,7 @@ class Runner:
                     stats.extend(metric_result.aggregated_stats)
                     per_instance_stats.extend(metric_result.per_instance_stats)
 
-        stats = result_contamination + stats
+        stats = stats + result_contamination
         # Check that there aren't duplicate `Stat`s
         # Note: doesn't catch near misses.
         metric_counts: typing.Counter[MetricName] = Counter([stat.name for stat in stats])
