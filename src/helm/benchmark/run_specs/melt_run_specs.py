@@ -27,7 +27,7 @@ from helm.benchmark.metrics.common_metric_specs import (
     get_basic_reference_metric_specs,
     get_generic_metric_specs,
 )
-from helm.benchmark.metrics.melt_metrics import get_vietnamese_generative_harms_metric_specs
+from helm.benchmark.metrics.melt_metric_specs import get_vietnamese_generative_harms_metric_specs
 from helm.benchmark.metrics.metric import MetricSpec
 
 
@@ -331,7 +331,7 @@ def get_math_spec(
 
 
 @run_spec_function("melt_translation_opus100")
-def get_melt_translation_opus100_spec(language_pair: str) -> RunSpec:
+def get_melt_translation_opus100_spec(language_pair: str, max_train_instances: int = 1) -> RunSpec:
     FULL_LANGUAGE_NAMES = {
         "vi": "Vietnamese",
         "en": "English",
@@ -346,6 +346,7 @@ def get_melt_translation_opus100_spec(language_pair: str) -> RunSpec:
     adapter_spec = get_machine_translation_adapter_spec(
         source_language=FULL_LANGUAGE_NAMES[source_language],
         target_language=FULL_LANGUAGE_NAMES[target_language],
+        max_train_instances=max_train_instances,
     )
 
     return RunSpec(
@@ -359,7 +360,7 @@ def get_melt_translation_opus100_spec(language_pair: str) -> RunSpec:
 
 
 @run_spec_function("melt_translation_phomt")
-def get_melt_translation_phomt_spec(language_pair: str) -> RunSpec:
+def get_melt_translation_phomt_spec(language_pair: str, max_train_instances: int = 1) -> RunSpec:
     FULL_LANGUAGE_NAMES = {
         "vi": "Vietnamese",
         "en": "English",
@@ -374,6 +375,7 @@ def get_melt_translation_phomt_spec(language_pair: str) -> RunSpec:
     adapter_spec = get_machine_translation_adapter_spec(
         source_language=FULL_LANGUAGE_NAMES[source_language],
         target_language=FULL_LANGUAGE_NAMES[target_language],
+        max_train_instances=max_train_instances,
     )
 
     return RunSpec(
