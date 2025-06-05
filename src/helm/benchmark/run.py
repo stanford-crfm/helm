@@ -102,8 +102,9 @@ def run_benchmarking(
             ensure_directory_exists(sqlite_cache_path)
             sqlite_cache_backend_config = SqliteCacheBackendConfig(sqlite_cache_path)
 
+    parsed_evaluate_contamination: ObjectSpec = None
     if evaluate_contamination:
-        parsed_evaluate_contamination: ObjectSpec = parse_object_spec(evaluate_contamination)
+        parsed_evaluate_contamination = parse_object_spec(evaluate_contamination)
 
     execution_spec = ExecutionSpec(
         auth=auth,
