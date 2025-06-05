@@ -2,7 +2,6 @@ import type LLMJudgeData from "@/types/LLMJudgeData";
 import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
 import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
 
-
 export default async function getLLMJudgeDataByName(
   runName: string,
   signal: AbortSignal,
@@ -27,9 +26,17 @@ export default async function getLLMJudgeDataByName(
       return undefined;
     }
 
-    const data = await response.json();
-    return data as LLMJudgeData;
+    const rawData: unknown = await response.json();
 
+    if (typeof rawData !== "object" || rawData === null) {
+      console.warn(
+        `LLM Judge summary: JSON retornou valor inesperado para run '${runName}'.`,
+      );
+      return undefined;
+    }
+
+    const data = rawData as LLMJudgeData;
+    return data;
   } catch (error) {
     if (error instanceof Error) {
       if (error.name !== "AbortError") {

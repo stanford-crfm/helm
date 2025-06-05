@@ -34,18 +34,21 @@ import UserAgreement from "@/components/UserAgreement";
 import isScenarioEncrypted from "@/utils/isScenarioEncrypted";
 
 export default function Run() {
-  const { runName } = useParams<{ runName: string }>(); 
+  const { runName } = useParams<{ runName: string }>();
   const [activeTab, setActiveTab] = useState<number>(0);
   const [runSpec, setRunSpec] = useState<RunSpec | undefined>();
   const [runSuite, setRunSuite] = useState<string | undefined>();
   const [model, setModel] = useState<Model | undefined>();
   const [scenario, setScenario] = useState<Scenario | undefined>();
   const [adapterFieldMap, setAdapterFieldMap] = useState<AdapterFieldMap>({});
-  const [metricFieldMap, setMetricFieldMap] = useState<MetricFieldMap | undefined>();
+  const [metricFieldMap, setMetricFieldMap] = useState<
+    MetricFieldMap | undefined
+  >();
   const [userAgreed, setUserAgreed] = useState(false);
 
   const [llmJudgeData, setLlmJudgeData] = useState<LLMJudgeData | undefined>();
-  const [isLoadingLlmJudgeData, setIsLoadingLlmJudgeData] = useState<boolean>(true);
+  const [isLoadingLlmJudgeData, setIsLoadingLlmJudgeData] =
+    useState<boolean>(true);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -53,7 +56,6 @@ export default function Run() {
       if (runName === undefined) {
         return;
       }
-
 
       setIsLoadingLlmJudgeData(true);
       const signal = controller.signal;
@@ -87,15 +89,19 @@ export default function Run() {
         );
 
         if (runSpecResp?.adapter_spec.model) {
-            setModel(
-                schemaResp.models.find((m) => m.name === runSpecResp.adapter_spec.model),
-            );
+          setModel(
+            schemaResp.models.find(
+              (m) => m.name === runSpecResp.adapter_spec.model,
+            ),
+          );
         }
 
-
-        const judgeData = await getLLMJudgeDataByName(runName, signal, currentSuite);
-        setLlmJudgeData(judgeData); 
-
+        const judgeData = await getLLMJudgeDataByName(
+          runName,
+          signal,
+          currentSuite,
+        );
+        setLlmJudgeData(judgeData);
       } catch (error) {
         if (error instanceof Error && error.name !== "AbortError") {
           console.error("Failed to load run data:", error);
@@ -113,7 +119,7 @@ export default function Run() {
   if (
     runSpec === undefined ||
     scenario === undefined ||
-    runName === undefined || 
+    runName === undefined ||
     runSuite === undefined ||
     metricFieldMap === undefined
   ) {
@@ -126,7 +132,7 @@ export default function Run() {
         <div>
           <h1 className="text-3xl flex items-center">
             {scenario.name}
-            <a href={`/#/groups/${scenario.name}`}> 
+            <a href={`/#/groups/${scenario.name}`}>
               <ArrowTopRightOnSquareIcon className="w-6 h-6 ml-2" />
             </a>
           </h1>
@@ -135,7 +141,9 @@ export default function Run() {
           </h3>
           <h1 className="text-3xl mt-2">{runSpec.adapter_spec.model}</h1>
           <h3 className="text-xl">
-            <MarkdownValue value={model?.description || "No model description available."} />
+            <MarkdownValue
+              value={model?.description || "No model description available."}
+            />
           </h3>
           <div className="mt-2 flex gap-2">
             {scenario.tags.map((tag) => (
@@ -154,9 +162,9 @@ export default function Run() {
             <a
               className="link link-primary link-hover"
               href={getRunSpecByNameUrl(runSpec.name, runSuite)}
-              download={true} 
+              download={true}
               target="_blank"
-              rel="noopener noreferrer" 
+              rel="noopener noreferrer"
             >
               Spec JSON
             </a>
@@ -165,7 +173,7 @@ export default function Run() {
               href={getScenarioStateByNameUrl(runSpec.name, runSuite)}
               download={true}
               target="_blank"
-              rel="noopener noreferrer" 
+              rel="noopener noreferrer"
             >
               Full JSON
             </a>
@@ -173,8 +181,8 @@ export default function Run() {
         </div>
         <div>
           <List className="grid md:grid-cols-2 lg:grid-cols-3 gap-x-8">
-            {Object.entries(runSpec.adapter_spec).map(([key, value]) => ( 
-              <ListItem key={key}> 
+            {Object.entries(runSpec.adapter_spec).map(([key, value]) => (
+              <ListItem key={key}>
                 <strong
                   className="mr-1"
                   title={

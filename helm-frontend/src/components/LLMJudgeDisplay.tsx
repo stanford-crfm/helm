@@ -1,11 +1,22 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Card, List, ListItem, Text, Metric, Flex, ProgressBar, Title, Subtitle, Badge } from "@tremor/react";
-import type LLMJudgeData from "@/types/LLMJudgeData"; 
-import type { LLMJudgeTask } from "@/types/LLMJudgeData"; 
+import {
+  Card,
+  List,
+  ListItem,
+  Text,
+  Metric,
+  Flex,
+  ProgressBar,
+  Title,
+  Subtitle,
+  Badge,
+} from "@tremor/react";
+import type LLMJudgeData from "@/types/LLMJudgeData";
+import type { LLMJudgeTask } from "@/types/LLMJudgeData";
 import Loading from "@/components/Loading";
 import MarkdownValue from "@/components/MarkdownValue";
-import Pagination from "@/components/Pagination"; 
+import Pagination from "@/components/Pagination";
 
 const TASKS_PAGE_SIZE = 10;
 
@@ -14,13 +25,16 @@ interface LLMJudgeDisplayProps {
   isLoading: boolean;
 }
 
-export default function LLMJudgeDisplay({ data, isLoading }: LLMJudgeDisplayProps) {
+export default function LLMJudgeDisplay({
+  data,
+  isLoading,
+}: LLMJudgeDisplayProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentTasksPage, setCurrentTasksPage] = useState<number>(() => {
     const pageFromUrl = searchParams.get("tasksPage");
     return pageFromUrl ? parseInt(pageFromUrl, 10) : 1;
   });
-  const [searchTerm, setSearchTerm] = useState(""); 
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const newSearchParams = new URLSearchParams(searchParams);
@@ -42,18 +56,25 @@ export default function LLMJudgeDisplay({ data, isLoading }: LLMJudgeDisplayProp
     return (
       <Card>
         <Title>LLM Judge Evaluation</Title>
-        <Text className="mt-2">No LLM Judge evaluation available for this run.</Text>
+        <Text className="mt-2">
+          No LLM Judge evaluation available for this run.
+        </Text>
         <Text className="mt-1">
-          The file <code>llm_judge_summary.json</code> was not found or could not be loaded.
+          The file <code>llm_judge_summary.json</code> was not found or could
+          not be loaded.
         </Text>
       </Card>
     );
   }
 
-  const filteredTasks = data.tasks.filter(task =>
-    task.explanation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (task.instance_id && String(task.instance_id).toLowerCase().includes(searchTerm.toLowerCase())) || 
-    String(task.judgement).toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredTasks = data.tasks.filter(
+    (task) =>
+      task.explanation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (task.instance_id &&
+        String(task.instance_id)
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())) ||
+      String(task.judgement).toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const totalTasksPages = Math.ceil(filteredTasks.length / TASKS_PAGE_SIZE);
@@ -68,6 +89,13 @@ export default function LLMJudgeDisplay({ data, isLoading }: LLMJudgeDisplayProp
 
   const handlePrevPage = () => {
     setCurrentTasksPage((prev) => Math.max(prev - 1, 1));
+  };
+
+  const formatValue = (value: unknown): string => {
+    if (typeof value === "object" && value !== null) {
+      return JSON.stringify(value);
+    }
+    return String(value ?? "");
   };
 
   return (
@@ -89,13 +117,23 @@ export default function LLMJudgeDisplay({ data, isLoading }: LLMJudgeDisplayProp
           </ListItem>
           <ListItem>
             <Text>Agreement Level:</Text>
-            <Flex justifyContent="end" alignItems="baseline" className="space-x-2">
+            <Flex
+              justifyContent="end"
+              alignItems="baseline"
+              className="space-x-2"
+            >
               <Metric>{(data.agreement_level * 100).toFixed(2)}%</Metric>
-              <Text>({data.agreements} / {data.total_valid_instances})</Text>
+              <Text>
+                ({data.agreements} / {data.total_valid_instances})
+              </Text>
             </Flex>
           </ListItem>
           {data.total_valid_instances > 0 && (
-             <ProgressBar value={data.agreement_level * 100} color="teal" className="mt-1" />
+            <ProgressBar
+              value={data.agreement_level * 100}
+              color="teal"
+              className="mt-1"
+            />
           )}
           <ListItem>
             <Text>Total Valid Judged Instances:</Text>
@@ -118,7 +156,7 @@ export default function LLMJudgeDisplay({ data, isLoading }: LLMJudgeDisplayProp
         </List>
       </Card>
 
-      {data.tasks && data.tasks.length > 0 && (
+      {data.tasks.length > 0 && (
         <Card>
           <Flex alignItems="baseline" justifyContent="between">
             <Title>Individual Evaluation Details</Title>
@@ -132,7 +170,7 @@ export default function LLMJudgeDisplay({ data, isLoading }: LLMJudgeDisplayProp
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
-                setCurrentTasksPage(1); 
+                setCurrentTasksPage(1);
               }}
             />
           </div>
@@ -140,32 +178,61 @@ export default function LLMJudgeDisplay({ data, isLoading }: LLMJudgeDisplayProp
           {pagedTasks.length > 0 ? (
             <div className="space-y-4">
               {pagedTasks.map((task: LLMJudgeTask, index: number) => (
-                <Card key={task.instance_id || `task-${index}`} className="p-4 ring-1 ring-gray-200"> 
-                  {task.instance_id && (
-                     <Subtitle>Instance ID: <Badge color="slate">{task.instance_id}</Badge></Subtitle>
+                <Card
+                  key={
+                    task.instance_id != null
+                      ? formatValue(task.instance_id)
+                      : `task-${index}`
+                  }
+                  className="p-4 ring-1 ring-gray-200"
+                >
+                  {task.instance_id != null && (
+                    <Subtitle>
+                      Instance ID:{" "}
+                      <Badge color="slate">
+                        {formatValue(task.instance_id)}
+                      </Badge>
+                    </Subtitle>
                   )}
                   <Text className="mt-2">
-                    <strong>Judgement:</strong>{' '}
+                    <strong>Judgement:</strong>{" "}
                     <Badge color={task.judgement === 1 ? "emerald" : "rose"}>
-                      {task.judgement === 1 ? "Agreement" : `Value: ${task.judgement}`}
+                      {task.judgement === 1
+                        ? "Agreement"
+                        : `Value: ${task.judgement}`}
                     </Badge>
                   </Text>
                   <div className="mt-2">
                     <Text className="font-medium">Judge Explanation:</Text>
                     <div className="prose prose-sm dark:prose-invert max-w-none mt-1 p-2 bg-slate-50 rounded overflow-x-auto">
-                      <MarkdownValue value={task.explanation || "No explanation provided."} />
+                      <MarkdownValue
+                        value={task.explanation || "No explanation provided."}
+                      />
                     </div>
                   </div>
-                  {Object.entries(task).filter(([key]) => !['judgement', 'explanation', 'instance_id'].includes(key)).length > 0 && (
+                  {Object.entries(task).filter(
+                    ([key]) =>
+                      !["judgement", "explanation", "instance_id"].includes(
+                        key,
+                      ),
+                  ).length > 0 && (
                     <div className="mt-3">
                       <Text className="font-medium">Additional Task Data:</Text>
                       <List className="text-sm">
                         {Object.entries(task).map(([key, value]) => {
-                          if (!['judgement', 'explanation', 'instance_id'].includes(key)) {
+                          if (
+                            ![
+                              "judgement",
+                              "explanation",
+                              "instance_id",
+                            ].includes(key)
+                          ) {
                             return (
                               <ListItem key={key}>
-                                <Text className="capitalize">{key.replace(/_/g, ' ')}:</Text>
-                                <Text>{typeof value === 'object' ? JSON.stringify(value) : String(value)}</Text>
+                                <Text className="capitalize">
+                                  {key.replace(/_/g, " ")}:
+                                </Text>
+                                <Text>{formatValue(value)}</Text>
                               </ListItem>
                             );
                           }
@@ -178,7 +245,9 @@ export default function LLMJudgeDisplay({ data, isLoading }: LLMJudgeDisplayProp
               ))}
             </div>
           ) : (
-            <Text className="mt-4 text-center">No tasks found with the current search term.</Text>
+            <Text className="mt-4 text-center">
+              No tasks found with the current search term.
+            </Text>
           )}
 
           {totalTasksPages > 1 && (
