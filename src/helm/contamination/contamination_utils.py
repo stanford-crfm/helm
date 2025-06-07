@@ -41,7 +41,6 @@ class ContaminationUtils:
     _gpt2_tokenizer_cache: Optional[GPT2Tokenizer] = None
     _spacy_models_cache: Dict[str, Optional[spacy.language.Language]] = {}
 
-
     @staticmethod
     def determine_model_max_length(
         model_deployment_name: str, default_max_len: int = DEFAULT_MODEL_MAX_CONTEXT_TOKENS
@@ -303,7 +302,6 @@ class ContaminationUtils:
         cls._gpt2_tokenizer_cache = None
         cls._spacy_models_cache.clear()
         hlog("INFO: ContaminationUtils caches cleared.")
-
 
     @staticmethod
     def _get_max_length_from_deployment(deployment: ModelDeployment) -> Optional[int]:

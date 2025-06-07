@@ -5,10 +5,19 @@ from helm.contamination.contamination_evaluator import ContaminationEvaluator
 from helm.contamination.ts_guessing_question_based import TSGuessingQuestionBasedContaminationEvaluator
 from helm.contamination.ts_guessing_question_multichoice import TSGuessingQuestionMultiChoiceContaminationEvaluator
 
-REGISTERED_EVALUATORS = {
-    TSGuessingQuestionBasedContaminationEvaluator.STRATEGY_NAME: TSGuessingQuestionBasedContaminationEvaluator,
-    TSGuessingQuestionMultiChoiceContaminationEvaluator.STRATEGY_NAME: TSGuessingQuestionMultiChoiceContaminationEvaluator,
-}
+REGISTERED_EVALUATORS = dict(
+    [
+        (
+            TSGuessingQuestionBasedContaminationEvaluator.STRATEGY_NAME,
+            TSGuessingQuestionBasedContaminationEvaluator,
+        ),
+        (
+            TSGuessingQuestionMultiChoiceContaminationEvaluator.STRATEGY_NAME,
+            TSGuessingQuestionMultiChoiceContaminationEvaluator,
+        ),
+    ]
+)
+
 
 def get_contamination_evaluator(method_name: str) -> Optional[ContaminationEvaluator]:
     """

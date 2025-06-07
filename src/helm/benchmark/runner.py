@@ -323,7 +323,8 @@ class Runner:
                     hlog(f"INFO: Contamination assessment with '{method_name}' completed.")
                 except Exception as e:
                     hlog(
-                        f"CRITICAL: An error occurred while executing strategy '{method_name}': {e}\n{traceback.format_exc()}"
+                        "CRITICAL: An error occurred while executing strategy"
+                        f" '{method_name}': {e}\n{traceback.format_exc()}"
                     )
                     result_contamination = []  # Ensures an empty list in case of error
             else:

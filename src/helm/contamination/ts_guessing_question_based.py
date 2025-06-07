@@ -51,7 +51,7 @@ class TSGuessingQuestionBasedContaminationEvaluator(ContaminationEvaluator):
         Runs the entire evaluation pipeline for the ts-guessing-base strategy.
         This includes data filtering, prompt construction, model execution, and result processing.
         """
-        
+
         # Standardize the language code (e.g., "en_US" -> "en").
         self.language = language.lower().split("_")[0].split("-")[0]
         # Flag to control which tokenization method to use (primary or fallback).
@@ -59,7 +59,7 @@ class TSGuessingQuestionBasedContaminationEvaluator(ContaminationEvaluator):
         tagger: Optional[spacy.language.Language] = None
 
         with htrack_block(f"{self.STRATEGY_DISPLAY_NAME} contamination evaluation for language '{self.language}'"):
-            
+
             # Load the spaCy tagger for the specified language.
             tagger = ContaminationUtils.get_spacy_tagger(self.language)
             if not tagger:
@@ -88,12 +88,12 @@ class TSGuessingQuestionBasedContaminationEvaluator(ContaminationEvaluator):
 
             # Filter data points to get suitable texts for masking.
             data_points = self._filter_data(scenario_state)
-            hlog(f"STRATEGY INFO: Filtered to {len(data_points)} data points for evaluation.")
+            hlog(f"INFO: Filtered to {len(data_points)} data points for evaluation.")
             if not data_points:
-                hlog("STRATEGY INFO: No data points available after filtering.")
+                hlog("INFO: No data points available after filtering.")
                 return []
-            
-             # Shuffle the data points to avoid order biases.
+
+            # Shuffle the data points to avoid order biases.
             shuffled_data_points = [data_points[i] for i in np.random.permutation(len(data_points))]
 
             # Set up parameters for the generation request.
@@ -130,8 +130,7 @@ class TSGuessingQuestionBasedContaminationEvaluator(ContaminationEvaluator):
 
                 if not (0 <= original_rs_idx < len(scenario_state.request_states)):
                     hlog(
-                        "DEBUG: original_request_state_index"
-                        f" {original_rs_idx} out of bounds or missing. Skipping."
+                        "DEBUG: original_request_state_index" f" {original_rs_idx} out of bounds or missing. Skipping."
                     )
                     skipped_instance_count += 1
                     continue
@@ -152,27 +151,27 @@ class TSGuessingQuestionBasedContaminationEvaluator(ContaminationEvaluator):
                     # GPT-2-based approximation only if the primary service fails.
                     if check_prompt_length_primary:
                         try:
-                            ContaminationUtils.check_prompt_length(
-                                    final_prompt_text,
-                                    model_deployment_name_from_spec,
-                                    tokenizer_service,
-                                    max_allowable_prompt_tokens,
-                                )
+                            is_valid_len, num_prompt_tokens = ContaminationUtils.check_prompt_length(
+                                final_prompt_text,
+                                model_deployment_name_from_spec,
+                                tokenizer_service,
+                                max_allowable_prompt_tokens,
+                            )
                         except RuntimeError:
                             # If primary fails, switch to fallback (GPT-2) for all subsequent checks.
                             check_prompt_length_primary = False
                             hlog(f"INFO: Switching to fallback tokenization for '{model_deployment_name_from_spec}'.")
-                            is_valid, num_prompt_tokens = ContaminationUtils.check_prompt_length_fallback(
+                            is_valid_len, num_prompt_tokens = ContaminationUtils.check_prompt_length_fallback(
                                 final_prompt_text, max_allowable_prompt_tokens
                             )
                     else:
                         # Use fallback if primary has already failed.
-                        is_valid, num_prompt_tokens = ContaminationUtils.check_prompt_length_fallback(
+                        is_valid_len, num_prompt_tokens = ContaminationUtils.check_prompt_length_fallback(
                             final_prompt_text, max_allowable_prompt_tokens
                         )
 
-                    if not is_valid:
-                        skipped_count += 1
+                    if not is_valid_len:
+                        skipped_instance_count += 1
                         continue
 
                     # Create a new Instance with the masked prompt.
@@ -195,7 +194,7 @@ class TSGuessingQuestionBasedContaminationEvaluator(ContaminationEvaluator):
                         request=new_request,
                         result=None,
                     )
-                    
+
                     if hasattr(prepared_rs, "output_mapping"):
                         prepared_rs = replace(prepared_rs, output_mapping=None)
                     if hasattr(prepared_rs, "reference_index"):
@@ -207,11 +206,12 @@ class TSGuessingQuestionBasedContaminationEvaluator(ContaminationEvaluator):
 
                 except Exception as e:
                     # Log errors during instance preparation and skip the instance.
-                    hlog(f"WARNING: Error preparing instance from original_rs_idx {original_rs_idx} "
+                    hlog(
+                        f"WARNING: Error preparing instance from original_rs_idx {original_rs_idx} "
                         f"(ID: {data_point_item.get('id', 'N/A')}): {e}\n{traceback.format_exc()}"
                     )
                     skipped_instance_count += 1
-            
+
             if skipped_instance_count > 0:
                 hlog(f"INFO: Skipped {skipped_instance_count} instances during preparation.")
             if not valid_request_states_for_execution:
@@ -223,7 +223,7 @@ class TSGuessingQuestionBasedContaminationEvaluator(ContaminationEvaluator):
             execution_scenario_state = replace(
                 scenario_state, adapter_spec=generation_adapter_spec, request_states=valid_request_states_for_execution
             )
-            
+
             # Query the model.
             try:
                 response_scenario_state: ScenarioState = self._query_model(execution_scenario_state, executor)
@@ -478,5 +478,5 @@ class TSGuessingQuestionBasedContaminationEvaluator(ContaminationEvaluator):
         try:
             return executor.execute(scenario_state)
         except Exception as e:
-            hlog(f"STRATEGY CRITICAL: Model query execution failed: {e}\n{traceback.format_exc()}")
+            hlog(f"CRITICAL: Model query execution failed: {e}\n{traceback.format_exc()}")
             raise

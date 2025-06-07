@@ -376,7 +376,8 @@ def main():
         "--evaluate-contamination",
         type=str,
         default="",
-        help="Experimental: Contamination strategies in format key:value. Each item will be processed and passed to the Runner.",
+        help="Experimental: Contamination strategies in format key:value. "
+        "Each item will be processed and passed to the Runner.",
     )
 
     add_run_args(parser)

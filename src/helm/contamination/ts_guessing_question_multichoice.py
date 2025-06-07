@@ -71,18 +71,18 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator(ContaminationEvaluator
         check_prompt_length_primary = True
 
         with htrack_block(f"{self.STRATEGY_DISPLAY_NAME} contamination evaluation for language '{self.language}'"):
-            
+
             eval_data_name = os.path.basename(benchmark_path).split(":")[0]
             if not (
                 hasattr(scenario_state, "adapter_spec")
                 and hasattr(scenario_state.adapter_spec, "method")
                 and scenario_state.adapter_spec.method == "multiple_choice_joint"
             ):
-                raise ValueError("Benchmark '{eval_data_name}' does not use 'multiple_choice_joint' method")
+                raise ValueError(f"Benchmark '{eval_data_name}' does not use 'multiple_choice_joint' method")
 
             if not scenario_state.adapter_spec.model_deployment and not scenario_state.adapter_spec.model:
                 raise ValueError("Model identifier not found in AdapterSpec. Cannot proceed.")
-            
+
             # Get the model deployment name.
             model_deployment_name_from_spec = (
                 scenario_state.adapter_spec.model_deployment or scenario_state.adapter_spec.model
@@ -138,7 +138,7 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator(ContaminationEvaluator
 
             for data_point_item in shuffled_data_points:
                 original_rs_idx = data_point_item["original_request_state_index"]
-                
+
                 if not (0 <= original_rs_idx < len(scenario_state.request_states)):
                     hlog(f"DEBUG: original_request_state_index {original_rs_idx} out of bounds. Skipping.")
                     skipped_instance_count += 1
@@ -160,27 +160,27 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator(ContaminationEvaluator
                     # Check prompt length (with primary/fallback logic).
                     if check_prompt_length_primary:
                         try:
-                            ContaminationUtils.check_prompt_length(
-                                    combined_prompt,
-                                    model_deployment_name_from_spec,
-                                    tokenizer_service,
-                                    max_allowable_prompt_tokens,
-                                )
+                            is_valid_len, num_prompt_tokens = ContaminationUtils.check_prompt_length(
+                                combined_prompt,
+                                model_deployment_name_from_spec,
+                                tokenizer_service,
+                                max_allowable_prompt_tokens,
+                            )
                         except RuntimeError:
                             # If primary fails, switch to fallback (GPT-2) for all subsequent checks.
                             check_prompt_length_primary = False
                             hlog(f"INFO: Switching to fallback tokenization for '{model_deployment_name_from_spec}'.")
-                            is_valid, num_prompt_tokens = ContaminationUtils.check_prompt_length_fallback(
+                            is_valid_len, num_prompt_tokens = ContaminationUtils.check_prompt_length_fallback(
                                 combined_prompt, max_allowable_prompt_tokens
                             )
                     else:
                         # Use fallback if primary has already failed.
-                        is_valid, num_prompt_tokens = ContaminationUtils.check_prompt_length_fallback(
+                        is_valid_len, num_prompt_tokens = ContaminationUtils.check_prompt_length_fallback(
                             combined_prompt, max_allowable_prompt_tokens
                         )
 
-                    if not is_valid:
-                        skipped_count += 1
+                    if not is_valid_len:
+                        skipped_instance_count += 1
                         continue
 
                     # Create a new Instance with the masked prompt.
@@ -216,11 +216,12 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator(ContaminationEvaluator
 
                 except Exception as e:
                     # Log errors during instance preparation and skip the instance.
-                    hlog(f"WARNING: Error preparing instance from original_rs_idx {original_rs_idx} "
+                    hlog(
+                        f"WARNING: Error preparing instance from original_rs_idx {original_rs_idx} "
                         f"(ID: {data_point_item.get('id', 'N/A')}): {e}\n{traceback.format_exc()}"
                     )
                     skipped_instance_count += 1
-            
+
             if skipped_instance_count > 0:
                 hlog(f"INFO: Skipped {skipped_instance_count} instances during preparation.")
             if not valid_request_states_for_execution:
@@ -232,7 +233,7 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator(ContaminationEvaluator
             execution_scenario_state = replace(
                 scenario_state, adapter_spec=generation_adapter_spec, request_states=valid_request_states_for_execution
             )
-            
+
             # Query the model.
             try:
                 response_scenario_state: ScenarioState = self._query_model(execution_scenario_state, executor)
@@ -288,7 +289,7 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator(ContaminationEvaluator
             if not processed_instance_results:
                 hlog("INFO: No valid results after model query and processing.")
                 return []
-            
+
             # Prepare lists for metric calculation.
             gold_references = [res["answer_to_compare"] for res in processed_instance_results]
             model_generations = [res["model_prediction"] for res in processed_instance_results]
@@ -317,7 +318,7 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator(ContaminationEvaluator
                     if rouge_scores_f1:
                         calculated_metrics["rouge_l_f1"] = np.mean(rouge_scores_f1)
                 except Exception as e:
-                    hlog(f"STRATEGY ERROR: ROUGE Scorer calculation failed: {e}\n{traceback.format_exc()}")
+                    hlog(f"ERROR: ROUGE Scorer calculation failed: {e}\n{traceback.format_exc()}")
 
             # Format metrics for HELM.
             strategy_metric_prefix = f"contamination ({self.STRATEGY_DISPLAY_NAME}"
@@ -326,7 +327,7 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator(ContaminationEvaluator
             )
 
             hlog(
-                f"STRATEGY INFO: Evaluation completed for language '{self.language}'. "
+                f"INFO: Evaluation completed for language '{self.language}'. "
                 f"Processed {len(processed_instance_results)} instances. "
             )
             return final_helm_stats
