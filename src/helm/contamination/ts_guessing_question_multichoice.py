@@ -1,6 +1,5 @@
 import os
 import numpy as np
-import asyncio
 import traceback
 from rouge_score import rouge_scorer
 from dataclasses import replace
@@ -12,10 +11,11 @@ from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.benchmark.runner import ScenarioState, RequestState
 from helm.benchmark.executor import Executor
 from helm.benchmark.metrics.metric import Stat
-from .utils_contamination import UtilsContamination
+from helm.contamination.contamination_evaluator import ContaminationEvaluator
+from helm.contamination.contamination_utils import ContaminationUtils
 
 
-class TSGuessingQuestionMultiChoiceContaminationEvaluator:
+class TSGuessingQuestionMultiChoiceContaminationEvaluator(ContaminationEvaluator):
     """
     Implements a question-based multi-choice guessing test for contamination detection.
     Prompts are constructed with a randomly masked incorrect option. The model is asked
@@ -50,10 +50,8 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
         try:
             sent_tokenize("Test sentence for NLTK punkt check.")
         except LookupError:
-            hlog("UTIL WARNING: NLTK 'punkt' package not found. Needed for sentence tokenization in _process_response.")
-            hlog("UTIL WARNING: Please download it by running: import nltk; nltk.download('punkt')")
-        except Exception as e:
-            hlog(f"UTIL WARNING: NLTK punkt check failed with an unexpected error: {e}")
+            hlog("WARNING: NLTK 'punkt' package not found. Needed for sentence tokenization in _process_response.")
+            hlog("WARNING: Please download it by running: import nltk; nltk.download('punkt')")
 
     def evaluate(
         self,
@@ -64,21 +62,7 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
         tokenizer_service: TokenizerService,
     ) -> List[Stat]:
         """
-        Runs the synchronous evaluation by wrapping the async version.
-        """
-        # Use asyncio.run to execute the main asynchronous evaluation logic.
-        return asyncio.run(self._evaluate_async(executor, benchmark_path, scenario_state, language, tokenizer_service))
-
-    async def _evaluate_async(
-        self,
-        executor: Executor,
-        benchmark_path: str,
-        scenario_state: ScenarioState,
-        language: str,
-        tokenizer_service: TokenizerService,
-    ) -> List[Stat]:
-        """
-        Asynchronous implementation of the evaluation logic.
+        Runs the entire evaluation pipeline for the ts-guessing-multichoice strategy.
         """
 
         # Standardize the language code (e.g., "en_US" -> "en").
@@ -87,69 +71,40 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
         check_prompt_length_primary = True
 
         with htrack_block(f"{self.STRATEGY_DISPLAY_NAME} contamination evaluation for language '{self.language}'"):
+            
             eval_data_name = os.path.basename(benchmark_path).split(":")[0]
             if not (
                 hasattr(scenario_state, "adapter_spec")
                 and hasattr(scenario_state.adapter_spec, "method")
                 and scenario_state.adapter_spec.method == "multiple_choice_joint"
             ):
-                hlog(
-                    f"STRATEGY INFO: Benchmark '{eval_data_name}' does not use 'multiple_choice_joint' method, "
-                    f"which is required for the '{self.STRATEGY_DISPLAY_NAME}' strategy. Skipping."
-                )
-                return []
+                raise ValueError("Benchmark '{eval_data_name}' does not use 'multiple_choice_joint' method")
 
-            if not scenario_state.adapter_spec:
-                hlog("STRATEGY ERROR: AdapterSpec not found in ScenarioState. Cannot proceed.")
-                return []
-
+            if not scenario_state.adapter_spec.model_deployment and not scenario_state.adapter_spec.model:
+                raise ValueError("Model identifier not found in AdapterSpec. Cannot proceed.")
+            
             # Get the model deployment name.
             model_deployment_name_from_spec = (
                 scenario_state.adapter_spec.model_deployment or scenario_state.adapter_spec.model
             )
-            if not model_deployment_name_from_spec:
-                hlog(
-                    "STRATEGY ERROR: Model identifier (model_deployment or model)"
-                    " not found in AdapterSpec. Cannot proceed."
-                )
-                return []
 
             # Determine the model's max context length.
-            model_max_length = UtilsContamination.determine_model_max_length(model_deployment_name_from_spec)
-            hlog(f"STRATEGY INFO: Effective model_max_length for {model_deployment_name_from_spec}: {model_max_length}")
+            model_max_length = ContaminationUtils.determine_model_max_length(model_deployment_name_from_spec)
+            hlog(f"INFO: Effective model_max_length for {model_deployment_name_from_spec}: {model_max_length}")
 
-            if model_max_length <= self.SMALL_MODEL_CONTEXT_THRESHOLD:
-                hlog(
-                    f"STRATEGY WARNING: Model {model_deployment_name_from_spec}"
-                    f" (context window {model_max_length} tokens) "
-                    "may skip many instances if prompts are too long."
-                )
+            # Load prompt templates for the current strategy and language.
+            prompt_components = ContaminationUtils.get_prompt_fragments(self.STRATEGY_NAME, self.language)
+            if not prompt_components:
+                raise RuntimeError(f"Could not load prompt components for strategy '{self.STRATEGY_NAME}'.")
 
             # Filter for valid multiple-choice data points.
             data_points = self._filter_data(scenario_state)
-            hlog(f"STRATEGY INFO: Filtered to {len(data_points)} data points for evaluation.")
             if not data_points:
-                hlog("STRATEGY INFO: No data points available after filtering.")
+                hlog("INFO: No suitable data points available after filtering. Nothing to evaluate.")
                 return []
 
             # Shuffle the data points to avoid order biases.
             shuffled_data_points = [data_points[i] for i in np.random.permutation(len(data_points))]
-
-            # Initialize lists to store ground truth and prepared requests.
-            reference_texts_for_masked_slots: List[str] = []
-            masked_option_letters: List[str] = []
-            valid_request_states_for_execution: List[RequestState] = []
-            skipped_instance_count: int = 0
-
-            # Load prompt templates for the current strategy and language.
-            prompt_components = UtilsContamination.get_prompt_fragments(self.STRATEGY_NAME, self.language)
-            if not prompt_components:
-                hlog(
-                    f"STRATEGY ERROR: Could not load prompt components for"
-                    f" strategy '{self.STRATEGY_NAME}' and language '{self.language}'. "
-                    f"Check PROMPT_CONFIGS_MASTER in UtilsContamination for key '{self.STRATEGY_NAME}'."
-                )
-                return []
 
             # Set up parameters for the generation request.
             generation_params = {
@@ -168,22 +123,28 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
                 "reference_suffix": "",
             }
             # Create a new AdapterSpec with these generation parameters.
-            generation_adapter_spec = UtilsContamination.create_generation_adapter_spec(
+            generation_adapter_spec = ContaminationUtils.create_generation_adapter_spec(
                 scenario_state.adapter_spec, generation_params
             )
 
             # Calculate the maximum number of tokens allowed for the prompt text.
             max_allowable_prompt_tokens = model_max_length - self.MAX_OUTPUT_TOKENS - self.TOKENIZER_BUFFER
 
-            # Process each data point to create a request.
+            # Initialize lists to store ground truth and prepared requests.
+            reference_texts_for_masked_slots: List[str] = []
+            masked_option_letters: List[str] = []
+            valid_request_states_for_execution: List[RequestState] = []
+            skipped_instance_count: int = 0
+
             for data_point_item in shuffled_data_points:
-                original_idx = data_point_item["original_request_state_index"]
-                if not (0 <= original_idx < len(scenario_state.request_states)):
-                    hlog(f"STRATEGY DEBUG: original_request_state_index {original_idx} out of bounds. Skipping.")
+                original_rs_idx = data_point_item["original_request_state_index"]
+                
+                if not (0 <= original_rs_idx < len(scenario_state.request_states)):
+                    hlog(f"DEBUG: original_request_state_index {original_rs_idx} out of bounds. Skipping.")
                     skipped_instance_count += 1
                     continue
 
-                current_request_state: RequestState = scenario_state.request_states[original_idx]
+                current_request_state: RequestState = scenario_state.request_states[original_rs_idx]
 
                 try:
                     # Build the prompt with a masked *incorrect* option.
@@ -199,42 +160,34 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
                     # Check prompt length (with primary/fallback logic).
                     if check_prompt_length_primary:
                         try:
-                            is_valid_len, num_prompt_tokens = (
-                                UtilsContamination.check_prompt_length_tokenization_request(
+                            ContaminationUtils.check_prompt_length(
                                     combined_prompt,
                                     model_deployment_name_from_spec,
                                     tokenizer_service,
                                     max_allowable_prompt_tokens,
                                 )
-                            )
-                        except Exception:
+                        except RuntimeError:
+                            # If primary fails, switch to fallback (GPT-2) for all subsequent checks.
                             check_prompt_length_primary = False
-                            hlog(
-                                f"STRATEGY INFO: Switching to fallback tokenization for"
-                                f" '{model_deployment_name_from_spec}' due to primary tokenizer failure."
-                            )
-
-                            is_valid_len, num_prompt_tokens = UtilsContamination.check_prompt_length_fallback_gpt2(
-                                combined_prompt, model_deployment_name_from_spec, max_allowable_prompt_tokens
+                            hlog(f"INFO: Switching to fallback tokenization for '{model_deployment_name_from_spec}'.")
+                            is_valid, num_prompt_tokens = ContaminationUtils.check_prompt_length_fallback(
+                                combined_prompt, max_allowable_prompt_tokens
                             )
                     else:
-                        is_valid_len, num_prompt_tokens = UtilsContamination.check_prompt_length_fallback_gpt2(
-                            combined_prompt, model_deployment_name_from_spec, max_allowable_prompt_tokens
+                        # Use fallback if primary has already failed.
+                        is_valid, num_prompt_tokens = ContaminationUtils.check_prompt_length_fallback(
+                            combined_prompt, max_allowable_prompt_tokens
                         )
-                    if not is_valid_len:
-                        log_msg = f"STRATEGY DEBUG: Instance {original_idx}"
-                        f"(ID: {data_point_item.get('id', 'N/A')}) skipped. "
-                        if num_prompt_tokens == -1:
-                            log_msg += "Tokenization failed."
-                        else:
-                            log_msg += f"Prompt too long ({num_prompt_tokens} > {max_allowable_prompt_tokens})."
-                        hlog(log_msg)
-                        skipped_instance_count += 1
+
+                    if not is_valid:
+                        skipped_count += 1
                         continue
 
-                    # Create new Instance and Request.
+                    # Create a new Instance with the masked prompt.
                     new_input = replace(current_request_state.instance.input, text=combined_prompt)
                     new_instance = replace(current_request_state.instance, input=new_input, references=[])
+
+                    # Create a new Request with the masked prompt and generation settings.
                     new_request = replace(
                         current_request_state.request,
                         prompt=combined_prompt,
@@ -245,7 +198,10 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
 
                     # Create a new RequestState for execution, cleaning unnecessary fields.
                     prepared_rs = replace(
-                        current_request_state, instance=new_instance, request=new_request, result=None
+                        current_request_state,
+                        instance=new_instance,
+                        request=new_request,
+                        result=None,
                     )
 
                     if hasattr(prepared_rs, "output_mapping"):
@@ -260,30 +216,29 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
 
                 except Exception as e:
                     # Log errors during instance preparation and skip the instance.
-                    hlog(
-                        f"STRATEGY ERROR: Error preparing instance {original_idx}"
-                        f" (ID: {data_point_item.get('id', 'Unknown')}): {e}\n{traceback.format_exc()}"
+                    hlog(f"WARNING: Error preparing instance from original_rs_idx {original_rs_idx} "
+                        f"(ID: {data_point_item.get('id', 'N/A')}): {e}\n{traceback.format_exc()}"
                     )
                     skipped_instance_count += 1
-
+            
             if skipped_instance_count > 0:
-                hlog(f"STRATEGY INFO: Skipped {skipped_instance_count} instances during preparation.")
+                hlog(f"INFO: Skipped {skipped_instance_count} instances during preparation.")
             if not valid_request_states_for_execution:
-                hlog("STRATEGY INFO: No instances prepared for execution after processing all data points.")
+                hlog("INFO: No instances were prepared for execution.")
                 return []
 
             # Create a ScenarioState with only the valid requests and the generation AdapterSpec.
-            hlog(f"STRATEGY INFO: Sending {len(valid_request_states_for_execution)} requests for model generation.")
+            hlog(f"INFO: Sending {len(valid_request_states_for_execution)} requests for model generation.")
             execution_scenario_state = replace(
                 scenario_state, adapter_spec=generation_adapter_spec, request_states=valid_request_states_for_execution
             )
-
+            
             # Query the model.
             try:
-                response_scenario_state: ScenarioState = await self._query_model(execution_scenario_state, executor)
+                response_scenario_state: ScenarioState = self._query_model(execution_scenario_state, executor)
             except Exception as e:
-                hlog(f"STRATEGY CRITICAL: Error during model query phase: {e}\n{traceback.format_exc()}")
-                return []
+                hlog(f"CRITICAL: The model execution phase failed: {e}\n{traceback.format_exc()}")
+                raise
 
             # Process the model responses.
             processed_instance_results: List[Dict[str, str]] = []
@@ -323,25 +278,17 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
                         }
                     )
                 except IndexError:
-                    hlog(
-                        f"STRATEGY ERROR: IndexError processing result for instance {i}."
-                        " List length mismatch with gold/masked_letter lists."
-                    )
+                    hlog(f"ERROR: IndexError processing result for instance {i}. List length mismatch.")
                 except Exception as e:
                     hlog(
-                        "STRATEGY ERROR: Error processing result for prepared"
+                        "ERROR: Error processing result for prepared"
                         f" instance index {i}: {e}\n{traceback.format_exc()}"
                     )
 
-            if not processed_instance_results and len(valid_request_states_for_execution) > 0:
-                hlog(
-                    "STRATEGY WARNING: All model responses resulted"
-                    " in empty processed results, but requests were sent."
-                )
-            elif not processed_instance_results:
-                hlog("STRATEGY INFO: No instances were processed or yielded results.")
+            if not processed_instance_results:
+                hlog("INFO: No valid results after model query and processing.")
                 return []
-
+            
             # Prepare lists for metric calculation.
             gold_references = [res["answer_to_compare"] for res in processed_instance_results]
             model_generations = [res["model_prediction"] for res in processed_instance_results]
@@ -374,7 +321,7 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
 
             # Format metrics for HELM.
             strategy_metric_prefix = f"contamination ({self.STRATEGY_DISPLAY_NAME}"
-            final_helm_stats = UtilsContamination.format_helm_stats(
+            final_helm_stats = ContaminationUtils.format_helm_stats(
                 calculated_metrics, strategy_metric_prefix, split="test"
             )
 
@@ -394,13 +341,13 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
         for i, request_state_item in enumerate(scenario_state.request_states):
             instance = request_state_item.instance
             if not instance:
-                hlog(f"STRATEGY DEBUG: Skipping request_state at index {i} as it has no instance object.")
+                hlog(f"DEBUG: Skipping request_state at index {i} as it has no instance object.")
                 continue
             try:
                 # Extract necessary fields from the instance.
-                question_text = UtilsContamination.get_question_text(instance)
-                choices_list = UtilsContamination.get_choices(instance)
-                true_correct_answer_idx = UtilsContamination.get_answer_index(instance)
+                question_text = ContaminationUtils.get_question_text(instance)
+                choices_list = ContaminationUtils.get_choices(instance)
+                true_correct_answer_idx = ContaminationUtils.get_answer_index(instance)
 
                 if (
                     question_text
@@ -425,14 +372,14 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
                     c_list_len = len(choices_list) if choices_list else 0
                     idx_ok = isinstance(true_correct_answer_idx, int) and 0 <= true_correct_answer_idx < c_list_len
                     hlog(
-                        f"STRATEGY DEBUG: Skipping instance from request_state {i}"
+                        f"DEBUG: Skipping instance from request_state {i}"
                         f" (ID: {getattr(instance, 'id', 'N/A')}) "
                         f"during filtering due to missing/invalid data (Q_OK: {q_ok},"
                         f" Choices_Count: {c_list_len}, AnswerIdx_OK: {idx_ok})."
                     )
             except Exception as e:
                 hlog(
-                    f"STRATEGY ERROR: Error filtering instance from request_state {i}"
+                    f"ERROR: Error filtering instance from request_state {i}"
                     f" (ID: {getattr(instance, 'id', 'N/A')}): {e}\n{traceback.format_exc()}"
                 )
         return data_points
@@ -474,7 +421,7 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
                 and 0 <= true_correct_answer_idx < len(choices_list)
             ):
                 hlog(
-                    "STRATEGY DEBUG: _build_prompt failed - invalid input"
+                    "DEBUG: _build_prompt failed - invalid input"
                     f" data for ID: {example_item.get('id', 'Unknown')}. "
                     f"Q: '{original_question_text[:30]}...', Choices: {len(choices_list)},"
                     f" CorrectIdx: {true_correct_answer_idx}"
@@ -485,7 +432,7 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
             incorrect_option_indices = [i for i in range(len(choices_list)) if i != true_correct_answer_idx]
             if not incorrect_option_indices:
                 hlog(
-                    f"STRATEGY DEBUG: No incorrect options to mask for instance"
+                    f"DEBUG: No incorrect options to mask for instance"
                     f" {example_item.get('id', 'Unknown')}. (Choices: {len(choices_list)},"
                     f" CorrectIdx: {true_correct_answer_idx})"
                 )
@@ -506,7 +453,7 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
             for i, choice_text_item in enumerate(choices_list):
                 if i >= len(self.alphabet):
                     hlog(
-                        f"STRATEGY WARNING: Number of choices ({len(choices_list)})"
+                        f"WARNING: Number of choices ({len(choices_list)})"
                         f" exceeds alphabet size ({len(self.alphabet)}) "
                         f"for instance {example_item.get('id', 'Unknown')}. Truncating options display in prompt."
                     )
@@ -522,7 +469,7 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
             return instruction_text_segment, user_text_segment, original_text_of_masked_option, masked_option_letter
         except Exception as e:
             hlog(
-                "STRATEGY EXCEPTION: Critical error in _build_prompt for example"
+                "EXCEPTION: Critical error in _build_prompt for example"
                 f" {example_item.get('id', 'Unknown ID')}: {e}\n{traceback.format_exc()}"
             )
             return "failed", "", "", ""
@@ -552,7 +499,7 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
             except LookupError:
                 pass
             except Exception as e_sent_tok:
-                hlog(f"STRATEGY DEBUG: sent_tokenize failed during response processing: {e_sent_tok}")
+                hlog(f"DEBUG: sent_tokenize failed during response processing: {e_sent_tok}")
 
             # Remove any [MASK] text and surrounding/internal quotes.
             processed_text = processed_text.replace("[MASK]", "").strip()
@@ -568,21 +515,17 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator:
             return processed_text
         except Exception as e:
             hlog(
-                "STRATEGY ERROR: Error processing model response:"
+                "ERROR: Error processing model response:"
                 f" '{response_text_input[:50]}...': {e}\n{traceback.format_exc()}"
             )
             return ""
 
-    async def _query_model(self, scenario_state: ScenarioState, executor: Executor) -> ScenarioState:
+    def _query_model(self, scenario_state: ScenarioState, executor: Executor) -> ScenarioState:
         """
-        Asynchronously executes requests to the model.
+        Executes requests to the model.
         """
-
         try:
-            # Get the current event loop.
-            loop = asyncio.get_event_loop()
-            # Run the blocking executor.execute call in a separate thread to avoid blocking the event loop.
-            return await loop.run_in_executor(None, executor.execute, scenario_state)
+            return executor.execute(scenario_state)
         except Exception as e:
-            hlog(f"STRATEGY CRITICAL: Model query execution failed: {e}\n{traceback.format_exc()}")
+            hlog(f"CRITICAL: Model query execution failed: {e}\n{traceback.format_exc()}")
             raise
