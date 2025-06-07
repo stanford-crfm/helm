@@ -330,6 +330,7 @@ class Runner:
                 # SUGGESTION: More specific log message. The factory should have already logged the root cause.
                 hlog(f"WARNING: Contamination strategy '{method_name}' not found. Skipping assessment.")
                 result_contamination = []
+
         # Apply the metrics
         # When performing a dry run, only estimate the number of tokens instead
         # of calculating the metrics.
