@@ -19,14 +19,47 @@ class RoboRewardBenchPreferenceRankingScenario(Scenario):
     description = "To evaluate how well VLMs can judge rollouts of robot actions in videos."
     tags = ["vision-language", "video"]
 
-    def get_instances(self, output_path: str) -> List[Instance]:
-        def get_full_cam_path(cam_path: str) -> Optional[str]:
-            if cam_path is None:
-                return None
-            full_path: str = os.path.join(output_path, cam_path)
-            assert os.path.exists(full_path), f"Camera path does not exist: {full_path}"
-            return full_path
+    @staticmethod
+    def get_full_cam_path(output_path: str, cam_path: str) -> Optional[str]:
+        if cam_path is None:
+            return None
 
+        full_path: str = os.path.join(output_path, cam_path)
+        assert os.path.exists(full_path), f"Camera path does not exist: {full_path}"
+        return full_path
+
+    @staticmethod
+    def add_policy_videos(
+        policy_label: str, annotation: dict, output_path: str, insert_newline_before: bool = False
+    ) -> List[MediaObject]:
+        content = []
+        if insert_newline_before:
+            content.append(MediaObject(text="\n", content_type="text/plain"))
+
+        policy_title: str = f"Policy {policy_label}"
+        content.append(MediaObject(text=policy_title, content_type="text/plain"))
+
+        policy_key: str = f"policy_{policy_label.lower()}"
+        policy_rollout: dict = annotation[policy_key]
+
+        for camera in policy_rollout["cameras"]:
+            cam_path: str = RoboRewardBenchPreferenceRankingScenario.get_full_cam_path(
+                output_path, camera["camera_path"]
+            )
+            cam_name: str = camera["name"]
+            if cam_path is not None:
+                content.extend(
+                    [
+                        MediaObject(
+                            text=f"{policy_title} - {cam_name.capitalize()} camera:", content_type="text/plain"
+                        ),
+                        MediaObject(location=cam_path, content_type="video/mp4"),
+                    ]
+                )
+
+        return content
+
+    def get_instances(self, output_path: str) -> List[Instance]:
         target_path: str = os.path.join(output_path, "output")
         annotation_path: str = os.path.join(target_path, "robo_arena.jsonl")
         assert os.path.exists(annotation_path), f"Annotation file does not exist at path: {annotation_path}"
@@ -44,31 +77,12 @@ class RoboRewardBenchPreferenceRankingScenario(Scenario):
                 MediaObject(text=prompt + "\n", content_type="text/plain"),
             ]
 
-            def add_policy_videos(policy_label: str, insert_newline_before: bool = False):
-                if insert_newline_before:
-                    content.append(MediaObject(text="\n", content_type="text/plain"))
-
-                policy_title: str = f"Policy {policy_label}"
-                content.append(MediaObject(text=policy_title, content_type="text/plain"))
-
-                policy_key: str = f"policy_{policy_label.lower()}"
-                policy_rollout: dict = annotation[policy_key]
-
-                for camera in policy_rollout["cameras"]:
-                    cam_path: str = get_full_cam_path(camera["camera_path"])
-                    cam_name: str = camera["name"]
-                    if cam_path is not None:
-                        content.extend(
-                            [
-                                MediaObject(
-                                    text=f"{policy_title} - {cam_name.capitalize()} camera:", content_type="text/plain"
-                                ),
-                                MediaObject(location=cam_path, content_type="video/mp4"),
-                            ]
-                        )
-
-            add_policy_videos("A")
-            add_policy_videos("B", insert_newline_before=True)
+            content.extend(self.add_policy_videos(policy_label="A", annotation=annotation, output_path=output_path))
+            content.extend(
+                self.add_policy_videos(
+                    policy_label="B", annotation=annotation, output_path=output_path, insert_newline_before=True
+                )
+            )
 
             instances.append(
                 Instance(
