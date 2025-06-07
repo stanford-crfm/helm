@@ -1057,10 +1057,11 @@ def get_msr_vtt_spec() -> RunSpec:
     )
 
 
-@run_spec_function("robo_reward_bench")
-def get_robo_reward_bench_spec() -> RunSpec:
+@run_spec_function("robo_reward_bench_preference_ranking")
+def get_robo_reward_bench_preference_ranking_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.vision_language.robo_reward_bench_scenario.RoboRewardBenchScenario",
+        class_name="helm.benchmark.scenarios.vision_language.robo_reward_bench_scenario."
+        "RoboRewardBenchPreferenceRankingScenario",
         args={},
     )
 
@@ -1090,7 +1091,7 @@ def get_robo_reward_bench_spec() -> RunSpec:
         )
     ]
 
-    run_spec_name: str = "robo_reward_bench"
+    run_spec_name: str = "robo_reward_bench_preference_ranking"
     return RunSpec(
         name=run_spec_name,
         scenario_spec=scenario_spec,

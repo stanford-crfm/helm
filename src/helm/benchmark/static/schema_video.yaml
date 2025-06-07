@@ -200,7 +200,7 @@ run_groups:
     description: All scenarios across capabilities
     category: All scenarios
     subgroups:
-      - robo_reward_bench
+      - robo_reward_bench_preference_ranking
 
   - name: msr_vtt
     display_name: MST-VTT
@@ -218,7 +218,7 @@ run_groups:
       when: "2016"
       language: English
 
-  - name: robo_reward_bench
+  - name: robo_reward_bench_preference_ranking
     display_name: Robo Reward Bench
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:

@@ -14,7 +14,7 @@ from helm.benchmark.scenarios.scenario import (
 from helm.common.media_object import MediaObject, MultimediaObject
 
 
-class RoboRewardBenchScenario(Scenario):
+class RoboRewardBenchPreferenceRankingScenario(Scenario):
     name = "robo_reward_bench"
     description = "To evaluate how well VLMs can judge rollouts of robot actions in videos."
     tags = ["vision-language", "video"]
@@ -37,8 +37,8 @@ class RoboRewardBenchScenario(Scenario):
         instances: List[Instance] = []
         for annotation in head_to_head_annotations:
             annotation_id: str = annotation["id"]
-            prompt: str = f"Task: {annotation['prompt']}"
-            winner: Optional[str] = annotation["won"]  # "A", "B", or "tie"
+            prompt: str = f"Task: {annotation['task']}"
+            winner: str = annotation["won"]  # "A", "B", or "tie"
 
             content: List[MediaObject] = [
                 MediaObject(text=prompt + "\n", content_type="text/plain"),
@@ -50,14 +50,18 @@ class RoboRewardBenchScenario(Scenario):
 
                 policy_title: str = f"Policy {policy_label}"
                 content.append(MediaObject(text=policy_title, content_type="text/plain"))
-                for cam_type in ["left", "right", "wrist"]:
-                    key = f"policy_{policy_label.lower()}_{cam_type}_cam_path"
-                    cam_path = get_full_cam_path(annotation.get(key))
+
+                policy_key: str = f"policy_{policy_label.lower()}"
+                policy_rollout: dict = annotation[policy_key]
+
+                for camera in policy_rollout["cameras"]:
+                    cam_path: str = get_full_cam_path(camera["camera_path"])
+                    cam_name: str = camera["name"]
                     if cam_path is not None:
                         content.extend(
                             [
                                 MediaObject(
-                                    text=f"{policy_title} - {cam_type.capitalize()} camera:", content_type="text/plain"
+                                    text=f"{policy_title} - {cam_name.capitalize()} camera:", content_type="text/plain"
                                 ),
                                 MediaObject(location=cam_path, content_type="video/mp4"),
                             ]
@@ -66,13 +70,11 @@ class RoboRewardBenchScenario(Scenario):
             add_policy_videos("A")
             add_policy_videos("B", insert_newline_before=True)
 
-            correct_output: str = winner if winner in ["A", "B", "tie"] else "tie"
-
             instances.append(
                 Instance(
                     id=annotation_id,
                     input=Input(multimedia_content=MultimediaObject(content)),
-                    references=[Reference(output=Output(text=correct_output), tags=[CORRECT_TAG])],
+                    references=[Reference(output=Output(text=winner), tags=[CORRECT_TAG])],
                     split=TEST_SPLIT,
                 )
             )

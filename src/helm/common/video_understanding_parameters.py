@@ -13,5 +13,3 @@ class VideoUnderstandingParameters:
 
     frames_per_second: int = 1
     """Number of frames per second to sample from the video."""
-
-

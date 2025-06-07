@@ -103,10 +103,7 @@ def filter_blacked_out_images(image_locations: List[str]) -> List[str]:
     return [image_location for image_location in image_locations if not is_blacked_out_image(image_location)]
 
 
-def sample_frames(
-    video_path: Union[str, Path],
-    fps: int
-) -> List[str]:
+def sample_frames(video_path: Union[str, Path], fps: int) -> List[str]:
     """
     Open the video at `video_path`, sample frames at approximately `fps` frames/sec,
     save each sampled frame as a JPEG under:

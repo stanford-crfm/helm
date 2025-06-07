@@ -140,7 +140,7 @@ class Qwen2VLMClient(CachingClient):
                         generated_ids = model.generate(**inputs, **generation_args)
                         # Remove the input prefix from outputs.
                         generated_ids_trimmed = [
-                            out_ids[len(in_ids):] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
+                            out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
                         ]
                         output_text = processor.batch_decode(
                             generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False

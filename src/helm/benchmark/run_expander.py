@@ -34,7 +34,6 @@ from helm.benchmark.scenarios.scenario import TEST_SPLIT, VALID_SPLIT
 from helm.common.video_understanding_parameters import VideoUnderstandingParameters
 
 
-
 class RunExpander(ABC):
     """
     A `RunExpander` takes a `RunSpec` and returns a list of `RunSpec`s.
