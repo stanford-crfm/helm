@@ -130,7 +130,8 @@ class RoboRewardBenchProgressPredictionScenario(RoboRewardBenchPreferenceRanking
 
                 policy_key: str = f"policy_{policy_label.lower()}"
                 policy_rollout: dict = annotation[policy_key]
-                partial_success_score: float = policy_rollout["partial_success_score"]
+                # Assuming the partial success score is a float between 0 and 1
+                partial_success_score: float = policy_rollout["partial_success_score"] * 100
                 instances.append(
                     Instance(
                         id=f"{annotation_id}_{policy_label}",
