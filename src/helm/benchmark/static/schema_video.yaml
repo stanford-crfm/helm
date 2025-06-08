@@ -170,6 +170,16 @@ metrics:
     lower_is_better: true
     description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).
 
+  # RoboRewardBench metrics
+  - name: abs_error
+    display_name: Absolute error
+    lower_is_better: true
+    description: Absolute difference between the predicted progress score and the ground-truth human score.
+  - name: squared_error
+    display_name: Squared error
+    lower_is_better: true
+    description: Squared difference (L2 loss) between the predicted progress score and the ground-truth human score.
+
 ############################################################
 metric_groups:
   - name: accuracy
@@ -201,6 +211,7 @@ run_groups:
     category: All scenarios
     subgroups:
       - robo_reward_bench_preference_ranking
+      - robo_reward_bench_progress_prediction
 
   - name: msr_vtt
     display_name: MST-VTT
@@ -233,3 +244,17 @@ run_groups:
       when: "2025"
       language: English
 
+  - name: robo_reward_bench_progress_prediction
+    display_name: Robo Reward Bench
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English

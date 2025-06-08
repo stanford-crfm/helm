@@ -8,7 +8,7 @@ from helm.benchmark.metrics.statistic import Stat
 from helm.common.hierarchical_logger import hlog
 
 
-class RoboRewardBenchMetric(Metric):
+class RoboRewardBenchPreferenceRankingMetric(Metric):
     @staticmethod
     def extract_answer(raw_completion: str) -> Optional[str]:
         # Expected format: "ANSWER: a" or "ANSWER: b" or "ANSWER: tie"
@@ -23,7 +23,7 @@ class RoboRewardBenchMetric(Metric):
             return None
 
     def __repr__(self):
-        return "RoboRewardBenchMetric"
+        return "RoboRewardBenchPreferenceRankingMetric"
 
     def evaluate_generation(
         self,
@@ -50,3 +50,52 @@ class RoboRewardBenchMetric(Metric):
             score = 1.0 if predicted_answer.lower() == correct_answer.lower() else 0.0
 
         return [Stat(MetricName("exact_match", split="test")).add(score)]
+
+
+class RoboRewardBenchProgressPredictionMetric(Metric):
+    @staticmethod
+    def extract_answer(raw_completion: str) -> Optional[float]:
+        # Expected format: "ANSWER: <float>"
+        text = raw_completion
+        if "ANSWER:" in text:
+            text = text.split("ANSWER:", 1)[1]
+        text = text.strip()
+
+        try:
+            return float(text)
+        except ValueError:
+            return None
+
+    def __repr__(self):
+        return "RoboRewardBenchProgressPredictionMetric"
+
+    def evaluate_generation(
+        self,
+        adapter_spec: AdapterSpec,
+        request_state: RequestState,
+        metric_service: MetricService,
+        eval_cache_path: str,
+    ) -> List[Stat]:
+        instance = request_state.instance
+        # ground truth is a single float in references[0].output.text
+        correct_answer = float(instance.references[0].output.text.strip())
+
+        if request_state.result is None or not request_state.result.completions:
+            hlog(f"Missing result for instance {instance.id}")
+            return []
+
+        prediction = request_state.result.completions[0].text
+        predicted_score = self.extract_answer(prediction)
+
+        if predicted_score is None:
+            hlog(f"Could not extract answer for instance {instance.id}: {prediction}")
+            return []
+
+        # compute absolute error and squared error
+        abs_err = abs(predicted_score - correct_answer)
+        sq_err = (predicted_score - correct_answer) ** 2
+
+        return [
+            Stat(MetricName("abs_error", split="test")).add(abs_err),
+            Stat(MetricName("squared_error", split="test")).add(sq_err),
+        ]

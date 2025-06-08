@@ -30,14 +30,19 @@ class RoboRewardBenchPreferenceRankingScenario(Scenario):
 
     @staticmethod
     def add_policy_videos(
-        policy_label: str, annotation: dict, output_path: str, insert_newline_before: bool = False
+        policy_label: str,
+        annotation: dict,
+        output_path: str,
+        insert_newline_before: bool = False,
+        omit_policy_label: bool = False,
     ) -> List[MediaObject]:
         content = []
         if insert_newline_before:
             content.append(MediaObject(text="\n", content_type="text/plain"))
 
         policy_title: str = f"Policy {policy_label}"
-        content.append(MediaObject(text=policy_title, content_type="text/plain"))
+        if not omit_policy_label:
+            content.append(MediaObject(text=policy_title, content_type="text/plain"))
 
         policy_key: str = f"policy_{policy_label.lower()}"
         policy_rollout: dict = annotation[policy_key]
@@ -48,11 +53,12 @@ class RoboRewardBenchPreferenceRankingScenario(Scenario):
             )
             cam_name: str = camera["name"]
             if cam_path is not None:
+                camera_header: str = f"{cam_name.capitalize()} camera:"
+                if not omit_policy_label:
+                    camera_header = f"{policy_title} - {camera_header}"
                 content.extend(
                     [
-                        MediaObject(
-                            text=f"{policy_title} - {cam_name.capitalize()} camera:", content_type="text/plain"
-                        ),
+                        MediaObject(text=camera_header, content_type="text/plain"),
                         MediaObject(location=cam_path, content_type="video/mp4"),
                     ]
                 )
@@ -92,5 +98,46 @@ class RoboRewardBenchPreferenceRankingScenario(Scenario):
                     split=TEST_SPLIT,
                 )
             )
+
+        return instances
+
+
+class RoboRewardBenchProgressPredictionScenario(RoboRewardBenchPreferenceRankingScenario):
+    def get_instances(self, output_path: str) -> List[Instance]:
+        annotation_path: str = os.path.join(output_path, "output", "robo_arena.jsonl")
+        assert os.path.exists(annotation_path), f"Annotation file does not exist at path: {annotation_path}"
+
+        with open(annotation_path, "r") as f:
+            head_to_head_annotations = [json.loads(line) for line in f.readlines()]
+
+        instances: List[Instance] = []
+        for annotation in head_to_head_annotations:
+            annotation_id: str = annotation["id"]
+            prompt: str = f"Task: {annotation['task']}"
+
+            for policy_label in ["A", "B"]:
+                content: List[MediaObject] = [
+                    MediaObject(text=prompt + "\n", content_type="text/plain"),
+                ]
+                content.extend(
+                    self.add_policy_videos(
+                        policy_label=policy_label,
+                        annotation=annotation,
+                        output_path=output_path,
+                        omit_policy_label=True,
+                    )
+                )
+
+                policy_key: str = f"policy_{policy_label.lower()}"
+                policy_rollout: dict = annotation[policy_key]
+                partial_success_score: float = policy_rollout["partial_success_score"]
+                instances.append(
+                    Instance(
+                        id=f"{annotation_id}_{policy_label}",
+                        input=Input(multimedia_content=MultimediaObject(content)),
+                        references=[Reference(output=Output(text=str(partial_success_score)), tags=[CORRECT_TAG])],
+                        split=TEST_SPLIT,
+                    )
+                )
 
         return instances

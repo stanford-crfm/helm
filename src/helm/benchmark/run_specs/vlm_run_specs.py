@@ -1086,12 +1086,53 @@ def get_robo_reward_bench_preference_ranking_spec() -> RunSpec:
     )
     metric_specs: List[MetricSpec] = [
         MetricSpec(
-            class_name="helm.benchmark.metrics.robo_reward_bench_metrics.RoboRewardBenchMetric",
+            class_name="helm.benchmark.metrics.robo_reward_bench_metrics.RoboRewardBenchPreferenceRankingMetric",
             args={},
         )
     ]
 
     run_spec_name: str = "robo_reward_bench_preference_ranking"
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("robo_reward_bench_progress_prediction")
+def get_robo_reward_bench_progress_prediction_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.robo_reward_bench_scenario."
+        "RoboRewardBenchProgressPredictionScenario",
+        args={},
+    )
+
+    instructions: str = (
+        "You will be shown a single video rollout of a robot attempting to complete a given task, captured from "
+        "multiple camera angles.\n\n"
+        "Estimate the percentage of the task that the robot has completed. Focus **only** on how much of the "
+        "overall task was achieved, and ignore other factors.\n\n"
+        "First, describe how the robot performed and explain your reasoning. Then, on a new line, write your "
+        "final answer in **exactly** the following format:\n"
+        "ANSWER: <score>\n"
+        "where <score> is a floating-point number between 0 and 100 indicating the percentage of task completion.\n\n"
+        "**Do not include any additional commentary, punctuation, or variations. Only use the format above.**"
+    )
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(
+        instructions=instructions,
+        max_tokens=1024,
+        max_train_instances=0,
+    )
+    metric_specs: List[MetricSpec] = [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.robo_reward_bench_metrics.RoboRewardBenchProgressPredictionMetric",
+            args={},
+        )
+    ]
+
+    run_spec_name: str = "robo_reward_bench_progress_prediction"
     return RunSpec(
         name=run_spec_name,
         scenario_spec=scenario_spec,
