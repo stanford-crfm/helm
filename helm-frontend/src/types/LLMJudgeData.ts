@@ -1,7 +1,7 @@
 export interface LLMJudgeTask {
   judgement: number;
   explanation: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export default interface LLMJudgeData {
