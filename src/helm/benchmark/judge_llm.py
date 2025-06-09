@@ -89,7 +89,7 @@ class LLMJudger:
 
         return 0, "No response from LLM judge."
 
-    def judge(self, predictions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def judge(self, predictions: List[Dict[str, Any]], instructions: str="") -> List[Dict[str, Any]]:
         """
         Apply LLM judgment and return all complete judgments (without saving to file).
         """
@@ -99,8 +99,18 @@ class LLMJudger:
             input_text = prediction.get("input", "")
             model_response = prediction.get("prediction", "")
 
+            if instructions.strip():
+                instructions = f"Benchmark instructions:\n{instructions}\n"
+            else:
+                instructions = ""
+
             prompt_template = self._load_prompt_template(self.prompt_file)
             prompt = prompt_template.replace("{input}", input_text).replace("{response}", model_response)
+            prompt = prompt.replace("{instructions}", instructions)
+
+            print("=========================================")
+            print(prompt)
+            print("=========================================")
 
             judged_value, explanation = self.call_llm(prompt)
 

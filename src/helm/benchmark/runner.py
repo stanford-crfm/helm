@@ -248,9 +248,12 @@ class Runner:
             request_states=request_states,
             annotator_specs=run_spec.annotators,
         )
-
+        print("="*100)
+        print(scenario_state.adapter_spec.instructions)
+        print("="*100)
         scenario_state = self.executor.execute(scenario_state)
         scenario_state = self.annotator_executor.execute(scenario_state)
+        
         
         metrics: List[MetricInterface] = (
             [DryRunMetric()]
@@ -308,10 +311,11 @@ class Runner:
                 raise ValueError("judge_model must be specified when llm_judge is True.")
             if self.prompt_file is None:
                 raise ValueError("prompt_file must be specified when llm_judge is True.")
-            
+
             llm_judge = LLMJudger(self.executor.context, judge_model=self.judge_model, prompt_file=self.prompt_file)
             predictions = extract_predictions(scenario_state)
-            judgements = llm_judge.judge(predictions)
+            instructions = getattr(scenario_state.adapter_spec, "instructions", "")
+            judgements = llm_judge.judge(predictions, instructions=instructions)
             save_judge_summary(run_spec, run_path, self.judge_model, judgements)
 
     
