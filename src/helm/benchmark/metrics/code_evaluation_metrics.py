@@ -5,6 +5,33 @@ import re
 import os
 import subprocess
 import tempfile
+import clang.cindex
+from clang.cindex import CursorKind
+
+try:
+    import torch
+    import torch.nn.functional as F
+    from transformers import RobertaTokenizer, RobertaModel
+    CODEBERT_AVAILABLE = True
+except ImportError:
+    CODEBERT_AVAILABLE = False
+    print("Warning: CodeBERT dependencies not available. Install with: pip install torch transformers")
+
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric_name import MetricName
+from helm.benchmark.metrics.metric_service import MetricService
+from helm.benchmark.metrics.statistic import Stat
+
+
+from typing import Any, Dict, List, Optional, Tuple
+import ast
+import pandas as pd
+import re
+import os
+import subprocess
+import tempfile
 
 try:
     import torch
@@ -24,79 +51,91 @@ from helm.benchmark.metrics.statistic import Stat
 
 
 class ASTAnalyzer:
-    """Class for calculating AST edit distances between real student code and LLM generated code"""
+    """Class for calculating AST edit distances between two C++ code snippets using libclang."""
     
+    def __init__(self, clang_lib_path: str = None):
+        """
+        If libclang isn't on your LD_LIBRARY_PATH, pass its full path here.
+        e.g. '/usr/lib/llvm-14/lib/libclang.so'
+        """
+        if clang_lib_path:
+            clang.cindex.Config.set_library_file(clang_lib_path)
+        self.index = clang.cindex.Index.create()
+
     def calculate_ast_distance(self, code1: str, code2: str) -> float:
         """
-        Calculate normalized AST edit distance between two codes
-        Returns a value between 0 and 1, where 0 means that two codes are identical and 1 means completely different.
+        Calculate normalized AST edit distance between two C++ code snippets.
+        Returns a float in [0,1], where 0 means identical ASTs and 1 means completely different
+        (or a parse failure).
         """
         try:
-            # Parse both codes into ASTs
-            tree1 = ast.parse(code1)
-            tree2 = ast.parse(code2)
-            nodes1 = self._extract_ast_features(tree1)
-            nodes2 = self._extract_ast_features(tree2)
+            tu1 = self.index.parse(
+                path='code1.cpp',
+                args=['-std=c++17'],
+                unsaved_files=[('code1.cpp', code1)]
+            )
+            tu2 = self.index.parse(
+                path='code2.cpp',
+                args=['-std=c++17'],
+                unsaved_files=[('code2.cpp', code2)]
+            )
             
-            # Calculate edit distance using simple node comparison
+            nodes1, nodes2 = [], []
+            self._extract_ast_features(tu1.cursor, nodes1)
+            self._extract_ast_features(tu2.cursor, nodes2)
+            
             distance = self._calculate_edit_distance(nodes1, nodes2)
-            # Normalize distance by the maximum distance
             max_nodes = max(len(nodes1), len(nodes2))
             if max_nodes == 0:
                 return 0.0
-            normalized_distance = min(distance / max_nodes, 1.0)
-            return normalized_distance
-            
-        except (SyntaxError, ValueError) as e:
-            # If parsing fails, return maximum distance
+            return min(distance / max_nodes, 1.0)
+        
+        except Exception:
+            # any parse error or clang error → max distance
             return 1.0
-    
-    def _extract_ast_features(self, tree: ast.AST) -> List[str]:
-        """Extract features from AST for comparison."""
-        features = []
+
+    def _extract_ast_features(self, node: clang.cindex.Cursor, feats: List[str]):
+        """Recursively walk Clang AST, appending feature strings to feats."""
+        # record the node kind
+        feats.append(node.kind.name)
         
-        for node in ast.walk(tree):
-            # Include node type
-            features.append(type(node).__name__)
-            # Include some node-specific information
-            if isinstance(node, ast.Name):
-                features.append(f"Name:{node.id}")
-            elif isinstance(node, ast.Constant):
-                features.append(f"Constant:{str(node.value)}")
-            elif isinstance(node, ast.FunctionDef):
-                features.append(f"Function:{node.name}")
-            elif isinstance(node, ast.BinOp):
-                features.append(f"BinOp:{type(node.op).__name__}")
-            elif isinstance(node, ast.Compare):
-                ops = [type(op).__name__ for op in node.ops]
-                features.append(f"Compare:{','.join(ops)}")
+        # some node-specific details
+        if node.kind == CursorKind.FUNCTION_DECL:
+            feats.append(f"Function:{node.spelling}")
+        elif node.kind == CursorKind.DECL_REF_EXPR:
+            feats.append(f"Ref:{node.spelling}")
+        elif node.kind in (CursorKind.INTEGER_LITERAL,
+                           CursorKind.FLOATING_LITERAL,
+                           CursorKind.STRING_LITERAL,
+                           CursorKind.CHARACTER_LITERAL):
+            # get literal token text
+            tokens = list(node.get_tokens())
+            if tokens:
+                feats.append(f"Literal:{tokens[0].spelling}")
         
-        return features
-    
+        # recurse
+        for child in node.get_children():
+            self._extract_ast_features(child, feats)
+
     def _calculate_edit_distance(self, seq1: List[str], seq2: List[str]) -> int:
-        """Calculate edit distance between two sequences using dynamic programming."""
+        """Classic Levenshtein edit distance between two sequences."""
         m, n = len(seq1), len(seq2)
-        # Create DP table
         dp = [[0] * (n + 1) for _ in range(m + 1)]
-        
-        # Initialize base cases
         for i in range(m + 1):
             dp[i][0] = i
         for j in range(n + 1):
             dp[0][j] = j
         
-        # Fill DP table
         for i in range(1, m + 1):
             for j in range(1, n + 1):
                 if seq1[i-1] == seq2[j-1]:
                     dp[i][j] = dp[i-1][j-1]
                 else:
                     dp[i][j] = 1 + min(
-                        dp[i-1][j],    # deletion
-                        dp[i][j-1],    # insertion
-                        dp[i-1][j-1]   # substitution
+                        dp[i-1][j],    # delete
+                        dp[i][j-1],    # insert
+                        dp[i-1][j-1]   # substitute
                     )
-        
         return dp[m][n]
 
 
@@ -360,10 +399,16 @@ class UnitTestAlignmentMetric(Metric):
         
         # Calculate pass rate difference
         pass_rate_difference = abs(llm_pass_rate - student_pass_rate)
+
+        # Normalized Hamming distance
+        differences = sum(1 for i in range(total_tests)
+                            if llm_padded[i] != student_padded[i])
+        hamming_distance = differences / total_tests if total_tests > 0 else 0.0
         
         return [
             Stat(MetricName("unit_test_alignment_ratio")).add(alignment_ratio),
             Stat(MetricName("unit_test_pass_rate_difference")).add(pass_rate_difference),
+            Stat(MetricName("unit_test_hamming_distance")).add(hamming_distance),
         ]
     
     def _extract_student_code(self, model_code: str) -> str:
@@ -535,7 +580,8 @@ int main() {{
         """Create default statistics for failure cases."""
         return [
             Stat(MetricName("unit_test_alignment_ratio")).add(0.0),
-            Stat(MetricName("unit_test_pass_rate_difference")).add(0.0),
+            Stat(MetricName("unit_test_pass_rate_difference")).add(1.0),
+            Stat(MetricName("unit_test_hamming_distance")).add(1.0),
         ]
 
 
@@ -554,6 +600,7 @@ class ComprehensiveCodeEvaluationMetric(CodeEvaluationMetric):
         eval_cache_path: str,
     ) -> List[Stat]:
         """Evaluate with AST, CodeBERT, and unit test alignment metrics."""
+        
         # Get base AST and CodeBERT metrics
         stats = super().evaluate_generation(adapter_spec, request_state, metric_service, eval_cache_path)
         
@@ -562,7 +609,6 @@ class ComprehensiveCodeEvaluationMetric(CodeEvaluationMetric):
             adapter_spec, request_state, metric_service, eval_cache_path
         )
         stats.extend(unit_test_stats)
-        
         return stats
 
 

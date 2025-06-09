@@ -35,7 +35,7 @@ class StudentCodingScenario(Scenario):
             student_correctness_pattern = target.get("pass", None)
             main_part = int(student_correctness_pattern)       # "1111111111"
             # Convert each character to an int
-            studnet_correctness_list = [int(ch) for ch in str(main_part)] #[1,1,1,1,1,1,1,1,1,1]
+            student_correctness_list = [int(ch) for ch in str(main_part)] #[1,1,1,1,1,1,1,1,1,1]
             
             prompt = (
                 "You are the same student who wrote the three examples below in your foundational C++ course. "
@@ -84,7 +84,7 @@ class StudentCodingScenario(Scenario):
                         "question_id": str(question_id) if question_id else None,
                         "question_name": target.get("question_name", ""),
                         "student_id": str(student_id),
-                        "student_correctness_pattern": studnet_correctness_list,
+                        "student_correctness_pattern": student_correctness_list,
                     },
                     split=VALID_SPLIT,
                 )
@@ -110,7 +110,7 @@ class StudentCodingScenario(Scenario):
         }
         """
         try:
-            response = requests.get("https://huggingface.co/datasets/Kazchoko/my_dataset/blob/main/test_cases_by_qid.json")
+            response = requests.get("https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/test_cases_by_qid.json")
             if response.status_code == 200:
                 return response.json()
         except Exception as e:
