@@ -1,0 +1,58 @@
+# This GitHub Actions workflow automatically upgrades the pinned versions
+# in requirements.txt for all Python dependencies (including transitive dependencies)
+# every Monday or whenever the workflow is manually triggered.
+
+name: Upgrade requirements.txt
+
+on:
+  schedule:
+    - cron: "30 15 * * 1"
+  workflow_dispatch:
+
+jobs:
+  upgrade-requirements:
+    name: Upgrade requirements.txt
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9"]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install uv
+        run: pip install uv
+      - name: Resolve dependencies
+        run: uv pip compile setup.cfg --upgrade --extra all --extra dev --universal --no-annotate --constraints constraints.txt -o requirements.txt
+        # Need to manually run tests here because the pull request opened later will not
+        # run the test workflow.
+        #
+        # From https://docs.github.com/en/actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow
+        #
+        #     ...events triggered by the GITHUB_TOKEN... will not create a new workflow run.
+        #     This prevents you from accidentally creating recursive workflow runs. For example,
+        #     if a workflow run pushes code using the repository's GITHUB_TOKEN, a new workflow
+        #     will not run even when the repository contains a workflow configured to run when
+        #     push events occur.
+      - name: Install HELM 
+        run: ./install-dev.sh
+      - name: Verify dependencies
+        run: pip check
+      - name: Run linter
+        run: ./pre-commit.sh
+      - name: Run tests
+        run: pytest
+      - name: Run helm-run
+        run: helm-run --suite test --run-entries simple1:model=simple/model1 --max-eval-instances 10 --exit-on-error
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: Upgrade requirements.txt
+          title: "Upgrade requirements.txt"
+          branch: actions/upgrade-requirements
+          delete-branch: true
+          body: Auto-generated from GitHub Actions.

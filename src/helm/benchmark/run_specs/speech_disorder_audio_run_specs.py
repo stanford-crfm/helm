@@ -106,6 +106,9 @@ def get_ultra_suite_disorder_breakdown_run_spec() -> RunSpec:
     )
 
 
+# Makes the model transcribe the child's speech into text without assuming what the child is supposed to say
+# if the transcription matches the prompt, then it is classified as typically developing
+# otherwise, it is classified as having a speech disorder
 @run_spec_function("ultra_suite_asr_classification")
 def get_ultra_suite_asr_classification_run_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -126,6 +129,7 @@ def get_ultra_suite_asr_classification_run_spec() -> RunSpec:
     )
 
 
+# Makes the model transcribe the child's speech into text and is allowed to assume what the child is supposed to say
 @run_spec_function("ultra_suite_asr_transcription")
 def get_ultra_suite_asr_transcription_run_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -139,6 +143,25 @@ def get_ultra_suite_asr_transcription_run_spec() -> RunSpec:
     run_spec_name: str = "ultra_suite_asr_transcription"
     return RunSpec(
         name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("ultra_suite_disorder_symptoms")
+def get_ultra_suite_disorder_symptoms_run_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.audio_language.ultra_suite_disorder_symptoms_scenario.UltraSuiteDisorderSymptomsScenario",  # noqa: E501
+    )
+    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
+        input_noun=None, output_noun="Answer", max_train_instances=0
+    )
+    metric_specs: List[MetricSpec] = audio_classification_metric_specs()
+    run_spec_name: str = "ultra_suite_disorder_symptoms"
+    return RunSpec(
+        name=f"{run_spec_name}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,

@@ -38,7 +38,7 @@ def replace_emoji_characters(s: str) -> str:
         highpoints = re.compile("[\U00010000-\U0010ffff]")
     elif sys.maxunicode == 65535:
         # Python was built with '--enable-unicode=ucs2'
-        highpoints = re.compile("[\uD800-\uDBFF][\uDC00-\uDFFF]")
+        highpoints = re.compile("[\ud800-\udbff][\udc00-\udfff]")
     else:
         raise UnicodeError("Unable to determine if Python was built using UCS-2 or UCS-4")
 

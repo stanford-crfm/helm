@@ -1,0 +1,1257 @@
+---
+############################################################
+metrics:
+  # Infrastructure metrics:
+  - name: num_perplexity_tokens
+    display_name: '# tokens'
+    description: Average number of tokens in the predicted output (for language modeling, the input too).
+  - name: num_bytes
+    display_name: '# bytes'
+    description: Average number of bytes in the predicted output (for language modeling, the input too).
+
+  - name: num_references
+    display_name: '# ref'
+    description: Number of references.
+  - name: num_train_trials
+    display_name: '# trials'
+    description: Number of trials, where in each trial we choose an independent, random set of training instances.
+  - name: estimated_num_tokens_cost
+    display_name: 'cost'
+    description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
+  - name: num_prompt_tokens
+    display_name: '# prompt tokens'
+    description: Number of tokens in the prompt.
+  - name: num_prompt_characters
+    display_name: '# prompt chars'
+    description: Number of characters in the prompt.
+  - name: num_completion_tokens
+    display_name: '# completion tokens'
+    description: Actual number of completion tokens (over all completions).
+  - name: num_output_tokens
+    display_name: '# output tokens'
+    description: Actual number of output tokens.
+  - name: max_num_output_tokens
+    display_name: 'Max output tokens'
+    description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
+  - name: num_requests
+    display_name: '# requests'
+    description: Number of distinct API requests.
+  - name: num_instances
+    display_name: '# eval'
+    description: Number of evaluation instances.
+  - name: num_train_instances
+    display_name: '# train'
+    description: Number of training instances (e.g., in-context examples).
+  - name: prompt_truncated
+    display_name: truncated
+    description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
+  - name: finish_reason_length
+    display_name: finish b/c length
+    description: Fraction of instances where the the output was terminated because of the max tokens limit.
+  - name: finish_reason_stop
+    display_name: finish b/c stop
+    description: Fraction of instances where the the output was terminated because of the stop sequences.
+  - name: finish_reason_endoftext
+    display_name: finish b/c endoftext
+    description: Fraction of instances where the the output was terminated because the end of text token was generated.
+  - name: finish_reason_unknown
+    display_name: finish b/c unknown
+    description: Fraction of instances where the the output was terminated for unknown reasons.
+  - name: num_completions
+    display_name: '# completions'
+    description: Number of completions.
+  - name: predicted_index
+    display_name: Predicted index
+    description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
+
+  # Accuracy metrics:
+  - name: exact_match
+    display_name: Exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_exact_match
+    display_name: Quasi-exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+    lower_is_better: false
+  - name: prefix_exact_match
+    display_name: Prefix exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_prefix_exact_match
+    # TODO: should call this prefix_quasi_exact_match
+    display_name: Prefix quasi-exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
+    lower_is_better: false
+
+  - name: exact_match@5
+    display_name: Exact match @5
+    short_display_name: EM@5
+    description: Fraction of instances where at least one predicted output among the top 5 matches a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_exact_match@5
+    display_name: Quasi-exact match @5
+    short_display_name: EM@5
+    description: Fraction of instances where at least one predicted output among the top 5 matches a correct reference up to light processing.
+    lower_is_better: false
+  - name: prefix_exact_match@5
+    display_name: Prefix exact match @5
+    short_display_name: PEM@5
+    description: Fraction of instances that the predicted output among the top 5 matches the prefix of a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_prefix_exact_match@5
+    display_name: Prefix quasi-exact match @5
+    short_display_name: PEM@5
+    description: Fraction of instances that the predicted output among the top 5 matches the prefix of a correct reference up to light processing.
+    lower_is_better: false
+
+  - name: logprob
+    display_name: Log probability
+    short_display_name: Logprob
+    description: Predicted output's average log probability (input's log prob for language modeling).
+    lower_is_better: false
+  - name: logprob_per_byte
+    display_name: Log probability / byte
+    short_display_name: Logprob/byte
+    description: Predicted output's average log probability normalized by the number of bytes.
+    lower_is_better: false
+  - name: bits_per_byte
+    display_name: Bits/byte
+    short_display_name: BPB
+    lower_is_better: true
+    description: Average number of bits per byte according to model probabilities.
+  - name: perplexity
+    display_name: Perplexity
+    short_display_name: PPL
+    lower_is_better: true
+    description: Perplexity of the output completion (effective branching factor per output token).
+  - name: rouge_1
+    display_name: ROUGE-1
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 1-gram overlap.
+    lower_is_better: false
+  - name: rouge_2
+    display_name: ROUGE-2
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 2-gram overlap.
+    lower_is_better: false
+  - name: rouge_l
+    display_name: ROUGE-L
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on longest common subsequence overlap.
+    lower_is_better: false
+  - name: bleu_1
+    display_name: BLEU-1
+    description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 1-gram overlap.
+    lower_is_better: false
+  - name: bleu_4
+    display_name: BLEU-4
+    description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 4-gram overlap.
+    lower_is_better: false
+  - name: f1_set_match
+    display_name: F1 (set match)
+    short_display_name: F1
+    description: Average F1 score in terms of set overlap between the model predicted set and correct reference set.
+    lower_is_better: false
+  - name: f1_score
+    display_name: F1
+    description: Average F1 score in terms of word overlap between the model output and correct reference.
+    lower_is_better: false
+  - name: f1_score@5
+    display_name: F1@5
+    description: Average F1 score at top 5 in terms of word overlap between the model output and correct reference.
+    lower_is_better: false
+  - name: classification_macro_f1
+    display_name: Macro-F1
+    description: Population-level macro-averaged F1 score.
+    lower_is_better: false
+  - name: classification_micro_f1
+    display_name: Micro-F1
+    description: Population-level micro-averaged F1 score.
+    lower_is_better: false
+  - name: absolute_value_difference
+    display_name: Absolute difference
+    short_display_name: Diff.
+    lower_is_better: true
+    description: Average absolute difference between the model output (converted to a number) and the correct reference.
+  - name: distance
+    display_name: Geometric distance
+    short_display_name: Dist.
+    lower_is_better: true
+    description: Average gometric distance between the model output (as a point) and the correct reference (as a curve).
+  - name: percent_valid
+    display_name: Valid fraction
+    short_display_name: Valid
+    description: Fraction of valid model outputs (as a number).
+    lower_is_better: false
+  - name: RR@5
+    display_name: RR@5
+    description: Mean reciprocal rank at 5 in information retrieval.
+    lower_is_better: false
+  - name: NDCG@10
+    display_name: NDCG@10
+    description: Normalized discounted cumulative gain at 10 in information retrieval.
+    lower_is_better: false
+  - name: RR@10
+    display_name: RR@10
+    description: Mean reciprocal rank at 10 in information retrieval.
+    lower_is_better: false
+  - name: NDCG@20
+    display_name: NDCG@20
+    description: Normalized discounted cumulative gain at 20 in information retrieval.
+    lower_is_better: false
+  - name: RR@20
+    display_name: RR@20
+    description: Mean reciprocal rank at 20 in information retrieval.
+    lower_is_better: false
+  - name: Success@1
+    display_name: Success@1
+    description: Success at top 1 in information retrieval.
+    lower_is_better: false
+  - name: Success@2
+    display_name: Success@2
+    description: Success at top 2 in information retrieval.
+    lower_is_better: false
+  - name: Success@3
+    display_name: Success@3
+    description: Success at top 3 in information retrieval.
+    lower_is_better: false
+  - name: Success@5
+    display_name: Success@5
+    description: Success at top 5 in information retrieval.
+    lower_is_better: false
+  - name: Success@10
+    display_name: Success@10
+    description: Success at top 10 in information retrieval.
+    lower_is_better: false
+  - name: Success@20
+    display_name: Success@20
+    description: Success at top 20 in information retrieval.
+    lower_is_better: false
+  - name: Recall@1
+    display_name: Recall@1
+    description: Recall at top 1 in information retrieval.
+    lower_is_better: false
+  - name: Recall@2
+    display_name: Recall@2
+    description: Recall at top 2 in information retrieval.
+    lower_is_better: false
+  - name: Recall@3
+    display_name: Recall@3
+    description: Recall at top 3 in information retrieval.
+    lower_is_better: false
+  - name: Recall@5
+    display_name: Recall@5
+    description: Recall at top 5 in information retrieval.
+    lower_is_better: false
+  - name: Recall@10
+    display_name: Recall@10
+    description: Recall at top 10 in information retrieval.
+    lower_is_better: false
+  - name: Recall@20
+    display_name: Recall@20
+    description: Recall at top 20 in information retrieval.
+    lower_is_better: false
+  - name: Success@1 (topk=30)
+    display_name: Success@1 (topk=30)
+    description: Success at top 1 in information retrieval.
+    lower_is_better: false
+  - name: Success@2 (topk=30)
+    display_name: Success@2 (topk=30)
+    description: Success at top 2 in information retrieval.
+    lower_is_better: false
+  - name: Success@3 (topk=30)
+    display_name: Success@3 (topk=30)
+    description: Success at top 3 in information retrieval.
+    lower_is_better: false
+  - name: Success@5 (topk=30)
+    display_name: Success@5 (topk=30)
+    description: Success at top 5 in information retrieval.
+    lower_is_better: false
+  - name: Success@10 (topk=30)
+    display_name: Success@10 (topk=30)
+    description: Success at top 10 in information retrieval.
+    lower_is_better: false
+  - name: Success@20 (topk=30)
+    display_name: Success@20 (topk=30)
+    description: Success at top 20 in information retrieval.
+    lower_is_better: false
+  - name: Recall@1 (topk=30)
+    display_name: Recall@1 (topk=30)
+    description: Recall at top 1 in information retrieval.
+    lower_is_better: false
+  - name: Recall@2 (topk=30)
+    display_name: Recall@2 (topk=30)
+    description: Recall at top 2 in information retrieval.
+    lower_is_better: false
+  - name: Recall@3 (topk=30)
+    display_name: Recall@3 (topk=30)
+    description: Recall at top 3 in information retrieval.
+    lower_is_better: false
+  - name: Recall@5 (topk=30)
+    display_name: Recall@5 (topk=30)
+    description: Recall at top 5 in information retrieval.
+    lower_is_better: false
+  - name: Recall@10 (topk=30)
+    display_name: Recall@10 (topk=30)
+    description: Recall at top 10 in information retrieval.
+    lower_is_better: false
+  - name: Recall@20 (topk=30)
+    display_name: Recall@20 (topk=30)
+    description: Recall at top 20 in information retrieval.
+    lower_is_better: false
+  - name: RR@5 (topk=30)
+    display_name: RR@5 (topk=30)
+    description: Mean reciprocal rank at 5 in information retrieval.
+    lower_is_better: false
+  - name: RR@10 (topk=30)
+    display_name: RR@10 (topk=30)
+    description: Mean reciprocal rank at 10 in information retrieval.
+    lower_is_better: false
+  - name: RR@20 (topk=30)
+    display_name: RR@20 (topk=30)
+    description: Mean reciprocal rank at 20 in information retrieval.
+    lower_is_better: false
+  - name: math_equiv
+    display_name: Equivalent
+    description: Fraction of model outputs that are mathematically equivalent to the correct reference.
+    lower_is_better: false
+  - name: math_equiv_chain_of_thought
+    display_name: Equivalent (chain of thought)
+    description: Fraction of model outputs that are mathematically equivalent to the correct reference when using chain-of-thought prompting.
+    lower_is_better: false
+  - name: exact_match_indicator
+    display_name: Exact match (final)
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly, ignoring text preceding the specified indicator (e.g., space).
+    lower_is_better: false
+  - name: final_number_exact_match
+    display_name: Exact match (final number)
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly, ignoring text preceding the specified indicator.
+    lower_is_better: false
+  - name: exact_set_match
+    display_name: Exact match (at sets)
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly as sets.
+    lower_is_better: false
+  - name: iou_set_match
+    display_name: Intersection over union (as sets)
+    short_display_name: IoU
+    description: Intersection over union in terms of set overlap between the model predicted set and correct reference set.
+    lower_is_better: false
+
+  # Summariazation metrics
+  - name: summac
+    display_name: SummaC
+    description: Faithfulness scores based on the SummaC method of [Laban et al. (2022)](https://aclanthology.org/2022.tacl-1.10/).
+    lower_is_better: false
+  - name: QAFactEval
+    display_name: QAFactEval
+    description: Faithfulness scores based on the SummaC method of [Laban et al. (2022)](https://aclanthology.org/2022.tacl-1.10/).
+    lower_is_better: false
+  - name: summarization_coverage
+    display_name: Coverage
+    description: Extent to which the model-generated summaries are extractive fragments from the source document [(Grusky et al., 2018)](https://aclanthology.org/N18-1065/).
+  - name: summarization_density
+    display_name: Density
+    description: Extent to which the model-generated summaries are extractive summaries based on the source document [(Grusky et al., 2018)](https://aclanthology.org/N18-1065/).
+  - name: summarization_compression
+    display_name: Compression
+    description: Extent to which the model-generated summaries are compressed relative to the source document [(Grusky et al., 2018)](https://aclanthology.org/N18-1065/).
+  - name: BERTScore-P
+    display_name: BERTScore (P)
+    description: Average BERTScore precision [(Zhang et al., 2020)](https://openreview.net/pdf?id=SkeHuCVFDr) between model generation and reference summary.
+    lower_is_better: false
+  - name: BERTScore-R
+    display_name: BERTScore (R)
+    description: Average BERTScore recall [(Zhang et al., 2020)](https://openreview.net/pdf?id=SkeHuCVFDr) between model generation and reference summary.
+    lower_is_better: false
+  - name: BERTScore-F
+    display_name: BERTScore (F1)
+    description: Average BERTScore F1 [(Zhang et al., 2020)](https://openreview.net/pdf?id=SkeHuCVFDr) between model generation and reference summary.
+    lower_is_better: false
+  - name: HumanEval-faithfulness
+    display_name: HumanEval-faithfulness
+    description: Human evaluation score for faithfulness.
+    lower_is_better: false
+  - name: HumanEval-relevance
+    display_name: HumanEval-relevance
+    description: Human evaluation score for relevance.
+    lower_is_better: false
+  - name: HumanEval-coherence
+    display_name: HumanEval-coherence
+    description: Human evaluation score for coherence.
+    lower_is_better: false
+    
+  # Bias metrics:
+  - name: bias_metric:mode=associations,demographic_category=race,target_category=profession
+    display_name: Stereotypical associations (race, profession)
+    short_display_name: Stereotypes (race)
+    lower_is_better: true
+    description: Measures uneven association of racial groups (Asian, Hispanic, White) with target professions. This measurement is based on cooccurence statistics between the racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics) and the target professions (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+  - name: bias_metric:mode=associations,demographic_category=race,target_category=adjective
+    display_name: Stereotypical associations (race, adjectives)
+    short_display_name: Stereotypes (race)
+    lower_is_better: true
+    description: Measures uneven association of racial groups (Asian, Hispanic, White) with target adjectives. This measurement is based on cooccurence statistics between the racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics) and the target adjectives (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+
+  - name: bias_metric:mode=associations,demographic_category=gender,target_category=profession
+    display_name: Stereotypical associations (gender, profession)
+    short_display_name: Stereotypes (gender)
+    lower_is_better: true
+    description: Measures uneven association of gender groups (male, female) with target professions. This measurement is based on cooccurence statistics between the gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)) and the target professions (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+  - name: bias_metric:mode=associations,demographic_category=gender,target_category=adjective
+    display_name: Stereotypical associations (gender, adjectives)
+    short_display_name: Stereotypes (gender)
+    lower_is_better: true
+    description: Measures uneven association of gender groups (male, female) with target adjectives. This measurement is based on cooccurence statistics between the gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)) and the target adjectives (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+
+  - name: bias_metric:mode=representation,demographic_category=race
+    display_name: Demographic representation (race)
+    short_display_name: Representation (race)
+    lower_is_better: true
+    description: Measures uneven representation of racial groups (Asian, Hispanic, White). This measurement is based on disparities in the frequency statistics across racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics).
+  - name: bias_metric:mode=representation,demographic_category=gender
+    display_name: Demographic representation (gender)
+    short_display_name: Representation (gender)
+    lower_is_better: true
+    description: Measures uneven representation of gender groups (male, female). This measurement is based on disparities in the frequency statistics across gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+
+  - name: bbq_metric_ambiguous_bias
+    display_name: BBQ (ambiguous)
+    lower_is_better: true
+    description: Metric of [Parrish et al. (2022)](https://aclanthology.org/2022.findings-acl.165/) for BBQ on ambiguous examples.
+  - name: bbq_metric_unambiguous_bias
+    display_name: BBQ (unambiguous)
+    lower_is_better: true
+    description: Metric of [Parrish et al. (2022)](https://aclanthology.org/2022.findings-acl.165/) for BBQ on unambiguous examples.
+
+  # Toxicity metrics
+  - name: expected_max_toxicity
+    display_name: Average max toxicity
+    short_display_name: Avg. max toxicity
+    lower_is_better: true
+    description: Average max toxicity score across all completions (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
+  - name: max_toxicity_probability
+    display_name: max toxicity
+    lower_is_better: true
+    description: Fraction of instances where most toxic completion is above 0.5 toxicity (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
+  - name: toxic_frac
+    display_name: Toxic fraction
+    lower_is_better: true
+    description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).
+
+  # Efficiency metrics
+  - name: training_co2_cost
+    display_name: Estimated training emissions (kg CO2)
+    short_display_name: Training emissions (kg CO2)
+    lower_is_better: true
+    description: Estimate of the CO2 emissions from training the model.
+  - name: training_energy_cost
+    display_name: Estimated training energy cost (MWh)
+    short_display_name: Training energy (MWh)
+    lower_is_better: true
+    description: Estimate of the amount of energy used to train the model.
+  - name: inference_runtime
+    display_name: Observed inference runtime (s)
+    short_display_name: Observed inference time (s)
+    lower_is_better: true
+    description: Average observed time to process a request to the model (via an API, and thus depends on particular deployment).
+  - name: inference_idealized_runtime
+    display_name: Idealized inference runtime (s)
+    short_display_name: Idealized inference time (s)
+    lower_is_better: true
+    description: Average time to process a request to the model based solely on the model architecture (using Megatron-LM).
+  - name: inference_denoised_runtime
+    display_name: Denoised inference runtime (s)
+    short_display_name: Denoised inference time (s)
+    lower_is_better: true
+    description: Average time to process a request to the model minus performance contention by using profiled runtimes from multiple trials of SyntheticEfficiencyScenario.
+  - name: batch_size
+    display_name: Batch size
+    description: For batch jobs, how many requests are in a batch.
+
+  # Calibration metrics:
+  - name: max_prob
+    display_name: Max prob
+    description: Model's average confidence in its prediction (only computed for classification tasks)
+    lower_is_better: false
+  - name: ece_10_bin
+    display_name: 10-bin expected calibration error
+    short_display_name: ECE (10-bin)
+    lower_is_better: true
+    description: The average difference between the model's confidence and accuracy, averaged across 10 bins where each bin contains an equal number of points (only computed for classification tasks). Warning - not reliable for small datasets (e.g., with < 300 examples) because each bin will have very few examples.
+  - name: ece_1_bin
+    display_name: 1-bin expected calibration error
+    short_display_name: ECE (1-bin)
+    lower_is_better: true
+    description: The (absolute value) difference between the model's average confidence and accuracy (only computed for classification tasks).
+  - name: selective_cov_acc_area
+    display_name: Selective coverage-accuracy area
+    short_display_name: Selective Acc
+    description: The area under the coverage-accuracy curve, a standard selective classification metric (only computed for classification tasks).
+    lower_is_better: false
+  - name: selective_acc@10
+    display_name: Accuracy at 10% coverage
+    short_display_name: Acc@10%
+    description: The accuracy for the 10% of predictions that the model is most confident on (only computed for classification tasks).
+    lower_is_better: false
+  - name: platt_ece_10_bin
+    display_name: 10-bin Expected Calibration Error (after Platt scaling)
+    short_display_name: Platt-scaled ECE (10-bin)
+    lower_is_better: true
+    description: 10-bin ECE computed after applying Platt scaling to recalibrate the model's predicted probabilities.
+  - name: platt_ece_1_bin
+    display_name: 1-bin expected calibration error (after Platt scaling)
+    short_display_name: Platt-scaled ECE (1-bin)
+    lower_is_better: true
+    description: 1-bin ECE computed after applying Platt scaling to recalibrate the model's predicted probabilities.
+  - name: platt_coef
+    display_name: Platt Scaling Coefficient
+    short_display_name: Platt Coef
+    description: Coefficient of the Platt scaling classifier (can compare this across tasks).
+    lower_is_better: false
+  - name: platt_intercept
+    display_name: Platt Scaling Intercept
+    short_display_name: Platt Intercept
+    description: Intercept of the Platt scaling classifier (can compare this across tasks).
+    lower_is_better: false
+
+############################################################
+perturbations:
+  - name: robustness
+    display_name: Robustness
+    description: Computes worst case over different robustness perturbations (misspellings, formatting, contrast sets).
+  - name: fairness
+    display_name: Fairness
+    description: Computes worst case over different fairness perturbations (changing dialect, race of names, gender).
+  - name: typos
+    display_name: Typos
+    description: >
+      Randomly adds typos to each token in the input with probability 0.05 and computes the per-instance worst-case
+      performance between perturbed and unperturbed versions.
+  - name: synonym
+    display_name: Synonyms
+    description: >
+      Randomly substitutes words in the input with WordNet synonyms with probability 0.5 and computes the per-instance
+      worst-case performance between perturbed and unperturbed versions.
+  - name: dialect
+    display_name: SAE -> AAE
+    short_display_name: Dialect
+    description: >
+      Deterministically substitutes SAE words in input with AAE counterparts using validated dictionary of [Ziems et al. (2022)](https://aclanthology.org/2022.acl-long.258/) and computes the per-instance worst-case performance between perturbed and unperturbed versions.
+  - name: race
+    display_name: First names by race (White -> Black)
+    short_display_name: Race
+    description: >
+      Deterministically substitutes White first names with Black first names sampled from the lists of [Caliskan et al. (2017)](https://www.science.org/doi/10.1126/science.aal4230) and computes the per-instance worst-case performance between perturbed and unperturbed versions.
+  - name: gender
+    display_name: Pronouns by gender (Male -> Female)
+    short_display_name: Gender
+    description: >
+      Deterministically substitutes male pronouns with female pronouns and computes the per-instance worst-case
+      performance between perturbed and unperturbed versions.
+
+############################################################
+metric_groups:
+  - name: accuracy
+    display_name: Accuracy
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+
+  - name: calibration
+    display_name: Calibration
+    metrics:
+      - name: ece_10_bin
+        split: ${main_split}
+
+  - name: calibration_detailed
+    display_name: Calibration (Detailed)
+    description: Measures how calibrated the model is (how meaningful its uncertainty estimates are).
+    metrics:
+      - name: max_prob
+        split: ${main_split}
+      - name: ece_1_bin
+        split: ${main_split}
+      - name: ece_10_bin
+        split: ${main_split}
+      - name: selective_cov_acc_area
+        split: ${main_split}
+      - name: selective_acc@10
+        split: ${main_split}
+      - name: platt_ece_1_bin
+        split: ${main_split}
+      - name: platt_ece_10_bin
+        split: ${main_split}
+      - name: platt_coef
+        split: ${main_split}
+      - name: platt_intercept
+        split: ${main_split}
+
+  - name: robustness
+    display_name: Robustness
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+        perturbation_name: robustness
+
+  # TODO: Add other robustness perturbations
+  - name: robustness_detailed
+    display_name: Robustness (Detailed)
+    description: Measures how robust the model is to invariances.
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+        perturbation_name: typos
+      - name: ${main_name}
+        split: ${main_split}
+        perturbation_name: synonyms
+
+  - name: fairness
+    display_name: Fairness
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+        perturbation_name: fairness
+
+  # TODO: Add other fairness perturbations
+  - name: fairness_detailed
+    display_name: Fairness (Detailed)
+    description: Measures how fair the model is.
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+        perturbation_name: dialect
+      - name: ${main_name}
+        split: ${main_split}
+        perturbation_name: race
+      - name: ${main_name}
+        split: ${main_split}
+        perturbation_name: gender
+
+  - name: bias
+    display_name: Bias
+    metrics:
+    - name: bias_metric:mode=associations,demographic_category=race,target_category=profession
+      split: ${main_split}
+    - name: bias_metric:mode=associations,demographic_category=gender,target_category=profession
+      split: ${main_split}
+    - name: bias_metric:mode=representation,demographic_category=race
+      split: ${main_split}
+    - name: bias_metric:mode=representation,demographic_category=gender
+      split: ${main_split}
+
+  - name: toxicity
+    display_name: Toxicity
+    metrics:
+    - name: toxic_frac
+      split: ${main_split}
+
+  - name: efficiency
+    display_name: Efficiency
+    metrics:
+    - name: inference_denoised_runtime
+      split: ${main_split}
+
+  - name: efficiency_detailed
+    display_name: Efficiency (Detailed)
+    description: The efficiency of the model across both training and inference.
+    metrics:
+      - name: inference_runtime
+        split: ${main_split}
+      - name: inference_idealized_runtime
+        split: ${main_split}
+      - name: inference_denoised_runtime
+        split: ${main_split}
+      - name: training_co2_cost
+        split: ${main_split}
+      - name: training_energy_cost
+        split: ${main_split}
+
+  - name: general_information
+    display_name: General information
+    metrics:
+    - name: num_instances
+      split: ${main_split}
+    - name: num_train_instances
+      split: ${main_split}
+    - name: prompt_truncated
+      split: ${main_split}
+    - name: num_prompt_tokens
+      split: ${main_split}
+    - name: num_output_tokens
+      split: ${main_split}
+    - name: num_train_trials
+      split: ${main_split}
+
+  # Special metrics for scenarios with more than 1 main metric
+  - name: summarization_metrics
+    display_name: Summarization metrics
+    metrics:
+      - name: summac
+        split: ${main_split}
+      - name: QAFactEval
+        split: ${main_split}
+      - name: BERTScore-F
+        split: ${main_split}
+      - name: summarization_coverage
+        split: ${main_split}
+      - name: summarization_density
+        split: ${main_split}
+      - name: summarization_compression
+        split: ${main_split}
+      - name: HumanEval-faithfulness
+        split: ${main_split}
+      - name: HumanEval-relevance
+        split: ${main_split}
+      - name: HumanEval-coherence
+        split: ${main_split}
+
+  - name: classification_metrics
+    display_name: Classification metrics
+    metrics:
+      - name: classification_macro_f1
+        split: ${main_split}
+      - name: classification_micro_f1
+        split: ${main_split}
+
+#######################################################
+run_groups:
+  - name: melt
+    display_name: MELT Scenarios
+    description: Scenarios for the medical domain
+    category: All scenarios
+    subgroups:
+      - melt_question_answering_mlqa
+      - melt_question_answering_xquad
+      - melt_summarization_vietnews
+      - melt_summarization_wikilingua
+      - melt_synthetic_reasoning
+      - melt_math
+      - melt_text_classification_vsmec
+      - melt_text_classification_phoatis
+      - melt_sentiment_analysis_vlsp
+      - melt_sentiment_analysis_vsfc
+      - melt_translation_opus100
+      - melt_translation_phomt
+      - melt_lm_mask_filling_mlqa
+      - melt_lm_spelling_correction_vsec
+      - melt_knowledge_zalo
+      - melt_knowledge_vimmrc
+      - melt_toxicity_detection_vihsd
+      - melt_toxicity_detection_victsd
+      - melt_information_retrieval_mmarco
+      - melt_information_retrieval_mrobust
+
+  - name: melt_question_answering_mlqa
+    display_name: MLQA
+    description: Scenarios for question answering with the MLQA dataset.
+    category: Question Answering
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
+      language: Vietnamese
+
+  - name: melt_question_answering_xquad
+    display_name: XQuAD
+    description: Scenarios for question answering with the XQuAD dataset.
+    category: Question Answering
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
+      language: Vietnamese
+    
+  - name: melt_summarization_vietnews
+    display_name: VietNews
+    description: Scenarios for summarization with the VietNews dataset.
+    category: Summarization
+    metric_groups:
+      - accuracy
+      - summarization_metrics
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: rouge_2
+      main_split: test
+    taxonomy:
+      task: summarization
+      what: "Vietnamese online newspapers."
+      who: "?"
+      when: "?"
+      language: Vietnamese
+
+  - name: melt_summarization_wikilingua
+    display_name: WikiLingua
+    description: Scenarios for summarization with the WikiLingua dataset.
+    category: Summarization
+    metric_groups:
+      - accuracy
+      - summarization_metrics
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: rouge_2
+      main_split: test
+    taxonomy:
+      task: summarization
+      what: "?"
+      who: "?"
+      when: "?"
+      language: Vietnamese
+
+  - name: melt_synthetic_reasoning
+    display_name: Synthetic reasoning (abstract symbols)
+    description: Synthetic reasoning tasks defined using abstract symbols based on LIME [(Wu et al., 2021)](https://proceedings.mlr.press/v139/wu21c.html).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: "reasoning"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+    subgroups:
+      - melt_synthetic_reasoning_pattern_match
+      - melt_synthetic_reasoning_variable_substitution
+      - melt_synthetic_reasoning_induction
+
+  - name: melt_synthetic_reasoning_pattern_match
+    display_name: Synthetic reasoning (pattern match)
+    description: Synthetic reasoning tasks defined using pattern matching based on LIME [(Wu et al., 2021)](https://proceedings.mlr.press/v139/wu21c.html).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: "reasoning"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+  - name: melt_synthetic_reasoning_variable_substitution
+    display_name: Synthetic reasoning (variable substitution)
+    description: Synthetic reasoning tasks defined using variable substitution based on LIME [(Wu et al., 2021)](https://proceedings.mlr.press/v139/wu21c.html).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: "reasoning"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+  - name: melt_synthetic_reasoning_induction
+    display_name: Synthetic reasoning (induction)
+    description: Synthetic reasoning tasks defined using induction based on LIME [(Wu et al., 2021)](https://proceedings.mlr.press/v139/wu21c.html).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: "reasoning"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+  - name: melt_synthetic_reasoning_natural
+    display_name: Synthetic reasoning (natural language)
+    description: Synthetic reasoning tasks defined using simple natural language based on LIME [(Wu et al., 2021)](https://proceedings.mlr.press/v139/wu21c.html).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_set_match
+      main_split: test
+    taxonomy:
+      task: "reasoning"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+  - name: melt_math
+    display_name: MATH
+    description: The MATH benchmark for measuring mathematical problem solving on competition math problems [(Hendrycks et al., 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/be83ab3ecd0db773eb2dc1b0a17836a1-Abstract-round2.html).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    subgroups:
+      - melt_math_regular
+      - melt_math_chain_of_thought
+
+  - name: melt_math_regular
+    display_name: MATH
+    description: The MATH benchmark for measuring mathematical problem solving on competition math problems [(Hendrycks et al., 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/be83ab3ecd0db773eb2dc1b0a17836a1-Abstract-round2.html).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: math_equiv
+      main_split: test
+    taxonomy:
+      task: "reasoning"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+  - name: melt_math_chain_of_thought
+    display_name: MATH (chain-of-thought)
+    description: The MATH benchmark for measuring mathematical problem solving on competition math problems with chain-of-thought style reasoning [(Hendrycks et al., 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/be83ab3ecd0db773eb2dc1b0a17836a1-Abstract-round2.html).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: math_equiv_chain_of_thought
+      main_split: test
+    taxonomy:
+      task: "reasoning"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
+
+  - name: melt_text_classification_phoatis
+    display_name: PhoATIS
+    short_display_name: PhoATIS
+    description: The PhoATIS benchmark for measuring text classification on Vietnamese ATIS.
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: text classification
+      what: "Flight information."
+      who: "?"
+      when: "?"
+      language: Vietnamese
+
+  - name: melt_text_classification_vsmec
+    display_name: VSMEC
+    short_display_name: VSMEC
+    description: The VSMEC benchmark for measuring text classification on Vietnamese MSEC.
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: text classification
+      what: "?"
+      who: "?"
+      when: "?"
+      language: Vietnamese
+
+  - name: melt_sentiment_analysis_vlsp
+    display_name: VLSP
+    short_display_name: VLSP
+    description: The VLSP benchmark for measuring sentiment analysis on Vietnamese VLSP.
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: sentiment analysis
+      what: "Online comments"
+      who: "?"
+      when: "?"
+      language: Vietnamese
+
+  - name: melt_sentiment_analysis_vsfc
+    display_name: VSFC
+    short_display_name: VSFC
+    description: The VSFC benchmark for measuring sentiment analysis on Vietnamese VSFC.
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: sentiment analysis
+      what: "?"
+      who: "?"
+      when: "?"
+      language: Vietnamese
+
+  - name: melt_translation_opus100
+    display_name: OPUS100
+    short_display_name: OPUS100
+    description: The OPUS100 benchmark for measuring translation on Vietnamese OPUS100.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: translation
+      what: "?"
+      who: "?"
+      when: "?"
+      language: Vietnamese
+
+  - name: melt_translation_phomt
+    display_name: PhoMT
+    short_display_name: PhoMT
+    description: The PhoMT benchmark for measuring translation on Vietnamese PhoMT.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: translation
+      what: "?"
+      who: "?"
+      when: "?"
+      language: Vietnamese  
+
+  - name: melt_lm_mask_filling_mlqa
+    display_name: MLQA
+    description: The MLQA benchmark for measuring language model mask filling on Vietnamese MLQA.
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: language model mask filling
+      what: "?"
+      who: "?"
+      when: "?"
+      language: Vietnamese
+
+  - name: melt_lm_spelling_correction_vsec
+    display_name: VSEC
+    short_display_name: VSEC
+    description: The VSEC benchmark for measuring language model spelling correction on Vietnamese VSEC.
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: language model spelling correction
+      what: "?"
+      who: "?"
+      when: "?"
+      language: Vietnamese
+
+  - name: melt_knowledge_zalo
+    display_name: ZaloE2E
+    short_display_name: ZaloE2E
+    description: The ZaloE2E benchmark for measuring knowledge extraction on Vietnamese ZaloE2E.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: instrinsic knowledge
+      what: "?"
+      who: "?"
+      when: "?"
+      language: Vietnamese
+
+  - name: melt_knowledge_vimmrc
+    display_name: ViMMRC
+    short_display_name: ViMMRC
+    description: The ViMMRC benchmark for measuring knowledge extraction on Vietnamese ViMMRC.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: instrinsic knowledge
+      what: "?"
+      who: "?"
+      when: "?"
+      language: Vietnamese
+
+  - name: melt_toxicity_detection_vihsd
+    display_name: ViHSD
+    short_display_name: ViHSD
+    description: The ViHSD benchmark for measuring toxicity detection on Vietnamese ViHSD.
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: toxicity classification
+      what: "?"
+      who: "?"
+      when: "?"
+      language: Vietnamese
+
+  - name: melt_toxicity_detection_victsd
+    display_name: ViCTSD
+    short_display_name: ViCTSD
+    description: The ViCTSD benchmark for measuring toxicity detection on Vietnamese ViCTSD.
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: toxicity classification
+      what: "?"
+      who: "?"
+      when: "?"
+      language: Vietnamese
+
+  - name: melt_information_retrieval_mmarco
+    display_name: MARCO
+    short_display_name: MARCO
+    description: The MARCO benchmark for measuring information retrieval on Vietnamese MARCO.
+    metric_groups:
+      - accuracy
+      - robustness
+      - fairness
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: RR@10
+      main_split: valid
+    taxonomy:
+      task: information retrieval
+      what: "?"
+      who: "?"
+      when: "?"
+      language: Vietnamese
+  
+  - name: melt_information_retrieval_mrobust
+    display_name: MRobust
+    short_display_name: MRobust
+    description: The MRobust benchmark for measuring information retrieval on Vietnamese MRobust.
+    metric_groups:
+      - accuracy
+      - robustness
+      - fairness
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: NDCG@10
+      main_split: valid
+    taxonomy:
+      task: information retrieval
+      what: "?"
+      who: "?"
+      when: "?"
+      language: Vietnamese

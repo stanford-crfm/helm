@@ -14,7 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
-from helm.common.general import ensure_directory_exists
+from helm.common.general import ensure_file_downloaded
 
 
 def find_audio_json_pairs(directory: str) -> List[Tuple[str, str]]:
@@ -56,13 +56,12 @@ class UltraSuiteClassificationScenario(Scenario):
     A scenario for evaluating whether a child speaker has a speech disorder or not.
     The audio files contain speech from children, potentially with an adult present.
     The task is to classify whether the child speaker is typically developing or has a speech disorder.
-    You can find the dataset at https://huggingface.co/datasets/SAA-Lab/UltraSuite/tree/main
-    Please download the dataset and place it in the benchmark_output/scenarios/speech_disorder directory
     """
 
     name = "speech_disorder"
     description = "A scenario for evaluating speech disorders in children"
     tags = ["audio", "classification", "speech_disorder"]
+    HF_MAPPING_URL = "https://https://huggingface.co/datasets/SAA-Lab/SLPHelmUltraSuite"
 
     def get_instruction(self, words: str) -> str:
         return f"""You are a highly experienced Speech-Language Pathologist (SLP). An audio recording will be provided, typically consisting of a speech prompt from a pathologist followed by a child's repetition. The prompt the child is trying to repeat is as follows: {words}. Based on your professional expertise: 1. Assess the child's speech in the recording for signs of typical development or potential speech-language disorder. 2. Conclude your analysis with one of the following labels only: 'typically_developing' or 'speech_disorder'. 3. Provide your response as a single letter without any additional explanation, commentary, or unnecessary text."""  # noqa: E501
@@ -75,12 +74,12 @@ class UltraSuiteClassificationScenario(Scenario):
         - A JSON file with annotations containing 'answer' field
         """
 
-        # TODO: Automate downloading the dataset
-        ensure_directory_exists(output_path)
+        print(f"Downloading dataset from {UltraSuiteClassificationScenario.HF_MAPPING_URL} to {output_path}")
+        ensure_file_downloaded(source_url=UltraSuiteClassificationScenario.HF_MAPPING_URL, target_path=output_path)
 
         instances: List[Instance] = []
         split: str = TEST_SPLIT
-        print(f"Output path: {os.path.abspath(output_path)}")
+
         # Find all pairs of audio and JSON files
         pairs = find_audio_json_pairs(output_path)
         print(f"Num pairs: {len(pairs)}")
