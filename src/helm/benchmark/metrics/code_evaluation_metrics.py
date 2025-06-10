@@ -397,18 +397,8 @@ class UnitTestAlignmentMetric(Metric):
         llm_pass_rate = sum(llm_padded) / total_tests if total_tests > 0 else 0.0
         student_pass_rate = sum(student_padded) / total_tests if total_tests > 0 else 0.0
         
-        # Calculate pass rate difference
-        pass_rate_difference = abs(llm_pass_rate - student_pass_rate)
-
-        # Normalized Hamming distance
-        differences = sum(1 for i in range(total_tests)
-                            if llm_padded[i] != student_padded[i])
-        hamming_distance = differences / total_tests if total_tests > 0 else 0.0
-        
         return [
             Stat(MetricName("unit_test_alignment_ratio")).add(alignment_ratio),
-            Stat(MetricName("unit_test_pass_rate_difference")).add(pass_rate_difference),
-            Stat(MetricName("unit_test_hamming_distance")).add(hamming_distance),
         ]
     
     def _extract_student_code(self, model_code: str) -> str:
@@ -580,8 +570,6 @@ int main() {{
         """Create default statistics for failure cases."""
         return [
             Stat(MetricName("unit_test_alignment_ratio")).add(0.0),
-            Stat(MetricName("unit_test_pass_rate_difference")).add(1.0),
-            Stat(MetricName("unit_test_hamming_distance")).add(1.0),
         ]
 
 

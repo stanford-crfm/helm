@@ -5,12 +5,12 @@ from helm.benchmark.metrics.basic_metrics import BasicGenerationMetric
 from helm.benchmark.metrics.metric import MetricSpec
 from helm.common.object_spec import ObjectSpec
 
-@run_spec_function("student_coding")
+@run_spec_function("correct_code")
 def get_student_coding_run_spec() -> RunSpec:
     return RunSpec(
-        name="student_coding",
+        name="correct_code",
         scenario_spec=ScenarioSpec(
-            class_name="helm.benchmark.scenarios.student_coding_scenario.StudentCodingScenario",
+            class_name="helm.benchmark.scenarios.correct_code_scenario.CorrectCodeScenario",
             args={}
         ),
         adapter_spec=AdapterSpec(
@@ -21,8 +21,8 @@ def get_student_coding_run_spec() -> RunSpec:
         metric_specs=[
             # Evaluation with AST, CodeBERT, and response alignment
             MetricSpec(
-                class_name="helm.benchmark.metrics.code_evaluation_metrics.ComprehensiveCodeEvaluationMetric",
-                args={"use_codebert": True, "compile_code": True}
+                class_name="helm.benchmark.metrics.correct_code_metrics.FunctionalCorrectnessMetric",
+                args={"compile_code": True}
             )
         ]
     )
