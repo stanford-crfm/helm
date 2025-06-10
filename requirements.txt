@@ -6,7 +6,7 @@ ai2-olmo==0.6.0
 ai2-olmo-core==0.1.0
 aiodns==3.4.0
 aiohappyeyeballs==2.6.1
-aiohttp==3.12.6
+aiohttp==3.12.11
 aiohttp-retry==2.9.1
 aiosignal==1.3.2
 aleph-alpha-client==2.14.0
@@ -58,7 +58,6 @@ dill==0.3.8
 distlib==0.3.9
 distro==1.9.0
 dnspython==2.7.0
-docker-pycreds==0.4.0
 docstring-parser==0.16
 docutils==0.16
 einops==0.7.0
@@ -74,8 +73,8 @@ filelock==3.18.0
 flake8==5.0.4
 flatbuffers==25.2.10
 flax==0.6.11
-fonttools==4.58.1
-frozenlist==1.6.0
+fonttools==4.58.2
+frozenlist==1.6.2
 fsspec==2024.6.1
 ftfy==6.1.3
 funcsigs==1.0.2
@@ -85,11 +84,11 @@ gdown==5.2.0
 gitdb==4.0.12
 gitpython==3.1.44
 google-api-core==2.25.0
-google-api-python-client==2.170.0
-google-auth==2.40.2
+google-api-python-client==2.171.0
+google-auth==2.40.3
 google-auth-httplib2==0.2.0
 google-cloud-aiplatform==1.91.0 ; python_full_version < '3.10'
-google-cloud-aiplatform==1.95.1 ; python_full_version >= '3.10'
+google-cloud-aiplatform==1.96.0 ; python_full_version >= '3.10'
 google-cloud-bigquery==3.34.0
 google-cloud-core==2.4.3
 google-cloud-resource-manager==1.14.2
@@ -103,18 +102,18 @@ googleapis-common-protos==1.70.0
 gradio-client==1.3.0 ; python_full_version < '3.10'
 gradio-client==1.10.2 ; python_full_version >= '3.10'
 grpc-google-iam-v1==0.14.2
-grpcio==1.72.1
+grpcio==1.73.0
 grpcio-status==1.62.3
 gunicorn==23.0.0
 h11==0.16.0
-h5py==3.13.0
-hf-xet==1.1.2 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
+h5py==3.14.0
+hf-xet==1.1.3 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
 html2text==2024.2.26
 httpcore==1.0.9
 httplib2==0.22.0
 httpx==0.27.2
 httpx-sse==0.4.0
-huggingface-hub==0.32.3
+huggingface-hub==0.32.4
 humanfriendly==10.0
 humanize==4.12.3
 icetk==0.0.4
@@ -192,13 +191,13 @@ nvidia-curand-cu12==10.3.2.106 ; platform_machine == 'x86_64' and sys_platform =
 nvidia-cusolver-cu12==11.4.5.107 ; platform_machine == 'x86_64' and sys_platform == 'linux'
 nvidia-cusparse-cu12==12.1.0.106 ; platform_machine == 'x86_64' and sys_platform == 'linux'
 nvidia-nccl-cu12==2.19.3 ; platform_machine == 'x86_64' and sys_platform == 'linux'
-nvidia-nvjitlink-cu12==12.9.41 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-nvjitlink-cu12==12.9.86 ; platform_machine == 'x86_64' and sys_platform == 'linux'
 nvidia-nvtx-cu12==12.1.105 ; platform_machine == 'x86_64' and sys_platform == 'linux'
 omegaconf==2.3.0
 onnxruntime==1.19.2 ; python_full_version < '3.10'
 onnxruntime==1.22.0 ; python_full_version >= '3.10'
 open-clip-torch==2.32.0
-openai==1.82.1
+openai==1.84.0
 opencc==1.1.9
 opencv-python==4.8.1.78
 opencv-python-headless==4.11.0.86
@@ -210,7 +209,7 @@ orbax-checkpoint==0.6.4 ; python_full_version < '3.10'
 orbax-checkpoint==0.11.5 ; python_full_version >= '3.10'
 outcome==1.3.0.post0
 packaging==25.0
-pandas==2.2.3
+pandas==2.3.0
 param==2.2.0
 parameterized==0.9.0
 pathspec==0.12.1
@@ -232,7 +231,7 @@ pyasn1==0.6.1
 pyasn1-modules==0.4.2
 pycares==4.8.0
 pycocoevalcap==1.2
-pycocotools==2.0.9
+pycocotools==2.0.10
 pycodestyle==2.9.1
 pycparser==2.22
 pyct==0.5.0
@@ -271,7 +270,8 @@ safetensors==0.5.3
 scaleapi==2.13.1
 scikit-image==0.24.0 ; python_full_version < '3.10'
 scikit-image==0.25.2 ; python_full_version >= '3.10'
-scikit-learn==1.6.1
+scikit-learn==1.6.1 ; python_full_version < '3.10'
+scikit-learn==1.7.0 ; python_full_version >= '3.10'
 scipy==1.13.1 ; python_full_version < '3.10'
 scipy==1.15.3 ; python_full_version >= '3.10'
 seaborn==0.11.2
@@ -347,7 +347,7 @@ uritemplate==4.2.0
 urllib3==1.26.20 ; python_full_version < '3.10'
 urllib3==2.4.0 ; python_full_version >= '3.10'
 virtualenv==20.31.2
-wandb==0.19.11
+wandb==0.20.1
 wasabi==1.1.3
 wcwidth==0.2.13
 weasel==0.4.1
@@ -363,5 +363,5 @@ wsproto==1.2.0
 xlrd==2.0.1
 xxhash==3.5.0
 yarl==1.20.0
-zipp==3.22.0
+zipp==3.23.0
 zstandard==0.18.0
