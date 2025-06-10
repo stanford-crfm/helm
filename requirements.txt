@@ -169,7 +169,7 @@ multidict==6.4.4
 multilingual-clip==1.0.10
 multiprocess==0.70.16
 murmurhash==1.0.13
-mypy==1.5.1
+mypy==1.16.0
 mypy-extensions==1.1.0
 namex==0.1.0
 nest-asyncio==1.6.0
