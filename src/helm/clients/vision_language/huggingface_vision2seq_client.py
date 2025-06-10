@@ -108,9 +108,9 @@ class HuggingFaceVision2SeqClient(CachingClient):
 
                     # Generate
                     generated_ids = model.generate(**inputs, **generation_args)  # type: ignore
-                    generated_texts: List[str] = processor.batch_decode(
+                    generated_texts: List[str] = processor.batch_decode(  # type: ignore
                         generated_ids, skip_special_tokens=True
-                    )  # type: ignore
+                    )
                     return {"output": generated_texts}
 
                 # Include the prompt and model name in the cache key

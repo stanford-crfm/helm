@@ -106,9 +106,9 @@ class QwenAudioLMClient(CachingClient):
                 try:
 
                     def do_it() -> Dict[str, Any]:
-                        completion, _ = model.chat(
-                            tokenizer, query=tokenizer.from_list_format(query), history=None
-                        )  # type: ignore
+                        completion, _ = model.chat(  # type: ignore
+                            tokenizer, query=tokenizer.from_list_format(query), history=None  # type: ignore
+                        )
                         tokens: List[str] = tokenizer.tokenize(completion)  # type: ignore
                         return {"output": (completion, tokens)}
 

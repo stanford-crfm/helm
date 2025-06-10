@@ -115,9 +115,9 @@ class QwenVLMClient(CachingClient):
 
                     def do_it() -> Dict[str, Any]:
                         if request.model_engine == "qwen-vl-chat":
-                            completion, _ = model.chat(
-                                tokenizer, query=tokenizer.from_list_format(query), history=None
-                            )  # type: ignore
+                            completion, _ = model.chat(  # type: ignore
+                                tokenizer, query=tokenizer.from_list_format(query), history=None  # type: ignore
+                            )
                         else:
                             inputs = tokenizer(tokenizer.from_list_format(query), return_tensors="pt")  # type: ignore
                             inputs = inputs.to(self._device)

@@ -121,9 +121,9 @@ class Qwen2VLMClient(CachingClient):
                         processor = loaded.processor
 
                         # Prepare text and vision inputs.
-                        text = processor.apply_chat_template(
+                        text = processor.apply_chat_template(  # type: ignore
                             messages, tokenize=False, add_generation_prompt=True
-                        )  # type: ignore
+                        )
                         image_inputs, video_inputs = process_vision_info(messages)
                         inputs = processor(  # type: ignore
                             text=[text],

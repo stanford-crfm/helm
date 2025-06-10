@@ -113,9 +113,9 @@ class Qwen2AudioLMClient(CachingClient):
                 try:
 
                     def do_it() -> Dict[str, Any]:
-                        inputs = tokenizer.apply_chat_template(
+                        inputs = tokenizer.apply_chat_template(  # type: ignore
                             input_query, add_generation_prompt=True, tokenize=False
-                        )  # type: ignore
+                        )
                         audios: List[Any] = []
                         # Refer to the official Qwen2-Audio documentation for the format of the input query
                         # https://huggingface.co/Qwen/Qwen2-Audio-7B-Instruct
