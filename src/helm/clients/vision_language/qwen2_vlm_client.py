@@ -121,9 +121,11 @@ class Qwen2VLMClient(CachingClient):
                         processor = loaded.processor
 
                         # Prepare text and vision inputs.
-                        text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+                        text = processor.apply_chat_template(  # type: ignore
+                            messages, tokenize=False, add_generation_prompt=True
+                        )
                         image_inputs, video_inputs = process_vision_info(messages)
-                        inputs = processor(
+                        inputs = processor(  # type: ignore
                             text=[text],
                             images=image_inputs,
                             videos=video_inputs,
@@ -136,7 +138,7 @@ class Qwen2VLMClient(CachingClient):
                         generated_ids_trimmed = [
                             out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
                         ]
-                        output_text = processor.batch_decode(
+                        output_text = processor.batch_decode(  # type: ignore
                             generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
                         )
                         # For simplicity, we split tokens by whitespace.

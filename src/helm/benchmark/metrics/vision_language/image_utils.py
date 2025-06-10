@@ -84,8 +84,8 @@ def sift_similarity(img_a: np.ndarray, img_b: np.ndarray) -> float:
     orb = cv2.ORB_create() if hasattr(cv2, "ORB_create") else cv2.ORB()
 
     # Find the keypoints and descriptors with ORB
-    _, desc_a = orb.detectAndCompute(img_a, None)
-    _, desc_b = orb.detectAndCompute(img_b, None)
+    _, desc_a = orb.detectAndCompute(img_a, None)  # type: ignore
+    _, desc_b = orb.detectAndCompute(img_b, None)  # type: ignore
 
     # Initialize the brute force matcher
     bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=False)
