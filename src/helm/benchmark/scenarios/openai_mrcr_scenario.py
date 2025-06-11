@@ -1,9 +1,9 @@
-import datasets
 import json
 import os
 import re
 from typing import List, Optional
 
+import datasets
 import tiktoken
 
 from helm.benchmark.scenarios.scenario import (
