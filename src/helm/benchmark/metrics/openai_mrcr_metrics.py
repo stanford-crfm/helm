@@ -11,12 +11,15 @@ from helm.benchmark.scenarios.scenario import CORRECT_TAG
 
 
 class OpenAIMRCRMetric(Metric):
-    """
-    This metric focuses on structured reasoning and the accuracy of extracted answers.
-    It compares model outputs against correct answers provided in a multiple-choice
-    format and returns a score indicating the correctness of the generated response.
-    """
+    """Accuracy etric for OpenAI-MRCR.
 
+    The measured metric is the SequenceMatcher ratio as implemented in https://docs.python.org/3/library/difflib.html.
+    The model must prepend an alphanumeric hash to the beginning of its answer. If this hash is not included,
+    the match ratio is set to 0. If it is correctly included, the stripped sampled answer is compared to the
+    stripped ground truth answer.
+
+    Adapted from: https://huggingface.co/datasets/openai/mrcr/blob/204b0d4e8d9ca5c0a90bf942fdb2a5969094adc0/README.md
+    """
     def evaluate_generation(
         self,
         adapter_spec: AdapterSpec,
@@ -24,25 +27,6 @@ class OpenAIMRCRMetric(Metric):
         metric_service: MetricService,
         eval_cache_path: str,
     ) -> List[Stat]:
-        """
-        Evaluate the generated output for chain-of-thought reasoning accuracy.
-
-        The method extracts the model's output, determines the correct answer
-        from the provided references, and compares the two to compute a binary score.
-
-        Args:
-            adapter_spec (AdapterSpec): Specification of the adapter used for the evaluation.
-            request_state (RequestState): The state of the current request, including
-                                          the input instance, output results, and references.
-            metric_service (MetricService): A service used to compute metrics if needed.
-            eval_cache_path (str): Path to the evaluation cache for storing or retrieving data.
-
-        Returns:
-            List[Stat]: A list containing a single `Stat` object with the correctness
-                        score (1 for correct, 0 for incorrect) under the metric
-                        name "chain_of_thought_correct".
-        """
-        # Assert that completions exist if the result is not None
         assert request_state.result
         assert len(request_state.result.completions) == 1
 

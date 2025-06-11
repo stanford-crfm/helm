@@ -1,6 +1,7 @@
 import datasets
 import json
 import os
+import re
 from typing import List, Optional
 
 import tiktoken
@@ -33,21 +34,21 @@ class OpenAIMRCRScenario(Scenario):
     Reference: https://huggingface.co/datasets/openai/mrcr"""
 
     name = "openai_mrcr"
-    description = "OpenAI MRCR (Multi-round co-reference resolution)"
+    description = "OpenAI MRCR (Multi-round co-reference resolution) is a long context dataset for benchmarking an LLM's ability to distinguish between multiple needles hidden in context. This eval is inspired by the MRCR eval first introduced by [Vodrahalli et al., 2024](https://arxiv.org/pdf/2409.12640v2)."  # noqa: E501
     tags = ["long_context", "mrcr"]
 
     NEEDLES_OPTIONS = [2, 4, 8]
 
-    def __init__(self, needles: int, max_num_tokens: Optional[int] = None):
+    def __init__(self, needles: int, max_num_words: Optional[int] = None):
         super().__init__()
         self.needles = needles
-        self.max_num_tokens = max_num_tokens
+        self.max_num_words = max_num_words
         if needles not in self.NEEDLES_OPTIONS:
-            raise Exception(f"Needles must be {self.NEEDLES_OPTIONS}")
+            raise Exception(f"Needles must be one of {self.NEEDLES_OPTIONS}")
         self.tokenizer = tiktoken.get_encoding("o200k_base")
 
-    def num_tokens(self, messages: list[dict]) -> int:
-        return sum([len(self.tokenizer.encode(m["content"])) for m in messages])
+    def count_words(self, messages: list[dict]) -> int:
+        return sum([len(re.split(r"\s+", m["content"].strip())) for m in messages])
 
     def get_instances(self, output_path: str) -> List[Instance]:
         cache_dir = os.path.join(output_path, "data")
@@ -62,7 +63,7 @@ class OpenAIMRCRScenario(Scenario):
         instances = []
         for idx, row in enumerate(dataset):
             messages = json.loads(row["prompt"])
-            if self.max_num_tokens and self.num_tokens(messages) > self.max_num_tokens:
+            if self.max_num_words and self.count_words(messages) > self.max_num_words:
                 continue
             input = Input(messages=messages)
             references = [Reference(output=Output(text=row["answer"]), tags=[CORRECT_TAG])]

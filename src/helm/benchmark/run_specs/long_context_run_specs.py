@@ -1,3 +1,4 @@
+from typing import Optional
 from helm.benchmark.adaptation.adapter_spec import ADAPT_CHAT, ADAPT_GENERATION, AdapterSpec
 from helm.benchmark.metrics.common_metric_specs import get_basic_metric_specs, get_open_ended_generation_metric_specs
 from helm.benchmark.metrics.metric import MetricSpec
@@ -110,10 +111,10 @@ def get_infinite_bench_en_qa_spec() -> RunSpec:
 
 
 @run_spec_function("openai_mrcr")
-def get_openai_mrcr_spec(needles: int, max_num_tokens: int) -> RunSpec:
+def get_openai_mrcr_spec(needles: int, max_num_words: Optional[int] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.openai_mrcr_scenario.OpenAIMRCRScenario",
-        args={"needles": 8, "max_num_tokens": max_num_tokens},
+        args={"needles": needles, "max_num_words": max_num_words},
     )
 
     adapter_spec = AdapterSpec(
@@ -124,7 +125,7 @@ def get_openai_mrcr_spec(needles: int, max_num_tokens: int) -> RunSpec:
     ]
 
     return RunSpec(
-        name=f"openai_mrcr:needles={needles},max_num_tokens={max_num_tokens}",
+        name=f"openai_mrcr:needles={needles},max_num_words={max_num_words}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
