@@ -1,4 +1,5 @@
 import os
+import re
 from typing import List
 
 from datasets import load_dataset, Features, Value, Sequence, Dataset
@@ -28,6 +29,10 @@ class InfiniteBenchEnQAScenario(Scenario):
     description = "Answer open ended questions from InfiniteBench"
     tags = ["question_answering"]
 
+    def __init__(self, max_num_words: int):
+        self.max_num_words = max_num_words
+        super().__init__()
+
     def get_instances(self, output_path: str) -> List[Instance]:
         # Get InfiniteBench from HuggingFace
         cache_dir = os.path.join(output_path, "data")
@@ -53,6 +58,16 @@ class InfiniteBenchEnQAScenario(Scenario):
         )
 
         assert isinstance(dataset, Dataset)
+
+        def count_words(text: str) -> int:
+            return len(re.split(r"\s+", text.strip()))
+
+        dataset = dataset.filter(
+            lambda example: count_words(example["context"])
+            + count_words(example["input"])
+            + sum(count_words(option) for option in example["options"])
+            <= self.max_num_words
+        )
 
         # Read all instances
         instances: List[Instance] = []
