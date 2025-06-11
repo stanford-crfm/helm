@@ -1,5 +1,3 @@
-from typing import Optional
-
 from helm.benchmark.adaptation.adapter_spec import ADAPT_CHAT, ADAPT_GENERATION, AdapterSpec
 from helm.benchmark.metrics.common_metric_specs import get_basic_metric_specs, get_open_ended_generation_metric_specs
 from helm.benchmark.metrics.metric import MetricSpec
