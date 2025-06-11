@@ -4,33 +4,64 @@ import { Link } from "react-router-dom";
 export default function LongContextLanding() {
   return (
     <div className="container mx-auto px-16">
-      <h1 className="text-3xl my-8 font-bold text-center">
-        HELM Long Context Leaderboard
-      </h1>
+      <h1 className="text-3xl my-4 font-bold text-center">HELM Long Context</h1>
       <div className="flex flex-col lg:flex-row gap-8">
-        <div className="flex-[3] text-l">
+        <div className="flex-[1] text-l">
           <p className="my-4">
-            Recent Large language models (LLMs) claim long context lengths, but
-            there. To address this, we introduce the{" "}
+            Recent Large Language Models (LLMs) claim to have powerful
+            long-context capabilities (i.e. the ability to process and reason
+            over long inputs), but these claims have not been rigorously
+            evaluated. To address this, we introduce the{" "}
             <strong className="font-bold">HELM Long Context</strong>{" "}
-            leaderboard, which evaluates leading LLMs on a broad set of long
-            context tasks.
+            leaderboard, which evaluates leading long context LLMs on a broad
+            set of long context tasks.
           </p>
           <p className="my-4">
-            The benchmark consists of evaluations on context answering over
-            retrieved passages (RULER HotPotQA, RULER SQuAD), question answering
-            over a long passage (InfiniteBench En.QA) and summarization of a
-            long passage (InfiniteBench Summarization). The leaderboard
-            demonstrates that even though significant progress has been made on
-            long context capabilities, there is still considerable room for
-            improvement.
+            The benchmark consists of the following tasks: question answering
+            over a set of retrieved passages (
+            <a
+              className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+              href="#/leaderboard/ruler_hotpotqa"
+            >
+              RULER HotPotQA
+            </a>
+            ,{" "}
+            <a
+              className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+              href="#/leaderboard/ruler_squad"
+            >
+              RULER SQuAD
+            </a>
+            ), question answering over a long passage (
+            <a
+              className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+              href="#/leaderboard/infinite_bench_en_qa"
+            >
+              ∞Bench En.QA
+            </a>
+            ), summarization of a long passage (
+            <a
+              className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+              href="#/leaderboard/infinite_bench_sum"
+            >
+              ∞Bench Summarization
+            </a>
+            ), and multi-round co-reference resolution over a long multi-turn
+            conversation (
+            <a
+              className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+              href="#/leaderboard/openai_mrcr"
+            >
+              OpenAI MRCR
+            </a>
+            ). The leaderboard demonstrates that even though significant
+            progress has been made on long context capabilities, there is still
+            considerable room for improvement.
           </p>
           <p className="my-4">
             As with all HELM leaderboards, this leaderboard provides full
             transparency into all LLM requests and responses, and the results
-            are reproducible using the HELM open source framework. We hope that
-            this leaderboard offers initial insights into the potential of LLMs
-            for this task.
+            are reproducible using the HELM open source framework.
           </p>
           <p className="my-4">
             This leaderboard was produced through research collaboration with{" "}
@@ -49,9 +80,14 @@ export default function LongContextLanding() {
             </a>
             .
           </p>
+          <div className="flex flex-row justify-center mt-4">
+            <a className="px-10 btn rounded-md mx-4" href="#/leaderboard">
+              Full Leaderboard
+            </a>
+          </div>
         </div>
         <div
-          className="flex-[2] py-2 rounded-3xl bg-gray-100 h-full" // Stretched to full height
+          className="flex-[1] py-2 rounded-3xl bg-gray-100 h-full" // Stretched to full height
         >
           <MiniLeaderboard />
           <div className="flex justify-end">
