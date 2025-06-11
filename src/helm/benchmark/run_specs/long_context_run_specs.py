@@ -1,5 +1,3 @@
-from typing import Optional
-
 from helm.benchmark.adaptation.adapter_spec import ADAPT_CHAT, ADAPT_GENERATION, AdapterSpec
 from helm.benchmark.metrics.common_metric_specs import get_basic_metric_specs, get_open_ended_generation_metric_specs
 from helm.benchmark.metrics.metric import MetricSpec
@@ -29,7 +27,7 @@ def _get_long_context_generation_adapter_spec(max_tokens: int) -> AdapterSpec:
 
 
 @run_spec_function("ruler_hotpotqa")
-def get_ruler_hotpotqa_spec(max_num_words: int = 65536) -> RunSpec:
+def get_ruler_hotpotqa_spec(max_num_words: int = 131072) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.ruler_qa_scenarios.RULERHotpotQAScenario",
         args={
@@ -49,7 +47,7 @@ def get_ruler_hotpotqa_spec(max_num_words: int = 65536) -> RunSpec:
 
 
 @run_spec_function("ruler_squad")
-def get_ruler_squad_spec(max_num_words: int = 65536) -> RunSpec:
+def get_ruler_squad_spec(max_num_words: int = 131072) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.ruler_qa_scenarios.RULERSQuADScenario",
         args={
@@ -68,42 +66,20 @@ def get_ruler_squad_spec(max_num_words: int = 65536) -> RunSpec:
     )
 
 
-@run_spec_function("infinite_bench_sum")
-def get_infinite_bench_sum_spec(min_num_words: int = 0, max_num_words: int = 65536) -> RunSpec:
-
+@run_spec_function("infinite_bench_en_qa")
+def get_infinite_bench_en_qa_spec(max_num_words: int = 131072) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.infinite_bench_sum_scenario.InfiniteBenchSumScenario",
+        class_name="helm.benchmark.scenarios.infinite_bench_en_qa_scenario.InfiniteBenchEnQAScenario",
         args={
-            "min_num_words": min_num_words,
             "max_num_words": max_num_words,
         },
     )
 
-    # No official number for max tokens, the average output token is 1.1k according to the paper
-    adapter_spec = _get_long_context_generation_adapter_spec(max_tokens=2000)
+    adapter_spec = _get_long_context_generation_adapter_spec(max_tokens=40)
     metric_specs = get_basic_metric_specs(["rouge_l"])
 
     return RunSpec(
-        name=f"infinite_bench_sum:min_num_words={min_num_words},max_num_words={max_num_words}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=metric_specs,
-        groups=["infinite_bench_sum"],
-    )
-
-
-@run_spec_function("infinite_bench_en_qa")
-def get_infinite_bench_en_qa_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.infinite_bench_en_qa_scenario.InfiniteBenchEnQAScenario",
-    )
-
-    # No official number for max tokens
-    adapter_spec = _get_long_context_generation_adapter_spec(max_tokens=100)
-    metric_specs = get_basic_metric_specs(["rouge_l"])
-
-    return RunSpec(
-        name="infinite_bench_en_qa",
+        name="infinite_bench_en_qa:max_num_words={max_num_words}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -111,8 +87,30 @@ def get_infinite_bench_en_qa_spec() -> RunSpec:
     )
 
 
+@run_spec_function("infinite_bench_sum")
+def get_infinite_bench_sum_spec(max_num_words: int = 131072) -> RunSpec:
+
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.infinite_bench_sum_scenario.InfiniteBenchSumScenario",
+        args={
+            "max_num_words": max_num_words,
+        },
+    )
+
+    adapter_spec = _get_long_context_generation_adapter_spec(max_tokens=1200)
+    metric_specs = get_basic_metric_specs(["rouge_l"])
+
+    return RunSpec(
+        name=f"infinite_bench_sum:max_num_words={max_num_words}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["infinite_bench_sum"],
+    )
+
+
 @run_spec_function("openai_mrcr")
-def get_openai_mrcr_spec(needles: int, max_num_words: Optional[int] = None) -> RunSpec:
+def get_openai_mrcr_spec(needles: int, max_num_words: int = 131072) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.openai_mrcr_scenario.OpenAIMRCRScenario",
         args={"needles": needles, "max_num_words": max_num_words},
@@ -125,13 +123,8 @@ def get_openai_mrcr_spec(needles: int, max_num_words: Optional[int] = None) -> R
         MetricSpec(class_name="helm.benchmark.metrics.openai_mrcr_metrics.OpenAIMRCRMetric")
     ]
 
-    run_spec_name = (
-        f"openai_mrcr:needles={needles},max_num_words={max_num_words}"
-        if max_num_words
-        else f"openai_mrcr:needles={needles}"
-    )
     return RunSpec(
-        name=run_spec_name,
+        name=f"openai_mrcr:needles={needles},max_num_words={max_num_words}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,

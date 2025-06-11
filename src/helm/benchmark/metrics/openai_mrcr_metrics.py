@@ -11,7 +11,7 @@ from helm.benchmark.scenarios.scenario import CORRECT_TAG
 
 
 class OpenAIMRCRMetric(Metric):
-    """Accuracy metric for OpenAI-MRCR.
+    """Accuracy metric for OpenAI MRCR.
 
     The measured metric is the SequenceMatcher ratio as implemented in https://docs.python.org/3/library/difflib.html.
     The model must prepend an alphanumeric hash to the beginning of its answer. If this hash is not included,
