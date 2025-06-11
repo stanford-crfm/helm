@@ -188,102 +188,45 @@ class FunctionalCorrectnessMetric(Metric):
         print(f"Original model code length: {len(model_code)}")
         print(f"After markdown removal: {len(code)}")
         
-        # Check if the model generated a complete program
+        # If code doesn't contain includes, it's likely just the student answer
+        if '#include' not in code:
+            print("No includes found, using entire code as student answer")
+            return code
         
+        # Split into lines for processing
         lines = code.split('\n')
         
-        # Look for the first occurrence of the template class definition and extract only that part, ignoring any duplicate definitions that follow
-        
-        student_lines = []
-        found_class_start = False
-        class_brace_count = 0
-        template_brace_count = 0
-        collecting_student_code = False
-        
-        i = 0
-        while i < len(lines):
-            line = lines[i]
-            stripped = line.strip()
-            
-            # Skip initial includes, using statements, defines
-            if not collecting_student_code:
-                if (stripped.startswith('#') or 
-                    stripped.startswith('using') or 
-                    stripped == '' or
-                    stripped.startswith('//') or
-                    'SEPARATOR' in stripped):
-                    i += 1
-                    continue
-                
-                # Look for template<typename T> followed by class
-                if 'template<typename T>' in stripped:
-                    # Check if next non-empty line contains class definition
-                    j = i + 1
-                    while j < len(lines) and lines[j].strip() == '':
-                        j += 1
-                    
-                    if j < len(lines) and 'class' in lines[j]:
-                        print(f"Found template class definition at line {i}")
-                        collecting_student_code = True
-                        student_lines.append(line)  # Add the template line
-                        i += 1
-                        continue
-            
-            # If we're collecting student code
-            if collecting_student_code:
-                # Stop if we hit another template<typename T> (duplicate definition)
-                if 'template<typename T>' in stripped and len(student_lines) > 10:
-                    print(f"Found duplicate template definition at line {i}, stopping")
-                    break
-                    
-                # Stop if we hit main function
-                if 'int main' in stripped:
-                    print(f"Found main function at line {i}, stopping")
-                    break
-                
-                student_lines.append(line)
-            
-            i += 1
-        
-        if student_lines:
-            extracted = '\n'.join(student_lines).strip()
-            print(f"Extracted student code length: {len(extracted)}")
-            print(f"First few lines of extracted code:")
-            for i, line in enumerate(extracted.split('\n')[:5]):
-                print(f"  {i+1}: {line}")
-            return extracted
-        
-        # If extraction failed, try a simpler approach
-        print("Primary extraction failed, trying simpler approach")
-        
-        # Find first template<typename T> and last } before main
-        start_idx = -1
-        end_idx = -1
-        
+        # Find main function index
+        main_index = -1
         for i, line in enumerate(lines):
-            if 'template<typename T>' in line and start_idx == -1:
-                start_idx = i
-            if 'int main' in line and end_idx == -1:
-                end_idx = i
+            if 'int main' in line or 'main()' in line:
+                main_index = i
                 break
         
-        if start_idx != -1 and end_idx != -1:
-            # Extract everything between first template and main
-            extracted_lines = []
-            for i in range(start_idx, end_idx):
-                line = lines[i].strip()
-                # Skip empty lines at the end
-                if i == end_idx - 1 and line == '':
-                    continue
-                extracted_lines.append(lines[i])
-            
-            if extracted_lines:
-                simple_extract = '\n'.join(extracted_lines).strip()
-                print(f"Simple extraction length: {len(simple_extract)}")
-                return simple_extract
+        print(f"Main function found at line: {main_index}")
         
-        # Last resort: return original code
-        print("All extraction methods failed, using original code")
+        # Extract code before main function
+        if main_index > 0:
+            student_lines = []
+            for i in range(main_index):
+                line = lines[i].strip()
+                
+                # Skip includes, using statements, and empty lines
+                if (line.startswith('#') or 
+                    line.startswith('using') or 
+                    line == '' or
+                    line.startswith('//')):
+                    continue
+                
+                student_lines.append(lines[i])
+            
+            if student_lines:
+                extracted = '\n'.join(student_lines).strip()
+                print(f"Extracted student code length: {len(extracted)}")
+                return extracted
+        
+        # Fallback: return original code
+        print("Using original code as fallback")
         return code
     
     def _create_complete_program(self, template: str, student_code: str, test_input: str) -> str:
@@ -295,19 +238,61 @@ class FunctionalCorrectnessMetric(Metric):
         
         # Clean the test input (remove any trailing markers)
         clean_input = re.sub(r'STD input:\s*$', '', test_input).strip()
+        print(f"Cleaned input length: {len(clean_input)}")
+        print(f"Cleaned input: '{clean_input}'")
+        
+        # Handle template with {{ STUDENT_ANSWER }} placeholder
+        if '{{ STUDENT_ANSWER }}' in template:
+            print("Using template with STUDENT_ANSWER placeholder")
+            # Replace the student answer placeholder
+            complete_code = template.replace('{{ STUDENT_ANSWER }}', student_code)
+            
+            # Replace the ENTIRE template loop section with actual test
+            template_loop_pattern = r'{%\s*for\s+TEST\s+in\s+TESTCASES\s*%}.*?{%\s*endfor\s*%}'
+            
+            test_block = f"""   {{
+        {clean_input};
+       }}"""
+            
+            print(f"Test block to insert: '{test_block}'")
+            
+            # Remove the entire template loop and replace with test block
+            old_complete_code = complete_code
+            complete_code = re.sub(template_loop_pattern, test_block, complete_code, flags=re.DOTALL)
+            
+            if complete_code == old_complete_code:
+                print("WARNING: Template loop pattern not found in alignment metric")
+            else:
+                print("Successfully replaced template loop in alignment metric")
+            
+            # Also handle any remaining template syntax that might be left
+            complete_code = re.sub(r'{%.*?%}', '', complete_code, flags=re.DOTALL)
+            complete_code = re.sub(r'{{.*?}}', '', complete_code, flags=re.DOTALL)
+            
+            print(f"Template-based complete code length: {len(complete_code)}")
+            return complete_code
+        
+        print("No {{ STUDENT_ANSWER }} placeholder found, creating simple structure")
+        
+        # If no template, create a simple program structure
+        result = f"""#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+{student_code}
+
+int main() {{
+    {clean_input};
+    return 0;
+}}"""
+        print(f"Simple program structure length: {len(result)}")
+        return result
     
     def _compile_and_run_cpp(self, code: str) -> Tuple[bool, str, str]:
-        """
-        Compile and run C++ code, return (success, stdout, stderr).
-        
-        Args:
-            code: Complete C++ program code to compile and run
-            
-        Returns:
-            Tuple of (success: bool, stdout: str, stderr: str)
-        """
-        print(f"\n--- Compile and Run Debug ---")
-        print(f"Code to compile:\n{code}\n--- End Code ---")
+        """Compile and run C++ code, return (success, stdout, stderr)."""
+        print(f"\n--- Compile and Run (Functional Correctness) ---")
+        print(f"Code length: {len(code)}")
         
         try:
             # Set environment to avoid HuggingFace tokenizer warnings
@@ -323,7 +308,6 @@ class FunctionalCorrectnessMetric(Metric):
             
             # Use .out extension instead of .exe for better cross-platform compatibility
             exe_file_path = cpp_file_path.replace('.cpp', '.out')
-            print(f"Executable path: {exe_file_path}")
             
             # Compile the code
             compile_cmd = [self.compiler_path, '-std=c++17', '-o', exe_file_path, cpp_file_path]
@@ -340,8 +324,6 @@ class FunctionalCorrectnessMetric(Metric):
             print(f"Compile return code: {compile_result.returncode}")
             if compile_result.stderr:
                 print(f"Compile stderr: {compile_result.stderr}")
-            if compile_result.stdout:
-                print(f"Compile stdout: {compile_result.stdout}")
             
             if compile_result.returncode != 0:
                 return False, "", f"Compilation Error: {compile_result.stderr}"
@@ -354,8 +336,6 @@ class FunctionalCorrectnessMetric(Metric):
             
             print(f"Run return code: {run_result.returncode}")
             print(f"Run stdout: '{run_result.stdout}'")
-            if run_result.stderr:
-                print(f"Run stderr: {run_result.stderr}")
             
             return True, run_result.stdout.strip(), run_result.stderr.strip()
             
@@ -367,8 +347,6 @@ class FunctionalCorrectnessMetric(Metric):
             return False, "", f"Compiler '{self.compiler_path}' not found. Please install g++ or specify correct path."
         except Exception as e:
             print(f"ERROR: Exception during compilation: {e}")
-            import traceback
-            traceback.print_exc()
             return False, "", f"Error: {str(e)}"
         finally:
             # Clean up temporary files
@@ -381,7 +359,6 @@ class FunctionalCorrectnessMetric(Metric):
                     print(f"Cleaned up: {exe_file_path}")
             except Exception as e:
                 print(f"Cleanup error: {e}")
-                pass  # Ignore cleanup errors
     
     def _simulate_execution(self, student_code: str, test_case: dict) -> str:
         """

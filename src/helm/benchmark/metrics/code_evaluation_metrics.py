@@ -306,30 +306,50 @@ class UnitTestAlignmentMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         """Evaluate LLM-generated code by comparing unit test results with student correctness pattern."""
+        print(f"\n=== UNIT TEST ALIGNMENT METRIC DEBUG ===")
+        print(f"Instance ID: {getattr(request_state.instance, 'id', 'UNKNOWN')}")
+        
         stats = []
         
         # Get the generated code from the request state
         if not request_state.result or not request_state.result.completions:
+            print("ERROR: No output generated")
             return self._create_failure_stats("No output generated")
         
         generated_code = request_state.result.completions[0].text.strip()
+        print(f"Generated code length: {len(generated_code)}")
+        print(f"Generated code preview: {generated_code[:200]}...")
         
         # Get test cases and student correctness pattern from instance extra_data
         if not hasattr(request_state.instance, 'extra_data') or not request_state.instance.extra_data:
+            print("ERROR: No extra_data available")
             return self._create_failure_stats("No test data available")
         
         extra_data = request_state.instance.extra_data
+        print(f"Extra data keys: {list(extra_data.keys())}")
+        
         test_cases = extra_data.get('test_cases', [])
         student_correctness_pattern = extra_data.get('student_correctness_pattern', [])
         prompt_template = extra_data.get('question_template', '')
+        question_name = extra_data.get('question_name', 'UNKNOWN')
+        
+        print(f"Question name: {question_name}")
+        print(f"Number of test cases: {len(test_cases)}")
+        print(f"Student correctness pattern: {student_correctness_pattern}")
+        print(f"Template length: {len(prompt_template)}")
         
         if not test_cases or not student_correctness_pattern:
+            print("ERROR: Missing test cases or student correctness pattern")
             return self._create_failure_stats("Missing test cases or student correctness pattern")
+        
+        print(f"First test case preview: {test_cases[0] if test_cases else 'NONE'}")
         
         # Run unit tests and get LLM correctness pattern
         llm_correctness_pattern = self._evaluate_unit_tests(
             generated_code, test_cases, prompt_template
         )
+        
+        print(f"LLM correctness pattern: {llm_correctness_pattern}")
         
         # Compare patterns and calculate alignment metrics
         alignment_stats = self._calculate_alignment_metrics(
@@ -337,6 +357,9 @@ class UnitTestAlignmentMetric(Metric):
         )
         
         stats.extend(alignment_stats)
+        print(f"Final alignment stats: {[stat.name.name for stat in stats]}")
+        print(f"=== END UNIT TEST ALIGNMENT DEBUG ===\n")
+        
         return stats
     
     def _evaluate_unit_tests(self, generated_code: str, test_cases: List[dict], template: str) -> List[int]:
@@ -344,37 +367,69 @@ class UnitTestAlignmentMetric(Metric):
         Evaluate the generated code against unit tests and return correctness pattern.
         Returns list of 0s and 1s indicating pass/fail for each test.
         """
+        print(f"\n--- Evaluating Unit Tests (Alignment Metric) ---")
+        print(f"Test cases count: {len(test_cases)}")
+        
         llm_results = []
         
-        for test_case in test_cases:
+        for i, test_case in enumerate(test_cases):
+            print(f"\n--- Unit Test {i+1}/{len(test_cases)} ---")
+            print(f"Test case keys: {list(test_case.keys())}")
+            print(f"Test input: {test_case.get('input', 'MISSING')}")
+            print(f"Expected output: {test_case.get('output', 'MISSING')}")
+            
             try:
                 # Extract student code from LLM output
                 student_code = self._extract_student_code(generated_code)
+                print(f"Extracted student code length: {len(student_code)}")
                 
                 # Create complete C++ program
                 complete_program = self._create_complete_program(
                     template, student_code, test_case.get('input', '')
                 )
                 
+                if complete_program is None:
+                    print("ERROR: _create_complete_program returned None")
+                    llm_results.append(0)
+                    continue
+                    
+                print(f"Complete program length: {len(complete_program)}")
+                
                 # Run the test
                 if self.compile_code:
+                    print("Running with actual compilation...")
                     success, actual_output, error = self._compile_and_run_cpp(complete_program)
+                    print(f"Compilation success: {success}")
+                    if not success:
+                        print(f"Compilation error: {error}")
+                    else:
+                        print(f"Actual output: '{actual_output}'")
                 else:
+                    print("Running with simulation...")
                     actual_output = self._simulate_execution(student_code, test_case)
                     success = True
                     error = None
+                    print(f"Simulated output: '{actual_output}'")
                 
                 # Check if test passed
                 if success and actual_output is not None:
                     expected_output = test_case.get('output', '').strip()
                     test_passed = actual_output.strip() == expected_output
+                    print(f"Test passed: {test_passed}")
+                    print(f"Expected: '{expected_output}' | Actual: '{actual_output.strip()}'")
                     llm_results.append(1 if test_passed else 0)
                 else:
+                    print("Test failed due to compilation/execution failure")
                     llm_results.append(0)  # Failed to compile/run
                     
             except Exception as e:
+                print(f"Exception in test case {i+1}: {str(e)}")
+                import traceback
+                traceback.print_exc()
                 llm_results.append(0)  # Error in execution
         
+        print(f"\n--- Unit Test Results (Alignment Metric) ---")
+        print(f"LLM results: {llm_results}")
         return llm_results
     
     def _calculate_alignment_metrics(self, llm_pattern: List[int], student_pattern: List[int]) -> List[Stat]:
@@ -397,6 +452,8 @@ class UnitTestAlignmentMetric(Metric):
         llm_pass_rate = sum(llm_padded) / total_tests if total_tests > 0 else 0.0
         student_pass_rate = sum(student_padded) / total_tests if total_tests > 0 else 0.0
         
+        print(f"Alignment calculation: {exact_matches}/{total_tests} = {alignment_ratio}")
+        
         return [
             Stat(MetricName("unit_test_alignment_ratio")).add(alignment_ratio),
         ]
@@ -406,8 +463,12 @@ class UnitTestAlignmentMetric(Metric):
         # Remove markdown formatting
         code = re.sub(r'```cpp\n?|```\n?', '', model_code).strip()
         
+        print(f"Original model code length: {len(model_code)}")
+        print(f"After markdown removal: {len(code)}")
+        
         # If code doesn't contain includes, it's likely just the student answer
         if '#include' not in code:
+            print("No includes found, using entire code as student answer")
             return code
         
         # Split into lines for processing
@@ -419,6 +480,8 @@ class UnitTestAlignmentMetric(Metric):
             if 'int main' in line or 'main()' in line:
                 main_index = i
                 break
+        
+        print(f"Main function found at line: {main_index}")
         
         # Extract code before main function
         if main_index > 0:
@@ -436,18 +499,31 @@ class UnitTestAlignmentMetric(Metric):
                 student_lines.append(lines[i])
             
             if student_lines:
-                return '\n'.join(student_lines).strip()
+                extracted = '\n'.join(student_lines).strip()
+                print(f"Extracted student code length: {len(extracted)}")
+                return extracted
         
         # Fallback: return original code
+        print("Using original code as fallback")
         return code
     
     def _create_complete_program(self, template: str, student_code: str, test_input: str) -> str:
         """Create a complete C++ program by combining template, student code, and test input."""
+        print(f"\n--- Create Complete Program (Alignment Metric) ---")
+        print(f"Template length: {len(template)}")
+        print(f"Student code length: {len(student_code)}")
+        print(f"Test input length: {len(test_input)}")
+        print(f"Template preview: {template[:200]}...")
+        print(f"Test input content: '{test_input}'")
+        
         # Clean the test input (remove any trailing markers)
         clean_input = re.sub(r'STD input:\s*$', '', test_input).strip()
+        print(f"Cleaned input length: {len(clean_input)}")
+        print(f"Cleaned input: '{clean_input}'")
         
         # Handle template with {{ STUDENT_ANSWER }} placeholder
         if '{{ STUDENT_ANSWER }}' in template:
+            print("Using template with STUDENT_ANSWER placeholder")
             # Replace the student answer placeholder
             complete_code = template.replace('{{ STUDENT_ANSWER }}', student_code)
             
@@ -458,17 +534,28 @@ class UnitTestAlignmentMetric(Metric):
         {clean_input};
        }}"""
             
+            print(f"Test block to insert: '{test_block}'")
+            
             # Remove the entire template loop and replace with test block
+            old_complete_code = complete_code
             complete_code = re.sub(template_loop_pattern, test_block, complete_code, flags=re.DOTALL)
+            
+            if complete_code == old_complete_code:
+                print("WARNING: Template loop pattern not found in alignment metric")
+            else:
+                print("Successfully replaced template loop in alignment metric")
             
             # Also handle any remaining template syntax that might be left
             complete_code = re.sub(r'{%.*?%}', '', complete_code, flags=re.DOTALL)
             complete_code = re.sub(r'{{.*?}}', '', complete_code, flags=re.DOTALL)
             
+            print(f"Template-based complete code length: {len(complete_code)}")
             return complete_code
         
+        print("No {{ STUDENT_ANSWER }} placeholder found, creating simple structure")
+        
         # If no template, create a simple program structure
-        return f"""#include <iostream>
+        result = f"""#include <iostream>
 #include <vector>
 #include <algorithm>
 using namespace std;
@@ -479,9 +566,14 @@ int main() {{
     {clean_input};
     return 0;
 }}"""
+        print(f"Simple program structure length: {len(result)}")
+        return result
     
     def _compile_and_run_cpp(self, code: str) -> Tuple[bool, str, str]:
         """Compile and run C++ code, return (success, stdout, stderr)."""
+        print(f"\n--- Compile and Run (Alignment Metric) ---")
+        print(f"Code length: {len(code)}")
+        
         try:
             # Set environment to avoid HuggingFace tokenizer warnings
             env = os.environ.copy()
@@ -492,39 +584,61 @@ int main() {{
                 cpp_file.write(code)
                 cpp_file_path = cpp_file.name
             
+            print(f"Created temp file: {cpp_file_path}")
+            
             # Use .out extension instead of .exe for better cross-platform compatibility
             exe_file_path = cpp_file_path.replace('.cpp', '.out')
             
             # Compile the code
-            compile_result = subprocess.run([
-                self.compiler_path, '-std=c++17', '-o', exe_file_path, cpp_file_path
-            ], capture_output=True, text=True, timeout=30, env=env)
+            compile_cmd = [self.compiler_path, '-std=c++17', '-o', exe_file_path, cpp_file_path]
+            print(f"Compile command: {' '.join(compile_cmd)}")
+            
+            compile_result = subprocess.run(
+                compile_cmd,
+                capture_output=True, 
+                text=True, 
+                timeout=30, 
+                env=env
+            )
+            
+            print(f"Compile return code: {compile_result.returncode}")
+            if compile_result.stderr:
+                print(f"Compile stderr: {compile_result.stderr}")
             
             if compile_result.returncode != 0:
                 return False, "", f"Compilation Error: {compile_result.stderr}"
             
             # Run the executable
+            print(f"Running executable: {exe_file_path}")
             run_result = subprocess.run([
                 exe_file_path
             ], capture_output=True, text=True, timeout=10, env=env)
             
+            print(f"Run return code: {run_result.returncode}")
+            print(f"Run stdout: '{run_result.stdout}'")
+            
             return True, run_result.stdout.strip(), run_result.stderr.strip()
             
         except subprocess.TimeoutExpired:
+            print("ERROR: Execution timed out")
             return False, "", "Execution timed out"
         except FileNotFoundError as e:
+            print(f"ERROR: Compiler not found: {e}")
             return False, "", f"Compiler '{self.compiler_path}' not found. Please install g++ or specify correct path."
         except Exception as e:
+            print(f"ERROR: Exception during compilation: {e}")
             return False, "", f"Error: {str(e)}"
         finally:
             # Clean up temporary files
             try:
                 if 'cpp_file_path' in locals():
                     os.unlink(cpp_file_path)
+                    print(f"Cleaned up: {cpp_file_path}")
                 if 'exe_file_path' in locals() and os.path.exists(exe_file_path):
                     os.unlink(exe_file_path)
-            except Exception:
-                pass  # Ignore cleanup errors
+                    print(f"Cleaned up: {exe_file_path}")
+            except Exception as e:
+                print(f"Cleanup error: {e}")
     
     def _simulate_execution(self, student_code: str, test_case: dict) -> str:
         """Simulate code execution for testing without actual compilation."""
@@ -568,6 +682,7 @@ int main() {{
     
     def _create_failure_stats(self, error_message: str) -> List[Stat]:
         """Create default statistics for failure cases."""
+        print(f"UNIT TEST ALIGNMENT METRIC FAILURE: {error_message}")
         return [
             Stat(MetricName("unit_test_alignment_ratio")).add(0.0),
         ]
