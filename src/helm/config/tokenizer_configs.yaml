@@ -454,8 +454,15 @@ tokenizer_configs:
     prefix_token: ""
 
 
+  # Marin Community
+  - name: marin-community/marin-8b-instruct
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|eot_id|>"
+    prefix_token: "<|begin_of_text|>"
+
   # Microsoft
-  - name: microsoft/phi-2  
+  - name: microsoft/phi-2
     tokenizer_spec:  
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"  
     end_of_text_token: "<|endoftext|>"  
