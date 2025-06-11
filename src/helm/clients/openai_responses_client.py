@@ -84,7 +84,7 @@ class OpenAIResponseClient(CachingClient):
             input = request.prompt
 
         raw_request: Dict[str, Any] = {
-            "model": self.openai_model_name or request.model_engine,
+            "model": self._get_model_for_request(request),
             "input": input,
             "top_p": request.top_p,
             # API errors if max_output_tokens is less than 16
@@ -112,6 +112,9 @@ class OpenAIResponseClient(CachingClient):
             raw_request.pop("top_p", None)
 
         return raw_request
+
+    def _get_model_for_request(self, request: Request) -> str:
+        return self.openai_model_name or request.model_engine
 
     def make_request(self, request: Request) -> RequestResult:
         # Content can either be text or a list of multimodal content made up of text and images:
