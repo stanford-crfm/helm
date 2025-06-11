@@ -139,30 +139,16 @@ class OpenAIResponseClient(CachingClient):
             reasoning_output = ""
             text_output = ""
 
+            if request.echo_prompt:
+                text_output += request.prompt
             for output in response["output"]:
                 output_type = output["type"]  # one of "message" or "reasoning" from API observation
-                is_reasoning_output = None
-                output_key = None
-                match output_type:
-                    case "message":
-                        output_key = "content"
-                        is_reasoning_output = False
-                    case "reasoning":
-                        output_key = "summary"
-                        is_reasoning_output = True
+                is_reasoning_output = output_type == "reasoning"
 
-                for raw_completion in output[output_key]:
-                    raw_completion_content = raw_completion["text"]
-                    text: str = (
-                        request.prompt + raw_completion_content
-                        if request.echo_prompt and not is_reasoning_output
-                        else raw_completion_content
-                    )
-
-                    if is_reasoning_output:
-                        reasoning_output += raw_completion_content
-                    else:
-                        text_output += text
+                if is_reasoning_output:
+                    reasoning_output += "\n".join([raw_output["text"] for raw_output in output["summary"]])
+                else:
+                    text_output += "\n".join([raw_output["text"] for raw_output in output["content"]])
 
             completion = truncate_and_tokenize_response_text(
                 text_output,
