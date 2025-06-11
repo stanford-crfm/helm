@@ -20,6 +20,7 @@ class OpenAIMRCRMetric(Metric):
 
     Adapted from: https://huggingface.co/datasets/openai/mrcr/blob/204b0d4e8d9ca5c0a90bf942fdb2a5969094adc0/README.md
     """
+
     def evaluate_generation(
         self,
         adapter_spec: AdapterSpec,
