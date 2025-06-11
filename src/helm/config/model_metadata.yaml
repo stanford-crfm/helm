@@ -276,6 +276,14 @@ models:
   # Amazon Nova models
   # References for Amazon Nova models:
   # https://aws.amazon.com/ai/generative-ai/nova/
+  - name: amazon/nova-premier-v1:0
+    display_name: Amazon Nova Premier
+    description: Amazon Nova Premier is the most capable model in the Nova family of foundation models. ([blog](https://aws.amazon.com/blogs/aws/amazon-nova-premier-our-most-capable-model-for-complex-tasks-and-teacher-for-model-distillation/))
+    creator_organization_name: Amazon
+    access: limited
+    release_date: 2025-04-30
+    tags: [NOVA_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
   - name: amazon/nova-pro-v1:0
     display_name: Amazon Nova Pro
     description: Amazon Nova Pro Model
