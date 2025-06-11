@@ -42,9 +42,9 @@ export default function LongContextLanding() {
             ), summarization of a long passage (
             <a
               className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
-              href="#/leaderboard/infinite_bench_sum"
+              href="#/leaderboard/infinite_bench_en_sum"
             >
-              ∞Bench Summarization
+              ∞Bench En.Sum
             </a>
             ), and multi-round co-reference resolution over a long multi-turn
             conversation (

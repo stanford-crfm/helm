@@ -189,7 +189,7 @@ run_groups:
     subgroups:
       - ruler_hotpotqa
       - ruler_squad
-      - infinite_bench_sum
+      - infinite_bench_en_sum
       - infinite_bench_en_qa
       - openai_mrcr
 
@@ -245,9 +245,9 @@ run_groups:
       when: Before 2024
       language: English
 
-  - name: infinite_bench_sum
-    display_name: ∞Bench Sum
-    description: ∞Bench Sum is a summarization task that requires generating a concise summary of a novel. ([Zhang et al., 2024](https://arxiv.org/abs/2402.13718))
+  - name: infinite_bench_en_sum
+    display_name: ∞Bench En.Sum
+    description: ∞Bench En.Sum is a summarization task that requires generating a concise summary of a novel. ([Zhang et al., 2024](https://arxiv.org/abs/2402.13718))
     metric_groups:
       - accuracy
       - general_information

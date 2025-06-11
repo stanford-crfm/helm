@@ -1,7 +1,7 @@
 import pytest
 import re
 from tempfile import TemporaryDirectory
-from helm.benchmark.scenarios.infinite_bench_sum_scenario import InfiniteBenchSumScenario
+from helm.benchmark.scenarios.infinite_bench_en_sum_scenario import InfiniteBenchEnSumScenario
 from helm.benchmark.scenarios.scenario import CORRECT_TAG
 
 
@@ -10,9 +10,9 @@ def count_words(text: str) -> int:
 
 
 @pytest.mark.scenarios
-def test_infinite_bench_sum_scenario():
+def test_infinite_bench_en_sum_scenario():
     with TemporaryDirectory() as tmpdir:
-        scenario = InfiniteBenchSumScenario(max_num_words=10000000)
+        scenario = InfiniteBenchEnSumScenario(max_num_words=10000000)
         instances = scenario.get_instances(tmpdir)
         assert len(instances) == 103
         assert instances[0].split == "test"
@@ -21,7 +21,7 @@ def test_infinite_bench_sum_scenario():
         assert len(references[0].output.text) == 2865
         assert references[0].tags == [CORRECT_TAG]
 
-        scenario = InfiniteBenchSumScenario(max_num_words=100000)
+        scenario = InfiniteBenchEnSumScenario(max_num_words=100000)
         instances = scenario.get_instances(tmpdir)
         assert len(instances) == 48
         assert instances[0].split == "test"

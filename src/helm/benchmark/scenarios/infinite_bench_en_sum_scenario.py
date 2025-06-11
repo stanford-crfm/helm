@@ -14,17 +14,16 @@ from helm.benchmark.scenarios.scenario import (
 from helm.common.general import ensure_directory_exists
 
 
-class InfiniteBenchSumScenario(Scenario):
-    """InfiniteBench Sum
+class InfiniteBenchEnSumScenario(Scenario):
+    """InfiniteBench En.Sum
 
     InfiniteBench is a benchmark tailored for evaluating the capabilities of language models to process,
-    understand, and reason over super long contexts (100k+ tokens). InfiniteBench Sum is a subset of
-    InfiniteBench that requires models to generate a concise summary of the novel. The subset is referred
-    to as "En.Sum" in the original paper.
+    understand, and reason over super long contexts (100k+ tokens). InfiniteBench En.Sum is a subset of
+    InfiniteBench that requires models to generate a concise summary of the novel.
     """
 
-    name = "infinite_bench_sum"
-    description = "∞Bench Sum is a summarization task that requires generating a concise summary of a novel. ([Zhang et al., 2024](https://arxiv.org/abs/2402.13718))"  # noqa: E501
+    name = "infinite_bench_en_sum"
+    description = "∞Bench En.Sum is a summarization task that requires generating a concise summary of a novel. ([Zhang et al., 2024](https://arxiv.org/abs/2402.13718))"  # noqa: E501
     tags = ["summarization"]
 
     def __init__(self, max_num_words: int):
