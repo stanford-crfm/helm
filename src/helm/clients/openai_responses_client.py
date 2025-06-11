@@ -88,7 +88,8 @@ class OpenAIResponseClient(CachingClient):
             "input": input,
             "top_p": request.top_p,
             # API errors if max_output_tokens is less than 16
-            # (Error you get: "Invalid 'max_output_tokens': integer below minimum value. Expected a value >= 16, but got 5 instead.")
+            # (Error you get: "Invalid 'max_output_tokens': integer below minimum value.
+            #    Expected a value >= 16, but got 5 instead.")
             "max_output_tokens": max(16, request.max_tokens),
             "temperature": request.temperature,
             # Don't store responses for later retrieval
@@ -117,9 +118,10 @@ class OpenAIResponseClient(CachingClient):
         # https://platform.openai.com/docs/api-reference/responses/create
         raw_request = self._make_raw_request(request)
 
-        # The responses API does not support a "num_completions" parameter, so we need to handle it ourselves with a simple loop
+        # The responses API does not support a "num_completions" parameter,
+        # so we need to handle it ourselves with a simple loop
         completions: list[GeneratedOutput] = []
-        for i in range(request.num_completions):
+        for _ in range(request.num_completions):
 
             def do_it() -> Dict[str, Any]:
                 raw_response = self.client.responses.create(**raw_request).model_dump(mode="json")
@@ -132,7 +134,8 @@ class OpenAIResponseClient(CachingClient):
             except openai.OpenAIError as e:
                 return OpenAIClientUtils.handle_openai_error(e, request)
 
-            # We can only return one completition really, but we get an array of messages back, so we need to contact them
+            # We can only return one completition really,
+            # but we get an array of messages back, so we need to contact them
             reasoning_output = ""
             text_output = ""
 
