@@ -94,9 +94,13 @@ metrics:
     display_name: ROUGE-L
     description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on longest common subsequence overlap.
     lower_is_better: false
+  - name: ruler_string_match_part
+    display_name: RULER String Match
+    description: RULER String Match
+    lower_is_better: false
   - name: openai_mrcr_accuracy
     display_name: MRCR Accuracy
-    description: OpenAI MRCR Accuracy
+    description: MRCR Accuracy
     lower_is_better: false
 
   # Toxicity metrics
@@ -201,7 +205,7 @@ run_groups:
       - general_information
       - annotation_metrics
     environment:
-      main_name: f1_score
+      main_name: ruler_string_match_part
       main_split: valid
     taxonomy:
       task: question answering with retrieval-augmented generation
@@ -219,7 +223,7 @@ run_groups:
       - general_information
       - annotation_metrics
     environment:
-      main_name: f1_score
+      main_name: ruler_string_match_part
       main_split: valid
     taxonomy:
       task: question answering
@@ -236,7 +240,7 @@ run_groups:
       - general_information
       - annotation_metrics
     environment:
-      main_name: rouge_l
+      main_name: f1_score
       main_split: test
     taxonomy:
       task: question answering
