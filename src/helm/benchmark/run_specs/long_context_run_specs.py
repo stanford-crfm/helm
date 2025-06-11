@@ -27,7 +27,7 @@ def _get_long_context_generation_adapter_spec(max_tokens: int) -> AdapterSpec:
 
 
 @run_spec_function("ruler_hotpotqa")
-def get_ruler_hotpotqa_spec(max_num_words: int = 65536) -> RunSpec:
+def get_ruler_hotpotqa_spec(max_num_words: int = 131072) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.ruler_qa_scenarios.RULERHotpotQAScenario",
         args={
@@ -47,7 +47,7 @@ def get_ruler_hotpotqa_spec(max_num_words: int = 65536) -> RunSpec:
 
 
 @run_spec_function("ruler_squad")
-def get_ruler_squad_spec(max_num_words: int = 65536) -> RunSpec:
+def get_ruler_squad_spec(max_num_words: int = 131072) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.ruler_qa_scenarios.RULERSQuADScenario",
         args={
@@ -67,7 +67,7 @@ def get_ruler_squad_spec(max_num_words: int = 65536) -> RunSpec:
 
 
 @run_spec_function("infinite_bench_en_qa")
-def get_infinite_bench_en_qa_spec(max_num_words: int = 65536) -> RunSpec:
+def get_infinite_bench_en_qa_spec(max_num_words: int = 131072) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.infinite_bench_en_qa_scenario.InfiniteBenchEnQAScenario",
         args={
@@ -88,7 +88,7 @@ def get_infinite_bench_en_qa_spec(max_num_words: int = 65536) -> RunSpec:
 
 
 @run_spec_function("infinite_bench_sum")
-def get_infinite_bench_sum_spec(max_num_words: int = 65536) -> RunSpec:
+def get_infinite_bench_sum_spec(max_num_words: int = 131072) -> RunSpec:
 
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.infinite_bench_sum_scenario.InfiniteBenchSumScenario",
@@ -110,7 +110,7 @@ def get_infinite_bench_sum_spec(max_num_words: int = 65536) -> RunSpec:
 
 
 @run_spec_function("openai_mrcr")
-def get_openai_mrcr_spec(needles: int, max_num_words: int = 65536) -> RunSpec:
+def get_openai_mrcr_spec(needles: int, max_num_words: int = 131072) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.openai_mrcr_scenario.OpenAIMRCRScenario",
         args={"needles": needles, "max_num_words": max_num_words},
