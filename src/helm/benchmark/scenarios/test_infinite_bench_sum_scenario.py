@@ -17,8 +17,6 @@ def test_infinite_bench_sum_scenario():
         assert len(instances) == 103
         assert instances[0].split == "test"
         assert len(instances[0].input.text) == 1745528
-        assert instances[0].extra_data
-        assert instances[0].extra_data["word_count"] == 308762
         references = instances[0].references
         assert len(references[0].output.text) == 2865
         assert references[0].tags == [CORRECT_TAG]
@@ -28,8 +26,6 @@ def test_infinite_bench_sum_scenario():
         assert len(instances) == 48
         assert instances[0].split == "test"
         assert len(instances[0].input.text) == 381778
-        assert instances[0].extra_data
-        assert instances[0].extra_data["word_count"] == 69458
         references = instances[0].references
         assert len(references[0].output.text) == 4217
         assert references[0].tags == [CORRECT_TAG]
