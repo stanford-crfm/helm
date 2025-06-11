@@ -128,7 +128,6 @@ class BedrockNovaClient(CachingClient):
             region=region,
         )
 
-
     def _get_messages_from_request(self, request: Request) -> List[_Message]:
         if request.prompt and request.messages:
             raise ValueError(f"Only one of `prompt` and `messages` may be set in request: {request}")
