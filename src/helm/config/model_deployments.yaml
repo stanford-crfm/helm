@@ -289,6 +289,14 @@ model_deployments:
 
 
   # Amazon nova models
+  - name: amazon/nova-premier-v1:0
+    model_name: amazon/nova-premier-v1:0
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 1000000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockNovaClient"
+      args:
+        bedrock_model_id: us.amazon.nova-premier-v1:0
 
   - name: amazon/nova-pro-v1:0
     model_name: amazon/nova-pro-v1:0

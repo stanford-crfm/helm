@@ -117,14 +117,17 @@ class BedrockNovaClient(CachingClient):
         tokenizer_name: str,
         assumed_role: Optional[str] = None,
         region: Optional[str] = None,
+        bedrock_model_id: Optional[str] = None,
     ):
         super().__init__(cache_config=cache_config)
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
+        self.bedrock_model_id = bedrock_model_id
         self.bedrock_client = get_bedrock_client_v1(
             assumed_role=assumed_role or os.environ.get("BEDROCK_ASSUME_ROLE", None),
             region=region,
         )
+
 
     def _get_messages_from_request(self, request: Request) -> List[_Message]:
         if request.prompt and request.messages:
@@ -144,7 +147,7 @@ class BedrockNovaClient(CachingClient):
         messages = self._get_messages_from_request(request)
 
         return {
-            "modelId": model_id,
+            "modelId": self.bedrock_model_id or model_id,
             "inferenceConfig": {
                 "temperature": request.temperature,
                 "maxTokens": request.max_tokens,
