@@ -87,11 +87,11 @@ def get_infinite_bench_en_qa_spec(max_num_words: int = 131072) -> RunSpec:
     )
 
 
-@run_spec_function("infinite_bench_sum")
-def get_infinite_bench_sum_spec(max_num_words: int = 131072) -> RunSpec:
+@run_spec_function("infinite_bench_en_sum")
+def get_infinite_bench_en_sum_spec(max_num_words: int = 131072) -> RunSpec:
 
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.infinite_bench_sum_scenario.InfiniteBenchSumScenario",
+        class_name="helm.benchmark.scenarios.infinite_bench_en_sum_scenario.InfiniteBenchEnSumScenario",
         args={
             "max_num_words": max_num_words,
         },
@@ -101,11 +101,11 @@ def get_infinite_bench_sum_spec(max_num_words: int = 131072) -> RunSpec:
     metric_specs = get_basic_metric_specs(["rouge_l"])
 
     return RunSpec(
-        name=f"infinite_bench_sum:max_num_words={max_num_words}",
+        name=f"infinite_bench_en_sum:max_num_words={max_num_words}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=["infinite_bench_sum"],
+        groups=["infinite_bench_en_sum"],
     )
 
 
