@@ -27,7 +27,7 @@ except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["openai"])
 
 
-class OpenAIClientUtils():
+class OpenAIClientUtils:
     """Methods used by both the chat completions client and the responses API client"""
 
     @classmethod
@@ -36,12 +36,14 @@ class OpenAIClientUtils():
         return bool(re.match(r"^o\d+", model_engine))
 
     # Error OpenAI throws when the image in the prompt violates their content policy
-    INAPPROPRIATE_IMAGE_ERROR: str = (
-        "Your input image may contain content that is not allowed by our safety system"
-    )
+    INAPPROPRIATE_IMAGE_ERROR: str = "Your input image may contain content that is not allowed by our safety system"
     INAPPROPRIATE_PROMPT_ERROR: str = "Invalid prompt: your prompt was flagged"
-    INAPPROPRIATE_PROMPT_AZURE_ERROR: str = "The response was filtered due to the prompt triggering Azure OpenAI's content management policy."
-    INAPPROPRIATE_PROMPT_MICROSOFT_ERROR: str = "The response was filtered due to the prompt triggering Microsoft's content management policy."
+    INAPPROPRIATE_PROMPT_AZURE_ERROR: str = (
+        "The response was filtered due to the prompt triggering Azure OpenAI's content management policy."
+    )
+    INAPPROPRIATE_PROMPT_MICROSOFT_ERROR: str = (
+        "The response was filtered due to the prompt triggering Microsoft's content management policy."
+    )
 
     # OpenAI server error
     OPENAI_SERVER_ERROR: str = (
@@ -100,6 +102,7 @@ class OpenAIClientUtils():
 
         error: str = f"OpenAI error: {e}"
         return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
+
 
 class OpenAIClient(CachingClient):
     END_OF_TEXT: str = "<|endoftext|>"
