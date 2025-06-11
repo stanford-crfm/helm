@@ -124,8 +124,10 @@ def get_openai_mrcr_spec(needles: int, max_num_words: Optional[int] = None) -> R
         MetricSpec(class_name="helm.benchmark.metrics.openai_mrcr_metrics.OpenAIMRCRMetric")
     ]
 
+    :
+    run_spec_name = (f"openai_mrcr:needles={needles},max_num_words={max_num_words}" if max_num_words else f"openai_mrcr:needles={needles}")
     return RunSpec(
-        name=f"openai_mrcr:needles={needles},max_num_words={max_num_words}",
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
