@@ -126,9 +126,9 @@ def run_benchmarking(
         cache_instances_only,
         skip_completed_runs,
         exit_on_error,
-        judge_model if judge_model is not None else "",
-        prompt_file if prompt_file is not None else "",
-        llm_judge if llm_judge is not None else False,
+        judge_model,
+        prompt_file,
+        bool(llm_judge),
     )
     runner.run_all(run_specs)
     return run_specs
