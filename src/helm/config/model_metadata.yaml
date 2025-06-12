@@ -1678,6 +1678,16 @@ models:
     release_date: 2023-06-22
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  # Marin Community
+  - name: marin-community/marin-8b-instruct
+    display_name: Marin 8B Instruct
+    description: Marin 8B Instruct is an open-source chatbot trained by fine-tuning LLaMA on user-shared conversations collected from ShareGPT.
+    creator_organization_name: Marin Community
+    access: open
+    num_parameters: 8030000000
+    release_date: 2025-05-15
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   # Meta
   - name: meta/opt-iml-175b # NOT SUPPORTED
     display_name: OPT-IML (175B)
