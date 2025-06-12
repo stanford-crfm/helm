@@ -1,5 +1,8 @@
 from helm.benchmark.adaptation.adapter_spec import ADAPT_CHAT, ADAPT_GENERATION, AdapterSpec
-from helm.benchmark.metrics.common_metric_specs import get_basic_metric_specs, get_open_ended_generation_metric_specs
+from helm.benchmark.metrics.common_metric_specs import (
+    get_exact_match_metric_specs,
+    get_open_ended_generation_metric_specs,
+)
 from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
@@ -36,12 +39,15 @@ def get_ruler_hotpotqa_spec(max_num_words: int = 131072) -> RunSpec:
     )
 
     adapter_spec = _get_long_context_generation_adapter_spec(max_tokens=100)
+    metric_specs = get_open_ended_generation_metric_specs() + [
+        MetricSpec(class_name="helm.benchmark.metrics.ruler_qa_metrics.RulerQAMetric")
+    ]
 
     return RunSpec(
         name=f"ruler_hotpotqa:max_num_words={max_num_words}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_open_ended_generation_metric_specs(),
+        metric_specs=metric_specs,
         groups=["ruler_hotpotqa"],
     )
 
@@ -56,12 +62,15 @@ def get_ruler_squad_spec(max_num_words: int = 131072) -> RunSpec:
     )
 
     adapter_spec = _get_long_context_generation_adapter_spec(max_tokens=100)
+    metric_specs = get_open_ended_generation_metric_specs() + [
+        MetricSpec(class_name="helm.benchmark.metrics.ruler_qa_metrics.RulerQAMetric")
+    ]
 
     return RunSpec(
         name=f"ruler_squad:max_num_words={max_num_words}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_open_ended_generation_metric_specs(),
+        metric_specs=metric_specs,
         groups=["ruler_squad"],
     )
 
@@ -76,7 +85,7 @@ def get_infinite_bench_en_qa_spec(max_num_words: int = 131072) -> RunSpec:
     )
 
     adapter_spec = _get_long_context_generation_adapter_spec(max_tokens=40)
-    metric_specs = get_basic_metric_specs(["rouge_l"])
+    metric_specs = get_open_ended_generation_metric_specs()
 
     return RunSpec(
         name="infinite_bench_en_qa:max_num_words={max_num_words}",
@@ -98,7 +107,7 @@ def get_infinite_bench_en_sum_spec(max_num_words: int = 131072) -> RunSpec:
     )
 
     adapter_spec = _get_long_context_generation_adapter_spec(max_tokens=1200)
-    metric_specs = get_basic_metric_specs(["rouge_l"])
+    metric_specs = get_open_ended_generation_metric_specs()
 
     return RunSpec(
         name=f"infinite_bench_en_sum:max_num_words={max_num_words}",
@@ -119,7 +128,7 @@ def get_openai_mrcr_spec(needles: int, max_num_words: int = 131072) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_CHAT, input_prefix="", output_prefix="", max_tokens=2000, num_outputs=1, temperature=0.0
     )
-    metric_specs = get_basic_metric_specs([]) + [
+    metric_specs = get_exact_match_metric_specs() + [
         MetricSpec(class_name="helm.benchmark.metrics.openai_mrcr_metrics.OpenAIMRCRMetric")
     ]
 
