@@ -11,8 +11,6 @@ from helm.common.general import write
 from helm.benchmark.run_spec import RunSpec
 
 
-
-
 class LLMJudger:
     """
     Class to judge model predictions.
@@ -89,7 +87,7 @@ class LLMJudger:
 
         return 0, "No response from LLM judge."
 
-    def judge(self, predictions: List[Dict[str, Any]], instructions: str="") -> List[Dict[str, Any]]:
+    def judge(self, predictions: List[Dict[str, Any]], instructions: str = "") -> List[Dict[str, Any]]:
         """
         Apply LLM judgment and return all complete judgments (without saving to file).
         """
@@ -107,23 +105,20 @@ class LLMJudger:
             prompt_template = self._load_prompt_template(self.prompt_file)
             prompt = prompt_template.replace("{input}", input_text).replace("{response}", model_response)
             prompt = prompt.replace("{instructions}", instructions)
-
-            print("=========================================")
-            print(prompt)
-            print("=========================================")
-
+            
             judged_value, explanation = self.call_llm(prompt)
 
-            judgements.append({
-                "instance_id": prediction.get("instance_id"),
-                "input": input_text,
-                "prediction": model_response,
-                "judgement": judged_value,
-                "explanation": explanation,
-            })
+            judgements.append(
+                {
+                    "instance_id": prediction.get("instance_id"),
+                    "input": input_text,
+                    "prediction": model_response,
+                    "judgement": judged_value,
+                    "explanation": explanation,
+                }
+            )
 
         return judgements
-
 
     def _resolve_model_deployment(self) -> str:
         """
@@ -151,7 +146,8 @@ class LLMJudger:
 
         with open(prompt_path, "r", encoding="utf-8") as f:
             return f.read()
-        
+
+
 def extract_predictions(scenario_state: ScenarioState) -> List[Dict[str, Any]]:
     predictions = []
     for request_state in scenario_state.request_states:
@@ -167,7 +163,8 @@ def extract_predictions(scenario_state: ScenarioState) -> List[Dict[str, Any]]:
         }
         predictions.append(prediction)
     return predictions
-    
+
+
 def save_judge_summary(run_spec: RunSpec, run_path: str, judge_model: str, judgements: List[Dict[str, Any]]):
     valid_judgements = [j for j in judgements if j.get("explanation") != "Malformed or incomplete response."]
     total_valid = len(valid_judgements)
@@ -191,7 +188,4 @@ def save_judge_summary(run_spec: RunSpec, run_path: str, judge_model: str, judge
     output_file = os.path.join(run_path, "llm_judge_summary.json")
     write(output_file, json.dumps(summary, indent=2, ensure_ascii=False))
     hlog(f"Saved LLM Judge summary to {output_file}")
-    print(f"\n✅ LLM-Judge Agreement Level: {round(agreement_level * 100, 2)}% "
-        f"({agreements}/{total_valid})\n")
-
-
+    print(f"\n✅ LLM-Judge Agreement Level: {round(agreement_level * 100, 2)}% " f"({agreements}/{total_valid})\n")

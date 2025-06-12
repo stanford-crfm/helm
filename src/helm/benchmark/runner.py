@@ -248,17 +248,11 @@ class Runner:
             request_states=request_states,
             annotator_specs=run_spec.annotators,
         )
-        print("="*100)
-        print(scenario_state.adapter_spec.instructions)
-        print("="*100)
         scenario_state = self.executor.execute(scenario_state)
         scenario_state = self.annotator_executor.execute(scenario_state)
-        
-        
+
         metrics: List[MetricInterface] = (
-            [DryRunMetric()]
-            if self.dry_run
-            else [create_metric(metric_spec) for metric_spec in run_spec.metric_specs]
+            [DryRunMetric()] if self.dry_run else [create_metric(metric_spec) for metric_spec in run_spec.metric_specs]
         )
         stats: List[Stat] = []
         per_instance_stats: List[PerInstanceStats] = []
@@ -298,9 +292,7 @@ class Runner:
         )
         write(
             os.path.join(run_path, "per_instance_stats.json"),
-            json.dumps(
-                list(map(asdict_without_nones, remove_per_instance_stats_nans(per_instance_stats))), indent=2
-            ),
+            json.dumps(list(map(asdict_without_nones, remove_per_instance_stats_nans(per_instance_stats))), indent=2),
         )
 
         cache_stats.print_status()
@@ -317,5 +309,3 @@ class Runner:
             instructions = getattr(scenario_state.adapter_spec, "instructions", "")
             judgements = llm_judge.judge(predictions, instructions=instructions)
             save_judge_summary(run_spec, run_path, self.judge_model, judgements)
-
-    
