@@ -105,7 +105,7 @@ class LLMJudger:
             prompt_template = self._load_prompt_template(self.prompt_file)
             prompt = prompt_template.replace("{input}", input_text).replace("{response}", model_response)
             prompt = prompt.replace("{instructions}", instructions)
-            
+
             judged_value, explanation = self.call_llm(prompt)
 
             judgements.append(
