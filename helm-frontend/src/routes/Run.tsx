@@ -213,13 +213,17 @@ export default function Run() {
           >
             All metrics
           </Tab>
-          <Tab
-            size="lg"
-            active={activeTab === 2}
-            onClick={() => setActiveTab(2)}
-          >
-            LLM Judge Analysis
-          </Tab>
+          {llmJudgeData &&
+          llmJudgeData.tasks &&
+          llmJudgeData.tasks.length > 0 ? (
+            <Tab
+              size="lg"
+              active={activeTab === 2}
+              onClick={() => setActiveTab(2)}
+            >
+              LLM Judge Analysis
+            </Tab>
+          ) : null}
         </Tabs>
       </div>
 

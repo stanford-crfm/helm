@@ -9,26 +9,22 @@ import {
   Flex,
   ProgressBar,
   Title,
-  Subtitle,
   Badge,
 } from "@tremor/react";
 import type LLMJudgeData from "@/types/LLMJudgeData";
 import type { LLMJudgeTask } from "@/types/LLMJudgeData";
 import Loading from "@/components/Loading";
-import MarkdownValue from "@/components/MarkdownValue";
 import Pagination from "@/components/Pagination";
+import Preview from "@/components/Preview";
 
 const TASKS_PAGE_SIZE = 10;
 
-interface LLMJudgeDisplayProps {
+type Props = {
   data: LLMJudgeData | undefined;
   isLoading: boolean;
-}
+};
 
-export default function LLMJudgeDisplay({
-  data,
-  isLoading,
-}: LLMJudgeDisplayProps) {
+export default function LLMJudgeDisplay({ data, isLoading }: Props) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentTasksPage, setCurrentTasksPage] = useState<number>(() => {
     const pageFromUrl = searchParams.get("tasksPage");
@@ -91,24 +87,13 @@ export default function LLMJudgeDisplay({
     setCurrentTasksPage((prev) => Math.max(prev - 1, 1));
   };
 
-  const formatValue = (value: unknown): string => {
-    if (typeof value === "object" && value !== null) {
-      return JSON.stringify(value);
-    }
-    return String(value ?? "");
-  };
-
   return (
     <div className="space-y-6">
       <Card>
         <Title>LLM Judge Evaluation Summary</Title>
         <List className="mt-4">
           <ListItem>
-            <Text>Benchmark:</Text>
-            <Text className="font-medium">{data.benchmark}</Text>
-          </ListItem>
-          <ListItem>
-            <Text>Main Model Evaluated:</Text>
+            <Text>Evaluated Model:</Text>
             <Text className="font-medium">{data.main_model}</Text>
           </ListItem>
           <ListItem>
@@ -128,22 +113,22 @@ export default function LLMJudgeDisplay({
               </Text>
             </Flex>
           </ListItem>
-          {data.total_valid_instances > 0 && (
+          {data.total_valid_instances > 0 ? (
             <ProgressBar
               value={data.agreement_level * 100}
               color="teal"
               className="mt-1"
             />
-          )}
+          ) : null}
+          <ListItem>
+            <Text>Total Instances:</Text>
+            <Text className="font-medium">{data.total_judged_instances}</Text>
+          </ListItem>
           <ListItem>
             <Text>Total Valid Judged Instances:</Text>
             <Text className="font-medium">{data.total_valid_instances}</Text>
           </ListItem>
-          <ListItem>
-            <Text>Total Instances Submitted to the Judge:</Text>
-            <Text className="font-medium">{data.total_judged_instances}</Text>
-          </ListItem>
-          {data.invalid_instances > 0 && (
+          {data.invalid_instances > 0 ? (
             <ListItem>
               <Text className="text-tremor-content-attention dark:text-dark-tremor-content-attention">
                 Instances with Invalid/Malformed Judge Responses:
@@ -152,11 +137,11 @@ export default function LLMJudgeDisplay({
                 {data.invalid_instances}
               </Text>
             </ListItem>
-          )}
+          ) : null}
         </List>
       </Card>
 
-      {data.tasks.length > 0 && (
+      {data.tasks.length > 0 ? (
         <Card>
           <Flex alignItems="baseline" justifyContent="between">
             <Title>Individual Evaluation Details</Title>
@@ -181,66 +166,50 @@ export default function LLMJudgeDisplay({
                 <Card
                   key={
                     task.instance_id != null
-                      ? formatValue(task.instance_id)
+                      ? String(task.instance_id)
                       : `task-${index}`
                   }
                   className="p-4 ring-1 ring-gray-200"
                 >
-                  {task.instance_id != null && (
-                    <Subtitle>
-                      Instance ID:{" "}
-                      <Badge color="slate">
-                        {formatValue(task.instance_id)}
+                  {task.instance_id != null ? (
+                    <h3 className="text-xl mb-4">
+                      Instance id: {String(task.instance_id)}
+                    </h3>
+                  ) : null}
+                  <h3>
+                    <span className="mr-4">Judgement:</span>
+                    <span>
+                      <Badge color={task.judgement === 1 ? "emerald" : "rose"}>
+                        {task.judgement === 1 ? "Agreement" : "Disagreement"}
                       </Badge>
-                    </Subtitle>
-                  )}
-                  <Text className="mt-2">
-                    <strong>Judgement:</strong>{" "}
-                    <Badge color={task.judgement === 1 ? "emerald" : "rose"}>
-                      {task.judgement === 1
-                        ? "Agreement"
-                        : `Value: ${task.judgement}`}
-                    </Badge>
-                  </Text>
+                    </span>
+                  </h3>
+
                   <div className="mt-2">
-                    <Text className="font-medium">Judge Explanation:</Text>
-                    <div className="prose prose-sm dark:prose-invert max-w-none mt-1 p-2 bg-slate-50 rounded overflow-x-auto">
-                      <MarkdownValue
-                        value={task.explanation || "No explanation provided."}
-                      />
-                    </div>
+                    <h3>
+                      <span className="mr-4">Judge Explanation:</span>
+                    </h3>
+                    <Preview value={String(task.explanation)} />
                   </div>
                   {Object.entries(task).filter(
                     ([key]) =>
                       !["judgement", "explanation", "instance_id"].includes(
                         key,
                       ),
-                  ).length > 0 && (
+                  ).length > 0 ? (
                     <div className="mt-3">
-                      <Text className="font-medium">Additional Task Data:</Text>
-                      <List className="text-sm">
-                        {Object.entries(task).map(([key, value]) => {
-                          if (
-                            ![
-                              "judgement",
-                              "explanation",
-                              "instance_id",
-                            ].includes(key)
-                          ) {
-                            return (
-                              <ListItem key={key}>
-                                <Text className="capitalize">
-                                  {key.replace(/_/g, " ")}:
-                                </Text>
-                                <Text>{formatValue(value)}</Text>
-                              </ListItem>
-                            );
-                          }
-                          return null;
-                        })}
-                      </List>
+                      <h3>
+                        <span className="mr-4">Input:</span>
+                      </h3>
+                      <Preview value={String(task.input)} />
+                      <h3>
+                        <span className="mr-4">
+                          Prediction of the Evaluated Model:
+                        </span>
+                      </h3>
+                      <Preview value={String(task.prediction)} />
                     </div>
-                  )}
+                  ) : null}
                 </Card>
               ))}
             </div>
@@ -250,7 +219,7 @@ export default function LLMJudgeDisplay({
             </Text>
           )}
 
-          {totalTasksPages > 1 && (
+          {totalTasksPages > 1 ? (
             <Pagination
               className="flex justify-center mt-8 mb-2"
               onNextPage={handleNextPage}
@@ -258,9 +227,9 @@ export default function LLMJudgeDisplay({
               currentPage={currentTasksPage}
               totalPages={totalTasksPages}
             />
-          )}
+          ) : null}
         </Card>
-      )}
+      ) : null}
     </div>
   );
 }
