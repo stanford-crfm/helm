@@ -37,6 +37,7 @@ from helm.benchmark.run_expander import (
     IncreaseTemperatureRunExpander,
     IncreaseMaxTokensRunExpander,
     LlavaRunExpander,
+    ModelRunExpander,
     OpenFlamingoRunExpander,
     StopRunExpander,
 )
@@ -60,6 +61,10 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
     # Peel off the run expanders (e.g., model)
     expanders = [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]  # type: ignore
     args = dict((key, value) for key, value in args.items() if key not in RUN_EXPANDERS)
+
+    # If no model run expander was specified, add the model=all run expander
+    if not any([expander for expander in expanders if isinstance(expander, ModelRunExpander)]):
+        expanders.append(ModelRunExpander("all"))
 
     run_specs: List[RunSpec] = [run_spec_function(**args)]
 
@@ -137,6 +142,14 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             and run_spec.adapter_spec.max_tokens == 1
         ):
             run_spec = singleton(IncreaseMaxTokensRunExpander(value=1).expand(run_spec))
+
+        # TODO: find a better solution for this
+        # if model.name.startswith("openai/o"):
+        #     # From https://platform.openai.com/docs/guides/reasoning,
+        #     # "OpenAI recommends reserving at least 25,000 tokens for reasoning and outputs when you start
+        #     # experimenting with these models. As you become familiar with the number of reasoning tokens your
+        #     # prompts require, you can adjust this buffer accordingly."
+        #     run_spec = singleton(IncreaseMaxTokensRunExpander(value=25_000).expand(run_spec))
 
         # IDEFICS special handling
         if IDEFICS_MODEL_TAG in model.tags:

@@ -1,6 +1,5 @@
 import MiniLeaderboard from "@/components/MiniLeaderboard";
 import { Link } from "react-router-dom";
-import wellsfargo from "@/assets/logos/wellsfargo.png";
 
 export default function FinanceLanding() {
   return (
@@ -8,29 +7,56 @@ export default function FinanceLanding() {
       <h1 className="text-3xl my-8 font-bold text-center">HELM Finance</h1>
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 text-l">
-          <div>
-            <a href="https://wellsfargo.com/">
-              <img
-                src={wellsfargo}
-                alt="Logo"
-                className="mx-auto block my-4 w-48"
-              />
-            </a>
-          </div>
-          <p>
-            In collaboration with{" "}
+          <p className="my-4">
+            LLMs show great potential for applications in the financial domain,
+            yet there is a lack of financial-domain evaluations for LLMs. To
+            help address this, we introduce the{" "}
+            <strong className="font-bold">HELM Finance</strong> leaderboard. The
+            HELM Finance leaderboard evaluates leading LLMs on three financial
+            benchmarks (i.e.,{" "}
             <a
-              href="https://www.wellsfargo.com/"
+              className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+              href="https://arxiv.org/abs/2109.00122/"
+            >
+              FinQA
+            </a>
+            ,{" "}
+            <a
+              className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+              href="https://arxiv.org/abs/2311.11944/"
+            >
+              FinanceBench
+            </a>
+            ,{" "}
+            <a
+              className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+              href="https://aclanthology.org/2020.nlp4convai-1.5/"
+            >
+              BANKING77
+            </a>
+            ) that utilize real financial documents. Like all other HELM
+            leaderboards, the HELM Finance leaderboard provides full
+            prompt-level transparency, and the results can be fully reproduced
+            using the open-source HELM framework. We hope that this leaderboard
+            provides valuable insights for financial practitioners.
+          </p>
+
+          <p className="my-4">
+            This leaderboard was produced through a collaboration with{" "}
+            <a
               className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+              href="https://www.wellsfargo.com/"
             >
               Wells Fargo
             </a>
-            , we introduce the <span className="font-bold">HELM Finance</span>{" "}
-            leaderboard for ecologically-valid evaluations of leading language
-            models in the financial domain. The leaderboard evaluates the
-            ability of language models to perform tasks from financial
-            professions on publicly financial documents across a range of
-            scenarios.
+            , and was funded by the{" "}
+            <a
+              className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+              href="https://hai.stanford.edu/corporate-affiliate-program"
+            >
+              HAI Corporate Affiliate Program
+            </a>
+            .
           </p>
           <div className="flex flex-row justify-center my-4">
             <Link to="leaderboard" className="px-10 btn rounded-md mx-4">

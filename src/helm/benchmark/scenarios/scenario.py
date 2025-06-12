@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field, replace
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 import os
 from pathlib import PurePath
 import inspect
@@ -66,6 +66,11 @@ class Input:
 
     multimedia_content: Optional[MultimediaObject] = None
     """A single input can consists of multimodal content interleaved (e.g., text, image, text, ...)."""
+
+    messages: Optional[List[Dict[str, str]]] = None
+    """Used for chat models.
+    If messages is specified for a chat model, the prompt is ignored.
+    Otherwise, the client should convert the prompt into a message."""
 
 
 @dataclass(frozen=True)
@@ -152,6 +157,9 @@ class Instance:
 
     contrast_references: Optional[List[List[Reference]]] = None
     """References for the perturbed input above (if available)"""
+
+    extra_data: Optional[Dict[str, Any]] = None
+    """Extra data required by the scenario e.g. chain-of-thought annotations"""
 
     @property
     def first_correct_reference(self) -> Optional[Reference]:

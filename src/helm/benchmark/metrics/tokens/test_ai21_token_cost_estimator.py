@@ -1,7 +1,7 @@
 from unittest.mock import Mock
 
 from helm.common.request import Request
-from .ai21_token_cost_estimator import AI21TokenCostEstimator
+from helm.benchmark.metrics.tokens.ai21_token_cost_estimator import AI21TokenCostEstimator
 
 
 class TestAI21TokenCostEstimator:

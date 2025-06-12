@@ -1,6 +1,6 @@
 from typing import Dict, List, Type
 
-from helm.benchmark.model_metadata_registry import ALL_MODELS_METADATA, TEXT_MODEL_TAG, CODE_MODEL_TAG, ModelMetadata
+from helm.benchmark.model_metadata_registry import ALL_MODELS_METADATA, TEXT_MODEL_TAG, CODE_MODEL_TAG, DEPRECATED_MODEL_TAG, ModelMetadata
 from helm.benchmark.run_expander import RUN_EXPANDERS, RunExpander
 
 
@@ -11,6 +11,8 @@ def define_env(env):
         result: Dict[str, List[ModelMetadata]] = {}
 
         for model_metadata in ALL_MODELS_METADATA:
+            if DEPRECATED_MODEL_TAG in model_metadata.tags:
+                continue
             if tag not in model_metadata.tags:
                 continue
             if model_metadata.creator_organization == "simple":

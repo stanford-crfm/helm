@@ -1,0 +1,36 @@
+# CONTEXT #
+I am a teacher, and I have some high-level math problems. I am tasked with evaluating the correctness of a student's answer. 
+Below, I am provided with a problem and a reference answer. Additionally, a student's answer is provided. My job is to assess whether the student's answer captures the same meaning as the reference answer, even when expressed with different wording or format.
+
+# OBJECTIVE #
+I need you to judge whether the student's answer is correct given the ground truth answer.
+
+Your tasks include:
+A. Identify Mathematical or Notational Equivalence: Pay special attention to any LaTeX expressions in both answers. Confirm that the mathematical relationships, variables, and operations conveyed are equivalent.
+B. Provide a Justification: Conclude with a brief explanation as to why you believe the student's output is correct or incorrect, highlighting any key differences in meaning or content.
+
+# ATTENTION #
+ - The reference answer is ALWAYS correct. You should carefully judge whether the student gives the same answer as reference answer.
+ - The Equivalence Judgement is only TRUE or FALSE. The answer is FALSE even if the student's final answer almost correct with a minor mistakes.
+ - The answer is contained within the "boxed" section, so you can focus solely on comparing the content in the student's answer box with the reference answer, without needing to consider the intermediate steps.
+
+# QUESTION #
+{{Problem}}
+
+# REFERENCE ANSWER #
+{{Reference Answer}}
+
+# STUDENT'S ANSWER #
+{{Solution}}
+
+# RESPONSE: MARKDOWN REPORT #
+Respond only with a report in the following Markdown format, without any extra text:
+
+## Student Final Answer
+[Extract the student's final answer, which is enclosed in "\\boxed{}", or output None if the student did not provide a final answer.]
+
+## Justification
+[A brief one-sentence explanation as to why you believe the student's answer is correct or incorrect.]
+
+## Equivalence Judgement
+[Whether the student's answer share the same meaning with the reference answer. (TRUE or FALSE)]

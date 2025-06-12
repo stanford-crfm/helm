@@ -21,8 +21,8 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.scenarios.scenario import Instance, Reference
 from helm.common.codec import from_json, to_json
-from helm.common.hierarchical_logger import hlog
-from helm.common.request import Request
+from helm.common.hierarchical_logger import hwarn
+from helm.common.request import Request, RequestResult, GeneratedOutput, Token
 
 
 SCENARIO_STATE_FILE_NAME = "scenario_state.json"
@@ -62,28 +62,47 @@ def redact_output_mapping(output_mapping: Optional[Dict[str, str]]) -> Optional[
     return {key: REDACTED_STRING for key in output_mapping}
 
 
-def redact_request_state(request_state: RequestState) -> RequestState:
+def redact_token(token: Token) -> Token:
+    return dataclasses.replace(token, text=REDACTED_STRING)
+
+
+def redact_completion(completion: GeneratedOutput) -> GeneratedOutput:
+    # Replacing tokens for empty list in case length of completion reveals information about the prompt
+    return dataclasses.replace(completion, text=REDACTED_STRING, tokens=[])
+
+
+def redact_result(result: RequestResult) -> RequestResult:
+    redacted_completions = [redact_completion(completion) for completion in result.completions]
+    return dataclasses.replace(result, completions=redacted_completions)
+
+
+def redact_request_state(request_state: RequestState, redact_output: bool) -> RequestState:
+    assert request_state.result is not None
+    result = redact_result(request_state.result) if redact_output else request_state.result
     return dataclasses.replace(
         request_state,
         instance=redact_instance(request_state.instance),
         request=redact_request(request_state.request),
         output_mapping=redact_output_mapping(request_state.output_mapping),
+        result=result,
     )
 
 
-def redact_scenario_state(scenario_state: ScenarioState) -> ScenarioState:
-    redacted_request_states = [redact_request_state(request_state) for request_state in scenario_state.request_states]
+def redact_scenario_state(scenario_state: ScenarioState, redact_output: bool) -> ScenarioState:
+    redacted_request_states = [
+        redact_request_state(request_state, redact_output) for request_state in scenario_state.request_states
+    ]
     return dataclasses.replace(scenario_state, request_states=redacted_request_states)
 
 
-def modify_scenario_state_for_run(run_path: str) -> None:
+def modify_scenario_state_for_run(run_path: str, redact_output: bool) -> None:
     scenario_state_path = os.path.join(run_path, SCENARIO_STATE_FILE_NAME)
     scenario_state = read_scenario_state(scenario_state_path)
-    redacted_scenario_state = redact_scenario_state(scenario_state)
+    redacted_scenario_state = redact_scenario_state(scenario_state, redact_output)
     write_scenario_state(scenario_state_path, redacted_scenario_state)
 
 
-def modify_scenario_states_for_suite(run_suite_path: str) -> None:
+def modify_scenario_states_for_suite(run_suite_path: str, redact_output: bool) -> None:
     """Load the runs in the run suite path."""
     # run_suite_path can contain subdirectories that are not runs (e.g. eval_cache, groups)
     # so filter them out.
@@ -97,10 +116,10 @@ def modify_scenario_states_for_suite(run_suite_path: str) -> None:
     for run_dir_name in tqdm(run_dir_names, disable=None):
         scenario_state_path: str = os.path.join(run_suite_path, run_dir_name, SCENARIO_STATE_FILE_NAME)
         if not os.path.exists(scenario_state_path):
-            hlog(f"WARNING: {run_dir_name} doesn't have {SCENARIO_STATE_FILE_NAME}, skipping")
+            hwarn(f"{run_dir_name} doesn't have {SCENARIO_STATE_FILE_NAME}, skipping")
             continue
         run_path: str = os.path.join(run_suite_path, run_dir_name)
-        modify_scenario_state_for_run(run_path)
+        modify_scenario_state_for_run(run_path, redact_output)
 
 
 def main():
@@ -113,11 +132,13 @@ def main():
         type=str,
         help="Name of the suite this summarization should go under.",
     )
+    parser.add_argument("--redact-output", action="store_true", help="Whether to redact the generated outputs.")
     args = parser.parse_args()
     output_path = args.output_path
     suite = args.suite
+    redact_output = args.redact_output
     run_suite_path = os.path.join(output_path, "runs", suite)
-    modify_scenario_states_for_suite(run_suite_path)
+    modify_scenario_states_for_suite(run_suite_path, redact_output)
 
 
 if __name__ == "__main__":

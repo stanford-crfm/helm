@@ -115,14 +115,16 @@ class QwenVLMClient(CachingClient):
 
                     def do_it() -> Dict[str, Any]:
                         if request.model_engine == "qwen-vl-chat":
-                            completion, _ = model.chat(tokenizer, query=tokenizer.from_list_format(query), history=None)
+                            completion, _ = model.chat(  # type: ignore
+                                tokenizer, query=tokenizer.from_list_format(query), history=None  # type: ignore
+                            )
                         else:
-                            inputs = tokenizer(tokenizer.from_list_format(query), return_tensors="pt")
+                            inputs = tokenizer(tokenizer.from_list_format(query), return_tensors="pt")  # type: ignore
                             inputs = inputs.to(self._device)
-                            pred = model.generate(**inputs, **generation_args)
-                            completion = tokenizer.decode(pred.cpu()[0], skip_special_tokens=False)
+                            pred = model.generate(**inputs, **generation_args)  # type: ignore
+                            completion = tokenizer.decode(pred.cpu()[0], skip_special_tokens=False)  # type: ignore
 
-                        tokens: List[str] = tokenizer.tokenize(completion)
+                        tokens: List[str] = tokenizer.tokenize(completion)  # type: ignore
                         return {"output": (completion, tokens)}
 
                     # Include the prompt and model name in the cache key

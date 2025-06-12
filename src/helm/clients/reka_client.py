@@ -6,10 +6,10 @@ from helm.proxy.retry import NonRetriableException
 from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hwarn
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.tokenizers.tokenizer import Tokenizer
-from .client import CachingClient, truncate_and_tokenize_response_text
+from helm.clients.client import CachingClient, truncate_and_tokenize_response_text
 
 try:
     import reka
@@ -121,7 +121,7 @@ class RekaClient(CachingClient):
             if messages[-1]["role"] != "user":
                 raise ValueError("Last message must have role 'user'")
             if request.prompt != "":
-                hlog("WARNING: Since message is set, prompt will be ignored")
+                hwarn("Since message is set, prompt will be ignored")
             reka_chat_history = self._convert_messages_to_reka_chat_history(messages)
         else:
             current_chat_history: Dict[str, Any] = {

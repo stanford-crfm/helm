@@ -2,7 +2,7 @@ import os
 from typing import List
 
 from helm.common.codec import from_jsonl
-from .scenario import Scenario, Instance
+from helm.benchmark.scenarios.scenario import Scenario, Instance
 
 
 class CustomMCQAScenario(Scenario):

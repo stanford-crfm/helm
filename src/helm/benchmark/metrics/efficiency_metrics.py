@@ -3,15 +3,15 @@ from typing import Dict, List, Optional
 import json
 import importlib_resources as resources
 
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hwarn
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
-from .metric_name import MetricName
-from .metric_service import MetricService
-from .statistic import Stat
+from helm.benchmark.metrics.metric_name import MetricName
+from helm.benchmark.metrics.metric_service import MetricService
+from helm.benchmark.metrics.statistic import Stat
 
 
 EFFICIENCY_DATA_PACKAGE: str = "helm.benchmark.efficiency_data"
@@ -112,8 +112,8 @@ class EfficiencyMetric:
             if num_prompt_tokens <= num_output_tokens:
                 num_output_tokens -= num_prompt_tokens
             else:
-                hlog(
-                    f"WARNING: num_prompt_tokens ({num_prompt_tokens}) > num_output_tokens ({num_output_tokens}) "
+                hwarn(
+                    f"num_prompt_tokens ({num_prompt_tokens}) > num_output_tokens ({num_output_tokens}) "
                     f"for prompt: {prompt}"
                 )
                 num_output_tokens = 0

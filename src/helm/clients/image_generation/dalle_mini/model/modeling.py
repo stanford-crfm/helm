@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" DalleBart model. """
+"""DalleBart model."""
 
 import math
 from functools import partial
@@ -35,8 +35,8 @@ from transformers.utils import ModelOutput, logging
 from transformers.generation.configuration_utils import GenerationConfig
 
 from helm.common.optional_dependencies import handle_module_not_found_error
-from .configuration import DalleBartConfig
-from .utils import PretrainedFromWandbMixin
+from helm.clients.image_generation.dalle_mini.model.configuration import DalleBartConfig
+from helm.clients.image_generation.dalle_mini.model.utils import PretrainedFromWandbMixin
 
 try:
     import flax

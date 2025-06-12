@@ -6,6 +6,7 @@ Look at `index.js` to see how the functionality is invoked.
 from urllib.parse import unquote_plus
 import argparse
 import dataclasses
+import importlib_resources as resources
 import json
 import os
 import sys
@@ -29,9 +30,9 @@ from helm.common.perspective_api_request import PerspectiveAPIRequest
 from helm.common.moderations_api_request import ModerationAPIRequest
 from helm.common.tokenization_request import TokenizationRequest, DecodeRequest
 from helm.proxy.services.service import CACHE_DIR
-from .accounts import Account
-from .services.server_service import ServerService
-from .query import Query
+from helm.proxy.accounts import Account
+from helm.proxy.services.server_service import ServerService
+from helm.proxy.query import Query
 
 try:
     import gunicorn  # noqa
@@ -86,7 +87,7 @@ def handle_root():
 
 @app.get("/static/<filename:path>")
 def handle_static_filename(filename):
-    resp = bottle.static_file(filename, root=os.path.join(os.path.dirname(__file__), "static"))
+    resp = bottle.static_file(filename, root=app.config["helm.staticpath"])
     resp.add_header("Cache-Control", "no-store, must-revalidate ")
     return resp
 
@@ -102,15 +103,6 @@ def handle_get_general_info():
     def perform(args):
         global service
         return dataclasses.asdict(service.get_general_info())
-
-    return safe_call(perform)
-
-
-@app.get("/api/window_service_info")
-def handle_get_window_service_info():
-    def perform(args):
-        global service
-        return dataclasses.asdict(service.get_window_service_info(args["model_name"]))
 
     return safe_call(perform)
 
@@ -292,6 +284,12 @@ def main():
         sqlite_cache_path = os.path.join(args.base_path, CACHE_DIR)
         ensure_directory_exists(sqlite_cache_path)
         cache_backend_config = SqliteCacheBackendConfig(sqlite_cache_path)
+
+    static_package_name = "helm.proxy.static"
+    resource_path = resources.files(static_package_name).joinpath("index.html")
+    with resources.as_file(resource_path) as resource_filename:
+        static_path = str(resource_filename.parent)
+    app.config["helm.staticpath"] = static_path
 
     service = ServerService(base_path=args.base_path, cache_backend_config=cache_backend_config)
 

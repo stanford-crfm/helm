@@ -35,18 +35,9 @@ Within this virtual environment, run:
 pip install crfm-helm
 ```
 
-### For HEIM (text-to-image evaluation)
+## Install Multimodal Support
 
-To install the additional dependencies to run HEIM, run:
+Additional steps are required for multimodal evaluations:
 
-```
-pip install "crfm-helm[heim]"
-``` 
-
-Some models (e.g., DALLE-mini/mega) and metrics (`DetectionMetric`) require extra dependencies that are 
-not available on PyPI. To install these dependencies, download and run the 
-[extra install script](https://github.com/stanford-crfm/helm/blob/main/install-heim-extras.sh):
-
-```
-bash install-heim-extras.sh
-```
+- **HEIM (Text-to-image Model Evaluation)** - to install the additional dependencies to run HEIM (text-to-image evaluation), refer to the [HEIM documentation](heim.md).
+- **VHELM (Vision-Language Models)** - To install the additional dependencies to run VHELM (Vision-Language Models), refer to the [VHELM documentation](vhelm.md).

@@ -5,7 +5,7 @@ import pandas as pd
 
 from helm.common.general import ensure_file_downloaded
 
-from .scenario import CORRECT_TAG, TEST_SPLIT, Input, Instance, Output, Reference, Scenario
+from helm.benchmark.scenarios.scenario import CORRECT_TAG, TEST_SPLIT, Input, Instance, Output, Reference, Scenario
 
 
 class MedicationQAScenario(Scenario):
@@ -31,7 +31,7 @@ class MedicationQAScenario(Scenario):
     FILENAME = "MedInfo2019-QA-Medications.xlsx"
 
     name = "medication_qa"
-    description = "MedInfo 2019 MedicationQA medication question answering task"
+    description = "Open text question-answer pairs regarding consumer health questions about medication."
     tags = ["knowledge", "generation", "question_answering", "biomedical"]
 
     def download_medication_qa(self, path: str):

@@ -1,0 +1,1140 @@
+---
+############################################################
+metrics:
+  # Infrastructure metrics:
+  - name: num_perplexity_tokens
+    display_name: '# tokens'
+    description: Average number of tokens in the predicted output (for language modeling, the input too).
+  - name: num_bytes
+    display_name: '# bytes'
+    description: Average number of bytes in the predicted output (for language modeling, the input too).
+
+  - name: num_references
+    display_name: '# ref'
+    description: Number of references.
+  - name: num_train_trials
+    display_name: '# trials'
+    description: Number of trials, where in each trial we choose an independent, random set of training instances.
+  - name: estimated_num_tokens_cost
+    display_name: 'cost'
+    description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
+  - name: num_prompt_tokens
+    display_name: '# prompt tokens'
+    description: Number of tokens in the prompt.
+  - name: num_prompt_characters
+    display_name: '# prompt chars'
+    description: Number of characters in the prompt.
+  - name: num_completion_tokens
+    display_name: '# completion tokens'
+    description: Actual number of completion tokens (over all completions).
+  - name: num_output_tokens
+    display_name: '# output tokens'
+    description: Actual number of output tokens.
+  - name: max_num_output_tokens
+    display_name: 'Max output tokens'
+    description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
+  - name: num_requests
+    display_name: '# requests'
+    description: Number of distinct API requests.
+  - name: num_instances
+    display_name: '# eval'
+    description: Number of evaluation instances.
+  - name: num_train_instances
+    display_name: '# train'
+    description: Number of training instances (e.g., in-context examples).
+  - name: prompt_truncated
+    display_name: truncated
+    description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
+  - name: finish_reason_length
+    display_name: finish b/c length
+    description: Fraction of instances where the the output was terminated because of the max tokens limit.
+  - name: finish_reason_stop
+    display_name: finish b/c stop
+    description: Fraction of instances where the the output was terminated because of the stop sequences.
+  - name: finish_reason_endoftext
+    display_name: finish b/c endoftext
+    description: Fraction of instances where the the output was terminated because the end of text token was generated.
+  - name: finish_reason_unknown
+    display_name: finish b/c unknown
+    description: Fraction of instances where the the output was terminated for unknown reasons.
+  - name: num_completions
+    display_name: '# completions'
+    description: Number of completions.
+  - name: predicted_index
+    display_name: Predicted index
+    description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
+
+  # Accuracy metrics:
+  - name: exact_match
+    display_name: Exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
+    lower_is_better: false
+  - name: f1_score
+    display_name: F1
+    description: Average F1 score in terms of word overlap between the model output and correct reference.
+    lower_is_better: false
+  - name: live_qa_score
+    display_name: Judge Score
+    description: LLM-as-judge score
+    lower_is_better: false
+  - name: medication_qa_score
+    display_name: Judge Score
+    description: LLM-as-judge score
+    lower_is_better: false
+  - name: quasi_exact_match
+    display_name: Quasi-exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+    lower_is_better: false
+  - name: prefix_exact_match
+    display_name: Prefix exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_prefix_exact_match
+    # TODO: should call this prefix_quasi_exact_match
+    display_name: Prefix quasi-exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
+    lower_is_better: false
+  - name: logprob
+    display_name: Log probability
+    short_display_name: Logprob
+    description: Predicted output's average log probability (input's log prob for language modeling).
+    lower_is_better: false
+  - name: logprob_per_byte
+    display_name: Log probability / byte
+    short_display_name: Logprob/byte
+    description: Predicted output's average log probability normalized by the number of bytes.
+    lower_is_better: false
+  - name: bits_per_byte
+    display_name: Bits/byte
+    short_display_name: BPB
+    lower_is_better: true
+    description: Average number of bits per byte according to model probabilities.
+  - name: perplexity
+    display_name: Perplexity
+    short_display_name: PPL
+    lower_is_better: true
+    description: Perplexity of the output completion (effective branching factor per output token).
+  - name: rouge_1
+    display_name: ROUGE-1
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 1-gram overlap.
+    lower_is_better: false
+  - name: rouge_2
+    display_name: ROUGE-2
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 2-gram overlap.
+    lower_is_better: false
+  - name: rouge_l
+    display_name: ROUGE-L
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on longest common subsequence overlap.
+    lower_is_better: false
+  - name: bleu_1
+    display_name: BLEU-1
+    description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 1-gram overlap.
+    lower_is_better: false
+  - name: bleu_4
+    display_name: BLEU-4
+    description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 4-gram overlap.
+    lower_is_better: false
+  - name: medec_error_flag_accuracy
+    display_name: Medical Error Flag Accuracy
+    short_display_name: MedecFlagAcc
+    description: Measures how accurately the model identifies whether a clinical note contains an error (binary classification of correct/incorrect).
+    lower_is_better: false
+  - name: medec_error_sentence_accuracy
+    display_name: Medical Error Sentence Accuracy
+    short_display_name: MedecSentenceAcc
+    description: Measures how accurately the model identifies the specific erroneous sentence within a clinical note.
+    lower_is_better: false
+  - name: ehr_sql_precision_answerable
+    display_name: Precision for Answerable Questions
+    short_display_name: EHRSQLPreAns
+    description:  Measures the proportion of correctly predicted answerable questions among all questions predicted to be answerable.
+    lower_is_better: false
+  - name: ehr_sql_recall_answerable
+    display_name: Recall for Answerable Questions
+    short_display_name: EHRSQLReAns
+    description: Measures the proportion of correctly predicted answerable questions among all answerable questions in the dataset.
+    lower_is_better: false
+  - name: mimiciv_billing_code_precision
+    display_name: Precision for MIMIC Billing Codes
+    short_display_name: MIMICBillingPre
+    description: Measures the proportion of correctly predicted ICD codes among all ICD codes predicted by the model.
+    lower_is_better: false
+  - name: mimiciv_billing_code_recall
+    display_name: Recall for MIMIC Billing Codes
+    short_display_name: MIMICBillingRec
+    description: Measures the proportion of correctly predicted ICD codes among all ICD codes present in the gold standard.
+    lower_is_better: false
+  - name: mimiciv_billing_code_f1
+    display_name: F1 Score for MIMIC Billing Codes
+    short_display_name: MIMICBillingF1
+    description: Measures the harmonic mean of precision and recall for ICD codes, providing a balanced evaluation of the model's performance.
+    lower_is_better: false
+  - name: exact_match@5
+    display_name: Exact match @5
+    short_display_name: EM@5
+    description: Fraction of instances where at least one predicted output among the top 5 matches a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_exact_match@5
+    display_name: Quasi-exact match @5
+    short_display_name: EM@5
+    description: Fraction of instances where at least one predicted output among the top 5 matches a correct reference up to light processing.
+    lower_is_better: false
+  - name: prefix_exact_match@5
+    display_name: Prefix exact match @5
+    short_display_name: PEM@5
+    description: Fraction of instances that the predicted output among the top 5 matches the prefix of a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_prefix_exact_match@5
+    display_name: Prefix quasi-exact match @5
+    short_display_name: PEM@5
+    description: Fraction of instances that the predicted output among the top 5 matches the prefix of a correct reference up to light processing.
+    lower_is_better: false
+  - name: ehr_sql_execution_accuracy
+    display_name: Execution accuracy for Generated Query
+    short_display_name: EHRSQLExeAcc
+    description:  Measures the proportion of correctly predicted answerable questions among all questions predicted to be answerable.
+    lower_is_better: false
+  - name: ehr_sql_query_validity
+    display_name: Validity of Generated Query
+    short_display_name: EHRSQLQueryValid
+    description: Measures the proportion of correctly predicted answerable questions among all answerable questions in the dataset.
+    lower_is_better: false
+  - name: aci_bench_accuracy
+    display_name: ACI-Bench Jury Score
+    short_display_name: Jury Score
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
+  - name: mtsamples_replicate_accuracy
+    display_name: MTSamples Replicate Jury Score
+    short_display_name: Jury Score
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
+  - name: medalign_accuracy
+    display_name: Medalign Jury Score
+    short_display_name: Jury Score
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
+  - name: dischargeme_accuracy
+    display_name: DischargeMe Jury Score
+    short_display_name: Jury Score
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
+  - name: mtsamples_procedures_accuracy
+    display_name: MTSamples Procedures Jury Score
+    short_display_name: Jury Score
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
+  - name: mimic_rrs_accuracy
+    display_name: MIMIC-RRS Jury Score
+    short_display_name: Jury Score
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
+  - name: mimic_bhc_accuracy
+    display_name: MIMIC-BHC Jury Score
+    short_display_name: Jury Score
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
+  - name: chw_care_plan_accuracy
+    display_name: NoteExtract Jury Score
+    short_display_name: Jury Score
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
+  - name: medication_qa_accuracy
+    display_name: MedicationQA Jury Score
+    short_display_name: Jury Score
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
+  - name: starr_patient_instructions_accuracy
+    display_name: PatientInstruct Jury Score
+    short_display_name: Jury Score
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
+  - name: med_dialog_accuracy
+    display_name: MedDialog Jury Score
+    short_display_name: Jury Score
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
+  - name: medi_qa_accuracy
+    display_name: MediQA Jury Score
+    short_display_name: Jury Score
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
+  - name: mental_health_accuracy
+    display_name: MentalHealth Jury Score
+    short_display_name: Jury Score
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
+
+  # Summariazation metrics
+  - name: summac
+    display_name: SummaC
+    description: Faithfulness scores based on the SummaC method of [Laban et al. (2022)](https://aclanthology.org/2022.tacl-1.10/).
+    lower_is_better: false
+  - name: QAFactEval
+    display_name: QAFactEval
+    description: Faithfulness scores based on the SummaC method of [Laban et al. (2022)](https://aclanthology.org/2022.tacl-1.10/).
+    lower_is_better: false
+  - name: summarization_coverage
+    display_name: Coverage
+    description: Extent to which the model-generated summaries are extractive fragments from the source document [(Grusky et al., 2018)](https://aclanthology.org/N18-1065/).
+  - name: summarization_density
+    display_name: Density
+    description: Extent to which the model-generated summaries are extractive summaries based on the source document [(Grusky et al., 2018)](https://aclanthology.org/N18-1065/).
+  - name: summarization_compression
+    display_name: Compression
+    description: Extent to which the model-generated summaries are compressed relative to the source document [(Grusky et al., 2018)](https://aclanthology.org/N18-1065/).
+  - name: BERTScore-P
+    display_name: BERTScore (P)
+    description: Average BERTScore precision [(Zhang et al., 2020)](https://openreview.net/pdf?id=SkeHuCVFDr) between model generation and reference summary.
+    lower_is_better: false
+  - name: BERTScore-R
+    display_name: BERTScore (R)
+    description: Average BERTScore recall [(Zhang et al., 2020)](https://openreview.net/pdf?id=SkeHuCVFDr) between model generation and reference summary.
+    lower_is_better: false
+  - name: BERTScore-F
+    display_name: BERTScore (F1)
+    description: Average BERTScore F1 [(Zhang et al., 2020)](https://openreview.net/pdf?id=SkeHuCVFDr) between model generation and reference summary.
+    lower_is_better: false
+  - name: HumanEval-faithfulness
+    display_name: HumanEval-faithfulness
+    description: Human evaluation score for faithfulness.
+    lower_is_better: false
+  - name: HumanEval-relevance
+    display_name: HumanEval-relevance
+    description: Human evaluation score for relevance.
+    lower_is_better: false
+  - name: HumanEval-coherence
+    display_name: HumanEval-coherence
+    description: Human evaluation score for coherence.
+    lower_is_better: false
+    
+  # Toxicity metrics
+  - name: expected_max_toxicity
+    display_name: Average max toxicity
+    short_display_name: Avg. max toxicity
+    lower_is_better: true
+    description: Average max toxicity score across all completions (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
+  - name: max_toxicity_probability
+    display_name: max toxicity
+    lower_is_better: true
+    description: Fraction of instances where most toxic completion is above 0.5 toxicity (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
+  - name: toxic_frac
+    display_name: Toxic fraction
+    lower_is_better: true
+    description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).
+
+  # Efficiency metrics
+  - name: training_co2_cost
+    display_name: Estimated training emissions (kg CO2)
+    short_display_name: Training emissions (kg CO2)
+    lower_is_better: true
+    description: Estimate of the CO2 emissions from training the model.
+  - name: training_energy_cost
+    display_name: Estimated training energy cost (MWh)
+    short_display_name: Training energy (MWh)
+    lower_is_better: true
+    description: Estimate of the amount of energy used to train the model.
+  - name: inference_runtime
+    display_name: Observed inference runtime (s)
+    short_display_name: Observed inference time (s)
+    lower_is_better: true
+    description: Average observed time to process a request to the model (via an API, and thus depends on particular deployment).
+  - name: inference_idealized_runtime
+    display_name: Idealized inference runtime (s)
+    short_display_name: Idealized inference time (s)
+    lower_is_better: true
+    description: Average time to process a request to the model based solely on the model architecture (using Megatron-LM).
+  - name: inference_denoised_runtime
+    display_name: Denoised inference runtime (s)
+    short_display_name: Denoised inference time (s)
+    lower_is_better: true
+    description: Average time to process a request to the model minus performance contention by using profiled runtimes from multiple trials of SyntheticEfficiencyScenario.
+  - name: batch_size
+    display_name: Batch size
+    description: For batch jobs, how many requests are in a batch.
+
+  # Calibration metrics:
+  - name: max_prob
+    display_name: Max prob
+    description: Model's average confidence in its prediction (only computed for classification tasks)
+    lower_is_better: false
+  - name: ece_10_bin
+    display_name: 10-bin expected calibration error
+    short_display_name: ECE (10-bin)
+    lower_is_better: true
+    description: The average difference between the model's confidence and accuracy, averaged across 10 bins where each bin contains an equal number of points (only computed for classification tasks). Warning - not reliable for small datasets (e.g., with < 300 examples) because each bin will have very few examples.
+  - name: ece_1_bin
+    display_name: 1-bin expected calibration error
+    short_display_name: ECE (1-bin)
+    lower_is_better: true
+    description: The (absolute value) difference between the model's average confidence and accuracy (only computed for classification tasks).
+  - name: selective_cov_acc_area
+    display_name: Selective coverage-accuracy area
+    short_display_name: Selective Acc
+    description: The area under the coverage-accuracy curve, a standard selective classification metric (only computed for classification tasks).
+    lower_is_better: false
+  - name: selective_acc@10
+    display_name: Accuracy at 10% coverage
+    short_display_name: Acc@10%
+    description: The accuracy for the 10% of predictions that the model is most confident on (only computed for classification tasks).
+    lower_is_better: false
+  - name: platt_ece_10_bin
+    display_name: 10-bin Expected Calibration Error (after Platt scaling)
+    short_display_name: Platt-scaled ECE (10-bin)
+    lower_is_better: true
+    description: 10-bin ECE computed after applying Platt scaling to recalibrate the model's predicted probabilities.
+  - name: platt_ece_1_bin
+    display_name: 1-bin expected calibration error (after Platt scaling)
+    short_display_name: Platt-scaled ECE (1-bin)
+    lower_is_better: true
+    description: 1-bin ECE computed after applying Platt scaling to recalibrate the model's predicted probabilities.
+  - name: platt_coef
+    display_name: Platt Scaling Coefficient
+    short_display_name: Platt Coef
+    description: Coefficient of the Platt scaling classifier (can compare this across tasks).
+    lower_is_better: false
+  - name: platt_intercept
+    display_name: Platt Scaling Intercept
+    short_display_name: Platt Intercept
+    description: Intercept of the Platt scaling classifier (can compare this across tasks).
+    lower_is_better: false
+  
+  - name: ehr_sql_total_predicted_answerable
+    display_name: Total Predicted Answerable
+    short_display_name: Total Pred Ans
+    description: Total number of questions predicted to be answerable by the model.
+    lower_is_better: false
+  
+  - name: ehr_sql_total_ground_truth_answerable
+    display_name: Total Ground Truth Answerable
+    short_display_name: Total GT Ans
+    description: Total number of answerable questions in the ground truth.
+    lower_is_better: false
+
+  - name: medcalc_bench_accuracy
+    display_name: MedCalc Accuracy
+    short_display_name: MedCalc Accuracy
+    description: Comparison based on category. Exact match for categories risk, severity and diagnosis. Check if within range for the other categories.
+    lower_is_better: false
+
+############################################################
+perturbations: []
+
+############################################################
+metric_groups:
+  - name: accuracy
+    display_name: Accuracy
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+
+  - name: efficiency
+    display_name: Efficiency
+    metrics:
+    - name: inference_runtime
+      split: ${main_split}
+
+  - name: general_information
+    display_name: General information
+    hide_win_rates: true
+    metrics:
+    - name: num_instances
+      split: ${main_split}
+    - name: num_train_instances
+      split: ${main_split}
+    - name: prompt_truncated
+      split: ${main_split}
+    - name: num_prompt_tokens
+      split: ${main_split}
+    - name: num_output_tokens
+      split: ${main_split}
+
+  - name: toxicity
+    display_name: Toxicity
+    metrics:
+    - name: toxic_frac
+      split: ${main_split}
+
+############################################################
+run_groups:
+  - name: medhelm_scenarios
+    display_name: MedHELM Scenarios
+    description: Scenarios for the medical domain
+    category: All scenarios
+    subgroups:
+      - clinical_decision_support
+      - clinical_note_generation
+      - patient_communication
+      - medical_research
+      - administration_and_workflow
+
+  - name: clinical_decision_support
+    display_name: Clinical Decision Support
+    description: Scenarios for clinical decision support
+    category: Healthcare Task Categories
+    subgroups:
+      - medcalc_bench
+      - clear
+      - mtsamples_replicate
+      - medec
+      - ehrshot
+      - head_qa
+      - medbullets
+      - medalign
+      - shc_ptbm_med
+      - shc_sei_med
+
+  - name: clinical_note_generation
+    display_name: Clinical Note Generation
+    description: Scenarios for clinical note generation
+    category: Healthcare Task Categories
+    subgroups:
+      - dischargeme
+      - aci_bench
+      - mtsamples_procedures
+      - mimic_rrs
+      - mimic_bhc
+      - chw_care_plan
+  
+  - name: patient_communication
+    display_name: Patient Communication and Education
+    description: Scenarios for patient communication and education
+    category: Healthcare Task Categories
+    subgroups:
+      - medication_qa
+      - starr_patient_instructions
+      - med_dialog
+      - shc_conf_med
+      - medi_qa
+      - mental_health
+      - shc_proxy_med
+      - shc_privacy_med
+  
+  - name: medical_research
+    display_name: Medical Research Assistance
+    description: Scenarios for medical research assistance
+    category: Healthcare Task Categories
+    subgroups:
+      - pubmed_qa
+      - ehr_sql
+      - shc_bmt_med
+      - race_based_med
+      - n2c2_ct_matching
+      - medhallu
+  
+  - name: administration_and_workflow
+    display_name: Administration and Workflow
+    description: Scenarios for administration and workflow
+    category: Healthcare Task Categories
+    subgroups:
+      - shc_gip_med
+      - mimiciv_billing_code
+      - shc_sequoia_med
+      - shc_cdi_med
+      - shc_ent_med
+
+  - name: medcalc_bench
+    display_name: MedCalc-Bench
+    description: A dataset which consists of a patient note, a question requesting to compute a specific medical value, and a ground truth answer [(Khandekar et al., 2024)](https://arxiv.org/abs/2406.12036).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: medcalc_bench_accuracy
+      main_split: test
+    taxonomy:
+      task: Computational reasoning
+      what: "Compute a specific medical value from a patient note"
+      who: "Clinician, Researcher"
+      when: "Any"
+      language: English
+
+  - name: clear
+    display_name: CLEAR
+    description: "A dataset for evaluating the presence of a specific medical condition from patient notes with yes/no/maybe classifications [(Lopez et al., 2025)](https://www.nature.com/articles/s41746-024-01377-1)."
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: Classification
+      what: Classify medical condition presence from patient notes
+      who: Clinician
+      when: Any
+      language: English
+
+  - name: mtsamples_replicate
+    display_name: MTSamples
+    short_display_name: MTSamples
+    description: A dataset of clinical notes where the model is prompted to generate the appropriate treatment plan for this patient [(MTSamples, 2025)](https://mtsamples.com).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: mtsamples_replicate_accuracy
+      main_split: test
+    taxonomy:
+      task: Text generation
+      what: "Generate treatment plans based on clinical notes"
+      who: "Clinician"
+      when: "Post-diagnosis"
+      language: English
+
+  - name: medec
+    display_name: Medec
+    description: A dataset containing medical narratives with error detection and correction pairs [(Abacha et al., 2025)](https://arxiv.org/abs/2412.19260).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: medec_error_flag_accuracy
+      main_split: test
+    taxonomy:
+      task: Classification
+      what: Detect and correct errors in medical narratives
+      who: Researcher, Clinician
+      when: Any
+      language: English
+
+  - name: ehrshot
+    display_name: EHRSHOT
+    description: A dataset given a patient record of EHR codes, classifying if an event will occur at a future date or not [(Wornow et al., 2023)](https://arxiv.org/abs/2307.02028).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: Classification
+      what: "Predict whether a medical event will occur in the future based on EHR codes"
+      who: "Clinician, Insurer"
+      when: "Future prediction"
+      language: English
+
+  - name: head_qa
+    display_name: HeadQA
+    description: A collection of biomedical multiple-choice questions for testing medical knowledge [(Vilares et al., 2019)](https://arxiv.org/abs/1906.04701).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: Question answering
+      what: Medical knowledge testing
+      who: Medical student, Researcher
+      when: Any
+      language: English
+
+  - name: medbullets
+    display_name: Medbullets
+    description: A USMLE-style medical question dataset with multiple-choice answers and explanations [(MedBullets, 2025)](https://step2.medbullets.com).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: Question answering
+      what: Medical knowledge testing
+      who: Medical student, . Researcher
+      when: Any
+      language: English
+
+  - name: medalign
+    display_name: MedAlign
+    short_display_name: MedAlign
+    description: A dataset that asks models to answer questions/follow instructions over longitudinal EHR [(Fleming et al., 2023)](https://arxiv.org/abs/2308.14089).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: medalign_accuracy
+      main_split: test
+    taxonomy:
+      task: Text generation
+      what: "Answer questions and follow instructions over longitudinal EHR"
+      who: "Clinician, Researcher"
+      when: "Any"
+      language: English
+  
+  - name: shc_ptbm_med
+    display_name: ADHD-Behavior
+    description: A dataset that classifies whether a clinical note contains a clinician recommendation for parent training in behavior management, which is the first-line evidence-based treatment for young children with ADHD [(Pillai et al., 2024)](https://doi.org/10.1093/jamia/ocae001).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: Classification
+      what: Detect ADHD medication side effect monitoring
+      who: Clinician, Researcher
+      when: During Treatment
+      language: English
+
+  - name: shc_sei_med
+    display_name:  ADHD-MedEffects
+    description: A dataset that classifies whether a clinical note contains documentation of side effect monitoring (recording of absence or presence of medication side effects), as recommended in clinical practice guidelines [(Bannet et al., 2024)](https://doi.org/10.1542/peds.2024-067223).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: Classification
+      what: Classify clinician recommendations for ADHD behavior management
+      who: Clinician, Caregiver
+      when: Early Intervention
+      language: English
+
+  - name: dischargeme
+    display_name: DischargeMe
+    short_display_name: DischargeMe
+    description: DischargeMe is a discharge instruction generation dataset and brief hospital course generation dataset collected from MIMIC-IV data, considering only the discharge text as well as the radiology report text [(Xu, 2024)](https://physionet.org/content/discharge-me/1.3/).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: dischargeme_accuracy
+      main_split: test
+    taxonomy:
+      task: Text generation
+      what: Generate discharge instructions from hospital notes
+      who: Clinician
+      when: Upon hospital discharge
+      language: English
+
+  - name: aci_bench
+    display_name: ACI-Bench
+    description: A dataset of patient-doctor conversations paired with structured clinical notes [(Yim et al., 2024)](https://www.nature.com/articles/s41597-023-02487-3).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: aci_bench_accuracy
+      main_split: test
+    taxonomy:
+      task: Text generation
+      what: Extract and structure information from patient-doctor conversations
+      who: Clinician
+      when: Any
+      language: English
+
+  - name: mtsamples_procedures
+    display_name: MTSamples Procedures
+    description: A dataset that provides a patient note regarding an operation, with the objective to document the procedure.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: mtsamples_procedures_accuracy
+      main_split: test
+    taxonomy:
+      task: Text generation
+      what: Document and extract information about medical procedures
+      who: Clinician, Researcher
+      when: Post-procedure
+      language: English
+
+  - name: mimic_rrs
+    display_name: MIMIC-RRS
+    short_display_name: MIMIC-RRS
+    description: A dataset containing radiology reports with findings sections from MIMIC-III paired with their corresponding impression sections, used for generating radiology report summaries [(Chen et al., 2023)](https://arxiv.org/abs/2211.08584).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: mimic_rrs_accuracy
+      main_split: test
+    taxonomy:
+      task: Text generation
+      what: Generate radiology report summaries from findings sections
+      who: Radiologist
+      when: Post-imaging
+      language: English
+
+  - name: mimic_bhc
+    display_name: MIMIC-IV-BHC
+    short_display_name: MIMIC-BHC
+    description: A summarization task using a curated collection of preprocessed discharge notes paired with their corresponding brief hospital course (BHC) summaries [(Aali et al., 2024)](https://doi.org/10.1093/jamia/ocae312).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: mimic_bhc_accuracy
+      main_split: test
+    taxonomy:
+      task: Text generation
+      what: Summarize the clinical note into a brief hospital course
+      who: Clinician
+      when: Upon hospital discharge
+      language: English
+
+  - name: chw_care_plan
+    display_name: NoteExtract
+    description: A dataset containing free form text of a clinical health worker care plan, with the associated goal being to restructure that text into a given format.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: chw_care_plan_accuracy
+      main_split: test
+    taxonomy:
+      task: Text generation
+      what: Convert general text care plans into structured formats
+      who: Clinician, Researcher
+      when: Any
+      language: English
+
+  - name: medication_qa
+    display_name: MedicationQA
+    description: Consumer medication questions with reference answers.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: medication_qa_accuracy
+      main_split: test
+    taxonomy:
+      task: Question answering
+      what: Answer consumer medication-related questions
+      who: Patient, Pharmacist
+      when: Any
+      language: English
+
+  - name: starr_patient_instructions
+    display_name: PatientInstruct
+    description: A dataset containing case details used to generate customized post-procedure patient instructions.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: starr_patient_instructions_accuracy
+      main_split: test
+    taxonomy:
+      task: Text generation
+      what: Generate customized post-procedure patient instructions
+      who: Clinician
+      when: Post-procedure
+      language: English
+
+  - name: med_dialog
+    display_name: MedDialog
+    short_display_name: MedDialog
+    description: A collection of doctor-patient conversations with corresponding summaries.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: med_dialog_accuracy
+      main_split: test
+    taxonomy:
+      task: Text generation
+      what: Generate summaries of doctor-patient conversations
+      who: Clinician
+      when: Any
+      language: English
+
+  - name: shc_conf_med
+    display_name: MedConfInfo
+    description: A dataset of clinical notes from adolescent patients used to identify sensitive protected health information that should be restricted from parental access [(Rabbani et al., 2024)](https://jamanetwork.com/journals/jamapediatrics/fullarticle/2814109).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: Classification
+      what: Identify sensitive health info in adolescent notes
+      who: Clinician
+      when: Any
+      language: English
+
+  - name: medi_qa
+    display_name: MEDIQA
+    description: A dataset including a medical question, a set of candidate answers, relevance annotations for ranking, and additional context to evaluate understanding and retrieval capabilities in a healthcare setting.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: medi_qa_accuracy
+      main_split: test
+    taxonomy:
+      task: Text generation
+      what: Retrieve and rank answers based on medical question understanding
+      who: Clinician, Medical Student
+      when: Any
+      language: English
+
+  - name: mental_health
+    display_name: MentalHealth
+    description: A dataset containing a counselor and mental health patient conversation, where the objective is to generate an empathetic counselor response.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: mental_health_accuracy
+      main_split: test
+    taxonomy:
+      task: Text generation
+      what: Generate empathetic counseling responses in mental health conversations
+      who: Counselors, Patients
+      when: Any
+      language: English
+
+  - name: shc_proxy_med
+    display_name:  ProxySender
+    description: This dataset features messages sent by proxy users and non proxy users, for evaluation of LLM capabilities to determine the sender [(Tse G, et al., 2025)](https://doi.org/10.1001/jamapediatrics.2024.4438).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: Classification
+      what: Classify if a document was sent by a proxy user
+      who: Clinician, Caregiver
+      when: Any
+      language: English
+
+  - name: shc_privacy_med
+    display_name:  PrivacyDetection
+    description: A dataset that determines if a message leaks any confidential information from the patient [(Tse G, et al., 2025)](https://doi.org/10.1001/jamapediatrics.2024.4438).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: Classification
+      what: Classify if a document leaks private information
+      who: Clinician, Caregiver
+      when: Any
+      language: English
+
+  - name: pubmed_qa
+    display_name: PubMedQA
+    description: A dataset that provides pubmed abstracts and asks associated questions yes/no/maybe questions.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: Question answering
+      what: Answer questions based on PubMed abstracts
+      who: Researcher
+      when: Any
+      language: English
+
+  - name: ehr_sql
+    display_name: EHRSQL
+    description: Given a natural language instruction, generate an SQL query that would be used in clinical research.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: ehr_sql_execution_accuracy
+      main_split: test
+    taxonomy:
+      task: Code generation
+      what: Generate SQL queries from natural language for clinical research
+      who: Researcher
+      when: Any
+      language: English
+
+  - name: shc_bmt_med
+    display_name: BMT-Status
+    description: A dataset containing patient notes with associated questions and answers related to bone marrow transplantation.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: Answer bone marrow transplant questions
+      who: Researcher
+      when: Any
+      language: English
+
+  - name: race_based_med
+    display_name: RaceBias
+    description: A collection of LLM outputs in response to medical questions with race-based biases, with the objective being to classify whether the output contains racially biased content.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: Classification
+      what: Identify race-based bias in LLM-generated medical responses
+      who: Researcher
+      when: Any
+      language: English
+
+  - name: n2c2_ct_matching
+    display_name: N2C2-CT Matching
+    short_display_name: N2C2-CT
+    description: A dataset that provides clinical notes and asks the model to classify whether the patient is a valid candidate for a provided clinical trial.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: Classification
+      what: Classify whether a patient is a valid candidate for a clinical trial based on clinical notes
+      who: Researcher
+      when: Pre-Trial
+      language: English
+  
+  - name: medhallu
+    display_name: MedHallu
+    description: A dataset of PubMed articles and associated questions, with the objective being to classify whether the answer is factual or hallucinated.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: Classification
+      what: Verify whether answers to questions from PubMed articles are factual or hallucinated
+      who: Researcher
+      when: Any
+      language: English
+
+  - name: shc_gip_med
+    display_name: HospiceReferral
+    description: A dataset evaluating performance in identifying appropriate patient referrals to hospice care.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: Classification
+      what: Assess hospice referral appropriateness
+      who: Hospital Admistrator
+      when: End-of-care
+      language: English
+
+  - name: mimiciv_billing_code
+    display_name: MIMIC-IV Billing Code
+    description: A  dataset pairing clinical notes from MIMIC-IV with corresponding ICD-10 billing codes.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: mimiciv_billing_code_f1
+      main_split: test
+    taxonomy:
+      task: Classification
+      what: Predict ICD-10 billing codes from clinical discharge notes
+      who: Hospital Admistrator
+      when: During or after patient discharge
+      language: English
+  
+  - name: shc_sequoia_med
+    display_name: ClinicReferral
+    description: A dataset containing manually curated answers to questions regarding patient referrals to the Sequoia clinic.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: Classification
+      what: Provide answers on clinic referrals
+      who: Hospital Admistrator
+      when: Pre-referral
+      language: English
+
+  - name: shc_cdi_med
+    display_name: CDI-QA
+    description: A dataset built from Clinical Document Integrity (CDI) notes, to assess the ability to answer verification questions from previous notes.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: Classification
+      what: Answer verification questions from CDI notes
+      who: Hospital Admistrator
+      when: Any
+      language: English
+  
+  - name: shc_ent_med
+    display_name: ENT-Referral
+    description: A dataset designed to evaluate performance in identifying appropriate patient referrals to Ear, Nose, and Throat specialists.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: Classification
+      what: Identify referrals for ENT specialists
+      who: Hospital Admistrator
+      when: Any
+      language: English

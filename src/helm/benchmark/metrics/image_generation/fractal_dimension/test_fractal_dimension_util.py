@@ -1,6 +1,6 @@
 import os
 
-from .fractal_dimension_util import compute_fractal_dimension
+from helm.benchmark.metrics.image_generation.fractal_dimension.fractal_dimension_util import compute_fractal_dimension
 
 
 def fractal_dimension_test(image_filename: str, expected_fractal_dimension: float):

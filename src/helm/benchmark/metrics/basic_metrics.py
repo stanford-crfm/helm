@@ -5,8 +5,8 @@ from typing import List, Dict, Set
 from urllib.parse import unquote
 
 import numpy as np
-import scipy
-import calibration as cal
+import scipy  # type: ignore
+import calibration as cal  # type: ignore
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.metrics.evaluate_reference_metrics import compute_reference_metrics
 from helm.benchmark.metrics.efficiency_metrics import EfficiencyMetric
@@ -25,10 +25,10 @@ from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.benchmark.scenarios.scenario import CORRECT_TAG, Instance
-from .metric import Metric, MetricInterface, MetricResult, add_context, get_unique_stat_by_name
-from .metric_name import MetricContext, MetricName
-from .metric_service import MetricService
-from .statistic import Stat, merge_stat
+from helm.benchmark.metrics.metric import Metric, MetricInterface, MetricResult, add_context, get_unique_stat_by_name
+from helm.benchmark.metrics.metric_name import MetricContext, MetricName
+from helm.benchmark.metrics.metric_service import MetricService
+from helm.benchmark.metrics.statistic import Stat, merge_stat
 
 
 def get_num_bytes(tokens: List[Token]) -> int:

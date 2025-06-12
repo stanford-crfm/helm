@@ -7,8 +7,8 @@ from helm.common.concurrency import ThreadSafeWrapper
 from transformers import AutoTokenizer, PreTrainedTokenizerBase
 
 from helm.common.hierarchical_logger import htrack_block, hlog
-from .caching_tokenizer import CachingTokenizer
-from .tokenizer import cleanup_tokens
+from helm.tokenizers.caching_tokenizer import CachingTokenizer
+from helm.tokenizers.tokenizer import cleanup_tokens
 
 
 WrappedPreTrainedTokenizer = ThreadSafeWrapper[PreTrainedTokenizerBase]
@@ -119,7 +119,7 @@ class HuggingFaceTokenizer(CachingTokenizer):
                     tokens = tokenizer.encode(
                         request["text"],
                         truncation=request["truncation"],
-                        max_length=request["max_length"],
+                        max_length=max(request["max_length"], 0),
                         add_special_tokens=False,
                     )
             else:

@@ -5,14 +5,14 @@ from typing import Any, Dict, List
 
 from helm.clients.openai_client import OpenAIClient
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hwarn
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token, ErrorFlags
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
 from helm.tokenizers.tokenizer import Tokenizer
-from .client import CachingClient, truncate_sequence
+from helm.clients.client import CachingClient, truncate_sequence
 
 
 _CONTENT_MODERATION_KEY = "fail.content.moderation.failed"
@@ -103,10 +103,7 @@ class PalmyraClient(CachingClient):
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
             if _is_content_moderation_failure(response):
-                hlog(
-                    f"WARNING: Returning empty request for {request.model_deployment} "
-                    "due to content moderation filter"
-                )
+                hwarn(f"Returning empty request for {request.model_deployment} " "due to content moderation filter")
                 return RequestResult(
                     success=False,
                     cached=False,
@@ -163,6 +160,3 @@ class PalmyraChatClient(OpenAIClient):
             org_id=None,
             base_url="https://api.writer.com/v1/chat",
         )
-
-    def _is_chat_model_engine(self, model_engine: str) -> bool:
-        return True

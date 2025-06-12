@@ -4,7 +4,7 @@ from typing import List
 
 from helm.common.general import ensure_file_downloaded
 
-from .scenario import Scenario, Instance, Input, TEST_SPLIT, Reference, Output
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT, Reference, Output
 
 
 class HarmBenchScenario(Scenario):

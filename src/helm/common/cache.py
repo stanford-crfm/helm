@@ -1,6 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Dict, Callable, Generator, Mapping, Optional, Tuple
+from typing import Dict, Callable, Generator, Mapping, Tuple
 import json
 import threading
 
@@ -37,6 +37,12 @@ class CacheConfig:
 
 class KeyValueStoreCacheConfig(CacheConfig):
     """Configuration for a cache backed by a key-value store."""
+
+    # This was originally to distinguish between "primitive" cache configs
+    # and "compound" cache configs. But we don't have any "compound" cache configs currently.
+    # Hypthetical "compound" example: ReadOnlyCacheConfig(SqliteCacheConfig("path"))
+    # TODO: Maybe remove this eventually?
+    pass
 
 
 @dataclass(frozen=True)
@@ -78,24 +84,6 @@ class MongoCacheConfig(KeyValueStoreCacheConfig):
         return f"{self.uri}/{self.collection_name}"
 
 
-@dataclass(frozen=True)
-class WithFollowerCacheConfig(CacheConfig):
-    """Configuration of a cache backed by a main cache and a follower cache."""
-
-    # Configuration for the main cache.
-    # Responses will be written to and served out of this cache.
-    main: KeyValueStoreCacheConfig
-
-    # Configuration for the follower cache.
-    # The follower cache is a write-only cache. Responses will be written to this cache,
-    # but not served out of this cache.
-    follower: KeyValueStoreCacheConfig
-
-    @property
-    def cache_stats_key(self) -> str:
-        return self.main.cache_stats_key
-
-
 def get_all_from_sqlite(path: str) -> Generator[Tuple[Dict, Dict], None, None]:
     """Yields all decoded key, value pairs from the SQLite cache.
 
@@ -126,7 +114,7 @@ def create_key_value_store(config: KeyValueStoreCacheConfig) -> KeyValueStore:
     elif isinstance(config, BlackHoleCacheConfig):
         return BlackHoleKeyValueStore()
     else:
-        raise ValueError(f"KeyValueStoreCacheConfig with unknown type: {config}")
+        raise ValueError(f"CacheConfig with unknown type: {config}")
 
 
 @retry
@@ -189,14 +177,8 @@ class Cache(object):
 
     def __init__(self, config: CacheConfig):
         hlog(f"Created cache with config: {config}")
-        self.config: KeyValueStoreCacheConfig
-        self.follower_config: Optional[KeyValueStoreCacheConfig]
         if isinstance(config, KeyValueStoreCacheConfig):
             self.config = config
-            self.follower_config = None
-        elif isinstance(config, WithFollowerCacheConfig):
-            self.config = config.main
-            self.follower_config = config.follower
         else:
             raise ValueError(f"CacheConfig with unknown type: {config}")
 
@@ -216,8 +198,4 @@ class Cache(object):
                 response = compute()
 
                 write_to_key_value_store(key_value_store, request, response)
-        if self.follower_config is not None:
-            # TODO: Initialize follower_key_value_store in constructor
-            with create_key_value_store(self.follower_config) as follower_key_value_store:
-                write_to_key_value_store(follower_key_value_store, request, response)
         return response, cached

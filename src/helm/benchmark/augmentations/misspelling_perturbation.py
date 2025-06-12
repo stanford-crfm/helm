@@ -6,8 +6,8 @@ from random import Random
 from typing import Dict, List
 
 from helm.common.general import match_case
-from .perturbation import TextPerturbation
-from .perturbation_description import PerturbationDescription
+from helm.benchmark.augmentations.perturbation import TextPerturbation
+from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
 
 
 # The implementation below is based on the following list of common misspellings:

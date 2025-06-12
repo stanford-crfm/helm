@@ -16,12 +16,16 @@ from helm.benchmark.metrics.evaluate_reference_metrics import get_rouge_function
 from helm.common.hierarchical_logger import hlog
 from helm.common.general import ensure_file_downloaded
 from helm.common.optional_dependencies import handle_module_not_found_error
-from .metric import Metric, MetricResult
-from .metric_name import MetricName
-from .metric_service import MetricService
-from .statistic import Stat
-from .summac.model_summac import SummaCZS
-from bert_score import BERTScorer
+from helm.benchmark.metrics.metric import Metric, MetricResult
+from helm.benchmark.metrics.metric_name import MetricName
+from helm.benchmark.metrics.metric_service import MetricService
+from helm.benchmark.metrics.statistic import Stat
+from helm.benchmark.metrics.summac.model_summac import SummaCZS
+
+try:
+    from bert_score import BERTScorer  # type: ignore
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["summarization"])
 
 
 QAFACTEVAL_URL: str = (
@@ -43,7 +47,14 @@ class SummarizationMetric(Metric):
     4. Faithfulness (SummaC)
     """
 
-    def __init__(self, task: str, device: str = "cpu"):
+    def __init__(
+        self,
+        task: str,
+        language: str = "en",
+        device: str = "cpu",
+        bertscore_model: str = "microsoft/deberta-large-mnli",
+        rescale_with_baseline: bool = True,
+    ):
         self.rouge_fns = {
             "rouge_1": get_rouge_function("rouge1"),
             "rouge_2": get_rouge_function("rouge2"),
@@ -56,7 +67,7 @@ class SummarizationMetric(Metric):
             spacy.cli.download("en_core_web_sm")
 
         try:
-            from summ_eval.data_stats_metric import DataStatsMetric
+            from summ_eval.data_stats_metric import DataStatsMetric  # type: ignore
         except ModuleNotFoundError as e:
             handle_module_not_found_error(e, ["summarization"])
 
@@ -71,7 +82,7 @@ class SummarizationMetric(Metric):
         else:
             self.compute_bertscore = True
             self.bert_scorer = BERTScorer(
-                model_type="microsoft/deberta-large-mnli", lang="en", rescale_with_baseline=True, device=device
+                model_type=bertscore_model, lang=language, rescale_with_baseline=rescale_with_baseline, device=device
             )
             # Need GPU for faithfulness metrics since they are model-based.
             self.compute_faithfulness = True

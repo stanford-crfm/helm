@@ -9,7 +9,7 @@ import json
 from os import path
 import urllib
 
-from bottle import Bottle, static_file, HTTPResponse
+from bottle import Bottle, static_file, HTTPResponse, response
 import yaml
 
 from helm.benchmark.presentation.schema import SCHEMA_CLASSIC_YAML_FILENAME
@@ -21,15 +21,18 @@ app = Bottle()
 
 @app.get("/config.js")
 def serve_config():
+    response.content_type = "application/javascript; charset=UTF-8"
     if app.config["helm.release"]:
         return (
             f'window.BENCHMARK_OUTPUT_BASE_URL = "{app.config["helm.outputurl"]}";\n'
             f'window.RELEASE = "{app.config["helm.release"]}";\n'
+            f'window.PROJECT_ID = "{app.config["helm.project"]}";\n'
         )
     else:
         return (
             f'window.BENCHMARK_OUTPUT_BASE_URL = "{app.config["helm.outputurl"]}";\n'
             f'window.SUITE = "{app.config["helm.suite"]}";\n'
+            f'window.PROJECT_ID = "{app.config["helm.project"]}";\n'
         )
 
 
@@ -113,6 +116,13 @@ def main():
         default=None,
         help="Experimental: The release to serve. If unset, don't serve a release, and serve the latest suite instead.",
     )
+
+    parser.add_argument(
+        "--project",
+        type=str,
+        default=None,
+        help="Experimental: The name of the project to display on the landing page.",
+    )
     args = parser.parse_args()
 
     if args.suite and args.release:
@@ -143,6 +153,8 @@ def main():
 
     app.config["helm.suite"] = args.suite or "latest"
     app.config["helm.release"] = args.release
+    app.config["helm.release"] = args.release
+    app.config["helm.project"] = args.project or "lite"
 
     print(f"After the web server has started, go to http://localhost:{args.port} to view your website.\n")
     app.run(host="0.0.0.0", port=args.port)

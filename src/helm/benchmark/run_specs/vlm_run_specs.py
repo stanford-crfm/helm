@@ -107,7 +107,16 @@ def _get_multiple_choice_joint_adapter_spec(
 
 def _get_open_ended_generation_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(
-        ["exact_match", "quasi_exact_match", "f1_score", "rouge_l", "bleu_1", "bleu_4", "cider"]
+        [
+            "exact_match",
+            "quasi_exact_match",
+            "quasi_leave_articles_exact_match",
+            "f1_score",
+            "rouge_l",
+            "bleu_1",
+            "bleu_4",
+            "cider",
+        ]
     )
 
 
@@ -529,7 +538,7 @@ def get_image2webpage_spec(
         generation_type="webpage",
         args=args,
         include_edit_similarity=("wild" not in subset),  # No ground truth for "wild" subset
-        size_handling_method="none" if "wild" not in subset else "resize",
+        size_handling_method="resize",
     )
     annotator_specs: List[AnnotatorSpec] = [
         AnnotatorSpec(
@@ -690,13 +699,18 @@ def get_bingo_spec(subject: str, num_respondents: int) -> RunSpec:
         + _get_open_ended_generation_metric_specs()
     )
 
-    run_spec_name: str = "bingo"
+    group_name: str = "bingo"
+    if subject == "Region":
+        group_name += "_fairness"
+    elif subject == "OCR":
+        group_name += "_multilinguality"
+
     return RunSpec(
-        name=f"{run_spec_name}:subject={subject}",
+        name=f"bingo:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=[run_spec_name],
+        groups=[group_name],
     )
 
 
@@ -882,6 +896,50 @@ def get_real_world_qa_spec() -> RunSpec:
     )
 
 
+@run_spec_function("blink")
+def get_blink_spec(category: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.blink_scenario.BlinkScenario",
+        args={"category": category},
+    )
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(
+        instructions="Answer the multiple choice question by just giving the letter of the correct answer.",
+        max_tokens=1,
+    )
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
+
+    run_spec_name: str = "blink"
+    return RunSpec(
+        name=f"{run_spec_name}:category={category}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("mm_star")
+def get_mm_star_spec(category: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.mm_star_scenario.MMStarScenario",
+        args={"category": category},
+    )
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(
+        instructions="Answer the multiple choice question by just giving the letter of the correct answer.",
+        max_tokens=1,
+    )
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
+
+    run_spec_name: str = "mm_star"
+    return RunSpec(
+        name=f"{run_spec_name}:category={category}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
 @run_spec_function("exams_v")
 def get_exams_v_spec(language: str, subject_grouped: str, type: str = "image_text") -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -944,6 +1002,54 @@ def get_vibe_eval_spec(subject: str, num_respondents: int) -> RunSpec:
     run_spec_name: str = "vibe_eval"
     return RunSpec(
         name=f"{run_spec_name}:subject={subject}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("vqa_rad")
+def get_vqa_rad_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.vqa_rad_scenario.VQARadScenario",
+    )
+    adapter_spec: AdapterSpec = _get_short_answer_generation_adapter_spec(
+        instructions="Answer the question using a single word or sentence."
+    )
+    metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
+
+    run_spec_name: str = "vqa_rad"
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+############################################################
+# Video understanding run specs
+
+
+@run_spec_function("msr_vtt")
+def get_msr_vtt_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.msr_vtt_scenario.MSRVTTScenario",
+        args={},
+    )
+
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(
+        instructions="Generate a short caption for the video in plain words. Just give the caption and nothing else.",
+        max_tokens=30,
+        max_train_instances=0,
+    )
+    metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
+
+    run_spec_name: str = "msr_vtt"
+    return RunSpec(
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,

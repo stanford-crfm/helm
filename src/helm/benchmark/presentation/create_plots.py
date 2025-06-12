@@ -11,10 +11,9 @@ import numpy as np
 from scipy.stats import pearsonr
 
 from helm.benchmark.config_registry import register_builtin_configs_from_helm_package
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hlog, setup_default_logging
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.benchmark.model_metadata_registry import MODEL_NAME_TO_MODEL_METADATA
-from helm.benchmark.presentation.summarize import AGGREGATE_WIN_RATE_COLUMN
 
 try:
     import colorcet
@@ -39,6 +38,7 @@ metric_group_to_label = {
     "Efficiency": f"Inference time (s) {DOWN_ARROW}",
 }
 all_metric_groups = list(metric_group_to_label.keys())
+AGGREGATE_WIN_RATE_COLUMN = 1
 
 
 @dataclass
@@ -600,17 +600,7 @@ class Plotter:
         self.create_constrast_set_plots()
 
 
-def main():
-    """
-    This script creates the plots used in the HELM paper (https://arxiv.org/abs/2211.09110).
-    It should be run _after_ running `summarize.py` with the same `benchmark_output` and `suite` arguments and through
-    the top-level command `helm-create-plots`.
-    """
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-o", "--output-path", type=str, help="Path to benchmarking output", default="benchmark_output")
-    parser.add_argument("--suite", type=str, help="Name of the suite that we are plotting", required=True)
-    parser.add_argument("--plot-format", help="Format for saving plots", default="png", choices=["png", "pdf"])
-    args = parser.parse_args()
+def create_plots(args):
     register_builtin_configs_from_helm_package()
     base_path = os.path.join(args.output_path, "runs", args.suite)
     if not os.path.exists(os.path.join(base_path, "groups")):
@@ -619,6 +609,37 @@ def main():
     save_path = os.path.join(base_path, "plots")
     plotter = Plotter(base_path=base_path, save_path=save_path, plot_format=args.plot_format)
     plotter.create_all_plots()
+
+
+def main():
+    """
+    This script creates the plots used in the HELM paper (https://arxiv.org/abs/2211.09110).
+    It should be run _after_ running `summarize.py` with the same `benchmark_output` and `suite` arguments and through
+    the top-level command `helm-create-plots`.
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-o",
+        "--output-path",
+        type=str,
+        help="Path to benchmarking output",
+        default="benchmark_output",
+    )
+    parser.add_argument(
+        "--suite",
+        type=str,
+        help="Name of the suite that we are plotting",
+        required=True,
+    )
+    parser.add_argument(
+        "--plot-format",
+        help="Format for saving plots",
+        default="png",
+        choices=["png", "pdf"],
+    )
+    args = parser.parse_args()
+    setup_default_logging()
+    create_plots(args)
 
 
 if __name__ == "__main__":

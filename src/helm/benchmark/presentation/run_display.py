@@ -59,6 +59,9 @@ class DisplayPrediction:
 
     annotations: Optional[Dict[str, Any]]
 
+    thinking_text: Optional[str]
+    """Thinking text from thinking models."""
+
 
 @dataclass(frozen=True)
 class DisplayRequest:
@@ -266,12 +269,21 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
             request_state.instance
         )
 
+        if request_state.result.completions[0].multimodal_content:
+            additional_prediction: str = request_state.result.completions[0].multimodal_content.text
+            if additional_prediction:
+                predicted_text = f"{additional_prediction} {predicted_text}"
+
         # Process images and include if they exist
         images: List[str] = [
             encode_base64(image_location)
             for image_location in gather_generated_image_locations(request_state.result)
             if os.path.exists(image_location)
         ]
+
+        thinking_text: Optional[str] = (
+            request_state.result.completions[0].thinking.text if request_state.result.completions[0].thinking else None
+        )
 
         predictions.append(
             DisplayPrediction(
@@ -285,6 +297,7 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
                 reference_index=request_state.reference_index,
                 stats=trial_stats,
                 annotations=request_state.annotations,
+                thinking_text=thinking_text,
             )
         )
         requests.append(

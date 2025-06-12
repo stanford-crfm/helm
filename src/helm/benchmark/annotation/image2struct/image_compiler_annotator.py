@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from threading import Lock
 from typing import Any, Dict, List, Tuple, Callable
 
 from dacite import from_dict
@@ -15,6 +16,9 @@ try:
     from PIL import Image
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, suggestions=["images"])
+
+
+_compilation_lock = Lock()
 
 
 def retry_if_compilation_failed(result: Dict[str, Any]) -> bool:
@@ -78,7 +82,8 @@ class ImageCompilerAnnotator(Annotator, ABC):
                 except Exception as e:
                     return {"unknown_error": str(e)}
 
-            raw_response = compile()
+            with _compilation_lock:
+                raw_response = compile()
             response = {**raw_response}
             if "media_object" in response:
                 response["media_object"] = from_dict(MediaObject, response["media_object"])

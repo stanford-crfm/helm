@@ -1,3 +1,5 @@
+import os
+
 from helm.benchmark.adaptation.adapter_spec import ADAPT_GENERATION, AdapterSpec
 from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.metrics.common_metric_specs import get_basic_metric_specs
@@ -8,9 +10,15 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 @run_spec_function("unitxt")
 def get_unitxt_spec(**kwargs) -> RunSpec:
     card = kwargs.get("card")
-    if not card:
-        raise Exception("Unitxt card must be specified")
-    name_suffix = ",".join([f"{key}={value}" for key, value in kwargs.items()])
+    recipe = kwargs.get("recipe")
+    if not card and not recipe:
+        raise Exception("Unitxt card or recipe must be specified")
+    if os.environ.get("HELM_UNITXT_SHORTEN_RUN_SPEC_NAMES", "").lower() == "true":
+        name_suffix = ",".join(
+            [f"{key}={value}" for key, value in kwargs.items() if key not in ["template_card_index", "loader_limit"]]
+        )
+    else:
+        name_suffix = ",".join([f"{key}={value}" for key, value in kwargs.items()])
     name = f"unitxt:{name_suffix}"
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.unitxt_scenario.UnitxtScenario", args=kwargs)
     adapter_spec = AdapterSpec(
@@ -28,7 +36,8 @@ def get_unitxt_spec(**kwargs) -> RunSpec:
         max_train_instances=0,
         num_outputs=1,
         temperature=0.0,
-        stop_sequences=["\n\n"],
+        max_tokens=512,
+        stop_sequences=[],
     )
     return RunSpec(
         name=name,
@@ -38,5 +47,5 @@ def get_unitxt_spec(**kwargs) -> RunSpec:
             MetricSpec(class_name="helm.benchmark.metrics.unitxt_metrics.UnitxtMetric", args=kwargs),
         ]
         + get_basic_metric_specs([]),
-        groups=[f"unitxt_{card}"],
+        groups=[f"unitxt_{card or recipe}"],
     )

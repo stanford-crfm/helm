@@ -166,8 +166,8 @@ def get_math_spec(
     use_chain_of_thought: str = "False",
 ) -> RunSpec:
     # Convert to bools and remove the str versions
-    use_official_examples_bool: bool = use_official_examples == "True"
-    use_chain_of_thought_bool: bool = use_chain_of_thought == "True"
+    use_official_examples_bool: bool = use_official_examples.lower() == "true"
+    use_chain_of_thought_bool: bool = use_chain_of_thought.lower() == "true"
     del use_official_examples
     del use_chain_of_thought
 

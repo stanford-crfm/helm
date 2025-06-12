@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from dataclasses import replace
 from typing import Any, List, Dict, Optional, Tuple, Type
 
+from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.model_metadata_registry import (
     get_all_instruction_following_models,
     get_all_code_models,
@@ -11,19 +12,24 @@ from helm.benchmark.model_metadata_registry import (
     get_model_metadata,
     get_model_names_with_tag,
     DEPRECATED_MODEL_TAG,
+    UNSUPPORTED_MODEL_TAG,
     FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
     LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
     ABLATION_MODEL_TAG,
     TEXT_TO_IMAGE_MODEL_TAG,
     VISION_LANGUAGE_MODEL_TAG,
+    AUDIO_LANGUAGE_MODEL_TAG,
     INSTRUCTION_FOLLOWING_MODEL_TAG,
 )
-from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION
+from helm.benchmark.adaptation.adapters.adapter_factory import (
+    ADAPT_GENERATION,
+    ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT,
+)
 from helm.benchmark.model_deployment_registry import get_model_names_with_tokenizer
-from .run_spec import RunSpec
+from helm.benchmark.run_spec import RunSpec
 from helm.benchmark.adaptation.adapter_spec import ADAPT_MULTIPLE_CHOICE_JOINT, AdapterSpec, Substitution
-from .augmentations.perturbation import PerturbationSpec
-from .augmentations.data_augmenter import DataAugmenterSpec
+from helm.benchmark.augmentations.perturbation import PerturbationSpec
+from helm.benchmark.augmentations.data_augmenter import DataAugmenterSpec
 from helm.benchmark.scenarios.scenario import TEST_SPLIT, VALID_SPLIT
 
 
@@ -347,6 +353,29 @@ class AnthropicClaude3RunExpander(RunExpander):
         return [run_spec]
 
 
+class NovaRunExpander(RunExpander):
+    """
+    Custom prompt for Amazon Nova models.
+    These models need more explicit instructions about following the format.
+    """
+
+    name = "amazon-nova"
+
+    PROMPT = "Do not provide any additional explanation. Follow the format shown in the provided examples strictly."
+
+    def __init__(self):
+        pass
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(run_spec.adapter_spec, global_prefix=NovaRunExpander.PROMPT + "\n\n"),
+            ),
+        ]
+
+
 class FollowFormatInstructionsRunExpander(RunExpander):
     """Adds more explicit instructions about following the format to prompts.
 
@@ -511,6 +540,7 @@ class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
         "all": [0, 1, 2, 4, 8, 16],  # Cap at 16 due to limited context length
         "big_bench_few_shot_setting": [0, 1, 2, 3],  # Commonly used few-shot setting in BIG-bench
         "vhelm": [0, 1, 2, 4, 8],
+        "melt": [0, 1, 5],
     }
 
 
@@ -588,6 +618,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
             "opinions_qa_ai21": ["ai21/j1-grande", "ai21/j1-jumbo", "ai21/j1-grande-v2-beta"],
             "text_to_image": get_model_names_with_tag(TEXT_TO_IMAGE_MODEL_TAG),
             "vlm": get_model_names_with_tag(VISION_LANGUAGE_MODEL_TAG),
+            "audiolm": get_model_names_with_tag(AUDIO_LANGUAGE_MODEL_TAG),
         }
 
         # For each of the keys above (e.g., "text"), create a corresponding ablation (e.g., "ablation_text")
@@ -604,8 +635,10 @@ class ModelRunExpander(ReplaceValueRunExpander):
 
         # For each of the keys above, filter out deprecated models.
         deprecated_models = set(get_model_names_with_tag(DEPRECATED_MODEL_TAG))
+        unsupported_models = set(get_model_names_with_tag(UNSUPPORTED_MODEL_TAG))
+        excluded_models = deprecated_models | unsupported_models
         for family_name in values_dict.keys():
-            values_dict[family_name] = [model for model in values_dict[family_name] if model not in deprecated_models]
+            values_dict[family_name] = [model for model in values_dict[family_name] if model not in excluded_models]
 
         return values_dict
 
@@ -1424,14 +1457,20 @@ class OutputFormatInstructions(RunExpander):
     name = "output_format_instructions"
 
     _SUFFIX_SUFFIX = "_suffix"
+    _NO_PREFIX_SUFFIX = "_no_prefix"
 
     def __init__(self, scenario: str):
+        self.suffix = False
         if scenario.endswith(OutputFormatInstructions._SUFFIX_SUFFIX):
-            self.scenario = scenario[: -len(OutputFormatInstructions._SUFFIX_SUFFIX)]
+            scenario = scenario.removesuffix(OutputFormatInstructions._SUFFIX_SUFFIX)
             self.suffix = True
-        else:
-            self.scenario = scenario
-            self.suffix = False
+
+        self.no_prefix = False
+        if scenario.endswith(OutputFormatInstructions._NO_PREFIX_SUFFIX):
+            scenario = scenario.removesuffix(OutputFormatInstructions._NO_PREFIX_SUFFIX)
+            self.no_prefix = True
+
+        self.scenario = scenario
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         if run_spec.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
@@ -1441,6 +1480,10 @@ class OutputFormatInstructions(RunExpander):
                 instructions = "Answer with only a single letter."
             elif self.scenario == "mcqa":
                 instructions = "Answer with only a single letter."
+            elif self.scenario == "mcqa_no_period":
+                instructions = "Answer with only a single letter. Do not include a period in your answer."
+            elif self.scenario == "mcqa_only_last_question":
+                instructions = "Answer only the last question with only a single letter."
             else:
                 instructions = "Answer with only a single letter."
         elif run_spec.adapter_spec.method == ADAPT_GENERATION:
@@ -1452,6 +1495,8 @@ class OutputFormatInstructions(RunExpander):
                 )
             elif self.scenario == "natural_qa":
                 instructions = "Answer with a short answer or a boolean 'yes' or 'no' answer."
+            elif self.scenario == "natural_qa_short_answer":
+                instructions = "Answer with a short answer."
             elif self.scenario == "legalbench":
                 if output_noun != "Answer":
                     instructions = f"Answer with the {output_noun.lower()}."
@@ -1482,6 +1527,16 @@ class OutputFormatInstructions(RunExpander):
                 )
             else:
                 raise ValueError(f"Unknown scenario {self.scenario}")
+        elif run_spec.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT:
+            if self.scenario == "mmlu_pro" or self.scenario == "gpqa":
+                instructions = 'In your response, replace "insert answer here" with the single uppercase letter corresponding to your answer.'  # noqa: E501
+            else:
+                raise ValueError(f"Unknown scenario {self.scenario}")
+
+        if self.no_prefix:
+            if instructions:
+                instructions += " "
+            instructions += f"Do not include '{run_spec.adapter_spec.output_prefix.strip()}' in your answer."
 
         if self.suffix:
             return [
@@ -1502,6 +1557,31 @@ class OutputFormatInstructions(RunExpander):
             replace(
                 run_spec,
                 adapter_spec=replace(run_spec.adapter_spec, instructions=instructions),
+            ),
+        ]
+
+
+class ProcessOutputRunExpander(RunExpander):
+    name = "process_output"
+
+    def __init__(self, processor: str):
+        self.processor = processor
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        output_processing_metric_spec = MetricSpec(
+            class_name="helm.benchmark.metrics.output_processing_metric.OutputProcessingMetric",
+            args={
+                "processor": self.processor,
+                "metric_specs": [
+                    {"class_name": metric_spec.class_name, "args": metric_spec.args}
+                    for metric_spec in run_spec.metric_specs
+                ],
+            },
+        )
+        return [
+            replace(
+                run_spec,
+                metric_specs=[output_processing_metric_spec],
             ),
         ]
 
@@ -1532,6 +1612,7 @@ RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     TemperatureRunExpander,
     IncreaseTemperatureRunExpander,
     IncreaseMaxTokensRunExpander,
+    ProcessOutputRunExpander,
 ]
 
 

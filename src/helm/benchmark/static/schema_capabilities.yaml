@@ -1,0 +1,254 @@
+---
+# EXPERIMENTAL: DO NOT USE IN PROD
+# Temporary schema for prototyping HELM Lite v2
+############################################################
+metrics:
+  # Infrastructure metrics:
+  - name: num_perplexity_tokens
+    display_name: '# tokens'
+    description: Average number of tokens in the predicted output (for language modeling, the input too).
+  - name: num_bytes
+    display_name: '# bytes'
+    description: Average number of bytes in the predicted output (for language modeling, the input too).
+
+  - name: num_references
+    display_name: '# ref'
+    description: Number of references.
+  - name: num_train_trials
+    display_name: '# trials'
+    description: Number of trials, where in each trial we choose an independent, random set of training instances.
+  - name: estimated_num_tokens_cost
+    display_name: 'cost'
+    description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
+  - name: num_prompt_tokens
+    display_name: '# prompt tokens'
+    description: Number of tokens in the prompt.
+  - name: num_prompt_characters
+    display_name: '# prompt chars'
+    description: Number of characters in the prompt.
+  - name: num_completion_tokens
+    display_name: '# completion tokens'
+    description: Actual number of completion tokens (over all completions).
+  - name: num_output_tokens
+    display_name: '# output tokens'
+    description: Actual number of output tokens.
+  - name: max_num_output_tokens
+    display_name: 'Max output tokens'
+    description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
+  - name: num_requests
+    display_name: '# requests'
+    description: Number of distinct API requests.
+  - name: num_instances
+    display_name: '# eval'
+    description: Number of evaluation instances.
+  - name: num_train_instances
+    display_name: '# train'
+    description: Number of training instances (e.g., in-context examples).
+  - name: prompt_truncated
+    display_name: truncated
+    description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
+  - name: finish_reason_length
+    display_name: finish b/c length
+    description: Fraction of instances where the the output was terminated because of the max tokens limit.
+  - name: finish_reason_stop
+    display_name: finish b/c stop
+    description: Fraction of instances where the the output was terminated because of the stop sequences.
+  - name: finish_reason_endoftext
+    display_name: finish b/c endoftext
+    description: Fraction of instances where the the output was terminated because the end of text token was generated.
+  - name: finish_reason_unknown
+    display_name: finish b/c unknown
+    description: Fraction of instances where the the output was terminated for unknown reasons.
+  - name: num_completions
+    display_name: '# completions'
+    description: Number of completions.
+  - name: predicted_index
+    display_name: Predicted index
+    description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
+  - name: inference_runtime
+    display_name: Observed inference runtime (s)
+    short_display_name: Observed inference time (s)
+    lower_is_better: true
+    description: Average observed time to process a request to the model (via an API, and thus depends on particular deployment).
+
+  # Accuracy metrics:
+  - name: exact_match
+    display_name: Exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_exact_match
+    display_name: Quasi-exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+    lower_is_better: false
+  - name: prefix_exact_match
+    display_name: Prefix exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_prefix_exact_match
+    # TODO: should call this prefix_quasi_exact_match
+    display_name: Prefix quasi-exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
+    lower_is_better: false
+  - name: ifeval_strict_accuracy
+    display_name: IFEval strict accuracy
+    short_display_name: IFEval Strict Acc
+    description: Fraction of instructions in the instance that are correctly followed.
+    lower_is_better: false
+  - name: chain_of_thought_correctness
+    display_name: COT correct
+    short_display_name: COT correct
+    description: Fraction of correct answers after chain of thought
+    lower_is_better: false
+  - name: wildbench_score
+    display_name: WildBench Score
+    short_display_name: WB Score
+    description: Score of the AI output judged by GPT-4o.
+    lower_is_better: false
+  - name: wildbench_score_rescaled
+    display_name: WildBench Score
+    short_display_name: WB Score
+    description: Score of the AI output judged by GPT-4o, rescaled to be between 0 and 1.
+    lower_is_better: false
+  - name: omni_math_accuracy
+    display_name: Omni-MATH Accuracy
+    short_display_name: Acc
+    description: Accuracy of the AI output judged by GPT-4.
+    lower_is_better: false
+
+############################################################
+perturbations: []
+
+############################################################
+metric_groups:
+  - name: accuracy
+    display_name: Accuracy
+    aggregation_strategies: 
+      - mean
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+
+  - name: efficiency
+    display_name: Efficiency
+    aggregation_strategies: 
+      - mean
+    metrics:
+    - name: inference_runtime
+      split: ${main_split}
+
+  - name: general_information
+    display_name: General information
+    hide_win_rates: true
+    metrics:
+    - name: num_instances
+      split: ${main_split}
+    - name: num_train_instances
+      split: ${main_split}
+    - name: prompt_truncated
+      split: ${main_split}
+    - name: num_prompt_tokens
+      split: ${main_split}
+    - name: num_output_tokens
+      split: ${main_split}
+
+############################################################
+run_groups:
+  - name: core_scenarios
+    display_name: Core Scenarios
+    description: Core Scenarios
+    category: All scenarios
+    subgroups:
+      - mmlu_pro
+      - gpqa
+      - ifeval
+      - wildbench
+      - omni_math
+
+  - name: mmlu_pro
+    display_name: MMLU-Pro
+    description: MMLU-Pro
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: chain_of_thought_correctness
+      main_split: test
+    taxonomy:
+      task: "question answering"
+      what: "complex questions across various disciplines"
+      who: "2024"
+      when: "domain experts"
+      language: English
+
+  - name: gpqa
+    display_name: GPQA
+    description: GPQA
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: chain_of_thought_correctness
+      main_split: test
+    taxonomy:
+      task: "question answering"
+      what: "graduate-level questions in biology, physics, and chemistry"
+      who: "domain experts"
+      when: "2023"
+      language: English
+  
+  - name: ifeval
+    display_name: IFEval
+    description: IFEval
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: ifeval_strict_accuracy
+      main_split: test
+    taxonomy:
+      task: "instruction following"
+      what: "verifiable general domain instruction following"
+      who: "human annotators"
+      when: "2023"
+      language: English
+  
+  - name: wildbench
+    display_name: WildBench
+    description: WildBench
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: wildbench_score_rescaled
+      main_split: test
+    taxonomy:
+      task: "instruction following"
+      what: "GPT-judged instruction following with instructions collected from real-user conversations"
+      who: "real-world users"
+      when: "2024"
+      language: English
+
+  - name: omni_math
+    display_name: Omni-MATH
+    description: Omni-MATH
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: omni_math_accuracy
+      main_split: test
+    taxonomy:
+      task: "mathematics"
+      what: "universal Olympiad level mathematic benchmark"
+      who: "human annotators"
+      when: "2024"
+      language: English

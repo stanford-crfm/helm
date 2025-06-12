@@ -28,7 +28,7 @@ You would then use this file with `helm-run` with this command:
 helm-run --conf-file tutorial_run_entries.conf --suite tutorial --max-eval-instances 10
 ```
 
-## Model run expander wildcards
+## Model Run Expander Wildcards
 
 It is very common to use run entries configuration file with a **model run expander wildcards** e.g. `model=text`. For instance, 
 

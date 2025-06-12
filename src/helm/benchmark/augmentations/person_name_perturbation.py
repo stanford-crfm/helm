@@ -9,8 +9,9 @@ from typing import Dict, List, Optional, Set
 
 from helm.benchmark.scenarios.scenario import Input, Instance, Reference, Output
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists, match_case
-from .perturbation_description import PerturbationDescription
-from .perturbation import Perturbation
+from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
+from helm.benchmark.augmentations.perturbation import Perturbation
+from helm.benchmark.runner import get_benchmark_output_path
 
 
 # Pull this out so serialization works for multiprocessing
@@ -35,7 +36,7 @@ class PersonNamePerturbation(Perturbation):
         "https://storage.googleapis.com/crfm-helm-public/source_datasets/"
         "augmentations/person_name_perturbation/person_names.txt"
     )
-    OUTPUT_PATH = os.path.join("benchmark_output", "perturbations", name)
+    OUTPUT_PATH = os.path.join(get_benchmark_output_path(), "perturbations", name)
 
     """ Name types """
     FIRST_NAME = "first_name"
@@ -153,8 +154,6 @@ class PersonNamePerturbation(Perturbation):
                 find the gender association for a source_word, we randomly
                 pick from one of the target names.
         """
-        # TODO: Update path so it is not hard-coded to benchmark_output
-        # https://github.com/stanford-crfm/benchmarking/issues/493
         self.output_path: str = self.OUTPUT_PATH
         Path(self.output_path).mkdir(parents=True, exist_ok=True)
 

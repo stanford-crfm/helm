@@ -33,23 +33,39 @@ markdown_extensions:
 watch:
   - src
 nav:
-  - 'Home': 'index.md'
-  - 'User Guide':
-    - 'installation.md'
-    - 'quick_start.md'
-    - 'heim.md'
-    - 'get_helm_rank.md'
-    - 'tutorial.md'
-    - 'benchmark.md'
-    - 'huggingface_models.md'
-    - 'proxy-server.md'
-  - 'Reference':
-    - 'models.md'
-    - 'metrics.md'
-    - 'perturbations.md'
-    - 'scenarios.md'
-    - 'schemas.md'
-  - 'Developer Guide':
-    - 'developer_setup.md'
-    - 'code.md'
-    - 'adding_new_models.md'
+  - Home:
+    - index.md
+  - User Guide:
+    - installation.md
+    - quick_start.md
+    - tutorial.md
+    - run_entries_configuration_files.md
+    - run_entries.md
+    - credentials.md
+    - importing_custom_modules.md
+    - adding_new_models.md
+    - adding_new_scenarios.md
+    - adding_new_tokenizers.md
+    - downloading_raw_results.md
+    - reproducing_leaderboards.md
+    - get_helm_rank.md
+    - benchmark.md
+    - huggingface_models.md
+  - Papers:
+    - heim.md
+    - vhelm.md
+    - enterprise_benchmark.md
+    - reeval.md
+    - medhelm.md
+  - Reference:
+    - models.md
+    - metrics.md
+    - perturbations.md
+    - scenarios.md
+    - schemas.md
+  - Developer Guide:
+    - developer_setup.md
+    - code.md
+    - developer_adding_new_models.md
+    - proxy_server.md
+    - editing_documentation.md

@@ -22,6 +22,9 @@ CHATML_MODEL_TAG: str = "CHATML_MODEL_TAG"
 # OpenAI Chat format
 OPENAI_CHATGPT_MODEL_TAG: str = "OPENAI_CHATGPT_MODEL_TAG"
 
+# For NOVA models
+NOVA_MODEL_TAG: str = "NOVA_MODEL_TAG"
+
 # For Anthropic models
 ANTHROPIC_CLAUDE_1_MODEL_TAG: str = "ANTHROPIC_CLAUDE_1_MODEL_TAG"
 ANTHROPIC_CLAUDE_2_MODEL_TAG: str = "ANTHROPIC_CLAUDE_2_MODEL_TAG"
@@ -66,9 +69,17 @@ OPEN_FLAMINGO_MODEL_TAG: str = "OPEN_FLAMINGO_MODEL_TAG"
 LIMITED_FUNCTIONALITY_VLM_TAG: str = "LIMITED_FUNCTIONALITY_VLM_TAG"
 FULL_FUNCTIONALITY_VLM_TAG: str = "FULL_FUNCTIONALITY_VLM_TAG"
 
+# For Audio-langauge models (AudioLMs)
+AUDIO_LANGUAGE_MODEL_TAG: str = "AUDIO_LANGUAGE_MODEL_TAG"
+
 # Deprecated models that are no longer available.
 # These are usually closed API models that have been permanently removed
 DEPRECATED_MODEL_TAG: str = "DEPRECATED_MODEL_TAG"
+
+# Unsupported models.
+# These are models that we have chosen not to support because they are
+# private, stale, non-notable, or difficult to implement.
+UNSUPPORTED_MODEL_TAG: str = "UNSUPPORTED_MODEL_TAG"
 
 # Frozen is set to false as the model_deployment_registry.py file
 # might populate the deployment_names field.
@@ -206,6 +217,11 @@ def is_text_to_image_model(model_name: str) -> bool:
 def is_vlm(model_name: str) -> bool:
     """Returns True if the model is a vision-language model (VLM). False otherwise."""
     return model_has_tag(model_name, VISION_LANGUAGE_MODEL_TAG)
+
+
+def is_audiolm(model_name: str) -> bool:
+    """Returns True if the model is a audio-language model (AudioLM). False otherwise."""
+    return model_has_tag(model_name, AUDIO_LANGUAGE_MODEL_TAG)
 
 
 def get_unknown_model_metadata(helm_model_name: str) -> ModelMetadata:

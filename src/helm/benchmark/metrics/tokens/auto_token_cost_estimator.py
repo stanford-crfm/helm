@@ -2,12 +2,12 @@ from typing import Dict
 
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.request import Request
-from .ai21_token_cost_estimator import AI21TokenCostEstimator
-from .cohere_token_cost_estimator import CohereTokenCostEstimator
-from .free_token_cost_estimator import FreeTokenCostEstimator
-from .gooseai_token_cost_estimator import GooseAITokenCostEstimator
-from .openai_token_cost_estimator import OpenAITokenCostEstimator
-from .token_cost_estimator import TokenCostEstimator
+from helm.benchmark.metrics.tokens.ai21_token_cost_estimator import AI21TokenCostEstimator
+from helm.benchmark.metrics.tokens.cohere_token_cost_estimator import CohereTokenCostEstimator
+from helm.benchmark.metrics.tokens.free_token_cost_estimator import FreeTokenCostEstimator
+from helm.benchmark.metrics.tokens.gooseai_token_cost_estimator import GooseAITokenCostEstimator
+from helm.benchmark.metrics.tokens.openai_token_cost_estimator import OpenAITokenCostEstimator
+from helm.benchmark.metrics.tokens.token_cost_estimator import TokenCostEstimator
 
 
 class AutoTokenCostEstimator(TokenCostEstimator):

@@ -6,7 +6,16 @@ from pathlib import Path
 from typing import List, Dict
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, TEST_SPLIT, Input, Output
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    CORRECT_TAG,
+    TRAIN_SPLIT,
+    TEST_SPLIT,
+    Input,
+    Output,
+)
 
 PROMPT_SETTINGS_URL = "https://raw.githubusercontent.com/HazyResearch/legalbench/main/helm_prompt_settings.jsonl"
 
@@ -97,10 +106,20 @@ class LegalBenchScenario(Scenario):
         # Download data from Huggingface. LegalBench provides splits for samples to
         # be used for prompt construction and for testing.
         train_dataset = datasets.load_dataset(
-            "nguha/legalbench", self.subset, trust_remote_code=True, cache_dir=cache_dir, split="train"
+            "nguha/legalbench",
+            self.subset,
+            trust_remote_code=True,
+            cache_dir=cache_dir,
+            split="train",
+            revision="e042ea68c19df12b737fe768572f22ead61e8e37",
         )
         test_dataset = datasets.load_dataset(
-            "nguha/legalbench", self.subset, trust_remote_code=True, cache_dir=cache_dir, split="test"
+            "nguha/legalbench",
+            self.subset,
+            trust_remote_code=True,
+            cache_dir=cache_dir,
+            split="test",
+            revision="e042ea68c19df12b737fe768572f22ead61e8e37",
         )
         assert isinstance(train_dataset, datasets.Dataset)
         assert isinstance(test_dataset, datasets.Dataset)

@@ -1,6 +1,6 @@
 import textwrap
 
-from .query import Query
+from helm.proxy.query import Query
 
 
 def dedent(text: str) -> str:

@@ -1,3 +1,4 @@
+import dataclasses
 from typing import Any, Dict, List, Optional, TypedDict, Union, cast
 import json
 import os
@@ -7,10 +8,11 @@ import time
 import urllib.parse
 
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import htrack_block, hlog
+from helm.common.hierarchical_logger import htrack_block, hlog, hwarn
 from helm.common.media_object import IMAGE_TYPE, TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import (
+    Thinking,
     wrap_request_time,
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
     Request,
@@ -30,8 +32,12 @@ from helm.clients.client import CachingClient, truncate_sequence, truncate_and_t
 try:
     from anthropic import Anthropic, BadRequestError
     from anthropic.types import MessageParam
+    from anthropic.types.message import Message
+    from anthropic.types.text_block import TextBlock
+    from anthropic.types.thinking_block import ThinkingBlock
     from anthropic.types.image_block_param import ImageBlockParam
     from anthropic.types.text_block_param import TextBlockParam
+    from anthropic.types.thinking_config_enabled_param import ThinkingConfigEnabledParam
     import websocket
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["anthropic"])
@@ -231,30 +237,41 @@ class AnthropicMessagesRequest(TypedDict, total=False):
     temperature: float
     top_k: int
     top_p: float
+    thinking: ThinkingConfigEnabledParam
 
 
 class AnthropicMessagesRequestError(NonRetriableException):
     pass
 
 
-class AnthropicMessagesResponseError(Exception):
+class AnthropicMessagesEmptyContentError(Exception):
     pass
 
 
 class AnthropicMessagesClient(CachingClient):
     # Source: https://docs.anthropic.com/claude/docs/models-overview
-    MAX_OUTPUT_TOKENS: int = 4096
+    MAX_OUTPUT_TOKENS: int = 64000
 
     MAX_IMAGE_SIZE_BYTES: int = 5242880  # 5MB
 
     def __init__(
-        self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig, api_key: Optional[str] = None
+        self,
+        tokenizer: Tokenizer,
+        tokenizer_name: str,
+        cache_config: CacheConfig,
+        thinking_budget_tokens: Optional[int] = None,
+        anthropic_model_name: Optional[str] = None,
+        api_key: Optional[str] = None,
+        stream: Optional[bool] = None,
     ):
         super().__init__(cache_config=cache_config)
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
         self.client = Anthropic(api_key=api_key)
         self.api_key: Optional[str] = api_key
+        self.anthropic_model_name: Optional[str] = anthropic_model_name
+        self.thinking_budget_tokens: Optional[int] = thinking_budget_tokens
+        self.stream: Optional[bool] = stream
 
     def make_request(self, request: Request) -> RequestResult:
         if request.max_tokens > AnthropicMessagesClient.MAX_OUTPUT_TOKENS:
@@ -293,8 +310,8 @@ class AnthropicMessagesClient(CachingClient):
                         image_width > AnthropicClient.MAX_IMAGE_DIMENSION
                         or image_height > AnthropicClient.MAX_IMAGE_DIMENSION
                     ):
-                        hlog(
-                            f"WARNING: Image {image_location} exceeds max allowed size: "
+                        hwarn(
+                            f"Image {image_location} exceeds max allowed size: "
                             f"{AnthropicClient.MAX_IMAGE_DIMENSION} pixels"
                         )
                         # Save the resized image to a temporary file
@@ -309,8 +326,8 @@ class AnthropicMessagesClient(CachingClient):
                             base64_image = encode_base64(temp_file.name, format="JPEG")
 
                     elif os.path.getsize(image_location) > AnthropicMessagesClient.MAX_IMAGE_SIZE_BYTES:
-                        hlog(
-                            f"WARNING: Image {image_location} exceeds max allowed size: "
+                        hwarn(
+                            f"Image {image_location} exceeds max allowed size: "
                             f"{AnthropicMessagesClient.MAX_IMAGE_SIZE_BYTES} bytes"
                         )
                         # Resize the image so it is smaller than the max allowed size
@@ -351,7 +368,7 @@ class AnthropicMessagesClient(CachingClient):
 
         raw_request: AnthropicMessagesRequest = {
             "messages": messages,
-            "model": request.model_engine,
+            "model": self.anthropic_model_name or request.model_engine,
             "stop_sequences": request.stop_sequences,
             "max_tokens": request.max_tokens,
             "temperature": request.temperature,
@@ -360,6 +377,15 @@ class AnthropicMessagesClient(CachingClient):
         }
         if system_message is not None:
             raw_request["system"] = cast(str, system_message["content"])
+        if self.thinking_budget_tokens:
+            raw_request["thinking"] = {
+                "type": "enabled",
+                "budget_tokens": self.thinking_budget_tokens,
+            }
+            # Avoid error:
+            # `top_k` must be unset when thinking is enabled. Please consult our documentation at https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking#important-considerations-when-using-extended-thinking  # noqa: E501
+            del raw_request["top_k"]
+
         completions: List[GeneratedOutput] = []
 
         # `num_completions` is not supported, so instead make `num_completions` separate requests.
@@ -367,11 +393,15 @@ class AnthropicMessagesClient(CachingClient):
 
             def do_it() -> Dict[str, Any]:
                 try:
-                    result = self.client.messages.create(**raw_request).model_dump()
+                    if self.stream:
+                        with self.client.messages.stream(**raw_request) as message_stream:
+                            result = message_stream.get_final_message().model_dump()
+                    else:
+                        result = self.client.messages.create(**raw_request).model_dump()
                     if "content" not in result or not result["content"]:
-                        raise AnthropicMessagesResponseError(f"Anthropic response has empty content: {result}")
-                    elif "text" not in result["content"][0]:
-                        raise AnthropicMessagesResponseError(f"Anthropic response has non-text content: {result}")
+                        raise AnthropicMessagesEmptyContentError(f"Anthropic response has empty content: {result}")
+                    elif "text" not in result["content"][-1]:
+                        raise AnthropicMessagesEmptyContentError(f"Anthropic response has non-text content: {result}")
                     return result
                 except BadRequestError as e:
                     response = e.response.json()
@@ -387,9 +417,10 @@ class AnthropicMessagesClient(CachingClient):
                     },
                     request,
                 )
-                response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-            except AnthropicMessagesResponseError:
-                hlog("WARNING: Response has empty content")
+                raw_response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+
+            except AnthropicMessagesEmptyContentError:
+                hwarn("Anthropic response has empty content")
                 return RequestResult(
                     success=False,
                     cached=False,
@@ -399,32 +430,41 @@ class AnthropicMessagesClient(CachingClient):
                     error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
                 )
 
-            if _is_content_moderation_failure(response):
-                hlog(
-                    f"WARNING: Returning empty request for {request.model_deployment} "
-                    "due to content moderation filter"
-                )
+            if _is_content_moderation_failure(raw_response):
+                hwarn(f"Returning empty request for {request.model_deployment} " "due to content moderation filter")
                 return RequestResult(
                     success=False,
                     cached=cached,
-                    error=response["error"]["message"],
+                    error=raw_response["error"]["message"],
                     completions=[],
                     embedding=[],
                     error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
-                    request_time=response["request_time"],
-                    request_datetime=response["request_datetime"],
+                    request_time=raw_response["request_time"],
+                    request_datetime=raw_response["request_datetime"],
                 )
 
+            response_message: Message = Message.model_validate(raw_response)
+            response_text: Optional[str] = None
+            response_thinking: Optional[str] = None
+            for content in response_message.content:
+                if isinstance(content, TextBlock):
+                    response_text = content.text
+                elif isinstance(content, ThinkingBlock):
+                    response_thinking = content.thinking
+            if response_text is None:
+                raise Exception("Anthropic response did not contain text block")
             completion = truncate_and_tokenize_response_text(
-                response["content"][0]["text"], request, self.tokenizer, self.tokenizer_name, original_finish_reason=""
+                response_text, request, self.tokenizer, self.tokenizer_name, original_finish_reason=""
             )
+            if response_thinking is not None:
+                completion = dataclasses.replace(completion, thinking=Thinking(text=response_thinking))
             completions.append(completion)
 
         return RequestResult(
             success=True,
             cached=cached,
-            request_time=response["request_time"],
-            request_datetime=response["request_datetime"],
+            request_time=raw_response["request_time"],
+            request_datetime=raw_response["request_datetime"],
             completions=completions,
             embedding=[],
         )
@@ -617,8 +657,8 @@ class AnthropicLegacyClient(CachingClient):
                     if logprobs["tokens"] != tokens:
                         # This is a known limitation with the Anthropic API. For now keep track of the
                         # entries with the mismatch.
-                        hlog(
-                            f"WARNING: naive truncation for logprobs did not work."
+                        hwarn(
+                            f"naive truncation for logprobs did not work."
                             f"\nRequest:{raw_request}\nExpected: {tokens}\nActual: {logprobs['tokens']}"
                         )
                         check_logprobs = True

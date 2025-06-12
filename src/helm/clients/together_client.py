@@ -1,14 +1,18 @@
 from copy import deepcopy
 from itertools import zip_longest
+import re
 import threading
-from typing import List, Dict, Any, Mapping, Optional, TypedDict, Union
+from typing import Callable, List, Dict, Any, Mapping, Optional, Tuple, TypedDict, Union
+from typing_extensions import NotRequired
 
 import requests
 from retrying import retry
 
 from helm.common.cache import CacheConfig
+from helm.common.media_object import IMAGE_TYPE, TEXT_TYPE
+from helm.common.object_spec import get_class_by_name
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
+from helm.common.request import Thinking, wrap_request_time, Request, RequestResult, GeneratedOutput, Token
 from helm.clients.client import CachingClient, truncate_sequence, cleanup_str
 
 try:
@@ -95,6 +99,19 @@ class JobNotFinishedError(TogetherClientError):
     """Exception raised when trying to get a response for a Together async job that has not finished"""
 
     pass
+
+
+def _parse_thinking(input: str) -> Tuple[str, str]:
+    """Return a tuple of thinking text and output text."""
+    match = re.match(r"<think>\n(.*)\n</think>\n{0,2}(.*)", input, re.DOTALL)
+    if match:
+        return (match.group(1), match.group(2))
+
+    match = re.match(r"<think>\n?(.*)", input, re.DOTALL)
+    if match:
+        return (match.group(1), "")
+
+    return (input, "")
 
 
 class TogetherClient(CachingClient):
@@ -312,26 +329,67 @@ class TogetherRawChatRequest(TypedDict):
     logprobs: int
     echo: bool
     n: int
+    response_format: NotRequired[Dict[str, Any]]
 
 
 class TogetherChatClient(CachingClient):
     """Client that uses the Python Together library for chat models."""
 
-    def __init__(self, cache_config: CacheConfig, api_key: Optional[str], together_model: Optional[str] = None):
+    def __init__(
+        self,
+        cache_config: CacheConfig,
+        api_key: Optional[str],
+        together_model: Optional[str] = None,
+        disable_logprobs: Optional[bool] = None,
+        output_processor: Optional[str] = None,
+        parse_thinking: Optional[bool] = None,
+    ):
         super().__init__(cache_config=cache_config)
         self._client = Together(api_key=api_key)
         self._together_model = together_model
+        self._disable_logprobs = bool(disable_logprobs)
+        # self.output_processor is actually a function, not a class
+        self._parse_thinking = bool(parse_thinking)
+
+        self.output_processor: Optional[Callable[[str], str]] = (
+            get_class_by_name(output_processor) if output_processor else None
+        )
 
     def convert_to_raw_chat_request(self, request: Request) -> TogetherRawChatRequest:
+        request.validate()
+        messages: List[Dict[str, Any]]
         if request.messages:
             messages = request.messages
+        elif request.multimodal_prompt:
+            message_contents = []
+            for media_object in request.multimodal_prompt.media_objects:
+                if media_object.is_type(IMAGE_TYPE) and media_object.location:
+                    assert media_object.location
+                    if media_object.is_local_file:
+                        from helm.common.images_utils import encode_base64
+
+                        base64_image: str = encode_base64(media_object.location)
+                        image_url = f"data:image/jpeg;base64,{base64_image}"
+                    else:
+                        image_url = media_object.location
+                    message_contents.append({"type": "image_url", "image_url": {"url": image_url}})
+                elif media_object.is_type(TEXT_TYPE):
+                    assert media_object.text
+                    message_contents.append({"type": "text", "text": media_object.text})
+                else:
+                    raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
+            messages = [{"role": "user", "content": message_contents}]
         else:
             messages = [{"role": "user", "content": request.prompt}]
         if self._together_model is not None:
             model = self._together_model
         else:
             model = request.model
-        return {
+        if self._disable_logprobs:
+            logprobs = 0
+        else:
+            logprobs = min(request.top_k_per_token, 1)
+        raw_chat_request: TogetherRawChatRequest = {
             "messages": messages,
             "model": model,
             "max_tokens": request.max_tokens,
@@ -339,10 +397,16 @@ class TogetherChatClient(CachingClient):
             "temperature": request.temperature,
             "top_p": request.top_p,
             "top_k": request.top_k_per_token,
-            "logprobs": min(request.top_k_per_token, 1),
+            "logprobs": logprobs,
             "echo": request.echo_prompt,
             "n": request.num_completions,
         }
+        if request.response_format and request.response_format.json_schema:
+            raw_chat_request["response_format"] = {
+                "type": "json_object",
+                "schema": request.response_format.json_schema,
+            }
+        return raw_chat_request
 
     def make_request(self, request: Request) -> RequestResult:
         raw_request = self.convert_to_raw_chat_request(request)
@@ -376,8 +440,21 @@ class TogetherChatClient(CachingClient):
                     if token_text is None:
                         break
                     tokens.append(Token(text=token_text, logprob=token_logprob or 0.0))
+            logprob = sum([token.logprob for token in tokens]) if tokens else 0.0
             assert choice.message.role == "assistant"
-            generated_outputs.append(GeneratedOutput(text=choice.message.content, logprob=0.0, tokens=tokens))
+            output_text = choice.message.content
+            if self.output_processor:
+                output_text = self.output_processor(output_text)
+
+            if self._parse_thinking:
+                thinking_text, output_text = _parse_thinking(output_text)
+                generated_outputs.append(
+                    GeneratedOutput(
+                        text=output_text, logprob=logprob, tokens=tokens, thinking=Thinking(text=thinking_text)
+                    )
+                )
+            else:
+                generated_outputs.append(GeneratedOutput(text=output_text, logprob=logprob, tokens=tokens))
         return RequestResult(
             success=True,
             cached=cached,
@@ -404,16 +481,27 @@ class TogetherRawCompletionRequest(TypedDict):
 class TogetherCompletionClient(CachingClient):
     """Client that uses the Python Together library for text completion models."""
 
-    def __init__(self, cache_config: CacheConfig, api_key: Optional[str], together_model: Optional[str] = None):
+    def __init__(
+        self,
+        cache_config: CacheConfig,
+        api_key: Optional[str],
+        together_model: Optional[str] = None,
+        disable_logprobs: Optional[bool] = None,
+    ):
         super().__init__(cache_config=cache_config)
         self._client = Together(api_key=api_key)
         self._together_model = together_model
+        self._disable_logprobs = bool(disable_logprobs)
 
     def convert_to_raw_completion_request(self, request: Request) -> TogetherRawCompletionRequest:
         if self._together_model is not None:
             model = self._together_model
         else:
             model = request.model
+        if self._disable_logprobs:
+            logprobs = 0
+        else:
+            logprobs = min(request.top_k_per_token, 1)
         return {
             "prompt": request.prompt,
             "model": model,
@@ -422,7 +510,7 @@ class TogetherCompletionClient(CachingClient):
             "temperature": request.temperature,
             "top_p": request.top_p,
             "top_k": request.top_k_per_token,
-            "logprobs": min(request.top_k_per_token, 1),
+            "logprobs": logprobs,
             "echo": request.echo_prompt,
             "n": request.num_completions,
         }
@@ -459,8 +547,9 @@ class TogetherCompletionClient(CachingClient):
                     if token_text is None:
                         break
                     tokens.append(Token(text=token_text, logprob=token_logprob or 0.0))
+            logprob = sum([token.logprob for token in tokens]) if tokens else 0.0
             assert choice.text
-            generated_outputs.append(GeneratedOutput(text=choice.text, logprob=0.0, tokens=tokens))
+            generated_outputs.append(GeneratedOutput(text=choice.text, logprob=logprob, tokens=tokens))
         return RequestResult(
             success=True,
             cached=cached,

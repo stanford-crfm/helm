@@ -13,7 +13,7 @@ from helm.common.general import ensure_directory_exists, parallel_map, get_crede
 from helm.common.hierarchical_logger import htrack, hlog
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.annotation.annotator import AnnotatorSpec, Annotator
+from helm.benchmark.annotation.annotator import Annotator
 from helm.benchmark.annotation.annotator_factory import AnnotatorFactory
 from helm.proxy.services.service import CACHE_DIR
 
@@ -88,22 +88,33 @@ class AnnotationExecutor:
             hlog("Skipped annotation.")
             return scenario_state
 
-        if scenario_state.annotator_specs is None or len(scenario_state.annotator_specs) == 0:
+        if not scenario_state.annotator_specs:
             hlog("No annotators to run.")
             return scenario_state
 
-        # Do it!
-        def do_it(request_state: RequestState) -> RequestState:
-            assert scenario_state.annotator_specs is not None
-            return self.process(scenario_state.annotator_specs, request_state)
+        try:
+            annotators: List[Annotator] = [
+                self.factory.get_annotator(annotator_spec) for annotator_spec in scenario_state.annotator_specs
+            ]
+        except Exception as e:
+            raise AnnotationExecutorError(f"Could not initialize annotator for spec: {str(e)} ") from e
 
-        self.annotator_specs = scenario_state.annotator_specs
+        if all(getattr(annotator, "use_global_metric", False) for annotator in annotators):
+            # Do it!
+            request_states = self.process_all(
+                annotators, scenario_state.request_states  # processing all request together
+            )
 
-        request_states = parallel_map(
-            do_it,
-            scenario_state.request_states,
-            parallelism=self.execution_spec.parallelism,
-        )
+        else:
+            # Do it!
+            def do_it(request_state: RequestState) -> RequestState:
+                return self.process(annotators, request_state)
+
+            request_states = parallel_map(
+                do_it,
+                scenario_state.request_states,
+                parallelism=self.execution_spec.parallelism,
+            )
 
         hlog(f"Annotated {len(request_states)} requests")
         return ScenarioState(
@@ -112,13 +123,22 @@ class AnnotationExecutor:
             annotator_specs=scenario_state.annotator_specs,
         )
 
-    def process(self, annotator_specs: List[AnnotatorSpec], state: RequestState) -> RequestState:
+    def process(self, annotators: List[Annotator], state: RequestState) -> RequestState:
         annotations: Dict[str, Any] = {}
         try:
-            for annotator_spec in annotator_specs:
-                annotator: Annotator = self.factory.get_annotator(annotator_spec)
+            for annotator in annotators:
                 new_annotations = annotator.annotate(state)
                 annotations[annotator.name] = new_annotations
         except Exception as e:
             raise AnnotationExecutorError(f"{str(e)} Request: {state.request}") from e
         return replace(state, annotations=annotations)
+
+    def process_all(self, annotators: List[Annotator], states: List[RequestState]) -> List[RequestState]:
+        annotations: Dict[str, Any] = {}
+        try:
+            for annotator in annotators:
+                new_annotations = annotator.annotate_all(states)
+                annotations[annotator.name] = new_annotations
+        except Exception as e:
+            raise AnnotationExecutorError(f"{str(e)} Request: {[state.request for state in states]}") from e
+        return [replace(state, annotations=new_annotations[idx]) for idx, state in enumerate(states)]

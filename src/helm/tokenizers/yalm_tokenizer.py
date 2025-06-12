@@ -1,9 +1,9 @@
 from typing import Any, Dict
 
 from helm.common.cache import CacheConfig
-from .caching_tokenizer import CachingTokenizer
-from .tokenizer import cleanup_tokens
-from .yalm_tokenizer_data.yalm_tokenizer import YaLMTokenizer as YaLMTokenizerInternal
+from helm.tokenizers.caching_tokenizer import CachingTokenizer
+from helm.tokenizers.tokenizer import cleanup_tokens
+from helm.tokenizers.yalm_tokenizer_data.yalm_tokenizer import YaLMTokenizer as YaLMTokenizerInternal
 
 
 class YaLMTokenizer(CachingTokenizer):

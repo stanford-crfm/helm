@@ -1,8 +1,8 @@
-""" DalleBart tokenizer """
+"""DalleBart tokenizer"""
 
 from transformers import BartTokenizerFast
 
-from .utils import PretrainedFromWandbMixin
+from helm.clients.image_generation.dalle_mini.model.utils import PretrainedFromWandbMixin
 
 
 class DalleBartTokenizer(PretrainedFromWandbMixin, BartTokenizerFast):

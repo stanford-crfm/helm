@@ -19,7 +19,7 @@ from helm.common.cache import (
 )
 from helm.common.request import Request
 from helm.common.file_caches.local_file_cache import LocalFileCache
-from helm.common.hierarchical_logger import hlog, htrack_block
+from helm.common.hierarchical_logger import hlog, htrack_block, hwarn
 from helm.clients.image_generation.deep_floyd_client import DeepFloydClient
 
 
@@ -206,7 +206,7 @@ if __name__ == "__main__":
         hlog(f"Initialized MongoDB cache with URI: {args.mongo_uri}")
         cache_config = MongoCacheConfig(args.mongo_uri, ORGANIZATION)
     elif args.cache_dir:
-        hlog(f"WARNING: Initialized SQLite cache at path: {args.cache_dir}. Are you debugging??")
+        hwarn(f"Initialized SQLite cache at path: {args.cache_dir}. Are you debugging??")
         cache_config = SqliteCacheConfig(os.path.join(args.cache_dir, f"{ORGANIZATION}.sqlite"))
     else:
         raise ValueError("Either --cache-dir or --mongo-uri should be specified")

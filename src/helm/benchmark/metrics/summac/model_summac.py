@@ -10,7 +10,7 @@ import numpy.typing as npt
 import torch
 import os
 import json
-from . import utils_misc
+from helm.benchmark.metrics.summac import utils_misc
 
 model_map = {
     "snli-base": {"model_card": "boychaboy/SNLI_roberta-base", "entailment_idx": 0, "contradiction_idx": 2},
@@ -169,10 +169,9 @@ class SummaCImager:
                 batch_tokens = self.tokenizer.batch_encode_plus(
                     list(zip(batch_prems, batch_hypos)),
                     padding=True,
-                    truncation=True,
+                    truncation="only_first",
                     max_length=self.max_input_length,
                     return_tensors="pt",
-                    truncation_strategy="only_first",
                 )
                 batch_tokens = {k: v.to(self.device) for k, v in batch_tokens.items()}
                 with torch.no_grad():

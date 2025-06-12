@@ -1,32 +1,31 @@
 from dataclasses import replace
-from typing import Callable, Dict, List, Optional, Set, Tuple, cast
-import numpy as np
 from functools import partial
+from typing import Callable, Dict, List, Optional, Set, Tuple, cast
+import re
+import string
+
+from nltk.metrics.scores import f_measure
+from nltk.tokenize import word_tokenize
+from nltk.translate.bleu_score import sentence_bleu
+from rouge_score import rouge_scorer
+import numpy as np
+
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.metrics import code_metrics_helper
 from helm.benchmark.metrics.cleva_metrics_helper import ChineseTokenizer
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
+from helm.benchmark.metrics.nltk_helper import install_nltk_resources
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.scenarios.code_scenario import CodeReference
+from helm.benchmark.scenarios.math_scenario import is_equiv, is_equiv_chain_of_thought
 from helm.benchmark.scenarios.scenario import Reference
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import GeneratedOutput
-from helm.benchmark.scenarios.math_scenario import is_equiv, is_equiv_chain_of_thought
-from nltk.metrics.scores import f_measure
-from nltk.translate.bleu_score import sentence_bleu
-from nltk.tokenize import word_tokenize
-from rouge_score import rouge_scorer
-import re
-import string
-from . import code_metrics_helper
-import nltk
 
 
-try:
-    nltk.data.find("tokenizers/punkt")
-except LookupError:
-    nltk.download("punkt")  # Required for rouge
+install_nltk_resources()
 
 
 def pass_at_k_estimator(n: int, c: int, k: int) -> float:
@@ -40,7 +39,7 @@ def pass_at_k_estimator(n: int, c: int, k: int) -> float:
     return 1.0 - np.prod(1.0 - k / np.arange(n - c + 1, n + 1))
 
 
-def normalize_text(text: str) -> str:
+def normalize_text(text: str, should_remove_articles: bool = True) -> str:
     """Lower text and remove punctuation, articles and extra whitespace.
     Copied from the [QuAC](http://quac.ai/) evaluation script found at
     https://s3.amazonaws.com/my89public/quac/scorer.py"""
@@ -58,7 +57,10 @@ def normalize_text(text: str) -> str:
     def lower(text: str) -> str:
         return text.lower()
 
-    return white_space_fix(remove_articles(remove_punc(lower(text))))
+    normalized_text = remove_punc(lower(text))
+    if should_remove_articles:
+        normalized_text = remove_articles(normalized_text)
+    return white_space_fix(normalized_text)
 
 
 def exact_match(gold: str, pred: str) -> float:
@@ -73,6 +75,17 @@ def quasi_exact_match(gold: str, pred: str) -> float:
         return 0
 
     return 1 if normalize_text(gold) == normalize_text(pred) else 0
+
+
+def quasi_leave_articles_exact_match(gold: str, pred: str) -> float:
+    if not pred:
+        return 0
+
+    return (
+        1
+        if normalize_text(gold, should_remove_articles=False) == normalize_text(pred, should_remove_articles=False)
+        else 0
+    )
 
 
 def prefix_exact_match(gold: str, pred: str) -> float:
@@ -203,6 +216,112 @@ def cider(gold: str, pred: str) -> float:
     return average_score
 
 
+def wer_score(gold: str, pred: str) -> float:
+    # Word Error Rate (WER), which is a common
+    # metric used to evaluate the accuracy of speech recognition systems.
+    # The lower the better. The WER might be greater than 1.
+    # https://huggingface.co/learn/audio-course/en/chapter5/evaluation#word-error-rate
+    try:
+        from jiwer import wer
+    except ModuleNotFoundError as e:
+        handle_module_not_found_error(e, ["audiolm"])
+
+    if not pred:
+        return 0
+    gold = normalize_text(gold, should_remove_articles=False)
+    pred = normalize_text(pred, should_remove_articles=False)
+    wer_ret = wer(gold, pred)
+    return wer_ret
+
+
+def mer_score(gold: str, pred: str) -> float:
+    # Match Error Rate (MER), which is for evaluating the error rate of
+    # speech recognition systems. The lower the better.
+    try:
+        from jiwer import mer
+    except ModuleNotFoundError as e:
+        handle_module_not_found_error(e, ["audiolm"])
+
+    if not pred:
+        return 0
+
+    gold = normalize_text(gold, should_remove_articles=False)
+    pred = normalize_text(pred, should_remove_articles=False)
+    mer_ret = mer(gold, pred)
+    return mer_ret
+
+
+def wip_score(gold: str, pred: str) -> float:
+    # Word information preservation (WIP) for evaluating the preserved information of speech
+    # recognition systems. The higher the better.
+    try:
+        from jiwer import wip
+    except ModuleNotFoundError as e:
+        handle_module_not_found_error(e, ["audiolm"])
+
+    if not pred:
+        return 0
+
+    gold = normalize_text(gold, should_remove_articles=False)
+    pred = normalize_text(pred, should_remove_articles=False)
+    wip_ret = wip(gold, pred)
+    return wip_ret
+
+
+def cer_score(gold: str, pred: str) -> float:
+    # Character Error Rate (CER) for evaluating the accuracy
+    # of speech recognition systems. The lower the better.
+    try:
+        from jiwer import cer
+    except ModuleNotFoundError as e:
+        handle_module_not_found_error(e, ["audiolm"])
+
+    if not pred:
+        return 0
+
+    gold = normalize_text(gold, should_remove_articles=False)
+    pred = normalize_text(pred, should_remove_articles=False)
+    cer_ret = cer(gold, pred)
+    assert isinstance(cer_ret, float)
+    return cer_ret
+
+
+def chinese_wer_score(gold: str, pred: str) -> float:
+    try:
+        import jieba
+    except ModuleNotFoundError as e:
+        handle_module_not_found_error(e, ["audiolm"])
+
+    return wer_score(" ".join(jieba.cut(gold)), " ".join(jieba.cut(pred)))
+
+
+def chinese_mer_score(gold: str, pred: str) -> float:
+    try:
+        import jieba
+    except ModuleNotFoundError as e:
+        handle_module_not_found_error(e, ["audiolm"])
+
+    return mer_score(" ".join(jieba.cut(gold)), " ".join(jieba.cut(pred)))
+
+
+def chinese_wip_score(gold: str, pred: str) -> float:
+    try:
+        import jieba
+    except ModuleNotFoundError as e:
+        handle_module_not_found_error(e, ["audiolm"])
+
+    return wip_score(" ".join(jieba.cut(gold)), " ".join(jieba.cut(pred)))
+
+
+def chinese_cer_score(gold: str, pred: str) -> float:
+    try:
+        import jieba
+    except ModuleNotFoundError as e:
+        handle_module_not_found_error(e, ["audiolm"])
+
+    return cer_score(" ".join(jieba.cut(gold)), " ".join(jieba.cut(pred)))
+
+
 def extract_set_from_text(
     set_str: str,
     set_start_str: str = " is ",
@@ -329,6 +448,7 @@ def compute_reference_metrics(
     metric_fn_mapping: Dict[str, Callable] = {
         "exact_match": exact_match,
         "quasi_exact_match": quasi_exact_match,
+        "quasi_leave_articles_exact_match": quasi_leave_articles_exact_match,
         "prefix_exact_match": prefix_exact_match,
         "quasi_prefix_exact_match": quasi_prefix_exact_match,
         "exact_match_indicator": exact_match_indicator,
@@ -352,6 +472,14 @@ def compute_reference_metrics(
         "chinese_rouge_2": get_chinese_rouge_function("rouge2"),
         "cleva_math_result_match": cleva_math_result_match,
         "absolute_value_difference": absolute_value_difference,
+        "wer_score": wer_score,
+        "mer_score": mer_score,
+        "wip_score": wip_score,
+        "cer_score": cer_score,
+        "chinese_wer_score": chinese_wer_score,
+        "chinese_mer_score": chinese_mer_score,
+        "chinese_wip_score": chinese_wip_score,
+        "chinese_cer_score": chinese_cer_score,
     }
 
     stats: List[Stat] = []

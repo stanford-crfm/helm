@@ -3,9 +3,7 @@ import tempfile
 import unittest
 import threading
 
-from helm.common.cache import Cache, SqliteCacheConfig, WithFollowerCacheConfig, cache_stats, get_all_from_sqlite
-
-from sqlitedict import SqliteDict
+from helm.common.cache import Cache, SqliteCacheConfig, cache_stats, get_all_from_sqlite
 
 
 class TestCache(unittest.TestCase):
@@ -98,51 +96,6 @@ class TestCache(unittest.TestCase):
         assert cache_stats.num_queries[self.cache_path] == num_items * num_threads
         assert cache_stats.num_computes[self.cache_path] >= num_items
         assert cache_stats.num_computes[self.cache_path] <= num_items * num_threads
-
-    def test_follower(self):
-        cache = Cache(SqliteCacheConfig(self.cache_path))
-        request_1 = {"name": "request1"}
-        compute_1 = lambda: {"response": "response1"}
-
-        response, cached = cache.get(request_1, compute_1)
-        assert response == {"response": "response1"}
-        assert not cached
-        assert cache_stats.num_queries[self.cache_path] == 1
-        assert cache_stats.num_computes[self.cache_path] == 1
-
-        follower_cache_file = tempfile.NamedTemporaryFile(delete=False)
-        follower_cache_path = follower_cache_file.name
-        with follower_cache_file:
-            cache_with_follower_config = WithFollowerCacheConfig(
-                main=SqliteCacheConfig(self.cache_path),
-                follower=SqliteCacheConfig(follower_cache_path),
-            )
-            cache_with_follower = Cache(cache_with_follower_config)
-
-            response, cached = cache_with_follower.get(request_1, compute_1)
-            assert response == {"response": "response1"}
-            assert cached
-            assert cache_stats.num_queries[self.cache_path] == 2
-            assert cache_stats.num_computes[self.cache_path] == 1
-            assert cache_stats.num_queries[follower_cache_path] == 0
-            assert cache_stats.num_computes[follower_cache_path] == 0
-
-            request_2 = {"name": "request2"}
-            compute_2 = lambda: {"response": "response2"}
-
-            response, cached = cache_with_follower.get(request_2, compute_2)
-            assert response == {"response": "response2"}
-            assert not cached
-            assert cache_stats.num_queries[self.cache_path] == 3
-            assert cache_stats.num_computes[self.cache_path] == 2
-            assert cache_stats.num_queries[follower_cache_path] == 0
-            assert cache_stats.num_computes[follower_cache_path] == 0
-
-            expected_dict = {
-                '{"name": "request1"}': {"response": "response1"},
-                '{"name": "request2"}': {"response": "response2"},
-            }
-            self.assertCountEqual(SqliteDict(follower_cache_path).items(), expected_dict.items())
 
     def test_get_all_from_sqlite(self):
         cache = Cache(SqliteCacheConfig(self.cache_path))

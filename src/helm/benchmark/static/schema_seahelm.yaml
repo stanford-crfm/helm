@@ -1,0 +1,723 @@
+---
+############################################################
+metrics:
+  - name: num_perplexity_tokens
+    display_name: '# tokens'
+    description: Average number of tokens in the predicted output (for language modeling, the input too).
+  - name: num_bytes
+    display_name: '# bytes'
+    description: Average number of bytes in the predicted output (for language modeling, the input too).
+  - name: num_references
+    display_name: '# ref'
+    description: Number of references.
+  - name: num_train_trials
+    display_name: '# trials'
+    description: Number of trials, where in each trial we choose an independent, random set of training instances.
+  - name: estimated_num_tokens_cost
+    display_name: 'cost'
+    description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
+  - name: num_prompt_tokens
+    display_name: '# prompt tokens'
+    description: Number of tokens in the prompt.
+  - name: num_prompt_characters
+    display_name: '# prompt chars'
+    description: Number of characters in the prompt.
+  - name: num_completion_tokens
+    display_name: '# completion tokens'
+    description: Actual number of completion tokens (over all completions).
+  - name: num_output_tokens
+    display_name: '# output tokens'
+    description: Actual number of output tokens.
+  - name: max_num_output_tokens
+    display_name: 'Max output tokens'
+    description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
+  - name: num_requests
+    display_name: '# requests'
+    description: Number of distinct API requests.
+  - name: num_instances
+    display_name: '# eval'
+    description: Number of evaluation instances.
+  - name: num_train_instances
+    display_name: '# train'
+    description: Number of training instances (e.g., in-context examples).
+  - name: prompt_truncated
+    display_name: truncated
+    description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
+  - name: finish_reason_length
+    display_name: finish b/c length
+    description: Fraction of instances where the the output was terminated because of the max tokens limit.
+  - name: finish_reason_stop
+    display_name: finish b/c stop
+    description: Fraction of instances where the the output was terminated because of the stop sequences.
+  - name: finish_reason_endoftext
+    display_name: finish b/c endoftext
+    description: Fraction of instances where the the output was terminated because the end of text token was generated.
+  - name: finish_reason_unknown
+    display_name: finish b/c unknown
+    description: Fraction of instances where the the output was terminated for unknown reasons.
+  - name: num_completions
+    display_name: '# completions'
+    description: Number of completions.
+  - name: predicted_index
+    display_name: Predicted index
+    description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
+  - name: exact_match
+    display_name: Exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
+    lower_is_better: false
+  - name: chr_f_plus_plus
+    display_name: ChrF++
+    description: Character n-gram F-score with word n-gram order (ChrF++) [(Popovic, 2015)](https://aclanthology.org/W15-3049/). Code can be found [here](https://github.com/mjpost/sacrebleu).
+    lower_is_better: false
+  - name: squad_exact_match_score
+    display_name: SQuAD exact match
+    description: SQuAD exact match score [(Rajpurkar, 2016)](https://aclanthology.org/D16-1264). Code can be found [here](https://github.com/allenai/bi-att-flow/blob/master/squad/evaluate-v1.1.py)
+    lower_is_better: false
+  - name: squad_f1_score
+    display_name: SQuAD macro-averaged F1 score
+    description: SQuAD macro-averaged F1 score [(Rajpurkar, 2016)](https://aclanthology.org/D16-1264). Code can be found [here](https://github.com/allenai/bi-att-flow/blob/master/squad/evaluate-v1.1.py)
+    lower_is_better: false
+  - name: classification_macro_f1
+    display_name: Macro F1 score
+    description: Macro F1 score
+    lower_is_better: false
+  - name: inference_runtime
+    display_name: Observed inference runtime (s)
+    short_display_name: Observed inference time (s)
+    lower_is_better: true
+    description: Average observed time to process a request to the model (via an API, and thus depends on particular deployment).
+
+
+############################################################
+perturbations: []
+
+############################################################
+metric_groups:
+  - name: accuracy
+    display_name: Accuracy
+    aggregation_strategies: 
+      - mean
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+
+  - name: efficiency
+    display_name: Efficiency
+    aggregation_strategies: 
+      - mean
+    metrics:
+    - name: inference_runtime
+      split: ${main_split}
+
+  - name: general_information
+    display_name: General information
+    metrics:
+    - name: num_instances
+      split: ${main_split}
+    - name: num_train_instances
+      split: ${main_split}
+    - name: prompt_truncated
+      split: ${main_split}
+    - name: num_prompt_tokens
+      split: ${main_split}
+    - name: num_output_tokens
+      split: ${main_split}
+
+############################################################
+
+run_groups:
+  - name: seahelm_nlu
+    display_name: SEA-HELM natural language understanding (NLU)
+    description: SEA-HELM natural language understanding (NLU) scenarios
+    category: SEA-HELM scenarios
+    subgroups:
+      - tydiqa
+      - xquad_vi
+      - xquad_th
+      - indicqa
+      - nusax
+      - uitvsfc
+      - wisesight
+      - indicsentiment
+      - mlhsd
+      - vihsd
+      - thaitoxicitytweets
+
+  - name: seahelm_nlg
+    display_name: SEA-HELM natural language generation (NLG)
+    description: SEA-HELM natural language generation (NLG) scenarios
+    category: SEA-HELM scenarios
+    subgroups:
+    - flores_id_en
+    - flores_vi_en
+    - flores_th_en
+    - flores_ta_en
+    - flores_en_id
+    - flores_en_vi
+    - flores_en_th
+    - flores_en_ta
+
+  - name: seahelm_nlr
+    display_name: SEA-HELM natural language reasoning (NLR)
+    description: SEA-HELM natural language reasoning (NLR) scenarios
+    category: SEA-HELM scenarios
+    subgroups:
+    - indonli
+    - xnli_vi
+    - xnli_th
+    - indicxnli
+    - xcopa_id
+    - xcopa_vi
+    - xcopa_th
+    - xcopa_ta
+
+  - name: seahelm_lindsea
+    display_name: SEA-HELM Linguistic Diagnostics for Southeast Asian Languages (LINDSEA)
+    description: SEA-HELM Linguistic Diagnostics for Southeast Asian Languages (LINDSEA) scenarios
+    category: SEA-HELM scenarios
+    subgroups:
+    - lindsea_syntax_minimal_pairs_id
+    - lindsea_pragmatics_presuppositions_id
+    - lindsea_pragmatics_scalar_implicatures_id
+
+  - name: tydiqa
+    display_name: TyDiQA
+    description: >
+      TyDiQA [(Clark, 2020)](https://aclanthology.org/2020.tacl-1.30) is an open-book question answering dataset for 11 typologically-diverse languages. The questions are written by people who want to know the answer, but do not know the answer yet,
+      and the data is collected directly in each language without the use of translation.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: squad_f1_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: questions by human annotators about Wikipedia articles
+      who: "human annotators"
+      when: "?"
+      language: Indonesian
+
+  - name: xquad_vi
+    display_name: XQuAD (Vietnamese)
+    description: >
+      XQuAD [(Artetxe, 2019)](https://arxiv.org/abs/1910.11856) is an open-book question answering dataset that is parallel across 10 languages. The dataset consists of a subset of 240 paragraphs and 1190 question-answer pairs from the development set of SQuAD v1.1 (Rajpurkar et al., 2016) together with their professional translations.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: squad_f1_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: questions by crowdworkers about Wikipedia articles translated from English to Thai and Vietnamese
+      who: "?"
+      when: "?"
+      language: Vietnamese
+
+  - name: xquad_th
+    display_name: XQuAD (Thai)
+    description: >
+      XQuAD [(Artetxe, 2019)](https://arxiv.org/abs/1910.11856) is an open-book question answering dataset that is parallel across 10 languages. The dataset consists of a subset of 240 paragraphs and 1190 question-answer pairs from the development set of SQuAD v1.1 (Rajpurkar et al., 2016) together with their professional translations.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: squad_f1_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: questions by crowdworkers about Wikipedia articles translated from English to Thai and Vietnamese
+      who: "?"
+      when: "?"
+      language: Thai
+
+  - name: indicqa
+    display_name: IndicQA
+    description: >
+      IndicQA [(Doddapaneni, 2023)](https://aclanthology.org/2023.acl-long.693)is an open-book question answering dataset for 11 Indic languages. Answers to questions are to be extracted from the text provided. The data is taken from Wikipedia articles across various domains and questions and answers were manually created by native speakers.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: squad_f1_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: questions about Wikipedia articles translated by native speakers from English to Tamil
+      who: "?"
+      when: "?"
+      language: Tamil
+
+  - name: nusax
+    display_name: NusaX
+    description: >
+      NusaX [(Winata, 2023)](https://aclanthology.org/2023.eacl-main.57) is an Indonesian sentiment analysis dataset. The data consists of comments and reviews from various online platforms.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: classification_macro_f1
+      main_split: test
+    taxonomy:
+      task: sentiment analysis 
+      what: online comments and reviews
+      who: "internet users"
+      when: "?"
+      language: Indonesian
+
+  - name: uitvsfc
+    display_name: UIT-VSFC
+    description: >
+      UIT-VSFC [(Nguyen, 2018)](https://ieeexplore.ieee.org/document/8573337) is a Vietnamese sentiment analysis dataset. The data consists of student feedback obtained from end-of-semester surveys at a Vietnamese university.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: classification_macro_f1
+      main_split: test
+    taxonomy:
+      task: sentiment analysis
+      what: university student end-of-semester survey responses
+      who: "university students"
+      when: "?"
+      language: Vietnamese
+
+  - name: wisesight
+    display_name: Wisesight
+    description: >
+      Wisesight [(Suriyawongkul, 2019)](https://doi.org/10.5281/zenodo.3457447) is an Thai sentiment analysis scenario. The data consists of social media messages regarding consumer products and services. 
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: classification_macro_f1
+      main_split: test
+    taxonomy:
+      task: sentiment analysis
+      what: social media messages regarding consumer products and services
+      who: "social media users"
+      when: "?"
+      language: Thai
+
+  - name: indicsentiment
+    display_name: IndicSentiment
+    description: >
+      IndicSentiment is a Tamil sentiment analysis dataset that comes from IndicXTREME [(Doddapaneni, 2022)](https://aclanthology.org/2023.acl-long.693/), and consists of product reviews that were written by annotators. Labels are positive or negative.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: classification_macro_f1
+      main_split: test
+    taxonomy:
+      task: sentiment analysis
+      what: product reviews
+      who: "human annotators"
+      when: "?"
+      language: Tamil
+
+  - name: mlhsd
+    display_name: MLHSD
+    description: >
+      MLHSD [(Ibrohim, 2019)](https://aclanthology.org/W19-3506) is an Indonesian toxicity detection dataset obtained from tweets on Twitter.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: classification_macro_f1
+      main_split: test
+    taxonomy:
+      task: toxicity detection/classification
+      what: tweets
+      who: "Twitter users"
+      when: "?"
+      language: Indonesian
+
+  - name: vihsd
+    display_name: ViHSD
+    description: >
+      ViHSD [(Luu, 2021)](https://link.springer.com/chapter/10.1007/978-3-030-79457-6_35 )is a Vietnamese toxicity detection dataset obtained from comments on Facebook, Youtube, Instagram, and Tiktok.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: classification_macro_f1
+      main_split: test
+    taxonomy:
+      task: toxicity detection/classification
+      what: social media comments
+      who: "Social media users"
+      when: "?"
+      language: Vietnamese
+
+  - name: thaitoxicitytweets
+    display_name: Thai Toxicity Tweets
+    description: >
+      Thai Toxicity Tweets [(Sirihattasak, 2018)](http://www.lrec-conf.org/workshops/lrec2018/W32/pdf/1_W32.pdf) is a Thai toxicity detection dataset obtained from tweets on Twitter. 
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: classification_macro_f1
+      main_split: test
+    taxonomy:
+      task: toxicity detection/classification
+      what: tweets
+      who: "Twitter users"
+      when: ""
+      language: Thai
+
+  - name: flores_en_id
+    display_name: Flores
+    description: >
+      Flores [(NLLB Team, 2022)](https://research.facebook.com/publications/no-language-left-behind/) was created with professional human translators who translate the FLORES source dataset into the target languages and a separate group of independent translation reviewers who perform quality assessments of the human translations and provide translation feedback to the translators.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: chr_f_plus_plus
+      main_split: test
+    taxonomy:
+      task: machine translation
+      what: translations from professional human translators
+      who: "professional human translators"
+      when: "?"
+      language: English, Indonesian, Tamil, Thai, Vietnamese, English
+
+  - name: flores_en_vi
+    display_name: Flores
+    description: >
+      Flores [(NLLB Team, 2022)](https://research.facebook.com/publications/no-language-left-behind/) was created with professional human translators who translate the FLORES source dataset into the target languages and a separate group of independent translation reviewers who perform quality assessments of the human translations and provide translation feedback to the translators.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: chr_f_plus_plus
+      main_split: test
+    taxonomy:
+      task: machine translation
+      what: translations from professional human translators
+      who: "professional human translators"
+      when: "?"
+      language: English, Indonesian, Tamil, Thai, Vietnamese, English
+
+  - name: flores_en_th
+    display_name: Flores
+    description: >
+      Flores [(NLLB Team, 2022)](https://research.facebook.com/publications/no-language-left-behind/) was created with professional human translators who translate the FLORES source dataset into the target languages and a separate group of independent translation reviewers who perform quality assessments of the human translations and provide translation feedback to the translators.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: chr_f_plus_plus
+      main_split: test
+    taxonomy:
+      task: machine translation
+      what: translations from professional human translators
+      who: "professional human translators"
+      when: "?"
+      language: English, Indonesian, Tamil, Thai, Vietnamese, English
+
+  - name: flores_en_ta
+    display_name: Flores
+    description: >
+      Flores [(NLLB Team, 2022)](https://research.facebook.com/publications/no-language-left-behind/) was created with professional human translators who translate the FLORES source dataset into the target languages and a separate group of independent translation reviewers who perform quality assessments of the human translations and provide translation feedback to the translators.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: chr_f_plus_plus
+      main_split: test
+    taxonomy:
+      task: machine translation
+      what: translations from professional human translators
+      who: "professional human translators"
+      when: "?"
+      language: English, Indonesian, Tamil, Thai, Vietnamese, English
+
+  - name: flores_id_en
+    display_name: Flores
+    description: >
+      Flores [(NLLB Team, 2022)](https://research.facebook.com/publications/no-language-left-behind/) was created with professional human translators who translate the FLORES source dataset into the target languages and a separate group of independent translation reviewers who perform quality assessments of the human translations and provide translation feedback to the translators.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: chr_f_plus_plus
+      main_split: test
+    taxonomy:
+      task: machine translation
+      what: translations from professional human translators
+      who: "professional human translators"
+      when: "?"
+      language: English, Indonesian, Tamil, Thai, Vietnamese, English
+
+  - name: flores_vi_en
+    display_name: Flores
+    description: >
+      Flores [(NLLB Team, 2022)](https://research.facebook.com/publications/no-language-left-behind/) was created with professional human translators who translate the FLORES source dataset into the target languages and a separate group of independent translation reviewers who perform quality assessments of the human translations and provide translation feedback to the translators.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: chr_f_plus_plus
+      main_split: test
+    taxonomy:
+      task: machine translation
+      what: translations from professional human translators
+      who: "professional human translators"
+      when: "?"
+      language: English, Indonesian, Tamil, Thai, Vietnamese, English
+
+  - name: flores_th_en
+    display_name: Flores
+    description: >
+      Flores [(NLLB Team, 2022)](https://research.facebook.com/publications/no-language-left-behind/) was created with professional human translators who translate the FLORES source dataset into the target languages and a separate group of independent translation reviewers who perform quality assessments of the human translations and provide translation feedback to the translators.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: chr_f_plus_plus
+      main_split: test
+    taxonomy:
+      task: machine translation
+      what: translations from professional human translators
+      who: "professional human translators"
+      when: "?"
+      language: English, Indonesian, Tamil, Thai, Vietnamese, English
+
+  - name: flores_ta_en
+    display_name: Flores
+    description: >
+      Flores [(NLLB Team, 2022)](https://research.facebook.com/publications/no-language-left-behind/) was created with professional human translators who translate the FLORES source dataset into the target languages and a separate group of independent translation reviewers who perform quality assessments of the human translations and provide translation feedback to the translators.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: chr_f_plus_plus
+      main_split: test
+    taxonomy:
+      task: machine translation
+      what: translations from professional human translators
+      who: "professional human translators"
+      when: "?"
+      language: English, Indonesian, Tamil, Thai, Vietnamese, English
+
+  - name: indonli
+    display_name: IndoNLI
+    description: >
+      IndoNLI [(Mahendra, 2021)](https://aclanthology.org/2021.emnlp-main.821) is a natural language inference dataset obtained from Wikipedia, news, and web articles that incorporates various linguistic phenomena such as numerical reasoning, structural changes, idioms, or temporal and spatial reasoning. 
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: natural language inference
+      what: Wikipedia, news, and web articles
+      who: "?"
+      when: "?"
+      language: Indonesian
+
+  - name: xnli_vi
+    display_name: XNLI (Vietnamese)
+    description: >
+      XNLI [(Conneau, 2018)](https://aclanthology.org/D18-1269) is a natural language inference dataset obtained from crowdsourced NLI data then professionally translated across 14 other languages.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: natural language inference
+      what: crowdsourced NLI data professionally translated
+      who: "?"
+      when: "?"
+      language: Vietnamese
+
+  - name: xnli_th
+    display_name: XNLI (Thai)
+    description: >
+      XNLI [(Conneau, 2018)](https://aclanthology.org/D18-1269) is a natural language inference dataset obtained from crowdsourced NLI data then professionally translated across 14 other languages.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: natural language inference
+      what: crowdsourced NLI data professionally translated
+      who: "?"
+      when: "?"
+      language: Thai
+
+  - name: indicxnli
+    display_name: IndicXNLI
+    description: >
+      IndicXNLI is a Tamil sentiment analysis dataset that comes from IndicXTREME [(Doddapaneni, 2022)](https://aclanthology.org/2023.acl-long.693/), which automatically translated from XNLI into 11 Indic languages.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: natural language inference
+      what: crowdsourced NLI data professionally translated into Tamil
+      who: "?"
+      when: "?"
+      language: Tamil
+
+  - name: xcopa_id
+    display_name: XCOPA (Indonesian)
+    description: >
+      XCOPA [(Ponti, 2020)](https://ducdauge.github.io/files/xcopa.pdf) is causal reasoning dataset, a translation and reannotation of the English COPA. English COPA included questions that directly assess commonsense causal reasoning.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: causal reasoning
+      what: commonsense causal reasoning questions translated into Indonesian
+      who: "?"
+      when: "?"
+      language: Indonesian, Tamil, Thai, Vietnamese
+
+  - name: xcopa_vi
+    display_name: XCOPA (Vietnamese)
+    description: >
+      XCOPA [(Ponti, 2020)](https://ducdauge.github.io/files/xcopa.pdf) is causal reasoning dataset, a translation and reannotation of the English COPA. English COPA included questions that directly assess commonsense causal reasoning.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: causal reasoning
+      what: commonsense causal reasoning questions translated into Vietnamese
+      who: "?"
+      when: "?"
+      language: Vietnamese
+
+  - name: xcopa_th
+    display_name: XCOPA (Thai)
+    description: >
+      XCOPA [(Ponti, 2020)](https://ducdauge.github.io/files/xcopa.pdf) is causal reasoning dataset, a translation and reannotation of the English COPA. English COPA included questions that directly assess commonsense causal reasoning.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: causal reasoning
+      what: commonsense causal reasoning questions translated into Thai
+      who: "?"
+      when: "?"
+      language: Thai
+
+  - name: xcopa_ta
+    display_name: XCOPA (Tamil)
+    description: >
+      XCOPA [(Ponti, 2020)](https://ducdauge.github.io/files/xcopa.pdf) is causal reasoning dataset, a translation and reannotation of the English COPA. English COPA included questions that directly assess commonsense causal reasoning.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: causal reasoning
+      what: commonsense causal reasoning questions translated into Tamil
+      who: "?"
+      when: "?"
+      language: Tamil
+
+  - name: lindsea_syntax_minimal_pairs_id
+    display_name: LINDSEA Syntax Minimal Pairs
+    description: >
+      LINDSEA minimal pairs is a linguistic diagnostic for syntax dataset from BHASA [(Leong, 2023)](https://arxiv.org/abs/2309.06085), involving pairs of sentences that differ minimally from each other and contrast in grammatical acceptability.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: minimal pairs
+      what: sentence pairs with minimal differences and constrasting grammatical acceptability
+      who: "?"
+      when: "?"
+      language: Indonesian
+
+  - name: lindsea_pragmatics_presuppositions_id
+    display_name: LINDSEA Pragmatics Presuppositions
+    description: >
+      LINDSEA Pragmatics Presuppositions is a linguistic diagnostic for pragmatics dataset from BHASA [(Leong, 2023)](https://arxiv.org/abs/2309.06085), involving two formats: single and pair sentences. For single sentence questions, the system under test needs to determine if the sentence is true/false. For pair sentence questions, the system under test needs to determine whether a conclusion can be drawn from another sentence.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: pragmatic reasoning
+      what: presuppositions
+      who: "?"
+      when: "?"
+      language: Indonesian
+
+  - name: lindsea_pragmatics_scalar_implicatures_id
+    display_name: LINDSEA Pragmatics Scalar Implicatures
+    description: >
+      LINDSEA Pragmatics Scalar Implicatures is a linguistic diagnostic for pragmatics dataset from BHASA [(Leong, 2023)](https://arxiv.org/abs/2309.06085), , involving two formats: single and pair sentences. For single sentence questions, the system under test needs to determine if the sentence is true/false. For pair sentence questions, the system under test needs to determine whether a conclusion can be drawn from another sentence.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: pragmatic reasoning
+      what: scalar implicatures
+      who: "?"
+      when: "?"
+      language: Indonesian

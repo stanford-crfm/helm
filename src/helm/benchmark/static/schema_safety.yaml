@@ -98,6 +98,13 @@ metrics:
     lower_is_better: true
     description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).
 
+  # Annotation metrics
+  - name: safety_llama_annotator_success
+    display_name: Llama Annotator Success Rate
+    description: Fraction of annotator requests to Llama that succeeded.
+  - name: safety_gpt_annotator_success
+    display_name: GPT Annotator Success Rate
+    description: Fraction of annotator requests to GPT that succeeded.
 
 ############################################################
 perturbations: []
@@ -106,6 +113,8 @@ perturbations: []
 metric_groups:
   - name: accuracy
     display_name: Accuracy
+    aggregation_strategies: 
+      - mean
     metrics:
       - name: ${main_name}
         split: ${main_split}
@@ -131,6 +140,15 @@ metric_groups:
     - name: num_output_tokens
       split: ${main_split}
 
+  - name: annotation_metrics
+    display_name: Annotation
+    hide_win_rates: true
+    metrics:
+    - name: safety_llama_annotator_success
+      split: ${main_split}
+    - name: safety_gpt_annotator_success
+      split: ${main_split}
+
   - name: toxicity
     display_name: Toxicity
     metrics:
@@ -153,6 +171,7 @@ run_groups:
     description: Scenarios for the model safety
     category: All scenarios
     subgroups:
+      # - harm_bench_gcg_transfer
       - harm_bench
       - simple_safety_tests
       - bbq
@@ -164,6 +183,25 @@ run_groups:
     description: HarmBench
     metric_groups:
       - accuracy
+      - general_information
+      - annotation_metrics
+    environment:
+      main_name: safety_score
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: harm_bench_gcg_transfer
+    display_name: HarmBenchGCGTransfer
+    description: HarmBenchGCGTransfer
+    metric_groups:
+      - accuracy
+      - general_information
+      - annotation_metrics
     environment:
       main_name: safety_score
       main_split: test
@@ -179,6 +217,8 @@ run_groups:
     description: SimpleSafetyTests
     metric_groups:
       - accuracy
+      - general_information
+      - annotation_metrics
     environment:
       main_name: safety_score
       main_split: test
@@ -194,6 +234,8 @@ run_groups:
     description: XSTest
     metric_groups:
       - accuracy
+      - general_information
+      - annotation_metrics
     environment:
       main_name: safety_score
       main_split: test
@@ -209,7 +251,9 @@ run_groups:
     description: The Bias Benchmark for Question Answering (BBQ) for measuring social bias in question answering in ambiguous and unambigous context [(Parrish et al., 2022)](https://aclanthology.org/2022.findings-acl.165/).
     metric_groups:
       - accuracy
+      - general_information
       - bbq_metrics
+      - annotation_metrics
     environment:
       main_name: bbq_accuracy
       main_split: test
@@ -226,6 +270,8 @@ run_groups:
     description: Anthropic Red Team
     metric_groups:
       - accuracy
+      - general_information
+      - annotation_metrics
     environment:
       main_name: safety_score
       main_split: test

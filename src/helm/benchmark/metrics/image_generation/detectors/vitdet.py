@@ -8,7 +8,7 @@ from helm.common.general import ensure_file_downloaded, hlog
 from helm.common.images_utils import open_image
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.gpu_utils import get_torch_device
-from .base_detector import BaseDetector
+from helm.benchmark.metrics.image_generation.detectors.base_detector import BaseDetector
 
 
 MODEL_CONFIG_DOWNLOAD_URL: str = "https://drive.google.com/uc?id=1MLuwQ0ZN0gJQ42oVCc0aFz6Rneb1g3Rt"

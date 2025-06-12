@@ -9,7 +9,7 @@ from helm.benchmark import model_metadata_registry
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
 from helm.common.cache_backend_config import MongoCacheBackendConfig, SqliteCacheBackendConfig
 from helm.common.general import ensure_directory_exists
-from helm.common.hierarchical_logger import hlog, htrack, htrack_block
+from helm.common.hierarchical_logger import hlog, htrack, htrack_block, setup_default_logging, hwarn
 from helm.common.authentication import Authentication
 from helm.common.object_spec import parse_object_spec, get_class_by_name
 from helm.proxy.services.remote_service import create_authentication, add_service_args
@@ -200,6 +200,105 @@ def validate_args(args):
 
 
 @htrack(None)
+def helm_run(args):
+
+    validate_args(args)
+    register_builtin_configs_from_helm_package()
+    register_configs_from_directory(args.local_path)
+
+    if args.enable_huggingface_models:
+        from helm.benchmark.huggingface_registration import register_huggingface_hub_model_from_flag_value
+
+        for huggingface_model_name in args.enable_huggingface_models:
+            register_huggingface_hub_model_from_flag_value(huggingface_model_name)
+
+    if args.enable_local_huggingface_models:
+        from helm.benchmark.huggingface_registration import register_huggingface_local_model_from_flag_value
+
+        for huggingface_model_path in args.enable_local_huggingface_models:
+            register_huggingface_local_model_from_flag_value(huggingface_model_path)
+
+    run_entries: List[RunEntry] = []
+    if args.conf_paths:
+        run_entries.extend(read_run_entries(args.conf_paths).entries)
+    if args.run_entries:
+        run_entries.extend(
+            [RunEntry(description=description, priority=1, groups=None) for description in args.run_entries]
+        )
+    # TODO: Remove this eventually.
+    if args.run_specs:
+        run_entries.extend(
+            [RunEntry(description=description, priority=1, groups=None) for description in args.run_specs]
+        )
+
+    # Must set benchmark output path before getting RunSpecs,
+    # because run spec functions can use the benchmark output directory for caching.
+    ensure_directory_exists(args.output_path)
+    set_benchmark_output_path(args.output_path)
+
+    # Validate the --models-to-run flag
+    if args.models_to_run:
+        all_models = set(model_metadata_registry.get_all_models())
+        for model_to_run in args.models_to_run:
+            if model_to_run not in all_models:
+                raise Exception(f"Unknown model '{model_to_run}' passed to --models-to-run")
+    else:
+        model_expander_wildcard_pattern = re.compile(
+            r"\bmodel=(?:all|text_code|text|code|instruction_following|full_functionality_text|limited_functionality_text)\b"  # noqa: E501
+        )
+        if any(model_expander_wildcard_pattern.search(run_entry.description) for run_entry in run_entries):
+            raise Exception("--models-to-run must be set if the `models=` run expander expands to multiple models")
+
+        model_expander_pattern = re.compile(r"\bmodel=\b")
+        if not any(model_expander_pattern.search(run_entry.description) for run_entry in run_entries):
+            raise Exception("--models-to-run must be set if the `models=` run expander is omitted")
+
+    run_specs = run_entries_to_run_specs(
+        run_entries=run_entries,
+        max_eval_instances=args.max_eval_instances,
+        num_train_trials=args.num_train_trials,
+        models_to_run=args.models_to_run,
+        groups_to_run=args.groups_to_run,
+        priority=args.priority,
+    )
+    hlog(f"{len(run_entries)} entries produced {len(run_specs)} run specs")
+
+    if len(run_specs) == 0:
+        hlog("There were no RunSpecs or they got filtered out.")
+        return
+
+    auth: Authentication = (
+        Authentication("") if args.skip_instances or not args.server_url else create_authentication(args)
+    )
+
+    run_benchmarking(
+        run_specs=run_specs,
+        auth=auth,
+        url=args.server_url,
+        local_path=args.local_path,
+        num_threads=args.num_threads,
+        output_path=args.output_path,
+        suite=args.suite,
+        dry_run=args.dry_run,
+        skip_instances=args.skip_instances,
+        cache_instances=args.cache_instances,
+        cache_instances_only=args.cache_instances_only,
+        skip_completed_runs=args.skip_completed_runs,
+        exit_on_error=args.exit_on_error,
+        runner_class_name=args.runner_class_name,
+        mongo_uri=args.mongo_uri,
+        disable_cache=args.disable_cache,
+    )
+
+    if args.run_specs:
+        hwarn(
+            "The --run-specs flag is deprecated and will be removed in a future release. " "Use --run-entries instead."
+        )
+
+    hlog("Done.")
+
+
+# Separate parsing from starting HELM so we can setup logging
 def main():
     parser = argparse.ArgumentParser()
     add_service_args(parser)
@@ -266,113 +365,10 @@ def main():
         default=None,
         help="Full class name of the Runner class to use. If unset, uses the default Runner.",
     )
-    parser.add_argument(
-        "--openvino",
-        action="store_true",
-        default=False,
-        help="Experimental: Apply openvino optimization to Hugging Face AutoModelForCausalLM models "
-        "specified with the --enable-huggingface-models and --enable-local-huggingface-models flags.",
-    )
     add_run_args(parser)
     args = parser.parse_args()
-    validate_args(args)
-
-    register_builtin_configs_from_helm_package()
-    register_configs_from_directory(args.local_path)
-
-    if args.enable_huggingface_models:
-        from helm.benchmark.huggingface_registration import register_huggingface_hub_model_from_flag_value
-
-        for huggingface_model_name in args.enable_huggingface_models:
-            if args.openvino:
-                register_huggingface_hub_model_from_flag_value(huggingface_model_name, args.openvino)
-            else:
-                register_huggingface_hub_model_from_flag_value(huggingface_model_name)
-
-    if args.enable_local_huggingface_models:
-        from helm.benchmark.huggingface_registration import register_huggingface_local_model_from_flag_value
-
-        for huggingface_model_path in args.enable_local_huggingface_models:
-            if args.openvino:
-                register_huggingface_local_model_from_flag_value(huggingface_model_path, args.openvino)
-            else:
-                register_huggingface_local_model_from_flag_value(huggingface_model_path)
-
-    run_entries: List[RunEntry] = []
-    if args.conf_paths:
-        run_entries.extend(read_run_entries(args.conf_paths).entries)
-    if args.run_entries:
-        run_entries.extend(
-            [RunEntry(description=description, priority=1, groups=None) for description in args.run_entries]
-        )
-    # TODO: Remove this eventually.
-    if args.run_specs:
-        run_entries.extend(
-            [RunEntry(description=description, priority=1, groups=None) for description in args.run_specs]
-        )
-
-    # Must set benchmark output path before getting RunSpecs,
-    # because run spec functions can use the benchmark output directory for caching.
-    ensure_directory_exists(args.output_path)
-    set_benchmark_output_path(args.output_path)
-
-    # Validate the --models-to-run flag
-    if args.models_to_run:
-        all_models = set(model_metadata_registry.get_all_models())
-        for model_to_run in args.models_to_run:
-            if model_to_run not in all_models:
-                raise Exception(f"Unknown model '{model_to_run}' passed to --models-to-run")
-    else:
-        model_expander_pattern = re.compile(
-            r"\bmodel=(?:all|text_code|text|code|instruction_following|full_functionality_text|limited_functionality_text)\b"  # noqa: E501
-        )
-        if any(model_expander_pattern.search(run_entry.description) for run_entry in run_entries):
-            raise Exception("--models-to-run must be set if the `models=` run expander expands to multiple models")
-
-    run_specs = run_entries_to_run_specs(
-        run_entries=run_entries,
-        max_eval_instances=args.max_eval_instances,
-        num_train_trials=args.num_train_trials,
-        models_to_run=args.models_to_run,
-        groups_to_run=args.groups_to_run,
-        priority=args.priority,
-    )
-    hlog(f"{len(run_entries)} entries produced {len(run_specs)} run specs")
-
-    if len(run_specs) == 0:
-        hlog("There were no RunSpecs or they got filtered out.")
-        return
-
-    auth: Authentication = (
-        Authentication("") if args.skip_instances or not args.server_url else create_authentication(args)
-    )
-
-    run_benchmarking(
-        run_specs=run_specs,
-        auth=auth,
-        url=args.server_url,
-        local_path=args.local_path,
-        num_threads=args.num_threads,
-        output_path=args.output_path,
-        suite=args.suite,
-        dry_run=args.dry_run,
-        skip_instances=args.skip_instances,
-        cache_instances=args.cache_instances,
-        cache_instances_only=args.cache_instances_only,
-        skip_completed_runs=args.skip_completed_runs,
-        exit_on_error=args.exit_on_error,
-        runner_class_name=args.runner_class_name,
-        mongo_uri=args.mongo_uri,
-        disable_cache=args.disable_cache,
-    )
-
-    if args.run_specs:
-        hlog(
-            "WARNING: The --run-specs flag is deprecated and will be removed in a future release. "
-            "Use --run-entries instead."
-        )
-
-    hlog("Done.")
+    setup_default_logging()
+    return helm_run(args)
 
 
 if __name__ == "__main__":

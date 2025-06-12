@@ -34,10 +34,20 @@ helm-server --suite $SUITE_NAME
 
 The following specifies the appropriate parameters and configuration files for a leaderboard, given its project and version number.
 
-### Lite
+### Lite for non-instruction-following models
 
 ```bash
 export RUN_ENTRIES_CONF_PATH=run_entries_lite_20240424.conf
+export SCHEMA_PATH=schema_lite.yaml
+export NUM_TRAIN_TRIALS=1
+export MAX_EVAL_INSTANCES=1000
+export PRIORITY=2
+```
+
+### Lite for instruction-following models
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_lite_20240424_output_format_instructions.conf
 export SCHEMA_PATH=schema_lite.yaml
 export NUM_TRAIN_TRIALS=1
 export MAX_EVAL_INSTANCES=1000
@@ -94,6 +104,16 @@ export NUM_EVAL_INSTANCES=1000
 export PRIORITY=2
 ```
 
+### VHELM >=v2.0.0
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_vhelm.conf
+export SCHEMA_PATH=schema_vhelm.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=1000
+export PRIORITY=2
+```
+
 ### AIR-Bench
 
 ```bash
@@ -101,5 +121,100 @@ export RUN_ENTRIES_CONF_PATH=run_entries_air_bench.conf
 export SCHEMA_PATH=schema_air_bench.yaml
 export NUM_TRAIN_TRIALS=1
 export NUM_EVAL_INSTANCES=10000
+export PRIORITY=2
+```
+
+### Safety
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_safety.conf
+export SCHEMA_PATH=schema_safety.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=1000
+export PRIORITY=2
+```
+
+### ToRR
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_torr.conf
+export SCHEMA_PATH=schema_torr.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=100
+export PRIORITY=2
+```
+
+### SEA-HELM
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_seahelm_zero_shot.conf
+export SCHEMA_PATH=schema_seahelm.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=1000
+export PRIORITY=2
+```
+
+### MedHELM
+
+> Benchmarks in MedHELM fall under three types of data access: **public**, **gated**, and **private**.  
+> See the [Benchmark Access Levels](medhelm.md#benchmark-access-levels) section in `medhelm.md` to learn more about each access type and example sources.
+
+#### Public Benchmarks
+
+Benchmarks that are fully open and freely available to the public.
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_medhelm_public.conf
+export SCHEMA_PATH=schema_medhelm.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=1000
+export PRIORITY=2
+```
+
+#### Gated Benchmarks
+
+Benchmarks that are publicly available but require credentials or approval to access (e.g., PhysioNet).
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_medhelm_gated.conf
+export SCHEMA_PATH=schema_medhelm.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=1000
+export PRIORITY=2
+```
+
+#### Private Benchmarks
+
+Benchmarks accessible only to specific organizations.
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_medhelm_private_{organization}.conf
+export SCHEMA_PATH=schema_medhelm.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=1000
+export PRIORITY=2
+```
+
+### ViLLM
+
+ViLLM is experimental and is not intended for production use yet.
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_melt.conf
+export SCHEMA_PATH=schema_melt.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=1000
+export PRIORITY=2
+```
+
+### SLPHelm
+
+SLPHelm is experimental and is not intended for production use yet.
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_slphelm.conf
+export SCHEMA_PATH=schema_slphelm.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=1000
 export PRIORITY=2
 ```

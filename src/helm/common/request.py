@@ -4,7 +4,8 @@ from typing import Any, Callable, Dict, List, Optional
 
 from helm.common.media_object import MultimediaObject
 from helm.common.image_generation_parameters import ImageGenerationParameters
-from .general import indent_lines, format_text
+from helm.common.general import indent_lines, format_text
+from helm.common.response_format import ResponseFormat
 
 
 @dataclass(frozen=True)
@@ -72,6 +73,9 @@ class Request:
     image_generation_parameters: Optional[ImageGenerationParameters] = None
     """Parameters for image generation."""
 
+    response_format: Optional[ResponseFormat] = None
+    """EXPERIMENTAL: Response format. Currently only supported by OpenAI and Together."""
+
     def validate(self):
         if (
             (self.messages and self.prompt)
@@ -128,6 +132,11 @@ class Token:
 
 
 @dataclass(frozen=True)
+class Thinking:
+    text: Optional[str] = None
+
+
+@dataclass(frozen=True)
 class GeneratedOutput:
     """A `GeneratedOutput` is a single generated output that may contain text or multimodal content."""
 
@@ -145,6 +154,9 @@ class GeneratedOutput:
 
     # Could be a sequence made up of multimedia content
     multimodal_content: Optional[MultimediaObject] = None
+
+    # Could be reasoning
+    thinking: Optional[Thinking] = None
 
     def __add__(self, other: "GeneratedOutput") -> "GeneratedOutput":
         return GeneratedOutput(self.text + other.text, self.logprob + other.logprob, self.tokens + other.tokens)
@@ -193,7 +205,7 @@ class RequestResult:
     """Whether the request was actually cached"""
 
     request_time: Optional[float] = None
-    """How long did the request take?"""
+    """How long the request took in seconds"""
 
     request_datetime: Optional[int] = None
     """When was the request sent?

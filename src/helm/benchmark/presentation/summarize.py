@@ -9,12 +9,10 @@ Usage:
 """
 
 import argparse
-import cattrs
 import os
 import datetime
 import urllib.parse
 import json
-import yaml
 from collections import defaultdict
 from dataclasses import dataclass, replace
 from statistics import mean, median
@@ -32,11 +30,9 @@ from helm.common.general import (
     unique_simplification,
 )
 from helm.common.codec import from_json
-from helm.common.hierarchical_logger import hlog, htrack, htrack_block
+from helm.common.hierarchical_logger import hlog, htrack, htrack_block, hwarn, setup_default_logging
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.benchmark.data_overlap.data_overlap_spec import DataOverlapStats, GroupOverlapStats
-from helm.benchmark.data_overlap.light_scenario import ScenarioSpecInstanceIds
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric import get_all_stats_by_name
 from helm.benchmark.metrics.statistic import Stat, merge_stat
@@ -56,9 +52,10 @@ from helm.benchmark.presentation.schema import (
 from helm.benchmark.config_registry import register_builtin_configs_from_helm_package, register_configs_from_directory
 from helm.benchmark.presentation.run_display import write_run_display_json
 from helm.benchmark.model_metadata_registry import ModelMetadata, get_model_metadata, get_all_models
+from helm.common.object_spec import get_class_by_name
 
 
-OVERLAP_N_COUNT = 13
+MODEL_HEADER_CELL_VALUE = "Model"
 
 
 @dataclass(frozen=True)
@@ -105,7 +102,7 @@ def get_unique_stat_by_matcher(stats: List[Stat], matcher: MetricNameMatcher) ->
         # This is necessary for prompting ablations at the moment, since some scenarios normally have quasi_exact_match
         # as the main metric but multiple_choice_separate_original only generates exact_match
         if matcher.name == "quasi_exact_match":
-            hlog("WARNING: No quasi_exact_match metric found, looking for exact_match instead")
+            hwarn("No quasi_exact_match metric found, looking for exact_match instead")
             matcher = replace(matcher, name="exact_match")
             matching_stats = [stat for stat in stats if matcher.matches(stat.name)]
             if len(matching_stats) == 0:
@@ -226,17 +223,27 @@ def compute_aggregate_row_win_rates(table: Table, aggregation: str = "mean") -> 
     """
     assert aggregation in ["mean", "median"]
     win_rates_per_row: List[List[float]] = [[] for _ in table.rows]
-    for i, header_cell in enumerate(table.header):
+    for column_index, header_cell in enumerate(table.header):
         lower_is_better = header_cell.lower_is_better
         if lower_is_better is None:  # column does not have a meaningful ordering
             continue
-
-        values = [(row[i].value, j) for j, row in enumerate(table.rows) if row[i].value is not None]
-        if len(values) < 2:  # don't rank a single model
+        value_to_count: Dict[float, int] = defaultdict(int)
+        for row in table.rows:
+            value = row[column_index].value
+            if value is not None:
+                value_to_count[value] += 1
+        value_to_wins: Dict[float, float] = {}
+        acc_count = 0
+        for value, value_count in sorted(value_to_count.items(), reverse=lower_is_better):
+            value_to_wins[value] = acc_count + ((value_count - 1) / 2)
+            acc_count += value_count
+        total_count = acc_count
+        if total_count < 2:
             continue
-        for wins, (v, j) in enumerate(sorted(values, reverse=lower_is_better)):
-            win_rate = wins / (len(values) - 1)  # normalize to [0, 1]
-            win_rates_per_row[j].append(win_rate)
+        for row_index, row in enumerate(table.rows):
+            value = row[column_index].value
+            if value is not None:
+                win_rates_per_row[row_index].append(value_to_wins[row[column_index].value] / (total_count - 1))
 
     # Note: the logic up to here is somewhat general as it simply computes win rates across columns for each row.
     # Here, we simply average these win rates but we might want some more involved later (e.g., weighted average).
@@ -251,7 +258,48 @@ def compute_aggregate_row_win_rates(table: Table, aggregation: str = "mean") -> 
     return aggregate_win_rates
 
 
-AGGREGATE_WIN_RATE_COLUMN = 1
+def compute_aggregate_row_means(table: Table) -> List[Optional[float]]:
+    """
+    Computes the aggregate mean of each row across columns.
+    Returns a list of means, one per row, with None if a row was never meaningfully comparable (i.e., all
+    non-null values of the row are in columns we skip).
+    """
+
+    row_means: List[Optional[float]] = []
+    # if the first column contains the names of models, do not treat it like a value column
+    skip_first_column = table.header and table.header[0].value == MODEL_HEADER_CELL_VALUE
+
+    # check for all header cells where specified, that lower_is_better is consistent
+    orderings = []
+    header_cells = table.header[1:] if skip_first_column else table.header
+    for header_cell in header_cells:
+        orderings.append(header_cell.lower_is_better)
+    if len(set(orderings)) != 1:
+        raise Exception("Cannot mean columns with different values for lower_is_better")
+
+    for row in table.rows:
+        total = 0.0
+        count = 0
+        row_cells = row[1:] if skip_first_column else row
+        for cell in row_cells:
+            if cell.value is not None:
+                total += float(cell.value)
+                count += 1
+        if count == 0:
+            row_means.append(None)
+        else:
+            row_means.append(total / count)
+
+    return row_means
+
+
+class AggregationStrategy:
+    # TODO: Convert to StrEnum after upgrading to Python 3.11
+    WIN_RATE = "win_rate"
+    MEAN = "mean"
+
+
+ALL_AGGREGATION_STRATEGIES = [AggregationStrategy.WIN_RATE, AggregationStrategy.MEAN]
 
 
 class Summarizer:
@@ -358,8 +406,8 @@ class Summarizer:
                 included = False
             for run_group_name in run.run_spec.groups:  # go through the groups of the run to determine visibility
                 if run_group_name not in self.schema.name_to_run_group:
-                    hlog(
-                        f"WARNING: group {run_group_name} mentioned in run spec {run.run_spec.name} "
+                    hwarn(
+                        f"group {run_group_name} mentioned in run spec {run.run_spec.name} "
                         f"but undefined in {self.schema_path}, skipping"
                     )
                     continue
@@ -392,14 +440,14 @@ class Summarizer:
             run_spec_path: str = os.path.join(run_suite_path, run_dir_name, "run_spec.json")
             stats_path: str = os.path.join(run_suite_path, run_dir_name, "stats.json")
             if not os.path.exists(run_spec_path) or not os.path.exists(stats_path):
-                hlog(f"WARNING: {run_dir_name} doesn't have run_spec.json or stats.json, skipping")
+                hwarn(f"{run_dir_name} doesn't have run_spec.json or stats.json, skipping")
                 continue
             run_path: str = os.path.join(run_suite_path, run_dir_name)
             run = self.read_run(run_path)
             self.runs.append(run)
             if run.run_spec.name in self.runs_to_run_suites:
-                hlog(
-                    f"WARNING: Run entry {run.run_spec.name} is present in two different Run Suites. "
+                hwarn(
+                    f"Run entry {run.run_spec.name} is present in two different Run Suites. "
                     f"Defaulting to the latest assigned suite: {suite}"
                 )
             self.runs_to_run_suites[run.run_spec.name] = suite
@@ -483,137 +531,6 @@ class Summarizer:
         for suite, run_suite_path in zip(self.suites, self.run_suite_paths):
             self.read_runs_for_suite(suite, run_suite_path)
 
-    def read_overlap_stats(self):
-        """
-        Load the overlap stats in the run suite path.
-        Concretely:
-            - get group -> scenario_spec information from self.runs
-                run_spec data
-            - read the files in the data_overlap directory in run_suite_path
-                which are scenario_spec -> overlap ids
-            - get aggregate stats for group -> overlap ratio
-        """
-
-        def get_group_to_scenario_specs(run_specs: List[RunSpec]) -> Dict[str, List[ScenarioSpec]]:
-            scenario_specs_to_groups: Dict[ScenarioSpec, List[str]] = {}
-            for run_spec in run_specs:
-                scenario_spec = run_spec.scenario_spec
-                groups = run_spec.groups
-                if (
-                    scenario_spec.class_name
-                    != "helm.benchmark.scenarios.synthetic_efficiency_scenario.SyntheticEfficiencyScenario"
-                ):
-                    scenario_specs_to_groups[scenario_spec] = groups
-
-            group_to_scenario_specs: Dict[str, List[ScenarioSpec]] = {}
-            for scenario_spec, groups in scenario_specs_to_groups.items():
-                for group in groups:
-                    if group not in group_to_scenario_specs:
-                        group_to_scenario_specs[group] = []
-                    group_to_scenario_specs[group].append(scenario_spec)
-            return group_to_scenario_specs
-
-        def get_stats_file_metadata(data_overlap_dir: str) -> Dict[str, List[str]]:
-            """
-            Takes the data_overlap_dir as input and returns a dictionary
-            of stats_file_path -> List(model_names)
-
-            Sample input:
-            file_models_mapping:
-            - file_name: file1
-                model_names:
-                - model1
-                - model2
-            - file_name: file2
-                model_names:
-                - model2
-                - model3
-
-            """
-            metadata_file_path: str = os.path.join(data_overlap_dir, "metadata.yaml")
-            if not os.path.exists(metadata_file_path):
-                return {}
-
-            with open(metadata_file_path, "r") as yaml_file:
-                data = yaml.safe_load(yaml_file)
-
-            file_metadata: Dict[str, List[str]] = {}
-            for entry in data["file_models_mapping"]:
-                if "file_name" in entry and "model_names" in entry:
-                    file_path: str = os.path.join(data_overlap_dir, entry["file_name"])
-                    file_metadata[file_path] = entry["model_names"]
-
-            return file_metadata
-
-        # TODO: Delete this after @andyzorigin's project is done.
-        self._model_group_overlap_stats: Dict[Tuple[str, str], GroupOverlapStats] = {}
-
-        data_overlap_dir = os.path.join(self.run_release_path, "data_overlap")
-        if not os.path.isdir(data_overlap_dir):
-            hlog(f"Directory {data_overlap_dir} not found; skipped import of overlap results.")
-            return
-
-        group_to_scenario_specs = get_group_to_scenario_specs([run.run_spec for run in self.runs])
-
-        stats_file_metadata = get_stats_file_metadata(data_overlap_dir)
-
-        for file_path, model_names in stats_file_metadata.items():
-            overlap_stats_jsons = open(file_path, "r").readlines()
-
-            data_overlap_stats_list: List[DataOverlapStats] = []
-            for overlap_stats_json in overlap_stats_jsons:
-                overlap_stats_dict = json.loads(overlap_stats_json)
-                data_overlap_stats_list.append(cattrs.structure(overlap_stats_dict, DataOverlapStats))
-
-            scenario_spec_overlap_counts: Dict[ScenarioSpec, Tuple[int, int, int]] = {}
-            for data_overlap_stats in data_overlap_stats_list:
-                data_overlap_stats_key = data_overlap_stats.data_overlap_stats_key
-                n = data_overlap_stats_key.overlap_protocol_spec.n
-                if n == OVERLAP_N_COUNT:
-                    light_scenario_key = data_overlap_stats_key.light_scenario_key
-                    scenario_spec = light_scenario_key.scenario_spec
-                    if scenario_spec in self.scenario_spec_instance_id_dict:
-                        # Get statistics based on the subset of instance_ids that HELM uses for a scenario
-                        instance_ids = self.scenario_spec_instance_id_dict[scenario_spec]
-                        num_instances = len(instance_ids)
-                        num_overlapping_inputs = len(
-                            set(data_overlap_stats.instance_ids_with_overlapping_input) & set(instance_ids)
-                        )
-                        num_overlapping_references = len(
-                            set(data_overlap_stats.instance_ids_with_overlapping_reference) & set(instance_ids)
-                        )
-                        scenario_spec_overlap_counts[scenario_spec] = (
-                            num_instances,
-                            num_overlapping_inputs,
-                            num_overlapping_references,
-                        )
-
-            for group, scenario_specs in group_to_scenario_specs.items():
-                group_num_instances = 0
-                group_num_overlapping_inputs = 0
-                group_num_overlapping_references = 0
-                for scenario_spec in scenario_specs:
-                    if scenario_spec in scenario_spec_overlap_counts:
-                        (
-                            num_instances,
-                            num_overlapping_inputs,
-                            num_overlapping_references,
-                        ) = scenario_spec_overlap_counts[scenario_spec]
-                        group_num_instances += num_instances
-                        group_num_overlapping_inputs += num_overlapping_inputs
-                        group_num_overlapping_references += num_overlapping_references
-                if group_num_instances != 0:
-                    group_overlap_stats = GroupOverlapStats(
-                        group=group,
-                        num_instances=group_num_instances,
-                        num_overlapping_inputs=group_num_overlapping_inputs,
-                        num_overlapping_references=group_num_overlapping_references,
-                    )
-                    for model_name in model_names:
-                        # Assume model name will only be associated with single group overlap list for now
-                        # can update to join lists if need arises
-                        self._model_group_overlap_stats[(model_name, group)] = group_overlap_stats
-
     @htrack(None)
     def check_metrics_defined(self):
         """Check that all the metrics that appear in stats are defined."""
@@ -627,8 +544,8 @@ class Summarizer:
 
         for metric_name, run_spec_names in metric_name_to_run_spec_names.items():
             if metric_name not in defined_metric_names:
-                hlog(
-                    f"WARNING: metric name {metric_name} undefined in {self.schema_path} "
+                hwarn(
+                    f"metric name {metric_name} undefined in {self.schema_path} "
                     f"but appears in {len(run_spec_names)} run specs, including {run_spec_names[0]}"
                 )
 
@@ -821,8 +738,8 @@ class Summarizer:
             if stat is None:
                 # Print out near misses to provide a more informative warning
                 near_misses = [stat for stat in run.stats if stat.name.name == matcher.name]
-                hlog(
-                    f"WARNING: run spec {run.run_spec.name} does not have any stat matched by {matcher}, "
+                hwarn(
+                    f"run spec {run.run_spec.name} does not have any stat matched by {matcher}, "
                     f"{len(near_misses)} near misses matching just the name"
                 )
                 if len(near_misses) > 0:
@@ -880,7 +797,7 @@ class Summarizer:
         sort_by_model_order: bool = True,
         sub_split: Optional[str] = None,
         bold_columns: bool = True,
-        add_win_rate: bool = False,
+        aggregation_strategies: List[str] = [],
     ) -> Table:
         """
         Create a table for where each row is an adapter (for which we have a set of runs) and columns are pairs of
@@ -893,7 +810,7 @@ class Summarizer:
         # Create header (cells to display) and the list of metric name filters
         # (to pull out information later).
         if not columns or not adapter_to_runs:
-            hlog(f"WARNING: table {title}, has no rows or columns, leaving empty")
+            hwarn(f"table {title}, has no rows or columns, leaving empty")
             return Table("empty", [], [])
 
         header: List[HeaderCell] = []
@@ -902,7 +819,7 @@ class Summarizer:
         num_groups = len(set(run_group.name for run_group, _ in columns))  # number of unique groups, determines headers
 
         # Column headers
-        header.append(HeaderCell("Model/adapter"))
+        header.append(HeaderCell(MODEL_HEADER_CELL_VALUE))
         for run_group, metric_group_name in columns:
             # check if at least the basic version of a metric group is evaluated (e.g., "bias" for "bias_detailed")
             if metric_group_name.replace("_detailed", "") not in run_group.metric_groups:
@@ -914,7 +831,7 @@ class Summarizer:
                     matcher = replace(matcher, sub_split=sub_split)
                 header_field = self.schema.name_to_metric.get(matcher.name)
                 if header_field is None:
-                    hlog(f"WARNING: metric name {matcher.name} undefined in {self.schema_path}, skipping")
+                    hwarn(f"metric name {matcher.name} undefined in {self.schema_path}, skipping")
                     continue
                 metadata = {
                     "metric": header_field.get_short_display_name(),
@@ -1016,16 +933,6 @@ class Summarizer:
 
                 description = ""
 
-                group_overlap_stats = None
-                if (model_name, group_name) in self._model_group_overlap_stats:
-                    group_overlap_stats = self._model_group_overlap_stats[(model_name, group_name)]
-
-                    description = (
-                        f"Overlapping input ratio: {group_overlap_stats.overlapping_input_ratio:.3f}\n"
-                        f"Overlapping reference ratio: {group_overlap_stats.overlapping_reference_ratio:.3f}\n"
-                        f"{description}"
-                    )
-
                 # HACK: we want to hide stats for the following model-metric combinations:
                 # 1. Calibration metrics + AI21/Anthropic
                 # 2. MSMARCO metrics + AI21/Anthropic
@@ -1052,8 +959,8 @@ class Summarizer:
             all_run_spec_names = []
             for adapter_spec, runs in adapter_to_runs.items():
                 if len(runs) > 1:
-                    hlog(
-                        f"WARNING: table row corresponding to adapter spec {adapter_spec} has {len(runs)} > 1 runs:"
+                    hwarn(
+                        f"table row corresponding to adapter spec {adapter_spec} has {len(runs)} > 1 runs:"
                         f" {[run.run_spec.name for run in runs]}"
                     )
                 for run in runs:
@@ -1063,21 +970,42 @@ class Summarizer:
 
         table = Table(title=title, header=header, rows=rows, links=links, name=name)
 
-        if add_win_rate:
-            # add overall win rate as the second column
-            WIN_RATE_AGGREGATION = "mean"
-            win_rates = compute_aggregate_row_win_rates(table, aggregation=WIN_RATE_AGGREGATION)
-            description = "How many models this model outperform on average (over columns)."
-            table.header.insert(
-                AGGREGATE_WIN_RATE_COLUMN,
-                HeaderCell(
-                    f"{WIN_RATE_AGGREGATION.capitalize()} win rate",
-                    description=description,
-                    lower_is_better=False,
-                ),
-            )
-            for row, win_rate in zip(table.rows, win_rates):
-                row.insert(AGGREGATE_WIN_RATE_COLUMN, Cell(win_rate))
+        aggregate_header_cells: List[HeaderCell] = []
+        aggregate_row_values: List[List[Optional[float]]] = []
+
+        for strategy in aggregation_strategies:
+            if strategy == AggregationStrategy.WIN_RATE:
+                WIN_RATE_AGGREGATION = "mean"
+                win_rates = compute_aggregate_row_win_rates(table, aggregation=WIN_RATE_AGGREGATION)
+                aggregate_header_cells.append(
+                    HeaderCell(
+                        f"{WIN_RATE_AGGREGATION.capitalize()} win rate",
+                        description="How many models this model outperforms on average (over columns).",
+                        lower_is_better=False,
+                    )
+                )
+                aggregate_row_values.append(win_rates)
+            elif strategy == AggregationStrategy.MEAN:
+                means = compute_aggregate_row_means(table)
+                aggregate_header_cells.append(
+                    HeaderCell(
+                        "Mean score",
+                        description="The mean of the scores from all columns.",
+                        lower_is_better=table.header[0].lower_is_better,
+                    )
+                )
+                aggregate_row_values.append(means)
+            else:
+                raise Exception(
+                    f"Unknown aggregation strategy found: {strategy}. Please use one of: {ALL_AGGREGATION_STRATEGIES}"
+                )
+
+        for i in range(len(aggregate_header_cells)):
+            aggregate_header_cell = aggregate_header_cells[i]
+            aggregate_rows = aggregate_row_values[i]
+            table.header.insert(i + 1, aggregate_header_cell)
+            for row, row_val in zip(table.rows, aggregate_rows):
+                row.insert(i + 1, Cell(row_val))
 
         if bold_columns:
             for i, header_cell in enumerate(table.header):
@@ -1125,14 +1053,22 @@ class Summarizer:
 
         if len(adapter_to_runs) > 0:
             for metric_group in all_metric_groups:
-                display_name = self.schema.name_to_metric_group[metric_group].get_short_display_name()
+                metric_group_config = self.schema.name_to_metric_group[metric_group]
+                display_name = metric_group_config.get_short_display_name()
+                aggregate_strategies: List[str]
+                if metric_group_config.aggregation_strategies is not None:
+                    aggregate_strategies = metric_group_config.aggregation_strategies
+                elif metric_group_config.hide_win_rates:
+                    aggregate_strategies = []
+                else:
+                    aggregate_strategies = [AggregationStrategy.WIN_RATE]
                 table = self.create_group_table(
                     name=metric_group,
                     title=display_name,
                     adapter_to_runs=adapter_to_runs,
                     columns=[(subgroup, metric_group) for subgroup in subgroups],
                     is_scenario_table=False,
-                    add_win_rate=not self.schema.name_to_metric_group[metric_group].hide_win_rates,
+                    aggregation_strategies=aggregate_strategies,
                 )
                 tables.append(table)
         return tables
@@ -1262,72 +1198,6 @@ class Summarizer:
 
         parallel_map(process, self.runs, parallelism=self.num_threads)
 
-    def read_scenario_spec_instance_ids(self, num_instances) -> None:
-        """
-        This file checks if there exists a file, scenario_spec_instance_ids.json
-        that it can read the instance_ids associated with scenario_specs.
-
-        It will write the num_instances used in the run as part of the file name
-
-        If it doesn't exist, it will go through all the scenario_state files
-        and parse the instance_ids and output it to the file for future uses
-
-        Only when the scenario_specs for the data overlap script change
-        (or num_instances are different), will this need to be rerun.
-
-        In such cases, do not include the file as part of the data_overlap directory.
-        """
-        self.scenario_spec_instance_id_dict: Dict[ScenarioSpec, List[str]] = dict()
-
-        data_overlap_dir = os.path.join(self.run_release_path, "data_overlap")
-        if not os.path.isdir(data_overlap_dir):
-            hlog(f"Directory {data_overlap_dir} not found; skipped producing instance ids file.")
-            return
-
-        scenario_spec_instance_ids_json = os.path.join(
-            data_overlap_dir, f"scenario_spec_instance_ids_{num_instances}.jsonl"
-        )
-        if not os.path.exists(scenario_spec_instance_ids_json):
-            hlog(f"No scenario spec instance ids json, writing to {scenario_spec_instance_ids_json}")
-            self.write_scenario_spec_instance_ids_json(scenario_spec_instance_ids_json)
-        else:
-            hlog(f"Reading scenario spec instance ids json from {scenario_spec_instance_ids_json}")
-            scenario_spec_instance_ids_jsons = open(scenario_spec_instance_ids_json, "r").readlines()
-
-            for scenario_spec_instance_ids_json in scenario_spec_instance_ids_jsons:
-                scenario_spec_instance_ids_dict = json.loads(scenario_spec_instance_ids_json)
-                scenario_spec_instance_ids = cattrs.structure(scenario_spec_instance_ids_dict, ScenarioSpecInstanceIds)
-                self.scenario_spec_instance_id_dict[scenario_spec_instance_ids.scenario_spec] = (
-                    scenario_spec_instance_ids.instance_ids
-                )
-
-    def write_scenario_spec_instance_ids_json(self, file_path) -> None:
-        for run in self.runs:
-            run_spec = run.run_spec
-            scenario_spec = run_spec.scenario_spec
-            if scenario_spec in self.scenario_spec_instance_id_dict:
-                continue
-
-            run_path = run.run_path
-            instances_file_path = os.path.join(run_path, "instances.json")
-            with open(instances_file_path, "r") as f:
-                raw_instances = json.load(f)
-
-            # Optimization: Don't structure to dataclass, since we only need to read `id`
-            instance_ids = [raw_instance["id"] for raw_instance in raw_instances]
-            self.scenario_spec_instance_id_dict[scenario_spec] = instance_ids
-
-        all_scenario_spec_instance_ids = []
-        for scenario_spec, instance_ids in self.scenario_spec_instance_id_dict.items():
-            scenario_spec_instance_ids = ScenarioSpecInstanceIds(scenario_spec=scenario_spec, instance_ids=instance_ids)
-            all_scenario_spec_instance_ids.append(scenario_spec_instance_ids)
-
-        with open(file_path, "w") as f:
-            f.writelines(
-                f"{json.dumps(asdict_without_nones(scenario_spec_instance_ids))}\n"
-                for scenario_spec_instance_ids in all_scenario_spec_instance_ids
-            )
-
     def symlink_latest(self) -> None:
         # Create a symlink runs/latest -> runs/<name_of_suite>,
         # so runs/latest always points to the latest run suite.
@@ -1339,21 +1209,13 @@ class Summarizer:
             os.unlink(symlink_path)
         os.symlink(os.path.basename(self.run_release_path), symlink_path)
 
-    def run_pipeline(self, skip_completed: bool, num_instances: int) -> None:
+    def run_pipeline(self, skip_completed: bool) -> None:
         """Run the entire summarization pipeline."""
         self.read_runs()
         self.group_runs()
         self.check_metrics_defined()
 
         self.write_run_display_json(skip_completed)
-
-        # Must happen after summarizer.write_run_display_json()
-        # because it uses instances.json files
-        self.read_scenario_spec_instance_ids(num_instances)
-
-        # Must happen after summarizer.read_scenario_spec_instance_ids()
-        # because it uses self.scenario_spec_instance_id_dict
-        self.read_overlap_stats()
 
         # Must happen after self.read_runs()
         # because it uses self.runs
@@ -1370,60 +1232,7 @@ class Summarizer:
 
 
 @htrack("summarize")
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-o", "--output-path", type=str, help="Where the benchmarking output lives", default="benchmark_output"
-    )
-    parser.add_argument(
-        "--schema-path",
-        type=str,
-        help="Path to the schema file (e.g., schema_classic.yaml).",
-    )
-    parser.add_argument(
-        "--suite",
-        type=str,
-        help="Name of the suite this summarization should go under.",
-    )
-    parser.add_argument(
-        "--release",
-        type=str,
-        help="Experimental: Name of the release this summarization should go under.",
-    )
-    parser.add_argument(
-        "--suites", type=str, nargs="+", help="Experimental: List of suites to summarize for this this release."
-    )
-    parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads used to summarize", default=8)
-    parser.add_argument(
-        "--debug",
-        action="store_true",
-        help="Display debugging information.",
-    )
-    parser.add_argument(
-        "--skip-completed-run-display-json",
-        action="store_true",
-        help="Skip write_run_display_json() for runs which already have all output display JSON files",
-    )
-    parser.add_argument(
-        "-num-instances",
-        type=int,
-        help="Number of instance ids we're using; only for annotating scenario spec instance ids file",
-        default=1000,
-    )
-    parser.add_argument(
-        "--local-path",
-        type=str,
-        help="If running locally, the path for `ServerService`.",
-        default="prod_env",
-    )
-    parser.add_argument(
-        "--allow-unknown-models",
-        type=bool,
-        help="Whether to allow unknown models in the metadata file",
-        default=True,
-    )
-    args = parser.parse_args()
-
+def summarize(args):
     release: Optional[str] = None
     suites: Optional[str] = None
     suite: Optional[str] = None
@@ -1451,7 +1260,8 @@ def main():
     register_configs_from_directory(args.local_path)
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
-    summarizer = Summarizer(
+    summarizer_cls = get_class_by_name(args.summarizer_class_name) if args.summarizer_class_name else Summarizer
+    summarizer = summarizer_cls(
         release=release,
         suites=suites,
         suite=suite,
@@ -1461,8 +1271,78 @@ def main():
         num_threads=args.num_threads,
         allow_unknown_models=args.allow_unknown_models,
     )
-    summarizer.run_pipeline(skip_completed=args.skip_completed_run_display_json, num_instances=args.num_instances)
+    summarizer.run_pipeline(skip_completed=args.skip_completed_run_display_json)
     hlog("Done.")
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-o",
+        "--output-path",
+        type=str,
+        help="Where the benchmarking output lives",
+        default="benchmark_output",
+    )
+    parser.add_argument(
+        "--schema-path",
+        type=str,
+        help="Path to the schema file (e.g., schema_classic.yaml).",
+    )
+    parser.add_argument(
+        "--suite",
+        type=str,
+        help="Name of the suite this summarization should go under.",
+    )
+    parser.add_argument(
+        "--release",
+        type=str,
+        help="Experimental: Name of the release this summarization should go under.",
+    )
+    parser.add_argument(
+        "--suites",
+        type=str,
+        nargs="+",
+        help="Experimental: List of suites to summarize for this this release.",
+    )
+    parser.add_argument(
+        "-n",
+        "--num-threads",
+        type=int,
+        help="Max number of threads used to summarize",
+        default=8,
+    )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Display debugging information.",
+    )
+    parser.add_argument(
+        "--skip-completed-run-display-json",
+        action="store_true",
+        help="Skip write_run_display_json() for runs which already have all output display JSON files",
+    )
+    parser.add_argument(
+        "--local-path",
+        type=str,
+        help="If running locally, the path for `ServerService`.",
+        default="prod_env",
+    )
+    parser.add_argument(
+        "--allow-unknown-models",
+        type=bool,
+        help="Whether to allow unknown models in the metadata file",
+        default=True,
+    )
+    parser.add_argument(
+        "--summarizer-class-name",
+        type=str,
+        default=None,
+        help="EXPERIMENTAL: Full class name of the Summarizer class to use. If unset, uses the default Summarizer.",
+    )
+    args = parser.parse_args()
+    setup_default_logging()
+    summarize(args)
 
 
 if __name__ == "__main__":

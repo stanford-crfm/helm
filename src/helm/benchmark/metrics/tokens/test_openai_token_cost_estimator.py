@@ -7,8 +7,8 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.authentication import Authentication
 from helm.common.request import Request
 from helm.common.tokenization_request import TokenizationRequestResult, TokenizationToken
-from helm.proxy.services.remote_service import RemoteService
-from .openai_token_cost_estimator import OpenAITokenCostEstimator
+from helm.common.remote_context import RemoteContext
+from helm.benchmark.metrics.tokens.openai_token_cost_estimator import OpenAITokenCostEstimator
 
 
 class TestOpenAITokenCostEstimator:
@@ -23,7 +23,7 @@ class TestOpenAITokenCostEstimator:
 
     def setup_method(self, method):
         self._token_cost_estimator = OpenAITokenCostEstimator()
-        self._mock_metric_service = MetricService(RemoteService("DUMMY_URL"), Authentication(api_key="test"))
+        self._mock_metric_service = MetricService(RemoteContext("DUMMY_URL", Authentication(api_key="test")))
         gpt2_tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
         tokenization_request_result = TokenizationRequestResult(
             success=True,

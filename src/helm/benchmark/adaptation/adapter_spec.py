@@ -2,16 +2,19 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 from helm.common.image_generation_parameters import ImageGenerationParameters
+from helm.common.reeval_parameters import REEvalParameters
 
 
 # Adaptation methods
 ADAPT_GENERATION: str = "generation"
+ADAPT_CHAT: str = "chat"
 ADAPT_LANGUAGE_MODELING: str = "language_modeling"
 ADAPT_MULTIPLE_CHOICE_JOINT: str = "multiple_choice_joint"
+ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT: str = "multiple_choice_joint_chain_of_thought"
 ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL: str = "multiple_choice_separate_original"
 ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED: str = "multiple_choice_separate_calibrated"
 ADAPT_RANKING_BINARY: str = "ranking_binary"
-
+ADAPT_EHR_INSTRUCTION: str = "ehr_instruction"
 ADAPT_MULTIPLE_CHOICE_SEPARATE_METHODS: List[str] = [
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
@@ -62,6 +65,12 @@ class AdapterSpec:
 
     reference_suffix: str = "\n"
     """The string that is included after each reference (for multiple-choice questions)."""
+
+    chain_of_thought_prefix: str = ""
+    """The string that is included before each chain of thought. (e.g., 'Let\'s think step by step')"""
+
+    chain_of_thought_suffix: str = "\n"
+    """The string that is included after each chain of thought. (e.g., 'The correct answer is')"""
 
     output_prefix: str = "Output: "
     """The string that is included before the correct answer/predicted output (e.g., 'Answer:')."""
@@ -123,6 +132,9 @@ class AdapterSpec:
 
     image_generation_parameters: Optional[ImageGenerationParameters] = None
     """Parameters for image generation."""
+
+    reeval_parameters: Optional[REEvalParameters] = None
+    """Parameters for reeval evaluation."""
 
     # Set hash=False to make `AdapterSpec` hashable
     eval_splits: Optional[List[str]] = field(default=None, hash=False)

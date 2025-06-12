@@ -1,0 +1,763 @@
+---
+############################################################
+metrics:
+  # Infrastructure metrics:
+  - name: num_perplexity_tokens
+    display_name: '# tokens'
+    description: Average number of tokens in the predicted output (for language modeling, the input too).
+  - name: num_bytes
+    display_name: '# bytes'
+    description: Average number of bytes in the predicted output (for language modeling, the input too).
+
+  - name: num_references
+    display_name: '# ref'
+    description: Number of references.
+  - name: num_train_trials
+    display_name: '# trials'
+    description: Number of trials, where in each trial we choose an independent, random set of training instances.
+  - name: estimated_num_tokens_cost
+    display_name: 'cost'
+    description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
+  - name: num_prompt_tokens
+    display_name: '# prompt tokens'
+    description: Number of tokens in the prompt.
+  - name: num_prompt_characters
+    display_name: '# prompt chars'
+    description: Number of characters in the prompt.
+  - name: num_completion_tokens
+    display_name: '# completion tokens'
+    description: Actual number of completion tokens (over all completions).
+  - name: num_output_tokens
+    display_name: '# output tokens'
+    description: Actual number of output tokens.
+  - name: max_num_output_tokens
+    display_name: 'Max output tokens'
+    description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
+  - name: num_requests
+    display_name: '# requests'
+    description: Number of distinct API requests.
+  - name: num_instances
+    display_name: '# eval'
+    description: Number of evaluation instances.
+  - name: num_train_instances
+    display_name: '# train'
+    description: Number of training instances (e.g., in-context examples).
+  - name: prompt_truncated
+    display_name: truncated
+    description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
+  - name: finish_reason_length
+    display_name: finish b/c length
+    description: Fraction of instances where the the output was terminated because of the max tokens limit.
+  - name: finish_reason_stop
+    display_name: finish b/c stop
+    description: Fraction of instances where the the output was terminated because of the stop sequences.
+  - name: finish_reason_endoftext
+    display_name: finish b/c endoftext
+    description: Fraction of instances where the the output was terminated because the end of text token was generated.
+  - name: finish_reason_unknown
+    display_name: finish b/c unknown
+    description: Fraction of instances where the the output was terminated for unknown reasons.
+  - name: num_completions
+    display_name: '# completions'
+    description: Number of completions.
+  - name: predicted_index
+    display_name: Predicted index
+    description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
+
+  # Accuracy metrics:
+  - name: exact_match
+    display_name: Exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_exact_match
+    display_name: Quasi-exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+    lower_is_better: false
+  - name: prefix_exact_match
+    display_name: Prefix exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_prefix_exact_match
+    # TODO: should call this prefix_quasi_exact_match
+    display_name: Prefix quasi-exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
+    lower_is_better: false
+
+  - name: rouge_1
+    display_name: ROUGE-1
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 1-gram overlap.
+    lower_is_better: false
+  - name: rouge_2
+    display_name: ROUGE-2
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 2-gram overlap.
+    lower_is_better: false
+  - name: rouge_l
+    display_name: ROUGE-L
+    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on longest common subsequence overlap.
+    lower_is_better: false
+  - name: bleu_1
+    display_name: BLEU-1
+    description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 1-gram overlap.
+    lower_is_better: false
+  - name: bleu_4
+    display_name: BLEU-4
+    description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 4-gram overlap.
+    lower_is_better: false
+  - name: f1_score
+    display_name: F1
+    description: Average F1 score in terms of word overlap between the model output and correct reference.
+    lower_is_better: false
+  - name: cider
+    display_name: CIDEr
+    description: Evaluates the quality of generated caption by measuring the weighted similarity of n-grams between the captions and a set of human-written reference captions, emphasizing informativeness and consensus.
+    lower_is_better: false
+
+  # Machine Translation metrics
+  - name: bleu
+    display_name: BLEU
+    short_display_name: BLEU
+    description: BLEU score based on [Post, (2018)](https://aclanthology.org/W18-6319/).
+    lower_is_better: false
+
+  # Speech Recognition metrics
+  - name: wer_score
+    display_name: Word Error Rate
+    short_display_name: WER
+    description: Word error rate between model predictions and ground truth answers for ASR tasks.
+    lower_is_better: true
+
+  - name: mer_score
+    display_name: Match Error Rate
+    short_display_name: MER
+    description: Word match error rate between model predictions and ground truth answers.
+    lower_is_better: true
+
+  - name: wip_score
+    display_name: Word Information Preservation
+    short_display_name: WIP
+    description: Word information preservation (WIP) for evaluating the preserved information of ASR.
+    lower_is_better: false
+
+  - name: cer_score
+    display_name: Character Error Rate
+    short_display_name: CER
+    description: Character error rate (CER) for evaluating the accuracy of ASR.
+    lower_is_better: true
+
+  - name: chinese_wer_score
+    display_name: Chinese Word Error Rate
+    short_display_name: Chinese WER
+    description: Chinese word error rate between model predictions and ground truth answers for ASR tasks.
+    lower_is_better: true
+
+  - name: chinese_mer_score
+    display_name: Chinese Match Error Rate
+    short_display_name: Chinese MER
+    description: Chinese word match error rate between model predictions and ground truth answers.
+    lower_is_better: true
+
+  - name: chinese_wip_score
+    display_name: Chinese Word Information Preservation
+    short_display_name: Chinese WIP
+    description: Chinese word information preservation (WIP) for evaluating the preserved information of ASR.
+    lower_is_better: false
+
+  - name: chinese_cer_score
+    display_name: Chinese Character Error Rate
+    short_display_name: Chinese CER
+    description: Chinese character error rate (CER) for evaluating the accuracy of Chiese ASR.
+    lower_is_better: true
+
+  # Toxicity metrics
+  - name: expected_max_toxicity
+    display_name: Average max toxicity
+    short_display_name: Avg. max toxicity
+    lower_is_better: true
+    description: Average max toxicity score across all completions (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
+
+  - name: max_toxicity_probability
+    display_name: max toxicity
+    lower_is_better: true
+    description: Fraction of instances where most toxic completion is above 0.5 toxicity (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
+
+  - name: toxic_frac
+    display_name: Toxic fraction
+    lower_is_better: true
+    description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).
+
+  - name: gpt4_audio_critique
+    display_name: GPT-4o Judge Critique
+    lower_is_better: false
+    description: Judgements by GPT-4o
+
+  - name: refusal_rate
+    display_name: Refusal rate for safety
+    lower_is_better: false
+    description: Judgements by GPT-4o
+
+############################################################
+perturbations: []
+
+############################################################
+metric_groups:
+  - name: accuracy
+    display_name: Accuracy
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+
+  - name: efficiency
+    display_name: Efficiency
+    metrics:
+    - name: inference_runtime
+      split: ${main_split}
+
+  - name: general_information
+    display_name: General information
+    metrics:
+    - name: num_instances
+      split: ${main_split}
+    - name: num_train_instances
+      split: ${main_split}
+    - name: prompt_truncated
+      split: ${main_split}
+    - name: num_prompt_tokens
+      split: ${main_split}
+    - name: num_output_tokens
+      split: ${main_split}
+
+############################################################
+
+run_groups:
+  - name: audio_scenarios
+    display_name: Audio Scenarios
+    description: Audio Scenarios
+    category: All scenarios
+    subgroups:
+      - auditory_perception
+      - emotion_detection
+      - reasoning
+      - knowledge
+      - robustness
+      - multilinguality
+      - toxicity_detection
+      - safety
+      - fairness
+      - bias
+
+  - name: auditory_perception
+    display_name: Auditory Perception
+    description: Interpreting fundamental information in an audio clip
+    category: Core scenarios
+    subgroups:
+      - audiocaps
+      - voxceleb2
+      - vocal_sound
+      - librispeech
+
+  - name: emotion_detection
+    display_name: Emotion Detection
+    description: Detecting emotions in audio clips.
+    category: Core scenarios
+    subgroups:
+      - meld_audio
+      - mustard
+
+  - name: reasoning
+    display_name: Reasoning
+    description: Reasoning about the audio
+    category: Core scenarios
+    subgroups:
+      - air_bench_chat_reasoning
+      - corebench
+
+  - name: knowledge
+    display_name: Knowledge
+    description: Recalling facts or information contained in the audio LLM.
+    category: Core scenarios
+    subgroups:
+      - air_bench_chat_knowledge
+      - air_bench_foundation
+
+  - name: robustness
+    display_name: Robustness
+    description: Producing desired answers under invariant perturbations to the audio.
+    category: Core scenarios
+    subgroups:
+      - speech_robust_bench
+
+  - name: multilinguality
+    display_name: Multilinguality
+    description: Performs the same task when the language is changed
+    category: Core scenarios
+    subgroups:
+      - covost2
+      - fleurs
+      - multilingual_librispeech
+
+  - name: toxicity_detection
+    display_name: Toxicity detection
+    description: Identifying and avoiding offensive or damaging materials.
+    category: Core scenarios
+    subgroups:
+      - mutox
+
+  - name: safety
+    display_name: Safety
+    description: Refusing to produce answers that cause harm to humans.
+    category: Core scenarios
+    subgroups:
+      - voice_jailbreak_attacks
+
+  - name: fairness
+    display_name: Fairness
+    description: Whether the model is fair to all groups or demographics.
+    category: Core scenarios
+    subgroups:
+      - fleurs_fairness
+      - librispeech_fairness
+
+  - name: bias
+    display_name: Bias
+    description: Whether the model is biased towards certain groups or demographics.
+    category: Core scenarios
+    subgroups:
+      - parade
+
+  - name: covost2
+    display_name: CoVost-2
+    description: >
+      CoVost-2 is a large-scale multilingual speech translation corpus covering translations from 21 languages
+      into English and from English into 15 languages.
+
+      The dataset contains the audio, transcriptions, and translations in the following languages:
+      French, German, Dutch, Russian, Spanish, Italian, Turkish, Persian, Swedish, Mongolian, Chinese,
+      Welsh, Catalan, Slovenian, Estonian, Indonesian, Arabic, Tamil, Portuguese, Latvian, and Japanese
+      ([Wang et al, 2020](https://arxiv.org/abs/2007.10310)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: bleu
+      main_split: test
+    taxonomy:
+      task: audio machine translation
+      what: audio, transcriptions, and translations in 15 languages
+      who: real speakers
+      when: "2020"
+      language: 15 languages
+
+  - name: vocal_sound
+    display_name: VocalSound
+    description: >
+      VocalSound dataset consisting of over 21,000 crowdsourced recordings of laughter, sighs, coughs, throat 
+      clearing, sneezes, and sniffs from 3,365 unique subjects. 
+      
+      Different from previous datasets, the VocalSound dataset contains meta information such as speaker 
+      age, gender, native language, country, and health condition ([Gong et al, 2022](https://arxiv.org/abs/2205.03433)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: quasi_prefix_exact_match
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: audio samples of behaviours ("cough", "laughter", "sigh", "sneeze", "sniff", "throatclearing")
+      who: real speakers
+      when: "2022"
+      language: English
+
+  - name: multilingual_librispeech
+    display_name: Multilingual Librispeech
+    description: >
+      Multilingual Librispeech is derived from read audiobooks from LibriVox and consists of 8 languages, 
+      including about 44.5K hours of English and a total of about 6K hours for other languages. 
+
+      The dataset contains the audio and transcriptions in the following languages:
+      Dutch, German, French, Spanish, Italian, Portuguese", Polish ([Pratap et al, 2022](https://arxiv.org/abs/2012.03411)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: wer_score
+      main_split: test
+    taxonomy:
+      task: audio captioning
+      what: audio and transcriptions in 8 languages
+      who: real speakers
+      when: "2020"
+      language: 8 languages
+
+  - name: fleurs
+    display_name: FLEURS
+    description: >
+      FLEURS is an n-way parallel speech dataset in 102 languages built on top of the machine translation FLoRes-101 
+      benchmark, with approximately 12 hours of speech supervision per language. FLEURS can be used for a variety of 
+      speech tasks, including Automatic Speech Recognition (ASR), Speech Language Identification (Speech LangID), 
+      Translation and Retrieval.
+
+      The dataset contains the audio, transcriptions, and language in 102 different languages, which are divided into
+      7 language groups: Western European, Eastern European, Central Asia Middle North African, Sub Saharan African, 
+      South Asian, South East Asian, Chinese Japanase Korean ([Conneau et al, 2022](https://arxiv.org/abs/2205.12446)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: wer_score
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: audio, transcripts, and language names in 102 languages
+      who: real speakers
+      when: "2022"
+      language: 102 languages
+
+  - name: fleurs_fairness
+    display_name: FLEURS Fairness
+    description: >
+      FLEURS is an n-way parallel speech dataset in 102 languages built on top of the machine translation FLoRes-101 
+      benchmark, with approximately 12 hours of speech supervision per language. FLEURS can be used for a variety of 
+      speech tasks, including Automatic Speech Recognition (ASR), Speech Language Identification (Speech LangID), 
+      Translation and Retrieval.
+
+      We only use the English subset of the dataset for the fairness task. We ask the model to do ASR on
+      audio files from different gender groups ([Conneau et al, 2022](https://arxiv.org/abs/2205.12446)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: wer_score
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: audio, transcripts, and gender of the speaker
+      who: real speakers
+      when: "2022"
+      language: English
+
+  - name: audiocaps
+    display_name: AudioCaps
+    description: >
+      AudioCaps is a large-scale dataset of about 46K audio clips to human-written text pairs collected 
+      via crowdsourcing on the AudioSet dataset, which covers a wide range of human and animal sounds, 
+      musical instruments and genres, and common everyday environmental sounds. 
+      ([Kim et al, 2019](https://aclanthology.org/N19-1011.pdf)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: gpt4_audio_critique
+      main_split: test
+    taxonomy:
+      task: audio captioning
+      what: audio clips in the wild
+      who: real speakers
+      when: "2019"
+      language: English
+
+  - name: voxceleb2
+    display_name: VoxCeleb2
+    description: >
+      VoxCeleb is an audio-visual dataset consisting of short clips of human speech, extracted from 
+      interview videos uploaded to YouTube. It contains over a million utterances from over 6,000 
+      speakers with their gender, race, identity information in 145 different nationalities, covering 
+      a wide range of accents, ages, ethnicities and languages.
+      ([Chung et al, 2018](https://www.robots.ox.ac.uk/~vgg/publications/2018/Chung18a/chung18a.pdf))
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: audio identification
+      what: audio clips in the wild
+      who: real speakers
+      when: "2018"
+      language: English, Germany, French
+
+  - name: speech_robust_bench
+    display_name: Robust Speech Bench
+    description: >
+      Speech Robust Bench (Shah et al, 2024) is a comprehensive benchmark for evaluating 
+      the robustness of ASR models to diverse corruptions. SRB is composed of 114 input 
+      perturbations which simulate an heterogeneous range of corruptions that ASR models 
+      may encounter when deployed in the wild. In this scenario, we select 4 subsets: 
+      accent_cv, accent_cv_es, chinme, and AIM for evaluation.
+
+      The dataset contains the audio, transcriptions for all subsets 
+      ([Shah et al, 2024](https://arxiv.org/abs/2403.07937)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: wer_score
+      main_split: test
+    taxonomy:
+      task: audio recognition
+      what: audio, transcripts of audio samples in a wide range of perturbations 
+      who: real speakers
+      when: "2024"
+      language: English, Spanish
+
+  - name: meld_audio
+    display_name: Multimodal EmotionLines Dataset (MELD) Audio
+    description: >
+      Multimodal EmotionLines Dataset (MELD) has been created by enhancing and extending EmotionLines dataset.
+      MELD has more than 1400 dialogues and 13000 utterances from Friends TV series. Multiple speakers participated
+      in the dialogues. Each utterance in a dialogue has been labeled by any of these seven emotions -
+      Anger, Disgust, Sadness, Joy, Neutral, Surprise and Fear.
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: quasi_prefix_exact_match
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: Classify audio by emotion
+      who: Friends TV series
+      when: "2018"
+      language: English
+
+  - name: air_bench_chat_knowledge
+    display_name: Air-Bench Chat (knowledge subsets)
+    description: >
+      Air-Bench (Yang et al, 2024) encompasses two dimensions: foundation and chat benchmarks. The former consists of 19 tasks with 
+      approximately 19k single-choice questions. The latter one contains 2k instances of open-ended question-and-answer data. 
+      We consider the chat benchmark in this scenario.
+
+      The dataset contains the audio question answering task in four subjects: sound, speech, music, and mixed.
+      ([Yang et al, 2024](https://aclanthology.org/2024.acl-long.109.pdf)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: gpt4_audio_critique
+      main_split: test
+    taxonomy:
+      task: audio question answering
+      what: audio, question, and answer of audio samples
+      who: real speakers
+      when: "2024"
+      language: English
+
+  - name: air_bench_chat_reasoning
+    display_name: Air-Bench Chat (reasoning subsets)
+    description: >
+      Air-Bench (Yang et al, 2024) encompasses two dimensions: foundation and chat benchmarks. The former consists of 19 tasks with 
+      approximately 19k single-choice questions. The latter one contains 2k instances of open-ended question-and-answer data. 
+      We consider the chat benchmark in this scenario.
+
+      The dataset contains the audio question answering task in four subjects: sound, speech, music, and mixed.
+      ([Yang et al, 2024](https://aclanthology.org/2024.acl-long.109.pdf)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: gpt4_audio_critique
+      main_split: test
+    taxonomy:
+      task: audio question answering
+      what: audio, question, and answer of audio samples
+      who: real speakers
+      when: "2024"
+      language: English
+
+  - name: air_bench_foundation
+    display_name: Air-Bench Foundation
+    description: >
+      Air-Bench (Yang et al, 2024) encompasses two dimensions: foundation and chat benchmarks. The former consists of 19 tasks with 
+      approximately 19k single-choice questions. The latter one contains 2k instances of open-ended question-and-answer data. 
+      We consider the chat benchmark in this scenario.
+
+      The dataset contains the audio multiple choice question answering task in three subjects: music instrument classification, music
+      genera recognition, and music question-answering.
+      ([Yang et al, 2024](https://aclanthology.org/2024.acl-long.109.pdf)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: audio question answering
+      what: audio, question, and answer of the question
+      who: real speakers
+      when: "2024"
+      language: English
+
+  - name: mutox
+    display_name: MuTox
+    description: >
+     The dataset consists of 20k audio utterances for English and Spanish, and 4k for the other languages.
+     ([Costa-jussà et al, 2018](https://arxiv.org/abs/2401.05060)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: toxicity detection
+      what: samples of utterances
+      who: real speakers
+      when: "2024"
+      language: 30 languages
+
+  - name: mustard
+    display_name: MUStARD
+    description: >
+      A multimodal video corpus for research in automated sarcasm discovery. The dataset is compiled from popular
+      TV shows including Friends, The Golden Girls, The Big Bang Theory, and Sarcasmaholics Anonymous. 
+      ([Castro et al, 2019](https://arxiv.org/abs/1906.01815)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: sarcasm detection
+      what: clips from television shows
+      who: real speakers
+      when: "2019"
+      language: English
+
+  - name: voice_jailbreak_attacks
+    display_name: Voice Jailbreak Attacks Against GPT-4o
+    description: >
+      Voice jailbreak attacks against GPT-4o ([Shen et al, 2024](https://arxiv.org/abs/2405.19103)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: refusal_rate
+      main_split: test
+    taxonomy:
+      task: refusal for safety
+      what: voice jailbreak attacks against GPT-4o
+      who: AI-generated speech
+      when: "2024"
+      language: English
+
+  - name: ami
+    display_name: AMI Meeting Corpus
+    description: >
+      The AMI Meeting Corpus (Carletta et al. 2005) is a multi-modal data set consisting of 
+      100 hours of meeting recordings. It is being created in the context of a project that 
+      is developing meeting browsing technology. The corpus is being recorded using a wide 
+      range of devices including close-talking and far-field microphones, individual and 
+      room-view video cameras, projection, a whiteboard, and individual pens, all of which 
+      produce output signals that are synchronized with each other.
+
+      The dataset contains the audio, transcriptions for all subsets 
+      ([Carletta et al, 2005](https://link.springer.com/chapter/10.1007/11677482_3)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: wer_score
+      main_split: test
+    taxonomy:
+      task: audio recognition
+      what: audio, transcripts of audio samples from meeting environments 
+      who: real speakers
+      when: "2005"
+      language: English
+
+  - name: librispeech
+    display_name: LibriSpeech
+    description: >
+      The LibriSpeech corpus (Vassil et al. 2015) is derived from audiobooks that are part 
+      of the LibriVox project, and contains 1000 hours of speech sampled at 16 kHz. The 
+      data has separately prepared language-model training data and pre-built language models. 
+      This corpus is one of the most widely-used ASR corpus, which has been extended to many 
+      applicaitons such as robust ASR and multilingual ASR tasks.
+
+      The dataset contains the audio, transcriptions for all subsets 
+      ([Vassil et al. 2015](https://ieeexplore.ieee.org/document/7178964)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: wer_score
+      main_split: test
+    taxonomy:
+      task: audio recognition
+      what: audio, transcripts of audio samples in daily scenarios
+      who: real speakers
+      when: "2015"
+      language: English
+
+  - name: librispeech_fairness
+    display_name: LibriSpeech Fairness
+    description: >
+      The LibriSpeech corpus (Vassil et al. 2015) is derived from audiobooks that are part 
+      of the LibriVox project, and contains 1000 hours of speech sampled at 16 kHz. The 
+      data has separately prepared language-model training data and pre-built language models. 
+      This corpus is one of the most widely-used ASR corpus, which has been extended to many 
+      applicaitons such as robust ASR and multilingual ASR tasks.
+
+      The dataset contains the audio, transcriptions for all subsets. We ask the model to do 
+      ASR on audio files from different gender groups 
+      ([Vassil et al. 2015](https://ieeexplore.ieee.org/document/7178964)).
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: wer_score
+      main_split: test
+    taxonomy:
+      task: audio recognition
+      what: audio, transcripts of audio samples in daily scenarios
+      who: real speakers
+      when: "2015"
+      language: English
+
+  - name: parade
+    display_name: PARADE
+    description: >
+      The PARADE dataset is inspired by the PAIRS dataset for evaluating occupation and status 
+      bias in vision-language models. We collect a new dataset of audio-text multi-choice QA 
+      task that involves exploring occupation and status bias. The dataset consists of 436 
+      audio-text QA pairs with 3 options each.
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: audio classification
+      what: audio, question and answer given the audio
+      who: OpenAI's TTS
+      when: "2025"
+      language: English
+  
+  - name: corebench
+    display_name: COREBench
+    description: >
+      The COREBench is a new audio benchmark incorporating multi-speaker conversations. 
+      It consists of conversational audio, transcript, question, and answer. There 
+      are two challenging features of this benchmark: (1) the questions are designed 
+      to require reasoning over multiple turns of conversation, and (2) the average 
+      audio length is longer than 1 minute, which is significantly longer than 
+      existing benchmarks.
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: quasi_prefix_exact_match
+      main_split: test
+    taxonomy:
+      task: audio question-answering
+      what: audio, question, transcripts and answer given the audio
+      who: OpenAI's TTS
+      when: "2025"
+      language: English

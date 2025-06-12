@@ -2,7 +2,7 @@ import re
 from dataclasses import dataclass
 from typing import List, Optional
 
-from .adapter_spec import Substitution
+from helm.benchmark.adaptation.adapter_spec import Substitution
 
 
 @dataclass(frozen=True)

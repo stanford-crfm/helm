@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from random import Random
 
-from .perturbation_description import PerturbationDescription
-from .perturbation import TextPerturbation
+from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
+from helm.benchmark.augmentations.perturbation import TextPerturbation
 
 
 class TyposPerturbation(TextPerturbation):

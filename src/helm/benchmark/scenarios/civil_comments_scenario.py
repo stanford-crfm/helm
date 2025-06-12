@@ -4,7 +4,7 @@ from typing import Dict, List, Set
 import pandas as pd
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import (
+from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TEST_SPLIT,
     TRAIN_SPLIT,

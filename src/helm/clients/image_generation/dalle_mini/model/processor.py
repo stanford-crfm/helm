@@ -1,11 +1,11 @@
-""" DalleBart processor """
+"""DalleBart processor"""
 
 from typing import List
 
-from .configuration import DalleBartConfig
-from .text import TextNormalizer
-from .tokenizer import DalleBartTokenizer
-from .utils import PretrainedFromWandbMixin
+from helm.clients.image_generation.dalle_mini.model.configuration import DalleBartConfig
+from helm.clients.image_generation.dalle_mini.model.text import TextNormalizer
+from helm.clients.image_generation.dalle_mini.model.tokenizer import DalleBartTokenizer
+from helm.clients.image_generation.dalle_mini.model.utils import PretrainedFromWandbMixin
 from helm.common.optional_dependencies import handle_module_not_found_error
 
 

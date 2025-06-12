@@ -10,9 +10,23 @@ function NavDropdown() {
   >();
 
   useEffect(() => {
-    fetch(
-      "https://raw.githubusercontent.com/stanford-crfm/helm/main/helm-frontend/project_metadata.json",
-    )
+    if (
+      currProjectMetadata &&
+      currProjectMetadata.title &&
+      currProjectMetadata.title !== "All Leaderboards"
+    ) {
+      const titlePrefix =
+        currProjectMetadata.title === "Lite" ||
+        currProjectMetadata.title === "Classic"
+          ? "HELM " + currProjectMetadata.title
+          : currProjectMetadata.title;
+      document.title =
+        titlePrefix + " - Holistic Evaluation of Language Models (HELM)";
+    }
+  }, [currProjectMetadata]);
+
+  useEffect(() => {
+    fetch("https://crfm.stanford.edu/helm/project_metadata.json")
       .then((response) => response.json())
       .then((data: ProjectMetadata[]) => {
         setProjectMetadata(data);

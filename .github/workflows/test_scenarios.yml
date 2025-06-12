@@ -7,6 +7,8 @@ on:
   pull_request:
     paths:
       - 'src/helm/benchmark/scenarios/test_*_scenario.py'
+  schedule:
+    - cron: "30 15 * * *"
 
 jobs:
   test:
@@ -14,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
       - name: Clear free space
         run: |
@@ -29,4 +31,6 @@ jobs:
       - name: Install HELM 
         run: ./install-dev.sh && ./pre-commit.sh
       - name: Run scenario tests
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: python3 -m pytest -m scenarios
