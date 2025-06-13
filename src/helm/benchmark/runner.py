@@ -116,7 +116,8 @@ def downsample_eval_instances(
     all_eval_instances: List[Instance] = [instance for instance in instances if instance.split in eval_splits]
     if len(all_eval_instances) > max_eval_instances:
         # The random sampling includes instances monotonically.
-        np.random.seed(0)
+        # For Marin, don't use a fixed random seed so that different runs get different samples.
+        # np.random.seed(0)
         selected_eval_instances = list(
             np.random.choice(
                 all_eval_instances,  # type: ignore
