@@ -40,7 +40,8 @@ class HuggingFacePipelineClient(CachingClient):
     def __init__(
         self, cache_config: CacheConfig, model_name: str, pretrained_model_name_or_path: Optional[str] = None, **kwargs
     ):
-        # Include `model` parameter so that model deployments can use the `model` arg to override the `model_name`
+        # Include `pretrained_model_name_or_path` parameter so that model deployments can use
+        # the `pretrained_model_name_or_path` arg to override `model_name`
         super().__init__(cache_config=cache_config)
         self._helm_model_name = model_name
         self._pipeline_kwargs = {
@@ -96,7 +97,6 @@ class HuggingFacePipelineClient(CachingClient):
                     "Multiple stop sequences and stop sequences of multiple tokens, are not yet supported by HuggingFacePipelineClient"  # noqa: E501
                 )
 
-        # print(raw_request)
         def do_it() -> Dict[str, Any]:
             pipeline_outputs = self._pipeline(**raw_request)
             return {"outputs": pipeline_outputs}
