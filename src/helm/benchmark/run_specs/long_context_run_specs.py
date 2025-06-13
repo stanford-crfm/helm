@@ -88,7 +88,7 @@ def get_infinite_bench_en_qa_spec(max_num_words: int = 131072) -> RunSpec:
     metric_specs = get_open_ended_generation_metric_specs()
 
     return RunSpec(
-        name="infinite_bench_en_qa:max_num_words={max_num_words}",
+        name=f"infinite_bench_en_qa:max_num_words={max_num_words}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
