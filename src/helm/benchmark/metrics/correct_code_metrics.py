@@ -15,27 +15,27 @@ from helm.benchmark.metrics.statistic import Stat
 class FunctionalCorrectnessMetric(Metric):
     """
     Metric for evaluating functional correctness of C++ code generation.
-    
-    Measures each model's functional correctness by computing the proportion of problems 
-    for which its generated code passes all provided unit tests. For every generated solution, 
-    we compile the C++ code (using g++) and execute the full test cases. We record the 
-    proportions of the unit test that passes for each problem and then take the mean across 
-    all problems. This yields a score between 0 and 1, where 1 indicates the model produced 
-    flawless codes, and lower values reveal the fraction of tasks it could not solve all 
+
+    Measures each model's functional correctness by computing the proportion of problems
+    for which its generated code passes all provided unit tests. For every generated solution,
+    we compile the C++ code (using g++) and execute the full test cases. We record the
+    proportions of the unit test that passes for each problem and then take the mean across
+    all problems. This yields a score between 0 and 1, where 1 indicates the model produced
+    flawless codes, and lower values reveal the fraction of tasks it could not solve all
     the unit test cases.
     """
-    
+
     def __init__(self, compile_code: bool = True, compiler_path: str = "g++"):
         """
         Initialize the functional correctness metric.
-        
+
         Args:
             compile_code: Whether to actually compile and run code (True) or simulate (False)
             compiler_path: Path to the C++ compiler (default: "g++")
         """
         self.compile_code = compile_code
         self.compiler_path = compiler_path
-    
+
     def evaluate_generation(
         self,
         adapter_spec: AdapterSpec,
@@ -45,100 +45,96 @@ class FunctionalCorrectnessMetric(Metric):
     ) -> List[Stat]:
         """
         Evaluate LLM-generated code by running unit tests and computing pass rate.
-        
+
         Returns:
             List of Stat objects containing the functional correctness score
         """
-        print(f"\n=== FUNCTIONAL CORRECTNESS METRIC DEBUG ===")
+        print("\n=== FUNCTIONAL CORRECTNESS METRIC DEBUG ===")
         print(f"Instance ID: {getattr(request_state.instance, 'id', 'UNKNOWN')}")
-        
+
         # Get the generated code from the request state
         if not request_state.result or not request_state.result.completions:
             print("ERROR: No output generated")
             return self._create_failure_stats("No output generated")
-        
+
         generated_code = request_state.result.completions[0].text.strip()
         print(f"Generated code length: {len(generated_code)}")
         print(f"Generated code preview: {generated_code[:200]}...")
-        
+
         # Get test cases from instance extra_data
-        if not hasattr(request_state.instance, 'extra_data') or not request_state.instance.extra_data:
+        if not hasattr(request_state.instance, "extra_data") or not request_state.instance.extra_data:
             print("ERROR: No extra_data available")
             print(f"Instance attributes: {dir(request_state.instance)}")
             return self._create_failure_stats("No test data available")
-        
+
         extra_data = request_state.instance.extra_data
         print(f"Extra data keys: {list(extra_data.keys())}")
-        
-        test_cases = extra_data.get('test_cases', [])
-        prompt_template = extra_data.get('question_template', '')
-        question_name = extra_data.get('question_name', 'UNKNOWN')
-        
+
+        test_cases = extra_data.get("test_cases", [])
+        prompt_template = extra_data.get("question_template", "")
+        question_name = extra_data.get("question_name", "UNKNOWN")
+
         print(f"Question name: {question_name}")
         print(f"Number of test cases: {len(test_cases)}")
         print(f"Template length: {len(prompt_template)}")
-        
+
         if not test_cases:
             print("ERROR: No test cases available")
             return self._create_failure_stats("No test cases available")
-        
+
         print(f"First test case preview: {test_cases[0] if test_cases else 'NONE'}")
-        
+
         # Run unit tests and calculate pass rate
-        pass_rate = self._evaluate_functional_correctness(
-            generated_code, test_cases, prompt_template
-        )
-        
+        pass_rate = self._evaluate_functional_correctness(generated_code, test_cases, prompt_template)
+
         print(f"Final pass rate: {pass_rate}")
-        print(f"=== END DEBUG ===\n")
-        
+        print("=== END DEBUG ===\n")
+
         return [Stat(MetricName("functional_correctness")).add(pass_rate)]
-    
+
     def _evaluate_functional_correctness(self, generated_code: str, test_cases: List[dict], template: str) -> float:
         """
         Evaluate the generated code against unit tests and return the proportion of tests passed.
-        
+
         Args:
             generated_code: The C++ code generated by the model
             test_cases: List of test case dictionaries with 'input' and 'output' keys
             template: The question template for creating complete programs
-            
+
         Returns:
             Float between 0 and 1 representing the proportion of tests passed
         """
-        print(f"\n--- Evaluating Functional Correctness ---")
+        print("\n--- Evaluating Functional Correctness ---")
         print(f"Test cases count: {len(test_cases)}")
-        
+
         if not test_cases:
             print("No test cases to evaluate")
             return 0.0
-        
+
         passed_tests = 0
         total_tests = len(test_cases)
-        
+
         for i, test_case in enumerate(test_cases):
             print(f"\n--- Test Case {i+1}/{total_tests} ---")
             print(f"Test case keys: {list(test_case.keys())}")
             print(f"Test input: {test_case.get('input', 'MISSING')}")
             print(f"Expected output: {test_case.get('output', 'MISSING')}")
-            
+
             try:
                 # Extract student code from LLM output
                 student_code = self._extract_student_code(generated_code)
                 print(f"Extracted student code length: {len(student_code)}")
                 print(f"Extracted code preview: {student_code[:100]}...")
-                
+
                 # Create complete C++ program
-                complete_program = self._create_complete_program(
-                    template, student_code, test_case.get('input', '')
-                )
-                
+                complete_program = self._create_complete_program(template, student_code, test_case.get("input", ""))
+
                 if complete_program is None:
                     print("ERROR: _create_complete_program returned None")
                     continue
-                    
+
                 print(f"Complete program length: {len(complete_program)}")
-                
+
                 # Run the test
                 if self.compile_code:
                     print("Running with actual compilation...")
@@ -154,10 +150,10 @@ class FunctionalCorrectnessMetric(Metric):
                     success = True
                     error = None
                     print(f"Simulated output: '{actual_output}'")
-                
+
                 # Check if test passed
                 if success and actual_output is not None:
-                    expected_output = test_case.get('output', '').strip()
+                    expected_output = test_case.get("output", "").strip()
                     test_passed = actual_output.strip() == expected_output
                     print(f"Test passed: {test_passed}")
                     print(f"Expected: '{expected_output}' | Actual: '{actual_output.strip()}'")
@@ -165,115 +161,113 @@ class FunctionalCorrectnessMetric(Metric):
                         passed_tests += 1
                 else:
                     print("Test failed due to compilation/execution failure")
-                
+
             except Exception as e:
                 print(f"Exception in test case {i+1}: {str(e)}")
                 import traceback
+
                 traceback.print_exc()
                 # Test failed due to exception
                 continue
-        
+
         final_rate = passed_tests / total_tests if total_tests > 0 else 0.0
-        print(f"\n--- Final Results ---")
+        print("\n--- Final Results ---")
         print(f"Passed: {passed_tests}/{total_tests}")
         print(f"Pass rate: {final_rate}")
-        
+
         return final_rate
-    
+
     def _extract_student_code(self, model_code: str) -> str:
         """Extract the actual student function code from the model output."""
         # Remove markdown formatting
-        code = re.sub(r'```cpp\n?|```\n?', '', model_code).strip()
-        
+        code = re.sub(r"```cpp\n?|```\n?", "", model_code).strip()
+
         print(f"Original model code length: {len(model_code)}")
         print(f"After markdown removal: {len(code)}")
-        
+
         # If code doesn't contain includes, it's likely just the student answer
-        if '#include' not in code:
+        if "#include" not in code:
             print("No includes found, using entire code as student answer")
             return code
-        
+
         # Split into lines for processing
-        lines = code.split('\n')
-        
+        lines = code.split("\n")
+
         # Find main function index
         main_index = -1
         for i, line in enumerate(lines):
-            if 'int main' in line or 'main()' in line:
+            if "int main" in line or "main()" in line:
                 main_index = i
                 break
-        
+
         print(f"Main function found at line: {main_index}")
-        
+
         # Extract code before main function
         if main_index > 0:
             student_lines = []
             for i in range(main_index):
                 line = lines[i].strip()
-                
+
                 # Skip includes, using statements, and empty lines
-                if (line.startswith('#') or 
-                    line.startswith('using') or 
-                    line == '' or
-                    line.startswith('//')):
+                if line.startswith("#") or line.startswith("using") or line == "" or line.startswith("//"):
                     continue
-                
+
                 student_lines.append(lines[i])
-            
+
             if student_lines:
-                extracted = '\n'.join(student_lines).strip()
+                extracted = "\n".join(student_lines).strip()
                 print(f"Extracted student code length: {len(extracted)}")
                 return extracted
-        
+
         # Fallback: return original code
         print("Using original code as fallback")
         return code
-    
+
     def _create_complete_program(self, template: str, student_code: str, test_input: str) -> str:
         """Create a complete C++ program by combining template, student code, and test input."""
-        print(f"\n--- Create Complete Program Debug ---")
+        print("\n--- Create Complete Program Debug ---")
         print(f"Template length: {len(template)}")
         print(f"Student code length: {len(student_code)}")
         print(f"Test input length: {len(test_input)}")
-        
+
         # Clean the test input (remove any trailing markers)
-        clean_input = re.sub(r'STD input:\s*$', '', test_input).strip()
+        clean_input = re.sub(r"STD input:\s*$", "", test_input).strip()
         print(f"Cleaned input length: {len(clean_input)}")
         print(f"Cleaned input: '{clean_input}'")
-        
+
         # Handle template with {{ STUDENT_ANSWER }} placeholder
-        if '{{ STUDENT_ANSWER }}' in template:
+        if "{{ STUDENT_ANSWER }}" in template:
             print("Using template with STUDENT_ANSWER placeholder")
             # Replace the student answer placeholder
-            complete_code = template.replace('{{ STUDENT_ANSWER }}', student_code)
-            
+            complete_code = template.replace("{{ STUDENT_ANSWER }}", student_code)
+
             # Replace the ENTIRE template loop section with actual test
-            template_loop_pattern = r'{%\s*for\s+TEST\s+in\s+TESTCASES\s*%}.*?{%\s*endfor\s*%}'
-            
+            template_loop_pattern = r"{%\s*for\s+TEST\s+in\s+TESTCASES\s*%}.*?{%\s*endfor\s*%}"
+
             test_block = f"""   {{
         {clean_input};
        }}"""
-            
+
             print(f"Test block to insert: '{test_block}'")
-            
+
             # Remove the entire template loop and replace with test block
             old_complete_code = complete_code
             complete_code = re.sub(template_loop_pattern, test_block, complete_code, flags=re.DOTALL)
-            
+
             if complete_code == old_complete_code:
                 print("WARNING: Template loop pattern not found in alignment metric")
             else:
                 print("Successfully replaced template loop in alignment metric")
-            
+
             # Also handle any remaining template syntax that might be left
-            complete_code = re.sub(r'{%.*?%}', '', complete_code, flags=re.DOTALL)
-            complete_code = re.sub(r'{{.*?}}', '', complete_code, flags=re.DOTALL)
-            
+            complete_code = re.sub(r"{%.*?%}", "", complete_code, flags=re.DOTALL)
+            complete_code = re.sub(r"{{.*?}}", "", complete_code, flags=re.DOTALL)
+
             print(f"Template-based complete code length: {len(complete_code)}")
             return complete_code
-        
+
         print("No {{ STUDENT_ANSWER }} placeholder found, creating simple structure")
-        
+
         # If no template, create a simple program structure
         result = f"""#include <iostream>
 #include <vector>
@@ -288,57 +282,49 @@ int main() {{
 }}"""
         print(f"Simple program structure length: {len(result)}")
         return result
-    
+
     def _compile_and_run_cpp(self, code: str) -> Tuple[bool, str, str]:
         """Compile and run C++ code, return (success, stdout, stderr)."""
-        print(f"\n--- Compile and Run (Functional Correctness) ---")
+        print("\n--- Compile and Run (Functional Correctness) ---")
         print(f"Code length: {len(code)}")
-        
+
         try:
             # Set environment to avoid HuggingFace tokenizer warnings
             env = os.environ.copy()
-            env['TOKENIZERS_PARALLELISM'] = 'false'
-            
+            env["TOKENIZERS_PARALLELISM"] = "false"
+
             # Create temporary files
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.cpp', delete=False) as cpp_file:
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".cpp", delete=False) as cpp_file:
                 cpp_file.write(code)
                 cpp_file_path = cpp_file.name
-            
+
             print(f"Created temp file: {cpp_file_path}")
-            
+
             # Use .out extension instead of .exe for better cross-platform compatibility
-            exe_file_path = cpp_file_path.replace('.cpp', '.out')
-            
+            exe_file_path = cpp_file_path.replace(".cpp", ".out")
+
             # Compile the code
-            compile_cmd = [self.compiler_path, '-std=c++17', '-o', exe_file_path, cpp_file_path]
+            compile_cmd = [self.compiler_path, "-std=c++17", "-o", exe_file_path, cpp_file_path]
             print(f"Compile command: {' '.join(compile_cmd)}")
-            
-            compile_result = subprocess.run(
-                compile_cmd,
-                capture_output=True, 
-                text=True, 
-                timeout=30, 
-                env=env
-            )
-            
+
+            compile_result = subprocess.run(compile_cmd, capture_output=True, text=True, timeout=30, env=env)
+
             print(f"Compile return code: {compile_result.returncode}")
             if compile_result.stderr:
                 print(f"Compile stderr: {compile_result.stderr}")
-            
+
             if compile_result.returncode != 0:
                 return False, "", f"Compilation Error: {compile_result.stderr}"
-            
+
             # Run the executable
             print(f"Running executable: {exe_file_path}")
-            run_result = subprocess.run([
-                exe_file_path
-            ], capture_output=True, text=True, timeout=10, env=env)
-            
+            run_result = subprocess.run([exe_file_path], capture_output=True, text=True, timeout=10, env=env)
+
             print(f"Run return code: {run_result.returncode}")
             print(f"Run stdout: '{run_result.stdout}'")
-            
+
             return True, run_result.stdout.strip(), run_result.stderr.strip()
-            
+
         except subprocess.TimeoutExpired:
             print("ERROR: Execution timed out")
             return False, "", "Execution timed out"
@@ -351,45 +337,45 @@ int main() {{
         finally:
             # Clean up temporary files
             try:
-                if 'cpp_file_path' in locals():
+                if "cpp_file_path" in locals():
                     os.unlink(cpp_file_path)
                     print(f"Cleaned up: {cpp_file_path}")
-                if 'exe_file_path' in locals() and os.path.exists(exe_file_path):
+                if "exe_file_path" in locals() and os.path.exists(exe_file_path):
                     os.unlink(exe_file_path)
                     print(f"Cleaned up: {exe_file_path}")
             except Exception as e:
                 print(f"Cleanup error: {e}")
-    
+
     def _simulate_execution(self, student_code: str, test_case: dict) -> str:
         """
         Simulate code execution for testing without actual compilation.
-        
+
         Args:
             student_code: The extracted student code
             test_case: Dictionary containing test input and expected output
-            
+
         Returns:
             Simulated output string
         """
-        test_input = test_case.get('input', '')
-        expected_output = test_case.get('output', '')
-        
+        test_input = test_case.get("input", "")
+        expected_output = test_case.get("output", "")
+
         # Simulation for reverse function
-        if 'reverse' in student_code.lower() and 'arr[]' in test_input:
+        if "reverse" in student_code.lower() and "arr[]" in test_input:
             # Extract array from test input
-            array_match = re.search(r'int arr\[\] = \{([^}]+)\}', test_input)
+            array_match = re.search(r"int arr\[\] = \{([^}]+)\}", test_input)
             if array_match:
                 try:
-                    numbers = [n.strip() for n in array_match.group(1).split(',')]
+                    numbers = [n.strip() for n in array_match.group(1).split(",")]
                     reversed_numbers = numbers[::-1]
-                    return ', '.join(reversed_numbers)
-                except:
-                    pass
-        
+                    return ", ".join(reversed_numbers)
+                except Exception as e:
+                    print(f"Error simulating reverse function: {e}")
+
         # Simulation for factorial function
-        if 'factorial' in student_code.lower() and 'factorial(' in test_input:
+        if "factorial" in student_code.lower() and "factorial(" in test_input:
             # Extract number from factorial call
-            factorial_match = re.search(r'factorial\((\d+)\)', test_input)
+            factorial_match = re.search(r"factorial\((\d+)\)", test_input)
             if factorial_match:
                 try:
                     n = int(factorial_match.group(1))
@@ -397,265 +383,25 @@ int main() {{
                     for i in range(1, n + 1):
                         result *= i
                     return str(result)
-                except:
-                    pass
-        
+                except Exception as e:
+                    print(f"Error simulating factorial function: {e}")
+
         # Simulation for BST enlarge (more complex)
-        if 'enlarge' in student_code.lower() and 'BTNode' in student_code:
+        if "enlarge" in student_code.lower() and "BTNode" in student_code:
             # This would need more sophisticated simulation
             # For now, return expected output
             return expected_output
-        
+
         # Default: return expected output (perfect simulation)
         return expected_output
-    
+
     def _create_failure_stats(self, error_message: str) -> List[Stat]:
         """
         Create default statistics for failure cases.
-        
+
         Args:
             error_message: Description of the failure
-            
-        Returns:
-            List containing a single Stat with 0.0 functional correctness score
-        """
-        print(f"METRIC FAILURE: {error_message}")
-        return [Stat(MetricName("functional_correctness")).add(0.0)]
-        print(f"Cleaned input: {clean_input[:100]}...")
-        
-        # Handle template with {{ STUDENT_ANSWER }} placeholder
-        if '{{ STUDENT_ANSWER }}' in template:
-            print("Using template with STUDENT_ANSWER placeholder")
-            # Replace the student answer placeholder
-            complete_code = template.replace('{{ STUDENT_ANSWER }}', student_code)
-            
-            # Replace the ENTIRE template loop section with actual test
-            template_loop_pattern = r'{%\s*for\s+TEST\s+in\s+TESTCASES\s*%}.*?{%\s*endfor\s*%}'
-            
-            test_block = f"""   {{
-        {clean_input};
-       }}"""
-            
-            # Remove the entire template loop and replace with test block
-            complete_code = re.sub(template_loop_pattern, test_block, complete_code, flags=re.DOTALL)
-            
-            # Also handle any remaining template syntax that might be left
-            complete_code = re.sub(r'{%.*?%}', '', complete_code, flags=re.DOTALL)
-            complete_code = re.sub(r'{{.*?}}', '', complete_code, flags=re.DOTALL)
-            
-            print(f"Template-based complete code length: {len(complete_code)}")
-            return complete_code
-        
-        # If the student code already contains a complete program structure 
-        # (which seems to be the case based on the debug output), 
-        # we might just need to add the test case to the main function
-        
-        print("Student code appears to be complete program, trying to inject test")
-        
-        # Check if student code already has main function
-        if 'int main' in student_code:
-            print("Student code already has main function")
-            # Try to replace the main function content with our test
-            main_pattern = r'int main\s*\(\s*\)\s*\{.*?\}'
-            
-            new_main = f"""int main() {{
-    {clean_input};
-    return 0;
-}}"""
-            
-            # Replace the main function
-            modified_code = re.sub(main_pattern, new_main, student_code, flags=re.DOTALL)
-            
-            if modified_code != student_code:  # Replacement happened
-                print("Successfully replaced main function")
-                return modified_code
-            else:
-                print("Failed to replace main function, trying manual approach")
-                # Manual approach: find main and replace its content
-                lines = student_code.split('\n')
-                new_lines = []
-                in_main = False
-                brace_count = 0
-                
-                for line in lines:
-                    if 'int main' in line and not in_main:
-                        in_main = True
-                        new_lines.append(line)
-                        new_lines.append(f"    {clean_input};")
-                        new_lines.append("    return 0;")
-                        # Count opening braces in this line
-                        brace_count += line.count('{') - line.count('}')
-                        continue
-                    
-                    if in_main:
-                        # Count braces to know when main function ends
-                        brace_count += line.count('{') - line.count('}')
-                        if brace_count <= 0:
-                            in_main = False
-                            new_lines.append('}')  # Close main function
-                        # Skip the original main content
-                    else:
-                        new_lines.append(line)
-                
-                return '\n'.join(new_lines)
-        
-        # If no template and no main in student code, create a simple program structure
-        print("Creating simple program structure")
-        return f"""#include <iostream>
-#include <vector>
-#include <algorithm>
-using namespace std;
 
-{student_code}
-
-int main() {{
-    {clean_input};
-    return 0;
-}}"""
-    
-    def _compile_and_run_cpp(self, code: str) -> Tuple[bool, str, str]:
-        """
-        Compile and run C++ code, return (success, stdout, stderr).
-        
-        Args:
-            code: Complete C++ program code to compile and run
-            
-        Returns:
-            Tuple of (success: bool, stdout: str, stderr: str)
-        """
-        print(f"\n--- Compile and Run Debug ---")
-        print(f"Code to compile:\n{code}\n--- End Code ---")
-        
-        try:
-            # Set environment to avoid HuggingFace tokenizer warnings
-            env = os.environ.copy()
-            env['TOKENIZERS_PARALLELISM'] = 'false'
-            
-            # Create temporary files
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.cpp', delete=False) as cpp_file:
-                cpp_file.write(code)
-                cpp_file_path = cpp_file.name
-            
-            print(f"Created temp file: {cpp_file_path}")
-            
-            # Use .out extension instead of .exe for better cross-platform compatibility
-            exe_file_path = cpp_file_path.replace('.cpp', '.out')
-            print(f"Executable path: {exe_file_path}")
-            
-            # Compile the code
-            compile_cmd = [self.compiler_path, '-std=c++17', '-o', exe_file_path, cpp_file_path]
-            print(f"Compile command: {' '.join(compile_cmd)}")
-            
-            compile_result = subprocess.run(
-                compile_cmd,
-                capture_output=True, 
-                text=True, 
-                timeout=30, 
-                env=env
-            )
-            
-            print(f"Compile return code: {compile_result.returncode}")
-            if compile_result.stderr:
-                print(f"Compile stderr: {compile_result.stderr}")
-            if compile_result.stdout:
-                print(f"Compile stdout: {compile_result.stdout}")
-            
-            if compile_result.returncode != 0:
-                return False, "", f"Compilation Error: {compile_result.stderr}"
-            
-            # Run the executable
-            print(f"Running executable: {exe_file_path}")
-            run_result = subprocess.run([
-                exe_file_path
-            ], capture_output=True, text=True, timeout=10, env=env)
-            
-            print(f"Run return code: {run_result.returncode}")
-            print(f"Run stdout: '{run_result.stdout}'")
-            if run_result.stderr:
-                print(f"Run stderr: {run_result.stderr}")
-            
-            return True, run_result.stdout.strip(), run_result.stderr.strip()
-            
-        except subprocess.TimeoutExpired:
-            print("ERROR: Execution timed out")
-            return False, "", "Execution timed out"
-        except FileNotFoundError as e:
-            print(f"ERROR: Compiler not found: {e}")
-            return False, "", f"Compiler '{self.compiler_path}' not found. Please install g++ or specify correct path."
-        except Exception as e:
-            print(f"ERROR: Exception during compilation: {e}")
-            import traceback
-            traceback.print_exc()
-            return False, "", f"Error: {str(e)}"
-        finally:
-            # Clean up temporary files
-            try:
-                if 'cpp_file_path' in locals():
-                    os.unlink(cpp_file_path)
-                    print(f"Cleaned up: {cpp_file_path}")
-                if 'exe_file_path' in locals() and os.path.exists(exe_file_path):
-                    os.unlink(exe_file_path)
-                    print(f"Cleaned up: {exe_file_path}")
-            except Exception as e:
-                print(f"Cleanup error: {e}")
-                pass  # Ignore cleanup errors
-    
-    def _simulate_execution(self, student_code: str, test_case: dict) -> str:
-        """
-        Simulate code execution for testing without actual compilation.
-        
-        Args:
-            student_code: The extracted student code
-            test_case: Dictionary containing test input and expected output
-            
-        Returns:
-            Simulated output string
-        """
-        test_input = test_case.get('input', '')
-        expected_output = test_case.get('output', '')
-        
-        # Simulation for reverse function
-        if 'reverse' in student_code.lower() and 'arr[]' in test_input:
-            # Extract array from test input
-            array_match = re.search(r'int arr\[\] = \{([^}]+)\}', test_input)
-            if array_match:
-                try:
-                    numbers = [n.strip() for n in array_match.group(1).split(',')]
-                    reversed_numbers = numbers[::-1]
-                    return ', '.join(reversed_numbers)
-                except:
-                    pass
-        
-        # Simulation for factorial function
-        if 'factorial' in student_code.lower() and 'factorial(' in test_input:
-            # Extract number from factorial call
-            factorial_match = re.search(r'factorial\((\d+)\)', test_input)
-            if factorial_match:
-                try:
-                    n = int(factorial_match.group(1))
-                    result = 1
-                    for i in range(1, n + 1):
-                        result *= i
-                    return str(result)
-                except:
-                    pass
-        
-        # Simulation for BST enlarge (more complex)
-        if 'enlarge' in student_code.lower() and 'BTNode' in student_code:
-            # This would need more sophisticated simulation
-            # For now, return expected output
-            return expected_output
-        
-        # Default: return expected output (perfect simulation)
-        return expected_output
-    
-    def _create_failure_stats(self, error_message: str) -> List[Stat]:
-        """
-        Create default statistics for failure cases.
-        
-        Args:
-            error_message: Description of the failure
-            
         Returns:
             List containing a single Stat with 0.0 functional correctness score
         """

@@ -1,9 +1,7 @@
-from helm.benchmark.scenarios.scenario import (
-    Scenario, Instance, Input, Output, Reference, VALID_SPLIT, CORRECT_TAG
-)
-import json, os
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, Output, Reference, VALID_SPLIT, CORRECT_TAG
 import pandas as pd
 import requests
+
 
 class StudentCodingScenario(Scenario):
     name = "student_coding"
@@ -11,11 +9,13 @@ class StudentCodingScenario(Scenario):
     tags = ["coding", "c++", "student"]
 
     def get_instances(self, output_path: str):
-        df = pd.read_csv("https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/sample_fifty_student_full.csv")
-        
+        df = pd.read_csv(
+            "https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/sample_fifty_student_full.csv"
+        )
+
         # Load test cases (unit tests)
         test_cases = self._load_test_cases()
-        
+
         instances = []
         for student_id, student_df in df.groupby("student_id"):
             student_df = student_df.sort_values("timestamp")
@@ -25,24 +25,19 @@ class StudentCodingScenario(Scenario):
             second = student_df.iloc[1]
             third = student_df.iloc[2]
             target = student_df.iloc[3]
-            
+
             # Get test cases for this question
-            question_id = target.get('question_unittest_id', None)
+            question_id = target.get("question_unittest_id", None)
             question_test_cases = []
             if question_id and test_cases:
                 question_test_cases = test_cases.get(str(question_id), [])
-            #Get student pass (0 or 1) for the target question
+            # Get student pass (0 or 1) for the target question
             student_correctness_pattern = target.get("pass", None)
-            main_part = int(student_correctness_pattern)       # "1111111111"
+            main_part = int(student_correctness_pattern)  # "1111111111"
             # Convert each character to an int
-            student_correctness_list = [int(ch) for ch in str(main_part)] #[1,1,1,1,1,1,1,1,1,1]
-            
+            student_correctness_list = [int(ch) for ch in str(main_part)]  # [1,1,1,1,1,1,1,1,1,1]
+
             prompt = (
-                "You are the same student who wrote the three examples below in your foundational C++ course. "
-                "Mimic exactly your personal coding style, conventions, and level of proficiency—"
-                "do not over‐optimize or introduce unfamiliar patterns. "
-                "Include the same sort of formatting, variable names, and minor imperfections you demonstrated. "
-                "Respond ONLY with the C++ code (no commentary).\n\n"
                 f"Week: {target['week']}\n"
                 f"Topic: {target['topic']}\n\n"
                 "Example 1:\n"
@@ -74,10 +69,7 @@ class StudentCodingScenario(Scenario):
                 Instance(
                     id=f"{student_id}_{target['question_unittest_id']}",
                     input=Input(text=prompt),
-                    references=[Reference(
-                        output=Output(text=target["response"]),
-                        tags=[CORRECT_TAG]
-                    )],
+                    references=[Reference(output=Output(text=target["response"]), tags=[CORRECT_TAG])],
                     extra_data={
                         "question_template": target["question_template"],
                         "test_cases": question_test_cases,
@@ -90,12 +82,12 @@ class StudentCodingScenario(Scenario):
                 )
             )
         return instances
-    
+
     def _load_test_cases(self):
         """
         Load test cases from external source or return None if not available.
         This method should be implemented based on where your test cases are stored.
-        
+
         Expected format:
         {
             "question_id": [
@@ -110,7 +102,9 @@ class StudentCodingScenario(Scenario):
         }
         """
         try:
-            response = requests.get("https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/test_cases_by_qid.json")
+            response = requests.get(
+                "https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/test_cases_by_qid.json"
+            )
             if response.status_code == 200:
                 return response.json()
         except Exception as e:

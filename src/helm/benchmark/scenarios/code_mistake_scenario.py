@@ -1,9 +1,7 @@
-from helm.benchmark.scenarios.scenario import (
-    Scenario, Instance, Input, Output, Reference, VALID_SPLIT, CORRECT_TAG
-)
-import json, os
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, Output, Reference, VALID_SPLIT, CORRECT_TAG
 import pandas as pd
 import requests
+
 
 class MistakeCodingScenario(Scenario):
     name = "student_mistake_coding"
@@ -11,53 +9,56 @@ class MistakeCodingScenario(Scenario):
     tags = ["coding", "c++", "student"]
 
     def get_instances(self, output_path: str):
-        df = pd.read_csv("https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/fifty_student_mistakefix.csv")
-        student_topic = pd.read_csv("https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/student_performace_by_topic.csv")
-        
+        df = pd.read_csv(
+            "https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/fifty_student_mistakefix.csv"
+        )
+        student_topic = pd.read_csv(
+            "https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/student_performace_by_topic.csv"
+        )
+
         # Load test cases (unit tests)
         test_cases = self._load_test_cases()
-        
+
         instances = []
         for student_id, student_df in df.groupby("student_id"):
-            student_df = student_df.sort_values(by=['student_id', 'question_unittest_id',"timestamp"])
+            student_df = student_df.sort_values(by=["student_id", "question_unittest_id", "timestamp"])
             if len(student_df) < 4:
                 continue
             first = student_df.iloc[0]
             second = student_df.iloc[1]
             third = student_df.iloc[2]
             target = student_df.iloc[3]
-            
+
             # Get test cases for this question
-            question_id = target.get('question_unittest_id', None)
+            question_id = target.get("question_unittest_id", None)
             question_test_cases = []
             if question_id and test_cases:
                 question_test_cases = test_cases.get(str(question_id), [])
-            #Get student pass (0 or 1) for the target question
+            # Get student pass (0 or 1) for the target question
             student_correctness_pattern = target.get("pass", None)
-            main_part = int(student_correctness_pattern)       # "1111111111"
+            main_part = int(student_correctness_pattern)  # "1111111111"
             # Convert each character to an int
-            student_correctness_list = [int(ch) for ch in str(main_part)] #[1,1,1,1,1,1,1,1,1,1]
+            student_correctness_list = [int(ch) for ch in str(main_part)]  # [1,1,1,1,1,1,1,1,1,1]
 
-            #Student specific topic performance in previous attempts
+            # Student specific topic performance in previous attempts
             student_level_prompt = f"Student {student_id} has the following performance across topics:\n"
-            topic_performance = student_topic[student_topic["student_id"]==student_id]
+            topic_performance = student_topic[student_topic["student_id"] == student_id]
             for _, row in topic_performance.iterrows():
-                topic = row['topic']
-                pass_rate = round(row['pass_rate'], 2)
-                perfect = round(row['perfect'], 2)
-                
-                student_level_prompt += f"- For topic '{topic}', the unit test pass rate is {pass_rate}, and the rate of passing all unit tests is {perfect}.\n"
-            
+                topic = row["topic"]
+                pass_rate = round(row["pass_rate"], 2)
+                perfect = round(row["perfect"], 2)
+
+                student_level_prompt += (
+                    f"- For topic '{topic}', the unit test pass rate is {pass_rate}, "
+                    f"and the rate of passing all unit tests is {perfect}.\n"
+                )
+
             prompt = (
-                "You are a C++ student with a consistent personal style, conventions, and proficiency level.\n"
-                "Your task: attempt the target problem **but introduce realistic mistake** you would typically make—do **not** provide a correct solution.\n\n"
-                
                 "=== Student Profile ===\n"
                 f"{student_level_prompt}\n"
                 "When students submit a code to the platform, it will be tested by number of unit tests, where"
                 "- Unit test pass rate = proportion of unit tests passed with the code \n"
                 "- Full pass rate   = proportion of code passing all unit tests\n\n"
-                
                 "=== Past Mistake Examples ===\n"
                 "Example 1 (Week {first['week']}, Topic: {first['topic']}):\n"
                 f"Question: {first['question_name']} — {first['question_text']}\n"
@@ -65,35 +66,31 @@ class MistakeCodingScenario(Scenario):
                 f"{first['question_template']}\n"
                 "Student's Response Code with Error:\n"
                 f"{first['response_mistake']}\n\n"
-
                 "Example 2 (Week {second['week']}, Topic: {second['topic']}):\n"
                 f"Question: {second['question_name']} — {second['question_text']}\n"
                 "Template:\n"
                 f"{second['question_template']}\n"
                 "Student's Response Code with Error:\n"
                 f"{second['response_mistake']}\n\n"
-
                 "Example 3 (Week {third['week']}, Topic: {third['topic']}):\n"
                 f"Question: {third['question_name']} — {third['question_text']}\n"
                 "Template:\n"
                 f"{third['question_template']}\n"
                 "Student's Response Code with Error:\n"
                 f"{third['response_mistake']}\n\n"
-
                 "=== New Target Problem ===\n"
                 f"Week: {target['week']}, Topic: {target['topic']}\n"
                 f"Question: {target['question_name']} — {target['question_text']}\n"
                 "Template:\n"
                 f"{target['question_template']}\n\n"
-
                 "⚠**Instructions:**\n"
                 "1. Mimic your own coding style, naming conventions, indentation, and typical error patterns.\n"
-                "2. Introduce mistake you are likely to make (e.g., off‐by‐one index, wrong initialization, missing edge case).\n"
+                "2. Introduce mistake you are likely to make (e.g., off‐by‐one index, wrong initialization, "
+                "missing edge case).\n"
                 "3. Do **not** produce a fully correct solution or add unfamiliar optimizations.\n\n"
-
                 "Respond **only** with your C++ code (no explanations, no comments)."
             )
-            
+
             print(f"\n=== DEBUG INFO FOR STUDENT {student_id}, QUESTION {question_id} ===")
             print(f"Test cases loaded: {len(question_test_cases)}")
             print(f"Student correctness pattern: {student_correctness_list}")
@@ -103,9 +100,9 @@ class MistakeCodingScenario(Scenario):
 
             # Also add this validation in your UnitTestAlignmentMetric evaluate_generation method:
             def evaluate_generation(self, adapter_spec, request_state, metric_service, eval_cache_path):
-                print(f"\n=== UNIT TEST METRIC DEBUG ===")
+                print("\n=== UNIT TEST METRIC DEBUG ===")
                 print(f"Has extra_data: {hasattr(request_state.instance, 'extra_data')}")
-                if hasattr(request_state.instance, 'extra_data'):
+                if hasattr(request_state.instance, "extra_data"):
                     extra_data = request_state.instance.extra_data
                     print(f"Extra data keys: {list(extra_data.keys())}")
                     print(f"Test cases: {len(extra_data.get('test_cases', []))}")
@@ -115,10 +112,7 @@ class MistakeCodingScenario(Scenario):
                 Instance(
                     id=f"{student_id}_{target['question_unittest_id']}",
                     input=Input(text=prompt),
-                    references=[Reference(
-                        output=Output(text=target["response_mistake"]),
-                        tags=[CORRECT_TAG]
-                    )],
+                    references=[Reference(output=Output(text=target["response_mistake"]), tags=[CORRECT_TAG])],
                     extra_data={
                         "question_template": target["question_template"],
                         "test_cases": question_test_cases,
@@ -131,12 +125,12 @@ class MistakeCodingScenario(Scenario):
                 )
             )
         return instances
-    
+
     def _load_test_cases(self):
         """
         Load test cases from external source or return None if not available.
         This method should be implemented based on where your test cases are stored.
-        
+
         Expected format:
         {
             "question_id": [
@@ -151,7 +145,9 @@ class MistakeCodingScenario(Scenario):
         }
         """
         try:
-            response = requests.get("https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/test_cases_by_qid.json")
+            response = requests.get(
+                "https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/test_cases_by_qid.json"
+            )
             if response.status_code == 200:
                 return response.json()
         except Exception as e:
