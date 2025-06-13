@@ -2888,6 +2888,36 @@ model_deployments:
       args:
         pretrained_model_name_or_path: allenai/OLMo-1.7-7B-hf
 
+  - name: huggingface/olmo-2-1124-7b-instruct
+    model_name: allenai/olmo-2-1124-7b-instruct
+    tokenizer_name: allenai/olmo-2-1124-7b-instruct
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_pipeline_client.HuggingFacePipelineClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/olmo-2-1124-13b-instruct
+    model_name: allenai/olmo-2-1124-13b-instruct
+    tokenizer_name: allenai/olmo-2-1124-7b-instruct
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_pipeline_client.HuggingFacePipelineClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
+  - name: huggingface/olmo-2-0325-32b-instruct
+    model_name: allenai/olmo-2-0325-32b-instruct
+    tokenizer_name: allenai/olmo-2-0325-32b-instruct
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_pipeline_client.HuggingFacePipelineClient"
+      args:
+        device_map: auto
+        torch_dtype: torch.bfloat16
+
   ## MistralAI
   - name: together/mistral-7b-v0.1
     model_name: mistralai/mistral-7b-v0.1

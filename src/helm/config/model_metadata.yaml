@@ -2337,6 +2337,33 @@ models:
     release_date: 2024-04-17
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: allenai/olmo-2-1124-7b-instruct
+    display_name: OLMo 2 7B Instruct November 2024
+    description: OLMo 2 is a family of 7B and 13B models trained on up to 5T tokens. ([blog](https://allenai.org/blog/olmo2))
+    creator_organization_name: Allen Institute for AI
+    access: open
+    num_parameters: 7300000000
+    release_date: 2024-11-26
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: allenai/olmo-2-1124-13b-instruct
+    display_name: OLMo 2 13B Instruct November 2024
+    description: OLMo 2 is a family of 7B and 13B models trained on up to 5T tokens. ([blog](https://allenai.org/blog/olmo2))
+    creator_organization_name: Allen Institute for AI
+    access: open
+    num_parameters: 13700000000
+    release_date: 2024-11-26
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: allenai/olmo-2-0325-32b-instruct
+    display_name: OLMo 2 32B Instruct March 2025
+    description: OLMo 2 32B Instruct March 2025 is trained up to 6T tokens and post-trained using Tulu 3.1. ([blog](https://allenai.org/blog/olmo2-32B))
+    creator_organization_name: Allen Institute for AI
+    access: open
+    num_parameters: 32200000000
+    release_date: 2025-03-13
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   # Mistral AI
   - name: mistralai/mistral-7b-v0.1
     display_name: Mistral v0.1 (7B)
