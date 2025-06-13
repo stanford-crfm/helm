@@ -3356,6 +3356,60 @@ model_deployments:
       args:
         pretrained_model_name_or_path: Qwen/Qwen2.5-7B-Instruct
 
+  - name: huggingface/smollm2-135m
+    model_name: huggingface/smollm2-135m
+    tokenizer_name: huggingface/smollm2-135m
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_pipeline_client.HuggingFacePipelineClient"
+      args:
+        pretrained_model_name_or_path: HuggingFaceTB/SmolLM2-135M
+
+  - name: huggingface/smollm2-360m
+    model_name: huggingface/smollm2-360m
+    tokenizer_name: huggingface/smollm2-135m
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_pipeline_client.HuggingFacePipelineClient"
+      args:
+        pretrained_model_name_or_path: HuggingFaceTB/SmolLM2-360M
+
+  - name: huggingface/smollm2-1.7b
+    model_name: huggingface/smollm2-1.7b
+    tokenizer_name: huggingface/smollm2-135m
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_pipeline_client.HuggingFacePipelineClient"
+      args:
+        pretrained_model_name_or_path: HuggingFaceTB/SmolLM2-1.7B
+
+  - name: huggingface/smollm2-135m-instruct
+    model_name: huggingface/smollm2-135m-instruct
+    tokenizer_name: huggingface/smollm2-135m-instruct
+    max_sequence_length: 328192768
+    client_spec:
+      class_name: "helm.clients.huggingface_pipeline_client.HuggingFacePipelineClient"
+      args:
+        pretrained_model_name_or_path: HuggingFaceTB/SmolLM2-135M-Instruct
+
+  - name: huggingface/smollm2-360m-instruct
+    model_name: huggingface/smollm2-360m-instruct
+    tokenizer_name: huggingface/smollm2-135m-instruct
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_pipeline_client.HuggingFacePipelineClient"
+      args:
+        pretrained_model_name_or_path: HuggingFaceTB/SmolLM2-360M-Instruct
+
+  - name: huggingface/smollm2-1.7b-instruct
+    model_name: huggingface/smollm2-1.7b-instruct
+    tokenizer_name: huggingface/smollm2-135m-instruct
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_pipeline_client.HuggingFacePipelineClient"
+      args:
+        pretrained_model_name_or_path: HuggingFaceTB/SmolLM2-1.7B-Instruct
+
   - name: together/qwq-32b-preview
     model_name: qwen/qwq-32b-preview
     tokenizer_name: qwen/qwq-32b-preview
