@@ -271,7 +271,7 @@ class HuggingFaceClient(CachingClient):
         self._kwargs = _process_huggingface_client_kwargs(kwargs)
         self._end_of_text_token = end_of_text_token
 
-    def make_text_inputs(self, request: Request) -> str:
+    def get_prompt(self, request: Request) -> str:
         with self._wrapped_tokenizer as tokenizer:
             is_chat_model = bool(tokenizer.chat_template)
         if request.prompt and request.messages:
@@ -280,9 +280,13 @@ class HuggingFaceClient(CachingClient):
         if is_chat_model:
             with self._wrapped_tokenizer as tokenizer:
                 if request.messages:
-                    return tokenizer.apply_chat_template(request.messages, tokenize=False)
+                    prompt = tokenizer.apply_chat_template(request.messages, tokenize=False)
+                    assert isinstance(prompt, str)
+                    return prompt
                 else:
-                    return tokenizer.apply_chat_template([{"role": "user", "content": request.prompt}], tokenize=False)
+                    prompt = tokenizer.apply_chat_template([{"role": "user", "content": request.prompt}], tokenize=False)
+                    assert isinstance(prompt, str)
+                    return prompt
         # Base non-chat model expects a string as input
         else:
             if request.messages:
@@ -297,7 +301,7 @@ class HuggingFaceClient(CachingClient):
 
         raw_request: HuggingFaceRequest = {
             "engine": request.model_engine,
-            "prompt": request.prompt,
+            "prompt": self.get_prompt(request),
             "temperature": 1e-7 if request.temperature == 0 else request.temperature,
             "num_return_sequences": request.num_completions,
             "max_new_tokens": request.max_tokens,
