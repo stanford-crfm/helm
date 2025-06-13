@@ -1330,7 +1330,7 @@ model_deployments:
     tokenizer_name: marin-community/marin-8b-instruct
     max_sequence_length: 131072
     client_spec:
-      class_name: "helm.clients.huggingface_pipeline_client.HuggingFacePipelineClient"
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         device_map: auto
         torch_dtype: auto
