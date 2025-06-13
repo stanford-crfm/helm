@@ -1,6 +1,7 @@
 from collections import OrderedDict, defaultdict
 from dataclasses import dataclass
 import os
+import pickle
 from typing import Dict, Iterable, List, Optional, Set, Tuple, Any
 
 from helm.benchmark.adaptation.adapter_spec import (
@@ -21,6 +22,7 @@ from helm.common.hierarchical_logger import hlog, htrack
 from helm.common.images_utils import encode_base64
 from helm.common.request import Request
 from helm.common.codec import from_json, to_json
+from huggingface_hub import hf_hub_download
 
 
 @dataclass(frozen=True)
@@ -154,7 +156,7 @@ _DISPLAY_REQUESTS_JSON_FILE_NAME = "display_requests.json"
 
 
 @htrack(None)
-def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, skip_completed: bool) -> None:
+def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, validity_check: bool, skip_completed: bool) -> None:
     """Write run JSON files that are used by the web frontend.
 
     The derived JSON files that are used by the web frontend are much more compact than
@@ -229,6 +231,15 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
     predictions: List[DisplayPrediction] = []
     requests: List[DisplayRequest] = []
 
+    if validity_check:
+        validity_path = hf_hub_download(
+            repo_id="stair-lab/helm_display_validity",
+            repo_type="dataset",
+            filename="validity.pkl"
+        )
+        with open(validity_path, "rb") as vf:
+            validity_dict = pickle.load(vf)
+        
     for request_state in scenario_state.request_states:
         assert request_state.instance.id is not None
         if request_state.result is None:
@@ -248,6 +259,15 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
             request_state.train_trial_index,
         )
         trial_stats: Dict[str, float] = stats_by_trial[stats_key]
+        
+        if validity_check:
+            tetra_val = validity_dict.get(stats_key)
+            breakpoint()
+            if tetra_val is not None:
+                trial_stats["tetrachoric_correlation"] = float(tetra_val)
+            else:
+                trial_stats["tetrachoric_correlation"] = float("nan")
+        
         # For the multiple_choice_separate_* adapter methods,
         # only keep the prediction for the chosen reference and discard the rest.
         if (
