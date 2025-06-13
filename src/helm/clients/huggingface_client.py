@@ -18,6 +18,7 @@ from helm.common.request import (
     GeneratedOutput,
     Token,
 )
+from helm.proxy.retry import NonRetriableException
 from helm.tokenizers.tokenizer import Tokenizer
 from helm.clients.client import CachingClient, truncate_sequence
 from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer, WrappedPreTrainedTokenizer
@@ -269,6 +270,25 @@ class HuggingFaceClient(CachingClient):
         self._tokenizer = tokenizer
         self._kwargs = _process_huggingface_client_kwargs(kwargs)
         self._end_of_text_token = end_of_text_token
+
+    def make_text_inputs(self, request: Request) -> str:
+        with self._wrapped_tokenizer as tokenizer:
+            is_chat_model = bool(tokenizer.chat_template)
+        if request.prompt and request.messages:
+            raise NonRetriableException(f"More than one of `prompt` and `messages` was set in request: {request}")
+        # Chat model expects a list of messages as input
+        if is_chat_model:
+            with self._wrapped_tokenizer as tokenizer:
+                if request.messages:
+                    return tokenizer.apply_chat_template(request.messages, tokenize=False)
+                else:
+                    return tokenizer.apply_chat_template([{"role": "user", "content": request.prompt}], tokenize=False)
+        # Base non-chat model expects a string as input
+        else:
+            if request.messages:
+                raise NonRetriableException(f"Chat mesages not supported by non-chat model")
+            else:
+                return request.prompt
 
     def make_request(self, request: Request) -> RequestResult:
         # Embedding not supported for this model

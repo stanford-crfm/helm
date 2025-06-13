@@ -63,7 +63,7 @@ class HuggingFacePipelineClient(CachingClient):
         # Base non-chat model expects a string as input
         else:
             if request.messages:
-                raise
+                raise NonRetriableException(f"Chat mesages not supported by non-chat model")
             else:
                 return request.prompt
 
