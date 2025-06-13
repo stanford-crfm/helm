@@ -1474,7 +1474,7 @@ models:
     release_date: 2024-10-31
     tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: huggingface/smollm2-362m
+  - name: huggingface/smollm2-360m
     display_name: SmolLM2 (360M)
     description: SmolLM2 is a family of compact language models that are capable of solving a wide range of tasks while being lightweight enough to run on-device. ([paper](https://arxiv.org/abs/2502.02737v1))
     creator_organization_name: HuggingFace
@@ -1501,7 +1501,7 @@ models:
     release_date: 2024-10-31
     tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  - name: huggingface/smollm2-362m-instruct
+  - name: huggingface/smollm2-360m-instruct
     display_name: SmolLM2 Instruct (360M)
     description: SmolLM2 is a family of compact language models that are capable of solving a wide range of tasks while being lightweight enough to run on-device. ([paper](https://arxiv.org/abs/2502.02737v1))
     creator_organization_name: HuggingFace
