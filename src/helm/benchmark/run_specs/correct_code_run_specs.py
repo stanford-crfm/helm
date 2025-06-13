@@ -1,28 +1,29 @@
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.benchmark.metrics.basic_metrics import BasicGenerationMetric
-from helm.benchmark.metrics.metric import MetricSpec
-from helm.common.object_spec import ObjectSpec
+from helm.benchmark.adaptation.common_adapter_specs import get_generation_adapter_spec
+from helm.benchmark.metrics.codeinsights_metric_specs import get_functional_correctness_metric_specs
+from helm.benchmark.metrics.common_metric_specs import get_basic_metric_specs
+
 
 @run_spec_function("correct_code")
 def get_student_coding_run_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.correct_code_scenario.CorrectCodeScenario", args={}
+    )
+
+    instruction = (
+        "You are a skilled C++ programmer working on a foundational programming course assignment. "
+        "Your task is to write correct, efficient C++ code that solves the given problem. "
+        "Write clean, well-structured code that follows good programming practices. "
+        "Respond ONLY with the C++ code implementation (no commentary or explanations).\n\n"
+    )
+
+    adapter_spec = get_generation_adapter_spec(instructions=instruction, output_noun="Your code", max_tokens=4096)
+
     return RunSpec(
         name="correct_code",
-        scenario_spec=ScenarioSpec(
-            class_name="helm.benchmark.scenarios.correct_code_scenario.CorrectCodeScenario",
-            args={}
-        ),
-        adapter_spec=AdapterSpec(
-            method="generation",
-            temperature=0,
-            max_tokens=2000,
-        ),
-        metric_specs=[
-            # Evaluation with AST, CodeBERT, and response alignment
-            MetricSpec(
-                class_name="helm.benchmark.metrics.correct_code_metrics.FunctionalCorrectnessMetric",
-                args={"compile_code": True}
-            )
-        ]
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_functional_correctness_metric_specs() + get_basic_metric_specs([]),
+        groups=["codeinsights", "correct_code"],
     )
