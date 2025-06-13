@@ -18,7 +18,7 @@ def get_student_coding_run_spec() -> RunSpec:
         "Respond ONLY with the C++ code implementation (no commentary or explanations).\n\n"
     )
 
-    adapter_spec = get_generation_adapter_spec(instructions=instruction, output_noun="Your code", max_tokens=4096)
+    adapter_spec = get_generation_adapter_spec(instructions=instruction, output_noun="Your code", max_tokens=4000)
 
     return RunSpec(
         name="correct_code",
