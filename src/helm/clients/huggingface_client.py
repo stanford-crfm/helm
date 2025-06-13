@@ -284,13 +284,15 @@ class HuggingFaceClient(CachingClient):
                     assert isinstance(prompt, str)
                     return prompt
                 else:
-                    prompt = tokenizer.apply_chat_template([{"role": "user", "content": request.prompt}], tokenize=False)
+                    prompt = tokenizer.apply_chat_template(
+                        [{"role": "user", "content": request.prompt}], tokenize=False
+                    )
                     assert isinstance(prompt, str)
                     return prompt
         # Base non-chat model expects a string as input
         else:
             if request.messages:
-                raise NonRetriableException(f"Chat mesages not supported by non-chat model")
+                raise NonRetriableException("Chat mesages not supported by non-chat model")
             else:
                 return request.prompt
 
