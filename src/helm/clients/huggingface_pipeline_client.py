@@ -16,7 +16,7 @@ _pipelines_lock: Lock = Lock()
 
 def _get_pipeline(
     helm_model_name: str,
-    pipeline_kwargs: Dict[str, any],
+    pipeline_kwargs: Dict[str, Any],
 ) -> Any:
     """
     Checks if the desired HuggingFaceModel is cached. Creates the HuggingFaceModel if it's not cached.
@@ -31,15 +31,15 @@ def _get_pipeline(
                 f"Loading HuggingFace model {huggingface_model_name} (kwargs={pipeline_kwargs}) "
                 f"for HELM model {helm_model_name} with transformers.pipeline"
             ):
-                _pipelines[helm_model_name] = transformers.pipeline(
-                    **pipeline_kwargs
-                )
+                _pipelines[helm_model_name] = transformers.pipeline(**pipeline_kwargs)
 
     return _pipelines[helm_model_name]
 
 
 class HuggingFacePipelineClient(CachingClient):
-    def __init__(self, cache_config: CacheConfig, model_name: str, pretrained_model_name_or_path: Optional[str] = None, **kwargs):
+    def __init__(
+        self, cache_config: CacheConfig, model_name: str, pretrained_model_name_or_path: Optional[str] = None, **kwargs
+    ):
         # Include `model` parameter so that model deployments can use the `model` arg to override the `model_name`
         super().__init__(cache_config=cache_config)
         self._helm_model_name = model_name
@@ -52,9 +52,7 @@ class HuggingFacePipelineClient(CachingClient):
 
     def make_text_inputs(self, request: Request) -> Union[str, List[Dict[str, str]]]:
         if request.prompt and request.messages:
-            raise NonRetriableException(
-                f"More than one of `prompt` and `messages` was set in request: {request}"
-            )
+            raise NonRetriableException(f"More than one of `prompt` and `messages` was set in request: {request}")
         # Chat model expects a list of messages as input
         if self._pipeline.tokenizer.chat_template:
             if request.messages:
@@ -67,12 +65,13 @@ class HuggingFacePipelineClient(CachingClient):
                 raise
             else:
                 return request.prompt
-        
 
     def make_request(self, request: Request) -> RequestResult:
         """Make a request"""
         if request.model != self._helm_model_name:
-            raise NonRetriableException(f"This instance of HuggingFacePipelineClient has loaded model {self._helm_model_name} but request was for model {request.model}")
+            raise NonRetriableException(
+                f"This instance of HuggingFacePipelineClient has loaded model {self._helm_model_name} but the request was for model {request.model}"  # noqa: E501
+            )
         completions: List[GeneratedOutput] = []
         do_sample = request.temperature > 0.0
         raw_request = {
@@ -93,8 +92,9 @@ class HuggingFacePipelineClient(CachingClient):
             if len(stop_sequence_ids.input_ids) == 1 and len(stop_sequence_ids.input_ids[0]) == 1:
                 raw_request["eos_token_id"] = stop_sequence_ids.input_ids[0][0]
             else:
-                raise NonRetriableException("Multiple stop sequences, or stop sequences of multiple tokens, are not yet supported by HuggingFacePipelineClient")
-
+                raise NonRetriableException(
+                    "Multiple stop sequences and stop sequences of multiple tokens, are not yet supported by HuggingFacePipelineClient"  # noqa: E501
+                )
 
         # print(raw_request)
         def do_it() -> Dict[str, Any]:
@@ -102,10 +102,7 @@ class HuggingFacePipelineClient(CachingClient):
             return {"outputs": pipeline_outputs}
 
         cache_key = CachingClient.make_cache_key(
-            {
-                "pipeline_kwargs": self._pipeline_kwargs,
-                **raw_request
-            },
+            {"pipeline_kwargs": self._pipeline_kwargs, **raw_request},
             request,
         )
 
