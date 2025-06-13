@@ -1325,6 +1325,16 @@ model_deployments:
         cross_attn_every_n_layers: 4
 
   ## Marin Community
+  - name: huggingface/marin-8b-instruct
+    model_name: marin-community/marin-8b-instruct
+    tokenizer_name: marin-community/marin-8b-instruct
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.huggingface_pipeline_client.HuggingFacePipelineClient"
+      args:
+        device_map: auto
+        torch_dtype: auto
+
   - name: together/marin-8b-instruct
     model_name: marin-community/marin-8b-instruct
     tokenizer_name: marin-community/marin-8b-instruct
