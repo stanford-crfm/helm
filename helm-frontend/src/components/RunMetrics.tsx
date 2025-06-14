@@ -48,7 +48,7 @@ export default function Run({ runName, suite, metricFieldMap }: Props) {
     return <Loading />;
   }
 
-  const totalMetricsPages = Math.floor(stats.length / METRICS_PAGE_SIZE);
+  const totalMetricsPages = Math.ceil(stats.length / METRICS_PAGE_SIZE);
 
   const pagedMetrics = stats.slice(
     (currentMetricsPage - 1) * METRICS_PAGE_SIZE,
