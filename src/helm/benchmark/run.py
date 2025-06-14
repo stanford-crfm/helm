@@ -11,7 +11,7 @@ from helm.common.cache_backend_config import MongoCacheBackendConfig, SqliteCach
 from helm.common.general import ensure_directory_exists
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block, setup_default_logging, hwarn
 from helm.common.authentication import Authentication
-from helm.common.object_spec import parse_object_spec, get_class_by_name
+from helm.common.object_spec import ObjectSpec, parse_object_spec, get_class_by_name
 from helm.proxy.services.remote_service import create_authentication, add_service_args
 from helm.proxy.services.service import CACHE_DIR
 
@@ -88,6 +88,7 @@ def run_benchmarking(
     runner_class_name: Optional[str],
     mongo_uri: Optional[str] = None,
     disable_cache: Optional[bool] = None,
+    evaluate_contamination: Optional[str] = None,
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
     sqlite_cache_backend_config: Optional[SqliteCacheBackendConfig] = None
@@ -100,6 +101,10 @@ def run_benchmarking(
             sqlite_cache_path = os.path.join(local_path, CACHE_DIR)
             ensure_directory_exists(sqlite_cache_path)
             sqlite_cache_backend_config = SqliteCacheBackendConfig(sqlite_cache_path)
+
+    parsed_evaluate_contamination: Optional[ObjectSpec] = None
+    if evaluate_contamination:
+        parsed_evaluate_contamination = parse_object_spec(evaluate_contamination)
 
     execution_spec = ExecutionSpec(
         auth=auth,
@@ -123,6 +128,7 @@ def run_benchmarking(
         cache_instances_only,
         skip_completed_runs,
         exit_on_error,
+        evaluate_contamination=parsed_evaluate_contamination,
     )
     runner.run_all(run_specs)
     return run_specs
@@ -288,6 +294,7 @@ def helm_run(args):
         runner_class_name=args.runner_class_name,
         mongo_uri=args.mongo_uri,
         disable_cache=args.disable_cache,
+        evaluate_contamination=args.evaluate_contamination,
     )
 
     if args.run_specs:
@@ -365,6 +372,14 @@ def main():
         default=None,
         help="Full class name of the Runner class to use. If unset, uses the default Runner.",
     )
+    parser.add_argument(
+        "--evaluate-contamination",
+        type=str,
+        default="",
+        help="Experimental: Contamination strategies in format key:value. "
+        "Each item will be processed and passed to the Runner.",
+    )
+
     add_run_args(parser)
     args = parser.parse_args()
     setup_default_logging()
