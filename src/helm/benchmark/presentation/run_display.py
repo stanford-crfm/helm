@@ -232,13 +232,13 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, val
     requests: List[DisplayRequest] = []
 
     if validity_check:
-        validity_path = hf_hub_download(
+        validity_path: Optional[str] = hf_hub_download(
             repo_id="stair-lab/helm_display_validity",
             repo_type="dataset",
             filename="validity.pkl"
         )
         with open(validity_path, "rb") as vf:
-            validity_dict = pickle.load(vf)
+            validity_dict: Optional[Dict[Tuple[str, Optional[str], int], Dict[str, float]]] = pickle.load(vf)
         
     for request_state in scenario_state.request_states:
         assert request_state.instance.id is not None
@@ -261,12 +261,13 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, val
         trial_stats: Dict[str, float] = stats_by_trial[stats_key]
         
         if validity_check:
-            tetra_val = validity_dict.get(stats_key)
-            breakpoint()
-            if tetra_val is not None:
-                trial_stats["tetrachoric_correlation"] = float(tetra_val)
-            else:
-                trial_stats["tetrachoric_correlation"] = float("nan")
+            validity_metrics: Optional[Dict[str, float]] = validity_dict.get(stats_key)
+            def get_metric(name: str) -> float:
+                return float(validity_metrics.get(name)) if validity_metrics and name in validity_metrics else float("nan")
+            trial_stats["tetrachoric"] = get_metric("tetrachoric")
+            trial_stats["2pl_irt_discriminant"] = get_metric("2pl_irt_discriminant")
+            trial_stats["scalability_coeff"] = get_metric("scalability_coeff")
+            trial_stats["item_total_corr"] = get_metric("item_total_corr")
         
         # For the multiple_choice_separate_* adapter methods,
         # only keep the prediction for the chosen reference and discard the rest.
