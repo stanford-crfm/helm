@@ -429,10 +429,7 @@ class VertexAIChatClient(VertexAIClient):
                             "Found multiple content parts in candidate, using the first one only: "
                             f"{candidate.content.parts}"
                         )
-                        assert (
-                            candidate.content.parts[0].text == candidate.content.parts[1].text
-                        ), "Expected all parts to be the same, but found different texts."
-                        return {"predictions": [{"text": candidate.content.parts[0].text}]}
+                        return {"predictions": [{"text": candidate.content.parts[-1].text}]}
                     return {"predictions": [{"text": candidate.text}]}
 
                 raw_cache_key = {"model_name": model_name, "prompt": prompt_key, **parameters}
