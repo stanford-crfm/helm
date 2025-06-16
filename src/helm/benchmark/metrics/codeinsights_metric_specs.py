@@ -20,3 +20,19 @@ def get_comprehensive_code_evaluation_metric_specs(
             args={"use_codebert": use_codebert, "compile_code": compile_code},
         )
     ]
+
+def get_code_efficiency_metric_specs(
+    compile_code: bool = True, 
+    num_runtime_runs: int = 5,
+    timeout_seconds: int = 10
+) -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.code_efficiency_metrics.CodeEfficiencyMetric",
+            args={
+                "compile_code": compile_code,
+                "num_runtime_runs": num_runtime_runs,
+                "timeout_seconds": timeout_seconds
+            },
+        )
+    ]
