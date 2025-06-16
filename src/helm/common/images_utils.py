@@ -163,7 +163,7 @@ def sample_frames(video_path: Union[str, Path], fps: int) -> List[str]:
             if not success_decode:
                 break
 
-            img_filename = f"frame_{saved_idx:04d}.jpg"
+            img_filename = f"frame_{saved_idx+1:04d}_{fps:04d}.jpg"
             img_path = output_dir / img_filename
             cv2.imwrite(str(img_path), frame)
             saved_paths.append(str(img_path))
