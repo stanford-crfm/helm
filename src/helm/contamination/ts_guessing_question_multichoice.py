@@ -464,8 +464,10 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator(ContaminationEvaluator
                 options_lines_segment += f"\n{letter}: {option_content}"
 
             # Construct the user-facing part of the prompt (question + options + reply footer).
-            user_text_segment = f"{part_header_q} {original_question_text}"
-            f"\n{part_header_opts}{options_lines_segment}\n\n{part_footer_reply}"
+            user_text_segment = (
+                f"{part_header_q} {original_question_text}"
+                f"\n{part_header_opts}{options_lines_segment}\n\n{part_footer_reply}"
+            )
 
             return instruction_text_segment, user_text_segment, original_text_of_masked_option, masked_option_letter
         except Exception as e:
