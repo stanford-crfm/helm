@@ -982,8 +982,6 @@ tokenizer_configs:
     prefix_token: ""
     end_of_text_token: ""
 
-
-
   - name: ibm-granite/granite-34b-code-instruct-8k
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
@@ -1017,7 +1015,17 @@ tokenizer_configs:
     prefix_token: ""
     end_of_text_token: ""
 
+  # IBM Granite 3.3
 
+  - name: ibm/granite-3.3-8b-instruct
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: ibm-granite/granite-3.3-8b-instruct
+    end_of_text_token: "<|end_of_text|>"
+    prefix_token: "<|end_of_text|>"
+
+  
 
   # DeepSeek-R1-Distill-Llama-3.1-8b
   - name: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
