@@ -2893,30 +2893,36 @@ model_deployments:
     tokenizer_name: allenai/olmo-2-1124-7b-instruct
     max_sequence_length: 4096
     client_spec:
-      class_name: "helm.clients.huggingface_pipeline_client.HuggingFacePipelineClient"
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         device_map: auto
-        torch_dtype: torch.bfloat16
 
   - name: huggingface/olmo-2-1124-13b-instruct
     model_name: allenai/olmo-2-1124-13b-instruct
     tokenizer_name: allenai/olmo-2-1124-7b-instruct
     max_sequence_length: 4096
     client_spec:
-      class_name: "helm.clients.huggingface_pipeline_client.HuggingFacePipelineClient"
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         device_map: auto
-        torch_dtype: torch.bfloat16
 
   - name: huggingface/olmo-2-0325-32b-instruct
     model_name: allenai/olmo-2-0325-32b-instruct
     tokenizer_name: allenai/olmo-2-0325-32b-instruct
     max_sequence_length: 4096
     client_spec:
-      class_name: "helm.clients.huggingface_pipeline_client.HuggingFacePipelineClient"
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         device_map: auto
-        torch_dtype: torch.bfloat16
+
+  - name: huggingface/olmoe-1b-7b-0125-instruct
+    model_name: allenai/olmoe-1b-7b-0125-instruct
+    tokenizer_name: allenai/olmoe-1b-7b-0125-instruct
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
 
   ## MistralAI
   - name: together/mistral-7b-v0.1
