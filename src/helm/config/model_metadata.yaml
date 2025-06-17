@@ -937,6 +937,24 @@ models:
     release_date: 2025-05-28
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+    display_name: DeepSeek-R1-Distill-Llama-8b
+    description: DeepSeek-R1-Distill-Llama-8b is a model that is distilled from LLaMA 8B model for the DeepSeek-R1 task.
+    creator_organization_name: DeepSeek
+    access: open
+    num_parameters: 8000000000
+    release_date: 2025-01-20
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: deepseek-ai/deepseek-coder-6.7b-instruct
+    display_name: DeepSeek-Coder-6.7b-Instruct
+    description: DeepSeek-Coder-6.7b-Instruct is a model that is fine-tuned from the LLaMA 6.7B model for the DeepSeek-Coder task.
+    creator_organization_name: DeepSeek
+    access: open
+    num_parameters: 6740000000
+    release_date: 2025-01-20
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   # EleutherAI
   - name: eleutherai/gpt-j-6b # Served by GooseAi, HuggingFace and Together.
     display_name: GPT-J (6B)
@@ -4196,6 +4214,17 @@ models:
     release_date: 2024-09-10
     tags: [AUDIO_LANGUAGE_MODEL_TAG]
 
+
+# Maritaca AI
+  - name: maritaca-ai/sabia-7b
+    display_name: Sabia 7B
+    description: Sabia 7B
+    creator_organization_name: MARITACA-AI
+    access: open
+    num_parameters: 6740000000
+    release_date: 2023-11-08
+    tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
 # Granite - IBM
 # https://www.ibm.com/granite
 # https://github.com/ibm-granite/granite-3.0-language-models
@@ -4271,17 +4300,7 @@ models:
     num_parameters: 1380000000
     release: 2024-10-21
     tags: [TEXT_MODEL_TAG]
-
-  - name: maritaca-ai/sabia-7b
-    display_name: Sabia 7B
-    description: Sabia 7B
-    creator_organization_name: MARITACA-AI
-    access: open
-    num_parameters: 6740000000
-    release_date: 2023-11-08
-    tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
    
-# Granite-3.1-8b-base
   - name: ibm-granite/granite-3.1-8b-base
     display_name: Granite 3.1 - 8B - Base
     description: Granite-3.1-8B-Base extends the context length of Granite-3.0-8B-Base from 4K to 128K using a progressive training strategy by increasing the supported context length in increments while adjusting RoPE theta until the model has successfully adapted to desired length of 128K.
@@ -4291,7 +4310,6 @@ models:
     release_date: 2024-12-18
     tags: [TEXT_MODEL_TAG]
 
-# Granite-3.1-8b-instruct
   - name: ibm-granite/granite-3.1-8b-instruct
     display_name: Granite 3.1 - 8B - Instruct
     description: Granite-3.1-8B-Instruct is a 8B parameter long-context instruct model finetuned from Granite-3.1-8B-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets tailored for solving long context problems.
@@ -4301,7 +4319,6 @@ models:
     release_date: 2024-12-18
     tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-# Granite-3.1-2b-instruct
   - name: ibm-granite/granite-3.1-2b-instruct
     display_name: Granite 3.1 - 2B - Instruct
     description: Granite-3.1-2B-Instruct is a 2B parameter long-context instruct model finetuned from Granite-3.1-2B-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets tailored for solving long context problems.
@@ -4311,7 +4328,6 @@ models:
     release_date: 2024-12-18
     tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-# Granite-3.1-2b-base
   - name: ibm-granite/granite-3.1-2b-base
     display_name: Granite 3.1 - 2B - Base
     description: Granite-3.1-2B-Base extends the context length of Granite-3.0-2B-Base from 4K to 128K using a progressive training strategy by increasing the supported context length in increments while adjusting RoPE theta until the model has successfully adapted to desired length of 128K.
@@ -4321,7 +4337,6 @@ models:
     release_date: 2024-12-18
     tags: [TEXT_MODEL_TAG]
 
-# Granite-3.1-3b-a800m-instruct
   - name: ibm-granite/granite-3.1-3b-a800m-instruct
     display_name: Granite 3.1 - 3B - A800M - Instruct
     description: Granite-3.1-3B-A800M-Instruct is a 3B parameter long-context instruct model finetuned from Granite-3.1-3B-A800M-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets tailored for solving long context problems.
@@ -4331,7 +4346,6 @@ models:
     release_date: 2024-12-18
     tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-# Granite-3.1-3b-a800m-base
   - name: ibm-granite/granite-3.1-3b-a800m-base
     display_name: Granite 3.1 - 3B - A800M - Base
     description: Granite-3.1-3B-A800M-Base extends the context length of Granite-3.0-3B-A800M-Base from 4K to 128K using a progressive training strategy by increasing the supported context length in increments while adjusting RoPE theta until the model has successfully adapted to desired length of 128K.
@@ -4341,7 +4355,6 @@ models:
     release_date: 2024-12-18
     tags: [TEXT_MODEL_TAG]
 
-# Granite-3.1-1b-a400m-instruct
   - name: ibm-granite/granite-3.1-1b-a400m-instruct
     display_name: Granite 3.1 - 1B - A400M - Instruct
     description: Granite-3.1-1B-A400M-Instruct is a 8B parameter long-context instruct model finetuned from Granite-3.1-1B-A400M-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets tailored for solving long context problems.
@@ -4351,7 +4364,6 @@ models:
     release_date: 2024-12-18
     tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-# Granite-3.1-1b-a400m-base
   - name: ibm-granite/granite-3.1-1b-a400m-base
     display_name: Granite 3.1 - 1B - A400M - Base
     description: Granite-3.1-1B-A400M-Base extends the context length of Granite-3.0-1B-A400M-Base from 4K to 128K using a progressive training strategy by increasing the supported context length in increments while adjusting RoPE theta until the model has successfully adapted to desired length of 128K.
@@ -4361,27 +4373,6 @@ models:
     release_date: 2024-12-18
     tags: [TEXT_MODEL_TAG]
 
-# DeepSeek-R1-Distill-Llama-3.1-8b
-  - name: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
-    display_name: DeepSeek-R1-Distill-Llama-8b
-    description: DeepSeek-R1-Distill-Llama-8b is a model that is distilled from LLaMA 8B model for the DeepSeek-R1 task.
-    creator_organization_name: DeepSeek
-    access: open
-    num_parameters: 8000000000
-    release_date: 2025-01-20
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-
-# deepseek-ai/deepseek-coder-6.7b-instruct
-  - name: deepseek-ai/deepseek-coder-6.7b-instruct
-    display_name: DeepSeek-Coder-6.7b-Instruct
-    description: DeepSeek-Coder-6.7b-Instruct is a model that is fine-tuned from the LLaMA 6.7B model for the DeepSeek-Coder task.
-    creator_organization_name: DeepSeek
-    access: open
-    num_parameters: 6740000000
-    release_date: 2025-01-20
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-
-# WatsonX - IBM
   - name: ibm/granite-13b-instruct-v2
     display_name: Granite 13b instruct v2
     description: Granite Base (13B) Instruct V2.0 is a large decoder-only transformer model.The following features were used in the design of the model Decoder-only model
@@ -4428,11 +4419,6 @@ models:
     release: 2024-6-18
     tags: [ TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG ]
 
-
-
-
-
-
   - name: ibm/granite-3.1-8b-instruct
     display_name: Granite 3.1 - 8B - Instruct
     description: Granite-3.1-8B-Instruct is a 8B parameter long-context instruct model finetuned from Granite-3.1-8B-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets tailored for solving long context problems.
@@ -4450,6 +4436,15 @@ models:
     num_parameters: 2530000000
     release_date: 2024-12-18
     tags: [ TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG ]
+
+  - name: ibm/granite-3.3-8b-instruct
+    display_name: Granite 3.3 8B Instruct
+    description: Granite 3.3 8B Instruct is a 8-billion parameter 128K context length language model fine-tuned for improved reasoning and instruction-following capabilities. ([model card](https://huggingface.co/ibm-granite/granite-3.3-8b-instruct))
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 8170000000
+    release_date: 2025-04-16
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: mistralai/mixtral-8x7b-instruct-v0:1
     display_name: Mixtral 8x7B Instruct on IBM WatsonX
