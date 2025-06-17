@@ -24,8 +24,9 @@ class SHCENTMedScenario(Scenario):
 
     name = "shc_ent_med"
     description = (
-        "A dataset designed to evaluate performance in "
-        "identifying appropriate patient referrals to Ear, Nose, and Throat specialists."
+        "ENT-Referral is a benchmark designed to evaluate whether a patient's clinical note"
+        "supports a referral to an Ear, Nose, and Throat (ENT) specialist. It helps assess"
+        "models' abilities to make referral decisions based on unstructured clinical text."
     )
     tags = ["knowledge", "reasoning", "biomedical"]
 

@@ -28,9 +28,10 @@ class SHCPTBMMedScenario(Scenario):
 
     name = "shc_ptbm_med"
     description = (
-        "A dataset that classifies whether a clinical note contains a clinician "
-        "recommendation for parent training in behavior management, which is the first-line "
-        "evidence-based treatment for young children with ADHD."
+        "ADHD-Behavior is a benchmark that evaluates a model’s ability to detect whether"
+        "a clinician recommends parent training in behavior management, an evidence-based"
+        "first-line treatment for young children diagnosed with ADHD. Each instance includes"
+        "a clinical note from a pediatric visit and a binary classification task."
     )
     tags = ["knowledge", "reasoning", "biomedical"]
 

@@ -36,8 +36,9 @@ class MTSamplesReplicateScenario(Scenario):
 
     name = "mtsamples_replicate"
     description = (
-        "A dataset of clinical notes where the model is prompted to generate "
-        "a reasonable treatment plan for the patient based on transcribed medical reports."
+        "MTSamples Replicate is a benchmark that provides transcribed medical reports"
+        "from various specialties. It is used to evaluate a model's ability to generate clinically"
+        "appropriate treatment plans based on unstructured patient documentation"
     )
     tags = ["medical", "transcription", "plan_generation"]
 

@@ -85,7 +85,12 @@ class CLEARScenario(Scenario):
         self.data_path = data_path
         self.condition = condition
         self.name = f"clear_{condition}"
-        self.description = f"A dataset for evaluating {self.CONDITION_PROMPTS[condition]} detection from patient notes with yes/no/maybe classifications."  # noqa: E501
+        self.description = (
+            "CLEAR is a benchmark designed to evaluate models on their ability to detect medical"
+            "conditions from patient notes using categorical responses. Each instance consists of"
+            "a clinical note and a target condition, requiring the model to classify the patient's"
+            "history as either affirmative, negative, or uncertain."
+        )  # noqa: E501
         self.tags = ["classification", "biomedical", condition.replace("_", "-")]
 
     def get_answer_choices(self) -> List[str]:

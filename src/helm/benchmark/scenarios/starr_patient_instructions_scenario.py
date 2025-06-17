@@ -39,7 +39,13 @@ class StarrPatientInstructionsScenario(Scenario):
     """
 
     name = "starr_patient_instructions"
-    description = "A dataset containing case details used to generate customized post-procedure patient instructions."
+    description = (
+        "PatientInstruct is a benchmark designed to evaluate models on generating personalized"
+        "post-procedure instructions for patients. It includes real-world clinical case details,"
+        "such as diagnosis, planned procedures, and history and physical notes, from which"
+        "models must produce clear, actionable instructions appropriate for patients recovering"
+        "from medical interventions."
+    )
     tags = ["patient_communication", "healthcare", "instruction_generation", "surgery"]
 
     def __init__(self, data_path: str):

@@ -88,8 +88,13 @@ class RaceBasedMedScenario(Scenario):
     """
 
     name = "race_based_med"
-    description = "A collection of LLM outputs in response to medical questions with race-based biases, \
-    with the objective being to classify whether the output contains racially biased content."
+    description = (
+        "RaceBias is a benchmark used to evaluate language models for racially biased or"
+        "inappropriate content in medical question-answering scenarios. Each instance consists"
+        "of a medical question and a model-generated response. The task is to classify whether"
+        "the response contains race-based, harmful, or inaccurate content. This benchmark"
+        "supports research into bias detection and fairness in clinical AI systems."
+    )
     tags = ["knowledge", "reasoning", "biomedical"]
     POSSIBLE_ANSWER_CHOICES: List[str] = ["yes", "no"]
     FILE_URL: str = (

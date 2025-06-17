@@ -23,7 +23,12 @@ class SHCPROXYMedScenario(Scenario):
     """
 
     name = "shc_proxy_med"
-    description = "A dataset that determines if a message was sent by a proxy user "
+    description = (
+        "ProxySender is a benchmark composed of patient portal messages received by clinicians."
+        "It evaluates whether the message was sent by the patient or by a proxy user (e.g., parent,"
+        "spouse), which is critical for understanding who is communicating with healthcare"
+        "providers."
+    )
     tags = ["knowledge", "reasoning", "biomedical"]
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["A", "B"]
