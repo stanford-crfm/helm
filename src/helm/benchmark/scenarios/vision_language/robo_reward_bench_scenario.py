@@ -35,6 +35,7 @@ class RoboRewardBenchPreferenceRankingScenario(Scenario):
         output_path: str,
         insert_newline_before: bool = False,
         omit_policy_label: bool = False,
+        num_videos: Optional[int] = None,
     ) -> List[MediaObject]:
         content = []
         if insert_newline_before:
@@ -47,7 +48,12 @@ class RoboRewardBenchPreferenceRankingScenario(Scenario):
         policy_key: str = f"policy_{policy_label.lower()}"
         policy_rollout: dict = annotation[policy_key]
 
-        for camera in policy_rollout["cameras"]:
+        # possibly limit how many cameras we include
+        cameras = policy_rollout["cameras"]
+        if num_videos is not None:
+            cameras = cameras[:num_videos]
+
+        for camera in cameras:
             cam_path: str = RoboRewardBenchPreferenceRankingScenario.get_full_cam_path(
                 output_path, camera["camera_path"]
             )
@@ -83,10 +89,16 @@ class RoboRewardBenchPreferenceRankingScenario(Scenario):
                 MediaObject(text=prompt + "\n", content_type="text/plain"),
             ]
 
-            content.extend(self.add_policy_videos(policy_label="A", annotation=annotation, output_path=output_path))
+            content.extend(
+                self.add_policy_videos(policy_label="A", annotation=annotation, output_path=output_path, num_videos=1)
+            )
             content.extend(
                 self.add_policy_videos(
-                    policy_label="B", annotation=annotation, output_path=output_path, insert_newline_before=True
+                    policy_label="B",
+                    annotation=annotation,
+                    output_path=output_path,
+                    insert_newline_before=True,
+                    num_videos=1,
                 )
             )
 
@@ -125,6 +137,7 @@ class RoboRewardBenchProgressPredictionScenario(RoboRewardBenchPreferenceRanking
                         annotation=annotation,
                         output_path=output_path,
                         omit_policy_label=True,
+                        num_videos=1,
                     )
                 )
 
