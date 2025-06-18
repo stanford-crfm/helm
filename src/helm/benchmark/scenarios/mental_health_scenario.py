@@ -51,7 +51,7 @@ class MentalHealthScenario(Scenario):
     name = "mental_health"
     description = (
         "MentalHealth is a benchmark focused on evaluating empathetic communication in"
-        "mental health counseling. It includes real or simulated conversations between patients"
+        "mental health counseling. It includes simulated conversations between patients"
         "and counselors, where the task is to generate compassionate and appropriate counselor"
         "responses. The benchmark assesses a model's ability to support patients emotionally"
         "and meaningfully engage in therapeutic conversations."
