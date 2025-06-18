@@ -268,7 +268,6 @@ class HuggingFaceClient(CachingClient):
                 "but instead it is {tokenizer}"
             )
         self._wrapped_tokenizer: WrappedPreTrainedTokenizer = tokenizer.get_wrapped_tokenizer()
-        self._tokenizer = tokenizer
         self._kwargs = _process_huggingface_client_kwargs(kwargs)
         self._end_of_text_token = end_of_text_token
         # If the user did not explicitly configure whether the model is a chat model with `apply_chat_template` arg,
@@ -279,13 +278,12 @@ class HuggingFaceClient(CachingClient):
         if apply_chat_template is not None:
             self._apply_chat_template = apply_chat_template
         else:
-            with self._wrapped_tokenizer as tokenizer:
-                self._apply_chat_template = bool(tokenizer.chat_template)
-                hwarn(
-                    f"Automatically set `apply_chat_template` to {self._apply_chat_template} based on "
-                    "whether the tokenizer has a chat template. "
-                    "If this is incorrect, please explicitly set `apply_chat_template`."
-                )
+            self._apply_chat_template = bool(tokenizer.chat_template)
+            hwarn(
+                f"Automatically set `apply_chat_template` to {self._apply_chat_template} based on "
+                "whether the tokenizer has a chat template. "
+                "If this is incorrect, please explicitly set `apply_chat_template`."
+            )
 
     def get_prompt(self, request: Request) -> str:
         if request.prompt and request.messages:
