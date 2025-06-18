@@ -1411,7 +1411,7 @@ class EHRSHOTScenario(Scenario):
     name = "ehrshot"
     description = (
         "EHRSHOT is a benchmark designed to evaluate a model's ability to predict future"
-        "clinical events using structured EHR code sequences. Each instance contains a patient's"
+        "clinical events using structured EHR data. Each instance contains a patient's"
         "historical EHR data and a forward-looking clinical question about whether a particular"
         "diagnosis, lab result, or hospital event will occur."
     )
