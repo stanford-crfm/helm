@@ -62,7 +62,8 @@ class HuggingFacePipelineClient(CachingClient):
             raise NonRetriableException(f"More than one of `prompt` and `messages` was set in request: {request}")
         # If the user did not explicitly configure whether the model is a chat model with `apply_chat_template` arg,
         # auto-infer if the model is a chat model based on whether the tokenizer has a chat template.
-        # Note: Auto-inference is incorrect for some non-chat models that still have chat templates e.g. Qwen2, Qwen 2.5.
+        # Note: Auto-inference is incorrect for some non-chat models that still have chat templates
+        # e.g. Qwen2, Qwen 2.5.
         # For these models, the `apply_chat_template` arg should be explicitly set to false.
         if self._apply_chat_template is not None:
             is_chat_model = self._apply_chat_template
