@@ -182,7 +182,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         if not can_process_video(run_spec.adapter_spec.model):
             # Sample 1 frame per second as most VLMs can only support a limited number of frames
             # TODO: make fps configurable in the conf file -Tony
-            sample_video_frames_expander = SampleVideoFramesExpander(fps=4)
+            sample_video_frames_expander = SampleVideoFramesExpander(fps=1)
             run_spec = singleton(sample_video_frames_expander.expand(run_spec))
 
         return run_spec
