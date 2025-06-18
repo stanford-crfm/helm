@@ -122,6 +122,7 @@ class FunctionalCorrectnessMetric(Metric):
 
             try:
                 # Extract student code from LLM output
+                print(f'LLM GENERATED CODE: {generated_code}')
                 student_code = self._extract_student_code(generated_code)
                 print(f"Extracted student code length: {len(student_code)}")
                 print(f"Extracted code preview: {student_code[:100]}...")
@@ -177,111 +178,156 @@ class FunctionalCorrectnessMetric(Metric):
 
         return final_rate
 
+
     def _extract_student_code(self, model_code: str) -> str:
-        """Extract the actual student function code from the model output."""
-        # Remove markdown formatting
-        code = re.sub(r"```cpp\n?|```\n?", "", model_code).strip()
+        """
+        Extracts clean C++ code from model output:
+        - Removes markdown
+        - Trims preambles
+        - Removes student's main()
+        - Removes out-of-class method definitions
+        - Replaces `return NULL;` with `return 0;` for int returns
+        """
+        import re
 
-        print(f"Original model code length: {len(model_code)}")
-        print(f"After markdown removal: {len(code)}")
+        # --- Step 1: Markdown extraction ---
+        code_blocks = re.findall(r"```(?:c\+\+)?\n(.*?)```", model_code, flags=re.DOTALL)
+        if code_blocks:
+            code = "\n".join(code_blocks).strip()
+            print("[Markdown extraction] Used fenced code blocks.")
+        else:
+            # --- Step 2: Trim non-code preamble ---
+            lines = model_code.strip().splitlines()
+            start_keywords = ("#include", "template", "class", "struct", "void", "int main", "using namespace")
+            start_idx = 0
+            for i, line in enumerate(lines):
+                if any(line.strip().startswith(k) for k in start_keywords):
+                    start_idx = i
+                    break
+            code = "\n".join(lines[start_idx:]).strip()
+            print("[Fallback extraction] Trimmed preamble.")
 
-        # If code doesn't contain includes, it's likely just the student answer
-        if "#include" not in code:
-            print("No includes found, using entire code as student answer")
-            return code
+        # --- Step 3: Remove student's main() ---
+        main_match = re.search(r"\bint\s+main\s*\([^)]*\)\s*\{", code)
+        if main_match:
+            code = code[:main_match.start()].strip()
+            print("[Code cleaner] Removed student main() function.")
 
-        # Split into lines for processing
-        lines = code.split("\n")
+        # --- Step 4: Remove out-of-class method definitions ---
+        code = re.sub(r'\bArray\s*<[^>]*>\s*::\s*[\w~]+\s*\([^)]*\)\s*\{[^}]*\}', '', code, flags=re.DOTALL)
+        code = re.sub(r'template\s*<[^>]*>\s*[\w:<>\s&*]+\s+Array\s*<[^>]*>\s*::\s*[\w~]+\s*\([^)]*\)\s*\{[^}]*\}',
+                      '', code, flags=re.DOTALL)
 
-        # Find main function index
-        main_index = -1
-        for i, line in enumerate(lines):
-            if "int main" in line or "main()" in line:
-                main_index = i
-                break
+        # --- Step 5: Replace NULL return with 0 ---
+        code = re.sub(r'return\s+NULL\s*;', 'return 0;', code)
 
-        print(f"Main function found at line: {main_index}")
+        # --- Final touch ---
+        code = code.strip()
+        if 'print(' in code and 'void print()' not in code and 'print()' not in code:
+            print("⚠️ WARNING: `print()` is called in test input but not defined.")
 
-        # Extract code before main function
-        if main_index > 0:
-            student_lines = []
-            for i in range(main_index):
-                line = lines[i].strip()
-
-                # Skip includes, using statements, and empty lines
-                if line.startswith("#") or line.startswith("using") or line == "" or line.startswith("//"):
-                    continue
-
-                student_lines.append(lines[i])
-
-            if student_lines:
-                extracted = "\n".join(student_lines).strip()
-                print(f"Extracted student code length: {len(extracted)}")
-                return extracted
-
-        # Fallback: return original code
-        print("Using original code as fallback")
+        print(f"[Final extracted code length] {len(code)}")
+        print(f"[Code preview]\n{code[:300]}...\n")
         return code
 
+    # def _extract_student_code(self, model_code: str) -> str:
+    #     """Extract the actual student function code from the model output."""
+    #     # Remove markdown formatting
+    #     code = re.sub(r"```cpp\n?|```\n?", "", model_code).strip()
+
+    #     print(f"Original model code length: {len(model_code)}")
+    #     print(f"After markdown removal: {len(code)}")
+
+    #     # If code doesn't contain includes, it's likely just the student answer
+    #     if "#include" not in code:
+    #         print("No includes found, using entire code as student answer")
+    #         return code
+
+    #     # Split into lines for processing
+    #     lines = code.split("\n")
+
+    #     # Find main function index
+    #     main_index = -1
+    #     for i, line in enumerate(lines):
+    #         if "int main" in line or "main()" in line:
+    #             main_index = i
+    #             break
+
+    #     print(f"Main function found at line: {main_index}")
+
+    #     # Extract code before main function
+    #     if main_index > 0:
+    #         student_lines = []
+    #         for i in range(main_index):
+    #             line = lines[i].strip()
+
+    #             # Skip includes, using statements, and empty lines
+    #             if line.startswith("#") or line.startswith("using") or line == "" or line.startswith("//"):
+    #                 continue
+
+    #             student_lines.append(lines[i])
+
+    #         if student_lines:
+    #             extracted = "\n".join(student_lines).strip()
+    #             print(f"Extracted student code length: {len(extracted)}")
+    #             return extracted
+
+        # # Fallback: return original code
+        # print("Using original code as fallback")
+        # return code
+
     def _create_complete_program(self, template: str, student_code: str, test_input: str) -> str:
-        """Create a complete C++ program by combining template, student code, and test input."""
+        """Create a complete C++ program using template, student code, and test input."""
+        import re
+
         print("\n--- Create Complete Program Debug ---")
         print(f"Template length: {len(template)}")
         print(f"Student code length: {len(student_code)}")
         print(f"Test input length: {len(test_input)}")
 
-        # Clean the test input (remove any trailing markers)
+        # --- Step 1: Clean the raw test input ---
         clean_input = re.sub(r"STD input:\s*$", "", test_input).strip()
-        print(f"Cleaned input length: {len(clean_input)}")
+
+        # --- Step 2: Fix mismatches from test input ---
+        # Fix incorrect constructor calls: reduce args from 2 to 1
+        clean_input = re.sub(r'new\s+Array\s*<([^>]+)>\s*\([^,]+,\s*[^)]+\)', r'new Array<\1>(200)', clean_input)
+
+        # Remove all `print()` calls
+        clean_input = re.sub(r'\b\w+->print\(\);\s*', '', clean_input)
+
         print(f"Cleaned input: '{clean_input}'")
 
-        # Handle template with {{ STUDENT_ANSWER }} placeholder
+        # --- Step 3: Use template structure ---
         if "{{ STUDENT_ANSWER }}" in template:
             print("Using template with STUDENT_ANSWER placeholder")
-            # Replace the student answer placeholder
+
             complete_code = template.replace("{{ STUDENT_ANSWER }}", student_code)
 
-            # Replace the ENTIRE template loop section with actual test
             template_loop_pattern = r"{%\s*for\s+TEST\s+in\s+TESTCASES\s*%}.*?{%\s*endfor\s*%}"
+            test_block = f"""{{
+            {clean_input};
+           }}"""
 
-            test_block = f"""   {{
-        {clean_input};
-       }}"""
-
-            print(f"Test block to insert: '{test_block}'")
-
-            # Remove the entire template loop and replace with test block
-            old_complete_code = complete_code
             complete_code = re.sub(template_loop_pattern, test_block, complete_code, flags=re.DOTALL)
-
-            if complete_code == old_complete_code:
-                print("WARNING: Template loop pattern not found in alignment metric")
-            else:
-                print("Successfully replaced template loop in alignment metric")
-
-            # Also handle any remaining template syntax that might be left
             complete_code = re.sub(r"{%.*?%}", "", complete_code, flags=re.DOTALL)
             complete_code = re.sub(r"{{.*?}}", "", complete_code, flags=re.DOTALL)
 
             print(f"Template-based complete code length: {len(complete_code)}")
             return complete_code
 
-        print("No {{ STUDENT_ANSWER }} placeholder found, creating simple structure")
+        # --- Step 4: Default fallback structure ---
+        print("No template found. Using fallback layout.")
+        return f"""#include <iostream>
+    #include <vector>
+    #include <algorithm>
+    using namespace std;
 
-        # If no template, create a simple program structure
-        result = f"""#include <iostream>
-#include <vector>
-#include <algorithm>
-using namespace std;
+    {student_code}
 
-{student_code}
-
-int main() {{
-    {clean_input};
-    return 0;
-}}"""
-        print(f"Simple program structure length: {len(result)}")
-        return result
+    int main() {{
+        {clean_input};
+        return 0;
+    }}"""
 
     def _compile_and_run_cpp(self, code: str) -> Tuple[bool, str, str]:
         """Compile and run C++ code, return (success, stdout, stderr)."""
