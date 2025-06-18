@@ -90,7 +90,7 @@ class RoboRewardBenchPreferenceRankingScenario(Scenario):
             ]
 
             content.extend(
-                self.add_policy_videos(policy_label="A", annotation=annotation, output_path=output_path, num_videos=1)
+                self.add_policy_videos(policy_label="A", annotation=annotation, output_path=output_path)
             )
             content.extend(
                 self.add_policy_videos(
@@ -98,7 +98,6 @@ class RoboRewardBenchPreferenceRankingScenario(Scenario):
                     annotation=annotation,
                     output_path=output_path,
                     insert_newline_before=True,
-                    num_videos=1,
                 )
             )
 
@@ -137,7 +136,6 @@ class RoboRewardBenchProgressPredictionScenario(RoboRewardBenchPreferenceRanking
                         annotation=annotation,
                         output_path=output_path,
                         omit_policy_label=True,
-                        num_videos=1,
                     )
                 )
 
