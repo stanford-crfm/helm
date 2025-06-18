@@ -17,7 +17,12 @@ def get_student_mistake_coding_run_spec() -> RunSpec:
         "do **not** provide a correct solution.\n\n"
     )
 
-    adapter_spec = get_generation_adapter_spec(instructions=instruction, output_noun="Your code", max_tokens=4000)
+    adapter_spec = get_generation_adapter_spec(
+        instructions=instruction, 
+        output_noun="Your code",
+        stop_sequences=[],
+        max_tokens=4000
+    )
 
     return RunSpec(
         name="student_mistake_coding",
