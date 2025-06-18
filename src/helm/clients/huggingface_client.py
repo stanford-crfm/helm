@@ -8,7 +8,7 @@ from transformers.generation.stopping_criteria import (
 from typing import Any, Dict, List, Optional, TypedDict
 
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import htrack_block, hlog
+from helm.common.hierarchical_logger import htrack_block, hlog, hwarn
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import (
     wrap_request_time,
@@ -271,21 +271,27 @@ class HuggingFaceClient(CachingClient):
         self._tokenizer = tokenizer
         self._kwargs = _process_huggingface_client_kwargs(kwargs)
         self._end_of_text_token = end_of_text_token
-        self._apply_chat_template = apply_chat_template
+        # If the user did not explicitly configure whether the model is a chat model with `apply_chat_template` arg,
+        # auto-infer if the model is a chat model based on whether the tokenizer has a chat template.
+        # Note: Auto-inference is incorrect for some non-chat models that still have chat templates
+        # e.g. Qwen2, Qwen 2.5.
+        # For these models, the `apply_chat_template` arg should be explicitly set to false.
+        if self._apply_chat_template is not None:
+            self._apply_chat_template = self._apply_chat_template
+        else:
+            with self._wrapped_tokenizer as tokenizer:
+                self._apply_chat_template = bool(tokenizer.chat_template)
+                hwarn(
+                    f"Automatically set `apply_chat_template` to {bool(tokenizer.chat_template)} based on "
+                    "whether the tokenizer has a chat template. "
+                    "If this is incorrect, please explicitly set `apply_chat_template`."
+                )
 
     def get_prompt(self, request: Request) -> str:
         if request.prompt and request.messages:
             raise NonRetriableException(f"More than one of `prompt` and `messages` was set in request: {request}")
-        # If the user did not explicitly configure whether the model is a chat model with `apply_chat_template` arg,
-        # auto-infer if the model is a chat model based on whether the tokenizer has a chat template.
-        # Note that this breaks for some non-chat models that still have chat templates e.g. Qwen2, Qwen 2.5.
-        if self._apply_chat_template is not None:
-            is_chat_model = self._apply_chat_template
-        else:
-            with self._wrapped_tokenizer as tokenizer:
-                is_chat_model = bool(tokenizer.chat_template)
         # Chat model expects a list of messages as input
-        if is_chat_model:
+        if self._apply_chat_template:
             with self._wrapped_tokenizer as tokenizer:
                 if request.messages:
                     prompt = tokenizer.apply_chat_template(request.messages, tokenize=False)
