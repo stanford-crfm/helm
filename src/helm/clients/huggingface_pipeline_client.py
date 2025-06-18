@@ -38,7 +38,12 @@ def _get_pipeline(
 
 class HuggingFacePipelineClient(CachingClient):
     def __init__(
-        self, cache_config: CacheConfig, model_name: str, pretrained_model_name_or_path: Optional[str] = None, **kwargs
+        self,
+        cache_config: CacheConfig,
+        model_name: str,
+        pretrained_model_name_or_path: Optional[str] = None,
+        apply_chat_template: Optional[bool] = None,
+        **kwargs,
     ):
         # Include `pretrained_model_name_or_path` parameter so that model deployments can use
         # the `pretrained_model_name_or_path` arg to override `model_name`
@@ -50,12 +55,21 @@ class HuggingFacePipelineClient(CachingClient):
             **kwargs,
         }
         self._pipeline = _get_pipeline(self._helm_model_name, self._pipeline_kwargs)
+        self._apply_chat_template = apply_chat_template
 
     def make_text_inputs(self, request: Request) -> Union[str, List[Dict[str, str]]]:
         if request.prompt and request.messages:
             raise NonRetriableException(f"More than one of `prompt` and `messages` was set in request: {request}")
+        # If the user did not explicitly configure whether the model is a chat model with `apply_chat_template` arg,
+        # auto-infer if the model is a chat model based on whether the tokenizer has a chat template.
+        # Note: Auto-inference is incorrect for some non-chat models that still have chat templates e.g. Qwen2, Qwen 2.5.
+        # For these models, the `apply_chat_template` arg should be explicitly set to false.
+        if self._apply_chat_template is not None:
+            is_chat_model = self._apply_chat_template
+        else:
+            is_chat_model = bool(self._pipeline.tokenizer.chat_template)
         # Chat model expects a list of messages as input
-        if self._pipeline.tokenizer.chat_template:
+        if is_chat_model:
             if request.messages:
                 return request.messages
             else:

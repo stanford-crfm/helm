@@ -257,6 +257,7 @@ class HuggingFaceClient(CachingClient):
         tokenizer: Tokenizer,
         pretrained_model_name_or_path: Optional[str] = None,
         end_of_text_token: Optional[str] = None,
+        apply_chat_template: Optional[bool] = None,
         **kwargs,
     ):
         super().__init__(cache_config=cache_config)
@@ -270,12 +271,19 @@ class HuggingFaceClient(CachingClient):
         self._tokenizer = tokenizer
         self._kwargs = _process_huggingface_client_kwargs(kwargs)
         self._end_of_text_token = end_of_text_token
+        self._apply_chat_template = apply_chat_template
 
     def get_prompt(self, request: Request) -> str:
-        with self._wrapped_tokenizer as tokenizer:
-            is_chat_model = bool(tokenizer.chat_template)
         if request.prompt and request.messages:
             raise NonRetriableException(f"More than one of `prompt` and `messages` was set in request: {request}")
+        # If the user did not explicitly configure whether the model is a chat model with `apply_chat_template` arg,
+        # auto-infer if the model is a chat model based on whether the tokenizer has a chat template.
+        # Note that this breaks for some non-chat models that still have chat templates e.g. Qwen2, Qwen 2.5.
+        if self._apply_chat_template is not None:
+            is_chat_model = self._apply_chat_template
+        else:
+            with self._wrapped_tokenizer as tokenizer:
+                is_chat_model = bool(tokenizer.chat_template)
         # Chat model expects a list of messages as input
         if is_chat_model:
             with self._wrapped_tokenizer as tokenizer:
