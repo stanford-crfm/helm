@@ -307,5 +307,5 @@ class Runner:
             llm_judge = LLMJudger(self.executor.context, judge_model=self.judge_model, prompt_file=self.prompt_file)
             predictions = extract_predictions(scenario_state)
             instructions = getattr(scenario_state.adapter_spec, "instructions", "")
-            judgements = llm_judge.judge(predictions, instructions=instructions)
+            judgements = llm_judge.judge(predictions, instructions=instructions, scenario_state=scenario_state)
             save_judge_summary(run_spec, run_path, self.judge_model, judgements)
