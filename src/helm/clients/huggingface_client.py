@@ -278,12 +278,13 @@ class HuggingFaceClient(CachingClient):
         if apply_chat_template is not None:
             self._apply_chat_template = apply_chat_template
         else:
-            self._apply_chat_template = bool(tokenizer.chat_template)
-            hwarn(
-                f"Automatically set `apply_chat_template` to {self._apply_chat_template} based on "
-                "whether the tokenizer has a chat template. "
-                "If this is incorrect, please explicitly set `apply_chat_template`."
-            )
+            with self._wrapped_tokenizer as hf_tokenizer:
+                self._apply_chat_template = bool(hf_tokenizer.chat_template)
+                hwarn(
+                    f"Automatically set `apply_chat_template` to {self._apply_chat_template} based on "
+                    "whether the tokenizer has a chat template. "
+                    "If this is incorrect, please explicitly set `apply_chat_template`."
+                )
 
     def get_prompt(self, request: Request) -> str:
         if request.prompt and request.messages:
