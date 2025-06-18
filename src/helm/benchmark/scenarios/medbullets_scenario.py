@@ -68,7 +68,12 @@ class MedBulletsScenario(Scenario):
     )
 
     name = "medbullets"
-    description = "A USMLE-style medical question dataset with multiple-choice answers and explanations."
+    description = (
+        "Medbullets is a benchmark of USMLE-style medical questions designed to assess a"
+        "model’s ability to understand and apply clinical knowledge. Each question is accompanied"
+        "by a patient scenario and five multiple-choice options, similar to those found on"
+        "Step 2 and Step 3 on the US medical licensing exam."
+    )
     tags = ["reasoning", "biomedical"]
 
     # Define the possible answer choices

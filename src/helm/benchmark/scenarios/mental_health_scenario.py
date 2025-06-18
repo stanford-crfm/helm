@@ -49,8 +49,13 @@ class MentalHealthScenario(Scenario):
     """
 
     name = "mental_health"
-    description = "A dataset containing a counselor and mental health patient conversation, where the objective is to \
-                    generate an empathetic counselor response."
+    description = (
+        "MentalHealth is a benchmark focused on evaluating empathetic communication in"
+        "mental health counseling. It includes simulated conversations between patients"
+        "and counselors, where the task is to generate compassionate and appropriate counselor"
+        "responses. The benchmark assesses a model's ability to support patients emotionally"
+        "and meaningfully engage in therapeutic conversations."
+    )
     tags = ["dialogue", "counseling", "mental_health", "empathy", "healthcare"]
 
     def __init__(self, data_path: str):

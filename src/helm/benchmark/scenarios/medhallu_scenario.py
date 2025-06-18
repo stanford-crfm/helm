@@ -20,7 +20,13 @@ class MedHalluScenario(Scenario):
     """
 
     name = "medhallu"
-    description = "A dataset of PubMed articles and associated questions, with the objective being to classify whether the answer is factual or hallucinated."  # noqa: E501
+    description = (
+        "MedHallu is a benchmark focused on evaluating factual correctness in biomedical"
+        "question answering. Each instance contains a PubMed-derived knowledge snippet, a"
+        "biomedical question, and a model-generated answer. The task is to classify whether the"
+        "answer is factually correct or contains hallucinated (non-grounded) information. This"
+        "benchmark is designed to assess the factual reliability of medical language models."
+    )
     tags = ["knowledge", "reasoning", "biomedical"]
 
     def create_instance(self, question, knowledge, answer, label, split):

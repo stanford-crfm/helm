@@ -36,7 +36,13 @@ class EhrSqlScenario(Scenario):
     )
 
     name = "ehr_sql"
-    description = "Given a natural language instruction, generate an SQL query that would be used in clinical research."
+    description = (
+        "EHRSQL is a benchmark designed to evaluate models on generating structured queries"
+        "for clinical research. Each example includes a natural language question and a database"
+        "schema, and the task is to produce an SQL query that would return the correct result"
+        "for a biomedical research objective. This benchmark assesses a model's understanding"
+        "of medical terminology, data structures, and query construction."
+    )
     tags = ["sql", "medical", "reasoning"]
 
     def setup_database(self, output_path: str) -> str:

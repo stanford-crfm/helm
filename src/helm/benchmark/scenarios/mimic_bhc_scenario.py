@@ -59,8 +59,11 @@ class MIMICBHCScenario(Scenario):
 
     name = "mimic_bhc"
     description = (
-        "A summarization task using a curated collection of preprocessed discharge notes"
-        " paired with their corresponding brief hospital course (BHC) summaries."
+        "MIMIC-BHC is a benchmark focused on summarization of discharge notes into Brief"
+        "Hospital Course (BHC) sections. It consists of curated discharge notes from MIMIC-IV,"
+        "each paired with its corresponding BHC summary. The benchmark evaluates a model's"
+        "ability to condense detailed clinical information into accurate, concise summaries that"
+        "reflect the patient's hospital stay."
     )
     tags = ["summarization", "biomedical"]
 

@@ -188,8 +188,13 @@ class N2C2CTMatchingScenario(Scenario):
     """
 
     name = "n2c2_ct_matching"
-    description = "A dataset that provides clinical notes and asks the model to classify whether the \
-    patient is a valid candidate for a provided clinical trial."
+    description = (
+        "N2C2-CT is a benchmark designed to evaluate a model's ability to match patients to"
+        "appropriate clinical trials based on eligibility criteria. Each example includes a clinical"
+        "note and a trial description. The model is tasked with determining whether the patient"
+        "is a valid candidate for the trial. This benchmark supports automation and decision"
+        "support in clinical research enrollment."
+    )
     tags = []  # TODO
 
     POSSIBLE_ANSWER_CHOICES: List[str] = [
