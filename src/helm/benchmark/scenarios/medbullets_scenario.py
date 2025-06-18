@@ -72,7 +72,7 @@ class MedBulletsScenario(Scenario):
         "Medbullets is a benchmark of USMLE-style medical questions designed to assess a"
         "model’s ability to understand and apply clinical knowledge. Each question is accompanied"
         "by a patient scenario and five multiple-choice options, similar to those found on"
-        "Step 2 and Step 3 board exams."
+        "Step 2 and Step 3 on the US medical licensing exam."
     )
     tags = ["reasoning", "biomedical"]
 
