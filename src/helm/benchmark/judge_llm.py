@@ -1,7 +1,7 @@
 import json
 import os
 import re
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 from helm.common.request import Request
 from helm.benchmark.model_deployment_registry import get_default_model_deployment_for_model
@@ -87,43 +87,9 @@ class LLMJudger:
 
         return 0, "No response from LLM judge."
 
-    # def judge(self, predictions: List[Dict[str, Any]], instructions: str = "", scenario_state: ScenarioState = None) -> List[Dict[str, Any]]:
-    #     """
-    #     Apply LLM judgment and return all complete judgments (without saving to file).
-    #     """
-    #     judgements = []
-
-    #     is_multiplePchoice = scenario_state and scenario_state.adapter_spec.method == "multiple_choice"
-
-    #     for prediction in predictions:
-    #         input_text = prediction.get("input", "")
-    #         model_response = prediction.get("prediction", "")
-
-    #         if instructions.strip():
-    #             instructions = f"Benchmark instructions:\n{instructions}\n"
-    #         else:
-    #             instructions = ""
-
-    #         prompt_template = self._load_prompt_template(self.prompt_file)
-    #         prompt = prompt_template.replace("{input}", input_text).replace("{response}", model_response)
-    #         prompt = prompt.replace("{instructions}", instructions)
-
-    #         judged_value, explanation = self.call_llm(prompt)
-
-    #         judgements.append(
-    #             {
-    #                 "instance_id": prediction.get("instance_id"),
-    #                 "input": input_text,
-    #                 "prediction": model_response,
-    #                 "judgement": judged_value,
-    #                 "explanation": explanation,
-    #             }
-    #         )
-
-    #     return 
-    
-
-    def judge(self, predictions: List[Dict[str, Any]], instructions: str = "", scenario_state: ScenarioState = None) -> List[Dict[str, Any]]:
+    def judge(
+        self, predictions: List[Dict[str, Any]], instructions: str = "", scenario_state: Optional[ScenarioState] = None
+    ) -> List[Dict[str, Any]]:
         """
         Apply LLM judgment and return all complete judgments (without saving to file).
         For multiple choice benchmarks, include lettered options as context above the prompt.
@@ -143,10 +109,13 @@ class LLMJudger:
 
             if is_multiple_choice:
                 try:
-                    output_mapping = scenario_state.request_states[i].output_mapping
-                    if output_mapping:
-                        choices_text = "Alternatives:\n" + "\n".join(f"{k}. {v.strip()}" for k, v in output_mapping.items())
-                        context_parts.append(choices_text)
+                    if scenario_state is not None:
+                        output_mapping = scenario_state.request_states[i].output_mapping
+                        if output_mapping:
+                            choices_text = "Alternatives:\n" + "\n".join(
+                                f"{k}. {v.strip()}" for k, v in output_mapping.items()
+                            )
+                            context_parts.append(choices_text)
                 except Exception as e:
                     hlog(f"Error extracting alternatives for instance {i}: {e}")
 
@@ -155,7 +124,10 @@ class LLMJudger:
                 context_block += "\n\n"
 
             prompt_template = self._load_prompt_template(self.prompt_file)
-            prompt = context_block + prompt_template.replace("{input}", input_text).replace("{response}", model_response)
+
+            prompt = context_block + prompt_template.replace("{input}", input_text).replace(
+                "{response}", model_response
+            )
 
             print(prompt)
 
@@ -172,7 +144,6 @@ class LLMJudger:
             )
 
         return judgements
-    
 
     def _resolve_model_deployment(self) -> str:
         """
