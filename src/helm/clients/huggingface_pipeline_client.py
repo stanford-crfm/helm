@@ -55,8 +55,8 @@ class HuggingFacePipelineClient(CachingClient):
             **kwargs,
         }
         self._pipeline = _get_pipeline(self._helm_model_name, self._pipeline_kwargs)
-        if self._apply_chat_template is not None:
-            self._apply_chat_template = self._apply_chat_template
+        if apply_chat_template is not None:
+            self._apply_chat_template = apply_chat_template
         else:
             # If the user did not explicitly configure whether the model is a chat model with `apply_chat_template` arg,
             # auto-infer if the model is a chat model based on whether the tokenizer has a chat template.
@@ -69,7 +69,6 @@ class HuggingFacePipelineClient(CachingClient):
                 "whether the tokenizer has a chat template. "
                 "If this is incorrect, please explicitly set `apply_chat_template`."
             )
-        self._apply_chat_template = apply_chat_template
 
     def make_text_inputs(self, request: Request) -> Union[str, List[Dict[str, str]]]:
         if request.prompt and request.messages:

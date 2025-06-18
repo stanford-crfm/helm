@@ -276,13 +276,13 @@ class HuggingFaceClient(CachingClient):
         # Note: Auto-inference is incorrect for some non-chat models that still have chat templates
         # e.g. Qwen2, Qwen 2.5.
         # For these models, the `apply_chat_template` arg should be explicitly set to false.
-        if self._apply_chat_template is not None:
-            self._apply_chat_template = self._apply_chat_template
+        if apply_chat_template is not None:
+            self._apply_chat_template = apply_chat_template
         else:
             with self._wrapped_tokenizer as tokenizer:
                 self._apply_chat_template = bool(tokenizer.chat_template)
                 hwarn(
-                    f"Automatically set `apply_chat_template` to {bool(tokenizer.chat_template)} based on "
+                    f"Automatically set `apply_chat_template` to {self._apply_chat_template} based on "
                     "whether the tokenizer has a chat template. "
                     "If this is incorrect, please explicitly set `apply_chat_template`."
                 )
