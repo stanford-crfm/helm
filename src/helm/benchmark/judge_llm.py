@@ -129,8 +129,6 @@ class LLMJudger:
                 "{response}", model_response
             )
 
-            print(prompt)
-
             judged_value, explanation = self.call_llm(prompt)
 
             judgements.append(
