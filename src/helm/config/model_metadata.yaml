@@ -1237,28 +1237,20 @@ models:
     release_date: 2025-01-21
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  - name: google/gemini-2.5-pro-preview-03-25
-    display_name: Gemini 2.5 Pro (03-25 preview)
-    description: Gemini 2.5 Pro (03-25 preview) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
-    creator_organization_name: Google
-    access: limited
-    release_date: 2025-04-09  # source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
-    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-
-  - name: google/gemini-2.5-pro-preview-05-06
-    display_name: Gemini 2.5 Pro (05-06 preview)
-    description: Gemini 2.5 Pro (05-06 preview) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
-    creator_organization_name: Google
-    access: limited
-    release_date: 2025-05-06  # source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
-    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-
   - name: google/gemini-2.0-pro-exp-02-05
     display_name: Gemini 2.0 Pro (02-05 preview)
     description: Gemini 2.0 Pro (02-05 preview) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
     creator_organization_name: Google
     access: limited
     release_date: 2025-02-05
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-2.5-flash-lite-preview-06-17
+    display_name: Gemini 2.5 Flash-Lite (06-17 preview)
+    description: Gemini 2.5 Flash-Lite (06-17 preview) ([blog](https://blog.google/products/gemini/gemini-2-5-model-family-expands/))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-06-17
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemini-2.5-flash-preview-04-17
@@ -1277,12 +1269,44 @@ models:
     release_date: 2025-04-17
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: google/gemini-2.5-flash
+    display_name: Gemini 2.5 Flash
+    description: Gemini 2.5 Flash ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-06-17
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: google/gemini-2.5-pro-exp-03-25
     display_name: Gemini 2.5 Pro (03-25 experimental)
     description: Gemini 2.5 Pro (03-25 experimental) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
     creator_organization_name: Google
     access: limited
     release_date: 2025-03-25
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-2.5-pro-preview-03-25
+    display_name: Gemini 2.5 Pro (03-25 preview)
+    description: Gemini 2.5 Pro (03-25 preview) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-04-09  # source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-2.5-pro-preview-05-06
+    display_name: Gemini 2.5 Pro (05-06 preview)
+    description: Gemini 2.5 Pro (05-06 preview) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-05-06  # source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-2.5-pro
+    display_name: Gemini 2.5 Pro
+    description: Gemini 2.5 Pro ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-06-17
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemma-2b
