@@ -1,5 +1,5 @@
 from typing import List
-from helm.common.general import ensure_directory_exists
+from helm.common.general import check_file_exists
 from helm.benchmark.scenarios.scenario import (
     Input,
     Scenario,
@@ -21,26 +21,34 @@ def file_preprocessing(data_path: str, task_objective: str) -> pd.DataFrame:
     data_path is directory that contains the downloaded files: '{base_dir}/physionet.org/'
     """
     # Load the first CSV file
-    df_diagnosis = pd.read_csv(
-        f"{data_path}/files/discharge-me/1.3/test_phase_1/diagnosis.csv.gz", compression="gzip", keep_default_na=False
+    diagnosis_path = f"{data_path}/files/discharge-me/1.3/test_phase_1/diagnosis.csv.gz"
+    check_file_exists(
+        diagnosis_path, msg=f"[DischargeMeScenario] Required diagnosis file not found: '{diagnosis_path}'"
     )
-    df_discharge = pd.read_csv(
-        f"{data_path}/files/discharge-me/1.3/test_phase_1/discharge.csv.gz", compression="gzip", keep_default_na=False
+    discharge_path = f"{data_path}/files/discharge-me/1.3/test_phase_1/discharge.csv.gz"
+    check_file_exists(
+        discharge_path, msg=f"[DischargeMeScenario] Required discharge file not found: '{discharge_path}'"
     )
+    target_path = f"{data_path}/files/discharge-me/1.3/test_phase_1/discharge_target.csv.gz"
+    check_file_exists(target_path, msg=f"[DischargeMeScenario] Required target file not found: '{target_path}'")
+    radiology_path = f"{data_path}/files/discharge-me/1.3/test_phase_1/radiology.csv.gz"
+    check_file_exists(
+        radiology_path, msg=f"[DischargeMeScenario] Required radiology file not found: '{radiology_path}'"
+    )
+    ed_path = f"{data_path}/files/discharge-me/1.3/test_phase_1/edstays.csv.gz"
+    check_file_exists(ed_path, msg=f"[DischargeMeScenario] Required ed file not found: '{ed_path}'")
+    triage_path = f"{data_path}/files/discharge-me/1.3/test_phase_1/triage.csv.gz"
+    check_file_exists(triage_path, msg=f"[DischargeMeScenario] Required triage file not found: '{triage_path}'")
+    df_diagnosis = pd.read_csv(diagnosis_path, compression="gzip", keep_default_na=False)
+    df_discharge = pd.read_csv(discharge_path, compression="gzip", keep_default_na=False)
     df_target = pd.read_csv(
-        f"{data_path}/files/discharge-me/1.3/test_phase_1/discharge_target.csv.gz",
+        target_path,
         compression="gzip",
         keep_default_na=False,
     )
-    df_radiology = pd.read_csv(
-        f"{data_path}/files/discharge-me/1.3/test_phase_1/radiology.csv.gz", compression="gzip", keep_default_na=False
-    )
-    df_ed = pd.read_csv(
-        f"{data_path}/files/discharge-me/1.3/test_phase_1/edstays.csv.gz", compression="gzip", keep_default_na=False
-    )
-    df_triage = pd.read_csv(
-        f"{data_path}/files/discharge-me/1.3/test_phase_1/triage.csv.gz", compression="gzip", keep_default_na=False
-    )
+    df_radiology = pd.read_csv(radiology_path, compression="gzip", keep_default_na=False)
+    df_ed = pd.read_csv(ed_path, compression="gzip", keep_default_na=False)
+    df_triage = pd.read_csv(triage_path, compression="gzip", keep_default_na=False)
     df_diagnosis_triage = pd.merge(
         df_diagnosis, df_triage, on="subject_id", how="inner", suffixes=("_df_diagnosis", "_df_triage")
     )
@@ -117,12 +125,14 @@ class DischargeMeScenario(Scenario):
     dataset collected from MIMIC-IV data, consindering only the discharge text as well as the radiology report text."
     tags = ["biomedical"]
 
+    def __init__(self, data_path: str):
+        super().__init__()
+        self.data_path = data_path
+
     def get_instances(self, output_path: str) -> List[Instance]:
-        data_path = "/share/pi/nigam/data/physionet.org"
-        ensure_directory_exists(data_path)
         instances: List[Instance] = []
-        df_bhc = file_preprocessing(data_path, "brief_hospital_course")
-        df_di = file_preprocessing(data_path, "discharge_instructions")
+        df_bhc = file_preprocessing(self.data_path, "brief_hospital_course")
+        df_di = file_preprocessing(self.data_path, "discharge_instructions")
 
         for i in range(df_bhc.shape[0]):
             prompt_bhc = create_prompt(

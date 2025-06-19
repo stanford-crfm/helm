@@ -1,7 +1,7 @@
 import json
 from typing import Dict, List
 
-from helm.common.general import ensure_directory_exists
+from helm.common.general import check_file_exists
 from helm.benchmark.scenarios.scenario import (
     Input,
     Scenario,
@@ -64,10 +64,12 @@ class MIMICBHCScenario(Scenario):
     )
     tags = ["summarization", "biomedical"]
 
+    def __init__(self, data_path: str):
+        super().__init__()
+        self.data_path = data_path
+
     def get_instances(self, output_path: str) -> List[Instance]:
-        data_path = "/share/pi/nigam/data/bhc-mimiciv/"
-        ensure_directory_exists(data_path)
-        data_path = data_path + "mimic_iv_bhc.json"
+        check_file_exists(self.data_path, msg=f"[MIMICBHCScenario] Required data file not found: '{self.data_path}'")
 
         instances: List[Instance] = []
         # Limit to zero shot setting for now
@@ -77,7 +79,7 @@ class MIMICBHCScenario(Scenario):
             "test": TEST_SPLIT,
         }
 
-        with open(data_path, "r") as f:
+        with open(self.data_path, "r") as f:
             data = [json.loads(line) for line in f]
 
         for data_split, split in splits.items():
