@@ -1,6 +1,9 @@
 # mypy: check_untyped_defs = False
 from dataclasses import replace
+import re
 from typing import Any, Dict, List, Optional, cast, Union, Callable
+
+from openai import OpenAIError
 
 from helm.benchmark.model_metadata_registry import is_vlm
 from helm.common import multimodal_request_utils
@@ -24,8 +27,13 @@ except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["openai"])
 
 
-class OpenAIClient(CachingClient):
-    END_OF_TEXT: str = "<|endoftext|>"
+class OpenAIClientUtils:
+    """Methods used by both the chat completions client and the responses API client"""
+
+    @classmethod
+    def is_reasoning_model(cls, model_engine: str) -> bool:
+        # All OpenAI  reasoning models start "o[somenumber]", so we regexp for that to future proof things
+        return bool(re.match(r"^o\d+", model_engine))
 
     # Error OpenAI throws when the image in the prompt violates their content policy
     INAPPROPRIATE_IMAGE_ERROR: str = "Your input image may contain content that is not allowed by our safety system"
@@ -48,6 +56,56 @@ class OpenAIClient(CachingClient):
         "The prompt violates OpenAI's content policy. "
         "See https://labs.openai.com/policies/content-policy for more information."
     )
+
+    @classmethod
+    def handle_openai_error(cls, e: OpenAIError, request: Request):
+        if cls.INAPPROPRIATE_IMAGE_ERROR in str(e) or cls.INAPPROPRIATE_PROMPT_ERROR in str(e):
+            hwarn(f"Failed safety check: {str(request)}")
+            empty_completion = GeneratedOutput(
+                text="",
+                logprob=0,
+                tokens=[],
+                finish_reason={"reason": cls.CONTENT_POLICY_VIOLATED_FINISH_REASON},
+            )
+            return RequestResult(
+                success=True,
+                cached=False,
+                request_time=0,
+                completions=[empty_completion] * request.num_completions,
+                embedding=[],
+            )
+        elif cls.OPENAI_SERVER_ERROR in str(e):
+            # Handle these errors by returning an empty completion to unblock
+            hwarn(f"OpenAI server error for request: {str(request)}")
+            empty_completion = GeneratedOutput(
+                text="",
+                logprob=0,
+                tokens=[],
+                finish_reason={"reason": cls.OPENAI_SERVER_ERROR},
+            )
+            return RequestResult(
+                success=True,
+                cached=False,
+                request_time=0,
+                completions=[empty_completion] * request.num_completions,
+                embedding=[],
+            )
+        elif cls.INAPPROPRIATE_PROMPT_AZURE_ERROR in str(e) or cls.INAPPROPRIATE_PROMPT_MICROSOFT_ERROR in str(e):
+            return RequestResult(
+                success=False,
+                cached=False,
+                error="Content blocked by Azure's content management filter",
+                completions=[],
+                embedding=[],
+                error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+            )
+
+        error: str = f"OpenAI error: {e}"
+        return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
+
+
+class OpenAIClient(CachingClient):
+    END_OF_TEXT: str = "<|endoftext|>"
 
     def __init__(
         self,
@@ -223,7 +281,7 @@ class OpenAIClient(CachingClient):
         # Refer to the "Reasoning models" documentation further discussion of o1 model limitations:
         # https://platform.openai.com/docs/guides/reasoning
         model_engine: str = request.model_engine
-        if model_engine.startswith("o1") or model_engine.startswith("o3") or model_engine.startswith("o4"):
+        if OpenAIClientUtils.is_reasoning_model(model_engine):
             # Avoid error:
             # "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead."  # noqa: E501
             # Note that openai>=1.45 is needed for this
@@ -275,49 +333,7 @@ class OpenAIClient(CachingClient):
             cache_key = self._get_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except openai.OpenAIError as e:
-            if self.INAPPROPRIATE_IMAGE_ERROR in str(e) or self.INAPPROPRIATE_PROMPT_ERROR in str(e):
-                hlog(f"Failed safety check: {str(request)}")
-                empty_completion = GeneratedOutput(
-                    text="",
-                    logprob=0,
-                    tokens=[],
-                    finish_reason={"reason": self.CONTENT_POLICY_VIOLATED_FINISH_REASON},
-                )
-                return RequestResult(
-                    success=True,
-                    cached=False,
-                    request_time=0,
-                    completions=[empty_completion] * request.num_completions,
-                    embedding=[],
-                )
-            elif self.OPENAI_SERVER_ERROR in str(e):
-                # Handle these errors by returning an empty completion to unblock
-                hlog(f"OpenAI server error for request: {str(request)}")
-                empty_completion = GeneratedOutput(
-                    text="",
-                    logprob=0,
-                    tokens=[],
-                    finish_reason={"reason": self.OPENAI_SERVER_ERROR},
-                )
-                return RequestResult(
-                    success=True,
-                    cached=False,
-                    request_time=0,
-                    completions=[empty_completion] * request.num_completions,
-                    embedding=[],
-                )
-            elif self.INAPPROPRIATE_PROMPT_AZURE_ERROR in str(e) or self.INAPPROPRIATE_PROMPT_MICROSOFT_ERROR in str(e):
-                return RequestResult(
-                    success=False,
-                    cached=False,
-                    error="Content blocked by Azure's content management filter",
-                    completions=[],
-                    embedding=[],
-                    error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
-                )
-
-            error: str = f"OpenAI error: {e}"
-            return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
+            return OpenAIClientUtils.handle_openai_error(e, request)
 
         completions: List[GeneratedOutput] = []
         for raw_completion in response["choices"]:
