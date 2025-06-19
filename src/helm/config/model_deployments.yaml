@@ -1332,6 +1332,8 @@ model_deployments:
     max_sequence_length: 4096
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        apply_chat_template: false
     
   ## KAIST AI
   - name: huggingface/prometheus-vision-13b-v1.0-hf
@@ -1357,17 +1359,16 @@ model_deployments:
   - name: huggingface/marin-8b-instruct
     model_name: marin-community/marin-8b-instruct
     tokenizer_name: marin-community/marin-8b-instruct
-    max_sequence_length: 131072
+    max_sequence_length: 4096
     client_spec:
-      class_name: "helm.clients.huggingface_pipeline_client.HuggingFacePipelineClient"
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         device_map: auto
-        torch_dtype: auto
 
   - name: together/marin-8b-instruct
     model_name: marin-community/marin-8b-instruct
     tokenizer_name: marin-community/marin-8b-instruct
-    max_sequence_length: 131072
+    max_sequence_length: 4096
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient" 
 
@@ -1516,6 +1517,8 @@ model_deployments:
     max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        apply_chat_template: false
 
   - name: huggingface/sailor-7b-chat
     model_name: sail/sailor-7b-chat
@@ -1532,6 +1535,7 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         device_map: auto
+        apply_chat_template: false
 
   - name: huggingface/sailor-14b-chat
     model_name: sail/sailor-14b-chat

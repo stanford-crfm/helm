@@ -5,7 +5,7 @@ import transformers
 
 from helm.clients.client import CachingClient
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import htrack_block
+from helm.common.hierarchical_logger import htrack_block, hwarn
 from helm.common.request import GeneratedOutput, Request, RequestResult, wrap_request_time
 from helm.proxy.retry import NonRetriableException
 
@@ -38,7 +38,12 @@ def _get_pipeline(
 
 class HuggingFacePipelineClient(CachingClient):
     def __init__(
-        self, cache_config: CacheConfig, model_name: str, pretrained_model_name_or_path: Optional[str] = None, **kwargs
+        self,
+        cache_config: CacheConfig,
+        model_name: str,
+        pretrained_model_name_or_path: Optional[str] = None,
+        apply_chat_template: Optional[bool] = None,
+        **kwargs,
     ):
         # Include `pretrained_model_name_or_path` parameter so that model deployments can use
         # the `pretrained_model_name_or_path` arg to override `model_name`
@@ -50,12 +55,26 @@ class HuggingFacePipelineClient(CachingClient):
             **kwargs,
         }
         self._pipeline = _get_pipeline(self._helm_model_name, self._pipeline_kwargs)
+        if apply_chat_template is not None:
+            self._apply_chat_template = apply_chat_template
+        else:
+            # If the user did not explicitly configure whether the model is a chat model with `apply_chat_template` arg,
+            # auto-infer if the model is a chat model based on whether the tokenizer has a chat template.
+            # Note: Auto-inference is incorrect for some non-chat models that still have chat templates
+            # e.g. Qwen2, Qwen 2.5.
+            # For these models, the `apply_chat_template` arg should be explicitly set to false.
+            self._apply_chat_template = bool(self._pipeline.tokenizer.chat_template)
+            hwarn(
+                f"Automatically set `apply_chat_template` to {self._apply_chat_template} based on "
+                "whether the tokenizer has a chat template. "
+                "If this is incorrect, please explicitly set `apply_chat_template`."
+            )
 
     def make_text_inputs(self, request: Request) -> Union[str, List[Dict[str, str]]]:
         if request.prompt and request.messages:
             raise NonRetriableException(f"More than one of `prompt` and `messages` was set in request: {request}")
         # Chat model expects a list of messages as input
-        if self._pipeline.tokenizer.chat_template:
+        if self._apply_chat_template:
             if request.messages:
                 return request.messages
             else:
@@ -63,7 +82,7 @@ class HuggingFacePipelineClient(CachingClient):
         # Base non-chat model expects a string as input
         else:
             if request.messages:
-                raise
+                raise NonRetriableException("Chat mesages not supported by non-chat model")
             else:
                 return request.prompt
 
