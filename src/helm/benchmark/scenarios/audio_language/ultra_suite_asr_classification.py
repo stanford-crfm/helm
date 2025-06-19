@@ -14,7 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
-from helm.common.general import ensure_file_downloaded
+from huggingface_hub import snapshot_download
 
 
 def find_audio_json_pairs(directory: str) -> List[Tuple[str, str]]:
@@ -58,7 +58,7 @@ class UltraSuiteASRClassificationScenario(Scenario):
     name = "speech_disorder"
     description = "A scenario for evaluating speech disorders in children"
     tags = ["audio", "classification", "speech_disorder", "asr"]
-    HF_MAPPING_URL = "https://https://huggingface.co/datasets/SAA-Lab/SLPHelmUltraSuite"
+    HF_MAPPING_URL = "https://huggingface.co/datasets/SAA-Lab/SLPHelmUltraSuite"
 
     # Classification options
     options: List[str] = ["Healthy", "Unhealthy"]
@@ -70,14 +70,14 @@ class UltraSuiteASRClassificationScenario(Scenario):
         - Audio files (e.g., .mp3)
         - A JSON file with annotations containing 'answer' field
         """
-        print(f"Downloading dataset from {UltraSuiteASRClassificationScenario.HF_MAPPING_URL} to {output_path}")
-        ensure_file_downloaded(source_url=UltraSuiteASRClassificationScenario.HF_MAPPING_URL, target_path=output_path)
+        print(f"Downloading dataset from {UltraSuiteASRClassificationScenario.HF_MAPPING_URL}")
+        data_path = snapshot_download(repo_id="SAA-Lab/SLPHelmManualLabels", repo_type="dataset")
 
         instances: List[Instance] = []
         split: str = TEST_SPLIT
 
         # Find all pairs of audio and JSON files
-        pairs = find_audio_json_pairs(output_path)
+        pairs = find_audio_json_pairs(data_path)
 
         for audio_path, json_path in tqdm(pairs):
 
