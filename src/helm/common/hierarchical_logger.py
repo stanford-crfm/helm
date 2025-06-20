@@ -143,6 +143,7 @@ def setup_default_logging():
 
     logger = logging.getLogger("helm")
     logger.setLevel(logging.INFO)
+    logger.propagate = False
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(formatter)
     logger.addHandler(handler)

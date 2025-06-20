@@ -57,7 +57,12 @@ class HeadQAScenario(Scenario):
     SKIP_TEXTQA: bool = False
 
     name = "head_qa"
-    description = "A collection of biomedical multiple-choice questions for testing medical knowledge."
+    description = (
+        "HeadQA is a benchmark consisting of biomedical multiple-choice questions intended to"
+        "evaluate a model's medical knowledge and reasoning. Each instance presents a clinical"
+        "or scientific question with four answer options, requiring the model to select the most"
+        "appropriate answer."
+    )
     tags = ["question_answering", "biomedical", "medicine"]
 
     def __init__(self, language: str = "en", category: Optional[str] = None):

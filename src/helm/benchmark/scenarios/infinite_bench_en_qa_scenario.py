@@ -1,4 +1,5 @@
 import os
+import re
 from typing import List
 
 from datasets import load_dataset, Features, Value, Sequence, Dataset
@@ -25,8 +26,12 @@ class InfiniteBenchEnQAScenario(Scenario):
     """
 
     name = "infinite_bench_en_qa"
-    description = "Answer open ended questions from InfiniteBench"
+    description = "∞Bench En.QA is a summarization task that requires generating a concise summary of a novel. ([Zhang et al., 2024](https://arxiv.org/abs/2402.13718))"  # noqa: E501
     tags = ["question_answering"]
+
+    def __init__(self, max_num_words: int):
+        self.max_num_words = max_num_words
+        super().__init__()
 
     def get_instances(self, output_path: str) -> List[Instance]:
         # Get InfiniteBench from HuggingFace
@@ -53,6 +58,16 @@ class InfiniteBenchEnQAScenario(Scenario):
         )
 
         assert isinstance(dataset, Dataset)
+
+        def count_words(text: str) -> int:
+            return len(re.split(r"\s+", text.strip()))
+
+        dataset = dataset.filter(
+            lambda example: count_words(example["context"])
+            + count_words(example["input"])
+            + sum(count_words(option) for option in example["options"])
+            <= self.max_num_words
+        )
 
         # Read all instances
         instances: List[Instance] = []

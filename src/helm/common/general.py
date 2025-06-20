@@ -163,7 +163,7 @@ def format_split(split: str) -> str:
 
 
 def asdict_without_nones(obj: Any) -> Dict[str, Any]:
-    if not is_dataclass(obj):
+    if not is_dataclass(obj) or isinstance(obj, type):
         raise ValueError(f"Expected dataclass, got '{obj}'")
     return asdict(obj, dict_factory=lambda x: {k: v for (k, v) in x if v is not None})
 
@@ -185,7 +185,7 @@ def binarize_dict(d: Dict[str, int]) -> Dict[str, int]:
 
 def serialize(obj: Any) -> List[str]:
     """Takes in a dataclass and outputs all of its fields and values in a list."""
-    if not is_dataclass(obj):
+    if not is_dataclass(obj) or isinstance(obj, type):
         raise ValueError(f"Expected dataclass, got '{obj}'")
     return [f"{key}: {json.dumps(value)}" for key, value in asdict(obj).items()]
 

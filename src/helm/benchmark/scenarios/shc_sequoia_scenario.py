@@ -23,7 +23,9 @@ class SHCSequoiaMedScenario(Scenario):
 
     name = "shc_sequoia_med"
     description = (
-        "A dataset containing manually curated answers to questions regarding patient referrals to the Sequoia clinic."
+        "ClinicReferral is a benchmark that determines patient eligibility for referral to the"
+        "Sequoia Clinic based on information from palliative care notes. The dataset provides"
+        "curated decisions on referral appropriateness to assist in automating clinic workflows."
     )
     tags = ["knowledge", "reasoning", "biomedical"]
 

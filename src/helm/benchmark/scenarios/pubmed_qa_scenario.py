@@ -125,7 +125,12 @@ class PubMedQAScenario(Scenario):
     """
 
     name = "pubmed_qa"
-    description = "A dataset that provides pubmed abstracts and asks associated questions yes/no/maybe questions."
+    description = (
+        "PubMedQA is a biomedical question-answering dataset that evaluates a model's"
+        "ability to interpret scientific literature. It consists of PubMed abstracts paired with"
+        "yes/no/maybe questions derived from the content. The benchmark assesses a model's"
+        "capability to reason over biomedical texts and provide factually grounded answers."
+    )
     tags = ["question_answering", "biomedical"]
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["yes", "no", "maybe"]

@@ -44,8 +44,10 @@ class MIMICRRSScenario(Scenario):
 
     name = "mimic_rrs"
     description = (
-        "A dataset containing radiology reports with findings sections from MIMIC-III paired with"
-        " their corresponding impression sections, used for generating radiology report summaries."
+        "MIMIC-RRS is a benchmark constructed from radiology reports in the MIMIC-III"
+        "database. It contains pairs of 'Findings' and 'Impression' sections, enabling evaluation"
+        "of a model's ability to summarize diagnostic imaging observations into concise, clinically"
+        "relevant conclusions."
     )
     tags = ["question_answering", "biomedical"]
 

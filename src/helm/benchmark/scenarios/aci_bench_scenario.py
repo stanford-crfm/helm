@@ -72,7 +72,13 @@ class ACIBenchScenario(Scenario):
     ]
 
     name = "aci_bench"
-    description = "A dataset of patient-doctor conversations paired with structured clinical notes."
+    description = (
+        "ACI-Bench is a benchmark of real-world patient-doctor conversations paired with"
+        "structured clinical notes. The benchmark evaluates a model's ability to understand"
+        "spoken medical dialogue and convert it into formal clinical documentation, covering"
+        "sections such as history of present illness, physical exam findings, results, and assessment"
+        "and plan."
+    )
     tags = ["summarization", "medicine"]
 
     def download_json(self, url: str, output_path: str, file_name: str) -> str:
