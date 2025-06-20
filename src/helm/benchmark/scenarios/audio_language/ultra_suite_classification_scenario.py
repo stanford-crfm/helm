@@ -94,9 +94,14 @@ class UltraSuiteClassificationScenario(Scenario):
             words = annotation["transcription"]
             # Create references for each option
             references: List[Reference] = []
+            correct_label = 0
             for option in ["typically_developing", "speech_disorder"]:
                 reference = Reference(Output(text=option), tags=[CORRECT_TAG] if option == answer else [])
                 references.append(reference)
+                if option == answer:
+                    correct_label += 1
+            if correct_label == 0:
+                continue
 
             # Create the input with audio and instruction
             content = [

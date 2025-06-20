@@ -29,6 +29,7 @@ from transformers.processing_utils import ProcessingKwargs, ProcessorMixin, Unpa
 from transformers.tokenization_utils_base import PaddingStrategy, PreTokenizedInput, TextInput
 from transformers.video_utils import VideoInput
 
+
 class Qwen2_5OmniProcessorKwargs(ProcessingKwargs):
     _defaults = {
         "text_kwargs": {

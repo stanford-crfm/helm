@@ -48,20 +48,17 @@ def find_audio_json_pairs(directory: str) -> List[Tuple[str, str]]:
     return pairs
 
 
-class UltraSuiteASRClassificationScenario(Scenario):
+class UltraSuiteASRTranscriptionScenario(Scenario):
     """
-    A scenario for evaluating whether a child speaker has a speech disorder or not.
+    A scenario for evaluating the transcription capabilities of ASR systems.
     The audio files contain speech from children, potentially with an adult present.
     The task is to classify whether the child speaker is typically developing or has a speech disorder.
     """
 
     name = "speech_disorder"
     description = "A scenario for evaluating speech disorders in children"
-    tags = ["audio", "classification", "speech_disorder", "asr"]
+    tags = ["audio", "transcription", "speech_disorder", "asr"]
     HF_MAPPING_URL = "https://huggingface.co/datasets/SAA-Lab/SLPHelmUltraSuite"
-
-    # Classification options
-    options: List[str] = ["Healthy", "Unhealthy"]
 
     def get_instances(self, output_path: str) -> List[Instance]:
         """
@@ -70,7 +67,7 @@ class UltraSuiteASRClassificationScenario(Scenario):
         - Audio files (e.g., .mp3)
         - A JSON file with annotations containing 'answer' field
         """
-        print(f"Downloading dataset from {UltraSuiteASRClassificationScenario.HF_MAPPING_URL}")
+        print(f"Downloading dataset from {UltraSuiteASRTranscriptionScenario.HF_MAPPING_URL}")
         data_path = snapshot_download(repo_id="SAA-Lab/SLPHelmManualLabels", repo_type="dataset")
 
         instances: List[Instance] = []
@@ -85,12 +82,8 @@ class UltraSuiteASRClassificationScenario(Scenario):
             with open(json_path, "r") as f:
                 annotation = json.load(f)
 
-            # Get the correct answer and convert to label
-            answer = annotation["disorder_class"]
-            # Create references for each option
-            references: List[Reference] = []
-            reference = Reference(Output(text=answer), tags=[CORRECT_TAG])
-            references.append(reference)
+            # Create references for the transcription
+            references: List[Reference] = [Reference(Output(text=annotation["transcription"]), tags=[CORRECT_TAG])]
 
             # Create the input with audio and instruction
             content = [
