@@ -94,6 +94,7 @@ class EdgeCaseScenario(Scenario):
                 "First, for the given question, identify which unit test the student would fail considering their past performance, as well as consideration of unit test difficulty\n"
                 "The generated code should pass all the unit tests except for the one identified as failing\n"
                 f"Question: {target['question_name']} — {target['question_text']}\n"
+                f"Unit Tests: {question_test_cases}"
                 "Template:\n"
                 f"{target['question_template']}\n\n"
                 "Provide ONLY your C++ implementation following the given template, "
@@ -119,7 +120,6 @@ class EdgeCaseScenario(Scenario):
             
         # Print summary statistics
         print(f"\n=== INSTANCE CREATION SUMMARY ===")
-        print(f"Total instances created: {len(instances)}")
         print(f"Skipped (insufficient data): {skipped_insufficient_data}")
         print(f"Skipped (no test cases): {skipped_no_tests}")
         print(f"Available test case question IDs: {len(available_question_ids)}")

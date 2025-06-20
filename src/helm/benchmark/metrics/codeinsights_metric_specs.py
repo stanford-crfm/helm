@@ -22,17 +22,38 @@ def get_comprehensive_code_evaluation_metric_specs(
     ]
 
 def get_code_efficiency_metric_specs(
-    compile_code: bool = True, 
+    compile_code: bool = True,
     num_runtime_runs: int = 5,
-    timeout_seconds: int = 10
-) -> List[MetricSpec]:
+    timeout_seconds: int = 10,
+    use_codebert: bool = True,               # ➊ add arg if you wish
+):
     return [
-        MetricSpec(
+        MetricSpec(                             # existing metric → runtime & correctness
             class_name="helm.benchmark.metrics.code_efficiency_metrics.CodeEfficiencyMetric",
             args={
                 "compile_code": compile_code,
                 "num_runtime_runs": num_runtime_runs,
-                "timeout_seconds": timeout_seconds
+                "timeout_seconds": timeout_seconds,
+            },
+        ),
+        MetricSpec(                             # ➋ NEW metric → AST + CodeBERT
+            class_name="helm.benchmark.metrics.code_evaluation_metrics.CodeEvaluationMetric",
+            args={"use_codebert": use_codebert},
+        ),
+    ]
+
+def get_edge_case_metric_specs(
+    use_codebert: bool = True,
+    compile_code: bool = True,
+    compiler_path: str = "g++",
+) -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.edge_case_metrics.ComprehensiveCodeEvaluationMetric",
+            args={
+                "use_codebert": use_codebert,
+                "compile_code": compile_code,
+                "compiler_path": compiler_path,
             },
         )
     ]
