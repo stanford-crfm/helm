@@ -1346,7 +1346,7 @@ def main():
     parser.add_argument(
         "--validity-check",
         type=bool,
-        help="Whether to load the validity signals as metrics to display",
+        help="EXPERIMENTAL: Whether to load the validity signals as metrics to display",
         default=False,
     )
     args = parser.parse_args()

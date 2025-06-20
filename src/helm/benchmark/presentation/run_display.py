@@ -4,6 +4,8 @@ import os
 import pickle
 from typing import Dict, Iterable, List, Optional, Set, Tuple, Any
 
+import pandas as pd
+
 from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_METHODS,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
@@ -156,7 +158,9 @@ _DISPLAY_REQUESTS_JSON_FILE_NAME = "display_requests.json"
 
 
 @htrack(None)
-def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, validity_check: bool, skip_completed: bool) -> None:
+def write_run_display_json(
+    run_path: str, run_spec: RunSpec, schema: Schema, skip_completed: bool, validity_check: bool = False
+) -> None:
     """Write run JSON files that are used by the web frontend.
 
     The derived JSON files that are used by the web frontend are much more compact than
@@ -233,13 +237,19 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, val
 
     if validity_check:
         validity_path: Optional[str] = hf_hub_download(
-            repo_id="stair-lab/helm_display_validity",
-            repo_type="dataset",
-            filename="validity.pkl"
+            repo_id="stair-lab/helm_display_validity", repo_type="dataset", filename="validity.parquet"
         )
-        with open(validity_path, "rb") as vf:
-            validity_dict: Optional[Dict[Tuple[str, Optional[str], int], Dict[str, float]]] = pickle.load(vf)
-        
+        validity_df: pd.DataFrame = pd.read_parquet(validity_path)
+        validity_dict: Dict[Tuple[str, Optional[str], int], Dict[str, float]] = {
+            (row.instance_id, row.perturbation, row.train_trial_index): {
+                "tetrachoric": row.tetrachoric,
+                "2pl_irt_discriminant": row._2pl_irt_discriminant,
+                "scalability_coeff": row.scalability_coeff,
+                "item_total_corr": row.item_total_corr,
+            }
+            for row in validity_df.itertuples(index=False)
+        }
+
     for request_state in scenario_state.request_states:
         assert request_state.instance.id is not None
         if request_state.result is None:
@@ -259,16 +269,20 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, val
             request_state.train_trial_index,
         )
         trial_stats: Dict[str, float] = stats_by_trial[stats_key]
-        
+
         if validity_check:
             validity_metrics: Optional[Dict[str, float]] = validity_dict.get(stats_key)
+
             def get_metric(name: str) -> float:
-                return float(validity_metrics.get(name)) if validity_metrics and name in validity_metrics else float("nan")
+                return (
+                    float(validity_metrics.get(name)) if validity_metrics and name in validity_metrics else float("nan")
+                )
+
             trial_stats["tetrachoric"] = get_metric("tetrachoric")
             trial_stats["2pl_irt_discriminant"] = get_metric("2pl_irt_discriminant")
             trial_stats["scalability_coeff"] = get_metric("scalability_coeff")
             trial_stats["item_total_corr"] = get_metric("item_total_corr")
-        
+
         # For the multiple_choice_separate_* adapter methods,
         # only keep the prediction for the chosen reference and discard the rest.
         if (
