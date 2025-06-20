@@ -4311,3 +4311,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.stanfordhealthcare_shc_openai_client.StanfordHealthCareSHCOpenAIClient"
       deployment: gpt-4-turbo-2024-04-09
+
+
+  - name: huggingface/Gemma-3-Gaia-PT-BR-4b-it
+    model_name: CEIA-UFG/Gemma-3-Gaia-PT-BR-4b-it
+    tokenizer_name: CEIA-UFG/Gemma-3-Gaia-PT-BR-4b-it
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: CEIA-UFG/Gemma-3-Gaia-PT-BR-4b-it
