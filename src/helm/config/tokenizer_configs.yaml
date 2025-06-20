@@ -1057,3 +1057,12 @@ tokenizer_configs:
             pretrained_model_name_or_path: vinai/PhoGPT-4B-Chat
     end_of_text_token: "</s>"
     prefix_token: "<s>"
+
+# Gemma-3-Gaia-PT-BR-4b-it
+  - name: CEIA-UFG/Gemma-3-Gaia-PT-BR-4b-it
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: CEIA-UFG/Gemma-3-Gaia-PT-BR-4b-it
+    end_of_text_token: "<eos>"
+    prefix_token: "<bos>"

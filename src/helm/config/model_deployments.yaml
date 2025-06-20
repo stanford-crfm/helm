@@ -4149,3 +4149,12 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         pretrained_model_name_or_path: vinai/PhoGPT-4B-Chat
+
+  - name: huggingface/Gemma-3-Gaia-PT-BR-4b-it
+    model_name: CEIA-UFG/Gemma-3-Gaia-PT-BR-4b-it
+    tokenizer_name: CEIA-UFG/Gemma-3-Gaia-PT-BR-4b-it
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: CEIA-UFG/Gemma-3-Gaia-PT-BR-4b-it

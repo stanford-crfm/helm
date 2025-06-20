@@ -4548,3 +4548,12 @@ models:
     num_parameters: 4000000000
     release_date: 2024-04-02
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: CEIA-UFG/Gemma-3-Gaia-PT-BR-4b-it
+    display_name: Gemma-3 Gaia PT-BR 4b Instruct
+    description: emma-3 Gaia PT-BR 4b Instruct is a model trained by CEIA-UFG for understanding and generating Brazilian Portuguese text.
+    creator_organization_name: CEIA-UFG
+    access: open
+    num_parameters: 4000000000
+    release_date: 2024-06-01
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
