@@ -50,7 +50,12 @@ class MedecScenario(Scenario):
     TEST_URL = f"https://raw.githubusercontent.com/abachaa/MEDEC/{GIT_HASH}/MEDEC-MS/MEDEC-MS-TestSet-with-GroundTruth-and-ErrorType.csv"  # noqa: E501
 
     name = "medec"
-    description = "A dataset containing medical narratives with error detection and correction pairs."
+    description = (
+        "Medec is a benchmark composed of clinical narratives that include either correct"
+        "documentation or medical errors. Each entry includes sentence-level identifiers and an"
+        "associated correction task. The model must review the narrative and either identify"
+        "the erroneous sentence and correct it, or confirm that the text is entirely accurate."
+    )
     tags = ["error_detection", "error_correction", "biomedical"]
 
     def download_csv(self, url: str, output_path: str, file_name: str) -> str:

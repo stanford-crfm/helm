@@ -24,8 +24,10 @@ class SHCBMTMedScenario(Scenario):
 
     name = "shc_bmt_med"
     description = (
-        "A dataset containing patient notes with associated "
-        "questions and answers related to bone marrow transplantation."
+        "BMT-Status is a benchmark composed of clinical notes and associated binary questions"
+        "related to bone marrow transplant (BMT), hematopoietic stem cell transplant (HSCT),"
+        "or hematopoietic cell transplant (HCT) status. The goal is to determine whether the"
+        "patient received a subsequent transplant based on the provided clinical documentation."
     )
     tags = ["knowledge", "reasoning", "biomedical"]
 

@@ -23,7 +23,11 @@ class SHCGIPMedScenario(Scenario):
     """
 
     name = "shc_gip_med"
-    description = "A dataset evaluating performance in identifying appropriate patient referrals to hospice care."
+    description = (
+        "HospiceReferral is a benchmark that evaluates model performance in identifying"
+        "whether patients are eligible for hospice care based on palliative care clinical notes."
+        "The benchmark focuses on end-of-life care referral decisions."
+    )
     tags = ["knowledge", "reasoning", "biomedical"]
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["A", "B"]

@@ -31,7 +31,13 @@ class MedicationQAScenario(Scenario):
     FILENAME = "MedInfo2019-QA-Medications.xlsx"
 
     name = "medication_qa"
-    description = "Open text question-answer pairs regarding consumer health questions about medication."
+    description = (
+        "MedicationQA is a benchmark composed of open-ended consumer health questions"
+        "specifically focused on medications. Each example consists of a free-form question"
+        "and a corresponding medically grounded answer. The benchmark evaluates a model's"
+        "ability to provide accurate, accessible, and informative medication-related responses"
+        "for a lay audience."
+    )
     tags = ["knowledge", "generation", "question_answering", "biomedical"]
 
     def download_medication_qa(self, path: str):

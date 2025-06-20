@@ -72,7 +72,7 @@ Question: {query} Answer:"""  # noqa: E501
 
 class RULERHotpotQAScenario(_RULERQAScenario):
     name = "ruler_hotpotqa"
-    description = "The HotpotQA long-context multi-hop RAG question answering scenario from RULER"
+    description = "RULER HotPotQA is an augmented version of HotPotQA ([Yang et al., 2018](https://arxiv.org/abs/1809.09600)) introduced by [Hsieh et al., 2024](https://arxiv.org/abs/2404.06654) to simulate a multi-hop question answering as a long-context scenario."  # noqa: E501
     tags = ["long_context", "rag"]
 
     def __init__(self, max_num_words: int):
@@ -81,7 +81,7 @@ class RULERHotpotQAScenario(_RULERQAScenario):
 
 class RULERSQuADScenario(_RULERQAScenario):
     name = "ruler_squad"
-    description = "The SQuAD question answering scenario from RULER"
+    description = "RULER SQuAD is an augmented version of SQuAD ([Rajpurkar et al., 2018](https://arxiv.org/abs/1806.03822)) introduced by [Hsieh et al., 2024](https://arxiv.org/abs/2404.06654) to simulate a single-hop question answering as a long-context scenario."  # noqa: E501
     tags = ["long_context", "rag"]
 
     def __init__(self, max_num_words: int):

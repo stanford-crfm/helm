@@ -33,7 +33,10 @@ class MTSamplesProceduresScenario(Scenario):
 
     name = "mtsamples_procedures"
     description = (
-        "A dataset that provides a patient note regarding an operation, with the objective to document the procedure."
+        "MTSamples Procedures is a benchmark composed of transcribed operative notes,"
+        "focused on documenting surgical procedures. Each example presents a brief patient case"
+        "involving a surgical intervention, and the model is tasked with generating a coherent"
+        "and clinically accurate procedural summary or treatment plan."
     )
     tags = ["medical", "transcription", "plan_generation"]
 

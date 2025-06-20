@@ -31,9 +31,10 @@ class SHCSEIMedScenario(Scenario):
 
     name = "shc_sei_med"
     description = (
-        "A dataset that classifies whether a clinical note contains documentation "
-        "of side effect monitoring (recording of absence or presence of medication "
-        "side effects), as recommended in clinical practice guidelines."
+        "ADHD-MedEffects is a benchmark designed to evaluate whether clinical notes for"
+        "pediatric ADHD visits document medication side effect monitoring, which is a key recommendation"
+        "in clinical practice guidelines. The dataset supports binary classification"
+        "to detect presence or absence of side effect inquiries (SEI) within notes."
     )
     tags = ["knowledge", "reasoning", "biomedical"]
 

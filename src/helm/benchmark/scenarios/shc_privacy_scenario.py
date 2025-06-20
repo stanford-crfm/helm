@@ -24,7 +24,11 @@ class SHCPRIVACYMedScenario(Scenario):
     """
 
     name = "shc_privacy_med"
-    description = "A dataset that determines if a message leaks any confidential information from the patient "
+    description = (
+        "PrivacyDetection is a benchmark composed of patient portal messages submitted by"
+        "patients or caregivers. The task is to determine whether the message contains any"
+        "confidential or privacy-leaking information that should be protected."
+    )
     tags = ["knowledge", "reasoning", "biomedical"]
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["A", "B"]

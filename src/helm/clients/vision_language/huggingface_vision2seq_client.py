@@ -95,8 +95,8 @@ class HuggingFaceVision2SeqClient(CachingClient):
 
                 def do_it() -> Dict[str, Any]:
                     messages = [{"role": "user", "content": multimodal_prompt}]
-                    prompt = processor.apply_chat_template(messages, add_generation_prompt=True)
-                    inputs = processor(
+                    prompt = processor.apply_chat_template(messages, add_generation_prompt=True)  # type: ignore
+                    inputs = processor(  # type: ignore
                         text=[prompt] * request.num_completions,
                         images=[
                             [load_image(image_path) for image_path in image_paths]
@@ -107,8 +107,10 @@ class HuggingFaceVision2SeqClient(CachingClient):
                     inputs = {k: v.to(self._device) for k, v in inputs.items()}
 
                     # Generate
-                    generated_ids = model.generate(**inputs, **generation_args)
-                    generated_texts: List[str] = processor.batch_decode(generated_ids, skip_special_tokens=True)
+                    generated_ids = model.generate(**inputs, **generation_args)  # type: ignore
+                    generated_texts: List[str] = processor.batch_decode(  # type: ignore
+                        generated_ids, skip_special_tokens=True
+                    )
                     return {"output": generated_texts}
 
                 # Include the prompt and model name in the cache key

@@ -121,8 +121,13 @@ class DischargeMeScenario(Scenario):
     """
 
     name = "dischargeme"
-    description = "DischargeMe is a discharge instruction generation dataset and brief hospital course generation \
-    dataset collected from MIMIC-IV data, consindering only the discharge text as well as the radiology report text."
+    description = (
+        "DischargeMe is a benchmark designed to evaluate clinical text generation. It pairs"
+        "discharge summaries and radiology reports from MIMIC-IV with generation tasks"
+        "such as writing discharge instructions or summarizing the brief hospital course. The"
+        "benchmark assesses a model's ability to generate patient-facing documentation that is"
+        "complete, empathetic, and clinically accurate."
+    )
     tags = ["biomedical"]
 
     def __init__(self, data_path: str):

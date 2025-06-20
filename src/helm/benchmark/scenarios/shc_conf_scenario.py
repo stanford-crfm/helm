@@ -25,8 +25,10 @@ class SHCCONFMedScenario(Scenario):
 
     name = "shc_conf_med"
     description = (
-        "A dataset of clinical notes from adolescent patients used to identify sensitive "
-        "protected health information that should be restricted from parental access."
+        "MedConfInfo is a benchmark comprising clinical notes from adolescent patients. It is"
+        "used to evaluate whether the content contains sensitive protected health information"
+        "(PHI) that should be restricted from parental access, in accordance with adolescent"
+        "confidentiality policies in clinical care."
     )
     tags = ["knowledge", "reasoning", "biomedical"]
 

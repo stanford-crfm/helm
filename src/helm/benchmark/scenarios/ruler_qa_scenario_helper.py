@@ -133,7 +133,7 @@ def generate_samples(dataset: str, dataset_path: str, template: str, random_seed
         input_text, answer = generate_input_output(0, num_docs, template=template, random_seed=random_seed, qas=qas, docs=docs)
         # Calculate the number of tokens in the example
         total_tokens = len(_text_to_tokens(input_text + f' {answer}'))
-        print(f'Max length {max_seq_length} | Current length {total_tokens + tokens_to_generate} | Docs: {num_docs}')
+        # print(f'Max length {max_seq_length} | Current length {total_tokens + tokens_to_generate} | Docs: {num_docs}')
         if total_tokens + tokens_to_generate > max_seq_length:
             num_docs -= incremental
             break
@@ -142,7 +142,7 @@ def generate_samples(dataset: str, dataset_path: str, template: str, random_seed
         if num_docs > len(docs):
             num_docs = len(docs)
             break
-    print('Number of documents:', num_docs)
+    # print('Number of documents:', num_docs)
     
     # Generate samples
     for index in tqdm(range(num_samples)):

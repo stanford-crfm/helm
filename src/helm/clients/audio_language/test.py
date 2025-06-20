@@ -1,6 +1,6 @@
 import soundfile as sf
 
-from transformers import Qwen2_5OmniModel, Qwen2_5OmniProcessor
+from transformers import Qwen2_5OmniModel, Qwen2_5OmniProcessor  # type: ignore
 from qwen_omni_utils import process_mm_info
 
 # default: Load the model on the available device(s)
