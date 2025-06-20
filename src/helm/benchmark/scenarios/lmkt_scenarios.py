@@ -7,6 +7,7 @@ from typing import List
 from datasets import load_dataset
 from huggingface_hub import snapshot_download
 
+from helm.common.hierarchical_logger import hlog, hwarn
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -35,7 +36,7 @@ class CulturalValueUnderstandingWVSScenario(Scenario):
         repo_id: str = "stair-lab/cultural-alignment-dataset",
         num_personas: int = 10,
         num_question_variants: int = 2,
-        include_examples: bool = False,
+        include_few_shot_examples: bool = False,
     ):
         super().__init__()
         self.language = language
@@ -44,56 +45,54 @@ class CulturalValueUnderstandingWVSScenario(Scenario):
         self.repo_id = repo_id
         self.num_personas = 10 if isinstance(num_personas, str) else num_personas
         self.num_question_variants = min(num_question_variants, 4)
-        self.include_examples = include_examples
+        self.include_few_shot_examples = include_few_shot_examples
 
         if self.language not in SUPPORTED_LANGUAGES:
             raise ValueError(f"Unsupported language: {self.language}. Supported languages are: {SUPPORTED_LANGUAGES}")
 
     def get_few_shot_examples(self) -> str:
         """Return a few-shot learning examples formatted as a string."""
-        examples = """
-            Here are some examples:
+        examples = """Here are some examples:
 
-            Example 1:
-            You are a 35 year old male from Vietnam. You have higher education and consider yourself middle class. You are married.
+Example 1:
+You are a 35 year old male from Vietnam. You have higher education and consider yourself middle class. You are married.
 
-            How important is family in your life?
+How important is family in your life?
 
-            1. Very important
-            2. Rather important
-            3. Not very important
-            4. Not at all important
+1. Very important
+2. Rather important
+3. Not very important
+4. Not at all important
 
-            Please select the option number that best represents your view.
-            1
+Please select the option number that best represents your view.
+1
 
-            Example 2:
-            You are a 28 year old female from Vietnam. You have middle education and consider yourself working class. You are single.
+Example 2:
+You are a 28 year old female from Vietnam. You have middle education and consider yourself working class. You are single.
 
-            Would you say that most people can be trusted or that you need to be very careful in dealing with people?
+Would you say that most people can be trusted or that you need to be very careful in dealing with people?
 
-            1. Most people can be trusted
-            2. Need to be very careful
+1. Most people can be trusted
+2. Need to be very careful
 
-            Please select the option number that best represents your view.
-            2
+Please select the option number that best represents your view.
+2
 
-            Example 3:
-            You are a 50 year old male from Vietnam. You have lower education and consider yourself lower class. You are married.
+Example 3:
+You are a 50 year old male from Vietnam. You have lower education and consider yourself lower class. You are married.
 
-            Do you think that homosexuality is justifiable?
+Do you think that homosexuality is justifiable?
 
-            1. Never justifiable
-            2. Rarely justifiable
-            3. Sometimes justifiable
-            4. Always justifiable
+1. Never justifiable
+2. Rarely justifiable
+3. Sometimes justifiable
+4. Always justifiable
 
-            Please select the option number that best represents your view.
-            1
+Please select the option number that best represents your view.
+1
 
-            Now answer the following question:
-
-        """
+Now answer the following question:
+"""  # noqa: E501
         return examples
 
     def get_instances(self, output_path: str) -> List[Instance]:
@@ -102,7 +101,9 @@ class CulturalValueUnderstandingWVSScenario(Scenario):
 
         try:
             # Download files from Hugging Face Hub
-            repo_local_path = snapshot_download(repo_id=self.repo_id, repo_type="dataset")
+            repo_local_path = snapshot_download(
+                repo_id=self.repo_id, repo_type="dataset", revision="fe54b6f5d75cfca5377707cd7199e39f517e3a1f"
+            )
 
             # Load the downloaded files
             with open(os.path.join(repo_local_path, self.personas_filename), "r", encoding="utf-8") as f:
@@ -112,11 +113,13 @@ class CulturalValueUnderstandingWVSScenario(Scenario):
                 questions = json.load(f)
 
         except Exception as e:
-            print(f"Error loading required files from Hugging Face: {e}")
-            return []
+            raise RuntimeError(
+                f"Failed to load required files from Hugging Face repository {self.repo_id}. "
+                "Please ensure the repository exists and the files are correctly named."
+            )
 
         # Get few-shot examples
-        few_shot_examples = self.get_few_shot_examples() if self.include_examples else ""
+        few_shot_examples = self.get_few_shot_examples() if self.include_few_shot_examples else ""
 
         # Sample personas
         sampled_personas = random.sample(personas, min(self.num_personas, len(personas)))
@@ -175,7 +178,7 @@ class CulturalValueUnderstandingWVSScenario(Scenario):
                 # Create instances for each selected question variant
                 for q_text in selected_variants:
                     # Format the prompt with or without few-shot examples
-                    if self.include_examples:
+                    if self.include_few_shot_examples:
                         prompt = f"{few_shot_examples}{persona_desc}\n\n{q_text}\n\n"
                     else:
                         prompt = f"{persona_desc}\n\n{q_text}\n\n"
@@ -199,9 +202,9 @@ class CulturalValueUnderstandingWVSScenario(Scenario):
                     instances.append(instance)
 
         if not instances:
-            print("Warning: No valid instances were created!")
+            hwarn(f"No valid instances were created. Check the input data and parameters.")
         else:
-            print(f"Created {len(instances)} valid instances")
+            hlog(f"Created {len(instances)} instances for cultural value understanding scenario.")
 
         return instances
 

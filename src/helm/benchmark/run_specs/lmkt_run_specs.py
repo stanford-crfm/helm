@@ -65,7 +65,7 @@ def get_cultural_value_understanding_wvs_spec(language: str, country: str) -> Ru
             "language": language,
             "num_personas": 300,
             "num_question_variants": 4,
-            "include_examples": True,
+            "include_few_shot_examples": True,
         },
     )
 
