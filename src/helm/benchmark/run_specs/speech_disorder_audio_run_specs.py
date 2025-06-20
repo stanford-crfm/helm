@@ -73,9 +73,7 @@ def get_ultra_suite_classification_run_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.audio_language.ultra_suite_classification_scenario.UltraSuiteClassificationScenario",  # noqa: E501
     )
-    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
-        input_noun=None, output_noun="Answer"
-    )
+    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(input_noun=None, output_noun="Answer")
     metric_specs: List[MetricSpec] = audio_classification_metric_specs()
     run_spec_name: str = "ultra_suite_classification"
     return RunSpec(
@@ -92,9 +90,7 @@ def get_ultra_suite_disorder_breakdown_run_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.audio_language.ultra_suite_disorder_breakdown_scenario.UltraSuiteDisorderBreakdownScenario",  # noqa: E501
     )
-    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
-        input_noun=None, output_noun="Answer"
-    )
+    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(input_noun=None, output_noun="Answer")
     metric_specs: List[MetricSpec] = audio_classification_metric_specs()
     run_spec_name: str = "ultra_suite_classification_breakdown"
     return RunSpec(
