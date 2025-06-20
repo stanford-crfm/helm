@@ -20,7 +20,7 @@ from helm.benchmark.scenarios.scenario import (
 SUPPORTED_LANGUAGES = ["en", "vi"]
 
 
-class CVUnderstandingWVSScenario(Scenario):
+class CulturalValueUnderstandingWVSScenario(Scenario):
     """Cultural values understanding evaluation based on Vietnam World Values Survey responses."""
 
     name = "cultural_value_understanding_wvs"
@@ -272,10 +272,13 @@ class SocialNormExplanationNormADScenario(Scenario):
         instances: List[Instance] = []
 
         for item in dataset:
+            if not item["Explanation"]:
+                continue
+
             input_text = (
                 f"Assumming that below norms and story are from {item['Country'].capitalize()}:\n"
                 f"{item['Background']}\n\n{item['Story']}\n"
-                f"The answer is {item['Gold Label']}. Explain the reasoning behind this answer.\n\n"
+                f"The answer is {item['Gold Label']}. Briefly explain the reasoning behind this answer in one or two sentences.\n\n"
             )
 
             instance = Instance(

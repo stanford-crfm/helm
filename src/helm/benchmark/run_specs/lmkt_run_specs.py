@@ -3,7 +3,11 @@
 from helm.benchmark.adaptation.common_adapter_specs import (
     get_generation_adapter_spec,
 )
-from helm.benchmark.metrics.common_metric_specs import get_exact_match_metric_specs
+from helm.benchmark.metrics.common_metric_specs import (
+    get_exact_match_metric_specs,
+    get_f1_metric_specs,
+    get_open_ended_generation_metric_specs,
+)
 from helm.benchmark.metrics.lmkt_metric_specs import get_semantic_similarity_metric_specs
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
@@ -79,7 +83,7 @@ def get_cultural_value_understanding_wvs_spec(language: str, country: str) -> Ru
         name="cultural_value_understanding_wvs",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_f1_metric_specs(),
         groups=["lmkt", "cultural_value_understanding_wvs"],
     )
 
@@ -107,7 +111,7 @@ def get_social_norm_application_normad_spec(language: str, country: str) -> RunS
         name="social_norm_application_normad",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_f1_metric_specs(),
         groups=["lmkt", "social_norm_application_normad"],
     )
 
@@ -127,7 +131,7 @@ def get_social_norm_explanation_normad_spec(language: str, country: str) -> RunS
         ),
         input_noun=INSTRUCTIONS["social_norm_explanation_normad"][language]["input_noun"],
         output_noun=INSTRUCTIONS["social_norm_explanation_normad"][language]["output_noun"],
-        max_tokens=5,
+        max_tokens=128,
         stop_sequences=[],
     )
 
@@ -135,6 +139,6 @@ def get_social_norm_explanation_normad_spec(language: str, country: str) -> RunS
         name="social_norm_explanation_normad",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_semantic_similarity_metric_specs(),
+        metric_specs=get_open_ended_generation_metric_specs() + get_semantic_similarity_metric_specs(),
         groups=["lmkt", "social_norm_explanation_normad"],
     )
