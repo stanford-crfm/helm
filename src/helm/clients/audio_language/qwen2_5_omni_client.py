@@ -27,6 +27,7 @@ class LoadedQwen2_5OmniModelProcessor:
 _models_lock: Lock = Lock()
 _models: Dict[str, Optional[LoadedQwen2_5OmniModelProcessor]] = {
     "Qwen/Qwen2.5-Omni-7B": None,
+    "Qwen/Qwen2.5-Omni-3B": None,
 }
 
 
@@ -39,7 +40,7 @@ class Qwen2_5OmniAudioLMClient(CachingClient):
     Paper: https://arxiv.org/abs/2503.20215
     """
 
-    END_OF_TEXT_TOKEN: str = "<|endoftext|>>"
+    END_OF_TEXT_TOKEN: str = "<|endoftext|>"
 
     def __init__(self, cache_config: CacheConfig):
         super().__init__(cache_config=cache_config)
@@ -52,6 +53,8 @@ class Qwen2_5OmniAudioLMClient(CachingClient):
         model_name: str
         if helm_model_name == "qwen2.5-omni-7b":
             model_name = "Qwen/Qwen2.5-Omni-7B"
+        elif helm_model_name == "qwen2.5-omni-3b":
+            model_name = "Qwen/Qwen2.5-Omni-3B"
         else:
             raise ValueError(f"Unhandled model name: {helm_model_name}")
 
@@ -60,12 +63,21 @@ class Qwen2_5OmniAudioLMClient(CachingClient):
             loaded_model_processor = _models[model_name]
             if loaded_model_processor is None:
                 hlog(f"Loading model {model_name} and caching in memory...")
-                model = Qwen2_5OmniModel.from_pretrained(
-                    model_name,
-                    attn_implementation="flash_attention_2",
-                    torch_dtype=torch.bfloat16,
-                    device_map=self._device,
-                ).eval()
+                if torch.cuda.get_device_capability()[0] >= 8:
+                    # Use flash attention 2 for A100 and H100 GPUs
+                    model = Qwen2_5OmniModel.from_pretrained(
+                        model_name,
+                        attn_implementation="flash_attention_2",
+                        torch_dtype=torch.bfloat16,
+                        device_map=self._device,
+                    ).eval()
+                else:
+                    # Use default attention for other GPUs
+                    model = Qwen2_5OmniModel.from_pretrained(
+                        model_name,
+                        torch_dtype=torch.float16,
+                        device_map=self._device,
+                    ).eval()
                 tokenizer = Qwen2_5OmniProcessor.from_pretrained(
                     model_name,
                 )
