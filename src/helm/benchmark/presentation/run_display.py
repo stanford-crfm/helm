@@ -1,7 +1,7 @@
 from collections import OrderedDict, defaultdict
 from dataclasses import dataclass
 import os
-import pickle
+import math
 from typing import Dict, Iterable, List, Optional, Set, Tuple, Any
 
 import pandas as pd
@@ -240,7 +240,7 @@ def write_run_display_json(
             repo_id="stair-lab/helm_display_validity", repo_type="dataset", filename="validity.parquet"
         )
         validity_df: pd.DataFrame = pd.read_parquet(validity_path)
-        validity_dict: Dict[Tuple[str, Optional[str], int], Dict[str, float]] = {
+        validity_dict: Dict[Tuple[str, Optional[PerturbationDescription], int], Dict[str, float]] = {
             (row.instance_id, row.perturbation, row.train_trial_index): {
                 "tetrachoric": row.tetrachoric,
                 "2pl_irt_discriminant": row._2pl_irt_discriminant,
@@ -274,9 +274,7 @@ def write_run_display_json(
             validity_metrics: Optional[Dict[str, float]] = validity_dict.get(stats_key)
 
             def get_metric(name: str) -> float:
-                return (
-                    float(validity_metrics.get(name)) if validity_metrics and name in validity_metrics else float("nan")
-                )
+                return validity_metrics.get(name, math.nan) if validity_metrics is not None else math.nan
 
             trial_stats["tetrachoric"] = get_metric("tetrachoric")
             trial_stats["2pl_irt_discriminant"] = get_metric("2pl_irt_discriminant")

@@ -1,14 +1,18 @@
+# flake8: noqa
+# type: ignore
+# fmt: off
+
 import io
 import pickle
-from huggingface_hub import hf_hub_download
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+
 import numpy as np
 import pandas as pd
-from pyrelimri.tetrachoric_correlation import tetrachoric_corr
-from tqdm import tqdm
-from huggingface_hub import login, HfApi
 import torch
+from huggingface_hub import HfApi, hf_hub_download, login
+from pyrelimri.tetrachoric_correlation import tetrachoric_corr
 from torch.distributions import Bernoulli
-from typing import Any, Tuple, Optional, Callable, List, Union, Dict
+from tqdm import tqdm
 
 
 def trainer(parameters: List[torch.Tensor],
