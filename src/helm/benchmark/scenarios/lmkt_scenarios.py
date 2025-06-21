@@ -99,24 +99,17 @@ Now answer the following question:
         """Generate test instances from Vietnam personas and WVS questions."""
         instances: List[Instance] = []
 
-        try:
-            # Download files from Hugging Face Hub
-            repo_local_path = snapshot_download(
-                repo_id=self.repo_id, repo_type="dataset", revision="fe54b6f5d75cfca5377707cd7199e39f517e3a1f"
-            )
+        # Download files from Hugging Face Hub
+        repo_local_path = snapshot_download(
+            repo_id=self.repo_id, repo_type="dataset", revision="fe54b6f5d75cfca5377707cd7199e39f517e3a1f"
+        )
 
-            # Load the downloaded files
-            with open(os.path.join(repo_local_path, self.personas_filename), "r", encoding="utf-8") as f:
-                personas = json.load(f)
+        # Load the downloaded files
+        with open(os.path.join(repo_local_path, self.personas_filename), "r", encoding="utf-8") as f:
+            personas = json.load(f)
 
-            with open(os.path.join(repo_local_path, self.questions_filename), "r", encoding="utf-8") as f:
-                questions = json.load(f)
-
-        except Exception as e:
-            raise RuntimeError(
-                f"Failed to load required files from Hugging Face repository {self.repo_id}. "
-                "Please ensure the repository exists and the files are correctly named."
-            )
+        with open(os.path.join(repo_local_path, self.questions_filename), "r", encoding="utf-8") as f:
+            questions = json.load(f)
 
         # Get few-shot examples
         few_shot_examples = self.get_few_shot_examples() if self.include_few_shot_examples else ""
@@ -130,7 +123,7 @@ Now answer the following question:
             persona_desc = (
                 f"You are a {persona.get('age', 'adult')} year old {persona.get('sex', 'person')} from Vietnam. "
             )
-            persona_desc += f"You have {persona.get('education', 'some')} education and consider yourself {persona.get('social_class', 'middle class')}. "
+            persona_desc += f"You have {persona.get('education', 'some')} education and consider yourself {persona.get('social_class', 'middle class')}. "  # noqa: E501
             persona_desc += f"You are {persona.get('marital_status', 'single')}."
 
             # Process each question this persona answered
@@ -187,7 +180,7 @@ Now answer the following question:
                     for i, opt in enumerate(q_options, 1):
                         prompt += f"{i}. {opt}\n"
 
-                    prompt += "\nPlease select the option number that best represents your view."
+                    prompt += "\nPlease select the option number that best represents your view. Return only the option number. Do not return anything else."  # noqa: E501
 
                     # Create a reference with just the human response number
                     # We don't create multiple references, just use the actual human response
@@ -202,7 +195,7 @@ Now answer the following question:
                     instances.append(instance)
 
         if not instances:
-            hwarn(f"No valid instances were created. Check the input data and parameters.")
+            hwarn("No valid instances were created. Check the input data and parameters.")
         else:
             hlog(f"Created {len(instances)} instances for cultural value understanding scenario.")
 
@@ -281,7 +274,8 @@ class SocialNormExplanationNormADScenario(Scenario):
             input_text = (
                 f"Assumming that below norms and story are from {item['Country'].capitalize()}:\n"
                 f"{item['Background']}\n\n{item['Story']}\n"
-                f"The answer is {item['Gold Label']}. Briefly explain the reasoning behind this answer in one or two sentences.\n\n"
+                f"The answer is {item['Gold Label']}. "
+                "Briefly explain the reasoning behind this answer in one or two sentences.\n\n"
             )
 
             instance = Instance(

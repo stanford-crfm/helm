@@ -31,6 +31,8 @@ class SemanticSimilarityMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
 
+        assert request_state.result
+
         completions = [c.text for c in request_state.result.completions]
         completion_embeddings = self.model.encode(completions)
 
