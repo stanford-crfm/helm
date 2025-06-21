@@ -4,6 +4,10 @@
 
 ## [v0.5.6] - 2025-06-20
 
+### Breaking Changes
+
+- `HuggingFaceClient` will automatically apply the chat template if the tokenizer contains one. This may result in incorrect behavior for some non-chat models that have tokenizers with chat templates e.g. Qwen2, Qwen 2.5. For these models, the default behavior can be overridden by explicitly setting `apply_chat_template` in `args`. (#3678)
+
 ### Models
 
 - Fixed bug regarding `reasoning_effort` not being set correct for OpenAI models (#3501)
@@ -100,7 +104,7 @@ Thank you to the following contributors for your work on this HELM release!
 
 ### Breaking Changes
 
--  Optimum Intel OpenVINO is no longer supported (#3153)
+- Optimum Intel OpenVINO is no longer supported (#3153)
 
 ### Scenarios
 
@@ -1016,7 +1020,7 @@ Thank you to the following contributors for your contributions to this HELM rele
 - Initial release
 
 [upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.6...HEAD
-[v0.5.5]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.6
+[v0.5.6]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.6
 [v0.5.5]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.5
 [v0.5.4]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.4
 [v0.5.3]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.3
