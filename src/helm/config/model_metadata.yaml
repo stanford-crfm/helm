@@ -3256,6 +3256,14 @@ models:
     release_date: 2025-04-16
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: openai/o3-pro-2025-06-10-high-reasoning-effort
+    display_name: o3-pro (2025-06-10, high reasoning effort)
+    description: o3-pro is an o-series model designed to think longer and provide the most reliable responses. ([blog post](https://help.openai.com/en/articles/9624314-model-release-notes))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-06-10
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   ## Codex Models
   # DEPRECATED: Codex models have been shut down on March 23 2023.
 

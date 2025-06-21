@@ -2472,6 +2472,19 @@ model_deployments:
         openai_model_name: o4-mini-2025-04-16
         reasoning_effort: high
 
+
+  - name: openai/o3-pro-2025-06-10-high-reasoning-effort
+    model_name: openai/o3-pro-2025-06-10-high-reasoning-effort
+    tokenizer_name: openai/cl100k_base
+    # Source: https://platform.openai.com/docs/models/o3-pro
+    max_sequence_length: 200000
+    # TODO: max_output_tokens: 100000
+    client_spec:
+      class_name: "helm.clients.openai_responses_client.OpenAIResponseClient"
+      args:
+        openai_model_name: o3-pro-2025-06-10
+        reasoning_effort: high
+
   ## Text Similarity Models
   # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
   # The number of parameters is guessed based on the number of parameters of the
