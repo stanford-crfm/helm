@@ -73,7 +73,7 @@ class RoboRewardBenchPreferenceRankingScenario(Scenario):
 
     def get_instances(self, output_path: str) -> List[Instance]:
         target_path: str = os.path.join(output_path, "output")
-        annotation_path: str = os.path.join(target_path, "robo_arena.jsonl")
+        annotation_path: str = os.path.join(target_path, "robo_arena_2025_06-21.jsonl")
         assert os.path.exists(annotation_path), f"Annotation file does not exist at path: {annotation_path}"
 
         with open(annotation_path, "r") as f:
@@ -115,7 +115,7 @@ class RoboRewardBenchPreferenceRankingScenario(Scenario):
 
 class RoboRewardBenchProgressPredictionScenario(RoboRewardBenchPreferenceRankingScenario):
     def get_instances(self, output_path: str) -> List[Instance]:
-        annotation_path: str = os.path.join(output_path, "output", "robo_arena.jsonl")
+        annotation_path: str = os.path.join(output_path, "output", "robo_arena_2025_06-21.jsonl")
         assert os.path.exists(annotation_path), f"Annotation file does not exist at path: {annotation_path}"
 
         with open(annotation_path, "r") as f:
