@@ -3,10 +3,10 @@ import pandas as pd
 import requests
 
 
-class MistakeCodingScenario(Scenario):
-    name = "student_mistake_coding"
+class StudentMistakeScenario(Scenario):
+    name = "student_mistake"
     description = "Mimic how students mistake their C++ codes on foundational questions"
-    tags = ["coding", "c++", "student"]
+    tags = ["codeinsights", "c++", "student_mistake"]
 
     def get_instances(self, output_path: str):
         df = pd.read_csv(

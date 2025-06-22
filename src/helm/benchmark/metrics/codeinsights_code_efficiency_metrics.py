@@ -18,6 +18,7 @@ from helm.benchmark.metrics.statistic import Stat
 @dataclass
 class RuntimeResult:
     """Container for runtime measurement results."""
+
     success: bool
     avg_runtime: float
     std_runtime: float
@@ -375,17 +376,19 @@ int main() {{
 class RuntimeEfficiencyMetric(Metric):
     """
     Metric for evaluating runtime efficiency alignment between LLM-generated code and student code.
-    
+
     This metric compares the runtime performance of LLM-generated code with the original student code
     when both solutions are functionally correct. It helps determine if LLMs preserve the efficiency
     characteristics of student code or over-optimize solutions.
     """
 
-    def __init__(self, 
-                 compile_code: bool = True, 
-                 compiler_path: str = "g++",
-                 num_runtime_runs: int = 5,
-                 timeout_seconds: int = 10):
+    def __init__(
+        self,
+        compile_code: bool = True,
+        compiler_path: str = "g++",
+        num_runtime_runs: int = 5,
+        timeout_seconds: int = 10,
+    ):
         """
         Initialize the runtime efficiency metric.
 
@@ -475,17 +478,17 @@ class RuntimeEfficiencyMetric(Metric):
     def _verify_functional_correctness(self, code: str, test_cases: List[dict], template: str) -> bool:
         """
         Verify that the code passes all test cases.
-        
+
         Args:
             code: The code to verify
             test_cases: List of test case dictionaries
             template: The question template
-            
+
         Returns:
             True if all tests pass, False otherwise
         """
-        print(f"\n--- Verifying Functional Correctness ---")
-        
+        print("\n--- Verifying Functional Correctness ---")
+
         if not test_cases:
             return False
 
@@ -494,7 +497,7 @@ class RuntimeEfficiencyMetric(Metric):
                 # Extract and prepare code
                 student_code = self._extract_student_code(code)
                 complete_program = self._create_complete_program(template, student_code, test_case.get("input", ""))
-                
+
                 if complete_program is None:
                     print(f"Test {i+1}: Failed to create complete program")
                     return False
@@ -508,7 +511,9 @@ class RuntimeEfficiencyMetric(Metric):
                 # Check output
                 expected_output = test_case.get("output", "").strip()
                 if actual_output.strip() != expected_output:
-                    print(f"Test {i+1}: Output mismatch - Expected: '{expected_output}', Got: '{actual_output.strip()}'")
+                    print(
+                        f"Test {i+1}: Output mismatch - Expected: '{expected_output}', Got: '{actual_output.strip()}'"
+                    )
                     return False
 
             except Exception as e:
@@ -521,21 +526,21 @@ class RuntimeEfficiencyMetric(Metric):
     def _measure_runtime(self, code: str, test_cases: List[dict], template: str, code_type: str) -> RuntimeResult:
         """
         Measure the runtime of code across multiple test cases and runs.
-        
+
         This method attempts to measure runtime even for incorrect solutions,
         as long as they compile and run without crashing.
-        
+
         Args:
             code: The code to measure
             test_cases: List of test case dictionaries
             template: The question template
             code_type: Description for logging ("LLM" or "Student")
-            
+
         Returns:
             RuntimeResult containing timing statistics
         """
         print(f"\n--- Measuring Runtime for {code_type} Code ---")
-        
+
         all_runtimes = []
         student_code = self._extract_student_code(code)
 
@@ -570,8 +575,8 @@ class RuntimeEfficiencyMetric(Metric):
                 # Cleanup
                 try:
                     os.unlink(exe_path)
-                except:
-                    pass
+                except Exception as e:
+                    print(f"Error cleaning up executable: {e}")
 
             except Exception as e:
                 print(f"Error measuring runtime for test case {i+1}: {e}")
@@ -585,7 +590,7 @@ class RuntimeEfficiencyMetric(Metric):
                 min_runtime=0.0,
                 max_runtime=0.0,
                 runs_completed=0,
-                error_message="No successful runtime measurements"
+                error_message="No successful runtime measurements",
             )
 
         # Calculate statistics
@@ -594,7 +599,9 @@ class RuntimeEfficiencyMetric(Metric):
         min_runtime = min(all_runtimes)
         max_runtime = max(all_runtimes)
 
-        print(f"{code_type} runtime stats - Avg: {avg_runtime:.6f}s, Std: {std_runtime:.6f}s, Runs: {len(all_runtimes)}")
+        print(
+            f"{code_type} runtime stats - Avg: {avg_runtime:.6f}s, Std: {std_runtime:.6f}s, Runs: {len(all_runtimes)}"
+        )
 
         return RuntimeResult(
             success=True,
@@ -602,16 +609,16 @@ class RuntimeEfficiencyMetric(Metric):
             std_runtime=std_runtime,
             min_runtime=min_runtime,
             max_runtime=max_runtime,
-            runs_completed=len(all_runtimes)
+            runs_completed=len(all_runtimes),
         )
 
     def _compile_cpp_program(self, code: str) -> Optional[str]:
         """
         Compile C++ code and return path to executable.
-        
+
         Args:
             code: Complete C++ program source code
-            
+
         Returns:
             Path to compiled executable or None if compilation failed
         """
@@ -629,20 +636,14 @@ class RuntimeEfficiencyMetric(Metric):
 
             # Compile with optimizations for more realistic runtime measurement
             compile_cmd = [self.compiler_path, "-std=c++17", "-O2", "-o", exe_file_path, cpp_file_path]
-            
-            compile_result = subprocess.run(
-                compile_cmd, 
-                capture_output=True, 
-                text=True, 
-                timeout=30, 
-                env=env
-            )
+
+            compile_result = subprocess.run(compile_cmd, capture_output=True, text=True, timeout=30, env=env)
 
             # Cleanup source file
             try:
                 os.unlink(cpp_file_path)
-            except:
-                pass
+            except Exception as e:
+                print(f"Error cleaning up source file: {e}")
 
             if compile_result.returncode != 0:
                 print(f"Compilation failed: {compile_result.stderr}")
@@ -657,10 +658,10 @@ class RuntimeEfficiencyMetric(Metric):
     def _time_execution(self, exe_path: str) -> Optional[float]:
         """
         Time the execution of a compiled program.
-        
+
         Args:
             exe_path: Path to the executable
-            
+
         Returns:
             Runtime in seconds or None if execution failed
         """
@@ -669,13 +670,7 @@ class RuntimeEfficiencyMetric(Metric):
             env["TOKENIZERS_PARALLELISM"] = "false"
 
             start_time = time.perf_counter()
-            result = subprocess.run(
-                [exe_path],
-                capture_output=True,
-                text=True,
-                timeout=self.timeout_seconds,
-                env=env
-            )
+            result = subprocess.run([exe_path], capture_output=True, text=True, timeout=self.timeout_seconds, env=env)
             end_time = time.perf_counter()
 
             if result.returncode == 0:
@@ -691,21 +686,23 @@ class RuntimeEfficiencyMetric(Metric):
             print(f"Execution error: {e}")
             return None
 
-    def _calculate_efficiency_metrics(self, llm_runtime: RuntimeResult, student_runtime: RuntimeResult, llm_correct: bool, student_correct: bool) -> List[Stat]:
+    def _calculate_efficiency_metrics(
+        self, llm_runtime: RuntimeResult, student_runtime: RuntimeResult, llm_correct: bool, student_correct: bool
+    ) -> List[Stat]:
         """
         Calculate efficiency comparison metrics between LLM and student code.
-        
+
         Returns only the three essential metrics:
         1. runtime_efficiency_ratio - LLM runtime / Student runtime
-        2. efficiency_alignment_score - How well LLM matches student efficiency  
+        2. efficiency_alignment_score - How well LLM matches student efficiency
         3. llm_functionally_correct - Whether LLM code passes all tests
-        
+
         Args:
             llm_runtime: LLM code runtime results
             student_runtime: Student code runtime results
             llm_correct: Whether LLM code is functionally correct
             student_correct: Whether student code is functionally correct
-            
+
         Returns:
             List of Stat objects with the three essential efficiency metrics
         """
@@ -717,8 +714,12 @@ class RuntimeEfficiencyMetric(Metric):
         # Calculate runtime metrics if we have data for both solutions
         if llm_runtime.success and student_runtime.success:
             # Runtime ratio (LLM / Student) - values > 1 mean LLM is slower
-            runtime_ratio = llm_runtime.avg_runtime / student_runtime.avg_runtime if student_runtime.avg_runtime > 0 else float('inf')
-            
+            runtime_ratio = (
+                llm_runtime.avg_runtime / student_runtime.avg_runtime
+                if student_runtime.avg_runtime > 0
+                else float("inf")
+            )
+
             # Efficiency alignment score (closer to 1.0 is better alignment)
             # Use reciprocal if LLM is faster to normalize the scale
             if runtime_ratio > 1:
@@ -730,33 +731,41 @@ class RuntimeEfficiencyMetric(Metric):
             print(f"Efficiency alignment score: {efficiency_alignment:.4f}")
             print(f"LLM functionally correct: {llm_correct}")
 
-            stats.extend([
-                Stat(MetricName("runtime_efficiency_ratio")).add(runtime_ratio),
-                Stat(MetricName("efficiency_alignment_score")).add(efficiency_alignment),
-            ])
-        
+            stats.extend(
+                [
+                    Stat(MetricName("runtime_efficiency_ratio")).add(runtime_ratio),
+                    Stat(MetricName("efficiency_alignment_score")).add(efficiency_alignment),
+                ]
+            )
+
         # Handle cases where only one solution has runtime data
         elif llm_runtime.success and not student_runtime.success:
             print("Only LLM runtime available - student solution failed to run")
-            stats.extend([
-                Stat(MetricName("runtime_efficiency_ratio")).add(float('inf')),  # LLM runs, student doesn't
-                Stat(MetricName("efficiency_alignment_score")).add(0.0),  # No alignment possible
-            ])
-            
+            stats.extend(
+                [
+                    Stat(MetricName("runtime_efficiency_ratio")).add(float("inf")),  # LLM runs, student doesn't
+                    Stat(MetricName("efficiency_alignment_score")).add(0.0),  # No alignment possible
+                ]
+            )
+
         elif not llm_runtime.success and student_runtime.success:
             print("Only student runtime available - LLM solution failed to run")
-            stats.extend([
-                Stat(MetricName("runtime_efficiency_ratio")).add(0.0),  # Student runs, LLM doesn't
-                Stat(MetricName("efficiency_alignment_score")).add(0.0),  # No alignment possible
-            ])
-        
+            stats.extend(
+                [
+                    Stat(MetricName("runtime_efficiency_ratio")).add(0.0),  # Student runs, LLM doesn't
+                    Stat(MetricName("efficiency_alignment_score")).add(0.0),  # No alignment possible
+                ]
+            )
+
         else:
             # Neither solution has runtime data
             print("Runtime measurement failed for both solutions")
-            stats.extend([
-                Stat(MetricName("runtime_efficiency_ratio")).add(0.0),
-                Stat(MetricName("efficiency_alignment_score")).add(0.0),
-            ])
+            stats.extend(
+                [
+                    Stat(MetricName("runtime_efficiency_ratio")).add(0.0),
+                    Stat(MetricName("efficiency_alignment_score")).add(0.0),
+                ]
+            )
 
         return stats
 
@@ -858,7 +867,7 @@ int main() {{
         except subprocess.TimeoutExpired:
             return False, "", "Execution timed out"
         except FileNotFoundError as e:
-            return False, "", f"Compiler '{self.compiler_path}' not found"
+            return False, "", f"Compiler '{self.compiler_path}' not found during compilation: {e}"
         except Exception as e:
             return False, "", f"Error: {str(e)}"
         finally:
@@ -868,8 +877,8 @@ int main() {{
                     os.unlink(cpp_file_path)
                 if "exe_file_path" in locals() and os.path.exists(exe_file_path):
                     os.unlink(exe_file_path)
-            except:
-                pass
+            except Exception as e:
+                print(f"Error cleaning up executable: {e}")
 
     def _simulate_execution(self, student_code: str, test_case: dict) -> str:
         """
@@ -893,23 +902,25 @@ int main() {{
         This method is no longer used since we always attempt runtime measurement.
         Kept for backwards compatibility.
         """
-        print(f"WARNING: _create_correctness_failure_stats called but should not be used anymore")
+        print("WARNING: _create_correctness_failure_stats called but should not be used anymore")
         return self._create_failure_stats("Deprecated correctness failure stats")
 
 
 class CodeEfficiencyMetric(Metric):
     """
     Comprehensive metric combining functional correctness and runtime efficiency evaluation.
-    
-    This metric first evaluates functional correctness and then measures runtime efficiency 
+
+    This metric first evaluates functional correctness and then measures runtime efficiency
     alignment between LLM-generated code and student reference code when both are correct.
     """
 
-    def __init__(self, 
-                 compile_code: bool = True, 
-                 compiler_path: str = "g++",
-                 num_runtime_runs: int = 5,
-                 timeout_seconds: int = 10):
+    def __init__(
+        self,
+        compile_code: bool = True,
+        compiler_path: str = "g++",
+        num_runtime_runs: int = 5,
+        timeout_seconds: int = 10,
+    ):
         """
         Initialize the code efficiency metric.
 
@@ -920,14 +931,13 @@ class CodeEfficiencyMetric(Metric):
             timeout_seconds: Maximum execution time per run (default: 10)
         """
         self.functional_correctness_metric = FunctionalCorrectnessMetric(
-            compile_code=compile_code, 
-            compiler_path=compiler_path
+            compile_code=compile_code, compiler_path=compiler_path
         )
         self.runtime_efficiency_metric = RuntimeEfficiencyMetric(
             compile_code=compile_code,
             compiler_path=compiler_path,
             num_runtime_runs=num_runtime_runs,
-            timeout_seconds=timeout_seconds
+            timeout_seconds=timeout_seconds,
         )
 
     def evaluate_generation(

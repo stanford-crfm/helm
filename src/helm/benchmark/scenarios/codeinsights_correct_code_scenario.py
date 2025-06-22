@@ -6,7 +6,7 @@ import requests
 class CorrectCodeScenario(Scenario):
     name = "correct_code"
     description = "Generate correct response code for C++ programming questions"
-    tags = ["coding", "c++", "student"]
+    tags = ["codeinsights", "c++", "correct_code"]
 
     def get_instances(self, output_path: str):
         df = pd.read_csv(

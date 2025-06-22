@@ -3,19 +3,17 @@ import pandas as pd
 import requests
 
 
-class EdgeCaseScenario(Scenario):
-    name = "edge_case"
-    description = "Evaluate alignment in edge case failure between LLM-generated code and student code"
-    tags = ["coding", "c++", "student"]
+class CodeEfficiencyScenario(Scenario):
+    name = "code_efficiency"
+    description = "Evaluate runtime efficiency alignment between LLM-generated code and student code"
+    tags = ["codeinsights", "c++", "code_efficiency"]
 
     def get_instances(self, output_path: str):
-        df = pd.read_csv(
-            "https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/fifty_student_perfect.csv"
-        )
+        df = pd.read_csv("https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/fifty_student_perfect.csv")
 
         # Load test cases (unit tests)
         test_cases = self._load_test_cases()
-        
+
         # Get available question IDs with test cases
         available_question_ids = set()
         if test_cases:
@@ -28,13 +26,13 @@ class EdgeCaseScenario(Scenario):
         instances = []
         skipped_no_tests = 0
         skipped_insufficient_data = 0
-        
+
         for student_id, student_df in df.groupby("student_id"):
             student_df = student_df.sort_values("timestamp")
             if len(student_df) < 4:
                 skipped_insufficient_data += 1
                 continue
-                
+
             first = student_df.iloc[0]
             second = student_df.iloc[1]
             third = student_df.iloc[2]
@@ -49,13 +47,13 @@ class EdgeCaseScenario(Scenario):
 
             # Get test cases for this question (we know they exist now)
             question_test_cases = test_cases.get(str(target_question_id), [])
-            
+
             # Verify test cases are not empty
             if not question_test_cases:
                 skipped_no_tests += 1
                 print(f"SKIPPING Student {student_id}, Question {target_question_id}: Empty test cases")
                 continue
-            
+
             # Get student pass pattern for the target question
             student_correctness_pattern = target.get("pass", None)
             if student_correctness_pattern is not None:
@@ -91,16 +89,17 @@ class EdgeCaseScenario(Scenario):
                 f"{third['question_template']}\n"
                 "Your Code:\n"
                 f"{third['response']}\n\n"
-                "First, for the given question, identify which unit test the student would fail considering their past performance, as well as consideration of unit test difficulty\n"
-                "The generated code should pass all the unit tests except for the one identified as failing\n"
+                "Now, using that same student's coding style, attempt this:\n"
+                "Ensure that the code works perfectly, but its efficiency should be based on students' past examples.\n"
+                "If a student has a tendency to write correct but inefficient code, imitate the inefficiency "
+                "but if they write efficiently, write efficiently too.\n"
                 f"Question: {target['question_name']} — {target['question_text']}\n"
-                f"Unit Tests: {question_test_cases}"
                 "Template:\n"
                 f"{target['question_template']}\n\n"
                 "Provide ONLY your C++ implementation following the given template, "
                 "writing code just as you would in class—indentation, naming, and all."
             )
-            
+
             instances.append(
                 Instance(
                     id=f"{student_id}_{target['question_unittest_id']}",
@@ -117,19 +116,23 @@ class EdgeCaseScenario(Scenario):
                     split=VALID_SPLIT,
                 )
             )
-            
+
         # Print summary statistics
-        print(f"\n=== INSTANCE CREATION SUMMARY ===")
+        print("\n=== INSTANCE CREATION SUMMARY ===")
+        print(f"Total instances created: {len(instances)}")
         print(f"Skipped (insufficient data): {skipped_insufficient_data}")
         print(f"Skipped (no test cases): {skipped_no_tests}")
         print(f"Available test case question IDs: {len(available_question_ids)}")
-        
+
         if instances:
-            print(f"Sample created instances:")
+            print("Sample created instances:")
             for i, inst in enumerate(instances[:5]):
-                test_count = len(inst.extra_data.get('test_cases', []))
+                if inst.extra_data is None:
+                    test_count = 0
+                else:
+                    test_count = len(inst.extra_data.get("test_cases", []))
                 print(f"  {inst.id}: {test_count} test cases")
-        
+
         return instances
 
     def _load_test_cases(self):

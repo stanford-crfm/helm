@@ -1,21 +1,8 @@
-from typing import Dict, List, Tuple
-import pandas as pd
+from typing import List, Tuple
 import re
 import os
 import subprocess
 import tempfile
-import clang.cindex
-from clang.cindex import CursorKind
-
-try:
-    import torch
-    import torch.nn.functional as F
-    from transformers import RobertaTokenizer, RobertaModel
-
-    CODEBERT_AVAILABLE = True
-except ImportError:
-    CODEBERT_AVAILABLE = False
-    print("Warning: CodeBERT dependencies not available. Install with: pip install torch transformers")
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
@@ -23,7 +10,7 @@ from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.code_evaluation_metrics import CodeEvaluationMetric
+from helm.benchmark.metrics.codeinsights_code_evaluation_metrics import CodeEvaluationMetric
 
 
 class UnitTestAlignmentMetric(Metric):
@@ -80,8 +67,8 @@ class UnitTestAlignmentMetric(Metric):
     # ------------------------------------------------------------------ #
     def _edge_case_slip_match(self, llm: List[int], stu: List[int]) -> Stat:
         """Return 1.0 iff LLM and student each fail *exactly one* identical test."""
-        llm_fail  = [i for i, v in enumerate(llm) if v == 0]
-        stu_fail  = [i for i, v in enumerate(stu) if v == 0]
+        llm_fail = [i for i, v in enumerate(llm) if v == 0]
+        stu_fail = [i for i, v in enumerate(stu) if v == 0]
         match = len(llm_fail) == len(stu_fail) == 1 and llm_fail == stu_fail
         return Stat(MetricName("edge_case_slip_match")).add(1.0 if match else 0.0)
 
@@ -396,7 +383,7 @@ class ComprehensiveCodeEvaluationMetric(CodeEvaluationMetric):
         eval_cache_path: str,
     ) -> List[Stat]:
         stats = super().evaluate_generation(adapter_spec, request_state, metric_service, eval_cache_path)
-        stats.extend(self.unit_test_metric.evaluate_generation(
-            adapter_spec, request_state, metric_service, eval_cache_path
-        ))
+        stats.extend(
+            self.unit_test_metric.evaluate_generation(adapter_spec, request_state, metric_service, eval_cache_path)
+        )
         return stats

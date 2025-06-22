@@ -122,7 +122,7 @@ class FunctionalCorrectnessMetric(Metric):
 
             try:
                 # Extract student code from LLM output
-                print(f'LLM GENERATED CODE: {generated_code}')
+                print(f"LLM GENERATED CODE: {generated_code}")
                 student_code = self._extract_student_code(generated_code)
                 print(f"Extracted student code length: {len(student_code)}")
                 print(f"Extracted code preview: {student_code[:100]}...")
@@ -178,7 +178,6 @@ class FunctionalCorrectnessMetric(Metric):
 
         return final_rate
 
-
     def _extract_student_code(self, model_code: str) -> str:
         """
         Extracts clean C++ code from model output:
@@ -210,20 +209,24 @@ class FunctionalCorrectnessMetric(Metric):
         # --- Step 3: Remove student's main() ---
         main_match = re.search(r"\bint\s+main\s*\([^)]*\)\s*\{", code)
         if main_match:
-            code = code[:main_match.start()].strip()
+            code = code[: main_match.start()].strip()
             print("[Code cleaner] Removed student main() function.")
 
         # --- Step 4: Remove out-of-class method definitions ---
-        code = re.sub(r'\bArray\s*<[^>]*>\s*::\s*[\w~]+\s*\([^)]*\)\s*\{[^}]*\}', '', code, flags=re.DOTALL)
-        code = re.sub(r'template\s*<[^>]*>\s*[\w:<>\s&*]+\s+Array\s*<[^>]*>\s*::\s*[\w~]+\s*\([^)]*\)\s*\{[^}]*\}',
-                      '', code, flags=re.DOTALL)
+        code = re.sub(r"\bArray\s*<[^>]*>\s*::\s*[\w~]+\s*\([^)]*\)\s*\{[^}]*\}", "", code, flags=re.DOTALL)
+        code = re.sub(
+            r"template\s*<[^>]*>\s*[\w:<>\s&*]+\s+Array\s*<[^>]*>\s*::\s*[\w~]+\s*\([^)]*\)\s*\{[^}]*\}",
+            "",
+            code,
+            flags=re.DOTALL,
+        )
 
         # --- Step 5: Replace NULL return with 0 ---
-        code = re.sub(r'return\s+NULL\s*;', 'return 0;', code)
+        code = re.sub(r"return\s+NULL\s*;", "return 0;", code)
 
         # --- Final touch ---
         code = code.strip()
-        if 'print(' in code and 'void print()' not in code and 'print()' not in code:
+        if "print(" in code and "void print()" not in code and "print()" not in code:
             print("⚠️ WARNING: `print()` is called in test input but not defined.")
 
         print(f"[Final extracted code length] {len(code)}")
@@ -272,9 +275,9 @@ class FunctionalCorrectnessMetric(Metric):
     #             print(f"Extracted student code length: {len(extracted)}")
     #             return extracted
 
-        # # Fallback: return original code
-        # print("Using original code as fallback")
-        # return code
+    # # Fallback: return original code
+    # print("Using original code as fallback")
+    # return code
 
     def _create_complete_program(self, template: str, student_code: str, test_input: str) -> str:
         """Create a complete C++ program using template, student code, and test input."""
@@ -290,10 +293,10 @@ class FunctionalCorrectnessMetric(Metric):
 
         # --- Step 2: Fix mismatches from test input ---
         # Fix incorrect constructor calls: reduce args from 2 to 1
-        clean_input = re.sub(r'new\s+Array\s*<([^>]+)>\s*\([^,]+,\s*[^)]+\)', r'new Array<\1>(200)', clean_input)
+        clean_input = re.sub(r"new\s+Array\s*<([^>]+)>\s*\([^,]+,\s*[^)]+\)", r"new Array<\1>(200)", clean_input)
 
         # Remove all `print()` calls
-        clean_input = re.sub(r'\b\w+->print\(\);\s*', '', clean_input)
+        clean_input = re.sub(r"\b\w+->print\(\);\s*", "", clean_input)
 
         print(f"Cleaned input: '{clean_input}'")
 

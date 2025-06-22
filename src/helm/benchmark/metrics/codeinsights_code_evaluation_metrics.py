@@ -28,7 +28,7 @@ from helm.benchmark.metrics.statistic import Stat
 class ASTAnalyzer:
     """Class for calculating AST edit distances between two C++ code snippets using libclang."""
 
-    def __init__(self, clang_lib_path: str = None):
+    def __init__(self, clang_lib_path: str = ""):
         """
         If libclang isn't on your LD_LIBRARY_PATH, pass its full path here.
         e.g. '/usr/lib/llvm-14/lib/libclang.so'
@@ -47,9 +47,8 @@ class ASTAnalyzer:
             tu1 = self.index.parse(path="code1.cpp", args=["-std=c++17"], unsaved_files=[("code1.cpp", code1)])
             tu2 = self.index.parse(path="code2.cpp", args=["-std=c++17"], unsaved_files=[("code2.cpp", code2)])
 
-            nodes1, nodes2 = [], []
-            self._extract_ast_features(tu1.cursor, nodes1)
-            self._extract_ast_features(tu2.cursor, nodes2)
+            nodes1: List[str] = self._extract_ast_features(tu1.cursor)
+            nodes2: List[str] = self._extract_ast_features(tu2.cursor)
 
             distance = self._calculate_edit_distance(nodes1, nodes2)
             max_nodes = max(len(nodes1), len(nodes2))
@@ -61,8 +60,9 @@ class ASTAnalyzer:
             # any parse error or clang error → max distance
             return 1.0
 
-    def _extract_ast_features(self, node: clang.cindex.Cursor, feats: List[str]):
+    def _extract_ast_features(self, node: clang.cindex.Cursor) -> List[str]:
         """Recursively walk Clang AST, appending feature strings to feats."""
+        feats: List[str] = []
         # record the node kind
         feats.append(node.kind.name)
 
@@ -84,7 +84,9 @@ class ASTAnalyzer:
 
         # recurse
         for child in node.get_children():
-            self._extract_ast_features(child, feats)
+            feats = feats + self._extract_ast_features(child)
+
+        return feats
 
     def _calculate_edit_distance(self, seq1: List[str], seq2: List[str]) -> int:
         """Classic Levenshtein edit distance between two sequences."""
@@ -407,6 +409,7 @@ class UnitTestAlignmentMetric(Metric):
         return [
             Stat(MetricName("unit_test_alignment_ratio")).add(alignment_ratio),
             Stat(MetricName("unit_test_llm_pass_rate")).add(llm_pass_rate),
+            Stat(MetricName("unit_test_student_pass_rate")).add(student_pass_rate),
         ]
 
     def _extract_student_code(self, model_code: str) -> str:
