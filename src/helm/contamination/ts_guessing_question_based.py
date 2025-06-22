@@ -30,7 +30,7 @@ class TSGuessingQuestionBasedContaminationEvaluator(ContaminationEvaluator):
     SMALL_MODEL_CONTEXT_THRESHOLD: int = 1024
     MAX_OUTPUT_TOKENS: int = 20
     TOKENIZER_BUFFER: int = 30
-    GENERATION_TEMPERATURE: float = 0.1
+    GENERATION_TEMPERATURE: float = 0.0
     POS_TAGS_TO_MASK: List[str] = ["NOUN", "ADJ", "VERB"]
 
     def __init__(self):
@@ -102,7 +102,7 @@ class TSGuessingQuestionBasedContaminationEvaluator(ContaminationEvaluator):
                 "temperature": self.GENERATION_TEMPERATURE,
                 "stop_sequences": [],
                 "num_outputs": 1,
-                "output_prefix": prompt_components.get("answer_prefix", "Answer: "),
+                "output_prefix": "",
                 "instructions": "",
                 "input_prefix": "",
                 "input_suffix": "",
@@ -409,6 +409,7 @@ class TSGuessingQuestionBasedContaminationEvaluator(ContaminationEvaluator):
             # Get prompt components (instruction, template).
             instruction = prompt_components.get("instruction", "Fill in the [MASK] in the sentence:")
             sentence_template = prompt_components.get("sentence_template", '"{masked_sentence}"')
+            answer_prefix = prompt_components.get("answer_prefix", "Answer: ")
 
             # Format the prompt using the template.
             try:
@@ -421,7 +422,7 @@ class TSGuessingQuestionBasedContaminationEvaluator(ContaminationEvaluator):
                 return "failed", ""
 
             # Combine instruction and formatted sentence into the final prompt.
-            final_prompt = f"{instruction}\n{sentence_formatted}"
+            final_prompt = f"{instruction}\n" f"{sentence_formatted}\n\n" f"{answer_prefix}"
 
             # Return the prompt and the original word (for later comparison).
             return final_prompt, word_to_mask_original_case

@@ -32,7 +32,7 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator(ContaminationEvaluator
     SMALL_MODEL_CONTEXT_THRESHOLD: int = 1024
     MAX_OUTPUT_TOKENS: int = 100
     TOKENIZER_BUFFER: int = 30
-    GENERATION_TEMPERATURE: float = 0.1
+    GENERATION_TEMPERATURE: float = 0.0
 
     def __init__(self):
         """
@@ -112,7 +112,7 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator(ContaminationEvaluator
                 "temperature": self.GENERATION_TEMPERATURE,
                 "stop_sequences": [],
                 "num_outputs": 1,
-                "output_prefix": "Answer: ",
+                "output_prefix": "",
                 "instructions": "",
                 "input_prefix": "",
                 "input_suffix": "",
@@ -408,6 +408,7 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator(ContaminationEvaluator
             part_header_q = prompt_components.get("header_question", "Question:")
             part_header_opts = prompt_components.get("header_options", "Options:")
             part_footer_reply = prompt_components.get("footer_reply", "The original text for the masked option is:")
+            answer_prefix = prompt_components.get("answer_prefix", "Answer: ")
 
             # Get data for the current instance.
             original_question_text = example_item.get("text", "")
@@ -446,7 +447,7 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator(ContaminationEvaluator
 
             # Construct the instruction text.
             instruction_text_segment = (
-                f"{part_instr_fill} {masked_option_letter}.\n{part_instr_knowledge}\n\n{part_instr_rule}"
+                f"{part_instr_fill} {masked_option_letter} {part_instr_knowledge}\n{part_instr_rule}\n"
             )
 
             # Construct the options list, masking the selected incorrect option.
@@ -465,8 +466,10 @@ class TSGuessingQuestionMultiChoiceContaminationEvaluator(ContaminationEvaluator
 
             # Construct the user-facing part of the prompt (question + options + reply footer).
             user_text_segment = (
-                f"{part_header_q} {original_question_text}"
-                f"\n{part_header_opts}{options_lines_segment}\n\n{part_footer_reply}"
+                f"{part_header_q} {original_question_text}\n"
+                f"{part_header_opts}{options_lines_segment}\n"
+                f"{part_footer_reply}\n\n"
+                f"{answer_prefix}"
             )
 
             return instruction_text_segment, user_text_segment, original_text_of_masked_option, masked_option_letter
