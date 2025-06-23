@@ -2,11 +2,109 @@
 
 ## [Upcoming]
 
+## [v0.5.6] - 2025-06-20
+
+### Breaking Changes
+
+- `HuggingFaceClient` will automatically apply the chat template if the tokenizer contains one. This may result in incorrect behavior for some non-chat models that have tokenizers with chat templates e.g. Qwen2, Qwen 2.5. For these models, the default behavior can be overridden by explicitly setting `apply_chat_template` in `args`. (#3678)
+
+### Models
+
+- Fixed bug regarding `reasoning_effort` not being set correct for OpenAI models (#3501)
+- Add Llama 4 Scout and Maverick on Together AI (#3504)
+- Add Qwen2.5 Omni 7B (#3505, #3530)
+- Add Grok 3 models (#3518, #3529, #3534)
+- Add GPT-4.1 models (#3527, #3528)
+- Add Gemini 2.5 models (#3538, #3614)
+- Add OpenAI o3 and o4 series models (#3539, #3617)
+- Adjust max_tokens restriction for Anthropic models (#3555)
+- Add Vietnamese LLMs (#3563)
+- Add Qwen3 235B on Together (#3579)
+- Add Palmyra X5 (#3580)
+- Add COREBench v0 audio scenario (#3567, #3610)
+- Add Anthropic Claude 4 models (#3607)
+- Add extended thinking to Claude 3.7 and Claude 4 (#3622)
+- Support streaming in Anthropic client (#3624)
+- Added support for reasoning content (#3632, #3650)
+- Add DeepSeek-R1-0528 on Together AI (#3636)
+- Add Amazon Nova Premier model (#3656)
+- Add Marin 8B Instruct (#3658, #3666)
+- Add HuggingFacePipelineClient (#3665)
+- Add SmolLM2 (#3665, #3668)
+- Add OLMo 2 and OLMoE models (#3667, #3676)
+- Add Granite 3.3 8B Instruct (#3675)
+- Add Mistral Medium 3 (#3674)
+- Add Gemini 2.5 Flash-Lite (#3677)
+- Apply chat template in HuggingFaceClient and make chat template usage configurable (#3678)
+- Add support for OpenAI Responses API (#3652)
+
+### Scenarios
+
+- Improvements to VHELM (#3500)
+- Improvements to audio scenarios (#3500, #3523,)
+- Improvements to MedHELM scnearios (#3507, #3499, #3506, #3496, #3509, #3503, #3522, #3508, #3540, #3535, #3548, #3545, #3560, #3565, #3557, #3566, #3577, #3625, #3631)
+- Add Vietnamese language scenarios (#3464, #3511, #3594, #3536, #3556, #3551, #3611, #3634)
+- Add KPI Edgar scneario (#3495)
+- Add run entries with additional instructions for MMLU-Winogrande-Afr (#3497)
+- Add run entries for reasoning models (#3541, #3544)
+- Fix bug with AIR-Bench handling of empty responses (#3543)
+- Fix bug regarding the MMLU-Pro computer science subject (#3547)
+- Add InfiniteBench En.QA (#3588)
+- Add speech pathology scenarios (#3553, #3558)
+- Bugfix for Image2Struct: EMS metric fails when the inputs are identical homogenous images files (#3576)
+- Fix download URL for TruthfulQA CSV file (#3601)
+- Use Python logging library in hlog (#3598, #3606)
+- Add OpenAI-MRCR scenario (#3653)
+- Rename InfiniteBench Sum to InfiniteBench En.Sum (#3657)
+- Change metrics for long context scenarios (#3659)
+
+### Framework
+
+- Avoid accessing SQLite accounts file in helm-run (#3573)
+- Support video understanding (#3578)
+- Use Python logging library (#3598)
+
+### Frontend
+
+- Support displaying nested objects in annotations (#3513)
+- Add displaying nested objects in annotations (#3512)
+- Fix mobile menu z-index (#3514)
+- Change favicon URL (#3597)
+- Set MIME type for config.js in server (#3605)
+- Fixes pagination of metrics displayed on the front-end (#3646)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @asillycat
+- @aunell
+- @chiheem
+- @Erotemic
+- @Gum-Joe
+- @haoqiu1
+- @HennyJie
+- @ImKeTT
+- @jmbanda
+- @Joey-Ji
+- @lucas-s-p
+- @martinakaduc
+- @MiguelAFH
+- @mtake
+- @patelfagun1998
+- @raulista1997
+- @ryokawajp
+- @sangttruong
+- @suhana13
+- @tcz
+- @teetone
+- @yifanmai
+
 ## [v0.5.5] - 2025-04-04
 
 ### Breaking Changes
 
--  Optimum Intel OpenVINO is no longer supported (#3153)
+- Optimum Intel OpenVINO is no longer supported (#3153)
 
 ### Scenarios
 
@@ -921,7 +1019,8 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.5...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.6...HEAD
+[v0.5.6]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.6
 [v0.5.5]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.5
 [v0.5.4]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.4
 [v0.5.3]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.3
