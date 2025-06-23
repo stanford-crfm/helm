@@ -233,51 +233,6 @@ class FunctionalCorrectnessMetric(Metric):
         print(f"[Code preview]\n{code[:300]}...\n")
         return code
 
-    # def _extract_student_code(self, model_code: str) -> str:
-    #     """Extract the actual student function code from the model output."""
-    #     # Remove markdown formatting
-    #     code = re.sub(r"```cpp\n?|```\n?", "", model_code).strip()
-
-    #     print(f"Original model code length: {len(model_code)}")
-    #     print(f"After markdown removal: {len(code)}")
-
-    #     # If code doesn't contain includes, it's likely just the student answer
-    #     if "#include" not in code:
-    #         print("No includes found, using entire code as student answer")
-    #         return code
-
-    #     # Split into lines for processing
-    #     lines = code.split("\n")
-
-    #     # Find main function index
-    #     main_index = -1
-    #     for i, line in enumerate(lines):
-    #         if "int main" in line or "main()" in line:
-    #             main_index = i
-    #             break
-
-    #     print(f"Main function found at line: {main_index}")
-
-    #     # Extract code before main function
-    #     if main_index > 0:
-    #         student_lines = []
-    #         for i in range(main_index):
-    #             line = lines[i].strip()
-
-    #             # Skip includes, using statements, and empty lines
-    #             if line.startswith("#") or line.startswith("using") or line == "" or line.startswith("//"):
-    #                 continue
-
-    #             student_lines.append(lines[i])
-
-    #         if student_lines:
-    #             extracted = "\n".join(student_lines).strip()
-    #             print(f"Extracted student code length: {len(extracted)}")
-    #             return extracted
-
-    # # Fallback: return original code
-    # print("Using original code as fallback")
-    # return code
 
     def _create_complete_program(self, template: str, student_code: str, test_input: str) -> str:
         """Create a complete C++ program using template, student code, and test input."""
