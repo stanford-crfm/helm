@@ -1125,11 +1125,11 @@ tokenizer_configs:
     prefix_token: "<bos>"
 
 # Bode 13B Alpaca PT-BR
-  - name: recogna-nlp/bode-13b-alpaca-pt-br
+  - name: recogna-nlp/bode-13b-alpaca-pt-br-no-peft
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
       args:
-        pretrained_model_name_or_path: recogna-nlp/bode-13b-alpaca-pt-br
+        pretrained_model_name_or_path: recogna-nlp/bode-13b-alpaca-pt-br-no-peft
     end_of_text_token: "</s>"
     prefix_token: "<s>"
 

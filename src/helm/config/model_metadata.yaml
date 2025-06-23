@@ -4726,7 +4726,7 @@ models:
     release_date: 2025-06-01
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  - name: recogna-nlp/bode-13b-alpaca-pt-br
+  - name: recogna-nlp/bode-13b-alpaca-pt-br-no-peft
     display_name: Bode 13B Alpaca PT-BR
     description: Bode is a language model (LLM) for Portuguese, based on LLaMA 2 and fine-tuned with the Alpaca dataset translated into Portuguese. Suitable for instruction, text generation, translation and tasks in Portuguese.
     creator_organization_name: Recogna NLP
