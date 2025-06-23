@@ -57,16 +57,12 @@ class UnitTestAlignmentMetric(Metric):
         test_cases = extra_data.get("test_cases", [])
         student_pattern: List[int] = extra_data.get("student_correctness_pattern", [])
         prompt_template: str = extra_data.get("question_template", "")
-        question_name = extra_data.get("question_name", "UNKNOWN")
 
         if not test_cases or not student_pattern:
             return self._create_failure_stats("Missing test cases or student pattern")
 
-        # ----- run unit tests on LLM code -------------------------------
-        llm_pattern = self._evaluate_unit_tests(generated_code, test_cases, prompt_template)
-
         # ----- 1) functional_correctness --------------------------------
-        pass_rate = self._evaluate_functional_correctness(generated_code, test_cases, prompt_template)
+        pass_rate, llm_pattern = self._evaluate_functional_correctness(generated_code, test_cases, prompt_template)
         stats.append(Stat(MetricName("functional_correctness")).add(pass_rate))
 
         # ----- 2) edge_case_slip_match ---------------------------------
@@ -93,7 +89,9 @@ class UnitTestAlignmentMetric(Metric):
             Stat(MetricName("unit_test_llm_pass_rate")).add(0.0),
         ]
 
-    def _evaluate_functional_correctness(self, generated_code: str, test_cases: List[dict], template: str) -> float:
+    def _evaluate_functional_correctness(
+        self, generated_code: str, test_cases: List[dict], template: str
+    ) -> Tuple[float, List[int]]:
         """
         Evaluate the generated code against unit tests and return the proportion of tests passed.
 
@@ -110,9 +108,10 @@ class UnitTestAlignmentMetric(Metric):
 
         if not test_cases:
             print("No test cases to evaluate")
-            return 0.0
+            return 0.0, []
 
         passed_tests = 0
+        list_test_outputs = []
         total_tests = len(test_cases)
 
         for i, test_case in enumerate(test_cases):
@@ -161,15 +160,23 @@ class UnitTestAlignmentMetric(Metric):
                     print(f"Expected: '{expected_output}' | Actual: '{actual_output.strip()}'")
                     if test_passed:
                         passed_tests += 1
+                        list_test_outputs.append(1)
                 else:
                     print("Test failed due to compilation/execution failure")
+
+                if len(list_test_outputs) < i + 1:
+                    list_test_outputs.append(0)
 
             except Exception as e:
                 print(f"Exception in test case {i+1}: {str(e)}")
                 import traceback
 
                 traceback.print_exc()
+
                 # Test failed due to exception
+                if len(list_test_outputs) < i + 1:
+                    list_test_outputs.append(0)
+
                 continue
 
         final_rate = passed_tests / total_tests if total_tests > 0 else 0.0
@@ -177,7 +184,7 @@ class UnitTestAlignmentMetric(Metric):
         print(f"Passed: {passed_tests}/{total_tests}")
         print(f"Pass rate: {final_rate}")
 
-        return final_rate
+        return final_rate, list_test_outputs
 
     def _extract_student_code(self, model_code: str) -> str:
         """
@@ -398,19 +405,6 @@ class UnitTestAlignmentMetric(Metric):
 
         # Default: return expected output (perfect simulation)
         return expected_output
-
-    def _create_failure_stats(self, error_message: str) -> List[Stat]:
-        """
-        Create default statistics for failure cases.
-
-        Args:
-            error_message: Description of the failure
-
-        Returns:
-            List containing a single Stat with 0.0 functional correctness score
-        """
-        print(f"METRIC FAILURE: {error_message}")
-        return [Stat(MetricName("functional_correctness")).add(0.0)]
 
 
 class ComprehensiveCodeEvaluationMetric(CodeEvaluationMetric):

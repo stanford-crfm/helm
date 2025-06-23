@@ -520,7 +520,6 @@ class UnitTestAlignmentMetric(Metric):
         return 0;
     }}"""
 
-
     def _compile_and_run_cpp(self, code: str) -> Tuple[bool, str, str]:
         """Compile and run C++ code, return (success, stdout, stderr)."""
         print("\n--- Compile and Run (Functional Correctness) ---")

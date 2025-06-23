@@ -233,7 +233,6 @@ class FunctionalCorrectnessMetric(Metric):
         print(f"[Code preview]\n{code[:300]}...\n")
         return code
 
-
     def _create_complete_program(self, template: str, student_code: str, test_input: str) -> str:
         """Create a complete C++ program using template, student code, and test input."""
         import re
