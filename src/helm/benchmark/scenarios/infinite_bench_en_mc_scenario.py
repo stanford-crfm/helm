@@ -16,17 +16,17 @@ from helm.benchmark.scenarios.scenario import (
 from helm.common.general import ensure_directory_exists
 
 
-class InfiniteBenchEnQAScenario(Scenario):
-    """InfiniteBench En.QA
+class InfiniteBenchEnMCScenario(Scenario):
+    """InfiniteBench En.MC
 
     InfiniteBench is a benchmark tailored for evaluating the capabilities of language models to process,
-    understand, and reason over long contexts (100k+ tokens). InfiniteBench En.QA is a subset of
-    InfiniteBench that requires models to perform open-form question answering on questions that necessitate
+    understand, and reason over long contexts (100k+ tokens). InfiniteBench En.MC is a subset of
+    InfiniteBench that requires models to perform multiple-choice question answering on questions that necessitate
     long-range dependency and reasoning, beyond simple short passage retrieval.
     """
 
-    name = "infinite_bench_en_qa"
-    description = "∞Bench En.QA is an open-ended question answering task that necessitates long-range dependency and reasoning.  ([Zhang et al., 2024](https://arxiv.org/abs/2402.13718))"  # noqa: E501
+    name = "infinite_bench_en_mc"
+    description = "∞Bench En.MC is a multiple-choice question answering task that necessitates long-range dependency and reasoning. ([Zhang et al., 2024](https://arxiv.org/abs/2402.13718))"  # noqa: E501
     tags = ["question_answering"]
 
     def __init__(self, max_num_words: int):
@@ -52,7 +52,7 @@ class InfiniteBenchEnQAScenario(Scenario):
         # Load the dataset with the specified features
         dataset = load_dataset(
             "xinrongzhang2022/InfiniteBench",
-            split="longbook_qa_eng",
+            split="longbook_choice_eng",
             features=ft,
             revision="90f0394333616266d9fe85824ceaf505093cbaa5",
         )
@@ -72,12 +72,17 @@ class InfiniteBenchEnQAScenario(Scenario):
         # Read all instances
         instances: List[Instance] = []
         for row in dataset:
+            assert len(row["answer"]) == 1
             id = row["id"]
             input = Input(text=row["context"] + "\n\n" + row["input"])
+            references = [
+                Reference(Output(text=option), tags=[CORRECT_TAG] if option == row["answer"][0] else [])
+                for option in row["options"]
+            ]
             instance = Instance(
                 id=id,
                 input=input,
-                references=[Reference(Output(text=row["answer"][0]), tags=[CORRECT_TAG])],
+                references=references,
                 split=TEST_SPLIT,
             )
             instances.append(instance)
