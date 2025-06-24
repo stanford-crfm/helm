@@ -11,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     Reference,
     Output,
 )
+from helm.common.general import check_file_exists
 
 csv.field_size_limit(sys.maxsize)
 
@@ -23,12 +24,18 @@ class SHCBMTMedScenario(Scenario):
 
     name = "shc_bmt_med"
     description = (
-        "A dataset containing patient notes with associated "
-        "questions and answers related to bone marrow transplantation."
+        "BMT-Status is a benchmark composed of clinical notes and associated binary questions"
+        "related to bone marrow transplant (BMT), hematopoietic stem cell transplant (HSCT),"
+        "or hematopoietic cell transplant (HCT) status. The goal is to determine whether the"
+        "patient received a subsequent transplant based on the provided clinical documentation."
     )
     tags = ["knowledge", "reasoning", "biomedical"]
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["A", "B"]
+
+    def __init__(self, data_path: str):
+        super().__init__()
+        self.data_path = data_path
 
     def create_benchmark(self, csv_path) -> Dict[str, str]:
         data = {}
@@ -47,10 +54,9 @@ class SHCBMTMedScenario(Scenario):
         return data
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        data_path = "/dbfs/mnt/azure_adbfs/Files/medhelm/medhelm-BMT-dataset_filtered.csv"
-
+        check_file_exists(self.data_path, msg=f"[SHCBMTMedScenario] Required data file not found: '{self.data_path}'")
         instances: List[Instance] = []
-        benchmark_data = self.create_benchmark(data_path)
+        benchmark_data = self.create_benchmark(self.data_path)
 
         for prompt, answer in benchmark_data.items():
             assert answer in SHCBMTMedScenario.POSSIBLE_ANSWER_CHOICES

@@ -1,7 +1,7 @@
 import os
 from typing import Dict, List
 
-from helm.common.general import ensure_directory_exists
+from helm.common.general import check_file_exists
 from helm.benchmark.scenarios.scenario import (
     Input,
     Scenario,
@@ -44,15 +44,18 @@ class MIMICRRSScenario(Scenario):
 
     name = "mimic_rrs"
     description = (
-        "A dataset containing radiology reports with findings sections from MIMIC-III paired with"
-        " their corresponding impression sections, used for generating radiology report summaries."
+        "MIMIC-RRS is a benchmark constructed from radiology reports in the MIMIC-III"
+        "database. It contains pairs of 'Findings' and 'Impression' sections, enabling evaluation"
+        "of a model's ability to summarize diagnostic imaging observations into concise, clinically"
+        "relevant conclusions."
     )
     tags = ["question_answering", "biomedical"]
 
-    def get_instances(self, output_path: str) -> List[Instance]:
-        data_path = "/share/pi/nigam/data/rrs-mimiciii/all"
-        ensure_directory_exists(data_path)
+    def __init__(self, data_path: str):
+        super().__init__()
+        self.data_path = data_path
 
+    def get_instances(self, output_path: str) -> List[Instance]:
         instances: List[Instance] = []
         # Limit to zero shot setting for now
         splits: Dict[str, str] = {
@@ -64,8 +67,14 @@ class MIMICRRSScenario(Scenario):
         for data_split, split in splits.items():
             split_findings_name: str = f"{data_split}.findings.tok"
             split_impressions_name: str = f"{data_split}.impression.tok"
-            findings_path: str = os.path.join(data_path, split_findings_name)
-            impressions_path: str = os.path.join(data_path, split_impressions_name)
+            findings_path: str = os.path.join(self.data_path, split_findings_name)
+            impressions_path: str = os.path.join(self.data_path, split_impressions_name)
+            check_file_exists(
+                findings_path, msg=f"[MIMICRRSScenario] Required findings file not found: '{findings_path}'"
+            )
+            check_file_exists(
+                impressions_path, msg=f"[MIMICRRSScenario] Required impressions file not found: '{impressions_path}'"
+            )
             findings: List[str] = self.read_file(findings_path)
             impressions: List[str] = self.read_file(impressions_path)
             assert len(findings) == len(impressions), "Findings and impressions must have the same length"

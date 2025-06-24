@@ -11,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     Reference,
     Output,
 )
+from helm.common.general import check_file_exists
 
 csv.field_size_limit(sys.maxsize)
 
@@ -24,12 +25,18 @@ class SHCCONFMedScenario(Scenario):
 
     name = "shc_conf_med"
     description = (
-        "A dataset of clinical notes from adolescent patients used to identify sensitive "
-        "protected health information that should be restricted from parental access."
+        "MedConfInfo is a benchmark comprising clinical notes from adolescent patients. It is"
+        "used to evaluate whether the content contains sensitive protected health information"
+        "(PHI) that should be restricted from parental access, in accordance with adolescent"
+        "confidentiality policies in clinical care."
     )
     tags = ["knowledge", "reasoning", "biomedical"]
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["A", "B"]
+
+    def __init__(self, data_path: str):
+        super().__init__()
+        self.data_path = data_path
 
     def create_benchmark(self, csv_path) -> Dict[str, str]:
         data = {}
@@ -48,10 +55,9 @@ class SHCCONFMedScenario(Scenario):
         return data
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        data_path = "/dbfs/mnt/azure_adbfs/Files/medhelm/medhelm-CONF-dataset_filtered.csv"
-
+        check_file_exists(self.data_path, msg=f"[SHCCONFMedScenario] Required data file not found: '{self.data_path}'")
         instances: List[Instance] = []
-        benchmark_data = self.create_benchmark(data_path)
+        benchmark_data = self.create_benchmark(self.data_path)
 
         for prompt, answer in benchmark_data.items():
             assert answer in SHCCONFMedScenario.POSSIBLE_ANSWER_CHOICES

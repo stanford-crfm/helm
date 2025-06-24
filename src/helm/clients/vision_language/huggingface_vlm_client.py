@@ -50,7 +50,7 @@ class HuggingFaceVLMClient(CachingClient):
         with self._models_lock:
             model_id: str = self._models_aliases.get(model_name, model_name)
             if model_id not in self._models:
-                self._models[model_id] = pipeline("image-to-text", model=model_id, device_map="auto")
+                self._models[model_id] = pipeline("image-to-text", model=model_id, device_map="auto")  # type: ignore
             return self._models[model_id]
 
     def make_request(self, request: Request) -> RequestResult:
@@ -80,7 +80,7 @@ class HuggingFaceVLMClient(CachingClient):
 
             def do_it() -> Dict[str, Any]:
                 model: ImageToTextPipeline = self._get_model(request.model_deployment)
-                outputs = model(image, prompt=prompt, generate_kwargs=generation_args)
+                outputs = model(image, prompt=prompt, generate_kwargs=generation_args)  # type: ignore
                 return outputs[0]
 
             cache_key = CachingClient.make_cache_key(

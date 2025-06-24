@@ -1,0 +1,162 @@
+---
+############################################################
+metrics:
+  # Accuracy metrics:
+  - name: exact_match
+    display_name: Exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_exact_match
+    display_name: Quasi-exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+    lower_is_better: false
+
+  # Classification metrics:
+  - name: classification_macro_f1
+    display_name: Macro-F1
+    description: Population-level macro-averaged F1 score.
+    lower_is_better: false
+  - name: classification_micro_f1
+    display_name: Micro-F1
+    description: Population-level micro-averaged F1 score.
+    lower_is_better: false
+
+  # Speech-specific metrics:
+  - name: wer
+    display_name: Word Error Rate
+    short_display_name: WER
+    description: Word Error Rate for automatic speech recognition evaluation.
+    lower_is_better: true
+  - name: mer
+    display_name: Match Error Rate
+    short_display_name: MER
+    description: Match Error Rate for automatic speech recognition evaluation.
+    lower_is_better: true
+  - name: wip
+    display_name: Word Information Preserved
+    short_display_name: WIP
+    description: Word Information Preserved for automatic speech recognition evaluation.
+    lower_is_better: false
+
+############################################################
+metric_groups:
+  - name: accuracy
+    display_name: Accuracy
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+
+  - name: classification_metrics
+    display_name: Classification metrics
+    metrics:
+      - name: classification_macro_f1
+        split: ${main_split}
+      - name: classification_micro_f1
+        split: ${main_split}
+      - name: exact_match
+        split: ${main_split}
+
+  - name: speech_metrics
+    display_name: Speech metrics
+    metrics:
+      - name: wer
+        split: ${main_split}
+      - name: mer
+        split: ${main_split}
+      - name: wip
+        split: ${main_split}
+
+#######################################################
+run_groups:
+  - name: slphelm
+    display_name: SLPHelm Scenarios
+    description: Scenarios for speech language processing evaluation
+    category: All scenarios
+    subgroups:
+      - slphelm_disorder_diagnosis
+      - slphelm_asr_disorder_diagnosis
+      - slphelm_asr_transcription
+      - slphelm_disorder_type_classification
+      - slphelm_disorder_symptom_classification
+
+  - name: slphelm_disorder_diagnosis
+    display_name: Disorder Diagnosis
+    description: Speech-based disorder diagnosis evaluation using audio input.
+    category: Disorder Diagnosis
+    metric_groups:
+      - classification_metrics
+    environment:
+      main_name: classification_macro_f1
+      main_split: test
+    taxonomy:
+      task: disorder diagnosis
+      what: "Speech disorder classification from audio"
+      who: "Children with speech disorders"
+      when: "Clinical assessment"
+      language: English
+
+  - name: slphelm_asr_disorder_diagnosis
+    display_name: ASR-Based Disorder Diagnosis
+    description: Disorder diagnosis based on automatic speech recognition transcription accuracy.
+    category: ASR-Based Disorder Diagnosis
+    metric_groups:
+      - classification_metrics
+    environment:
+      main_name: classification_macro_f1
+      main_split: test
+    taxonomy:
+      task: asr-based disorder diagnosis
+      what: "Disorder classification from transcription accuracy"
+      who: "Children with speech disorders"
+      when: "Clinical assessment"
+      language: English
+
+  - name: slphelm_asr_transcription
+    display_name: ASR-Transcription
+    description: Automatic speech recognition transcription quality evaluation.
+    category: ASR-Transcription
+    metric_groups:
+      - speech_metrics
+    environment:
+      main_name: wer
+      main_split: test
+    taxonomy:
+      task: automatic speech recognition
+      what: "Speech transcription accuracy"
+      who: "Children with speech disorders"
+      when: "Clinical assessment"
+      language: English
+
+  - name: slphelm_disorder_type_classification
+    display_name: Disorder Type Classification
+    description: Classification of specific types of speech disorders.
+    category: Disorder Type Classification
+    metric_groups:
+      - classification_metrics
+    environment:
+      main_name: classification_macro_f1
+      main_split: test
+    taxonomy:
+      task: disorder type classification
+      what: "Specific speech disorder type identification"
+      who: "Children with speech disorders"
+      when: "Clinical assessment"
+      language: English
+
+  - name: slphelm_disorder_symptom_classification
+    display_name: Disorder Symptom Classification
+    description: Classification of specific symptoms within speech disorders.
+    category: Disorder Symptom Classification
+    metric_groups:
+      - classification_metrics
+    environment:
+      main_name: classification_macro_f1
+      main_split: test
+    taxonomy:
+      task: disorder symptom classification
+      what: "Speech disorder symptom identification"
+      who: "Children with speech disorders"
+      when: "Clinical assessment"
+      language: English
