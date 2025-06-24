@@ -86,6 +86,11 @@ class Qwen2VLMClient(CachingClient):
                         attn_implementation="flash_attention_2",
                     ).eval()
                 processor = AutoProcessor.from_pretrained(model_name)
+
+                if not getattr(processor, "chat_template", None):
+                    fallback = AutoProcessor.from_pretrained("Qwen/Qwen2.5-VL-3B-Instruct")
+                    processor.chat_template = fallback.chat_template
+
                 loaded = LoadedModelProcessor(model=model, processor=processor)
                 _models[model_name] = loaded
         return loaded
