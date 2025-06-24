@@ -89,14 +89,18 @@ class IDEFICSClient(CachingClient):
         input_args: Dict[str, Union[str, bool]] = {"return_tensors": "pt"}
         generation_args = {
             "max_new_tokens": request.max_tokens,
-            "bad_words_ids": processor.tokenizer(self.BAD_WORD_TOKENS, add_special_tokens=False).input_ids,
+            "bad_words_ids": processor.tokenizer(  # type: ignore
+                self.BAD_WORD_TOKENS, add_special_tokens=False
+            ).input_ids,
         }
 
         if self.END_OF_UTTERANCE_TOKEN in request.stop_sequences:
             # Following https://huggingface.co/HuggingFaceM4/idefics-80b-instruct,
             # specify <end_of_utterance> as an exit condition.
             input_args["add_end_of_utterance_token"] = False
-            exit_condition = processor.tokenizer(self.END_OF_UTTERANCE_TOKEN, add_special_tokens=False).input_ids
+            exit_condition = processor.tokenizer(  # type: ignore
+                self.END_OF_UTTERANCE_TOKEN, add_special_tokens=False
+            ).input_ids
             generation_args["eos_token_id"] = exit_condition
 
         multimodal_prompt: List[Union[str, Image.Image]] = []

@@ -1,8 +1,7 @@
-import os
 import csv
 from typing import List
 
-from helm.common.general import ensure_directory_exists
+from helm.common.general import check_file_exists
 from helm.benchmark.scenarios.scenario import (
     Input,
     Scenario,
@@ -40,19 +39,27 @@ class StarrPatientInstructionsScenario(Scenario):
     """
 
     name = "starr_patient_instructions"
-    description = "A dataset containing case details used to generate customized post-procedure patient instructions."
+    description = (
+        "PatientInstruct is a benchmark designed to evaluate models on generating personalized"
+        "post-procedure instructions for patients. It includes real-world patient History & Physical"
+        "Note (H&P) and operative report, from which models must produce clear, actionable instructions"
+        "appropriate for patients recovering from medical interventions."
+    )
     tags = ["patient_communication", "healthcare", "instruction_generation", "surgery"]
 
-    def get_instances(self, output_path: str) -> List[Instance]:
-        csv_path = "/share/pi/nigam/suhana/medhelm/data/starr-omop-personalized-care-instr/dataset_cases_qc.csv"
-        # Ensure the directory for the CSV file exists.
-        ensure_directory_exists(os.path.dirname(csv_path))
+    def __init__(self, data_path: str):
+        super().__init__()
+        self.data_path = data_path
 
+    def get_instances(self, output_path: str) -> List[Instance]:
+        check_file_exists(
+            self.data_path, msg=f"[StarrPatientInstructiosScenario] Required data file not found: '{self.data_path}'"
+        )
         instances: List[Instance] = []
         # For now, we assign all instances to the test split (zero-shot setting).
         split = TEST_SPLIT
 
-        with open(csv_path, "r", encoding="utf-8") as csvfile:
+        with open(self.data_path, "r", encoding="utf-8") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 # Retrieve and strip the relevant fields.

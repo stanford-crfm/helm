@@ -96,9 +96,11 @@ class DivaLlamaClient(CachingClient):
                 with _LOCK:
                     audio_input, text_input = DivaLlamaClient._get_generate_input(request)
                     if text_input is None:
-                        return {"completions": self.pre_trained_model.generate([audio_input])}
+                        return {"completions": self.pre_trained_model.generate([audio_input])}  # type: ignore
                     else:
-                        return {"completions": self.pre_trained_model.generate([audio_input], [text_input])}
+                        return {
+                            "completions": self.pre_trained_model.generate([audio_input], [text_input])  # type: ignore
+                        }
 
             cache_key = CachingClient.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))

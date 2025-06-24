@@ -432,7 +432,7 @@ class MELTMATHScenario(Scenario):
             self.subject,
             trust_remote_code=True,
             cache_dir=cache_dir,
-            revision="4ee16aadb78aef3b1337e0a7267da565862673ae",
+            revision="f8edc7f8e2873e8b271391d4489c1eedc5456f40",
         )
 
         instances = []

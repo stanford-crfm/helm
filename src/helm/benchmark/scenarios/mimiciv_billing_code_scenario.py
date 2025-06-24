@@ -1,9 +1,8 @@
-import os
 import pandas as pd
 import numpy as np
 from typing import List
 
-from helm.common.general import ensure_directory_exists
+from helm.common.general import check_file_exists
 from helm.benchmark.scenarios.scenario import (
     Input,
     Scenario,
@@ -24,21 +23,28 @@ class MIMICIVBillingCodeScenario(Scenario):
     """
 
     name = "mimiciv_billing_code"
-    description = "A  dataset pairing clinical notes from MIMIC-IV with corresponding ICD-10 billing codes."
+    description = (
+        "MIMIC-IV Billing Code is a benchmark derived from discharge summaries in the"
+        "MIMIC-IV database, paired with their corresponding ICD-10 billing codes. The task"
+        "requires models to extract structured billing codes based on free-text clinical notes,"
+        "reflecting real-world hospital coding tasks for financial reimbursement."
+    )
     tags = ["question_answering", "biomedical"]
 
-    def __init__(self, data_file: str):
+    def __init__(self, data_path: str):
         """
-        :param data_file: Path to the mimiciv_icd10.feather file.
+        :param data_path: Path to the mimiciv_icd10.feather file.
         """
         super().__init__()
-        self.data_file = data_file
+        self.data_path = data_path
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        ensure_directory_exists(os.path.dirname(self.data_file))
+        check_file_exists(
+            self.data_path, msg=f"[MIMICIVBilligCodeScenario] Required data file not found: '{self.data_path}'"
+        )
 
         # Read the preprocessed MIMIC-IV data (.feather format)
-        df = pd.read_feather(self.data_file)  # columns: ["text", "target", ...]
+        df = pd.read_feather(self.data_path)  # columns: ["text", "target", ...]
 
         instances: List[Instance] = []
 

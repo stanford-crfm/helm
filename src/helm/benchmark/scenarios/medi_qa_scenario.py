@@ -49,9 +49,11 @@ class MediQAScenario(Scenario):
 
     name = "medi_qa"
     description = (
-        "A dataset including a medical question, a set of candidate answers,"
-        "relevance annotations for ranking, and additional context to evaluate understanding"
-        "and retrieval capabilities in a healthcare setting."
+        "MEDIQA is a benchmark designed to evaluate a model's ability to retrieve and generate"
+        "medically accurate answers to patient-generated questions. Each instance includes a"
+        "consumer health question, a set of candidate answers (used in ranking tasks), relevance"
+        "annotations, and optionally, additional context. The benchmark focuses on supporting"
+        "patient understanding and accessibility in health communication."
     )
     tags = ["knowledge", "biomedical"]
 

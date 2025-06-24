@@ -8,7 +8,7 @@ from helm.benchmark.scenarios.scenario import CORRECT_TAG
 @pytest.mark.scenarios
 def test_infinite_bench_en_qa_scenario():
     with TemporaryDirectory() as tmpdir:
-        scenario = InfiniteBenchEnQAScenario()
+        scenario = InfiniteBenchEnQAScenario(max_num_words=10000000)
         instances = scenario.get_instances(tmpdir)
         assert len(instances) == 351
         assert instances[0].split == "test"

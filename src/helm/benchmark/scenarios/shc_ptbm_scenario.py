@@ -11,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     Reference,
     Output,
 )
+from helm.common.general import check_file_exists
 
 csv.field_size_limit(sys.maxsize)
 
@@ -27,13 +28,18 @@ class SHCPTBMMedScenario(Scenario):
 
     name = "shc_ptbm_med"
     description = (
-        "A dataset that classifies whether a clinical note contains a clinician "
-        "recommendation for parent training in behavior management, which is the first-line "
-        "evidence-based treatment for young children with ADHD."
+        "ADHD-Behavior is a benchmark that evaluates a model’s ability to detect whether"
+        "a clinician recommends parent training in behavior management, an evidence-based"
+        "first-line treatment for young children diagnosed with ADHD. Each instance includes"
+        "a clinical note from a pediatric visit and a binary classification task."
     )
     tags = ["knowledge", "reasoning", "biomedical"]
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["A", "B"]
+
+    def __init__(self, data_path: str):
+        super().__init__()
+        self.data_path = data_path
 
     def create_benchmark(self, csv_path) -> Dict[str, str]:
         data = {}
@@ -54,10 +60,9 @@ class SHCPTBMMedScenario(Scenario):
         return data
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        data_path = "/dbfs/mnt/azure_adbfs/Files/medhelm/medhelm-PTBM-dataset_filtered.csv"
-
+        check_file_exists(self.data_path, msg=f"[SHCPTBMMedScenario] Required data file not found: '{self.data_path}'")
         instances: List[Instance] = []
-        benchmark_data = self.create_benchmark(data_path)
+        benchmark_data = self.create_benchmark(self.data_path)
 
         for prompt, answer in benchmark_data.items():
             assert answer in SHCPTBMMedScenario.POSSIBLE_ANSWER_CHOICES

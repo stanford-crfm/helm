@@ -60,12 +60,18 @@ class MedalignScenario(Scenario):
     """
 
     name = "medalign"
-    description = "A dataset that asks models to answer questions/follow instructions over longitudinal EHR."
+    description = (
+        "MedAlign is a benchmark that evaluates a model's ability to interpret and follow"
+        "instructions grounded in longitudinal electronic health records (EHR). Each instance"
+        "includes an event-stream style patient record and a natural language question or task,"
+        "requiring clinically informed reading comprehension and reasoning."
+    )
     tags = ["knowledge", "reasoning", "biomedical"]
 
-    def __init__(self, max_length: int):
+    def __init__(self, max_length: int, data_path: str):
         super().__init__()
         self.max_length = max_length
+        self.data_path = data_path
 
     def process_tsv(self, data) -> List[Instance]:
         instances: List[Instance] = []
@@ -84,5 +90,5 @@ class MedalignScenario(Scenario):
         return instances
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        dataset = return_dataset_dataframe(self.max_length)
+        dataset = return_dataset_dataframe(self.max_length, self.data_path)
         return self.process_tsv(dataset)
