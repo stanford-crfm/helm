@@ -11,6 +11,10 @@ class EdgeCaseScenario(Scenario):
     def get_instances(self, output_path: str):
         df = pd.read_csv("https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/fifty_student_perfect.csv")
 
+        student_topic = pd.read_csv(
+            "https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/student_performace_by_topic.csv"
+        )
+
         # Load test cases (unit tests)
         test_cases = self._load_test_cases()
 
@@ -46,10 +50,10 @@ class EdgeCaseScenario(Scenario):
                 continue
 
             # Get test cases for this question (we know they exist now)
-            question_test_cases = test_cases.get(str(target_question_id), [])
+            target_test_cases = test_cases.get(str(target_question_id), [])
 
             # Verify test cases are not empty
-            if not question_test_cases:
+            if not target_test_cases:
                 skipped_no_tests += 1
                 print(f"SKIPPING Student {student_id}, Question {target_question_id}: Empty test cases")
                 continue
@@ -63,41 +67,43 @@ class EdgeCaseScenario(Scenario):
             else:
                 student_correctness_list = []
 
+            # Student specific topic performance in previous attempts
+            student_level_prompt = f"Student {student_id} has the following performance across topics:\n"
+            topic_performance = student_topic[student_topic["student_id"] == student_id]
+            for _, row in topic_performance.iterrows():
+                topic = row["topic"]
+                pass_rate = round(row["pass_rate"], 2)
+                perfect = round(row["perfect"], 2)
+
+                student_level_prompt += (
+                    f"- For topic '{topic}', the unit test pass rate is {pass_rate}, "
+                    f"and the rate of passing all unit tests is {perfect}.\n"
+                )
+
             print(f"\n=== ACCEPTED INSTANCE: Student {student_id}, Question {target_question_id} ===")
-            print(f"Test cases loaded: {len(question_test_cases)}")
+            print(f"Test cases loaded: {len(target_test_cases)}")
             print(f"Student correctness pattern: {student_correctness_list}")
             print(f"Question name: {target.get('question_name', 'MISSING')}")
 
             prompt = (
+                "You are analyzing a student’s likely mistakes on an upcoming programming problem.\n"
+                "Your task: **predict exactly ONE unit-test index (0-based) that the student is most likely to fail.**\n"
+                "Return *only* that integer.  No explanation.\n\n"
+                "=== Student Profile ===\n"
+                f"{student_level_prompt}\n"
+                "For the given programming question, identify which unit test the student would fail considering "
+                "their past performance, as well as consideration of unit test difficulty\n"
                 f"Week: {target['week']}\n"
                 f"Topic: {target['topic']}\n\n"
-                "Example 1:\n"
-                f"Question: {first['question_name']} — {first['question_text']}\n"
-                "Template:\n"
-                f"{first['question_template']}\n"
-                "Your Code:\n"
-                f"{first['response']}\n\n"
-                "Example 2:\n"
-                f"Question: {second['question_name']} — {second['question_text']}\n"
-                "Template:\n"
-                f"{second['question_template']}\n"
-                "Your Code:\n"
-                f"{second['response']}\n\n"
-                "Example 3:\n"
-                f"Question: {third['question_name']} — {third['question_text']}\n"
-                "Template:\n"
-                f"{third['question_template']}\n"
-                "Your Code:\n"
-                f"{third['response']}\n\n"
-                "First, for the given question, identify which unit test the student would fail considering "
-                "their past performance, as well as consideration of unit test difficulty\n"
-                "The generated code should pass all the unit tests except for the one identified as failing\n"
                 f"Question: {target['question_name']} — {target['question_text']}\n"
-                f"Unit Tests: {question_test_cases}"
-                "Template:\n"
-                f"{target['question_template']}\n\n"
-                "Provide ONLY your C++ implementation following the given template, "
-                "writing code just as you would in class—indentation, naming, and all."
+                f"Unit Tests: {target_test_cases}"
+                "Think silently about:\n"
+                "• Which test seems hardest for the given topic?\n"
+                "• Where has the student historically struggled?\n"
+                "• Any edge-cases in the tests’ inputs/outputs?\n\n"
+                "******** ANSWER FORMAT (STRICT) ********\n"
+                "<integer>\n"
+                "****************************************"
             )
 
             instances.append(
@@ -107,7 +113,7 @@ class EdgeCaseScenario(Scenario):
                     references=[Reference(output=Output(text=target["response"]), tags=[CORRECT_TAG])],
                     extra_data={
                         "question_template": target["question_template"],
-                        "test_cases": question_test_cases,
+                        "test_cases": target_test_cases,
                         "question_id": str(target_question_id),
                         "question_name": target.get("question_name", ""),
                         "student_id": str(student_id),

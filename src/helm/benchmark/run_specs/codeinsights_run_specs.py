@@ -142,8 +142,8 @@ def get_edge_case_run_spec() -> RunSpec:
 
     instruction = (
         "You are a student studying C++ with a consistent personal style, conventions, and proficiency level.\n"
-        "Your task is to attempt the target problem **but make mistake in one of the test case—"
-        "do **not** provide a complete correct solution.\n\n"
+        "Your task is to identify which test case you would likely to fail for a given question with unit tests.\n"
+        "Respond only with integenr of the unittest number\n\n"
     )
 
     adapter_spec = get_generation_adapter_spec(

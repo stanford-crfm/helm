@@ -26,7 +26,7 @@ class UnitTestAlignmentMetric(Metric):
         self.compile_code = compile_code
         self.compiler_path = compiler_path
 
-    # ------------------------------------------------------------------ #
+    # ------------------------------------------------------------------ I#
     #   HELM entry-point                                                 #
     # ------------------------------------------------------------------ #
     def evaluate_generation(                     # HELM entry-point
@@ -82,8 +82,11 @@ class UnitTestAlignmentMetric(Metric):
 
 
 class ComprehensiveCodeEvaluationMetric(CodeEvaluationMetric):
+<<<<<<< Updated upstream
     """unit-test alignment (with new metrics)."""
 
+=======
+>>>>>>> Stashed changes
     def __init__(self):
         super().__init__(use_codebert=False)     # or leave default
         self.alignment_metric = UnitTestAlignmentMetric()
