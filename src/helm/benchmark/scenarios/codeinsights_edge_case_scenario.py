@@ -33,14 +33,7 @@ class EdgeCaseScenario(Scenario):
 
         for student_id, student_df in df.groupby("student_id"):
             student_df = student_df.sort_values("timestamp")
-            if len(student_df) < 4:
-                skipped_insufficient_data += 1
-                continue
-
-            first = student_df.iloc[0]
-            second = student_df.iloc[1]
-            third = student_df.iloc[2]
-            target = student_df.iloc[3]
+            target = student_df.iloc[0]
 
             # Check if target question has test cases BEFORE processing
             target_question_id = target.get("question_unittest_id", None)
