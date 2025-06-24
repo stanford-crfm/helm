@@ -81,9 +81,9 @@ class UnitTestAlignmentMetric(Metric):
 class CodeInsightsComprehensiveCodeEvaluationMetric(CodeInsightsCodeEvaluationMetric):
     """unit-test alignment (with new metrics)."""
 
-    def __init__(self):
-        super().__init__(use_codebert=False)  # or leave default
-        self.alignment_metric = UnitTestAlignmentMetric()
+    def __init__(self, use_codebert: bool = True, compile_code: bool = True, compiler_path: str = "g++"):
+        super().__init__(use_codebert=use_codebert)
+        self.alignment_metric = UnitTestAlignmentMetric(compile_code=compile_code, compiler_path=compiler_path)
 
     def evaluate_generation(
         self,

@@ -12,7 +12,7 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 
 
-class FunctionalCorrectnessMetric(Metric):
+class CodeInsightsFunctionalCorrectnessMetric(Metric):
     """
     Metric for evaluating functional correctness of C++ code generation.
 
