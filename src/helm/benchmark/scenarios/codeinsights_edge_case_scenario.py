@@ -3,8 +3,8 @@ import pandas as pd
 import requests
 
 
-class EdgeCaseScenario(Scenario):
-    name = "edge_case"
+class CodeInsightsEdgeCaseScenario(Scenario):
+    name = "codeinsights_edge_case"
     description = "Evaluate alignment in edge case failure between LLM-generated code and student code"
     tags = ["codeinsights", "c++", "edge_case"]
 
@@ -80,7 +80,7 @@ class EdgeCaseScenario(Scenario):
 
             prompt = (
                 "You are analyzing a student’s likely mistakes on an upcoming programming problem.\n"
-                "Your task: **predict exactly ONE unit-test index (0-based) that the student is most likely to fail.**\n"
+                "Your task: **predict exactly ONE unit-test index (0-based) that the student is most likely to fail.**\n"  # noqa: E501
                 "Return *only* that integer.  No explanation.\n\n"
                 "=== Student Profile ===\n"
                 f"{student_level_prompt}\n"

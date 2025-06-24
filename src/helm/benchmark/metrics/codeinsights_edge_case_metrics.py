@@ -1,8 +1,5 @@
-from typing import List, Tuple
+from typing import List
 import re
-import os
-import subprocess
-import tempfile
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
@@ -10,7 +7,7 @@ from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.codeinsights_code_evaluation_metrics import CodeEvaluationMetric
+from helm.benchmark.metrics.codeinsights_code_evaluation_metrics import CodeInsightsCodeEvaluationMetric
 
 
 class UnitTestAlignmentMetric(Metric):
@@ -29,7 +26,7 @@ class UnitTestAlignmentMetric(Metric):
     # ------------------------------------------------------------------ I#
     #   HELM entry-point                                                 #
     # ------------------------------------------------------------------ #
-    def evaluate_generation(                     # HELM entry-point
+    def evaluate_generation(  # HELM entry-point
         self,
         adapter_spec: AdapterSpec,
         request_state: RequestState,
@@ -81,14 +78,11 @@ class UnitTestAlignmentMetric(Metric):
         return [Stat(MetricName("unit_test_alignment")).add(alignment_score)]
 
 
-class ComprehensiveCodeEvaluationMetric(CodeEvaluationMetric):
-<<<<<<< Updated upstream
+class CodeInsightsComprehensiveCodeEvaluationMetric(CodeInsightsCodeEvaluationMetric):
     """unit-test alignment (with new metrics)."""
 
-=======
->>>>>>> Stashed changes
     def __init__(self):
-        super().__init__(use_codebert=False)     # or leave default
+        super().__init__(use_codebert=False)  # or leave default
         self.alignment_metric = UnitTestAlignmentMetric()
 
     def evaluate_generation(
@@ -98,7 +92,5 @@ class ComprehensiveCodeEvaluationMetric(CodeEvaluationMetric):
         metric_service: MetricService,
         eval_cache_path: str,
     ):
-        stats = self.alignment_metric.evaluate_generation(
-            adapter_spec, request_state, metric_service, eval_cache_path
-        )
+        stats = self.alignment_metric.evaluate_generation(adapter_spec, request_state, metric_service, eval_cache_path)
         return stats

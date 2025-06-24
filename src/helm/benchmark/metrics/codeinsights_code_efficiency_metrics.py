@@ -28,7 +28,7 @@ class RuntimeResult:
     error_message: str = ""
 
 
-class FunctionalCorrectnessMetric(Metric):
+class CodeInsightsFunctionalCorrectnessMetric(Metric):
     """
     Metric for evaluating functional correctness of C++ code generation.
 
@@ -1021,7 +1021,7 @@ class RuntimeEfficiencyMetric(Metric):
         return self._create_failure_stats("Deprecated correctness failure stats")
 
 
-class CodeEfficiencyMetric(Metric):
+class CodeInsightsCodeEfficiencyMetric(Metric):
     """
     Comprehensive metric combining functional correctness and runtime efficiency evaluation.
 
@@ -1045,7 +1045,7 @@ class CodeEfficiencyMetric(Metric):
             num_runtime_runs: Number of times to run each solution for averaging (default: 5)
             timeout_seconds: Maximum execution time per run (default: 10)
         """
-        self.functional_correctness_metric = FunctionalCorrectnessMetric(
+        self.functional_correctness_metric = CodeInsightsFunctionalCorrectnessMetric(
             compile_code=compile_code, compiler_path=compiler_path
         )
         self.runtime_efficiency_metric = RuntimeEfficiencyMetric(

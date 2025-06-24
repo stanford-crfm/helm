@@ -3,8 +3,8 @@ import pandas as pd
 import requests
 
 
-class CorrectCodeScenario(Scenario):
-    name = "correct_code"
+class CodeInsightsCorrectCodeScenario(Scenario):
+    name = "codeinsights_correct_code"
     description = "Generate correct response code for C++ programming questions"
     tags = ["codeinsights", "c++", "correct_code"]
 
