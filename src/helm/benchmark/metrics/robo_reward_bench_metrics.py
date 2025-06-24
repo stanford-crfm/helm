@@ -15,6 +15,8 @@ class RoboRewardBenchPreferenceRankingMetric(Metric):
         extracted_answer: str = raw_completion
         if "ANSWER:" in extracted_answer:
             extracted_answer = extracted_answer.split("ANSWER:")[1]
+        elif "Answer:" in extracted_answer:
+            extracted_answer = extracted_answer.split("Answer:")[1]
 
         extracted_answer = extracted_answer.strip()
         if extracted_answer.lower() in ["a", "b", "tie"]:
@@ -59,6 +61,8 @@ class RoboRewardBenchProgressPredictionMetric(Metric):
         text = raw_completion
         if "ANSWER:" in text:
             text = text.split("ANSWER:", 1)[1]
+        elif "Answer:" in text:
+            text = text.split("Answer:", 1)[1]
         text = text.strip()
 
         try:
