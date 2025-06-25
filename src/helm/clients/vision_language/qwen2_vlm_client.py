@@ -1,3 +1,4 @@
+import os.path
 from threading import Lock
 from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
@@ -21,7 +22,10 @@ class LoadedModelProcessor:
     processor: AutoProcessor
 
 
-LOCAL_CHECKPOINT_3B = "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output"
+LOCAL_CHECKPOINT_3B = (
+    "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output/"
+    "checkpoint-9240"
+)
 
 # Global cache for all models
 _models_lock: Lock = Lock()
@@ -160,13 +164,18 @@ class Qwen2VLMClient(CachingClient):
                         tokens = completion.split()
                         return {"output": (completion, tokens)}
 
+                    raw_request = {
+                        "completion_index": completion_index,
+                        "model": request.model,
+                        "prompt": generate_uid_for_multimodal_prompt(request.multimodal_prompt),
+                        **generation_args,
+                    }
+                    local_model_name_or_path = self._get_model_name(request.model_engine)
+                    if os.path.exists(local_model_name_or_path):
+                        raw_request["local_model_name_or_path"] = local_model_name_or_path
+
                     cache_key = CachingClient.make_cache_key(
-                        raw_request={
-                            "completion_index": completion_index,
-                            "model": request.model,
-                            "prompt": generate_uid_for_multimodal_prompt(request.multimodal_prompt),
-                            **generation_args,
-                        },
+                        raw_request=raw_request,
                         request=request,
                     )
                     result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
