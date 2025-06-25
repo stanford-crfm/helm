@@ -157,12 +157,11 @@ def get_default_model_deployment_for_model(
     Example: "meta/llama-7b" => "together/llama-7b"
 
     The process to find a model deployment name is as follows:
-    1. If there is a model deployment with the same name as the model arg, use it.
-    2. If there is at least one deployment for the model, use the first one that is available.
-    3. If there are no deployments for the model, returns None.
+    1. If there is at least one deployment for the model, use the last one that is available.
+    2. If there are no deployments for the model, returns None.
 
     This function will also try to find a model deployment name that is not deprecated.
-    If there are no non-deprecated deployments, it will return the first deployment (even if it's deprecated).
+    If there are no non-deprecated deployments, it will return the last deployment (even if it's deprecated).
     If ignore_deprecated is True, this function will return None if the model deployment is deprecated.
 
     If warn_arg_deprecated is True, this function will print a warning if the model deployment name is not the same
@@ -175,16 +174,7 @@ def get_default_model_deployment_for_model(
         ignore_deprecated: Whether to return None if the model deployment is deprecated.
     """
 
-    # If there is a model deployment with the same name as the model arg, use it.
-    if model_name in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT:
-        deployment: ModelDeployment = DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[model_name]
-        if deployment.deprecated and ignore_deprecated:
-            if warn_arg_deprecated:
-                hwarn(f"Model deployment {model_name} is deprecated")
-            return None
-        return deployment.name
-
-    # If there is at least one deployment for the model, use the first one that is available.
+    # If there is at least one deployment for the model, use the last one that is available.
     available_deployments: List[ModelDeployment] = [
         deployment for deployment in ALL_MODEL_DEPLOYMENTS if deployment.model_name == model_name
     ]
@@ -199,19 +189,21 @@ def get_default_model_deployment_for_model(
             deployment for deployment in available_deployments if not deployment.deprecated
         ]
         if len(non_deprecated_deployments) > 0:
-            chosen_deployment = non_deprecated_deployments[0]
+            chosen_deployment = non_deprecated_deployments[-1]
         # There are no non-deprecated deployments, so there are two options:
         # 1. If we can return an empty string, return it. (no model deployment is available)
-        # 2. If we can't return an empty string, return the first deployment (even if it's deprecated).
+        # 2. If we can't return an empty string, return the last deployment (even if it's deprecated).
         elif ignore_deprecated:
             return None
-        else:
-            chosen_deployment = available_deployments[0]
+        elif len(available_deployments) > 0:
+            chosen_deployment = available_deployments[-1]
             if warn_arg_deprecated:
                 hwarn(f"All model deployments for model {model_name} are deprecated.")
+        else:
+            return None
         if warn_arg_deprecated:
             hlog(
-                f"Choosing {chosen_deployment.name} (the first one) as "
+                f"Choosing {chosen_deployment.name} (the last one) as "
                 f"the default model deployment for model {model_name}"
             )
             hlog("If you want to use a different model deployment, please specify it explicitly.")
