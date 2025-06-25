@@ -9,6 +9,7 @@ from helm.benchmark.scenarios.scenario import (
     PassageQuestionInput,
     Output,
 )
+from helm.common.general import check_file_exists
 
 
 class MentalHealthScenario(Scenario):
@@ -48,9 +49,18 @@ class MentalHealthScenario(Scenario):
     """
 
     name = "mental_health"
-    description = "A dataset containing a counselor and mental health patient conversation, where the objective is to \
-                    generate an empathetic counselor response."
+    description = (
+        "MentalHealth is a benchmark focused on evaluating empathetic communication in"
+        "mental health counseling. It includes simulated conversations between patients"
+        "and counselors, where the task is to generate compassionate and appropriate counselor"
+        "responses. The benchmark assesses a model's ability to support patients emotionally"
+        "and meaningfully engage in therapeutic conversations."
+    )
     tags = ["dialogue", "counseling", "mental_health", "empathy", "healthcare"]
+
+    def __init__(self, data_path: str):
+        super().__init__()
+        self.data_path = data_path
 
     def process_dialogue_data(self, data: pd.DataFrame) -> List[Instance]:
         """
@@ -102,9 +112,10 @@ class MentalHealthScenario(Scenario):
         Returns:
             List[Instance]: List of processed instances for evaluation
         """
-        # Load the processed dialogue data
-        data_path = "/share/pi/nigam/data/medhelm/mental_health/processed_dialogues.csv"
-        dialogue_data = pd.read_csv(data_path)
+        check_file_exists(
+            self.data_path, msg=f"[MentalHealthScenario] Required data file not found: '{self.data_path}'"
+        )
+        dialogue_data = pd.read_csv(self.data_path)
 
         # Process into instances
         instances = self.process_dialogue_data(dialogue_data)

@@ -90,7 +90,12 @@ class MedDialogScenario(Scenario):
     """
 
     name = "med_dialog"
-    description = "A collection of doctor-patient conversations with corresponding summaries."
+    description = (
+        "MedDialog is a benchmark of real-world doctor-patient conversations focused on health-related"
+        "concerns and advice. Each dialogue is paired with a one-sentence summary"
+        "that reflects the core patient question or exchange. The benchmark evaluates a model's"
+        "ability to condense medical dialogue into concise, informative summaries."
+    )
     tags = ["dialogue", "biomedical"]
 
     def __init__(self, subset: str):

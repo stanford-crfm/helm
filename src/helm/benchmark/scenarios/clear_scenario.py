@@ -2,7 +2,7 @@ import os
 import pandas as pd
 from typing import List
 
-from helm.common.general import ensure_directory_exists
+from helm.common.general import check_file_exists
 from helm.benchmark.scenarios.scenario import (
     Input,
     Scenario,
@@ -76,16 +76,21 @@ class CLEARScenario(Scenario):
         "unemployment": "unemployment",
     }
 
-    def __init__(self, condition: str):
+    def __init__(self, condition: str, data_path: str):
         """Initialize the scenario with a specific medical condition"""
         super().__init__()
 
         if condition not in self.CONDITIONS:
             raise ValueError(f"Condition '{condition}' not supported. Available conditions: {self.CONDITIONS}")
-
+        self.data_path = data_path
         self.condition = condition
         self.name = f"clear_{condition}"
-        self.description = f"A dataset for evaluating {self.CONDITION_PROMPTS[condition]} detection from patient notes with yes/no/maybe classifications."  # noqa: E501
+        self.description = (
+            "CLEAR is a benchmark designed to evaluate models on their ability to detect medical"
+            "conditions from patient notes using categorical responses. Each instance consists of"
+            "a clinical note and a target condition, requiring the model to classify the patient's"
+            "history as either affirmative, negative, or uncertain."
+        )  # noqa: E501
         self.tags = ["classification", "biomedical", condition.replace("_", "-")]
 
     def get_answer_choices(self) -> List[str]:
@@ -95,9 +100,8 @@ class CLEARScenario(Scenario):
 
     def get_instances(self, output_path: str) -> List[Instance]:
         """Load and process the data for the specified conditon."""
-        data_dir = "/share/pi/nigam/suhana/medhelm/data/CLEAR/human_labeled/"
-        excel_path = os.path.join(data_dir, f"{self.condition}.xlsx")
-        ensure_directory_exists(os.path.dirname(excel_path))
+        excel_path = os.path.join(self.data_path, f"{self.condition}.xlsx")
+        check_file_exists(excel_path, msg=f"[CLEARScenario] Required data file not found: '{excel_path}'")
 
         df = pd.read_excel(excel_path)
 

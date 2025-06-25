@@ -218,7 +218,7 @@ class CodeBERTAnalyzer:
         return cosine_sim
 
 
-class CodeEvaluationMetric(Metric):
+class CodeInsightsCodeEvaluationMetric(Metric):
     """Metric for evaluating code generation quality using AST analysis and CodeBERT similarity."""
 
     def __init__(self, use_codebert: bool = True):
@@ -303,7 +303,7 @@ class CodeEvaluationMetric(Metric):
         return [Stat(MetricName("codebert_similarity")).add(codebert_similarity)]
 
 
-class AdvancedCodeEvaluationMetric(CodeEvaluationMetric):
+class AdvancedCodeEvaluationMetric(CodeInsightsCodeEvaluationMetric):
     """Extended code evaluation metric with additional analyses"""
 
     def __init__(self, use_codebert: bool = True):
@@ -710,7 +710,7 @@ class UnitTestAlignmentMetric(Metric):
         ]
 
 
-class ComprehensiveCodeEvaluationMetric(CodeEvaluationMetric):
+class CodeInsightsComprehensiveCodeEvaluationMetric(CodeInsightsCodeEvaluationMetric):
     """Comprehensive metric combining AST, CodeBERT, and unit test alignment."""
 
     def __init__(self, use_codebert: bool = True, compile_code: bool = True, compiler_path: str = "g++"):

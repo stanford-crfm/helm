@@ -107,7 +107,7 @@ def _parse_thinking(input: str) -> Tuple[str, str]:
     if match:
         return (match.group(1), match.group(2))
 
-    match = re.match(r"<think>\n?(.*)", input)
+    match = re.match(r"<think>\n?(.*)", input, re.DOTALL)
     if match:
         return (match.group(1), "")
 

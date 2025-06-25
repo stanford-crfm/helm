@@ -1,7 +1,9 @@
 import os
 import re
 from typing import List
+
 from datasets import load_dataset, Features, Value, Sequence, Dataset
+
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -14,21 +16,20 @@ from helm.benchmark.scenarios.scenario import (
 from helm.common.general import ensure_directory_exists
 
 
-class InfiniteBenchSumScenario(Scenario):
-    """InfiniteBench Sum
+class InfiniteBenchEnMCScenario(Scenario):
+    """InfiniteBench En.MC
 
     InfiniteBench is a benchmark tailored for evaluating the capabilities of language models to process,
-    understand, and reason over super long contexts (100k+ tokens). InfiniteBench Sum is a subset of
-    InfiniteBench that requires models to generate a concise summary of the novel. The subset is referred
-    to as "En.Sum" in the original paper.
+    understand, and reason over long contexts (100k+ tokens). InfiniteBench En.MC is a subset of
+    InfiniteBench that requires models to perform multiple-choice question answering on questions that necessitate
+    long-range dependency and reasoning, beyond simple short passage retrieval.
     """
 
-    name = "infinite_bench_sum"
-    description = "Summarize a novel from InfiniteBench"
-    tags = ["summarization"]
+    name = "infinite_bench_en_mc"
+    description = "∞Bench En.MC is a multiple-choice question answering task that necessitates long-range dependency and reasoning. ([Zhang et al., 2024](https://arxiv.org/abs/2402.13718))"  # noqa: E501
+    tags = ["question_answering"]
 
-    def __init__(self, min_num_words: int, max_num_words: int):
-        self.min_num_words = min_num_words
+    def __init__(self, max_num_words: int):
         self.max_num_words = max_num_words
         super().__init__()
 
@@ -51,7 +52,7 @@ class InfiniteBenchSumScenario(Scenario):
         # Load the dataset with the specified features
         dataset = load_dataset(
             "xinrongzhang2022/InfiniteBench",
-            split="longbook_sum_eng",
+            split="longbook_choice_eng",
             features=ft,
             revision="90f0394333616266d9fe85824ceaf505093cbaa5",
         )
@@ -61,21 +62,28 @@ class InfiniteBenchSumScenario(Scenario):
         def count_words(text: str) -> int:
             return len(re.split(r"\s+", text.strip()))
 
-        dataset = dataset.map(
-            lambda example: {"prompt_wc": count_words(example["context"]) + count_words(example["input"])}
-        ).filter(lambda example: self.min_num_words <= example["prompt_wc"] <= self.max_num_words)
+        dataset = dataset.filter(
+            lambda example: count_words(example["context"])
+            + count_words(example["input"])
+            + sum(count_words(option) for option in example["options"])
+            <= self.max_num_words
+        )
 
         # Read all instances
         instances: List[Instance] = []
         for row in dataset:
+            assert len(row["answer"]) == 1
             id = row["id"]
             input = Input(text=row["context"] + "\n\n" + row["input"])
+            references = [
+                Reference(Output(text=option), tags=[CORRECT_TAG] if option == row["answer"][0] else [])
+                for option in row["options"]
+            ]
             instance = Instance(
                 id=id,
                 input=input,
-                references=[Reference(Output(text=row["answer"][0]), tags=[CORRECT_TAG])],
+                references=references,
                 split=TEST_SPLIT,
-                extra_data={"word_count": row["prompt_wc"]},
             )
             instances.append(instance)
 

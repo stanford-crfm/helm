@@ -5,7 +5,7 @@ from helm.benchmark.metrics.metric import MetricSpec
 def get_functional_correctness_metric_specs(compile_code: bool = True) -> List[MetricSpec]:
     return [
         MetricSpec(
-            class_name="helm.benchmark.metrics.codeinsights_correct_code_metrics.FunctionalCorrectnessMetric",
+            class_name="helm.benchmark.metrics.codeinsights_correct_code_metrics.CodeInsightsFunctionalCorrectnessMetric",  # noqa: E501
             args={"compile_code": compile_code},
         )
     ]
@@ -16,7 +16,7 @@ def get_comprehensive_code_evaluation_metric_specs(
 ) -> List[MetricSpec]:
     return [
         MetricSpec(
-            class_name="helm.benchmark.metrics.codeinsights_code_evaluation_metrics.ComprehensiveCodeEvaluationMetric",
+            class_name="helm.benchmark.metrics.codeinsights_code_evaluation_metrics.CodeInsightsComprehensiveCodeEvaluationMetric",  # noqa: E501
             args={"use_codebert": use_codebert, "compile_code": compile_code},
         )
     ]
@@ -30,7 +30,7 @@ def get_code_efficiency_metric_specs(
 ):
     return [
         MetricSpec(  # existing metric → runtime & correctness
-            class_name="helm.benchmark.metrics.codeinsights_code_efficiency_metrics.CodeEfficiencyMetric",
+            class_name="helm.benchmark.metrics.codeinsights_code_efficiency_metrics.CodeInsightsCodeEfficiencyMetric",
             args={
                 "compile_code": compile_code,
                 "num_runtime_runs": num_runtime_runs,
@@ -38,7 +38,7 @@ def get_code_efficiency_metric_specs(
             },
         ),
         MetricSpec(  # ➋ NEW metric → AST + CodeBERT
-            class_name="helm.benchmark.metrics.codeinsights_code_evaluation_metrics.CodeEvaluationMetric",
+            class_name="helm.benchmark.metrics.codeinsights_code_evaluation_metrics.CodeInsightsCodeEvaluationMetric",
             args={"use_codebert": use_codebert},
         ),
     ]
@@ -51,7 +51,7 @@ def get_edge_case_metric_specs(
 ) -> List[MetricSpec]:
     return [
         MetricSpec(
-            class_name="helm.benchmark.metrics.codeinsights_edge_case_metrics.ComprehensiveCodeEvaluationMetric",
+            class_name="helm.benchmark.metrics.codeinsights_edge_case_metrics.CodeInsightsComprehensiveCodeEvaluationMetric",  # noqa: E501
             args={
                 "use_codebert": use_codebert,
                 "compile_code": compile_code,

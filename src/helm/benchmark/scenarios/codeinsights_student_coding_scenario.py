@@ -3,8 +3,8 @@ import pandas as pd
 import requests
 
 
-class StudentCodingScenario(Scenario):
-    name = "student_coding"
+class CodeInsightsStudentCodingScenario(Scenario):
+    name = "codeinsights_student_coding"
     description = "Mimic student C++ style on foundational questions"
     tags = ["codeinsights", "c++", "student_coding"]
 

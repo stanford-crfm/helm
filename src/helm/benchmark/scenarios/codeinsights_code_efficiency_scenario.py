@@ -3,8 +3,8 @@ import pandas as pd
 import requests
 
 
-class CodeEfficiencyScenario(Scenario):
-    name = "code_efficiency"
+class CodeInsightsCodeEfficiencyScenario(Scenario):
+    name = "codeinsights_code_efficiency"
     description = "Evaluate runtime efficiency alignment between LLM-generated code and student code"
     tags = ["codeinsights", "c++", "code_efficiency"]
 

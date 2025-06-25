@@ -153,7 +153,7 @@ class Qwen2_5OmniAudioLMClient(CachingClient):
                             clean_up_tokenization_spaces=False,
                         )
                         # The processor of Qwen2-Audio-Instruct consists an AutoTokenizer and a WhisperFeatureExtractor
-                        tokens: List[str] = tokenizer.tokenizer.tokenize(completion)
+                        tokens: List[str] = tokenizer.tokenizer.tokenize(completion)  # type: ignore
                         return {"output": (completion, tokens)}
 
                     # Include the prompt and model name in the cache key
