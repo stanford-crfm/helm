@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 from typing import Dict, List, Union, Optional
 from helm.common.media_object import MediaObject
+from helm.common.backports.strenum import StrEnum
 
 
-class QuestionType:
+class QuestionType(StrEnum):
     """String enum of question types."""
 
-    # TODO: Make this a StrEnum after upgrading to Python 3.11
     MULTIPLE_CHOICE: str = "multiple_choice"
     CHECKBOX: str = "checkbox"
     FREE_RESPONSE: str = "free_response"

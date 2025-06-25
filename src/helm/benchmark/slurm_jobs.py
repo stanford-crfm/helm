@@ -5,6 +5,7 @@ from typing import Mapping, Set, Union
 from retrying import retry
 
 from helm.common.optional_dependencies import handle_module_not_found_error
+from helm.common.backports.strenum import StrEnum
 
 try:
     from simple_slurm import Slurm
@@ -12,8 +13,7 @@ except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["slurm"])
 
 
-class SlurmJobState:
-    # TODO: Convert to StrEnum after upgrading to Python 3.11
+class SlurmJobState(StrEnum):
     # Non-exhaustive list of Slurm job states.
     # See: https://slurm.schedmd.com/squeue.html#SECTION_JOB-STATE-CODES
 
