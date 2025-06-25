@@ -78,10 +78,11 @@ class StudentCodingScenario(Scenario):
                 f"{third['response']}\n\n"
                 "Now, using that same student style, attempt this:\n"
                 f"Question: {target['question_name']} — {target['question_text']}\n"
+                f"Unit Test Input: {question_test_cases}"
                 "Template:\n"
                 f"{target['question_template']}\n\n"
-                "Provide ONLY your C++ implementation following the given template, "
-                "writing code just as you would in class—indentation, naming, and all."
+                "Provide ONLY your C++ implementation following the given template, and make sure the code is compatible with the Unit Test Input"
+                "write code just as you would in class — indentation, naming, and all."
             )
             instances.append(
                 Instance(

@@ -25,9 +25,10 @@ class CorrectCodeScenario(Scenario):
 
             prompt = (
                 f"Question: {target['question_name']} — {target['question_text']}\n\n"
+                f"Unit Test Input: {question_test_cases}"
                 "Template:\n"
                 f"{target['question_template']}\n\n"
-                "Provide ONLY your C++ implementation following the given template. "
+                "Provide ONLY your C++ implementation following the given template, and make sure the code is compatible with the Unit Test Input"
                 "Ensure your code is correct, efficient, and handles all edge cases properly."
             )
             instances.append(

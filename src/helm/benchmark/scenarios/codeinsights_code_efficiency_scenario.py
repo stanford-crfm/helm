@@ -94,10 +94,11 @@ class CodeEfficiencyScenario(Scenario):
                 "If a student has a tendency to write correct but inefficient code, imitate the inefficiency "
                 "but if they write efficiently, write efficiently too.\n"
                 f"Question: {target['question_name']} — {target['question_text']}\n"
+                f"Unit Test Input: {question_test_cases}"
                 "Template:\n"
                 f"{target['question_template']}\n\n"
-                "Provide ONLY your C++ implementation following the given template, "
-                "writing code just as you would in class—indentation, naming, and all."
+                "Provide ONLY your C++ implementation following the given template, and make sure the code is compatible with the Unit Test Input"
+                "write code just as you would in class — indentation, naming, and all."
             )
 
             instances.append(
