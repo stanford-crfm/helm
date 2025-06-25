@@ -58,7 +58,6 @@ class UltraSuiteASRClassificationScenario(Scenario):
     name = "speech_disorder"
     description = "A scenario for evaluating speech disorders in children"
     tags = ["audio", "classification", "speech_disorder", "asr"]
-    HF_MAPPING_URL = "https://huggingface.co/datasets/SAA-Lab/SLPHelmUltraSuite"
 
     # Classification options
     options: List[str] = ["Healthy", "Unhealthy"]
@@ -70,8 +69,12 @@ class UltraSuiteASRClassificationScenario(Scenario):
         - Audio files (e.g., .mp3)
         - A JSON file with annotations containing 'answer' field
         """
-        print(f"Downloading dataset from {UltraSuiteASRClassificationScenario.HF_MAPPING_URL}")
-        data_path = snapshot_download(repo_id="SAA-Lab/SLPHelmManualLabels", repo_type="dataset")
+        print("Downloading SAA-Lab/SLPHelmManualLabels dataset...")
+        data_path = snapshot_download(
+            repo_id="SAA-Lab/SLPHelmManualLabels",
+            repo_type="dataset",
+            revision="38c2d7dab831acf8ccff0ca6f6463d6a8a0184ed",
+        )
 
         instances: List[Instance] = []
         split: str = TEST_SPLIT

@@ -27,7 +27,6 @@ class UltraSuiteDisorderBreakdownScenario(Scenario):
     name = "speech_disorder"
     description = "A scenario for evaluating and classifying specific types of speech disorders in children"
     tags = ["audio", "classification", "speech_disorder", "disorder_breakdown"]
-    HF_MAPPING_URL = "https://huggingface.co/datasets/SAA-Lab/SLPHelmManualLabels"
 
     def get_instruction(self, words: str) -> str:
         return f"""You are a highly experienced Speech-Language Pathologist (SLP). An audio recording will be provided, typically consisting of a speech prompt from a pathologist followed by a child's repetition. The prompt text the child is trying to repeat is as follows: {words}. Based on your professional expertise: 1. Assess the child's speech in the recording for signs of typical development or potential speech-language disorder. 2. Conclude your analysis with one of the following labels only: A - 'typically developing' (child's speech patterns and development are within normal age-appropriate ranges), B - 'articulation' (difficulty producing specific speech sounds correctly, such as substituting, omitting, or distorting sounds), C - 'phonological' (difficulty understanding and using the sound system of language, affecting sounds of a particular type). 3. Provide your response as a single letter without any additional explanation, commentary, or unnecessary text."""  # noqa: E501
@@ -39,8 +38,12 @@ class UltraSuiteDisorderBreakdownScenario(Scenario):
         - Audio files (e.g., .mp3)
         - A JSON file with annotations containing 'disorder_class' field
         """
-        print(f"Downloading dataset from {UltraSuiteDisorderBreakdownScenario.HF_MAPPING_URL}")
-        data_path = snapshot_download(repo_id="SAA-Lab/SLPHelmManualLabels", repo_type="dataset")
+        print("Downloading SAA-Lab/SLPHelmManualLabels dataset...")
+        data_path = snapshot_download(
+            repo_id="SAA-Lab/SLPHelmManualLabels",
+            repo_type="dataset",
+            revision="38c2d7dab831acf8ccff0ca6f6463d6a8a0184ed",
+        )
 
         instances: List[Instance] = []
         split: str = TEST_SPLIT
