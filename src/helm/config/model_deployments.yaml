@@ -3741,6 +3741,7 @@ model_deployments:
       args:
         pretrained_model_name_or_path: ibm-granite/granite-3.0-1b-a400m-base
 
+# Maritaca AI
   - name: huggingface/sabia-7b
     model_name: maritaca-ai/sabia-7b
     tokenizer_name: maritaca-ai/sabia-7b
@@ -3749,6 +3750,27 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
     args:
       pretrained_model_name_or_path: maritaca-ai/sabia-7b
+
+  - name: maritaca-ai/sabiazinho-3
+    model_name: maritaca-ai/sabiazinho-3
+    tokenizer_name: maritaca-ai/sabia-2-tokenizer-medium
+    max_sequence_length: 32000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
+  - name: maritaca-ai/sabia-3
+    model_name: maritaca-ai/sabia-3
+    tokenizer_name: maritaca-ai/sabia-2-tokenizer-medium
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
+  - name: maritaca-ai/sabia-3.1-2025-05-08
+    model_name: maritaca-ai/sabia-3.1-2025-05-08
+    tokenizer_name: maritaca-ai/sabia-2-tokenizer-medium
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
 
 # Granite-3.1-8b-base
   - name: huggingface/granite-3.1-8b-base
@@ -4324,3 +4346,59 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.stanfordhealthcare_shc_openai_client.StanfordHealthCareSHCOpenAIClient"
       deployment: gpt-4-turbo-2024-04-09
+
+
+  - name: huggingface/Gemma-3-Gaia-PT-BR-4b-it
+    model_name: CEIA-UFG/Gemma-3-Gaia-PT-BR-4b-it
+    tokenizer_name: CEIA-UFG/Gemma-3-Gaia-PT-BR-4b-it
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: CEIA-UFG/Gemma-3-Gaia-PT-BR-4b-it
+
+  - name: recogna-nlp/bode-13b-alpaca-pt-br-no-peft
+    model_name: recogna-nlp/bode-13b-alpaca-pt-br-no-peft
+    tokenizer_name: recogna-nlp/bode-13b-alpaca-pt-br-no-peft
+    max_sequence_length: 4094
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: recogna-nlp/bode-13b-alpaca-pt-br-no-peft
+
+  - name: 22h/cabrita_7b_pt_850000
+    model_name: 22h/cabrita_7b_pt_850000
+    tokenizer_name: 22h/cabrita_7b_pt_850000
+    max_sequence_length: 4094
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: 22h/cabrita_7b_pt_850000
+
+  - name: PORTULAN/gervasio-7b-portuguese-ptbr-decoder
+    model_name: PORTULAN/gervasio-7b-portuguese-ptbr-decoder
+    tokenizer_name: PORTULAN/gervasio-7b-portuguese-ptbr-decoder
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: PORTULAN/gervasio-7b-portuguese-ptbr-decoder
+
+  - name: TucanoBR/Tucano-2b4
+    model_name: TucanoBR/Tucano-2b4
+    tokenizer_name: TucanoBR/Tucano-2b4
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: TucanoBR/Tucano-2b4
+
+  - name: nicholasKluge/TeenyTinyLlama-460m
+    model_name: nicholasKluge/TeenyTinyLlama-460m
+    tokenizer_name: nicholasKluge/TeenyTinyLlama-460m
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: nicholasKluge/TeenyTinyLlama-460m
+

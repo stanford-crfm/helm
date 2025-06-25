@@ -4274,6 +4274,31 @@ models:
     release_date: 2023-11-08
     tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: maritaca-ai/sabiazinho-3
+    display_name: Sabiazinho 3
+    description: Sabiazinho-3 is a decoder-only language model designed for Portuguese text generation and understanding tasks. It supports a long context window of up to 128,000 tokens and is offered via API with scalable rate limits. The model is trained on diverse Portuguese corpora with knowledge up to july 2023.
+    creator_organization_name: Maritaca AI
+    access: limited
+    release_date: 2025-02-06
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: maritaca-ai/sabia-3
+    display_name: Sabía 3
+    description: Sabiá-3 is a decoder-only language model designed for Portuguese text generation and understanding tasks. It supports a long context window of up to 128,000 tokens and is offered via API with scalable rate limits. The model is trained on diverse Portuguese corpora with knowledge up to july 2023.
+    creator_organization_name: Maritaca AI
+    access: limited
+    release_date: 2024-12-11
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: maritaca-ai/sabia-3.1-2025-05-08
+    display_name: Sabía 3.1
+    description: Sabiá-3.1 is a decoder-only language model designed for Portuguese text generation and understanding tasks. It supports a long context window of up to 128,000 tokens and is offered via API with scalable rate limits. The model is trained on diverse Portuguese corpora with knowledge up to August 2024.
+    creator_organization_name: Maritaca AI
+    access: limited
+    release_date: 2025-05-08
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG] 
+
+
 # Granite - IBM
 # https://www.ibm.com/granite
 # https://github.com/ibm-granite/granite-3.0-language-models
@@ -4691,3 +4716,58 @@ models:
     num_parameters: 4000000000
     release_date: 2024-04-02
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: CEIA-UFG/Gemma-3-Gaia-PT-BR-4b-it
+    display_name: Gemma-3 Gaia PT-BR 4b Instruct
+    description: Gemma-3 Gaia PT-BR 4b Instruct is a model trained by CEIA-UFG for understanding and generating Brazilian Portuguese text.
+    creator_organization_name: CEIA-UFG
+    access: open
+    num_parameters: 4000000000
+    release_date: 2025-06-01
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: recogna-nlp/bode-13b-alpaca-pt-br-no-peft
+    display_name: Bode 13B Alpaca PT-BR
+    description: Bode is a language model (LLM) for Portuguese, based on LLaMA 2 and fine-tuned with the Alpaca dataset translated into Portuguese. Suitable for instruction, text generation, translation and tasks in Portuguese.
+    creator_organization_name: Recogna NLP
+    access: open
+    num_parameters: 13000000000
+    release_date: 2024-01-05
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: 22h/cabrita_7b_pt_850000
+    display_name: Cabrita PT-BR 7B
+    description: Cabrita is an OpenLLaMA-based model, continuously trained in Portuguese (mC4-pt subset) for 850000 steps with efficient tokenization adapted to the language.
+    creator_organization_name: 22h
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-08-23
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: PORTULAN/gervasio-7b-portuguese-ptbr-decoder
+    display_name: Gervásio PT-BR/PT-PT 7B Decoder
+    description: Gervásio PT* is a 7B parameter decoder model, adapted from LLaMA27B, trained for both Brazilian and European Portuguese. Fine-tuned with translated data from benchmarks such as GLUE and SuperGLUE.
+    creator_organization_name: PORTULAN (University of Lisbon NLX)
+    access: open
+    num_parameters: 6740000000
+    release_date: 2024-02-29
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: TucanoBR/Tucano-2b4
+    display_name: Tucano PT-BR 2b4
+    description: Tucano is a series of decoder models based on LLaMA2, natively pre-trained in Portuguese using the GigaVerbo dataset (200B tokens), with the 2B model trained for 1.96M steps over 845h (515B tokens, 4 epochs).
+    creator_organization_name: TucanoBR (University of Bonn)
+    access: open
+    num_parameters: 2444618240
+    release_date: 2024-12-11
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: nicholasKluge/TeenyTinyLlama-460m
+    display_name: TeenyTinyLlama 460M PT-BR
+    description: TeenyTinyLlama-460m is a lightweight and efficient model based on LLaMA2, trained exclusively on Brazilian Portuguese. It uses RoPE embeddings and SwiGLU activations, with a refined SentencePiece tokenizer and a low-resource optimized architecture.
+    creator_organization_name: Nicholas Kluge.
+    access: open
+    num_parameters: 460000000
+    release_date: 2024-01-30
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
