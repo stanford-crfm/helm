@@ -9,7 +9,7 @@ class CodeInsightsEdgeCaseScenario(Scenario):
     tags = ["codeinsights", "c++", "edge_case"]
 
     def get_instances(self, output_path: str):
-        df = pd.read_csv("https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/fifty_student_perfect.csv")
+        df = pd.read_csv("https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/Scenario5_data.csv")
 
         student_topic = pd.read_csv(
             "https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/student_performace_by_topic.csv"

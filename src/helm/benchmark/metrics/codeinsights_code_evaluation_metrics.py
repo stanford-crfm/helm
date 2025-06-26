@@ -505,7 +505,8 @@ class UnitTestAlignmentMetric(Metric):
         # --- Step 1: Markdown extraction ---
         code_blocks = re.findall(r"```(?:c\+\+)?\n(.*?)```", model_code, flags=re.DOTALL)
         if code_blocks:
-            code = "\n".join(code_blocks).strip()
+            code = code_blocks[0].strip()
+            #code = "\n".join(code_blocks).strip()
             print("[Markdown extraction] Used fenced code blocks.")
         else:
             # --- Step 2: Trim non-code preamble ---
@@ -519,23 +520,23 @@ class UnitTestAlignmentMetric(Metric):
             code = "\n".join(lines[start_idx:]).strip()
             print("[Fallback extraction] Trimmed preamble.")
 
-        # --- Step 3: Remove student's main() ---
-        main_match = re.search(r"\bint\s+main\s*\([^)]*\)\s*\{", code)
-        if main_match:
-            code = code[: main_match.start()].strip()
-            print("[Code cleaner] Removed student main() function.")
+        # # --- Step 3: Remove student's main() ---
+        # main_match = re.search(r"\bint\s+main\s*\([^)]*\)\s*\{", code)
+        # if main_match:
+        #     code = code[: main_match.start()].strip()
+        #     print("[Code cleaner] Removed student main() function.")
 
-        # --- Step 4: Remove out-of-class method definitions ---
-        code = re.sub(r"\bArray\s*<[^>]*>\s*::\s*[\w~]+\s*\([^)]*\)\s*\{[^}]*\}", "", code, flags=re.DOTALL)
-        code = re.sub(
-            r"template\s*<[^>]*>\s*[\w:<>\s&*]+\s+Array\s*<[^>]*>\s*::\s*[\w~]+\s*\([^)]*\)\s*\{[^}]*\}",
-            "",
-            code,
-            flags=re.DOTALL,
-        )
+        # # --- Step 4: Remove out-of-class method definitions ---
+        # code = re.sub(r"\bArray\s*<[^>]*>\s*::\s*[\w~]+\s*\([^)]*\)\s*\{[^}]*\}", "", code, flags=re.DOTALL)
+        # code = re.sub(
+        #     r"template\s*<[^>]*>\s*[\w:<>\s&*]+\s+Array\s*<[^>]*>\s*::\s*[\w~]+\s*\([^)]*\)\s*\{[^}]*\}",
+        #     "",
+        #     code,
+        #     flags=re.DOTALL,
+        # )
 
-        # --- Step 5: Replace NULL return with 0 ---
-        code = re.sub(r"return\s+NULL\s*;", "return 0;", code)
+        # # --- Step 5: Replace NULL return with 0 ---
+        # code = re.sub(r"return\s+NULL\s*;", "return 0;", code)
 
         # --- Final touch ---
         code = code.strip()

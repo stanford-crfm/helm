@@ -9,7 +9,7 @@ class CodeInsightsCodeEfficiencyScenario(Scenario):
     tags = ["codeinsights", "c++", "code_efficiency"]
 
     def get_instances(self, output_path: str):
-        df = pd.read_csv("https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/fifty_student_perfect.csv")
+        df = pd.read_csv("https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/Scenario4_data.csv")
 
         # Load test cases (unit tests)
         test_cases = self._load_test_cases()
@@ -97,8 +97,9 @@ class CodeInsightsCodeEfficiencyScenario(Scenario):
                 f"Unit Test Input: {question_test_cases}"
                 "Template:\n"
                 f"{target['question_template']}\n\n"
-                "Provide ONLY your C++ implementation following the given template, and make sure the code is compatible with the Unit Test Input"
-                "write code just as you would in class — indentation, naming, and all."
+                "Provide ONLY your C++ implementation following the given template, where the answer will replace the {{ STUDENT_ANSWER }} block in the template,"
+                "and make sure the code is compatible with the Unit Test Input"
+                "Ensure your code is correct, includes any class definition when needed, and handles all edge cases properly."
             )
 
             instances.append(

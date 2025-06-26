@@ -10,7 +10,7 @@ class CodeInsightsCorrectCodeScenario(Scenario):
 
     def get_instances(self, output_path: str):
         df = pd.read_csv(
-            "https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/sample_fifty_student_full.csv"
+            "https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/Scenario1_2_data.csv"
         )
 
         # Load test cases (unit tests)
@@ -28,8 +28,9 @@ class CodeInsightsCorrectCodeScenario(Scenario):
                 f"Unit Test Input: {question_test_cases}"
                 "Template:\n"
                 f"{target['question_template']}\n\n"
-                "Provide ONLY your C++ implementation following the given template, and make sure the code is compatible with the Unit Test Input"
-                "Ensure your code is correct, efficient, and handles all edge cases properly."
+                "Provide ONLY your C++ implementation following the given template, where the answer will replace the {{ STUDENT_ANSWER }} block in the template,"
+                "and make sure the code is compatible with the Unit Test Input"
+                "Ensure your code is correct, efficient, includes any class definition when needed, and handles all edge cases properly."
             )
             instances.append(
                 Instance(

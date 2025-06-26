@@ -10,7 +10,7 @@ class CodeInsightsStudentCodingScenario(Scenario):
 
     def get_instances(self, output_path: str):
         df = pd.read_csv(
-            "https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/sample_fifty_student_full.csv"
+            "https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/Scenario1_2_data.csv"
         )
         student_topic = pd.read_csv(
             "https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/student_performace_by_topic.csv"
@@ -81,8 +81,9 @@ class CodeInsightsStudentCodingScenario(Scenario):
                 f"Unit Test Input: {question_test_cases}"
                 "Template:\n"
                 f"{target['question_template']}\n\n"
-                "Provide ONLY your C++ implementation following the given template, and make sure the code is compatible with the Unit Test Input"
-                "write code just as you would in class — indentation, naming, and all."
+                "Provide ONLY your C++ implementation following the given template, where the answer will replace the {{ STUDENT_ANSWER }} block in the template,"
+                "and make sure the code is compatible with the Unit Test Input"
+                "Ensure your code includes any class definition when needed."
             )
             instances.append(
                 Instance(

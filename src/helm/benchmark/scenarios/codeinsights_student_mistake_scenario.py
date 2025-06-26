@@ -10,7 +10,7 @@ class CodeInsightsStudentMistakeScenario(Scenario):
 
     def get_instances(self, output_path: str):
         df = pd.read_csv(
-            "https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/fifty_student_mistakefix.csv"
+            "https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/Scenario3_data.csv"
         )
         student_topic = pd.read_csv(
             "https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/student_performace_by_topic.csv"
@@ -89,7 +89,9 @@ class CodeInsightsStudentMistakeScenario(Scenario):
                 "2. Introduce mistake you are likely to make (e.g., off‐by‐one index, wrong initialization, "
                 "missing edge case).\n"
                 "3. Do **not** produce a fully correct solution or add unfamiliar optimizations.\n\n"
-                "Provide ONLY your C++ implementation following the given template, and make sure the code is compatible with the Unit Test Input"
+                "Provide ONLY your C++ implementation following the given template, where the answer will replace the {{ STUDENT_ANSWER }} block in the template,"
+                "and make sure the code is compatible with the Unit Test Input"
+                "Ensure your code is includes any class definition when needed."
             )
 
             print(f"\n=== DEBUG INFO FOR STUDENT {student_id}, QUESTION {question_id} ===")
