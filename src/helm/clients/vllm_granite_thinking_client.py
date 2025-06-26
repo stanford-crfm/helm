@@ -26,11 +26,11 @@ class VLLMGraniteThinkingClient(VLLMChatClient):
         match = re.match(r"<think>(.*)</think>\s*<response>(.*)</response>", input, re.DOTALL)
         if match:
             return (match.group(1), match.group(2))
-        
+
         match = re.match(r"<think>(.*)</think>\s*<response>(.*)</response>", input, re.DOTALL)
         if match:
             return (match.group(1), match.group(2))
-        
+
         match = re.match(r"<think>(.*)</think>\s*", input, re.DOTALL)
         if match:
             return (match.group(1), "")
@@ -46,10 +46,11 @@ class VLLMGraniteThinkingClient(VLLMChatClient):
         modified_completions: List[GeneratedOutput] = []
         for completion in request_result.completions:
             thinking, modified_text = self._parse_thinking(completion.text)
-            modified_completions.append(replace(
-                completion.text,
-                text=modified_text,
-                thinking=Thinking(text=thinking),
-            ))
+            modified_completions.append(
+                replace(
+                    completion,
+                    text=modified_text,
+                    thinking=Thinking(text=thinking),
+                )
+            )
         return replace(request_result, completions=modified_completions)
-
