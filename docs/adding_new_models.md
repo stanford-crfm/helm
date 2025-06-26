@@ -82,7 +82,7 @@ model_deployments:
     tokenizer_name: EleutherAI/gpt-neox-20b
     max_sequence_length: 2048
     client_spec:
-      class_name: "helm.clients.vllm_client.VLLMClient"
+      class_name: "helm.clients.vllm_client.VLLMCompletionsClient"
       args:
         base_url:  http://mymodelserver:8000/v1/
 ```

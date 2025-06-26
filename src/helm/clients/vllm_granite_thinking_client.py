@@ -1,10 +1,10 @@
 from typing import Any, Dict
 
-from helm.clients.vllm_client import VLLMClient
+from helm.clients.vllm_client import VLLMChatClient
 from helm.common.request import Request
 
 
-class VLLMGraniteThinkingClient(VLLMClient):
+class VLLMGraniteThinkingClient(VLLMChatClient):
     """Sends request to a Granite model on vLLM server with thinking enabled.
 
     From vLLM documentation at
