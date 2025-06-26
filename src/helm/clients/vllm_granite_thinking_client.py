@@ -16,5 +16,5 @@ class VLLMGraniteThinkingClient(VLLMChatClient):
 
     def _make_chat_raw_request(self, request: Request) -> Dict[str, Any]:
         raw_request = super()._make_chat_raw_request(request)
-        raw_request["chat_template_kwargs"] = {"chat_template_kwargs": {"thinking": True}}
+        raw_request["extra_body"] = {"chat_template_kwargs": {"thinking": True}}
         return raw_request
