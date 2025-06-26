@@ -24,9 +24,11 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 
+
 def _cpp_to_asm(src: str, compiler: str = "g++") -> str:
     """Return the assembly text for `src`, or '' if the compile fails."""
     import tempfile, subprocess, os
+
     with tempfile.NamedTemporaryFile(mode="w", suffix=".cpp", delete=False) as f:
         f.write(src)
         cpp_path = f.name
@@ -34,7 +36,10 @@ def _cpp_to_asm(src: str, compiler: str = "g++") -> str:
     try:
         subprocess.run(
             [compiler, "-std=c++17", "-S", "-o", asm_path, cpp_path],
-            check=True, capture_output=True, text=True, timeout=30
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=30,
         )
         with open(asm_path, "r") as fh:
             return fh.read()
@@ -48,7 +53,8 @@ def _cpp_to_asm(src: str, compiler: str = "g++") -> str:
                 os.unlink(asm_path)
         except Exception:
             pass
-            
+
+
 class AssemblyAnalyzer:
     """Levenshtein distance between two pieces of x86-64 assembly.
 
@@ -61,11 +67,11 @@ class AssemblyAnalyzer:
     def _tokenise(asm: str) -> List[str]:
         toks = []
         for ln in asm.splitlines():
-            ln = ln.split("#")[0].strip()            # drop comments
+            ln = ln.split("#")[0].strip()  # drop comments
             if not ln or ln.startswith((".", "@")):  # skip directives & labels
                 continue
             if ln.endswith(":"):
-                continue                             # skip label lines
+                continue  # skip label lines
             mnemonic = re.split(r"[ ,\t]+", ln)[0]
             toks.append(mnemonic)
         return toks
@@ -76,16 +82,20 @@ class AssemblyAnalyzer:
         if m == n == 0:
             return 0.0
         # classic Levenshtein
-        dp = [[0]*(n+1) for _ in range(m+1)]
-        for i in range(m+1):
+        dp = [[0] * (n + 1) for _ in range(m + 1)]
+        for i in range(m + 1):
             dp[i][0] = i
-        for j in range(n+1):
+        for j in range(n + 1):
             dp[0][j] = j
-        for i in range(1, m+1):
-            for j in range(1, n+1):
-                dp[i][j] = dp[i-1][j-1] if s1[i-1] == s2[j-1] else 1 + min(
-                    dp[i-1][j], dp[i][j-1], dp[i-1][j-1])
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
+                dp[i][j] = (
+                    dp[i - 1][j - 1]
+                    if s1[i - 1] == s2[j - 1]
+                    else 1 + min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1])
+                )
         return dp[m][n] / max(m, n)
+
 
 class ASTAnalyzer:
     """Class for calculating AST edit distances between two C++ code snippets using libclang."""
@@ -260,8 +270,8 @@ class CodeInsightsCodeEvaluationMetric(Metric):
             ast_distance = 0.5
         else:
             try:
-                #ast_distance = self.ast_analyzer.calculate_ast_distance(generated_code, ground_truth) - this is for normal ASTED
-                gen_asm   = _cpp_to_asm(generated_code)
+                # ast_distance = self.ast_analyzer.calculate_ast_distance(generated_code, ground_truth) - this is for normal ASTED
+                gen_asm = _cpp_to_asm(generated_code)
                 truth_asm = _cpp_to_asm(ground_truth)
                 if not gen_asm or not truth_asm:
                     asm_distance = 0.5
