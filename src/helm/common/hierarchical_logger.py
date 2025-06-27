@@ -35,24 +35,24 @@ class HierarchicalLogger(object):
         return "  " * len(self.start_times)
 
     def track_begin(self, x: Any, **kwargs) -> None:
-        kwargs['stacklevel'] = kwargs.get('stacklevel', 1) + 1
+        kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
         self.logger.info(self.indent() + str(x) + " {", **kwargs)
         sys.stdout.flush()
         self.start_times.append(time.time())
 
     def track_end(self, **kwargs) -> None:
-        kwargs['stacklevel'] = kwargs.get('stacklevel', 1) + 1
+        kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
         t = time.time() - self.start_times.pop()
         self.logger.info(self.indent() + "} [%s]" % (format_time(t)), **kwargs)
         sys.stdout.flush()
 
     def log(self, x: Any, **kwargs) -> None:
-        kwargs['stacklevel'] = kwargs.get('stacklevel', 1) + 1
+        kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
         self.logger.info(self.indent() + str(x), **kwargs)
         sys.stdout.flush()
 
     def warn(self, x: Any, **kwargs) -> None:
-        kwargs['stacklevel'] = kwargs.get('stacklevel', 1) + 1
+        kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
         self.logger.warning(self.indent() + str(x), **kwargs)
         sys.stdout.flush()
 
@@ -74,12 +74,12 @@ singleton = HierarchicalLogger()
 
 
 def hlog(x: Any, **kwargs) -> None:
-    kwargs['stacklevel'] = kwargs.get('stacklevel', 1) + 1
+    kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
     singleton.log(x, **kwargs)
 
 
 def hwarn(x: Any, **kwargs) -> None:
-    kwargs['stacklevel'] = kwargs.get('stacklevel', 1) + 1
+    kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
     singleton.warn(x, **kwargs)
 
 
