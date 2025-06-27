@@ -85,6 +85,7 @@ class CodeInsightsStudentCodingScenario(Scenario):
                 "DO NOT reproduce the template part as the generated code would be inserted to the template,"
                 "and make sure the code is compatible with the Unit Test Input"
                 "Ensure your code includes any class definition when needed."
+                "int main() is always declared already so DO NOT produce that initialization on the code"
             )
             instances.append(
                 Instance(

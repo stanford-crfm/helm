@@ -487,8 +487,8 @@ class UnitTestAlignmentMetric(Metric):
 
         return [
             Stat(MetricName("unit_test_alignment_ratio")).add(alignment_ratio),
-            Stat(MetricName("unit_test_llm_pass_rate")).add(llm_pass_rate),
-            Stat(MetricName("unit_test_student_pass_rate")).add(student_pass_rate),
+            #Stat(MetricName("unit_test_llm_pass_rate")).add(llm_pass_rate),
+            #Stat(MetricName("unit_test_student_pass_rate")).add(student_pass_rate),
         ]
 
     def _extract_student_code(self, model_code: str) -> str:
@@ -717,7 +717,7 @@ class UnitTestAlignmentMetric(Metric):
         print(f"UNIT TEST ALIGNMENT METRIC FAILURE: {error_message}")
         return [
             Stat(MetricName("unit_test_alignment_ratio")).add(0.0),
-            Stat(MetricName("unit_test_llm_pass_rate")).add(0.0),
+            #Stat(MetricName("unit_test_llm_pass_rate")).add(0.0),
         ]
 
 
