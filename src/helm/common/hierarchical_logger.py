@@ -133,20 +133,28 @@ def setup_default_logging():
     """
     Setup a default logger to STDOUT for HELM via Python logging
     """
-    formatter = ColoredFormatter(
-        "%(bold_black)s%(asctime)s%(reset)s %(log_color)s%(levelname)-8s%(reset)s %(message)s",
-        datefmt="%Y-%m-%dT%H:%M:%S",
-        reset=True,
-        log_colors={
-            "DEBUG": "cyan",
-            "INFO": "green",
-            "WARNING": "yellow",
-            "ERROR": "red",
-            "CRITICAL": "red,bg_white",
-        },
-        secondary_log_colors={},
-        style="%",
-    )
+    formatter: logging.Formatter
+    if sys.stdout.isatty():
+        formatter = ColoredFormatter(
+            "%(bold_black)s%(asctime)s%(reset)s %(log_color)s%(levelname)-8s%(reset)s %(message)s",
+            datefmt="%Y-%m-%dT%H:%M:%S",
+            reset=True,
+            log_colors={
+                "DEBUG": "cyan",
+                "INFO": "green",
+                "WARNING": "yellow",
+                "ERROR": "red",
+                "CRITICAL": "red,bg_white",
+            },
+            secondary_log_colors={},
+            style="%",
+        )
+    else:
+        formatter = logging.Formatter(
+            "%(asctime)s %(levelname)-8s %(message)s",
+            datefmt="%Y-%m-%dT%H:%M:%S",
+            style="%",
+        )
 
     logger = logging.getLogger("helm")
     logger.setLevel(logging.INFO)
