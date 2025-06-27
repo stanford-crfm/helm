@@ -24,10 +24,9 @@ import numpy as np
 import torch
 
 from transformers.feature_extraction_utils import BatchFeature
-from transformers.image_utils import ImageInput
+from transformers.image_utils import ImageInput, VideoInput
 from transformers.processing_utils import ProcessingKwargs, ProcessorMixin, Unpack
 from transformers.tokenization_utils_base import PaddingStrategy, PreTokenizedInput, TextInput
-from transformers.video_utils import VideoInput
 
 
 class Qwen2_5OmniProcessorKwargs(ProcessingKwargs):
