@@ -89,7 +89,8 @@ class CodeInsightsStudentMistakeScenario(Scenario):
                 "2. Introduce mistake you are likely to make (e.g., off‐by‐one index, wrong initialization, "
                 "missing edge case).\n"
                 "3. Do **not** produce a fully correct solution or add unfamiliar optimizations.\n\n"
-                "Provide ONLY your C++ implementation following the given template, where the answer will replace the {{ STUDENT_ANSWER }} block in the template,"
+                "Provide ONLY your C++ implementation following the given template, where the answer will replace the {{ STUDENT_ANSWER }} block in the template."
+                "DO NOT reproduce the template part as the generated code would be inserted to the template,"
                 "and make sure the code is compatible with the Unit Test Input"
                 "Ensure your code is includes any class definition when needed."
             )

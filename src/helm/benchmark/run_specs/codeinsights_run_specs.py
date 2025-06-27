@@ -21,7 +21,8 @@ def get_codeinsights_correct_code_run_spec() -> RunSpec:
         "You are a skilled C++ programmer working on a foundational programming course assignment. "
         "Your task is to write correct, efficient C++ code that solves the given problem. "
         "Write clean, well-structured code that follows good programming practices. "
-        "Provide ONLY your C++ implementation following the given template, where the answer will replace the {{ STUDENT_ANSWER }} block in the template,"
+        "Provide ONLY your C++ implementation following the given template, where the answer will replace the {{ STUDENT_ANSWER }} block in the template."
+        "DO NOT reproduce the template part as the generated code would be inserted to the template,"
         "and make sure the code is compatible with the Unit Test Input"
         "Ensure your code is correct, efficient, includes any class definition when needed, and handles all edge cases properly."
     )
@@ -54,7 +55,8 @@ def get_codeinsights_student_coding_run_spec() -> RunSpec:
         "Mimic exactly your personal coding style, conventions, and level of proficiency—"
         "do not over‐optimize or introduce unfamiliar patterns. "
         "Include the same sort of formatting, variable names, and minor imperfections you demonstrated. "
-        "Provide ONLY your C++ implementation following the given template, where the answer will replace the {{ STUDENT_ANSWER }} block in the template,"
+        "Provide ONLY your C++ implementation following the given template, where the answer will replace the {{ STUDENT_ANSWER }} block in the template."
+        "DO NOT reproduce the template part as the generated code would be inserted to the template,"
         "and make sure the code is compatible with the Unit Test Input"
         "Ensure your code includes any class definition when needed."
     )
@@ -82,7 +84,8 @@ def get_codeinsights_student_mistake_run_spec() -> RunSpec:
     instruction = (
         "You are a C++ student with a consistent personal style, conventions, and proficiency level.\n"
         "Your task is to attempt the target problem **but introduce realistic mistake** you would typically make—"
-        "Provide ONLY your C++ implementation following the given template, where the answer will replace the {{ STUDENT_ANSWER }} block in the template,"
+        "Provide ONLY your C++ implementation following the given template, where the answer will replace the {{ STUDENT_ANSWER }} block in the template."
+        "DO NOT reproduce the template part as the generated code would be inserted to the template,"
         "and make sure the code is compatible with the Unit Test Input"
         "Ensure your code is includes any class definition when needed."
     )
@@ -123,7 +126,8 @@ def get_codeinsights_code_efficiency_run_spec() -> RunSpec:
         "imitate the inefficiency. "
         "If the student writes efficiently, write efficiently too. "
         "Include the same sort of formatting, variable names, and minor imperfections you demonstrated. "
-        "Provide ONLY your C++ implementation following the given template, where the answer will replace the {{ STUDENT_ANSWER }} block in the template,"
+        "Provide ONLY your C++ implementation following the given template, where the answer will replace the {{ STUDENT_ANSWER }} block in the template."
+        "DO NOT reproduce the template part as the generated code would be inserted to the template,"
         "and make sure the code is compatible with the Unit Test Input"
         "Ensure your code is correct, includes any class definition when needed, and handles all edge cases properly."
     )
