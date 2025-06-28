@@ -14,6 +14,7 @@ from helm.common.object_spec import get_class_by_name
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Thinking, wrap_request_time, Request, RequestResult, GeneratedOutput, Token
 from helm.clients.client import CachingClient, truncate_sequence, cleanup_str
+from helm.common.backports.strenum import StrEnum
 
 try:
     from together import Together
@@ -22,10 +23,8 @@ except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["together"])
 
 
-class _RewriteRequestTags:
+class _RewriteRequestTags(StrEnum):
     """Tags that indicate that the request for the model must be rewritten before sending to Together."""
-
-    # TODO: Convert to StrEnum after upgrading to Python 3.11
 
     ADD_EOS_TOKEN_AS_STOP_SEQUENCE = "ADD_EOS_TOKEN_AS_STOP_SEQUENCE"
     """Indicates that the EOS token should be added as an extra stop sequence.

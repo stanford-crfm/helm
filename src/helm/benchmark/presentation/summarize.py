@@ -53,6 +53,7 @@ from helm.benchmark.config_registry import register_builtin_configs_from_helm_pa
 from helm.benchmark.presentation.run_display import write_run_display_json
 from helm.benchmark.model_metadata_registry import ModelMetadata, get_model_metadata, get_all_models
 from helm.common.object_spec import get_class_by_name
+from helm.common.backports.strenum import StrEnum
 
 
 MODEL_HEADER_CELL_VALUE = "Model"
@@ -293,8 +294,7 @@ def compute_aggregate_row_means(table: Table) -> List[Optional[float]]:
     return row_means
 
 
-class AggregationStrategy:
-    # TODO: Convert to StrEnum after upgrading to Python 3.11
+class AggregationStrategy(StrEnum):
     WIN_RATE = "win_rate"
     MEAN = "mean"
 
