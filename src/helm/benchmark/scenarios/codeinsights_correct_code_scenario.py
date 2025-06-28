@@ -9,9 +9,7 @@ class CodeInsightsCorrectCodeScenario(Scenario):
     tags = ["codeinsights", "c++", "correct_code"]
 
     def get_instances(self, output_path: str):
-        df = pd.read_csv(
-            "https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/Scenario1_2_data.csv"
-        )
+        df = pd.read_csv("https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/Scenario1_2_data.csv")
 
         # Load test cases (unit tests)
         test_cases = self._load_test_cases()
@@ -25,14 +23,14 @@ class CodeInsightsCorrectCodeScenario(Scenario):
 
             prompt = (
                 f"Question: {target['question_name']} — {target['question_text']}\n\n"
-                f"Unit Test Input: {question_test_cases}"
+                f"Unit Test Input: {question_test_cases}\n\n"
                 "Template:\n"
                 f"{target['question_template']}\n\n"
-                "Provide ONLY your C++ implementation following the given template, where the answer will replace the {{ STUDENT_ANSWER }} block in the template."
-                "DO NOT reproduce the template part as the generated code would be inserted to the template,"
-                "and make sure the code is compatible with the Unit Test Input"
-                "Ensure your code is correct, efficient, includes any class definition when needed, and handles all edge cases properly."
-                "int main() is always declared already so DO NOT produce that initialization on the code"
+                "Provide ONLY your C++ implementation following the given template, where the answer will replace the {{ STUDENT_ANSWER }} block in the template. "
+                "DO NOT reproduce the template part as the generated code would be inserted to the template, "
+                "and make sure the code is compatible with the Unit Test Input. "
+                "Ensure your code is correct, efficient, includes any class definition when needed, and handles all edge cases properly. "
+                "int main() is always declared already so DO NOT produce that initialization on the code."
             )
             instances.append(
                 Instance(

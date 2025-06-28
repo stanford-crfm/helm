@@ -6,6 +6,7 @@ import subprocess
 import tempfile
 import clang.cindex
 from clang.cindex import CursorKind
+from Levenshtein import ratio as levenshtein_distance_ratio
 
 try:
     import torch
@@ -27,7 +28,6 @@ from helm.benchmark.metrics.statistic import Stat
 
 def _cpp_to_asm(src: str, compiler: str = "g++") -> str:
     """Return the assembly text for `src`, or '' if the compile fails."""
-    import tempfile, subprocess, os
 
     with tempfile.NamedTemporaryFile(mode="w", suffix=".cpp", delete=False) as f:
         f.write(src)
@@ -41,8 +41,12 @@ def _cpp_to_asm(src: str, compiler: str = "g++") -> str:
             text=True,
             timeout=30,
         )
+        temp_file_name = os.path.basename(asm_path)
         with open(asm_path, "r") as fh:
-            return fh.read()
+            asm_code = fh.read()
+            asm_code = asm_code.replace(temp_file_name, "asm_output.cpp")  # Normalize file name in output
+            return asm_code
+
     except subprocess.CalledProcessError as e:
         print("⚠️  Assembly compilation failed:", e.stderr[:200])
         return ""
@@ -53,48 +57,6 @@ def _cpp_to_asm(src: str, compiler: str = "g++") -> str:
                 os.unlink(asm_path)
         except Exception:
             pass
-
-
-class AssemblyAnalyzer:
-    """Levenshtein distance between two pieces of x86-64 assembly.
-
-    We token-ise each instruction line by its mnemonic (mov, add, jne …) and
-    then compute a normalised edit-distance on those sequences.  That gives a
-    cheap, architecture-agnostic proxy for a control-flow/CFG distance.
-    """
-
-    @staticmethod
-    def _tokenise(asm: str) -> List[str]:
-        toks = []
-        for ln in asm.splitlines():
-            ln = ln.split("#")[0].strip()  # drop comments
-            if not ln or ln.startswith((".", "@")):  # skip directives & labels
-                continue
-            if ln.endswith(":"):
-                continue  # skip label lines
-            mnemonic = re.split(r"[ ,\t]+", ln)[0]
-            toks.append(mnemonic)
-        return toks
-
-    def calculate_distance(self, asm1: str, asm2: str) -> float:
-        s1, s2 = self._tokenise(asm1), self._tokenise(asm2)
-        m, n = len(s1), len(s2)
-        if m == n == 0:
-            return 0.0
-        # classic Levenshtein
-        dp = [[0] * (n + 1) for _ in range(m + 1)]
-        for i in range(m + 1):
-            dp[i][0] = i
-        for j in range(n + 1):
-            dp[0][j] = j
-        for i in range(1, m + 1):
-            for j in range(1, n + 1):
-                dp[i][j] = (
-                    dp[i - 1][j - 1]
-                    if s1[i - 1] == s2[j - 1]
-                    else 1 + min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1])
-                )
-        return dp[m][n] / max(m, n)
 
 
 class ASTAnalyzer:
@@ -122,11 +84,7 @@ class ASTAnalyzer:
             nodes1: List[str] = self._extract_ast_features(tu1.cursor)
             nodes2: List[str] = self._extract_ast_features(tu2.cursor)
 
-            distance = self._calculate_edit_distance(nodes1, nodes2)
-            max_nodes = max(len(nodes1), len(nodes2))
-            if max_nodes == 0:
-                return 0.0
-            return min(distance / max_nodes, 1.0)
+            return levenshtein_distance_ratio(nodes1, nodes2)
 
         except Exception:
             # any parse error or clang error → max distance
@@ -153,29 +111,16 @@ class ASTAnalyzer:
             tokens = list(node.get_tokens())
             if tokens:
                 feats.append(f"Literal:{tokens[0].spelling}")
+        else:
+            # for other nodes, just use the spelling if available
+            if node.spelling:
+                feats.append(f"Other:{node.spelling}")
 
         # recurse
         for child in node.get_children():
             feats = feats + self._extract_ast_features(child)
 
         return feats
-
-    def _calculate_edit_distance(self, seq1: List[str], seq2: List[str]) -> int:
-        """Classic Levenshtein edit distance between two sequences."""
-        m, n = len(seq1), len(seq2)
-        dp = [[0] * (n + 1) for _ in range(m + 1)]
-        for i in range(m + 1):
-            dp[i][0] = i
-        for j in range(n + 1):
-            dp[0][j] = j
-
-        for i in range(1, m + 1):
-            for j in range(1, n + 1):
-                if seq1[i - 1] == seq2[j - 1]:
-                    dp[i][j] = dp[i - 1][j - 1]
-                else:
-                    dp[i][j] = 1 + min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1])  # delete  # insert  # substitute
-        return dp[m][n]
 
 
 class CodeBERTAnalyzer:
@@ -232,7 +177,6 @@ class CodeInsightsCodeEvaluationMetric(Metric):
     """Metric for evaluating code generation quality using AST analysis and CodeBERT similarity."""
 
     def __init__(self, use_codebert: bool = True):
-        self.asm_analyzer = AssemblyAnalyzer()
         self.ast_analyzer = ASTAnalyzer()
         self.use_codebert = use_codebert and CODEBERT_AVAILABLE
 
@@ -266,22 +210,27 @@ class CodeInsightsCodeEvaluationMetric(Metric):
         ground_truth = request_state.instance.references[0].output.text.strip()
 
         # Calculate AST distance
-        if "Error:" in generated_code or not generated_code:
-            ast_distance = 0.5
+        if not generated_code or "Error:" in generated_code:
+            ast_distance = 1.0
         else:
             try:
-                # ast_distance = self.ast_analyzer.calculate_ast_distance(generated_code, ground_truth) - this is for normal ASTED
-                gen_asm = _cpp_to_asm(generated_code)
-                truth_asm = _cpp_to_asm(ground_truth)
-                if not gen_asm or not truth_asm:
-                    asm_distance = 0.5
-                else:
-                    asm_distance = self.asm_analyzer.calculate_distance(gen_asm, truth_asm)
+                ast_distance = self.ast_analyzer.calculate_ast_distance(generated_code, ground_truth)
             except Exception:
-                ast_distance = 0.5
+                ast_distance = 1.0
 
         # Create AST-based statistics
-        stats.extend(self._create_ast_stats(asm_distance))
+        stats.extend(self._create_ast_stats(ast_distance))
+
+        # Calculate assembly distance
+        gen_asm = _cpp_to_asm(generated_code)
+        truth_asm = _cpp_to_asm(ground_truth)
+        if gen_asm == "" or truth_asm == "":
+            asm_distance = 1.0
+        else:
+            asm_distance = levenshtein_distance_ratio(gen_asm, truth_asm)
+
+        # Create assembly-based statistics
+        stats.extend(self._create_asm_stats(asm_distance))
 
         # Calculate CodeBERT similarity if available
         if self.use_codebert:
@@ -311,6 +260,10 @@ class CodeInsightsCodeEvaluationMetric(Metric):
     def _create_codebert_stats(self, codebert_similarity: float) -> List[Stat]:
         """Create CodeBERT-based statistics."""
         return [Stat(MetricName("codebert_similarity")).add(codebert_similarity)]
+
+    def _create_asm_stats(self, asm_distance: float) -> List[Stat]:
+        """Create assembly-based statistics."""
+        return [Stat(MetricName("asm_distance")).add(asm_distance)]
 
 
 class AdvancedCodeEvaluationMetric(CodeInsightsCodeEvaluationMetric):
@@ -487,8 +440,8 @@ class UnitTestAlignmentMetric(Metric):
 
         return [
             Stat(MetricName("unit_test_alignment_ratio")).add(alignment_ratio),
-            #Stat(MetricName("unit_test_llm_pass_rate")).add(llm_pass_rate),
-            #Stat(MetricName("unit_test_student_pass_rate")).add(student_pass_rate),
+            Stat(MetricName("unit_test_llm_pass_rate")).add(llm_pass_rate),
+            Stat(MetricName("unit_test_student_pass_rate")).add(student_pass_rate),
         ]
 
     def _extract_student_code(self, model_code: str) -> str:
@@ -506,7 +459,7 @@ class UnitTestAlignmentMetric(Metric):
         code_blocks = re.findall(r"```(?:c\+\+)?\n(.*?)```", model_code, flags=re.DOTALL)
         if code_blocks:
             code = code_blocks[0].strip()
-            #code = "\n".join(code_blocks).strip()
+            # code = "\n".join(code_blocks).strip()
             print("[Markdown extraction] Used fenced code blocks.")
         else:
             # --- Step 2: Trim non-code preamble ---
@@ -717,7 +670,8 @@ class UnitTestAlignmentMetric(Metric):
         print(f"UNIT TEST ALIGNMENT METRIC FAILURE: {error_message}")
         return [
             Stat(MetricName("unit_test_alignment_ratio")).add(0.0),
-            #Stat(MetricName("unit_test_llm_pass_rate")).add(0.0),
+            Stat(MetricName("unit_test_llm_pass_rate")).add(0.0),
+            Stat(MetricName("unit_test_student_pass_rate")).add(0.0),
         ]
 
 

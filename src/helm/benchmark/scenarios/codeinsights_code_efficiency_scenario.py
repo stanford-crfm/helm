@@ -93,15 +93,15 @@ class CodeInsightsCodeEfficiencyScenario(Scenario):
                 "Ensure that the code works perfectly, but its efficiency should be based on students' past examples.\n"
                 "If a student has a tendency to write correct but inefficient code, imitate the inefficiency "
                 "but if they write efficiently, write efficiently too.\n"
-                f"Question: {target['question_name']} — {target['question_text']}\n"
-                f"Unit Test Input: {question_test_cases}"
+                f"Question: {target['question_name']} — {target['question_text']}\n\n"
+                f"Unit Test Input: {question_test_cases}\n\n"
                 "Template:\n"
                 f"{target['question_template']}\n\n"
-                "Provide ONLY your C++ implementation following the given template, where the answer will replace the {{ STUDENT_ANSWER }} block in the template."
-                "DO NOT reproduce the template part as the generated code would be inserted to the template,"
+                "Provide ONLY your C++ implementation following the given template, where the answer will replace the {{ STUDENT_ANSWER }} block in the template. "
+                "DO NOT reproduce the template part as the generated code would be inserted to the template, "
                 "and make sure the code is compatible with the Unit Test Input. "
-                "Ensure your code is correct, includes any class definition when needed, and handles all edge cases properly."
-                "int main() is always declared already so DO NOT produce that initialization on the code"
+                "Ensure your code is correct, includes any class definition when needed, and handles all edge cases properly. "
+                "int main() is always declared already so DO NOT produce that initialization on the code."
             )
 
             instances.append(

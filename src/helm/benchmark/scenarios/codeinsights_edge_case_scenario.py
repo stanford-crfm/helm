@@ -81,15 +81,15 @@ class CodeInsightsEdgeCaseScenario(Scenario):
             prompt = (
                 "You are analyzing a student’s likely mistakes on an upcoming programming problem.\n"
                 "Your task: **predict exactly ONE unit-test index (0-based) that the student is most likely to fail.**\n"  # noqa: E501
-                "Return *only* that integer.  No explanation.\n\n"
+                "Return *only* that integer. No explanation.\n\n"
                 "=== Student Profile ===\n"
                 f"{student_level_prompt}\n"
                 "For the given programming question, identify which unit test the student would fail considering "
-                "their past performance, as well as consideration of unit test difficulty\n"
+                "their past performance, as well as consideration of unit test difficulty.\n"
                 f"Week: {target['week']}\n"
                 f"Topic: {target['topic']}\n\n"
                 f"Question: {target['question_name']} — {target['question_text']}\n"
-                f"Unit Tests: {target_test_cases}"
+                f"Unit Tests: {target_test_cases}\n"
                 "Think silently about:\n"
                 "• Which test seems hardest for the given topic?\n"
                 "• Where has the student historically struggled?\n"

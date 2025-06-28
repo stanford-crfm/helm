@@ -209,7 +209,7 @@ class CodeInsightsFunctionalCorrectnessMetric(Metric):
         code_blocks = re.findall(r"```(?:c\+\+)?\n(.*?)```", model_code, flags=re.DOTALL)
         if code_blocks:
             code = code_blocks[0].strip()
-            #code = "\n".join(code_blocks).strip()
+            # code = "\n".join(code_blocks).strip()
             print("[Markdown extraction] Used fenced code blocks.")
         else:
             # --- Step 2: Trim non-code preamble ---
