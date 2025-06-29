@@ -198,7 +198,7 @@ class CodeInsightsFunctionalCorrectnessMetric(Metric):
         """
         Extracts clean C++ code from model output:
         - Removes markdown
-        - Trims preambles
+        - Trims preambles and any junk that appears before the first '#'
         - Removes student's main()
         - Removes out-of-class method definitions
         - Replaces `return NULL;` with `return 0;` for int returns
@@ -208,40 +208,28 @@ class CodeInsightsFunctionalCorrectnessMetric(Metric):
         # --- Step 1: Markdown extraction ---
         code_blocks = re.findall(r"```(?:c\+\+)?\n(.*?)```", model_code, flags=re.DOTALL)
         if code_blocks:
-            code = code_blocks[0].strip()
-            # code = "\n".join(code_blocks).strip()
-            print("[Markdown extraction] Used fenced code blocks.")
+            code = code_blocks[0].strip()          # first fenced block
+            print("[Markdown extraction] Used fenced code block.")
         else:
             # --- Step 2: Trim non-code preamble ---
             lines = model_code.strip().splitlines()
-            start_keywords = ("#include", "template", "class", "struct", "void", "int main", "using namespace")
+            start_keywords = ("#include", "template", "class", "struct",
+                              "void", "int main", "using namespace")
             start_idx = 0
             for i, line in enumerate(lines):
-                if any(line.strip().startswith(k) for k in start_keywords):
+                if any(line.lstrip().startswith(k) for k in start_keywords):
                     start_idx = i
                     break
             code = "\n".join(lines[start_idx:]).strip()
             print("[Fallback extraction] Trimmed preamble.")
 
-        # # --- Step 3: Remove student's main() ---
-        # main_match = re.search(r"\bint\s+main\s*\([^)]*\)\s*\{", code)
-        # if main_match:
-        #     code = code[: main_match.start()].strip()
-        #     print("[Code cleaner] Removed student main() function.")
+        # --- NEW: strip anything before the first # -----------------------------
+        hash_pos = code.find("#")
+        if hash_pos > 0:                           # leave leading # intact
+            code = code[hash_pos:]
+            print("[Cleaner] Removed junk before first '#'.")
+        # ------------------------------------------------------------------------
 
-        # # --- Step 4: Remove out-of-class method definitions ---
-        # code = re.sub(r"\bArray\s*<[^>]*>\s*::\s*[\w~]+\s*\([^)]*\)\s*\{[^}]*\}", "", code, flags=re.DOTALL)
-        # code = re.sub(
-        #     r"template\s*<[^>]*>\s*[\w:<>\s&*]+\s+Array\s*<[^>]*>\s*::\s*[\w~]+\s*\([^)]*\)\s*\{[^}]*\}",
-        #     "",
-        #     code,
-        #     flags=re.DOTALL,
-        # )
-
-        # --- Step 5: Replace NULL return with 0 ---
-        # code = re.sub(r"return\s+NULL\s*;", "return 0;", code)
-
-        # --- Final touch ---
         code = code.strip()
         if "print(" in code and "void print()" not in code and "print()" not in code:
             print("⚠️ WARNING: `print()` is called in test input but not defined.")

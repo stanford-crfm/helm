@@ -20,7 +20,9 @@ class CodeInsightsCorrectCodeScenario(Scenario):
             question_test_cases = []
             if question_id and test_cases:
                 question_test_cases = test_cases.get(str(question_id), [])
-
+            print(f'QUESTION STUDENT ATTEMPS: {question_id}')
+            print(f"QUESTION TEXT: {target["question_text"]}")
+            print(f'UNIT TEST QUESTION GIVEN: {question_test_cases}')
             prompt = (
                 f"Question: {target['question_name']} — {target['question_text']}\n\n"
                 f"Unit Test Input: {question_test_cases}\n\n"

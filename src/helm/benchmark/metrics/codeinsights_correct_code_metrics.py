@@ -182,7 +182,7 @@ class CodeInsightsFunctionalCorrectnessMetric(Metric):
         """
         Extracts clean C++ code from model output:
         - Removes markdown
-        - Trims preambles
+        - Trims preambles and any junk that appears before the first '#'
         - Removes student's main()
         - Removes out-of-class method definitions
         - Replaces `return NULL;` with `return 0;` for int returns
@@ -192,39 +192,28 @@ class CodeInsightsFunctionalCorrectnessMetric(Metric):
         # --- Step 1: Markdown extraction ---
         code_blocks = re.findall(r"```(?:c\+\+)?\n(.*?)```", model_code, flags=re.DOTALL)
         if code_blocks:
-            code = code_blocks[0].strip()  # Use the first code block
-            print("[Markdown extraction] Used fenced code blocks.")
+            code = code_blocks[0].strip()          # first fenced block
+            print("[Markdown extraction] Used fenced code block.")
         else:
             # --- Step 2: Trim non-code preamble ---
             lines = model_code.strip().splitlines()
-            start_keywords = ("#include", "template", "class", "struct", "void", "int main", "using namespace")
+            start_keywords = ("#include", "template", "class", "struct",
+                              "void", "int main", "using namespace")
             start_idx = 0
             for i, line in enumerate(lines):
-                if any(line.strip().startswith(k) for k in start_keywords):
+                if any(line.lstrip().startswith(k) for k in start_keywords):
                     start_idx = i
                     break
             code = "\n".join(lines[start_idx:]).strip()
             print("[Fallback extraction] Trimmed preamble.")
 
-        # --- Step 3: Remove student's main() ---
-        # main_match = re.search(r"\bint\s+main\s*\([^)]*\)\s*\{", code)
-        # if main_match:
-        #     code = code[: main_match.start()].strip()
-        #     print("[Code cleaner] Removed student main() function.")
+        # --- NEW: strip anything before the first # -----------------------------
+        hash_pos = code.find("#")
+        if hash_pos > 0:                           # leave leading # intact
+            code = code[hash_pos:]
+            print("[Cleaner] Removed junk before first '#'.")
+        # ------------------------------------------------------------------------
 
-        # # --- Step 4: Remove out-of-class method definitions ---
-        # code = re.sub(r"\bArray\s*<[^>]*>\s*::\s*[\w~]+\s*\([^)]*\)\s*\{[^}]*\}", "", code, flags=re.DOTALL)
-        # code = re.sub(
-        #     r"template\s*<[^>]*>\s*[\w:<>\s&*]+\s+Array\s*<[^>]*>\s*::\s*[\w~]+\s*\([^)]*\)\s*\{[^}]*\}",
-        #     "",
-        #     code,
-        #     flags=re.DOTALL,
-        # )
-
-        # --- Step 5: Replace NULL return with 0 ---
-        # code = re.sub(r"return\s+NULL\s*;", "return 0;", code)
-
-        # --- Final touch ---
         code = code.strip()
         if "print(" in code and "void print()" not in code and "print()" not in code:
             print("⚠️ WARNING: `print()` is called in test input but not defined.")
@@ -238,9 +227,6 @@ class CodeInsightsFunctionalCorrectnessMetric(Metric):
         import re
 
         print("\n--- Create Complete Program Debug ---")
-        print(f"Template length: {len(template)}")
-        print(f"Student code length: {len(student_code)}")
-        print(f"Test input length: {len(test_input)}")
 
         # --- Step 1: Clean the raw test input ---
         clean_input = re.sub(r"STD input:\s*$", "", test_input).strip()
@@ -256,7 +242,6 @@ class CodeInsightsFunctionalCorrectnessMetric(Metric):
 
         # --- Step 3: Use template structure ---
         if "{{ STUDENT_ANSWER }}" in template:
-            print("Using template with STUDENT_ANSWER placeholder")
 
             complete_code = template.replace("{{ STUDENT_ANSWER }}", student_code)
 
@@ -268,8 +253,6 @@ class CodeInsightsFunctionalCorrectnessMetric(Metric):
             complete_code = re.sub(template_loop_pattern, test_block, complete_code, flags=re.DOTALL)
             complete_code = re.sub(r"{%.*?%}", "", complete_code, flags=re.DOTALL)
             complete_code = re.sub(r"{{.*?}}", "", complete_code, flags=re.DOTALL)
-
-            print(f"Template-based complete code length: {len(complete_code)}")
             return complete_code
 
         # --- Step 4: Default fallback structure ---
@@ -289,7 +272,6 @@ class CodeInsightsFunctionalCorrectnessMetric(Metric):
     def _compile_and_run_cpp(self, code: str) -> Tuple[bool, str, str]:
         """Compile and run C++ code, return (success, stdout, stderr)."""
         print("\n--- Compile and Run (Functional Correctness) ---")
-        print(f"Code length: {len(code)}")
 
         try:
             # Set environment to avoid HuggingFace tokenizer warnings
