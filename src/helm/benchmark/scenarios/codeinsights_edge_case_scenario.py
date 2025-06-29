@@ -43,10 +43,27 @@ class CodeInsightsEdgeCaseScenario(Scenario):
                 continue
 
             # Get test cases for this question (we know they exist now)
-            target_test_cases = test_cases.get(str(target_question_id), [])
+            target_test_cases = []
+            tc_parsing_success = True
+
+            for testcase_str in target["question_unittests"].split("Unittest")[1:]:
+                testcase_str = testcase_str[testcase_str.find(":") + 1 :]
+                input_idx = testcase_str.find("Input:")
+                std_in_idx = testcase_str.find("STD input:")
+                output_idx = testcase_str.find("Output:")
+                if input_idx == -1 or std_in_idx == -1 or output_idx == -1:
+                    tc_parsing_success = False
+                    break
+
+                testcase = {
+                    "input": testcase_str[input_idx + 6 : std_in_idx].strip(),
+                    "std_in": testcase_str[std_in_idx + 10 : output_idx].strip(),
+                    "output": testcase_str[output_idx + 7 :].strip(),
+                }
+                target_test_cases.append(testcase)
 
             # Verify test cases are not empty
-            if not target_test_cases:
+            if not tc_parsing_success:
                 skipped_no_tests += 1
                 print(f"SKIPPING Student {student_id}, Question {target_question_id}: Empty test cases")
                 continue

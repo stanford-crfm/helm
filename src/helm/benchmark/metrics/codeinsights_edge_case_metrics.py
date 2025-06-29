@@ -10,7 +10,7 @@ from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.metrics.codeinsights_code_evaluation_metrics import CodeInsightsCodeEvaluationMetric
 
 
-class UnitTestAlignmentMetric(Metric):
+class UnittestAlignmentMetric(Metric):
     """
     Compare LLM unit-test results with the student’s correctness pattern.
 
@@ -18,10 +18,6 @@ class UnitTestAlignmentMetric(Metric):
         • functional_correctness (pass-rate)
         • edge_case_slip_match   (binary 0/1)
     """
-
-    def __init__(self, compile_code: bool = True, compiler_path: str = "g++"):
-        self.compile_code = compile_code
-        self.compiler_path = compiler_path
 
     # ------------------------------------------------------------------ I#
     #   HELM entry-point                                                 #
@@ -36,7 +32,7 @@ class UnitTestAlignmentMetric(Metric):
         # ------------------------------------------------------------------
         # 1. Parse the model’s answer --------------------------------------
         # ------------------------------------------------------------------
-        default_stat = Stat(MetricName("unit_test_alignment")).add(0.0)
+        default_stat = Stat(MetricName("unittest_alignment")).add(0.0)
 
         if not request_state.result or not request_state.result.completions:
             # No output → automatic miss
@@ -75,15 +71,15 @@ class UnitTestAlignmentMetric(Metric):
         # 3. Compare & return ---------------------------------------------
         # ------------------------------------------------------------------
         alignment_score = 1.0 if predicted_index == actual_index else 0.0
-        return [Stat(MetricName("unit_test_alignment")).add(alignment_score)]
+        return [Stat(MetricName("unittest_alignment")).add(alignment_score)]
 
 
-class CodeInsightsComprehensiveCodeEvaluationMetric(CodeInsightsCodeEvaluationMetric):
+class CodeInsightsUnittestAlignmentMetric(CodeInsightsCodeEvaluationMetric):
     """unit-test alignment (with new metrics)."""
 
-    def __init__(self, use_codebert: bool = True, compile_code: bool = True, compiler_path: str = "g++"):
+    def __init__(self, use_codebert: bool = True):
         super().__init__(use_codebert=use_codebert)
-        self.alignment_metric = UnitTestAlignmentMetric(compile_code=compile_code, compiler_path=compiler_path)
+        self.alignment_metric = UnittestAlignmentMetric()
 
     def evaluate_generation(
         self,
