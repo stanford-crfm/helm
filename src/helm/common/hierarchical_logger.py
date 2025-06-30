@@ -34,22 +34,26 @@ class HierarchicalLogger(object):
     def indent(self) -> str:
         return "  " * len(self.start_times)
 
-    def track_begin(self, x: Any) -> None:
-        self.logger.info(self.indent() + str(x) + " {")
+    def track_begin(self, x: Any, **kwargs) -> None:
+        kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
+        self.logger.info(self.indent() + str(x) + " {", **kwargs)
         sys.stdout.flush()
         self.start_times.append(time.time())
 
-    def track_end(self) -> None:
+    def track_end(self, **kwargs) -> None:
+        kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
         t = time.time() - self.start_times.pop()
-        self.logger.info(self.indent() + "} [%s]" % (format_time(t)))
+        self.logger.info(self.indent() + "} [%s]" % (format_time(t)), **kwargs)
         sys.stdout.flush()
 
-    def log(self, x: Any) -> None:
-        self.logger.info(self.indent() + str(x))
+    def log(self, x: Any, **kwargs) -> None:
+        kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
+        self.logger.info(self.indent() + str(x), **kwargs)
         sys.stdout.flush()
 
-    def warn(self, x: Any) -> None:
-        self.logger.warning(self.indent() + str(x))
+    def warn(self, x: Any, **kwargs) -> None:
+        kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
+        self.logger.warning(self.indent() + str(x), **kwargs)
         sys.stdout.flush()
 
 
@@ -69,23 +73,26 @@ singleton = HierarchicalLogger()
 # Exposed public methods
 
 
-def hlog(x: Any) -> None:
-    singleton.log(x)
+def hlog(x: Any, **kwargs) -> None:
+    kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
+    singleton.log(x, **kwargs)
 
 
-def hwarn(x: Any) -> None:
-    singleton.warn(x)
+def hwarn(x: Any, **kwargs) -> None:
+    kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
+    singleton.warn(x, **kwargs)
 
 
 class htrack_block:
-    def __init__(self, x: Any) -> None:
+    def __init__(self, x: Any, stacklevel=1) -> None:
+        self._stacklevel = stacklevel + 1
         self.x = x
 
     def __enter__(self) -> None:
-        singleton.track_begin(self.x)
+        singleton.track_begin(self.x, stacklevel=self._stacklevel)
 
     def __exit__(self, tpe: Any, value: Any, callback: Any) -> None:
-        singleton.track_end()
+        singleton.track_end(stacklevel=self._stacklevel)
 
 
 class htrack:
@@ -116,7 +123,7 @@ class htrack:
                     description = description.replace("$" + k, str(v))
             else:
                 description = ""
-            with htrack_block(parent + fn.__name__ + description):
+            with htrack_block(parent + fn.__name__ + description, stacklevel=2):
                 return fn(*args, **kwargs)
 
         return wrapper
@@ -126,20 +133,28 @@ def setup_default_logging():
     """
     Setup a default logger to STDOUT for HELM via Python logging
     """
-    formatter = ColoredFormatter(
-        "%(bold_black)s%(asctime)s%(reset)s %(log_color)s%(levelname)-8s%(reset)s %(message)s",
-        datefmt="%Y-%m-%dT%H:%M:%S",
-        reset=True,
-        log_colors={
-            "DEBUG": "cyan",
-            "INFO": "green",
-            "WARNING": "yellow",
-            "ERROR": "red",
-            "CRITICAL": "red,bg_white",
-        },
-        secondary_log_colors={},
-        style="%",
-    )
+    formatter: logging.Formatter
+    if sys.stdout.isatty():
+        formatter = ColoredFormatter(
+            "%(bold_black)s%(asctime)s%(reset)s %(log_color)s%(levelname)-8s%(reset)s %(message)s",
+            datefmt="%Y-%m-%dT%H:%M:%S",
+            reset=True,
+            log_colors={
+                "DEBUG": "cyan",
+                "INFO": "green",
+                "WARNING": "yellow",
+                "ERROR": "red",
+                "CRITICAL": "red,bg_white",
+            },
+            secondary_log_colors={},
+            style="%",
+        )
+    else:
+        formatter = logging.Formatter(
+            "%(asctime)s %(levelname)-8s %(message)s",
+            datefmt="%Y-%m-%dT%H:%M:%S",
+            style="%",
+        )
 
     logger = logging.getLogger("helm")
     logger.setLevel(logging.INFO)
