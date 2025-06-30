@@ -7,19 +7,17 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 @run_spec_function("arabic_mmlu")
 def get_arabic_mmlu_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.arabic_mmlu_scenario.ArabicMMLUScenario"
-    )
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.arabic_mmlu_scenario.ArabicMMLUScenario")
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions=f"The following are multiple choice questions. Answer the last question. Respond only with only a single letter corresponding to your choice.",  # noqa: E501
+        instructions="The following are multiple choice questions. Answer the last question. Respond only with only a single letter corresponding to your choice.",  # noqa: E501
         input_noun="Question",
         output_noun="Answer",
     )
 
     return RunSpec(
-        name=f"arabic_mmlu",
+        name="arabic_mmlu",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),

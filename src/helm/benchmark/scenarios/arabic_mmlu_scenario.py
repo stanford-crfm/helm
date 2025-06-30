@@ -42,7 +42,7 @@ class ArabicMMLUScenario(Scenario):
         ensure_directory_exists(cache_dir)
         dataset_splits: Dict[str, datasets.Dataset] = datasets.load_dataset(
             "MBZUAI/ArabicMMLU",
-            'All',
+            "All",
             revision="7aa530e2893ac420352b3f5c1a1310c010e9758b",
             cache_dir=cache_dir,
         )
