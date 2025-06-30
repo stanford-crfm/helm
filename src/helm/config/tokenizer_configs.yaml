@@ -892,11 +892,20 @@ tokenizer_configs:
     end_of_text_token: ""
     prefix_token: ""
 
+# Maritaca AI
   - name: maritaca-ai/sabia-7b
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
       args:
         pretrained_model_name_or_path: maritaca-ai/sabia-7b
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+
+  - name: maritaca-ai/sabia-2-tokenizer-medium
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: maritaca-ai/sabia-2-tokenizer-medium
     end_of_text_token: "</s>"
     prefix_token: "<s>"
 
@@ -1103,5 +1112,59 @@ tokenizer_configs:
         class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
         args:
             pretrained_model_name_or_path: vinai/PhoGPT-4B-Chat
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+
+# Gemma-3-Gaia-PT-BR-4b-it
+  - name: CEIA-UFG/Gemma-3-Gaia-PT-BR-4b-it
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: CEIA-UFG/Gemma-3-Gaia-PT-BR-4b-it
+    end_of_text_token: "<eos>"
+    prefix_token: "<bos>"
+
+# Bode 13B Alpaca PT-BR
+  - name: recogna-nlp/bode-13b-alpaca-pt-br-no-peft
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: recogna-nlp/bode-13b-alpaca-pt-br-no-peft
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+
+# Cabrita 7B PT-BR tokenizer
+  - name: 22h/cabrita_7b_pt_850000
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: 22h/cabrita_7b_pt_850000
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+
+# Gervásio 7B PT‑BR/PT‑PT tokenizer
+  - name: PORTULAN/gervasio-7b-portuguese-ptbr-decoder
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: PORTULAN/gervasio-7b-portuguese-ptbr-decoder
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+
+# Tucano 2b4 PT-BR tokenizer
+  - name: TucanoBR/Tucano-2b4
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: TucanoBR/Tucano-2b4
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+
+# TeenyTinyLlama 460M PT-BR tokenizer
+  - name: nicholasKluge/TeenyTinyLlama-460m
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: nicholasKluge/TeenyTinyLlama-460m
     end_of_text_token: "</s>"
     prefix_token: "<s>"

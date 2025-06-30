@@ -3925,6 +3925,7 @@ model_deployments:
       args:
         pretrained_model_name_or_path: ibm-granite/granite-3.0-1b-a400m-base
 
+# Maritaca AI
   - name: huggingface/sabia-7b
     model_name: maritaca-ai/sabia-7b
     tokenizer_name: maritaca-ai/sabia-7b
@@ -3933,6 +3934,27 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
     args:
       pretrained_model_name_or_path: maritaca-ai/sabia-7b
+
+  - name: maritaca-ai/sabiazinho-3
+    model_name: maritaca-ai/sabiazinho-3
+    tokenizer_name: maritaca-ai/sabia-2-tokenizer-medium
+    max_sequence_length: 32000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
+  - name: maritaca-ai/sabia-3
+    model_name: maritaca-ai/sabia-3
+    tokenizer_name: maritaca-ai/sabia-2-tokenizer-medium
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
+  - name: maritaca-ai/sabia-3.1-2025-05-08
+    model_name: maritaca-ai/sabia-3.1-2025-05-08
+    tokenizer_name: maritaca-ai/sabia-2-tokenizer-medium
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
 
 # Granite-3.1-8b-base
   - name: huggingface/granite-3.1-8b-base
@@ -4324,3 +4346,243 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         pretrained_model_name_or_path: vinai/PhoGPT-4B-Chat
+
+
+  # Stanford Health Care
+  # Placed later in the file to make them non-default
+  - name: stanfordhealthcare/claude-3-5-sonnet-20241022
+    model_name: anthropic/claude-3-5-sonnet-20241022
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_claude_client.StanfordHealthCareClaudeClient"
+      args:
+        model: anthropic.claude-3-5-sonnet-20241022-v2:0
+        deployment: Claude35Sonnetv2/awssig4fa
+  
+  - name: stanfordhealthcare/claude-3-7-sonnet-20250219
+    model_name: anthropic/claude-3-7-sonnet-20250219
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_claude_client.StanfordHealthCareClaudeClient"
+      args:
+        model: arn:aws:bedrock:us-west-2:679683451337:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0
+        deployment: awssig4claude37/aswsig4claude37
+
+  - name: stanfordhealthcare/gemini-1.5-pro-001
+    model_name: google/gemini-1.5-pro-001
+    tokenizer_name: google/gemma-2b
+    max_sequence_length: 1000000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_google_client.StanfordHealthCareGoogleClient"
+      args:
+        deployment: gcpgemini/apim-gcp-oauth-fa
+
+  - name: stanfordhealthcare/gemini-2.0-flash-001
+    model_name: google/gemini-2.0-flash-001
+    tokenizer_name: google/gemma-2b
+    max_sequence_length: 1000000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_google_client.StanfordHealthCareGoogleClient"
+      args:
+        deployment: gcp-gem20flash-fa/apim-gcp-gem20flash-fa
+
+  - name: stanfordhealthcare/gpt-4o-mini-2024-07-18
+    model_name: openai/gpt-4o-mini-2024-07-18
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
+      args:
+        openai_model_name: gpt-4o-mini
+        api_version: 2023-05-15
+
+  - name: stanfordhealthcare/gpt-4o-2024-05-13
+    model_name: openai/gpt-4o-2024-05-13
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
+      args:
+        openai_model_name: gpt-4o
+        api_version: 2023-05-15
+  
+  - name: stanfordhealthcare/gpt-4-0613
+    model_name: openai/gpt-4-0613
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
+      args:
+        openai_model_name: gpt-4
+        api_version: 2023-05-15
+
+  - name: stanfordhealthcare/gpt-4-turbo-2024-04-09
+    model_name: openai/gpt-4-turbo-2024-04-09
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
+      args:
+        openai_model_name: gpt-4-turbo
+        api_version: 2023-05-15
+
+  - name: stanfordhealthcare/gpt-4.1-2025-04-14
+    model_name: openai/gpt-4.1-2025-04-14
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 1047576
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
+      args:
+        openai_model_name: gpt-4.1
+        api_version: 2025-01-01-preview
+        base_url: "{endpoint}/openai-eastus2"
+
+  - name: stanfordhealthcare/o3-mini-2025-01-31
+    model_name: openai/o3-mini-2025-01-31
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
+      args:
+        openai_model_name: o3-mini
+        api_version: 2024-12-01-preview
+        base_url: "{endpoint}/openai-eastus2"
+
+  - name: stanfordhealthcare/o1-2024-12-17
+    model_name: openai/o1-2024-12-17
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
+      args:
+        openai_model_name: o1
+        api_version: 2024-12-01-preview
+        base_url: "{endpoint}/openai-eastus2"
+
+  - name: stanfordhealthcare/deepseek-r1
+    model_name: deepseek-ai/deepseek-r1
+    tokenizer_name: deepseek-ai/deepseek-r1
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      args:
+        openai_model_name: deepseek-chat
+        output_processor: helm.benchmark.metrics.output_processors.remove_deepseek_r1_thinking
+        base_url: "{endpoint}/deepseekr1/v1"
+
+  - name: stanfordhealthcare/llama-3.3-70b-instruct
+    model_name: meta/llama-3.3-70b-instruct
+    tokenizer_name: meta/llama-3.3-70b-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      args:
+        base_url: "{endpoint}/llama3370b/v1"
+
+  - name: stanfordhealthcare/llama-4-scout-17b-16e-instruct
+    model_name: meta/llama-4-scout-17b-16e-instruct
+    tokenizer_name: meta/llama-4-scout-17b-16e-instruct
+    max_sequence_length: 327680
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      args:
+        base_url: "{endpoint}/llama4-scout/v1"
+  
+  - name: stanfordhealthcare/llama-4-maverick-17b-128e-instruct-fp8
+    model_name: meta/llama-4-maverick-17b-128e-instruct-fp8
+    tokenizer_name: meta/llama-4-scout-17b-16e-instruct
+    max_sequence_length: 524288
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      args:
+        base_url: "{endpoint}/llama4-maverick/v1"
+
+  - name: stanfordhealthcare/phi-3.5-mini-instruct
+    model_name: microsoft/phi-3.5-mini-instruct
+    tokenizer_name: microsoft/phi-3.5-mini-instruct
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_openai_client.StanfordHealthCareOpenAIClient"
+      args:
+        base_url: "{endpoint}/phi35mi/v1"
+
+  - name: stanfordhealthcare_shc/gpt-4o-2024-05-13
+    model_name: openai/gpt-4o-2024-05-13
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_shc_openai_client.StanfordHealthCareSHCOpenAIClient"
+      deployment: gpt-4o
+
+  - name: stanfordhealthcare_shc/gpt-4o-mini-2024-07-18
+    model_name: openai/gpt-4o-mini-2024-07-18
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_shc_openai_client.StanfordHealthCareSHCOpenAIClient"
+      deployment: gpt-4o-mini
+  
+  - name: stanfordhealthcare_shc/gpt-4-turbo-2024-04-09
+    model_name: openai/gpt-4-turbo-2024-04-09
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_shc_openai_client.StanfordHealthCareSHCOpenAIClient"
+      deployment: gpt-4-turbo-2024-04-09
+
+
+  - name: huggingface/Gemma-3-Gaia-PT-BR-4b-it
+    model_name: CEIA-UFG/Gemma-3-Gaia-PT-BR-4b-it
+    tokenizer_name: CEIA-UFG/Gemma-3-Gaia-PT-BR-4b-it
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: CEIA-UFG/Gemma-3-Gaia-PT-BR-4b-it
+
+  - name: recogna-nlp/bode-13b-alpaca-pt-br-no-peft
+    model_name: recogna-nlp/bode-13b-alpaca-pt-br-no-peft
+    tokenizer_name: recogna-nlp/bode-13b-alpaca-pt-br-no-peft
+    max_sequence_length: 4094
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: recogna-nlp/bode-13b-alpaca-pt-br-no-peft
+
+  - name: 22h/cabrita_7b_pt_850000
+    model_name: 22h/cabrita_7b_pt_850000
+    tokenizer_name: 22h/cabrita_7b_pt_850000
+    max_sequence_length: 4094
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: 22h/cabrita_7b_pt_850000
+
+  - name: PORTULAN/gervasio-7b-portuguese-ptbr-decoder
+    model_name: PORTULAN/gervasio-7b-portuguese-ptbr-decoder
+    tokenizer_name: PORTULAN/gervasio-7b-portuguese-ptbr-decoder
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: PORTULAN/gervasio-7b-portuguese-ptbr-decoder
+
+  - name: TucanoBR/Tucano-2b4
+    model_name: TucanoBR/Tucano-2b4
+    tokenizer_name: TucanoBR/Tucano-2b4
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: TucanoBR/Tucano-2b4
+
+  - name: nicholasKluge/TeenyTinyLlama-460m
+    model_name: nicholasKluge/TeenyTinyLlama-460m
+    tokenizer_name: nicholasKluge/TeenyTinyLlama-460m
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: nicholasKluge/TeenyTinyLlama-460m
