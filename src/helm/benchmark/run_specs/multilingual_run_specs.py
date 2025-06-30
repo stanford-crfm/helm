@@ -6,7 +6,7 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 
 @run_spec_function("mmmlu")
-def get_mmlu_spec(locale: str, subject: str) -> RunSpec:
+def get_mmmlu_spec(locale: str, subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mmmlu_scenario.MMMLUScenario", args={"locale": locale, "subject": subject}
     )
