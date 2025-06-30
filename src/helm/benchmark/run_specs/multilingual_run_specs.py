@@ -13,7 +13,7 @@ def get_mmlu_spec(locale: str, subject: str) -> RunSpec:
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions=f"The following are multiple choice questions (with answers) about {subject.replace('_', ' ')}. Answer the last question. Respond only with only a single letter corresponding to your choice.",
+        instructions=f"The following are multiple choice questions (with answers) about {subject.replace('_', ' ')}. Answer the last question. Respond only with only a single letter corresponding to your choice.",  # noqa: E501
         input_noun="Question",
         output_noun="Answer",
     )
