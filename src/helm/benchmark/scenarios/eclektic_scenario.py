@@ -19,20 +19,21 @@ from helm.benchmark.scenarios.scenario import (
     Output,
 )
 
-SUPPORTED_LANGUAGES  = {
-    'de': "German",
-    'en': "English",
-    'es': "Spanish",
-    'fr': "French",
-    'he': "Hebrew",
-    'hi': "Hindi",
-    'id': "Indonesian",
-    'it': "Italian",
-    'ja': "Japanese",
-    'ko': "Korean",
-    'pt': "Portuguese",
-    'zh': "Chinese",
+SUPPORTED_LANGUAGES = {
+    "de": "German",
+    "en": "English",
+    "es": "Spanish",
+    "fr": "French",
+    "he": "Hebrew",
+    "hi": "Hindi",
+    "id": "Indonesian",
+    "it": "Italian",
+    "ja": "Japanese",
+    "ko": "Korean",
+    "pt": "Portuguese",
+    "zh": "Chinese",
 }
+
 
 class EclekticScenario(Scenario):
     """Cultural values understanding evaluation based on Vietnam World Values Survey responses."""
@@ -42,7 +43,7 @@ class EclekticScenario(Scenario):
     tags = ["cross-lingual"]
 
     def get_instances(self, output_path: str) -> List[Instance]:
-       
+
         instances: List[Instance] = []
 
         dataset = load_dataset(
@@ -54,20 +55,20 @@ class EclekticScenario(Scenario):
         for _, row in enumerate(dataset):
             for lang in SUPPORTED_LANGUAGES:
                 new_ex = {
-                    'q_id': row['q_id'],
-                    'original_lang': row['original_lang'],
-                    'lang': lang,
-                    'title': row['title'],
-                    'url': row['url'],
-                    'orig_content': row['content'],
-                    'orig_question': row['question'],
-                    'orig_answer': row['answer'],
-                    'question': row[f'{lang}_q'],
-                    'answer': row[f'{lang}_a'],
-                    'content': row[f'{lang}_c'],
+                    "q_id": row["q_id"],
+                    "original_lang": row["original_lang"],
+                    "lang": lang,
+                    "title": row["title"],
+                    "url": row["url"],
+                    "orig_content": row["content"],
+                    "orig_question": row["question"],
+                    "orig_answer": row["answer"],
+                    "question": row[f"{lang}_q"],
+                    "answer": row[f"{lang}_a"],
+                    "content": row[f"{lang}_c"],
                 }
 
-                input = Input(text=row[f'{lang}_q'].strip())
+                input = Input(text=row[f"{lang}_q"].strip())
                 instance = Instance(
                     input=input,
                     references=[],
@@ -77,4 +78,3 @@ class EclekticScenario(Scenario):
                 instances.append(instance)
 
         return instances
-

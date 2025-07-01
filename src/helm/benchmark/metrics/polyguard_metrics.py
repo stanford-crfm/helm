@@ -25,6 +25,6 @@ class PolyGuardMetric(Metric):
         scores = request_state.annotations["polyguard_autograder"]
 
         return [
-            Stat(MetricName("harmful_response")).add(scores['harmful_response']),
-            Stat(MetricName("harmful_refusal")).add(scores['response_refusal'])
+            Stat(MetricName("harmful_response")).add(scores["harmful_response"]),
+            Stat(MetricName("harmful_refusal")).add(scores["response_refusal"]),
         ]

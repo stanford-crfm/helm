@@ -17,13 +17,19 @@ from helm.benchmark.metrics.statistic import Stat, merge_stat
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.metrics.metric import Metric, MetricResult, PerInstanceStats, Processor, add_context, compute_worst_case_metrics
-
+from helm.benchmark.metrics.metric import (
+    Metric,
+    MetricResult,
+    PerInstanceStats,
+    Processor,
+    add_context,
+    compute_worst_case_metrics,
+)
 
 
 class EclekticMetric(Metric):
     """Score metrics for Eclektic."""
-        
+
     def evaluate_generation(
         self,
         adapter_spec: AdapterSpec,
@@ -34,10 +40,8 @@ class EclekticMetric(Metric):
 
         assert request_state.annotations
         scores = request_state.annotations["eclektic_autograder"]
-        
-        return [
-            Stat(MetricName("accuracy")).add(scores['correct'])
-        ]
+
+        return [Stat(MetricName("accuracy")).add(scores["correct"])]
 
     def evaluate(
         self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
@@ -61,7 +65,7 @@ class EclekticMetric(Metric):
         all_per_instance_stats: List[PerInstanceStats] = []
 
         data_rows: List[Dict[str, object]] = []
-        
+
         for train_trial_index in range(adapter_spec.num_train_trials):
             # Construct inputs
             generation_state_sets: List[List[RequestState]] = []
@@ -88,7 +92,7 @@ class EclekticMetric(Metric):
                     continue  # Defensive guard
                 rs = req_states[0]  # Exactly one RequestState per instance
                 ann = rs.annotations.get("eclektic_autograder", {})
-            
+
                 data_rows.append(
                     {
                         "q_id": instance.extra_data.get("q_id"),
@@ -105,9 +109,7 @@ class EclekticMetric(Metric):
             for instance, stats in zip(scenario_state.instances, results):
                 if stats:
                     per_instance_stats.append(
-                        PerInstanceStats(
-                            instance.id, instance.perturbation, train_trial_index, stats
-                        )
+                        PerInstanceStats(instance.id, instance.perturbation, train_trial_index, stats)
                     )
 
             trial_stats: Dict[MetricName, Stat] = {}
@@ -118,9 +120,7 @@ class EclekticMetric(Metric):
             # Derivations grouped by context (unchanged pattern)
             grouped_trial_stats: Dict[MetricContext, Dict[MetricName, Stat]] = defaultdict(dict)
             for metric_name, stat in trial_stats.items():
-                grouped_trial_stats[MetricContext.from_metric_name(metric_name)][
-                    metric_name
-                ] = stat
+                grouped_trial_stats[MetricContext.from_metric_name(metric_name)][metric_name] = stat
             for context, stats_dict in grouped_trial_stats.items():
                 for stat in self.derive_stats(stats_dict):
                     merge_stat(trial_stats, add_context(stat, context))
@@ -130,16 +130,12 @@ class EclekticMetric(Metric):
             )
             for instance, stats in zip(scenario_state.instances, results):
                 for stat in stats:
-                    grouped_per_instance_stats[MetricContext.from_instance(instance)][
-                        instance
-                    ].append(stat)
+                    grouped_per_instance_stats[MetricContext.from_instance(instance)][instance].append(stat)
             for context, instance_dict in grouped_per_instance_stats.items():
                 for stat in self.derive_per_instance_stats(instance_dict):
                     merge_stat(trial_stats, add_context(stat, context))
 
-            worst_case_stats = compute_worst_case_metrics(
-                dict(zip(scenario_state.instances, results))
-            )
+            worst_case_stats = compute_worst_case_metrics(dict(zip(scenario_state.instances, results)))
             for stat in worst_case_stats:
                 merge_stat(trial_stats, stat)
 
@@ -157,17 +153,14 @@ class EclekticMetric(Metric):
 
             # Questions answered correctly in their *original* language
             correct_in_lang_qids = set(
-                data[(data["correct"]) & (data["lang"] == data["original_lang"])]
-                ["q_id"].tolist()
+                data[(data["correct"]) & (data["lang"] == data["original_lang"])]["q_id"].tolist()
             )
 
             # ------------------ overall (translated only) ------------------
             scored_data = data[data["lang"] != data["original_lang"]]
             if not scored_data.empty:
                 overall_successes = scored_data[
-                    (scored_data["correct"]) & (
-                        scored_data["q_id"].isin(correct_in_lang_qids)
-                    )
+                    (scored_data["correct"]) & (scored_data["q_id"].isin(correct_in_lang_qids))
                 ]
                 overall_score = len(overall_successes) / len(scored_data)
             else:
@@ -178,9 +171,7 @@ class EclekticMetric(Metric):
             transfer_data = data[data["q_id"].isin(correct_in_lang_qids)]
             if not transfer_data.empty:
                 transfer_successes = transfer_data[
-                    (transfer_data["correct"]) & (
-                        transfer_data["q_id"].isin(correct_in_lang_qids)
-                    )
+                    (transfer_data["correct"]) & (transfer_data["q_id"].isin(correct_in_lang_qids))
                 ]
                 transfer_score = len(transfer_successes) / len(transfer_data)
             else:

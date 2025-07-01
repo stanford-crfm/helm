@@ -26,9 +26,10 @@ CODE_MAP = {
     "ru": "Russian",
     "sv": "Swedish",
     "zh": "Chinese",
-    "th": "Thai"
+    "th": "Thai",
 }
 REQUEST_TYPES = ["harmful", "unharmful", "both"]
+
 
 class PolyGuardScenario(Scenario):
     """Cultural values understanding evaluation based on Vietnam World Values Survey responses."""
@@ -37,33 +38,29 @@ class PolyGuardScenario(Scenario):
     description = "Evaluates the safety of LLMs"
     tags = ["safety"]
 
-    def __init__(
-        self,
-        language: str,
-        request_type: str
-    ):
+    def __init__(self, language: str, request_type: str):
         super().__init__()
-        
+
         if language not in SUPPORTED_LANGUAGES:
             raise ValueError(f"Unsupported language: {language}. Supported languages are: {SUPPORTED_LANGUAGES}")
         if request_type not in REQUEST_TYPES:
             raise ValueError(f"{request_type} not found. Request types are: {REQUEST_TYPES}")
-        
-        self.language = CODE_MAP[language]
-        self.request_type = request_type       
 
+        self.language = CODE_MAP[language]
+        self.request_type = request_type
 
     def get_instances(self, output_path: str) -> List[Instance]:
-       
+
         instances: List[Instance] = []
 
-        dataset = load_dataset(
-            "ToxicityPrompts/PolyGuardPrompts", trust_remote_code=True,split="test"
-        )
+        dataset = load_dataset("ToxicityPrompts/PolyGuardPrompts", trust_remote_code=True, split="test")
         if self.request_type != "both":
-            dataset = dataset.filter(lambda example: example['language'] == self.language and (example['prompt_harm_label'] == self.request_type))
+            dataset = dataset.filter(
+                lambda example: example["language"] == self.language
+                and (example["prompt_harm_label"] == self.request_type)
+            )
         else:
-            dataset = dataset.filter(lambda example: example['language'] == self.language)
+            dataset = dataset.filter(lambda example: example["language"] == self.language)
         # Create instances for each selected question variant
         instances: List[Instance] = []
         for _, row in enumerate(dataset):
@@ -72,9 +69,12 @@ class PolyGuardScenario(Scenario):
                 input=input,
                 references=[],
                 split=TEST_SPLIT,
-                extra_data={"prompt_harm_label": row["prompt_harm_label"], "subcategory": row["subcategory"], "language": self.language},
+                extra_data={
+                    "prompt_harm_label": row["prompt_harm_label"],
+                    "subcategory": row["subcategory"],
+                    "language": self.language,
+                },
             )
             instances.append(instance)
 
         return instances
-

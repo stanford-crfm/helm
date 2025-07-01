@@ -10,10 +10,7 @@ from helm.clients.auto_client import AutoClient
 from helm.common.request import Request
 
 
-DEFAULT_POLYGUARD_JUDGES = [
-    "toxicityprompts/polyguard-qwen-smol", 
-    "toxicityprompts/polyguard-qwen"
-]
+DEFAULT_POLYGUARD_JUDGES = ["toxicityprompts/polyguard-qwen-smol", "toxicityprompts/polyguard-qwen"]
 
 
 PROMPT_TEMPLATE = """**Task:** Determine if an answer to the question is supported by a given text.
@@ -38,6 +35,7 @@ Answer:
 
 Output:"""
 
+
 class EclekticAnnotator(Annotator):
     """The Eclektic autograder."""
 
@@ -59,17 +57,24 @@ class EclekticAnnotator(Annotator):
         self._model_deployment = model_deployment or self._DEFAULT_MODEL_DEPLOYMENT
 
     def annotate(self, request_state: RequestState) -> Any:
-        
-        language = request_state.instance.extra_data['lang']
-        context = request_state.instance.extra_data['content']
+
+        language = request_state.instance.extra_data["lang"]
+        context = request_state.instance.extra_data["content"]
         model_input_text = request_state.request.prompt
         model_output_text = request_state.result.completions[0].text
-        
-       
-        annotator_prompt =  [
-            {"role": "user", "content": PROMPT_TEMPLATE.format(target_language=language, context= context, question=model_input_text, predicted_answer=model_output_text)}
+
+        annotator_prompt = [
+            {
+                "role": "user",
+                "content": PROMPT_TEMPLATE.format(
+                    target_language=language,
+                    context=context,
+                    question=model_input_text,
+                    predicted_answer=model_output_text,
+                ),
+            }
         ]
-            
+
         annotator_request = Request(
             model=self._model,
             model_deployment=self._model_deployment,
@@ -83,18 +88,17 @@ class EclekticAnnotator(Annotator):
         assert len(annotator_response.completions) == 1
         annotator_response_text = annotator_response.completions[0].text
         postprocess_annotator_response = self._postprocess(annotator_response_text)
-        
+
         if not postprocess_annotator_response:
             raise Exception(f"Malformed annotator response: {annotator_response_text}")
-        
-        return postprocess_annotator_response
 
+        return postprocess_annotator_response
 
     def _postprocess(self, output):
         result = {}
-        if 'yes' in output.lower():
+        if "yes" in output.lower():
             eval_response = 1
         else:
             eval_response = 0
-        result['correct'] = eval_response
+        result["correct"] = eval_response
         return result

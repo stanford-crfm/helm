@@ -64,7 +64,7 @@ class ReplaceValueRunExpander(RunExpander):
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         def sanitize(value):
             return str(value).replace("/", "_")
-        
+
         return [
             replace(
                 run_spec,
