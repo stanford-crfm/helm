@@ -261,7 +261,6 @@ def helm_run(args):
         groups_to_run=args.groups_to_run,
         priority=args.priority,
     )
-
     hlog(f"{len(run_entries)} entries produced {len(run_specs)} run specs")
 
     if len(run_specs) == 0:
