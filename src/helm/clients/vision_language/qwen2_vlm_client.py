@@ -23,7 +23,7 @@ class LoadedModelProcessor:
 
 
 LOCAL_CHECKPOINT_3B = (
-    "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_more_data_6_27"
+    "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_more_data_6_29"
 )
 
 # Global cache for all models
