@@ -3,6 +3,7 @@ from typing import Dict, List, Optional
 import json
 import importlib_resources as resources
 
+from helm.benchmark.presentation.schema import Field
 from helm.common.hierarchical_logger import hwarn
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
@@ -161,6 +162,85 @@ class EfficiencyMetric:
         if idealized_runtime is not None:
             stats.append(Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime))
         return stats
+
+    def get_metadata(self):
+        return [
+            Field(
+                name="num_instances",
+                display_name="# eval",
+                short_display_name=None,
+                description="Number of evaluation instances.",
+                lower_is_better=None,
+            ),
+            Field(
+                name="num_completion_tokens",
+                display_name="# completion tokens",
+                short_display_name=None,
+                description="Actual number of completion " "tokens (over all completions).",
+                lower_is_better=None,
+            ),
+            Field(
+                name="num_output_tokens",
+                display_name="# output tokens",
+                short_display_name=None,
+                description="Actual number of output tokens.",
+                lower_is_better=None,
+            ),
+            Field(
+                name="training_co2_cost",
+                display_name="Estimated training emissions (kg " "CO2)",
+                short_display_name="Training emissions (kg CO2)",
+                description="Estimate of the CO2 emissions from " "training the model.",
+                lower_is_better=True,
+            ),
+            Field(
+                name="training_energy_cost",
+                display_name="Estimated training energy cost " "(MWh)",
+                short_display_name="Training energy (MWh)",
+                description="Estimate of the amount of energy " "used to train the model.",
+                lower_is_better=True,
+            ),
+            Field(
+                name="inference_runtime",
+                display_name="Observed inference runtime (s)",
+                short_display_name="Observed inference time (s)",
+                description="Average observed time to process a "
+                "request to the model (via an API, "
+                "and thus depends on particular "
+                "deployment).",
+                lower_is_better=True,
+            ),
+            Field(
+                name="batch_size",
+                display_name="Batch size",
+                short_display_name=None,
+                description="For batch jobs, how many requests are in a " "batch.",
+                lower_is_better=None,
+            ),
+            Field(
+                name="inference_denoised_runtime",
+                display_name="Denoised inference runtime " "(s)",
+                short_display_name="Denoised inference " "time (s)",
+                description="Average time to process a "
+                "request to the model minus "
+                "performance contention by "
+                "using profiled runtimes "
+                "from multiple trials of "
+                "SyntheticEfficiencyScenario.",
+                lower_is_better=True,
+            ),
+            Field(
+                name="inference_idealized_runtime",
+                display_name="Idealized inference " "runtime (s)",
+                short_display_name="Idealized inference " "time (s)",
+                description="Average time to process a "
+                "request to the model based "
+                "solely on the model "
+                "architecture (using "
+                "Megatron-LM).",
+                lower_is_better=True,
+            ),
+        ]
 
 
 def _compute_estimated_time_from_prompt_size_and_num_output_tokens(

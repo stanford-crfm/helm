@@ -35,7 +35,7 @@ from helm.common.hierarchical_logger import hlog, htrack, htrack_block, hwarn, s
 from helm.benchmark.scenarios.scenario import Scenario, ScenarioMetadata, ScenarioSpec, create_scenario
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.metric_name import MetricName
-from helm.benchmark.metrics.metric import get_all_stats_by_name
+from helm.benchmark.metrics.metric import MetricInterface, MetricSpec, create_metric, get_all_stats_by_name
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.benchmark.run_spec import RunSpec
 from helm.benchmark.runner import LATEST_SYMLINK
@@ -576,12 +576,49 @@ class Summarizer:
                 self.schema, run_groups=[self.auto_generate_all_scenarios_run_group()] + self.schema.run_groups
             )
 
+    def get_metrics_field_dicts(self) -> List[Dict]:
+        """Get a list of `Field`s dicts containing metrics metadata that will be written to schema.json."""
+        # TODO: Migrate frontend to use ModelMetadata instead of ModelField and delete this.
+        metric_specs: List[MetricSpec] = []
+        for run in self.runs:
+            metric_specs.extend(run.run_spec.metric_specs)
+        metric_specs = list(set(metric_specs))
+        metric_name_to_metadata: Dict[str, Field] = {}
+        for metric_spec in metric_specs:
+            print(metric_spec)
+            maybe_metadata: Optional[List[Field]] = None
+            try:
+                metric: MetricInterface = create_metric(metric_spec)
+                maybe_metadata = metric.get_metadata()
+            except NotImplementedError:
+                hwarn(f"Metric class {metric_spec.class_name} did not implement get_metadata()")
+                pass
+            except ModuleNotFoundError:
+                hwarn(f"Could not find Metric class {metric_spec.class_name}")
+                pass
+            if maybe_metadata:
+                for metadata in maybe_metadata:
+                    metric_name_to_metadata[metadata.name] = metadata
+        print(f"[debug:yifanmai] {metric_name_to_metadata}")
+        # Prune unused metric names:
+        run_stat_names: Set[str] = set()
+        for run in self.runs:
+            for stat in run.stats:
+                run_stat_names.add(stat.name.name)
+        unused_metric_names = set(metric_name_to_metadata.keys()) - run_stat_names
+        print(run_stat_names - set(metric_name_to_metadata.keys()))
+        for unused_metric_name in unused_metric_names:
+            del metric_name_to_metadata[unused_metric_name]
+        print(f"[debug:yifanmai] After pruning {metric_name_to_metadata}")
+        return []
+
     def write_schema(self) -> None:
         """Write the schema file to benchmark_output so the frontend knows about it."""
         # Manually add the model metadata to the schema.json, where the frontend expects it.
         # TODO: Move model metadata out of schema.json into its own model_metadata.json file.
         raw_schema = asdict_without_nones(self.schema)
         raw_schema["models"] = self.get_model_field_dicts()
+        self.get_metrics_field_dicts()  # for now, just run this and see?
         write(
             os.path.join(self.run_release_path, "schema.json"),
             json.dumps(raw_schema, indent=2),

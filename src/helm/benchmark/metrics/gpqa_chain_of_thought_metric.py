@@ -7,6 +7,7 @@ from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
+from helm.benchmark.presentation.schema import Field
 
 
 def extract_answer(output_text: str) -> Optional[str]:
@@ -101,3 +102,14 @@ class GPQAChainOfThoughtMetric(Metric):
         # Compare extracted answer with the correct answer and compute the score
         score = 1 if extracted_answer == correct_answer else 0
         return [Stat(MetricName("chain_of_thought_correctness")).add(score)]
+
+    def get_metadata(self):
+        return [
+            Field(
+                name="chain_of_thought_correctness",
+                display_name="COT correct",
+                short_display_name="COT correct",
+                description="Fraction of correct " "answers after chain of " "thought",
+                lower_is_better=False,
+            )
+        ]

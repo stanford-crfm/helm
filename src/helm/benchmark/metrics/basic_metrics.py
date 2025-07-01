@@ -12,6 +12,7 @@ from helm.benchmark.metrics.evaluate_reference_metrics import compute_reference_
 from helm.benchmark.metrics.efficiency_metrics import EfficiencyMetric
 from helm.benchmark.metrics.reference_metric import ReferenceMetric
 
+from helm.benchmark.presentation.schema import Field
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import Token, GeneratedOutput
 from helm.benchmark.adaptation.adapters.adapter_factory import (
@@ -133,6 +134,17 @@ class InstancesPerSplitMetric(MetricInterface):
         # There are no per-instance Stats.
         return MetricResult(list(global_stats.values()), [])
 
+    def get_metadata(self) -> List[Field]:
+        return [
+            Field(
+                name="num_instances",
+                display_name="# eval",
+                short_display_name=None,
+                description="Number of evaluation instances.",
+                lower_is_better=None,
+            )
+        ]
+
 
 class BasicGenerationMetric(Metric):
     """
@@ -179,6 +191,13 @@ class BasicGenerationMetric(Metric):
         derived_stats: List[Stat] = []
         derived_stats.extend(compute_calibration_metrics(per_instance_stats))
         return derived_stats
+
+    def get_metadata(self):
+        return (
+            get_request_state_metrics_metadata(self.efficiency_metric)
+            + _get_language_modeling_metrics_metadata()
+            + _get_calibration_metrics_metadata()
+        )
 
 
 class BasicReferenceMetric(ReferenceMetric):
@@ -295,6 +314,35 @@ class BasicReferenceMetric(ReferenceMetric):
         )
         return stats
 
+    def get_metadata(self):
+        return [
+            Field(
+                name="max_prob",
+                display_name="Max prob",
+                short_display_name=None,
+                description="Model's average confidence in its prediction " "(only computed for classification tasks)",
+                lower_is_better=False,
+            ),
+            Field(
+                name="exact_match",
+                display_name="Exact match",
+                short_display_name="EM",
+                description="Fraction of instances that the predicted "
+                "output matches a correct reference "
+                "exactly.",
+                lower_is_better=False,
+            ),
+            Field(
+                name="predicted_index",
+                display_name="Predicted index",
+                short_display_name=None,
+                description="Integer index of the reference (0, 1, "
+                "...) that was predicted by the model "
+                "(for multiple-choice).",
+                lower_is_better=None,
+            ),
+        ]
+
 
 def compute_request_state_metrics(
     efficiency_metric: EfficiencyMetric,
@@ -319,6 +367,35 @@ def compute_request_state_metrics(
     return stats
 
 
+def get_request_state_metrics_metadata(
+    efficiency_metric: EfficiencyMetric,
+) -> List[Field]:
+    fields = [
+        Field(
+            name="num_references",
+            display_name="# ref",
+            short_display_name=None,
+            description="Number of references.",
+            lower_is_better=None,
+        ),
+        Field(
+            name="num_train_trials",
+            display_name="# trials",
+            short_display_name=None,
+            description="Number of trials, where in each trial "
+            "we choose an independent, random set "
+            "of training instances.",
+            lower_is_better=None,
+        ),
+    ]
+    return (
+        fields
+        + efficiency_metric.get_metadata()
+        + _get_finish_reason_metrics_metadata()
+        + _get_truncation_metrics_metadata()
+    )
+
+
 def _compute_finish_reason_metrics(
     adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
 ) -> List[Stat]:
@@ -341,6 +418,46 @@ def _compute_finish_reason_metrics(
     ]
 
 
+def _get_finish_reason_metrics_metadata():
+    return [
+        Field(
+            name="finish_reason_endoftext",
+            display_name="finish b/c endoftext",
+            short_display_name=None,
+            description="Fraction of instances where "
+            "the the output was terminated "
+            "because the end of text token "
+            "was generated.",
+            lower_is_better=None,
+        ),
+        Field(
+            name="finish_reason_length",
+            display_name="finish b/c length",
+            short_display_name=None,
+            description="Fraction of instances where the "
+            "the output was terminated because "
+            "of the max tokens limit.",
+            lower_is_better=None,
+        ),
+        Field(
+            name="finish_reason_stop",
+            display_name="finish b/c stop",
+            short_display_name=None,
+            description="Fraction of instances where the the "
+            "output was terminated because of "
+            "the stop sequences.",
+            lower_is_better=None,
+        ),
+        Field(
+            name="finish_reason_unknown",
+            display_name="finish b/c unknown",
+            short_display_name=None,
+            description="Fraction of instances where the " "the output was terminated for " "unknown reasons.",
+            lower_is_better=None,
+        ),
+    ]
+
+
 def _compute_truncation_metrics(
     adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
 ) -> List[Stat]:
@@ -351,6 +468,28 @@ def _compute_truncation_metrics(
     return [
         Stat(MetricName("num_train_instances")).add(request_state.num_train_instances),
         Stat(MetricName("prompt_truncated")).add(request_state.prompt_truncated),
+    ]
+
+
+def _get_truncation_metrics_metadata() -> List[Field]:
+    return [
+        Field(
+            name="num_train_instances",
+            display_name="# train",
+            short_display_name=None,
+            description="Number of training instances " "(e.g., in-context examples).",
+            lower_is_better=None,
+        ),
+        Field(
+            name="prompt_truncated",
+            display_name="truncated",
+            short_display_name=None,
+            description="Fraction of instances where the "
+            "prompt itself was truncated (implies "
+            "that there were no in-context "
+            "examples).",
+            lower_is_better=None,
+        ),
     ]
 
 
@@ -384,6 +523,34 @@ def compute_language_modeling_metrics(
         Stat(MetricName("logprob")).add(logprob),
         Stat(MetricName("num_perplexity_tokens")).add(num_perplexity_tokens),
         Stat(MetricName("num_bytes")).add(num_bytes),
+    ]
+
+
+def _get_language_modeling_metrics_metadata() -> List[Field]:
+    return [
+        Field(
+            name="logprob",
+            display_name="Log probability",
+            short_display_name="Logprob",
+            description="Predicted output's average log probability " "(input's log prob for language modeling).",
+            lower_is_better=False,
+        ),
+        Field(
+            name="num_perplexity_tokens",
+            display_name="# tokens",
+            short_display_name=None,
+            description="Average number of tokens in the "
+            "predicted output (for language "
+            "modeling, the input too).",
+            lower_is_better=None,
+        ),
+        Field(
+            name="num_bytes",
+            display_name="# bytes",
+            short_display_name=None,
+            description="Average number of bytes in the predicted " "output (for language modeling, the input " "too).",
+            lower_is_better=None,
+        ),
     ]
 
 
@@ -448,3 +615,85 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]) 
             stats.append(Stat(MetricName("platt_ece_1_bin")).add(platt_ece_1_bin))
 
     return stats
+
+
+def _get_calibration_metrics_metadata() -> List[Stat]:
+    return [
+        Field(
+            name="ece_10_bin",
+            display_name="10-bin expected calibration error",
+            short_display_name="ECE (10-bin)",
+            description="The average difference between the model's "
+            "confidence and accuracy, averaged across 10 "
+            "bins where each bin contains an equal "
+            "number of points (only computed for "
+            "classification tasks). Warning - not "
+            "reliable for small datasets (e.g., with < "
+            "300 examples) because each bin will have "
+            "very few examples.",
+            lower_is_better=True,
+        ),
+        Field(
+            name="ece_1_bin",
+            display_name="1-bin expected calibration error",
+            short_display_name="ECE (1-bin)",
+            description="The (absolute value) difference between the "
+            "model's average confidence and accuracy "
+            "(only computed for classification tasks).",
+            lower_is_better=True,
+        ),
+        Field(
+            name="selective_acc@10",
+            display_name="Accuracy at 10% coverage",
+            short_display_name="Acc@10%",
+            description="The accuracy for the 10% of "
+            "predictions that the model is most "
+            "confident on (only computed for "
+            "classification tasks).",
+            lower_is_better=False,
+        ),
+        Field(
+            name="selective_cov_acc_area",
+            display_name="Selective coverage-accuracy " "area",
+            short_display_name="Selective Acc",
+            description="The area under the "
+            "coverage-accuracy curve, a "
+            "standard selective "
+            "classification metric (only "
+            "computed for classification "
+            "tasks).",
+            lower_is_better=False,
+        ),
+        Field(
+            name="platt_coef",
+            display_name="Platt Scaling Coefficient",
+            short_display_name="Platt Coef",
+            description="Coefficient of the Platt scaling classifier " "(can compare this across tasks).",
+            lower_is_better=False,
+        ),
+        Field(
+            name="platt_intercept",
+            display_name="Platt Scaling Intercept",
+            short_display_name="Platt Intercept",
+            description="Intercept of the Platt scaling " "classifier (can compare this across " "tasks).",
+            lower_is_better=False,
+        ),
+        Field(
+            name="platt_ece_10_bin",
+            display_name="10-bin Expected Calibration Error " "(after Platt scaling)",
+            short_display_name="Platt-scaled ECE (10-bin)",
+            description="10-bin ECE computed after applying "
+            "Platt scaling to recalibrate the "
+            "model's predicted probabilities.",
+            lower_is_better=True,
+        ),
+        Field(
+            name="platt_ece_1_bin",
+            display_name="1-bin expected calibration error " "(after Platt scaling)",
+            short_display_name="Platt-scaled ECE (1-bin)",
+            description="1-bin ECE computed after applying "
+            "Platt scaling to recalibrate the "
+            "model's predicted probabilities.",
+            lower_is_better=True,
+        ),
+    ]

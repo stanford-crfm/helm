@@ -6,6 +6,7 @@ from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
+from helm.benchmark.presentation.schema import Field
 
 
 class WildBenchScoreMetric(Metric):
@@ -31,4 +32,22 @@ class WildBenchScoreMetric(Metric):
         return [
             Stat(MetricName("wildbench_score")).add(score),
             Stat(MetricName("wildbench_score_rescaled")).add(score_rescaled),
+        ]
+
+    def get_metadata(self):
+        return [
+            Field(
+                name="wildbench_score",
+                display_name="WildBench Score",
+                short_display_name="WB Score",
+                description="Score of the AI output judged by " "GPT-4o.",
+                lower_is_better=False,
+            ),
+            Field(
+                name="wildbench_score_rescaled",
+                display_name="WildBench Score",
+                short_display_name="WB Score",
+                description="Score of the AI output judged " "by GPT-4o, rescaled to be " "between 0 and 1.",
+                lower_is_better=False,
+            ),
         ]

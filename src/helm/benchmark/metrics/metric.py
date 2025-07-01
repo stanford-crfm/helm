@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, replace
+from dataclasses import Field, dataclass, replace
 from collections import defaultdict
 from typing import List, Dict, Tuple, Optional, Iterable
 
@@ -94,6 +94,9 @@ class MetricInterface(ABC):
         self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
     ) -> MetricResult:
         pass
+
+    def get_metadata(self) -> List[Field]:
+        raise NotImplementedError()
 
 
 class Metric(MetricInterface, ABC):

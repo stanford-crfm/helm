@@ -6,6 +6,7 @@ from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
+from helm.benchmark.presentation.schema import Field
 
 
 class OmniMATHMetric(Metric):
@@ -29,4 +30,15 @@ class OmniMATHMetric(Metric):
         score = sum(scores) / len(scores)
         return [
             Stat(MetricName("omni_math_accuracy")).add(score),
+        ]
+
+    def get_metadata(self):
+        return [
+            Field(
+                name="omni_math_accuracy",
+                display_name="Omni-MATH Accuracy",
+                short_display_name="Acc",
+                description="Accuracy of the AI output judged by " "GPT-4.",
+                lower_is_better=False,
+            )
         ]
