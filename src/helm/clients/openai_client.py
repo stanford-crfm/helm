@@ -118,11 +118,12 @@ class OpenAIClient(CachingClient):
         reasoning_effort: Optional[str] = None,
         openai_model_name: Optional[str] = None,
         output_processor: Optional[str] = None,
+        **kwargs,
     ):
         super().__init__(cache_config=cache_config)
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
-        self.client = OpenAI(api_key=api_key, organization=org_id, base_url=base_url)
+        self.client = OpenAI(api_key=api_key, organization=org_id, base_url=base_url, **kwargs)
         self.reasoning_effort = reasoning_effort
         self.openai_model_name = openai_model_name
         self.output_processor: Optional[Callable[[str], str]] = (
