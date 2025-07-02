@@ -51,7 +51,7 @@ cycler==0.12.1
 cymem==2.0.11
 dacite==1.9.2
 data==0.4
-datasets==2.21.0
+datasets==3.6.0
 decorator==5.2.1
 diffusers==0.24.0
 dill==0.3.8
