@@ -46,11 +46,26 @@ class CodeInsightsCodeEfficiencyScenario(Scenario):
                 continue
 
             # Get test cases for this question (we know they exist now)
-            question_test_cases = test_cases.get(str(target_question_id), [])
+            question_test_cases = []
+            tc_parsing_success = True
 
-            # Verify test cases are not empty
-            if not question_test_cases:
-                skipped_no_tests += 1
+            for testcase_str in target["question_unittests"].split("Unittest")[1:]:
+                testcase_str = testcase_str[testcase_str.find(":") + 1 :]
+                input_idx = testcase_str.find("Input:")
+                std_in_idx = testcase_str.find("STD input:")
+                output_idx = testcase_str.find("Output:")
+                if input_idx == -1 or std_in_idx == -1 or output_idx == -1:
+                    tc_parsing_success = False
+                    break
+
+                testcase = {
+                    "input": testcase_str[input_idx + 6 : std_in_idx].strip(),
+                    "std_in": testcase_str[std_in_idx + 10 : output_idx].strip(),
+                    "output": testcase_str[output_idx + 7 :].strip(),
+                }
+                question_test_cases.append(testcase)
+
+            if not tc_parsing_success:
                 print(f"SKIPPING Student {student_id}, Question {target_question_id}: Empty test cases")
                 continue
 
@@ -100,8 +115,9 @@ class CodeInsightsCodeEfficiencyScenario(Scenario):
                 "Provide ONLY your C++ implementation following the given template, where the answer will replace the {{ STUDENT_ANSWER }} block in the template. "
                 "DO NOT reproduce the template part as the generated code would be inserted to the template, "
                 "and make sure the code is compatible with the Unit Test Input. "
+                "int main() is always declared already so DO NOT produce that initialization on the code. "
                 "Ensure your code is correct, includes any class definition when needed, and handles all edge cases properly. "
-                "int main() is always declared already so DO NOT produce that initialization on the code."
+                "Return the code in C++ code block format, and nothing else."
             )
 
             instances.append(

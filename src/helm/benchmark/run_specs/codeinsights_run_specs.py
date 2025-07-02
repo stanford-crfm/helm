@@ -141,7 +141,6 @@ def get_codeinsights_code_efficiency_run_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_code_efficiency_metric_specs(
-            compile_code=True,  # Always compile for actual runtime measurement
             num_runtime_runs=5,  # Run each solution 5 times for averaging
             timeout_seconds=10,  # 10 second timeout per execution
         )

@@ -14,9 +14,6 @@ class CodeInsightsStudentMistakeScenario(Scenario):
             "https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/student_performace_by_topic.csv"
         )
 
-        # Load test cases (unit tests)
-        test_cases = self._load_test_cases()
-
         instances = []
         for student_id, student_df in df.groupby("student_id"):
             student_df = student_df.sort_values(by=["student_id", "question_unittest_id", "timestamp"])
@@ -30,8 +27,26 @@ class CodeInsightsStudentMistakeScenario(Scenario):
             # Get test cases for this question
             question_id = target.get("question_unittest_id", None)
             question_test_cases = []
-            if question_id and test_cases:
-                question_test_cases = test_cases.get(str(question_id), [])
+            tc_parsing_success = True
+
+            for testcase_str in target["question_unittests"].split("Unittest")[1:]:
+                testcase_str = testcase_str[testcase_str.find(":") + 1 :]
+                input_idx = testcase_str.find("Input:")
+                std_in_idx = testcase_str.find("STD input:")
+                output_idx = testcase_str.find("Output:")
+                if input_idx == -1 or std_in_idx == -1 or output_idx == -1:
+                    tc_parsing_success = False
+                    break
+
+                testcase = {
+                    "input": testcase_str[input_idx + 6 : std_in_idx].strip(),
+                    "std_in": testcase_str[std_in_idx + 10 : output_idx].strip(),
+                    "output": testcase_str[output_idx + 7 :].strip(),
+                }
+                question_test_cases.append(testcase)
+
+            if not tc_parsing_success:
+                continue
             # Get student pass (0 or 1) for the target question
             student_correctness_pattern = target.get("pass", None)
             main_part = int(student_correctness_pattern)  # "1111111111"
@@ -90,8 +105,9 @@ class CodeInsightsStudentMistakeScenario(Scenario):
                 "Provide ONLY your C++ implementation following the given template, where the answer will replace the {{ STUDENT_ANSWER }} block in the template. "
                 "DO NOT reproduce the template part as the generated code would be inserted to the template, "
                 "and make sure the code is compatible with the Unit Test Input. "
+                "int main() is always declared already so DO NOT produce that initialization on the code. "
                 "Ensure your code is includes any class definition when needed. "
-                "int main() is always declared already so DO NOT produce that initialization on the code."
+                "Return the code in C++ code block format, and nothing else."
             )
 
             print(f"\n=== DEBUG INFO FOR STUDENT {student_id}, QUESTION {question_id} ===")
