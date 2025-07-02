@@ -293,12 +293,12 @@ class HuggingFaceClient(CachingClient):
         if self._apply_chat_template:
             with self._wrapped_tokenizer as tokenizer:
                 if request.messages:
-                    prompt = tokenizer.apply_chat_template(request.messages, tokenize=False)
+                    prompt = tokenizer.apply_chat_template(request.messages, tokenize=False, add_generation_prompt=True)
                     assert isinstance(prompt, str)
                     return prompt
                 else:
                     prompt = tokenizer.apply_chat_template(
-                        [{"role": "user", "content": request.prompt}], tokenize=False
+                        [{"role": "user", "content": request.prompt}], tokenize=False, add_generation_prompt=True
                     )
                     assert isinstance(prompt, str)
                     return prompt
