@@ -23,5 +23,5 @@ def get_mmmlu_spec(locale: str, subject: str) -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["mmmlu"],
+        groups=["mmmlu", f"mmmlu_{locale}_{subject}"],
     )

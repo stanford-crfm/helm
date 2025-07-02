@@ -136,7 +136,26 @@ run_groups:
     description: Arabic Scenarios
     category: All scenarios
     subgroups:
+      - mmmlu
       - arabic_mmlu
+
+  - name: mmmlu
+    display_name: Multilingual MMLU (Arabic)
+    description: Multilingual MMLU (Arabic)
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: math, science, history, etc.
+      who: various online sources
+      when: before 2021
+      language: Arabic
+
 
   - name: arabic_mmlu
     display_name: Arabic MMLU

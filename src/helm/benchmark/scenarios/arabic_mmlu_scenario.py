@@ -19,6 +19,8 @@ from helm.benchmark.scenarios.scenario import (
 class ArabicMMLUScenario(Scenario):
     """ArabicMMLU
 
+    EXPERIMENTAL: This scenario may have future reverse incompatible changes.
+
     ArabicMMLU is the first multi-task language understanding benchmark
     for Arabic language, sourced from school exams across diverse educational
     levels in different countries spanning North Africa, the Levant, and the

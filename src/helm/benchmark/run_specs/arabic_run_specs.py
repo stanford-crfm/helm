@@ -1,3 +1,7 @@
+"""Run specs for Arabic leaderboard
+
+EXPERIMENTAL: Run specs here may have future reverse incompatible changes."""
+
 from helm.benchmark.adaptation.adapter_spec import ADAPT_MULTIPLE_CHOICE_JOINT
 from helm.benchmark.adaptation.common_adapter_specs import get_multiple_choice_adapter_spec
 from helm.benchmark.metrics.common_metric_specs import get_exact_match_metric_specs
@@ -7,6 +11,7 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 @run_spec_function("arabic_mmlu")
 def get_arabic_mmlu_spec() -> RunSpec:
+    """EXPERIMENTAL: This run spec here may have future reverse incompatible changes."""
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.arabic_mmlu_scenario.ArabicMMLUScenario")
 
     adapter_spec = get_multiple_choice_adapter_spec(

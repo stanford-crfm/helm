@@ -74,8 +74,6 @@ class MMMLUScenario(Scenario):
                         tags=[CORRECT_TAG] if option == row["Answer"] else [],
                     )
                 )
-            print(row["Answer"])
-            print(references)
             instance = Instance(
                 id=f"id{row_index}",
                 input=input,
