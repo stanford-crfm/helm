@@ -26,10 +26,12 @@ def get_mmmlu_spec(locale: str, subject: str) -> RunSpec:
         groups=["mmmlu", f"mmmlu_{locale}_{subject}"],
     )
 
+
 @run_spec_function("exams_multilingual")
 def get_exams_multilingual_spec(language: str, subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.exams_multilingual_scenario.EXAMSMultilingualScenario", args={"language": language, "subject": subject}
+        class_name="helm.benchmark.scenarios.exams_multilingual_scenario.EXAMSMultilingualScenario",
+        args={"language": language, "subject": subject},
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
