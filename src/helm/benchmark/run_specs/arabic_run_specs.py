@@ -28,3 +28,26 @@ def get_arabic_mmlu_spec() -> RunSpec:
         metric_specs=get_exact_match_metric_specs(),
         groups=["arabic_mmlu"],
     )
+
+
+@run_spec_function("alghafa")
+def get_alghafa_spec(subset: str) -> RunSpec:
+    """EXPERIMENTAL: This run spec here may have future reverse incompatible changes."""
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.alghafa_scenario.AlGhafaScenario", args={"subset": subset}
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="The following are multiple choice questions. Answer the last question. Respond only with only a single letter corresponding to your choice.",  # noqa: E501
+        input_noun="Question",
+        output_noun="Answer",
+    )
+
+    return RunSpec(
+        name=f"alghafa:subset={subset}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["alghafa", f"alghafa_{subset}"],
+    )
