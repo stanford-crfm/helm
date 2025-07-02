@@ -23,6 +23,10 @@ class LoadedModelProcessor:
 
 
 LOCAL_CHECKPOINT_3B = (
+    "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_more_data_6_27"
+)
+
+LOCAL_CHECKPOINT_7B = (
     "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_7b_6_30"
 )
 
@@ -36,6 +40,7 @@ _models: Dict[str, Optional[LoadedModelProcessor]] = {
     "Qwen/Qwen2.5-VL-32B-Instruct": None,
     "Qwen/Qwen2.5-VL-72B-Instruct": None,
     LOCAL_CHECKPOINT_3B: None,
+    LOCAL_CHECKPOINT_7B: None,
 }
 
 
@@ -53,6 +58,8 @@ class Qwen2VLMClient(CachingClient):
             return "Qwen/Qwen2.5-VL-3B-Instruct"
         elif helm_model_name == "qwen2.5-vl-3b-instruct-robo-reward":
             return LOCAL_CHECKPOINT_3B
+        elif helm_model_name == "qwen2.5-vl-7b-instruct-robo-reward":
+            return LOCAL_CHECKPOINT_7B
         elif helm_model_name == "qwen2.5-vl-7b-instruct":
             return "Qwen/Qwen2.5-VL-7B-Instruct"
         elif helm_model_name == "qwen2.5-vl-32b-instruct":
