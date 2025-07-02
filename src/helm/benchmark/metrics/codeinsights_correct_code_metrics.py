@@ -14,7 +14,7 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 
 
-def compile_code(i, temp_dir):
+def compile_code(i, temp_dir, timeout=10):
     """
     Compiles the C++ file at temp_dir/tc_{i}.cpp and outputs to temp_dir/tc_{i}.out.
 
@@ -30,10 +30,11 @@ def compile_code(i, temp_dir):
 
     try:
         result = subprocess.run(
-            ["g++", "-std=c++11", cpp_file, "-o", executable],
+            ["timeout", str(timeout), "g++", "-std=c++11", cpp_file, "-o", executable],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,  # Optional: to get output as string
+            timeout=timeout + 2,  # Optional: timeout for compilation
         )
         if result.returncode != 0:
             # print(f"Compilation failed for {cpp_file}:\n{result.stderr}")
@@ -44,7 +45,7 @@ def compile_code(i, temp_dir):
         return None
 
 
-def parallel_compile(codes, temp_dir, max_workers=4):
+def parallel_compile(codes, temp_dir, timeout=10, max_workers=4):
     """
     Compiles multiple C++ codes in parallel.
 
@@ -57,14 +58,9 @@ def parallel_compile(codes, temp_dir, max_workers=4):
         list: List of paths to the compiled executables or None for failed compilations.
     """
     executables = []
-    with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        # Submit all compilation tasks
-        futures = [executor.submit(compile_code, i, temp_dir) for i in range(len(codes))]
-
-        # Retrieve results as they complete
-        for future in futures:
-            result = future.result()
-            executables.append(result)
+    for i in range(len(codes)):
+        executable = compile_code(i, temp_dir, timeout)
+        executables.append(executable)
 
     return executables
 
@@ -91,6 +87,7 @@ def run_executable(executable, std_in, timeout=10):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,  # To decode stdout and stderr as strings
+            timeout=timeout + 2,  # Add a small buffer to the timeout
         )
         return (result.returncode, result.stdout)
     except Exception as e:
@@ -110,18 +107,9 @@ def parallel_run_executables(executables, std_inputs, timeout=10, max_workers=4)
         list: List of results containing the outputs from running each executable.
     """
     results = []
-
-    with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        # Submit all executable running tasks
-        futures = [
-            executor.submit(run_executable, executable, std_in, timeout)
-            for std_in, executable in zip(std_inputs, executables)
-        ]
-
-        # Retrieve results as they complete
-        for future in futures:
-            result_code, output = future.result()
-            results.append((result_code, output))
+    for std_in, executable in zip(std_inputs, executables):
+        result_code, output = run_executable(executable, std_in, timeout)
+        results.append((result_code, output))
 
     return results
 
@@ -204,7 +192,7 @@ class CPPEvaluator:
                 file.write(code)
 
         # Compile the C++ code
-        executables = parallel_compile(codes, temp_dir, max_workers=self.max_workers)
+        executables = parallel_compile(codes, temp_dir, timeout=self.timeout, max_workers=self.max_workers)
 
         return executables, temp_dir
 

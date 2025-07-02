@@ -6,7 +6,7 @@ def get_functional_correctness_metric_specs() -> List[MetricSpec]:
     return [
         MetricSpec(
             class_name="helm.benchmark.metrics.codeinsights_correct_code_metrics.CodeInsightsFunctionalCorrectnessMetric",  # noqa: E501
-            args={},
+            args={"timeout": 10, "max_workers": 1},
         )
     ]
 
