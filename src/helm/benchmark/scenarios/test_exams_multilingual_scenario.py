@@ -5,7 +5,7 @@ from helm.benchmark.scenarios.exams_multilingual_scenario import EXAMSMultilingu
 from helm.benchmark.scenarios.scenario import CORRECT_TAG, TRAIN_SPLIT, Input
 
 
-# @pytest.mark.scenarios
+@pytest.mark.scenarios
 def test_exam_multilingual_scenario_get_instances():
     scenario = EXAMSMultilingualScenario(language="Bulgarian", subject="Physics")
     with TemporaryDirectory() as tmpdir:

@@ -56,10 +56,10 @@ class EXAMSMultilingualScenario(Scenario):
         pages = "5427--5444",
         abstract = "We propose EXAMS {--} a new benchmark dataset for cross-lingual and multilingual question answering for high school examinations. We collected more than 24,000 high-quality high school exam questions in 16 languages, covering 8 language families and 24 school subjects from Natural Sciences and Social Sciences, among others.EXAMS offers unique fine-grained evaluation framework across multiple languages and subjects, which allows precise analysis and comparison of the proposed models. We perform various experiments with existing top-performing multilingual pre-trained models and show that EXAMS offers multiple challenges that require multilingual knowledge and reasoning in multiple domains. We hope that EXAMS will enable researchers to explore challenging reasoning and knowledge transfer methods and pre-trained models for school question answering in various languages which was not possible by now. The data, code, pre-trained models, and evaluation are available at http://github.com/mhardalov/exams-qa."
     }```
-    """
+    """  # noqa: E501
 
     name = "exams_multilingual"
-    description = "EXAMS is a benchmark dataset for multilingual and cross-lingual question answering from high school examinations. "
+    description = "EXAMS is a benchmark dataset for multilingual and cross-lingual question answering from high school examinations. "  # noqa: E501
     tags = ["knowledge", "multiple_choice"]
 
     CHOICES = ["A", "B", "C", "D", "E"]
