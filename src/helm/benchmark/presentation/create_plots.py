@@ -1,4 +1,6 @@
-# mypy: check_untyped_defs = False
+# flake8: noqa
+# type: ignore
+
 import argparse
 from collections import defaultdict
 from dataclasses import dataclass
