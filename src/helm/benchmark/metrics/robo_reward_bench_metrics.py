@@ -19,7 +19,7 @@ class RoboRewardBenchPreferenceRankingMetric(Metric):
             extracted_answer = extracted_answer.split("Answer:")[1]
 
         extracted_answer = extracted_answer.strip()
-        if extracted_answer.lower() in ["a", "b", "tie"]:
+        if extracted_answer.lower() in ["a", "b", "tie", "tied"]:
             return extracted_answer
         else:
             return None
@@ -49,7 +49,12 @@ class RoboRewardBenchPreferenceRankingMetric(Metric):
             hlog(f"Could not extract answer for instance {instance.id}: {prediction}")
             score = 0.0
         else:
-            score = 1.0 if predicted_answer.lower() == correct_answer.lower() else 0.0
+            if predicted_answer.lower() == correct_answer.lower():
+                score = 1.0
+            elif predicted_answer.lower() in ["tie", "tied"] and correct_answer.lower() in ["tie", "tied"]:
+                score = 1.0
+            else:
+                score = 0.0
 
         return [Stat(MetricName("exact_match", split="test")).add(score)]
 
