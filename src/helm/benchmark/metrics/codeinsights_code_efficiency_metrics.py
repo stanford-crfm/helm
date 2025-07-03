@@ -158,36 +158,28 @@ class CodeInsightsCodeEfficiencyMetric(CodeInsightsFunctionalCorrectnessMetric):
 
         return stats
 
-    def _timed_run(self, evaluator: CPPEvaluator, code: str, num_runtime_runs: int = 1) -> Tuple[Dict[str, Any], float]:
-        # list_runtimes = []
-        # for _run in range(num_runtime_runs):
-        #     # Run the code and measure the time taken
-        #     start_time = time.perf_counter()
-        #     output = evaluator.evaluate(code)
-        #     if sum(output["testcases"]) == 0:
-        #         return {}, -1
-        #     else:
-        #         avg_runtime = (time.perf_counter() - start_time) / sum(output["testcases"])
-        #         list_runtimes.append(avg_runtime)
-
-        # return output, sum(list_runtimes) / len(list_runtimes) if list_runtimes else -1
+    def _timed_run(
+        self,
+        evaluator: CPPEvaluator,
+        code: str,
+        num_runtime_runs: int = 1
+    ) -> Tuple[Dict[str, Any], float]:
         list_runtimes: List[float] = []
-+        last_output: Dict[str, Any] = {}
-+
-+        for _ in range(num_runtime_runs):
-+            start_time = time.perf_counter()
-+            output = evaluator.evaluate(code)
-+            passed = sum(output["testcases"])
-+
-+            if passed > 0:
-+                elapsed = time.perf_counter() - start_time
-+                list_runtimes.append(elapsed / passed)
-+                last_output = output
-+            # if passed == 0: simply skip this run
-+
-+        # Compute the mean only over the successful runs
-+        avg_runtime = sum(list_runtimes) / len(list_runtimes) if list_runtimes else 0.0
-+        return last_output, avg_runtime
+        last_output: Dict[str, Any] = {}
+
+        for _ in range(num_runtime_runs):
+            start_time = time.perf_counter()
+            output = evaluator.evaluate(code)
+            passed = sum(output.get("testcases", []))
+
+            if passed > 0:
+                elapsed = time.perf_counter() - start_time
+                list_runtimes.append(elapsed / passed)
+                last_output = output
+            # if passed == 0, we simply skip recording this run
+
+        avg_runtime = sum(list_runtimes) / len(list_runtimes) if list_runtimes else 0.0
+        return last_output, avg_runtime
 
     def _create_failure_stats(self, error_message: str) -> List[Stat]:
         """Create default statistics for failure cases."""
