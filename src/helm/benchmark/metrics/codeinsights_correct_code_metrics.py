@@ -332,29 +332,104 @@ class CodeInsightsFunctionalCorrectnessMetric(Metric):
         - Removes student's main()
         """
 
-        code_blocks = re.findall(r"```(?:c\+\+)?\n(.*?)```", model_code, flags=re.DOTALL)
-        if code_blocks:
-            model_code = code_blocks[0].strip()  # Use the first code block
-            print("[Markdown extraction] Used fenced code blocks.")
+        # code_blocks = re.findall(r"```(?:c\+\+)?\n(.*?)```", model_code, flags=re.DOTALL)
+        # if code_blocks:
+        #     model_code = code_blocks[0].strip()  # Use the first code block
+        #     print("[Markdown extraction] Used fenced code blocks.")
 
         # Post-processing
-        lines = model_code.strip().splitlines()
-        start_keywords = ("#include", "using namespace")
+        #Comment out as a testing - 7/3/2025
+        # lines = model_code.strip().splitlines()
+        # start_keywords = ("#include", "using namespace")
+        # for i, line in enumerate(lines):
+        #     if any(line.strip().startswith(k) for k in start_keywords):
+        #         lines[i] = ""
+        # code = "\n".join(lines).strip()
+        # if "int main" in code:
+        #     code = code.split("int main")[0].strip()
+
+        # # --- Final touch ---
+        # if "print(" in code and "void print()" not in code and "print()" not in code:
+        #     print("⚠️ WARNING: `print()` is called in test input but not defined.")
+
+        # print(f"[Final extracted code length] {len(code)}")
+        # print(f"[Code preview]\n{code[:300]}...\n")
+        # return code
+        
+        # --- 1) Raw input debug ---
+        print("=== RAW MODEL_CODE ===")
+        for idx, line in enumerate(model_code.splitlines()):
+            print(f"{idx:03d}: {line!r}")
+        print("-" * 50)
+
+        # --- 2) Markdown fences? ---
+        code_blocks = re.findall(r"```(?:c\+\+)?\n(.*?)```", model_code, flags=re.DOTALL)
+        if code_blocks:
+            model_code = code_blocks[0].strip()
+            print("[Markdown] using fenced block:")
+            for idx, line in enumerate(model_code.splitlines()):
+                print(f"{idx:03d}: {line!r}")
+        else:
+            print("[Markdown] no fenced blocks found.")
+        print("-" * 50)
+
+        # --- 3) Split and drop preamble up to first '#' line ---
+        lines = model_code.splitlines()
+        first_inc_idx = None
         for i, line in enumerate(lines):
-            if any(line.strip().startswith(k) for k in start_keywords):
-                lines[i] = ""
+            if line.lstrip().startswith("#"):
+                first_inc_idx = i
+                print(f"[Found include] line {i}: {line!r}")
+                break
+        if first_inc_idx is None:
+            print("⚠️ No '#' line found; defaulting to start at 0")
+            first_inc_idx = 0
 
-        code = "\n".join(lines).strip()
-        if "int main" in code:
-            code = code.split("int main")[0].strip()
+        trimmed = lines[first_inc_idx:]
+        print("=== AFTER PREAMBLE DROP ===")
+        for idx, line in enumerate(trimmed, start=first_inc_idx):
+            print(f"{idx:03d}: {line!r}")
+        print("-" * 50)
 
-        # --- Final touch ---
-        if "print(" in code and "void print()" not in code and "print()" not in code:
-            print("⚠️ WARNING: `print()` is called in test input but not defined.")
+        # --- 4) Locate main() wrapper ---
+        main_idx = None
+        for i, line in enumerate(trimmed):
+            if line.strip().startswith("int main"):
+                main_idx = i
+                print(f"[Found 'int main'] at trimmed line {i} (original {i+first_inc_idx})")
+                break
+        if main_idx is None:
+            print("⚠️ No `int main` found; returning all trimmed lines")
+            code_lines = trimmed
+        else:
+            # find closing '}' for that main
+            close_idx = None
+            brace_balance = 0
+            for j, line in enumerate(trimmed[main_idx:], start=main_idx):
+                # crude brace count
+                brace_balance += line.count("{") - line.count("}")
+                if brace_balance == 0:
+                    close_idx = j
+                    print(f"[Found closing '}}'] at trimmed line {j} (original {j+first_inc_idx})")
+                    break
+            if close_idx is None:
+                print("⚠️ Couldn't find matching '}' for main; using everything after main")
+                code_lines = trimmed[:main_idx] + trimmed[main_idx+1:]
+            else:
+                # keep includes + using namespace (lines 0..main_idx-1)
+                # plus the body lines (main_idx+1 .. close_idx-1)
+                code_lines = trimmed[:main_idx] + trimmed[main_idx+1:close_idx]
 
-        print(f"[Final extracted code length] {len(code)}")
-        print(f"[Code preview]\n{code[:300]}...\n")
+        # --- 5) Final assembly & debug ---
+        code = "\n".join(code_lines).strip()
+        print(f"[FINAL extracted code length] {len(code)}")
+        print("[FINAL code preview]")
+        for idx, line in enumerate(code.splitlines()):
+            print(f"{idx:03d}: {line!r}")
+        print("-" * 50)
+
         return code
+    
 
     def _create_failure_stats(self, error_message: str) -> List[Stat]:
         """

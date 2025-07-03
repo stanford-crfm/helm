@@ -117,7 +117,7 @@ class CodeInsightsCodeEfficiencyScenario(Scenario):
                 "and make sure the code is compatible with the Unit Test Input. "
                 "int main() is always declared already so DO NOT produce that initialization on the code. "
                 "Ensure your code is correct, includes any class definition when needed, and handles all edge cases properly. "
-                "Return the code in C++ code block format, and nothing else."
+                "Return the code in C++ code block format, and nothing else, and produce only one set of code."
             )
 
             instances.append(
