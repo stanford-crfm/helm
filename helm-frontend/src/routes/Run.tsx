@@ -5,30 +5,36 @@ import {
   ArrowDownTrayIcon,
   ArrowTopRightOnSquareIcon,
 } from "@heroicons/react/24/solid";
+
 import getSchema from "@/services/getSchema";
-import type RunSpec from "@/types/RunSpec";
 import getScenarioByName from "@/services/getScenarioByName";
-import type Scenario from "@/types/Scenario";
-import type AdapterFieldMap from "@/types/AdapterFieldMap";
-import type MetricFieldMap from "@/types/MetricFieldMap";
 import getRunSpecByName, {
   getRunSpecByNameUrl,
 } from "@/services/getRunSpecByName";
 import { getScenarioStateByNameUrl } from "@/services/getScenarioStateByName";
+import getRunsToRunSuites from "@/services/getRunsToRunSuites";
+import getSuiteForRun from "@/services/getSuiteForRun";
+import getLLMJudgeDataByName from "@/services/getLLMJudgeDataByName";
+import type LLMJudgeData from "@/types/LLMJudgeData";
+import LLMJudgeDisplay from "@/components/LLMJudgeDisplay";
+
+import type RunSpec from "@/types/RunSpec";
+import type Scenario from "@/types/Scenario";
+import type AdapterFieldMap from "@/types/AdapterFieldMap";
+import type MetricFieldMap from "@/types/MetricFieldMap";
+import type Model from "@/types/Model";
+
 import Tab from "@/components/Tab";
 import Tabs from "@/components/Tabs";
 import Loading from "@/components/Loading";
-import Model from "@/types/Model";
 import MarkdownValue from "@/components/MarkdownValue";
-import getRunsToRunSuites from "@/services/getRunsToRunSuites";
-import getSuiteForRun from "@/services/getSuiteForRun";
 import Instances from "@/components/Instances";
 import RunMetrics from "@/components/RunMetrics";
 import UserAgreement from "@/components/UserAgreement";
 import isScenarioEncrypted from "@/utils/isScenarioEncrypted";
 
 export default function Run() {
-  const { runName } = useParams();
+  const { runName } = useParams<{ runName: string }>();
   const [activeTab, setActiveTab] = useState<number>(0);
   const [runSpec, setRunSpec] = useState<RunSpec | undefined>();
   const [runSuite, setRunSuite] = useState<string | undefined>();
@@ -37,49 +43,72 @@ export default function Run() {
   const [adapterFieldMap, setAdapterFieldMap] = useState<AdapterFieldMap>({});
   const [metricFieldMap, setMetricFieldMap] = useState<
     MetricFieldMap | undefined
-  >({});
-
+  >();
   const [userAgreed, setUserAgreed] = useState(false);
+
+  const [llmJudgeData, setLlmJudgeData] = useState<LLMJudgeData | undefined>();
+  const [isLoadingLlmJudgeData, setIsLoadingLlmJudgeData] =
+    useState<boolean>(true);
 
   useEffect(() => {
     const controller = new AbortController();
     async function fetchData() {
-      const signal = controller.signal;
-
       if (runName === undefined) {
-        return () => controller.abort();
+        return;
       }
 
-      const suite = window.SUITE
-        ? window.SUITE
-        : getSuiteForRun(await getRunsToRunSuites(signal), runName);
-      setRunSuite(suite);
+      setIsLoadingLlmJudgeData(true);
+      const signal = controller.signal;
 
-      const [runSpecResp, scenario, schema] = await Promise.all([
-        getRunSpecByName(runName, signal, suite),
-        getScenarioByName(runName, signal, suite),
-        getSchema(signal),
-      ]);
+      try {
+        const currentSuite = window.SUITE
+          ? window.SUITE
+          : getSuiteForRun(await getRunsToRunSuites(signal), runName);
+        setRunSuite(currentSuite);
 
-      setRunSpec(runSpecResp);
-      setScenario(scenario);
+        const [runSpecResp, scenarioResp, schemaResp] = await Promise.all([
+          getRunSpecByName(runName, signal, currentSuite),
+          getScenarioByName(runName, signal, currentSuite),
+          getSchema(signal),
+        ]);
 
-      setMetricFieldMap(
-        schema.metrics.reduce((acc, cur) => {
-          acc[cur.name] = cur;
-          return acc;
-        }, {} as MetricFieldMap),
-      );
-      setAdapterFieldMap(
-        schema.adapter.reduce((acc, cur) => {
-          acc[cur.name] = cur;
-          return acc;
-        }, {} as AdapterFieldMap),
-      );
+        setRunSpec(runSpecResp);
+        setScenario(scenarioResp);
 
-      setModel(
-        schema.models.find((m) => m.name === runSpecResp?.adapter_spec.model),
-      );
+        setMetricFieldMap(
+          schemaResp.metrics.reduce((acc, cur) => {
+            acc[cur.name] = cur;
+            return acc;
+          }, {} as MetricFieldMap),
+        );
+        setAdapterFieldMap(
+          schemaResp.adapter.reduce((acc, cur) => {
+            acc[cur.name] = cur;
+            return acc;
+          }, {} as AdapterFieldMap),
+        );
+
+        if (runSpecResp?.adapter_spec.model) {
+          setModel(
+            schemaResp.models.find(
+              (m) => m.name === runSpecResp.adapter_spec.model,
+            ),
+          );
+        }
+
+        const judgeData = await getLLMJudgeDataByName(
+          runName,
+          signal,
+          currentSuite,
+        );
+        setLlmJudgeData(judgeData);
+      } catch (error) {
+        if (error instanceof Error && error.name !== "AbortError") {
+          console.error("Failed to load run data:", error);
+        }
+      } finally {
+        setIsLoadingLlmJudgeData(false);
+      }
     }
 
     void fetchData();
@@ -103,7 +132,7 @@ export default function Run() {
         <div>
           <h1 className="text-3xl flex items-center">
             {scenario.name}
-            <a href={"/#/groups/" + scenario.name}>
+            <a href={`/#/groups/${scenario.name}`}>
               <ArrowTopRightOnSquareIcon className="w-6 h-6 ml-2" />
             </a>
           </h1>
@@ -112,11 +141,13 @@ export default function Run() {
           </h3>
           <h1 className="text-3xl mt-2">{runSpec.adapter_spec.model}</h1>
           <h3 className="text-xl">
-            <MarkdownValue value={model?.description || ""} />
+            <MarkdownValue
+              value={model?.description || "No model description available."}
+            />
           </h3>
           <div className="mt-2 flex gap-2">
             {scenario.tags.map((tag) => (
-              <Badge size="xs" color="gray">
+              <Badge size="xs" color="gray" key={tag}>
                 <span className="text text-md">{tag}</span>
               </Badge>
             ))}
@@ -131,16 +162,18 @@ export default function Run() {
             <a
               className="link link-primary link-hover"
               href={getRunSpecByNameUrl(runSpec.name, runSuite)}
-              download="true"
+              download={true}
               target="_blank"
+              rel="noopener noreferrer"
             >
               Spec JSON
             </a>
             <a
               className="link link-primary link-hover"
               href={getScenarioStateByNameUrl(runSpec.name, runSuite)}
-              download="true"
+              download={true}
               target="_blank"
+              rel="noopener noreferrer"
             >
               Full JSON
             </a>
@@ -148,8 +181,8 @@ export default function Run() {
         </div>
         <div>
           <List className="grid md:grid-cols-2 lg:grid-cols-3 gap-x-8">
-            {Object.entries(runSpec.adapter_spec).map(([key, value], idx) => (
-              <ListItem className={idx < 3 ? "!border-0" : ""}>
+            {Object.entries(runSpec.adapter_spec).map(([key, value]) => (
+              <ListItem key={key}>
                 <strong
                   className="mr-1"
                   title={
@@ -158,7 +191,7 @@ export default function Run() {
                       : undefined
                   }
                 >{`${key}: `}</strong>
-                <span className="overflow-x-auto">{value}</span>
+                <span className="overflow-x-auto">{String(value)}</span>
               </ListItem>
             ))}
           </List>
@@ -180,26 +213,45 @@ export default function Run() {
           >
             All metrics
           </Tab>
+          {llmJudgeData &&
+          llmJudgeData.tasks &&
+          llmJudgeData.tasks.length > 0 ? (
+            <Tab
+              size="lg"
+              active={activeTab === 2}
+              onClick={() => setActiveTab(2)}
+            >
+              LLM Judge Analysis
+            </Tab>
+          ) : null}
         </Tabs>
       </div>
 
       {activeTab === 0 && isScenarioEncrypted(runName) && !userAgreed && (
         <UserAgreement runName={runName} onAgree={() => setUserAgreed(true)} />
       )}
-
-      {activeTab === 0 ? (
+      {activeTab === 0 && (
         <Instances
           key={userAgreed ? "instances-agreed" : "instances-not-agreed"}
           runName={runName}
           suite={runSuite}
           metricFieldMap={metricFieldMap}
-          userAgreed={userAgreed} // Pass the boolean to Instances
+          userAgreed={userAgreed}
         />
-      ) : (
+      )}
+
+      {activeTab === 1 && (
         <RunMetrics
           runName={runName}
           suite={runSuite}
           metricFieldMap={metricFieldMap}
+        />
+      )}
+
+      {activeTab === 2 && (
+        <LLMJudgeDisplay
+          data={llmJudgeData}
+          isLoading={isLoadingLlmJudgeData}
         />
       )}
     </>
