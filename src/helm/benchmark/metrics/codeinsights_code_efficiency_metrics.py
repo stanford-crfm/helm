@@ -158,12 +158,7 @@ class CodeInsightsCodeEfficiencyMetric(CodeInsightsFunctionalCorrectnessMetric):
 
         return stats
 
-    def _timed_run(
-        self,
-        evaluator: CPPEvaluator,
-        code: str,
-        num_runtime_runs: int = 1
-    ) -> Tuple[Dict[str, Any], float]:
+    def _timed_run(self, evaluator: CPPEvaluator, code: str, num_runtime_runs: int = 1) -> Tuple[Dict[str, Any], float]:
         list_runtimes: List[float] = []
         last_output: Dict[str, Any] = {}
 
