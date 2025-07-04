@@ -28,28 +28,28 @@ def test_bluex_scenario():
         ),
         Reference(
             output=Output(
-                text='a presença de um narrador-personagem, como se lê em "em verdade vos digo que pensava em outra'
-                'coisa".'
+                text='a presença de um narrador-personagem, como se lê em "em verdade vos digo que pensava em '
+                'outra coisa".'
             ),
             tags=[],
         ),
         Reference(
             output=Output(
-                text='a sobriedade do protagonista ao avaliar o seu percurso, como se lê em "Cotejava o passado com o'
-                "presente."
+                text='a sobriedade do protagonista ao avaliar o seu percurso, como se lê em "Cotejava o passado com '
+                "o presente."
             ),
             tags=[],
         ),
         Reference(
             output=Output(
-                text='o sentido místico e fatalista que rege os destinos, como se lê em "Deus escreve direito por'
-                ' linhas tortas".'
+                text='o sentido místico e fatalista que rege os destinos, como se lê em "Deus escreve direito por '
+                'linhas tortas".'
             ),
             tags=[],
         ),
         Reference(
             output=Output(
-                text='a reversibilidade entre o cômico e o trágico, como se lê em "de modo que o que parecia uma'
+                text='a reversibilidade entre o cômico e o trágico, como se lê em "de modo que o que parecia uma '
                 'desgraça...".'
             ),
             tags=[CORRECT_TAG],
