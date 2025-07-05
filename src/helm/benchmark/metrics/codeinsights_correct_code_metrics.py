@@ -330,11 +330,10 @@ class CodeInsightsFunctionalCorrectnessMetric(Metric):
         - Trims preambles
         - Removes student's main()
         """
-
-        # code_blocks = re.findall(r"```(?:c\+\+)?\n(.*?)```", model_code, flags=re.DOTALL)
-        # if code_blocks:
-        #     model_code = code_blocks[0].strip()  # Use the first code block
-        #     print("[Markdown extraction] Used fenced code blocks.")
+        code_blocks = re.findall(r"```(?:c\+\+)?\n(.*?)```", model_code, flags=re.DOTALL)
+        if code_blocks:
+            model_code = code_blocks[0].strip()  # Use the first code block
+            print("[Markdown extraction] Used fenced code blocks.")
 
         # Post-processing
         # Comment out as a testing - 7/3/2025
@@ -352,7 +351,6 @@ class CodeInsightsFunctionalCorrectnessMetric(Metric):
             print("⚠️ WARNING: `print()` is called in test input but not defined.")
 
         return code
-    
 
     def _create_failure_stats(self, error_message: str) -> List[Stat]:
         """
