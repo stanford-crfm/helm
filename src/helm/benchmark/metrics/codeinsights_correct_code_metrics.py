@@ -347,42 +347,9 @@ class CodeInsightsFunctionalCorrectnessMetric(Metric):
         if "int main" in code:
             code = code.split("int main")[0].strip()
 
-        # --- 4) Locate main() wrapper ---
-        main_idx = None
-        for i, line in enumerate(trimmed):
-            if line.strip().startswith("int main"):
-                main_idx = i
-                print(f"[Found 'int main'] at trimmed line {i} (original {i+first_inc_idx})")
-                break
-        if main_idx is None:
-            print("⚠️ No `int main` found; returning all trimmed lines")
-            code_lines = trimmed
-        else:
-            # find closing '}' for that main
-            close_idx = None
-            brace_balance = 0
-            for j, line in enumerate(trimmed[main_idx:], start=main_idx):
-                # crude brace count
-                brace_balance += line.count("{") - line.count("}")
-                if brace_balance == 0:
-                    close_idx = j
-                    print(f"[Found closing '}}'] at trimmed line {j} (original {j+first_inc_idx})")
-                    break
-            if close_idx is None:
-                print("⚠️ Couldn't find matching '}' for main; using everything after main")
-                code_lines = trimmed[:main_idx] + trimmed[main_idx+1:]
-            else:
-                # keep includes + using namespace (lines 0..main_idx-1)
-                # plus the body lines (main_idx+1 .. close_idx-1)
-                code_lines = trimmed[:main_idx] + trimmed[main_idx+1:close_idx]
-
-        # --- 5) Final assembly & debug ---
-        code = "\n".join(code_lines).strip()
-        print(f"[FINAL extracted code length] {len(code)}")
-        print("[FINAL code preview]")
-        for idx, line in enumerate(code.splitlines()):
-            print(f"{idx:03d}: {line!r}")
-        print("-" * 50)
+        # --- Final touch ---
+        if "print(" in code and "void print()" not in code and "print()" not in code:
+            print("⚠️ WARNING: `print()` is called in test input but not defined.")
 
         return code
     
