@@ -4,7 +4,6 @@ import os
 import subprocess
 import tempfile
 import shutil
-from concurrent.futures import ProcessPoolExecutor
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
@@ -338,58 +337,15 @@ class CodeInsightsFunctionalCorrectnessMetric(Metric):
         #     print("[Markdown extraction] Used fenced code blocks.")
 
         # Post-processing
-        #Comment out as a testing - 7/3/2025
-        # lines = model_code.strip().splitlines()
-        # start_keywords = ("#include", "using namespace")
-        # for i, line in enumerate(lines):
-        #     if any(line.strip().startswith(k) for k in start_keywords):
-        #         lines[i] = ""
-        # code = "\n".join(lines).strip()
-        # if "int main" in code:
-        #     code = code.split("int main")[0].strip()
-
-        # # --- Final touch ---
-        # if "print(" in code and "void print()" not in code and "print()" not in code:
-        #     print("⚠️ WARNING: `print()` is called in test input but not defined.")
-
-        # print(f"[Final extracted code length] {len(code)}")
-        # print(f"[Code preview]\n{code[:300]}...\n")
-        # return code
-        
-        # --- 1) Raw input debug ---
-        print("=== RAW MODEL_CODE ===")
-        for idx, line in enumerate(model_code.splitlines()):
-            print(f"{idx:03d}: {line!r}")
-        print("-" * 50)
-
-        # --- 2) Markdown fences? ---
-        code_blocks = re.findall(r"```(?:c\+\+)?\n(.*?)```", model_code, flags=re.DOTALL)
-        if code_blocks:
-            model_code = code_blocks[0].strip()
-            print("[Markdown] using fenced block:")
-            for idx, line in enumerate(model_code.splitlines()):
-                print(f"{idx:03d}: {line!r}")
-        else:
-            print("[Markdown] no fenced blocks found.")
-        print("-" * 50)
-
-        # --- 3) Split and drop preamble up to first '#' line ---
-        lines = model_code.splitlines()
-        first_inc_idx = None
+        # Comment out as a testing - 7/3/2025
+        lines = model_code.strip().splitlines()
+        start_keywords = ("#include", "using namespace")
         for i, line in enumerate(lines):
-            if line.lstrip().startswith("#"):
-                first_inc_idx = i
-                print(f"[Found include] line {i}: {line!r}")
-                break
-        if first_inc_idx is None:
-            print("⚠️ No '#' line found; defaulting to start at 0")
-            first_inc_idx = 0
-
-        trimmed = lines[first_inc_idx:]
-        print("=== AFTER PREAMBLE DROP ===")
-        for idx, line in enumerate(trimmed, start=first_inc_idx):
-            print(f"{idx:03d}: {line!r}")
-        print("-" * 50)
+            if any(line.strip().startswith(k) for k in start_keywords):
+                lines[i] = ""
+        code = "\n".join(lines).strip()
+        if "int main" in code:
+            code = code.split("int main")[0].strip()
 
         # --- 4) Locate main() wrapper ---
         main_idx = None
