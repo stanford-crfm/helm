@@ -3,7 +3,7 @@
 EXPERIMENTAL: Run specs here may have future reverse incompatible changes."""
 
 from helm.benchmark.adaptation.adapter_spec import ADAPT_MULTIPLE_CHOICE_JOINT
-from helm.benchmark.adaptation.common_adapter_specs import get_multiple_choice_adapter_spec
+from helm.benchmark.adaptation.common_adapter_specs import get_multiple_choice_adapter_spec, get_generation_adapter_spec
 from helm.benchmark.metrics.common_metric_specs import get_exact_match_metric_specs
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
