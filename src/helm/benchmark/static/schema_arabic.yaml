@@ -204,7 +204,7 @@ run_groups:
       main_split: test
     taxonomy:
       task: "multiple choice question answering"
-      what: TBD
-      who: TBD
-      when: "TBD"
+      what: High school examinations
+      who: High school examinations writers and test-takers
+      when: before 2020
       language: Arabic
