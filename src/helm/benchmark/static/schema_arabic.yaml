@@ -139,6 +139,7 @@ run_groups:
       - mmmlu
       - arabic_mmlu
       - alghafa
+      - exams_multilingual
 
   - name: mmmlu
     display_name: Multilingual MMLU (Arabic)
@@ -189,4 +190,21 @@ run_groups:
       what: Various
       who: Various
       when: "before 2023"
+      language: Arabic
+
+  - name: exams_multilingual
+    display_name: EXAMS (Arabic)
+    description: EXAMS (Arabic)
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: "multiple choice question answering"
+      what: High school examinations
+      who: High school examinations writers and test-takers
+      when: before 2020
       language: Arabic
