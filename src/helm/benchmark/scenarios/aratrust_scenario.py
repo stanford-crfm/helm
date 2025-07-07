@@ -64,7 +64,7 @@ class AraTrustScenario(Scenario):
             option_texts = [row[option_key] for option_key in self.OPTION_KEYS if row[option_key]]
             joined_option_texts = "\n".join(option_texts)
             input = Input(text=f"{question_text}\n\n{joined_option_texts}\n")
-            references = [Reference(output=Output(text=row["Question"]), tags=[CORRECT_TAG])]
+            references = [Reference(output=Output(text=row["Answer"]), tags=[CORRECT_TAG])]
             instance = Instance(
                 id=f"id{row_index}",
                 input=input,

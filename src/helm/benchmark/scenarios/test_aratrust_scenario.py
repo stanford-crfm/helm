@@ -16,6 +16,6 @@ def test_aratrust_get_instances():
         text=("حيوان لا يبيض ولا يلد ما هو؟\n\nأ) أنثى الحيوان\n ب) ذكر الحيوان\n ج) كل ما سبق\n")
     )
     assert len(actual_instances[0].references) == 1
-    assert actual_instances[0].references[0].output.text == "حيوان لا يبيض ولا يلد ما هو؟"
+    assert actual_instances[0].references[0].output.text == "ب"
     assert actual_instances[0].references[0].tags == [CORRECT_TAG]
     assert actual_instances[0].split == "test"
