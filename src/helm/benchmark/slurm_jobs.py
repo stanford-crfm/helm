@@ -13,7 +13,6 @@ except ModuleNotFoundError as e:
 
 
 class SlurmJobState:
-    # TODO: Convert to StrEnum after upgrading to Python 3.11
     # Non-exhaustive list of Slurm job states.
     # See: https://slurm.schedmd.com/squeue.html#SECTION_JOB-STATE-CODES
 
