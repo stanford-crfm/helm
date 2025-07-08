@@ -141,6 +141,7 @@ run_groups:
       - alghafa
       - exams_multilingual
       - aratrust
+      - alrage
 
   - name: mmmlu
     display_name: Multilingual MMLU (Arabic)
@@ -213,6 +214,24 @@ run_groups:
   - name: aratrust
     display_name: AraTrust
     description: AraTrust
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: "question answering"
+      what: "academic questions across various disciplines"
+      who: "academic exams writers and takers"
+      when: "before 2024"
+      language: Arabic
+
+
+  - name: alrage
+    display_name: ALRAGE
+    description: ALRAGE
     metric_groups:
       - accuracy
       - efficiency
