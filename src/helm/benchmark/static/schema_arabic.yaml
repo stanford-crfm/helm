@@ -240,8 +240,8 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: "question answering"
-      what: "academic questions across various disciplines"
-      who: "academic exams writers and takers"
-      when: "before 2024"
+      task: "openbook (RAG) open-ended question answering"
+      what: "?"
+      who: "?"
+      when: "?"
       language: Arabic
