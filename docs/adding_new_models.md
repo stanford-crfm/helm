@@ -87,6 +87,8 @@ model_deployments:
         base_url:  http://mymodelserver:8000/v1/
 ```
 
+For non-chat models, set `class_name` in `client_spec` to `helm.clients.vllm_client.VLLMClient`. For chat models, set `class_name` in `client_spec` to `helm.clients.vllm_client.VLLMChatClient`.
+
 Set `base_url` to the URL of your inference server. On your inference server, run vLLM's OpenAI compatible server with:
 
 ```
