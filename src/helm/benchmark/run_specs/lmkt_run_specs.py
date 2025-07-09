@@ -37,7 +37,7 @@ INSTRUCTIONS = {
             "output_noun": "Phản hồi",
         },
     },
-    "social_norm_explanation_normad": {
+    "social_norm_reasoning_normad": {
         "en": {
             "instructions": "Please respond as the {country} persona described below.",
             "input_noun": "Situation",
@@ -116,29 +116,29 @@ def get_social_norm_application_normad_spec(language: str, country: str) -> RunS
     )
 
 
-@run_spec_function("social_norm_explanation_normad")
-def get_social_norm_explanation_normad_spec(language: str, country: str) -> RunSpec:
+@run_spec_function("social_norm_reasoning_normad")
+def get_social_norm_reasoning_normad_spec(language: str, country: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.lmkt_scenarios.SocialNormExplanationNormADScenario",
+        class_name="helm.benchmark.scenarios.lmkt_scenarios.SocialNormReasoningNormADScenario",
         args={
             "language": language,
         },
     )
 
     adapter_spec = get_generation_adapter_spec(
-        instructions=INSTRUCTIONS["social_norm_explanation_normad"][language]["instructions"].format(
+        instructions=INSTRUCTIONS["social_norm_reasoning_normad"][language]["instructions"].format(
             country=COUNTRIES[country]
         ),
-        input_noun=INSTRUCTIONS["social_norm_explanation_normad"][language]["input_noun"],
-        output_noun=INSTRUCTIONS["social_norm_explanation_normad"][language]["output_noun"],
+        input_noun=INSTRUCTIONS["social_norm_reasoning_normad"][language]["input_noun"],
+        output_noun=INSTRUCTIONS["social_norm_reasoning_normad"][language]["output_noun"],
         max_tokens=128,
         stop_sequences=[],
     )
 
     return RunSpec(
-        name="social_norm_explanation_normad",
+        name="social_norm_reasoning_normad",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_open_ended_generation_metric_specs() + get_semantic_similarity_metric_specs(),
-        groups=["lmkt", "social_norm_explanation_normad"],
+        groups=["lmkt", "social_norm_reasoning_normad"],
     )

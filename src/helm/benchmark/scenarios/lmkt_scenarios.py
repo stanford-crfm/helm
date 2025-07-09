@@ -243,12 +243,12 @@ class SocialNormApplicationNormADScenario(Scenario):
         return instances
 
 
-class SocialNormExplanationNormADScenario(Scenario):
-    """Social norms explanation evaluation based on Vietnam World Values Survey responses."""
+class SocialNormReasoningNormADScenario(Scenario):
+    """Social norms reasoning evaluation based on Vietnam World Values Survey responses."""
 
-    name = "social_norm_explanation_normad"
+    name = "social_norm_reasoning_normad"
     description = "Evaluates model understanding of social norms from WVS Wave 7"
-    tags = ["social_norm_explanation"]
+    tags = ["social_norm_reasoning"]
 
     def __init__(
         self,
