@@ -152,7 +152,7 @@ class OpenAIResponseClient(CachingClient):
                 if output_type == "reasoning":
                     reasoning_output += "\n".join([raw_output["text"] for raw_output in output["summary"]])
                 elif output_type == "web_search_call":
-                    reasoning_output += f"\nMade a web search call with action: {output['action']}\n"
+                    reasoning_output += f"\nMade a web search call with action: {output.get('action', 'No action information was provided by the API')}\n"
                 elif output_type == "message":
                     text_output += "\n".join([raw_output["text"] for raw_output in output["content"]])
                 else:
