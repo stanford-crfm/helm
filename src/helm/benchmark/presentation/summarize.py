@@ -294,7 +294,6 @@ def compute_aggregate_row_means(table: Table) -> List[Optional[float]]:
 
 
 class AggregationStrategy:
-    # TODO: Convert to StrEnum after upgrading to Python 3.11
     WIN_RATE = "win_rate"
     MEAN = "mean"
 
