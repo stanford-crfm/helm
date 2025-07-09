@@ -82,10 +82,12 @@ model_deployments:
     tokenizer_name: EleutherAI/gpt-neox-20b
     max_sequence_length: 2048
     client_spec:
-      class_name: "helm.clients.vllm_client.VLLMCompletionsClient"
+      class_name: "helm.clients.vllm_client.VLLMClient"
       args:
         base_url:  http://mymodelserver:8000/v1/
 ```
+
+For non-chat models, set `class_name` in `client_spec` to `helm.clients.vllm_client.VLLMClient`. For chat models, set `class_name` in `client_spec` to `helm.clients.vllm_client.VLLMChatClient`.
 
 Set `base_url` to the URL of your inference server. On your inference server, run vLLM's OpenAI compatible server with:
 

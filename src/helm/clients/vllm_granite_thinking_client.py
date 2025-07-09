@@ -27,7 +27,7 @@ class VLLMGraniteThinkingClient(VLLMChatClient):
         if match:
             return (match.group(1), match.group(2))
 
-        match = re.match(r"<think>(.*)</think>\s*<response>(.*)</response>", input, re.DOTALL)
+        match = re.match(r"<think>(.*)</think>\s*<response>(.*)", input, re.DOTALL)
         if match:
             return (match.group(1), match.group(2))
 

@@ -6,7 +6,7 @@ from helm.clients.openai_client import OpenAIClient, OpenAILegacyCompletionsClie
 from helm.tokenizers.tokenizer import Tokenizer
 
 
-class VLLMCompletionsClient(OpenAILegacyCompletionsClient):
+class VLLMClient(OpenAILegacyCompletionsClient):
     """Sends request to a vLLM server using the OpenAI-compatible API.
 
     Only supports the legacy Text Completions API, rather than the Chat Completions API.
@@ -35,11 +35,6 @@ class VLLMCompletionsClient(OpenAILegacyCompletionsClient):
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
         self.vllm_model_name = vllm_model_name
-
-    def _get_model_for_request(self, request: Request) -> str:
-        # The `model` parameter for vLLM should be the whole model name including the creator organization,
-        # unlike OpenAI which only uses the model engine.
-        return self.vllm_model_name or request.model
 
     def _to_raw_completion_request(self, request: Request) -> Dict[str, Any]:
         raw_request = super()._to_raw_completion_request(request)
@@ -77,13 +72,9 @@ class VLLMChatClient(OpenAIClient):
             api_key="EMPTY",
             org_id=None,
             base_url=base_url,
+            openai_model_name=vllm_model_name,
             **kwargs,
         )
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
         self.vllm_model_name = vllm_model_name
-
-    def _get_model_for_request(self, request: Request) -> str:
-        # The `model` parameter for vLLM should be the whole model name including the creator organization,
-        # unlike OpenAI which only uses the model engine.
-        return self.vllm_model_name or request.model
