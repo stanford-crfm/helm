@@ -2,8 +2,6 @@ from typing import List
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.metrics.basic_metrics import compute_request_state_metrics
-from helm.benchmark.metrics.efficiency_metrics import EfficiencyMetric
 from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
@@ -21,7 +19,6 @@ class PolyGuardMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         assert request_state.annotations
-        print(request_state.annotations)
         scores = request_state.annotations["polyguard_autograder"]
 
         return [

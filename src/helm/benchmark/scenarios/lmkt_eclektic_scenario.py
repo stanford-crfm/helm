@@ -1,22 +1,14 @@
-"""Cultural alignment evaluation scenario based on Vietnam World Values Survey responses."""
+"""A multilingual closed-book QA (CBQA) dataset that Evaluates
+Cross-Lingual Knowledge Transfer in a simple, black-box manner"""
 
-import os
-import json
-import random
 from typing import List
 from datasets import load_dataset
-from huggingface_hub import snapshot_download
 
-from helm.common.hierarchical_logger import hlog, hwarn
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
-    PassageQuestionInput,
-    Reference,
     TEST_SPLIT,
-    CORRECT_TAG,
     Input,
-    Output,
 )
 
 SUPPORTED_LANGUAGES = {
@@ -40,18 +32,21 @@ class EclekticScenario(Scenario):
 
     name = "Eclektic"
     description = "Evaluates the cross-lingual knowledge transfer ability of LLMs"
-    tags = ["cross-lingual"]
+    tags = ["lmkt", "cross-lingual"]
 
     def get_instances(self, output_path: str) -> List[Instance]:
 
         instances: List[Instance] = []
 
         dataset = load_dataset(
-            "ura-hcmut/ECLeKTic", data_files="eclektic_main.jsonl", trust_remote_code=True, split="train"
+            "ura-hcmut/ECLeKTic",
+            data_files="eclektic_main.jsonl",
+            trust_remote_code=True,
+            revision="86650a00986420df9939b5f29d256aebad04c767",
+            split="train",
         )
 
         # Create instances for each selected question variant
-        instances: List[Instance] = []
         for _, row in enumerate(dataset):
             for lang in SUPPORTED_LANGUAGES:
                 new_ex = {

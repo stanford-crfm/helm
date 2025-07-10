@@ -1,10 +1,8 @@
 from collections import defaultdict
-from typing import List, Dict
+from typing import List, Dict, Any, cast
 
 import pandas as pd
-
-from helm.common.object_spec import ObjectSpec, create_object
-from helm.common.general import singleton, parallel_map
+from helm.common.general import parallel_map
 
 from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_LANGUAGE_MODELING
 from helm.benchmark.adaptation.scenario_state import ScenarioState
@@ -15,8 +13,6 @@ from helm.benchmark.metrics.metric_name import MetricName, MetricContext
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.metric import (
     Metric,
     MetricResult,
@@ -38,13 +34,17 @@ class EclekticMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
 
-        assert request_state.annotations
+        assert request_state.annotations is not None
         scores = request_state.annotations["eclektic_autograder"]
 
         return [Stat(MetricName("accuracy")).add(scores["correct"])]
 
     def evaluate(
-        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
+        self,
+        scenario_state: ScenarioState,
+        metric_service: MetricService,
+        eval_cache_path: str,
+        parallelism: int,
     ) -> MetricResult:
         """
         Main entry point for a `Metric`.  This function groups the single
@@ -68,9 +68,10 @@ class EclekticMetric(Metric):
 
         for train_trial_index in range(adapter_spec.num_train_trials):
             # Construct inputs
-            generation_state_sets: List[List[RequestState]] = []
-            for instance in scenario_state.instances:
-                generation_state_sets.append(scenario_state.get_request_states(train_trial_index, instance, None))
+            generation_state_sets: List[List[RequestState]] = [
+                scenario_state.get_request_states(train_trial_index, instance, None)
+                for instance in scenario_state.instances
+            ]
 
             # Do it!
             processor = Processor(
@@ -91,13 +92,25 @@ class EclekticMetric(Metric):
                 if not req_states:
                     continue  # Defensive guard
                 rs = req_states[0]  # Exactly one RequestState per instance
-                ann = rs.annotations.get("eclektic_autograder", {})
+                if rs is None:
+                    raise ValueError("RequestState does not exist")
+
+                # Ensure annotations exist and have the expected key
+                if rs.annotations is None:
+                    raise ValueError("Annotations not found")
+                if "eclektic_autograder" not in rs.annotations:
+                    raise ValueError("Annotation not found")
+
+                ann: Dict[str, Any] = cast(Dict[str, Any], rs.annotations["eclektic_autograder"])
+
+                # Handle optional extra_data safely
+                extra_data: Dict[str, Any] = instance.extra_data or {}
 
                 data_rows.append(
                     {
-                        "q_id": instance.extra_data.get("q_id"),
-                        "lang": instance.extra_data.get("lang"),
-                        "original_lang": instance.extra_data.get("original_lang"),
+                        "q_id": extra_data.get("q_id"),
+                        "lang": extra_data.get("lang"),
+                        "original_lang": extra_data.get("original_lang"),
                         "correct": bool(ann.get("correct", False)),
                     }
                 )
@@ -108,6 +121,9 @@ class EclekticMetric(Metric):
             per_instance_stats: List[PerInstanceStats] = []
             for instance, stats in zip(scenario_state.instances, results):
                 if stats:
+                    # instance.id can be Optional[str]; ensure a str for MyPy
+                    if instance.id is None:
+                        raise ValueError("Instance.id is unexpectedly None")
                     per_instance_stats.append(
                         PerInstanceStats(instance.id, instance.perturbation, train_trial_index, stats)
                     )

@@ -1,4 +1,4 @@
-"""Cultural alignment evaluation scenario based on Vietnam World Values Survey responses."""
+"""A high quality multilingual benchmark with 29K samples for the evaluation of safety guardrails."""
 
 from typing import List
 from datasets import load_dataset
@@ -32,11 +32,11 @@ REQUEST_TYPES = ["harmful", "unharmful", "both"]
 
 
 class PolyGuardScenario(Scenario):
-    """Cultural values understanding evaluation based on Vietnam World Values Survey responses."""
+    """A high quality multilingual benchmark with 29K samples for the evaluation of safety guardrails."""
 
     name = "Polyguard"
     description = "Evaluates the safety of LLMs"
-    tags = ["safety"]
+    tags = ["lmkt", "safety"]
 
     def __init__(self, language: str, request_type: str):
         super().__init__()
@@ -53,7 +53,12 @@ class PolyGuardScenario(Scenario):
 
         instances: List[Instance] = []
 
-        dataset = load_dataset("ToxicityPrompts/PolyGuardPrompts", trust_remote_code=True, revision="c5b466a95b64ff121db4398246b6abb7672696ec", split="test")
+        dataset = load_dataset(
+            "ToxicityPrompts/PolyGuardPrompts",
+            trust_remote_code=True,
+            revision="c5b466a95b64ff121db4398246b6abb7672696ec",
+            split="test",
+        )
         if self.request_type != "both":
             dataset = dataset.filter(
                 lambda example: example["language"] == self.language
@@ -62,7 +67,7 @@ class PolyGuardScenario(Scenario):
         else:
             dataset = dataset.filter(lambda example: example["language"] == self.language)
         # Create instances for each selected question variant
-        instances: List[Instance] = []
+
         for _, row in enumerate(dataset):
             input = Input(text=row["prompt"].strip())
             instance = Instance(

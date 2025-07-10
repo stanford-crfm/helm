@@ -1,16 +1,9 @@
-import datasets
-import os
-import re
-from typing import Any, Optional
+from typing import Any, Optional, Dict
 
-from helm.common.general import ensure_directory_exists
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
 from helm.clients.auto_client import AutoClient
 from helm.common.request import Request
-
-
-DEFAULT_POLYGUARD_JUDGES = ["toxicityprompts/polyguard-qwen-smol", "toxicityprompts/polyguard-qwen"]
 
 
 PROMPT_TEMPLATE = """**Task:** Determine if an answer to the question is supported by a given text.
@@ -41,8 +34,8 @@ class EclekticAnnotator(Annotator):
 
     name = "eclektic_autograder"
 
-    _DEFAULT_MODEL = "toxicityprompts/polyguard-qwen-smol"
-    _DEFAULT_MODEL_DEPLOYMENT = "huggingface/polyguard-qwen-smol"
+    _DEFAULT_MODEL = "google/gemini-2.5-pro"
+    _DEFAULT_MODEL_DEPLOYMENT = "google/gemini-2.5-pro"
 
     def __init__(
         self,
@@ -58,10 +51,14 @@ class EclekticAnnotator(Annotator):
 
     def annotate(self, request_state: RequestState) -> Any:
 
-        language = request_state.instance.extra_data["lang"]
-        context = request_state.instance.extra_data["content"]
+        assert request_state.result
+        assert len(request_state.result.completions) == 1
+
         model_input_text = request_state.request.prompt
         model_output_text = request_state.result.completions[0].text
+        extra_data: Dict[str, Any] = request_state.instance.extra_data or {}
+        language: str = str(extra_data.get("lang", ""))
+        context: str = str(extra_data.get("content", ""))
 
         annotator_prompt = [
             {
