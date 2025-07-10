@@ -975,6 +975,15 @@ model_deployments:
       args:
         trust_remote_code: true
 
+  - name: huggingface/polyguard-qwen
+    model_name: toxicityprompts/polyguard-qwen
+    tokenizer_name: toxicityprompts/polyguard-qwen
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        trust_remote_code: true
+
   ## AI Singapore
   - name: huggingface/sea-lion-7b
     model_name: aisingapore/sea-lion-7b
