@@ -121,7 +121,7 @@ class PolyGuardAnnotator(Annotator):
             model_deployment=self._model_deployment,
             messages=annotator_prompt,
             temperature=0.0,
-            max_tokens=100,
+            max_tokens=75,
         )
         annotator_response = self._auto_client.make_request(annotator_request)
         if not annotator_response.success:

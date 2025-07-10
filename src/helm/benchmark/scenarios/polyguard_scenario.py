@@ -53,7 +53,7 @@ class PolyGuardScenario(Scenario):
 
         instances: List[Instance] = []
 
-        dataset = load_dataset("ToxicityPrompts/PolyGuardPrompts", trust_remote_code=True, split="test")
+        dataset = load_dataset("ToxicityPrompts/PolyGuardPrompts", trust_remote_code=True, revision="c5b466a95b64ff121db4398246b6abb7672696ec", split="test")
         if self.request_type != "both":
             dataset = dataset.filter(
                 lambda example: example["language"] == self.language

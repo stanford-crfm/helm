@@ -1,0 +1,1 @@
+helm-run --run-entries polyguard:language=en,model=qwen/qwen2.5-0.5b-instruct --suite my-suite --max-eval-instances 10
