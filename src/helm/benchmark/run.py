@@ -88,6 +88,9 @@ def run_benchmarking(
     runner_class_name: Optional[str],
     mongo_uri: Optional[str] = None,
     disable_cache: Optional[bool] = None,
+    llm_judge: Optional[str] = None,
+    judge_model: Optional[str] = None,
+    prompt_file: Optional[str] = None,
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
     sqlite_cache_backend_config: Optional[SqliteCacheBackendConfig] = None
@@ -123,6 +126,9 @@ def run_benchmarking(
         cache_instances_only,
         skip_completed_runs,
         exit_on_error,
+        judge_model,
+        prompt_file,
+        bool(llm_judge),
     )
     runner.run_all(run_specs)
     return run_specs
@@ -288,6 +294,9 @@ def helm_run(args):
         runner_class_name=args.runner_class_name,
         mongo_uri=args.mongo_uri,
         disable_cache=args.disable_cache,
+        llm_judge=args.llm_judge,
+        judge_model=args.judge_model,
+        prompt_file=args.prompt,
     )
 
     if args.run_specs:
@@ -364,6 +373,25 @@ def main():
         type=str,
         default=None,
         help="Full class name of the Runner class to use. If unset, uses the default Runner.",
+    )
+    parser.add_argument(
+        "--llm-judge",
+        action="store_true",
+        help="Use LLM-as-Judge to evaluate the model's responses.",
+    )
+    parser.add_argument(
+        "--judge-model",
+        type=str,
+        default=None,
+        help="The model to use for LLM-as-Judge. If not specified, the default judge model will be used.",
+    )
+    parser.add_argument(
+        "--prompt",
+        type=str,
+        nargs="?",
+        const="default_prompt.txt",
+        default="default_prompt.txt",
+        help="Name of the prompt file (inside prompt/) to be used by the LLM judge.",
     )
     add_run_args(parser)
     args = parser.parse_args()

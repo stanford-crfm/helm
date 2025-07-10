@@ -1,7 +1,7 @@
 import signal
 import threading
 import traceback
-from typing import List
+from typing import List, Optional
 import os
 import time
 import torch
@@ -72,6 +72,9 @@ class MultiGPURunner(Runner):
         cache_instances_only: bool,
         skip_completed_runs: bool,
         exit_on_error: bool,
+        judge_model: Optional[str] = None,
+        prompt_file: Optional[str] = None,
+        llm_judge: bool = False,
     ):
         super().__init__(
             execution_spec=execution_spec,
@@ -82,6 +85,9 @@ class MultiGPURunner(Runner):
             cache_instances_only=cache_instances_only,
             skip_completed_runs=skip_completed_runs,
             exit_on_error=exit_on_error,
+            judge_model=judge_model,
+            prompt_file=prompt_file,
+            llm_judge=llm_judge,
         )
         # Configure max concurrent worker jobs from the environment variable.
         env_max_concurrent_workers = os.getenv(_MAX_CONCURRENT_WORKERS_ENV_NAME)

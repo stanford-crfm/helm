@@ -88,6 +88,9 @@ class REEvalRunner(Runner):
         cache_instances_only: bool,
         skip_completed_runs: bool,
         exit_on_error: bool,
+        judge_model: Optional[str] = None,
+        prompt_file: Optional[str] = None,
+        llm_judge: bool = False,
     ):
         super().__init__(
             execution_spec=execution_spec,
@@ -98,6 +101,9 @@ class REEvalRunner(Runner):
             cache_instances_only=cache_instances_only,
             skip_completed_runs=skip_completed_runs,
             exit_on_error=exit_on_error,
+            judge_model=judge_model,
+            prompt_file=prompt_file,
+            llm_judge=llm_judge,
         )
 
     def _estimate_model_ability(
