@@ -8,6 +8,10 @@ class CodeInsightsEdgeCaseScenario(Scenario):
     description = "Evaluate alignment in edge case failure between LLM-generated code and student code"
     tags = ["codeinsights", "c++", "edge_case"]
 
+    def __init__(self, num_testcases: int = 1):
+        super().__init__()
+        self.num_testcases = num_testcases
+
     def get_instances(self, output_path: str):
         df = pd.read_csv("https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/Scenario5_data.csv")
 
@@ -68,6 +72,13 @@ class CodeInsightsEdgeCaseScenario(Scenario):
                 print(f"SKIPPING Student {student_id}, Question {target_question_id}: Empty test cases")
                 continue
 
+            if len(target_test_cases) < self.num_testcases:
+                # If not enough test cases, skip this question
+                continue
+            if self.num_testcases >= 0:
+                # If more than one test case is requested, only take the first ones
+                target_test_cases = target_test_cases[: self.num_testcases]
+
             # Get student pass pattern for the target question
             student_correctness_pattern = target.get("pass", None)
             if student_correctness_pattern is not None:
@@ -107,6 +118,8 @@ class CodeInsightsEdgeCaseScenario(Scenario):
                 f"Topic: {target['topic']}\n\n"
                 f"Question: {target['question_name']} — {target['question_text']}\n"
                 f"Unit Tests: {target_test_cases}\n"
+                if target_test_cases
+                else ""
                 "Think silently about:\n"
                 "• Which test seems hardest for the given topic?\n"
                 "• Where has the student historically struggled?\n"

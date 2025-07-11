@@ -7,6 +7,10 @@ class CodeInsightsCorrectCodeScenario(Scenario):
     description = "Generate correct response code for C++ programming questions"
     tags = ["codeinsights", "c++", "correct_code"]
 
+    def __init__(self, num_testcases: int = 1):
+        super().__init__()
+        self.num_testcases = num_testcases
+
     def get_instances(self, output_path: str):
         df = pd.read_csv("https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/Scenario1_2_data.csv")
 
@@ -36,9 +40,18 @@ class CodeInsightsCorrectCodeScenario(Scenario):
             if not tc_parsing_success:
                 continue
 
+            if len(question_test_cases) < self.num_testcases:
+                # If not enough test cases, skip this question
+                continue
+            if self.num_testcases >= 0:
+                # If more than one test case is requested, only take the first ones
+                question_test_cases = question_test_cases[: self.num_testcases]
+
             prompt = (
                 f"Question: {target['question_name']} — {target['question_text']}\n\n"
                 f"Unit Test Input: {question_test_cases}\n\n"
+                if question_test_cases
+                else ""
                 "Template:\n"
                 f"{target['question_template']}\n\n"
                 "Provide ONLY your C++ implementation following the given template, where the answer will replace the {{ STUDENT_ANSWER }} block in the template. "

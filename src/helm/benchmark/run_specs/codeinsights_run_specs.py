@@ -11,10 +11,10 @@ from helm.benchmark.metrics.codeinsights_metric_specs import (
 
 
 @run_spec_function("codeinsights_correct_code")
-def get_codeinsights_correct_code_run_spec() -> RunSpec:
+def get_codeinsights_correct_code_run_spec(tpr: float = 0.0, num_testcases: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.codeinsights_correct_code_scenario.CodeInsightsCorrectCodeScenario",
-        args={},
+        args={"num_testcases": num_testcases},
     )
 
     instruction = (
@@ -32,10 +32,11 @@ def get_codeinsights_correct_code_run_spec() -> RunSpec:
         output_noun="Your code",
         stop_sequences=[],
         max_tokens=4000,
+        temperature=tpr,
     )
 
     return RunSpec(
-        name="codeinsights_correct_code",
+        name=f"codeinsights_correct_code:temperature={adapter_spec.temperature},num_testcases={num_testcases}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_functional_correctness_metric_specs() + get_basic_metric_specs([]),
@@ -44,10 +45,10 @@ def get_codeinsights_correct_code_run_spec() -> RunSpec:
 
 
 @run_spec_function("codeinsights_student_coding")
-def get_codeinsights_student_coding_run_spec() -> RunSpec:
+def get_codeinsights_student_coding_run_spec(tpr: float = 0.0, num_testcases: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.codeinsights_student_coding_scenario.CodeInsightsStudentCodingScenario",
-        args={},
+        args={"num_testcases": num_testcases},
     )
 
     instruction = (
@@ -62,11 +63,15 @@ def get_codeinsights_student_coding_run_spec() -> RunSpec:
     )
 
     adapter_spec = get_generation_adapter_spec(
-        instructions=instruction, output_noun="Your code", stop_sequences=[], max_tokens=4000
+        instructions=instruction,
+        output_noun="Your code",
+        stop_sequences=[],
+        max_tokens=4000,
+        temperature=tpr,
     )
 
     return RunSpec(
-        name="codeinsights_student_coding",
+        name=f"codeinsights_student_coding:temperature={adapter_spec.temperature},num_testcases={num_testcases}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_comprehensive_code_evaluation_metric_specs() + get_basic_metric_specs([]),
@@ -75,10 +80,10 @@ def get_codeinsights_student_coding_run_spec() -> RunSpec:
 
 
 @run_spec_function("codeinsights_student_mistake")
-def get_codeinsights_student_mistake_run_spec() -> RunSpec:
+def get_codeinsights_student_mistake_run_spec(tpr: float = 0.0, num_testcases: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.codeinsights_student_mistake_scenario.CodeInsightsStudentMistakeScenario",
-        args={},
+        args={"num_testcases": num_testcases},
     )
 
     instruction = (
@@ -91,11 +96,15 @@ def get_codeinsights_student_mistake_run_spec() -> RunSpec:
     )
 
     adapter_spec = get_generation_adapter_spec(
-        instructions=instruction, output_noun="Your code", stop_sequences=[], max_tokens=4000
+        instructions=instruction,
+        output_noun="Your code",
+        stop_sequences=[],
+        max_tokens=4000,
+        temperature=tpr,
     )
 
     return RunSpec(
-        name="codeinsights_student_mistake",
+        name=f"codeinsights_student_mistake:temperature={adapter_spec.temperature},num_testcases={num_testcases}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_comprehensive_code_evaluation_metric_specs() + get_basic_metric_specs([]),
@@ -104,7 +113,7 @@ def get_codeinsights_student_mistake_run_spec() -> RunSpec:
 
 
 @run_spec_function("codeinsights_code_efficiency")
-def get_codeinsights_code_efficiency_run_spec() -> RunSpec:
+def get_codeinsights_code_efficiency_run_spec(tpr: float = 0.0, num_testcases: int = 1) -> RunSpec:
     """
     Run specification for code efficiency evaluation scenario.
 
@@ -116,7 +125,7 @@ def get_codeinsights_code_efficiency_run_spec() -> RunSpec:
     """
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.codeinsights_code_efficiency_scenario.CodeInsightsCodeEfficiencyScenario",
-        args={},
+        args={"num_testcases": num_testcases},
     )
 
     instruction = (
@@ -133,11 +142,15 @@ def get_codeinsights_code_efficiency_run_spec() -> RunSpec:
     )
 
     adapter_spec = get_generation_adapter_spec(
-        instructions=instruction, output_noun="Your code", stop_sequences=[], max_tokens=4000
+        instructions=instruction,
+        output_noun="Your code",
+        stop_sequences=[],
+        max_tokens=4000,
+        temperature=tpr,
     )
 
     return RunSpec(
-        name="codeinsights_code_efficiency",
+        name=f"codeinsights_code_efficiency:temperature={adapter_spec.temperature},num_testcases={num_testcases}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_code_efficiency_metric_specs(
@@ -150,9 +163,10 @@ def get_codeinsights_code_efficiency_run_spec() -> RunSpec:
 
 
 @run_spec_function("codeinsights_edge_case")
-def get_codeinsights_edge_case_run_spec() -> RunSpec:
+def get_codeinsights_edge_case_run_spec(tpr: float = 0.0, num_testcases: int = 1) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.codeinsights_edge_case_scenario.CodeInsightsEdgeCaseScenario", args={}
+        class_name="helm.benchmark.scenarios.codeinsights_edge_case_scenario.CodeInsightsEdgeCaseScenario",
+        args={"num_testcases": num_testcases},
     )
 
     instruction = (
@@ -162,11 +176,15 @@ def get_codeinsights_edge_case_run_spec() -> RunSpec:
     )
 
     adapter_spec = get_generation_adapter_spec(
-        instructions=instruction, output_noun="Your code", stop_sequences=[], max_tokens=4000
+        instructions=instruction,
+        output_noun="Your code",
+        stop_sequences=[],
+        max_tokens=4000,
+        temperature=tpr,
     )
 
     return RunSpec(
-        name="codeinsights_edge_case",
+        name=f"codeinsights_edge_case:temperature={adapter_spec.temperature},num_testcases={num_testcases}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_edge_case_metric_specs() + get_basic_metric_specs([]),

@@ -8,6 +8,10 @@ class CodeInsightsStudentMistakeScenario(Scenario):
     description = "Mimic how students mistake their C++ codes on foundational questions"
     tags = ["codeinsights", "c++", "student_mistake"]
 
+    def __init__(self, num_testcases: int = 1):
+        super().__init__()
+        self.num_testcases = num_testcases
+
     def get_instances(self, output_path: str):
         df = pd.read_csv("https://huggingface.co/datasets/Kazchoko/my_dataset/resolve/main/Scenario3_data.csv")
         student_topic = pd.read_csv(
@@ -47,6 +51,14 @@ class CodeInsightsStudentMistakeScenario(Scenario):
 
             if not tc_parsing_success:
                 continue
+
+            if len(question_test_cases) < self.num_testcases:
+                # If not enough test cases, skip this question
+                continue
+            if self.num_testcases >= 0:
+                # If more than one test case is requested, only take the first ones
+                question_test_cases = question_test_cases[: self.num_testcases]
+
             # Get student pass (0 or 1) for the target question
             student_correctness_pattern = target.get("pass", None)
             main_part = int(student_correctness_pattern)  # "1111111111"
@@ -95,6 +107,8 @@ class CodeInsightsStudentMistakeScenario(Scenario):
                 f"Week: {target['week']}, Topic: {target['topic']}\n"
                 f"Question: {target['question_name']} — {target['question_text']}\n"
                 f"Unit Test Input: {question_test_cases}\n\n"
+                if question_test_cases
+                else ""
                 "Template:\n"
                 f"{target['question_template']}\n\n"
                 "⚠**Instructions:**\n"
