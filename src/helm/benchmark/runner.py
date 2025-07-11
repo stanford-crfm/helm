@@ -4,11 +4,12 @@ import math
 import os
 import traceback
 import typing
-from collections import Counter
+import copy
 import dataclasses
-from typing import Any, Dict, List
 import numpy as np
 
+from collections import Counter
+from typing import Any, Dict, List, Optional
 from tqdm import tqdm
 
 from helm.benchmark.adaptation.request_state import RequestState
@@ -36,7 +37,8 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.metric import MetricInterface, MetricResult, PerInstanceStats, create_metric, Stat
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
-
+from helm.common.object_spec import ObjectSpec
+from helm.contamination.contamination_evaluator_factory import get_contamination_evaluator
 
 LATEST_SYMLINK: str = "latest"
 _BENCHMARK_OUTPUT_PATH: str = "benchmark_output"
@@ -152,7 +154,9 @@ class Runner:
         cache_instances_only: bool,
         skip_completed_runs: bool,
         exit_on_error: bool,
+        evaluate_contamination: Optional[ObjectSpec] = None,
     ):
+        self.evaluate_contamination = evaluate_contamination
         self.executor = Executor(execution_spec)
         self.annotator_executor = AnnotationExecutor(
             AnnotationExecutionSpec(
@@ -293,6 +297,41 @@ class Runner:
         # Annotate (post-process the results)
         scenario_state = self.annotator_executor.execute(scenario_state)
 
+        # Contamination assessment stage
+        result_contamination: List[Stat] = []
+        if self.evaluate_contamination:
+            scenario_state_copy = copy.deepcopy(scenario_state)
+            args = getattr(self.evaluate_contamination, "args", {})
+            method_name = self.evaluate_contamination.class_name
+            language = args.get("language") or "en"
+            # Deepcopy scenario_state to avoid unintended modifications by the contamination evaluator
+
+            # Getting the evaluator instance using the factory
+            evaluator_instance = get_contamination_evaluator(method_name)
+
+            if evaluator_instance:
+                try:
+                    hlog(f"INFO: Attempting contamination assessment using strategy: '{method_name}'")
+                    # Call the evaluate method on the instance
+                    result_contamination = evaluator_instance.evaluate(
+                        executor=self.executor,
+                        benchmark_path=input_instances_output_path,
+                        scenario_state=scenario_state_copy,
+                        language=language,
+                        tokenizer_service=self.tokenizer_service,
+                    )
+                    hlog(f"INFO: Contamination assessment with '{method_name}' completed.")
+                except Exception as e:
+                    hlog(
+                        "CRITICAL: An error occurred while executing strategy"
+                        f" '{method_name}': {e}\n{traceback.format_exc()}"
+                    )
+                    result_contamination = []  # Ensures an empty list in case of error
+            else:
+                # SUGGESTION: More specific log message. The factory should have already logged the root cause.
+                hlog(f"WARNING: Contamination strategy '{method_name}' not found. Skipping assessment.")
+                result_contamination = []
+
         # Apply the metrics
         # When performing a dry run, only estimate the number of tokens instead
         # of calculating the metrics.
@@ -313,6 +352,7 @@ class Runner:
                     stats.extend(metric_result.aggregated_stats)
                     per_instance_stats.extend(metric_result.per_instance_stats)
 
+        stats = stats + result_contamination
         # Check that there aren't duplicate `Stat`s
         # Note: doesn't catch near misses.
         metric_counts: typing.Counter[MetricName] = Counter([stat.name for stat in stats])
