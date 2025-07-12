@@ -19,6 +19,7 @@ class VLLMClient(OpenAILegacyCompletionsClient):
         tokenizer_name: str,
         cache_config: CacheConfig,
         base_url: Optional[str] = None,
+        **kwargs,
     ):
         super().__init__(
             tokenizer=tokenizer,
@@ -27,6 +28,7 @@ class VLLMClient(OpenAILegacyCompletionsClient):
             api_key="EMPTY",
             org_id=None,
             base_url=base_url,
+            **kwargs,
         )
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name

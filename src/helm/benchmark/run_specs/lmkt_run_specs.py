@@ -1,8 +1,10 @@
 """Run spec functions for Vietnam WVS cultural alignment evaluation."""
 
-from helm.benchmark.adaptation.common_adapter_specs import (
-    get_generation_adapter_spec,
+from typing import Optional, Dict, Literal
+from helm.benchmark.adaptation.adapter_spec import (
+    AdapterSpec,
 )
+from helm.benchmark.adaptation.common_adapter_specs import get_generation_adapter_spec
 from helm.benchmark.metrics.common_metric_specs import (
     get_exact_match_metric_specs,
     get_f1_metric_specs,
@@ -11,6 +13,9 @@ from helm.benchmark.metrics.common_metric_specs import (
 from helm.benchmark.metrics.lmkt_metric_specs import get_semantic_similarity_metric_specs
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
+from helm.benchmark.annotation.annotator import AnnotatorSpec
+from helm.benchmark.metrics.metric import MetricSpec
+
 
 INSTRUCTIONS = {
     "cultural_value_understanding_wvs": {
@@ -141,4 +146,102 @@ def get_social_norm_reasoning_normad_spec(language: str, country: str) -> RunSpe
         adapter_spec=adapter_spec,
         metric_specs=get_open_ended_generation_metric_specs() + get_semantic_similarity_metric_specs(),
         groups=["lmkt", "social_norm_reasoning_normad"],
+    )
+
+
+@run_spec_function("eclektic")
+def get_eclektic_spec(
+    annotator_model: Optional[str] = "google/gemini-2.5-pro",
+    annotator_model_deployment: Optional[str] = "google/gemini-2.5-pro",
+) -> RunSpec:
+
+    model: str = annotator_model or "google/gemini-2.5-pro"
+    deployment: str = annotator_model_deployment or model
+
+    annotator_args: Dict[str, str] = {
+        "model": model,
+        "model_deployment": deployment,
+    }
+
+    run_spec_name = (
+        "eclektic:" + f"annotator_model={annotator_args['model']}"
+        f",annotator_model_deployment={annotator_args['model_deployment']}"
+    )
+
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.lmkt_eclektic_scenario.EclekticScenario",
+    )
+
+    adapter_spec: AdapterSpec = get_generation_adapter_spec(
+        num_outputs=1,
+        max_tokens=50,
+        temperature=0.0,
+    )
+
+    annotator_specs = [
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.lmkt_eclektic_annotator.EclekticAnnotator", args=annotator_args
+        )
+    ]
+    metric_specs = [
+        MetricSpec(class_name="helm.benchmark.metrics.lmkt_eclektic_metrics.EclekticMetric"),
+    ]
+
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        annotators=annotator_specs,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["lmkt", "eclektic"],
+    )
+
+
+@run_spec_function("polyguard")
+def get_polyguard_spec(
+    language: Optional[str],
+    request_type: Literal["harmful", "unharmful", "both"] = "both",
+    annotator_model: Optional[str] = "toxicityprompts/polyguard-qwen-smol",
+    annotator_model_deployment: Optional[str] = "huggingface/polyguard-qwen-smol",
+) -> RunSpec:
+
+    model: str = annotator_model or "toxicityprompts/polyguard-qwen-smol"
+    deployment: str = annotator_model_deployment or model
+
+    annotator_args: Dict[str, str] = {
+        "model": model,
+        "model_deployment": deployment,
+    }
+    run_spec_name = (
+        "polyguard:" + f"annotator_model={annotator_args['model']}"
+        f",annotator_model_deployment={annotator_args['model_deployment']}"
+    )
+
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.lmkt_polyguard_scenario.PolyGuardScenario",
+        args={"language": language, "request_type": request_type},
+    )
+
+    adapter_spec: AdapterSpec = get_generation_adapter_spec(
+        num_outputs=1,
+        max_tokens=50,
+        temperature=0.0,
+    )
+
+    annotator_specs = [
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.lmkt_polyguard_annotator.PolyGuardAnnotator", args=annotator_args
+        )
+    ]
+    metric_specs = [
+        MetricSpec(class_name="helm.benchmark.metrics.lmkt_polyguard_metrics.PolyGuardMetric"),
+    ]
+
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        annotators=annotator_specs,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["lmkt", "polyguard"],
     )
