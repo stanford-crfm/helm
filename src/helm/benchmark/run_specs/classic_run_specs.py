@@ -35,7 +35,6 @@ from helm.benchmark.metrics.common_metric_specs import (
     get_f1_metric_specs,
     get_generative_harms_metric_specs,
     get_language_modeling_metric_specs,
-    get_numeracy_metric_specs,
     get_open_ended_generation_metric_specs,
     get_summarization_metric_specs,
     get_basic_generation_metric_specs,
@@ -378,58 +377,6 @@ def get_raft_spec(subset: str) -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_bias_metric_specs() + get_classification_metric_specs(),
         groups=["raft"],
-    )
-
-
-@run_spec_function("numeracy")
-def get_numeracy_spec(
-    relation_type: str = "linear", mode: str = "function", seed: str = "0", run_solver: str = "False"
-) -> RunSpec:
-    from helm.benchmark.scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
-
-    run_solver_bool: bool = True if run_solver.lower() == "true" else False
-    del run_solver
-    random_seed = int(seed)
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.numeracy_scenario.NumeracyScenario",
-        args={"seed": random_seed, "relation_type": relation_type, "mode": mode},
-    )
-
-    if mode in ["example", "standard"]:
-        # Test a model's ability to impute datapoints for a given (example or randomly sampled) relation.
-        adapter_args: Dict[str, Any] = {
-            "max_train_instances": 100,
-            "max_eval_instances": 100,
-            "dim": RELTYPE_INFO[relation_type].num_variables + 1,
-        }
-    elif mode == "function":
-        # Test a model's ability to impute datapoints for randomly sampled relations
-        # (resampled for each evaluation point).
-        adapter_args = {
-            "instructions": "",
-            "max_train_instances": 0,  # Turn off general version of `function` mode because it doesn't cleanly
-            # capture a higher-order version of this task / is a little convoluted
-            # for models, currently.
-            # (In the general version, the model sees other relations of the same class,
-            # and needs to impute a datapoint for the last one. Presumably, inferring
-            # the class - eg. the degree of the relation - would help.)
-            "max_eval_instances": 1000,
-            "dim": RELTYPE_INFO[relation_type].num_variables + 1,
-            "instance_prefix": "\n\n",
-        }
-    else:
-        raise ValueError(f"Invalid mode: {mode}")
-
-    adapter_spec = get_numeracy_adapter_spec(**adapter_args)  # Construct the AdapterSpec using a helper function.
-    # `get_numeracy_adapter_spec` is defined in numeracy_scenario.py
-    # because it is used within the scenario to construct the instances themselves.
-
-    return RunSpec(
-        name=f"numeracy:relation_type={relation_type},mode={mode}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_numeracy_metric_specs(run_solver_bool),
-        groups=["numeracy"],
     )
 
 
