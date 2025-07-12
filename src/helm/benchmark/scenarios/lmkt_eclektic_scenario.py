@@ -27,12 +27,12 @@ SUPPORTED_LANGUAGES = {
 }
 
 
-class EclekticScenario(Scenario):
+class CulturalKnowledgeRememberingEclekticScenario(Scenario):
     """Cultural values understanding evaluation based on Vietnam World Values Survey responses."""
 
-    name = "Eclektic"
+    name = "cultural_knowledge_remembering_eclektic"
     description = "Evaluates the cross-lingual knowledge transfer ability of LLMs"
-    tags = ["lmkt", "cross-lingual"]
+    tags = ["lmkt", "cultural_knowledge_remembering"]
 
     def get_instances(self, output_path: str) -> List[Instance]:
 

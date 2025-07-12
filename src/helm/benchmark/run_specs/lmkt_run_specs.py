@@ -85,7 +85,7 @@ def get_cultural_value_understanding_wvs_spec(language: str, country: str) -> Ru
     )
 
     return RunSpec(
-        name="cultural_value_understanding_wvs",
+        name=f"cultural_value_understanding_wvs:language={language},country={country}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_f1_metric_specs(),
@@ -113,7 +113,7 @@ def get_social_norm_application_normad_spec(language: str, country: str) -> RunS
     )
 
     return RunSpec(
-        name="social_norm_application_normad",
+        name=f"social_norm_application_normad:language={language},country={country}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_f1_metric_specs(),
@@ -141,7 +141,7 @@ def get_social_norm_reasoning_normad_spec(language: str, country: str) -> RunSpe
     )
 
     return RunSpec(
-        name="social_norm_reasoning_normad",
+        name=f"social_norm_reasoning_normad:language={language},country={country}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_open_ended_generation_metric_specs() + get_semantic_similarity_metric_specs(),
@@ -149,8 +149,8 @@ def get_social_norm_reasoning_normad_spec(language: str, country: str) -> RunSpe
     )
 
 
-@run_spec_function("eclektic")
-def get_eclektic_spec(
+@run_spec_function("cultural_knowledge_remembering_eclektic")
+def get_cultural_knowledge_remembering_eclektic_spec(
     annotator_model: Optional[str] = "google/gemini-2.5-pro",
     annotator_model_deployment: Optional[str] = "google/gemini-2.5-pro",
 ) -> RunSpec:
@@ -164,12 +164,12 @@ def get_eclektic_spec(
     }
 
     run_spec_name = (
-        "eclektic:" + f"annotator_model={annotator_args['model']}"
+        "cultural_knowledge_remembering_eclektic:" + f"annotator_model={annotator_args['model']}"
         f",annotator_model_deployment={annotator_args['model_deployment']}"
     )
 
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.lmkt_eclektic_scenario.EclekticScenario",
+        class_name="helm.benchmark.scenarios.lmkt_eclektic_scenario.CulturalKnowledgeRememberingEclekticScenario",
     )
 
     adapter_spec: AdapterSpec = get_generation_adapter_spec(
@@ -193,12 +193,12 @@ def get_eclektic_spec(
         annotators=annotator_specs,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=["lmkt", "eclektic"],
+        groups=["lmkt", "cultural_knowledge_remembering_eclektic"],
     )
 
 
-@run_spec_function("polyguard")
-def get_polyguard_spec(
+@run_spec_function("cultural_safety_application_polyguard")
+def get_cultural_safety_application_polyguard_spec(
     language: Optional[str],
     request_type: Literal["harmful", "unharmful", "both"] = "both",
     annotator_model: Optional[str] = "toxicityprompts/polyguard-qwen-smol",
@@ -213,12 +213,14 @@ def get_polyguard_spec(
         "model_deployment": deployment,
     }
     run_spec_name = (
-        "polyguard:" + f"annotator_model={annotator_args['model']}"
-        f",annotator_model_deployment={annotator_args['model_deployment']}"
+        "cultural_safety_application_polyguard:"
+        f"language={language},request_type={request_type},"
+        f"annotator_model={annotator_args['model']},"
+        f"annotator_model_deployment={annotator_args['model_deployment']}"
     )
 
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.lmkt_polyguard_scenario.PolyGuardScenario",
+        class_name="helm.benchmark.scenarios.lmkt_polyguard_scenario.CulturalSafetyApplicationPolyGuardScenario",
         args={"language": language, "request_type": request_type},
     )
 
@@ -243,5 +245,5 @@ def get_polyguard_spec(
         annotators=annotator_specs,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=["lmkt", "polyguard"],
+        groups=["lmkt", "cultural_safety_application_polyguard"],
     )

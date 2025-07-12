@@ -26,7 +26,7 @@ class CulturalValueUnderstandingWVSScenario(Scenario):
 
     name = "cultural_value_understanding_wvs"
     description = "Evaluates model understanding of cultural values from WVS Wave 7"
-    tags = ["cultural_value_understanding"]
+    tags = ["lmkt", "cultural_value_understanding"]
 
     def __init__(
         self,
@@ -207,7 +207,7 @@ class SocialNormApplicationNormADScenario(Scenario):
 
     name = "social_norm_application_normad"
     description = "Evaluates model understanding of social norms from WVS Wave 7"
-    tags = ["social_norm_application"]
+    tags = ["lmkt", "social_norm_application"]
 
     def __init__(
         self,
@@ -248,7 +248,7 @@ class SocialNormReasoningNormADScenario(Scenario):
 
     name = "social_norm_reasoning_normad"
     description = "Evaluates model understanding of social norms from WVS Wave 7"
-    tags = ["social_norm_reasoning"]
+    tags = ["lmkt", "social_norm_reasoning"]
 
     def __init__(
         self,

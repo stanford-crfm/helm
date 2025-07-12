@@ -31,12 +31,12 @@ CODE_MAP = {
 REQUEST_TYPES = ["harmful", "unharmful", "both"]
 
 
-class PolyGuardScenario(Scenario):
+class CulturalSafetyApplicationPolyGuardScenario(Scenario):
     """A high quality multilingual benchmark with 29K samples for the evaluation of safety guardrails."""
 
-    name = "Polyguard"
+    name = "cultural_safety_application_polyguard"
     description = "Evaluates the safety of LLMs"
-    tags = ["lmkt", "safety"]
+    tags = ["lmkt", "cultural_safety_application"]
 
     def __init__(self, language: str, request_type: str):
         super().__init__()
