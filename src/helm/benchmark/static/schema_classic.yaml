@@ -1683,23 +1683,6 @@ run_groups:
       when: n/a
       language: synthetic
 
-  - name: numeracy
-    display_name: Numerical reasoning
-    description: Scenario introduced in this work to test numerical reasoning via symbolic regression.
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: absolute_value_difference
-      main_split: test
-    taxonomy:
-      task: next-word prediction
-      what: Dyck formal language
-      who: n/a
-      when: n/a
-      language: synthetic
-
   - name: synthetic_reasoning
     display_name: Synthetic reasoning (abstract symbols)
     description: Synthetic reasoning tasks defined using abstract symbols based on LIME [(Wu et al., 2021)](https://proceedings.mlr.press/v139/wu21c.html).
