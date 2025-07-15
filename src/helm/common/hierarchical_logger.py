@@ -168,6 +168,7 @@ def setup_default_logging(config_path: Optional[str] = None):
         logger.setLevel(logging.INFO)
 
     # Set formatter
+    formatter: logging.Formatter | None
     if sys.stdout.isatty():
         try:
             formatter = ColoredFormatter(
