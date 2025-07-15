@@ -1,19 +1,30 @@
 import sys
 import tempfile
-import shutil
 import textwrap
 import pathlib
 from helm.benchmark import run
 
 
+class ArgvContext:
+    def __init__(self, argv):
+        self.argv = argv
+        self._original_argv = None
+
+    def __enter__(self):
+        self._original_argv = sys.argv[:]
+        sys.argv = self.argv
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        sys.argv = self._original_argv
+
+
 def test_run_with_custom_logging_config():
     # Setup temporary directory
-    tmp_dir = pathlib.Path(tempfile.mkdtemp())
-    log_path = tmp_dir / "helm_test.log"
-    log_config_path = tmp_dir / "mylog.yaml"
+    with tempfile.TemporaryDirectory(prefix='helm_test_') as tmp_dir_str:
+        tmp_dir = pathlib.Path(tmp_dir_str)
+        log_path = tmp_dir / "test.log"
+        log_config_path = tmp_dir / "test_config.yaml"
 
-    sys_argv_backup = sys.argv[:]
-    try:
         # Write custom YAML log config to file
         log_config_text = textwrap.dedent(
             f"""
@@ -42,7 +53,7 @@ def test_run_with_custom_logging_config():
         log_config_path.write_text(log_config_text)
 
         # Simulate command-line arguments
-        sys.argv = [
+        argv = [
             "run.py",  # Fake script name
             "--run-entries",
             "mmlu:subject=philosophy,model=openai/gpt2",
@@ -56,7 +67,8 @@ def test_run_with_custom_logging_config():
         ]
 
         # Call main
-        run.main()
+        with ArgvContext(argv):
+            run.main()
 
         # Check log file contents
         assert log_path.exists(), "Log file was not created"
@@ -70,12 +82,6 @@ def test_run_with_custom_logging_config():
         assert (
             "mscoco" in log_contents or "huggingface" in log_contents or "dry-run" in log_contents
         ), "Expected log content not found in log file:\n"
-
-    finally:
-        # Restore sys.argv
-        sys.argv = sys_argv_backup
-        # Clean up temp files
-        shutil.rmtree(tmp_dir)
 
 
 if __name__ == "__main__":
