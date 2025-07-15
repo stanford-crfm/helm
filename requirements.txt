@@ -325,12 +325,12 @@ tokenizers==0.21.2
 toml==0.10.2
 tomli==2.2.1 ; python_full_version < '3.11'
 toolz==1.0.0
-torch==2.5.1
+torch==2.7.1
 torch-fidelity==0.3.0
 torchmetrics==0.11.4
 torchvision==0.20.1
 tqdm==4.67.1
-transformers==4.52.4
+transformers==4.53.2
 transformers-stream-generator==0.0.5
 trio==0.30.0
 trio-websocket==0.12.2
