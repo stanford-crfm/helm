@@ -44,12 +44,9 @@ def test_run_with_custom_logging_config():
         # Simulate command-line arguments
         sys.argv = [
             "run.py",  # Fake script name
-            "--run-entries",
-            "mscoco:model=huggingface/stable-diffusion-v1-4",
-            "-m",
-            "1",
-            "--suite",
-            "mysuite",
+            "--run-entries", "mmlu:subject=philosophy,model=openai/gpt2",
+            "-m", "1",
+            "--suite", "my-suite",
             "--dry-run",
             "--log-config",
             str(log_config_path),

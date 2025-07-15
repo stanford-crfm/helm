@@ -151,7 +151,6 @@ def setup_default_logging(config_path: Optional[str] = None):
     2. ENV var LOG_LEVEL.
     3. a default logger to STDOUT
     """
-    print("setup logging")
     logger = logging.getLogger("helm")
     logger.propagate = False
 
@@ -159,6 +158,7 @@ def setup_default_logging(config_path: Optional[str] = None):
         with open(config_path, "r") as f:
             config = yaml.safe_load(f)
         logging.config.dictConfig(config)
+        hdebug("setup custom HELM logging")
         return
 
     log_level = (os.getenv("HELM_LOG_LEVEL") or os.getenv("LOG_LEVEL") or "INFO").upper()
@@ -194,3 +194,4 @@ def setup_default_logging(config_path: Optional[str] = None):
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(formatter)
     logger.addHandler(handler)
+    hdebug("setup default HELM logging")
