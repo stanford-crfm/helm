@@ -346,6 +346,7 @@ class Summarizer:
         verbose: bool,
         num_threads: int,
         allow_unknown_models: bool,
+        validity_check: bool,
     ):
         """
         A note on the relation between `release`, `suites`, and `suite`:
@@ -376,6 +377,7 @@ class Summarizer:
         self.verbose: bool = verbose
         self.num_threads: int = num_threads
         self.allow_unknown_models: bool = allow_unknown_models
+        self.validity_check: bool = validity_check
 
         ensure_directory_exists(self.run_release_path)
 
@@ -1193,7 +1195,7 @@ class Summarizer:
 
     def write_run_display_json(self, skip_completed: bool) -> None:
         def process(run: Run) -> None:
-            write_run_display_json(run.run_path, run.run_spec, self.schema, skip_completed)
+            write_run_display_json(run.run_path, run.run_spec, self.schema, self.validity_check, skip_completed)
 
         parallel_map(process, self.runs, parallelism=self.num_threads)
 
@@ -1269,6 +1271,7 @@ def summarize(args):
         verbose=args.debug,
         num_threads=args.num_threads,
         allow_unknown_models=args.allow_unknown_models,
+        validity_check=args.validity_check,
     )
     summarizer.run_pipeline(skip_completed=args.skip_completed_run_display_json)
     hlog("Done.")
@@ -1338,6 +1341,12 @@ def main():
         type=str,
         default=None,
         help="EXPERIMENTAL: Full class name of the Summarizer class to use. If unset, uses the default Summarizer.",
+    )
+    parser.add_argument(
+        "--validity-check",
+        type=bool,
+        help="EXPERIMENTAL: Whether to load the validity signals as metrics to display",
+        default=False,
     )
     args = parser.parse_args()
     setup_default_logging()
