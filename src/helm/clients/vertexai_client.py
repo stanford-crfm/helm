@@ -1,7 +1,7 @@
 import requests
 from abc import ABC, abstractmethod
 from threading import Lock
-from typing import Any, Dict, Mapping, Optional, List, Union
+from typing import Any, Dict, Mapping, Optional, List, Union, cast
 
 from helm.common.cache import CacheConfig
 from helm.common.multimodal_request_utils import get_contents_as_bytes
@@ -107,7 +107,7 @@ class VertexAITextClient(VertexAIClient):
 
     def make_request(self, request: Request) -> RequestResult:
         """Make a request"""
-        parameters = {
+        parameters: Dict[str, Any] = {
             "temperature": request.temperature,
             "max_output_tokens": request.max_tokens,
             "top_k": request.top_k_per_token,
@@ -207,21 +207,23 @@ class VertexAIChatClient(VertexAIClient):
 
     def make_request(self, request: Request) -> RequestResult:
         """Make a request"""
-        contents = [request.prompt]
+        # mypy is unhappy without this cast
+        contents: Union[List[Union[str, Image, Part]], List[Content]] = cast(
+            List[Union[str, Image, Part]], [request.prompt]
+        )
 
         # For the multimodal case, build up the content with the media objects of `request.multimodal_prompt`
         if request.multimodal_prompt is not None:
             return self._make_multimodal_request(request)
 
         if request.messages is not None:
-            contents = []
             role_mapping = {"user": "user", "assistant": "model"}
-            for msg in request.messages:
-                contents.append(
-                    Content(role=role_mapping.get(msg["role"], "user"), parts=[Part.from_text(msg["content"])])
-                )
+            contents = [
+                Content(role=role_mapping.get(msg["role"], "user"), parts=[Part.from_text(msg["content"])])
+                for msg in request.messages
+            ]
 
-        parameters = {
+        parameters: Dict[str, Any] = {
             "temperature": request.temperature,
             "max_output_tokens": request.max_tokens,
             "top_k": request.top_k_per_token,
