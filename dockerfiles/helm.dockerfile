@@ -164,7 +164,7 @@ docker tag helm:$HELM_GIT_HASH-uv0.7.29-python3.10 helm:latest-uv0.7.29-python3.
 docker tag helm:$HELM_GIT_HASH-uv0.7.29-python3.10 helm:latest
 
 # Get a shell where you can run any commands
-docker run --gpus=all -it helm:latest
+docker run --gpus=all -it helm:latest bash
 
 
 # Test the build
