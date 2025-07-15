@@ -1,7 +1,7 @@
 import requests
 from abc import ABC, abstractmethod
 from threading import Lock
-from typing import Any, Dict, Mapping, Optional, List, Sequence, Union, cast
+from typing import Any, Dict, Mapping, Optional, List, Union, cast
 
 from helm.common.cache import CacheConfig
 from helm.common.multimodal_request_utils import get_contents_as_bytes
@@ -257,7 +257,7 @@ class VertexAIChatClient(VertexAIClient):
                 response: GenerationResponse = model.generate_content(
                     contents, generation_config=parameters, safety_settings=self.safety_settings
                 )
-                candidates: Sequence[Candidate] = response.candidates
+                candidates: List[Candidate] = response.candidates
 
                 # Depending on the version of the Vertex AI library and the type of prompt blocking,
                 # prompt blocking can show up in many ways, so this defensively handles most of these ways
