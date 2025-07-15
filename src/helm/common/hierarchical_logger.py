@@ -1,4 +1,7 @@
 import logging
+import logging.config
+import yaml
+import os
 import sys
 import time
 from typing import Any, Callable, List, Optional
@@ -51,6 +54,11 @@ class HierarchicalLogger(object):
         self.logger.info(self.indent() + str(x), **kwargs)
         sys.stdout.flush()
 
+    def debug(self, x: Any, **kwargs) -> None:
+        kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
+        self.logger.debug(self.indent() + str(x), **kwargs)
+        sys.stdout.flush()
+
     def warn(self, x: Any, **kwargs) -> None:
         kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
         self.logger.warning(self.indent() + str(x), **kwargs)
@@ -71,6 +79,11 @@ singleton = HierarchicalLogger()
 
 ############################################################
 # Exposed public methods
+
+
+def hdebug(x: Any, **kwargs) -> None:
+    kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
+    singleton.debug(x, **kwargs)
 
 
 def hlog(x: Any, **kwargs) -> None:
@@ -129,36 +142,55 @@ class htrack:
         return wrapper
 
 
-def setup_default_logging():
+def setup_default_logging(config_path: Optional[str] = None):
     """
-    Setup a default logger to STDOUT for HELM via Python logging
-    """
-    formatter: logging.Formatter
-    if sys.stdout.isatty():
-        formatter = ColoredFormatter(
-            "%(bold_black)s%(asctime)s%(reset)s %(log_color)s%(levelname)-8s%(reset)s %(message)s",
-            datefmt="%Y-%m-%dT%H:%M:%S",
-            reset=True,
-            log_colors={
-                "DEBUG": "cyan",
-                "INFO": "green",
-                "WARNING": "yellow",
-                "ERROR": "red",
-                "CRITICAL": "red,bg_white",
-            },
-            secondary_log_colors={},
-            style="%",
-        )
-    else:
-        formatter = logging.Formatter(
-            "%(asctime)s %(levelname)-8s %(message)s",
-            datefmt="%Y-%m-%dT%H:%M:%S",
-            style="%",
-        )
+    Setup Python logging for HELM
 
+    Priority:
+    1. External config file (YAML or JSON).
+    2. ENV var LOG_LEVEL.
+    3. a default logger to STDOUT
+    """
+    print("setup logging")
     logger = logging.getLogger("helm")
-    logger.setLevel(logging.INFO)
     logger.propagate = False
+
+    if config_path and os.path.exists(config_path):
+        with open(config_path, "r") as f:
+            config = yaml.safe_load(f)
+        logging.config.dictConfig(config)
+        return
+
+    log_level = (os.getenv("HELM_LOG_LEVEL") or os.getenv("LOG_LEVEL") or "INFO").upper()
+    try:
+        logger.setLevel(getattr(logging, log_level))
+    except AttributeError:
+        logger.setLevel(logging.INFO)
+
+    # Set formatter
+    if sys.stdout.isatty():
+        try:
+            formatter = ColoredFormatter(
+                "%(bold_black)s%(asctime)s%(reset)s %(log_color)s%(levelname)-8s%(reset)s %(message)s",
+                datefmt="%Y-%m-%dT%H:%M:%S",
+                reset=True,
+                log_colors={
+                    "DEBUG": "cyan",
+                    "INFO": "green",
+                    "WARNING": "yellow",
+                    "ERROR": "red",
+                    "CRITICAL": "red,bg_white",
+                },
+                style="%",
+            )
+        except ImportError:
+            formatter = None
+
+    if formatter is None:
+        # fallback
+        formatter = logging.Formatter("%(asctime)s %(levelname)-8s %(message)s")
+
+    # Add default stdout handler
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(formatter)
     logger.addHandler(handler)
