@@ -168,7 +168,7 @@ def setup_default_logging(config_path: Optional[str] = None):
         logger.setLevel(logging.INFO)
 
     # Set formatter
-    formatter: logging.Formatter | None
+    formatter: logging.Formatter | None = None
     if sys.stdout.isatty():
         try:
             formatter = ColoredFormatter(
@@ -185,7 +185,7 @@ def setup_default_logging(config_path: Optional[str] = None):
                 style="%",
             )
         except ImportError:
-            formatter = None
+            pass
 
     if formatter is None:
         # fallback
