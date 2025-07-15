@@ -159,9 +159,12 @@ DOCKER_BUILDKIT=1 docker build --progress=plain \
     --build-arg HELM_GIT_HASH=$HELM_GIT_HASH \
     -f ./dockerfiles/helm.dockerfile .
 
+# Add latest tags for convinience
+docker tag helm:$HELM_GIT_HASH-uv0.7.29-python3.10 helm:latest-uv0.7.29-python3.10
+docker tag helm:$HELM_GIT_HASH-uv0.7.29-python3.10 helm:latest
 
 # Get a shell where you can run any commands
-docker run --gpus=all -it helm:$HELM_GIT_HASH-uv0.7.29-python3.10 bash
+docker run --gpus=all -it helm:latest
 
 
 # Test the build
@@ -183,8 +186,9 @@ docker run \
     -p 8000:8000 \
     -v $PWD:/mnt/host \
     -w /mnt/host \
-    -it helm:$HELM_GIT_HASH-uv0.7.29-python3.10 \
+    -it helm:latest \
     ./run_quickstart.sh
 
 ' > /dev/null
+
 EOF
