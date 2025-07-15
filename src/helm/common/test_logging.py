@@ -20,7 +20,7 @@ class ArgvContext:
 
 def test_run_with_custom_logging_config():
     # Setup temporary directory
-    with tempfile.TemporaryDirectory(prefix='helm_test_') as tmp_dir_str:
+    with tempfile.TemporaryDirectory(prefix="helm_test_") as tmp_dir_str:
         tmp_dir = pathlib.Path(tmp_dir_str)
         log_path = tmp_dir / "test.log"
         log_config_path = tmp_dir / "test_config.yaml"
