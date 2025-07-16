@@ -13,4 +13,4 @@ fi
 # Install all pinned dependencies
 pip install -r requirements.txt
 # Install HELM in edit mode
-pip install -e .[all]
+pip install -e .[all,dev]
