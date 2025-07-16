@@ -10,6 +10,7 @@ class ArgvContext:
     """
     Helper to assign a temporary value to sys.argv and then restore it
     """
+
     def __init__(self, argv: Optional[List[str]]):
         self.argv = argv
         self._original_argv: Optional[List[str]] = None
