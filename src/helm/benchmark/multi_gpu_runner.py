@@ -82,6 +82,7 @@ class MultiGPURunner(Runner):
             cache_instances_only=cache_instances_only,
             skip_completed_runs=skip_completed_runs,
             exit_on_error=exit_on_error,
+            evaluate_contamination=None,
         )
         # Configure max concurrent worker jobs from the environment variable.
         env_max_concurrent_workers = os.getenv(_MAX_CONCURRENT_WORKERS_ENV_NAME)

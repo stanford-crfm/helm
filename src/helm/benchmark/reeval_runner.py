@@ -98,6 +98,7 @@ class REEvalRunner(Runner):
             cache_instances_only=cache_instances_only,
             skip_completed_runs=skip_completed_runs,
             exit_on_error=exit_on_error,
+            evaluate_contamination=None,
         )
 
     def _estimate_model_ability(
