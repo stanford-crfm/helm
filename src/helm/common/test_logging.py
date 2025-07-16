@@ -3,12 +3,13 @@ import tempfile
 import textwrap
 import pathlib
 from helm.benchmark import run
+from typing import Optional, List
 
 
 class ArgvContext:
     def __init__(self, argv):
         self.argv = argv
-        self._original_argv = None
+        self._original_argv: Optional[List[str]] = None
 
     def __enter__(self):
         self._original_argv = sys.argv[:]
