@@ -362,6 +362,7 @@ wrapt==1.17.2
 writer-sdk==2.2.0
 writerai==4.0.1
 wsproto==1.2.0
+xdoctest==1.2.0
 xlrd==2.0.2
 xxhash==3.5.0
 yarl==1.20.1
