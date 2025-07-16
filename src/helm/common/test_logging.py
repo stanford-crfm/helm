@@ -3,19 +3,23 @@ import tempfile
 import textwrap
 import pathlib
 from helm.benchmark import run
-from typing import Optional, List
+from typing import List, Optional
 
 
 class ArgvContext:
-    def __init__(self, argv):
+    """
+    Helper to assign a temporary value to sys.argv and then restore it
+    """
+    def __init__(self, argv: Optional[List[str]]):
         self.argv = argv
         self._original_argv: Optional[List[str]] = None
 
     def __enter__(self):
         self._original_argv = sys.argv[:]
-        sys.argv = self.argv
+        sys.argv = self.argv or []
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        assert self._original_argv is not None  # Satisfies mypy
         sys.argv = self._original_argv
 
 
