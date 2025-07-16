@@ -25,7 +25,7 @@ def remove_boxed(string: str) -> Optional[str]:
     Example:
         >>> from helm.benchmark.scenarios.math_scenario import *  # NOQA
         >>> remove_boxed(r'\boxed{\frac{2}{3}}')
-        \frac{2}{3}
+        '\\frac{2}{3}'
     """
     left = "\\boxed{"
     try:
@@ -75,11 +75,11 @@ def _fix_fracs(string: str) -> str:
 
     Examples:
         >>> _fix_fracs(r"\frac1b")
-        \frac{1}{b}
+        '\\frac{1}{b}'
         >>> _fix_fracs(r"\frac12")
-        \frac{1}{2}
+        '\\frac{1}{2}'
         >>> _fix_fracs(r"\frac1{72}")
-        \frac{1}{72}
+        '\\frac{1}{72}'
     """
     substrs = string.split("\\frac")
     new_str = substrs[0]
@@ -119,7 +119,7 @@ def _fix_a_slash_b(string: str) -> str:
 
     Example:
         >>> _fix_a_slash_b(r"2/3")
-        \frac{2}{3}
+        '\\frac{2}{3}'
     """
     if len(string.split("/")) != 2:
         return string
@@ -156,7 +156,7 @@ def _fix_sqrt(string: str) -> str:
 
     Example:
         >>> _fix_sqrt("\\sqrt3")
-        \sqrt{3}
+        '\\sqrt{3}'
     """
     if "\\sqrt" not in string:
         return string
