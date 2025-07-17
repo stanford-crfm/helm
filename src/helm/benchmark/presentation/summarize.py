@@ -838,7 +838,8 @@ class Summarizer:
                 }
 
                 header_name = header_field.get_short_display_name()
-                description = (run_group.description + "\n\n" if run_group.description is not None else "") + (
+                run_group_short_description = run_group.short_description or run_group.description or ""
+                description = (run_group_short_description + "\n\n" if run_group_short_description else "") + (
                     (header_field.display_name if header_field.display_name else header_field.name)
                     + ": "
                     + (header_field.description if header_field.description is not None else "")
