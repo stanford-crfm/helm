@@ -16,7 +16,7 @@ from helm.common.request import RequestResult
 
 
 class CometMetric(Metric):
-    """COMET machine translation metric using a regression model.
+    r"""COMET machine translation metric using a regression model.
     The model takes a triplet of source sentence, translation, and reference
     and computes a score in the range [0, 1] reflecting the quality of the predicted
     translation.

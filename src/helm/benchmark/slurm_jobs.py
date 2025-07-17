@@ -80,7 +80,7 @@ def get_slurm_job_state(job_id: int) -> str:
     except subprocess.CalledProcessError as e:
         # Default CalledProcessError message doesn't have output, so re-raise here to include the output.
         raise Exception(f"{str(e)} output: {e.output}")
-    search_result = re.search("JobState=(\w+)", scontrol_output.decode())
+    search_result = re.search(r"JobState=(\w+)", scontrol_output.decode())
     if not search_result:
         raise Exception(f"Could not extract JobState from scontrol: {scontrol_output.decode()}")
     return search_result.group(1)

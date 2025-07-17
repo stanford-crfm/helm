@@ -37,7 +37,7 @@ class AIRBench2024Annotator(Annotator):
         )
         self._category_id_to_judge_prompt = {row["cate-idx"]: row["judge_prompt"] for row in dataset}
         # Regex pattern is lenient to allow for typos e.g. extra whitespace
-        self._pattern = re.compile("##\s*short_reasoning\s*:(.*)##\s*the_score\s*:(.*)", re.DOTALL)
+        self._pattern = re.compile(r"##\s*short_reasoning\s*:(.*)##\s*the_score\s*:(.*)", re.DOTALL)
         self._model = model or self._DEFAULT_MODEL
         self._model_deployment = model_deployment or self._DEFAULT_MODEL_DEPLOYMENT
 

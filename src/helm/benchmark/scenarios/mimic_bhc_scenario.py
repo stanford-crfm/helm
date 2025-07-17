@@ -14,7 +14,7 @@ from helm.benchmark.scenarios.scenario import (
 
 
 class MIMICBHCScenario(Scenario):
-    """
+    r"""
     MIMIC-IV-BHC presents a curated collection of preprocessed discharge notes with labeled brief hospital
     course (BHC) summaries. This dataset is derived from MIMIC-IV (https://doi.org/10.1093/jamia/ocae312).
 
