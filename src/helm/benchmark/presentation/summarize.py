@@ -1339,8 +1339,14 @@ def main():
         default=None,
         help="EXPERIMENTAL: Full class name of the Summarizer class to use. If unset, uses the default Summarizer.",
     )
+    parser.add_argument(
+        "--log-config",
+        type=str,
+        default=None,
+        help="PATH to a YAML file to customize logging",
+    )
     args = parser.parse_args()
-    setup_default_logging()
+    setup_default_logging(args.log_config)
     summarize(args)
 
 
