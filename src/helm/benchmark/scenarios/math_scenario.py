@@ -18,13 +18,14 @@ from helm.benchmark.scenarios.scenario import (
 
 
 def remove_boxed(string: str) -> Optional[str]:
-    """Source: https://github.com/hendrycks/math
+    r"""Source: https://github.com/hendrycks/math
 
-    Extract the text within a \\boxed{...} environment.
+    Extract the text within a \boxed{...} environment.
 
     Example:
-    >>> remove_boxed(\\boxed{\\frac{2}{3}})
-    \\frac{2}{3}
+        >>> from helm.benchmark.scenarios.math_scenario import *  # NOQA
+        >>> remove_boxed(r'\boxed{\frac{2}{3}}')
+        '\\frac{2}{3}'
     """
     left = "\\boxed{"
     try:
@@ -68,17 +69,17 @@ def last_boxed_only_string(string: str) -> Optional[str]:
 
 
 def _fix_fracs(string: str) -> str:
-    """Source: https://github.com/hendrycks/math
+    r"""Source: https://github.com/hendrycks/math
 
     Reformat fractions.
 
     Examples:
-    >>> _fix_fracs("\\frac1b")
-    \frac{1}{b}
-    >>> _fix_fracs("\\frac12")
-    \frac{1}{2}
-    >>> _fix_fracs("\\frac1{72}")
-    \frac{1}{72}
+        >>> _fix_fracs(r"\frac1b")
+        '\\frac{1}{b}'
+        >>> _fix_fracs(r"\frac12")
+        '\\frac{1}{2}'
+        >>> _fix_fracs(r"\frac1{72}")
+        '\\frac{1}{72}'
     """
     substrs = string.split("\\frac")
     new_str = substrs[0]
@@ -112,13 +113,13 @@ def _fix_fracs(string: str) -> str:
 
 
 def _fix_a_slash_b(string: str) -> str:
-    """Source: https://github.com/hendrycks/math
+    r"""Source: https://github.com/hendrycks/math
 
     Reformat fractions formatted as a/b to \\frac{a}{b}.
 
     Example:
-    >>> _fix_a_slash_b("2/3")
-    \frac{2}{3}
+        >>> _fix_a_slash_b(r"2/3")
+        '\\frac{2}{3}'
     """
     if len(string.split("/")) != 2:
         return string
@@ -149,13 +150,13 @@ def _remove_right_units(string: str) -> str:
 
 
 def _fix_sqrt(string: str) -> str:
-    """Source: https://github.com/hendrycks/math
+    r"""Source: https://github.com/hendrycks/math
 
     Reformat square roots.
 
     Example:
-    >>> _fix_sqrt("\\sqrt3")
-    \sqrt{3}
+        >>> _fix_sqrt("\\sqrt3")
+        '\\sqrt{3}'
     """
     if "\\sqrt" not in string:
         return string
@@ -210,7 +211,7 @@ def _strip_string(string: str) -> str:
 
     # remove percentage
     string = string.replace("\\%", "")
-    string = string.replace("\%", "")
+    string = string.replace(r"\%", "")
 
     # " 0." equivalent to " ." and "{0." equivalent to "{." Alternatively, add "0" if "." is the start of the string
     string = string.replace(" .", " 0.")
@@ -391,13 +392,13 @@ class MATHScenario(Scenario):
         for split, split_name in zip([TRAIN_SPLIT, TEST_SPLIT], ["train", "test"]):
             if split == TRAIN_SPLIT and self.use_official_examples:
                 train_instances = [
-                    ("What is $\left(\\frac{7}{8}\\right)^3 \cdot \left(\\frac{7}{8}\\right)^{-3}$?", "1"),
+                    ("What is $\\left(\\frac{7}{8}\\right)^3 \\cdot \\left(\\frac{7}{8}\\right)^{-3}$?", "1"),
                     (
                         "In how many ways can 4 books be selected from a shelf of 6 books"
                         + " if the order in which the books are selected does not matter?",
                         "15",
                     ),
-                    ("Find the distance between the points $(2,1,-4)$ and $(5,8,-3).$", "\sqrt{59}"),
+                    ("Find the distance between the points $(2,1,-4)$ and $(5,8,-3).$", "\\sqrt{59}"),
                     (
                         "The faces of an octahedral die are labeled with digits $1$ through $8$."
                         + " What is the probability, expressed as a common fraction,"
