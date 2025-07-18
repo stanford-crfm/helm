@@ -1805,6 +1805,14 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.vision_language.huggingface_vlm_client.HuggingFaceVLMClient"
 
+  ## Moonshot AI
+  - name: together/kimi-k2-instruct
+    model_name: moonshotai/kimi-k2-instruct
+    tokenizer_name: moonshotai/kimi-k2-instruct
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+
   ## MosaicML
   - name: huggingface/mpt-7b
     model_name: mosaicml/mpt-7b
