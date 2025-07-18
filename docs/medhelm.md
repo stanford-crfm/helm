@@ -124,6 +124,10 @@ To reproduce the [MedHELM leaderboard](https://crfm.stanford.edu/helm/medhelm/la
 
 As such, **only users with the necessary access credentials or data permissions** will be able to reproduce the full leaderboard. However, **anyone can reproduce and evaluate the public subset** to benchmark their models.
 
+## Downloading Results
+
+To download the raw results from MedHELM, please refer to the [Downloading Raw Results](downloading_raw_results.md) guide for step-by-step instructions.
+
 ## Contributing to MedHELM
 
 We welcome contributions from both the research and clinical communities to expand MedHELM with new scenarios and models.
