@@ -65,13 +65,14 @@ def file_preprocessing(data_path: str, task_objective: str) -> pd.DataFrame:
 
     # Reduce the DataFrame to remove duplicate hadm_id
     df_features_reduced = df_features.drop_duplicates(subset="hadm_id")
-    columns_to_keep = ["text", "text_df_radiology", "hadm_id"]
+    breakpoint()
+    columns_to_keep = ["text", "text_df_radiology", "hadm_id", "charttime"]
     df_input = df_features_reduced[columns_to_keep]
     final_df = pd.merge(df_input, df_target, on="hadm_id", how="inner")
 
     def remove_substring(string, substring):
         return string.replace(substring, "")
-
+    breakpoint()
     final_df["text"] = final_df.apply(lambda row: remove_substring(row["text"], row[task_objective]), axis=1)
     return final_df
 
@@ -138,7 +139,7 @@ class DischargeMeScenario(Scenario):
         instances: List[Instance] = []
         df_bhc = file_preprocessing(self.data_path, "brief_hospital_course")
         df_di = file_preprocessing(self.data_path, "discharge_instructions")
-
+        breakpoint()
         for i in range(df_bhc.shape[0]):
             prompt_bhc = create_prompt(
                 df_bhc.iloc[i]["text"], df_bhc.iloc[i]["text_df_radiology"], "Brief Hospital Course"
