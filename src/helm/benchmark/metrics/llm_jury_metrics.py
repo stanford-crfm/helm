@@ -36,7 +36,9 @@ class LLMJuryMetric(Metric):
         scores: List[int] = []
         score = self.default_score
         for annotation_key, annotation_dict in annotations.items():
-            if annotation_key in self.annotator_models.keys() and annotation_dict is not None:
+            if annotation_key == "prompt_text":
+                continue
+            if annotation_dict is not None:
                 for val in annotation_dict.values():
                     scores.append(int(val["score"]))
         if scores:

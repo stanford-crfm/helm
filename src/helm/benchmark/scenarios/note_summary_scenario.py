@@ -1,3 +1,5 @@
+import pandas as pd
+
 from typing import List
 from helm.common.general import check_file_exists
 from helm.benchmark.scenarios.scenario import (
@@ -5,11 +7,7 @@ from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
     TEST_SPLIT,
-    CORRECT_TAG,
-    Reference,
-    Output,
 )
-import pandas as pd
 
 
 def file_preprocessing(data_path: str) -> pd.DataFrame:

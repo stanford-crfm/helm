@@ -223,6 +223,11 @@ metrics:
     short_display_name: Jury Score
     description: Measures the average score assigned by an LLM-based jury evaluating task performance.
     lower_is_better: false
+  - name: note_summary_accuracy
+    display_name: Note Summary Jury Score
+    short_display_name: Jury Score
+    description: Measures the average score assigned by an LLM-based jury evaluating task performance.
+    lower_is_better: false
   - name: mtsamples_procedures_accuracy
     display_name: MTSamples Procedures Jury Score
     short_display_name: Jury Score
@@ -499,6 +504,7 @@ run_groups:
       - mimic_rrs
       - mimic_bhc
       - chw_care_plan
+      - note_summary
   
   - name: patient_communication
     display_name: Patient Communication and Education
@@ -1137,4 +1143,22 @@ run_groups:
       what: Identify referrals for ENT specialists
       who: Hospital Admistrator
       when: Any
+      language: English
+
+  - name: note_summary
+    display_name: NoteSummary
+    short_display_name: NoteSummary
+    description: NoteSummary is a benchmark designed to evaluate clinical text generation. It pairs discharge summaries and radiology reports from MIMIC-IV with generation tasks such as writing discharge instructions or summarizing the brief hospital course. The benchmark assesses a model's ability to generate patient-facing documentation that is complete, empathetic, and clinically accurate [(Xu, 2024)](https://physionet.org/content/discharge-me/1.3/).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: note_summary_accuracy
+      main_split: test
+    taxonomy:
+      task: Text generation
+      what: Summarize clinical notes into concise, informative summaries
+      who: Clinician
+      when: Upon hospital discharge
       language: English
