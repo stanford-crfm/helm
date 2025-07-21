@@ -1,4 +1,3 @@
-
 from typing import Dict, Optional, Set
 
 from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo, LLMAsJuryAnnotator

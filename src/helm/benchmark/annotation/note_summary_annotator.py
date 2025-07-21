@@ -1,4 +1,3 @@
-
 from typing import Dict, Optional
 
 from helm.benchmark.adaptation.request_state import RequestState
@@ -54,7 +53,7 @@ class NoteSummaryAnnotator(LLMAsJuryAnnotator):
             notes=request_state.instance.extra_data.get("notes", []),
             target_specialty="emergency medicine",
         )
-        
+
         return prompt[1]["content"]
 
 

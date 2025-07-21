@@ -72,6 +72,7 @@ def file_preprocessing(data_path: str, task_objective: str) -> pd.DataFrame:
 
     def remove_substring(string, substring):
         return string.replace(substring, "")
+
     breakpoint()
     final_df["text"] = final_df.apply(lambda row: remove_substring(row["text"], row[task_objective]), axis=1)
     return final_df

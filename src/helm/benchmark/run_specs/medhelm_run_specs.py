@@ -1280,7 +1280,9 @@ def get_dischargeme_pdsqi_spec(data_path: str) -> RunSpec:
         max_train_instances=0,
     )
 
-    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.note_summary_annotator.NoteSummaryAnnotator")]
+    annotator_specs = [
+        AnnotatorSpec(class_name="helm.benchmark.annotation.note_summary_annotator.NoteSummaryAnnotator")
+    ]
 
     metric_args = {
         "task": "note_summary",
@@ -1292,11 +1294,7 @@ def get_dischargeme_pdsqi_spec(data_path: str) -> RunSpec:
     metric_specs = [
         MetricSpec(
             class_name="helm.benchmark.metrics.llm_jury_metrics.LLMJuryMetric",
-            args={
-                "metric_name": "note_summary_accuracy",
-                "scenario_name": "note_summary",
-                "annotator_models": {}
-            }
+            args={"metric_name": "note_summary_accuracy", "scenario_name": "note_summary", "annotator_models": {}},
         )
     ]
     return RunSpec(
