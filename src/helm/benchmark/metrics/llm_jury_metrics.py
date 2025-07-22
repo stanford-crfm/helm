@@ -38,8 +38,10 @@ class LLMJuryMetric(Metric):
         for annotation_key, annotation_dict in annotations.items():
             if annotation_key == "prompt_text":
                 continue
-            if annotation_dict is not None:
+            if annotation_dict is not None and isinstance(annotation_dict, dict):
                 for val in annotation_dict.values():
+                    if "score" not in val:
+                        continue
                     scores.append(int(val["score"]))
         if scores:
             score = sum(scores) / len(scores)
