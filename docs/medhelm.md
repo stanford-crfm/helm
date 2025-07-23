@@ -97,7 +97,7 @@ These benchmarks are publicly available but require special permissions or crede
 
 These benchmarks are based on proprietary or restricted datasets that are only available to the respective organizations.
 
-For evaluating models against private benchmarks, either the model weights must be shared with Stanford, or the model/system has to be made available via an API that has a BAA with Stanford for use with data containing PHI.
+For evaluating models against private benchmarks, please contact the MedHELM team at [migufuen@stanford.edu](mailto:migufuen@stanford.edu).
 
 - **Access requirements**: Organization-specific authorization
 - **Example use case**: Internal clinical datasets available only to the originating institution
