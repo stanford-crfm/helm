@@ -111,7 +111,7 @@ mypy src scripts
 The recommended way to execute `helm-run`, `helm-summarize`, `helm-server`, etc, with your local version of the repository is to do an editable install, using the following steps:
 
 1. Activate your virtual environment.
-1. Change directory to the repository root (contains setup.cfg).
+1. Change directory to the repository root (contains pyproject.toml).
 1. Make sure you don't have an existing helm installation for that environment with `pip uninstall crfm-helm`
 1. Run `pip install -e .`
 
