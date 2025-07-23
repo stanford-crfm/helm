@@ -163,11 +163,7 @@ class NoteSummaryScenario(Scenario):
 
     name = "note_summary"
     description = (
-        "NoteSummary is a benchmark designed to evaluate clinical text generation. It pairs"
-        "discharge summaries and radiology reports from MIMIC-IV with generation tasks"
-        "such as writing discharge instructions or summarizing the brief hospital course. The"
-        "benchmark assesses a model's ability to generate patient-facing documentation that is"
-        "complete, empathetic, and clinically accurate."
+        "NoteSummary is a benchmark designed to evaluate clinical note summarization capabilities of LLMs."
     )
     tags = ["biomedical"]
 
