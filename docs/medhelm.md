@@ -95,12 +95,14 @@ These benchmarks are publicly available but require special permissions or crede
 
 ### 🔒 Private Benchmarks
 
-These benchmarks are based on proprietary or restricted datasets that are only available to specific organizations.
+These benchmarks are based on proprietary or restricted datasets that are only available to the respective organizations.
+
+For evaluating models against private benchmarks, please contact the MedHELM team at [migufuen@stanford.edu](mailto:migufuen@stanford.edu).
 
 - **Access requirements**: Organization-specific authorization
 - **Example use case**: Internal clinical datasets available only to the originating institution
 - **Run entries file**: `run_entries_medhelm_private_{organization}.conf` (_e.g., `run_entries_medhelm_private_stanford.conf`_)
-- **Reproducibility**: Only authorized users within the organization can reproduce results from these benchmarks.
+- **Reproducibility**: Only authorized users within the organization (data owners) can reproduce results from these benchmarks.
 
 ---
 
