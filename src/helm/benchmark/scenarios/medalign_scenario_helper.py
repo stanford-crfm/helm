@@ -2,22 +2,15 @@
 # type: ignore
 # fmt: off
 
-import ast
-import datetime
 import transformers
 import langchain
 import langchain.prompts
-import lxml.etree
 import os
 import pandas as pd
-import re
 import tiktoken
 
-from langchain_community.retrievers import BM25Retriever
 from tqdm import tqdm
-from typing import Any, Dict, Optional, Union, Callable
-from langchain.schema import Document
-import langchain_community
+from typing import Any, Dict, Optional, Callable
 
 from helm.common.general import check_file_exists
 
@@ -167,94 +160,6 @@ def get_tokenizer(tokenizer_name: str) -> Callable:
     return transformers.AutoTokenizer.from_pretrained(tokenizer_name, legacy=False)
 
 
-def retrieve_most_relevant_visits(ehr_visit_strs, query, target_length, tokenizer):
-    """
-    Retrieve and filter relevant EHR visits based on a query and target length.
-
-    This function retrieves electronic health record (EHR) visit strings, sorts them
-    by relevance using the BM25Retriever, and constructs a list of final documents
-    that fit within a specified character length. The final list ensures that the
-    most important visit isn't cut off and is sorted chronologically.
-
-    Parameters:
-        ehr_visit_strs (list of str): List of EHR visit strings.
-        query (str): Query string to retrieve relevant visits.
-        target_length (int): Maximum total token count for the final list of documents.
-        tokenizer (Callable): Tokenizer that converts text to tokens (used for tracking context length)
-
-    Returns:
-        list[str]: List of EHR visit strings sorted chronologically and constrained by the target length.
-    """
-    ehr_visits=re.split(r'(?=</encounter>\n)',ehr_visit_strs)
-    langchain_docs = [
-        langchain.schema.Document(page_content=doc) for doc in ehr_visits #broken since ehr_visit_strs is one string of all visits
-    ]
-    # `k` is the number of documents to retrieve
-    # We retrieve everything and just use the BM25Retriever to sort the documents
-    retriever = langchain_community.retrievers.BM25Retriever.from_documents(
-        langchain_docs, k=len(langchain_docs)
-    )
-
-    # Invoking the retriever means the most relevant documents are sorted first
-    sorted_docs = retriever.invoke(query)
-
-    # Define the regex pattern to find the start time
-    # pattern = r'start="([\d/]+ [\d:]+)"'
-    pattern = r'start="([\d/]+ [\d:]+ ?[APM]{0,2})"'
-
-    docs = []
-    dts = []
-
-    # Find the startime of the document
-    for doc in sorted_docs:
-        doc_content = doc.page_content
-        start_dt_match = re.search(pattern, doc_content)
-        if start_dt_match:
-            start_dt = start_dt_match.group(1)
-            parsed = False
-            # Try different date formats
-            for fmt in (
-                "%m/%d/%y %I:%M %p",
-                "%m/%d/%Y %I:%M %p",
-                "%m/%d/%y %H:%M",
-                "%m/%d/%Y %H:%M",
-            ):
-                try:
-                    dts.append(datetime.datetime.strptime(start_dt, fmt))
-                    parsed = True
-                    break
-                except ValueError:
-                    continue
-            if not parsed:
-                print(f"Error parsing date: {start_dt}")
-                continue
-        else:
-            print(f"Start time not found., {doc_content}")
-            dts.append(datetime.datetime.min)
-        docs.append(doc_content)
-
-    final_docs = []
-    current_length = 0
-
-    # Add documents until we exceed the allocated context length
-    for i in range(len(docs)):
-        doc_content = docs[i]
-        doc_length = len(tokenizer.encode(doc_content))
-        final_docs.append((dts[i], doc_content))
-        current_length += doc_length
-        if current_length > target_length:
-            break
-
-    # Sort final_docs chronologically
-    final_docs.sort(key=lambda x: x[0])
-
-    # Extract only the document content for the final output
-    final_docs_content = [doc_content for _, doc_content in final_docs]
-
-    return final_docs_content
-
-
-
 def pack_and_trim_prompts(
     instructions: Dict[int, Dict[str, str]],
     ehrs: Dict[int, str],
@@ -262,7 +167,6 @@ def pack_and_trim_prompts(
     context_length: int,
     generation_length: int,
     tokenizer: Any,
-    use_RAG: bool = True,
     verbose: bool = False,
     include_ehr: bool = True,
 ) -> Dict[int, str]:
@@ -286,16 +190,6 @@ def pack_and_trim_prompts(
         if target_ehr_length <= 0:
             prompt_with_truncated_ehr = prompt_template.format(question=instruction, ehr="")
         else:
-            if use_RAG:
-                # Return a list of the most relevant visit strings
-                most_relevant_visits = retrieve_most_relevant_visits(
-                    ehr_visit_strs=relevant_ehr,
-                    query=instruction,
-                    target_length=target_ehr_length,
-                    tokenizer=tokenizer,
-                )
-                relevant_ehr = "\n".join(most_relevant_visits)
-
             # Do a first pass with a fast tokenizer
             fast_tokenizer = tiktoken.get_encoding("cl100k_base")
             fast_encoded = fast_tokenizer.encode(relevant_ehr)
@@ -322,7 +216,6 @@ def preprocess_prompts(
     generation_length,
     path_to_instructions,
     path_to_ehrs,
-    use_RAG,
     include_ehr,
     tokenizer,
     codes_only=False,
@@ -356,7 +249,6 @@ def preprocess_prompts(
         context_length=target_context_length,
         generation_length=generation_length,
         tokenizer=tokenizer,
-        use_RAG=use_RAG,
         verbose=False,
         include_ehr=include_ehr,
     )
@@ -415,7 +307,6 @@ def return_dataset_dataframe(max_length: int, data_path: str) -> pd.DataFrame:
     path_to_ehrs = os.path.join(data_path, "medalign_ehr_xml")
     path_to_reference_responses = os.path.join(data_path, "clinician-instruction-responses.tsv")
     check_file_exists(path_to_reference_responses, msg=f"[MedAlignScenario] Required clinician responses file not found: '{path_to_reference_responses}'")
-    use_RAG = False
     include_ehr = True
     tokenizer = "tiktoken"
 
@@ -424,7 +315,6 @@ def return_dataset_dataframe(max_length: int, data_path: str) -> pd.DataFrame:
         generation_length=generation_length,
         path_to_instructions=path_to_instructions,
         path_to_ehrs=path_to_ehrs,
-        use_RAG=use_RAG,
         include_ehr=include_ehr,
         tokenizer=tokenizer,
     )
