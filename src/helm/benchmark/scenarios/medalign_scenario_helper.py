@@ -3,8 +3,6 @@
 # fmt: off
 
 import transformers
-import langchain
-import langchain.prompts
 import os
 import pandas as pd
 import tiktoken
@@ -163,7 +161,7 @@ def get_tokenizer(tokenizer_name: str) -> Callable:
 def pack_and_trim_prompts(
     instructions: Dict[int, Dict[str, str]],
     ehrs: Dict[int, str],
-    prompt_template: langchain.prompts.PromptTemplate,
+    prompt_string: str,
     context_length: int,
     generation_length: int,
     tokenizer: Any,
@@ -180,15 +178,14 @@ def pack_and_trim_prompts(
         patient_id = int(instructions[instruction_id]["patient_id"])
         relevant_ehr = ehrs[patient_id]
 
-        # Calculate how many tokens of EHR we can include in the prompt
         num_tokens_instruction = len(tokenizer.encode(instruction))
-        num_tokens_prompt_template = len(tokenizer.encode(prompt_template.template))
+        num_tokens_prompt_template = len(tokenizer.encode(prompt_string))
         if include_ehr:
             target_ehr_length = context_length - generation_length - num_tokens_prompt_template - num_tokens_instruction
         else:
             target_ehr_length = 0
         if target_ehr_length <= 0:
-            prompt_with_truncated_ehr = prompt_template.format(question=instruction, ehr="")
+            prompt_with_truncated_ehr = prompt_string.format(question=instruction, ehr="")
         else:
             # Do a first pass with a fast tokenizer
             fast_tokenizer = tiktoken.get_encoding("cl100k_base")
@@ -201,13 +198,17 @@ def pack_and_trim_prompts(
                 encoded_ehr = tokenizer.encode(fast_truncated_ehr)
                 truncated_encoded_ehr = encoded_ehr[-target_ehr_length:]
                 truncated_ehr = tokenizer.decode(truncated_encoded_ehr)
-                prompt_with_truncated_ehr = prompt_template.format(question=instruction, ehr=truncated_ehr)
+                prompt_with_truncated_ehr = prompt_string.format(question=instruction, ehr=truncated_ehr)
+            else:
+                # If the fast encoding is still too long, just use the full EHR up to allowed length
+                truncated_ehr = fast_tokenizer.decode(fast_encoded[-target_ehr_length:])
+                prompt_with_truncated_ehr = prompt_string.format(question=instruction, ehr=truncated_ehr)
 
-                prompts_map[instruction_id] = prompt_with_truncated_ehr
+        prompts_map[instruction_id] = prompt_with_truncated_ehr
 
-                if verbose:
-                    print(prompt_with_truncated_ehr)
-                    print("~" * 20)
+        if verbose:
+            print(prompt_with_truncated_ehr)
+            print("~" * 20)
     return prompts_map
 
 
@@ -240,12 +241,15 @@ def preprocess_prompts(
 
     # CONSTRUCT & TRUNCATE PROMPTS #
     print("Constructing prompts using instructions and EHRs...")
-    prompt_string="Instruction: Answer the following question based on the EHR:\n\nEHR: {ehr}\n\nQuestion: {question}\n\nAnswer:"
-    prompt_template = langchain.prompts.PromptTemplate.from_template(prompt_string)
+    prompt_string = (
+        "Instruction: Answer the following question based on the EHR:\n\n"
+        "EHR: {ehr}\n\nQuestion: {question}\n\nAnswer:"
+    )
+
     filled_prompts = pack_and_trim_prompts(
         instructions=instructions,
         ehrs=ehrs,
-        prompt_template=prompt_template,
+        prompt_string=prompt_string,
         context_length=target_context_length,
         generation_length=generation_length,
         tokenizer=tokenizer,
