@@ -21,6 +21,7 @@ set -e
 apt update -q
 DEBIAN_FRONTEND=noninteractive apt install -q -y --no-install-recommends \
     curl \
+    wget \
     git \
     ca-certificates \
     build-essential 
@@ -158,6 +159,18 @@ WORKDIR /root/code/helm
 # ---------------------------------------------------------------
 # End of dockerfile logic. The following lines are documentation.
 # ---------------------------------------------------------------
+
+# HACK
+RUN <<EOF
+#!/bin/bash
+set -e
+apt update -q
+DEBIAN_FRONTEND=noninteractive apt install -q -y --no-install-recommends \
+    wget \
+# Cleanup for smaller image sizes
+apt clean
+rm -rf /var/lib/apt/lists/*
+EOF
 
 ################
 ### __DOCS__ ###
