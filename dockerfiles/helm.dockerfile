@@ -107,8 +107,18 @@ cd  /root/code/helm
 git checkout "$HELM_GIT_HASH"
 git reset --hard "$HELM_GIT_HASH"
 
+# TODO: cleanup once we determine the best way to 
+# install the HELM package for reproducibility. 
+
+# First install pinned requirements for reproducibility
+uv pip install -r requirements.txt
+
+# 
 # Install helm in developement mode
-uv pip install -e .
+# uv pip install -e .
+
+uv pip install -e .[all,dev] 
+#--resolution lowest-direct
 
 # Cleanup for smaller cache
 rm -rf /root/.cache/
