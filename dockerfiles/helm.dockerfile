@@ -199,34 +199,40 @@ DOCKER_BUILDKIT=1 docker build --progress=plain \
 docker tag helm:$HELM_GIT_HASH-uv0.7.29-python3.10 helm:latest-uv0.7.29-python3.10
 docker tag helm:$HELM_GIT_HASH-uv0.7.29-python3.10 helm:latest
 
-# Get a shell where you can run any commands
-docker run --gpus=all -it helm:latest bash
+# Verify that GPUs are visible and that each helm command works
+docker run --gpus=all -it helm:latest nvidia-smi
+docker run --gpus=all -it helm:latest helm-run --help
+docker run --gpus=all -it helm:latest helm-summarize --help
+docker run --gpus=all -it helm:latest helm-server --help
 
+# Run a small end-to-end benchmark.
 
-# Test the build
-# write a script that executes run -> summarize -> server and then
-# execute it inside the docker container.
+# Create a shared directory so results persist outside of the container.
+# We will then run commands in the container using that shared path as the
+# working directory.
+mkdir -p ./shared_directory
 
-echo "
-# Run benchmark
-helm-run --run-entries mmlu:subject=philosophy,model=openai/gpt2 --suite my-suite --max-eval-instances 10
+# Run benchmarks
+docker run --rm --gpus=all \
+    -v $PWD/shared_directory:/mnt/shared_directory \
+    --workdir /mnt/shared_directory \
+    -it helm:latest \
+    helm-run --run-entries mmlu:subject=philosophy,model=openai/gpt2 --suite my-suite --max-eval-instances 10
 
 # Summarize benchmark results
-helm-summarize --suite my-suite
+docker run --rm --gpus=all \
+    -v $PWD/shared_directory:/mnt/shared_directory \
+    --workdir /mnt/shared_directory \
+    -it helm:latest \
+    helm-summarize --suite my-suite
 
 # Start a web server to display benchmark results
-helm-server --suite my-suite
-" > run_quickstart.sh
-chmod +x run_quickstart.sh
-
-docker run \
-    --rm \
-    --gpus=all \
+docker run --rm --gpus=all \
+    -v $PWD/shared_directory:/mnt/shared_directory \
+    --workdir /mnt/shared_directory \
     -p 8000:8000 \
-    -v $PWD:/mnt/host \
-    -w /mnt/host \
     -it helm:latest \
-    ./run_quickstart.sh
+    helm-server --suite my-suite
 
 ' > /dev/null
 
