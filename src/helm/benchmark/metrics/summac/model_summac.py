@@ -219,7 +219,7 @@ class SummaCConv(torch.nn.Module):
         imager_load_cache=True,
         agg="mean",
         norm_histo=False,
-        **kwargs
+        **kwargs,
     ):
         # `bins` should be `even%d` or `percentiles`
         assert nli_labels in ["e", "c", "n", "ec", "en", "cn", "ecn"], "Unrecognized nli_labels argument %s" % (
@@ -405,7 +405,7 @@ class SummaCZS:
         use_con=True,
         imager_load_cache=True,
         device="cuda",
-        **kwargs
+        **kwargs,
     ):
         assert op2 in ["min", "mean", "max"], "Unrecognized `op2`"
         assert op1 in ["max", "mean", "min"], "Unrecognized `op1`"

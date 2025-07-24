@@ -141,7 +141,7 @@ class Encoder(nn.Module):
         in_channels: int,
         resolution: int,
         z_channels: int,
-        double_z: Optional[bool] = None
+        double_z: Optional[bool] = None,
     ) -> None:
         super().__init__()
         self.ch = ch
@@ -232,7 +232,7 @@ class Decoder(nn.Module):
         in_channels: int,
         resolution: int,
         z_channels: int,
-        double_z: bool
+        double_z: bool,
     ) -> None:
         super().__init__()
         self.ch = ch
