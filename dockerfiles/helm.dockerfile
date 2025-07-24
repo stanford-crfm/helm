@@ -6,22 +6,25 @@ ENV PIP_ROOT_USER_ACTION=ignore
 # Control which python version we are using
 ARG PYTHON_VERSION=3.10
 
+# Control the version of uv
 ARG UV_VERSION=0.7.19
 
-# Install Prerequisites base tools, system Python (only needed for bootstrapping)
+# Control the version of HELM (by default uses the current branch)
+ARG HELM_GIT_HASH=HEAD
+
+# ------------------------------------
+# Step 1: Install System Prerequisites
+# ------------------------------------
 RUN <<EOF
 #!/bin/bash
 set -e
 apt update -q
 DEBIAN_FRONTEND=noninteractive apt install -q -y --no-install-recommends \
     curl \
-    wget \
     git \
     ca-certificates \
-    python3 \
-    python3-venv \
-    python3-pip \
     build-essential 
+# Cleanup for smaller image sizes
 apt clean
 rm -rf /var/lib/apt/lists/*
 EOF
@@ -29,10 +32,12 @@ EOF
 # Set the shell to bash to auto-activate enviornments
 SHELL ["/bin/bash", "-l", "-c"]
 
-# Install uv
-#
-# NOTE: We pin to a specific version of the astral install script to be more
-# reproducible and secure against compromised domains.
+# ------------------
+# Step 2: Install uv
+# ------------------
+# Here we take a few extra steps to pin to a verified version of the uv
+# installer. This increases reproducibility and security against the main
+# astral domain, but not against those linked in the main installer.
 # The "normal" way to install the latest uv is:
 # curl -LsSf https://astral.sh/uv/install.sh | bash
 RUN <<EOF
@@ -46,8 +51,6 @@ declare -A UV_INSTALL_KNOWN_HASHES=(
 )
 EXPECTED_SHA256="${UV_INSTALL_KNOWN_HASHES[${UV_VERSION}]}"
 DOWNLOAD_PATH=uv-install-v${UV_VERSION}.sh
-echo "EXPECTED_SHA256=$EXPECTED_SHA256"
-echo "DOWNLOAD_PATH=$DOWNLOAD_PATH"
 if [[ -z "$EXPECTED_SHA256" ]]; then
     echo "No hash known for UV_VERSION '$UV_VERSION'; no known hash. Aborting."
     exit 1
@@ -61,20 +64,21 @@ rm -rf /root/.cache/
 EOF
 
 
-# Install uv
+# ------------------------------------------
+# Step 3: Setup a Python virtual environment
+# ------------------------------------------
+# This step mirrors a normal virtualenv development environment inside the
+# container, which can prevent subtle issues due when running as root inside
+# containers. 
 RUN <<EOF
 #!/bin/bash
-export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
-
-# Use uv to install Python 3.13 and seed venv
+# Use uv to install the requested python version and seed the venv
 uv venv "/root/venv$PYTHON_VERSION" --python=$PYTHON_VERSION --seed
-
-echo "Write bashrc"
 BASHRC_CONTENTS='
 # setup a user-like environment, even though we are root
 export HOME="/root"
-export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
 # Auto-activate the venv on login
 source /root/venv'$PYTHON_VERSION'/bin/activate
 '
@@ -84,21 +88,20 @@ echo "$BASHRC_CONTENTS" >> $HOME/.bashrc
 echo "$BASHRC_CONTENTS" >> $HOME/.profile
 EOF
 
-ENTRYPOINT ["/bin/bash", "-lc"]
-
 
 RUN mkdir -p /root/code/helm
 
-# Set the default workdir to the helm code repo
-WORKDIR /root/code/helm
-
-ARG HELM_GIT_HASH=HEAD
-
-# Copy the .git data over for a fresh install in docker
+# ---------------------------------
+# Step 4: Checkout and install HELM
+# ---------------------------------
+# Based on the state of the repo this copies the host .git data over and then
+# checks out the extact version of HELM requested by HELM_GIT_HASH. It then
+# performs a basic install of helm into the virtual environment.
 COPY .git /root/code/helm/.git
-
 RUN <<EOF
 set -e
+
+cd  /root/code/helm
 
 # Checkout the requested branch 
 git checkout "$HELM_GIT_HASH"
@@ -112,12 +115,15 @@ rm -rf /root/.cache/
 EOF
 
 
-
-
-# Create an entrypoint that will run a command in the context of the bash environment
+# -----------------------------------
+# Step 5: Ensure venv auto-activation
+# -----------------------------------
+# This final steps ensures that commands the user provides to docker run
+# will always run in in the context of the virtual environment. 
 RUN  <<EOF
 #!/bin/bash
 set -e
+# write the entrypoint script
 echo '#!/bin/bash
 set -e
 # Build the escaped command string
@@ -129,13 +135,19 @@ done
 # Remove trailing space
 cmd=${cmd% }
 exec bash -lc "$cmd"
-' > /entrypoint.sh
+' > entrypoint.sh
 chmod +x /entrypoint.sh
-cat /entrypoint.sh
 EOF
 
+# Set the entrypoint to our script that activates the virtual enviornment first
 ENTRYPOINT ["/entrypoint.sh"]
 
+# Set the default workdir to the helm code repo
+WORKDIR /root/code/helm
+
+# ---------------------------------------------------------------
+# End of dockerfile logic. The following lines are documentation.
+# ---------------------------------------------------------------
 
 ################
 ### __DOCS__ ###
@@ -152,6 +164,7 @@ cd ~/code/helm/
 # Determine which helm version to use
 HELM_GIT_HASH=$(git rev-parse --short=12 HEAD)
 
+# Build HELM in a reproducible way.
 DOCKER_BUILDKIT=1 docker build --progress=plain \
     -t helm:$HELM_GIT_HASH-uv0.7.29-python3.10 \
     --build-arg PYTHON_VERSION=3.10 \
@@ -168,6 +181,8 @@ docker run --gpus=all -it helm:latest bash
 
 
 # Test the build
+# write a script that executes run -> summarize -> server and then
+# execute it inside the docker container.
 
 echo "
 # Run benchmark
@@ -182,6 +197,7 @@ helm-server --suite my-suite
 chmod +x run_quickstart.sh
 
 docker run \
+    --rm \
     --gpus=all \
     -p 8000:8000 \
     -v $PWD:/mnt/host \
