@@ -438,25 +438,9 @@ include-package-data = true
 where = ["src"]
 exclude = ["tests*"]
 
-# Settings for Flake8: Tool For Style Guide Enforcement
-[tool.flake8]
-max-line-length = 120
-exclude = [
-    "venv/*",
-    "src/helm/clients/image_generation/dalle_mini/*",
-    "src/helm/clients/image_generation/mindalle/*",
-    "src/helm/clients/vision_language/open_flamingo/*",
-    "src/helm/clients/audio_language/llama_omni/*",
-    "src/helm/clients/audio_language/qwen_omni/*",
-]
-# Ignore completely:
-# E203 - White space before ':', (conflicts with black)
-# E231 - Missing whitespace after ',', ';', or ':'
-# E731 - do not assign a lambda expression, use a def
-# W503 - line break before binary operator, (conflicts with black)
-# W605 - invalid escape sequence '\', (causes failures)
-# E501 - Line too long
-ignore = ["E203","E231","E731","W503","W605","E501"]
+# Note: flake8 does not support pyproject.toml
+# the flake8 configuration is in .flake8
+# it may be a good idea to migrate to ruff
 
 # Settings for Mypy: static type checker for Python 3
 [tool.mypy]
