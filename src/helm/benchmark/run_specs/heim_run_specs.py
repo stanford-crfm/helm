@@ -60,7 +60,6 @@ def get_core_heim_metric_specs() -> List[MetricSpec]:
             class_name="helm.benchmark.metrics.image_generation.fractal_dimension_metric.FractalDimensionMetric",
             args={},
         ),
-
         # Disabled due to keras issue.
         # See: https://github.com/stanford-crfm/helm/issues/3741#issuecomment-3109478877
         # MetricSpec(class_name="helm.benchmark.metrics.image_generation.nsfw_metrics.NSFWMetric", args={}),
