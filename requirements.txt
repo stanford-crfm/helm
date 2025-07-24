@@ -73,7 +73,8 @@ fastavro==1.11.1
 filelock==3.18.0
 flake8==5.0.4
 flatbuffers==25.2.10
-flax==0.10.7
+flax==0.8.5; python_full_version < "3.10"
+flax==0.10.7; python_full_version >= "3.10"
 fonttools==4.59.0
 frozenlist==1.7.0
 fsspec==2025.3.0
