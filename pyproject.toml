@@ -24,11 +24,6 @@ urls = { "Homepage" = "https://github.com/stanford-crfm/helm" }
 
 requires-python = ">=3.9"
 
-[tool.setuptools]
-package-dir = { "" = "src" }
-zip-safe = false
-include-package-data = true
-
 dependencies = [
     # Common
     "cattrs~=22.2",
@@ -433,6 +428,11 @@ helm-server = "helm.benchmark.server:main"
 helm-create-plots = "helm.benchmark.presentation.create_plots:main"
 crfm-proxy-server = "helm.proxy.server:main"
 crfm-proxy-cli = "helm.proxy.cli:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+zip-safe = false
+include-package-data = true
 
 [tool.setuptools.packages.find]
 where = ["src"]
