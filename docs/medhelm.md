@@ -48,7 +48,7 @@ This categorization ensures that evaluations reflect the **complexity, diversity
 
 ## Installation
 
-First, follow the [installation instructions](installation.md) to install the base HELM framework.
+First, follow the [installation instructions](installation.md) to install the base HELM framework. For improved stability, we recommend using Python 3.10.
 
 To install MedHELM-specific dependencies:
 
