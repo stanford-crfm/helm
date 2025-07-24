@@ -2,16 +2,13 @@
 # type: ignore
 # fmt: off
 
-import datetime
 import transformers
 import langchain
 import langchain.prompts
 import os
 import pandas as pd
-import re
 import tiktoken
 
-from rank_bm25 import BM25Okapi
 from tqdm import tqdm
 from typing import Any, Dict, Optional, Callable
 
@@ -163,81 +160,6 @@ def get_tokenizer(tokenizer_name: str) -> Callable:
     return transformers.AutoTokenizer.from_pretrained(tokenizer_name, legacy=False)
 
 
-dimport re
-import datetime
-from rank_bm25 import BM25Okapi
-
-def retrieve_most_relevant_visits(ehr_visit_strs, query, target_length, tokenizer):
-    """
-    Retrieve and filter relevant EHR visits based on a query and target length.
-
-    This function retrieves electronic health record (EHR) visit strings, sorts them
-    by relevance using BM25, and constructs a list of final documents
-    that fit within a specified character length. The final list ensures that the
-    most important visit isn't cut off and is sorted chronologically.
-
-    Parameters:
-        ehr_visit_strs (str): String containing all EHR visits.
-        query (str): Query string to retrieve relevant visits.
-        target_length (int): Maximum total token count for the final list of documents.
-        tokenizer (Callable): Tokenizer that converts text to tokens (used for tracking context length)
-
-    Returns:
-        list[str]: List of EHR visit strings sorted chronologically and constrained by the target length.
-    """
-    ehr_visits = re.split(r'(?=</encounter>\n)', ehr_visit_strs)
-    tokenized_visits = [visit.split() for visit in ehr_visits]
-    bm25 = BM25Okapi(tokenized_visits)
-    tokenized_query = query.split()
-    scores = bm25.get_scores(tokenized_query)
-    sorted_indices = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)
-    pattern = r'start="([\d/]+ [\d:]+ ?[APM]{0,2})"'
-    docs = []
-    dts = []
-
-    for idx in sorted_indices:
-        doc_content = ehr_visits[idx]
-        start_dt_match = re.search(pattern, doc_content)
-        if start_dt_match:
-            start_dt = start_dt_match.group(1)
-            parsed = False
-            for fmt in (
-                "%m/%d/%y %I:%M %p",
-                "%m/%d/%Y %I:%M %p",
-                "%m/%d/%y %H:%M",
-                "%m/%d/%Y %H:%M",
-            ):
-                try:
-                    dts.append(datetime.datetime.strptime(start_dt, fmt))
-                    parsed = True
-                    break
-                except ValueError:
-                    continue
-            if not parsed:
-                print(f"Error parsing date: {start_dt}")
-                dts.append(datetime.datetime.min)
-        else:
-            print(f"Start time not found., {doc_content}")
-            dts.append(datetime.datetime.min)
-        docs.append(doc_content)
-
-    final_docs = []
-    current_length = 0
-    for i in range(len(docs)):
-        doc_content = docs[i]
-        doc_length = len(tokenizer.encode(doc_content))
-        final_docs.append((dts[i], doc_content))
-        current_length += doc_length
-        if current_length > target_length:
-            break
-
-    final_docs.sort(key=lambda x: x[0])
-    final_docs_content = [doc_content for _, doc_content in final_docs]
-    return final_docs_content
-
-
-
-
 def pack_and_trim_prompts(
     instructions: Dict[int, Dict[str, str]],
     ehrs: Dict[int, str],
@@ -245,7 +167,6 @@ def pack_and_trim_prompts(
     context_length: int,
     generation_length: int,
     tokenizer: Any,
-    use_RAG: bool = True,
     verbose: bool = False,
     include_ehr: bool = True,
 ) -> Dict[int, str]:
@@ -269,16 +190,6 @@ def pack_and_trim_prompts(
         if target_ehr_length <= 0:
             prompt_with_truncated_ehr = prompt_template.format(question=instruction, ehr="")
         else:
-            if use_RAG:
-                # Return a list of the most relevant visit strings
-                most_relevant_visits = retrieve_most_relevant_visits(
-                    ehr_visit_strs=relevant_ehr,
-                    query=instruction,
-                    target_length=target_ehr_length,
-                    tokenizer=tokenizer,
-                )
-                relevant_ehr = "\n".join(most_relevant_visits)
-
             # Do a first pass with a fast tokenizer
             fast_tokenizer = tiktoken.get_encoding("cl100k_base")
             fast_encoded = fast_tokenizer.encode(relevant_ehr)
@@ -305,7 +216,6 @@ def preprocess_prompts(
     generation_length,
     path_to_instructions,
     path_to_ehrs,
-    use_RAG,
     include_ehr,
     tokenizer,
     codes_only=False,
@@ -339,7 +249,6 @@ def preprocess_prompts(
         context_length=target_context_length,
         generation_length=generation_length,
         tokenizer=tokenizer,
-        use_RAG=use_RAG,
         verbose=False,
         include_ehr=include_ehr,
     )
@@ -398,7 +307,6 @@ def return_dataset_dataframe(max_length: int, data_path: str) -> pd.DataFrame:
     path_to_ehrs = os.path.join(data_path, "medalign_ehr_xml")
     path_to_reference_responses = os.path.join(data_path, "clinician-instruction-responses.tsv")
     check_file_exists(path_to_reference_responses, msg=f"[MedAlignScenario] Required clinician responses file not found: '{path_to_reference_responses}'")
-    use_RAG = False
     include_ehr = True
     tokenizer = "tiktoken"
 
@@ -407,7 +315,6 @@ def return_dataset_dataframe(max_length: int, data_path: str) -> pd.DataFrame:
         generation_length=generation_length,
         path_to_instructions=path_to_instructions,
         path_to_ehrs=path_to_ehrs,
-        use_RAG=use_RAG,
         include_ehr=include_ehr,
         tokenizer=tokenizer,
     )
