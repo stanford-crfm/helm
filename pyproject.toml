@@ -9,8 +9,7 @@ authors = [
     { name = "Stanford CRFM", email = "contact-crfm@stanford.edu" }
 ]
 description = "Benchmark for language models"
-readme = ["README.md", "docs/tutorial.md"]
-readme-content-type = "text/markdown"
+readme = { file = "README.md", content-type = "text/markdown" }
 keywords = ["language", "models", "benchmarking"]
 license = { text = "Apache License 2.0" }
 classifiers = [
