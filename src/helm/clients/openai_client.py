@@ -47,6 +47,7 @@ class OpenAIClientUtils:
     # Grok content safety guidelines error message
     # TODO: Refactor so that this is owned by the Grok client instead.
     SAFETY_GUIDELINES_GROK_ERROR: str = "Content violates safety guidelines."
+    USAGE_GUIDELINES_GROK_ERROR: str = "Content violates usage guidelines."
 
     # OpenAI server error
     OPENAI_SERVER_ERROR: str = (
@@ -107,6 +108,15 @@ class OpenAIClientUtils:
                 success=False,
                 cached=False,
                 error="Grok API error: Content violates safety guidelines",
+                completions=[],
+                embedding=[],
+                error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+            )
+        elif cls.USAGE_GUIDELINES_GROK_ERROR in str(e):
+            return RequestResult(
+                success=False,
+                cached=False,
+                error="Grok API error: Content violates usage guidelines",
                 completions=[],
                 embedding=[],
                 error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
