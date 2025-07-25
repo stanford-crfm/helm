@@ -23,6 +23,7 @@ DEBIAN_FRONTEND=noninteractive apt install -q -y --no-install-recommends \
     curl \
     wget \
     git \
+    unzip \
     ca-certificates \
     build-essential 
 # Cleanup for smaller image sizes
