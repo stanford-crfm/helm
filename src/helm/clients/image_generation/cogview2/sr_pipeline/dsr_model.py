@@ -184,7 +184,7 @@ def sparse_attention_2d_light(
     attention_dropout=None,
     log_attention_weights=None,
     add_scalar=0,
-    **kwargs
+    **kwargs,
 ):
     """
     q0, k0, v0: [batch_size, 1088, hidden_size]
