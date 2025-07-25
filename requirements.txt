@@ -205,8 +205,8 @@ onnxruntime==1.22.1 ; python_full_version >= '3.10'
 open-clip-torch==2.32.0
 openai==1.97.0
 opencc==1.1.9
-opencv-python==4.8.1.78
-opencv-python-headless==4.11.0.86
+opencv-python==4.8.1.78; python_version >= "3.10"
+opencv-python-headless==4.11.0.86; python_version < "3.10"
 openpyxl==3.1.5
 opt-einsum==3.4.0
 optax==0.2.4 ; python_full_version < '3.10'
