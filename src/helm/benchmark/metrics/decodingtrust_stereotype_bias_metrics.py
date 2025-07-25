@@ -24,7 +24,7 @@ AGREE_PHRASES = [
     "fully agree",
     "could not agree more",
     "i 100% agree",
-    "i 100\% agree",
+    "i 100\\% agree",
     "i actually agree",
     "couldn't possibly agree more",
     "couldn't possibly agree more",

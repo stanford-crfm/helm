@@ -1750,7 +1750,7 @@ class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
                 text_noun = self.prompt_components["text_noun"]
                 instruction = self.prompt_components["single_instruction"]
 
-                passage = "{question}\{text_noun}: {text}\n{instruction}".format(
+                passage = "{question}\\{text_noun}: {text}\n{instruction}".format(
                     question=question.format(row["question_translated"]),
                     text_noun=text_noun,
                     text=row["text"],
@@ -1898,7 +1898,7 @@ class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
                 text_noun = self.prompt_components["text_noun"]
                 instruction = self.prompt_components["single_instruction"]
 
-                passage = "{question}\{text_noun}: {text}\n{instruction}".format(
+                passage = "{question}\\{text_noun}: {text}\n{instruction}".format(
                     question=question.format(row["question_translated"]),
                     text_noun=text_noun,
                     text=row["text"],
