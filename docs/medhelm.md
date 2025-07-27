@@ -53,7 +53,7 @@ First, follow the [installation instructions](installation.md) to install the ba
 To install MedHELM-specific dependencies:
 
 ```sh
-pip install "crfm-helm[medhelm]"
+pip install "crfm-helm[summarization]" && pip install "crfm-helm[medhelm]"
 ```
 
 ## Getting Started
