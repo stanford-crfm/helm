@@ -9,7 +9,7 @@ from helm.benchmark.scenarios.scenario import (
     Reference,
     CORRECT_TAG,
     TRAIN_SPLIT,
-    VALID_SPLIT,
+    TEST_SPLIT,
     Input,
     Output,
 )
@@ -85,9 +85,9 @@ class MedMCQAScenario(Scenario):
 
         # From https://github.com/MedMCQA/MedMCQA#model-submission-and-test-set-evaluation,
         # "to preserve the integrity of test results, we do not release the test set's ground-truth to the public".
-        for split in [TRAIN_SPLIT, VALID_SPLIT]:
+        for split in [TRAIN_SPLIT, TEST_SPLIT]:
             # Although the files end with ".json", they are actually JSONL files
-            split_file_name: str = f"{'dev' if split == VALID_SPLIT else split}.json"
+            split_file_name: str = f"{'dev' if split == TEST_SPLIT else split}.json"
             split_path: str = os.path.join(data_path, split_file_name)
 
             with open(split_path, "r") as f:
