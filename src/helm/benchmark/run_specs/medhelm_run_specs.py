@@ -1290,8 +1290,8 @@ def get_dischargeme_pdsqi_spec(data_path: str) -> RunSpec:
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
-    metric_specs = get_summarization_metric_specs(metric_args) + [
-    # metric_specs = [
+    # metric_specs = get_summarization_metric_specs(metric_args) + [
+    metric_specs = [
         MetricSpec(
             class_name="helm.benchmark.metrics.llm_jury_metrics.LLMJuryMetric",
             args={"metric_name": "note_summary_accuracy", "scenario_name": "note_summary", "annotator_models": {}},

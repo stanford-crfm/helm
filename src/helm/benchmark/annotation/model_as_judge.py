@@ -236,7 +236,11 @@ class LLMAsJuryAnnotator(Annotator):
                 hlog(f"ERROR annotating with {annotator_name}: {e}")
                 failed_counts[annotator_name] += 1
 
-        hlog(f"Failed model annotations: {failed_counts}")
+        total_failed = sum(failed_counts.values())
+        if total_failed == 0:
+            hlog("All model annotations succeeded.")
+        else:
+            hlog(f"Some model annotations failed: {failed_counts}")
         return annotations
 
     def _annotate_with_model(

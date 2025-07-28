@@ -1,8 +1,12 @@
+import evaluation_instruments.instruments.pdsqi_9.pdsqi_prompt as pdsqi
+
 from typing import Dict, Optional
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo, LLMAsJuryAnnotator
 from helm.clients.auto_client import AutoClient
+
+from evaluation_instruments import prep
 
 
 ANNOTATOR_MODELS: Dict[str, AnnotatorModelInfo] = {
@@ -44,15 +48,23 @@ class NoteSummaryAnnotator(LLMAsJuryAnnotator):
         :param custom_replacements: Optional dictionary of additional replacements
         :return: Interpolated prompt
         """
-        prompt = resolve_prompt(
-            summary_to_evaluate=(
-                request_state.result.completions[0].text
-                if request_state.result and request_state.result.completions
-                else ""
-            ),
+        
+        prompt = pdsqi.resolve_prompt(
+            summary_to_evaluate=request_state.result.completions[0].text if request_state.result and request_state.result.completions else "",
             notes=request_state.instance.extra_data.get("notes", []),
             target_specialty="emergency medicine",
+            output_mode=prep.OutputMode.EXPLAINED_SCORE
         )
+        
+        # prompt = resolve_prompt(
+        #     summary_to_evaluate=(
+        #         request_state.result.completions[0].text
+        #         if request_state.result and request_state.result.completions
+        #         else ""
+        #     ),
+        #     notes=request_state.instance.extra_data.get("notes", []),
+        #     target_specialty="emergency medicine",
+        # )
 
         return prompt[1]["content"]
 
