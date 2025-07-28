@@ -10,7 +10,7 @@ from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
-from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
+from helm.benchmark.window_services.image_generation.clip_window_service import CLIPWindowService
 from helm.common.images_utils import is_blacked_out_image
 from helm.common.multimodal_request_utils import gather_generated_image_locations
 
@@ -55,7 +55,18 @@ class CLIPScoreMetric(Metric):
         # Truncate the prompt using the CLIP tokenizer before feeding into the CLIP model.
         # Otherwise, the library will throw an error.
         model = DEFAULT_CLIP_SCORE_MODEL
-        prompt = WindowServiceFactory.get_window_service(model, metric_service).truncate_from_right(prompt)
+
+        # The max length is 77, but we also need to account for <|startoftext|> and <|endoftext|>.
+        # This max length is hardcoded for DEFAULT_CLIP_SCORE_MODEL i.e. openai/clip-vit-large-patch14
+        max_sequence_length = 77 - 2
+        prompt = CLIPWindowService(
+            service=metric_service,
+            tokenizer_name=DEFAULT_CLIP_SCORE_MODEL,
+            max_sequence_length=max_sequence_length,
+            max_request_length=max_sequence_length,
+            end_of_text_token="",
+            prefix_token="",
+        ).truncate_from_right(prompt)
 
         scores: List[float] = []
         image_locations: List[str] = gather_generated_image_locations(request_result)

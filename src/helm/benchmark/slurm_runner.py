@@ -343,8 +343,14 @@ def main():
         help="Path to the RunSpec JSON file",
         required=True,
     )
+    parser.add_argument(
+        "--log-config",
+        type=str,
+        default=None,
+        help="PATH to a YAML file to customize logging",
+    )
     args = parser.parse_args()
-    setup_default_logging()
+    setup_default_logging(args.log_config)
 
     # Deserialize SlurmRunner and RunSpec from the given files, then run the RunSpec with the SlurmRunner.
     with open(args.slurm_runner_spec_path, "r") as f:

@@ -1805,6 +1805,14 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.vision_language.huggingface_vlm_client.HuggingFaceVLMClient"
 
+  ## Moonshot AI
+  - name: together/kimi-k2-instruct
+    model_name: moonshotai/kimi-k2-instruct
+    tokenizer_name: moonshotai/kimi-k2-instruct
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+
   ## MosaicML
   - name: huggingface/mpt-7b
     model_name: mosaicml/mpt-7b
@@ -3683,6 +3691,15 @@ model_deployments:
     model_name: xai/grok-3-mini-beta
     tokenizer_name: xai/grok-3-mini-beta
     max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.grok_client.GrokChatClient"
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
+
+  - name: xai/grok-4-0709
+    model_name: xai/grok-4-0709
+    tokenizer_name: xai/grok-4-0709
+    max_sequence_length: 256000
     client_spec:
       class_name: "helm.clients.grok_client.GrokChatClient"
     window_service_spec:

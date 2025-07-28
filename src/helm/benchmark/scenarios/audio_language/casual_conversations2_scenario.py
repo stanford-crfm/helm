@@ -19,7 +19,7 @@ from helm.common.audio_utils import extract_audio
 
 
 class CasualConversations2Scenario(Scenario):
-    """
+    r"""
     Casual Conversation v2 (Porgali et al, 2023) is composed of over 5,567 participants (26,467 videos).
     The videos feature paid individuals who agreed to participate in the project and explicitly provided
     Age, Gender, Language/Dialect, Geo-location, Disability, Physical adornments, Physical attributes labels
