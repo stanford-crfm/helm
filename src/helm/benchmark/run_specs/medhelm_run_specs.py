@@ -1261,10 +1261,9 @@ def get_shc_proxy_spec(data_path: str) -> RunSpec:
 
 
 @run_spec_function("note_summary")
-def get_dischargeme_pdsqi_spec(data_path: str) -> RunSpec:
+def get_note_summary_spec(data_path: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.note_summary_scenario.NoteSummaryScenario",
-        # class_name="helm.benchmark.scenarios.dischargeme_scenario.DischargeMeScenario",
         args={
             "data_path": data_path,
         },
@@ -1284,14 +1283,7 @@ def get_dischargeme_pdsqi_spec(data_path: str) -> RunSpec:
         AnnotatorSpec(class_name="helm.benchmark.annotation.note_summary_annotator.NoteSummaryAnnotator")
     ]
 
-    metric_args = {
-        "task": "note_summary",
-        "device": get_torch_device_name(),
-        "bertscore_model": "distilbert-base-uncased",
-        "rescale_with_baseline": False,
-    }
-    # metric_specs = get_summarization_metric_specs(metric_args) + [
-    metric_specs = [
+    metric_specs = get_basic_metric_specs([]) + [
         MetricSpec(
             class_name="helm.benchmark.metrics.llm_jury_metrics.LLMJuryMetric",
             args={"metric_name": "note_summary_accuracy", "scenario_name": "note_summary", "annotator_models": {}},

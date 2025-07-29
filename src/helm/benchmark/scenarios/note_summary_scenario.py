@@ -8,6 +8,7 @@ from helm.benchmark.scenarios.scenario import (
     Instance,
     TEST_SPLIT,
 )
+from helm.benchmark.scenarios.note_summary_scenario_helper import Summarizer
 
 
 def file_preprocessing(data_path: str) -> pd.DataFrame:
@@ -32,98 +33,6 @@ def file_preprocessing(data_path: str) -> pd.DataFrame:
 
     final_df = pd.concat([df_discharge, df_radiology], ignore_index=True)
     return final_df
-
-
-def define_rules(target_specialty: str):
-    rules = []
-    rules.append(
-        f"""- All data included from the notes, which is relevant for a specialty of {target_specialty}, is in the summary."""
-    )
-    rules.append(
-        f"""- All assertions can be traced back to the notes; NEVER include assertions which cannot be traced back to the notes."""
-    )
-    rules.append(
-        f"""- Information from the notes which is pertinent for a specialty of {target_specialty}, or potentially pertinent for a specialty of {target_specialty}, is NEVER omitted."""
-    )
-    rules.append(
-        f"""- Information from the notes which is NOT pertinent for a specialty of {target_specialty} IS omitted from the summary."""
-    )
-    rules.append(f"""- The level of detail must be appropriate for a reader with a specialty of {target_specialty}.""")
-    rules.append(
-        f"""- All assertions must be made with logical order and grouping (temporal or systems/problem based)."""
-    )
-    rules.append(
-        f"""- Summary must be comprehensible, using plain language that is completely familiar and well-structured for a reader with a specialty of {target_specialty}."""
-    )
-    rules.append(
-        f"""- All assertions are captured with fewest words possible and without any redundancy in syntax or semantics."""
-    )
-    rules.append(
-        f"""- Where applicable, go beyond relevant groups of events and generate reasoning over the events into a summary that is fully integrated for an overall clinical synopsis with prioritized information."""
-    )
-    rules.append(f"""- Avoid stigmatizing words as defined in guidelines and policy (OCR, NIDA, etc).""")
-    rules.append(f"""- Keep the summary succinct; summarize all the notes in a single paragraph.""")
-    rules.append(f"""- If there are medicine changes in the notes, mention them in the summary.""")
-    rules.append(
-        f"""- For every event (e.g., medicine change, new diagnosis, etc.) mentioned in your summary, mention WHEN it happened (communicate the timing of events) if that information is available in the note."""
-    )
-    rules.append(
-        f"""- If it's unclear WHEN an event happened in the notes, instead explain that the event was mentioned by a note written at [timestamp of the note]."""
-    )
-    rules.append(
-        f"""- For each SENTENCE in the summary, cite the <Note ID> source in the summary using the format <Note ID:IDVAL>, where IDVAL is the ID of the note."""
-    )
-    rules.append(
-        f"""- Cite each note tag individually; when citing multiple notes, use the format <Note ID:IDVAL>, <Note ID:IDVAL>."""
-    )
-    rules.append(f"""- Prioritize citation order by relevance to the assertion.""")
-    rules.append(f"""- Put the citations immediately after each sentence, where they are applicable.""")
-    rules.append(f"""- NEVER group all the citations together on the last line.""")
-    rules.append(f"""- ALL sentences MUST have a citation. ALL citations MUST be in <Note ID:IDVAL> format.""")
-    rules.append(
-        f"""- It is CRITICALLY IMPORTANT that you cite information to the note it came from! Wrongful citations are HARMFUL!"""
-    )
-    return rules
-
-
-def get_notes(df: pd.DataFrame) -> str:
-    prompt_notes = ""
-    notes = []
-    authors = []
-    timestamps = []
-    for _, row in df.iterrows():
-        notes.append(row["text"])
-        authors.append(row["note_type"])
-        timestamps.append(row["charttime"])
-    for i in range(len(notes)):
-        prompt_notes += f"""<NoteID:{i+1}>
-Written By: {authors[i]}
-Timestamp: {timestamps[i]}
-Note: {notes[i]}
-<\\NoteID:{i+1}>
-"""
-    return prompt_notes
-
-
-def create_prompt(df: pd.DataFrame) -> str:
-    specialty = "emergency medicine"
-    rules = define_rules(specialty)
-    notes = get_notes(df)
-    prompt = f"""You are an expert doctor.
-Your task is to write a summary for a specialty of {specialty}, after reviewing a set of notes about a patient."""
-
-    prompt += "\n\nRules for writing the summary:"
-
-    for i in range(len(rules)):
-        prompt += "\n" + rules[i]
-
-    prompt += f"""\n\nSummarize the following <NoteSet>, which are presented to you in chronological order split by <Note ID>:
-
-<NoteSet> 
-{notes}
-</NoteSet>
-"""
-    return prompt
 
 
 class NoteSummaryScenario(Scenario):
@@ -177,7 +86,13 @@ class NoteSummaryScenario(Scenario):
         admissions = df["hadm_id"].unique()
         for admission in admissions:
             df_admission = df[df["hadm_id"] == admission]
-            prompt_di = create_prompt(df_admission)
+            summarizer = Summarizer(
+                notes=df_admission["text"].tolist(),
+                authors=df_admission["note_type"].tolist(),
+                timestamps=df_admission["charttime"].tolist(),
+                target_specialty="emergency medicine",
+            )
+            prompt_di, _ = summarizer.build_prompt(anti_rules=0, omit_rules=0)
             instances.append(
                 Instance(
                     input=Input(text=prompt_di),
