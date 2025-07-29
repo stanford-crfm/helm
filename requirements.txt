@@ -157,7 +157,7 @@ jmespath==1.0.1
 joblib==1.5.1
 jsonpath-python==1.0.6
 kagglehub==0.3.12
-keras==2.11.0 ; python_full_version == '3.10.*' or python_full_version >= '3.13'
+keras==3.9.0 ; python_full_version == '3.10.*' or python_full_version >= '3.13'
 keras==3.10.0 ; python_full_version < '3.10' or (python_full_version >= '3.11' and python_full_version < '3.13')
 keras-hub==0.18.1 ; python_full_version == '3.10.*' or python_full_version >= '3.13'
 keras-hub==0.21.1 ; python_full_version < '3.10' or (python_full_version >= '3.11' and python_full_version < '3.13')
@@ -257,7 +257,7 @@ preshed==3.0.10
 progressbar2==4.5.0
 propcache==0.3.2
 proto-plus==1.26.1
-protobuf==3.19.6 ; python_full_version == '3.10.*' or python_full_version >= '3.13'
+protobuf==4.25.8 ; python_full_version == '3.10.*' or python_full_version >= '3.13'
 protobuf==5.29.5 ; python_full_version < '3.10' or (python_full_version >= '3.11' and python_full_version < '3.13')
 psutil==7.0.0
 pyarrow==21.0.0
@@ -346,7 +346,7 @@ tensorboard==2.18.0 ; python_full_version < '3.10' or (python_full_version >= '3
 tensorboard-data-server==0.6.1 ; python_full_version == '3.10.*' or python_full_version >= '3.13'
 tensorboard-data-server==0.7.2 ; python_full_version < '3.10' or (python_full_version >= '3.11' and python_full_version < '3.13')
 tensorboard-plugin-wit==1.8.1 ; python_full_version == '3.10.*' or python_full_version >= '3.13'
-tensorflow==2.11.1 ; python_full_version == '3.10.*' or python_full_version >= '3.13'
+tensorflow==2.12.1 ; python_full_version == '3.10.*' or python_full_version >= '3.13'
 tensorflow==2.18.1 ; python_full_version < '3.10' or (python_full_version >= '3.11' and python_full_version < '3.13')
 tensorflow-estimator==2.11.0 ; python_full_version == '3.10.*' or python_full_version >= '3.13'
 tensorflow-hub==0.16.1 ; (python_full_version == '3.10.*' and sys_platform != 'darwin') or (python_full_version >= '3.13' and sys_platform != 'darwin')
@@ -369,7 +369,7 @@ tokenizers==0.21.2
 toml==0.10.2
 tomli==2.2.1 ; python_full_version < '3.11'
 toolz==1.0.0
-torch==2.5.1
+torch==2.7.1
 torch-fidelity==0.3.0
 torchmetrics==0.11.4
 torchvision==0.20.1
