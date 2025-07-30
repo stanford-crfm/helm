@@ -3,6 +3,7 @@ from typing import Any, Dict, List
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo
+from helm.common.hierarchical_logger import hwarn
 from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
@@ -42,7 +43,10 @@ class LLMJuryMetric(Metric):
                 for val in annotation_dict.values():
                     if "score" not in val:
                         continue
-                    scores.append(int(val["score"]))
+                    try:
+                        scores.append(int(val["score"]))
+                    except ValueError:
+                        hwarn(f"Error while converting score. Annotation key, dict: {annotation_key}, {annotation_dict}")
         if scores:
             score = sum(scores) / len(scores)
         return [

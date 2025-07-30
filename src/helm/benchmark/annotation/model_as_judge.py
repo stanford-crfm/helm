@@ -220,7 +220,7 @@ class LLMAsJuryAnnotator(Annotator):
         annotations: Dict[str, Union[Optional[str], Optional[bool], Dict[str, Any]]] = {"prompt_text": annotator_prompt}
 
         # Track failed annotations for each model
-        failed_counts: Dict[str, int] = {name: 0 for name in self._annotator_models}
+        failed_annotators: Set[str] = set()
 
         # Annotate using multiple models
         for annotator_name, annotator_model_info in self._annotator_models.items():
@@ -230,17 +230,15 @@ class LLMAsJuryAnnotator(Annotator):
                 if annotator_criteria is not None:
                     annotations[annotator_name] = annotator_criteria
                 else:
-                    failed_counts[annotator_name] += 1
+                    failed_annotators[annotator_name] += 1
 
             except Exception as e:
                 hlog(f"ERROR annotating with {annotator_name}: {e}")
-                failed_counts[annotator_name] += 1
+                failed_annotators.add(annotator_name)
 
-        total_failed = sum(failed_counts.values())
-        if total_failed == 0:
-            hlog("All model annotations succeeded.")
-        else:
-            hlog(f"Some model annotations failed: {failed_counts}")
+        total_failed = len(failed_annotators)
+        if total_failed != 0:
+            hlog(f"Some model annotations failed: {failed_annotators}")
         return annotations
 
     def _annotate_with_model(
