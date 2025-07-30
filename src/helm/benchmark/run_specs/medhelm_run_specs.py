@@ -301,7 +301,7 @@ def get_med_qa_spec() -> RunSpec:
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions="Give a letter answer among A, B, C or D. Do not include any explanation or additional text.",
         input_noun="Question",
-        output_noun="Answer",
+        output_noun="Respond only with 'A', 'B', 'C' or 'D'. Do not add any other text, punctuation, or symbols.",
         max_tokens=1,
         max_train_instances=0,
     )
@@ -323,7 +323,7 @@ def get_med_mcqa_spec() -> RunSpec:
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions="Give a letter answer among A, B, C or D. Do not include any explanation or additional text.",
         input_noun="Question",
-        output_noun="Answer",
+        output_noun="Respond only with 'A', 'B', 'C' or 'D'. Do not add any other text, punctuation, or symbols.",
         max_tokens=1,
         max_train_instances=0,
     )
