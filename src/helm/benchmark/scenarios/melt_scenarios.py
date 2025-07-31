@@ -439,13 +439,13 @@ class MELTMATHScenario(Scenario):
         for split, split_name in zip([TRAIN_SPLIT, TEST_SPLIT], ["train", "test"]):
             if split == TRAIN_SPLIT and self.use_official_examples:
                 train_instances = [
-                    ("Kết quả của $\left(\\frac{7}{8}\\right)^3 \cdot \left(\\frac{7}{8}\\right)^{-3}$ là gì?", "1"),
+                    ("Kết quả của $\\left(\\frac{7}{8}\\right)^3 \\cdot \\left(\\frac{7}{8}\\right)^{-3}$ là gì?", "1"),
                     (
                         "Có bao nhiêu cách chọn 4 quyển sách từ một kệ sách có 6 quyển,"
                         + " nếu thứ tự các cuốn sách được chọn không quan trọng?",
                         "15",
                     ),
-                    ("Tìm khoảng cách giữa các điểm $(2,1,-4)$ và $(5,8,-3).$", "\sqrt{59}"),
+                    ("Tìm khoảng cách giữa các điểm $(2,1,-4)$ và $(5,8,-3).$", "\\sqrt{59}"),
                     (
                         "Các mặt của khối xúc xắc bát diện được dán nhãn bằng các số từ $1$ đến $8$."
                         + " Xác suất tung một cặp xúc xắc bát diện để được tổng số bằng $15$ là bao nhiêu?"

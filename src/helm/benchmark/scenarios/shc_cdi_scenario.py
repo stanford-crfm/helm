@@ -25,8 +25,9 @@ class SHCCDIMedScenario(Scenario):
 
     name = "shc_cdi_med"
     description = (
-        "A dataset built from Clinical Document Integrity (CDI) notes, to assess "
-        "the ability to answer verification questions from previous notes."
+        "CDI-QA is a benchmark constructed from Clinical Documentation Integrity (CDI)"
+        "notes. It is used to evaluate a model's ability to verify clinical conditions based on"
+        "documented evidence in patient records."
     )
     tags = ["knowledge", "reasoning", "biomedical"]
 

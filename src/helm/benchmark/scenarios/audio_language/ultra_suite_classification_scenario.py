@@ -14,7 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
-from helm.common.general import ensure_file_downloaded
+from huggingface_hub import snapshot_download
 
 
 def find_audio_json_pairs(directory: str) -> List[Tuple[str, str]]:
@@ -61,7 +61,6 @@ class UltraSuiteClassificationScenario(Scenario):
     name = "speech_disorder"
     description = "A scenario for evaluating speech disorders in children"
     tags = ["audio", "classification", "speech_disorder"]
-    HF_MAPPING_URL = "https://https://huggingface.co/datasets/SAA-Lab/SLPHelmUltraSuite"
 
     def get_instruction(self, words: str) -> str:
         return f"""You are a highly experienced Speech-Language Pathologist (SLP). An audio recording will be provided, typically consisting of a speech prompt from a pathologist followed by a child's repetition. The prompt the child is trying to repeat is as follows: {words}. Based on your professional expertise: 1. Assess the child's speech in the recording for signs of typical development or potential speech-language disorder. 2. Conclude your analysis with one of the following labels only: 'typically_developing' or 'speech_disorder'. 3. Provide your response as a single letter without any additional explanation, commentary, or unnecessary text."""  # noqa: E501
@@ -74,14 +73,18 @@ class UltraSuiteClassificationScenario(Scenario):
         - A JSON file with annotations containing 'answer' field
         """
 
-        print(f"Downloading dataset from {UltraSuiteClassificationScenario.HF_MAPPING_URL} to {output_path}")
-        ensure_file_downloaded(source_url=UltraSuiteClassificationScenario.HF_MAPPING_URL, target_path=output_path)
+        print("Downloading SAA-Lab/SLPHelmManualLabels dataset...")
+        data_path = snapshot_download(
+            repo_id="SAA-Lab/SLPHelmManualLabels",
+            repo_type="dataset",
+            revision="38c2d7dab831acf8ccff0ca6f6463d6a8a0184ed",
+        )
 
         instances: List[Instance] = []
         split: str = TEST_SPLIT
 
         # Find all pairs of audio and JSON files
-        pairs = find_audio_json_pairs(output_path)
+        pairs = find_audio_json_pairs(data_path)
         print(f"Num pairs: {len(pairs)}")
 
         for audio_path, json_path in tqdm(pairs):
@@ -94,9 +97,14 @@ class UltraSuiteClassificationScenario(Scenario):
             words = annotation["transcription"]
             # Create references for each option
             references: List[Reference] = []
+            correct_label = 0
             for option in ["typically_developing", "speech_disorder"]:
                 reference = Reference(Output(text=option), tags=[CORRECT_TAG] if option == answer else [])
                 references.append(reference)
+                if option == answer:
+                    correct_label += 1
+            if correct_label == 0:
+                continue
 
             # Create the input with audio and instruction
             content = [

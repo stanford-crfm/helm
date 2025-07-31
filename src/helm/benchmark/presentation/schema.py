@@ -205,6 +205,11 @@ class RunGroup(Field):
     # TODO: remove when we don't want helm-summarize to support runs before November 2023 anymore.
     adapter_keys_shown: List[str] = field(default_factory=lambda: ["model_deployment", "model"])
 
+    # Optional short description of the run group.
+    # This description is used in some space-constrained places in frontend tables.
+    # If unset, the description field will be used instead.
+    short_description: Optional[str] = None
+
 
 @dataclass
 class Schema:

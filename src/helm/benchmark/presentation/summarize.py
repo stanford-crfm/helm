@@ -294,7 +294,6 @@ def compute_aggregate_row_means(table: Table) -> List[Optional[float]]:
 
 
 class AggregationStrategy:
-    # TODO: Convert to StrEnum after upgrading to Python 3.11
     WIN_RATE = "win_rate"
     MEAN = "mean"
 
@@ -839,7 +838,8 @@ class Summarizer:
                 }
 
                 header_name = header_field.get_short_display_name()
-                description = (run_group.description + "\n\n" if run_group.description is not None else "") + (
+                run_group_short_description = run_group.short_description or run_group.description or ""
+                description = (run_group_short_description + "\n\n" if run_group_short_description else "") + (
                     (header_field.display_name if header_field.display_name else header_field.name)
                     + ": "
                     + (header_field.description if header_field.description is not None else "")
@@ -1340,8 +1340,14 @@ def main():
         default=None,
         help="EXPERIMENTAL: Full class name of the Summarizer class to use. If unset, uses the default Summarizer.",
     )
+    parser.add_argument(
+        "--log-config",
+        type=str,
+        default=None,
+        help="PATH to a YAML file to customize logging",
+    )
     args = parser.parse_args()
-    setup_default_logging()
+    setup_default_logging(args.log_config)
     summarize(args)
 
 

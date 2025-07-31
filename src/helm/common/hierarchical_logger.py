@@ -1,4 +1,7 @@
 import logging
+import logging.config
+import yaml
+import os
 import sys
 import time
 from typing import Any, Callable, List, Optional
@@ -34,22 +37,31 @@ class HierarchicalLogger(object):
     def indent(self) -> str:
         return "  " * len(self.start_times)
 
-    def track_begin(self, x: Any) -> None:
-        self.logger.info(self.indent() + str(x) + " {")
+    def track_begin(self, x: Any, **kwargs) -> None:
+        kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
+        self.logger.info(self.indent() + str(x) + " {", **kwargs)
         sys.stdout.flush()
         self.start_times.append(time.time())
 
-    def track_end(self) -> None:
+    def track_end(self, **kwargs) -> None:
+        kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
         t = time.time() - self.start_times.pop()
-        self.logger.info(self.indent() + "} [%s]" % (format_time(t)))
+        self.logger.info(self.indent() + "} [%s]" % (format_time(t)), **kwargs)
         sys.stdout.flush()
 
-    def log(self, x: Any) -> None:
-        self.logger.info(self.indent() + str(x))
+    def log(self, x: Any, **kwargs) -> None:
+        kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
+        self.logger.info(self.indent() + str(x), **kwargs)
         sys.stdout.flush()
 
-    def warn(self, x: Any) -> None:
-        self.logger.warning(self.indent() + str(x))
+    def debug(self, x: Any, **kwargs) -> None:
+        kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
+        self.logger.debug(self.indent() + str(x), **kwargs)
+        sys.stdout.flush()
+
+    def warn(self, x: Any, **kwargs) -> None:
+        kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
+        self.logger.warning(self.indent() + str(x), **kwargs)
         sys.stdout.flush()
 
 
@@ -69,23 +81,31 @@ singleton = HierarchicalLogger()
 # Exposed public methods
 
 
-def hlog(x: Any) -> None:
-    singleton.log(x)
+def hdebug(x: Any, **kwargs) -> None:
+    kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
+    singleton.debug(x, **kwargs)
 
 
-def hwarn(x: Any) -> None:
-    singleton.warn(x)
+def hlog(x: Any, **kwargs) -> None:
+    kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
+    singleton.log(x, **kwargs)
+
+
+def hwarn(x: Any, **kwargs) -> None:
+    kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
+    singleton.warn(x, **kwargs)
 
 
 class htrack_block:
-    def __init__(self, x: Any) -> None:
+    def __init__(self, x: Any, stacklevel=1) -> None:
+        self._stacklevel = stacklevel + 1
         self.x = x
 
     def __enter__(self) -> None:
-        singleton.track_begin(self.x)
+        singleton.track_begin(self.x, stacklevel=self._stacklevel)
 
     def __exit__(self, tpe: Any, value: Any, callback: Any) -> None:
-        singleton.track_end()
+        singleton.track_end(stacklevel=self._stacklevel)
 
 
 class htrack:
@@ -116,33 +136,63 @@ class htrack:
                     description = description.replace("$" + k, str(v))
             else:
                 description = ""
-            with htrack_block(parent + fn.__name__ + description):
+            with htrack_block(parent + fn.__name__ + description, stacklevel=2):
                 return fn(*args, **kwargs)
 
         return wrapper
 
 
-def setup_default_logging():
+def setup_default_logging(config_path: Optional[str] = None):
     """
-    Setup a default logger to STDOUT for HELM via Python logging
-    """
-    formatter = ColoredFormatter(
-        "%(bold_black)s%(asctime)s%(reset)s %(log_color)s%(levelname)-8s%(reset)s %(message)s",
-        datefmt="%Y-%m-%dT%H:%M:%S",
-        reset=True,
-        log_colors={
-            "DEBUG": "cyan",
-            "INFO": "green",
-            "WARNING": "yellow",
-            "ERROR": "red",
-            "CRITICAL": "red,bg_white",
-        },
-        secondary_log_colors={},
-        style="%",
-    )
+    Setup Python logging for HELM
 
+    Priority:
+    1. External config file (YAML or JSON).
+    2. ENV var LOG_LEVEL.
+    3. a default logger to STDOUT
+    """
     logger = logging.getLogger("helm")
-    logger.setLevel(logging.INFO)
+    logger.propagate = False
+
+    if config_path and os.path.exists(config_path):
+        with open(config_path, "r") as f:
+            config = yaml.safe_load(f)
+        logging.config.dictConfig(config)
+        hdebug("setup custom HELM logging")
+        return
+
+    log_level = (os.getenv("HELM_LOG_LEVEL") or os.getenv("LOG_LEVEL") or "INFO").upper()
+    try:
+        logger.setLevel(getattr(logging, log_level))
+    except AttributeError:
+        logger.setLevel(logging.INFO)
+
+    # Set formatter
+    formatter: Optional[logging.Formatter] = None
+    if sys.stdout.isatty():
+        try:
+            formatter = ColoredFormatter(
+                "%(bold_black)s%(asctime)s%(reset)s %(log_color)s%(levelname)-8s%(reset)s %(message)s",
+                datefmt="%Y-%m-%dT%H:%M:%S",
+                reset=True,
+                log_colors={
+                    "DEBUG": "cyan",
+                    "INFO": "green",
+                    "WARNING": "yellow",
+                    "ERROR": "red",
+                    "CRITICAL": "red,bg_white",
+                },
+                style="%",
+            )
+        except ImportError:
+            pass
+
+    if formatter is None:
+        # fallback
+        formatter = logging.Formatter("%(asctime)s %(levelname)-8s %(message)s")
+
+    # Add default stdout handler
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(formatter)
     logger.addHandler(handler)
+    hdebug("setup default HELM logging")

@@ -23,7 +23,12 @@ class MIMICIVBillingCodeScenario(Scenario):
     """
 
     name = "mimiciv_billing_code"
-    description = "A  dataset pairing clinical notes from MIMIC-IV with corresponding ICD-10 billing codes."
+    description = (
+        "MIMIC-IV Billing Code is a benchmark derived from discharge summaries in the"
+        "MIMIC-IV database, paired with their corresponding ICD-10 billing codes. The task"
+        "requires models to extract structured billing codes based on free-text clinical notes,"
+        "reflecting real-world hospital coding tasks for financial reimbursement."
+    )
     tags = ["question_answering", "biomedical"]
 
     def __init__(self, data_path: str):

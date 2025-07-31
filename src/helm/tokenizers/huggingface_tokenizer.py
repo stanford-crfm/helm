@@ -119,7 +119,7 @@ class HuggingFaceTokenizer(CachingTokenizer):
                     tokens = tokenizer.encode(
                         request["text"],
                         truncation=request["truncation"],
-                        max_length=request["max_length"],
+                        max_length=max(request["max_length"], 0),
                         add_special_tokens=False,
                     )
             else:

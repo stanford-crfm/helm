@@ -539,7 +539,7 @@ run_groups:
 
   - name: medcalc_bench
     display_name: MedCalc-Bench
-    description: A dataset which consists of a patient note, a question requesting to compute a specific medical value, and a ground truth answer [(Khandekar et al., 2024)](https://arxiv.org/abs/2406.12036).
+    description: MedCalc-Bench is a benchmark designed to evaluate models on their ability to compute clinically relevant values from patient notes. Each instance consists of a clinical note describing the patient's condition, a diagnostic question targeting a specific medical value, and a ground truth response. [(Khandekar et al., 2024)](https://arxiv.org/abs/2406.12036).
     metric_groups:
       - accuracy
       - efficiency
@@ -556,7 +556,7 @@ run_groups:
 
   - name: clear
     display_name: CLEAR
-    description: "A dataset for evaluating the presence of a specific medical condition from patient notes with yes/no/maybe classifications [(Lopez et al., 2025)](https://www.nature.com/articles/s41746-024-01377-1)."
+    description: CLEAR is a benchmark designed to evaluate models on their ability to detect medical conditions from patient notes using categorical responses. Each instance consists of a clinical note and a target condition, requiring the model to classify the patient's history as either affirmative, negative, or uncertain [(Lopez et al., 2025)](https://www.nature.com/articles/s41746-024-01377-1).
     metric_groups:
       - accuracy
       - efficiency
@@ -574,7 +574,7 @@ run_groups:
   - name: mtsamples_replicate
     display_name: MTSamples
     short_display_name: MTSamples
-    description: A dataset of clinical notes where the model is prompted to generate the appropriate treatment plan for this patient [(MTSamples, 2025)](https://mtsamples.com).
+    description: MTSamples Replicate is a benchmark that provides transcribed medical reports from various specialties. It is used to evaluate a model's ability to generate clinically appropriate treatment plans based on unstructured patient documentation [(MTSamples, 2025)](https://mtsamples.com).
     metric_groups:
       - accuracy
       - efficiency
@@ -591,7 +591,7 @@ run_groups:
 
   - name: medec
     display_name: Medec
-    description: A dataset containing medical narratives with error detection and correction pairs [(Abacha et al., 2025)](https://arxiv.org/abs/2412.19260).
+    description: Medec is a benchmark composed of clinical narratives that include either correct documentation or medical errors. Each entry includes sentence-level identifiers and an associated correction task. The model must review the narrative and either identify the erroneous sentence and correct it, or confirm that the text is entirely accurate [(Abacha et al., 2025)](https://arxiv.org/abs/2412.19260).
     metric_groups:
       - accuracy
       - efficiency
@@ -608,7 +608,7 @@ run_groups:
 
   - name: ehrshot
     display_name: EHRSHOT
-    description: A dataset given a patient record of EHR codes, classifying if an event will occur at a future date or not [(Wornow et al., 2023)](https://arxiv.org/abs/2307.02028).
+    description: EHRSHOT is a benchmark designed to evaluate a model's ability to predict future clinical events using structured EHR code sequences. Each instance contains a patient's historical EHR data and a forward-looking clinical question about whether a particular diagnosis, lab result, or hospital event will occur [(Wornow et al., 2023)](https://arxiv.org/abs/2307.02028).
     metric_groups:
       - accuracy
       - efficiency
@@ -625,7 +625,7 @@ run_groups:
 
   - name: head_qa
     display_name: HeadQA
-    description: A collection of biomedical multiple-choice questions for testing medical knowledge [(Vilares et al., 2019)](https://arxiv.org/abs/1906.04701).
+    description: HeadQA is a benchmark consisting of biomedical multiple-choice questions intended to evaluate a model's medical knowledge and reasoning. Each instance presents a clinical or scientific question with four answer options, requiring the model to select the most appropriate answer [(Vilares et al., 2019)](https://arxiv.org/abs/1906.04701).
     metric_groups:
       - accuracy
       - efficiency
@@ -642,7 +642,7 @@ run_groups:
 
   - name: medbullets
     display_name: Medbullets
-    description: A USMLE-style medical question dataset with multiple-choice answers and explanations [(MedBullets, 2025)](https://step2.medbullets.com).
+    description: Medbullets is a benchmark of USMLE-style medical questions designed to assess a model's ability to understand and apply clinical knowledge. Each question is accompanied by a patient scenario and five multiple-choice options, similar to those found on Step 2 and Step 3 board exams [(MedBullets, 2025)](https://step2.medbullets.com).
     metric_groups:
       - accuracy
       - efficiency
@@ -660,7 +660,7 @@ run_groups:
   - name: medalign
     display_name: MedAlign
     short_display_name: MedAlign
-    description: A dataset that asks models to answer questions/follow instructions over longitudinal EHR [(Fleming et al., 2023)](https://arxiv.org/abs/2308.14089).
+    description: MedAlign is a benchmark that evaluates a model's ability to interpret and follow instructions grounded in longitudinal electronic health records (EHR). Each instance includes an event-stream style patient record and a natural language question or task, requiring clinically informed reading comprehension and reasoning [(Fleming et al., 2023)](https://arxiv.org/abs/2308.14089).
     metric_groups:
       - accuracy
       - efficiency
@@ -677,7 +677,7 @@ run_groups:
   
   - name: shc_ptbm_med
     display_name: ADHD-Behavior
-    description: A dataset that classifies whether a clinical note contains a clinician recommendation for parent training in behavior management, which is the first-line evidence-based treatment for young children with ADHD [(Pillai et al., 2024)](https://doi.org/10.1093/jamia/ocae001).
+    description: ADHD-Behavior is a benchmark that evaluates a model's ability to detect whether a clinician recommends parent training in behavior management, an evidence-based first-line treatment for young children diagnosed with ADHD. Each instance includes a clinical note from a pediatric visit and a binary classification task [(Pillai et al., 2024)](https://doi.org/10.1093/jamia/ocae001).
     metric_groups:
       - accuracy
       - efficiency
@@ -694,7 +694,7 @@ run_groups:
 
   - name: shc_sei_med
     display_name:  ADHD-MedEffects
-    description: A dataset that classifies whether a clinical note contains documentation of side effect monitoring (recording of absence or presence of medication side effects), as recommended in clinical practice guidelines [(Bannet et al., 2024)](https://doi.org/10.1542/peds.2024-067223).
+    description: ADHD-MedEffects is a benchmark designed to evaluate whether clinical notes for pediatric ADHD visits document medication side effect monitoring, which is a key recommendation in clinical practice guidelines. The dataset supports binary classification to detect presence or absence of side effect inquiries (SEI) within notes [(Bannet et al., 2024)](https://doi.org/10.1542/peds.2024-067223).
     metric_groups:
       - accuracy
       - efficiency
@@ -712,7 +712,7 @@ run_groups:
   - name: dischargeme
     display_name: DischargeMe
     short_display_name: DischargeMe
-    description: DischargeMe is a discharge instruction generation dataset and brief hospital course generation dataset collected from MIMIC-IV data, considering only the discharge text as well as the radiology report text [(Xu, 2024)](https://physionet.org/content/discharge-me/1.3/).
+    description: DischargeMe is a benchmark designed to evaluate clinical text generation. It pairs discharge summaries and radiology reports from MIMIC-IV with generation tasks such as writing discharge instructions or summarizing the brief hospital course. The benchmark assesses a model's ability to generate patient-facing documentation that is complete, empathetic, and clinically accurate [(Xu, 2024)](https://physionet.org/content/discharge-me/1.3/).
     metric_groups:
       - accuracy
       - efficiency
@@ -729,7 +729,7 @@ run_groups:
 
   - name: aci_bench
     display_name: ACI-Bench
-    description: A dataset of patient-doctor conversations paired with structured clinical notes [(Yim et al., 2024)](https://www.nature.com/articles/s41597-023-02487-3).
+    description: ACI-Bench is a benchmark of real-world patient-doctor conversations paired with structured clinical notes. The benchmark evaluates a model's ability to understand spoken medical dialogue and convert it into formal clinical documentation, covering sections such as history of present illness, physical exam findings, results, and assessment and plan [(Yim et al., 2024)](https://www.nature.com/articles/s41597-023-02487-3).
     metric_groups:
       - accuracy
       - efficiency
@@ -746,7 +746,7 @@ run_groups:
 
   - name: mtsamples_procedures
     display_name: MTSamples Procedures
-    description: A dataset that provides a patient note regarding an operation, with the objective to document the procedure.
+    description: MTSamples Procedures is a benchmark composed of transcribed operative notes, focused on documenting surgical procedures. Each example presents a brief patient case involving a surgical intervention, and the model is tasked with generating a coherent and clinically accurate procedural summary or treatment plan.
     metric_groups:
       - accuracy
       - efficiency
@@ -764,7 +764,7 @@ run_groups:
   - name: mimic_rrs
     display_name: MIMIC-RRS
     short_display_name: MIMIC-RRS
-    description: A dataset containing radiology reports with findings sections from MIMIC-III paired with their corresponding impression sections, used for generating radiology report summaries [(Chen et al., 2023)](https://arxiv.org/abs/2211.08584).
+    description: MIMIC-RRS is a benchmark constructed from radiology reports in the MIMIC-III database. It contains pairs of ‘Findings‘ and ‘Impression‘ sections, enabling evaluation of a model's ability to summarize diagnostic imaging observations into concise, clinically relevant conclusions [(Chen et al., 2023)](https://arxiv.org/abs/2211.08584).
     metric_groups:
       - accuracy
       - efficiency
@@ -782,7 +782,7 @@ run_groups:
   - name: mimic_bhc
     display_name: MIMIC-IV-BHC
     short_display_name: MIMIC-BHC
-    description: A summarization task using a curated collection of preprocessed discharge notes paired with their corresponding brief hospital course (BHC) summaries [(Aali et al., 2024)](https://doi.org/10.1093/jamia/ocae312).
+    description: MIMIC-BHC is a benchmark focused on summarization of discharge notes into Brief Hospital Course (BHC) sections. It consists of curated discharge notes from MIMIC-IV, each paired with its corresponding BHC summary. The benchmark evaluates a model's ability to condense detailed clinical information into accurate, concise summaries that reflect the patient's hospital stay [(Aali et al., 2024)](https://doi.org/10.1093/jamia/ocae312).
     metric_groups:
       - accuracy
       - efficiency
@@ -799,7 +799,7 @@ run_groups:
 
   - name: chw_care_plan
     display_name: NoteExtract
-    description: A dataset containing free form text of a clinical health worker care plan, with the associated goal being to restructure that text into a given format.
+    description: NoteExtract is a benchmark that focuses on the structured extraction of information from free-form clinical text. It provides care plan notes authored by health workers and evaluates a model's ability to convert them into a predefined structured format, such as fields for Chief Complaint and History of Present Illness. The benchmark emphasizes faithful extraction without hallucination or inference.
     metric_groups:
       - accuracy
       - efficiency
@@ -816,7 +816,7 @@ run_groups:
 
   - name: medication_qa
     display_name: MedicationQA
-    description: Consumer medication questions with reference answers.
+    description: MedicationQA is a benchmark composed of open-ended consumer health questions specifically focused on medications. Each example consists of a free-form question and a corresponding medically grounded answer. The benchmark evaluates a model's ability to provide accurate, accessible, and informative medication-related responses for a lay audience.
     metric_groups:
       - accuracy
       - efficiency
@@ -833,7 +833,7 @@ run_groups:
 
   - name: starr_patient_instructions
     display_name: PatientInstruct
-    description: A dataset containing case details used to generate customized post-procedure patient instructions.
+    description: PatientInstruct is a benchmark designed to evaluate models on generating personalized post-procedure instructions for patients. It includes real-world clinical case details, such as diagnosis, planned procedures, and history and physical notes, from which models must produce clear, actionable instructions appropriate for patients recovering from medical interventions.
     metric_groups:
       - accuracy
       - efficiency
@@ -851,7 +851,7 @@ run_groups:
   - name: med_dialog
     display_name: MedDialog
     short_display_name: MedDialog
-    description: A collection of doctor-patient conversations with corresponding summaries.
+    description: MedDialog is a benchmark of real-world doctor-patient conversations focused on health-related concerns and advice. Each dialogue is paired with a one-sentence summary that reflects the core patient question or exchange. The benchmark evaluates a model's ability to condense medical dialogue into concise, informative summaries.
     metric_groups:
       - accuracy
       - efficiency
@@ -868,7 +868,7 @@ run_groups:
 
   - name: shc_conf_med
     display_name: MedConfInfo
-    description: A dataset of clinical notes from adolescent patients used to identify sensitive protected health information that should be restricted from parental access [(Rabbani et al., 2024)](https://jamanetwork.com/journals/jamapediatrics/fullarticle/2814109).
+    description: MedConfInfo is a benchmark comprising clinical notes from adolescent patients. It is used to evaluate whether the content contains sensitive protected health information (PHI) that should be restricted from parental access, in accordance with adolescent confidentiality policies in clinical care. [(Rabbani et al., 2024)](https://jamanetwork.com/journals/jamapediatrics/fullarticle/2814109).
     metric_groups:
       - accuracy
       - efficiency
@@ -885,7 +885,7 @@ run_groups:
 
   - name: medi_qa
     display_name: MEDIQA
-    description: A dataset including a medical question, a set of candidate answers, relevance annotations for ranking, and additional context to evaluate understanding and retrieval capabilities in a healthcare setting.
+    description: MEDIQA is a benchmark designed to evaluate a model's ability to retrieve and generate medically accurate answers to patient-generated questions. Each instance includes a consumer health question, a set of candidate answers (used in ranking tasks), relevance annotations, and optionally, additional context. The benchmark focuses on supporting patient understanding and accessibility in health communication.
     metric_groups:
       - accuracy
       - efficiency
@@ -902,7 +902,7 @@ run_groups:
 
   - name: mental_health
     display_name: MentalHealth
-    description: A dataset containing a counselor and mental health patient conversation, where the objective is to generate an empathetic counselor response.
+    description: MentalHealth is a benchmark focused on evaluating empathetic communication in mental health counseling. It includes real or simulated conversations between patients and counselors, where the task is to generate compassionate and appropriate counselor responses. The benchmark assesses a model's ability to support patients emotionally and meaningfully engage in therapeutic conversations.
     metric_groups:
       - accuracy
       - efficiency
@@ -919,7 +919,7 @@ run_groups:
 
   - name: shc_proxy_med
     display_name:  ProxySender
-    description: This dataset features messages sent by proxy users and non proxy users, for evaluation of LLM capabilities to determine the sender [(Tse G, et al., 2025)](https://doi.org/10.1001/jamapediatrics.2024.4438).
+    description: ProxySender is a benchmark composed of patient portal messages received by clinicians. It evaluates whether the message was sent by the patient or by a proxy user (e.g., parent, spouse), which is critical for understanding who is communicating with healthcare providers. [(Tse G, et al., 2025)](https://doi.org/10.1001/jamapediatrics.2024.4438).
     metric_groups:
       - accuracy
       - efficiency
@@ -936,7 +936,7 @@ run_groups:
 
   - name: shc_privacy_med
     display_name:  PrivacyDetection
-    description: A dataset that determines if a message leaks any confidential information from the patient [(Tse G, et al., 2025)](https://doi.org/10.1001/jamapediatrics.2024.4438).
+    description: PrivacyDetection is a benchmark composed of patient portal messages submitted by patients or caregivers. The task is to determine whether the message contains any confidential or privacy-leaking information that should be protected [(Tse G, et al., 2025)](https://doi.org/10.1001/jamapediatrics.2024.4438).
     metric_groups:
       - accuracy
       - efficiency
@@ -953,7 +953,7 @@ run_groups:
 
   - name: pubmed_qa
     display_name: PubMedQA
-    description: A dataset that provides pubmed abstracts and asks associated questions yes/no/maybe questions.
+    description: PubMedQA is a biomedical question-answering dataset that evaluates a model's ability to interpret scientific literature. It consists of PubMed abstracts paired with yes/no/maybe questions derived from the content. The benchmark assesses a model's capability to reason over biomedical texts and provide factually grounded answers.
     metric_groups:
       - accuracy
       - efficiency
@@ -970,7 +970,7 @@ run_groups:
 
   - name: ehr_sql
     display_name: EHRSQL
-    description: Given a natural language instruction, generate an SQL query that would be used in clinical research.
+    description: EHRSQL is a benchmark designed to evaluate models on generating structured queries for clinical research. Each example includes a natural language question and a database schema, and the task is to produce an SQL query that would return the correct result for a biomedical research objective. This benchmark assesses a model's understanding of medical terminology, data structures, and query construction.
     metric_groups:
       - accuracy
       - efficiency
@@ -987,7 +987,7 @@ run_groups:
 
   - name: shc_bmt_med
     display_name: BMT-Status
-    description: A dataset containing patient notes with associated questions and answers related to bone marrow transplantation.
+    description: BMT-Status is a benchmark composed of clinical notes and associated binary questions related to bone marrow transplant (BMT), hematopoietic stem cell transplant (HSCT), or hematopoietic cell transplant (HCT) status. The goal is to determine whether the patient received a subsequent transplant based on the provided clinical documentation.
     metric_groups:
       - accuracy
       - efficiency
@@ -1004,7 +1004,7 @@ run_groups:
 
   - name: race_based_med
     display_name: RaceBias
-    description: A collection of LLM outputs in response to medical questions with race-based biases, with the objective being to classify whether the output contains racially biased content.
+    description: RaceBias is a benchmark used to evaluate language models for racially biased or inappropriate content in medical question-answering scenarios. Each instance consists of a medical question and a model-generated response. The task is to classify whether the response contains race-based, harmful, or inaccurate content. This benchmark supports research into bias detection and fairness in clinical AI systems.
     metric_groups:
       - accuracy
       - efficiency
@@ -1039,7 +1039,7 @@ run_groups:
   
   - name: medhallu
     display_name: MedHallu
-    description: A dataset of PubMed articles and associated questions, with the objective being to classify whether the answer is factual or hallucinated.
+    description: MedHallu is a benchmark focused on evaluating factual correctness in biomedical question answering. Each instance contains a PubMed-derived knowledge snippet, a biomedical question, and a model-generated answer. The task is to classify whether the answer is factually correct or contains hallucinated (non-grounded) information. This benchmark is designed to assess the factual reliability of medical language models.
     metric_groups:
       - accuracy
       - efficiency
@@ -1056,7 +1056,7 @@ run_groups:
 
   - name: shc_gip_med
     display_name: HospiceReferral
-    description: A dataset evaluating performance in identifying appropriate patient referrals to hospice care.
+    description: HospiceReferral is a benchmark that evaluates model performance in identifying whether patients are eligible for hospice care based on palliative care clinical notes. The benchmark focuses on end-of-life care referral decisions.
     metric_groups:
       - accuracy
       - efficiency
@@ -1073,7 +1073,7 @@ run_groups:
 
   - name: mimiciv_billing_code
     display_name: MIMIC-IV Billing Code
-    description: A  dataset pairing clinical notes from MIMIC-IV with corresponding ICD-10 billing codes.
+    description: MIMIC-IV Billing Code is a benchmark derived from discharge summaries in the MIMIC-IV database, paired with their corresponding ICD-10 billing codes. The task requires models to extract structured billing codes based on free-text clinical notes, reflecting real-world hospital coding tasks for financial reimbursement.
     metric_groups:
       - accuracy
       - efficiency
@@ -1090,7 +1090,7 @@ run_groups:
   
   - name: shc_sequoia_med
     display_name: ClinicReferral
-    description: A dataset containing manually curated answers to questions regarding patient referrals to the Sequoia clinic.
+    description: ClinicReferral is a benchmark that determines patient eligibility for referral to the Sequoia Clinic based on information from palliative care notes. The dataset provides curated decisions on referral appropriateness to assist in automating clinic workflows.
     metric_groups:
       - accuracy
       - efficiency
@@ -1107,7 +1107,7 @@ run_groups:
 
   - name: shc_cdi_med
     display_name: CDI-QA
-    description: A dataset built from Clinical Document Integrity (CDI) notes, to assess the ability to answer verification questions from previous notes.
+    description: CDI-QA is a benchmark constructed from Clinical Documentation Integrity (CDI) notes. It is used to evaluate a model's ability to verify clinical conditions based on documented evidence in patient records.
     metric_groups:
       - accuracy
       - efficiency
@@ -1124,7 +1124,7 @@ run_groups:
   
   - name: shc_ent_med
     display_name: ENT-Referral
-    description: A dataset designed to evaluate performance in identifying appropriate patient referrals to Ear, Nose, and Throat specialists.
+    description: ENT-Referral is a benchmark designed to evaluate whether a patient's clinical note supports a referral to an Ear, Nose, and Throat (ENT) specialist. It helps assess models' abilities to make referral decisions based on unstructured clinical text
     metric_groups:
       - accuracy
       - efficiency

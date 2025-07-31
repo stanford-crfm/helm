@@ -71,8 +71,10 @@ class MedCalcBenchScenario(Scenario):
 
     name = "medcalc_bench"
     description = (
-        "A dataset which consists of a patient note, a question "
-        "requesting to compute a specific medical value, and a ground truth answer."
+        "MedCalc-Bench is a benchmark designed to evaluate models on their ability to compute"
+        "clinically relevant values from patient notes. Each instance consists of a clinical note"
+        "describing the patient's condition, a diagnostic question targeting a specific medical"
+        "value, and a ground truth response."
     )
     tags = ["knowledge", "reasoning", "biomedical"]
 

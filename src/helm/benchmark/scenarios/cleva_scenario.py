@@ -1549,7 +1549,7 @@ class CLEVALanguageModelingScenario(CLEVAScenario):
 
 
 class CLEVACodeSynthesisScenario(CLEVAScenario):
-    """
+    r"""
     The code synthesis task of CLEVA benchmark.
 
     An example is:

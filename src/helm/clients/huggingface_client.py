@@ -8,7 +8,7 @@ from transformers.generation.stopping_criteria import (
 from typing import Any, Dict, List, Optional, TypedDict
 
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import htrack_block, hlog
+from helm.common.hierarchical_logger import htrack_block, hlog, hwarn
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import (
     wrap_request_time,
@@ -18,6 +18,7 @@ from helm.common.request import (
     GeneratedOutput,
     Token,
 )
+from helm.proxy.retry import NonRetriableException
 from helm.tokenizers.tokenizer import Tokenizer
 from helm.clients.client import CachingClient, truncate_sequence
 from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer, WrappedPreTrainedTokenizer
@@ -256,6 +257,7 @@ class HuggingFaceClient(CachingClient):
         tokenizer: Tokenizer,
         pretrained_model_name_or_path: Optional[str] = None,
         end_of_text_token: Optional[str] = None,
+        apply_chat_template: Optional[bool] = None,
         **kwargs,
     ):
         super().__init__(cache_config=cache_config)
@@ -266,9 +268,46 @@ class HuggingFaceClient(CachingClient):
                 "but instead it is {tokenizer}"
             )
         self._wrapped_tokenizer: WrappedPreTrainedTokenizer = tokenizer.get_wrapped_tokenizer()
-        self._tokenizer = tokenizer
         self._kwargs = _process_huggingface_client_kwargs(kwargs)
         self._end_of_text_token = end_of_text_token
+        # If the user did not explicitly configure whether the model is a chat model with `apply_chat_template` arg,
+        # auto-infer if the model is a chat model based on whether the tokenizer has a chat template.
+        # Note: Auto-inference is incorrect for some non-chat models that still have chat templates
+        # e.g. Qwen2, Qwen 2.5.
+        # For these models, the `apply_chat_template` arg should be explicitly set to false.
+        if apply_chat_template is not None:
+            self._apply_chat_template = apply_chat_template
+        else:
+            with self._wrapped_tokenizer as hf_tokenizer:
+                self._apply_chat_template = bool(hf_tokenizer.chat_template)
+                hwarn(
+                    f"Automatically set `apply_chat_template` to {self._apply_chat_template} based on "
+                    "whether the tokenizer has a chat template. "
+                    "If this is incorrect, please explicitly set `apply_chat_template`."
+                )
+
+    def get_prompt(self, request: Request) -> str:
+        if request.prompt and request.messages:
+            raise NonRetriableException(f"More than one of `prompt` and `messages` was set in request: {request}")
+        # Chat model expects a list of messages as input
+        if self._apply_chat_template:
+            with self._wrapped_tokenizer as tokenizer:
+                if request.messages:
+                    prompt = tokenizer.apply_chat_template(request.messages, tokenize=False, add_generation_prompt=True)
+                    assert isinstance(prompt, str)
+                    return prompt
+                else:
+                    prompt = tokenizer.apply_chat_template(
+                        [{"role": "user", "content": request.prompt}], tokenize=False, add_generation_prompt=True
+                    )
+                    assert isinstance(prompt, str)
+                    return prompt
+        # Base non-chat model expects a string as input
+        else:
+            if request.messages:
+                raise NonRetriableException("Chat mesages not supported by non-chat model")
+            else:
+                return request.prompt
 
     def make_request(self, request: Request) -> RequestResult:
         # Embedding not supported for this model
@@ -277,7 +316,7 @@ class HuggingFaceClient(CachingClient):
 
         raw_request: HuggingFaceRequest = {
             "engine": request.model_engine,
-            "prompt": request.prompt,
+            "prompt": self.get_prompt(request),
             "temperature": 1e-7 if request.temperature == 0 else request.temperature,
             "num_return_sequences": request.num_completions,
             "max_new_tokens": request.max_tokens,

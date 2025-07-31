@@ -26,6 +26,7 @@ import Instances from "@/components/Instances";
 import RunMetrics from "@/components/RunMetrics";
 import UserAgreement from "@/components/UserAgreement";
 import isScenarioEncrypted from "@/utils/isScenarioEncrypted";
+import RunGroup from "@/types/RunGroup";
 
 export default function Run() {
   const { runName } = useParams();
@@ -34,6 +35,7 @@ export default function Run() {
   const [runSuite, setRunSuite] = useState<string | undefined>();
   const [model, setModel] = useState<Model | undefined>();
   const [scenario, setScenario] = useState<Scenario | undefined>();
+  const [runGroup, setRunGroup] = useState<RunGroup | undefined>();
   const [adapterFieldMap, setAdapterFieldMap] = useState<AdapterFieldMap>({});
   const [metricFieldMap, setMetricFieldMap] = useState<
     MetricFieldMap | undefined
@@ -77,6 +79,12 @@ export default function Run() {
         }, {} as AdapterFieldMap),
       );
 
+      setRunGroup(
+        schema.run_groups.find(
+          (runGroup) => runSpecResp?.groups.includes(runGroup.name),
+        ),
+      );
+
       setModel(
         schema.models.find((m) => m.name === runSpecResp?.adapter_spec.model),
       );
@@ -102,15 +110,21 @@ export default function Run() {
       <div className="flex justify-between gap-8 mb-12">
         <div>
           <h1 className="text-3xl flex items-center">
-            {scenario.name}
-            <a href={"/#/groups/" + scenario.name}>
-              <ArrowTopRightOnSquareIcon className="w-6 h-6 ml-2" />
-            </a>
+            {runGroup?.display_name || scenario.name}
+            {runGroup ? (
+              <a href={"/#/groups/" + runGroup.name}>
+                <ArrowTopRightOnSquareIcon className="w-6 h-6 ml-2" />
+              </a>
+            ) : null}
           </h1>
           <h3 className="text-xl">
-            <MarkdownValue value={scenario.description} />
+            <MarkdownValue
+              value={runGroup?.description || scenario.description}
+            />
           </h3>
-          <h1 className="text-3xl mt-2">{runSpec.adapter_spec.model}</h1>
+          <h1 className="text-3xl mt-2">
+            {model?.display_name || runSpec.adapter_spec.model}
+          </h1>
           <h3 className="text-xl">
             <MarkdownValue value={model?.description || ""} />
           </h3>

@@ -25,8 +25,6 @@ except ModuleNotFoundError as e:
 class _RewriteRequestTags:
     """Tags that indicate that the request for the model must be rewritten before sending to Together."""
 
-    # TODO: Convert to StrEnum after upgrading to Python 3.11
-
     ADD_EOS_TOKEN_AS_STOP_SEQUENCE = "ADD_EOS_TOKEN_AS_STOP_SEQUENCE"
     """Indicates that the EOS token should be added as an extra stop sequence.
 
@@ -107,7 +105,7 @@ def _parse_thinking(input: str) -> Tuple[str, str]:
     if match:
         return (match.group(1), match.group(2))
 
-    match = re.match(r"<think>\n?(.*)", input)
+    match = re.match(r"<think>\n?(.*)", input, re.DOTALL)
     if match:
         return (match.group(1), "")
 
