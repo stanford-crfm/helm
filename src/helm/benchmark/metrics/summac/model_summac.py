@@ -240,7 +240,7 @@ class SummaCConv(torch.nn.Module):
 
         if "even" in bins:
             n_bins = int(bins.replace("even", ""))
-            self.bins = list(np.arange(0, 1, 1 / n_bins)) + [1.0]
+            self.bins = np.arange(0, 1, 1 / n_bins).tolist() + [1.0]
         elif bins == "percentile":
             self.bins = [
                 0.0,
