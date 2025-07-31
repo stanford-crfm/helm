@@ -62,7 +62,19 @@ docker run --gpus=all -it helm:latest helm-summarize --help
 docker run --gpus=all -it helm:latest helm-server --help
 ```
 
-# End-to-End Benchmark Test
+### Unit Tests
+
+This Docker image is designed as a development container, so you can also
+verify the HELM installation by running the unit tests inside the image.
+
+
+```bash
+docker run --rm --gpus=all \
+    -it helm:latest \
+    pytest
+```
+
+### End-to-End Benchmark Test
 
 For a more robust validation—and to demonstrate typical usage—you can run a
 small benchmark and persist results using a shared host volume.
