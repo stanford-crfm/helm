@@ -1,21 +1,12 @@
 # syntax=docker/dockerfile:1.5
 FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04
 
-ENV PIP_ROOT_USER_ACTION=ignore
-
-# Control which python version we are using
-ARG PYTHON_VERSION=3.10
-
-# Control the version of uv
-ARG UV_VERSION=0.8.4
-
-# Control the version of HELM (by default uses the current branch)
-ARG HELM_GIT_HASH=HEAD
-
 # ------------------------------------
 # Step 1: Install System Prerequisites
 # ------------------------------------
-RUN <<EOF
+
+RUN --mount=type=cache,target=/var/cache/apt \
+    --mount=type=cache,target=/var/lib/apt/lists <<EOF
 #!/bin/bash
 set -e
 apt update -q
@@ -42,6 +33,10 @@ SHELL ["/bin/bash", "-l", "-c"]
 # astral domain, but not against those linked in the main installer.
 # The "normal" way to install the latest uv is:
 # curl -LsSf https://astral.sh/uv/install.sh | bash
+
+# Control the version of uv
+ARG UV_VERSION=0.8.4
+
 RUN <<EOF
 #!/bin/bash
 set -e
@@ -79,6 +74,12 @@ EOF
 # This step mirrors a normal virtualenv development environment inside the
 # container, which can prevent subtle issues due when running as root inside
 # containers. 
+
+# Control which python version we are using
+ARG PYTHON_VERSION=3.10
+
+ENV PIP_ROOT_USER_ACTION=ignore
+
 RUN <<EOF
 #!/bin/bash
 export PATH="$HOME/.local/bin:$PATH"
@@ -107,8 +108,15 @@ RUN mkdir -p /root/code/helm
 # Based on the state of the repo this copies the host .git data over and then
 # checks out the exact version of HELM requested by HELM_GIT_HASH. It then
 # performs a basic install of helm into the virtual environment.
+
 COPY .git /root/code/helm/.git
-RUN <<EOF
+
+# Control the version of HELM (by default uses the current branch)
+ARG HELM_GIT_HASH=HEAD
+
+ENV UV_LINK_MODE=copy
+
+RUN --mount=type=cache,target=/root/.cache <<EOF
 set -e
 
 cd  /root/code/helm
@@ -122,9 +130,6 @@ uv pip install -r requirements.txt
 
 # Install helm in development mode
 uv pip install -e .[all,dev] 
-
-# Cleanup for smaller cache
-rm -rf /root/.cache/
 EOF
 
 
