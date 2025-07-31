@@ -37,7 +37,7 @@ SHELL ["/bin/bash", "-l", "-c"]
 # Control the version of uv
 ARG UV_VERSION=0.8.4
 
-RUN <<EOF
+RUN --mount=type=cache,target=/root/.cache <<EOF
 #!/bin/bash
 set -e
 mkdir /bootstrap
@@ -63,8 +63,6 @@ report_bad_checksum(){
 echo "$EXPECTED_SHA256  $DOWNLOAD_PATH" | sha256sum --check || report_bad_checksum
 # Run the install script
 bash /bootstrap/uv-install-v${UV_VERSION}.sh
-# Cleanup for smaller images
-rm -rf /root/.cache/
 EOF
 
 
@@ -80,7 +78,7 @@ ARG PYTHON_VERSION=3.10
 
 ENV PIP_ROOT_USER_ACTION=ignore
 
-RUN <<EOF
+RUN --mount=type=cache,target=/root/.cache <<EOF
 #!/bin/bash
 export PATH="$HOME/.local/bin:$PATH"
 # Use uv to install the requested python version and seed the venv
