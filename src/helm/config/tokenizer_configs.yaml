@@ -1048,7 +1048,6 @@ tokenizer_configs:
     end_of_text_token: ""
 
   # IBM Granite 3.3
-
   - name: ibm/granite-3.3-8b-instruct
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
@@ -1056,6 +1055,13 @@ tokenizer_configs:
         pretrained_model_name_or_path: ibm-granite/granite-3.3-8b-instruct
     end_of_text_token: "<|end_of_text|>"
     prefix_token: "<|end_of_text|>"
+
+  # Z.ai GLM-4.5-AIR-FP8
+  - name: zai-org/glm-4.5-air-fp8
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: ""
 
   
 

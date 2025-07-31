@@ -4315,6 +4315,17 @@ models:
     release_date: 2025-05-08
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG] 
 
+  # Z.ai
+
+  - name: zai-org/glm-4.5-air-fp8
+    display_name: GLM-4.5-Air-FP8
+    description: GLM-4.5-Air-FP8 is a hybrid reasoning model designed to unify reasoning, coding, and agentic capabilities into a single model. It has 106 billion total parameters and 12 billion active parameters. The thinking mode is enabled by default. ([blog](https://z.ai/blog/glm-4.5))
+    creator_organization_name: Z.ai
+    access: open
+    num_parameters: 110000000000
+    release_date: 2025-07-28
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
 
 # Granite - IBM
 # https://www.ibm.com/granite
