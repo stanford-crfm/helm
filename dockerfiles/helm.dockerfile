@@ -89,12 +89,13 @@ BASHRC_CONTENTS='
 export HOME="/root"
 export PATH="$HOME/.local/bin:$PATH"
 # Auto-activate the venv on login
-source /root/venv'$PYTHON_VERSION'/bin/activate
+source $HOME/venv'$PYTHON_VERSION'/bin/activate
 '
 # It is important to add the content to both so 
 # subsequent run commands use the the context we setup here.
 echo "$BASHRC_CONTENTS" >> $HOME/.bashrc
 echo "$BASHRC_CONTENTS" >> $HOME/.profile
+echo "$BASHRC_CONTENTS" >> $HOME/.bash_profile
 EOF
 
 
@@ -104,7 +105,7 @@ RUN mkdir -p /root/code/helm
 # Step 4: Checkout and install HELM
 # ---------------------------------
 # Based on the state of the repo this copies the host .git data over and then
-# checks out the extact version of HELM requested by HELM_GIT_HASH. It then
+# checks out the exact version of HELM requested by HELM_GIT_HASH. It then
 # performs a basic install of helm into the virtual environment.
 COPY .git /root/code/helm/.git
 RUN <<EOF
@@ -116,18 +117,11 @@ cd  /root/code/helm
 git checkout "$HELM_GIT_HASH"
 git reset --hard "$HELM_GIT_HASH"
 
-# TODO: cleanup once we determine the best way to 
-# install the HELM package for reproducibility. 
-
 # First install pinned requirements for reproducibility
 uv pip install -r requirements.txt
 
-# 
-# Install helm in developement mode
-# uv pip install -e .
-
+# Install helm in development mode
 uv pip install -e .[all,dev] 
-#--resolution lowest-direct
 
 # Cleanup for smaller cache
 rm -rf /root/.cache/
@@ -137,99 +131,45 @@ EOF
 # -----------------------------------
 # Step 5: Ensure venv auto-activation
 # -----------------------------------
-# This final steps ensures that commands the user provides to docker run
-# will always run in in the context of the virtual environment. 
-RUN  <<EOF
+# This step creates an entrypoint script that ensures any command passed to
+# `docker run` is executed inside a login shell where the virtual environment
+# is auto-activated. It handles complex cases like multi-arg commands and
+# ensures quoting is preserved accurately.
+RUN <<EOF
 #!/bin/bash
 set -e
-# write the entrypoint script
-echo '#!/bin/bash
+
+# We use a quoted heredoc to write the entrypoint script literally, with no variable expansion.
+cat <<'__EOSCRIPT__' > /entrypoint.sh
+#!/bin/bash
 set -e
-# Build the escaped command string
-cmd=""
+
+# Reconstruct the full command line safely, quoting each argument
+args=()
 for arg in "$@"; do
-  # Use printf %q to properly escape each argument for bash
-  cmd+=$(printf "%q " "$arg")
+  args+=("$(printf "%q" "$arg")")
 done
-# Remove trailing space
-cmd=${cmd% }
-exec bash -lc "$cmd"
-' > entrypoint.sh
+
+# Join arguments into a command string that can be executed by bash -c
+# This preserves exact argument semantics (including quotes, spaces, etc.)
+cmd="${args[*]}"
+
+# Execute the reconstructed command inside a login shell
+# This ensures virtualenv activation via .bash_profile
+exec bash -l -c "$cmd"
+__EOSCRIPT__
+
+# Print the script at build time for visibility/debugging
+cat /entrypoint.sh
+
 chmod +x /entrypoint.sh
 EOF
 
-# Set the entrypoint to our script that activates the virtual enviornment first
+
+# Set the entrypoint to our script that activates the virtual environment first
 ENTRYPOINT ["/entrypoint.sh"]
 
 # Set the default workdir to the helm code repo
 WORKDIR /root/code/helm
 
-# ---------------------------------------------------------------
-# End of dockerfile logic. The following lines are documentation.
-# ---------------------------------------------------------------
-
-################
-### __DOCS__ ###
-################
-RUN <<EOF
-echo 'HEREDOC:
-# https://www.docker.com/blog/introduction-to-heredocs-in-dockerfiles/
-
-# The following are instructions to build and test this docker image
-
-# cd into a local clone of the helm repo
-cd ~/code/helm/
-
-# Determine which helm version to use
-HELM_GIT_HASH=$(git rev-parse --short=12 HEAD)
-
-# Build HELM in a reproducible way.
-DOCKER_BUILDKIT=1 docker build --progress=plain \
-    -t helm:$HELM_GIT_HASH-uv0.8.4-python3.10 \
-    --build-arg PYTHON_VERSION=3.10 \
-    --build-arg UV_VERSION=0.8.4 \
-    --build-arg HELM_GIT_HASH=$HELM_GIT_HASH \
-    -f ./dockerfiles/helm.dockerfile .
-
-# Add latest tags for convinience
-docker tag helm:$HELM_GIT_HASH-uv0.8.4-python3.10 helm:latest-uv0.8.4-python3.10
-docker tag helm:$HELM_GIT_HASH-uv0.8.4-python3.10 helm:latest
-
-# Verify that GPUs are visible and that each helm command works
-docker run --gpus=all -it helm:latest nvidia-smi
-docker run --gpus=all -it helm:latest helm-run --help
-docker run --gpus=all -it helm:latest helm-summarize --help
-docker run --gpus=all -it helm:latest helm-server --help
-
-# Run a small end-to-end benchmark.
-
-# Create a shared directory so results persist outside of the container.
-# We will then run commands in the container using that shared path as the
-# working directory.
-mkdir -p ./shared_directory
-
-# Run benchmarks
-docker run --rm --gpus=all \
-    -v $PWD/shared_directory:/mnt/shared_directory \
-    --workdir /mnt/shared_directory \
-    -it helm:latest \
-    helm-run --run-entries mmlu:subject=philosophy,model=openai/gpt2 --suite my-suite --max-eval-instances 10
-
-# Summarize benchmark results
-docker run --rm --gpus=all \
-    -v $PWD/shared_directory:/mnt/shared_directory \
-    --workdir /mnt/shared_directory \
-    -it helm:latest \
-    helm-summarize --suite my-suite
-
-# Start a web server to display benchmark results
-docker run --rm --gpus=all \
-    -v $PWD/shared_directory:/mnt/shared_directory \
-    --workdir /mnt/shared_directory \
-    -p 8000:8000 \
-    -it helm:latest \
-    helm-server --suite my-suite
-
-' > /dev/null
-
-EOF
+# See ./README.md for full usage instructions.
