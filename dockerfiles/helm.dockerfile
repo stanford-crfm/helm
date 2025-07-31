@@ -7,7 +7,7 @@ ENV PIP_ROOT_USER_ACTION=ignore
 ARG PYTHON_VERSION=3.10
 
 # Control the version of uv
-ARG UV_VERSION=0.7.19
+ARG UV_VERSION=0.8.4
 
 # Control the version of HELM (by default uses the current branch)
 ARG HELM_GIT_HASH=HEAD
@@ -47,7 +47,9 @@ RUN <<EOF
 set -e
 mkdir /bootstrap
 cd /bootstrap
+# For new releases see: https://github.com/astral-sh/uv/releases
 declare -A UV_INSTALL_KNOWN_HASHES=(
+    ["0.8.4"]="601321180a10e0187c99d8a15baa5ccc11b03494c2ca1152fc06f5afeba0a460"
     ["0.7.20"]="3b7ca115ec2269966c22201b3a82a47227473bef2fe7066c62ea29603234f921"
     ["0.7.19"]="e636668977200d1733263a99d5ea66f39d4b463e324bb655522c8782d85a8861"
 )
@@ -58,7 +60,12 @@ if [[ -z "$EXPECTED_SHA256" ]]; then
     exit 1
 fi
 curl -LsSf https://astral.sh/uv/$UV_VERSION/install.sh > $DOWNLOAD_PATH
-echo "$EXPECTED_SHA256  $DOWNLOAD_PATH" | sha256sum --check
+report_bad_checksum(){
+    echo "Got unexpected checksum"
+    sha256sum "$DOWNLOAD_PATH"
+    exit 1
+}
+echo "$EXPECTED_SHA256  $DOWNLOAD_PATH" | sha256sum --check || report_bad_checksum
 # Run the install script
 bash /bootstrap/uv-install-v${UV_VERSION}.sh
 # Cleanup for smaller images
@@ -178,15 +185,15 @@ HELM_GIT_HASH=$(git rev-parse --short=12 HEAD)
 
 # Build HELM in a reproducible way.
 DOCKER_BUILDKIT=1 docker build --progress=plain \
-    -t helm:$HELM_GIT_HASH-uv0.7.29-python3.10 \
+    -t helm:$HELM_GIT_HASH-uv0.8.4-python3.10 \
     --build-arg PYTHON_VERSION=3.10 \
-    --build-arg UV_VERSION=0.7.19 \
+    --build-arg UV_VERSION=0.8.4 \
     --build-arg HELM_GIT_HASH=$HELM_GIT_HASH \
     -f ./dockerfiles/helm.dockerfile .
 
 # Add latest tags for convinience
-docker tag helm:$HELM_GIT_HASH-uv0.7.29-python3.10 helm:latest-uv0.7.29-python3.10
-docker tag helm:$HELM_GIT_HASH-uv0.7.29-python3.10 helm:latest
+docker tag helm:$HELM_GIT_HASH-uv0.8.4-python3.10 helm:latest-uv0.8.4-python3.10
+docker tag helm:$HELM_GIT_HASH-uv0.8.4-python3.10 helm:latest
 
 # Verify that GPUs are visible and that each helm command works
 docker run --gpus=all -it helm:latest nvidia-smi
