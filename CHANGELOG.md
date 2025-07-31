@@ -2,11 +2,74 @@
 
 ## [Upcoming]
 
+## [v0.5.7] - 2025-07-31
+
+### Breaking Changes
+
+- In v0.5.6, `HuggingFaceClient` would call `apply_chat_template` with `add_generation_prompt()` unspecified, which caused it to default to `False`. In v0.5.7, `HuggingFaceClient` now calls `add_generation_prompt()` with `apply_chat_template=True`. (#3703)
+- Previously, in the `model_deployments.yaml` configuration files, when determining the default model deployment for a model, the first model deployment in the file would be preferred, and model deployments in the package would be preferred over those in `prod_env/`. Now, the last model deployment in the file will be preferred, and model deployments in `prod_env` will be preferred over those in the package. (#3694)
+
+### Models
+
+- Add o3-pro (#3671)
+- Allow passing initialization kwargs to VLLMClient and OpenAIClient (#3690)
+- Add support for Granite thinking on vLLM (#3692)
+- Add some Brazilian models (#3686)
+- Always set `add_generation_prompt` to `True` in `apply_chat_template` in `HuggingFaceClient` (#3703)
+- Add support for chat models on vLLM (#3729)
+- Add Kimi K2 (#3758)
+- Add Grok 4 (#3759)
+
+### Scenarios
+
+- Add LMKT (Language model cultural alignment transfer) (#3682)
+- Modify SLPHelm (#3679)
+- Add InfiniteBench En.MC (#3687)
+- Add MMMLU (#3699)
+- Add Arabic MMLU, AlGhafa (#3700)
+- Add AlGhafa (#3706)
+- Add EXAMS (#3714)
+- Add AraTrust (#3715)
+- Add HEALTHQA-BR (#3711)
+- Add BLEUX (#3711)
+- Remove numeracy scenario (#3733)
+- Fixes to HEIM (#3765)
+
+### Framework
+
+- Improvements to logging (#3683, #3696, #3744)
+- Change logic for default model deployments (#3694)
+- Loosen various dependency version specifiers (#3725, #3726)
+- Add short_description field to RunGroup in schema (#3755)
+- Add support for configuring the number of retries using environment variables (#3766)
+
+### Frontend
+
+- Show run group name and description from schema on run page (#3753)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @Erotemic
+- @Gum-Joe
+- @IriedsonSouto
+- @Kazf28
+- @ledong0110
+- @lucas-s-p
+- @martinakaduc
+- @MiguelAFH
+- @RonalddMatias
+- @samirunni
+- @sangttruong
+- @sashimono-san
+- @yifanmai
+
 ## [v0.5.6] - 2025-06-20
 
 ### Breaking Changes
 
-- `HuggingFaceClient` will automatically apply the chat template if the tokenizer contains one. This may result in incorrect behavior for some non-chat models that have tokenizers with chat templates e.g. Qwen2, Qwen 2.5. For these models, the default behavior can be overridden by explicitly setting `apply_chat_template` in `args`. (#3678)
+- Previously, HuggingFaceClient did not apply the chat template for chat models. `HuggingFaceClient` will now automatically apply the chat template if the tokenizer contains one. This may result in incorrect behavior for some non-chat models that have tokenizers with chat templates e.g. Qwen2, Qwen 2.5. For these models, the default behavior can be overridden by explicitly setting `apply_chat_template` in `args`. (#3678)
 
 ### Models
 
@@ -1019,7 +1082,8 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.6...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.7...HEAD
+[v0.5.7]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.7
 [v0.5.6]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.6
 [v0.5.5]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.5
 [v0.5.4]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.4
