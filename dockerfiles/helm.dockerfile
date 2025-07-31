@@ -31,7 +31,7 @@ apt clean
 rm -rf /var/lib/apt/lists/*
 EOF
 
-# Set the shell to bash to auto-activate enviornments
+# Set the shell to bash to auto-activate environments
 SHELL ["/bin/bash", "-l", "-c"]
 
 # ------------------
@@ -92,7 +92,7 @@ export PATH="$HOME/.local/bin:$PATH"
 source $HOME/venv'$PYTHON_VERSION'/bin/activate
 '
 # It is important to add the content to both so 
-# subsequent run commands use the the context we setup here.
+# subsequent run commands use the context we setup here.
 echo "$BASHRC_CONTENTS" >> $HOME/.bashrc
 echo "$BASHRC_CONTENTS" >> $HOME/.profile
 echo "$BASHRC_CONTENTS" >> $HOME/.bash_profile
