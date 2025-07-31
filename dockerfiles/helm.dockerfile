@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1.5
 FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04
 
+
 # ------------------------------------
 # Step 1: Install System Prerequisites
 # ------------------------------------
@@ -24,6 +25,7 @@ EOF
 
 # Set the shell to bash to auto-activate environments
 SHELL ["/bin/bash", "-l", "-c"]
+
 
 # ------------------
 # Step 2: Install uv
@@ -98,41 +100,8 @@ echo "$BASHRC_CONTENTS" >> $HOME/.bash_profile
 EOF
 
 
-RUN mkdir -p /root/code/helm
-
-# ---------------------------------
-# Step 4: Checkout and install HELM
-# ---------------------------------
-# Based on the state of the repo this copies the host .git data over and then
-# checks out the exact version of HELM requested by HELM_GIT_HASH. It then
-# performs a basic install of helm into the virtual environment.
-
-COPY .git /root/code/helm/.git
-
-# Control the version of HELM (by default uses the current branch)
-ARG HELM_GIT_HASH=HEAD
-
-ENV UV_LINK_MODE=copy
-
-RUN --mount=type=cache,target=/root/.cache <<EOF
-set -e
-
-cd  /root/code/helm
-
-# Checkout the requested branch 
-git checkout "$HELM_GIT_HASH"
-git reset --hard "$HELM_GIT_HASH"
-
-# First install pinned requirements for reproducibility
-uv pip install -r requirements.txt
-
-# Install helm in development mode
-uv pip install -e .[all,dev] 
-EOF
-
-
 # -----------------------------------
-# Step 5: Ensure venv auto-activation
+# Step 4: Ensure venv auto-activation
 # -----------------------------------
 # This step creates an entrypoint script that ensures any command passed to
 # `docker run` is executed inside a login shell where the virtual environment
@@ -168,9 +137,41 @@ cat /entrypoint.sh
 chmod +x /entrypoint.sh
 EOF
 
-
 # Set the entrypoint to our script that activates the virtual environment first
 ENTRYPOINT ["/entrypoint.sh"]
+
+
+# ---------------------------------
+# Step 5: Checkout and install HELM
+# ---------------------------------
+# Based on the state of the repo this copies the host .git data over and then
+# checks out the exact version of HELM requested by HELM_GIT_HASH. It then
+# performs a basic install of helm into the virtual environment.
+
+RUN mkdir -p /root/code/helm
+
+COPY .git /root/code/helm/.git
+
+# Control the version of HELM (by default uses the current branch)
+ARG HELM_GIT_HASH=HEAD
+
+ENV UV_LINK_MODE=copy
+
+RUN --mount=type=cache,target=/root/.cache <<EOF
+set -e
+
+cd  /root/code/helm
+
+# Checkout the requested branch 
+git checkout "$HELM_GIT_HASH"
+git reset --hard "$HELM_GIT_HASH"
+
+# First install pinned requirements for reproducibility
+uv pip install -r requirements.txt
+
+# Install helm in development mode
+uv pip install -e .[all,dev] 
+EOF
 
 # Set the default workdir to the helm code repo
 WORKDIR /root/code/helm
