@@ -293,6 +293,50 @@ def get_medbullets_run_spec() -> RunSpec:
     )
 
 
+@run_spec_function("medhelm_med_qa")
+def get_medhelm_med_qa_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.med_qa_scenario.MedQAScenario", args={})
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="Give a letter answer among A, B, C or D. Do not include any explanation or additional text.",
+        input_noun="Question",
+        output_noun="Respond only with 'A', 'B', 'C' or 'D'. Do not add any other text, punctuation, or symbols.",
+        max_tokens=1,
+        max_train_instances=0,
+    )
+
+    return RunSpec(
+        name="med_qa",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["med_qa"],
+    )
+
+
+@run_spec_function("medhelm_med_mcqa")
+def get_medhelm_med_mcqa_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.med_mcqa_scenario.MedMCQAScenario", args={})
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="Give a letter answer among A, B, C or D. Do not include any explanation or additional text.",
+        input_noun="Question",
+        output_noun="Respond only with 'A', 'B', 'C' or 'D'. Do not add any other text, punctuation, or symbols.",
+        max_tokens=1,
+        max_train_instances=0,
+    )
+
+    return RunSpec(
+        name="med_mcqa",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["med_mcqa"],
+    )
+
+
 @run_spec_function("medbullets_freetext")
 def get_medbullets_freetext_run_spec() -> RunSpec:
     """RunSpec for the MedBullets Free-text dataset."""

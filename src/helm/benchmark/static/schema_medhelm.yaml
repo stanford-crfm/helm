@@ -484,6 +484,8 @@ run_groups:
       - ehrshot
       - head_qa
       - medbullets
+      - med_qa
+      - med_mcqa
       - medalign
       - shc_ptbm_med
       - shc_sei_med
@@ -655,6 +657,40 @@ run_groups:
       what: Medical knowledge testing
       who: Medical student, . Researcher
       when: Any
+      language: English
+
+  - name: med_qa
+    display_name: MedQA
+    description: MedQA is an open domain question answering dataset composed of questions from professional medical board exams ([Jin et al. 2020](https://arxiv.org/pdf/2009.13081.pdf)).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: med_mcqa
+    display_name: MedMCQA
+    description: MedMCQA is a "multiple-choice question answering (MCQA) dataset designed to address real-world medical entrance exam questions ([Flores et al. 2020](https://arxiv.org/abs/2203.14371)).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
       language: English
 
   - name: medalign
