@@ -4530,7 +4530,7 @@ models:
 
   - name: ibm/granite-3.3-8b-instruct
     display_name: IBM Granite 3.3 8B Instruct
-    description: IBM Granite 3.3 8B Instruct is a 8-billion parameter 128K context length language model fine-tuned for improved reasoning and instruction-following capabilities. ([model card](https://huggingface.co/ibm-granite/granite-3.3-8b-instruct))
+    description: IBM Granite 3.3 8B Instruct is an 8-billion parameter 128K context length language model fine-tuned for improved reasoning and instruction-following capabilities. ([model card](https://huggingface.co/ibm-granite/granite-3.3-8b-instruct))
     creator_organization_name: IBM
     access: open
     num_parameters: 8170000000
@@ -4539,7 +4539,7 @@ models:
 
   - name: ibm/granite-3.3-8b-instruct-with-guardian
     display_name: IBM Granite 3.3 8B Instruct (with guardian)
-    description: IBM Granite 3.3 8B Instruct is a 8-billion parameter 128K context length language model fine-tuned for improved reasoning and instruction-following capabilities. ([model card](https://huggingface.co/ibm-granite/granite-3.3-8b-instruct)) This model was run with an additional safety filter using [Granite Guardian 3.2](https://www.ibm.com/granite/docs/models/guardian/).
+    description: IBM Granite 3.3 8B Instruct is an 8-billion parameter 128K context length language model fine-tuned for improved reasoning and instruction-following capabilities. All prompts were first evaluated for risk by [IBM Granite Guardian 3.2 5B](https://www.ibm.com/granite/docs/models/guardian/) and prompts that were deemed risky (with a risk threshold of 0.8) received the response "I'm very sorry, but I can't assist with that.". ([model card](https://huggingface.co/ibm-granite/granite-3.3-8b-instruct))
     creator_organization_name: IBM
     access: open
     num_parameters: 8170000000
