@@ -1029,24 +1029,24 @@ def get_me_q_sum_spec() -> RunSpec:
     )
 
 
-# @run_spec_function("med_mcqa")
-# def get_med_mcqa_spec() -> RunSpec:
-#     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.med_mcqa_scenario.MedMCQAScenario", args={})
+@run_spec_function("med_mcqa")
+def get_med_mcqa_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.med_mcqa_scenario.MedMCQAScenario", args={})
 
-#     adapter_spec = get_multiple_choice_adapter_spec(
-#         method=ADAPT_MULTIPLE_CHOICE_JOINT,
-#         instructions="Give a letter answer among A, B, C or D.",
-#         input_noun="Question",
-#         output_noun="Answer",
-#     )
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="Give a letter answer among A, B, C or D.",
+        input_noun="Question",
+        output_noun="Answer",
+    )
 
-#     return RunSpec(
-#         name="med_mcqa",
-#         scenario_spec=scenario_spec,
-#         adapter_spec=adapter_spec,
-#         metric_specs=get_exact_match_metric_specs(),
-#         groups=["med_mcqa"],
-#     )
+    return RunSpec(
+        name="med_mcqa",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["med_mcqa"],
+    )
 
 
 @run_spec_function("med_paragraph_simplification")

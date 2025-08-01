@@ -255,6 +255,26 @@ def get_legalbench_spec(subset: str) -> RunSpec:
     )
 
 
+@run_spec_function("med_qa")
+def get_med_qa_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.med_qa_scenario.MedQAScenario", args={})
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="The following are multiple choice questions (with answers) about medicine.",
+        input_noun="Question",
+        output_noun="Answer",
+    )
+
+    return RunSpec(
+        name="med_qa",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["med_qa"],
+    )
+
+
 @run_spec_function("wmt_14")
 def get_wmt_14_spec(language_pair: str, max_train_instances: int = 1) -> RunSpec:
     FULL_LANGUAGE_NAMES = {

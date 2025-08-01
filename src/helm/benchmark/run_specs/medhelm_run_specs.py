@@ -293,8 +293,8 @@ def get_medbullets_run_spec() -> RunSpec:
     )
 
 
-@run_spec_function("med_qa")
-def get_med_qa_spec() -> RunSpec:
+@run_spec_function("medhelm_med_qa")
+def get_medhelm_med_qa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.med_qa_scenario.MedQAScenario", args={})
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -315,8 +315,8 @@ def get_med_qa_spec() -> RunSpec:
     )
 
 
-@run_spec_function("med_mcqa")
-def get_med_mcqa_spec() -> RunSpec:
+@run_spec_function("medhelm_med_mcqa")
+def get_medhelm_med_mcqa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.med_mcqa_scenario.MedMCQAScenario", args={})
 
     adapter_spec = get_multiple_choice_adapter_spec(
