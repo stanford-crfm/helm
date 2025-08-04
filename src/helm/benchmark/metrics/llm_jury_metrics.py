@@ -4,7 +4,7 @@ from typing import Any, Dict, List
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hlog, hwarn
 from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
@@ -48,6 +48,9 @@ class Rubric:
         """Weighted aggregation of normalized scores."""
         total = 0.0
         for name, score in scores.items():
+            if not isinstance(score, (int, float)):
+                hwarn(f"Skipping non-numeric score for {name}: {score}")
+                continue
             norm = self.normalize(name, score)
             total += norm * self.items[name].weight
         return total
