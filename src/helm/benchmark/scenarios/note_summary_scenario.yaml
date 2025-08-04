@@ -68,9 +68,3 @@ judges:
   - name: "gpt_4o"
     model: "openai/gpt-4o-2024-05-13"
     model_deployment: "stanfordhealthcare/gpt-4o-2024-05-13"
-
-aggregation:
-  function: "weighted_average"
-  normalize: true   # Indicates that scores are normalized before aggregation
-
-priority: 1
