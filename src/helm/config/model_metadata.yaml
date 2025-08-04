@@ -1254,8 +1254,8 @@ models:
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemini-2.5-flash-lite
-    display_name: Gemini 2.5 Flash-Lite (GA)
-    description: Gemini 2.5 Flash-Lite (GA) ([blog](https://blog.google/products/gemini/gemini-2-5-model-family-expands/))
+    display_name: Gemini 2.5 Flash-Lite
+    description: Gemini 2.5 Flash-Lite ([blog](https://blog.google/products/gemini/gemini-2-5-model-family-expands/))
     creator_organization_name: Google
     access: limited
     release_date: 2025-07-22
