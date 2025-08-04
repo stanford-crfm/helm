@@ -8,7 +8,7 @@ from helm.benchmark.scenarios.scenario import (
     Instance,
     TEST_SPLIT,
 )
-from helm.benchmark.scenarios.note_summary_scenario_helper import Summarizer
+from helm.benchmark.scenarios.note_summary_scenario_helper import Summarizer # type: ignore
 
 
 def file_preprocessing(data_path: str) -> pd.DataFrame:
