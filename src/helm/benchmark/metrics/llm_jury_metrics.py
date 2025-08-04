@@ -47,12 +47,21 @@ class Rubric:
     def aggregate(self, scores: Dict[str, float]) -> float:
         """Weighted aggregation of normalized scores."""
         total = 0.0
+        weight_offset = 0.0
+        invalid_scores = [name for name in scores.keys() if not isinstance(scores[name], (int, float))]
+        if invalid_scores:
+            n_valid_scores = len(scores) - len(invalid_scores)
+            weight_offset = sum(self.items[name].weight for name in invalid_scores) / n_valid_scores
+            hwarn(
+                f"Invalid scores found for {invalid_scores}. "
+                f"Using average weight offset of {weight_offset} to adjust the total score."
+            )
         for name, score in scores.items():
             if not isinstance(score, (int, float)):
                 hwarn(f"Skipping non-numeric score for {name}: {score}")
                 continue
             norm = self.normalize(name, score)
-            total += norm * self.items[name].weight
+            total += norm * (self.items[name].weight + weight_offset)
         return total
 
 
@@ -81,6 +90,10 @@ class LLMJuryMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         assert request_state.annotations
+        if self.rubric:
+            hlog(f"Using rubric for {self.scenario_name} with items: {list(self.rubric.items.keys())}")
+        else:
+            hlog(f"No rubric defined for {self.scenario_name}, using raw scores.")
         annotations: Dict[str, Any] = request_state.annotations[self.scenario_name]
         scores: List[int] = []
         score = self.default_score
@@ -88,7 +101,6 @@ class LLMJuryMetric(Metric):
             if annotation_key in self.annotator_models.keys() and annotation_dict is not None:
                 if self.rubric:
                     # Use rubric to normalize and aggregate scores
-                    hlog(f"Using rubric for {annotation_key} to normalize and aggregate scores.")
                     scores_dict = {
                         item: annotation_dict[item]["score"]
                         for item in self.rubric.items.keys()
@@ -97,7 +109,6 @@ class LLMJuryMetric(Metric):
                     score = self.rubric.aggregate(scores_dict)
                 else:
                     # Fallback to using the raw score
-                    hlog(f"Using raw score for {annotation_key} as no rubric is defined.")
                     for val in annotation_dict.values():
                         scores.append(int(val["score"]))
                     if scores:
