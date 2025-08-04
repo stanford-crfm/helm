@@ -37,28 +37,17 @@ class NoteSummaryAnnotator(LLMAsJuryAnnotator):
         :param custom_replacements: Optional dictionary of additional replacements
         :return: Interpolated prompt
         """
-
+        notes = (request_state.instance.extra_data or {}).get("notes", [])
         prompt = pdsqi.resolve_prompt(
             summary_to_evaluate=(
                 request_state.result.completions[0].text
                 if request_state.result and request_state.result.completions
                 else ""
             ),
-            notes=request_state.instance.extra_data.get("notes", []),
+            notes=notes,
             target_specialty="emergency medicine",
             output_mode=prep.OutputMode.EXPLAINED_SCORE,
         )
-
-        # prompt = resolve_prompt(
-        #     summary_to_evaluate=(
-        #         request_state.result.completions[0].text
-        #         if request_state.result and request_state.result.completions
-        #         else ""
-        #     ),
-        #     notes=request_state.instance.extra_data.get("notes", []),
-        #     target_specialty="emergency medicine",
-        # )
-
         return prompt[1]["content"]
 
 
