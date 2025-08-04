@@ -17,7 +17,7 @@ class NoteSummaryAnnotator(LLMAsJuryAnnotator):
     def __init__(
         self,
         auto_client: AutoClient,
-        annotator_models: Optional[Dict[str, AnnotatorModelInfo]],
+        annotator_models: Dict[str, AnnotatorModelInfo],
         template_name: Optional[str] = None,
     ):
         super().__init__(

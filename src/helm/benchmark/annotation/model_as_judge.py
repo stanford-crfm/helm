@@ -230,7 +230,7 @@ class LLMAsJuryAnnotator(Annotator):
                 if annotator_criteria is not None:
                     annotations[annotator_name] = annotator_criteria
                 else:
-                    failed_annotators[annotator_name] += 1
+                    failed_annotators.add(annotator_name)
 
             except Exception as e:
                 hlog(f"ERROR annotating with {annotator_name}: {e}")

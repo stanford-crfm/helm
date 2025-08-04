@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
@@ -74,7 +74,7 @@ class LLMJuryMetric(Metric):
         scenario_name: str,
         annotator_models: Dict[str, AnnotatorModelInfo],
         default_score: float = 0.0,
-        rubric: Rubric = None,
+        rubric: Optional[Rubric] = None,
     ):
         self.metric_name = metric_name
         self.scenario_name = scenario_name
