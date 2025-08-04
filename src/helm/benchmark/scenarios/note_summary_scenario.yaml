@@ -1,0 +1,76 @@
+
+# Data path from which the data will be loaded
+data_path: /share/pi/nigam/data/physionet.org
+
+# The rubric criteria for evaluating the note summary scenario
+rubric:
+  citation:
+    min: 1
+    max: 5
+    weight: 0.1
+    higher_is_better: true
+  accurate:
+    min: 1
+    max: 5
+    weight: 0.2
+    higher_is_better: true
+  thorough:
+    min: 1
+    max: 5
+    weight: 0.1
+    higher_is_better: true
+  useful:
+    min: 1
+    max: 5
+    weight: 0.1
+    higher_is_better: true
+  organized:
+    min: 1
+    max: 5
+    weight: 0.1
+    higher_is_better: true
+  comprehensible:
+    min: 1
+    max: 5
+    weight: 0.1
+    higher_is_better: true
+  succinct:
+    min: 1
+    max: 5
+    weight: 0.1
+    higher_is_better: true
+  abstraction:
+    min: 0
+    max: 1
+    weight: 0.05
+    higher_is_better: true
+  synthesized:
+    min: 1
+    max: 5
+    weight: 0.1
+    higher_is_better: true
+  voice_summ:
+    min: 0
+    max: 1
+    weight: 0.025
+    higher_is_better: false
+  voice_note:
+    min: 0
+    max: 1
+    weight: 0.025
+    higher_is_better: false
+
+# The judges to be used for evaluating the note summary scenario.
+# name: The short name for the judge.
+# model: The field value matching the 'model_name' field under model_deployments.yaml
+# model_deployment: The field value matching the 'name' under model_deployments.yaml.
+judges:
+  - name: "gpt_4o"
+    model: "openai/gpt-4o-2024-05-13"
+    model_deployment: "stanfordhealthcare/gpt-4o-2024-05-13"
+
+aggregation:
+  function: "weighted_average"
+  normalize: true   # Indicates that scores are normalized before aggregation
+
+priority: 1

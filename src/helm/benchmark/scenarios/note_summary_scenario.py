@@ -71,9 +71,7 @@ class NoteSummaryScenario(Scenario):
     """
 
     name = "note_summary"
-    description = (
-        "NoteSummary is a benchmark designed to evaluate clinical note summarization capabilities of LLMs."
-    )
+    description = "NoteSummary is a benchmark designed to evaluate clinical note summarization capabilities of LLMs."
     tags = ["biomedical"]
 
     def __init__(self, data_path: str):

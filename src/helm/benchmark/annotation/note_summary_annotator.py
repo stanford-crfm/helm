@@ -9,33 +9,22 @@ from helm.clients.auto_client import AutoClient
 from evaluation_instruments import prep
 
 
-ANNOTATOR_MODELS: Dict[str, AnnotatorModelInfo] = {
-    "gpt": AnnotatorModelInfo(
-        model_name="openai/gpt-4.1-2025-04-14",
-        model_deployment="stanfordhealthcare/gpt-4.1-2025-04-14",
-    ),
-    # "llama": AnnotatorModelInfo(
-    #     model_name="meta/llama-3.3-70b-instruct",
-    #     model_deployment="stanfordhealthcare/llama-3.3-70b-instruct",
-    # ),
-    # "claude": AnnotatorModelInfo(
-    #     model_name="anthropic/claude-3-7-sonnet-20250219",
-    #     model_deployment="stanfordhealthcare/claude-3-7-sonnet-20250219",
-    # ),
-}
-
-
 class NoteSummaryAnnotator(LLMAsJuryAnnotator):
     """The NoteSummary autograder."""
 
     name = "note_summary"
 
-    def __init__(self, auto_client: AutoClient, template_name: Optional[str] = None):
+    def __init__(
+        self,
+        auto_client: AutoClient,
+        annotator_models: Optional[Dict[str, AnnotatorModelInfo]],
+        template_name: Optional[str] = None,
+    ):
         super().__init__(
             auto_client=auto_client,
             prompt_template="",
             annotation_criteria={},
-            annotator_models=ANNOTATOR_MODELS,
+            annotator_models=annotator_models,
         )
 
     def _interpolate_prompt(
@@ -48,14 +37,18 @@ class NoteSummaryAnnotator(LLMAsJuryAnnotator):
         :param custom_replacements: Optional dictionary of additional replacements
         :return: Interpolated prompt
         """
-        
+
         prompt = pdsqi.resolve_prompt(
-            summary_to_evaluate=request_state.result.completions[0].text if request_state.result and request_state.result.completions else "",
+            summary_to_evaluate=(
+                request_state.result.completions[0].text
+                if request_state.result and request_state.result.completions
+                else ""
+            ),
             notes=request_state.instance.extra_data.get("notes", []),
             target_specialty="emergency medicine",
-            output_mode=prep.OutputMode.EXPLAINED_SCORE
+            output_mode=prep.OutputMode.EXPLAINED_SCORE,
         )
-        
+
         # prompt = resolve_prompt(
         #     summary_to_evaluate=(
         #         request_state.result.completions[0].text
