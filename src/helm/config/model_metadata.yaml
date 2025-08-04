@@ -3549,6 +3549,14 @@ models:
     release_date: 2025-04-29
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: qwen/qwen3-235b-a22b-instruct-2507-fp8
+    display_name: Qwen3 235B A22B Instruct 2507 FP8
+    description: Qwen3 235B A22B Instruct 2507 FP8 is an updated version of the non-thinking mode of Qwen3 235B A22B FP8.
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2025-07-21  # https://x.com/Alibaba_Qwen/status/1947344511988076547
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: qwen/qwq-32b-preview
     display_name: QwQ (32B Preview)
     description: QwQ-32B-Preview is an experimental research model developed by the Qwen Team, focused on advancing AI reasoning capabilities. ([blog post](https://qwenlm.github.io/blog/qwq-32b-preview/)).
