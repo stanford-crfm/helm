@@ -30,6 +30,20 @@ LOCAL_CHECKPOINT_7B = (
     "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_7b_6_30"
 )
 
+LOCAL_CHECKPOINT_3B_ROBOMIMIC = (
+    "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_robomimic_8_3_short"
+)
+LOCAL_CHECKPOINT_7B_ROBOMIMIC = (
+    "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_7b_robomimic"
+)
+LOCAL_CHECKPOINT_3B_ROBOMIMIC_MIXED = (
+    "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_robomimic_mix_8_3"
+)
+LOCAL_CHECKPOINT_7B_ROBOMIMIC_MIXED = (
+    "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_7b_robomimic_mix"
+)
+
+
 # Global cache for all models
 _models_lock: Lock = Lock()
 _models: Dict[str, Optional[LoadedModelProcessor]] = {
@@ -41,6 +55,10 @@ _models: Dict[str, Optional[LoadedModelProcessor]] = {
     "Qwen/Qwen2.5-VL-72B-Instruct": None,
     LOCAL_CHECKPOINT_3B: None,
     LOCAL_CHECKPOINT_7B: None,
+    LOCAL_CHECKPOINT_3B_ROBOMIMIC: None,
+    LOCAL_CHECKPOINT_7B_ROBOMIMIC: None,
+    LOCAL_CHECKPOINT_3B_ROBOMIMIC_MIXED: None,
+    LOCAL_CHECKPOINT_7B_ROBOMIMIC_MIXED: None,
 }
 
 
@@ -60,6 +78,14 @@ class Qwen2VLMClient(CachingClient):
             return LOCAL_CHECKPOINT_3B
         elif helm_model_name == "qwen2.5-vl-7b-instruct-robo-reward":
             return LOCAL_CHECKPOINT_7B
+        elif helm_model_name == "qwen2.5-vl-3b-instruct-robo-reward-robomimic":
+            return LOCAL_CHECKPOINT_3B_ROBOMIMIC
+        elif helm_model_name == "qwen2.5-vl-7b-instruct-robo-reward-robomimic":
+            return LOCAL_CHECKPOINT_7B_ROBOMIMIC
+        elif helm_model_name == "qwen2.5-vl-3b-instruct-robo-reward-robomimic-mixed":
+            return LOCAL_CHECKPOINT_3B_ROBOMIMIC_MIXED
+        elif helm_model_name == "qwen2.5-vl-7b-instruct-robo-reward-robomimic-mixed":
+            return LOCAL_CHECKPOINT_7B_ROBOMIMIC_MIXED
         elif helm_model_name == "qwen2.5-vl-7b-instruct":
             return "Qwen/Qwen2.5-VL-7B-Instruct"
         elif helm_model_name == "qwen2.5-vl-32b-instruct":
