@@ -3541,6 +3541,16 @@ model_deployments:
       args:
         together_model: togethercomputer/RedPajama-INCITE-7B-Instruct
 
+  ## Z.ai
+  - name: together/glm-4.5-air-fp8
+    model_name: zai-org/glm-4.5-air-fp8
+    tokenizer_name: zai-org/glm-4.5-air-fp8
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        parse_thinking: true
+
   - name: thudm/cogview2
     model_name: thudm/cogview2
     tokenizer_name: openai/clip-vit-large-patch14
@@ -4335,16 +4345,6 @@ model_deployments:
       class_name: "helm.clients.ibm_client.IbmTextClient"
       args:
         watsonx_model_name: ibm/granite-8b-code-instruct
-        region: Dallas
-
-  - name: ibm/mixtral-8x7b-instruct-v0:1
-    model_name: mistralai/mixtral-8x7b-instruct-v0:1
-    tokenizer_name: huggingface/gpt2
-    max_sequence_length: 4000
-    client_spec:
-      class_name: "helm.clients.ibm_client.IbmChatClient"
-      args:
-        watsonx_model_name: mistralai/mixtral-8x7b-instruct-v01
         region: Dallas
 
   - name: ibm/granite-3.3-8b-instruct
