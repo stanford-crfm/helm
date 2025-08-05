@@ -194,7 +194,7 @@ run_groups:
       - ruler_hotpotqa
       - ruler_squad
       - infinite_bench_en_sum
-      - infinite_bench_en_qa
+      # - infinite_bench_en_qa
       - infinite_bench_en_mc
       - openai_mrcr
 
@@ -233,22 +233,22 @@ run_groups:
       when: Before 2018
       language: English
 
-  - name: infinite_bench_en_qa
-    display_name: ∞Bench En.QA
-    description: ∞Bench En.QA is a open-ended question answering task that requires locating and processing information within a novel, performing reasoning through aggregation or filtering to derive answers. ([Zhang et al., 2024](https://arxiv.org/abs/2402.13718))
-    metric_groups:
-      - accuracy
-      - general_information
-      - annotation_metrics
-    environment:
-      main_name: f1_score
-      main_split: test
-    taxonomy:
-      task: question answering
-      what: Novels
-      who: Novel authors
-      when: Before 2024
-      language: English
+  # - name: infinite_bench_en_qa
+  #   display_name: ∞Bench En.QA
+  #   description: ∞Bench En.QA is a open-ended question answering task that requires locating and processing information within a novel, performing reasoning through aggregation or filtering to derive answers. ([Zhang et al., 2024](https://arxiv.org/abs/2402.13718))
+  #   metric_groups:
+  #     - accuracy
+  #     - general_information
+  #     - annotation_metrics
+  #   environment:
+  #     main_name: f1_score
+  #     main_split: test
+  #   taxonomy:
+  #     task: question answering
+  #     what: Novels
+  #     who: Novel authors
+  #     when: Before 2024
+  #     language: English
 
   - name: infinite_bench_en_mc
     display_name: ∞Bench En.MC

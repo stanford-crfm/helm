@@ -39,12 +39,12 @@ def _get_long_context_multiple_choice_adapter_spec(max_tokens: int) -> AdapterSp
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         global_prefix="",
         global_suffix="",
-        instructions="Read the passage and answer the following question. Respond with only a single letter corresponding to your choice.",  # noqa: E501
+        instructions="Read the passage and answer the following question. Respond with only a single letter corresponding to your choice. Do not include a period in your answer.\n\n",  # noqa: E501
         input_prefix="",
         input_suffix="\n",
         reference_prefix="A. ",
         reference_suffix="\n",
-        output_prefix="",
+        output_prefix="\nAnswer the question above based on the passage. Respond with only a single letter corresponding to your choice. Do not include a period in your answer.\n",  # noqa: E501
         output_suffix="",
         instance_prefix="",
         max_train_instances=0,
