@@ -2868,6 +2868,15 @@ model_deployments:
         openai_model_name: o3-pro-2025-06-10
         reasoning_effort: high
 
+  ## GPT-OSS
+  - name: together/gpt-oss-120b
+    model_name: openai/gpt-oss-120b
+    tokenizer_name: openai/o200k_harmony
+    # Source: https://platform.openai.com/docs/models/gpt-oss-120b
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+
   ## Text Similarity Models
   # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
   # The number of parameters is guessed based on the number of parameters of the

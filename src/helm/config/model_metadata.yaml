@@ -3281,6 +3281,15 @@ models:
     release_date: 2025-06-10
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  ## GPT-OSS
+  - name: openai/gpt-oss-120b
+    display_name: gpt-oss-120b
+    description: gpt-oss-120b is a open-weight language model that was trained using a mix reinforcement learning and other techniques informed by OpenAI's internal models. It uses a mixture-of-experts architecture and activates 5.1B parameters per token. ([blog](https://openai.com/index/introducing-gpt-oss/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-08-05
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   ## Codex Models
   # DEPRECATED: Codex models have been shut down on March 23 2023.
 
