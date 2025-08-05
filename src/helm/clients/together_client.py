@@ -487,7 +487,9 @@ class TogetherChatClient(CachingClient):
                 thinking = Thinking(text=thinking_text)
             elif hasattr(choice.message, "reasoning_content"):
                 thinking = Thinking(text=choice.message.reasoning_content)
-            generated_outputs.append(GeneratedOutput(text=output_text, logprob=logprob, tokens=tokens, thinking=thinking))
+            generated_outputs.append(
+                GeneratedOutput(text=output_text, logprob=logprob, tokens=tokens, thinking=thinking)
+            )
         return RequestResult(
             success=True,
             cached=cached,
