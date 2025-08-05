@@ -481,15 +481,15 @@ class TogetherChatClient(CachingClient):
             if self.output_processor:
                 output_text = self.output_processor(output_text)
 
+            thinking: Optional[Thinking] = None
             if self._parse_thinking:
                 thinking_text, output_text = _parse_thinking(output_text, request.model)
-                generated_outputs.append(
-                    GeneratedOutput(
-                        text=output_text, logprob=logprob, tokens=tokens, thinking=Thinking(text=thinking_text)
-                    )
-                )
-            else:
-                generated_outputs.append(GeneratedOutput(text=output_text, logprob=logprob, tokens=tokens))
+                thinking = Thinking(text=thinking_text)
+            elif hasattr(choice.message, "reasoning_content"):
+                thinking = Thinking(text=choice.message.reasoning_content)
+            generated_outputs.append(
+                GeneratedOutput(text=output_text, logprob=logprob, tokens=tokens, thinking=thinking)
+            )
         return RequestResult(
             success=True,
             cached=cached,

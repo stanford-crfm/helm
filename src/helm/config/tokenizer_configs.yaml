@@ -650,6 +650,12 @@ tokenizer_configs:
     end_of_text_token: "<|endoftext|>"
     prefix_token: "<|endoftext|>"
 
+  - name: openai/o200k_harmony
+    tokenizer_spec:
+      class_name: "helm.tokenizers.tiktoken_tokenizer.TiktokenTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|startoftext|>"
+
   - name: openai/clip-vit-large-patch14
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
