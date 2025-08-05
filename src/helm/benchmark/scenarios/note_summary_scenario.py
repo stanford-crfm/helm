@@ -37,28 +37,10 @@ def file_preprocessing(data_path: str) -> pd.DataFrame:
 
 class NoteSummaryScenario(Scenario):
     """
-    NoteSummary is a discharge instruction generation dataset and brief hospital course generation \
-    dataset collected from MIMIC-IV data.
+    NoteSummary is a benchmark designed to evaluate clinical note summarization capabilities of LLMs.
     In this scenario, we only consider the discharge text as well as the radiology report text.
     We are using the phase I test set which is composed of 14,702 hospital admission instances.
-
-    The splits are provided by the dataset itself.
-
-    TASKS = {discharge instruction, brief hospital course}
-    Sample Synthetic Prompt:
-        Generate the {TASK} from the following patient discharge text and radiology report text.
-
-        Discharge Text:
-        Name: {Patient Name} Unit No: {Unit Number} Date of Birth: {DOB} Date of Admission:
-        {DOA} Date of Discharge: {DOD}
-        Chief Complaint: {Chief Complaint} History of Present Illness: {HPI} Past Medical History: {PMH}
-        Medications on Admission: {Medications} Allergies: {Allergies} Physical Exam: {Physical Exam}
-        Discharge Diagnosis: {Discharge Diagnosis}
-
-        Radiology Report:
-        {Radiology Report}
-
-        {TASK}:
+    
     @inproceedings{Xu_2024,
         title={ Discharge me: Bionlp acl’24 shared task on streamlining discharge documentation.},
         url={https://doi.org/10.13026/4a0k-4360},
