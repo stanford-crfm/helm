@@ -40,7 +40,7 @@ class NoteSummaryScenario(Scenario):
     NoteSummary is a benchmark designed to evaluate clinical note summarization capabilities of LLMs.
     In this scenario, we only consider the discharge text as well as the radiology report text.
     We are using the phase I test set which is composed of 14,702 hospital admission instances.
-    
+
     @inproceedings{Xu_2024,
         title={ Discharge me: Bionlp acl’24 shared task on streamlining discharge documentation.},
         url={https://doi.org/10.13026/4a0k-4360},
