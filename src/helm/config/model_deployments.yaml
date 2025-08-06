@@ -2869,6 +2869,14 @@ model_deployments:
         reasoning_effort: high
 
   ## GPT-OSS
+  - name: together/gpt-oss-20b
+    model_name: openai/gpt-oss-20b
+    tokenizer_name: openai/o200k_harmony
+    # Source: https://platform.openai.com/docs/models/gpt-oss-20b
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+
   - name: together/gpt-oss-120b
     model_name: openai/gpt-oss-120b
     tokenizer_name: openai/o200k_harmony
