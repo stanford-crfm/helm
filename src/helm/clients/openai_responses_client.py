@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from helm.clients.openai_client import OpenAIClientUtils
 from helm.common.cache import CacheConfig
+from helm.common.hierarchical_logger import hwarn
 from helm.common.media_object import TEXT_TYPE
 from helm.common.request import (
     Thinking,
@@ -60,7 +61,28 @@ class OpenAIResponseClient(CachingClient):
 
     def _make_raw_request(self, request: Request) -> dict[str, Any]:
         input: Union[str, List[Dict[str, Any]]]
-        if request.multimodal_prompt is not None:
+
+        if (
+            (request.prompt and request.messages)
+            or (request.prompt and request.multimodal_prompt)
+            or (request.messages and request.multimodal_prompt)
+        ):
+            raise ValueError(
+                f"More than one of `prompt`, `messages` and `multimodal_prompt` was set in request: {request}"
+            )
+
+        if request.messages is not None:
+            # Checks that all messages have a role and some content
+            for message in request.messages:
+                if not message.get("role") or not message.get("content"):
+                    raise ValueError("All messages must have a role and content")
+            # Checks that the last role is "user"
+            if request.messages[-1]["role"] != "user":
+                raise ValueError("Last message must have role 'user'")
+            if request.prompt != "":
+                hwarn("Since message is set, prompt will be ignored")
+            input = request.messages
+        elif request.multimodal_prompt is not None:
             content = []
             request.validate()
             for media_object in request.multimodal_prompt.media_objects:
@@ -101,6 +123,8 @@ class OpenAIResponseClient(CachingClient):
         # Plus other changes
         model_engine: str = request.model_engine
         if OpenAIClientUtils.is_reasoning_model(model_engine):
+            if "reasoning" not in raw_request:
+                raw_request["reasoning"] = {}
             raw_request["reasoning"]["summary"] = "detailed"
             # Avoid error:
             # "Error code: 400 - {'error': {'message': "Unsupported parameter: 'temperature' is
@@ -150,9 +174,9 @@ class OpenAIResponseClient(CachingClient):
                 ]  # one of "message" or "reasoning" from API observation, but can also include tool calls
 
                 if output_type == "reasoning":
-                    reasoning_output += "\n".join([raw_output["text"] for raw_output in output["summary"]])
+                    reasoning_output += "\n\n".join([raw_output["text"] for raw_output in output["summary"]])
                 elif output_type == "message":
-                    text_output += "\n".join([raw_output["text"] for raw_output in output["content"]])
+                    text_output += "\n\n".join([raw_output["text"] for raw_output in output["content"]])
                 # (Other output types are ignored)
 
             completion = truncate_and_tokenize_response_text(

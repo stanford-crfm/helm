@@ -33,7 +33,7 @@ class OpenAIClientUtils:
     @classmethod
     def is_reasoning_model(cls, model_engine: str) -> bool:
         # All OpenAI  reasoning models start "o[somenumber]", so we regexp for that to future proof things
-        return bool(re.match(r"^o\d+", model_engine))
+        return bool(re.match(r"^o\d+", model_engine)) or bool(re.match(r"^gpt-5", model_engine))
 
     # Error OpenAI throws when the image in the prompt violates their content policy
     INAPPROPRIATE_IMAGE_ERROR: str = "Your input image may contain content that is not allowed by our safety system"
