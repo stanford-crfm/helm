@@ -174,9 +174,9 @@ class OpenAIResponseClient(CachingClient):
                 ]  # one of "message" or "reasoning" from API observation, but can also include tool calls
 
                 if output_type == "reasoning":
-                    reasoning_output += "\n".join([raw_output["text"] for raw_output in output["summary"]])
+                    reasoning_output += "\n\n".join([raw_output["text"] for raw_output in output["summary"]])
                 elif output_type == "message":
-                    text_output += "\n".join([raw_output["text"] for raw_output in output["content"]])
+                    text_output += "\n\n".join([raw_output["text"] for raw_output in output["content"]])
                 # (Other output types are ignored)
 
             completion = truncate_and_tokenize_response_text(
