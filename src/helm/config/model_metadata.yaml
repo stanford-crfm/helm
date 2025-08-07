@@ -3286,7 +3286,7 @@ models:
     display_name: gpt-oss-20b
     description: gpt-oss-20b is an open-weight language model that was trained using a mix of reinforcement learning and other techniques informed by OpenAI's internal models. It uses a mixture-of-experts architecture and activates 3.6B parameters per token. ([blog](https://openai.com/index/introducing-gpt-oss/))
     creator_organization_name: OpenAI
-    access: limited
+    access: open
     release_date: 2025-08-05
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
@@ -3294,7 +3294,7 @@ models:
     display_name: gpt-oss-120b
     description: gpt-oss-120b is an open-weight language model that was trained using a mix of reinforcement learning and other techniques informed by OpenAI's internal models. It uses a mixture-of-experts architecture and activates 5.1B parameters per token. ([blog](https://openai.com/index/introducing-gpt-oss/))
     creator_organization_name: OpenAI
-    access: limited
+    access: open
     release_date: 2025-08-05
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
