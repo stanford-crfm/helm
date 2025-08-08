@@ -3,7 +3,11 @@
 Website: https://crfm.stanford.edu/helm/medhelm/
 """
 
-from typing import Union
+import importlib.resources as pkg_resources
+import os
+import yaml
+
+from typing import Optional, Union
 
 from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -13,6 +17,7 @@ from helm.benchmark.adaptation.common_adapter_specs import (
     get_multiple_choice_adapter_spec,
 )
 from helm.benchmark.annotation.annotator import AnnotatorSpec
+from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo
 from helm.benchmark.metrics.common_metric_specs import (
     get_basic_metric_specs,
     get_exact_match_metric_specs,
@@ -21,6 +26,7 @@ from helm.benchmark.metrics.common_metric_specs import (
     get_generic_metric_specs,
 )
 from helm.benchmark.metrics.metric import MetricSpec
+from helm.benchmark.metrics.llm_jury_metrics import Rubric
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.common.gpu_utils import get_torch_device_name
@@ -1301,4 +1307,68 @@ def get_shc_proxy_spec(data_path: str) -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
         groups=["shc_proxy_med"],
+    )
+
+
+@run_spec_function("note_summary")
+def get_note_summary_spec(config_path: Optional[str] = None) -> RunSpec:
+    if config_path is None:
+        package = "helm.benchmark.scenarios"
+        config_path = str(pkg_resources.files(package).joinpath("note_summary_scenario.yaml"))
+
+    assert os.path.exists(config_path), f"Config path not found: {config_path}."
+
+    with open(config_path, "r") as f:
+        config = yaml.safe_load(f)
+
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.note_summary_scenario.NoteSummaryScenario",
+        args={
+            "data_path": config["data_path"],
+        },
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="",
+        input_noun=None,
+        newline_after_input_noun=False,
+        output_noun=None,
+        max_tokens=500,
+        stop_sequences=[],
+        max_train_instances=0,
+    )
+
+    annotator_models = {
+        judge["name"]: AnnotatorModelInfo(
+            model_name=judge["model"],
+            model_deployment=judge["model_deployment"],
+        )
+        for judge in config["judges"]
+    }
+
+    annotator_specs = [
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.note_summary_annotator.NoteSummaryAnnotator",
+            args={"annotator_models": annotator_models},
+        )
+    ]
+
+    metric_specs = get_basic_metric_specs([]) + [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.llm_jury_metrics.LLMJuryMetric",
+            args={
+                "metric_name": "note_summary_accuracy",
+                "scenario_name": "note_summary",
+                "annotator_models": annotator_models,
+                "rubric": Rubric.from_config(config["rubric"]),
+            },
+        )
+    ]
+    return RunSpec(
+        name="note_summary",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
+        groups=["note_summary"],
     )
