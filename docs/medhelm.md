@@ -126,9 +126,23 @@ To reproduce the [MedHELM leaderboard](https://crfm.stanford.edu/helm/medhelm/la
 
 As such, **only users with the necessary access credentials or data permissions** will be able to reproduce the full leaderboard. However, **anyone can reproduce and evaluate the public subset** to benchmark their models.
 
-## Downloading Results
+## Downloading and Viewing Results
 
-To download the raw results from MedHELM, please refer to the [Downloading Raw Results](downloading_raw_results.md) guide for step-by-step instructions.
+Follow these steps to download the MedHELM results and view the leaderboard locally:
+
+1. Download the Raw Results
+
+    Start by downloading the evaluation results. See the [Downloading Raw Results](downloading_raw_results.md) guide for detailed, step-by-step instructions.
+
+2. Run the Local Leaderboard
+    
+    Once you’ve downloaded the results, you can view them locally by running the following command in your terminal:
+
+```sh
+helm-server --release v2.0.0
+```
+
+This will launch the local leaderboard as in the official leaderboard site.
 
 ## Contributing to MedHELM
 
