@@ -31,7 +31,7 @@ LOCAL_CHECKPOINT_7B = (
 )
 
 LOCAL_CHECKPOINT_3B_ROBOMIMIC = (
-    "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_robomimic_8_3_short"
+    "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_robomimic_3b_can_only_8_7/hf_checkpoints/step-1000"
 )
 LOCAL_CHECKPOINT_7B_ROBOMIMIC = (
     "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_7b_robomimic"
