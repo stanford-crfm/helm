@@ -334,6 +334,7 @@ medhelm = [
     "accelerate~=0.25",
     "crfm-helm[openai]",
     "crfm-helm[yandex]",
+    "crfm-helm[scenarios]",
 
     #MedHELM scenarios
     "bert_score~=0.3.13",
