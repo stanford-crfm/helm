@@ -33,6 +33,18 @@ LOCAL_CHECKPOINT_7B = (
 LOCAL_CHECKPOINT_3B_ROBOMIMIC = (
     "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_robomimic_3b_can_only_8_7/hf_checkpoints/step-500"
 )
+
+# TODO: pick the best checkpoint for each task
+LOCAL_CHECKPOINT_3B_ROBOMIMIC_LIFT = (
+    "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_robomimic_3b_lift_only_8_7/hf_checkpoints/step-500"
+)
+LOCAL_CHECKPOINT_3B_ROBOMIMIC_SQUARE = (
+    "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_robomimic_3b_square_only_8_7/hf_checkpoints/step-500"
+)
+LOCAL_CHECKPOINT_3B_ROBOMIMIC_TRANSPORT = (
+    "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_robomimic_3b_transport_only_8_7/hf_checkpoints/step-500"
+)
+
 LOCAL_CHECKPOINT_7B_ROBOMIMIC = (
     "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_7b_robomimic"
 )
@@ -56,6 +68,9 @@ _models: Dict[str, Optional[LoadedModelProcessor]] = {
     LOCAL_CHECKPOINT_3B: None,
     LOCAL_CHECKPOINT_7B: None,
     LOCAL_CHECKPOINT_3B_ROBOMIMIC: None,
+    LOCAL_CHECKPOINT_3B_ROBOMIMIC_LIFT: None,
+    LOCAL_CHECKPOINT_3B_ROBOMIMIC_SQUARE: None,
+    LOCAL_CHECKPOINT_3B_ROBOMIMIC_TRANSPORT: None,
     LOCAL_CHECKPOINT_7B_ROBOMIMIC: None,
     LOCAL_CHECKPOINT_3B_ROBOMIMIC_MIXED: None,
     LOCAL_CHECKPOINT_7B_ROBOMIMIC_MIXED: None,
@@ -80,6 +95,12 @@ class Qwen2VLMClient(CachingClient):
             return LOCAL_CHECKPOINT_7B
         elif helm_model_name == "qwen2.5-vl-3b-instruct-robo-reward-robomimic":
             return LOCAL_CHECKPOINT_3B_ROBOMIMIC
+        elif helm_model_name == "qwen2.5-vl-3b-instruct-robo-reward-robomimic-lift":
+            return LOCAL_CHECKPOINT_3B_ROBOMIMIC_LIFT
+        elif helm_model_name == "qwen2.5-vl-3b-instruct-robo-reward-robomimic-square":
+            return LOCAL_CHECKPOINT_3B_ROBOMIMIC_SQUARE
+        elif helm_model_name == "qwen2.5-vl-3b-instruct-robo-reward-robomimic-transport":
+            return LOCAL_CHECKPOINT_3B_ROBOMIMIC_TRANSPORT
         elif helm_model_name == "qwen2.5-vl-7b-instruct-robo-reward-robomimic":
             return LOCAL_CHECKPOINT_7B_ROBOMIMIC
         elif helm_model_name == "qwen2.5-vl-3b-instruct-robo-reward-robomimic-mixed":
