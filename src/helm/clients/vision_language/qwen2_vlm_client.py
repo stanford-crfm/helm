@@ -36,10 +36,10 @@ LOCAL_CHECKPOINT_3B_ROBOMIMIC = (
 
 # TODO: pick the best checkpoint for each task
 LOCAL_CHECKPOINT_3B_ROBOMIMIC_LIFT = (
-    "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_robomimic_3b_lift_only_8_7/hf_checkpoints/step-1100"
+    "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_robomimic_3b_lift_only_8_7/hf_checkpoints/step-1600"
 )
 LOCAL_CHECKPOINT_3B_ROBOMIMIC_SQUARE = (
-    "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_robomimic_3b_square_only_8_7/hf_checkpoints/step-500"
+    "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_robomimic_3b_square_only_8_7/hf_checkpoints/step-1600"
 )
 LOCAL_CHECKPOINT_3B_ROBOMIMIC_TRANSPORT = (
     "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_robomimic_3b_transport_only_8_7/hf_checkpoints/step-500"
