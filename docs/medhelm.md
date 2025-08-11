@@ -108,7 +108,30 @@ For evaluating models against private benchmarks, please contact the MedHELM tea
 
 When contributing or reproducing results, ensure that you are using the correct run entries file corresponding to the benchmark’s access level.
 
-## Reproducing the Leaderboard
+## Viewing and Reproducing Leaderboard Results
+
+You can interact with the MedHELM leaderboard in two main ways: by viewing the official, pre-computed results (in the official website or locally), or by reproducing the evaluations from scratch on your own machine.
+
+
+### Viewing the Official Leaderboard Locally
+
+Follow these steps to download the MedHELM results and view the leaderboard locally:
+
+1. Download the Raw Results
+
+    Start by downloading the evaluation results. See the [Downloading Raw Results](downloading_raw_results.md) guide for detailed, step-by-step instructions.
+
+2. Run the Local Leaderboard
+    
+    Once you’ve downloaded the results, you can view them locally by running the following command in your terminal:
+
+```sh
+helm-server --release v2.0.0
+```
+
+This will launch the local leaderboard as in the official leaderboard site.
+
+### Reproducing Leaderboard Results
 
 To reproduce the [MedHELM leaderboard](https://crfm.stanford.edu/helm/medhelm/latest/), refer to the detailed steps in the [Reproducing Leaderboards](reproducing_leaderboards.md) documentation.
 
@@ -125,10 +148,6 @@ To reproduce the [MedHELM leaderboard](https://crfm.stanford.edu/helm/medhelm/la
   These results are specific to certain organizations and require access to private data. They are defined in files following the format `run_entries_medhelm_private_{organization}.conf` under `src/helm/benchmark/presentation/`.
 
 As such, **only users with the necessary access credentials or data permissions** will be able to reproduce the full leaderboard. However, **anyone can reproduce and evaluate the public subset** to benchmark their models.
-
-## Downloading Results
-
-To download the raw results from MedHELM, please refer to the [Downloading Raw Results](downloading_raw_results.md) guide for step-by-step instructions.
 
 ## Contributing to MedHELM
 
