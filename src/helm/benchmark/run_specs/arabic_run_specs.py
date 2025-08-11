@@ -71,3 +71,23 @@ def get_aratrust_spec() -> RunSpec:
         metric_specs=get_exact_match_metric_specs(),
         groups=["aratrust"],
     )
+
+
+@run_spec_function("alrage")
+def get_alrage_spec() -> RunSpec:
+    """EXPERIMENTAL: This run spec here may have future reverse incompatible changes."""
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.alrage_scenario.ALRAGEScenario")
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Read the passaage, then answer the following question.",  # noqa: E501
+        input_noun="",
+        output_noun="Answer",
+    )
+
+    return RunSpec(
+        name="alrage",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["alrage"],
+    )
