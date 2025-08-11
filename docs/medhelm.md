@@ -131,7 +131,7 @@ helm-server --release v2.0.0
 
 This will launch the local leaderboard as in the official leaderboard site.
 
-### Reproducing Leaderboard Evaluations
+### Reproducing Leaderboard Results
 
 To reproduce the [MedHELM leaderboard](https://crfm.stanford.edu/helm/medhelm/latest/), refer to the detailed steps in the [Reproducing Leaderboards](reproducing_leaderboards.md) documentation.
 
