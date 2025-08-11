@@ -108,25 +108,12 @@ For evaluating models against private benchmarks, please contact the MedHELM tea
 
 When contributing or reproducing results, ensure that you are using the correct run entries file corresponding to the benchmark’s access level.
 
-## Reproducing the Leaderboard
+## Viewing and Reproducing Leaderboard Results
 
-To reproduce the [MedHELM leaderboard](https://crfm.stanford.edu/helm/medhelm/latest/), refer to the detailed steps in the [Reproducing Leaderboards](reproducing_leaderboards.md) documentation.
+You can interact with the MedHELM leaderboard in two main ways: by viewing the official, pre-computed results (in the official website or locally), or by reproducing the evaluations from scratch on your own machine.
 
-> **Note:** The ability to fully reproduce the leaderboard depends on your access to the underlying benchmarks.
-> See [Benchmark Access Levels](#benchmark-access-levels) for details on how access impacts which configuration files to use.
 
-- **Public benchmarks**:  
-  Everyone can reproduce the **public portion** of the leaderboard using benchmarks that are freely available (e.g., on HuggingFace). These entries are defined in [run_entries_medhelm_public.conf](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_public.conf).
-
-- **Gated-access benchmarks**:  
-  Reproducing results on these benchmarks (e.g., EHRSHOT) requires credentials or approval. These are listed in [run_entries_medhelm_gated.conf](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_gated.conf).
-
-- **Private benchmarks**:  
-  These results are specific to certain organizations and require access to private data. They are defined in files following the format `run_entries_medhelm_private_{organization}.conf` under `src/helm/benchmark/presentation/`.
-
-As such, **only users with the necessary access credentials or data permissions** will be able to reproduce the full leaderboard. However, **anyone can reproduce and evaluate the public subset** to benchmark their models.
-
-## Downloading and Viewing Results
+### Viewing the Official Leaderboard Locally
 
 Follow these steps to download the MedHELM results and view the leaderboard locally:
 
@@ -143,6 +130,24 @@ helm-server --release v2.0.0
 ```
 
 This will launch the local leaderboard as in the official leaderboard site.
+
+### Reproducing Leaderboard Evaluations
+
+To reproduce the [MedHELM leaderboard](https://crfm.stanford.edu/helm/medhelm/latest/), refer to the detailed steps in the [Reproducing Leaderboards](reproducing_leaderboards.md) documentation.
+
+> **Note:** The ability to fully reproduce the leaderboard depends on your access to the underlying benchmarks.
+> See [Benchmark Access Levels](#benchmark-access-levels) for details on how access impacts which configuration files to use.
+
+- **Public benchmarks**:  
+  Everyone can reproduce the **public portion** of the leaderboard using benchmarks that are freely available (e.g., on HuggingFace). These entries are defined in [run_entries_medhelm_public.conf](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_public.conf).
+
+- **Gated-access benchmarks**:  
+  Reproducing results on these benchmarks (e.g., EHRSHOT) requires credentials or approval. These are listed in [run_entries_medhelm_gated.conf](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_gated.conf).
+
+- **Private benchmarks**:  
+  These results are specific to certain organizations and require access to private data. They are defined in files following the format `run_entries_medhelm_private_{organization}.conf` under `src/helm/benchmark/presentation/`.
+
+As such, **only users with the necessary access credentials or data permissions** will be able to reproduce the full leaderboard. However, **anyone can reproduce and evaluate the public subset** to benchmark their models.
 
 ## Contributing to MedHELM
 
