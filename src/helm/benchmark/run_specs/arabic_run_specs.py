@@ -16,9 +16,9 @@ def get_arabic_mmlu_spec() -> RunSpec:
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة",  # noqa: E501
-        input_noun="السؤال",
-        output_noun="الإجابة",
+        instructions="The following are multiple choice questions. Answer the last question. Respond only with only a single letter corresponding to your choice.",  # noqa: E501
+        input_noun="Question",
+        output_noun="Answer",
     )
 
     return RunSpec(
@@ -39,9 +39,9 @@ def get_alghafa_spec(subset: str) -> RunSpec:
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="الأسئلة التالية هي أسئلة متعددة الإختيارات مع الجواب الصحيح",  # noqa: E501
-        input_noun="السؤال",
-        output_noun="الإجابة",
+        instructions="The following are multiple choice questions. Answer the last question. Respond only with only a single letter corresponding to your choice.",  # noqa: E501
+        input_noun="Question",
+        output_noun="Answer",
     )
 
     return RunSpec(
@@ -59,9 +59,9 @@ def get_aratrust_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.aratrust_scenario.AraTrustScenario")
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة: أ، ب أو ج.",  # noqa: E501
-        input_noun="السؤال",
-        output_noun="الإجابة",
+        instructions="The following are multiple choice questions. Answer the last question. Respond only with only a single letter corresponding to your choice.",  # noqa: E501
+        input_noun="Question",
+        output_noun="Answer",
     )
 
     return RunSpec(
