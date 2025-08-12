@@ -276,9 +276,11 @@ class VertexAIChatClient(VertexAIClient):
                     if not candidate.content:
                         raise VertexAIContentBlockedError(f"No content in candidate: {candidate}")
                     if not candidate.content.parts:
-                        # if candidate.finish_reason == 2:  # MAX_TOKENS
-                        #     predictions.append({"text": ""})
-                        # else:
+                        if candidate.finish_reason == 2:  # MAX_TOKENS
+                            # This means that there is no text output because the maximum number of tokens were
+                            # reached during thinking.
+                            predictions.append({"text": ""})
+                        else:
                             raise VertexAIContentBlockedError(f"No content parts in candidate: {candidate}")
                     else:
                         predictions.append({"text": candidate.content.text})
