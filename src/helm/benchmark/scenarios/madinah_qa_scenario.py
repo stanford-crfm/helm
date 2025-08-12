@@ -57,7 +57,7 @@ class MadinahQAScenario(Scenario):
                             )
                         )
                     instance = Instance(
-                        id=f"id{row_index}",
+                        id=f"{subset}-id{row_index}",
                         input=input,
                         references=references,
                         split=self.HF_SPLIT_TO_HELM_SPLIT[split_name],
