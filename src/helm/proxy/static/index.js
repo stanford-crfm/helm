@@ -282,7 +282,13 @@ $(function () {
     requestResult.completions.forEach((completion) => {
       const $contents = $("<span>", {
         title: `logprob: ${completion.logprob}`,
-      }).append(renderTokens(completion.tokens));
+      });
+      if (completion.thinking) {
+        const $thinking = $("<span>", { class: "thinking" }).append(completion.thinking.text);
+        $contents.append($thinking);
+      }
+      const $resultText = completion.tokens.length > 0 ?renderTokens(completion.tokens) : $("<div>").append(completion.text);
+      $contents.append($resultText);
       const $metadata = $("<span>", { class: "metadata" });
       $metadata.append(
         $("<span>", { title: "Log probability" }).append(
