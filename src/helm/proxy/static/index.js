@@ -289,8 +289,6 @@ $(function () {
         $contents.append($thinking);
       }
       $contents.append($resultText);
-      console.log($resultText);
-      console.log($contents);
       const $metadata = $("<span>", { class: "metadata" });
       $metadata.append(
         $("<span>", { title: "Log probability" }).append(
