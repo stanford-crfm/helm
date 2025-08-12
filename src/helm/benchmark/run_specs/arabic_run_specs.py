@@ -91,3 +91,26 @@ def get_alrage_spec() -> RunSpec:
         metric_specs=get_exact_match_metric_specs(),
         groups=["alrage"],
     )
+
+
+@run_spec_function("madinah_qa")
+def get_madinah_qa_spec() -> RunSpec:
+    """EXPERIMENTAL: This run spec here may have future reverse incompatible changes."""
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.madinah_qa_scenario.MadinahQAScenario")
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة الرد بحرف واحد فقط",  # noqa: E501
+        # instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة",  # noqa: E501
+        input_noun="السؤال",
+        output_noun="الإجابة",
+        max_tokens=1000,
+    )
+
+    return RunSpec(
+        name="madinah_qa",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["madinah_qa"],
+    )

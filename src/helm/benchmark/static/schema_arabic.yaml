@@ -142,6 +142,7 @@ run_groups:
       - exams_multilingual
       - aratrust
       - alrage
+      - madinah_qa
 
   - name: mmmlu
     display_name: Multilingual MMLU (Arabic)
@@ -243,4 +244,21 @@ run_groups:
       what: "?"
       who: "?"
       when: "?"
+      language: Arabic
+
+  - name: madinah_qa
+    display_name: MadinahQA
+    description: Arabic language competency benchmark
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: "question answering"
+      what: "academic questions about Arabic language"
+      who: "academic exams writers and takers"
+      when: "before 2024"
       language: Arabic
