@@ -16,9 +16,11 @@ def get_arabic_mmlu_spec() -> RunSpec:
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="The following are multiple choice questions. Answer the last question. Respond only with only a single letter corresponding to your choice.",  # noqa: E501
-        input_noun="Question",
-        output_noun="Answer",
+        instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة الرد بحرف واحد فقط",  # noqa: E501
+        # instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة",  # noqa: E501
+        input_noun="السؤال",
+        output_noun="الإجابة",
+        max_tokens=1000,
     )
 
     return RunSpec(
@@ -39,9 +41,11 @@ def get_alghafa_spec(subset: str) -> RunSpec:
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="The following are multiple choice questions. Answer the last question. Respond only with only a single letter corresponding to your choice.",  # noqa: E501
-        input_noun="Question",
-        output_noun="Answer",
+        instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة الرد بحرف واحد فقط",  # noqa: E501
+        # instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة",  # noqa: E501
+        input_noun="السؤال",
+        output_noun="الإجابة",
+        max_tokens=1000,
     )
 
     return RunSpec(
@@ -59,9 +63,11 @@ def get_aratrust_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.aratrust_scenario.AraTrustScenario")
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="The following are multiple choice questions. Answer the last question. Respond only with only a single letter corresponding to your choice.",  # noqa: E501
-        input_noun="Question",
-        output_noun="Answer",
+        instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة الرد بحرف واحد فقط",  # noqa: E501
+        # instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة",  # noqa: E501
+        input_noun="السؤال",
+        output_noun="الإجابة",
+        max_tokens=1000,
     )
 
     return RunSpec(
@@ -113,4 +119,53 @@ def get_madinah_qa_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
         groups=["madinah_qa"],
+    )
+
+
+@run_spec_function("arabic_mmmlu")
+def get_arabic_mmmlu_spec(subject: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.mmmlu_scenario.MMMLUScenario", args={"locale": "AR_XY", "subject": subject}
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة الرد بحرف واحد فقط",  # noqa: E501
+        # instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة",  # noqa: E501
+        input_noun="السؤال",
+        output_noun="الإجابة",
+        max_tokens=1000,
+    )
+
+    return RunSpec(
+        name=f"arabic_mmmlu:subject={subject}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["arabic_mmmlu", f"arabic_mmmlu_{subject}"],
+    )
+
+
+@run_spec_function("arabic_exams")
+def get_arabic_exams_spec(subject: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.exams_multilingual_scenario.EXAMSMultilingualScenario",
+        args={"language": "Arabic", "subject": subject},
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة الرد بحرف واحد فقط",  # noqa: E501
+        # instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة",  # noqa: E501
+        input_noun="السؤال",
+        output_noun="الإجابة",
+        max_tokens=1000,
+    )
+
+    return RunSpec(
+        name=f"arabic_exams:subject={subject}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["arabic_exams", f"arabic_exams_{subject}"],
     )
