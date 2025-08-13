@@ -376,9 +376,6 @@ class Summarizer:
         self.verbose: bool = verbose
         self.num_threads: int = num_threads
         self.allow_unknown_models: bool = allow_unknown_models
-
-        ensure_directory_exists(self.run_release_path)
-
         self.schema = read_schema(schema_path)
 
     def read_run(self, run_path: str) -> Run:
@@ -426,6 +423,8 @@ class Summarizer:
 
     def read_runs_for_suite(self, suite, run_suite_path):
         """Load the runs in the run suite path."""
+        if not os.path.exists(run_suite_path):
+            raise Exception(f"Suite {suite} does not exist at {run_suite_path}")
         # run_suite_path can contain subdirectories that are not runs (e.g. eval_cache, groups)
         # so filter them out.
         run_dir_names = sorted(
@@ -1214,6 +1213,8 @@ class Summarizer:
         self.read_runs()
         self.group_runs()
         self.check_metrics_defined()
+
+        ensure_directory_exists(self.run_release_path)
 
         self.write_run_display_json(skip_completed)
 
