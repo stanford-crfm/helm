@@ -79,9 +79,9 @@ def get_alrage_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.alrage_scenario.ALRAGEScenario")
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="Read the passaage, then answer the following question.",  # noqa: E501
-        input_noun="",
-        output_noun="Answer",
+        instructions="بناءً على السياقات المقترحة التالية، اجب عن السؤال التالي",  # noqa: E501
+        input_noun="السؤال",
+        output_noun="السياقات المقترحة",
     )
 
     return RunSpec(
