@@ -136,15 +136,15 @@ run_groups:
     description: Arabic Scenarios
     category: All scenarios
     subgroups:
-      - mmmlu
+      - arabic_mmmlu
       - arabic_mmlu
       - alghafa
-      - exams_multilingual
+      - arabic_exams
       - aratrust
       - alrage
       - madinah_qa
 
-  - name: mmmlu
+  - name: arabic_mmmlu
     display_name: Multilingual MMLU (Arabic)
     description: Multilingual MMLU (Arabic)
     metric_groups:
@@ -195,7 +195,7 @@ run_groups:
       when: "before 2023"
       language: Arabic
 
-  - name: exams_multilingual
+  - name: arabic_exams
     display_name: EXAMS (Arabic)
     description: EXAMS (Arabic)
     metric_groups:
