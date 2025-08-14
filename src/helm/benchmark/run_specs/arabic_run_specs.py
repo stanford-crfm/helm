@@ -59,7 +59,7 @@ def get_aratrust_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.aratrust_scenario.AraTrustScenario")
 
     adapter_spec = get_generation_adapter_spec(
-        instructions= "السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة: أ، ب أو ج",  # noqa: E501
+        instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة: أ، ب أو ج",  # noqa: E501
         input_noun="السؤال",
         output_noun="الإجابة",
     )
