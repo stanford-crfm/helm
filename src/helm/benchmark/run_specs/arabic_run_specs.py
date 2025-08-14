@@ -19,6 +19,7 @@ def get_arabic_mmlu_spec() -> RunSpec:
         instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة",  # noqa: E501
         input_noun="السؤال",
         output_noun="الإجابة",
+        max_tokens=100,
     )
 
     return RunSpec(
@@ -42,6 +43,7 @@ def get_alghafa_spec(subset: str) -> RunSpec:
         instructions="الأسئلة التالية هي أسئلة متعددة الإختيارات مع الجواب الصحيح",  # noqa: E501
         input_noun="السؤال",
         output_noun="الإجابة",
+        max_tokens=100,
     )
 
     return RunSpec(
@@ -62,6 +64,7 @@ def get_aratrust_spec() -> RunSpec:
         instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة: أ، ب أو ج",  # noqa: E501
         input_noun="السؤال",
         output_noun="الإجابة",
+        max_tokens=100,
     )
 
     return RunSpec(
@@ -82,6 +85,7 @@ def get_alrage_spec() -> RunSpec:
         instructions="بناءً على السياقات المقترحة التالية، اجب عن السؤال التالي",  # noqa: E501
         input_noun="السؤال",
         output_noun="الإجابة",
+        max_tokens=100,
     )
 
     return RunSpec(
@@ -103,7 +107,7 @@ def get_madinah_qa_spec() -> RunSpec:
         instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة",  # noqa: E501
         input_noun="السؤال",
         output_noun="الإجابة",
-        max_tokens=1000,
+        max_tokens=100,
     )
 
     return RunSpec(
@@ -126,7 +130,7 @@ def get_arabic_mmmlu_spec(subject: str) -> RunSpec:
         instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة",  # noqa: E501
         input_noun="السؤال",
         output_noun="الإجابة",
-        max_tokens=1000,
+        max_tokens=100,
     )
 
     return RunSpec(
@@ -150,7 +154,7 @@ def get_arabic_exams_spec(subject: str) -> RunSpec:
         instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة",  # noqa: E501
         input_noun="السؤال",
         output_noun="الإجابة",
-        max_tokens=1000,
+        max_tokens=100,
     )
 
     return RunSpec(
