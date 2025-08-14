@@ -59,7 +59,7 @@ def get_aratrust_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.aratrust_scenario.AraTrustScenario")
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة: أ، ب أو ج.",  # noqa: E501
+        instructions= "السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة: أ، ب أو ج",  # noqa: E501
         input_noun="السؤال",
         output_noun="الإجابة",
     )
@@ -81,7 +81,7 @@ def get_alrage_spec() -> RunSpec:
     adapter_spec = get_generation_adapter_spec(
         instructions="بناءً على السياقات المقترحة التالية، اجب عن السؤال التالي",  # noqa: E501
         input_noun="السؤال",
-        output_noun="السياقات المقترحة",
+        output_noun="الإجابة",
     )
 
     return RunSpec(
@@ -100,8 +100,7 @@ def get_madinah_qa_spec() -> RunSpec:
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة الرد بحرف واحد فقط",  # noqa: E501
-        # instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة",  # noqa: E501
+        instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة",  # noqa: E501
         input_noun="السؤال",
         output_noun="الإجابة",
         max_tokens=1000,
