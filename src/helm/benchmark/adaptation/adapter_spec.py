@@ -63,6 +63,11 @@ class AdapterSpec:
     reference_prefix: str = "A. "
     """The string that is included before each reference (for multiple-choice questions)."""
 
+    # Set hash=False to make `AdapterSpec` hashable
+    reference_prefix_characters: Optional[List[str]] = field(default=None, hash=False)
+    """The characters that are used to identify choices for multiple-choice questions e.g. ["A", "B", "C", "D"].
+    If unset, defaults to the sequence of ascending characters starting from the first character of reference_prefix."""
+
     reference_suffix: str = "\n"
     """The string that is included after each reference (for multiple-choice questions)."""
 
