@@ -55,6 +55,8 @@ helm-run \
 ### 3) Build and open the local leaderboard
 
 ```bash
+curl -L -o schema_medhelm.yaml \
+  https://raw.githubusercontent.com/stanford-crfm/helm/main/src/helm/benchmark/static/schema_medhelm.yaml
 helm-summarize --suite my-medhelm-suite --schema schema_medhelm.yaml
 helm-server --suite my-medhelm-suite
 ```
@@ -158,8 +160,10 @@ The example below evaluates **Qwen2.5‑7B‑Instruct** on the **MedCalc‑Bench
     --suite my-medhelm-suite \
     --max-eval-instances 10
    ```
-2. **Create the leaderboard:** The following command converts the results from step 1 into an interactive leaderboard.
+2. **Create the leaderboard:** The following commands convert the results from step 1 into an interactive leaderboard.
    ```bash
+   curl -L -o schema_medhelm.yaml \
+    https://raw.githubusercontent.com/stanford-crfm/helm/main/src/helm/benchmark/static/schema_medhelm.yaml
    helm-summarize --suite my-medhelm-suite --schema schema_medhelm.yaml
    ```
 3. **Run the leaderboard locally:** This command runs the leaderboard on a local server. The exact address and port will show on the command output.
