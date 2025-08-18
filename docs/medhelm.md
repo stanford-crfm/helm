@@ -1,6 +1,6 @@
 # MedHELM: Holistic Evaluation of Large Language Models for Medical Applications
 
-> **Who it’s for:** Data scientists at health systems benchmarking LLMs for clinical use cases.
+> **Who it’s for:** Data scientists at health systems benchmarking LLMs for medical use cases.
 >
 > **What you’ll do here:** Install MedHELM, run a small evaluation locally, understand access levels, view leaderboards, and learn how to contribute new scenarios/models.
 >
