@@ -98,10 +98,18 @@ def get_clear_spec(condition: str, data_path: str) -> RunSpec:
 
 @run_spec_function("mtsamples_replicate")
 def get_mtsamples_spec(config_path: Optional[str] = None) -> RunSpec:
+    package = "helm.benchmark.scenarios"
+    default_config_path = str(pkg_resources.files(package).joinpath("mtsamples_replicate_scenario.yaml"))
+
     if config_path is None:
-        package = "helm.benchmark.scenarios"
-        config_path = str(pkg_resources.files(package).joinpath("mtsamples_replicate_scenario.yaml"))
-    assert os.path.exists(config_path), f"MTSamplesReplicateScenario config file not found: {config_path}."
+        # Use the default config bundled with the package
+        config_path = default_config_path
+
+    assert os.path.exists(config_path), (
+        f"MTSamplesReplicateScenario config file not found: {config_path}. "
+        f"If you are providing a custom config, make sure it follows the format specified in "
+        f"the default file: {default_config_path}"
+    )
 
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
@@ -410,10 +418,18 @@ def get_medbullets_freetext_run_spec() -> RunSpec:
 
 @run_spec_function("medalign")
 def get_medalign_spec(config_path: Optional[str] = None, max_length: int = 100000) -> RunSpec:
+    package = "helm.benchmark.scenarios"
+    default_config_path = str(pkg_resources.files(package).joinpath("medalign_scenario.yaml"))
+
     if config_path is None:
-        package = "helm.benchmark.scenarios"
-        config_path = str(pkg_resources.files(package).joinpath("medalign_scenario.yaml"))
-    assert os.path.exists(config_path), f"MedAlignScenario config file not found: {config_path}."
+        # Use the default config bundled with the package
+        config_path = default_config_path
+
+    assert os.path.exists(config_path), (
+        f"MedAlignScenario config file not found: {config_path}. "
+        f"If you are providing a custom config, make sure it follows the format specified in "
+        f"the default file: {default_config_path}"
+    )
 
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
@@ -529,10 +545,18 @@ def get_shc_sei_spec(data_path: str) -> RunSpec:
 
 @run_spec_function("dischargeme")
 def get_dischargeme_spec(config_path: Optional[str] = None) -> RunSpec:
+    package = "helm.benchmark.scenarios"
+    default_config_path = str(pkg_resources.files(package).joinpath("dischargeme_scenario.yaml"))
+
     if config_path is None:
-        package = "helm.benchmark.scenarios"
-        config_path = str(pkg_resources.files(package).joinpath("dischargeme_scenario.yaml"))
-    assert os.path.exists(config_path), f"DischargeMeScenario config file not found: {config_path}."
+        # Use the default config bundled with the package
+        config_path = default_config_path
+
+    assert os.path.exists(config_path), (
+        f"DischargeMeScenario config file not found: {config_path}. "
+        f"If you are providing a custom config, make sure it follows the format specified in "
+        f"the default file: {default_config_path}"
+    )
 
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
@@ -609,10 +633,18 @@ def get_aci_bench_run_spec(config_path: Optional[str] = None) -> RunSpec:
     This configuration evaluates the model's ability to summarize
     doctor-patient dialogues into structured clinical notes.
     """
+    package = "helm.benchmark.scenarios"
+    default_config_path = str(pkg_resources.files(package).joinpath("aci_bench_scenario.yaml"))
+
     if config_path is None:
-        package = "helm.benchmark.scenarios"
-        config_path = str(pkg_resources.files(package).joinpath("aci_bench_scenario.yaml"))
-    assert os.path.exists(config_path), f"ACIBenchScenario config file not found: {config_path}."
+        # Use the default config bundled with the package
+        config_path = default_config_path
+
+    assert os.path.exists(config_path), (
+        f"ACIBenchScenario config file not found: {config_path}. "
+        f"If you are providing a custom config, make sure it follows the format specified in "
+        f"the default file: {default_config_path}"
+    )
 
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
@@ -688,10 +720,18 @@ def get_aci_bench_run_spec(config_path: Optional[str] = None) -> RunSpec:
 
 @run_spec_function("mtsamples_procedures")
 def get_mtsamples_procedures_spec(config_path: Optional[str] = None) -> RunSpec:
+    package = "helm.benchmark.scenarios"
+    default_config_path = str(pkg_resources.files(package).joinpath("mtsamples_procedures_scenario.yaml"))
+
     if config_path is None:
-        package = "helm.benchmark.scenarios"
-        config_path = str(pkg_resources.files(package).joinpath("mtsamples_procedures_scenario.yaml"))
-    assert os.path.exists(config_path), f"MTSamplesProceduresScenario config file not found: {config_path}."
+        # Use the default config bundled with the package
+        config_path = default_config_path
+
+    assert os.path.exists(config_path), (
+        f"MTSamplesProceduresScenario config file not found: {config_path}. "
+        f"If you are providing a custom config, make sure it follows the format specified in "
+        f"the default file: {default_config_path}"
+    )
 
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
@@ -757,10 +797,18 @@ def get_mtsamples_procedures_spec(config_path: Optional[str] = None) -> RunSpec:
 
 @run_spec_function("mimic_rrs")
 def get_mimic_rrs_spec(config_path: Optional[str] = None) -> RunSpec:
+    package = "helm.benchmark.scenarios"
+    default_config_path = str(pkg_resources.files(package).joinpath("mimic_rrs_scenario.yaml"))
+
     if config_path is None:
-        package = "helm.benchmark.scenarios"
-        config_path = str(pkg_resources.files(package).joinpath("mimic_rrs_scenario.yaml"))
-    assert os.path.exists(config_path), f"MIMICRRSScenario config file not found: {config_path}."
+        # Use the default config bundled with the package
+        config_path = default_config_path
+
+    assert os.path.exists(config_path), (
+        f"MIMICRRSScenario config file not found: {config_path}. "
+        f"If you are providing a custom config, make sure it follows the format specified in "
+        f"the default file: {default_config_path}"
+    )
 
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
@@ -830,10 +878,18 @@ def get_mimic_rrs_spec(config_path: Optional[str] = None) -> RunSpec:
 
 @run_spec_function("mimic_bhc")
 def get_mimic_bhc_spec(config_path: Optional[str] = None) -> RunSpec:
+    package = "helm.benchmark.scenarios"
+    default_config_path = str(pkg_resources.files(package).joinpath("mimic_bhc_scenario.yaml"))
+
     if config_path is None:
-        package = "helm.benchmark.scenarios"
-        config_path = str(pkg_resources.files(package).joinpath("mimic_bhc_scenario.yaml"))
-    assert os.path.exists(config_path), f"MIMICBHCScenario config file not found: {config_path}."
+        # Use the default config bundled with the package
+        config_path = default_config_path
+
+    assert os.path.exists(config_path), (
+        f"MIMICBHCScenario config file not found: {config_path}. "
+        f"If you are providing a custom config, make sure it follows the format specified in "
+        f"the default file: {default_config_path}"
+    )
 
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
@@ -905,10 +961,18 @@ def get_chw_care_plan_run_spec(config_path: Optional[str] = None) -> RunSpec:
     This configuration evaluates the model's ability to summarize
     doctor-patient dialogues into structured clinical notes.
     """
+    package = "helm.benchmark.scenarios"
+    default_config_path = str(pkg_resources.files(package).joinpath("chw_care_plan_scenario.yaml"))
+
     if config_path is None:
-        package = "helm.benchmark.scenarios"
-        config_path = str(pkg_resources.files(package).joinpath("chw_care_plan_scenario.yaml"))
-    assert os.path.exists(config_path), f"CHWCarePlanScenario config file not found: {config_path}."
+        # Use the default config bundled with the package
+        config_path = default_config_path
+
+    assert os.path.exists(config_path), (
+        f"CHWCarePlanScenario config file not found: {config_path}. "
+        f"If you are providing a custom config, make sure it follows the format specified in "
+        f"the default file: {default_config_path}"
+    )
 
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
@@ -976,10 +1040,18 @@ def get_chw_care_plan_run_spec(config_path: Optional[str] = None) -> RunSpec:
 
 @run_spec_function("medication_qa")
 def get_medication_qa_spec(config_path: Optional[str] = None) -> RunSpec:
+    package = "helm.benchmark.scenarios"
+    default_config_path = str(pkg_resources.files(package).joinpath("medication_qa_scenario.yaml"))
+
     if config_path is None:
-        package = "helm.benchmark.scenarios"
-        config_path = str(pkg_resources.files(package).joinpath("medication_qa_scenario.yaml"))
-    assert os.path.exists(config_path), f"MedicationQAScenario config file not found: {config_path}."
+        # Use the default config bundled with the package
+        config_path = default_config_path
+
+    assert os.path.exists(config_path), (
+        f"MedicationQAScenario config file not found: {config_path}. "
+        f"If you are providing a custom config, make sure it follows the format specified in "
+        f"the default file: {default_config_path}"
+    )
 
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
@@ -1039,10 +1111,18 @@ def get_medication_qa_spec(config_path: Optional[str] = None) -> RunSpec:
 
 @run_spec_function("starr_patient_instructions")
 def get_starr_patient_instructions_run_spec(config_path: Optional[str] = None) -> RunSpec:
+    package = "helm.benchmark.scenarios"
+    default_config_path = str(pkg_resources.files(package).joinpath("starr_patient_instructions_scenario.yaml"))
+
     if config_path is None:
-        package = "helm.benchmark.scenarios"
-        config_path = str(pkg_resources.files(package).joinpath("starr_patient_instructions_scenario.yaml"))
-    assert os.path.exists(config_path), f"StarrPatientInstructionsScenario config file not found: {config_path}."
+        # Use the default config bundled with the package
+        config_path = default_config_path
+
+    assert os.path.exists(config_path), (
+        f"StarrPatientInstructionsScenario config file not found: {config_path}. "
+        f"If you are providing a custom config, make sure it follows the format specified in "
+        f"the default file: {default_config_path}"
+    )
 
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
@@ -1115,10 +1195,18 @@ def get_starr_patient_instructions_run_spec(config_path: Optional[str] = None) -
 
 @run_spec_function("med_dialog")
 def get_med_dialog_spec(subset: str, config_path: Optional[str] = None) -> RunSpec:
+    package = "helm.benchmark.scenarios"
+    default_config_path = str(pkg_resources.files(package).joinpath("med_dialog_scenario.yaml"))
+
     if config_path is None:
-        package = "helm.benchmark.scenarios"
-        config_path = str(pkg_resources.files(package).joinpath("med_dialog_scenario.yaml"))
-    assert os.path.exists(config_path), f"MedDialogScenario config file not found: {config_path}."
+        # Use the default config bundled with the package
+        config_path = default_config_path
+
+    assert os.path.exists(config_path), (
+        f"MedDialogScenario config file not found: {config_path}. "
+        f"If you are providing a custom config, make sure it follows the format specified in "
+        f"the default file: {default_config_path}"
+    )
 
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
@@ -1205,10 +1293,18 @@ def get_shc_conf_spec(data_path: str) -> RunSpec:
 
 @run_spec_function("medi_qa")
 def get_medi_qa_spec(config_path: Optional[str] = None) -> RunSpec:
+    package = "helm.benchmark.scenarios"
+    default_config_path = str(pkg_resources.files(package).joinpath("medi_qa_scenario.yaml"))
+
     if config_path is None:
-        package = "helm.benchmark.scenarios"
-        config_path = str(pkg_resources.files(package).joinpath("medi_qa_scenario.yaml"))
-    assert os.path.exists(config_path), f"MediQA config file not found: {config_path}."
+        # Use the default config bundled with the package
+        config_path = default_config_path
+
+    assert os.path.exists(config_path), (
+        f"MediQAScenario config file not found: {config_path}. "
+        f"If you are providing a custom config, make sure it follows the format specified in "
+        f"the default file: {default_config_path}"
+    )
 
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
@@ -1275,10 +1371,18 @@ def get_mental_health_spec(config_path: Optional[str] = None) -> RunSpec:
     This scenario evaluates a model's ability to generate appropriate counseling responses
     in mental health conversations.
     """
+    package = "helm.benchmark.scenarios"
+    default_config_path = str(pkg_resources.files(package).joinpath("mental_health_scenario.yaml"))
+
     if config_path is None:
-        package = "helm.benchmark.scenarios"
-        config_path = str(pkg_resources.files(package).joinpath("mental_health_scenario.yaml"))
-    assert os.path.exists(config_path), f"MentalHealthScenario config file not found: {config_path}."
+        # Use the default config bundled with the package
+        config_path = default_config_path
+
+    assert os.path.exists(config_path), (
+        f"MentalHealthScenario config file not found: {config_path}. "
+        f"If you are providing a custom config, make sure it follows the format specified in "
+        f"the default file: {default_config_path}"
+    )
 
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
