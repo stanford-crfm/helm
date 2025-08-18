@@ -25,10 +25,15 @@ conda create -n crfm-helm python=3.10 pip
 conda activate crfm-helm
 ```
 
-Run the following commands to install HELM and the necessary MedHELM extensions:
+Run the following command to install HELM:
+```
+pip install crfm-helm
+```
+
+Run the following commands to install the necessary MedHELM extensions:
 
 ```
-# Install HELM + MedHELM extras
+# Install MedHELM extras
 pip install "crfm-helm[summarization]" && pip install "crfm-helm[medhelm]"
 ```
 
@@ -116,10 +121,23 @@ MedHELM evaluates models across a clinician‑validated taxonomy: **5 categories
 
 ## Installation
 
-**Prerequisites:** Python 3.10, ability to create a virtual environment (conda or venv). If using private/gated datasets, ensure your credentials (e.g., PhysioNet/Redivis) are approved by your org.
+**Prerequisites:** Python 3.10, and the ability to create a virtual environment via [conda](https://www.anaconda.com/docs/getting-started/getting-started).
 
-1. Follow the [installation instructions](installation.md) to install the base HELM framework. Do not install the multimodal support listed there.
 
+1.  Create a virtual environment (Python 3.10 recommended)
+
+    Run the following commands to create and activate a new python virtual environment:
+
+    ```bash
+    # Create and activate a clean environment
+    conda create -n crfm-helm python=3.10 pip
+    conda activate crfm-helm
+    ```
+
+2. Install HELM in your virtual environment:
+    ```bash
+    pip install crfm-helm
+    ```
 
 2. Install the MedHELM-specific dependencies on the same python virtual environment from step 1 by running the following command:
     ```bash
@@ -180,12 +198,12 @@ You can interact with MedHELM results by **viewing** pre‑computed results loca
 
 ### View the official leaderboard locally
 
-> **Prerequisite:** Complete Step 1 of the installation process in the [Installation](#installation) section.
+> **Prerequisite:** Complete Steps 1 and 2 of the installation process from the [Installation](#installation) section.
 
 
 1. **Download raw results** 
    
-   Follow the instructions under [Downloading Raw Results](downloading_raw_results.md) up until the *Download a whole project* section to download the MedHELM leaderboard.
+   Follow the instructions under [Downloading Raw Results](downloading_raw_results.md) up until the *Download a whole project* section to download the MedHELM leaderboard. Make sure to specify the GCS path corresponding to **MedHELM** when downloading the results.
 2. **Launch the local leaderboard:**
    
    Run the following command to launch the MedHELM leaderboard locally. Use the numbered `release` version you want to display. Check out all release versions on the upper right corner of the official [leaderboard website](https://crfm.stanford.edu/helm/medhelm/latest).
@@ -197,7 +215,7 @@ You can interact with MedHELM results by **viewing** pre‑computed results loca
 
 ### Reproduce leaderboard results
 
-> **Prerequisite:** Complete the whole installation process in the [Installation](#installation) section.
+> **Prerequisite:** Complete the whole installation process from the [Installation](#installation) section.
 
 * **Public benchmarks:** Anyone can reproduce the **public subset** using entries in `run_entries_medhelm_public.conf`.
 * **Gated benchmarks:** Require credentials/approval (e.g., EHRSHOT); entries live in `run_entries_medhelm_gated.conf`.
