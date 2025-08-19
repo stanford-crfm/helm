@@ -41,6 +41,8 @@ metrics:
     lower_is_better: false
 
 ############################################################
+perturbations: []
+############################################################
 metric_groups:
   - name: accuracy
     display_name: Accuracy
