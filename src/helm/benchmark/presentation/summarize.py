@@ -595,9 +595,7 @@ class Summarizer:
         # if not self.schema.run_groups:
         if not self.schema.metrics:
             print("[debug:yifanmai] doing")
-            self.schema = dataclasses.replace(
-                self.schema, metrics=self.get_metric_metadata()
-            )
+            self.schema = dataclasses.replace(self.schema, metrics=self.get_metric_metadata())
         else:
             print("[debug:yifanmai] not doing")
         if not any([len(run_group.subgroups) == 0 for run_group in self.schema.run_groups]):

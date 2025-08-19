@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
-from dataclasses import Field, dataclass, replace
+from dataclasses import dataclass, replace
 from collections import defaultdict
 from typing import List, Dict, Tuple, Optional, Iterable
 
+from helm.benchmark.presentation.schema import Field
 from helm.common.object_spec import ObjectSpec, create_object
 from helm.common.general import singleton, parallel_map
 from helm.benchmark.augmentations.perturbation_description import (

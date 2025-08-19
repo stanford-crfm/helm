@@ -617,7 +617,7 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]) 
     return stats
 
 
-def _get_calibration_metrics_metadata() -> List[Stat]:
+def _get_calibration_metrics_metadata() -> List[Field]:
     return [
         Field(
             name="ece_10_bin",
