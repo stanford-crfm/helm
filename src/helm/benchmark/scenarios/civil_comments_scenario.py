@@ -3,6 +3,7 @@ from typing import Dict, List, Set
 
 import pandas as pd
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
@@ -14,6 +15,7 @@ from helm.benchmark.scenarios.scenario import (
     Reference,
     Scenario,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -126,3 +128,14 @@ class CivilCommentsScenario(Scenario):
             )
             instances.append(instance)
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="civil_comments",
+            display_name="CivilComments",
+            description="The CivilComments benchmark for toxicity detection [(Borkan et al., "
+            "2019)](https://arxiv.org/pdf/1903.04561.pdf).",
+            taxonomy=TaxonomyInfo(task="toxicity classification", what="?", when="?", who="?", language="English"),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )

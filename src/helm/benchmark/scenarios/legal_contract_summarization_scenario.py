@@ -4,6 +4,7 @@ import json
 import re
 
 from typing import List
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     Input,
@@ -14,6 +15,7 @@ from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     CORRECT_TAG,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -127,3 +129,21 @@ class LegalContractSummarizationScenario(Scenario):
                 instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="legal_contract_summarization",
+            display_name="Legal Contract Summarization",
+            short_display_name=None,
+            description="Plain English Summarization of Contracts [(Manor et al., "
+            "2019)](https://aclanthology.org/W19-2201.pdf).",
+            taxonomy=TaxonomyInfo(
+                task="summarization",
+                what="legal contracts (e.g. terms of service, license agreements)",
+                when="before 2019",
+                who="lawyers",
+                language="English",
+            ),
+            main_metric="rouge_l",
+            main_split="test",
+        )
