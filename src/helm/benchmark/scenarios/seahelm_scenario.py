@@ -271,7 +271,7 @@ class XQuADScenario(Scenario):
                 f"from English to {self.language}",
                 when="?",
                 who="?",
-                language=f"{self.language}",
+                language=self.language,
             ),
             main_metric="squad_f1_score",
             main_split="test",
@@ -1305,8 +1305,8 @@ class FloresScenario(Scenario):
 
     def get_metadata(self) -> ScenarioMetadata:
         return ScenarioMetadata(
-            name="flores_en_id",
-            display_name="Flores",
+            name=f"flores_{self.source}_{self.target}",
+            display_name=f"Flores ({self.source} to {self.target})",
             short_display_name=None,
             description="Flores [(NLLB Team, "
             "2022)](https://research.facebook.com/publications/no-language-left-behind/) "
@@ -1319,7 +1319,7 @@ class FloresScenario(Scenario):
                 what="translations from professional human translators",
                 when="?",
                 who="professional human translators",
-                language="English, Indonesian, Tamil, Thai, Vietnamese, English",
+                language=f"{self.source}, {self.target}",
             ),
             main_metric="chr_f_plus_plus",
             main_split="test",
@@ -1540,10 +1540,9 @@ class XNLIScenario(Scenario):
         return outputs
 
     def get_metadata(self) -> ScenarioMetadata:
-        # ??????
         return ScenarioMetadata(
-            name="xnli_vi",
-            display_name="XNLI (Vietnamese)",
+            name=f"xnli_{self.language}",
+            display_name=f"XNLI ({self.language})",
             short_display_name=None,
             description="XNLI [(Conneau, 2018)](https://aclanthology.org/D18-1269) is a natural "
             "language inference dataset obtained from crowdsourced NLI data then "
@@ -1553,7 +1552,7 @@ class XNLIScenario(Scenario):
                 what="crowdsourced NLI data professionally translated",
                 when="?",
                 who="?",
-                language="Vietnamese",
+                language=self.language,
             ),
             main_metric="exact_match",
             main_split="test",
@@ -1803,10 +1802,9 @@ class XCOPAScenario(Scenario):
         return outputs
 
     def get_metadata(self) -> ScenarioMetadata:
-        # ?????
         return ScenarioMetadata(
-            name="xcopa_id",
-            display_name="XCOPA (Indonesian)",
+            name=f"xcopa_{self.language}",
+            display_name=f"XCOPA ({self.language})",
             short_display_name=None,
             description="XCOPA [(Ponti, 2020)](https://ducdauge.github.io/files/xcopa.pdf) is causal "
             "reasoning dataset, a translation and reannotation of the English COPA. English "
@@ -1816,7 +1814,7 @@ class XCOPAScenario(Scenario):
                 what="commonsense causal reasoning questions translated into " "Indonesian",
                 when="?",
                 who="?",
-                language="Indonesian, Tamil, Thai, Vietnamese",
+                language=self.language,
             ),
             main_metric="exact_match",
             main_split="test",
@@ -1945,7 +1943,7 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
 
     def get_metadata(self) -> ScenarioMetadata:
         return ScenarioMetadata(
-            name="lindsea_syntax_minimal_pairs_id",
+            name=f"lindsea_syntax_minimal_pairs_{self.language}",
             display_name="LINDSEA Syntax Minimal Pairs",
             short_display_name=None,
             description="LINDSEA minimal pairs is a linguistic diagnostic for syntax dataset from BHASA "
@@ -1957,7 +1955,7 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
                 what="sentence pairs with minimal differences and constrasting " "grammatical acceptability",
                 when="?",
                 who="?",
-                language="Indonesian",
+                language=self.language,
             ),
             main_metric="exact_match",
             main_split="test",
@@ -2113,7 +2111,7 @@ class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
 
     def get_metadata(self) -> ScenarioMetadata:
         return ScenarioMetadata(
-            name="lindsea_pragmatics_presuppositions_id",
+            name=f"lindsea_pragmatics_presuppositions_{self.language}",
             display_name="LINDSEA Pragmatics Presuppositions",
             short_display_name=None,
             description="LINDSEA Pragmatics Presuppositions is a linguistic diagnostic for pragmatics "
@@ -2123,7 +2121,7 @@ class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
             "true/false. For pair sentence questions, the system under test needs to "
             "determine whether a conclusion can be drawn from another sentence.\n",
             taxonomy=TaxonomyInfo(
-                task="pragmatic reasoning", what="presuppositions", when="?", who="?", language="Indonesian"
+                task="pragmatic reasoning", what="presuppositions", when="?", who="?", language=self.language
             ),
             main_metric="exact_match",
             main_split="test",
@@ -2279,7 +2277,7 @@ class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
 
     def get_metadata(self) -> ScenarioMetadata:
         return ScenarioMetadata(
-            name="lindsea_pragmatics_scalar_implicatures_id",
+            name=f"lindsea_pragmatics_scalar_implicatures_{self.language}",
             display_name="LINDSEA Pragmatics Scalar Implicatures",
             short_display_name=None,
             description="LINDSEA Pragmatics Scalar Implicatures is a linguistic diagnostic for "
@@ -2290,7 +2288,7 @@ class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
             "system under test needs to determine whether a conclusion can be drawn from "
             "another sentence.\n",
             taxonomy=TaxonomyInfo(
-                task="pragmatic reasoning", what="scalar implicatures", when="?", who="?", language="Indonesian"
+                task="pragmatic reasoning", what="scalar implicatures", when="?", who="?", language=self.language
             ),
             main_metric="exact_match",
             main_split="test",
