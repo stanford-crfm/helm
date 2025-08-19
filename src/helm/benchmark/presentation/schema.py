@@ -201,14 +201,14 @@ class Schema:
     # Information about each field
     metrics: List[Field]
 
+    # Information about each perturbation
+    perturbations: List[Field]
+
     # Group the metrics
     metric_groups: List[MetricGroup]
 
     # Group the scenarios
     run_groups: List[RunGroup]
-
-    # Information about each perturbation
-    perturbations: Optional[List[Field]] = None
 
     # Adapter fields (e.g., temperature)
     # Automatically populated from the docstrings in the AdapterSpec class definition.
@@ -217,9 +217,7 @@ class Schema:
 
     def __post_init__(self):
         self.name_to_metric = {metric.name: metric for metric in self.metrics}
-        self.name_to_perturbation = (
-            {perturbation.name: perturbation for perturbation in self.perturbations} if self.perturbations else {}
-        )
+        self.name_to_perturbation = {perturbation.name: perturbation for perturbation in self.perturbations}
         self.name_to_metric_group = {metric_group.name: metric_group for metric_group in self.metric_groups}
         self.name_to_run_group = {run_group.name: run_group for run_group in self.run_groups}
 
