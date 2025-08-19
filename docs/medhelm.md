@@ -23,6 +23,7 @@ Run the following commands to create and activate a new python virtual environme
 # Create and activate a clean environment
 conda create -n crfm-helm python=3.10 pip
 conda activate crfm-helm
+pip install -U setuptools
 ```
 
 Run the following command to install HELM:
