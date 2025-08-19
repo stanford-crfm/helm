@@ -195,6 +195,10 @@ class ScenarioMetadata:
     name: str
     """Internal name (usually no spaces, etc.)"""
 
+    main_metric: str
+
+    main_split: str
+
     display_name: Optional[str] = None
     """What is displayed to the user"""
 
@@ -204,17 +208,13 @@ class ScenarioMetadata:
     description: Optional[str] = None
     """Description of the scenario"""
 
-    # short_description: Optional[str] = None
-    # """Optional short description of the run group.
-    # This description is used in some space-constrained places in frontend tables.
-    # If unset, the description field will be used instead."""
+    short_description: Optional[str] = None
+    """Optional short description of the run group.
+    This description is used in some space-constrained places in frontend tables.
+    If unset, the description field will be used instead."""
 
     taxonomy: Optional[TaxonomyInfo] = None
     """Optional taxonomy"""
-
-    main_metric: Optional[str] = None
-
-    main_split: Optional[str] = None
 
 
 # TODO(#1212): Scenario should not be a dataclass.

@@ -332,10 +332,10 @@ class NaturalQAScenario(Scenario):
             name = "natural_qa_closedbook"
             display_name = "NaturalQuestions (closed-book)"
         elif self.context_mode == "openbook_longans":
-            name = ("natural_qa_openbook_longans",)
+            name = "natural_qa_openbook_longans"
             display_name = "NaturalQuestions (open-book)"
         elif self.context_mode == "openbook_wiki":
-            name = ("natural_qa_openbook_wiki",)
+            name = "natural_qa_openbook_wiki"
             display_name = "NaturalQuestions (open-book Wiki)"
         else:
             raise Exception(f"Unknown context_mode {self.context_mode}")
