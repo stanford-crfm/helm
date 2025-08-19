@@ -167,3 +167,88 @@ run_groups:
       - ifeval
       - wildbench
       - omni_math
+
+  - name: mmlu_pro
+    display_name: MMLU-Pro
+    description: MMLU-Pro
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: chain_of_thought_correctness
+      main_split: test
+    taxonomy:
+      task: "question answering"
+      what: "complex questions across various disciplines"
+      who: "2024"
+      when: "domain experts"
+      language: English
+
+  - name: gpqa
+    display_name: GPQA
+    description: GPQA
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: chain_of_thought_correctness
+      main_split: test
+    taxonomy:
+      task: "question answering"
+      what: "graduate-level questions in biology, physics, and chemistry"
+      who: "domain experts"
+      when: "2023"
+      language: English
+  
+  - name: ifeval
+    display_name: IFEval
+    description: IFEval
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: ifeval_strict_accuracy
+      main_split: test
+    taxonomy:
+      task: "instruction following"
+      what: "verifiable general domain instruction following"
+      who: "human annotators"
+      when: "2023"
+      language: English
+  
+  - name: wildbench
+    display_name: WildBench
+    description: WildBench
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: wildbench_score_rescaled
+      main_split: test
+    taxonomy:
+      task: "instruction following"
+      what: "GPT-judged instruction following with instructions collected from real-user conversations"
+      who: "real-world users"
+      when: "2024"
+      language: English
+
+  - name: omni_math
+    display_name: Omni-MATH
+    description: Omni-MATH
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: omni_math_accuracy
+      main_split: test
+    taxonomy:
+      task: "mathematics"
+      what: "universal Olympiad level mathematic benchmark"
+      who: "human annotators"
+      when: "2024"
+      language: English
