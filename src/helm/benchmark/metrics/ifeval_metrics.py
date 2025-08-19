@@ -54,7 +54,7 @@ class IFEvalMetric(Metric):
 
         return [Stat(MetricName("ifeval_strict_accuracy")).add(sum(is_following_list) / len(is_following_list))]
 
-    def get_metadata(self) -> MetricMetadata:
+    def get_metadata(self) -> List[MetricMetadata]:
         return [
             MetricMetadata(
                 name="ifeval_strict_accuracy",

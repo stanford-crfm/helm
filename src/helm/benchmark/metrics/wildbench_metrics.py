@@ -33,7 +33,7 @@ class WildBenchScoreMetric(Metric):
             Stat(MetricName("wildbench_score_rescaled")).add(score_rescaled),
         ]
 
-    def get_metadata(self) -> MetricMetadata:
+    def get_metadata(self) -> List[MetricMetadata]:
         return [
             MetricMetadata(
                 name="wildbench_score",

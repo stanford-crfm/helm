@@ -163,7 +163,7 @@ class EfficiencyMetric:
             stats.append(Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime))
         return stats
 
-    def get_metadata(self) -> MetricMetadata:
+    def get_metadata(self) -> List[MetricMetadata]:
         return [
             MetricMetadata(
                 name="num_instances",

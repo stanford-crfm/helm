@@ -102,7 +102,7 @@ class GPQAChainOfThoughtMetric(Metric):
         score = 1 if extracted_answer == correct_answer else 0
         return [Stat(MetricName("chain_of_thought_correctness")).add(score)]
 
-    def get_metadata(self) -> MetricMetadata:
+    def get_metadata(self) -> List[MetricMetadata]:
         return [
             MetricMetadata(
                 name="chain_of_thought_correctness",

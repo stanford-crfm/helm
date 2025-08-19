@@ -31,7 +31,7 @@ class OmniMATHMetric(Metric):
             Stat(MetricName("omni_math_accuracy")).add(score),
         ]
 
-    def get_metadata(self) -> MetricMetadata:
+    def get_metadata(self) -> List[MetricMetadata]:
         return [
             MetricMetadata(
                 name="omni_math_accuracy",
