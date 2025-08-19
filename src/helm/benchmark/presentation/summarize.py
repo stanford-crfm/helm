@@ -520,12 +520,13 @@ class Summarizer:
         for metric_spec in metric_specs:
             try:
                 metric: MetricInterface = create_metric(metric_spec)
-                metric_metadata = metric.get_metadata()
-                metric_name_to_metadata[metric_metadata.name] = metric_metadata
+                metric_metadata_list = metric.get_metadata()
+                for metric_metadata in metric_metadata_list:
+                    metric_name_to_metadata[metric_metadata.name] = metric_metadata
             except NotImplementedError:
-                pass
+                print("[debug:yifanmai] not implemented")
             except (ModuleNotFoundError, AttributeError, TypeError):
-                pass
+                print("[debug:yifanmai] not instantiated")
 
         run_stat_names: Set[str] = set()
         for run in self.runs:
@@ -534,7 +535,7 @@ class Summarizer:
 
         metric_names_to_prune = set(metric_name_to_metadata.keys()) - run_stat_names
         for metric_name_to_prune in metric_names_to_prune:
-            del metric_name_to_metadata[metric_names_to_prune]
+            del metric_name_to_metadata[metric_name_to_prune]
         return list(metric_name_to_metadata.values())
 
     def get_scenario_metadata(self) -> List[ScenarioMetadata]:
@@ -593,7 +594,12 @@ class Summarizer:
     def fix_up_schema(self) -> None:
         # if not self.schema.run_groups:
         if not self.schema.metrics:
-            self.schema.metrics = self.get_metric_metadata()
+            print("[debug:yifanmai] doing")
+            self.schema = dataclasses.replace(
+                self.schema, metrics=self.get_metric_metadata()
+            )
+        else:
+            print("[debug:yifanmai] not doing")
         if not any([len(run_group.subgroups) == 0 for run_group in self.schema.run_groups]):
             self.schema = dataclasses.replace(
                 self.schema, run_groups=self.schema.run_groups + self.auto_generate_scenario_run_groups()
@@ -602,6 +608,8 @@ class Summarizer:
             self.schema = dataclasses.replace(
                 self.schema, run_groups=[self.auto_generate_all_scenarios_run_group()] + self.schema.run_groups
             )
+        print("[debug:yifanmai]")
+        print(self.schema.metrics)
 
     def write_schema(self) -> None:
         """Write the schema file to benchmark_output so the frontend knows about it."""
@@ -1307,7 +1315,6 @@ class Summarizer:
         """Run the entire summarization pipeline."""
         self.read_runs()
         self.group_runs()
-        self.check_metrics_defined()
 
         ensure_directory_exists(self.run_release_path)
 
@@ -1316,6 +1323,7 @@ class Summarizer:
         # Must happen after self.read_runs()
         # because it uses self.runs
         self.fix_up_schema()
+        self.check_metrics_defined()
         self.write_schema()
 
         self.write_executive_summary()
