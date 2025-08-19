@@ -9,6 +9,7 @@ Usage:
 """
 
 import argparse
+import dataclasses
 import os
 import datetime
 import urllib.parse
@@ -31,7 +32,7 @@ from helm.common.general import (
 )
 from helm.common.codec import from_json
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block, hwarn, setup_default_logging
-from helm.benchmark.scenarios.scenario import ScenarioSpec
+from helm.benchmark.scenarios.scenario import Scenario, ScenarioMetadata, ScenarioSpec, create_scenario
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric import get_all_stats_by_name
@@ -507,6 +508,75 @@ class Summarizer:
             )
             model_field_dicts.append(asdict_without_nones(model_field))
         return model_field_dicts
+
+    def get_scenario_metadata(self) -> List[Dict]:
+        """Get a list of `Field`s dicts containing metrics metadata that will be written to schema.json.
+        We first get the metrics"""
+        scenario_specs = [run.run_spec.scenario_spec for run in self.runs]
+        scenario_specs = list(set(scenario_specs))
+        scenario_name_to_metadata: Dict[str, ScenarioMetadata] = {}
+        for scenario_spec in scenario_specs:
+            try:
+                scenario: Scenario = create_scenario(scenario_spec)
+                scenario_metadata = scenario.get_metadata()
+                scenario_name_to_metadata[scenario_metadata.name] = scenario_metadata
+            except NotImplementedError:
+                pass
+            except ModuleNotFoundError:
+                pass
+
+        run_groups: Set[str] = set()
+        for run in self.runs:
+            for run_group in run.run_spec.groups:
+                run_groups.add(run_group)
+
+        scenario_names_to_prune = set(scenario_name_to_metadata.keys()) - run_groups
+        for scenario_name_to_prune in scenario_names_to_prune:
+            del scenario_name_to_metadata[scenario_name_to_prune]
+        print("[debug:yifanmai] metadata")
+        print(scenario_name_to_metadata)
+        return list(scenario_name_to_metadata.values())
+
+    def scenario_metadata_to_run_group(self, scenario_metadata: ScenarioMetadata):
+        metric_group_names = [metric_group.name for metric_group in self.schema.metric_groups]
+        return RunGroup(
+            name=scenario_metadata.name,
+            display_name=scenario_metadata.display_name,
+            short_display_name=scenario_metadata.short_display_name,
+            description=scenario_metadata.description,
+            metric_groups=metric_group_names,
+            environment={
+                "main_name": scenario_metadata.main_metric,
+                "main_split": scenario_metadata.main_split,
+            },
+            taxonomy=scenario_metadata.taxonomy,
+        )
+
+    def auto_generate_all_scenarios_run_group(self) -> RunGroup:
+        return RunGroup(
+            name="all_scenarios",
+            display_name="All Scenarios",
+            description="All scenarios",
+            category="Scenario Groups",
+            subgroups=[run_group.name for run_group in self.schema.run_groups if len(run_group.subgroups) == 0],
+        )
+
+    def auto_generate_scenario_run_groups(self) -> List[RunGroup]:
+        return [
+            self.scenario_metadata_to_run_group(scenario_metadata) for scenario_metadata in self.get_scenario_metadata()
+        ]
+
+    def fix_up_schema(self) -> None:
+        # if not self.schema.run_groups:
+        run_groups = self.schema.run_groups
+        if not any([len(run_group.subgroups) == 0 for run_group in self.schema.run_groups]):
+            self.schema = dataclasses.replace(
+                self.schema, run_groups=self.schema.run_groups + self.auto_generate_scenario_run_groups()
+            )
+        if not any([len(run_group.subgroups) > 0 for run_group in run_groups]):
+            self.schema = dataclasses.replace(
+                self.schema, run_groups=[self.auto_generate_all_scenarios_run_group()] + self.schema.run_groups
+            )
 
     def write_schema(self) -> None:
         """Write the schema file to benchmark_output so the frontend knows about it."""
@@ -1220,6 +1290,7 @@ class Summarizer:
 
         # Must happen after self.read_runs()
         # because it uses self.runs
+        self.fix_up_schema()
         self.write_schema()
 
         self.write_executive_summary()

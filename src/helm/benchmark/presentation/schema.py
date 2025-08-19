@@ -8,6 +8,7 @@ import mako.template
 import yaml
 import importlib_resources as resources
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import hlog
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.augmentations.perturbation_description import PERTURBATION_WORST
@@ -129,24 +130,6 @@ BY_GROUP = "by_group"
 ALL_GROUPS = "all_groups"
 THIS_GROUP_ONLY = "this_group_only"
 NO_GROUPS = "no_groups"
-
-
-@dataclass(frozen=True)
-class TaxonomyInfo:
-    # Task (e.g., question answering)
-    task: Optional[str] = None
-
-    # Domain - genre (e.g., Wikipedia)
-    what: Optional[str] = None
-
-    # Domain - when it was written (e.g., 2010s)
-    when: Optional[str] = None
-
-    # Domain - demographics (e.g., web users)
-    who: Optional[str] = None
-
-    # Language (e.g., English)
-    language: Optional[str] = None
 
 
 @dataclass(frozen=True)
