@@ -35,7 +35,7 @@ from helm.common.hierarchical_logger import hlog, htrack, htrack_block, hwarn, s
 from helm.benchmark.scenarios.scenario import Scenario, ScenarioMetadata, ScenarioSpec, create_scenario
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.metric_name import MetricName
-from helm.benchmark.metrics.metric import MetricInterface, MetricSpec, create_metric, get_all_stats_by_name
+from helm.benchmark.metrics.metric import MetricInterface, MetricMetadata, MetricSpec, create_metric, get_all_stats_by_name
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.benchmark.run_spec import RunSpec
 from helm.benchmark.runner import LATEST_SYMLINK
@@ -484,7 +484,7 @@ class Summarizer:
         The frontend expects schema.json to contains a field under "model" that contains a list of `ModelField`s.
 
         This is populated by reading the `ModelMetadata` configs and filtering down to models that were
-        actually used, and converting each `ModelMetadata` to a `ModelField`."""
+        actually used, and converting each `ModelMetadata` to a `Modelg`."""
         # TODO: Migrate frontend to use ModelMetadata instead of ModelField and delete this.
         used_model_names: Set[str] = set()
         for run in self.runs:
@@ -509,14 +509,14 @@ class Summarizer:
             model_field_dicts.append(asdict_without_nones(model_field))
         return model_field_dicts
 
-    def get_metric_metadata(self) -> List[Field]:
+    def get_metric_metadata(self) -> List[MetricMetadata]:
         """Get a list of `Field`s dicts containing metrics metadata that will be written to schema.json."""
         # TODO: Migrate frontend to use ModelMetadata instead of ModelField and delete this.
         metric_specs: List[MetricSpec] = []
         for run in self.runs:
             metric_specs.extend(run.run_spec.metric_specs)
         metric_specs = list(set(metric_specs))
-        metric_name_to_metadata: Dict[str, Field] = {}
+        metric_name_to_metadata: Dict[str, MetricMetadata] = {}
         for metric_spec in metric_specs:
             try:
                 metric: MetricInterface = create_metric(metric_spec)
@@ -524,9 +524,9 @@ class Summarizer:
                 for metric_metadata in metric_metadata_list:
                     metric_name_to_metadata[metric_metadata.name] = metric_metadata
             except NotImplementedError:
-                print("[debug:yifanmai] not implemented")
+                pass
             except (ModuleNotFoundError, AttributeError, TypeError):
-                print("[debug:yifanmai] not instantiated")
+                pass
 
         run_stat_names: Set[str] = set()
         for run in self.runs:
@@ -537,6 +537,20 @@ class Summarizer:
         for metric_name_to_prune in metric_names_to_prune:
             del metric_name_to_metadata[metric_name_to_prune]
         return list(metric_name_to_metadata.values())
+
+    def metric_metadata_to_field(self, metric_metadata: MetricMetadata) -> Field:
+        return Field(
+            name=metric_metadata.name,
+            display_name=metric_metadata.display_name,
+            short_display_name=metric_metadata.short_display_name,
+            description=metric_metadata.description,
+            lower_is_better=metric_metadata.lower_is_better,
+        )
+
+    def auto_generate_metric_fields(self) -> List[Field]:
+        return [
+            self.metric_metadata_to_field(metric_metadata) for metric_metadata in self.get_metric_metadata()
+        ]
 
     def get_scenario_metadata(self) -> List[ScenarioMetadata]:
         scenario_specs = [run.run_spec.scenario_spec for run in self.runs]
@@ -562,7 +576,7 @@ class Summarizer:
             del scenario_name_to_metadata[scenario_name_to_prune]
         return list(scenario_name_to_metadata.values())
 
-    def scenario_metadata_to_run_group(self, scenario_metadata: ScenarioMetadata):
+    def scenario_metadata_to_run_group(self, scenario_metadata: ScenarioMetadata) -> RunGroup:
         metric_group_names = [metric_group.name for metric_group in self.schema.metric_groups]
         return RunGroup(
             name=scenario_metadata.name,
@@ -594,10 +608,7 @@ class Summarizer:
     def fix_up_schema(self) -> None:
         # if not self.schema.run_groups:
         if not self.schema.metrics:
-            print("[debug:yifanmai] doing")
             self.schema = dataclasses.replace(self.schema, metrics=self.get_metric_metadata())
-        else:
-            print("[debug:yifanmai] not doing")
         if not any([len(run_group.subgroups) == 0 for run_group in self.schema.run_groups]):
             self.schema = dataclasses.replace(
                 self.schema, run_groups=self.schema.run_groups + self.auto_generate_scenario_run_groups()
@@ -606,8 +617,6 @@ class Summarizer:
             self.schema = dataclasses.replace(
                 self.schema, run_groups=[self.auto_generate_all_scenarios_run_group()] + self.schema.run_groups
             )
-        print("[debug:yifanmai]")
-        print(self.schema.metrics)
 
     def write_schema(self) -> None:
         """Write the schema file to benchmark_output so the frontend knows about it."""

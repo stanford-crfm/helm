@@ -12,7 +12,6 @@ from helm.benchmark.metrics.evaluate_reference_metrics import compute_reference_
 from helm.benchmark.metrics.efficiency_metrics import EfficiencyMetric
 from helm.benchmark.metrics.reference_metric import ReferenceMetric
 
-from helm.benchmark.presentation.schema import Field
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import Token, GeneratedOutput
 from helm.benchmark.adaptation.adapters.adapter_factory import (
@@ -26,7 +25,7 @@ from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.benchmark.scenarios.scenario import CORRECT_TAG, Instance
-from helm.benchmark.metrics.metric import Metric, MetricInterface, MetricResult, add_context, get_unique_stat_by_name
+from helm.benchmark.metrics.metric import Metric, MetricInterface, MetricMetadata, MetricResult, add_context, get_unique_stat_by_name
 from helm.benchmark.metrics.metric_name import MetricContext, MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat, merge_stat
@@ -134,9 +133,9 @@ class InstancesPerSplitMetric(MetricInterface):
         # There are no per-instance Stats.
         return MetricResult(list(global_stats.values()), [])
 
-    def get_metadata(self) -> List[Field]:
+    def get_metadata(self) -> List[MetricMetadata]:
         return [
-            Field(
+            MetricMetadata(
                 name="num_instances",
                 display_name="# eval",
                 short_display_name=None,
@@ -192,7 +191,7 @@ class BasicGenerationMetric(Metric):
         derived_stats.extend(compute_calibration_metrics(per_instance_stats))
         return derived_stats
 
-    def get_metadata(self):
+    def get_metadata(self) -> List[MetricMetadata]:
         return (
             get_request_state_metrics_metadata(self.efficiency_metric)
             + _get_language_modeling_metrics_metadata()
@@ -316,14 +315,14 @@ class BasicReferenceMetric(ReferenceMetric):
 
     def get_metadata(self):
         return [
-            Field(
+            MetricMetadata(
                 name="max_prob",
                 display_name="Max prob",
                 short_display_name=None,
                 description="Model's average confidence in its prediction " "(only computed for classification tasks)",
                 lower_is_better=False,
             ),
-            Field(
+            MetricMetadata(
                 name="exact_match",
                 display_name="Exact match",
                 short_display_name="EM",
@@ -332,7 +331,7 @@ class BasicReferenceMetric(ReferenceMetric):
                 "exactly.",
                 lower_is_better=False,
             ),
-            Field(
+            MetricMetadata(
                 name="predicted_index",
                 display_name="Predicted index",
                 short_display_name=None,
@@ -369,16 +368,16 @@ def compute_request_state_metrics(
 
 def get_request_state_metrics_metadata(
     efficiency_metric: EfficiencyMetric,
-) -> List[Field]:
-    fields = [
-        Field(
+) -> List[MetricMetadata]:
+    metric_metadata = [
+        MetricMetadata(
             name="num_references",
             display_name="# ref",
             short_display_name=None,
             description="Number of references.",
             lower_is_better=None,
         ),
-        Field(
+        MetricMetadata(
             name="num_train_trials",
             display_name="# trials",
             short_display_name=None,
@@ -389,7 +388,7 @@ def get_request_state_metrics_metadata(
         ),
     ]
     return (
-        fields
+        metric_metadata
         + efficiency_metric.get_metadata()
         + _get_finish_reason_metrics_metadata()
         + _get_truncation_metrics_metadata()
@@ -420,7 +419,7 @@ def _compute_finish_reason_metrics(
 
 def _get_finish_reason_metrics_metadata():
     return [
-        Field(
+        MetricMetadata(
             name="finish_reason_endoftext",
             display_name="finish b/c endoftext",
             short_display_name=None,
@@ -430,7 +429,7 @@ def _get_finish_reason_metrics_metadata():
             "was generated.",
             lower_is_better=None,
         ),
-        Field(
+        MetricMetadata(
             name="finish_reason_length",
             display_name="finish b/c length",
             short_display_name=None,
@@ -439,7 +438,7 @@ def _get_finish_reason_metrics_metadata():
             "of the max tokens limit.",
             lower_is_better=None,
         ),
-        Field(
+        MetricMetadata(
             name="finish_reason_stop",
             display_name="finish b/c stop",
             short_display_name=None,
@@ -448,7 +447,7 @@ def _get_finish_reason_metrics_metadata():
             "the stop sequences.",
             lower_is_better=None,
         ),
-        Field(
+        MetricMetadata(
             name="finish_reason_unknown",
             display_name="finish b/c unknown",
             short_display_name=None,
@@ -471,16 +470,16 @@ def _compute_truncation_metrics(
     ]
 
 
-def _get_truncation_metrics_metadata() -> List[Field]:
+def _get_truncation_metrics_metadata() -> List[MetricMetadata]:
     return [
-        Field(
+        MetricMetadata(
             name="num_train_instances",
             display_name="# train",
             short_display_name=None,
             description="Number of training instances " "(e.g., in-context examples).",
             lower_is_better=None,
         ),
-        Field(
+        MetricMetadata(
             name="prompt_truncated",
             display_name="truncated",
             short_display_name=None,
@@ -526,16 +525,16 @@ def compute_language_modeling_metrics(
     ]
 
 
-def _get_language_modeling_metrics_metadata() -> List[Field]:
+def _get_language_modeling_metrics_metadata() -> List[MetricMetadata]:
     return [
-        Field(
+        MetricMetadata(
             name="logprob",
             display_name="Log probability",
             short_display_name="Logprob",
             description="Predicted output's average log probability " "(input's log prob for language modeling).",
             lower_is_better=False,
         ),
-        Field(
+        MetricMetadata(
             name="num_perplexity_tokens",
             display_name="# tokens",
             short_display_name=None,
@@ -544,7 +543,7 @@ def _get_language_modeling_metrics_metadata() -> List[Field]:
             "modeling, the input too).",
             lower_is_better=None,
         ),
-        Field(
+        MetricMetadata(
             name="num_bytes",
             display_name="# bytes",
             short_display_name=None,
@@ -617,9 +616,9 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]) 
     return stats
 
 
-def _get_calibration_metrics_metadata() -> List[Field]:
+def _get_calibration_metrics_metadata() -> List[MetricMetadata]:
     return [
-        Field(
+        MetricMetadata(
             name="ece_10_bin",
             display_name="10-bin expected calibration error",
             short_display_name="ECE (10-bin)",
@@ -633,7 +632,7 @@ def _get_calibration_metrics_metadata() -> List[Field]:
             "very few examples.",
             lower_is_better=True,
         ),
-        Field(
+        MetricMetadata(
             name="ece_1_bin",
             display_name="1-bin expected calibration error",
             short_display_name="ECE (1-bin)",
@@ -642,7 +641,7 @@ def _get_calibration_metrics_metadata() -> List[Field]:
             "(only computed for classification tasks).",
             lower_is_better=True,
         ),
-        Field(
+        MetricMetadata(
             name="selective_acc@10",
             display_name="Accuracy at 10% coverage",
             short_display_name="Acc@10%",
@@ -652,7 +651,7 @@ def _get_calibration_metrics_metadata() -> List[Field]:
             "classification tasks).",
             lower_is_better=False,
         ),
-        Field(
+        MetricMetadata(
             name="selective_cov_acc_area",
             display_name="Selective coverage-accuracy " "area",
             short_display_name="Selective Acc",
@@ -664,21 +663,21 @@ def _get_calibration_metrics_metadata() -> List[Field]:
             "tasks).",
             lower_is_better=False,
         ),
-        Field(
+        MetricMetadata(
             name="platt_coef",
             display_name="Platt Scaling Coefficient",
             short_display_name="Platt Coef",
             description="Coefficient of the Platt scaling classifier " "(can compare this across tasks).",
             lower_is_better=False,
         ),
-        Field(
+        MetricMetadata(
             name="platt_intercept",
             display_name="Platt Scaling Intercept",
             short_display_name="Platt Intercept",
             description="Intercept of the Platt scaling " "classifier (can compare this across " "tasks).",
             lower_is_better=False,
         ),
-        Field(
+        MetricMetadata(
             name="platt_ece_10_bin",
             display_name="10-bin Expected Calibration Error " "(after Platt scaling)",
             short_display_name="Platt-scaled ECE (10-bin)",
@@ -687,7 +686,7 @@ def _get_calibration_metrics_metadata() -> List[Field]:
             "model's predicted probabilities.",
             lower_is_better=True,
         ),
-        Field(
+        MetricMetadata(
             name="platt_ece_1_bin",
             display_name="1-bin expected calibration error " "(after Platt scaling)",
             short_display_name="Platt-scaled ECE (1-bin)",

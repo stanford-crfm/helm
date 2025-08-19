@@ -87,6 +87,26 @@ class Processor:
         return instance_stats
 
 
+@dataclass(frozen=True)
+class MetricMetadata:
+    name: str
+    """Internal name (usually no spaces, etc.)"""
+
+    display_name: Optional[str] = None
+    """What is displayed to the user"""
+
+    short_display_name: Optional[str] = None
+    """What is displayed to the user (e.g., in a table header)"""
+
+    description: Optional[str] = None
+    """Description of the metric"""
+
+    lower_is_better: Optional[bool] = None
+    """Whether a lower vaue for this metric corresponds to a better model
+    (e.g., False for accuracy, True for perplexity, None for num_trials)"""
+
+
+
 class MetricInterface(ABC):
     """Interface for all Metrics."""
 
@@ -96,7 +116,7 @@ class MetricInterface(ABC):
     ) -> MetricResult:
         pass
 
-    def get_metadata(self) -> List[Field]:
+    def get_metadata(self) -> List[MetricMetadata]:
         raise NotImplementedError()
 
 
