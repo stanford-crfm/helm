@@ -522,7 +522,7 @@ class Summarizer:
                 scenario_name_to_metadata[scenario_metadata.name] = scenario_metadata
             except NotImplementedError:
                 pass
-            except ModuleNotFoundError:
+            except (ModuleNotFoundError, AttributeError, TypeError):
                 pass
 
         run_groups: Set[str] = set()
@@ -533,8 +533,6 @@ class Summarizer:
         scenario_names_to_prune = set(scenario_name_to_metadata.keys()) - run_groups
         for scenario_name_to_prune in scenario_names_to_prune:
             del scenario_name_to_metadata[scenario_name_to_prune]
-        print("[debug:yifanmai] metadata")
-        print(scenario_name_to_metadata)
         return list(scenario_name_to_metadata.values())
 
     def scenario_metadata_to_run_group(self, scenario_metadata: ScenarioMetadata):
