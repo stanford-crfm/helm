@@ -490,7 +490,7 @@ class Summarizer:
         The frontend expects schema.json to contains a field under "model" that contains a list of `ModelField`s.
 
         This is populated by reading the `ModelMetadata` configs and filtering down to models that were
-        actually used, and converting each `ModelMetadata` to a `Modelg`."""
+        actually used, and converting each `ModelMetadata` to a `ModelField`."""
         # TODO: Migrate frontend to use ModelMetadata instead of ModelField and delete this.
         used_model_names: Set[str] = set()
         for run in self.runs:
