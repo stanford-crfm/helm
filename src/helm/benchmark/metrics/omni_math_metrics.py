@@ -2,11 +2,10 @@ from typing import Any, Dict, List
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.presentation.schema import Field
 
 
 class OmniMATHMetric(Metric):
@@ -32,13 +31,13 @@ class OmniMATHMetric(Metric):
             Stat(MetricName("omni_math_accuracy")).add(score),
         ]
 
-    def get_metadata(self):
+    def get_metadata(self) -> MetricMetadata:
         return [
-            Field(
+            MetricMetadata(
                 name="omni_math_accuracy",
                 display_name="Omni-MATH Accuracy",
                 short_display_name="Acc",
-                description="Accuracy of the AI output judged by " "GPT-4.",
+                description="Accuracy of the AI output judged by GPT-4.",
                 lower_is_better=False,
             )
         ]

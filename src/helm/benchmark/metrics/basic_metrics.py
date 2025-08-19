@@ -148,6 +148,7 @@ class InstancesPerSplitMetric(MetricInterface):
                 short_display_name=None,
                 description="Number of evaluation instances.",
                 lower_is_better=None,
+                group="general_information",
             )
         ]
 
@@ -320,7 +321,7 @@ class BasicReferenceMetric(ReferenceMetric):
         )
         return stats
 
-    def get_metadata(self):
+    def get_metadata(self) -> MetricMetadata:
         return [
             MetricMetadata(
                 name="max_prob",
@@ -337,6 +338,7 @@ class BasicReferenceMetric(ReferenceMetric):
                 "output matches a correct reference "
                 "exactly.",
                 lower_is_better=False,
+                group="accuracy",
             ),
             MetricMetadata(
                 name="predicted_index",
