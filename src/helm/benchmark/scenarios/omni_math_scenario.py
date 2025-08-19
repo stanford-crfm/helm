@@ -54,7 +54,7 @@ class OmniMATHScenario(Scenario):
 
         return instances
 
-    def get_metadata(self) -> List[ScenarioMetadata]:
+    def get_metadata(self) -> ScenarioMetadata:
         return ScenarioMetadata(
             name=self.name,
             display_name="Omni-MATH",

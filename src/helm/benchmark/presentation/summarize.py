@@ -509,7 +509,7 @@ class Summarizer:
             model_field_dicts.append(asdict_without_nones(model_field))
         return model_field_dicts
 
-    def get_scenario_metadata(self) -> List[Dict]:
+    def get_scenario_metadata(self) -> List[ScenarioMetadata]:
         """Get a list of `Field`s dicts containing metrics metadata that will be written to schema.json.
         We first get the metrics"""
         scenario_specs = [run.run_spec.scenario_spec for run in self.runs]
