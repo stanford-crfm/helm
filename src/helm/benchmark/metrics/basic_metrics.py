@@ -25,7 +25,14 @@ from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.benchmark.scenarios.scenario import CORRECT_TAG, Instance
-from helm.benchmark.metrics.metric import Metric, MetricInterface, MetricMetadata, MetricResult, add_context, get_unique_stat_by_name
+from helm.benchmark.metrics.metric import (
+    Metric,
+    MetricInterface,
+    MetricMetadata,
+    MetricResult,
+    add_context,
+    get_unique_stat_by_name,
+)
 from helm.benchmark.metrics.metric_name import MetricContext, MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat, merge_stat

@@ -3,7 +3,6 @@ from dataclasses import dataclass, replace
 from collections import defaultdict
 from typing import List, Dict, Tuple, Optional, Iterable
 
-from helm.benchmark.presentation.schema import Field
 from helm.common.object_spec import ObjectSpec, create_object
 from helm.common.general import singleton, parallel_map
 from helm.benchmark.augmentations.perturbation_description import (
@@ -104,7 +103,6 @@ class MetricMetadata:
     lower_is_better: Optional[bool] = None
     """Whether a lower vaue for this metric corresponds to a better model
     (e.g., False for accuracy, True for perplexity, None for num_trials)"""
-
 
 
 class MetricInterface(ABC):

@@ -35,7 +35,13 @@ from helm.common.hierarchical_logger import hlog, htrack, htrack_block, hwarn, s
 from helm.benchmark.scenarios.scenario import Scenario, ScenarioMetadata, ScenarioSpec, create_scenario
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.metric_name import MetricName
-from helm.benchmark.metrics.metric import MetricInterface, MetricMetadata, MetricSpec, create_metric, get_all_stats_by_name
+from helm.benchmark.metrics.metric import (
+    MetricInterface,
+    MetricMetadata,
+    MetricSpec,
+    create_metric,
+    get_all_stats_by_name,
+)
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.benchmark.run_spec import RunSpec
 from helm.benchmark.runner import LATEST_SYMLINK
@@ -548,9 +554,7 @@ class Summarizer:
         )
 
     def auto_generate_metric_fields(self) -> List[Field]:
-        return [
-            self.metric_metadata_to_field(metric_metadata) for metric_metadata in self.get_metric_metadata()
-        ]
+        return [self.metric_metadata_to_field(metric_metadata) for metric_metadata in self.get_metric_metadata()]
 
     def get_scenario_metadata(self) -> List[ScenarioMetadata]:
         scenario_specs = [run.run_spec.scenario_spec for run in self.runs]
@@ -608,7 +612,7 @@ class Summarizer:
     def fix_up_schema(self) -> None:
         # if not self.schema.run_groups:
         if not self.schema.metrics:
-            self.schema = dataclasses.replace(self.schema, metrics=self.get_metric_metadata())
+            self.schema = dataclasses.replace(self.schema, metrics=self.auto_generate_metric_fields())
         if not any([len(run_group.subgroups) == 0 for run_group in self.schema.run_groups]):
             self.schema = dataclasses.replace(
                 self.schema, run_groups=self.schema.run_groups + self.auto_generate_scenario_run_groups()
