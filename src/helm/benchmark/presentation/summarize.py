@@ -509,9 +509,35 @@ class Summarizer:
             model_field_dicts.append(asdict_without_nones(model_field))
         return model_field_dicts
 
+    def get_metric_metadata(self) -> List[Field]:
+        """Get a list of `Field`s dicts containing metrics metadata that will be written to schema.json."""
+        # TODO: Migrate frontend to use ModelMetadata instead of ModelField and delete this.
+        metric_specs: List[MetricSpec] = []
+        for run in self.runs:
+            metric_specs.extend(run.run_spec.metric_specs)
+        metric_specs = list(set(metric_specs))
+        metric_name_to_metadata: Dict[str, Field] = {}
+        for metric_spec in metric_specs:
+            try:
+                metric: MetricInterface = create_metric(metric_spec)
+                metric_metadata = metric.get_metadata()
+                metric_name_to_metadata[metric_metadata.name] = metric_metadata
+            except NotImplementedError:
+                pass
+            except (ModuleNotFoundError, AttributeError, TypeError):
+                pass
+
+        run_stat_names: Set[str] = set()
+        for run in self.runs:
+            for stat in run.stats:
+                run_stat_names.add(stat.name.name)
+
+        metric_names_to_prune = set(metric_name_to_metadata.keys()) - run_stat_names
+        for metric_name_to_prune in metric_names_to_prune:
+            del metric_name_to_metadata[metric_names_to_prune]
+        return list(metric_name_to_metadata.values())
+
     def get_scenario_metadata(self) -> List[ScenarioMetadata]:
-        """Get a list of `Field`s dicts containing metrics metadata that will be written to schema.json.
-        We first get the metrics"""
         scenario_specs = [run.run_spec.scenario_spec for run in self.runs]
         scenario_specs = list(set(scenario_specs))
         scenario_name_to_metadata: Dict[str, ScenarioMetadata] = {}
@@ -566,51 +592,16 @@ class Summarizer:
 
     def fix_up_schema(self) -> None:
         # if not self.schema.run_groups:
-        run_groups = self.schema.run_groups
+        if not self.schema.metrics:
+            self.schema.metrics = self.get_metric_metadata()
         if not any([len(run_group.subgroups) == 0 for run_group in self.schema.run_groups]):
             self.schema = dataclasses.replace(
                 self.schema, run_groups=self.schema.run_groups + self.auto_generate_scenario_run_groups()
             )
-        if not any([len(run_group.subgroups) > 0 for run_group in run_groups]):
+        if not any([len(run_group.subgroups) > 0 for run_group in self.schema.run_groups]):
             self.schema = dataclasses.replace(
                 self.schema, run_groups=[self.auto_generate_all_scenarios_run_group()] + self.schema.run_groups
             )
-
-    def get_metrics_field_dicts(self) -> List[Dict]:
-        """Get a list of `Field`s dicts containing metrics metadata that will be written to schema.json."""
-        # TODO: Migrate frontend to use ModelMetadata instead of ModelField and delete this.
-        metric_specs: List[MetricSpec] = []
-        for run in self.runs:
-            metric_specs.extend(run.run_spec.metric_specs)
-        metric_specs = list(set(metric_specs))
-        metric_name_to_metadata: Dict[str, Field] = {}
-        for metric_spec in metric_specs:
-            print(metric_spec)
-            maybe_metadata: Optional[List[Field]] = None
-            try:
-                metric: MetricInterface = create_metric(metric_spec)
-                maybe_metadata = metric.get_metadata()
-            except NotImplementedError:
-                hwarn(f"Metric class {metric_spec.class_name} did not implement get_metadata()")
-                pass
-            except ModuleNotFoundError:
-                hwarn(f"Could not find Metric class {metric_spec.class_name}")
-                pass
-            if maybe_metadata:
-                for metadata in maybe_metadata:
-                    metric_name_to_metadata[metadata.name] = metadata
-        print(f"[debug:yifanmai] {metric_name_to_metadata}")
-        # Prune unused metric names:
-        run_stat_names: Set[str] = set()
-        for run in self.runs:
-            for stat in run.stats:
-                run_stat_names.add(stat.name.name)
-        unused_metric_names = set(metric_name_to_metadata.keys()) - run_stat_names
-        print(run_stat_names - set(metric_name_to_metadata.keys()))
-        for unused_metric_name in unused_metric_names:
-            del metric_name_to_metadata[unused_metric_name]
-        print(f"[debug:yifanmai] After pruning {metric_name_to_metadata}")
-        return []
 
     def write_schema(self) -> None:
         """Write the schema file to benchmark_output so the frontend knows about it."""
@@ -618,7 +609,6 @@ class Summarizer:
         # TODO: Move model metadata out of schema.json into its own model_metadata.json file.
         raw_schema = asdict_without_nones(self.schema)
         raw_schema["models"] = self.get_model_field_dicts()
-        self.get_metrics_field_dicts()  # for now, just run this and see?
         write(
             os.path.join(self.run_release_path, "schema.json"),
             json.dumps(raw_schema, indent=2),
