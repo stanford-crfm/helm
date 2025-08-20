@@ -427,7 +427,7 @@ def _get_finish_reason_metrics_metadata():
         MetricMetadata(
             name="finish_reason_length",
             display_name="finish b/c length",
-            description="Fraction of instances where the the output was terminated because of the max tokens " "limit.",
+            description="Fraction of instances where the the output was terminated because of the max tokens limit.",
             lower_is_better=None,
         ),
         MetricMetadata(
@@ -463,7 +463,7 @@ def _get_truncation_metrics_metadata() -> List[MetricMetadata]:
         MetricMetadata(
             name="num_train_instances",
             display_name="# train",
-            description="Number of training instances " "(e.g., in-context examples).",
+            description="Number of training instances (e.g., in-context examples).",
             lower_is_better=None,
         ),
         MetricMetadata(
@@ -517,7 +517,7 @@ def _get_language_modeling_metrics_metadata() -> List[MetricMetadata]:
             name="logprob",
             display_name="Log probability",
             short_display_name="Logprob",
-            description="Predicted output's average log probability " "(input's log prob for language modeling).",
+            description="Predicted output's average log probability (input's log prob for language modeling).",
             lower_is_better=False,
         ),
         MetricMetadata(

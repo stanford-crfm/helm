@@ -221,8 +221,8 @@ class EfficiencyMetric:
             ),
             MetricMetadata(
                 name="inference_idealized_runtime",
-                display_name="Idealized inference " "runtime (s)",
-                short_display_name="Idealized inference " "time (s)",
+                display_name="Idealized inference runtime (s)",
+                short_display_name="Idealized inference time (s)",
                 description="Average time to process a request to the model based solely on the model architecture "
                 "(using Megatron-LM).",
                 lower_is_better=True,
