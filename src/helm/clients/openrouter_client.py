@@ -1,14 +1,16 @@
 import os
 from typing import Optional
 from helm.clients.openai_client import OpenAIClient
+from helm.common.cache import CacheConfig
+from helm.tokenizers.tokenizer import Tokenizer
 
 
 class OpenRouterClient(OpenAIClient):
     def __init__(
         self,
-        tokenizer,
-        tokenizer_name,
-        cache_config,
+        tokenizer_name: str,
+        tokenizer: Tokenizer,
+        cache_config: CacheConfig,
         api_key: Optional[str] = None,
         model_name: Optional[str] = None,
         output_processor: Optional[str] = None,
@@ -28,7 +30,6 @@ class OpenRouterClient(OpenAIClient):
     def _get_model_for_request(self, request):
         if self.model_name:
             return self.model_name
-        elif len(request.model_deployment.split("/")) > 1:
-            return request.model_deployment.replace("openrouter/", "")
-
+        # elif len(request.model_deployment.split("/")) > 1:
+        #     return request.model_deployment.replace("openrouter/", "")
         return self.model_name or request.model_engine
