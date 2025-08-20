@@ -5,6 +5,7 @@ import datasets
 from pathlib import Path
 from typing import List, Dict
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -15,6 +16,7 @@ from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 PROMPT_SETTINGS_URL = "https://www.dropbox.com/s/a5cyevryzw8rt4f/prompt_construction_settings.json?dl=0"
@@ -144,3 +146,16 @@ class RAFTScenario(Scenario):
                 instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="raft",
+            display_name="RAFT (Real-world Annotated Few-Shot)",
+            short_display_name="RAFT",
+            description="The Real-world annotated few-shot (RAFT) meta-benchmark of 11 real-world text "
+            "classification tasks [(Alex et al., "
+            "2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/ca46c1b9512a7a8315fa3c5a946e8265-Abstract-round2.html).",
+            taxonomy=TaxonomyInfo(task="text classification", what="?", when="?", who="?", language="English"),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )

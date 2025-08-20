@@ -16,6 +16,7 @@ from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     Output,
     Input,
+    ScenarioMetadata,
 )
 
 
@@ -466,3 +467,13 @@ class LEXTREMEScenario(Scenario):
         for subset in self.subsets:
             instances.extend(self.get_instances_for_subset(subset, output_path))
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="lextreme",
+            display_name="LEXTREME",
+            description="A Multilingual Legal Benchmark for Natural Language Understanding",
+            taxonomy=None,
+            main_metric="classification_macro_f1",
+            main_split="test",
+        )

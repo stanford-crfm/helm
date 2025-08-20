@@ -2,8 +2,18 @@ import json
 import os
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
-from helm.benchmark.scenarios.scenario import CORRECT_TAG, Reference, Scenario, Instance, Input, TEST_SPLIT, Output
+from helm.benchmark.scenarios.scenario import (
+    CORRECT_TAG,
+    Reference,
+    Scenario,
+    Instance,
+    Input,
+    TEST_SPLIT,
+    Output,
+    ScenarioMetadata,
+)
 
 
 class SelfInstructScenario(Scenario):
@@ -46,3 +56,21 @@ class SelfInstructScenario(Scenario):
                 )
                 instances.append(instance)
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="self_instruct",
+            display_name="Self Instruct",
+            short_display_name="Self Instruct",
+            description="The manually-curated instructions from the Self-Instruct paper ([Wang et al., "
+            "2023](https://aclanthology.org/2023.acl-long.754.pdf)).",
+            taxonomy=TaxonomyInfo(
+                task="open-ended instruction following",
+                what="Instructions for LLMs",
+                when="2022",
+                who="Authors of the research paper",
+                language="English",
+            ),
+            main_metric="Helpfulness",
+            main_split="test",
+        )

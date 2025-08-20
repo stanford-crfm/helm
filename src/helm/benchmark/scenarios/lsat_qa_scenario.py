@@ -2,6 +2,7 @@ import os
 import json
 from typing import Dict, List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -13,6 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     PassageQuestionInput,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -143,3 +145,15 @@ class LSATScenario(Scenario):
                             instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="lsat_qa",
+            display_name="LSAT",
+            description="The LSAT benchmark for measuring analytical reasoning on the Law School "
+            "Admission Test (LSAT; [Zhong et al., "
+            "2021](https://arxiv.org/pdf/2104.06598.pdf)).",
+            taxonomy=TaxonomyInfo(task="?", what="n/a", when="n/a", who="n/a", language="synthetic"),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )
