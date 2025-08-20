@@ -202,13 +202,13 @@ class Schema:
     metrics: List[Field]
 
     # Information about each perturbation
-    perturbations: List[Field]
+    perturbations: List[Field] = field(default_factory=list)
 
     # Group the metrics
-    metric_groups: List[MetricGroup]
+    metric_groups: List[MetricGroup] = field(default_factory=list)
 
     # Group the scenarios
-    run_groups: List[RunGroup]
+    run_groups: List[RunGroup] = field(default_factory=list)
 
     # Adapter fields (e.g., temperature)
     # Automatically populated from the docstrings in the AdapterSpec class definition.

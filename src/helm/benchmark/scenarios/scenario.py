@@ -209,7 +209,7 @@ class ScenarioMetadata:
     """Description of the scenario"""
 
     short_description: Optional[str] = None
-    """Optional short description of the run group.
+    """Optional short description of the scenario.
     This description is used in some space-constrained places in frontend tables.
     If unset, the description field will be used instead."""
 

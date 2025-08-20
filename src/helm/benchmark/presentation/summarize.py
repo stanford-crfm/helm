@@ -35,7 +35,13 @@ from helm.common.hierarchical_logger import hlog, htrack, htrack_block, hwarn, s
 from helm.benchmark.scenarios.scenario import Scenario, ScenarioMetadata, ScenarioSpec, create_scenario
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.metric_name import MetricName
-from helm.benchmark.metrics.metric import get_all_stats_by_name
+from helm.benchmark.metrics.metric import (
+    MetricInterface,
+    MetricMetadata,
+    MetricSpec,
+    create_metric,
+    get_all_stats_by_name,
+)
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.benchmark.run_spec import RunSpec
 from helm.benchmark.runner import LATEST_SYMLINK
@@ -509,9 +515,46 @@ class Summarizer:
             model_field_dicts.append(asdict_without_nones(model_field))
         return model_field_dicts
 
+    def get_metric_metadata(self) -> List[MetricMetadata]:
+        metric_specs: List[MetricSpec] = []
+        for run in self.runs:
+            metric_specs.extend(run.run_spec.metric_specs)
+        metric_specs = list(set(metric_specs))
+        metric_name_to_metadata: Dict[str, MetricMetadata] = {}
+        for metric_spec in metric_specs:
+            try:
+                metric: MetricInterface = create_metric(metric_spec)
+                metric_metadata_list = metric.get_metadata()
+                for metric_metadata in metric_metadata_list:
+                    metric_name_to_metadata[metric_metadata.name] = metric_metadata
+            except NotImplementedError:
+                pass
+            except (ModuleNotFoundError, AttributeError, TypeError):
+                pass
+
+        run_stat_names: Set[str] = set()
+        for run in self.runs:
+            for stat in run.stats:
+                run_stat_names.add(stat.name.name)
+
+        metric_names_to_prune = set(metric_name_to_metadata.keys()) - run_stat_names
+        for metric_name_to_prune in metric_names_to_prune:
+            del metric_name_to_metadata[metric_name_to_prune]
+        return list(metric_name_to_metadata.values())
+
+    def metric_metadata_to_field(self, metric_metadata: MetricMetadata) -> Field:
+        return Field(
+            name=metric_metadata.name,
+            display_name=metric_metadata.display_name,
+            short_display_name=metric_metadata.short_display_name,
+            description=metric_metadata.description,
+            lower_is_better=metric_metadata.lower_is_better,
+        )
+
+    def auto_generate_metric_fields(self) -> List[Field]:
+        return [self.metric_metadata_to_field(metric_metadata) for metric_metadata in self.get_metric_metadata()]
+
     def get_scenario_metadata(self) -> List[ScenarioMetadata]:
-        """Get a list of `Field`s dicts containing metrics metadata that will be written to schema.json.
-        We first get the metrics"""
         scenario_specs = [run.run_spec.scenario_spec for run in self.runs]
         scenario_specs = list(set(scenario_specs))
         scenario_name_to_metadata: Dict[str, ScenarioMetadata] = {}
@@ -535,7 +578,7 @@ class Summarizer:
             del scenario_name_to_metadata[scenario_name_to_prune]
         return list(scenario_name_to_metadata.values())
 
-    def scenario_metadata_to_run_group(self, scenario_metadata: ScenarioMetadata):
+    def scenario_metadata_to_run_group(self, scenario_metadata: ScenarioMetadata) -> RunGroup:
         metric_group_names = [metric_group.name for metric_group in self.schema.metric_groups]
         return RunGroup(
             name=scenario_metadata.name,
@@ -566,12 +609,13 @@ class Summarizer:
 
     def fix_up_schema(self) -> None:
         # if not self.schema.run_groups:
-        run_groups = self.schema.run_groups
+        if not self.schema.metrics:
+            self.schema = dataclasses.replace(self.schema, metrics=self.auto_generate_metric_fields())
         if not any([len(run_group.subgroups) == 0 for run_group in self.schema.run_groups]):
             self.schema = dataclasses.replace(
                 self.schema, run_groups=self.schema.run_groups + self.auto_generate_scenario_run_groups()
             )
-        if not any([len(run_group.subgroups) > 0 for run_group in run_groups]):
+        if not any([len(run_group.subgroups) > 0 for run_group in self.schema.run_groups]):
             self.schema = dataclasses.replace(
                 self.schema, run_groups=[self.auto_generate_all_scenarios_run_group()] + self.schema.run_groups
             )
@@ -1280,7 +1324,6 @@ class Summarizer:
         """Run the entire summarization pipeline."""
         self.read_runs()
         self.group_runs()
-        self.check_metrics_defined()
 
         ensure_directory_exists(self.run_release_path)
 
@@ -1289,6 +1332,7 @@ class Summarizer:
         # Must happen after self.read_runs()
         # because it uses self.runs
         self.fix_up_schema()
+        self.check_metrics_defined()
         self.write_schema()
 
         self.write_executive_summary()
