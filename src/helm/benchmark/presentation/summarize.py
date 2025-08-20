@@ -516,8 +516,6 @@ class Summarizer:
         return model_field_dicts
 
     def get_metric_metadata(self) -> List[MetricMetadata]:
-        """Get a list of `Field`s dicts containing metrics metadata that will be written to schema.json."""
-        # TODO: Migrate frontend to use ModelMetadata instead of ModelField and delete this.
         metric_specs: List[MetricSpec] = []
         for run in self.runs:
             metric_specs.extend(run.run_spec.metric_specs)

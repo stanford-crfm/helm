@@ -176,7 +176,7 @@ class EfficiencyMetric:
                 name="num_completion_tokens",
                 display_name="# completion tokens",
                 short_display_name=None,
-                description="Actual number of completion " "tokens (over all completions).",
+                description="Actual number of completion "tokens (over all completions).",
                 lower_is_better=None,
             ),
             MetricMetadata(
@@ -188,56 +188,47 @@ class EfficiencyMetric:
             ),
             MetricMetadata(
                 name="training_co2_cost",
-                display_name="Estimated training emissions (kg " "CO2)",
+                display_name="Estimated training emissions (kg CO2)",
                 short_display_name="Training emissions (kg CO2)",
-                description="Estimate of the CO2 emissions from " "training the model.",
+                description="Estimate of the CO2 emissions from training the model.",
                 lower_is_better=True,
             ),
             MetricMetadata(
                 name="training_energy_cost",
-                display_name="Estimated training energy cost " "(MWh)",
+                display_name="Estimated training energy cost (MWh)",
                 short_display_name="Training energy (MWh)",
-                description="Estimate of the amount of energy " "used to train the model.",
+                description="Estimate of the amount of energy used to train the model.",
                 lower_is_better=True,
             ),
             MetricMetadata(
                 name="inference_runtime",
                 display_name="Observed inference runtime (s)",
                 short_display_name="Observed inference time (s)",
-                description="Average observed time to process a "
-                "request to the model (via an API, "
-                "and thus depends on particular "
-                "deployment).",
+                description='Average observed time to process a request to the model (via an API, and thus depends on '
+                   'particular deployment).',
                 lower_is_better=True,
             ),
             MetricMetadata(
                 name="batch_size",
                 display_name="Batch size",
                 short_display_name=None,
-                description="For batch jobs, how many requests are in a " "batch.",
+                description="For batch jobs, how many requests are in a batch.",
                 lower_is_better=None,
             ),
             MetricMetadata(
                 name="inference_denoised_runtime",
-                display_name="Denoised inference runtime " "(s)",
-                short_display_name="Denoised inference " "time (s)",
-                description="Average time to process a "
-                "request to the model minus "
-                "performance contention by "
-                "using profiled runtimes "
-                "from multiple trials of "
-                "SyntheticEfficiencyScenario.",
+                display_name="Denoised inference runtime (s)",
+                short_display_name="Denoised inference time (s)",
+                description='Average time to process a request to the model minus performance contention by using '
+                   'profiled runtimes from multiple trials of SyntheticEfficiencyScenario.',
                 lower_is_better=True,
             ),
             MetricMetadata(
                 name="inference_idealized_runtime",
                 display_name="Idealized inference " "runtime (s)",
                 short_display_name="Idealized inference " "time (s)",
-                description="Average time to process a "
-                "request to the model based "
-                "solely on the model "
-                "architecture (using "
-                "Megatron-LM).",
+                description='Average time to process a request to the model based solely on the model architecture '
+                   '(using Megatron-LM).',
                 lower_is_better=True,
             ),
         ]
