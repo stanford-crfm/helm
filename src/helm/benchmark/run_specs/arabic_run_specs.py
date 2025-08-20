@@ -165,7 +165,7 @@ def get_arabic_exams_spec() -> RunSpec:
     )
 
     return RunSpec(
-        name=f"arabic_exams",
+        name="arabic_exams",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),

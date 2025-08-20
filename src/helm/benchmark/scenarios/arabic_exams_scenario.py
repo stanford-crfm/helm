@@ -1,11 +1,10 @@
 import os
-from typing import Dict, List
+from typing import  List
 
 import datasets
 
 from helm.common.general import ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
-    VALID_SPLIT,
     Scenario,
     Instance,
     Reference,
