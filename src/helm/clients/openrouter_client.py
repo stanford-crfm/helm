@@ -28,4 +28,4 @@ class OpenRouterClient(OpenAIClient):
         self.model_name = model_name
 
     def _get_model_for_request(self, request):
-        return self.model_name or request.model_engine
+        return self.model_name or request.model

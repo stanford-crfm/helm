@@ -35,8 +35,8 @@ class TestOpenRouterClient:
             ),
             (
                 None,
-                Request(model="openai/gpt-oss-20b:free", model_deployment="openai/gpt-oss-20b:free"),
-                "gpt-oss-20b:free",
+                Request(model="openai/gpt-oss-20b:free", model_deployment="openrouter/gpt-oss-20b:free"),
+                "openai/gpt-oss-20b:free",
             ),
         ],
     )
