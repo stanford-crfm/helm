@@ -4,7 +4,6 @@ from typing import List
 import pandas as pd
 from tqdm import tqdm
 
-from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     TRAIN_SPLIT,
@@ -15,7 +14,6 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
-    ScenarioMetadata,
 )
 from helm.common.audio_utils import ensure_audio_file_exists_from_array, get_array_from_audio_file
 from helm.common.media_object import MediaObject, MultimediaObject
@@ -113,21 +111,3 @@ class MELDAudioScenario(Scenario):
             )
             instances.append(instance)
         return instances
-
-    def get_metadata(self) -> ScenarioMetadata:
-        return ScenarioMetadata(
-            name="meld_audio",
-            display_name="MELD Audio",
-            short_display_name=None,
-            description="Classify emotions in audio clips from the television series Friends ([Poria et "
-            "al, 2018](https://arxiv.org/abs/1810.02508)).",
-            taxonomy=TaxonomyInfo(
-                task="audio classification",
-                what="audio clips from the television series Friends",
-                when="1994-2004",
-                who="television actors",
-                language="English",
-            ),
-            main_metric="quasi_exact_match",
-            main_split="test",
-        )

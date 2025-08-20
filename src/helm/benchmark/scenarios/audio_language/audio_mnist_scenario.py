@@ -3,7 +3,6 @@
 from typing import List
 import os
 
-from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -12,7 +11,6 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
-    ScenarioMetadata,
 )
 from tqdm import tqdm
 from datasets import load_dataset
@@ -62,22 +60,3 @@ class AudioMNISTScenario(Scenario):
             references = [Reference(Output(text=str(row["digit"])), tags=[CORRECT_TAG])]
             instances.append(Instance(input=input, references=references, split=TEST_SPLIT))
         return instances
-
-    def get_metadata(self) -> ScenarioMetadata:
-        return ScenarioMetadata(
-            name="audio_mnist",
-            display_name="AudioMNIST",
-            short_display_name=None,
-            description="The AudioMNIST dataset consists of a dataset of 30000 audio samples of spoken "
-            "digits (0-9) of 60 different speakers. The task is to classify the digit from "
-            "the audio sample ([Becker et al, 2023](https://arxiv.org/abs/1807.03418)).\n",
-            taxonomy=TaxonomyInfo(
-                task="audio classification",
-                what="audio samples of spoken digits (0-9)",
-                when="2018",
-                who="60 different speakers",
-                language="English",
-            ),
-            main_metric="exact_match",
-            main_split="test",
-        )

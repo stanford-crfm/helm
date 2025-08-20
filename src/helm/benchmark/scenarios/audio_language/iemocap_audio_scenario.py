@@ -2,7 +2,6 @@ import datasets
 import os
 from typing import List
 
-from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -11,7 +10,6 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
-    ScenarioMetadata,
 )
 from helm.common.audio_utils import ensure_audio_file_exists_from_array
 from helm.common.general import ensure_directory_exists
@@ -83,23 +81,3 @@ class IEMOCAPAudioScenario(Scenario):
                 print(row["audio"])
                 break
         return instances
-
-    def get_metadata(self) -> ScenarioMetadata:
-        return ScenarioMetadata(
-            name="iemocap_audio",
-            display_name="IEMOCAP Audio",
-            short_display_name=None,
-            description="A classification scenario based on audio data from the Interactive emotional "
-            "dyadic motion capture database (IEMOCAP) ([Busso et al, "
-            "2008](https://sail.usc.edu/iemocap/Busso_2008_iemocap.pdf)). The task is to "
-            "classify the emotion of the speaker(s) in the audio sample.\n",
-            taxonomy=TaxonomyInfo(
-                task="audio classification",
-                what="audio recordings improvisations or scripted scenarios",
-                when="2007",
-                who="10 professional actors",
-                language="English",
-            ),
-            main_metric="quasi_exact_match",
-            main_split="test",
-        )
