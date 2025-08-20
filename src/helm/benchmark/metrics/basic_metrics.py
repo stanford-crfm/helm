@@ -541,16 +541,20 @@ def _get_language_modeling_metrics_metadata() -> List[MetricMetadata]:
             description="Predicted output's average log probability " "(input's log prob for language modeling).",
             lower_is_better=False,
         ),
-        MetricMetadata(name='num_perplexity_tokens',
-            display_name='# tokens',
+        MetricMetadata(
+            name="num_perplexity_tokens",
+            display_name="# tokens",
             short_display_name=None,
-            description='Average number of tokens in the predicted output (for language modeling, the input too).',
-            lower_is_better=None),
-        MetricMetadata(name='num_bytes',
-            display_name='# bytes',
+            description="Average number of tokens in the predicted output (for language modeling, the input too).",
+            lower_is_better=None,
+        ),
+        MetricMetadata(
+            name="num_bytes",
+            display_name="# bytes",
             short_display_name=None,
-            description='Average number of bytes in the predicted output (for language modeling, the input too).',
-            lower_is_better=None),
+            description="Average number of bytes in the predicted output (for language modeling, the input too).",
+            lower_is_better=None,
+        ),
     ]
 
 
@@ -624,9 +628,9 @@ def _get_calibration_metrics_metadata() -> List[MetricMetadata]:
             display_name="10-bin expected calibration error",
             short_display_name="ECE (10-bin)",
             description="The average difference between the model's confidence and accuracy, averaged across 10 "
-                   'bins where each bin contains an equal number of points (only computed for classification '
-                   'tasks). Warning - not reliable for small datasets (e.g., with < 300 examples) because '
-                   'each bin will have very few examples.',
+            "bins where each bin contains an equal number of points (only computed for classification "
+            "tasks). Warning - not reliable for small datasets (e.g., with < 300 examples) because "
+            "each bin will have very few examples.",
             lower_is_better=True,
         ),
         MetricMetadata(
@@ -634,37 +638,37 @@ def _get_calibration_metrics_metadata() -> List[MetricMetadata]:
             display_name="1-bin expected calibration error",
             short_display_name="ECE (1-bin)",
             description="The (absolute value) difference between the model's average confidence and accuracy "
-                   '(only computed for classification tasks).',
+            "(only computed for classification tasks).",
             lower_is_better=True,
         ),
         MetricMetadata(
             name="selective_acc@10",
             display_name="Accuracy at 10% coverage",
             short_display_name="Acc@10%",
-            description='The accuracy for the 10% of predictions that the model is most confident on (only '
-                   'computed for classification tasks).',
+            description="The accuracy for the 10% of predictions that the model is most confident on (only "
+            "computed for classification tasks).",
             lower_is_better=False,
         ),
         MetricMetadata(
             name="selective_cov_acc_area",
             display_name="Selective coverage-accuracy area",
             short_display_name="Selective Acc",
-            description='The area under the coverage-accuracy curve, a standard selective classification metric '
-                   '(only computed for classification tasks).',
+            description="The area under the coverage-accuracy curve, a standard selective classification metric "
+            "(only computed for classification tasks).",
             lower_is_better=False,
         ),
         MetricMetadata(
             name="platt_coef",
             display_name="Platt Scaling Coefficient",
             short_display_name="Platt Coef",
-            description='Coefficient of the Platt scaling classifier (can compare this across tasks).',
+            description="Coefficient of the Platt scaling classifier (can compare this across tasks).",
             lower_is_better=False,
         ),
         MetricMetadata(
             name="platt_intercept",
             display_name="Platt Scaling Intercept",
             short_display_name="Platt Intercept",
-            description='Coefficient of the Platt scaling classifier (can compare this across tasks).',
+            description="Coefficient of the Platt scaling classifier (can compare this across tasks).",
             lower_is_better=False,
         ),
         MetricMetadata(
@@ -672,7 +676,7 @@ def _get_calibration_metrics_metadata() -> List[MetricMetadata]:
             display_name="10-bin Expected Calibration Error (after Platt scaling)",
             short_display_name="Platt-scaled ECE (10-bin)",
             description="10-bin ECE computed after applying Platt scaling to recalibrate the model's predicted "
-                   'probabilities.',
+            "probabilities.",
             lower_is_better=True,
         ),
         MetricMetadata(
@@ -680,7 +684,7 @@ def _get_calibration_metrics_metadata() -> List[MetricMetadata]:
             display_name="1-bin expected calibration error (after Platt scaling)",
             short_display_name="Platt-scaled ECE (1-bin)",
             description="1-bin ECE computed after applying Platt scaling to recalibrate the model's predicted "
-                   'probabilities.',
+            "probabilities.",
             lower_is_better=True,
         ),
     ]

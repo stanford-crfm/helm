@@ -60,7 +60,7 @@ class IFEvalMetric(Metric):
                 name="ifeval_strict_accuracy",
                 display_name="IFEval strict accuracy",
                 short_display_name="IFEval Strict Acc",
-                description='Fraction of instructions in the instance that are correctly followed.',
+                description="Fraction of instructions in the instance that are correctly followed.",
                 lower_is_better=False,
             )
         ]

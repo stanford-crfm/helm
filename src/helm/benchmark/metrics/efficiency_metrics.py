@@ -176,7 +176,7 @@ class EfficiencyMetric:
                 name="num_completion_tokens",
                 display_name="# completion tokens",
                 short_display_name=None,
-                description="Actual number of completion "tokens (over all completions).",
+                description="Actual number of completion tokens (over all completions).",
                 lower_is_better=None,
             ),
             MetricMetadata(

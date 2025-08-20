@@ -108,7 +108,7 @@ class GPQAChainOfThoughtMetric(Metric):
                 name="chain_of_thought_correctness",
                 display_name="COT correct",
                 short_display_name="COT correct",
-                description='Fraction of correct answers after chain of thought',
+                description="Fraction of correct answers after chain of thought",
                 lower_is_better=False,
             )
         ]
