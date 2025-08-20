@@ -108,6 +108,32 @@ def get_alrage_spec() -> RunSpec:
     )
 
 
+@run_spec_function("mbzuai_human_translated_arabic_mmlu")
+def get_arabic_mmmlu_spec(subject: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.mbzuai_human_translated_arabic_mmlu.MBZUAIHumanTranslatedArabicMMLUScenario", args={"locale": "AR_XY", "subject": subject}
+        
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة",  # noqa: E501
+        input_noun="السؤال",
+        output_noun="الإجابة",
+        max_tokens=100,
+        reference_prefix_characters=_ARABIC_REFERENCE_PREFIX_CHARACTERS,
+    )
+
+    return RunSpec(
+        name=f"arabic_mmmlu:subject={subject}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["arabic_mmmlu", f"arabic_mmmlu_{subject}"],
+    )
+
+
+
 @run_spec_function("madinah_qa")
 def get_madinah_qa_spec(subset: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
