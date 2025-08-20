@@ -145,7 +145,6 @@ class InstancesPerSplitMetric(MetricInterface):
             MetricMetadata(
                 name="num_instances",
                 display_name="# eval",
-                short_display_name=None,
                 description="Number of evaluation instances.",
                 lower_is_better=None,
             )
@@ -325,26 +324,21 @@ class BasicReferenceMetric(ReferenceMetric):
             MetricMetadata(
                 name="max_prob",
                 display_name="Max prob",
-                short_display_name=None,
-                description="Model's average confidence in its prediction " "(only computed for classification tasks)",
+                description="Model's average confidence in its prediction (only computed for classification tasks)",
                 lower_is_better=False,
             ),
             MetricMetadata(
                 name="exact_match",
                 display_name="Exact match",
                 short_display_name="EM",
-                description="Fraction of instances that the predicted "
-                "output matches a correct reference "
-                "exactly.",
+                description="Fraction of instances that the predicted output matches a correct reference exactly.",
                 lower_is_better=False,
             ),
             MetricMetadata(
                 name="predicted_index",
                 display_name="Predicted index",
-                short_display_name=None,
-                description="Integer index of the reference (0, 1, "
-                "...) that was predicted by the model "
-                "(for multiple-choice).",
+                description="Integer index of the reference (0, 1, ...) that was predicted by the model (for "
+                "multiple-choice).",
                 lower_is_better=None,
             ),
         ]
@@ -380,17 +374,14 @@ def get_request_state_metrics_metadata(
         MetricMetadata(
             name="num_references",
             display_name="# ref",
-            short_display_name=None,
             description="Number of references.",
             lower_is_better=None,
         ),
         MetricMetadata(
             name="num_train_trials",
             display_name="# trials",
-            short_display_name=None,
-            description="Number of trials, where in each trial "
-            "we choose an independent, random set "
-            "of training instances.",
+            description="Number of trials, where in each trial we choose an independent, random set of training "
+            "instances.",
             lower_is_better=None,
         ),
     ]
@@ -429,36 +420,26 @@ def _get_finish_reason_metrics_metadata():
         MetricMetadata(
             name="finish_reason_endoftext",
             display_name="finish b/c endoftext",
-            short_display_name=None,
-            description="Fraction of instances where "
-            "the the output was terminated "
-            "because the end of text token "
+            description="Fraction of instances where the the output was terminated because the end of text token "
             "was generated.",
             lower_is_better=None,
         ),
         MetricMetadata(
             name="finish_reason_length",
             display_name="finish b/c length",
-            short_display_name=None,
-            description="Fraction of instances where the "
-            "the output was terminated because "
-            "of the max tokens limit.",
+            description="Fraction of instances where the the output was terminated because of the max tokens " "limit.",
             lower_is_better=None,
         ),
         MetricMetadata(
             name="finish_reason_stop",
             display_name="finish b/c stop",
-            short_display_name=None,
-            description="Fraction of instances where the the "
-            "output was terminated because of "
-            "the stop sequences.",
+            description="Fraction of instances where the the output was terminated because of the stop sequences.",
             lower_is_better=None,
         ),
         MetricMetadata(
             name="finish_reason_unknown",
             display_name="finish b/c unknown",
-            short_display_name=None,
-            description="Fraction of instances where the " "the output was terminated for " "unknown reasons.",
+            description="Fraction of instances where the the output was terminated for unknown reasons.",
             lower_is_better=None,
         ),
     ]
@@ -482,14 +463,12 @@ def _get_truncation_metrics_metadata() -> List[MetricMetadata]:
         MetricMetadata(
             name="num_train_instances",
             display_name="# train",
-            short_display_name=None,
             description="Number of training instances " "(e.g., in-context examples).",
             lower_is_better=None,
         ),
         MetricMetadata(
             name="prompt_truncated",
             display_name="truncated",
-            short_display_name=None,
             description="Fraction of instances where the "
             "prompt itself was truncated (implies "
             "that there were no in-context "
@@ -544,14 +523,12 @@ def _get_language_modeling_metrics_metadata() -> List[MetricMetadata]:
         MetricMetadata(
             name="num_perplexity_tokens",
             display_name="# tokens",
-            short_display_name=None,
             description="Average number of tokens in the predicted output (for language modeling, the input too).",
             lower_is_better=None,
         ),
         MetricMetadata(
             name="num_bytes",
             display_name="# bytes",
-            short_display_name=None,
             description="Average number of bytes in the predicted output (for language modeling, the input too).",
             lower_is_better=None,
         ),

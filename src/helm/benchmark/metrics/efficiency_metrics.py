@@ -168,21 +168,18 @@ class EfficiencyMetric:
             MetricMetadata(
                 name="num_instances",
                 display_name="# eval",
-                short_display_name=None,
                 description="Number of evaluation instances.",
                 lower_is_better=None,
             ),
             MetricMetadata(
                 name="num_completion_tokens",
                 display_name="# completion tokens",
-                short_display_name=None,
                 description="Actual number of completion tokens (over all completions).",
                 lower_is_better=None,
             ),
             MetricMetadata(
                 name="num_output_tokens",
                 display_name="# output tokens",
-                short_display_name=None,
                 description="Actual number of output tokens.",
                 lower_is_better=None,
             ),
@@ -211,7 +208,6 @@ class EfficiencyMetric:
             MetricMetadata(
                 name="batch_size",
                 display_name="Batch size",
-                short_display_name=None,
                 description="For batch jobs, how many requests are in a batch.",
                 lower_is_better=None,
             ),
