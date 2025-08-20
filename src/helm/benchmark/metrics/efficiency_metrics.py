@@ -204,8 +204,8 @@ class EfficiencyMetric:
                 name="inference_runtime",
                 display_name="Observed inference runtime (s)",
                 short_display_name="Observed inference time (s)",
-                description='Average observed time to process a request to the model (via an API, and thus depends on '
-                   'particular deployment).',
+                description="Average observed time to process a request to the model (via an API, and thus depends on "
+                "particular deployment).",
                 lower_is_better=True,
             ),
             MetricMetadata(
@@ -219,16 +219,16 @@ class EfficiencyMetric:
                 name="inference_denoised_runtime",
                 display_name="Denoised inference runtime (s)",
                 short_display_name="Denoised inference time (s)",
-                description='Average time to process a request to the model minus performance contention by using '
-                   'profiled runtimes from multiple trials of SyntheticEfficiencyScenario.',
+                description="Average time to process a request to the model minus performance contention by using "
+                "profiled runtimes from multiple trials of SyntheticEfficiencyScenario.",
                 lower_is_better=True,
             ),
             MetricMetadata(
                 name="inference_idealized_runtime",
                 display_name="Idealized inference " "runtime (s)",
                 short_display_name="Idealized inference " "time (s)",
-                description='Average time to process a request to the model based solely on the model architecture '
-                   '(using Megatron-LM).',
+                description="Average time to process a request to the model based solely on the model architecture "
+                "(using Megatron-LM).",
                 lower_is_better=True,
             ),
         ]
