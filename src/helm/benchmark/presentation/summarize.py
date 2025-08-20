@@ -47,9 +47,11 @@ from helm.benchmark.run_spec import RunSpec
 from helm.benchmark.runner import LATEST_SYMLINK
 from helm.benchmark.presentation.table import Cell, HeaderCell, Table, Hyperlink, table_to_latex
 from helm.benchmark.presentation.schema import (
+    MetricGroup,
     MetricNameMatcher,
     RunGroup,
     Field,
+    Schema,
     read_schema,
     get_default_schema_path,
     BY_GROUP,
@@ -348,7 +350,7 @@ class Summarizer:
         release: Optional[str],
         suites: Optional[List[str]],
         suite: Optional[str],
-        schema_path: str,
+        schema_path: Optional[str],
         output_path: str,
         verbose: bool,
         num_threads: int,
@@ -383,7 +385,8 @@ class Summarizer:
         self.verbose: bool = verbose
         self.num_threads: int = num_threads
         self.allow_unknown_models: bool = allow_unknown_models
-        self.schema = read_schema(schema_path)
+        self.schema = read_schema(schema_path) if schema_path else Schema()
+        self.metric_metadata: List[MetricMetadata] = []
 
     def read_run(self, run_path: str) -> Run:
         """Load the `Run` object from `run_path`."""
@@ -516,6 +519,8 @@ class Summarizer:
         return model_field_dicts
 
     def get_metric_metadata(self) -> List[MetricMetadata]:
+        if self.metric_metadata:
+            return self.metric_metadata
         metric_specs: List[MetricSpec] = []
         for run in self.runs:
             metric_specs.extend(run.run_spec.metric_specs)
@@ -540,7 +545,8 @@ class Summarizer:
         metric_names_to_prune = set(metric_name_to_metadata.keys()) - run_stat_names
         for metric_name_to_prune in metric_names_to_prune:
             del metric_name_to_metadata[metric_name_to_prune]
-        return list(metric_name_to_metadata.values())
+        self.metric_metadata = list(metric_name_to_metadata.values())
+        return self.metric_metadata
 
     def metric_metadata_to_field(self, metric_metadata: MetricMetadata) -> Field:
         return Field(
@@ -553,6 +559,37 @@ class Summarizer:
 
     def auto_generate_metric_fields(self) -> List[Field]:
         return [self.metric_metadata_to_field(metric_metadata) for metric_metadata in self.get_metric_metadata()]
+
+    def auto_generate_metric_groups(self) -> List[MetricGroup]:
+        metric_groups = [
+            MetricGroup(
+                name="main_metric",
+                display_name="Main Metric",
+                description="Main Metric",
+                aggregation_strategies=[],
+                metrics=[MetricNameMatcher(name="${main_name}", split="${main_split}")],
+            )
+        ]
+        metric_group_to_metrics: Dict[str, List[str]] = {}
+        for metric_metadata in self.metric_metadata:
+            if metric_metadata.group:
+                if metric_metadata.group not in metric_group_to_metrics:
+                    metric_group_to_metrics[metric_metadata.group] = []
+                metric_group_to_metrics[metric_metadata.group].append(metric_metadata.name)
+        for metric_group, metric_names in metric_group_to_metrics.items():
+            metric_groups.append(
+                MetricGroup(
+                    name=metric_group,
+                    # TODO: Make display_name and description nicer
+                    display_name=metric_group,
+                    description=metric_group,
+                    aggregation_strategies=[],
+                    metrics=[
+                        MetricNameMatcher(name=metric_name, split="${main_split}") for metric_name in metric_names
+                    ],
+                )
+            )
+        return metric_groups
 
     def get_scenario_metadata(self) -> List[ScenarioMetadata]:
         scenario_specs = [run.run_spec.scenario_spec for run in self.runs]
@@ -611,6 +648,11 @@ class Summarizer:
         # if not self.schema.run_groups:
         if not self.schema.metrics:
             self.schema = dataclasses.replace(self.schema, metrics=self.auto_generate_metric_fields())
+            # Can only auto-generate metric groups if metrics were also auto-generated
+            # because auto_generate_metric_groups() requires self.metric_metadata()
+            # which is populated by auto_generate_metric_fields()
+            if not self.schema.metric_groups:
+                self.schema = dataclasses.replace(self.schema, metric_groups=self.auto_generate_metric_groups())
         if not any([len(run_group.subgroups) == 0 for run_group in self.schema.run_groups]):
             self.schema = dataclasses.replace(
                 self.schema, run_groups=self.schema.run_groups + self.auto_generate_scenario_run_groups()

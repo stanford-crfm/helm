@@ -41,6 +41,7 @@ class WildBenchScoreMetric(Metric):
                 short_display_name="WB Score",
                 description="Score of the AI output judged by GPT-4o.",
                 lower_is_better=False,
+                group="accuracy",
             ),
             MetricMetadata(
                 name="wildbench_score_rescaled",
@@ -48,5 +49,6 @@ class WildBenchScoreMetric(Metric):
                 short_display_name="WB Score",
                 description="Score of the AI output judged by GPT-4o, rescaled to be between 0 and 1.",
                 lower_is_better=False,
+                group="accuracy",
             ),
         ]
