@@ -28,8 +28,4 @@ class OpenRouterClient(OpenAIClient):
         self.model_name = model_name
 
     def _get_model_for_request(self, request):
-        if self.model_name:
-            return self.model_name
-        # elif len(request.model_deployment.split("/")) > 1:
-        #     return request.model_deployment.replace("openrouter/", "")
         return self.model_name or request.model_engine
