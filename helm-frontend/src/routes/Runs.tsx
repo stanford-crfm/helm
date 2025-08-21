@@ -16,7 +16,7 @@ export default function Runs() {
   const [currentPage, setCurrentPage] = useState<number>(
     Number(searchParams.get("page") || 1),
   );
-  const [useRegex, setUseRegex] = useState<boolean>(false);
+  const [useRegex, setUseRegex] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>(
     searchParams.get("q") || "",
   );

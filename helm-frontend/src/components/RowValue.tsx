@@ -19,19 +19,9 @@ function formatNumber(value: string | number): string {
 }
 
 function escapeRegExp(rawString: string): string {
-  // Otherwise do our homebrew best-effort escaping
-  let escapedString = rawString;
-  if ("escape" in RegExp) {
-    return RegExp.escape(rawString); // eslint-disable-line @typescript-eslint/no-unsafe-return
-  }
-  const specialCharacters = "^$\\.*+?()[]{}|".split("");
-  specialCharacters.forEach(function (specialCharacter) {
-    escapedString = escapedString.replace(
-      specialCharacter,
-      `\\${specialCharacter}`,
-    );
-  });
-  return escapedString;
+  // Homebrew best-effort escaping
+  // TODO: Replace with RegExp.escape after it is widely available
+  return rawString.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 export default function RowValue({ value, title, hideIcon }: Props) {
