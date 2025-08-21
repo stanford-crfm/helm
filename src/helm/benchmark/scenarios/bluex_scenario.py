@@ -12,7 +12,7 @@ from helm.benchmark.scenarios.scenario import (
 )
 
 
-class BLUEX_Scenario(Scenario):
+class BLUEXScenario(Scenario):
     """
     The BLUEX dataset is a benchmark used for evaluating natural language processing models in Brazilian Portuguese.
     It consists of multiple-choice questions taken from official entrance exams of Unicamp (Convest) and USP (Fuvest),
