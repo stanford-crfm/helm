@@ -5,6 +5,9 @@
 > **What you’ll do here:** Install MedHELM, run a small evaluation locally, understand access levels, view leaderboards, and learn how to contribute new scenarios/models.
 >
 > **Time required:** \~10 minutes for the Quickstart.
+>
+> **Requirements:** [Conda](https://www.anaconda.com/docs/getting-started/getting-started)/Python 3.10 (~30 min), [Google Cloud CLI](https://cloud.google.com/sdk/docs/install) (~30 min), and GPU access (exact GPU requierements depend on the model used and context length).
+
 
 MedHELM extends the HELM framework to evaluate **large language models (LLMs) in medical applications**, focusing on realistic tasks, safety, and reproducibility.
 
