@@ -136,7 +136,7 @@ run_groups:
     description: Arabic Scenarios
     category: Scenarios
     subgroups:
-      - arabic_mmmlu
+      - mbzuai_human_translated_arabic_mmlu
       - arabic_mmlu
       - alghafa
       - arabic_exams
