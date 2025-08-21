@@ -62,7 +62,7 @@ class AraTrustScenario(Scenario):
     def __init__(self, category: str):
         super().__init__()
         category = category.replace("_", " ")
-        if category not in self.CATEGORIES and self.category != "all":
+        if category not in self.CATEGORIES and category != "all":
             raise Exception(f"Unknown category {category}")
         self.category = category
 
