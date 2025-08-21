@@ -38,7 +38,6 @@ class MadinahQAScenario(Scenario):
         cache_dir = os.path.join(output_path, "data")
         ensure_directory_exists(cache_dir)
         instances: List[Instance] = []
-        # for subset in self.SUBSETS:
         dataset_splits: Dict[str, datasets.Dataset] = datasets.load_dataset(
             "MBZUAI/MadinahQA",
             self.subset,
