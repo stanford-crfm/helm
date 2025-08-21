@@ -135,7 +135,7 @@ def get_madinah_qa_spec(subset: str) -> RunSpec:
 @run_spec_function("mbzuai_human_translated_arabic_mmlu")
 def get_arabic_mmmlu_spec(subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.mbzuai_human_translated_arabic_mmlu.MBZUAIHumanTranslatedArabicMMLU",
+        class_name="helm.benchmark.scenarios.mbzuai_human_translated_arabic_mmlu.MBZUAIHumanTranslatedArabicMMLUScenario",
         args={"subject": subject},
     )
 
