@@ -150,10 +150,9 @@ def get_arabic_mmmlu_spec(subject: str) -> RunSpec:
 
 
 @run_spec_function("arabic_exams")
-def get_arabic_exams_spec(subject: str) -> RunSpec:
+def get_arabic_exams_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.exams_multilingual_scenario.EXAMSMultilingualScenario",
-        args={"language": "Arabic", "subject": subject},
+        class_name="helm.benchmark.scenarios.arabic_exams_scenario.ArabicEXAMSScenario",
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -166,9 +165,9 @@ def get_arabic_exams_spec(subject: str) -> RunSpec:
     )
 
     return RunSpec(
-        name=f"arabic_exams:subject={subject}",
+        name="arabic_exams",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["arabic_exams", f"arabic_exams_{subject}"],
+        groups=["arabic_exams"],
     )

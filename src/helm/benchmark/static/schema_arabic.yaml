@@ -196,8 +196,8 @@ run_groups:
       language: Arabic
 
   - name: arabic_exams
-    display_name: EXAMS (Arabic)
-    description: EXAMS (Arabic)
+    display_name: Arabic EXAMS
+    description: Arabic EXAMS
     metric_groups:
       - accuracy
       - efficiency
