@@ -47,7 +47,7 @@ export default function Runs() {
     return <Loading />;
   }
 
-  let regex: RegExp| null = null;
+  let regex: RegExp | null = null;
   if (useRegex) {
     try {
       regex = new RegExp(searchQuery);
