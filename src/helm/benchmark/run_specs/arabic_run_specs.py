@@ -61,9 +61,12 @@ def get_alghafa_spec(subset: str) -> RunSpec:
 
 
 @run_spec_function("aratrust")
-def get_aratrust_spec() -> RunSpec:
+def get_aratrust_spec(category: str) -> RunSpec:
     """EXPERIMENTAL: This run spec here may have future reverse incompatible changes."""
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.aratrust_scenario.AraTrustScenario")
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.aratrust_scenario.AraTrustScenario",
+        args={"category": category},
+    )
 
     adapter_spec = get_generation_adapter_spec(
         instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة: أ، ب أو ج",  # noqa: E501
@@ -73,7 +76,7 @@ def get_aratrust_spec() -> RunSpec:
     )
 
     return RunSpec(
-        name="aratrust",
+        name=f"aratrust:category={category}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
