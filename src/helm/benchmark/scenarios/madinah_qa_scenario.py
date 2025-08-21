@@ -27,6 +27,13 @@ class MadinahQAScenario(Scenario):
     HF_SPLIT_TO_HELM_SPLIT = {"dev": TRAIN_SPLIT, "test": TEST_SPLIT}
     SUBSETS = ["Arabic Language (General)", "Arabic Language (Grammar)"]
 
+    def __init__(self, subset: str):
+        super().__init__()
+        subset=subset.replace("_", " ")
+        if subset not in self.SUBSETS:
+            raise Exception(f"Unknown subset: {subset}")
+        self.subset = subset
+
     def get_instances(self, output_path: str) -> List[Instance]:
         cache_dir = os.path.join(output_path, "data")
         ensure_directory_exists(cache_dir)
