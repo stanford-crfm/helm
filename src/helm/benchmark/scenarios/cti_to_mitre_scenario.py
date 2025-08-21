@@ -6,6 +6,7 @@ from typing import Any, List, Dict
 import pandas as pd
 from pandas import DataFrame
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -16,6 +17,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -238,3 +240,22 @@ class CtiToMitreScenario(Scenario):
         # return all instances
         all_instances = instances_train + instances_test
         return all_instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="cti_to_mitre",
+            display_name="CTI-to-MITRE Cyber Threat Intelligence",
+            short_display_name=None,
+            description="A classification benchmark based on Automatic Mapping of Unstructured Cyber "
+            "Threat Intelligence - An Experimental Study [(Orbinato et al., "
+            "2022)](https://arxiv.org/pdf/2208.12144.pdf).",
+            taxonomy=TaxonomyInfo(
+                task="text classification",
+                what="Descriptions of malicious techniques",
+                when="Before 2022",
+                who="Security professionals",
+                language="English",
+            ),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )

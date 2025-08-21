@@ -4,9 +4,10 @@ from typing import List, Union
 from enum import Enum
 import pandas as pd
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.benchmark.scenarios.ice_scenario_pinned_file_order import listdir_with_pinned_file_order
-from helm.benchmark.scenarios.scenario import Scenario, Instance, TEST_SPLIT, Input
+from helm.benchmark.scenarios.scenario import Scenario, Instance, TEST_SPLIT, Input, ScenarioMetadata
 
 try:
     # pd.read_excel() uses xlrd
@@ -467,3 +468,22 @@ class ICEScenario(Scenario):
                     instances.append(Instance(Input(text=t), references=[], split=TEST_SPLIT))
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="ice",
+            display_name="ICE (International Corpus of English)",
+            short_display_name="ICE",
+            description="The International Corpus of English (ICE) drawn from English speakers from "
+            "various places in the world, initiated by [Greenbaum "
+            "(1991)](https://www.cambridge.org/core/journals/english-today/article/abs/ice-the-international-corpus-of-english/47808205394C538393C3FD8E62E5E701).",
+            taxonomy=TaxonomyInfo(
+                task="language modeling",
+                what="?",
+                when="?",
+                who="?",
+                language="English varieties from different nations",
+            ),
+            main_metric="bits_per_byte",
+            main_split="test",
+        )

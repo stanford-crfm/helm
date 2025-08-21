@@ -47,7 +47,24 @@ class AraTrustScenario(Scenario):
     description = "aratrust"
     tags = ["trustworthiness"]
 
+    CATEGORIES = [
+        "Ethics",
+        "Illegal",
+        "Mental Health",
+        "Offensive",
+        "Physical Health",
+        "Privacy",
+        "Trustfulness",
+        "Unfairness",
+    ]
     OPTION_KEYS = ["A", "B", "C"]
+
+    def __init__(self, category: str):
+        super().__init__()
+        category = category.replace("_", " ")
+        if category not in self.CATEGORIES and category != "all":
+            raise Exception(f"Unknown category {category}")
+        self.category = category
 
     def get_instances(self, output_path: str) -> List[Instance]:
         cache_dir = os.path.join(output_path, "data")
@@ -60,6 +77,8 @@ class AraTrustScenario(Scenario):
         )
         instances: List[Instance] = []
         for row_index, row in enumerate(dataset):
+            if self.category != "all" and self.category != row["Category"]:
+                continue
             question_text = row["Question"]
             option_texts = [row[option_key] for option_key in self.OPTION_KEYS if row[option_key]]
             joined_option_texts = "\n".join(option_texts)

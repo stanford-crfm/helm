@@ -5,6 +5,7 @@ from typing import List, Dict
 
 import pandas as pd
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Input,
     Instance,
@@ -15,6 +16,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TEST_SPLIT,
     TRAIN_SPLIT,
+    ScenarioMetadata,
 )
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog
@@ -129,6 +131,27 @@ class TyDiQAScenario(Scenario):
                 outputs.append(instance)
         return outputs
 
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="tydiqa",
+            display_name="TyDiQA",
+            short_display_name=None,
+            description="TyDiQA [(Clark, 2020)](https://aclanthology.org/2020.tacl-1.30) is an "
+            "open-book question answering dataset for 11 typologically-diverse languages. "
+            "The questions are written by people who want to know the answer, but do not "
+            "know the answer yet, and the data is collected directly in each language "
+            "without the use of translation.\n",
+            taxonomy=TaxonomyInfo(
+                task="question answering",
+                what="questions by human annotators about Wikipedia articles",
+                when="?",
+                who="human annotators",
+                language="Indonesian",
+            ),
+            main_metric="squad_f1_score",
+            main_split="test",
+        )
+
 
 # 1.2 Vietnamese & Thai: XQuAD
 class XQuADScenario(Scenario):
@@ -231,6 +254,28 @@ class XQuADScenario(Scenario):
                 instance = Instance(input=input, references=references, split=self.splits[split])
                 outputs.append(instance)
         return outputs
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name=f"xquad_{self.language}",
+            display_name=f"XQuAD ({self.language})",
+            short_display_name=None,
+            description="XQuAD [(Artetxe, 2019)](https://arxiv.org/abs/1910.11856) is an open-book "
+            "question answering dataset that is parallel across 10 languages. The dataset "
+            "consists of a subset of 240 paragraphs and 1190 question-answer pairs from the "
+            "development set of SQuAD v1.1 (Rajpurkar et al., 2016) together with their "
+            "professional translations.\n",
+            taxonomy=TaxonomyInfo(
+                task="question answering",
+                what="questions by crowdworkers about Wikipedia articles translated "
+                f"from English to {self.language}",
+                when="?",
+                who="?",
+                language=self.language,
+            ),
+            main_metric="squad_f1_score",
+            main_split="test",
+        )
 
 
 # 1.3 Tamil: IndicQA
@@ -341,6 +386,27 @@ class IndicQAScenario(Scenario):
                 outputs.append(instance)
         return outputs
 
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="indicqa",
+            display_name="IndicQA",
+            short_display_name=None,
+            description="IndicQA [(Doddapaneni, 2023)](https://aclanthology.org/2023.acl-long.693)is an "
+            "open-book question answering dataset for 11 Indic languages. Answers to "
+            "questions are to be extracted from the text provided. The data is taken from "
+            "Wikipedia articles across various domains and questions and answers were "
+            "manually created by native speakers.\n",
+            taxonomy=TaxonomyInfo(
+                task="question answering",
+                what="questions about Wikipedia articles translated by native " "speakers from English to Tamil",
+                when="?",
+                who="?",
+                language="Tamil",
+            ),
+            main_metric="squad_f1_score",
+            main_split="test",
+        )
+
 
 # 2. Sentiment Analysis
 # 2.1 Indonesian: NusaX Sentiment
@@ -445,6 +511,25 @@ class NusaXScenario(Scenario):
                 outputs.append(instance)
         return outputs
 
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="nusax",
+            display_name="NusaX",
+            short_display_name=None,
+            description="NusaX [(Winata, 2023)](https://aclanthology.org/2023.eacl-main.57) is an "
+            "Indonesian sentiment analysis dataset. The data consists of comments and "
+            "reviews from various online platforms.\n",
+            taxonomy=TaxonomyInfo(
+                task="sentiment analysis",
+                what="online comments and reviews",
+                when="?",
+                who="internet users",
+                language="Indonesian",
+            ),
+            main_metric="classification_macro_f1",
+            main_split="test",
+        )
+
 
 # 2.2 Vietnamese: UIT-VSFC
 class UITVSFCScenario(Scenario):
@@ -543,6 +628,25 @@ class UITVSFCScenario(Scenario):
                 outputs.append(instance)
         return outputs
 
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="uitvsfc",
+            display_name="UIT-VSFC",
+            short_display_name=None,
+            description="UIT-VSFC [(Nguyen, 2018)](https://ieeexplore.ieee.org/document/8573337) is a "
+            "Vietnamese sentiment analysis dataset. The data consists of student feedback "
+            "obtained from end-of-semester surveys at a Vietnamese university.\n",
+            taxonomy=TaxonomyInfo(
+                task="sentiment analysis",
+                what="university student end-of-semester survey responses",
+                when="?",
+                who="university students",
+                language="Vietnamese",
+            ),
+            main_metric="classification_macro_f1",
+            main_split="test",
+        )
+
 
 # 2.3 Thai: Wisesight Sentiment
 class WisesightScenario(Scenario):
@@ -634,6 +738,25 @@ class WisesightScenario(Scenario):
                 outputs.append(instance)
         return outputs
 
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="wisesight",
+            display_name="Wisesight",
+            short_display_name=None,
+            description="Wisesight [(Suriyawongkul, 2019)](https://doi.org/10.5281/zenodo.3457447) is "
+            "an Thai sentiment analysis scenario. The data consists of social media "
+            "messages regarding consumer products and services. \n",
+            taxonomy=TaxonomyInfo(
+                task="sentiment analysis",
+                what="social media messages regarding consumer products and services",
+                when="?",
+                who="social media users",
+                language="Thai",
+            ),
+            main_metric="classification_macro_f1",
+            main_split="test",
+        )
+
 
 # 2.4 Tamil: IndicSentiment
 class IndicSentimentScenario(Scenario):
@@ -722,6 +845,22 @@ class IndicSentimentScenario(Scenario):
                 instance = Instance(input=input, references=references, split=self.splits[split])
                 outputs.append(instance)
         return outputs
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="indicsentiment",
+            display_name="IndicSentiment",
+            short_display_name=None,
+            description="IndicSentiment is a Tamil sentiment analysis dataset that comes from "
+            "IndicXTREME [(Doddapaneni, "
+            "2022)](https://aclanthology.org/2023.acl-long.693/), and consists of product "
+            "reviews that were written by annotators. Labels are positive or negative.\n",
+            taxonomy=TaxonomyInfo(
+                task="sentiment analysis", what="product reviews", when="?", who="human annotators", language="Tamil"
+            ),
+            main_metric="classification_macro_f1",
+            main_split="test",
+        )
 
 
 # 3. Toxicity Detection/Classification
@@ -835,6 +974,24 @@ class MLHSDScenario(Scenario):
                 outputs.append(instance)
         return outputs
 
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="mlhsd",
+            display_name="MLHSD",
+            short_display_name=None,
+            description="MLHSD [(Ibrohim, 2019)](https://aclanthology.org/W19-3506) is an Indonesian "
+            "toxicity detection dataset obtained from tweets on Twitter.\n",
+            taxonomy=TaxonomyInfo(
+                task="toxicity detection/classification",
+                what="tweets",
+                when="?",
+                who="Twitter users",
+                language="Indonesian",
+            ),
+            main_metric="classification_macro_f1",
+            main_split="test",
+        )
+
 
 # 3.2 Vietnamese: ViHSD
 class ViHSDScenario(Scenario):
@@ -927,6 +1084,26 @@ class ViHSDScenario(Scenario):
                 outputs.append(instance)
         return outputs
 
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="vihsd",
+            display_name="ViHSD",
+            short_display_name=None,
+            description="ViHSD [(Luu, "
+            "2021)](https://link.springer.com/chapter/10.1007/978-3-030-79457-6_35 )is a "
+            "Vietnamese toxicity detection dataset obtained from comments on Facebook, "
+            "Youtube, Instagram, and Tiktok.\n",
+            taxonomy=TaxonomyInfo(
+                task="toxicity detection/classification",
+                what="social media comments",
+                when="?",
+                who="Social media users",
+                language="Vietnamese",
+            ),
+            main_metric="classification_macro_f1",
+            main_split="test",
+        )
+
 
 # 3.3 Thai: Thai Toxicity Tweets
 class ThaiToxicityTweetsScenario(Scenario):
@@ -1012,6 +1189,21 @@ class ThaiToxicityTweetsScenario(Scenario):
                 instance = Instance(input=input, references=references, split=self.splits[split])
                 outputs.append(instance)
         return outputs
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="thaitoxicitytweets",
+            display_name="Thai Toxicity Tweets",
+            short_display_name=None,
+            description="Thai Toxicity Tweets [(Sirihattasak, "
+            "2018)](http://www.lrec-conf.org/workshops/lrec2018/W32/pdf/1_W32.pdf) is a "
+            "Thai toxicity detection dataset obtained from tweets on Twitter. \n",
+            taxonomy=TaxonomyInfo(
+                task="toxicity detection/classification", what="tweets", when="", who="Twitter users", language="Thai"
+            ),
+            main_metric="classification_macro_f1",
+            main_split="test",
+        )
 
 
 # B. Natural Language Generation
@@ -1111,6 +1303,28 @@ class FloresScenario(Scenario):
                 outputs.append(instance)
         return outputs
 
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name=f"flores_{self.source}_{self.target}",
+            display_name=f"Flores ({self.source} to {self.target})",
+            short_display_name=None,
+            description="Flores [(NLLB Team, "
+            "2022)](https://research.facebook.com/publications/no-language-left-behind/) "
+            "was created with professional human translators who translate the FLORES "
+            "source dataset into the target languages and a separate group of independent "
+            "translation reviewers who perform quality assessments of the human "
+            "translations and provide translation feedback to the translators.\n",
+            taxonomy=TaxonomyInfo(
+                task="machine translation",
+                what="translations from professional human translators",
+                when="?",
+                who="professional human translators",
+                language=f"{self.source}, {self.target}",
+            ),
+            main_metric="chr_f_plus_plus",
+            main_split="test",
+        )
+
 
 # C. Natural Language Reasoning
 #   1. Natural Language Inference
@@ -1206,6 +1420,26 @@ class IndoNLIScenario(Scenario):
                 instance = Instance(input=input, references=references, split=self.splits[split])
                 outputs.append(instance)
         return outputs
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="indonli",
+            display_name="IndoNLI",
+            short_display_name=None,
+            description="IndoNLI [(Mahendra, 2021)](https://aclanthology.org/2021.emnlp-main.821) is a "
+            "natural language inference dataset obtained from Wikipedia, news, and web "
+            "articles that incorporates various linguistic phenomena such as numerical "
+            "reasoning, structural changes, idioms, or temporal and spatial reasoning. \n",
+            taxonomy=TaxonomyInfo(
+                task="natural language inference",
+                what="Wikipedia, news, and web articles",
+                when="?",
+                who="?",
+                language="Indonesian",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )
 
 
 # 1.2 Vietnamese & Thai: XNLI
@@ -1305,6 +1539,25 @@ class XNLIScenario(Scenario):
                 outputs.append(instance)
         return outputs
 
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name=f"xnli_{self.language}",
+            display_name=f"XNLI ({self.language})",
+            short_display_name=None,
+            description="XNLI [(Conneau, 2018)](https://aclanthology.org/D18-1269) is a natural "
+            "language inference dataset obtained from crowdsourced NLI data then "
+            "professionally translated across 14 other languages.\n",
+            taxonomy=TaxonomyInfo(
+                task="natural language inference",
+                what="crowdsourced NLI data professionally translated",
+                when="?",
+                who="?",
+                language=self.language,
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )
+
 
 # 1.3 Tamil: IndicXNLI
 class IndicXNLIScenario(Scenario):
@@ -1397,6 +1650,25 @@ class IndicXNLIScenario(Scenario):
                 instance = Instance(input=input, references=references, split=self.splits[split])
                 outputs.append(instance)
         return outputs
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="indicxnli",
+            display_name="IndicXNLI",
+            short_display_name=None,
+            description="IndicXNLI is a Tamil sentiment analysis dataset that comes from IndicXTREME "
+            "[(Doddapaneni, 2022)](https://aclanthology.org/2023.acl-long.693/), which "
+            "automatically translated from XNLI into 11 Indic languages.\n",
+            taxonomy=TaxonomyInfo(
+                task="natural language inference",
+                what="crowdsourced NLI data professionally translated into Tamil",
+                when="?",
+                who="?",
+                language="Tamil",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )
 
 
 # 2. Causal Reasoning: XCOPA
@@ -1529,6 +1801,25 @@ class XCOPAScenario(Scenario):
                 outputs.append(instance)
         return outputs
 
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name=f"xcopa_{self.language}",
+            display_name=f"XCOPA ({self.language})",
+            short_display_name=None,
+            description="XCOPA [(Ponti, 2020)](https://ducdauge.github.io/files/xcopa.pdf) is causal "
+            "reasoning dataset, a translation and reannotation of the English COPA. English "
+            "COPA included questions that directly assess commonsense causal reasoning.\n",
+            taxonomy=TaxonomyInfo(
+                task="causal reasoning",
+                what="commonsense causal reasoning questions translated into " "Indonesian",
+                when="?",
+                who="?",
+                language=self.language,
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )
+
 
 # 1. Syntax: LINDSEA Minimal Pairs
 class LINDSEASyntaxMinimalPairsScenario(Scenario):
@@ -1649,6 +1940,26 @@ class LINDSEASyntaxMinimalPairsScenario(Scenario):
                 )
                 outputs.append(instance)
         return outputs
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name=f"lindsea_syntax_minimal_pairs_{self.language}",
+            display_name="LINDSEA Syntax Minimal Pairs",
+            short_display_name=None,
+            description="LINDSEA minimal pairs is a linguistic diagnostic for syntax dataset from BHASA "
+            "[(Leong, 2023)](https://arxiv.org/abs/2309.06085), involving pairs of "
+            "sentences that differ minimally from each other and contrast in grammatical "
+            "acceptability.\n",
+            taxonomy=TaxonomyInfo(
+                task="minimal pairs",
+                what="sentence pairs with minimal differences and constrasting " "grammatical acceptability",
+                when="?",
+                who="?",
+                language=self.language,
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )
 
 
 # 2.1 Pragmatics: LINDSEA Presuppositions
@@ -1798,6 +2109,24 @@ class LINDSEAPragmaticsPresuppositionsScenario(Scenario):
             outputs.append(instance)
         return outputs
 
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name=f"lindsea_pragmatics_presuppositions_{self.language}",
+            display_name="LINDSEA Pragmatics Presuppositions",
+            short_display_name=None,
+            description="LINDSEA Pragmatics Presuppositions is a linguistic diagnostic for pragmatics "
+            "dataset from BHASA [(Leong, 2023)](https://arxiv.org/abs/2309.06085), "
+            "involving two formats: single and pair sentences. For single sentence "
+            "questions, the system under test needs to determine if the sentence is "
+            "true/false. For pair sentence questions, the system under test needs to "
+            "determine whether a conclusion can be drawn from another sentence.\n",
+            taxonomy=TaxonomyInfo(
+                task="pragmatic reasoning", what="presuppositions", when="?", who="?", language=self.language
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )
+
 
 # 2.2 Pragmatics: LINDSEA Scalar Implicatures
 class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
@@ -1945,3 +2274,22 @@ class LINDSEAPragmaticsScalarImplicaturesScenario(Scenario):
             )
             outputs.append(instance)
         return outputs
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name=f"lindsea_pragmatics_scalar_implicatures_{self.language}",
+            display_name="LINDSEA Pragmatics Scalar Implicatures",
+            short_display_name=None,
+            description="LINDSEA Pragmatics Scalar Implicatures is a linguistic diagnostic for "
+            "pragmatics dataset from BHASA [(Leong, "
+            "2023)](https://arxiv.org/abs/2309.06085), , involving two formats: single and "
+            "pair sentences. For single sentence questions, the system under test needs to "
+            "determine if the sentence is true/false. For pair sentence questions, the "
+            "system under test needs to determine whether a conclusion can be drawn from "
+            "another sentence.\n",
+            taxonomy=TaxonomyInfo(
+                task="pragmatic reasoning", what="scalar implicatures", when="?", who="?", language=self.language
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )
