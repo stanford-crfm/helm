@@ -29,7 +29,7 @@ class MadinahQAScenario(Scenario):
 
     def __init__(self, subset: str):
         super().__init__()
-        subset=subset.replace("_", " ")
+        subset = subset.replace("_", " ")
         if subset not in self.SUBSETS:
             raise Exception(f"Unknown subset: {subset}")
         self.subset = subset

@@ -16,7 +16,9 @@ _ARABIC_REFERENCE_PREFIX_CHARACTERS = ["أ", "ب", "ج", "د", "هـ"]
 def get_arabic_mmlu_spec(subset: str) -> RunSpec:
     """EXPERIMENTAL: This run spec here may have future reverse incompatible changes."""
 
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.arabic_mmlu_scenario.ArabicMMLUScenario", args={"subset": subset})
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.arabic_mmlu_scenario.ArabicMMLUScenario", args={"subset": subset}
+    )
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -108,8 +110,9 @@ def get_alrage_spec() -> RunSpec:
 
 @run_spec_function("madinah_qa")
 def get_madinah_qa_spec(subset: str) -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.madinah_qa_scenario.MadinahQAScenario",
-                                 args={"subset": subset})
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.madinah_qa_scenario.MadinahQAScenario", args={"subset": subset}
+    )
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
