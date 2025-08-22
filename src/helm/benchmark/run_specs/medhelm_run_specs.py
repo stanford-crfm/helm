@@ -2,6 +2,7 @@
 
 Website: https://crfm.stanford.edu/helm/medhelm/
 """
+
 import cattrs
 import yaml
 
@@ -34,9 +35,9 @@ from helm.common.gpu_utils import get_torch_device_name
 class BenchmarkConfig:
     """
     A benchmark configuration is an immutable data structure that holds
-    the configuration for a specific benchmark, including prompt, dataset and metric 
+    the configuration for a specific benchmark, including prompt, dataset and metric
     """
-    
+
     name: str
     """Name of the benchmark"""
 
@@ -56,7 +57,6 @@ class BenchmarkConfig:
     """Maximum number of tokens to generate in the response"""
 
 
-
 def get_benchmark_config_from_path(path: str) -> BenchmarkConfig:
     with open(path) as f:
         config = yaml.safe_load(f)
@@ -70,16 +70,10 @@ def get_medhelm_benchmark_spec(config_path: str) -> RunSpec:
 
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.medhelm_scenario.MedHELMScenario",
-        args={
-            "benchmark_config": benchmark_config
-        }
+        args={"benchmark_config": benchmark_config},
     )
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="",
-        input_noun=None,
-        newline_after_input_noun=False,
-        output_noun="",
         max_tokens=benchmark_config.max_tokens,
         max_train_instances=0,
         stop_sequences=[],
@@ -95,6 +89,7 @@ def get_medhelm_benchmark_spec(config_path: str) -> RunSpec:
         metric_specs=metric_specs,
         groups=[benchmark_config.name],
     )
+
 
 @run_spec_function("medcalc_bench")
 def get_medcalc_bench_spec() -> RunSpec:
