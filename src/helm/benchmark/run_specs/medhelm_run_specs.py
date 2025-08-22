@@ -6,10 +6,11 @@ Website: https://crfm.stanford.edu/helm/medhelm/
 import cattrs
 import yaml
 
-from typing import Union
+from typing import Union, List
 from dataclasses import dataclass
 
 
+from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo
 from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_MULTIPLE_CHOICE_JOINT,
 )
@@ -50,7 +51,7 @@ class BenchmarkConfig:
     dataset_file: str
     """Path to the dataset file. This dataset will be used to populate the context in the prompt. """
 
-    # metrics: list[str]
+    metrics: List[str]
     """List of metric specifications for the benchmark"""
 
     max_tokens: int = 1024
@@ -64,10 +65,31 @@ def get_benchmark_config_from_path(path: str) -> BenchmarkConfig:
     return benchmark_config
 
 
+def get_metrics_specs(benchmark_config: BenchmarkConfig) -> List[MetricSpec]:
+    return get_exact_match_metric_specs(benchmark_config)
+
+# def get_annotator_specs(benchmark_config: BenchmarkConfig) -> List[AnnotatorSpec]:
+#     annotator_models = {
+#         judge["name"]: AnnotatorModelInfo(
+#             model_name=judge["model"],
+#             model_deployment=judge["model_deployment"],
+#         )
+#         for judge in config["judges"]
+#     }
+
+#     annotator_specs = [
+#         AnnotatorSpec(
+#             class_name="helm.benchmark.annotation.mtsamples_replicate_annotator.MTSamplesReplicateAnnotator",
+#             args={
+#                 "annotator_models": annotator_models,
+#             },
+#         )
+#     ]
+
+
 @run_spec_function("medhelm_benchmark")
 def get_medhelm_benchmark_spec(config_path: str) -> RunSpec:
     benchmark_config = get_benchmark_config_from_path(config_path)
-
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.medhelm_scenario.MedHELMScenario",
         args={"benchmark_config": benchmark_config},
