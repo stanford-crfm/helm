@@ -6,7 +6,7 @@ Website: https://crfm.stanford.edu/helm/medhelm/
 import importlib.resources as pkg_resources
 
 import os
-from typing import Union, Optional
+from typing import Dict, Union, Optional
 
 import yaml
 
@@ -30,6 +30,38 @@ from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.common.gpu_utils import get_torch_device_name
+
+
+def get_judges_config(jury_config_path: str) -> dict:
+    package = "helm.benchmark.scenarios.medhelm"
+    default_config_path = str(pkg_resources.files(package).joinpath("judges.yaml"))
+
+    if jury_config_path is None:
+        # Use the default config bundled with the package
+        jury_config_path = default_config_path
+
+    assert os.path.exists(jury_config_path), (
+        f"Judges config file not found: {jury_config_path}. "
+        f"If you are providing a custom config, make sure it follows the format specified in "
+        f"the default file: {default_config_path}"
+    )
+
+    with open(jury_config_path, "r") as f:
+        config = yaml.safe_load(f)
+
+    return config
+
+
+def get_annotator_models_from_config(jury_config_path: str) -> Dict[str, AnnotatorModelInfo]:
+    config = get_judges_config(jury_config_path)
+    annotator_models = {
+        judge["name"]: AnnotatorModelInfo(
+            model_name=judge["model"],
+            model_deployment=judge["model_deployment"],
+        )
+        for judge in config["judges"]
+    }
+    return annotator_models
 
 
 @run_spec_function("medcalc_bench")
@@ -97,23 +129,7 @@ def get_clear_spec(condition: str, data_path: str) -> RunSpec:
 
 
 @run_spec_function("mtsamples_replicate")
-def get_mtsamples_spec(config_path: Optional[str] = None) -> RunSpec:
-    package = "helm.benchmark.scenarios"
-    default_config_path = str(pkg_resources.files(package).joinpath("mtsamples_replicate_scenario.yaml"))
-
-    if config_path is None:
-        # Use the default config bundled with the package
-        config_path = default_config_path
-
-    assert os.path.exists(config_path), (
-        f"MTSamplesReplicateScenario config file not found: {config_path}. "
-        f"If you are providing a custom config, make sure it follows the format specified in "
-        f"the default file: {default_config_path}"
-    )
-
-    with open(config_path, "r") as f:
-        config = yaml.safe_load(f)
-
+def get_mtsamples_spec(jury_config_path: Optional[str] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mtsamples_replicate_scenario.MTSamplesReplicateScenario"
     )
@@ -128,13 +144,7 @@ def get_mtsamples_spec(config_path: Optional[str] = None) -> RunSpec:
         stop_sequences=[],
     )
 
-    annotator_models = {
-        judge["name"]: AnnotatorModelInfo(
-            model_name=judge["model"],
-            model_deployment=judge["model_deployment"],
-        )
-        for judge in config["judges"]
-    }
+    annotator_models = get_annotator_models_from_config(jury_config_path)
 
     annotator_specs = [
         AnnotatorSpec(
@@ -417,28 +427,12 @@ def get_medbullets_freetext_run_spec() -> RunSpec:
 
 
 @run_spec_function("medalign")
-def get_medalign_spec(config_path: Optional[str] = None, max_length: int = 100000) -> RunSpec:
-    package = "helm.benchmark.scenarios"
-    default_config_path = str(pkg_resources.files(package).joinpath("medalign_scenario.yaml"))
-
-    if config_path is None:
-        # Use the default config bundled with the package
-        config_path = default_config_path
-
-    assert os.path.exists(config_path), (
-        f"MedAlignScenario config file not found: {config_path}. "
-        f"If you are providing a custom config, make sure it follows the format specified in "
-        f"the default file: {default_config_path}"
-    )
-
-    with open(config_path, "r") as f:
-        config = yaml.safe_load(f)
-
+def get_medalign_spec(data_path: str, jury_config_path: Optional[str] = None, max_length: int = 100000) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.medalign_scenario.MedalignScenario",
         args={
             "max_length": max_length,
-            "data_path": config["data_path"],
+            "data_path": data_path,
         },
     )
 
@@ -452,13 +446,7 @@ def get_medalign_spec(config_path: Optional[str] = None, max_length: int = 10000
         max_train_instances=0,
     )
 
-    annotator_models = {
-        judge["name"]: AnnotatorModelInfo(
-            model_name=judge["model"],
-            model_deployment=judge["model_deployment"],
-        )
-        for judge in config["judges"]
-    }
+    annotator_models = get_annotator_models_from_config(jury_config_path)
 
     annotator_specs = [
         AnnotatorSpec(
@@ -544,27 +532,11 @@ def get_shc_sei_spec(data_path: str) -> RunSpec:
 
 
 @run_spec_function("dischargeme")
-def get_dischargeme_spec(config_path: Optional[str] = None) -> RunSpec:
-    package = "helm.benchmark.scenarios"
-    default_config_path = str(pkg_resources.files(package).joinpath("dischargeme_scenario.yaml"))
-
-    if config_path is None:
-        # Use the default config bundled with the package
-        config_path = default_config_path
-
-    assert os.path.exists(config_path), (
-        f"DischargeMeScenario config file not found: {config_path}. "
-        f"If you are providing a custom config, make sure it follows the format specified in "
-        f"the default file: {default_config_path}"
-    )
-
-    with open(config_path, "r") as f:
-        config = yaml.safe_load(f)
-
+def get_dischargeme_spec(data_path: str, jury_config_path: Optional[str] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.dischargeme_scenario.DischargeMeScenario",
         args={
-            "data_path": config["data_path"],
+            "data_path": data_path,
         },
     )
 
@@ -582,13 +554,7 @@ def get_dischargeme_spec(config_path: Optional[str] = None) -> RunSpec:
         max_train_instances=0,
     )
 
-    annotator_models = {
-        judge["name"]: AnnotatorModelInfo(
-            model_name=judge["model"],
-            model_deployment=judge["model_deployment"],
-        )
-        for judge in config["judges"]
-    }
+    annotator_models = get_annotator_models_from_config(jury_config_path)
 
     annotator_specs = [
         AnnotatorSpec(
@@ -627,28 +593,12 @@ def get_dischargeme_spec(config_path: Optional[str] = None) -> RunSpec:
 
 
 @run_spec_function("aci_bench")
-def get_aci_bench_run_spec(config_path: Optional[str] = None) -> RunSpec:
+def get_aci_bench_run_spec(jury_config_path: Optional[str] = None) -> RunSpec:
     """
     RunSpec for the ACI-Bench dataset.
     This configuration evaluates the model's ability to summarize
     doctor-patient dialogues into structured clinical notes.
     """
-    package = "helm.benchmark.scenarios"
-    default_config_path = str(pkg_resources.files(package).joinpath("aci_bench_scenario.yaml"))
-
-    if config_path is None:
-        # Use the default config bundled with the package
-        config_path = default_config_path
-
-    assert os.path.exists(config_path), (
-        f"ACIBenchScenario config file not found: {config_path}. "
-        f"If you are providing a custom config, make sure it follows the format specified in "
-        f"the default file: {default_config_path}"
-    )
-
-    with open(config_path, "r") as f:
-        config = yaml.safe_load(f)
-
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.aci_bench_scenario.ACIBenchScenario",
         args={},
@@ -671,13 +621,7 @@ def get_aci_bench_run_spec(config_path: Optional[str] = None) -> RunSpec:
         stop_sequences=[],
     )
 
-    annotator_models = {
-        judge["name"]: AnnotatorModelInfo(
-            model_name=judge["model"],
-            model_deployment=judge["model_deployment"],
-        )
-        for judge in config["judges"]
-    }
+    annotator_models = get_annotator_models_from_config(jury_config_path)
 
     annotator_specs = [
         AnnotatorSpec(
@@ -719,23 +663,7 @@ def get_aci_bench_run_spec(config_path: Optional[str] = None) -> RunSpec:
 
 
 @run_spec_function("mtsamples_procedures")
-def get_mtsamples_procedures_spec(config_path: Optional[str] = None) -> RunSpec:
-    package = "helm.benchmark.scenarios"
-    default_config_path = str(pkg_resources.files(package).joinpath("mtsamples_procedures_scenario.yaml"))
-
-    if config_path is None:
-        # Use the default config bundled with the package
-        config_path = default_config_path
-
-    assert os.path.exists(config_path), (
-        f"MTSamplesProceduresScenario config file not found: {config_path}. "
-        f"If you are providing a custom config, make sure it follows the format specified in "
-        f"the default file: {default_config_path}"
-    )
-
-    with open(config_path, "r") as f:
-        config = yaml.safe_load(f)
-
+def get_mtsamples_procedures_spec(jury_config_path: Optional[str] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mtsamples_procedures_scenario.MTSamplesProceduresScenario"
     )
@@ -749,13 +677,7 @@ def get_mtsamples_procedures_spec(config_path: Optional[str] = None) -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
-    annotator_models = {
-        judge["name"]: AnnotatorModelInfo(
-            model_name=judge["model"],
-            model_deployment=judge["model_deployment"],
-        )
-        for judge in config["judges"]
-    }
+    annotator_models = get_annotator_models_from_config(jury_config_path)
 
     annotator_specs = [
         AnnotatorSpec(
@@ -796,26 +718,10 @@ def get_mtsamples_procedures_spec(config_path: Optional[str] = None) -> RunSpec:
 
 
 @run_spec_function("mimic_rrs")
-def get_mimic_rrs_spec(config_path: Optional[str] = None) -> RunSpec:
-    package = "helm.benchmark.scenarios"
-    default_config_path = str(pkg_resources.files(package).joinpath("mimic_rrs_scenario.yaml"))
-
-    if config_path is None:
-        # Use the default config bundled with the package
-        config_path = default_config_path
-
-    assert os.path.exists(config_path), (
-        f"MIMICRRSScenario config file not found: {config_path}. "
-        f"If you are providing a custom config, make sure it follows the format specified in "
-        f"the default file: {default_config_path}"
-    )
-
-    with open(config_path, "r") as f:
-        config = yaml.safe_load(f)
-
+def get_mimic_rrs_spec(data_path: str, jury_config_path: Optional[str] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mimic_rrs_scenario.MIMICRRSScenario",
-        args={"data_path": config["data_path"]},
+        args={"data_path": data_path},
     )
 
     adapter_spec = get_generation_adapter_spec(
@@ -832,13 +738,7 @@ def get_mimic_rrs_spec(config_path: Optional[str] = None) -> RunSpec:
         stop_sequences=[],
     )
 
-    annotator_models = {
-        judge["name"]: AnnotatorModelInfo(
-            model_name=judge["model"],
-            model_deployment=judge["model_deployment"],
-        )
-        for judge in config["judges"]
-    }
+    annotator_models = get_annotator_models_from_config(jury_config_path)
 
     annotator_specs = [
         AnnotatorSpec(
@@ -877,26 +777,10 @@ def get_mimic_rrs_spec(config_path: Optional[str] = None) -> RunSpec:
 
 
 @run_spec_function("mimic_bhc")
-def get_mimic_bhc_spec(config_path: Optional[str] = None) -> RunSpec:
-    package = "helm.benchmark.scenarios"
-    default_config_path = str(pkg_resources.files(package).joinpath("mimic_bhc_scenario.yaml"))
-
-    if config_path is None:
-        # Use the default config bundled with the package
-        config_path = default_config_path
-
-    assert os.path.exists(config_path), (
-        f"MIMICBHCScenario config file not found: {config_path}. "
-        f"If you are providing a custom config, make sure it follows the format specified in "
-        f"the default file: {default_config_path}"
-    )
-
-    with open(config_path, "r") as f:
-        config = yaml.safe_load(f)
-
+def get_mimic_bhc_spec(data_path: str, jury_config_path: Optional[str] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mimic_bhc_scenario.MIMICBHCScenario",
-        args={"data_path": config["data_path"]},
+        args={"data_path": data_path},
     )
 
     adapter_spec = get_generation_adapter_spec(
@@ -910,13 +794,7 @@ def get_mimic_bhc_spec(config_path: Optional[str] = None) -> RunSpec:
         stop_sequences=[],
     )
 
-    annotator_models = {
-        judge["name"]: AnnotatorModelInfo(
-            model_name=judge["model"],
-            model_deployment=judge["model_deployment"],
-        )
-        for judge in config["judges"]
-    }
+    annotator_models = get_annotator_models_from_config(jury_config_path)
 
     annotator_specs = [
         AnnotatorSpec(
@@ -955,31 +833,15 @@ def get_mimic_bhc_spec(config_path: Optional[str] = None) -> RunSpec:
 
 
 @run_spec_function("chw_care_plan")
-def get_chw_care_plan_run_spec(config_path: Optional[str] = None) -> RunSpec:
+def get_chw_care_plan_run_spec(data_path: str, jury_config_path: Optional[str] = None) -> RunSpec:
     """
     RunSpec for the chw_care_plan dataset.
     This configuration evaluates the model's ability to summarize
     doctor-patient dialogues into structured clinical notes.
     """
-    package = "helm.benchmark.scenarios"
-    default_config_path = str(pkg_resources.files(package).joinpath("chw_care_plan_scenario.yaml"))
-
-    if config_path is None:
-        # Use the default config bundled with the package
-        config_path = default_config_path
-
-    assert os.path.exists(config_path), (
-        f"CHWCarePlanScenario config file not found: {config_path}. "
-        f"If you are providing a custom config, make sure it follows the format specified in "
-        f"the default file: {default_config_path}"
-    )
-
-    with open(config_path, "r") as f:
-        config = yaml.safe_load(f)
-
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.chw_care_plan_scenario.CHWCarePlanScenario",
-        args={"data_path": config["data_path"]},
+        args={"data_path": data_path},
     )
 
     adapter_spec = get_generation_adapter_spec(
@@ -993,13 +855,7 @@ def get_chw_care_plan_run_spec(config_path: Optional[str] = None) -> RunSpec:
         stop_sequences=[],
     )
 
-    annotator_models = {
-        judge["name"]: AnnotatorModelInfo(
-            model_name=judge["model"],
-            model_deployment=judge["model_deployment"],
-        )
-        for judge in config["judges"]
-    }
+    annotator_models = get_annotator_models_from_config(jury_config_path)
 
     annotator_specs = [
         AnnotatorSpec(
@@ -1039,23 +895,7 @@ def get_chw_care_plan_run_spec(config_path: Optional[str] = None) -> RunSpec:
 
 
 @run_spec_function("medication_qa")
-def get_medication_qa_spec(config_path: Optional[str] = None) -> RunSpec:
-    package = "helm.benchmark.scenarios"
-    default_config_path = str(pkg_resources.files(package).joinpath("medication_qa_scenario.yaml"))
-
-    if config_path is None:
-        # Use the default config bundled with the package
-        config_path = default_config_path
-
-    assert os.path.exists(config_path), (
-        f"MedicationQAScenario config file not found: {config_path}. "
-        f"If you are providing a custom config, make sure it follows the format specified in "
-        f"the default file: {default_config_path}"
-    )
-
-    with open(config_path, "r") as f:
-        config = yaml.safe_load(f)
-
+def get_medication_qa_spec(jury_config_path: Optional[str] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.medication_qa_scenario.MedicationQAScenario")
 
     adapter_spec = get_generation_adapter_spec(
@@ -1066,13 +906,7 @@ def get_medication_qa_spec(config_path: Optional[str] = None) -> RunSpec:
         max_tokens=512,
         stop_sequences=[],
     )
-    annotator_models = {
-        judge["name"]: AnnotatorModelInfo(
-            model_name=judge["model"],
-            model_deployment=judge["model_deployment"],
-        )
-        for judge in config["judges"]
-    }
+    annotator_models = get_annotator_models_from_config(jury_config_path)
 
     annotator_specs = [
         AnnotatorSpec(
@@ -1110,26 +944,10 @@ def get_medication_qa_spec(config_path: Optional[str] = None) -> RunSpec:
 
 
 @run_spec_function("starr_patient_instructions")
-def get_starr_patient_instructions_run_spec(config_path: Optional[str] = None) -> RunSpec:
-    package = "helm.benchmark.scenarios"
-    default_config_path = str(pkg_resources.files(package).joinpath("starr_patient_instructions_scenario.yaml"))
-
-    if config_path is None:
-        # Use the default config bundled with the package
-        config_path = default_config_path
-
-    assert os.path.exists(config_path), (
-        f"StarrPatientInstructionsScenario config file not found: {config_path}. "
-        f"If you are providing a custom config, make sure it follows the format specified in "
-        f"the default file: {default_config_path}"
-    )
-
-    with open(config_path, "r") as f:
-        config = yaml.safe_load(f)
-
+def get_starr_patient_instructions_run_spec(data_path: str, jury_config_path: Optional[str] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.starr_patient_instructions_scenario.StarrPatientInstructionsScenario",
-        args={"data_path": config["data_path"]},
+        args={"data_path": data_path},
     )
 
     adapter_spec = get_generation_adapter_spec(
@@ -1147,13 +965,7 @@ def get_starr_patient_instructions_run_spec(config_path: Optional[str] = None) -
         max_train_instances=0,
         stop_sequences=[],
     )
-    annotator_models = {
-        judge["name"]: AnnotatorModelInfo(
-            model_name=judge["model"],
-            model_deployment=judge["model_deployment"],
-        )
-        for judge in config["judges"]
-    }
+    annotator_models = get_annotator_models_from_config(jury_config_path)
 
     annotator_specs = [
         AnnotatorSpec(
@@ -1194,23 +1006,7 @@ def get_starr_patient_instructions_run_spec(config_path: Optional[str] = None) -
 
 
 @run_spec_function("med_dialog")
-def get_med_dialog_spec(subset: str, config_path: Optional[str] = None) -> RunSpec:
-    package = "helm.benchmark.scenarios"
-    default_config_path = str(pkg_resources.files(package).joinpath("med_dialog_scenario.yaml"))
-
-    if config_path is None:
-        # Use the default config bundled with the package
-        config_path = default_config_path
-
-    assert os.path.exists(config_path), (
-        f"MedDialogScenario config file not found: {config_path}. "
-        f"If you are providing a custom config, make sure it follows the format specified in "
-        f"the default file: {default_config_path}"
-    )
-
-    with open(config_path, "r") as f:
-        config = yaml.safe_load(f)
-
+def get_med_dialog_spec(subset: str, jury_config_path: Optional[str] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.med_dialog_scenario.MedDialogScenario", args={"subset": subset}
     )
@@ -1224,13 +1020,7 @@ def get_med_dialog_spec(subset: str, config_path: Optional[str] = None) -> RunSp
         stop_sequences=[],
     )
 
-    annotator_models = {
-        judge["name"]: AnnotatorModelInfo(
-            model_name=judge["model"],
-            model_deployment=judge["model_deployment"],
-        )
-        for judge in config["judges"]
-    }
+    annotator_models = get_annotator_models_from_config(jury_config_path)
 
     annotator_specs = [
         AnnotatorSpec(
@@ -1292,23 +1082,7 @@ def get_shc_conf_spec(data_path: str) -> RunSpec:
 
 
 @run_spec_function("medi_qa")
-def get_medi_qa_spec(config_path: Optional[str] = None) -> RunSpec:
-    package = "helm.benchmark.scenarios"
-    default_config_path = str(pkg_resources.files(package).joinpath("medi_qa_scenario.yaml"))
-
-    if config_path is None:
-        # Use the default config bundled with the package
-        config_path = default_config_path
-
-    assert os.path.exists(config_path), (
-        f"MediQAScenario config file not found: {config_path}. "
-        f"If you are providing a custom config, make sure it follows the format specified in "
-        f"the default file: {default_config_path}"
-    )
-
-    with open(config_path, "r") as f:
-        config = yaml.safe_load(f)
-
+def get_medi_qa_spec(jury_config_path: Optional[str] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.medi_qa_scenario.MediQAScenario", args={})
 
     adapter_spec = get_generation_adapter_spec(
@@ -1320,13 +1094,7 @@ def get_medi_qa_spec(config_path: Optional[str] = None) -> RunSpec:
         stop_sequences=[],
     )
 
-    annotator_models = {
-        judge["name"]: AnnotatorModelInfo(
-            model_name=judge["model"],
-            model_deployment=judge["model_deployment"],
-        )
-        for judge in config["judges"]
-    }
+    annotator_models = get_annotator_models_from_config(jury_config_path)
 
     annotator_specs = [
         AnnotatorSpec(
@@ -1365,31 +1133,15 @@ def get_medi_qa_spec(config_path: Optional[str] = None) -> RunSpec:
 
 
 @run_spec_function("mental_health")
-def get_mental_health_spec(config_path: Optional[str] = None) -> RunSpec:
+def get_mental_health_spec(data_path: str, jury_config_path: Optional[str] = None) -> RunSpec:
     """
     Returns the run specification for the mental health counseling scenario.
     This scenario evaluates a model's ability to generate appropriate counseling responses
     in mental health conversations.
     """
-    package = "helm.benchmark.scenarios"
-    default_config_path = str(pkg_resources.files(package).joinpath("mental_health_scenario.yaml"))
-
-    if config_path is None:
-        # Use the default config bundled with the package
-        config_path = default_config_path
-
-    assert os.path.exists(config_path), (
-        f"MentalHealthScenario config file not found: {config_path}. "
-        f"If you are providing a custom config, make sure it follows the format specified in "
-        f"the default file: {default_config_path}"
-    )
-
-    with open(config_path, "r") as f:
-        config = yaml.safe_load(f)
-
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mental_health_scenario.MentalHealthScenario",
-        args={"data_path": config["data_path"]},
+        args={"data_path": data_path},
     )
 
     adapter_spec = get_generation_adapter_spec(
@@ -1402,13 +1154,7 @@ def get_mental_health_spec(config_path: Optional[str] = None) -> RunSpec:
         max_tokens=512,
         stop_sequences=[],
     )
-    annotator_models = {
-        judge["name"]: AnnotatorModelInfo(
-            model_name=judge["model"],
-            model_deployment=judge["model_deployment"],
-        )
-        for judge in config["judges"]
-    }
+    annotator_models = get_annotator_models_from_config(jury_config_path)
 
     annotator_specs = [
         AnnotatorSpec(
