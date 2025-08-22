@@ -1,0 +1,14 @@
+# The judges to be used for evaluating the note summary scenario.
+# name: The short name for the judge.
+# model: The field value matching the 'model_name' field under model_deployments.yaml
+# model_deployment: The field value matching the 'name' under model_deployments.yaml.
+judges:
+  - name: "gpt"
+    model: "openai/gpt-4o-2024-05-13"
+    model_deployment: "stanfordhealthcare/gpt-4o-2024-05-13"
+  - name: "llama"
+    model: "meta/llama-3.3-70b-instruct"
+    model_deployment: "stanfordhealthcare/llama-3.3-70b-instruct"
+  - name: "claude"
+    model: "anthropic/claude-3-7-sonnet-20250219"
+    model_deployment: "stanfordhealthcare/claude-3-7-sonnet-20250219"

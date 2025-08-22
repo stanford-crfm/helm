@@ -1,6 +1,7 @@
 recursive-include src/helm/ py.typed
 recursive-include src/helm/tokenizers/ *.sp
 recursive-include src/helm/benchmark/ *.json
+recursive-include src/helm/benchmark/ *.yaml
 recursive-include src/helm/benchmark/static/ *.css *.html *.js *.png *.yaml
 recursive-include src/helm/benchmark/static_build/ *.css *.html *.js *.png *.yaml
 recursive-include src/helm/config/ *.yaml
