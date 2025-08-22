@@ -4,7 +4,9 @@ EXPERIMENTAL: Run specs here may have future reverse incompatible changes."""
 
 from helm.benchmark.adaptation.adapter_spec import ADAPT_MULTIPLE_CHOICE_JOINT
 from helm.benchmark.adaptation.common_adapter_specs import get_multiple_choice_adapter_spec, get_generation_adapter_spec
-from helm.benchmark.metrics.common_metric_specs import get_exact_match_metric_specs
+from helm.benchmark.annotation.annotator import AnnotatorSpec
+from helm.benchmark.metrics.common_metric_specs import get_basic_metric_specs, get_exact_match_metric_specs
+from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
@@ -99,11 +101,18 @@ def get_alrage_spec() -> RunSpec:
         max_tokens=100,
     )
 
+    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.alrage_annotator.ALRAGEAnnotator")]
+
+    metric_specs = [
+        MetricSpec(class_name="helm.benchmark.metrics.alrage_metric.ALRAGEMetric")
+    ] + get_basic_metric_specs([])
+
     return RunSpec(
         name="alrage",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs(),
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
         groups=["alrage"],
     )
 
