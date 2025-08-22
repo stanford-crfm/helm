@@ -701,11 +701,11 @@ _METRIC_METADATA_MAPPING: Dict[str, MetricMetadata] = {
         description="BLEU-1 score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on a "
         "Chinese tokenizer that segments Chinese strings by character.",
         lower_is_better=False,
-        group=[
-            "cleva_pinyin_transliteration_metrics",
-            "cleva_dialogue_generation_metrics",
-            "cleva_data_to_text_generation_metrics",
-        ],
+        group=None,
+        # Group could be one of:
+        # "cleva_pinyin_transliteration_metrics"
+        # "cleva_dialogue_generation_metrics"
+        # "cleva_data_to_text_generation_metrics"
     ),
     "chinese_rouge_1": MetricMetadata(
         name="chinese_rouge_1",
