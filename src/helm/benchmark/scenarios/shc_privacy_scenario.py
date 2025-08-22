@@ -2,6 +2,7 @@ import sys
 import csv
 from typing import Dict, List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Input,
     Scenario,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Reference,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.general import check_file_exists
 
@@ -76,3 +78,23 @@ class SHCPRIVACYMedScenario(Scenario):
             )
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="shc_privacy_med",
+            display_name="PrivacyDetection",
+            description="PrivacyDetection is a benchmark composed of patient portal messages submitted "
+            "by patients or caregivers. The task is to determine whether the message "
+            "contains any confidential or privacy-leaking information that should be "
+            "protected [(Tse G, et al., "
+            "2025)](https://doi.org/10.1001/jamapediatrics.2024.4438).",
+            taxonomy=TaxonomyInfo(
+                task="Classification",
+                what="Classify if a document leaks private information",
+                when="Any",
+                who="Clinician, Caregiver",
+                language="English",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )

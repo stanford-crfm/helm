@@ -1,6 +1,7 @@
 from typing import Dict, List
 from datasets import load_dataset
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     PassageQuestionInput,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -125,3 +127,23 @@ class MedCalcBenchScenario(Scenario):
             instances.extend(self.process_csv(data, split))
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="medcalc_bench",
+            display_name="MedCalc-Bench",
+            description="MedCalc-Bench is a benchmark designed to evaluate models on their ability to "
+            "compute clinically relevant values from patient notes. Each instance consists "
+            "of a clinical note describing the patient's condition, a diagnostic question "
+            "targeting a specific medical value, and a ground truth response. [(Khandekar "
+            "et al., 2024)](https://arxiv.org/abs/2406.12036).",
+            taxonomy=TaxonomyInfo(
+                task="Computational reasoning",
+                what="Compute a specific medical value from a patient note",
+                when="Any",
+                who="Clinician, Researcher",
+                language="English",
+            ),
+            main_metric="medcalc_bench_accuracy",
+            main_split="test",
+        )

@@ -1,6 +1,7 @@
 import csv
 import os
 from typing import List
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -9,6 +10,7 @@ from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.general import ensure_file_downloaded
 
@@ -123,3 +125,24 @@ class MedecScenario(Scenario):
         instances.extend(self.process_csv(test_csv, TEST_SPLIT))
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="medec",
+            display_name="Medec",
+            description="Medec is a benchmark composed of clinical narratives that include either "
+            "correct documentation or medical errors. Each entry includes sentence-level "
+            "identifiers and an associated correction task. The model must review the "
+            "narrative and either identify the erroneous sentence and correct it, or "
+            "confirm that the text is entirely accurate [(Abacha et al., "
+            "2025)](https://arxiv.org/abs/2412.19260).",
+            taxonomy=TaxonomyInfo(
+                task="Classification",
+                what="Detect and correct errors in medical narratives",
+                when="Any",
+                who="Researcher, Clinician",
+                language="English",
+            ),
+            main_metric="medec_error_flag_accuracy",
+            main_split="test",
+        )

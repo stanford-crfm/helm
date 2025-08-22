@@ -1,6 +1,7 @@
 from typing import List
 from datasets import load_dataset
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -9,6 +10,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Output,
     Input,
+    ScenarioMetadata,
 )
 
 
@@ -70,3 +72,24 @@ Answer: {answer}
             )
             instances.append(hallucinated_instance)
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="medhallu",
+            display_name="MedHallu",
+            description="MedHallu is a benchmark focused on evaluating factual correctness in "
+            "biomedical question answering. Each instance contains a PubMed-derived "
+            "knowledge snippet, a biomedical question, and a model-generated answer. The "
+            "task is to classify whether the answer is factually correct or contains "
+            "hallucinated (non-grounded) information. This benchmark is designed to assess "
+            "the factual reliability of medical language models.",
+            taxonomy=TaxonomyInfo(
+                task="Classification",
+                what="Verify whether answers to questions from PubMed articles are " "factual or hallucinated",
+                when="Any",
+                who="Researcher",
+                language="English",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )

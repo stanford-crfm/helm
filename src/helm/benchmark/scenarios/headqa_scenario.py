@@ -3,6 +3,7 @@ from typing import List, Optional
 
 from datasets import DatasetDict, load_dataset
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TEST_SPLIT,
@@ -11,6 +12,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     Reference,
     Scenario,
+    ScenarioMetadata,
 )
 from helm.common.general import ensure_directory_exists
 
@@ -134,3 +136,23 @@ class HeadQAScenario(Scenario):
                     )
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="head_qa",
+            display_name="HeadQA",
+            description="HeadQA is a benchmark consisting of biomedical multiple-choice questions "
+            "intended to evaluate a model's medical knowledge and reasoning. Each instance "
+            "presents a clinical or scientific question with four answer options, requiring "
+            "the model to select the most appropriate answer [(Vilares et al., "
+            "2019)](https://arxiv.org/abs/1906.04701).",
+            taxonomy=TaxonomyInfo(
+                task="Question answering",
+                what="Medical knowledge testing",
+                when="Any",
+                who="Medical student, Researcher",
+                language="English",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )
