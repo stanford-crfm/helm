@@ -199,7 +199,7 @@ class Schema:
     """Specifies information about what to display on the frontend."""
 
     # Information about each field
-    metrics: List[Field]
+    metrics: List[Field] = field(default_factory=list)
 
     # Information about each perturbation
     perturbations: List[Field] = field(default_factory=list)

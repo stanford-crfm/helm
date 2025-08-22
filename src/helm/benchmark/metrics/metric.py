@@ -104,6 +104,9 @@ class MetricMetadata:
     """Whether a lower vaue for this metric corresponds to a better model
     (e.g., False for accuracy, True for perplexity, None for num_trials)"""
 
+    group: Optional[str] = None
+    """Name of the default metric group for this metric"""
+
 
 class MetricInterface(ABC):
     """Interface for all Metrics."""
