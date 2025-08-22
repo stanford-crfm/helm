@@ -8,7 +8,7 @@ import numpy as np
 import scipy  # type: ignore
 import calibration as cal  # type: ignore
 from helm.benchmark.adaptation.scenario_state import ScenarioState
-from helm.benchmark.metrics.evaluate_reference_metrics import compute_reference_metrics
+from helm.benchmark.metrics.evaluate_reference_metrics import compute_reference_metrics, get_reference_metrics_metadata
 from helm.benchmark.metrics.efficiency_metrics import EfficiencyMetric
 from helm.benchmark.metrics.reference_metric import ReferenceMetric
 
@@ -200,6 +200,7 @@ class BasicGenerationMetric(Metric):
     def get_metadata(self) -> List[MetricMetadata]:
         return (
             get_request_state_metrics_metadata(self.efficiency_metric)
+            + get_reference_metrics_metadata(self.names)
             + _get_language_modeling_metrics_metadata()
             + _get_calibration_metrics_metadata()
         )
