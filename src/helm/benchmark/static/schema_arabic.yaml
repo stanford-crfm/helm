@@ -92,6 +92,12 @@ metrics:
     short_display_name: PEM
     description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
     lower_is_better: false
+  - name: alrage_score
+    # TODO: should call this prefix_quasi_exact_match
+    display_name: ALRAGE Score
+    short_display_name: Score
+    description: Score of the output judged by GPT-4o.
+    lower_is_better: false
 
 ############################################################
 perturbations: []
@@ -238,7 +244,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: exact_match
+      main_name: alrage_score
       main_split: test
     taxonomy:
       task: "openbook (RAG) open-ended question answering"

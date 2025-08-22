@@ -35,10 +35,8 @@ class ALRAGEScenario(Scenario):
         # Read all instances
         instances: List[Instance] = []
         for row in dataset:
-            input = Input(text=f"Passage: {row['candidates']}\n\nQuestion: {row['question']}")
+            input = Input(text=f"السؤال:\n{row['question']}\n\nالسياقات المقترحة:\n{row['candidates']}\n")
             references: List[Reference] = []
-            # Need to add 1 because label is zero-indexed and has a value from 0 to (N - 1),
-            # but column names are 1 indexed and have values from "sol1" to "solN"
             references = [
                 Reference(
                     output=Output(text=row["gold_answer"]),
