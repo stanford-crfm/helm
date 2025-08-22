@@ -123,7 +123,6 @@ class MedCalcBenchMetric(Metric):
             Stat(MetricName("medcalc_bench_accuracy")).add(exact_match),
         ]
 
-
     def get_metadata(self) -> List[MetricMetadata]:
         return [
             MetricMetadata(

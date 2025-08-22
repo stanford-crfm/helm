@@ -101,7 +101,7 @@ class MedecMetric(Metric):
             Stat(MetricName("medec_error_sentence_accuracy")).add(sentence_accuracy),
         ]
 
-    def get_metadata() -> List[MetricMetadata]:
+    def get_metadata(self) -> List[MetricMetadata]:
         return [
             MetricMetadata(
                 name="medec_error_flag_accuracy",
