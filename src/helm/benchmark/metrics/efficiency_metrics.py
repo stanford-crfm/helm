@@ -166,10 +166,12 @@ class EfficiencyMetric:
     def get_metadata(self) -> List[MetricMetadata]:
         return [
             MetricMetadata(
-                name="num_instances",
-                display_name="# eval",
-                description="Number of evaluation instances.",
+                name="num_prompt_tokens",
+                display_name="# prompt tokens",
+                short_display_name=None,
+                description="Number of tokens in the prompt.",
                 lower_is_better=None,
+                group="general_information",
             ),
             MetricMetadata(
                 name="num_completion_tokens",
