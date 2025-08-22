@@ -32,7 +32,7 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.common.gpu_utils import get_torch_device_name
 
 
-def get_judges_config(jury_config_path: str) -> dict:
+def get_judges_config(jury_config_path: Optional[str]) -> dict:
     package = "helm.benchmark.scenarios.medhelm"
     default_config_path = str(pkg_resources.files(package).joinpath("judges.yaml"))
 
@@ -52,7 +52,7 @@ def get_judges_config(jury_config_path: str) -> dict:
     return config
 
 
-def get_annotator_models_from_config(jury_config_path: str) -> Dict[str, AnnotatorModelInfo]:
+def get_annotator_models_from_config(jury_config_path: Optional[str]) -> Dict[str, AnnotatorModelInfo]:
     config = get_judges_config(jury_config_path)
     annotator_models = {
         judge["name"]: AnnotatorModelInfo(
