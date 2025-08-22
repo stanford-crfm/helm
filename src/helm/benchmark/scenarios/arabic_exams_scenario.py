@@ -71,6 +71,10 @@ class ArabicEXAMSScenario(Scenario):
     # Remap validation split to train split
     HF_SPLIT_TO_HELM_SPLIT = {"validation": TRAIN_SPLIT, "test": TEST_SPLIT}
 
+    def __init__(self, subject: str):
+        super().__init__()
+        self.subject: str = subject.replace("_", " ")
+
     def get_instances(self, output_path: str) -> List[Instance]:
         cache_dir = os.path.join(output_path, "data")
         ensure_directory_exists(cache_dir)
@@ -83,6 +87,9 @@ class ArabicEXAMSScenario(Scenario):
         instances: List[Instance] = []
         for split_name, dataset in dataset_splits.items():
             for row in dataset:
+                subject = row["id"].split("-")[0]
+                if self.subject != "all" and self.subject != subject:
+                    continue
                 input = Input(text=row["question"])
                 references: List[Reference] = []
                 if row["answer"] not in self.CHOICES:
