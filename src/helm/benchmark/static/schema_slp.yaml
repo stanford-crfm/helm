@@ -141,13 +141,13 @@ run_groups:
     description: SLP-language scenarios
     category: All scenarios
     subgroups:
-      - DisorderDiagnosis
-      - Transcription
-      - SymptomDiagnosis
-      - DisorderTypeDiagnosis
+      - disorder_diagnosis
+      - transcription
+      - symptom_diagnosis
+      - disorder_type_diagnosis
 
 
-  - name: DisorderDiagnosis
+  - name: disorder_diagnosis
     display_name: Disorder Diagnosis Accuracy
     description: >
       Macro-averaged accuracy on disorder diagnosis for pediatric speech disorder.
@@ -165,7 +165,7 @@ run_groups:
       when: "?"
       language: English
 
-  - name: Transcription
+  - name: transcription
     display_name: Transcription Accuracy
     description: >
       Model transcription accuracy on understanding disordered pediatric speech
@@ -183,7 +183,7 @@ run_groups:
       when: "?"
       language: English
 
-  - name: SymptomDiagnosis
+  - name: symptom_diagnosis
     display_name: Symptom Diagnosis Accuracy
     description: >
       Macro-averaged accuracy on symptom diagnosis for pediatric speech disorder.
@@ -201,7 +201,7 @@ run_groups:
       when: "?"
       language: English
 
-  - name: DisorderTypeDiagnosis
+  - name: disorder_type_diagnosis
     display_name: Disorder Type Diagnosis Accuracy
     description: >
       Macro-averaged accuracy on disorder type diagnosis for pediatric speech disorder.
