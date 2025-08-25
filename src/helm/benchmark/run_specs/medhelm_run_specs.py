@@ -27,7 +27,6 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.common.gpu_utils import get_torch_device_name
 
 
-
 @run_spec_function("medhelm_benchmark")
 def get_medhelm_benchmark_spec(config_path: str) -> RunSpec:
     benchmark_config = get_benchmark_config_from_path(config_path)
