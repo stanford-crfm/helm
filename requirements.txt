@@ -413,4 +413,3 @@ xlrd==2.0.2
 xxhash==3.5.0
 yarl==1.20.1
 zipp==3.23.0
-zstandard==0.18.0
