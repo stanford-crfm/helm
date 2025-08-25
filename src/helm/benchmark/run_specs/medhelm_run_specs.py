@@ -3,14 +3,8 @@
 Website: https://crfm.stanford.edu/helm/medhelm/
 """
 
-import cattrs
-import yaml
+from typing import Union
 
-from typing import Union, List
-from dataclasses import dataclass
-
-
-from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo
 from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_MULTIPLE_CHOICE_JOINT,
 )
@@ -28,63 +22,10 @@ from helm.benchmark.metrics.common_metric_specs import (
 )
 from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
+from helm.benchmark.run_specs.medhelm.benchmark_config import get_benchmark_config_from_path
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.common.gpu_utils import get_torch_device_name
 
-
-@dataclass(frozen=True)
-class BenchmarkConfig:
-    """
-    A benchmark configuration is an immutable data structure that holds
-    the configuration for a specific benchmark, including prompt, dataset and metric
-    """
-
-    name: str
-    """Name of the benchmark"""
-
-    description: str
-    """Description of the benchmark"""
-
-    prompt_file: str
-    """Path to the prompt file. This prompt will be used for all instances of the benchmark."""
-
-    dataset_file: str
-    """Path to the dataset file. This dataset will be used to populate the context in the prompt. """
-
-    metrics: List[str]
-    """List of metric specifications for the benchmark"""
-
-    max_tokens: int = 1024
-    """Maximum number of tokens to generate in the response"""
-
-
-def get_benchmark_config_from_path(path: str) -> BenchmarkConfig:
-    with open(path) as f:
-        config = yaml.safe_load(f)
-    benchmark_config: BenchmarkConfig = cattrs.structure(config, BenchmarkConfig)
-    return benchmark_config
-
-
-def get_metrics_specs(benchmark_config: BenchmarkConfig) -> List[MetricSpec]:
-    return get_exact_match_metric_specs(benchmark_config)
-
-# def get_annotator_specs(benchmark_config: BenchmarkConfig) -> List[AnnotatorSpec]:
-#     annotator_models = {
-#         judge["name"]: AnnotatorModelInfo(
-#             model_name=judge["model"],
-#             model_deployment=judge["model_deployment"],
-#         )
-#         for judge in config["judges"]
-#     }
-
-#     annotator_specs = [
-#         AnnotatorSpec(
-#             class_name="helm.benchmark.annotation.mtsamples_replicate_annotator.MTSamplesReplicateAnnotator",
-#             args={
-#                 "annotator_models": annotator_models,
-#             },
-#         )
-#     ]
 
 
 @run_spec_function("medhelm_benchmark")
@@ -100,14 +41,14 @@ def get_medhelm_benchmark_spec(config_path: str) -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
-
-    # TODO: Resolve metrics from config file.
-    metric_specs = get_exact_match_metric_specs()
+    annotator_specs = benchmark_config.get_annotator_specs()
+    metric_specs = benchmark_config.get_metric_specs()
 
     return RunSpec(
         name=benchmark_config.name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
+        annotators=annotator_specs,
         metric_specs=metric_specs,
         groups=[benchmark_config.name],
     )

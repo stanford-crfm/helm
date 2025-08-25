@@ -2,7 +2,7 @@ import re
 import pandas as pd
 from typing import List
 
-from helm.benchmark.run_specs.medhelm_run_specs import BenchmarkConfig
+from helm.benchmark.run_specs.medhelm.benchmark_config import BenchmarkConfig
 from helm.common.general import check_file_exists
 
 from helm.benchmark.scenarios.scenario import Scenario, Instance, CORRECT_TAG, Reference, Input, Output, TEST_SPLIT
