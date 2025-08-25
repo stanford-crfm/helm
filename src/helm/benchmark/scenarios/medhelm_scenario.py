@@ -2,7 +2,7 @@ import re
 import pandas as pd
 from typing import List
 
-from helm.benchmark.run_specs.medhelm.benchmark_config import BenchmarkConfig
+from helm.benchmark.run_specs.medhelm.benchmark_config import BenchmarkConfig, get_benchmark_config_from_path
 from helm.common.general import check_file_exists
 
 from helm.benchmark.scenarios.scenario import Scenario, Instance, CORRECT_TAG, Reference, Input, Output, TEST_SPLIT
@@ -15,11 +15,11 @@ class MedHELMScenario(Scenario):
 
     tags = ["biomedical"]
 
-    def __init__(self, benchmark_config: BenchmarkConfig):
+    def __init__(self, config_path: str):
         super().__init__()
-        self.benchmark_config = benchmark_config
-        self.name = benchmark_config.name
-        self.description = benchmark_config.description
+        self.benchmark_config = get_benchmark_config_from_path(config_path)
+        self.name = self.benchmark_config.name
+        self.description = self.benchmark_config.description
 
     def get_columns_in_template(self, template: str) -> List[str]:
         fields = re.findall(r"\{\{(.*?)\}\}", template)
