@@ -38,7 +38,7 @@ Run the following commands to install the necessary MedHELM extensions:
 
 ```
 # Install MedHELM extras
-pip install "crfm-helm[summarization]" && pip install "crfm-helm[medhelm]"
+pip install "crfm-helm[summarization,medhelm]"
 ```
 
 ### 2) Run a tiny evaluation
