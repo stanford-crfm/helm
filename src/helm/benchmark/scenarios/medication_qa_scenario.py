@@ -3,9 +3,19 @@ from typing import List
 
 import pandas as pd
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
 
-from helm.benchmark.scenarios.scenario import CORRECT_TAG, TEST_SPLIT, Input, Instance, Output, Reference, Scenario
+from helm.benchmark.scenarios.scenario import (
+    CORRECT_TAG,
+    TEST_SPLIT,
+    Input,
+    Instance,
+    Output,
+    Reference,
+    Scenario,
+    ScenarioMetadata,
+)
 
 
 class MedicationQAScenario(Scenario):
@@ -64,3 +74,23 @@ class MedicationQAScenario(Scenario):
         ]
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="medication_qa",
+            display_name="MedicationQA",
+            description="MedicationQA is a benchmark composed of open-ended consumer health questions "
+            "specifically focused on medications. Each example consists of a free-form "
+            "question and a corresponding medically grounded answer. The benchmark "
+            "evaluates a model's ability to provide accurate, accessible, and informative "
+            "medication-related responses for a lay audience.",
+            taxonomy=TaxonomyInfo(
+                task="Question answering",
+                what="Answer consumer medication-related questions",
+                when="Any",
+                who="Patient, Pharmacist",
+                language="English",
+            ),
+            main_metric="medication_qa_accuracy",
+            main_split="test",
+        )

@@ -2,6 +2,7 @@ import sys
 import csv
 from typing import Dict, List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Input,
     Scenario,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Reference,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.general import check_file_exists
 
@@ -72,3 +74,21 @@ class SHCGIPMedScenario(Scenario):
             )
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="shc_gip_med",
+            display_name="HospiceReferral",
+            description="HospiceReferral is a benchmark that evaluates model performance in identifying "
+            "whether patients are eligible for hospice care based on palliative care "
+            "clinical notes. The benchmark focuses on end-of-life care referral decisions.",
+            taxonomy=TaxonomyInfo(
+                task="Classification",
+                what="Assess hospice referral appropriateness",
+                when="End-of-care",
+                who="Hospital Admistrator",
+                language="English",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )

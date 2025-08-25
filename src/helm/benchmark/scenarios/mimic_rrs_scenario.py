@@ -1,6 +1,7 @@
 import os
 from typing import Dict, List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import check_file_exists
 from helm.benchmark.scenarios.scenario import (
     Input,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Reference,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -96,3 +98,24 @@ class MIMICRRSScenario(Scenario):
             lines = file.readlines()
         lines = [line.strip() for line in lines]
         return lines
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="mimic_rrs",
+            display_name="MIMIC-RRS",
+            short_display_name="MIMIC-RRS",
+            description="MIMIC-RRS is a benchmark constructed from radiology reports in the MIMIC-III "
+            "database. It contains pairs of ‘Findings‘ and ‘Impression‘ sections, enabling "
+            "evaluation of a model's ability to summarize diagnostic imaging observations "
+            "into concise, clinically relevant conclusions [(Chen et al., "
+            "2023)](https://arxiv.org/abs/2211.08584).",
+            taxonomy=TaxonomyInfo(
+                task="Text generation",
+                what="Generate radiology report summaries from findings sections",
+                when="Post-imaging",
+                who="Radiologist",
+                language="English",
+            ),
+            main_metric="mimic_rrs_accuracy",
+            main_split="test",
+        )

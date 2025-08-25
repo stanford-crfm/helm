@@ -2,6 +2,7 @@ import json
 import os
 from typing import Dict, List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -11,6 +12,7 @@ from helm.benchmark.scenarios.scenario import (
     Reference,
     PassageQuestionInput,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -186,3 +188,23 @@ class PubMedQAScenario(Scenario):
                         instances.append(instance)
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="pubmed_qa",
+            display_name="PubMedQA",
+            description="PubMedQA is a biomedical question-answering dataset that evaluates a model's "
+            "ability to interpret scientific literature. It consists of PubMed abstracts "
+            "paired with yes/no/maybe questions derived from the content. The benchmark "
+            "assesses a model's capability to reason over biomedical texts and provide "
+            "factually grounded answers.",
+            taxonomy=TaxonomyInfo(
+                task="Question answering",
+                what="Answer questions based on PubMed abstracts",
+                when="Any",
+                who="Researcher",
+                language="English",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )
