@@ -2,6 +2,7 @@ import numpy as np
 import random
 from typing import List, Tuple
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -11,6 +12,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -234,3 +236,16 @@ class DyckLanguageScenario(Scenario):
             not_allowed=train_inputs,
         )
         return train_instances + test_instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="dyck_language",
+            display_name="Dyck",
+            description="Scenario testing hierarchical reasoning through the Dyck formal languages "
+            "[(Suzgun et al., 2019)](https://aclanthology.org/W19-3905/).",
+            taxonomy=TaxonomyInfo(
+                task="next-word prediction", what="Dyck formal language", when="n/a", who="n/a", language="synthetic"
+            ),
+            main_metric="exact_match_indicator",
+            main_split="test",
+        )

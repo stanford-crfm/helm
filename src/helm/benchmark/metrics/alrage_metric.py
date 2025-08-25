@@ -8,9 +8,7 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 
 
-class LiveQAScoreMetric(Metric):
-    """Score metrics for LiveQA."""
-
+class ALRAGEMetric(Metric):
     def evaluate_generation(
         self,
         adapter_spec: AdapterSpec,
@@ -19,17 +17,19 @@ class LiveQAScoreMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         assert request_state.annotations
-        score = request_state.annotations["live_qa"]["score"]
-        return [Stat(MetricName("live_qa_score")).add(score)]
+        assert "alrage" in request_state.annotations
+        return [
+            Stat(MetricName("alrage_score")).add(request_state.annotations["alrage"]["score"]),
+        ]
 
     def get_metadata(self) -> List[MetricMetadata]:
         return [
             MetricMetadata(
-                name="live_qa_score",
-                display_name="Judge Score",
-                short_display_name=None,
-                description="LLM-as-judge score",
+                name="alrage_score",
+                display_name="ALRAGE Score",
+                short_display_name="Score",
+                description="Score of the output judged by GPT-4o.",
                 lower_is_better=False,
-                group=None,
+                group="accuracy",
             ),
         ]

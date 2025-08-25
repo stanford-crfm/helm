@@ -1,8 +1,10 @@
 import datasets
 import os
 from typing import List
+from helm.benchmark.presentation.schema import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
+    ScenarioMetadata,
     Instance,
     Input,
     TEST_SPLIT,
@@ -51,3 +53,19 @@ class IFEvalScenario(Scenario):
             instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name=self.name,
+            display_name="IFEval",
+            description=self.description,
+            main_metric="ifeval_strict_accuracy",
+            main_split="test",
+            taxonomy=TaxonomyInfo(
+                task="instruction following",
+                what="verifiable general domain instruction following",
+                who="human annotators",
+                when="2023",
+                language="English",
+            ),
+        )
