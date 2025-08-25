@@ -1415,7 +1415,7 @@ def summarize(args):
         if args.schema_path:
             raise ValueError("--schema-path must be unset if --auto-generate-schema is set")
         schema_path = None
-    if args.schema_path:
+    elif args.schema_path:
         schema_path = args.schema_path
     else:
         schema_path = get_default_schema_path()
