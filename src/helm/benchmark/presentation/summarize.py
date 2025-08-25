@@ -1410,7 +1410,15 @@ def summarize(args):
     else:
         raise ValueError("Exactly one of --release or --suite must be specified.")
 
-    schema_path = args.schema_path if args.schema_path else get_default_schema_path()
+    schema_path: Optional[str]
+    if args.auto_generate_schema:
+        if args.schema_path:
+            raise ValueError("--schema-path must be unset if --auto-generate-schema is set")
+        schema_path = None
+    if args.schema_path:
+        schema_path = args.schema_path
+    else:
+        schema_path = get_default_schema_path()
 
     register_builtin_configs_from_helm_package()
     register_configs_from_directory(args.local_path)
@@ -1501,6 +1509,11 @@ def main():
         type=str,
         default=None,
         help="PATH to a YAML file to customize logging",
+    )
+    parser.add_argument(
+        "--auto-generate-schema",
+        action="store_true",
+        help="EXPERIMENTAL: Auto-generate schema",
     )
     args = parser.parse_args()
     setup_default_logging(args.log_config)
