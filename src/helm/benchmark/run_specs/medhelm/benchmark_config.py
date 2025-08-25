@@ -14,7 +14,9 @@ from helm.benchmark.metrics.common_metric_specs import (
     get_f1_metric_specs,
     get_language_modeling_metric_specs,
     get_classification_metric_specs,
+    get_summarization_metric_specs,
 )
+from helm.common.gpu_utils import get_torch_device_name
 
 
 @dataclass(frozen=True)
@@ -83,6 +85,14 @@ class BenchmarkConfig:
                         },
                     )
                 )
+            elif metric.name == "summarization":
+                metric_args = {
+                    "task": self.name,
+                    "device": get_torch_device_name(),
+                    "bertscore_model": "distilbert-base-uncased",
+                    "rescale_with_baseline": False,
+                }
+                metric_specs.extend(get_summarization_metric_specs(metric_args))
             else:
                 raise ValueError(f"Unknown metric name: {metric.name}")
         return metric_specs
