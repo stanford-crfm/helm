@@ -1,6 +1,7 @@
 from typing import List, Tuple
 import os
 import json
+import uuid
 
 from tqdm import tqdm
 
@@ -14,41 +15,8 @@ from helm.benchmark.scenarios.scenario import (
     Output,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
-from huggingface_hub import snapshot_download
-
-
-def find_audio_json_pairs(directory: str) -> List[Tuple[str, str]]:
-    """
-    Find all pairs of MP3 and JSON files in the given directory and its subdirectories.
-    Each pair consists of an MP3 file and its corresponding JSON file with the same base name.
-
-    Args:
-        directory: Path to the directory containing the files
-
-    Returns:
-        List of tuples where each tuple contains (mp3_path, json_path)
-    """
-    pairs = []
-
-    # Walk through all directories and subdirectories
-    for root, _, files in os.walk(directory):
-        # Get all MP3 files in current directory
-        mp3_files = [f for f in files if f.endswith(".mp3")]
-
-        for mp3_file in mp3_files:
-            base_name = os.path.splitext(mp3_file)[0]
-            json_file = f"{base_name}.json"
-
-            # Check if corresponding JSON file exists in the same directory
-            if json_file in files:
-                mp3_path = os.path.join(root, mp3_file)
-                json_path = os.path.join(root, json_file)
-                pairs.append((mp3_path, json_path))
-
-    if len(pairs) == 0:
-        raise ValueError(f"No pairs of MP3 and JSON files found in {directory}")
-
-    return pairs
+from datasets import load_dataset
+from helm.common.file_utils import ensure_audio_file_exists_from_array
 
 
 class UltraSuiteClassificationScenario(Scenario):
@@ -72,44 +40,42 @@ class UltraSuiteClassificationScenario(Scenario):
         - Audio files (e.g., .mp3)
         - A JSON file with annotations containing 'answer' field
         """
+        audio_save_dir = os.path.join(output_path, "audio_files")
+        os.makedirs(audio_save_dir, exist_ok=True)
 
-        print("Downloading SAA-Lab/SLPHelmManualLabels dataset...")
-        data_path = snapshot_download(
-            repo_id="SAA-Lab/SLPHelmManualLabels",
-            repo_type="dataset",
-            revision="38c2d7dab831acf8ccff0ca6f6463d6a8a0184ed",
-        )
+        print("Downloading SAA-Lab/SLPHelmUltraSuitePlus dataset...")
+        dataset = load_dataset("SAA-Lab/SLPHelmUltraSuitePlus") 
 
         instances: List[Instance] = []
         split: str = TEST_SPLIT
 
-        # Find all pairs of audio and JSON files
-        pairs = find_audio_json_pairs(data_path)
-        print(f"Num pairs: {len(pairs)}")
+        for row in tqdm(dataset["train"]):
 
-        for audio_path, json_path in tqdm(pairs):
             # Load the annotation
-            with open(json_path, "r") as f:
-                annotation = json.load(f)
+            label = row["disorder_class"]
+            transcription = row["transcription"]
 
-            # Get the correct answer and convert to label
-            answer = annotation["disorder_class"]
-            words = annotation["transcription"]
+            audio_path = row["audio"]
+            unique_id = str(uuid.uuid4())[:8] 
+            local_audio_name = f"{label}_{unique_id}.mp3"
+            local_audio_path = os.path.join(audio_save_dir, local_audio_name)
+            ensure_audio_file_exists_from_array(local_audio_path, row["audio"]["array"], row["audio"]["sampling_rate"])
+            
             # Create references for each option
             references: List[Reference] = []
             correct_label = 0
             for option in ["typically_developing", "speech_disorder"]:
-                reference = Reference(Output(text=option), tags=[CORRECT_TAG] if option == answer else [])
+                reference = Reference(Output(text=option), tags=[CORRECT_TAG] if option == label else [])
                 references.append(reference)
-                if option == answer:
+                if option == label:
                     correct_label += 1
             if correct_label == 0:
                 continue
 
             # Create the input with audio and instruction
             content = [
-                MediaObject(content_type="audio/mpeg", location=audio_path),
-                MediaObject(content_type="text/plain", text=self.get_instruction(words)),
+                MediaObject(content_type="audio/mpeg", location=local_audio_path),
+                MediaObject(content_type="text/plain", text=self.get_instruction(transcription)),
             ]
 
             input = Input(multimedia_content=MultimediaObject(content))
