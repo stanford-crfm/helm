@@ -3,6 +3,7 @@ import os
 import random
 from typing import List, Tuple
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -13,6 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -192,3 +194,15 @@ class QuACScenario(Scenario):
             instances.extend(self.get_split_instances(split_path, split=split_tag))
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="quac",
+            display_name="QuAC (Question Answering in Context)",
+            short_display_name="QuAC",
+            description="The QuAC benchmark for question answering in the context of dialogues [(Choi "
+            "et al., 2018)](https://aclanthology.org/D18-1241/).",
+            taxonomy=TaxonomyInfo(task="question answering", what="?", when="?", who="?", language="English"),
+            main_metric="f1_score",
+            main_split="valid",
+        )

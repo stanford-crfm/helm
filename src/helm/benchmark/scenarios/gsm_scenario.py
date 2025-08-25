@@ -2,6 +2,7 @@ import json
 import os
 from typing import Dict, List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -65,3 +67,16 @@ class GSM8KScenario(Scenario):
                         ),
                     )
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="gsm",
+            display_name="GSM8K (Grade school math word problems)",
+            short_display_name="GSM8K",
+            description="The grade school math word problems dataset (GSM8K) for testing mathematical "
+            "reasoning on grade-school math problems [(Cobbe et al., "
+            "2021)](https://arxiv.org/pdf/2110.14168.pdf).",
+            taxonomy=TaxonomyInfo(task="?", what="n/a", when="n/a", who="n/a", language="synthetic"),
+            main_metric="exact_match_indicator",
+            main_split="test",
+        )

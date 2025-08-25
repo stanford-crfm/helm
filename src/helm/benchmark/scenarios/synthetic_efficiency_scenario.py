@@ -1,8 +1,18 @@
 import os
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Reference, TEST_SPLIT, CORRECT_TAG, Input, Output
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TEST_SPLIT,
+    CORRECT_TAG,
+    Input,
+    Output,
+    ScenarioMetadata,
+)
 
 NUM_INPUT_TOKENS: List[int] = [
     1,
@@ -87,3 +97,14 @@ class SyntheticEfficiencyScenario(Scenario):
                 instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="synthetic_efficiency",
+            display_name="Synthetic efficiency",
+            description="Scenario introduced in this work to better understand inference runtime "
+            "performance of various models.",
+            taxonomy=TaxonomyInfo(task="?", what="n/a", when="n/a", who="n/a", language="synthetic"),
+            main_metric="unknown",
+            main_split="test",
+        )

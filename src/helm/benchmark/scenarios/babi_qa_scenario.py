@@ -1,6 +1,7 @@
 import os
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     PassageQuestionInput,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -139,3 +141,16 @@ class BabiQAScenario(Scenario):
                             story.append(fact)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="babi_qa",
+            display_name="bAbI",
+            description="The bAbI benchmark for measuring understanding and reasoning [(Weston et al., "
+            "2015)](https://arxiv.org/pdf/1502.05698.pdf).",
+            taxonomy=TaxonomyInfo(
+                task="question answering", what="reasoning", when="2015", who="synthetic", language="English"
+            ),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )

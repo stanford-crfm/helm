@@ -2,6 +2,7 @@ import sys
 import csv
 from typing import Dict, List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Input,
     Scenario,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Reference,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.general import check_file_exists
 
@@ -73,3 +75,23 @@ class SHCBMTMedScenario(Scenario):
             )
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="shc_bmt_med",
+            display_name="BMT-Status",
+            description="BMT-Status is a benchmark composed of clinical notes and associated binary "
+            "questions related to bone marrow transplant (BMT), hematopoietic stem cell "
+            "transplant (HSCT), or hematopoietic cell transplant (HCT) status. The goal is "
+            "to determine whether the patient received a subsequent transplant based on the "
+            "provided clinical documentation.",
+            taxonomy=TaxonomyInfo(
+                task="question answering",
+                what="Answer bone marrow transplant questions",
+                when="Any",
+                who="Researcher",
+                language="English",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )
