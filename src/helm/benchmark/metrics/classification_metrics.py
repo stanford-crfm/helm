@@ -135,10 +135,6 @@ class ClassificationMetric(EvaluateInstancesMetric):
                 else:
                     stats.append(Stat(MetricName(f"classification_{average}_{score_name}")).add(score_value))
         return stats
-    
-    
-    def get_metadata(self) -> List[MetricMetadata]:
-        # TODO
 
 
 class MultipleChoiceClassificationMetric(EvaluateInstancesMetric):
@@ -175,15 +171,18 @@ class MultipleChoiceClassificationMetric(EvaluateInstancesMetric):
 
     def get_metadata(self) -> List[MetricMetadata]:
         return [
-             MetricMetadata(name='classification_macro_f1',
-                display_name='Macro F1',
-                description='Macro F1',
+            MetricMetadata(
+                name="classification_macro_f1",
+                display_name="Macro F1",
+                description="Macro F1",
                 lower_is_better=False,
-                group='classification_metrics'),
-            MetricMetadata(name='classification_micro_f1',
-                display_name='Micro F1',
-                description='Population-level micro-averaged F1 score.',
+                group="classification_metrics",
+            ),
+            MetricMetadata(
+                name="classification_micro_f1",
+                display_name="Micro F1",
+                description="Population-level micro-averaged F1 score.",
                 lower_is_better=False,
-                group='classification_metrics'),
-
+                group="classification_metrics",
+            ),
         ]
