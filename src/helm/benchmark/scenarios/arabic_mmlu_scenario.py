@@ -65,7 +65,9 @@ class ArabicMMLUScenario(Scenario):
                         continue
                     references.append(
                         Reference(
-                            output=Output(text=row[column_name]),
+                            # Need to convert column to string because the references are floats
+                            # for the subject "Math (Primary School)"
+                            output=Output(text=str(row[column_name])),
                             tags=[CORRECT_TAG] if option_index == correct_option_index else [],
                         )
                     )
