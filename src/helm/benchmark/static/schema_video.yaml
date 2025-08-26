@@ -266,7 +266,7 @@ run_groups:
     metric_groups:
       - accuracy
     environment:
-      main_name: exact_match
+      main_name: abs_error
       main_split: test
     taxonomy:
       task: judging
