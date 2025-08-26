@@ -177,7 +177,7 @@ class RoboRewardBenchDiscreteScenario(Scenario):
             examples = json.load(f)
 
         instances: List[Instance] = []
-        for ex in examples:
+        for idx, ex in enumerate(examples):
             original_id: str = str(ex.get("original_id"))
             task: str = ex.get("task", "")
             episode_video_path: str = ex.get("episode_video_path", "")
@@ -195,7 +195,7 @@ class RoboRewardBenchDiscreteScenario(Scenario):
 
             instances.append(
                 Instance(
-                    id=original_id,
+                    id=f"{original_id}:{idx}",
                     input=Input(multimedia_content=MultimediaObject(content)),
                     references=[Reference(output=Output(text=str(reward)), tags=[CORRECT_TAG])],
                     split=TEST_SPLIT,
