@@ -142,13 +142,13 @@ run_groups:
     description: Arabic Scenarios
     category: Scenarios
     subgroups:
-      - mbzuai_human_translated_arabic_mmlu
-      - arabic_mmlu
       - alghafa
+      - arabic_mmlu
       - arabic_exams
+      - madinah_qa
       - aratrust
       - alrage
-      - madinah_qa
+      - mbzuai_human_translated_arabic_mmlu
 
   - name: mbzuai_human_translated_arabic_mmlu
     display_name: MBZUAI Human-Translated Arabic MMLU
