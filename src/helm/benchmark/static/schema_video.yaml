@@ -212,6 +212,7 @@ run_groups:
     subgroups:
       - robo_reward_bench_preference_ranking
       - robo_reward_bench_progress_prediction
+      - robo_reward_bench_discrete
 
   - name: msr_vtt
     display_name: MST-VTT
@@ -251,6 +252,21 @@ run_groups:
       - accuracy
     environment:
       main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: robo_reward_bench_discrete
+    display_name: Robo Reward Bench
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
       main_split: test
     taxonomy:
       task: judging

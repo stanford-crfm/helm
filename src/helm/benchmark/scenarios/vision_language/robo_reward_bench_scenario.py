@@ -153,3 +153,53 @@ class RoboRewardBenchProgressPredictionScenario(RoboRewardBenchPreferenceRanking
                 )
 
         return instances
+
+
+class RoboRewardBenchDiscreteScenario(Scenario):
+    name = "robo_reward_bench_discrete"
+    description = "Rate robot task completion on a discrete 1-5 scale from a single video."
+    tags = ["vision-language", "video"]
+
+    @staticmethod
+    def _get_full_video_path(output_path: str, episode_video_path: str) -> str:
+        if os.path.isabs(episode_video_path):
+            full_path: str = episode_video_path
+        else:
+            full_path = os.path.join(output_path, episode_video_path.replace("collected/", ""))
+        assert os.path.exists(full_path), f"Episode video path does not exist: {full_path}"
+        return full_path
+
+    def get_instances(self, output_path: str) -> List[Instance]:
+        annotation_path: str = os.path.join(output_path, "test.json")
+        assert os.path.exists(annotation_path), f"Annotation file does not exist at path: {annotation_path}"
+
+        with open(annotation_path, "r") as f:
+            examples = json.load(f)
+
+        instances: List[Instance] = []
+        for ex in examples:
+            original_id: str = str(ex.get("original_id"))
+            task: str = ex.get("task", "")
+            episode_video_path: str = ex.get("episode_video_path", "")
+            reward: int = int(ex.get("reward"))  # Ground-truth discrete score in [1, 5]
+
+            # Prompt header shown to the model alongside the video. Detailed rubric lives in adapter instructions.
+            prompt: str = f"Task: {task}"
+
+            video_full_path: str = self._get_full_video_path(output_path, episode_video_path)
+
+            content: List[MediaObject] = [
+                MediaObject(text=prompt + "\n", content_type="text/plain"),
+                MediaObject(location=video_full_path, content_type="video/mp4"),
+            ]
+
+            instances.append(
+                Instance(
+                    id=original_id,
+                    input=Input(multimedia_content=MultimediaObject(content)),
+                    references=[Reference(output=Output(text=str(reward)), tags=[CORRECT_TAG])],
+                    split=TEST_SPLIT,
+                )
+            )
+
+        return instances

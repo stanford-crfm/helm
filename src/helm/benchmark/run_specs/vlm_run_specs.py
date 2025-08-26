@@ -217,6 +217,47 @@ def get_a_okvqa_spec() -> RunSpec:
     )
 
 
+@run_spec_function("robo_reward_bench_discrete")
+def get_robo_reward_bench_discrete_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.robo_reward_bench_scenario.RoboRewardBenchDiscreteScenario",
+        args={},
+    )
+
+    instructions: str = (
+        "You will be shown a single video rollout of a robot attempting a task.\n\n"
+        "Rate the observed performance using the following rubric (choose exactly one integer from 1 to 5):\n"
+        "1 — No Success: The robot makes no meaningful progress toward the goal or manipulates the wrong item/location/tool.\n"
+        "2 — Minimal Progress: The correct object is engaged, but a goal-relevant requirement clearly isn\'t achieved (distance/height/opening/etc.).\n"
+        "3 — Partial Completion: Several required steps are completed, but a final essential step is missing or incomplete.\n"
+        "4 — Near Completion: Behavior is very close to success but narrowly falls short due to a stricter completion criterion or missing substep.\n"
+        "5 — Perfect Success: The task is fully completed as intended.\n\n"
+        "First, briefly explain your reasoning based on what happens in the video. Then, on a new line, write your final answer in exactly this format:\n"
+        "ANSWER: <score>\n"
+        "where <score> is an integer 1, 2, 3, 4, or 5. Do not include any extra commentary or punctuation after the answer line."
+    )
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(
+        instructions=instructions,
+        max_tokens=1024,
+        max_train_instances=0,
+    )
+    metric_specs: List[MetricSpec] = [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.robo_reward_bench_metrics.RoboRewardBenchProgressPredictionMetric",
+            args={},
+        )
+    ]
+
+    run_spec_name: str = "robo_reward_bench_discrete"
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
 @run_spec_function("chart2csv")
 def get_chart2csv_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(

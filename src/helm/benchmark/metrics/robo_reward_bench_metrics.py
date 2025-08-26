@@ -107,4 +107,5 @@ class RoboRewardBenchProgressPredictionMetric(Metric):
         return [
             Stat(MetricName("abs_error", split="test")).add(abs_err),
             Stat(MetricName("squared_error", split="test")).add(sq_err),
+            Stat(MetricName("exact_match", split="test")).add(1.0 if predicted_score == correct_answer else 0.0),
         ]
