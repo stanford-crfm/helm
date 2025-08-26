@@ -6,7 +6,16 @@ from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.run_specs.medhelm.benchmark_config import get_benchmark_config_from_path
 from helm.common.general import check_file_exists
 
-from helm.benchmark.scenarios.scenario import Scenario, Instance, CORRECT_TAG, Reference, Input, Output, TEST_SPLIT, ScenarioMetadata
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    CORRECT_TAG,
+    Reference,
+    Input,
+    Output,
+    TEST_SPLIT,
+    ScenarioMetadata,
+)
 
 
 class MedHELMScenario(Scenario):
