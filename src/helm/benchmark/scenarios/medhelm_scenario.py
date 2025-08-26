@@ -2,10 +2,11 @@ import re
 import pandas as pd
 from typing import List
 
-from helm.benchmark.run_specs.medhelm.benchmark_config import BenchmarkConfig, get_benchmark_config_from_path
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
+from helm.benchmark.run_specs.medhelm.benchmark_config import get_benchmark_config_from_path
 from helm.common.general import check_file_exists
 
-from helm.benchmark.scenarios.scenario import Scenario, Instance, CORRECT_TAG, Reference, Input, Output, TEST_SPLIT
+from helm.benchmark.scenarios.scenario import Scenario, Instance, CORRECT_TAG, Reference, Input, Output, TEST_SPLIT, ScenarioMetadata
 
 
 class MedHELMScenario(Scenario):
@@ -55,3 +56,19 @@ class MedHELMScenario(Scenario):
             prompt = Input(text=filled)
             instances.append(Instance(input=prompt, references=self.get_references(row), split=TEST_SPLIT))
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name=self.name,
+            display_name=self.name,
+            description=self.description,
+            taxonomy=TaxonomyInfo(
+                task="",
+                what="",
+                when="",
+                who="",
+                language="",
+            ),
+            main_metric=self.benchmark_config.metrics[0].name,
+            main_split="test",
+        )
