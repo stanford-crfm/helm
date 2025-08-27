@@ -70,7 +70,10 @@ def get_medhelm_benchmark_spec(config_path: str) -> RunSpec:
     benchmark_config = get_benchmark_config_from_path(config_path)
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.medhelm_scenario.MedHELMScenario",
-        args={"config_path": config_path},
+        args={
+            "name": benchmark_config.name,
+            "config_path": config_path
+        },
     )
 
     adapter_spec = get_generation_adapter_spec(

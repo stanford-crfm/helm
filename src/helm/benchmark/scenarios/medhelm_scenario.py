@@ -25,10 +25,10 @@ class MedHELMScenario(Scenario):
 
     tags = ["biomedical"]
 
-    def __init__(self, config_path: str):
+    def __init__(self, name: str, config_path: str):
         super().__init__()
         self.benchmark_config = get_benchmark_config_from_path(config_path)
-        self.name = self.benchmark_config.name
+        self.name = name
         self.description = self.benchmark_config.description
 
     def get_columns_in_template(self, template: str) -> List[str]:
@@ -78,6 +78,6 @@ class MedHELMScenario(Scenario):
                 who="",
                 language="",
             ),
-            main_metric=self.benchmark_config.metrics[0].name,
+            main_metric=self.benchmark_config.main_metric_name,
             main_split="test",
         )

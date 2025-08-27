@@ -1,7 +1,7 @@
 import cattrs
 import yaml
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Union
 from abc import ABC
 
@@ -25,12 +25,12 @@ class MetricConfig(ABC):
 
     pass
 
-
 @dataclass(frozen=True)
 class SimpleMetricConfig(MetricConfig):
     """Configuration for simple string-based metrics like 'exact_match'"""
 
     name: str
+    main: bool = False
 
 
 @dataclass(frozen=True)
@@ -39,6 +39,7 @@ class JuryMetricConfig(MetricConfig):
 
     prompt_file: str
     judges: List[AnnotatorModelInfo]
+    main: bool = False
 
 
 @dataclass(frozen=True)
@@ -66,6 +67,38 @@ class BenchmarkConfig:
     max_tokens: int = 1024
     """Maximum number of tokens to generate in the response"""
 
+    # Private field to store the main metric, populated after initialization
+    _main_metric: Optional[MetricConfig] = field(init=False, default=None)
+    
+    @property
+    def main_metric(self) -> Optional[MetricConfig]:
+        """Get the main metric for this benchmark"""
+        return self._main_metric
+    
+    @property
+    def main_metric_name(self) -> Optional[str]:
+        """Get the name of the main metric"""
+        if self._main_metric is None:
+            return None
+        elif isinstance(self._main_metric, SimpleMetricConfig):
+            return self._main_metric.name
+        elif isinstance(self._main_metric, JuryMetricConfig):
+            return f"{self.name}_jury_accuracy"  # Standard name for jury metrics
+        else:
+            return "unknown"
+
+    def __post_init__(self):
+        """Set the main metric after initialization"""
+        main_metrics = [m for m in self.metrics if getattr(m, 'main', False)]
+        
+        if len(main_metrics) > 1:
+            raise ValueError(f"Multiple metrics marked as main: {[type(m).__name__ for m in main_metrics]}")
+        elif len(main_metrics) == 1:
+            object.__setattr__(self, '_main_metric', main_metrics[0])
+        else:
+            # No metric explicitly marked as main, use the first one as default
+            object.__setattr__(self, '_main_metric', self.metrics[0] if self.metrics else None)
+
     def get_metric_specs(self) -> List[MetricSpec]:
         """Get the metric specifications for the benchmark"""
         metric_specs: List[MetricSpec] = []
@@ -85,7 +118,7 @@ class BenchmarkConfig:
                         },
                     )
                 )
-            elif metric.name == "summarization":
+            elif metric.name == "rouge_1":
                 metric_args = {
                     "task": self.name,
                     "device": get_torch_device_name(),
@@ -126,8 +159,8 @@ def _convert_metrics(raw_metrics: List[Union[str, Dict[str, Any]]]) -> List[Metr
     converted_metrics = []
     for i, metric in enumerate(raw_metrics):
         if isinstance(metric, str):
-            # Simple string metric
-            converted_metrics.append(SimpleMetricConfig(name=metric))
+            # Simple string metric - cannot be marked as main via string notation
+            converted_metrics.append(SimpleMetricConfig(name=metric, main=False))
         elif isinstance(metric, dict):
             # Complex metric - check the type
             if "jury" in metric:
@@ -136,16 +169,37 @@ def _convert_metrics(raw_metrics: List[Union[str, Dict[str, Any]]]) -> List[Metr
                 for judge in jury_config["judges"]:
                     # Map from YAML structure to AnnotatorModelInfo
                     # Assuming "name" in YAML maps to model_deployment
-                    judges.append(AnnotatorModelInfo(model_name=judge["model_name"], model_deployment=judge["name"]))
-                converted_metrics.append(JuryMetricConfig(prompt_file=jury_config["prompt_file"], judges=judges))
+                    judges.append(AnnotatorModelInfo(
+                        model_name=judge["model_name"],
+                        model_deployment=judge["name"]
+                    ))
+                
+                is_main = jury_config.get("main", False)
+                
+                converted_metrics.append(
+                    JuryMetricConfig(
+                        prompt_file=jury_config["prompt_file"],
+                        judges=judges,
+                        main=is_main
+                    )
+                )
+            elif isinstance(metric, dict) and len(metric) == 1:
+                # Handle metrics specified as {"metric_name": {"main": true, ...}}
+                metric_name, metric_config = next(iter(metric.items()))
+                if isinstance(metric_config, dict):
+                    is_main = metric_config.get("main", False)
+                    converted_metrics.append(SimpleMetricConfig(name=metric_name, main=is_main))
+                else:
+                    # Fallback for other dict structures
+                    converted_metrics.append(SimpleMetricConfig(name=metric_name, main=False))
             else:
+                # Handle other complex metric types here as needed
                 raise ValueError(f"Unknown metric type: {metric}")
         else:
-            print(f"DEBUG: Invalid metric format: {metric}")
             raise ValueError(f"Invalid metric format: {metric}")
 
-    print(f"DEBUG: Final converted metrics: {converted_metrics}")
     return converted_metrics
+
 
 
 def _structure_benchmark_config(data: Dict[str, Any], cls) -> BenchmarkConfig:
