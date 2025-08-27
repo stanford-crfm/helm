@@ -114,6 +114,14 @@ def compute_perplexity_metrics(stats: Dict[MetricName, Stat]) -> List[Stat]:
 def _get_perplexity_metrics_metadata() -> List[MetricMetadata]:
     return [
         MetricMetadata(
+            name="perplexity",
+            display_name="Perplexity",
+            short_display_name="PPL",
+            description="Perplexity of the output completion (effective branching factor per output token).",
+            lower_is_better=True,
+            group=None,
+        ),
+        MetricMetadata(
             name="logprob_per_byte",
             display_name="Log probability / byte",
             short_display_name="Logprob/byte",
@@ -125,15 +133,7 @@ def _get_perplexity_metrics_metadata() -> List[MetricMetadata]:
             name="bits_per_byte",
             display_name="Bits/byte",
             short_display_name="BPB",
-            description="Average number of bits per byte according to model probabilities..",
-            lower_is_better=True,
-            group=None,
-        ),
-        MetricMetadata(
-            name="perplexity",
-            display_name="Perplexity",
-            short_display_name="PPL",
-            description="Perplexity of the output completion (effective branching factor per output token).",
+            description="Average number of bits per byte according to model probabilities.",
             lower_is_better=True,
             group=None,
         ),
