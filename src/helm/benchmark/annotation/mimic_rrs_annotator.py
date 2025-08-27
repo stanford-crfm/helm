@@ -74,8 +74,6 @@ ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
 class MIMICRRSAnnotator(LLMAsJuryAnnotator):
     """The MIMICRRS autograder."""
 
-    name = "mimic_rrs"
-
     def __init__(
         self,
         auto_client: AutoClient,
@@ -83,6 +81,7 @@ class MIMICRRSAnnotator(LLMAsJuryAnnotator):
         template_name: Optional[str] = None,
     ):
         super().__init__(
+            name="mimic_rrs",
             auto_client=auto_client,
             prompt_template=PROMPT_TEMPLATE,
             annotation_criteria=ANNOTATION_CRITERIA,

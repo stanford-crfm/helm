@@ -73,8 +73,6 @@ ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
 class MedDialogAnnotator(LLMAsJuryAnnotator):
     """The MedDialog autograder."""
 
-    name = "med_dialog"
-
     def __init__(
         self,
         auto_client: AutoClient,
@@ -82,6 +80,7 @@ class MedDialogAnnotator(LLMAsJuryAnnotator):
         template_name: Optional[str] = None,
     ):
         super().__init__(
+            name="med_dialog",
             auto_client=auto_client,
             prompt_template=PROMPT_TEMPLATE,
             annotation_criteria=ANNOTATION_CRITERIA,

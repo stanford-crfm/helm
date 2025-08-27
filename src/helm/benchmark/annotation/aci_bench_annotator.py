@@ -69,8 +69,6 @@ ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
 class ACIBenchAnnotator(LLMAsJuryAnnotator):
     """The ACIBench autograder."""
 
-    name = "aci_bench"
-
     def __init__(
         self,
         auto_client: AutoClient,
@@ -78,6 +76,7 @@ class ACIBenchAnnotator(LLMAsJuryAnnotator):
         template_name: Optional[str] = None,
     ):
         super().__init__(
+            name="aci_bench",
             auto_client=auto_client,
             prompt_template=PROMPT_TEMPLATE,
             annotation_criteria=ANNOTATION_CRITERIA,

@@ -74,8 +74,6 @@ ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
 class MIMICBHCAnnotator(LLMAsJuryAnnotator):
     """The MIMICBHC autograder."""
 
-    name = "mimic_bhc"
-
     def __init__(
         self,
         auto_client: AutoClient,
@@ -83,6 +81,7 @@ class MIMICBHCAnnotator(LLMAsJuryAnnotator):
         template_name: Optional[str] = None,
     ):
         super().__init__(
+            name="mimic_bhc",
             auto_client=auto_client,
             prompt_template=PROMPT_TEMPLATE,
             annotation_criteria=ANNOTATION_CRITERIA,

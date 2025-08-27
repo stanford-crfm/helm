@@ -75,8 +75,6 @@ ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
 class MTSamplesReplicateAnnotator(LLMAsJuryAnnotator):
     """The MTSamplesReplicate autograder."""
 
-    name = "mtsamples_replicate"
-
     def __init__(
         self,
         auto_client: AutoClient,
@@ -84,6 +82,7 @@ class MTSamplesReplicateAnnotator(LLMAsJuryAnnotator):
         template_name: Optional[str] = None,
     ):
         super().__init__(
+            name="mtsamples_replicate",
             auto_client=auto_client,
             prompt_template=PROMPT_TEMPLATE,
             annotation_criteria=ANNOTATION_CRITERIA,

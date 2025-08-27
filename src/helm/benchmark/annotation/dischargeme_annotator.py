@@ -81,8 +81,6 @@ ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
 class DischargeMeAnnotator(LLMAsJuryAnnotator):
     """The DischargeMe autograder."""
 
-    name = "dischargeme"
-
     def __init__(
         self,
         auto_client: AutoClient,
@@ -90,6 +88,7 @@ class DischargeMeAnnotator(LLMAsJuryAnnotator):
         template_name: Optional[str] = None,
     ):
         super().__init__(
+            name="dischargeme",
             auto_client=auto_client,
             prompt_template=PROMPT_TEMPLATE,
             annotation_criteria=ANNOTATION_CRITERIA,
