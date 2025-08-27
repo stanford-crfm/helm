@@ -566,7 +566,6 @@ class Summarizer:
                 name="main_metric",
                 display_name="Main Metric",
                 description="Main Metric",
-                aggregation_strategies=[],
                 metrics=[MetricNameMatcher(name="${main_name}", split="${main_split}")],
             )
         ]
@@ -577,12 +576,13 @@ class Summarizer:
                     metric_group_to_metrics[metric_metadata.group] = []
                 metric_group_to_metrics[metric_metadata.group].append(metric_metadata.name)
         for metric_group, metric_names in metric_group_to_metrics.items():
+            display_name = metric_group.replace("_", " ").capitalize()
             metric_groups.append(
                 MetricGroup(
                     name=metric_group,
                     # TODO: Make display_name and description nicer
-                    display_name=metric_group,
-                    description=metric_group,
+                    display_name=display_name,
+                    description=display_name,
                     aggregation_strategies=[],
                     metrics=[
                         MetricNameMatcher(name=metric_name, split="${main_split}") for metric_name in metric_names
@@ -1223,7 +1223,8 @@ class Summarizer:
                     is_scenario_table=False,
                     aggregation_strategies=aggregate_strategies,
                 )
-                tables.append(table)
+                if len(table.header) > 1:
+                    tables.append(table)
         return tables
 
     def create_group_tables_by_subgroup(self, group: RunGroup) -> List[Table]:
@@ -1369,14 +1370,13 @@ class Summarizer:
 
         ensure_directory_exists(self.run_release_path)
 
-        self.write_run_display_json(skip_completed)
-
         # Must happen after self.read_runs()
         # because it uses self.runs
         self.fix_up_schema()
         self.check_metrics_defined()
         self.write_schema()
 
+        self.write_run_display_json(skip_completed)
         self.write_executive_summary()
         self.write_runs()
         self.write_run_specs()

@@ -111,6 +111,35 @@ def compute_perplexity_metrics(stats: Dict[MetricName, Stat]) -> List[Stat]:
     return derived_stats
 
 
+def _get_perplexity_metrics_metadata() -> List[MetricMetadata]:
+    return [
+        MetricMetadata(
+            name="perplexity",
+            display_name="Perplexity",
+            short_display_name="PPL",
+            description="Perplexity of the output completion (effective branching factor per output token).",
+            lower_is_better=True,
+            group=None,
+        ),
+        MetricMetadata(
+            name="logprob_per_byte",
+            display_name="Log probability / byte",
+            short_display_name="Logprob/byte",
+            description="Predicted output's average log probability normalized by the number of bytes.",
+            lower_is_better=False,
+            group=None,
+        ),
+        MetricMetadata(
+            name="bits_per_byte",
+            display_name="Bits/byte",
+            short_display_name="BPB",
+            description="Average number of bits per byte according to model probabilities.",
+            lower_is_better=True,
+            group=None,
+        ),
+    ]
+
+
 class InstancesPerSplitMetric(MetricInterface):
     """Report the average num_instances in each MetricContext across train_trials."""
 
@@ -202,6 +231,7 @@ class BasicGenerationMetric(Metric):
             get_request_state_metrics_metadata(self.efficiency_metric)
             + get_reference_metrics_metadata(self.names)
             + _get_language_modeling_metrics_metadata()
+            + _get_perplexity_metrics_metadata()
             + _get_calibration_metrics_metadata()
         )
 
