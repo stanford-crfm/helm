@@ -113,6 +113,7 @@ class LLMAsJuryAnnotator(Annotator):
 
     def __init__(
         self,
+        name: str,
         auto_client: AutoClient,
         prompt_template: str,
         annotation_criteria: Dict[str, Set[str]],
@@ -128,6 +129,7 @@ class LLMAsJuryAnnotator(Annotator):
         :param annotator_models: Dictionary of models to use for annotation
         :param preprocessor: Optional function to preprocess model responses
         """
+        self.name = name
         self._auto_client = auto_client
         self._prompt_template = prompt_template
         self._annotation_criteria = annotation_criteria

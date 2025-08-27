@@ -1,8 +1,10 @@
 import cattrs
 import yaml
+import json
+import re
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, Set
 from abc import ABC
 
 from helm.benchmark.annotation.annotator import AnnotatorSpec
@@ -23,13 +25,13 @@ from helm.common.gpu_utils import get_torch_device_name
 class MetricConfig(ABC):
     """Base class for all metric configurations"""
 
-    pass
+    name: str
+
 
 @dataclass(frozen=True)
 class SimpleMetricConfig(MetricConfig):
     """Configuration for simple string-based metrics like 'exact_match'"""
 
-    name: str
     main: bool = False
 
 
@@ -80,12 +82,8 @@ class BenchmarkConfig:
         """Get the name of the main metric"""
         if self._main_metric is None:
             return None
-        elif isinstance(self._main_metric, SimpleMetricConfig):
-            return self._main_metric.name
-        elif isinstance(self._main_metric, JuryMetricConfig):
-            return f"{self.name}_jury_accuracy"  # Standard name for jury metrics
         else:
-            return "unknown"
+            return self._main_metric.name
 
     def __post_init__(self):
         """Set the main metric after initialization"""
@@ -105,14 +103,13 @@ class BenchmarkConfig:
         for metric in self.metrics:
             if metric.name == "exact_match":
                 metric_specs.extend(get_exact_match_metric_specs())
-            elif metric.name == "jury":
+            elif metric.name == "jury_score":
                 annotator_models = {judge.model_deployment: judge for judge in metric.judges}
-
-                metric_specs.extend(
+                metric_specs.append(
                     MetricSpec(
                         class_name="helm.benchmark.metrics.llm_jury_metrics.LLMJuryMetric",
                         args={
-                            "metric_name": f"{self.name}_jury_accuracy",
+                            "metric_name": "jury_score",
                             "scenario_name": self.name,
                             "annotator_models": annotator_models,
                         },
@@ -130,26 +127,42 @@ class BenchmarkConfig:
                 raise ValueError(f"Unknown metric name: {metric.name}")
         return metric_specs
 
+    def _get_annotation_criteria(self, prompt_template: str) -> Dict[str, Set[str]]:
+        criteria_tag = re.compile(r"<rubric_criteria>\s*(\{.*?\})\s*</rubric_criteria>", re.DOTALL)
+        m = criteria_tag.search(prompt_template)
+        if not m:
+            raise ValueError(
+                "No <rubric_criteria>{...}</rubric_criteria> block found in prompt_template."
+            )
+        raw = json.loads(m.group(1))
+        # normalize to Dict[str, Set[str]]
+        return {k: list(v) for k, v in raw.items()}    
+    
     def get_annotator_specs(self) -> List[AnnotatorSpec]:
         """Convert jury metrics to AnnotatorSpec objects"""
         annotator_specs = []
-        return annotator_specs
+        # return annotator_specs
         for metric in self.metrics:
             if isinstance(metric, JuryMetricConfig):
-                annotator_models = {judge.model_deployment: judge for judge in metric.judges}
                 with open(metric.prompt_file, "r") as f:
                     prompt_template = f.read()
+                annotator_models = {judge.model_deployment: judge for judge in metric.judges}
+                annotator_criteria = self._get_annotation_criteria(prompt_template)
                 # Create a generic annotator spec - you may need to customize the class_name
                 # based on your specific use case
                 annotator_specs.append(
                     AnnotatorSpec(
-                        class_name=f"helm.benchmark.annotation.{self.name}_annotator.{self.name.title()}Annotator",
+                        class_name=f"helm.benchmark.annotation.model_as_judge.LLMAsJuryAnnotator",
                         args={
+                            "name": f"{self.name}",
+                            "prompt_template": prompt_template,
+                            "annotation_criteria": annotator_criteria,
                             "annotator_models": annotator_models,
-                            "prompt_file": metric.prompt_file,
                         },
                     )
                 )
+
+        return annotator_specs
 
 
 def _convert_metrics(raw_metrics: List[Union[str, Dict[str, Any]]]) -> List[MetricConfig]:
@@ -163,8 +176,8 @@ def _convert_metrics(raw_metrics: List[Union[str, Dict[str, Any]]]) -> List[Metr
             converted_metrics.append(SimpleMetricConfig(name=metric, main=False))
         elif isinstance(metric, dict):
             # Complex metric - check the type
-            if "jury" in metric:
-                jury_config = metric["jury"]
+            if "jury_score" in metric:
+                jury_config = metric["jury_score"]
                 judges = []
                 for judge in jury_config["judges"]:
                     # Map from YAML structure to AnnotatorModelInfo
@@ -178,6 +191,7 @@ def _convert_metrics(raw_metrics: List[Union[str, Dict[str, Any]]]) -> List[Metr
                 
                 converted_metrics.append(
                     JuryMetricConfig(
+                        name="jury_score",
                         prompt_file=jury_config["prompt_file"],
                         judges=judges,
                         main=is_main

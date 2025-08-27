@@ -74,8 +74,6 @@ ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
 class MedalignAnnotator(LLMAsJuryAnnotator):
     """The Medalign autograder."""
 
-    name = "medalign"
-
     def __init__(
         self,
         auto_client: AutoClient,
@@ -83,6 +81,7 @@ class MedalignAnnotator(LLMAsJuryAnnotator):
         template_name: Optional[str] = None,
     ):
         super().__init__(
+            name="medalign",
             auto_client=auto_client,
             prompt_template=PROMPT_TEMPLATE,
             annotation_criteria=ANNOTATION_CRITERIA,
