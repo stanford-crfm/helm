@@ -1222,7 +1222,8 @@ class Summarizer:
                     is_scenario_table=False,
                     aggregation_strategies=aggregate_strategies,
                 )
-                tables.append(table)
+                if len(table.header) > 1:
+                    tables.append(table)
         return tables
 
     def create_group_tables_by_subgroup(self, group: RunGroup) -> List[Table]:
