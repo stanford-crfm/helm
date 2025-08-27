@@ -566,7 +566,6 @@ class Summarizer:
                 name="main_metric",
                 display_name="Main Metric",
                 description="Main Metric",
-                aggregation_strategies=[],
                 metrics=[MetricNameMatcher(name="${main_name}", split="${main_split}")],
             )
         ]
@@ -1369,14 +1368,13 @@ class Summarizer:
 
         ensure_directory_exists(self.run_release_path)
 
-        self.write_run_display_json(skip_completed)
-
         # Must happen after self.read_runs()
         # because it uses self.runs
         self.fix_up_schema()
         self.check_metrics_defined()
         self.write_schema()
 
+        self.write_run_display_json(skip_completed)
         self.write_executive_summary()
         self.write_runs()
         self.write_run_specs()
