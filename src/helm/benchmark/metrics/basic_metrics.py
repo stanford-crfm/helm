@@ -111,7 +111,6 @@ def compute_perplexity_metrics(stats: Dict[MetricName, Stat]) -> List[Stat]:
     return derived_stats
 
 
-
 def _get_perplexity_metrics_metadata() -> List[MetricMetadata]:
     return [
         MetricMetadata(
