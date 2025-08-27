@@ -566,7 +566,6 @@ class Summarizer:
                 name="main_metric",
                 display_name="Main Metric",
                 description="Main Metric",
-                aggregation_strategies=[],
                 metrics=[MetricNameMatcher(name="${main_name}", split="${main_split}")],
             )
         ]
