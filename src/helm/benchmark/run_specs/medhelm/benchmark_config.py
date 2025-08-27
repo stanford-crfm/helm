@@ -71,12 +71,12 @@ class BenchmarkConfig:
 
     # Private field to store the main metric, populated after initialization
     _main_metric: Optional[MetricConfig] = field(init=False, default=None)
-    
+
     @property
     def main_metric(self) -> Optional[MetricConfig]:
         """Get the main metric for this benchmark"""
         return self._main_metric
-    
+
     @property
     def main_metric_name(self) -> Optional[str]:
         """Get the name of the main metric"""
@@ -87,15 +87,15 @@ class BenchmarkConfig:
 
     def __post_init__(self):
         """Set the main metric after initialization"""
-        main_metrics = [m for m in self.metrics if getattr(m, 'main', False)]
-        
+        main_metrics = [m for m in self.metrics if getattr(m, "main", False)]
+
         if len(main_metrics) > 1:
             raise ValueError(f"Multiple metrics marked as main: {[type(m).__name__ for m in main_metrics]}")
         elif len(main_metrics) == 1:
-            object.__setattr__(self, '_main_metric', main_metrics[0])
+            object.__setattr__(self, "_main_metric", main_metrics[0])
         else:
             # No metric explicitly marked as main, use the first one as default
-            object.__setattr__(self, '_main_metric', self.metrics[0] if self.metrics else None)
+            object.__setattr__(self, "_main_metric", self.metrics[0] if self.metrics else None)
 
     def get_metric_specs(self) -> List[MetricSpec]:
         """Get the metric specifications for the benchmark"""
@@ -131,13 +131,11 @@ class BenchmarkConfig:
         criteria_tag = re.compile(r"<rubric_criteria>\s*(\{.*?\})\s*</rubric_criteria>", re.DOTALL)
         m = criteria_tag.search(prompt_template)
         if not m:
-            raise ValueError(
-                "No <rubric_criteria>{...}</rubric_criteria> block found in prompt_template."
-            )
+            raise ValueError("No <rubric_criteria>{...}</rubric_criteria> block found in prompt_template.")
         raw = json.loads(m.group(1))
         # normalize to Dict[str, Set[str]]
-        return {k: list(v) for k, v in raw.items()}    
-    
+        return {k: list(v) for k, v in raw.items()}
+
     def get_annotator_specs(self) -> List[AnnotatorSpec]:
         """Convert jury metrics to AnnotatorSpec objects"""
         annotator_specs = []
@@ -182,19 +180,13 @@ def _convert_metrics(raw_metrics: List[Union[str, Dict[str, Any]]]) -> List[Metr
                 for judge in jury_config["judges"]:
                     # Map from YAML structure to AnnotatorModelInfo
                     # Assuming "name" in YAML maps to model_deployment
-                    judges.append(AnnotatorModelInfo(
-                        model_name=judge["model_name"],
-                        model_deployment=judge["name"]
-                    ))
-                
+                    judges.append(AnnotatorModelInfo(model_name=judge["model_name"], model_deployment=judge["name"]))
+
                 is_main = jury_config.get("main", False)
-                
+
                 converted_metrics.append(
                     JuryMetricConfig(
-                        name="jury_score",
-                        prompt_file=jury_config["prompt_file"],
-                        judges=judges,
-                        main=is_main
+                        name="jury_score", prompt_file=jury_config["prompt_file"], judges=judges, main=is_main
                     )
                 )
             elif isinstance(metric, dict) and len(metric) == 1:
@@ -213,7 +205,6 @@ def _convert_metrics(raw_metrics: List[Union[str, Dict[str, Any]]]) -> List[Metr
             raise ValueError(f"Invalid metric format: {metric}")
 
     return converted_metrics
-
 
 
 def _structure_benchmark_config(data: Dict[str, Any], cls) -> BenchmarkConfig:
