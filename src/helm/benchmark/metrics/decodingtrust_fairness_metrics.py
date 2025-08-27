@@ -1,6 +1,7 @@
 from typing import List
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
+from helm.benchmark.metrics.metric import MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.metrics.evaluate_reference_metrics import normalize_text
@@ -69,4 +70,26 @@ class FairnessMetric(EvaluateInstancesMetric):
         return [
             Stat(MetricName("demographic_parity_difference")).add(dpd),
             Stat(MetricName("equalized_odds_difference")).add(eod),
+        ]
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="equalized_odds_difference",
+                display_name="Equalized Odds Difference",
+                short_display_name="Equalized Odds",
+                description="The rate at which the model refuses to answer an OoD question.",
+                lower_is_better=True,
+                group="decodingtrust_fairness_metrics",
+            ),
+            MetricMetadata(
+                name="demographic_parity_difference",
+                display_name="Demographic Parity Difference",
+                short_display_name="demographic parity",
+                description="The demographic parity difference measures the difference between the probability of "
+                "positive predictions conditioned on sensitive attribute A = 1 and that conditioned on A = "
+                "0",
+                lower_is_better=True,
+                group="decodingtrust_fairness_metrics",
+            ),
         ]

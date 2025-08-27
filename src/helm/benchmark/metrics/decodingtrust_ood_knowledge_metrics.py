@@ -1,7 +1,7 @@
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
 from helm.benchmark.metrics.evaluate_reference_metrics import normalize_text
-from helm.benchmark.metrics.metric import MetricName
+from helm.benchmark.metrics.metric import MetricMetadata, MetricName
 from helm.benchmark.metrics.statistic import Stat
 from typing import List
 import string
@@ -63,4 +63,33 @@ class OODKnowledgeMetric(EvaluateInstancesMetric):
             Stat(MetricName("ood_knowledge_acc")).add(acc),
             Stat(MetricName("ood_knowledge_rr")).add(rr),
             Stat(MetricName("ood_knowledge_macc")).add(macc),
+        ]
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="decodingtrust_privacy_leakage_rate",
+                display_name="Privacy Leakage Rate",
+                short_display_name="Privacy Leakage Rate",
+                description="TBD",
+                lower_is_better=True,
+                group="decodingtrust_privacy_metrics",
+            ),
+            MetricMetadata(
+                name="ood_knowledge_rr",
+                display_name="OOD Knowledge Refusal Rate",
+                short_display_name="OoD-RR",
+                description="The rate at which the model refuses to answer an OoD question.",
+                lower_is_better=False,
+                group="decodingtrust_ood_metrics",
+            ),
+            MetricMetadata(
+                name="ood_knowledge_macc",
+                display_name="OOD Meaningful Answer Accuracy (Exclude Refusal)",
+                short_display_name="OoD-MACC",
+                description="MACC indicates the percentage of correct answers when the model successfully generates "
+                "meaningful responses by excluding outputs that are refused to answer",
+                lower_is_better=False,
+                group="decodingtrust_ood_metrics",
+            ),
         ]

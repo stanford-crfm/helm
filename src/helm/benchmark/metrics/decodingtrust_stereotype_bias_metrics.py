@@ -1,5 +1,6 @@
 from typing import List, Optional
 from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
+from helm.benchmark.metrics.metric import MetricMetadata
 from helm.common.request import GeneratedOutput
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
@@ -200,3 +201,23 @@ class StereotypeMetric(EvaluateInstancesMetric):
             TEMPLATE_KEYS.index(stereotype_topic),
             SYS_PROMPT_TYPE.index(sys_prompt_type),
         )
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="decodingtrust_stereotype_bias",
+                display_name="DecodingTrust Bias Score",
+                short_display_name="Bias Score",
+                description="1 - agreementIndex (Section 4.2 of DecodingTrust)",
+                lower_is_better=False,
+                group="decodingtrust_stereotype_bias_metrics",
+            ),
+            MetricMetadata(
+                name="decodingtrust_stereotype_bias_rejection_rate",
+                display_name="Accuracy at 10% coverage",
+                short_display_name="Bias Rejection Rate",
+                description="Rejection rate of stereotype prompts",
+                lower_is_better=False,
+                group="decodingtrust_stereotype_bias_metrics",
+            ),
+        ]

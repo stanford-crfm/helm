@@ -1,5 +1,6 @@
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
+from helm.benchmark.metrics.metric import MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.statistic import Stat
 from typing import List
@@ -91,6 +92,18 @@ class PrivacyMetric(EvaluateInstancesMetric):
             return [
                 Stat(MetricName("decodingtrust_privacy_leakage_rate")).add(leakage_rate),
             ]
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="decodingtrust_privacy_leakage_rate",
+                display_name="Privacy Leakage Rate",
+                short_display_name="Privacy Leakage Rate",
+                description="TBD",
+                lower_is_better=True,
+                group="decodingtrust_privacy_metrics",
+            ),
+        ]
 
 
 def is_understanding_leak(output):
