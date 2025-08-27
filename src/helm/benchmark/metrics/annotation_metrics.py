@@ -2,7 +2,7 @@ from typing import List
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.metrics.metric import Metric, MetricMetadata
+from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
@@ -69,17 +69,6 @@ class AnnotationNumericMetric(Metric):
         assert request_state.annotations
         score = request_state.annotations[self.annotator_name][self.key]
         return [Stat(MetricName(f"annotation_{self.annotator_name}_{self.key}")).add(score)]
-
-    def get_metadata(self) -> List[MetricMetadata]:
-        return [
-            MetricMetadata(
-                name="annotation_call_center_summarization_key_points_recall_score",
-                display_name="Score",
-                description="Score",
-                lower_is_better=False,
-                group="key_points_recall_metrics",
-            ),
-        ]
 
 
 class AnnotationLikertScaleMetric(Metric):
