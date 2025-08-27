@@ -576,12 +576,13 @@ class Summarizer:
                     metric_group_to_metrics[metric_metadata.group] = []
                 metric_group_to_metrics[metric_metadata.group].append(metric_metadata.name)
         for metric_group, metric_names in metric_group_to_metrics.items():
+            display_name = metric_group.replace("_", " ").capitalize()
             metric_groups.append(
                 MetricGroup(
                     name=metric_group,
                     # TODO: Make display_name and description nicer
-                    display_name=metric_group,
-                    description=metric_group,
+                    display_name=display_name,
+                    description=display_name,
                     aggregation_strategies=[],
                     metrics=[
                         MetricNameMatcher(name=metric_name, split="${main_split}") for metric_name in metric_names
