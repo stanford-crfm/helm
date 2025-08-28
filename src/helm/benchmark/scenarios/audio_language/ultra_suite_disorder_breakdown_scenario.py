@@ -1,6 +1,5 @@
 from typing import List
 import os
-import uuid
 
 from datasets import load_dataset
 from tqdm import tqdm
@@ -48,13 +47,13 @@ class UltraSuiteDisorderBreakdownScenario(Scenario):
         instances: List[Instance] = []
         split: str = TEST_SPLIT
 
-        for row in tqdm(dataset["train"]):
+        for idx, row in enumerate(tqdm(dataset["train"])):
             # Load the annotation
             label = row["disorder_type"]
             prompt = row["transcription"]
 
             audio_path = row["audio"]
-            unique_id = str(uuid.uuid4())[:8]
+            unique_id = str(idx)
             local_audio_name = f"{label}_{unique_id}.mp3"
             local_audio_path = os.path.join(audio_save_dir, local_audio_name)
             ensure_audio_file_exists_from_array(local_audio_path, row["audio"]["array"], row["audio"]["sampling_rate"])
