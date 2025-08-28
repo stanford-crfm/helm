@@ -33,9 +33,12 @@ class OpenAIClientUtils:
     @classmethod
     def is_reasoning_model(cls, model_engine: str) -> bool:
         # All OpenAI  reasoning models start "o[somenumber]", so we regexp for that to future proof things
-        return bool(re.match(r"^o\d+", model_engine))
+        return bool(re.match(r"^o\d+", model_engine)) or bool(re.match(r"^gpt-5", model_engine))
 
     # Error OpenAI throws when the image in the prompt violates their content policy
+    HARMFUL_INFORMATION_ERROR: str = (
+        "Invalid prompt: we've limited access to this content for safety reasons. This type of information may be used to benefit or to harm people."  # noqa: E501
+    )
     INAPPROPRIATE_IMAGE_ERROR: str = "Your input image may contain content that is not allowed by our safety system"
     INAPPROPRIATE_PROMPT_ERROR: str = "Invalid prompt: your prompt was flagged"
     INAPPROPRIATE_PROMPT_AZURE_ERROR: str = (
@@ -44,12 +47,10 @@ class OpenAIClientUtils:
     INAPPROPRIATE_PROMPT_MICROSOFT_ERROR: str = (
         "The response was filtered due to the prompt triggering Microsoft's content management policy."
     )
-
-    # OpenAI server error
-    OPENAI_SERVER_ERROR: str = (
-        "The server had an error processing your request. Sorry about that! You can retry your request, "
-        "or contact us through our help center at help.openai.com if you keep seeing this error."
-    )
+    # Grok content safety guidelines error message
+    # TODO: Refactor so that this is owned by the Grok client instead.
+    SAFETY_GUIDELINES_GROK_ERROR: str = "Content violates safety guidelines."
+    USAGE_GUIDELINES_GROK_ERROR: str = "Content violates usage guidelines."
 
     # Set the finish reason to this if the prompt violates OpenAI's content policy
     CONTENT_POLICY_VIOLATED_FINISH_REASON: str = (
@@ -74,27 +75,38 @@ class OpenAIClientUtils:
                 completions=[empty_completion] * request.num_completions,
                 embedding=[],
             )
-        elif cls.OPENAI_SERVER_ERROR in str(e):
-            # Handle these errors by returning an empty completion to unblock
-            hwarn(f"OpenAI server error for request: {str(request)}")
-            empty_completion = GeneratedOutput(
-                text="",
-                logprob=0,
-                tokens=[],
-                finish_reason={"reason": cls.OPENAI_SERVER_ERROR},
-            )
+        elif cls.HARMFUL_INFORMATION_ERROR in str(e):
             return RequestResult(
-                success=True,
+                success=False,
                 cached=False,
-                request_time=0,
-                completions=[empty_completion] * request.num_completions,
+                error="Prompt blocked by OpenAI's safety filter",
+                completions=[],
                 embedding=[],
+                error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
             )
         elif cls.INAPPROPRIATE_PROMPT_AZURE_ERROR in str(e) or cls.INAPPROPRIATE_PROMPT_MICROSOFT_ERROR in str(e):
             return RequestResult(
                 success=False,
                 cached=False,
                 error="Content blocked by Azure's content management filter",
+                completions=[],
+                embedding=[],
+                error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+            )
+        elif cls.SAFETY_GUIDELINES_GROK_ERROR in str(e):
+            return RequestResult(
+                success=False,
+                cached=False,
+                error="Grok API error: Content violates safety guidelines",
+                completions=[],
+                embedding=[],
+                error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+            )
+        elif cls.USAGE_GUIDELINES_GROK_ERROR in str(e):
+            return RequestResult(
+                success=False,
+                cached=False,
+                error="Grok API error: Content violates usage guidelines",
                 completions=[],
                 embedding=[],
                 error_flags=ErrorFlags(is_retriable=False, is_fatal=False),

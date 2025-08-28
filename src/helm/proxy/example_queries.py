@@ -21,7 +21,7 @@ example_queries = [
             """
             temperature: 0.5  # Medium amount of randomness
             stop_sequences: [.]  # Stop when you hit a period
-            model: openai/gpt-3.5-turbo-0613
+            model: openai/gpt-4.1-nano-2025-04-14
             """
         ),
         environments="",
@@ -33,7 +33,7 @@ example_queries = [
             temperature: 0.5  # Medium amount of randomness
             stop_sequences: [\\n]  # Stop when you hit a newline
             num_completions: 5  # Generate many samples
-            model: openai/gpt-3.5-turbo-0613
+            model: openai/gpt-4.1-nano-2025-04-14
             """
         ),
         environments="",
@@ -58,7 +58,7 @@ example_queries = [
             """
             temperature: 0  # Deterministic
             max_tokens: 50
-            model: openai/gpt-3.5-turbo-0613
+            model: openai/gpt-4.1-nano-2025-04-14
             """
         ),
         environments="",
@@ -76,7 +76,7 @@ example_queries = [
         environments=dedent(
             """
             occupation: [mathematician, lawyer, doctor]
-            model: [openai/gpt-3.5-turbo-0613, openai/gpt-3.5-turbo-1106]
+            model: [openai/gpt-4.1-nano-2025-04-14, openai/gpt-4.1-mini-2025-04-14]
             """
         ),
     ),
@@ -101,7 +101,7 @@ example_queries = [
         ),
         environments=dedent(
             """
-            model: [openai/gpt-3.5-turbo-0613, openai/gpt-3.5-turbo-1106]
+            model: [openai/gpt-4.1-nano-2025-04-14, openai/gpt-4.1-mini-2025-04-14]
             """
         ),
     ),
@@ -136,7 +136,7 @@ example_queries = [
         ),
         environments=dedent(
             """
-            model: [openai/gpt-3.5-turbo-0613, openai/gpt-3.5-turbo-1106]
+            model: [openai/gpt-4.1-nano-2025-04-14, openai/gpt-4.1-mini-2025-04-14]
             """
         ),
     ),
@@ -144,7 +144,7 @@ example_queries = [
         prompt="Write a Python function that takes two vectors a and b and returns their Euclidean distance.",
         settings=dedent(
             """
-            model: openai/gpt-3.5-turbo-0613
+            model: openai/gpt-4.1-nano-2025-04-14
             """
         ),
         environments="",
@@ -161,7 +161,7 @@ example_queries = [
         ),
         environments=dedent(
             """
-            model: [openai/gpt-3.5-turbo-0613, openai/gpt-3.5-turbo-1106]
+            model: [openai/gpt-4.1-nano-2025-04-14, openai/gpt-4.1-mini-2025-04-14]
             """
         ),
     ),

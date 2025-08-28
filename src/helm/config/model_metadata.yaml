@@ -1253,6 +1253,14 @@ models:
     release_date: 2025-06-17
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: google/gemini-2.5-flash-lite
+    display_name: Gemini 2.5 Flash-Lite
+    description: Gemini 2.5 Flash-Lite ([blog](https://blog.google/products/gemini/gemini-2-5-model-family-expands/))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-07-22
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: google/gemini-2.5-flash-preview-04-17
     display_name: Gemini 2.5 Flash (04-17 preview)
     description: Gemini 2.5 Flash (04-17 preview) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
@@ -3052,6 +3060,30 @@ models:
     release_date: 2025-04-14
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: openai/gpt-5-2025-08-07
+    display_name: GPT-5 (2025-08-07)
+    description: GPT-5 (2025-08-07) is a multimdodal model trained for real-world coding tasks and long-running agentic tasks. ([blog](https://openai.com/index/introducing-gpt-5-for-developers/), [system card](https://cdn.openai.com/pdf/8124a3ce-ab78-4f06-96eb-49ea29ffb52f/gpt5-system-card-aug7.pdf))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-08-07
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/gpt-5-mini-2025-08-07
+    display_name: GPT-5 mini (2025-08-07)
+    description: GPT-5 mini (2025-08-07) is a multimdodal model trained for real-world coding tasks and long-running agentic tasks. ([blog](https://openai.com/index/introducing-gpt-5-for-developers/), [system card](https://cdn.openai.com/pdf/8124a3ce-ab78-4f06-96eb-49ea29ffb52f/gpt5-system-card-aug7.pdf))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-08-07
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/gpt-5-nano-2025-08-07
+    display_name: GPT-5 nano (2025-08-07)
+    description: GPT-5 nano (2025-08-07) is a multimdodal model trained for real-world coding tasks and long-running agentic tasks. ([blog](https://openai.com/index/introducing-gpt-5-for-developers/), [system card](https://cdn.openai.com/pdf/8124a3ce-ab78-4f06-96eb-49ea29ffb52f/gpt5-system-card-aug7.pdf))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-08-07
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: openai/whisper-1_gpt-4o-2024-11-20
     display_name: Whisper-1 + GPT-4o (2024-11-20)
     description: Transcribes the text with Whisper-1 and then uses GPT-4o to generate a response.
@@ -3272,6 +3304,23 @@ models:
     access: limited
     release_date: 2025-06-10
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  ## GPT-OSS
+  - name: openai/gpt-oss-20b
+    display_name: gpt-oss-20b
+    description: gpt-oss-20b is an open-weight language model that was trained using a mix of reinforcement learning and other techniques informed by OpenAI's internal models. It uses a mixture-of-experts architecture and activates 3.6B parameters per token. ([blog](https://openai.com/index/introducing-gpt-oss/))
+    creator_organization_name: OpenAI
+    access: open
+    release_date: 2025-08-05
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/gpt-oss-120b
+    display_name: gpt-oss-120b
+    description: gpt-oss-120b is an open-weight language model that was trained using a mix of reinforcement learning and other techniques informed by OpenAI's internal models. It uses a mixture-of-experts architecture and activates 5.1B parameters per token. ([blog](https://openai.com/index/introducing-gpt-oss/))
+    creator_organization_name: OpenAI
+    access: open
+    release_date: 2025-08-05
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   ## Codex Models
   # DEPRECATED: Codex models have been shut down on March 23 2023.
@@ -3547,6 +3596,14 @@ models:
     creator_organization_name: Qwen
     access: open
     release_date: 2025-04-29
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: qwen/qwen3-235b-a22b-instruct-2507-fp8
+    display_name: Qwen3 235B A22B Instruct 2507 FP8
+    description: Qwen3 235B A22B Instruct 2507 FP8 is an updated version of the non-thinking mode of Qwen3 235B A22B FP8.
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2025-07-21  # https://x.com/Alibaba_Qwen/status/1947344511988076547
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: qwen/qwq-32b-preview
@@ -4315,6 +4372,17 @@ models:
     release_date: 2025-05-08
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG] 
 
+  # Z.ai
+
+  - name: zai-org/glm-4.5-air-fp8
+    display_name: GLM-4.5-Air-FP8
+    description: GLM-4.5-Air-FP8 is a hybrid reasoning model designed to unify reasoning, coding, and agentic capabilities into a single model. It has 106 billion total parameters and 12 billion active parameters. The thinking mode is enabled by default. ([blog](https://z.ai/blog/glm-4.5))
+    creator_organization_name: Z.ai
+    access: open
+    num_parameters: 110000000000
+    release_date: 2025-07-28
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
 
 # Granite - IBM
 # https://www.ibm.com/granite
@@ -4530,7 +4598,7 @@ models:
 
   - name: ibm/granite-3.3-8b-instruct
     display_name: IBM Granite 3.3 8B Instruct
-    description: IBM Granite 3.3 8B Instruct is a 8-billion parameter 128K context length language model fine-tuned for improved reasoning and instruction-following capabilities. ([model card](https://huggingface.co/ibm-granite/granite-3.3-8b-instruct))
+    description: IBM Granite 3.3 8B Instruct is an 8-billion parameter 128K context length language model fine-tuned for improved reasoning and instruction-following capabilities. ([model card](https://huggingface.co/ibm-granite/granite-3.3-8b-instruct))
     creator_organization_name: IBM
     access: open
     num_parameters: 8170000000
@@ -4539,7 +4607,7 @@ models:
 
   - name: ibm/granite-3.3-8b-instruct-with-guardian
     display_name: IBM Granite 3.3 8B Instruct (with guardian)
-    description: IBM Granite 3.3 8B Instruct is a 8-billion parameter 128K context length language model fine-tuned for improved reasoning and instruction-following capabilities. ([model card](https://huggingface.co/ibm-granite/granite-3.3-8b-instruct)) This model was run with an additional safety filter using [Granite Guardian 3.2](https://www.ibm.com/granite/docs/models/guardian/).
+    description: IBM Granite 3.3 8B Instruct is an 8-billion parameter 128K context length language model fine-tuned for improved reasoning and instruction-following capabilities. All prompts were first evaluated for risk by [IBM Granite Guardian 3.2 5B](https://www.ibm.com/granite/docs/models/guardian/) and prompts that were deemed risky (with a risk threshold of 0.8) received the response "I'm very sorry, but I can't assist with that.". ([model card](https://huggingface.co/ibm-granite/granite-3.3-8b-instruct))
     creator_organization_name: IBM
     access: open
     num_parameters: 8170000000

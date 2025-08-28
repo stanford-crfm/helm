@@ -3,7 +3,7 @@ from typing import List
 from helm.common.hierarchical_logger import hwarn
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
@@ -53,3 +53,15 @@ class IFEvalMetric(Metric):
                 is_following_list.append(0)
 
         return [Stat(MetricName("ifeval_strict_accuracy")).add(sum(is_following_list) / len(is_following_list))]
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="ifeval_strict_accuracy",
+                display_name="IFEval strict accuracy",
+                short_display_name="IFEval Strict Acc",
+                description="Fraction of instructions in the instance that are correctly followed.",
+                lower_is_better=False,
+                group="accuracy",
+            ),
+        ]

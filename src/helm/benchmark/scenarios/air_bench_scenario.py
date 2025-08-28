@@ -2,6 +2,7 @@ import datasets
 import os
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -9,6 +10,7 @@ from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.general import ensure_directory_exists
 
@@ -53,3 +55,22 @@ class AIRBench2024Scenario(Scenario):
             instance = Instance(input=input, references=references, split=TEST_SPLIT)
             instances.append(instance)
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="air_bench_2024",
+            display_name="AIRBench 2024",
+            description="AIRBench 2024 is a AI safety benchmark that aligns with emerging government "
+            "regulations and company policies. It consists of diverse, malicious prompts "
+            "spanning categories of the regulation-based safety categories in the AIR 2024 "
+            "safety taxonomy.\n",
+            taxonomy=TaxonomyInfo(
+                task="open-ended instruction-following text generation",
+                what="malicious prompts",
+                when="2024",
+                who="dataset authors and language models",
+                language="English",
+            ),
+            main_metric="air_score",
+            main_split="test",
+        )

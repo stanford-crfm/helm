@@ -2,6 +2,7 @@ import datasets
 import os
 import random
 from typing import List
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -11,6 +12,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.general import ensure_directory_exists
 
@@ -78,3 +80,19 @@ class GPQAScenario(Scenario):
             instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name=self.name,
+            display_name="GPQA",
+            description=self.description,
+            main_metric="chain_of_thought_correctness",
+            main_split="test",
+            taxonomy=TaxonomyInfo(
+                task="question answering",
+                what="complex questions across various disciplines",
+                who="domain experts",
+                when="2024",
+                language="English",
+            ),
+        )

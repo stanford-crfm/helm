@@ -2,7 +2,7 @@ from typing import Any, Dict, List
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
@@ -31,4 +31,24 @@ class WildBenchScoreMetric(Metric):
         return [
             Stat(MetricName("wildbench_score")).add(score),
             Stat(MetricName("wildbench_score_rescaled")).add(score_rescaled),
+        ]
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="wildbench_score",
+                display_name="WildBench Score",
+                short_display_name="WB Score",
+                description="Score of the AI output judged by GPT-4o.",
+                lower_is_better=False,
+                group="accuracy",
+            ),
+            MetricMetadata(
+                name="wildbench_score_rescaled",
+                display_name="WildBench Score",
+                short_display_name="WB Score",
+                description="Score of the AI output judged by GPT-4o, rescaled to be between 0 and 1.",
+                lower_is_better=False,
+                group="accuracy",
+            ),
         ]

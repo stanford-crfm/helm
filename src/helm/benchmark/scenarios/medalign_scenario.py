@@ -1,5 +1,6 @@
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -8,6 +9,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     PassageQuestionInput,
     Output,
+    ScenarioMetadata,
 )
 from helm.benchmark.scenarios.medalign_scenario_helper import return_dataset_dataframe  # type: ignore
 
@@ -92,3 +94,24 @@ class MedalignScenario(Scenario):
     def get_instances(self, output_path: str) -> List[Instance]:
         dataset = return_dataset_dataframe(self.max_length, self.data_path)
         return self.process_tsv(dataset)
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="medalign",
+            display_name="MedAlign",
+            short_display_name="MedAlign",
+            description="MedAlign is a benchmark that evaluates a model's ability to interpret and "
+            "follow instructions grounded in longitudinal electronic health records (EHR). "
+            "Each instance includes an event-stream style patient record and a natural "
+            "language question or task, requiring clinically informed reading comprehension "
+            "and reasoning [(Fleming et al., 2023)](https://arxiv.org/abs/2308.14089).",
+            taxonomy=TaxonomyInfo(
+                task="Text generation",
+                what="Answer questions and follow instructions over longitudinal EHR",
+                when="Any",
+                who="Clinician, Researcher",
+                language="English",
+            ),
+            main_metric="medalign_accuracy",
+            main_split="test",
+        )

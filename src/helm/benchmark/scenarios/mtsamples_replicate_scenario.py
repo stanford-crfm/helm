@@ -1,6 +1,7 @@
 import os
 import requests
 from typing import List
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -9,6 +10,7 @@ from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.general import ensure_directory_exists
 
@@ -140,3 +142,23 @@ class MTSamplesReplicateScenario(Scenario):
                 print(f"Error processing {file_name}: {e}")
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="mtsamples_replicate",
+            display_name="MTSamples",
+            short_display_name="MTSamples",
+            description="MTSamples Replicate is a benchmark that provides transcribed medical reports "
+            "from various specialties. It is used to evaluate a model's ability to generate "
+            "clinically appropriate treatment plans based on unstructured patient "
+            "documentation [(MTSamples, 2025)](https://mtsamples.com).",
+            taxonomy=TaxonomyInfo(
+                task="Text generation",
+                what="Generate treatment plans based on clinical notes",
+                when="Post-diagnosis",
+                who="Clinician",
+                language="English",
+            ),
+            main_metric="mtsamples_replicate_accuracy",
+            main_split="test",
+        )
