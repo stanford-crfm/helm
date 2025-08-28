@@ -92,14 +92,11 @@ class BenchmarkConfig:
         main_metrics = [m for m in self.metrics if getattr(m, "main", False)]
 
         if len(main_metrics) > 1:
-            raise ValueError(f"Multiple metrics marked as main: {[type(m).__name__ for m in main_metrics]}")
-        elif len(main_metrics) == 1:
-            object.__setattr__(self, "_main_metric", main_metrics[0])
-        elif len(main_metrics) > 1:
-            # No metric explicitly marked as main, use the first one as default
-            object.__setattr__(self, "_main_metric", self.metrics[0] if self.metrics else None)
-        else:
-            raise ValueError("No metrics defined in the benchmark configuration")
+            names = [type(m).__name__ for m in main_metrics]
+            raise ValueError(f"Multiple metrics marked as main: {names}")
+
+        chosen = main_metrics[0] if main_metrics else self.metrics[0]
+        object.__setattr__(self, "_main_metric", chosen)
 
     def get_metric_specs(self) -> List[MetricSpec]:
         """Get the metric specifications for the benchmark"""
