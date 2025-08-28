@@ -1,8 +1,8 @@
-from typing import List, Tuple
+from typing import List
 import os
-import json
 import uuid
 
+from datasets import load_dataset
 from tqdm import tqdm
 
 from helm.benchmark.scenarios.scenario import (
@@ -15,7 +15,6 @@ from helm.benchmark.scenarios.scenario import (
     Output,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
-from datasets import load_dataset
 from helm.common.file_utils import ensure_audio_file_exists_from_array
 
 
