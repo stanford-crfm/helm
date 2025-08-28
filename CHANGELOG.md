@@ -2,6 +2,57 @@
 
 ## [Upcoming]
 
+### Models
+
+- Add GLM-4.5-AIR-FP8 model (#3785)
+- Add Qwen3 235B A22B Instruct 2507 FP8 (#3788)
+- Add Gemini 2.5 Flash-Lite GA (#3776)
+- Add gpt-oss (#3789, #3794)
+- Add GPT-5 (#3793, #3797)
+- Handle safety and usage guidelines errors from Grok API (#3770)
+- Handle Gemini responses with max tokens reached during thinking (#3804)
+- Add OpenRouterClient (#3811)
+
+### Scenarios
+
+- Fix instructions and prompt formatting for InfiniteBench En.MC (#3790)
+- Add MedQA and MedMCQA to MedHELM (#3781)
+- Add or modify Arabic language scenarios:
+    - ALRAGE (#3806, #3721, #3831, #3831)
+    - MadinahQA (#3806, #3800, #3817)
+    - ArabicMMLU (#3806, #3817, #3838)
+    - AraTrust (#3806, #3819)
+    - Arabic EXAMS (#3806, #3818, #3825)
+    - AlGhafa (#3806, #3821)
+    - MBZUAI Human-Translated Arabic MMLU (#3822)
+- Add run expander for Arabic language instructions for Arabic MCQA scenarios (#3833)
+- Allow configuration of LLM-as-a-judge models in MedHELM scenarios (#3812)
+
+### Frontend
+
+- Display Arabic text in RTL direction in frontend (#3807)
+- Fix regular expression query handling in run predictions (#3826)
+- Fix invalid sort column index error in leaderboard (#3845)
+
+### Framework
+
+- Migrate to pyproject.toml (#3767)
+- Various fixes for proxy server (#3801, #3802, #3803)
+- Raise error if helm-summarize is given a non-existent suite (#3805)
+- Allow setting reference prefix characters (#3809)
+- Auto-generate schema in helm-summarize if `--auto-generate-schema` is specified (#3813, #3814, #3828, #3839, #3842, #3848, #3850)
+- Omit empty tables for metric groups in helm-summarize (#3851)
+- Add `get_metadata()` method for many scenarios and metrics (#3815, #3829, #3832, #3834, #3841, #3843, #3849, #3840, #3830)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @chakravarthik27
+- @Erotemic
+- @MiguelAFH
+- @yifanmai
+
 ## [v0.5.7] - 2025-07-31
 
 ### Breaking Changes
