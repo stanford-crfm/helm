@@ -18,7 +18,6 @@ from datasets import load_dataset
 from helm.common.file_utils import ensure_audio_file_exists_from_array
 
 
-
 class UltraSuiteASRTranscriptionScenario(Scenario):
     """
     A scenario for evaluating the transcription capabilities of ASR systems.
@@ -41,7 +40,7 @@ class UltraSuiteASRTranscriptionScenario(Scenario):
         os.makedirs(audio_save_dir, exist_ok=True)
 
         print("Downloading SAA-Lab/SLPHelmUltraSuitePlus dataset...")
-        dataset = load_dataset("SAA-Lab/SLPHelmUltraSuitePlus") 
+        dataset = load_dataset("SAA-Lab/SLPHelmUltraSuitePlus")
 
         instances: List[Instance] = []
         split: str = TEST_SPLIT
@@ -50,15 +49,15 @@ class UltraSuiteASRTranscriptionScenario(Scenario):
         for row in tqdm(dataset["train"]):
 
             # Load the annotation
-             # Load the annotation
+            # Load the annotation
             label = row["disorder_class"]
 
             audio_path = row["audio"]
-            unique_id = str(uuid.uuid4())[:8] 
+            unique_id = str(uuid.uuid4())[:8]
             local_audio_name = f"{label}_{unique_id}.mp3"
             local_audio_path = os.path.join(audio_save_dir, local_audio_name)
             ensure_audio_file_exists_from_array(local_audio_path, row["audio"]["array"], row["audio"]["sampling_rate"])
-            
+
             # Create references for each option
             references: List[Reference] = [Reference(Output(text=row["transcription"]), tags=[CORRECT_TAG])]
 
