@@ -168,8 +168,7 @@ def _convert_metrics(raw_metrics: List[Dict[str, Any]]) -> List[MetricConfig]:
     for metric in raw_metrics:
         if not isinstance(metric, dict) or "name" not in metric:
             raise ValueError(
-                f"Invalid metric format: {metric}. "
-                f"Each metric must be a dict with at least a 'name' field."
+                f"Invalid metric format: {metric}. " f"Each metric must be a dict with at least a 'name' field."
             )
 
         metric_name = metric["name"]
