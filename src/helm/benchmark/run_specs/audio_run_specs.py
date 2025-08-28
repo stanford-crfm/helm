@@ -393,6 +393,7 @@ def get_audiocaps_run_spec(num_respondents: int = 1) -> RunSpec:
         groups=[run_spec_name],
     )
 
+
 @run_spec_function("voxceleb2")
 def get_voxceleb2_run_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -498,6 +499,7 @@ def get_casual_conversations2_run_spec(subject: str) -> RunSpec:
         metric_specs=metric_specs,
         groups=[run_spec_name],
     )
+
 
 @run_spec_function("air_bench_chat")
 def get_air_bench_chat_run_spec(subject: str, num_respondents: int = 1) -> RunSpec:
