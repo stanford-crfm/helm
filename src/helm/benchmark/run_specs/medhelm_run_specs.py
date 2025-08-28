@@ -65,11 +65,11 @@ def get_annotator_models_from_config(jury_config_path: Optional[str]) -> Dict[st
     return annotator_models
 
 
-@run_spec_function("medhelm_benchmark")
-def get_medhelm_benchmark_spec(config_path: str) -> RunSpec:
+@run_spec_function("medhelm_configurable_benchmark")
+def get_medhelm_configurable_benchmark_spec(config_path: str) -> RunSpec:
     benchmark_config = get_benchmark_config_from_path(config_path)
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.medhelm_scenario.MedHELMScenario",
+        class_name="helm.benchmark.scenarios.medhelm_configurable_scenario.MedHELMConfigurableScenario",
         args={"name": benchmark_config.name, "config_path": config_path},
     )
 

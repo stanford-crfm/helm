@@ -1,4 +1,3 @@
-import cattrs
 import yaml
 import json
 import re
@@ -11,11 +10,7 @@ from helm.benchmark.annotation.annotator import AnnotatorSpec
 from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo
 from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.metrics.common_metric_specs import (
-    get_basic_metric_specs,
     get_exact_match_metric_specs,
-    get_f1_metric_specs,
-    get_language_modeling_metric_specs,
-    get_classification_metric_specs,
     get_summarization_metric_specs,
 )
 from helm.common.gpu_utils import get_torch_device_name
@@ -63,7 +58,7 @@ class BenchmarkConfig:
     dataset_file: str
     """Path to the dataset file. This dataset will be used to populate the context in the prompt."""
 
-    metrics: List[MetricConfig]
+    metrics: List[Union[SimpleMetricConfig, JuryMetricConfig]]
     """List of structured metric configurations for the benchmark"""
 
     max_tokens: int = 1024
@@ -163,46 +158,48 @@ class BenchmarkConfig:
         return annotator_specs
 
 
-def _convert_metrics(raw_metrics: List[Union[str, Dict[str, Any]]]) -> List[MetricConfig]:
+def _convert_metrics(raw_metrics: List[Dict[str, Any]]) -> List[MetricConfig]:
     """
-    Convert raw metrics from YAML into structured MetricConfig objects
+    Convert raw metrics from YAML into structured MetricConfig objects.
+    Requires all metrics to use the {name: ..., main: ..., ...} format.
     """
     converted_metrics = []
-    for i, metric in enumerate(raw_metrics):
-        if isinstance(metric, str):
-            # Simple string metric - cannot be marked as main via string notation
-            converted_metrics.append(SimpleMetricConfig(name=metric, main=False))
-        elif isinstance(metric, dict):
-            # Complex metric - check the type
-            if "jury_score" in metric:
-                jury_config = metric["jury_score"]
-                judges = []
-                for judge in jury_config["judges"]:
-                    # Map from YAML structure to AnnotatorModelInfo
-                    # Assuming "name" in YAML maps to model_deployment
-                    judges.append(AnnotatorModelInfo(model_name=judge["model_name"], model_deployment=judge["name"]))
 
-                is_main = jury_config.get("main", False)
+    for metric in raw_metrics:
+        if not isinstance(metric, dict) or "name" not in metric:
+            raise ValueError(
+                f"Invalid metric format: {metric}. "
+                f"Each metric must be a dict with at least a 'name' field."
+            )
 
-                converted_metrics.append(
-                    JuryMetricConfig(
-                        name="jury_score", prompt_file=jury_config["prompt_file"], judges=judges, main=is_main
-                    )
+        metric_name = metric["name"]
+        is_main = metric.get("main", False)
+
+        if metric_name == "jury_score":
+            # JuryScore requires extra fields
+            if "prompt_file" not in metric or "judges" not in metric:
+                raise ValueError(f"jury_score metric requires 'prompt_file' and 'judges': {metric}")
+
+            judges = [
+                AnnotatorModelInfo(
+                    model_name=j["model_name"],
+                    model_deployment=j["name"],
                 )
-            elif isinstance(metric, dict) and len(metric) == 1:
-                # Handle metrics specified as {"metric_name": {"main": true, ...}}
-                metric_name, metric_config = next(iter(metric.items()))
-                if isinstance(metric_config, dict):
-                    is_main = metric_config.get("main", False)
-                    converted_metrics.append(SimpleMetricConfig(name=metric_name, main=is_main))
-                else:
-                    # Fallback for other dict structures
-                    converted_metrics.append(SimpleMetricConfig(name=metric_name, main=False))
-            else:
-                # Handle other complex metric types here as needed
-                raise ValueError(f"Unknown metric type: {metric}")
+                for j in metric["judges"]
+            ]
+
+            converted_metrics.append(
+                JuryMetricConfig(
+                    name=metric_name,
+                    prompt_file=metric["prompt_file"],
+                    judges=judges,
+                    main=is_main,
+                )
+            )
+
         else:
-            raise ValueError(f"Invalid metric format: {metric}")
+            # Default: simple metric (like exact_match, rouge, etc.)
+            converted_metrics.append(SimpleMetricConfig(name=metric_name, main=is_main))
 
     return converted_metrics
 
@@ -233,28 +230,3 @@ def get_benchmark_config_from_path(path: str) -> BenchmarkConfig:
 
     benchmark_config = _structure_benchmark_config(config, BenchmarkConfig)
     return benchmark_config
-
-
-# Example usage
-if __name__ == "__main__":
-    config_path = "/Users/s0400266/Downloads/helm/debug/benchtest.yaml"
-    benchmark_config = get_benchmark_config_from_path(config_path)
-
-    print(f"Benchmark: {benchmark_config.name}")
-    print(f"Description: {benchmark_config.description}")
-    print(f"Max tokens: {benchmark_config.max_tokens}")
-
-    # Work with metrics
-    simple_metrics = get_simple_metrics(benchmark_config)
-    jury_metrics = get_jury_metrics(benchmark_config)
-
-    print(f"\nSimple metrics: {[m.name for m in simple_metrics]}")
-    print(f"Jury metrics: {len(jury_metrics)}")
-
-    for jury_metric in jury_metrics:
-        print(f"  Jury prompt file: {jury_metric.prompt_file}")
-        print(f"  Judges: {len(jury_metric.judges)}")
-        for judge in jury_metric.judges:
-            print(f"    - {judge.model_deployment} ({judge.model_name})")
-
-    # breakpoint()  # Uncomment if you want to debug

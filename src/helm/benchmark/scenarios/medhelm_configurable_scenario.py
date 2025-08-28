@@ -1,4 +1,5 @@
-import re
+import string
+import json
 import pandas as pd
 from typing import List
 
@@ -18,9 +19,9 @@ from helm.benchmark.scenarios.scenario import (
 )
 
 
-class MedHELMScenario(Scenario):
+class MedHELMConfigurableScenario(Scenario):
     """
-    MedHELM resuable scenario
+    MedHELM configuratble scenario
     """
 
     tags = ["biomedical"]
@@ -32,15 +33,20 @@ class MedHELMScenario(Scenario):
         self.description = self.benchmark_config.description
 
     def get_columns_in_template(self, template: str) -> List[str]:
-        fields = re.findall(r"\{\{(.*?)\}\}", template)
-        return fields
+        """
+        Extract field names from a template string using Python's Formatter.
+        Example: "Name: {name}, Age: {age}" → ["name", "age"]
+        """
+        formatter = string.Formatter()
+        return [fname for _, fname, _, _ in formatter.parse(template) if fname]
 
     def populate_template(self, template: str, row: pd.Series, fields: List[str]) -> str:
-        filled = template
-        for field in fields:
-            if field in row.index:
-                filled = filled.replace(f"{{{{{field}}}}}", str(row[field]))
-        return filled
+        """
+        Populate the template with values from the row using format_map.
+        Missing fields default to empty string.
+        """
+        mapping = {field: row.get(field, "") for field in fields}
+        return template.format_map(mapping)
 
     def get_references(self, row: pd.Series) -> List[Reference]:
         references: List[Reference] = [Reference(Output(text=row["correct_answer"]), tags=[CORRECT_TAG])]
@@ -57,7 +63,7 @@ class MedHELMScenario(Scenario):
         with open(self.benchmark_config.prompt_file, "r") as f:
             template = f.read()
         if "incorrect_answers" in df.columns:
-            df["incorrect_answers"] = df["incorrect_answers"].apply(lambda x: x.split(","))
+            df["incorrect_answers"] = df["incorrect_answers"].apply(json.loads)
 
         fields = self.get_columns_in_template(template)
         for _, row in df.iterrows():
