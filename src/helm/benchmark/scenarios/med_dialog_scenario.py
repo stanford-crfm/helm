@@ -2,8 +2,18 @@ import json
 import os
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Reference, ALL_SPLITS, CORRECT_TAG, Input, Output
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    ALL_SPLITS,
+    CORRECT_TAG,
+    Input,
+    Output,
+    ScenarioMetadata,
+)
 
 
 class MedDialogScenario(Scenario):
@@ -133,3 +143,24 @@ class MedDialogScenario(Scenario):
                         )
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="med_dialog",
+            display_name="MedDialog",
+            short_display_name="MedDialog",
+            description="MedDialog is a benchmark of real-world doctor-patient conversations focused on "
+            "health-related concerns and advice. Each dialogue is paired with a "
+            "one-sentence summary that reflects the core patient question or exchange. The "
+            "benchmark evaluates a model's ability to condense medical dialogue into "
+            "concise, informative summaries.",
+            taxonomy=TaxonomyInfo(
+                task="Text generation",
+                what="Generate summaries of doctor-patient conversations",
+                when="Any",
+                who="Clinician",
+                language="English",
+            ),
+            main_metric="med_dialog_accuracy",
+            main_split="test",
+        )

@@ -4,6 +4,7 @@ import typing
 from typing import Dict, List, Optional
 from datasets import load_dataset, DatasetDict
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -14,6 +15,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -450,3 +452,27 @@ class MATHScenario(Scenario):
                 instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        if self.use_chain_of_thought:
+            return ScenarioMetadata(
+                name="math_chain_of_thought",
+                display_name="MATH (chain-of-thought)",
+                description="The MATH benchmark for measuring mathematical problem solving on competition "
+                "math problems with chain-of-thought style reasoning [(Hendrycks et al., "
+                "2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/be83ab3ecd0db773eb2dc1b0a17836a1-Abstract-round2.html).",
+                taxonomy=TaxonomyInfo(task="?", what="n/a", when="n/a", who="n/a", language="synthetic"),
+                main_metric="math_equiv_chain_of_thought",
+                main_split="test",
+            )
+        else:
+            return ScenarioMetadata(
+                name="math_regular",
+                display_name="MATH",
+                description="The MATH benchmark for measuring mathematical problem solving on competition "
+                "math problems [(Hendrycks et al., "
+                "2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/be83ab3ecd0db773eb2dc1b0a17836a1-Abstract-round2.html).",
+                taxonomy=TaxonomyInfo(task="?", what="n/a", when="n/a", who="n/a", language="synthetic"),
+                main_metric="math_equiv",
+                main_split="test",
+            )

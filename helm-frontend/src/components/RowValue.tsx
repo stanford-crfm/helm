@@ -18,6 +18,12 @@ function formatNumber(value: string | number): string {
   return String(Math.round(Number(value) * 1000) / 1000);
 }
 
+function escapeRegExp(rawString: string): string {
+  // Homebrew best-effort escaping
+  // TODO: Replace with RegExp.escape after it is widely available
+  return rawString.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 export default function RowValue({ value, title, hideIcon }: Props) {
   // TODO remove this once we stop adding ⚠ to output JSONs
   if (typeof value.value === "string" && value.value.includes("⚠")) {
@@ -35,7 +41,9 @@ export default function RowValue({ value, title, hideIcon }: Props) {
       } else if (value.run_spec_names.length > 1) {
         const rawHref =
           "/runs/?q=" +
-          value.run_spec_names.map((name) => `^${name}$`).join("|");
+          value.run_spec_names
+            .map((name) => `^${escapeRegExp(name)}$`)
+            .join("|");
         const href = encodeURI(rawHref);
         return href;
       }

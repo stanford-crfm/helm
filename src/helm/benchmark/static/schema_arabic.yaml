@@ -92,6 +92,12 @@ metrics:
     short_display_name: PEM
     description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
     lower_is_better: false
+  - name: alrage_score
+    # TODO: should call this prefix_quasi_exact_match
+    display_name: ALRAGE Score
+    short_display_name: Score
+    description: Score of the output judged by GPT-4o.
+    lower_is_better: false
 
 ############################################################
 perturbations: []
@@ -134,17 +140,20 @@ run_groups:
   - name: arabic_scenarios
     display_name: Arabic Scenarios
     description: Arabic Scenarios
-    category: All scenarios
+    category: Scenarios
     subgroups:
-      - mmmlu
-      - arabic_mmlu
       - alghafa
-      - exams_multilingual
+      - arabic_mmlu
+      - arabic_exams
+      - madinah_qa
       - aratrust
+      - alrage
+      - mbzuai_human_translated_arabic_mmlu
 
-  - name: mmmlu
-    display_name: Multilingual MMLU (Arabic)
-    description: Multilingual MMLU (Arabic)
+  - name: mbzuai_human_translated_arabic_mmlu
+    display_name: MBZUAI Human-Translated Arabic MMLU
+    short_display_name: Translated MMLU
+    description: A translation from MBZUAI by human translators of the Massive Multitask Language Understanding benchmark.
     metric_groups:
       - accuracy
       - efficiency
@@ -160,8 +169,8 @@ run_groups:
       language: Arabic
 
   - name: arabic_mmlu
-    display_name: Arabic MMLU
-    description: Arabic MMLU
+    display_name: ArabicMMLU
+    description: ArabicMMLU
     metric_groups:
       - accuracy
       - efficiency
@@ -193,9 +202,9 @@ run_groups:
       when: "before 2023"
       language: Arabic
 
-  - name: exams_multilingual
-    display_name: EXAMS (Arabic)
-    description: EXAMS (Arabic)
+  - name: arabic_exams
+    display_name: Arabic EXAMS
+    description: Arabic EXAMS
     metric_groups:
       - accuracy
       - efficiency
@@ -223,6 +232,40 @@ run_groups:
     taxonomy:
       task: "question answering"
       what: "academic questions across various disciplines"
+      who: "academic exams writers and takers"
+      when: "before 2024"
+      language: Arabic
+
+  - name: alrage
+    display_name: ALRAGE
+    description: ALRAGE
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: alrage_score
+      main_split: test
+    taxonomy:
+      task: "openbook (RAG) open-ended question answering"
+      what: "?"
+      who: "?"
+      when: "?"
+      language: Arabic
+
+  - name: madinah_qa
+    display_name: MadinahQA
+    description: Arabic language competency benchmark
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: "question answering"
+      what: "academic questions about Arabic language"
       who: "academic exams writers and takers"
       when: "before 2024"
       language: Arabic

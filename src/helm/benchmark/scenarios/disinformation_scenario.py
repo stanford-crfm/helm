@@ -2,6 +2,7 @@ import json
 import os
 from typing import List, Dict, Optional
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 REITERATION_DATA_URL = "https://drive.google.com/uc?export=download&id=1uVJbsgPCHFAvH43I6SVvU3Ayo8dh-y_N"
@@ -175,3 +177,23 @@ class DisinformationScenario(Scenario):
             instances = self.create_wedging_instances(data)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        if self.capability == "reiteration":
+            name = "disinformation_reiteration"
+            display_name = "Disinformation (reiteration)"
+        elif self.capability == "wedging":
+            name = "disinformation_wedging"
+            display_name = "Disinformation (wedging)"
+        else:
+            raise Exception(f"Unknown capability {self.capability}")
+        return ScenarioMetadata(
+            name=name,
+            display_name=display_name,
+            description="Scenario from [Buchanan et al. "
+            "(2021)](https://cset.georgetown.edu/publication/truth-lies-and-automation/) "
+            "that tests the ability to generate divisive and wedging content.",
+            taxonomy=TaxonomyInfo(task="?", what="n/a", when="n/a", who="n/a", language="synthetic"),
+            main_metric="unknown",
+            main_split="valid",
+        )

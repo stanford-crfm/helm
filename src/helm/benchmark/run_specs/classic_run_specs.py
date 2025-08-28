@@ -753,12 +753,12 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3, device: str = 
     )
 
     return RunSpec(
-        name=f"summarization_xsum:temperature={temperature},device={device}",
+        name=f"summarization_xsum_sampled:temperature={temperature},device={device}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_summarization_metric_specs({"task": "summarization_xsum_sampled", "device": device})
         + get_generative_harms_metric_specs(),
-        groups=["summarization_xsum"],
+        groups=["summarization_xsum_sampled"],
     )
 
 

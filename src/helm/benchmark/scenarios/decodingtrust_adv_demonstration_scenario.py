@@ -1,9 +1,19 @@
 import os
 import json
 from typing import List
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
 from helm.common.general import ensure_directory_exists
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, Reference, CORRECT_TAG, Output, VALID_SPLIT
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Input,
+    Reference,
+    CORRECT_TAG,
+    Output,
+    VALID_SPLIT,
+    ScenarioMetadata,
+)
 
 TASKS = {
     "counterfactual": ["snli_premise", "snli_hypothesis"]
@@ -167,3 +177,14 @@ class DecodingTrustAdvDemoScenario(Scenario):
             if self.demo_name in ["cf", "zero"]:
                 break
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="decodingtrust_adv_demonstration",
+            display_name="DecodingTrust - Adversarial Demonstrations",
+            short_display_name="AdvDemo",
+            description="Robustness analysis of LM generations when facing adversarial demonstrations",
+            taxonomy=TaxonomyInfo(task="text classification", what="?", when="?", who="?", language="English"),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )

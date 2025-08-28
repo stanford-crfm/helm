@@ -2,6 +2,7 @@ import sys
 import csv
 from typing import Dict, List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Input,
     Scenario,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Reference,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.general import check_file_exists
 
@@ -74,3 +76,23 @@ class SHCPROXYMedScenario(Scenario):
             )
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="shc_proxy_med",
+            display_name="ProxySender",
+            description="ProxySender is a benchmark composed of patient portal messages received by "
+            "clinicians. It evaluates whether the message was sent by the patient or by a "
+            "proxy user (e.g., parent, spouse), which is critical for understanding who is "
+            "communicating with healthcare providers. [(Tse G, et al., "
+            "2025)](https://doi.org/10.1001/jamapediatrics.2024.4438).",
+            taxonomy=TaxonomyInfo(
+                task="Classification",
+                what="Classify if a document was sent by a proxy user",
+                when="Any",
+                who="Clinician, Caregiver",
+                language="English",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )

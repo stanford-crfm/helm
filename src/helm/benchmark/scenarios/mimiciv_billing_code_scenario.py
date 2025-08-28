@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import check_file_exists
 from helm.benchmark.scenarios.scenario import (
     Input,
@@ -11,6 +12,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Reference,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -75,3 +77,23 @@ class MIMICIVBillingCodeScenario(Scenario):
                 continue
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="mimiciv_billing_code",
+            display_name="MIMIC-IV Billing Code",
+            description="MIMIC-IV Billing Code is a benchmark derived from discharge summaries in the "
+            "MIMIC-IV database, paired with their corresponding ICD-10 billing codes. The "
+            "task requires models to extract structured billing codes based on free-text "
+            "clinical notes, reflecting real-world hospital coding tasks for financial "
+            "reimbursement.",
+            taxonomy=TaxonomyInfo(
+                task="Classification",
+                what="Predict ICD-10 billing codes from clinical discharge notes",
+                when="During or after patient discharge",
+                who="Hospital Admistrator",
+                language="English",
+            ),
+            main_metric="mimiciv_billing_code_f1",
+            main_split="test",
+        )

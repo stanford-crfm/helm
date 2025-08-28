@@ -19,11 +19,15 @@ export GCS_BENCHMARK_OUTPUT_PATH=gs://crfm-helm-public/lite/benchmark_output
 
 Locations of the `benchmark_output` folders for each project:
 
+- Capabilities: `gs://crfm-helm-public/capabilities/benchmark_output`
+- Safety: `gs://crfm-helm-public/safety/benchmark_output`
+- AIR-Bench: `gs://crfm-helm-public/air-bench/benchmark_output`
 - Lite: `gs://crfm-helm-public/lite/benchmark_output`
 - Classic: `gs://crfm-helm-public/benchmark_output` (see warning above)
 - HEIM: `gs://crfm-helm-public/heim/benchmark_output`
 - Instruct: `gs://crfm-helm-public/instruct/benchmark_output`
 - MedHELM: `gs://crfm-helm-public/medhelm/benchmark_output`
+- ToRR: `gs://crfm-helm-public/torr/benchmark_output`
 
 ## Download a whole project
 

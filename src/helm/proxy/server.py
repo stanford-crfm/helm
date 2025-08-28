@@ -23,7 +23,7 @@ from helm.benchmark.model_deployment_registry import get_default_model_deploymen
 from helm.common.authentication import Authentication
 from helm.common.cache_backend_config import CacheBackendConfig, MongoCacheBackendConfig, SqliteCacheBackendConfig
 from helm.common.general import ensure_directory_exists
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hlog, setup_default_logging
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request
 from helm.common.perspective_api_request import PerspectiveAPIRequest
@@ -273,6 +273,7 @@ def main():
         default="",
     )
     args = parser.parse_args()
+    setup_default_logging()
 
     register_builtin_configs_from_helm_package()
     register_configs_from_directory(args.base_path)

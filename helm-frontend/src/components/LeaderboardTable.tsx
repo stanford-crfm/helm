@@ -26,8 +26,9 @@ export default function LeaderboardTable({
   miniStyle = false,
 }: Props) {
   const [sortDirection, setSortDirection] = useState<number>(1);
-  const [selectedColumnIndex, setSelectedColumnIndex] =
-    useState<number>(sortColumnIndex);
+  const [selectedColumnIndex, setSelectedColumnIndex] = useState<number>(
+    Math.min(groupTable.header.length - 1, sortColumnIndex),
+  );
 
   function truncateHeader(value: string): string {
     if (value.length > 30) {

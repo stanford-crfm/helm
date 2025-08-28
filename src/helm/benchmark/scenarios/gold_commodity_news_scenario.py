@@ -6,6 +6,7 @@ from typing import List
 
 import pandas as pd
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.runner import TRAIN_SPLIT
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded
 from helm.benchmark.scenarios.scenario import (
@@ -16,6 +17,7 @@ from helm.benchmark.scenarios.scenario import (
     Reference,
     Scenario,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -122,3 +124,22 @@ class GoldCommodityNewsScenario(Scenario):
         for train_index in train_indexes:
             instances[train_index] = dataclasses.replace(instances[train_index], split=TRAIN_SPLIT)
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="gold_commodity_news",
+            display_name="Gold Commodity News",
+            short_display_name=None,
+            description="A classification benchmark based on a dataset of human-annotated gold "
+            "commodity news headlines ([Sinha & Khandait, "
+            "2019](https://arxiv.org/abs/2009.04202)).",
+            taxonomy=TaxonomyInfo(
+                task="text classification",
+                what="gold commodity news headlines",
+                when="2000-2019",
+                who="financial journalists",
+                language="English",
+            ),
+            main_metric="classification_weighted_f1",
+            main_split="test",
+        )

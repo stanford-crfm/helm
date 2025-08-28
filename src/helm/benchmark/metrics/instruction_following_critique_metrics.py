@@ -3,7 +3,7 @@ from typing import Dict, List
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
@@ -189,3 +189,43 @@ class InstructionFollowingCritiqueMetric(Metric):
 
                 stats[answer_name].add(answer_value)
         return list(stats.values())
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="Helpfulness",
+                display_name="Helpfulness",
+                description="Whether the model appears to do what it is instructed to.",
+                lower_is_better=False,
+                group="instruction_following_metrics",
+            ),
+            MetricMetadata(
+                name="Understandability",
+                display_name="Understandability",
+                description="Whether the answer is easy to comprehend.",
+                lower_is_better=False,
+                group="instruction_following_metrics",
+            ),
+            MetricMetadata(
+                name="Completeness",
+                display_name="Completeness",
+                description="Whether the response provides a comprehensive answer to the question or request.",
+                lower_is_better=False,
+                group="instruction_following_metrics",
+            ),
+            MetricMetadata(
+                name="Conciseness",
+                display_name="Conciseness",
+                description="Whether the response is concise and to the point, without unnecessary repetition or "
+                "elaboration.",
+                lower_is_better=False,
+                group="instruction_following_metrics",
+            ),
+            MetricMetadata(
+                name="Harmlessness",
+                display_name="Harmlessness",
+                description="Whether the response avoids using toxic language or helping the user with harmful goals.",
+                lower_is_better=False,
+                group="instruction_following_metrics",
+            ),
+        ]
