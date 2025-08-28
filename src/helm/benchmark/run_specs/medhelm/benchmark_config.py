@@ -16,6 +16,16 @@ from helm.benchmark.metrics.common_metric_specs import (
 from helm.common.gpu_utils import get_torch_device_name
 
 
+SUMMARIZATION_METRICS = {
+    "rouge_1",
+    "rouge_2",
+    "rouge_l",
+    "BERTScore-P",
+    "BERTScore-R",
+    "BERTScore-F",
+}
+
+
 @dataclass(frozen=True)
 class MetricConfig(ABC):
     """Base class for all metric configurations"""
@@ -94,6 +104,7 @@ class BenchmarkConfig:
     def get_metric_specs(self) -> List[MetricSpec]:
         """Get the metric specifications for the benchmark"""
         metric_specs: List[MetricSpec] = []
+        summarization = False
         for metric in self.metrics:
             if metric.name == "exact_match":
                 metric_specs.extend(get_exact_match_metric_specs())
@@ -113,14 +124,16 @@ class BenchmarkConfig:
                     )
                 )
 
-            elif metric.name == "rouge_1":
-                metric_args = {
-                    "task": self.name,
-                    "device": get_torch_device_name(),
-                    "bertscore_model": "distilbert-base-uncased",
-                    "rescale_with_baseline": False,
-                }
-                metric_specs.extend(get_summarization_metric_specs(metric_args))
+            elif metric.name in SUMMARIZATION_METRICS:
+                if not summarization:
+                    summarization = True
+                    metric_args = {
+                        "task": self.name,
+                        "device": get_torch_device_name(),
+                        "bertscore_model": "distilbert-base-uncased",
+                        "rescale_with_baseline": False,
+                    }
+                    metric_specs.extend(get_summarization_metric_specs(metric_args))
             else:
                 raise ValueError(f"Unknown metric name: {metric.name}")
         return metric_specs
