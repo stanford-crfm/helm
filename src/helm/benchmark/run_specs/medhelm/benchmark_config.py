@@ -3,7 +3,7 @@ import json
 import re
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Union, List
+from typing import Any, Dict, List, Union
 from abc import ABC
 
 from helm.benchmark.annotation.annotator import AnnotatorSpec
@@ -148,9 +148,9 @@ class BenchmarkConfig:
                 # based on your specific use case
                 annotator_specs.append(
                     AnnotatorSpec(
-                        class_name=f"helm.benchmark.annotation.model_as_judge.LLMAsJuryAnnotator",
+                        class_name="helm.benchmark.annotation.model_as_judge.LLMAsJuryAnnotator",
                         args={
-                            "name": f"{self.name}",
+                            "name": self.name,
                             "prompt_template": prompt_template,
                             "annotation_criteria": annotator_criteria,
                             "annotator_models": annotator_models,
