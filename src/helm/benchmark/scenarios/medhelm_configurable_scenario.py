@@ -49,7 +49,9 @@ class MedHELMConfigurableScenario(Scenario):
         return template.format_map(mapping)
 
     def get_references(self, row: pd.Series) -> List[Reference]:
-        references: List[Reference] = [Reference(Output(text=row["correct_answer"]), tags=[CORRECT_TAG])]
+        references: List[Reference] = []
+        if "correct_answer" in row:
+            references.append(Reference(Output(text=row["correct_answer"]), tags=[CORRECT_TAG]))
         if "incorrect_answers" in row:
             for incorrect_answer in row["incorrect_answers"]:
                 references.append(Reference(Output(text=incorrect_answer), tags=[]))
@@ -60,11 +62,13 @@ class MedHELMConfigurableScenario(Scenario):
         check_file_exists(self.benchmark_config.dataset_file, msg=f"Dataset file for {self.name} does not exist")
         instances: List[Instance] = []
         df = pd.read_csv(self.benchmark_config.dataset_file)
-        with open(self.benchmark_config.prompt_file, "r") as f:
-            template = f.read()
+        if "correct_answer" not in df.columns:
+            if not self._is_llm_as_judge() or len(self.benchmark_config.metrics) > 1:
+                raise ValueError("Dataset must contain 'correct_answer' column unless using jury_score as the only metric.")
         if "incorrect_answers" in df.columns:
             df["incorrect_answers"] = df["incorrect_answers"].apply(json.loads)
-
+        with open(self.benchmark_config.prompt_file, "r") as f:
+            template = f.read()
         fields = self.get_columns_in_template(template)
         for _, row in df.iterrows():
             filled = self.populate_template(template, row, fields)
@@ -87,3 +91,9 @@ class MedHELMConfigurableScenario(Scenario):
             main_metric=self.benchmark_config.main_metric_name,
             main_split="test",
         )
+
+    def _is_llm_as_judge(self) -> bool:
+        for metric in self.benchmark_config.metrics:
+            if metric.name == "jury_score":
+                return True
+        return False

@@ -10,6 +10,7 @@ from helm.benchmark.annotation.annotator import AnnotatorSpec
 from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo
 from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.metrics.common_metric_specs import (
+    get_basic_metric_specs,
     get_exact_match_metric_specs,
     get_summarization_metric_specs,
 )
@@ -120,6 +121,8 @@ class BenchmarkConfig:
                         },
                     )
                 )
+                if len(self.metrics) == 1:
+                    metric_specs.extend(get_basic_metric_specs([]))
 
             elif metric.name in SUMMARIZATION_METRICS:
                 if not summarization:

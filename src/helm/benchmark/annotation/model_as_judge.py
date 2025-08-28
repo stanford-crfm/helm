@@ -162,10 +162,10 @@ class LLMAsJuryAnnotator(Annotator):
                 request_state.result.completions[0].text
                 if request_state.result and request_state.result.completions
                 else ""
-            ),
-            "{{GOLD_RESPONSE}}": request_state.instance.references[0].output.text,
+            )
         }
-
+        if request_state.instance.references and len(request_state.instance.references) > 0:
+            base_replacements["{{GOLD_RESPONSE}}"] = request_state.instance.references[0].output.text
         # Allow custom replacements to override base replacements
         if custom_replacements:
             base_replacements.update(custom_replacements)
