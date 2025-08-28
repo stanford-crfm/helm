@@ -1,12 +1,12 @@
 # MedHELM: Holistic Evaluation of Large Language Models for Medical Applications
 
-> **Who it’s for:** Data scientists at health systems benchmarking LLMs for medical use cases.
->
-> **What you’ll do here:** Install MedHELM, run a small evaluation locally, understand access levels, view leaderboards, and learn how to contribute new scenarios/models.
->
-> **Time required:** \~10 minutes for the Quickstart.
->
-> **Requirements:** [Conda](https://www.anaconda.com/docs/getting-started/getting-started)/Python 3.10 (~30 min), [Google Cloud CLI](https://cloud.google.com/sdk/docs/install) (~30 min), and GPU access (exact GPU requierements depend on the model used and context length).
+**Who it’s for:** Data scientists at health systems benchmarking LLMs for medical use cases.
+
+**What you’ll do here:** Install MedHELM, run a small evaluation locally, understand access levels, view leaderboards, and learn how to contribute new scenarios/models.
+
+**Time required:** ~10 minutes for the Quickstart.
+
+**Requirements:** [Conda](https://www.anaconda.com/docs/getting-started/getting-started)/Python 3.10 (~30 min), [Google Cloud CLI](https://cloud.google.com/sdk/docs/install) (~30 min), and GPU access (exact GPU requierements depend on the model used and context length).
 
 
 MedHELM extends the HELM framework to evaluate **large language models (LLMs) in medical applications**, focusing on realistic tasks, safety, and reproducibility.
@@ -18,11 +18,11 @@ MedHELM extends the HELM framework to evaluate **large language models (LLMs) in
 
 **Prerequisites:** Python 3.10, ability to create a virtual environment via [conda](https://www.anaconda.com/docs/getting-started/getting-started).
 
-### 1) Install (Python 3.10 recommended)
+### 1. Install (Python 3.10 recommended)
 
 Run the following commands to create and activate a new python virtual environment:
 
-```bash
+```
 # Create and activate a clean environment
 conda create -n crfm-helm python=3.10 pip
 conda activate crfm-helm
@@ -41,7 +41,7 @@ Run the following commands to install the necessary MedHELM extensions:
 pip install "crfm-helm[summarization,medhelm]"
 ```
 
-### 2) Run a tiny evaluation
+### 2. Run a tiny evaluation
 
 ```bash
 helm-run \
@@ -56,7 +56,7 @@ helm-run \
 * `--suite`: groups runs and names the output folder slice
 * `--max-eval-instances`: run a small subset for quick checks
 
-### 3) Build and open the local leaderboard
+### 3. Build and open the local leaderboard
 
 ```bash
 curl -L -o schema_medhelm.yaml \
@@ -87,68 +87,65 @@ helm-server --suite my-medhelm-suite
 
 MedHELM evaluates models across a clinician‑validated taxonomy: **5 categories**, **22 subcategories**, **121 tasks**.
 
-* **Clinical Decision Support**
+- **Clinical Decision Support**
+    - Supporting Diagnostic Decisions
+    - Planning Treatments
+    - Predicting Patient Risks and Outcomes
+    - Providing Clinical Knowledge Support
 
-  * Supporting Diagnostic Decisions
-  * Planning Treatments
-  * Predicting Patient Risks and Outcomes
-  * Providing Clinical Knowledge Support
+- **Clinical Note Generation**
+    - Documenting Patient Visits
+    - Recording Procedures
+    - Documenting Diagnostic Reports
+    - Documenting Care Plans
 
-* **Clinical Note Generation**
+- **Patient Communication and Education**
+    - Providing Patient Education Resources
+    - Delivering Personalized Care Instructions
+    - Patient-Provider Messaging
+    - Enhancing Patient Understanding and Accessibility in Health Communication
+    - Facilitating Patient Engagement and Support
 
-  * Documenting Patient Visits
-  * Recording Procedures
-  * Documenting Diagnostic Reports
-  * Documenting Care Plans
+- **Medical Research Assistance**
+    - Conducting Literature Research
+    - Analyzing Clinical Research Data
+    - Recording Research Processes
+    - Ensuring Clinical Research Quality
+    - Managing Research Enrollment
 
-* **Patient Communication and Education**
-
-  * Providing Patient Education Resources
-  * Delivering Personalized Care Instructions
-  * Patient‑Provider Messaging
-  * Enhancing Patient Understanding and Accessibility in Health Communication
-  * Facilitating Patient Engagement and Support
-
-* **Medical Research Assistance**
-
-  * Conducting Literature Research
-  * Analyzing Clinical Research Data
-  * Recording Research Processes
-  * Ensuring Clinical Research Quality
-  * Managing Research Enrollment
-
-* **Administration and Workflow**
-
-  * Scheduling Resources and Staff
-  * Overseeing Financial Activities
-  * Organizing Workflow Processes
-  * Care Coordination and Planning
-
+- **Administration and Workflow**
+    - Scheduling Resources and Staff
+    - Overseeing Financial Activities
+    - Organizing Workflow Processes
+    - Care Coordination and Planning
 
 ## Installation
 
 **Prerequisites:** Python 3.10, and the ability to create a virtual environment via [conda](https://www.anaconda.com/docs/getting-started/getting-started).
 
+### 1. Create a virtual environment (Python 3.10 recommended)
 
-1.  Create a virtual environment (Python 3.10 recommended)
+Run the following commands to create and activate a new python virtual environment:
 
-    Run the following commands to create and activate a new python virtual environment:
+```bash
+# Create and activate a clean environment
+conda create -n crfm-helm python=3.10 pip
+conda activate crfm-helm
+```
 
-    ```bash
-    # Create and activate a clean environment
-    conda create -n crfm-helm python=3.10 pip
-    conda activate crfm-helm
-    ```
+### 2. Install HELM in your virtual environment:
 
-2. Install HELM in your virtual environment:
-    ```bash
-    pip install crfm-helm
-    ```
+```bash
+pip install crfm-helm
+```
 
-2. Install the MedHELM-specific dependencies on the same python virtual environment from step 1 by running the following command:
-    ```bash
-    pip install "crfm-helm[summarization]" && pip install "crfm-helm[medhelm]"
-    ```
+### 3. Install the MedHELM-specific dependencies 
+
+On the same python virtual environment from step 1, run the following command to install the MedHELM-specific dependencies.
+
+```bash
+pip install "crfm-helm[summarization,medhelm]"
+```
 
 
 ## Run Your First Evaluation
@@ -156,25 +153,34 @@ MedHELM evaluates models across a clinician‑validated taxonomy: **5 categories
 The example below evaluates **Qwen2.5‑7B‑Instruct** on the **MedCalc‑Bench** scenario using 10 instances.
 
 
-1. **Run the benchmark:** The following command runs **MedCalc-Bench** on **Qwen2.5‑7B‑Instruct** for 10 instances and stores the results under `./benchmark_output/runs/my-medhelm-suite`. 
+### 1. Run the benchmark 
 
-   ```bash
-   helm-run \
-    --run-entries medcalc_bench:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct \
-    --suite my-medhelm-suite \
-    --max-eval-instances 10
-   ```
-2. **Create the leaderboard:** The following commands convert the results from step 1 into an interactive leaderboard.
-   ```bash
-   curl -L -o schema_medhelm.yaml \
-    https://raw.githubusercontent.com/stanford-crfm/helm/main/src/helm/benchmark/static/schema_medhelm.yaml
-   helm-summarize --suite my-medhelm-suite --schema schema_medhelm.yaml
-   ```
-3. **Run the leaderboard locally:** This command runs the leaderboard on a local server. The exact address and port will show on the command output.
+The following command runs **MedCalc-Bench** on **Qwen2.5‑7B‑Instruct** for 10 instances and stores the results under `./benchmark_output/runs/my-medhelm-suite`. 
 
-   ```bash
-   helm-server --suite my-medhelm-suite
-   ```
+```bash
+helm-run \
+   --run-entries medcalc_bench:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct \
+   --suite my-medhelm-suite \
+   --max-eval-instances 10
+```
+
+### 2. Create the leaderboard
+
+The following commands convert the results from step 1 into an interactive leaderboard.
+
+```bash
+curl -L -o schema_medhelm.yaml \
+   https://raw.githubusercontent.com/stanford-crfm/helm/main/src/helm/benchmark/static/schema_medhelm.yaml
+helm-summarize --suite my-medhelm-suite --schema schema_medhelm.yaml
+```
+
+### 3. Run the leaderboard locally
+
+This command runs the leaderboard on a local server. The exact address and port will show on the command output.
+
+```bash
+helm-server --suite my-medhelm-suite
+```
 
 
 ## Benchmark Access Levels
@@ -195,9 +201,9 @@ MedHELM scenarios fall into three access patterns. Use the right **run entries**
 | Gated       | PhysioNet, Redivis             | `run_entries_medhelm_gated.conf`         | Credentialed users     |
 | Private     | Org‑internal clinical datasets | `run_entries_medhelm_private_{org}.conf` | Authorized org members |
 
-> When contributing or reproducing results, ensure you’re using the correct file for the benchmark’s access level.
->
-> For **private** benchmarks and organization‑specific configurations, contact the MedHELM team at **[migufuen@stanford.edu](mailto:migufuen@stanford.edu)**.
+When contributing or reproducing results, ensure you’re using the correct file for the benchmark’s access level.
+
+For **private** benchmarks and organization‑specific configurations, contact the MedHELM team at **[migufuen@stanford.edu](mailto:migufuen@stanford.edu)**.
 
 
 ## Viewing and Reproducing Leaderboard Results
@@ -209,17 +215,18 @@ You can interact with MedHELM results by **viewing** pre‑computed results loca
 > **Prerequisite:** Complete Steps 1 and 2 of the installation process from the [Installation](#installation) section.
 
 
-1. **Download raw results** 
+#### 1. Download raw results
    
-   Follow the instructions under [Downloading Raw Results](downloading_raw_results.md) up until the *Download a whole project* section to download the MedHELM leaderboard. Make sure to specify the GCS path corresponding to **MedHELM** when downloading the results.
-2. **Launch the local leaderboard:**
-   
-   Run the following command to launch the MedHELM leaderboard locally. Use the numbered `release` version you want to display. Check out all release versions on the upper right corner of the official [leaderboard website](https://crfm.stanford.edu/helm/medhelm/latest).
+Follow the instructions under [Downloading Raw Results](downloading_raw_results.md) up until the *Download a whole project* section to download the MedHELM leaderboard. Make sure to specify the GCS path corresponding to **MedHELM** when downloading the results.
 
-   ```bash
-   # Sample command to launch the MedHELM leaderboard version 2.0.0.
-   helm-server --release v2.0.0
-   ```
+#### 2. Launch the local leaderboard
+   
+Run the following command to launch the MedHELM leaderboard locally. Use the numbered `release` version you want to display. Check out all release versions on the upper right corner of the official [leaderboard website](https://crfm.stanford.edu/helm/medhelm/latest).
+
+```bash
+# Sample command to launch the MedHELM leaderboard version 2.0.0.
+helm-server --release v2.0.0
+```
 
 ### Reproduce leaderboard results
 
@@ -238,15 +245,19 @@ We welcome contributions from research and clinical teams.
 
 ### Add a new scenario
 
-1. **Create a scenario class** under `src/helm/benchmark/scenarios/` that transforms your dataset to HELM’s input format. Include:
+#### 1. Create a scenario class 
 
-   * Prompt (with any patient context if present)
-   * Gold responses (if available)
-   * Useful metadata for post‑processing
+Under `src/helm/benchmark/scenarios/` that transforms your dataset to HELM’s input format. Include:
+
+   - Prompt (with any patient context if present)
+   - Gold responses (if available)
+   - Useful metadata for post‑processing
 
    See [Adding New Scenarios](adding_new_scenarios.md) for details.
 
-2. **Define a run spec** in `src/helm/benchmark/run_specs/medhelm_run_specs.py` linking your scenario to the CLI. Specify:
+#### 2. Define a run spec
+
+Define a run spec in `src/helm/benchmark/run_specs/medhelm_run_specs.py` to link your scenario to the CLI. Specify:
 
    * Instructioning for models
    * Metrics to compute
@@ -257,9 +268,13 @@ We welcome contributions from research and clinical teams.
    * **Annotator:** `src/helm/benchmark/annotation/med_dialog_annotator.py`
    * **Custom metrics:** add under `src/helm/benchmark/metrics/` (e.g., `medcalc_bench_metrics.py`)
 
-3. **Register run entries** for the leaderboard using the correct config (public/gated/private).
+#### 3. Register run entries
 
-4. **Register your scenario in the schema** by adding it to `schema_medhelm.yaml` (task taxonomy + any new metrics).
+Register run entries for the leaderboard using the correct config (public/gated/private).
+
+#### 4. Register your scenario in the schema
+
+Register your scenario in the schema by adding it to `schema_medhelm.yaml` (task taxonomy + any new metrics).
 
 ### Add a new model
 
@@ -270,25 +285,32 @@ Follow [Adding New Models](adding_new_models.md) in your docs to register a mode
 
 Before sharing outputs generated from **gated** or **private** datasets:
 
-1. **Redact prompts/responses** using `scripts/redact_scenario_states.py`:
+### 1. Mask prompts/responses
 
-   ```bash
-   python3 scripts/redact_scenario_states.py \
-     --output benchmark_output \
-     --suite my_suite \
-     --redact-output
-   ```
-2. **Redact annotations** if your scenario stores sensitive information under annotations (e.g., LLM‑as‑a‑judge outputs) using `scripts/medhelm/redact_annotations.py`:
-   ```bash
-   python3 scripts/medhelm/redact_annotations.py \
-     --output benchmark_output \
-     --suite my_suite
-   ```
-3. **Re‑generate leaderboard summaries** so redactions propagate:
+Mask the prompts and responses by running the `scripts/redact_scenario_states.py` script.
 
-   ```bash
-   helm-summarize --suite my_suite --schema schema_medhelm.yaml
-   ```
+```bash
+python3 scripts/redact_scenario_states.py \
+   --output benchmark_output \
+   --suite my_suite \
+   --redact-output
+```
+
+### 2. Mask annotations (Optional)
+
+If your scenario stores sensitive information under annotations (e.g., LLM‑as‑a‑judge outputs), mask them by running the `scripts/medhelm/redact_annotations.py` script.
+
+```bash
+python3 scripts/medhelm/redact_annotations.py \
+   --output benchmark_output \
+   --suite my_suite
+```
+
+### 3. Re‑generate leaderboard summaries so redactions propagate:
+
+```bash
+helm-summarize --suite my_suite --schema schema_medhelm.yaml
+```
 
 
 ## References
