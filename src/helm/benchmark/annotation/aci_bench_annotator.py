@@ -10,15 +10,15 @@ Your goal is to assess how well the note captures the clinical information from 
 compare it to the reference note (gold standard) in terms of accruacy, completeness and clarity.
 The conversation will be provided in these tags:
 <conversation>
-{{QUESTION}}
+{QUESTION}
 </conversation>
 The generated note will be provided in these tags:
 <response>
-{{RESPONSE}}
+{RESPONSE}
 </response>
 The reference note will be provided in these tags:
 <gold_response>
-{{GOLD_RESPONSE}}
+{GOLD_RESPONSE}
 </gold_response>
 Carefully review the <response> based on the <conversation> and compare it to the <gold_response> when needed.
 

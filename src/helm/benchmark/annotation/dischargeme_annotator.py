@@ -15,19 +15,19 @@ gold response in terms of accuracy, completeness, and clarity.
 The target task of either generating a discharge instruction or brief hospital course along with
 the patient discharge text and radiology report will be provided in these tags:
 <patient_information>
-{{QUESTION}}
+{QUESTION}
 </patient_information>
 
 
 The document will be provided in these tags:
 <response>
-{{RESPONSE}}
+{RESPONSE}
 </response>
 
 The gold standard target document (either discharge instructions or a brief hospital course)
 will be provided in these tags:
 <gold_response>
-{{GOLD_RESPONSE}}
+{GOLD_RESPONSE}
 </gold_response>
 
 Carefully analyze the <response> based on the <patient_information> and compare

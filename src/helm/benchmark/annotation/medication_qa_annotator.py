@@ -11,17 +11,17 @@ and how it compares to the gold response in terms of accuracy, completeness, and
 
 The question provided in these tags:
 <medication_question>
-{{QUESTION}}
+{QUESTION}
 </medication_question>
 
 The response will be provided in these tags:
 <response>
-{{RESPONSE}}
+{RESPONSE}
 </response>
 
 The reference response will be provided in these tags:
 <gold_response>
-{{GOLD_RESPONSE}}
+{GOLD_RESPONSE}
 </gold_response>
 
 Carefully review the <response> and compare it to the <gold_response> when needed.

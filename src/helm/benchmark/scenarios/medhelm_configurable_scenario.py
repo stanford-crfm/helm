@@ -64,7 +64,9 @@ class MedHELMConfigurableScenario(Scenario):
         df = pd.read_csv(self.benchmark_config.dataset_file)
         if "correct_answer" not in df.columns:
             if not self._is_llm_as_judge() or len(self.benchmark_config.metrics) > 1:
-                raise ValueError("Dataset must contain 'correct_answer' column unless using jury_score as the only metric.")
+                raise ValueError(
+                    "Dataset must contain 'correct_answer' column unless using jury_score as the only metric."
+                )
         if "incorrect_answers" in df.columns:
             df["incorrect_answers"] = df["incorrect_answers"].apply(json.loads)
         with open(self.benchmark_config.prompt_file, "r") as f:

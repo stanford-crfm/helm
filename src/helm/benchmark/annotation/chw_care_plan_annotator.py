@@ -11,12 +11,12 @@ and follows provided instructions in terms of accuracy, structure, and clarity.
 
 The user's request will be provided in these tags:
 <user_request>
-{{QUESTION}}
+{QUESTION}
 </user_request>
 
 The response will be provided in these tags:
 <response>
-{{RESPONSE}}
+{RESPONSE}
 </response>
 
 Carefully analyze the <response>.

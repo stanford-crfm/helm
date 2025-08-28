@@ -12,17 +12,17 @@ and aligns with the gold response in terms of accuracy, completeness, and clarit
 
 The instruction and EHR pair will be provided in these tags:
 <user_request>
-{{QUESTION}}
+{QUESTION}
 </user_request>
 
 The response will be provided in these tags:
 <response>
-{{RESPONSE}}
+{RESPONSE}
 </response>
 
 The gold response (reference answer) will be provided in these tags:
 <gold_response>
-{{GOLD_RESPONSE}}
+{GOLD_RESPONSE}
 </gold_response>
 
 Carefully review the <response> based on the <user_request> and compare it to

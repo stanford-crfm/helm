@@ -11,17 +11,17 @@ procedure, and how it compares to the gold response in terms of accuracy, comple
 
 The case will be provided in these tags:
 <case_details>
-{{QUESTION}}
+{QUESTION}
 </case_details>
 
 The response will be provided in these tags:
 <response>
-{{RESPONSE}}
+{RESPONSE}
 </response>
 
 The reference response will be provided in these tags:
 <gold_response>
-{{GOLD_RESPONSE}}
+{GOLD_RESPONSE}
 </gold_response>
 
 Carefully review the <response> and compare it to the <gold_response> when needed.
