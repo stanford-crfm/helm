@@ -48,9 +48,6 @@ class UltraSuiteASRClassificationScenario(Scenario):
         instances: List[Instance] = []
         split: str = TEST_SPLIT
 
-        # Find all pairs of audio and JSON files
-        pairs = find_audio_json_pairs(data_path)
-
         for idx, row in enumerate(tqdm(dataset["train"])):
 
             label = row["disorder_class"]
