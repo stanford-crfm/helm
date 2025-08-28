@@ -3,7 +3,7 @@ import json
 import re
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Union, Set
+from typing import Any, Dict, List, Optional, Union, List
 from abc import ABC
 
 from helm.benchmark.annotation.annotator import AnnotatorSpec
@@ -65,20 +65,17 @@ class BenchmarkConfig:
     """Maximum number of tokens to generate in the response"""
 
     # Private field to store the main metric, populated after initialization
-    _main_metric: Optional[MetricConfig] = field(init=False, default=None)
+    _main_metric: MetricConfig = field(init=False)
 
     @property
-    def main_metric(self) -> Optional[MetricConfig]:
+    def main_metric(self) -> MetricConfig:
         """Get the main metric for this benchmark"""
         return self._main_metric
 
     @property
-    def main_metric_name(self) -> Optional[str]:
+    def main_metric_name(self) -> str:
         """Get the name of the main metric"""
-        if self._main_metric is None:
-            return None
-        else:
-            return self._main_metric.name
+        return self._main_metric.name
 
     def __post_init__(self):
         """Set the main metric after initialization"""
@@ -88,9 +85,11 @@ class BenchmarkConfig:
             raise ValueError(f"Multiple metrics marked as main: {[type(m).__name__ for m in main_metrics]}")
         elif len(main_metrics) == 1:
             object.__setattr__(self, "_main_metric", main_metrics[0])
-        else:
+        elif len(main_metrics) > 1:
             # No metric explicitly marked as main, use the first one as default
             object.__setattr__(self, "_main_metric", self.metrics[0] if self.metrics else None)
+        else:
+            raise ValueError("No metrics defined in the benchmark configuration")
 
     def get_metric_specs(self) -> List[MetricSpec]:
         """Get the metric specifications for the benchmark"""
@@ -98,7 +97,10 @@ class BenchmarkConfig:
         for metric in self.metrics:
             if metric.name == "exact_match":
                 metric_specs.extend(get_exact_match_metric_specs())
+
             elif metric.name == "jury_score":
+                if not isinstance(metric, JuryMetricConfig):
+                    raise AssertionError("Metric 'jury_score' must be a JuryMetricConfig")
                 annotator_models = {judge.model_deployment: judge for judge in metric.judges}
                 metric_specs.append(
                     MetricSpec(
@@ -110,6 +112,7 @@ class BenchmarkConfig:
                         },
                     )
                 )
+
             elif metric.name == "rouge_1":
                 metric_args = {
                     "task": self.name,
@@ -122,7 +125,7 @@ class BenchmarkConfig:
                 raise ValueError(f"Unknown metric name: {metric.name}")
         return metric_specs
 
-    def _get_annotation_criteria(self, prompt_template: str) -> Dict[str, Set[str]]:
+    def _get_annotation_criteria(self, prompt_template: str) -> Dict[str, List[str]]:
         criteria_tag = re.compile(r"<rubric_criteria>\s*(\{.*?\})\s*</rubric_criteria>", re.DOTALL)
         m = criteria_tag.search(prompt_template)
         if not m:
@@ -161,21 +164,19 @@ class BenchmarkConfig:
 def _convert_metrics(raw_metrics: List[Dict[str, Any]]) -> List[MetricConfig]:
     """
     Convert raw metrics from YAML into structured MetricConfig objects.
-    Requires all metrics to use the {name: ..., main: ..., ...} format.
     """
-    converted_metrics = []
+    converted_metrics: List[MetricConfig] = []
 
     for metric in raw_metrics:
         if not isinstance(metric, dict) or "name" not in metric:
             raise ValueError(
-                f"Invalid metric format: {metric}. " f"Each metric must be a dict with at least a 'name' field."
+                f"Invalid metric format: {metric}. Each metric must be a dict with at least a 'name' field."
             )
 
         metric_name = metric["name"]
         is_main = metric.get("main", False)
 
         if metric_name == "jury_score":
-            # JuryScore requires extra fields
             if "prompt_file" not in metric or "judges" not in metric:
                 raise ValueError(f"jury_score metric requires 'prompt_file' and 'judges': {metric}")
 
@@ -195,9 +196,7 @@ def _convert_metrics(raw_metrics: List[Dict[str, Any]]) -> List[MetricConfig]:
                     main=is_main,
                 )
             )
-
         else:
-            # Default: simple metric (like exact_match, rouge, etc.)
             converted_metrics.append(SimpleMetricConfig(name=metric_name, main=is_main))
 
     return converted_metrics
