@@ -18,7 +18,7 @@ MedHELM extends the HELM framework to evaluate **large language models (LLMs) in
 
 **Prerequisites:** Python 3.10, ability to create a virtual environment via [conda](https://www.anaconda.com/docs/getting-started/getting-started).
 
-### 1. Install (Python 3.10 recommended)
+#### 1. Install (Python 3.10 recommended)
 
 Run the following commands to create and activate a new python virtual environment:
 
@@ -41,7 +41,7 @@ Run the following commands to install the necessary MedHELM extensions:
 pip install "crfm-helm[summarization,medhelm]"
 ```
 
-### 2. Run a tiny evaluation
+#### 2. Run a tiny evaluation
 
 ```bash
 helm-run \
@@ -56,7 +56,7 @@ helm-run \
 * `--suite`: groups runs and names the output folder slice
 * `--max-eval-instances`: run a small subset for quick checks
 
-### 3. Build and open the local leaderboard
+#### 3. Build and open the local leaderboard
 
 ```bash
 curl -L -o schema_medhelm.yaml \
@@ -123,7 +123,7 @@ MedHELM evaluates models across a clinician‑validated taxonomy: **5 categories
 
 **Prerequisites:** Python 3.10, and the ability to create a virtual environment via [conda](https://www.anaconda.com/docs/getting-started/getting-started).
 
-### 1. Create a virtual environment (Python 3.10 recommended)
+#### 1. Create a virtual environment (Python 3.10 recommended)
 
 Run the following commands to create and activate a new python virtual environment:
 
@@ -133,13 +133,13 @@ conda create -n crfm-helm python=3.10 pip
 conda activate crfm-helm
 ```
 
-### 2. Install HELM in your virtual environment:
+#### 2. Install HELM in your virtual environment:
 
 ```bash
 pip install crfm-helm
 ```
 
-### 3. Install the MedHELM-specific dependencies 
+#### 3. Install the MedHELM-specific dependencies 
 
 On the same python virtual environment from step 1, run the following command to install the MedHELM-specific dependencies.
 
@@ -153,7 +153,7 @@ pip install "crfm-helm[summarization,medhelm]"
 The example below evaluates **Qwen2.5‑7B‑Instruct** on the **MedCalc‑Bench** scenario using 10 instances.
 
 
-### 1. Run the benchmark 
+#### 1. Run the benchmark 
 
 The following command runs **MedCalc-Bench** on **Qwen2.5‑7B‑Instruct** for 10 instances and stores the results under `./benchmark_output/runs/my-medhelm-suite`. 
 
@@ -164,7 +164,7 @@ helm-run \
    --max-eval-instances 10
 ```
 
-### 2. Create the leaderboard
+#### 2. Create the leaderboard
 
 The following commands convert the results from step 1 into an interactive leaderboard.
 
@@ -174,7 +174,7 @@ curl -L -o schema_medhelm.yaml \
 helm-summarize --suite my-medhelm-suite --schema schema_medhelm.yaml
 ```
 
-### 3. Run the leaderboard locally
+#### 3. Run the leaderboard locally
 
 This command runs the leaderboard on a local server. The exact address and port will show on the command output.
 
@@ -285,7 +285,7 @@ Follow [Adding New Models](adding_new_models.md) in your docs to register a mode
 
 Before sharing outputs generated from **gated** or **private** datasets:
 
-### 1. Mask prompts/responses
+#### 1. Mask prompts/responses
 
 Mask the prompts and responses by running the `scripts/redact_scenario_states.py` script.
 
@@ -296,7 +296,7 @@ python3 scripts/redact_scenario_states.py \
    --redact-output
 ```
 
-### 2. Mask annotations (Optional)
+#### 2. Mask annotations (Optional)
 
 If your scenario stores sensitive information under annotations (e.g., LLM‑as‑a‑judge outputs), mask them by running the `scripts/medhelm/redact_annotations.py` script.
 
@@ -306,7 +306,7 @@ python3 scripts/medhelm/redact_annotations.py \
    --suite my_suite
 ```
 
-### 3. Re‑generate leaderboard summaries so redactions propagate:
+#### 3. Re‑generate leaderboard summaries so redactions propagate:
 
 ```bash
 helm-summarize --suite my_suite --schema schema_medhelm.yaml
