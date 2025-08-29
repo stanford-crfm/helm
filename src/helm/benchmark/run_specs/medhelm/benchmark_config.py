@@ -38,7 +38,7 @@ class MetricConfig(ABC):
 class SimpleMetricConfig(MetricConfig):
     """Configuration for simple string-based metrics like 'exact_match'"""
 
-    main: bool = False
+    pass
 
 
 @dataclass(frozen=True)
@@ -47,7 +47,6 @@ class JuryMetricConfig(MetricConfig):
 
     prompt_file: str
     judges: List[AnnotatorModelInfo]
-    main: bool = False
 
 
 @dataclass(frozen=True)
@@ -69,35 +68,14 @@ class BenchmarkConfig:
     dataset_file: str
     """Path to the dataset file. This dataset will be used to populate the context in the prompt."""
 
+    main_metric: Union[SimpleMetricConfig, JuryMetricConfig]
+    """The main metric for the benchmark"""
+
     metrics: List[Union[SimpleMetricConfig, JuryMetricConfig]]
     """List of structured metric configurations for the benchmark"""
 
     max_tokens: int = 1024
     """Maximum number of tokens to generate in the response"""
-
-    # Private field to store the main metric, populated after initialization
-    _main_metric: MetricConfig = field(init=False)
-
-    @property
-    def main_metric(self) -> MetricConfig:
-        """Get the main metric for this benchmark"""
-        return self._main_metric
-
-    @property
-    def main_metric_name(self) -> str:
-        """Get the name of the main metric"""
-        return self._main_metric.name
-
-    def __post_init__(self):
-        """Set the main metric after initialization"""
-        main_metrics = [m for m in self.metrics if getattr(m, "main", False)]
-
-        if len(main_metrics) > 1:
-            names = [type(m).__name__ for m in main_metrics]
-            raise ValueError(f"Multiple metrics marked as main: {names}")
-
-        chosen = main_metrics[0] if main_metrics else self.metrics[0]
-        object.__setattr__(self, "_main_metric", chosen)
 
     def get_metric_specs(self) -> List[MetricSpec]:
         """Get the metric specifications for the benchmark"""
@@ -187,7 +165,6 @@ def _convert_metrics(raw_metrics: List[Dict[str, Any]]) -> List[MetricConfig]:
             )
 
         metric_name = metric["name"]
-        is_main = metric.get("main", False)
 
         if metric_name == "jury_score":
             if "prompt_file" not in metric or "judges" not in metric:
@@ -202,15 +179,10 @@ def _convert_metrics(raw_metrics: List[Dict[str, Any]]) -> List[MetricConfig]:
             ]
 
             converted_metrics.append(
-                JuryMetricConfig(
-                    name=metric_name,
-                    prompt_file=metric["prompt_file"],
-                    judges=judges,
-                    main=is_main,
-                )
+                JuryMetricConfig(name=metric_name, prompt_file=metric["prompt_file"], judges=judges)
             )
         else:
-            converted_metrics.append(SimpleMetricConfig(name=metric_name, main=is_main))
+            converted_metrics.append(SimpleMetricConfig(name=metric_name))
 
     return converted_metrics
 
@@ -229,6 +201,7 @@ def _structure_benchmark_config(data: Dict[str, Any], cls) -> BenchmarkConfig:
         description=data["description"],
         prompt_file=data["prompt_file"],
         dataset_file=data["dataset_file"],
+        main_metric=data["main_metric"],
         metrics=data["metrics"],
         max_tokens=data.get("max_tokens", 1024),
     )

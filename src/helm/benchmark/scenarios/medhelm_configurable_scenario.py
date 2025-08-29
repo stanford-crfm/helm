@@ -90,7 +90,7 @@ class MedHELMConfigurableScenario(Scenario):
                 who="",
                 language="",
             ),
-            main_metric=self.benchmark_config.main_metric_name,
+            main_metric=self.benchmark_config.main_metric.name,
             main_split="test",
         )
 
