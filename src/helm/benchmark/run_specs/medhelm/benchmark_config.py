@@ -196,6 +196,21 @@ def _structure_benchmark_config(data: Dict[str, Any], cls) -> BenchmarkConfig:
         raw_metrics = data["metrics"]
         data["metrics"] = _convert_metrics(raw_metrics)
 
+    if len(data["metrics"]) == 1:
+        data["main_metric"] = data["metrics"][0]
+    elif "main_metric" in data:
+        main_metric_present = False
+        for metric in data["metrics"]:
+            if data["main_metric"] == metric.name:
+                main_metric_present = True
+                data["main_metric"] = metric
+                break
+
+        if not main_metric_present:
+            raise ValueError("Missing value, main_metric must be specified when multiple metrics are selected.")
+    else:
+        raise ValueError("Missing metric_metric value.")
+
     return BenchmarkConfig(
         name=data["name"],
         description=data["description"],
