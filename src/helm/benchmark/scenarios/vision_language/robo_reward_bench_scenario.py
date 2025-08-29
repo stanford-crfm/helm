@@ -165,7 +165,7 @@ class RoboRewardBenchDiscreteScenario(Scenario):
         if os.path.isabs(episode_video_path):
             full_path: str = episode_video_path
         else:
-            full_path = os.path.join(output_path, episode_video_path.replace("collected/", ""))
+            full_path = os.path.join(output_path, episode_video_path.replace("collected_smaller/", ""))
         assert os.path.exists(full_path), f"Episode video path does not exist: {full_path}"
         return full_path
 
