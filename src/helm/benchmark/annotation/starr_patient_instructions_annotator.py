@@ -11,17 +11,17 @@ procedure, and how it compares to the gold response in terms of accuracy, comple
 
 The case will be provided in these tags:
 <case_details>
-{{QUESTION}}
+{QUESTION}
 </case_details>
 
 The response will be provided in these tags:
 <response>
-{{RESPONSE}}
+{RESPONSE}
 </response>
 
 The reference response will be provided in these tags:
 <gold_response>
-{{GOLD_RESPONSE}}
+{GOLD_RESPONSE}
 </gold_response>
 
 Carefully review the <response> and compare it to the <gold_response> when needed.
@@ -72,8 +72,6 @@ ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
 class StarrPatientInstructionsAnnotator(LLMAsJuryAnnotator):
     """The StarrPatientInstructions autograder."""
 
-    name = "starr_patient_instructions"
-
     def __init__(
         self,
         auto_client: AutoClient,
@@ -81,6 +79,7 @@ class StarrPatientInstructionsAnnotator(LLMAsJuryAnnotator):
         template_name: Optional[str] = None,
     ):
         super().__init__(
+            name="starr_patient_instructions",
             auto_client=auto_client,
             prompt_template=PROMPT_TEMPLATE,
             annotation_criteria=ANNOTATION_CRITERIA,

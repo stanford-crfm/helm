@@ -11,17 +11,17 @@ and how it compares to the gold response in terms of accuracy, completeness, and
 
 The conversation history and question will be provided in these tags:
 <conversation>
-{{QUESTION}}
+{QUESTION}
 </conversation>
 
 The response will be provided in these tags:
 <response>
-{{RESPONSE}}
+{RESPONSE}
 </response>
 
 The reference response will be provided in these tags:
 <gold_response>
-{{GOLD_RESPONSE}}
+{GOLD_RESPONSE}
 </gold_response>
 
 Carefully analyze the <response> compared to the <gold_response> and the original <conversation>.
@@ -72,8 +72,6 @@ ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
 class MentalHealthAnnotator(LLMAsJuryAnnotator):
     """The MentalHealth autograder."""
 
-    name = "mental_health"
-
     def __init__(
         self,
         auto_client: AutoClient,
@@ -81,6 +79,7 @@ class MentalHealthAnnotator(LLMAsJuryAnnotator):
         template_name: Optional[str] = None,
     ):
         super().__init__(
+            name="mental_health",
             auto_client=auto_client,
             prompt_template=PROMPT_TEMPLATE,
             annotation_criteria=ANNOTATION_CRITERIA,

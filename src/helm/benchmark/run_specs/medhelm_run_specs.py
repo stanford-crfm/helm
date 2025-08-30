@@ -28,6 +28,7 @@ from helm.benchmark.metrics.common_metric_specs import (
 )
 from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
+from helm.benchmark.run_specs.medhelm.benchmark_config import get_benchmark_config_from_path
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.common.gpu_utils import get_torch_device_name
 
@@ -62,6 +63,32 @@ def get_annotator_models_from_config(jury_config_path: Optional[str]) -> Dict[st
         for judge in config["judges"]
     }
     return annotator_models
+
+
+@run_spec_function("medhelm_configurable_benchmark")
+def get_medhelm_configurable_benchmark_spec(config_path: str) -> RunSpec:
+    benchmark_config = get_benchmark_config_from_path(config_path)
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.medhelm_configurable_scenario.MedHELMConfigurableScenario",
+        args={"name": benchmark_config.name, "config_path": config_path},
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        max_tokens=benchmark_config.max_tokens,
+        max_train_instances=0,
+        stop_sequences=[],
+    )
+    annotator_specs = benchmark_config.get_annotator_specs()
+    metric_specs = benchmark_config.get_metric_specs()
+
+    return RunSpec(
+        name=benchmark_config.name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
+        groups=[benchmark_config.name],
+    )
 
 
 @run_spec_function("medcalc_bench")

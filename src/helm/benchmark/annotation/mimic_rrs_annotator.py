@@ -11,17 +11,17 @@ how it compares to the gold response in terms of accuracy, completeness, and cla
 
 The user's request will be provided in these tags:
 <user_request>
-{{QUESTION}}
+{QUESTION}
 </user_request>
 
 The response will be provided in these tags:
 <response>
-{{RESPONSE}}
+{RESPONSE}
 </response>
 
 Some potential correct responses will be provided in these tags:
 <gold_response>
-{{GOLD_RESPONSE}}
+{GOLD_RESPONSE}
 </gold_response>
 
 Carefully analyze the <response>.
@@ -74,8 +74,6 @@ ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
 class MIMICRRSAnnotator(LLMAsJuryAnnotator):
     """The MIMICRRS autograder."""
 
-    name = "mimic_rrs"
-
     def __init__(
         self,
         auto_client: AutoClient,
@@ -83,6 +81,7 @@ class MIMICRRSAnnotator(LLMAsJuryAnnotator):
         template_name: Optional[str] = None,
     ):
         super().__init__(
+            name="mimic_rrs",
             auto_client=auto_client,
             prompt_template=PROMPT_TEMPLATE,
             annotation_criteria=ANNOTATION_CRITERIA,

@@ -10,15 +10,15 @@ Your goal is to assess how well the note captures the clinical information from 
 compare it to the reference note (gold standard) in terms of accruacy, completeness and clarity.
 The conversation will be provided in these tags:
 <conversation>
-{{QUESTION}}
+{QUESTION}
 </conversation>
 The generated note will be provided in these tags:
 <response>
-{{RESPONSE}}
+{RESPONSE}
 </response>
 The reference note will be provided in these tags:
 <gold_response>
-{{GOLD_RESPONSE}}
+{GOLD_RESPONSE}
 </gold_response>
 Carefully review the <response> based on the <conversation> and compare it to the <gold_response> when needed.
 
@@ -69,8 +69,6 @@ ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
 class ACIBenchAnnotator(LLMAsJuryAnnotator):
     """The ACIBench autograder."""
 
-    name = "aci_bench"
-
     def __init__(
         self,
         auto_client: AutoClient,
@@ -78,6 +76,7 @@ class ACIBenchAnnotator(LLMAsJuryAnnotator):
         template_name: Optional[str] = None,
     ):
         super().__init__(
+            name="aci_bench",
             auto_client=auto_client,
             prompt_template=PROMPT_TEMPLATE,
             annotation_criteria=ANNOTATION_CRITERIA,

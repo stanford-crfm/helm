@@ -11,17 +11,17 @@ and how it compares to the gold response in terms of accuracy, completeness, and
 
 The patient-doctor conversation will be provided in these tags:
 <conversation>
-{{QUESTION}}
+{QUESTION}
 </conversation>
 
 The response will be provided in these tags:
 <response>
-{{RESPONSE}}
+{RESPONSE}
 </response>
 
 The reference response will be provided in these tags:
 <gold_response>
-{{GOLD_RESPONSE}}
+{GOLD_RESPONSE}
 </gold_response>
 
 Carefully review the <response> and compare it to the <gold_response> when needed.
@@ -73,8 +73,6 @@ ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
 class MedDialogAnnotator(LLMAsJuryAnnotator):
     """The MedDialog autograder."""
 
-    name = "med_dialog"
-
     def __init__(
         self,
         auto_client: AutoClient,
@@ -82,6 +80,7 @@ class MedDialogAnnotator(LLMAsJuryAnnotator):
         template_name: Optional[str] = None,
     ):
         super().__init__(
+            name="med_dialog",
             auto_client=auto_client,
             prompt_template=PROMPT_TEMPLATE,
             annotation_criteria=ANNOTATION_CRITERIA,

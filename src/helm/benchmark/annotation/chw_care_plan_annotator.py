@@ -11,12 +11,12 @@ and follows provided instructions in terms of accuracy, structure, and clarity.
 
 The user's request will be provided in these tags:
 <user_request>
-{{QUESTION}}
+{QUESTION}
 </user_request>
 
 The response will be provided in these tags:
 <response>
-{{RESPONSE}}
+{RESPONSE}
 </response>
 
 Carefully analyze the <response>.
@@ -67,8 +67,6 @@ ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
 class CHWCarePlanAnnotator(LLMAsJuryAnnotator):
     """The CHWCarePlan autograder."""
 
-    name = "chw_care_plan"
-
     def __init__(
         self,
         auto_client: AutoClient,
@@ -76,6 +74,7 @@ class CHWCarePlanAnnotator(LLMAsJuryAnnotator):
         template_name: Optional[str] = None,
     ):
         super().__init__(
+            name="chw_care_plan",
             auto_client=auto_client,
             prompt_template=PROMPT_TEMPLATE,
             annotation_criteria=ANNOTATION_CRITERIA,

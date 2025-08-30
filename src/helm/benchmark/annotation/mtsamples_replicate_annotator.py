@@ -13,17 +13,17 @@ and aligns with the gold standard response in accuracy, completeness, and clarit
 
 The patient's information will be provided in these tags:
 <patient_information>
-{{QUESTION}}
+{QUESTION}
 </patient_information>
 
 The proposed treatment plan will be provided in these tags:
 <response>
-{{RESPONSE}}
+{RESPONSE}
 </response>
 
 The gold standard treatment plan will be provided in these tags:
 <gold_response>
-{{GOLD_RESPONSE}}
+{GOLD_RESPONSE}
 </gold_response>
 
 Carefully review the <response> based on the <patient_information> and compare it to the <gold_response> when needed.
@@ -75,8 +75,6 @@ ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
 class MTSamplesReplicateAnnotator(LLMAsJuryAnnotator):
     """The MTSamplesReplicate autograder."""
 
-    name = "mtsamples_replicate"
-
     def __init__(
         self,
         auto_client: AutoClient,
@@ -84,6 +82,7 @@ class MTSamplesReplicateAnnotator(LLMAsJuryAnnotator):
         template_name: Optional[str] = None,
     ):
         super().__init__(
+            name="mtsamples_replicate",
             auto_client=auto_client,
             prompt_template=PROMPT_TEMPLATE,
             annotation_criteria=ANNOTATION_CRITERIA,

@@ -11,17 +11,17 @@ and how it compares to the gold response in terms of accuracy, completeness, and
 
 The question provided in these tags:
 <medication_question>
-{{QUESTION}}
+{QUESTION}
 </medication_question>
 
 The response will be provided in these tags:
 <response>
-{{RESPONSE}}
+{RESPONSE}
 </response>
 
 The reference response will be provided in these tags:
 <gold_response>
-{{GOLD_RESPONSE}}
+{GOLD_RESPONSE}
 </gold_response>
 
 Carefully review the <response> and compare it to the <gold_response> when needed.
@@ -71,8 +71,6 @@ ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
 class MedicationQAAnnotator(LLMAsJuryAnnotator):
     """The MedicationQA autograder."""
 
-    name = "medication_qa"
-
     def __init__(
         self,
         auto_client: AutoClient,
@@ -80,6 +78,7 @@ class MedicationQAAnnotator(LLMAsJuryAnnotator):
         template_name: Optional[str] = None,
     ):
         super().__init__(
+            name="medication_qa",
             auto_client=auto_client,
             prompt_template=PROMPT_TEMPLATE,
             annotation_criteria=ANNOTATION_CRITERIA,

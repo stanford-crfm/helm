@@ -12,17 +12,17 @@ compares to the gold response in terms of accuracy, completeness, and clarity.
 
 The user's request will be provided in these tags:
 <user_request>
-{{QUESTION}}
+{QUESTION}
 </user_request>
 
 The response will be provided in these tags:
 <response>
-{{RESPONSE}}
+{RESPONSE}
 </response>
 
 A potential correct response will be provided in these tags:
 <gold_response>
-{{GOLD_RESPONSE}}
+{GOLD_RESPONSE}
 </gold_response>
 
 Carefully analyze the <response>. For each of the following categories,
@@ -74,8 +74,6 @@ ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
 class MIMICBHCAnnotator(LLMAsJuryAnnotator):
     """The MIMICBHC autograder."""
 
-    name = "mimic_bhc"
-
     def __init__(
         self,
         auto_client: AutoClient,
@@ -83,6 +81,7 @@ class MIMICBHCAnnotator(LLMAsJuryAnnotator):
         template_name: Optional[str] = None,
     ):
         super().__init__(
+            name="mimic_bhc",
             auto_client=auto_client,
             prompt_template=PROMPT_TEMPLATE,
             annotation_criteria=ANNOTATION_CRITERIA,
