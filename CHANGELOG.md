@@ -2,6 +2,8 @@
 
 ## [Upcoming]
 
+## [v0.5.8] - 2025-08-29
+
 ### Models
 
 - Add GLM-4.5-AIR-FP8 model (#3785)
@@ -1135,7 +1137,8 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.7...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.8...HEAD
+[v0.5.8]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.8
 [v0.5.7]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.7
 [v0.5.6]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.6
 [v0.5.5]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.5
