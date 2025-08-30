@@ -27,6 +27,7 @@
     - MBZUAI Human-Translated Arabic MMLU (#3822)
 - Add run expander for Arabic language instructions for Arabic MCQA scenarios (#3833)
 - Allow configuration of LLM-as-a-judge models in MedHELM scenarios (#3812)
+- Add user-configurable MedHELM scenario (#3844)
 
 ### Frontend
 
@@ -51,6 +52,7 @@ Thank you to the following contributors for your work on this HELM release!
 - @chakravarthik27
 - @Erotemic
 - @MiguelAFH
+- @patelfagun1998
 - @yifanmai
 
 ## [v0.5.7] - 2025-07-31
