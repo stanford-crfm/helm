@@ -585,7 +585,7 @@ Ensure the output is valid JSON:
 
 **Notes:** 
 
-1. Judge responses must be valid JSON in the specified format. Invalid responses are ignored. 
+1. Judge responses must be a valid JSON in the specified format. Invalid responses are ignored. 
 2. Score scales must start at 0.
 3. Currently, we only support criteria where a higher value means better performance.
 
