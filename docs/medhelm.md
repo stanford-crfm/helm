@@ -1,10 +1,91 @@
 # MedHELM: Holistic Evaluation of Large Language Models for Medical Applications
 
-**MedHELM** is an extension of the HELM framework for evaluating **large language models (LLMs) in medical applications**.
+**Who it’s for:** Data scientists at health systems benchmarking LLMs for medical use cases.
 
-## Clinician-Validated Taxonomy
+**What you’ll do here:** Install MedHELM, run a small evaluation locally, understand access levels, view leaderboards, and learn how to contribute new scenarios/models.
 
-MedHELM evaluates models across a clinician-validated taxonomy comprised of **5 categories**, **22 subcategories** and **121 tasks**:
+**Time required:** ~10 minutes for the Quickstart.
+
+**Requirements:** [Conda](https://www.anaconda.com/docs/getting-started/getting-started)/Python 3.10 (~30 min), [Google Cloud CLI](https://cloud.google.com/sdk/docs/install) (~30 min), and GPU access (exact GPU requierements depend on the model used and context length).
+
+
+MedHELM extends the HELM framework to evaluate **large language models (LLMs) in medical applications**, focusing on realistic tasks, safety, and reproducibility.
+
+
+## Quickstart (10 minutes)
+
+**Goal:** Install MedHELM, run a 10-instance evaluation on a public scenario, and open a local leaderboard.
+
+**Prerequisites:** Python 3.10, ability to create a virtual environment via [conda](https://www.anaconda.com/docs/getting-started/getting-started).
+
+#### 1. Install (Python 3.10 recommended)
+
+Run the following commands to create and activate a new python virtual environment:
+
+```
+# Create and activate a clean environment
+conda create -n crfm-helm python=3.10 pip
+conda activate crfm-helm
+pip install -U setuptools
+```
+
+Run the following command to install HELM:
+```
+pip install crfm-helm
+```
+
+Run the following commands to install the necessary MedHELM extensions:
+
+```
+# Install MedHELM extras
+pip install "crfm-helm[summarization,medhelm]"
+```
+
+#### 2. Run a tiny evaluation
+
+```bash
+helm-run \
+  --run-entries medcalc_bench:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct \
+  --suite my-medhelm-suite \
+  --max-eval-instances 10
+```
+
+*Flags explained once:*
+
+* `--run-entries`: which `(model, scenario)` to run
+* `--suite`: groups runs and names the output folder slice
+* `--max-eval-instances`: run a small subset for quick checks
+
+#### 3. Build and open the local leaderboard
+
+```bash
+curl -L -o schema_medhelm.yaml \
+  https://raw.githubusercontent.com/stanford-crfm/helm/main/src/helm/benchmark/static/schema_medhelm.yaml
+helm-summarize --suite my-medhelm-suite --schema schema_medhelm.yaml
+helm-server --suite my-medhelm-suite
+```
+
+**Expected outcome:**
+
+* A local URL for the leaderboard (printed in the terminal)
+* Benchmark results at `./benchmark_output/runs/my-medhelm-suite/`
+
+> ⚠️ **PHI & compliance:** Only run **gated** or **private** data on infrastructure approved by your organization. Use the **redaction** steps in *Sharing Results* before sending outputs externally.
+
+
+## Core Concepts
+
+* **Scenario:** Dataset + prompt/response formatting logic.
+* **Run entry:** A `(model, scenario)` pair given to `helm-run`.
+* **Suite:** Named collection of runs; appears as a tab/section in the leaderboard.
+* **Annotator:** Optional post‑processing (e.g., LLM‑as‑a‑judge).
+* **Schema:** Task taxonomy + metrics configuration powering `helm-summarize` and the UI.
+* **Release:** The version of leaderboard results.
+
+
+## Clinician‑Validated Taxonomy (overview)
+
+MedHELM evaluates models across a clinician‑validated taxonomy: **5 categories**, **22 subcategories**, **121 tasks**.
 
 - **Clinical Decision Support**
     - Supporting Diagnostic Decisions
@@ -38,181 +119,202 @@ MedHELM evaluates models across a clinician-validated taxonomy comprised of **5 
     - Organizing Workflow Processes
     - Care Coordination and Planning
 
-This categorization ensures that evaluations reflect the **complexity, diversity, and stakes** of medical AI applications—from assisting clinicians in making critical decisions to safely interacting with patients.
-
-## References
-
-- [Stanford HAI Article](https://hai.stanford.edu/news/holistic-evaluation-of-large-language-models-for-medical-applications)
-- [MedHELM Website](https://crfm.stanford.edu/helm/medhelm/latest/)
-- [Publication](https://arxiv.org/abs/2505.23802)
-
 ## Installation
 
-First, follow the [installation instructions](installation.md) to install the base HELM framework.
+**Prerequisites:** Python 3.10, and the ability to create a virtual environment via [conda](https://www.anaconda.com/docs/getting-started/getting-started).
 
-To install MedHELM-specific dependencies:
+#### 1. Create a virtual environment (Python 3.10 recommended)
 
-```sh
-pip install "crfm-helm[medhelm]"
+Run the following commands to create and activate a new python virtual environment:
+
+```bash
+# Create and activate a clean environment
+conda create -n crfm-helm python=3.10 pip
+conda activate crfm-helm
 ```
 
-## Getting Started
+#### 2. Install HELM in your virtual environment:
 
-The following is an example of evaluating [Qwen2.5-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct) on the [MedCalc-Bench scenario](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/scenarios/medcalc_bench_scenario.py) using 10 instances.
+```bash
+pip install crfm-helm
+```
 
-```sh
+#### 3. Install the MedHELM-specific dependencies 
+
+On the same python virtual environment from step 1, run the following command to install the MedHELM-specific dependencies.
+
+```bash
+pip install "crfm-helm[summarization,medhelm]"
+```
+
+
+## Run Your First Evaluation
+
+The example below evaluates **Qwen2.5‑7B‑Instruct** on the **MedCalc‑Bench** scenario using 10 instances.
+
+
+#### 1. Run the benchmark 
+
+The following command runs **MedCalc-Bench** on **Qwen2.5‑7B‑Instruct** for 10 instances and stores the results under `./benchmark_output/runs/my-medhelm-suite`. 
+
+```bash
 helm-run \
-  --run-entries medcalc_bench:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct \
-  --suite my-medhelm-suite \
-  --max-eval-instances 10
+   --run-entries medcalc_bench:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct \
+   --suite my-medhelm-suite \
+   --max-eval-instances 10
 ```
+
+#### 2. Create the leaderboard
+
+The following commands convert the results from step 1 into an interactive leaderboard.
+
+```bash
+curl -L -o schema_medhelm.yaml \
+   https://raw.githubusercontent.com/stanford-crfm/helm/main/src/helm/benchmark/static/schema_medhelm.yaml
+helm-summarize --suite my-medhelm-suite --schema schema_medhelm.yaml
+```
+
+#### 3. Run the leaderboard locally
+
+This command runs the leaderboard on a local server. The exact address and port will show on the command output.
+
+```bash
+helm-server --suite my-medhelm-suite
+```
+
 
 ## Benchmark Access Levels
 
-MedHELM includes a variety of benchmarks that differ in terms of data access requirements. Understanding the type of access required for each benchmark is essential for registering run entries and reproducing results.
+MedHELM scenarios fall into three access patterns. Use the right **run entries** file to register new runs and to reproduce results.
 
-### 🔓 Public Benchmarks
+### Quick decision guide
 
-These benchmarks are fully open and freely available to the public (e.g., benchmarks hosted on [HuggingFace Datasets](https://huggingface.co/datasets)).
+* Dataset **fully public** → use `run_entries_medhelm_public.conf`
+* Dataset **gated/public with credential** (e.g., PhysioNet) → `run_entries_medhelm_gated.conf`
+* Dataset **private/organization‑only** → `run_entries_medhelm_private_{organization}.conf`
 
-- **Access requirements**: None
-- **Example sources**: HuggingFace, GitHub
-- **Run entries file**: [run_entries_medhelm_public.conf](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_public.conf)
-- **Reproducibility**: Anyone can reproduce results from these benchmarks.
+### Summary table
 
----
+| Access type | Example sources                | Run entries file                         | Who can reproduce      |
+| ----------- | ------------------------------ | ---------------------------------------- | ---------------------- |
+| Public      | Hugging Face, GitHub           | `run_entries_medhelm_public.conf`        | Anyone                 |
+| Gated       | PhysioNet, Redivis             | `run_entries_medhelm_gated.conf`         | Credentialed users     |
+| Private     | Org‑internal clinical datasets | `run_entries_medhelm_private_{org}.conf` | Authorized org members |
 
-### 🔐 Gated Benchmarks
+When contributing or reproducing results, ensure you’re using the correct file for the benchmark’s access level.
 
-These benchmarks are publicly available but require special permissions or credentials to access (e.g., benchmarks hosted on [PhysioNet](https://physionet.org/)).
+For **private** benchmarks and organization‑specific configurations, contact the MedHELM team at **[migufuen@stanford.edu](mailto:migufuen@stanford.edu)**.
 
-- **Access requirements**: User registration, credential verification, or data use agreement
-- **Example sources**: PhysioNet, Redivis
-- **Run entries file**: [run_entries_medhelm_gated.conf](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_gated.conf)
-- **Reproducibility**: Only users with the appropriate access can reproduce results from these benchmarks.
 
----
+## Viewing and Reproducing Leaderboard Results
 
-### 🔒 Private Benchmarks
+You can interact with MedHELM results by **viewing** pre‑computed results locally or by **reproducing** evaluations from scratch.
 
-These benchmarks are based on proprietary or restricted datasets that are only available to specific organizations.
+### View the official leaderboard locally
 
-- **Access requirements**: Organization-specific authorization
-- **Example use case**: Internal clinical datasets available only to the originating institution
-- **Run entries file**: `run_entries_medhelm_private_{organization}.conf` (_e.g., `run_entries_medhelm_private_stanford.conf`_)
-- **Reproducibility**: Only authorized users within the organization can reproduce results from these benchmarks.
+> **Prerequisite:** Complete Steps 1 and 2 of the installation process from the [Installation](#installation) section.
 
----
 
-When contributing or reproducing results, ensure that you are using the correct run entries file corresponding to the benchmark’s access level.
+#### 1. Download raw results
+   
+Follow the instructions under [Downloading Raw Results](downloading_raw_results.md) up until the *Download a whole project* section to download the MedHELM leaderboard. Make sure to specify the GCS path corresponding to **MedHELM** when downloading the results.
 
-## Reproducing the Leaderboard
+#### 2. Launch the local leaderboard
+   
+Run the following command to launch the MedHELM leaderboard locally. Use the numbered `release` version you want to display. Check out all release versions on the upper right corner of the official [leaderboard website](https://crfm.stanford.edu/helm/medhelm/latest).
 
-To reproduce the [MedHELM leaderboard](https://crfm.stanford.edu/helm/medhelm/latest/), refer to the detailed steps in the [Reproducing Leaderboards](reproducing_leaderboards.md) documentation.
+```bash
+# Sample command to launch the MedHELM leaderboard version 2.0.0.
+helm-server --release v2.0.0
+```
 
-> **Note:** The ability to fully reproduce the leaderboard depends on your access to the underlying benchmarks.
-> See [Benchmark Access Levels](#benchmark-access-levels) for details on how access impacts which configuration files to use.
+### Reproduce leaderboard results
 
-- **Public benchmarks**:  
-  Everyone can reproduce the **public portion** of the leaderboard using benchmarks that are freely available (e.g., on HuggingFace). These entries are defined in [run_entries_medhelm_public.conf](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_public.conf).
+> **Prerequisite:** Complete the whole installation process from the [Installation](#installation) section.
 
-- **Gated-access benchmarks**:  
-  Reproducing results on these benchmarks (e.g., EHRSHOT) requires credentials or approval. These are listed in [run_entries_medhelm_gated.conf](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_gated.conf).
+* **Public benchmarks:** Anyone can reproduce the **public subset** using entries in `run_entries_medhelm_public.conf`.
+* **Gated benchmarks:** Require credentials/approval (e.g., EHRSHOT); entries live in `run_entries_medhelm_gated.conf`.
+* **Private benchmarks:** Org‑specific; entries follow `run_entries_medhelm_private_{organization}.conf`.
 
-- **Private benchmarks**:  
-  These results are specific to certain organizations and require access to private data. They are defined in files following the format `run_entries_medhelm_private_{organization}.conf` under `src/helm/benchmark/presentation/`.
+> **Note:** The `model_deployments` of the models listed in these run entries are specific to Stanford Healthcare, please change them for the appropriate deployments as needed. For more information on model_deployments, refer to [Adding New Models](adding_new_models.md).
 
-As such, **only users with the necessary access credentials or data permissions** will be able to reproduce the full leaderboard. However, **anyone can reproduce and evaluate the public subset** to benchmark their models.
 
 ## Contributing to MedHELM
 
-We welcome contributions from both the research and clinical communities to expand MedHELM with new scenarios and models.
+We welcome contributions from research and clinical teams.
 
-### Scenario Contributions
+### Add a new scenario
 
-To contribute a new benchmark scenario to MedHELM, follow the steps below:
+#### 1. Create a scenario class 
 
-#### 1. Create a New Scenario
+Under `src/helm/benchmark/scenarios/` that transforms your dataset to HELM’s input format. Include:
 
-Start by adding a new scenario class under the [scenarios directory](https://github.com/stanford-crfm/helm/tree/main/src/helm/benchmark/scenarios). This class should transform your dataset into HELM’s standardized input format. Your implementation should define:
+   - Prompt (with any patient context if present)
+   - Gold responses (if available)
+   - Useful metadata for post‑processing
 
-- The prompt (with any context like patient note, if present)
-- The gold standard response(s) (if any)
-- Any relevant metadata for post-processing
+   See [Adding New Scenarios](adding_new_scenarios.md) for details.
 
-For detailed guidance, see the [Adding New Scenarios](adding_new_scenarios.md) documentation.
+#### 2. Define a run spec
 
-#### 2. Define a Run Spec
+Define a run spec in `src/helm/benchmark/run_specs/medhelm_run_specs.py` to link your scenario to the CLI. Specify:
 
-Next, define a run specification for your scenario in the [medhelm_run_specs.py](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/run_specs/medhelm_run_specs.py) file. This links your scenario to HELM’s command-line interface, and specifies:
+   * Instructioning for models
+   * Metrics to compute
+   * Optional annotation steps
 
-- The instruction models should follow
-- The metrics to compute
-- Any optional annotation steps
+   *Examples:*
 
-##### a. Response Annotations
+   * **Annotator:** `src/helm/benchmark/annotation/med_dialog_annotator.py`
+   * **Custom metrics:** add under `src/helm/benchmark/metrics/` (e.g., `medcalc_bench_metrics.py`)
 
-If your benchmark requires additional processing of model outputs before metric evaluation (e.g., scoring with a LLM-as-a-judge), add an annotation step. This step is executed after obtaining the model responses.
+#### 3. Register run entries
 
-See this [example annotator](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/annotation/med_dialog_annotator.py) for reference.
+Register run entries for the leaderboard using the correct config (public/gated/private).
 
-##### b. Custom Metrics
+#### 4. Register your scenario in the schema
 
-If your scenario needs a custom evaluation metric not currently supported in HELM, you can define one under the [metrics directory](https://github.com/stanford-crfm/helm/tree/main/src/helm/benchmark/metrics).
+Register your scenario in the schema by adding it to `schema_medhelm.yaml` (task taxonomy + any new metrics).
 
-See this [example metric implementation](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/metrics/med_dialog_metrics.py) for guidance.
+### Add a new model
 
-#### 3. Register Your Run Entries
+Follow [Adding New Models](adding_new_models.md) in your docs to register a model and its deployment (e.g., API, etc.).
 
-Finally, register your `(model, benchmark)` combinations for the MedHELM leaderboard in the appropriate configuration file based on the type of dataset access.  
 
-- If the benchmark is **fully public** (i.e., doesn't require any credentialized access), add your entry to [run_entries_medhelm_public.conf](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_public.conf).
+## Sharing Results
 
-- If the benchmark requires **gated access** (e.g., PhysioNet datasets or others requiring credentials), use [run_entries_medhelm_gated.conf](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_entries_medhelm_gated.conf).
+Before sharing outputs generated from **gated** or **private** datasets:
 
-- If the benchmark is **private** to a specific organization, use a dedicated config file under `src/helm/benchmark/presentation/` following the format: `run_entries_medhelm_private_{organization}.conf` (_e.g., `run_entries_medhelm_private_stanford.conf`_)
+#### 1. Mask prompts/responses
 
-Each entry specifies a `(model, benchmark)` pair to be evaluated and displayed on the MedHELM leaderboard.
+Mask the prompts and responses by running the `scripts/redact_scenario_states.py` script.
 
-#### 4. Register Your Scenario in Schema MedHELM
-
-To have your scenario appear on the leaderboard, it must be included in the [schema_medhelm.yaml](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/static/schema_medhelm.yaml) file. To do this:
-
-- **Add your scenario name** under the appropriate category in the task taxonomy.
-- **Include any new metrics** used by your scenario that are not already listed in the schema.
-
-For reference, see how the `medcalc_bench` scenario is defined in the schema.
-
-### Model Contributions
-
-To contribute with a new model, follow the steps in the [Adding New Models](adding_new_models.md) page.
-
-### Sharing Results
-
-If your contributed benchmark scenarios are **gated** or **private** and you would like to share your results with us, you must redact any sensitive data contained in the prompts and annotations (if applicable). Follow these steps to properly redact and prepare your results:
-
-#### 1. Redact prompt content using the provided script
-
-Run the [redact_scenario_states.py](https://github.com/stanford-crfm/helm/blob/main/scripts/redact_scenario_states.py) script on your `benchmark_output` directory for a particular suite. This script will redact all prompts and responses present under the specified suite. Here’s a usage example:
-
-```sh
+```bash
 python3 scripts/redact_scenario_states.py \
-  --output benchmark_output \
-  --suite my_suite \
-  --redact-output
+   --output benchmark_output \
+   --suite my_suite \
+   --redact-output
 ```
 
-#### 2. Redact annotations (if applicable)
+#### 2. Mask annotations (Optional)
 
-If your scenario includes annotations (e.g., LLM-as-a-judge outputs or any metadata containing sensitive information), ensure these are redacted as well. The annotations are present in the `scenario_state.json` files. You can skip this step if no annotations are included as part of your scenario.
+If your scenario stores sensitive information under annotations (e.g., LLM‑as‑a‑judge outputs), mask them by running the `scripts/medhelm/redact_annotations.py` script.
 
-#### **3. Propagate redacted data to leaderboard outputs**
+```bash
+python3 scripts/medhelm/redact_annotations.py \
+   --output benchmark_output \
+   --suite my_suite
+```
 
-Use helm-summarize to update the leaderboard summaries with the redacted content:
+#### 3. Re‑generate leaderboard summaries so redactions propagate:
 
-```sh
+```bash
 helm-summarize --suite my_suite --schema schema_medhelm.yaml
 ```
 
-> **Note:** This step is especially important if you previously ran `helm-summarize` _before_ redacting your outputs.  
-> The command copies prompts and responses into the leaderboard files, so rerunning it ensures only redacted content is displayed.
+
+## References
+
+* [Stanford HAI Article](https://hai.stanford.edu/news/holistic-evaluation-of-large-language-models-for-medical-applications)
+* [MedHELM Website (latest leaderboard)](https://crfm.stanford.edu/helm/medhelm/latest/)
+* [ArXiv Preprint](https://arxiv.org/abs/2505.23802)

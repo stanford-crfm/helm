@@ -2,6 +2,7 @@ import os
 import pandas as pd
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import check_file_exists
 from helm.benchmark.scenarios.scenario import (
     Input,
@@ -11,6 +12,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Reference,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -85,7 +87,12 @@ class CLEARScenario(Scenario):
         self.data_path = data_path
         self.condition = condition
         self.name = f"clear_{condition}"
-        self.description = f"A dataset for evaluating {self.CONDITION_PROMPTS[condition]} detection from patient notes with yes/no/maybe classifications."  # noqa: E501
+        self.description = (
+            "CLEAR is a benchmark designed to evaluate models on their ability to detect medical"
+            "conditions from patient notes using categorical responses. Each instance consists of"
+            "a clinical note and a target condition, requiring the model to classify the patient's"
+            "history as either affirmative, negative, or uncertain."
+        )  # noqa: E501
         self.tags = ["classification", "biomedical", condition.replace("_", "-")]
 
     def get_answer_choices(self) -> List[str]:
@@ -150,3 +157,24 @@ class CLEARScenario(Scenario):
             )
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="clear",
+            display_name="CLEAR",
+            description="CLEAR is a benchmark designed to evaluate models on their ability to detect "
+            "medical conditions from patient notes using categorical responses. Each "
+            "instance consists of a clinical note and a target condition, requiring the "
+            "model to classify the patient's history as either affirmative, negative, or "
+            "uncertain [(Lopez et al., "
+            "2025)](https://www.nature.com/articles/s41746-024-01377-1).",
+            taxonomy=TaxonomyInfo(
+                task="Classification",
+                what="Classify medical condition presence from patient notes",
+                when="Any",
+                who="Clinician",
+                language="English",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )

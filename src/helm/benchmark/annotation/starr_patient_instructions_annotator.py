@@ -11,17 +11,17 @@ procedure, and how it compares to the gold response in terms of accuracy, comple
 
 The case will be provided in these tags:
 <case_details>
-{{QUESTION}}
+{QUESTION}
 </case_details>
 
 The response will be provided in these tags:
 <response>
-{{RESPONSE}}
+{RESPONSE}
 </response>
 
 The reference response will be provided in these tags:
 <gold_response>
-{{GOLD_RESPONSE}}
+{GOLD_RESPONSE}
 </gold_response>
 
 Carefully review the <response> and compare it to the <gold_response> when needed.
@@ -68,31 +68,20 @@ ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
     "clarity": {"score", "explanation"},
 }
 
-ANNOTATOR_MODELS: Dict[str, AnnotatorModelInfo] = {
-    "gpt": AnnotatorModelInfo(
-        model_name="openai/gpt-4o-2024-05-13",
-        model_deployment="stanfordhealthcare/gpt-4o-2024-05-13",
-    ),
-    "llama": AnnotatorModelInfo(
-        model_name="meta/llama-3.3-70b-instruct",
-        model_deployment="stanfordhealthcare/llama-3.3-70b-instruct",
-    ),
-    "claude": AnnotatorModelInfo(
-        model_name="anthropic/claude-3-7-sonnet-20250219",
-        model_deployment="stanfordhealthcare/claude-3-7-sonnet-20250219",
-    ),
-}
-
 
 class StarrPatientInstructionsAnnotator(LLMAsJuryAnnotator):
     """The StarrPatientInstructions autograder."""
 
-    name = "starr_patient_instructions"
-
-    def __init__(self, auto_client: AutoClient, template_name: Optional[str] = None):
+    def __init__(
+        self,
+        auto_client: AutoClient,
+        annotator_models: Dict[str, AnnotatorModelInfo],
+        template_name: Optional[str] = None,
+    ):
         super().__init__(
+            name="starr_patient_instructions",
             auto_client=auto_client,
             prompt_template=PROMPT_TEMPLATE,
             annotation_criteria=ANNOTATION_CRITERIA,
-            annotator_models=ANNOTATOR_MODELS,
+            annotator_models=annotator_models,
         )

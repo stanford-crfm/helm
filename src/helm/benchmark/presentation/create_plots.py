@@ -1,4 +1,7 @@
-# mypy: check_untyped_defs = False
+# type: ignore
+# flake8: noqa
+# fmt: off
+
 import argparse
 from collections import defaultdict
 from dataclasses import dataclass
@@ -637,8 +640,14 @@ def main():
         default="png",
         choices=["png", "pdf"],
     )
+    parser.add_argument(
+        "--log-config",
+        type=str,
+        default=None,
+        help="PATH to a YAML file to customize logging",
+    )
     args = parser.parse_args()
-    setup_default_logging()
+    setup_default_logging(args.log_config)
     create_plots(args)
 
 

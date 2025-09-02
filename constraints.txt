@@ -2,8 +2,8 @@
 # See: https://docs.astral.sh/uv/pip/compile/#adding-constraints
 
 # Constrain PyTorch versions to the same versions in install-dev.sh
-torch==2.2.2
-torchvision==0.17.2
+torch==2.5.1
+torchvision==0.20.1
 
 # For some reason `uv pip compile` incorrectly resolves onnxruntime as:
 #
@@ -12,3 +12,7 @@ torchvision==0.17.2
 #
 # but onnxruntime >=1.20 is not available on Python 3.9.
 onnxruntime<1.20 ; python_full_version < '3.10'
+
+# Security upgrades
+pytorch-lightning>=2.4.0  # https://github.com/stanford-crfm/helm/security/dependabot/148
+transformers>=4.52.1  # https://github.com/stanford-crfm/helm/security/dependabot/176

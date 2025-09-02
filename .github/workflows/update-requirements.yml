@@ -1,6 +1,6 @@
 # This GitHub Actions workflow automatically resolves and updates the pinned versions
 # in requirements.txt for all Python dependencies (including transitive dependencies)
-# whenever setup.cfg is modified or the workflow is manually triggered.
+# whenever pyproject.toml is modified or the workflow is manually triggered.
 
 name: Update requirements.txt
 
@@ -9,7 +9,7 @@ on:
     branches:
       - "main"
     paths:
-      - "setup.cfg"
+      - "pyproject.toml"
       - "constraints.txt"
       - '.github/workflows/update-requirements.yml'
   workflow_dispatch:
@@ -32,7 +32,7 @@ jobs:
       - name: Install uv
         run: pip install uv
       - name: Resolve dependencies
-        run: uv pip compile setup.cfg --extra all --extra dev --universal --no-annotate --constraints constraints.txt -o requirements.txt
+        run: uv pip compile pyproject.toml --extra all --extra dev --universal --no-annotate --constraints constraints.txt -o requirements.txt
         # Need to manually run tests here because the pull request opened later will not
         # run the test workflow.
         #

@@ -1,4 +1,9 @@
-from helm.benchmark.adaptation.adapter_spec import ADAPT_CHAT, ADAPT_GENERATION, AdapterSpec
+from helm.benchmark.adaptation.adapter_spec import (
+    ADAPT_CHAT,
+    ADAPT_GENERATION,
+    ADAPT_MULTIPLE_CHOICE_JOINT,
+    AdapterSpec,
+)
 from helm.benchmark.metrics.common_metric_specs import (
     get_exact_match_metric_specs,
     get_open_ended_generation_metric_specs,
@@ -19,6 +24,27 @@ def _get_long_context_generation_adapter_spec(max_tokens: int) -> AdapterSpec:
         reference_prefix="A. ",
         reference_suffix="",
         output_prefix="",
+        output_suffix="",
+        instance_prefix="",
+        max_train_instances=0,
+        num_outputs=1,
+        temperature=0.0,
+        max_tokens=max_tokens,
+        stop_sequences=[],
+    )
+
+
+def _get_long_context_multiple_choice_adapter_spec(max_tokens: int) -> AdapterSpec:
+    return AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        global_prefix="",
+        global_suffix="",
+        instructions="Read the passage and answer the following question. Respond with only a single letter corresponding to your choice. Do not include a period in your answer.\n\n",  # noqa: E501
+        input_prefix="",
+        input_suffix="\n",
+        reference_prefix="A. ",
+        reference_suffix="\n",
+        output_prefix="\nAnswer the question above based on the passage. Respond with only a single letter corresponding to your choice. Do not include a period in your answer.\n",  # noqa: E501
         output_suffix="",
         instance_prefix="",
         max_train_instances=0,
@@ -88,11 +114,32 @@ def get_infinite_bench_en_qa_spec(max_num_words: int = 131072) -> RunSpec:
     metric_specs = get_open_ended_generation_metric_specs()
 
     return RunSpec(
-        name="infinite_bench_en_qa:max_num_words={max_num_words}",
+        name=f"infinite_bench_en_qa:max_num_words={max_num_words}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
         groups=["infinite_bench_en_qa"],
+    )
+
+
+@run_spec_function("infinite_bench_en_mc")
+def get_infinite_bench_en_mc_spec(max_num_words: int = 131072) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.infinite_bench_en_mc_scenario.InfiniteBenchEnMCScenario",
+        args={
+            "max_num_words": max_num_words,
+        },
+    )
+
+    adapter_spec = _get_long_context_multiple_choice_adapter_spec(max_tokens=40)
+    metric_specs = get_exact_match_metric_specs()
+
+    return RunSpec(
+        name=f"infinite_bench_en_mc:max_num_words={max_num_words}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["infinite_bench_en_mc"],
     )
 
 

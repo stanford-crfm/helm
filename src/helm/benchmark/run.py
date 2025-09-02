@@ -365,9 +365,15 @@ def main():
         default=None,
         help="Full class name of the Runner class to use. If unset, uses the default Runner.",
     )
+    parser.add_argument(
+        "--log-config",
+        type=str,
+        default=None,
+        help="PATH to a YAML file to customize logging",
+    )
     add_run_args(parser)
     args = parser.parse_args()
-    setup_default_logging()
+    setup_default_logging(args.log_config)
     return helm_run(args)
 
 

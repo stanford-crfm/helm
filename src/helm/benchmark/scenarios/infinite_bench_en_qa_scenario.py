@@ -26,7 +26,7 @@ class InfiniteBenchEnQAScenario(Scenario):
     """
 
     name = "infinite_bench_en_qa"
-    description = "∞Bench En.QA is a summarization task that requires generating a concise summary of a novel. ([Zhang et al., 2024](https://arxiv.org/abs/2402.13718))"  # noqa: E501
+    description = "∞Bench En.QA is an open-ended question answering task that necessitates long-range dependency and reasoning.  ([Zhang et al., 2024](https://arxiv.org/abs/2402.13718))"  # noqa: E501
     tags = ["question_answering"]
 
     def __init__(self, max_num_words: int):

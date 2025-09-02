@@ -937,6 +937,24 @@ models:
     release_date: 2025-05-28
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+    display_name: DeepSeek-R1-Distill-Llama-8b
+    description: DeepSeek-R1-Distill-Llama-8b is a model that is distilled from LLaMA 8B model for the DeepSeek-R1 task.
+    creator_organization_name: DeepSeek
+    access: open
+    num_parameters: 8000000000
+    release_date: 2025-01-20
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: deepseek-ai/deepseek-coder-6.7b-instruct
+    display_name: DeepSeek-Coder-6.7b-Instruct
+    description: DeepSeek-Coder-6.7b-Instruct is a model that is fine-tuned from the LLaMA 6.7B model for the DeepSeek-Coder task.
+    creator_organization_name: DeepSeek
+    access: open
+    num_parameters: 6740000000
+    release_date: 2025-01-20
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   # EleutherAI
   - name: eleutherai/gpt-j-6b # Served by GooseAi, HuggingFace and Together.
     display_name: GPT-J (6B)
@@ -1219,28 +1237,28 @@ models:
     release_date: 2025-01-21
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  - name: google/gemini-2.5-pro-preview-03-25
-    display_name: Gemini 2.5 Pro (03-25 preview)
-    description: Gemini 2.5 Pro (03-25 preview) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
-    creator_organization_name: Google
-    access: limited
-    release_date: 2025-04-09  # source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
-    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-
-  - name: google/gemini-2.5-pro-preview-05-06
-    display_name: Gemini 2.5 Pro (05-06 preview)
-    description: Gemini 2.5 Pro (05-06 preview) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
-    creator_organization_name: Google
-    access: limited
-    release_date: 2025-05-06  # source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
-    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-
   - name: google/gemini-2.0-pro-exp-02-05
     display_name: Gemini 2.0 Pro (02-05 preview)
     description: Gemini 2.0 Pro (02-05 preview) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
     creator_organization_name: Google
     access: limited
     release_date: 2025-02-05
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-2.5-flash-lite-preview-06-17
+    display_name: Gemini 2.5 Flash-Lite (06-17 preview)
+    description: Gemini 2.5 Flash-Lite (06-17 preview) ([blog](https://blog.google/products/gemini/gemini-2-5-model-family-expands/))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-06-17
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-2.5-flash-lite
+    display_name: Gemini 2.5 Flash-Lite
+    description: Gemini 2.5 Flash-Lite ([blog](https://blog.google/products/gemini/gemini-2-5-model-family-expands/))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-07-22
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemini-2.5-flash-preview-04-17
@@ -1259,12 +1277,44 @@ models:
     release_date: 2025-04-17
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: google/gemini-2.5-flash
+    display_name: Gemini 2.5 Flash
+    description: Gemini 2.5 Flash ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-06-17
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: google/gemini-2.5-pro-exp-03-25
     display_name: Gemini 2.5 Pro (03-25 experimental)
     description: Gemini 2.5 Pro (03-25 experimental) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
     creator_organization_name: Google
     access: limited
     release_date: 2025-03-25
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-2.5-pro-preview-03-25
+    display_name: Gemini 2.5 Pro (03-25 preview)
+    description: Gemini 2.5 Pro (03-25 preview) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-04-09  # source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-2.5-pro-preview-05-06
+    display_name: Gemini 2.5 Pro (05-06 preview)
+    description: Gemini 2.5 Pro (05-06 preview) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-05-06  # source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-2.5-pro
+    display_name: Gemini 2.5 Pro
+    description: Gemini 2.5 Pro ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-06-17
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemma-2b
@@ -1464,6 +1514,60 @@ models:
     num_parameters: 80000000000
     release_date: 2023-08-22
     tags: [VISION_LANGUAGE_MODEL_TAG, IDEFICS_MODEL_TAG, IDEFICS_INSTRUCT_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
+
+  - name: huggingface/smollm2-135m
+    display_name: SmolLM2 (135M)
+    description: SmolLM2 is a family of compact language models that are capable of solving a wide range of tasks while being lightweight enough to run on-device. ([paper](https://arxiv.org/abs/2502.02737v1))
+    creator_organization_name: HuggingFace
+    access: open
+    num_parameters: 135000000
+    release_date: 2024-10-31
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: huggingface/smollm2-360m
+    display_name: SmolLM2 (360M)
+    description: SmolLM2 is a family of compact language models that are capable of solving a wide range of tasks while being lightweight enough to run on-device. ([paper](https://arxiv.org/abs/2502.02737v1))
+    creator_organization_name: HuggingFace
+    access: open
+    num_parameters: 362000000
+    release_date: 2024-10-31
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: huggingface/smollm2-1.7b
+    display_name: SmolLM2 (1.7B)
+    description: SmolLM2 is a family of compact language models that are capable of solving a wide range of tasks while being lightweight enough to run on-device. ([paper](https://arxiv.org/abs/2502.02737v1))
+    creator_organization_name: HuggingFace
+    access: open
+    num_parameters: 1710000000
+    release_date: 2024-10-31
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: huggingface/smollm2-135m-instruct
+    display_name: SmolLM2 Instruct (135M)
+    description: SmolLM2 is a family of compact language models that are capable of solving a wide range of tasks while being lightweight enough to run on-device. ([paper](https://arxiv.org/abs/2502.02737v1))
+    creator_organization_name: HuggingFace
+    access: open
+    num_parameters: 135000000
+    release_date: 2024-10-31
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: huggingface/smollm2-360m-instruct
+    display_name: SmolLM2 Instruct (360M)
+    description: SmolLM2 is a family of compact language models that are capable of solving a wide range of tasks while being lightweight enough to run on-device. ([paper](https://arxiv.org/abs/2502.02737v1))
+    creator_organization_name: HuggingFace
+    access: open
+    num_parameters: 362000000
+    release_date: 2024-10-31
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: huggingface/smollm2-1.7b-instruct
+    display_name: SmolLM2 Instruct (1.7B)
+    description: SmolLM2 is a family of compact language models that are capable of solving a wide range of tasks while being lightweight enough to run on-device. ([paper](https://arxiv.org/abs/2502.02737v1))
+    creator_organization_name: HuggingFace
+    access: open
+    num_parameters: 1710000000
+    release_date: 2024-10-31
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   ## Text-to-Image Diffusion Models
   - name: huggingface/dreamlike-diffusion-v1-0
@@ -2283,6 +2387,42 @@ models:
     release_date: 2024-04-17
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: allenai/olmo-2-1124-7b-instruct
+    display_name: OLMo 2 7B Instruct November 2024
+    description: OLMo 2 is a family of 7B and 13B models trained on up to 5T tokens. ([blog](https://allenai.org/blog/olmo2))
+    creator_organization_name: Allen Institute for AI
+    access: open
+    num_parameters: 7300000000
+    release_date: 2024-11-26
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: allenai/olmo-2-1124-13b-instruct
+    display_name: OLMo 2 13B Instruct November 2024
+    description: OLMo 2 is a family of 7B and 13B models trained on up to 5T tokens. ([blog](https://allenai.org/blog/olmo2))
+    creator_organization_name: Allen Institute for AI
+    access: open
+    num_parameters: 13700000000
+    release_date: 2024-11-26
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: allenai/olmo-2-0325-32b-instruct
+    display_name: OLMo 2 32B Instruct March 2025
+    description: OLMo 2 32B Instruct March 2025 is trained up to 6T tokens and post-trained using Tulu 3.1. ([blog](https://allenai.org/blog/olmo2-32B))
+    creator_organization_name: Allen Institute for AI
+    access: open
+    num_parameters: 32200000000
+    release_date: 2025-03-13
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: allenai/olmoe-1b-7b-0125-instruct
+    display_name: OLMoE 1B-7B Instruct January 2025
+    description: OLMoE 1B-7B Instruct January 2025 is a fully open language model leveraging sparse Mixture-of-Experts (MoE). It has 7B parameters but uses only 1B per input token. It was pretrained on 5T tokens. ([blog](https://allenai.org/blog/olmoe-an-open-small-and-state-of-the-art-mixture-of-experts-model-c258432d0514), [paper](https://arxiv.org/abs/2409.02060))
+    creator_organization_name: Allen Institute for AI
+    access: open
+    num_parameters: 32200000000
+    release_date: 2025-03-13
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   # Mistral AI
   - name: mistralai/mistral-7b-v0.1
     display_name: Mistral v0.1 (7B)
@@ -2433,6 +2573,14 @@ models:
     release_date: 2023-12-11
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: mistralai/mistral-medium-2505
+    display_name: Mistral Medium 3 (2505)
+    description: Mistral Medium 3 (2505) is a language model that is intended to to deliver state-of-the-art performance at lower cost. ([blog](https://mistral.ai/news/mistral-medium-3))
+    creator_organization_name: Mistral AI
+    access: limited
+    release_date: 2025-05-07
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: mistralai/mistral-large-2402
     display_name: Mistral Large (2402)
     description: Mistral Large is a multilingual model with a 32K tokens context window and function-calling capabilities. ([blog](https://mistral.ai/news/mistral-large/))
@@ -2484,6 +2632,15 @@ models:
     release_date: 2024-11-18
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  # Moonshot AI
+  - name: moonshotai/kimi-k2-instruct
+    display_name: Kimi K2 Instruct
+    description:  Kimi K2 Instruct is a mixture-of-experts (MoE) language model with 32 billion activated parameters and 1 trillion total parameters trained with the Muon optimizer on 15.5T tokens. ([blog](https://moonshotai.github.io/Kimi-K2/))
+    creator_organization_name: Moonshot AI
+    access: open
+    num_parameters: 1029173256720
+    release_date: 2024-07-14  # Blog post has no date, so use the date from this news article https://www.cnbc.com/2025/07/14/alibaba-backed-moonshot-releases-kimi-k2-ai-rivaling-chatgpt-claude.html
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # MosaicML
   - name: mosaicml/mpt-7b
@@ -2903,6 +3060,30 @@ models:
     release_date: 2025-04-14
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: openai/gpt-5-2025-08-07
+    display_name: GPT-5 (2025-08-07)
+    description: GPT-5 (2025-08-07) is a multimdodal model trained for real-world coding tasks and long-running agentic tasks. ([blog](https://openai.com/index/introducing-gpt-5-for-developers/), [system card](https://cdn.openai.com/pdf/8124a3ce-ab78-4f06-96eb-49ea29ffb52f/gpt5-system-card-aug7.pdf))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-08-07
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/gpt-5-mini-2025-08-07
+    display_name: GPT-5 mini (2025-08-07)
+    description: GPT-5 mini (2025-08-07) is a multimdodal model trained for real-world coding tasks and long-running agentic tasks. ([blog](https://openai.com/index/introducing-gpt-5-for-developers/), [system card](https://cdn.openai.com/pdf/8124a3ce-ab78-4f06-96eb-49ea29ffb52f/gpt5-system-card-aug7.pdf))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-08-07
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/gpt-5-nano-2025-08-07
+    display_name: GPT-5 nano (2025-08-07)
+    description: GPT-5 nano (2025-08-07) is a multimdodal model trained for real-world coding tasks and long-running agentic tasks. ([blog](https://openai.com/index/introducing-gpt-5-for-developers/), [system card](https://cdn.openai.com/pdf/8124a3ce-ab78-4f06-96eb-49ea29ffb52f/gpt5-system-card-aug7.pdf))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-08-07
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: openai/whisper-1_gpt-4o-2024-11-20
     display_name: Whisper-1 + GPT-4o (2024-11-20)
     description: Transcribes the text with Whisper-1 and then uses GPT-4o to generate a response.
@@ -3115,6 +3296,31 @@ models:
     access: limited
     release_date: 2025-04-16
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/o3-pro-2025-06-10-high-reasoning-effort
+    display_name: o3-pro (2025-06-10, high reasoning effort)
+    description: o3-pro is an o-series model designed to think longer and provide the most reliable responses. ([blog post](https://help.openai.com/en/articles/9624314-model-release-notes))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-06-10
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  ## GPT-OSS
+  - name: openai/gpt-oss-20b
+    display_name: gpt-oss-20b
+    description: gpt-oss-20b is an open-weight language model that was trained using a mix of reinforcement learning and other techniques informed by OpenAI's internal models. It uses a mixture-of-experts architecture and activates 3.6B parameters per token. ([blog](https://openai.com/index/introducing-gpt-oss/))
+    creator_organization_name: OpenAI
+    access: open
+    release_date: 2025-08-05
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/gpt-oss-120b
+    display_name: gpt-oss-120b
+    description: gpt-oss-120b is an open-weight language model that was trained using a mix of reinforcement learning and other techniques informed by OpenAI's internal models. It uses a mixture-of-experts architecture and activates 5.1B parameters per token. ([blog](https://openai.com/index/introducing-gpt-oss/))
+    creator_organization_name: OpenAI
+    access: open
+    release_date: 2025-08-05
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   ## Codex Models
   # DEPRECATED: Codex models have been shut down on March 23 2023.
@@ -3390,6 +3596,14 @@ models:
     creator_organization_name: Qwen
     access: open
     release_date: 2025-04-29
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: qwen/qwen3-235b-a22b-instruct-2507-fp8
+    display_name: Qwen3 235B A22B Instruct 2507 FP8
+    description: Qwen3 235B A22B Instruct 2507 FP8 is an updated version of the non-thinking mode of Qwen3 235B A22B FP8.
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2025-07-21  # https://x.com/Alibaba_Qwen/status/1947344511988076547
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: qwen/qwq-32b-preview
@@ -4023,6 +4237,14 @@ models:
     release_date: 2025-04-03  # https://docs.x.ai/docs/release-notes#april-2025
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: xai/grok-4-0709
+    display_name: Grok 4 (0709)
+    description: Grok 4 (0709) is a model that includes native tool use and real-time search integration. ([blog](https://x.ai/news/grok-4))
+    creator_organization_name: xAI
+    access: limited
+    release_date: 2025-07-09
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   # Yandex
   - name: yandex/yalm
     display_name: YaLM (100B)
@@ -4115,6 +4337,53 @@ models:
     release_date: 2024-09-10
     tags: [AUDIO_LANGUAGE_MODEL_TAG]
 
+
+# Maritaca AI
+  - name: maritaca-ai/sabia-7b
+    display_name: Sabia 7B
+    description: Sabia 7B
+    creator_organization_name: MARITACA-AI
+    access: open
+    num_parameters: 6740000000
+    release_date: 2023-11-08
+    tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: maritaca-ai/sabiazinho-3
+    display_name: Sabiazinho 3
+    description: Sabiazinho-3 is a decoder-only language model designed for Portuguese text generation and understanding tasks. It supports a long context window of up to 128,000 tokens and is offered via API with scalable rate limits. The model is trained on diverse Portuguese corpora with knowledge up to july 2023.
+    creator_organization_name: Maritaca AI
+    access: limited
+    release_date: 2025-02-06
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: maritaca-ai/sabia-3
+    display_name: Sabía 3
+    description: Sabiá-3 is a decoder-only language model designed for Portuguese text generation and understanding tasks. It supports a long context window of up to 128,000 tokens and is offered via API with scalable rate limits. The model is trained on diverse Portuguese corpora with knowledge up to july 2023.
+    creator_organization_name: Maritaca AI
+    access: limited
+    release_date: 2024-12-11
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: maritaca-ai/sabia-3.1-2025-05-08
+    display_name: Sabía 3.1
+    description: Sabiá-3.1 is a decoder-only language model designed for Portuguese text generation and understanding tasks. It supports a long context window of up to 128,000 tokens and is offered via API with scalable rate limits. The model is trained on diverse Portuguese corpora with knowledge up to August 2024.
+    creator_organization_name: Maritaca AI
+    access: limited
+    release_date: 2025-05-08
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG] 
+
+  # Z.ai
+
+  - name: zai-org/glm-4.5-air-fp8
+    display_name: GLM-4.5-Air-FP8
+    description: GLM-4.5-Air-FP8 is a hybrid reasoning model designed to unify reasoning, coding, and agentic capabilities into a single model. It has 106 billion total parameters and 12 billion active parameters. The thinking mode is enabled by default. ([blog](https://z.ai/blog/glm-4.5))
+    creator_organization_name: Z.ai
+    access: open
+    num_parameters: 110000000000
+    release_date: 2025-07-28
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+
 # Granite - IBM
 # https://www.ibm.com/granite
 # https://github.com/ibm-granite/granite-3.0-language-models
@@ -4190,17 +4459,7 @@ models:
     num_parameters: 1380000000
     release: 2024-10-21
     tags: [TEXT_MODEL_TAG]
-
-  - name: maritaca-ai/sabia-7b
-    display_name: Sabia 7B
-    description: Sabia 7B
-    creator_organization_name: MARITACA-AI
-    access: open
-    num_parameters: 6740000000
-    release_date: 2023-11-08
-    tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
    
-# Granite-3.1-8b-base
   - name: ibm-granite/granite-3.1-8b-base
     display_name: Granite 3.1 - 8B - Base
     description: Granite-3.1-8B-Base extends the context length of Granite-3.0-8B-Base from 4K to 128K using a progressive training strategy by increasing the supported context length in increments while adjusting RoPE theta until the model has successfully adapted to desired length of 128K.
@@ -4210,7 +4469,6 @@ models:
     release_date: 2024-12-18
     tags: [TEXT_MODEL_TAG]
 
-# Granite-3.1-8b-instruct
   - name: ibm-granite/granite-3.1-8b-instruct
     display_name: Granite 3.1 - 8B - Instruct
     description: Granite-3.1-8B-Instruct is a 8B parameter long-context instruct model finetuned from Granite-3.1-8B-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets tailored for solving long context problems.
@@ -4220,7 +4478,6 @@ models:
     release_date: 2024-12-18
     tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-# Granite-3.1-2b-instruct
   - name: ibm-granite/granite-3.1-2b-instruct
     display_name: Granite 3.1 - 2B - Instruct
     description: Granite-3.1-2B-Instruct is a 2B parameter long-context instruct model finetuned from Granite-3.1-2B-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets tailored for solving long context problems.
@@ -4230,7 +4487,6 @@ models:
     release_date: 2024-12-18
     tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-# Granite-3.1-2b-base
   - name: ibm-granite/granite-3.1-2b-base
     display_name: Granite 3.1 - 2B - Base
     description: Granite-3.1-2B-Base extends the context length of Granite-3.0-2B-Base from 4K to 128K using a progressive training strategy by increasing the supported context length in increments while adjusting RoPE theta until the model has successfully adapted to desired length of 128K.
@@ -4240,7 +4496,6 @@ models:
     release_date: 2024-12-18
     tags: [TEXT_MODEL_TAG]
 
-# Granite-3.1-3b-a800m-instruct
   - name: ibm-granite/granite-3.1-3b-a800m-instruct
     display_name: Granite 3.1 - 3B - A800M - Instruct
     description: Granite-3.1-3B-A800M-Instruct is a 3B parameter long-context instruct model finetuned from Granite-3.1-3B-A800M-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets tailored for solving long context problems.
@@ -4250,7 +4505,6 @@ models:
     release_date: 2024-12-18
     tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-# Granite-3.1-3b-a800m-base
   - name: ibm-granite/granite-3.1-3b-a800m-base
     display_name: Granite 3.1 - 3B - A800M - Base
     description: Granite-3.1-3B-A800M-Base extends the context length of Granite-3.0-3B-A800M-Base from 4K to 128K using a progressive training strategy by increasing the supported context length in increments while adjusting RoPE theta until the model has successfully adapted to desired length of 128K.
@@ -4260,7 +4514,6 @@ models:
     release_date: 2024-12-18
     tags: [TEXT_MODEL_TAG]
 
-# Granite-3.1-1b-a400m-instruct
   - name: ibm-granite/granite-3.1-1b-a400m-instruct
     display_name: Granite 3.1 - 1B - A400M - Instruct
     description: Granite-3.1-1B-A400M-Instruct is a 8B parameter long-context instruct model finetuned from Granite-3.1-1B-A400M-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets tailored for solving long context problems.
@@ -4270,7 +4523,6 @@ models:
     release_date: 2024-12-18
     tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-# Granite-3.1-1b-a400m-base
   - name: ibm-granite/granite-3.1-1b-a400m-base
     display_name: Granite 3.1 - 1B - A400M - Base
     description: Granite-3.1-1B-A400M-Base extends the context length of Granite-3.0-1B-A400M-Base from 4K to 128K using a progressive training strategy by increasing the supported context length in increments while adjusting RoPE theta until the model has successfully adapted to desired length of 128K.
@@ -4280,27 +4532,6 @@ models:
     release_date: 2024-12-18
     tags: [TEXT_MODEL_TAG]
 
-# DeepSeek-R1-Distill-Llama-3.1-8b
-  - name: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
-    display_name: DeepSeek-R1-Distill-Llama-8b
-    description: DeepSeek-R1-Distill-Llama-8b is a model that is distilled from LLaMA 8B model for the DeepSeek-R1 task.
-    creator_organization_name: DeepSeek
-    access: open
-    num_parameters: 8000000000
-    release_date: 2025-01-20
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-
-# deepseek-ai/deepseek-coder-6.7b-instruct
-  - name: deepseek-ai/deepseek-coder-6.7b-instruct
-    display_name: DeepSeek-Coder-6.7b-Instruct
-    description: DeepSeek-Coder-6.7b-Instruct is a model that is fine-tuned from the LLaMA 6.7B model for the DeepSeek-Coder task.
-    creator_organization_name: DeepSeek
-    access: open
-    num_parameters: 6740000000
-    release_date: 2025-01-20
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-
-# WatsonX - IBM
   - name: ibm/granite-13b-instruct-v2
     display_name: Granite 13b instruct v2
     description: Granite Base (13B) Instruct V2.0 is a large decoder-only transformer model.The following features were used in the design of the model Decoder-only model
@@ -4347,11 +4578,6 @@ models:
     release: 2024-6-18
     tags: [ TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG ]
 
-
-
-
-
-
   - name: ibm/granite-3.1-8b-instruct
     display_name: Granite 3.1 - 8B - Instruct
     description: Granite-3.1-8B-Instruct is a 8B parameter long-context instruct model finetuned from Granite-3.1-8B-Base using a combination of open source instruction datasets with permissive license and internally collected synthetic datasets tailored for solving long context problems.
@@ -4370,13 +4596,24 @@ models:
     release_date: 2024-12-18
     tags: [ TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG ]
 
-  - name: mistralai/mixtral-8x7b-instruct-v0:1
-    display_name: Mixtral 8x7B Instruct on IBM WatsonX
-    description: A 7B sparse Mixture-of-Experts model with stronger capabilities than Mistral 7B. Uses 12B active parameters out of 45B total. Supports multiple languages, code and 32k context window.
-    creator_organization_name: Mistral
-    access: limited
-    release_date: 2023-12-11
+  - name: ibm/granite-3.3-8b-instruct
+    display_name: IBM Granite 3.3 8B Instruct
+    description: IBM Granite 3.3 8B Instruct is an 8-billion parameter 128K context length language model fine-tuned for improved reasoning and instruction-following capabilities. ([model card](https://huggingface.co/ibm-granite/granite-3.3-8b-instruct))
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 8170000000
+    release_date: 2025-04-16
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: ibm/granite-3.3-8b-instruct-with-guardian
+    display_name: IBM Granite 3.3 8B Instruct (with guardian)
+    description: IBM Granite 3.3 8B Instruct is an 8-billion parameter 128K context length language model fine-tuned for improved reasoning and instruction-following capabilities. All prompts were first evaluated for risk by [IBM Granite Guardian 3.2 5B](https://www.ibm.com/granite/docs/models/guardian/) and prompts that were deemed risky (with a risk threshold of 0.8) received the response "I'm very sorry, but I can't assist with that.". ([model card](https://huggingface.co/ibm-granite/granite-3.3-8b-instruct))
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 8170000000
+    release_date: 2025-04-16
+    # Unfortunately this setup is not easily reproducible, so we mark it with DEPRECATED_MODEL_TAG
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: ura-hcmut/ura-llama-2.1-8b
     display_name: URA-Llama 2.1 (8B)
@@ -4566,3 +4803,58 @@ models:
     num_parameters: 4000000000
     release_date: 2024-04-02
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: CEIA-UFG/Gemma-3-Gaia-PT-BR-4b-it
+    display_name: Gemma-3 Gaia PT-BR 4b Instruct
+    description: Gemma-3 Gaia PT-BR 4b Instruct is a model trained by CEIA-UFG for understanding and generating Brazilian Portuguese text.
+    creator_organization_name: CEIA-UFG
+    access: open
+    num_parameters: 4000000000
+    release_date: 2025-06-01
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: recogna-nlp/bode-13b-alpaca-pt-br-no-peft
+    display_name: Bode 13B Alpaca PT-BR
+    description: Bode is a language model (LLM) for Portuguese, based on LLaMA 2 and fine-tuned with the Alpaca dataset translated into Portuguese. Suitable for instruction, text generation, translation and tasks in Portuguese.
+    creator_organization_name: Recogna NLP
+    access: open
+    num_parameters: 13000000000
+    release_date: 2024-01-05
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: 22h/cabrita_7b_pt_850000
+    display_name: Cabrita PT-BR 7B
+    description: Cabrita is an OpenLLaMA-based model, continuously trained in Portuguese (mC4-pt subset) for 850000 steps with efficient tokenization adapted to the language.
+    creator_organization_name: 22h
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-08-23
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: PORTULAN/gervasio-7b-portuguese-ptbr-decoder
+    display_name: Gervásio PT-BR/PT-PT 7B Decoder
+    description: Gervásio PT* is a 7B parameter decoder model, adapted from LLaMA27B, trained for both Brazilian and European Portuguese. Fine-tuned with translated data from benchmarks such as GLUE and SuperGLUE.
+    creator_organization_name: PORTULAN (University of Lisbon NLX)
+    access: open
+    num_parameters: 6740000000
+    release_date: 2024-02-29
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: TucanoBR/Tucano-2b4
+    display_name: Tucano PT-BR 2b4
+    description: Tucano is a series of decoder models based on LLaMA2, natively pre-trained in Portuguese using the GigaVerbo dataset (200B tokens), with the 2B model trained for 1.96M steps over 845h (515B tokens, 4 epochs).
+    creator_organization_name: TucanoBR (University of Bonn)
+    access: open
+    num_parameters: 2444618240
+    release_date: 2024-12-11
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: nicholasKluge/TeenyTinyLlama-460m
+    display_name: TeenyTinyLlama 460M PT-BR
+    description: TeenyTinyLlama-460m is a lightweight and efficient model based on LLaMA2, trained exclusively on Brazilian Portuguese. It uses RoPE embeddings and SwiGLU activations, with a refined SentencePiece tokenizer and a low-resource optimized architecture.
+    creator_organization_name: Nicholas Kluge.
+    access: open
+    num_parameters: 460000000
+    release_date: 2024-01-30
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+

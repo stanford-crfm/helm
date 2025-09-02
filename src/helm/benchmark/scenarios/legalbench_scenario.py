@@ -5,6 +5,7 @@ import datasets
 from pathlib import Path
 from typing import List, Dict
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -15,6 +16,7 @@ from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 PROMPT_SETTINGS_URL = "https://raw.githubusercontent.com/HazyResearch/legalbench/main/helm_prompt_settings.jsonl"
@@ -144,3 +146,21 @@ class LegalBenchScenario(Scenario):
                 instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="legalbench",
+            display_name="LegalBench",
+            description="LegalBench is a large collaboratively constructed benchmark of legal "
+            "reasoning. Five representative tasks are included here. See [(Guha et al, "
+            "2023)[https://arxiv.org/abs/2308.11462] for more details.",
+            taxonomy=TaxonomyInfo(
+                task="text classification",
+                what="fact patterns, questions, and legal documents",
+                when="n/a",
+                who="lawyers",
+                language="English",
+            ),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )

@@ -1,6 +1,7 @@
 import json
 from typing import Dict, List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import check_file_exists
 from helm.benchmark.scenarios.scenario import (
     Input,
@@ -10,11 +11,12 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Reference,
     Output,
+    ScenarioMetadata,
 )
 
 
 class MIMICBHCScenario(Scenario):
-    """
+    r"""
     MIMIC-IV-BHC presents a curated collection of preprocessed discharge notes with labeled brief hospital
     course (BHC) summaries. This dataset is derived from MIMIC-IV (https://doi.org/10.1093/jamia/ocae312).
 
@@ -59,8 +61,11 @@ class MIMICBHCScenario(Scenario):
 
     name = "mimic_bhc"
     description = (
-        "A summarization task using a curated collection of preprocessed discharge notes"
-        " paired with their corresponding brief hospital course (BHC) summaries."
+        "MIMIC-BHC is a benchmark focused on summarization of discharge notes into Brief"
+        "Hospital Course (BHC) sections. It consists of curated discharge notes from MIMIC-IV,"
+        "each paired with its corresponding BHC summary. The benchmark evaluates a model's"
+        "ability to condense detailed clinical information into accurate, concise summaries that"
+        "reflect the patient's hospital stay."
     )
     tags = ["summarization", "biomedical"]
 
@@ -98,3 +103,25 @@ class MIMICBHCScenario(Scenario):
                 )
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="mimic_bhc",
+            display_name="MIMIC-IV-BHC",
+            short_display_name="MIMIC-BHC",
+            description="MIMIC-BHC is a benchmark focused on summarization of discharge notes into "
+            "Brief Hospital Course (BHC) sections. It consists of curated discharge notes "
+            "from MIMIC-IV, each paired with its corresponding BHC summary. The benchmark "
+            "evaluates a model's ability to condense detailed clinical information into "
+            "accurate, concise summaries that reflect the patient's hospital stay [(Aali et "
+            "al., 2024)](https://doi.org/10.1093/jamia/ocae312).",
+            taxonomy=TaxonomyInfo(
+                task="Text generation",
+                what="Summarize the clinical note into a brief hospital course",
+                when="Upon hospital discharge",
+                who="Clinician",
+                language="English",
+            ),
+            main_metric="mimic_bhc_accuracy",
+            main_split="test",
+        )

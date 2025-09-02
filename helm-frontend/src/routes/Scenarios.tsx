@@ -118,7 +118,9 @@ export default function Scenarios() {
                 <td>{runGroup.taxonomy?.when || ""}</td>
                 <td>{runGroup.taxonomy?.language || ""}</td>
                 <td>
-                  <MarkdownValue value={runGroup.description} />
+                  <MarkdownValue
+                    value={runGroup.short_description || runGroup.description}
+                  />
                 </td>
                 <td>
                   <MarkdownValue value={getMetricForRunGroup(runGroup)} />
