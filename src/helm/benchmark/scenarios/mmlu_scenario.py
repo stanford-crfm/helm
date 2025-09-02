@@ -134,8 +134,14 @@ class MMLUScenario(Scenario):
             short_display_name="MMLU",
             description="The Massive Multitask Language Understanding (MMLU) benchmark for "
             "knowledge-intensive question answering across 57 domains [(Hendrycks et al., "
-            "2021)](https://openreview.net/forum?id=d7KBjmI3GmQ).",
-            taxonomy=TaxonomyInfo(task="question answering", what="?", when="?", who="?", language="English"),
+            "2021)](https://arxiv.org/pdf/2009.03300.pdf).",
+            taxonomy=TaxonomyInfo(
+                task="multiple-choice question answering",
+                what="math, science, history, etc.",
+                when="before 2021",
+                who="various online sources",
+                language="English",
+            ),
             main_metric="exact_match",
             main_split="test",
         )

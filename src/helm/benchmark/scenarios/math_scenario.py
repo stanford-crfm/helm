@@ -454,14 +454,21 @@ class MATHScenario(Scenario):
         return instances
 
     def get_metadata(self) -> ScenarioMetadata:
+        taxonomy = TaxonomyInfo(
+            task="numeric answer question answering",
+            what="math competitions (AMC, AIME, etc.)",
+            when="before 2021",
+            who="problem setters",
+            language="synthetic",
+        )
         if self.use_chain_of_thought:
             return ScenarioMetadata(
                 name="math_chain_of_thought",
-                display_name="MATH (chain-of-thought)",
+                display_name="MATH",
                 description="The MATH benchmark for measuring mathematical problem solving on competition "
                 "math problems with chain-of-thought style reasoning [(Hendrycks et al., "
-                "2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/be83ab3ecd0db773eb2dc1b0a17836a1-Abstract-round2.html).",
-                taxonomy=TaxonomyInfo(task="?", what="n/a", when="n/a", who="n/a", language="synthetic"),
+                "2021)](https://arxiv.org/pdf/2103.03874.pdf).",
+                taxonomy=taxonomy,
                 main_metric="math_equiv_chain_of_thought",
                 main_split="test",
             )
@@ -472,7 +479,7 @@ class MATHScenario(Scenario):
                 description="The MATH benchmark for measuring mathematical problem solving on competition "
                 "math problems [(Hendrycks et al., "
                 "2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/be83ab3ecd0db773eb2dc1b0a17836a1-Abstract-round2.html).",
-                taxonomy=TaxonomyInfo(task="?", what="n/a", when="n/a", who="n/a", language="synthetic"),
+                taxonomy=taxonomy,
                 main_metric="math_equiv",
                 main_split="test",
             )
