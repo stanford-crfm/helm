@@ -9,6 +9,7 @@ from helm.benchmark.metrics.common_metric_specs import (
     get_exact_match_metric_specs,
     get_f1_metric_specs,
     get_open_ended_generation_metric_specs,
+    get_regression_metric_specs,
 )
 from helm.benchmark.metrics.lmkt_metric_specs import get_semantic_similarity_metric_specs
 from helm.benchmark.run_spec import RunSpec, run_spec_function
@@ -52,6 +53,13 @@ INSTRUCTIONS = {
             "instructions": "Vui lòng trả lời như một người {country} được mô tả bên dưới.",
             "input_noun": "Tình huống",
             "output_noun": "Giải thích",
+        },
+    },
+    "cultural_evolution_understanding_culturebank": {
+        "en": {
+            "instructions": "Answer the quesstion in the below situation.",
+            "input_noun": "Situation",
+            "output_noun": "Answer",
         },
     },
 }
@@ -246,4 +254,31 @@ def get_cultural_safety_application_polyguard_spec(
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
         groups=["lmkt", "cultural_safety_application_polyguard"],
+    )
+
+
+@run_spec_function("cultural_evolution_understanding_culturebank")
+def get_cultural_evolution_understanding_culturebank_spec(language: str, datasplit: str = "reddit") -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.lmkt_scenarios.CulturalEvolutionUnderstandingCultureBankScenario",
+        args={
+            "language": language,
+            "datasplit": datasplit,
+        },
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=INSTRUCTIONS["cultural_evolution_understanding_culturebank"][language]["instructions"],
+        input_noun=INSTRUCTIONS["cultural_evolution_understanding_culturebank"][language]["input_noun"],
+        output_noun=INSTRUCTIONS["cultural_evolution_understanding_culturebank"][language]["output_noun"],
+        max_tokens=5,
+        stop_sequences=[],
+    )
+
+    return RunSpec(
+        name=f"cultural_evolution_understanding_culturebank:language={language},datasplit={datasplit}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_regression_metric_specs(),
+        groups=["lmkt", "cultural_evolution_understanding_culturebank"],
     )
