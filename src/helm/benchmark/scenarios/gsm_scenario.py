@@ -71,12 +71,18 @@ class GSM8KScenario(Scenario):
     def get_metadata(self) -> ScenarioMetadata:
         return ScenarioMetadata(
             name="gsm",
-            display_name="GSM8K (Grade school math word problems)",
+            display_name="GSM8K (Grade School Math)",
             short_display_name="GSM8K",
             description="The grade school math word problems dataset (GSM8K) for testing mathematical "
             "reasoning on grade-school math problems [(Cobbe et al., "
             "2021)](https://arxiv.org/pdf/2110.14168.pdf).",
-            taxonomy=TaxonomyInfo(task="?", what="n/a", when="n/a", who="n/a", language="synthetic"),
-            main_metric="exact_match_indicator",
+            taxonomy=TaxonomyInfo(
+                task="numeric answer question answering",
+                what="grade school math word problems",
+                when="2021",
+                who="contractors on Upwork and Surge AI",
+                language="English",
+            ),
+            main_metric="final_number_exact_match",
             main_split="test",
         )

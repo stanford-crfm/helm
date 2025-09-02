@@ -162,14 +162,13 @@ class NarrativeQAScenario(Scenario):
         return ScenarioMetadata(
             name="narrative_qa",
             display_name="NarrativeQA",
-            short_display_name=None,
             description="The NarrativeQA benchmark for reading comprehension over narratives [(Kočiský "
             "et al., 2017)](https://aclanthology.org/Q18-1023/).",
             taxonomy=TaxonomyInfo(
-                task="question answering",
+                task="short-answer question answering",
                 what="passages are books and movie scripts, questions are unknown",
-                when="?",
-                who="?",
+                when="2018",
+                who="annotators from summaries",
                 language="English",
             ),
             main_metric="f1_score",
