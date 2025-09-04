@@ -37,7 +37,7 @@ def run_entries_to_run_specs(
     run_specs: List[RunSpec] = []
     for entry in run_entries:
         # Filter by priority
-        if priority is not None and entry.priority > priority:
+        if priority is not None and entry.priority is not None and entry.priority > priority:
             continue
 
         for run_spec in construct_run_specs(parse_object_spec(entry.description)):
