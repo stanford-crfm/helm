@@ -38,6 +38,11 @@ LOCAL_CHECKPOINT_3B_ROBOMIMIC = (
 LOCAL_CHECKPOINT_3B_ROBOMIMIC_CAN_WEAK = (
     "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_robomimic_3b_can_only_9_3/hf_checkpoints/step-100"
 )
+LOCAL_CHECKPOINT_3B_ROBOMIMIC_LIFT_WEAK = (
+    "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_robomimic_3b_lift_only_8_16/hf_checkpoints/step-100"
+)
+
+
 LOCAL_CHECKPOINT_3B_ROBOMIMIC_LIFT = (
     "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_robomimic_3b_lift_only_8_16/hf_checkpoints/step-2000"
 )
@@ -72,6 +77,7 @@ _models: Dict[str, Optional[LoadedModelProcessor]] = {
     LOCAL_CHECKPOINT_7B: None,
     LOCAL_CHECKPOINT_3B_ROBOMIMIC: None,
     LOCAL_CHECKPOINT_3B_ROBOMIMIC_CAN_WEAK: None,
+    LOCAL_CHECKPOINT_3B_ROBOMIMIC_LIFT_WEAK: None,
     LOCAL_CHECKPOINT_3B_ROBOMIMIC_LIFT: None,
     LOCAL_CHECKPOINT_3B_ROBOMIMIC_SQUARE: None,
     LOCAL_CHECKPOINT_3B_ROBOMIMIC_TRANSPORT: None,
@@ -101,6 +107,8 @@ class Qwen2VLMClient(CachingClient):
             return LOCAL_CHECKPOINT_3B_ROBOMIMIC
         elif helm_model_name == "qwen2.5-vl-3b-instruct-robo-reward-robomimic-can-weak":
             return LOCAL_CHECKPOINT_3B_ROBOMIMIC_CAN_WEAK
+        elif helm_model_name == "qwen2.5-vl-3b-instruct-robo-reward-robomimic-lift-weak":
+            return LOCAL_CHECKPOINT_3B_ROBOMIMIC_LIFT_WEAK
         elif helm_model_name == "qwen2.5-vl-3b-instruct-robo-reward-robomimic-lift":
             return LOCAL_CHECKPOINT_3B_ROBOMIMIC_LIFT
         elif helm_model_name == "qwen2.5-vl-3b-instruct-robo-reward-robomimic-square":
