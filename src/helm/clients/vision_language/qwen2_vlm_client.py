@@ -36,7 +36,7 @@ LOCAL_CHECKPOINT_3B_ROBOMIMIC = (
 
 # TODO: pick the best checkpoint for each task
 LOCAL_CHECKPOINT_3B_ROBOMIMIC_CAN_WEAK = (
-    "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_robomimic_3b_can_only_9_3/hf_checkpoints/step-200"
+    "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_robomimic_3b_can_only_9_3/hf_checkpoints/step-100"
 )
 LOCAL_CHECKPOINT_3B_ROBOMIMIC_LIFT = (
     "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/Qwen2.5-VL/qwen-vl-finetune/output_robomimic_3b_lift_only_8_16/hf_checkpoints/step-2000"
