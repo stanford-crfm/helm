@@ -175,4 +175,4 @@ def get_open_ended_generation_metric_specs() -> List[MetricSpec]:
 
 
 def get_regression_metric_specs() -> List[MetricSpec]:
-    return [MetricSpec(class_name="helm.benchmark.metrics.regression_metrics.RegressionMetric", args={})]
+    return [MetricSpec(class_name="helm.benchmark.metrics.regression_metrics.RegressionMetric", args={"default": 0.0})]

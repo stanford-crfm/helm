@@ -136,14 +136,18 @@ class PolyGuardAnnotator(Annotator):
         postprocess_annotator_response = self._postprocess(annotator_response_text)
 
         if not postprocess_annotator_response:
-            raise Exception(f"Malformed annotator response: {annotator_response_text}")
+            postprocess_annotator_response = {
+                "harmful_request": 1,
+                "harmful_response": 1,
+                "response_refusal": 1,
+            }
 
         return postprocess_annotator_response
 
     def _postprocess(self, output):
         result = {}
         for x in output.split("\n"):
-            if x == [""]:
+            if x == [""] or ":" not in x:
                 continue
             k, v = x.split(":")
             k, v = k.strip(), v.strip()

@@ -19,6 +19,10 @@ from sklearn.metrics import (
 class RegressionMetric(Metric):
     """Score metrics for regression tasks."""
 
+    def __init__(self, default: float = 0.0):
+        super().__init__()
+        self.default = default
+
     def evaluate_generation(
         self,
         adapter_spec: AdapterSpec,
@@ -27,7 +31,7 @@ class RegressionMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         try:
-            reference_value: float = float(request_state.instance.references[0].text)
+            reference_value: float = float(request_state.instance.references[0].output.text)
         except (IndexError, ValueError):
             raise ValueError("Reference value is missing or not a valid float.")
 
@@ -42,7 +46,7 @@ class RegressionMetric(Metric):
             list_completion_values.append(completion_value)
 
         if not list_completion_values:
-            raise ValueError("No valid completion values found.")
+            list_completion_values = [self.default]
 
         mean_completion_value = sum(list_completion_values) / len(list_completion_values)
 
