@@ -4321,6 +4321,44 @@ model_deployments:
         args:
             pretrained_model_name_or_path: deepseek-ai/deepseek-coder-6.7b-instruct
 
+  # AceGPT-v2
+  - name: huggingface/acegpt-v2-8b-chat
+    model_name: freedomintelligence/acegpt-v2-8b-chat
+    tokenizer_name: freedomintelligence/acegpt-v2-8b-chat
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/acegpt-v2-32b-chat
+    model_name: freedomintelligence/acegpt-v2-32b-chat
+    tokenizer_name: freedomintelligence/acegpt-v2-32b-chat
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/acegpt-v2-70b-chat
+    model_name: freedomintelligence/acegpt-v2-70b-chat
+    tokenizer_name: freedomintelligence/acegpt-v2-70b-chat
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  # ALLaM
+  - name: huggingface/allam-7b-instruct-preview
+    model_name: allam-ai/allam-7b-instruct-preview
+    tokenizer_name: allam-ai/allam-7b-instruct-preview
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  # SILMA
+  - name: huggingface/silma-9b-instruct-v1.0
+    model_name: silma-ai/silma-9b-instruct-v1.0
+    tokenizer_name: silma-ai/silma-9b-instruct-v1.0
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
 # IBM WatsonX
   - name: ibm/llama-3.3-70b-instruct
     model_name: meta/llama-3.3-70b-instruct
