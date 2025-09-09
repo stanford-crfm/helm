@@ -1207,7 +1207,7 @@ models:
 
   - name: google/gemini-2.0-flash-001
     display_name: Gemini 2.0 Flash
-    description: Gemini 2.0 Flash ([model card](https://storage.googleapis.com/model-cards/documents/gemini-2-flash.pdf), [documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    description: Gemini 2.0 Flash is a member of the Gemini 2.0 series of models, a suite of highly-capable, natively multimodal models designed to power agentic systems. ([model card](https://storage.googleapis.com/model-cards/documents/gemini-2-flash.pdf), [documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
     creator_organization_name: Google
     access: limited
     release_date: 2025-02-01
@@ -1223,7 +1223,7 @@ models:
 
   - name: google/gemini-2.0-flash-lite-001
     display_name: Gemini 2.0 Flash Lite
-    description: Gemini 2.0 Flash Lite ([model card](https://storage.googleapis.com/model-cards/documents/gemini-2-flash.pdf), [documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    description: Gemini 2.0 Flash Lite is the fastest and most cost efficient Flash model in the Gemini 2.0 series of models, a suite of highly-capable, natively multimodal models designed to power agentic systems. ([model card](https://storage.googleapis.com/model-cards/documents/gemini-2-flash.pdf), [documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
     creator_organization_name: Google
     access: limited
     release_date: 2025-03-25
