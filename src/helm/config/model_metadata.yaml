@@ -3949,7 +3949,53 @@ models:
     release_date: 2023-05-25
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  # AceGPT-v2
+  - name: freedomintelligence/acegpt-v2-8b-chat
+    display_name: AceGPT-v2-8B-Chat
+    description: AceGPT is a fully fine-tuned generative text model collection, particularly focused on the Arabic language domain. AceGPT-v2-8B-Chat is based on Meta-Llama-3-8B. ([paper](https://arxiv.org/abs/2412.12310))
+    creator_organization_name: FreedomAI
+    access: open
+    num_parameters: 8030000000
+    release_date: 2024-10-20
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: freedomintelligence/acegpt-v2-32b-chat
+    display_name: AceGPT-v2-32B-Chat
+    description: AceGPT is a fully fine-tuned generative text model collection, particularly focused on the Arabic language domain. AceGPT-v2-32B-Chat is based on Qwen1.5-32B. ([paper](https://arxiv.org/abs/2412.12310))
+    creator_organization_name: FreedomAI
+    access: open
+    num_parameters: 32500000000
+    release_date: 2024-10-20
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: freedomintelligence/acegpt-v2-70b-chat
+    display_name: AceGPT-v2-70B-Chat
+    description: AceGPT is a fully fine-tuned generative text model collection, particularly focused on the Arabic language domain. AceGPT-v2-70B-Chat is based on Meta-Llama-3-70B. ([paper](https://arxiv.org/abs/2412.12310))
+    creator_organization_name: FreedomAI
+    access: open
+    num_parameters: 70600000000
+    release_date: 2024-10-20
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  # ALLaM
+  - name: allam-ai/allam-7b-instruct-preview
+    display_name: ALLaM-7B-Instruct-preview
+    description: ALLaM-7B-Instruct-preview is a model designed to advance Arabic language technology, which used a recipe of training on 4T English tokens followed by training on 1.2T mixed Arabic/English tokens. ([paper](https://arxiv.org/abs/2407.15390v1))
+    creator_organization_name: NCAI & SDAIA
+    access: open
+    num_parameters: 7000000000
+    release_date: 2024-07-22
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  # SILMA
+  - name: silma-ai/silma-9b-instruct-v1.0
+    display_name: SILMA 9B
+    description: SILMA 9B is a compact Arabic language model based on Google Gemma. ([model card](https://huggingface.co/silma-ai/SILMA-9B-Instruct-v1.0))
+    creator_organization_name: SILMA AI
+    access: open
+    num_parameters: 9240000000
+    release_date: 2024-08-17
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # Together
   - name: together/gpt-jt-6b-v1
