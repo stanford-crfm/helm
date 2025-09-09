@@ -278,7 +278,7 @@ models:
   # https://aws.amazon.com/ai/generative-ai/nova/
   - name: amazon/nova-premier-v1:0
     display_name: Amazon Nova Premier
-    description: Amazon Nova Premier is the most capable model in the Nova family of foundation models. ([blog](https://aws.amazon.com/blogs/aws/amazon-nova-premier-our-most-capable-model-for-complex-tasks-and-teacher-for-model-distillation/))
+    description: Amazon Nova Premier is a capable multimodal foundation model and teacher for model distillation that processes text, images, and videos with a one-million token context window. ([model card](https://www.amazon.science/publications/amazon-nova-premier-technical-report-and-model-card), [blog](https://aws.amazon.com/blogs/aws/amazon-nova-premier-our-most-capable-model-for-complex-tasks-and-teacher-for-model-distillation/))
     creator_organization_name: Amazon
     access: limited
     release_date: 2025-04-30
@@ -286,7 +286,7 @@ models:
 
   - name: amazon/nova-pro-v1:0
     display_name: Amazon Nova Pro
-    description: Amazon Nova Pro Model
+    description: Amazon Nova Pro is a highly capable multimodal model that balances of accuracy, speed, and cost for a wide range of tasks ([model card](https://www.amazon.science/publications/the-amazon-nova-family-of-models-technical-report-and-model-card))
     creator_organization_name: Amazon
     access: limited
     release_date: 2024-12-03
@@ -294,7 +294,7 @@ models:
 
   - name: amazon/nova-lite-v1:0
     display_name: Amazon Nova Lite
-    description: Amazon Nova Lite Model
+    description: Amazon Nova Lite is a low-cost multimodal model that is fast for processing images, video, documents and text. ([model card](https://www.amazon.science/publications/the-amazon-nova-family-of-models-technical-report-and-model-card))
     creator_organization_name: Amazon
     access: limited
     release_date: 2024-12-03
@@ -302,7 +302,7 @@ models:
 
   - name: amazon/nova-micro-v1:0
     display_name: Amazon Nova Micro
-    description: Amazon Nova Micro Model
+    description: Amazon Nova Micro is a text-only model that delivers low-latency responses at low cost. ([model card](https://www.amazon.science/publications/the-amazon-nova-family-of-models-technical-report-and-model-card))
     creator_organization_name: Amazon
     access: limited
     release_date: 2024-12-03
@@ -1207,7 +1207,7 @@ models:
 
   - name: google/gemini-2.0-flash-001
     display_name: Gemini 2.0 Flash
-    description: Gemini 2.0 Flash ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    description: Gemini 2.0 Flash is a member of the Gemini 2.0 series of models, a suite of highly-capable, natively multimodal models designed to power agentic systems. ([model card](https://storage.googleapis.com/model-cards/documents/gemini-2-flash.pdf), [documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
     creator_organization_name: Google
     access: limited
     release_date: 2025-02-01
@@ -1215,7 +1215,7 @@ models:
 
   - name: google/gemini-2.0-flash-lite-preview-02-05
     display_name: Gemini 2.0 Flash Lite (02-05 preview)
-    description: Gemini 2.0 Flash Lite (02-05 preview) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    description: Gemini 2.0 Flash Lite (02-05 preview) ([model card](https://storage.googleapis.com/model-cards/documents/gemini-2-flash.pdf), [documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
     creator_organization_name: Google
     access: limited
     release_date: 2025-02-05
@@ -1223,7 +1223,7 @@ models:
 
   - name: google/gemini-2.0-flash-lite-001
     display_name: Gemini 2.0 Flash Lite
-    description: Gemini 2.0 Flash Lite ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    description: Gemini 2.0 Flash Lite is the fastest and most cost efficient Flash model in the Gemini 2.0 series of models, a suite of highly-capable, natively multimodal models designed to power agentic systems. ([model card](https://storage.googleapis.com/model-cards/documents/gemini-2-flash.pdf), [documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
     creator_organization_name: Google
     access: limited
     release_date: 2025-03-25
