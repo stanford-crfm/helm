@@ -75,6 +75,18 @@ export default function LongContextLanding() {
           </ul>
 
           <p className="my-4">
+            The results demonstrate that even though significant progress has
+            been made on long context capabilities, there is still considerable
+            room for improvement.
+          </p>
+
+          <p className="my-4">
+            As with all HELM leaderboards, this leaderboard provides full
+            transparency into all LLM requests and responses, and the results
+            are reproducible using the HELM open source framework.
+          </p>
+
+          <p className="my-4">
             This leaderboard was produced through research collaboration with{" "}
             <a
               className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
@@ -92,7 +104,10 @@ export default function LongContextLanding() {
             .
           </p>
           <div className="flex flex-row justify-center mt-4">
-            <a className="px-10 btn rounded-md mx-4" href="#">
+            <a
+              className="px-10 btn rounded-md mx-4"
+              href="https://crfm.stanford.edu/2025/09/09/helm-long-context.html"
+            >
               Blog Post
             </a>
             <a className="px-10 btn rounded-md mx-4" href="#/leaderboard">
