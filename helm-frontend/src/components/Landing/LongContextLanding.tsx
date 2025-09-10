@@ -24,7 +24,7 @@ export default function LongContextLanding() {
             evaluations of long context capabilities of recent models. The
             benchmark consists of 5 tasks:
           </p>
-          <ul className="list-disc">
+          <ul className="list-disc pl-6">
             <li>
               <a
                 className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
