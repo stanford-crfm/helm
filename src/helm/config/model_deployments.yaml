@@ -861,6 +861,20 @@ model_deployments:
         parse_thinking: true
         disable_logprobs: True
 
+  - name: together/deepseek-r1-distill-llama-70b
+    model_name: deepseek-ai/deepseek-r1-distill-llama-70b
+    tokenizer_name: deepseek-ai/deepseek-r1-distill-llama-70b
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+
+  - name: together/deepseek-r1-distill-qwen-14b
+    model_name: deepseek-ai/deepseek-r1-distill-qwen-14b
+    tokenizer_name: deepseek-ai/deepseek-r1-distill-qwen-14b
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+
   # Gooseai
 
   # TODO: Migrate these models to use OpenAIClient
@@ -4310,6 +4324,7 @@ model_deployments:
         class_name: "helm.clients.huggingface_client.HuggingFaceClient"
         args:
             pretrained_model_name_or_path: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+
 
 # deepseek-ai/deepseek-coder-6.7b-instruct
   - name: huggingface/deepseek-coder-6.7b-instruct
