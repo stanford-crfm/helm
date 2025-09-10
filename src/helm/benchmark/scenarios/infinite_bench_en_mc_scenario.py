@@ -4,6 +4,7 @@ from typing import List
 
 from datasets import load_dataset, Features, Value, Sequence, Dataset
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     CORRECT_TAG,
     TEST_SPLIT,
+    ScenarioMetadata,
 )
 from helm.common.general import ensure_directory_exists
 
@@ -88,3 +90,22 @@ class InfiniteBenchEnMCScenario(Scenario):
             instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="infinite_bench_en_mc",
+            display_name="∞Bench En.MC",
+            description="∞Bench En.MC is a multiple-choice question answering task that requires "
+            "locating and processing information within a novel, performing reasoning "
+            "through aggregation or filtering to derive answers. ([Zhang et al., "
+            "2024](https://arxiv.org/abs/2402.13718))",
+            taxonomy=TaxonomyInfo(
+                task="multiple-choice question answering",
+                what="Novels",
+                when="Before 2024",
+                who="Novel authors",
+                language="English",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )
