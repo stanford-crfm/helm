@@ -2,6 +2,7 @@ import os
 import re
 from typing import List
 from datasets import load_dataset, Features, Value, Sequence, Dataset
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     CORRECT_TAG,
     TEST_SPLIT,
+    ScenarioMetadata,
 )
 from helm.common.general import ensure_directory_exists
 
@@ -77,3 +79,20 @@ class InfiniteBenchEnSumScenario(Scenario):
             instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="infinite_bench_en_sum",
+            display_name="∞Bench En.Sum",
+            description="∞Bench En.Sum is a summarization task that requires generating a concise "
+            "summary of a novel. ([Zhang et al., 2024](https://arxiv.org/abs/2402.13718))",
+            taxonomy=TaxonomyInfo(
+                task="multi-hop question answering",
+                what="Novels",
+                when="Before 2024",
+                who="Novel authors",
+                language="English",
+            ),
+            main_metric="rouge_l",
+            main_split="test",
+        )
