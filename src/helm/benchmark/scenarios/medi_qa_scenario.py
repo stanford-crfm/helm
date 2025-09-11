@@ -51,7 +51,7 @@ class MediQAScenario(Scenario):
 
     name = "medi_qa"
     description = (
-        "MEDIQA is a benchmark designed to evaluate a model's ability to retrieve and generate"
+        "MEDIQA is a benchmark designed to evaluate a model's ability to generate"
         "medically accurate answers to patient-generated questions. Each instance includes a"
         "consumer health question, a set of candidate answers (used in ranking tasks), relevance"
         "annotations, and optionally, additional context. The benchmark focuses on supporting"
@@ -124,7 +124,7 @@ class MediQAScenario(Scenario):
             "health communication.",
             taxonomy=TaxonomyInfo(
                 task="Text generation",
-                what="Retrieve and rank answers based on medical question " "understanding",
+                what="Generate medically accurate answers to patient-generated questions.",
                 when="Any",
                 who="Clinician, Medical Student",
                 language="English",
