@@ -6,17 +6,31 @@
 
 **Time required:** ~10 minutes for the Quickstart.
 
-**Requirements:** [Conda](https://www.anaconda.com/docs/getting-started/getting-started)/Python 3.10 (~30 min), [Google Cloud CLI](https://cloud.google.com/sdk/docs/install) (~30 min), and GPU access (exact GPU requierements depend on the model used and context length).
-
-
 MedHELM extends the HELM framework to evaluate **large language models (LLMs) in medical applications**, focusing on realistic tasks, safety, and reproducibility.
 
+---
+
+## Requirements 
+
+1. [Conda](https://www.anaconda.com/docs/getting-started/getting-started) (~30 min to intall)
+  
+    Used to manage the Python virtual environment for MedHELM.
+
+2. [Google Cloud CLI](https://cloud.google.com/sdk/docs/install) (~30 min to install)
+
+    Required for downloading MedHELM results stored on Google Cloud.
+
+    **Note:** During installation, the installer will recommend Python 3.12 for full feature support. These features are not needed for MedHELM. We recommend Python 3.10 for best compatibility.
+
+3. GPU Access
+
+    Needed for running models locally. The exact GPU requirements depend on the model and context length.
+
+---
 
 ## Quickstart (10 minutes)
 
 **Goal:** Install MedHELM, run a 10-instance evaluation on a public scenario, and open a local leaderboard.
-
-**Prerequisites:** Python 3.10, ability to create a virtual environment via [conda](https://www.anaconda.com/docs/getting-started/getting-started).
 
 #### 1. Install (Python 3.10 recommended)
 
@@ -31,7 +45,7 @@ pip install -U setuptools
 
 Run the following command to install HELM:
 ```
-pip install crfm-helm
+pip install -U crfm-helm
 ```
 
 Run the following commands to install the necessary MedHELM extensions:
@@ -72,6 +86,7 @@ helm-server --suite my-medhelm-suite
 
 > ⚠️ **PHI & compliance:** Only run **gated** or **private** data on infrastructure approved by your organization. Use the **redaction** steps in *Sharing Results* before sending outputs externally.
 
+---
 
 ## Core Concepts
 
@@ -82,6 +97,7 @@ helm-server --suite my-medhelm-suite
 * **Schema:** Task taxonomy + metrics configuration powering `helm-summarize` and the UI.
 * **Release:** The version of leaderboard results.
 
+---
 
 ## Clinician‑Validated Taxonomy (overview)
 
@@ -119,6 +135,8 @@ MedHELM evaluates models across a clinician‑validated taxonomy: **5 categories
     - Organizing Workflow Processes
     - Care Coordination and Planning
 
+---
+
 ## Installation
 
 **Prerequisites:** Python 3.10, and the ability to create a virtual environment via [conda](https://www.anaconda.com/docs/getting-started/getting-started).
@@ -147,6 +165,7 @@ On the same python virtual environment from step 1, run the following command to
 pip install "crfm-helm[summarization,medhelm]"
 ```
 
+---
 
 ## Run Your First Evaluation
 
@@ -182,6 +201,7 @@ This command runs the leaderboard on a local server. The exact address and port 
 helm-server --suite my-medhelm-suite
 ```
 
+---
 
 ## Benchmark Access Levels
 
@@ -205,6 +225,7 @@ When contributing or reproducing results, ensure you’re using the correct file
 
 For **private** benchmarks and organization‑specific configurations, contact the MedHELM team at **[migufuen@stanford.edu](mailto:migufuen@stanford.edu)**.
 
+---
 
 ## Viewing and Reproducing Leaderboard Results
 
@@ -238,6 +259,7 @@ helm-server --release v2.0.0
 
 > **Note:** The `model_deployments` of the models listed in these run entries are specific to Stanford Healthcare, please change them for the appropriate deployments as needed. For more information on model_deployments, refer to [Adding New Models](adding_new_models.md).
 
+---
 
 ## Adding a New Benchmark
 
