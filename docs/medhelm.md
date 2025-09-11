@@ -409,10 +409,12 @@ patient_id,note,question,correct_answer,incorrect_answers
 
 Create a YAML file that defines:
 
-- Benchmark metadata (name and description)  
-- Paths to the prompt template and dataset  
-- Maximum token limit for model outputs  
-- The full list of evaluation metrics  
+- `name:` The name of the benchmark. This will appear on the leaderboard.
+- `description:` A short description of the benchmark. This will also be shown on the leaderboard.
+- `prompt_file:` Path to the prompt template file for your benchmark.
+- `dataset_file:` Path to the dataset file for your benchmark.
+- `max_tokens:` The maximum number of tokens that models are allowed to generate in response to your benchmark prompts. Choose this value based on the expected response length.
+- `metrics:` A list of evaluation metrics to be used for your benchmark.
 
 **Example — `exact_match_demo.yaml`:**
 
