@@ -61,14 +61,9 @@ pip install "crfm-helm[summarization,medhelm]"
 helm-run \
   --run-entries medcalc_bench:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct \
   --suite my-medhelm-suite \
-  --max-eval-instances 10
+  --max-eval-instances 10 \
+  --output-path ./benchmark_output
 ```
-
-*Flags explained once:*
-
-* `--run-entries`: which `(model, scenario)` to run
-* `--suite`: groups runs and names the output folder slice
-* `--max-eval-instances`: run a small subset for quick checks
 
 #### 3. Build and open the local leaderboard
 
@@ -178,8 +173,19 @@ The following command runs **MedCalc-Bench** on **Qwen2.5‑7B‑Instruct** for 
 helm-run \
    --run-entries medcalc_bench:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct \
    --suite my-medhelm-suite \
-   --max-eval-instances 10
+   --max-eval-instances 10 \
+   --output-path ./benchmark_output
 ```
+
+*Flags explained:*
+
+* `--run-entries`: Specifies which benchmark(s) and model(s) to run.
+In this example, the benchmark is medcalc_bench and the model is qwen/qwen2.5-7b-instruct, deployed via Hugging Face.
+* `--suite`: Assigns the run to a suite, which acts as a collection of results.
+Using the same suite name across multiple runs groups their results together.
+* `--max-eval-instances`: Limits the number of benchmark instances evaluated. 
+* `--output-path`: Path to the directory where output files and results will be written.
+If the directory does not exist, it will be created automatically.
 
 #### 2. Create the leaderboard
 
@@ -188,16 +194,34 @@ The following commands convert the results from step 1 into an interactive leade
 ```bash
 curl -L -o schema_medhelm.yaml \
    https://raw.githubusercontent.com/stanford-crfm/helm/main/src/helm/benchmark/static/schema_medhelm.yaml
-helm-summarize --suite my-medhelm-suite --schema schema_medhelm.yaml
+helm-summarize \
+  --suite my-medhelm-suite \
+  --schema ./schema_medhelm.yaml \
+  --output-path ./benchmark_output
 ```
+
+*Flags explained:*
+
+* `--suite`: Names the suite where results from this leaderboard creation will be stored.
+This allows grouping multiple runs under a common label (e.g., my-medhelm-suite).
+* `--schema`: Path to the schema file.
+* `--output-path`: Path to the directory where benchmark results from `helm-run` are stored.
 
 #### 3. Run the leaderboard locally
 
 This command runs the leaderboard on a local server. The exact address and port will show on the command output.
 
 ```bash
-helm-server --suite my-medhelm-suite
+helm-server \
+  --suite my-medhelm-suite \
+  --output-path ./benchmark_output
 ```
+
+*Flags explained:*
+
+* `--suite`: Names the suite where results are stored.
+This allows grouping multiple runs under a common label (e.g., my-medhelm-suite).
+* `--output-path`: Path to the directory where benchmark results from `helm-run` are stored.
 
 ---
 
@@ -476,9 +500,10 @@ Then, run the benchmark with:
 
 ```bash
 helm-run \
-   --conf-paths $RUN_ENTRIES_CONF_PATH \
-   --max-eval-instances $MAX_EVAL_INSTANCES \
-   --suite $SUITE_NAME
+  --conf-paths $RUN_ENTRIES_CONF_PATH \
+  --max-eval-instances $MAX_EVAL_INSTANCES \
+  --suite $SUITE_NAME \
+  --output-path ./benchmark_output
 ```
 
 #### 6. Recreate the leaderboard
@@ -486,7 +511,10 @@ helm-run \
 With the benchmarks results from step 5, run the following command to recreate the leaderboard:
 
 ```bash
-helm-summarize --auto-generate-schema --suite $SUITE_NAME
+helm-summarize \
+  --auto-generate-schema \
+  --suite $SUITE_NAME \
+  --output-path ./benchmark_output
 ```
 
 #### 7. Launch the leaderboard
@@ -494,7 +522,9 @@ helm-summarize --auto-generate-schema --suite $SUITE_NAME
 Once the leaderboard is created, launch the leaderboard to see it live.
 
 ```bash
-helm-server --suite $SUITE_NAME
+helm-server \
+  --suite $SUITE_NAME \
+  --output-path ./benchmark_output
 ```
 
 ---
@@ -674,13 +704,17 @@ export MAX_EVAL_INSTANCES=2
 helm-run \
   --conf-paths $RUN_ENTRIES_CONF_PATH \
   --max-eval-instances $MAX_EVAL_INSTANCES \
-  --suite $SUITE_NAME
+  --suite $SUITE_NAME \
+  --output-path ./benchmark_output
 ```
 
-#### 6. Summarize results
+#### 6. Recreate the leaderboard
 
 ```bash
-helm-summarize --auto-generate-schema --suite $SUITE_NAME
+helm-summarize \
+  --auto-generate-schema \
+  --suite $SUITE_NAME \
+  --output-path ./benchmark_output
 ```
 
 ---
@@ -688,7 +722,9 @@ helm-summarize --auto-generate-schema --suite $SUITE_NAME
 #### 7. Launch the leaderboard
 
 ```bash
-helm-server --suite $SUITE_NAME
+helm-server \
+  --suite $SUITE_NAME \
+  --output-path ./benchmark_output
 ```
 
 #### Key Differences from the Exact Match Demo
