@@ -139,8 +139,6 @@ MedHELM evaluates models across a clinician‑validated taxonomy: **5 categories
 
 ## Installation
 
-**Prerequisites:** Python 3.10, and the ability to create a virtual environment via [conda](https://www.anaconda.com/docs/getting-started/getting-started).
-
 #### 1. Create a virtual environment (Python 3.10 recommended)
 
 Run the following commands to create and activate a new python virtual environment:
@@ -233,9 +231,6 @@ You can interact with MedHELM results by **viewing** pre‑computed results loca
 
 ### View the official leaderboard locally
 
-> **Prerequisite:** Complete Steps 1 and 2 of the installation process from the [Installation](#installation) section.
-
-
 #### 1. Download raw results
    
 Follow the instructions under [Downloading Raw Results](downloading_raw_results.md) up until the *Download a whole project* section to download the MedHELM leaderboard. Make sure to specify the GCS path corresponding to **MedHELM** when downloading the results.
@@ -250,8 +245,6 @@ helm-server --release v2.0.0
 ```
 
 ### Reproduce leaderboard results
-
-> **Prerequisite:** Complete the whole installation process from the [Installation](#installation) section.
 
 * **Public benchmarks:** Anyone can reproduce the **public subset** using entries in `run_entries_medhelm_public.conf`.
 * **Gated benchmarks:** Require credentials/approval (e.g., EHRSHOT); entries live in `run_entries_medhelm_gated.conf`.
