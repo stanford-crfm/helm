@@ -58,20 +58,38 @@ pip install "crfm-helm[summarization,medhelm]"
 #### 2. Run a tiny evaluation
 
 ```bash
+# Set variables
+RUN_ENTRIES="medcalc_bench:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct"
+SUITE="my-medhelm-suite"
+MAX_EVAL_INSTANCES=10
+OUTPUT_PATH="./benchmark_output"
+
+# Run evaluation
 helm-run \
-  --run-entries medcalc_bench:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct \
-  --suite my-medhelm-suite \
-  --max-eval-instances 10 \
-  --output-path ./benchmark_output
+   --run-entries $RUN_ENTRIES \
+   --suite $SUITE \
+   --max-eval-instances $MAX_EVAL_INSTANCES \
+   --output-path $OUTPUT_PATH
 ```
 
 #### 3. Build and open the local leaderboard
 
 ```bash
-curl -L -o schema_medhelm.yaml \
-  https://raw.githubusercontent.com/stanford-crfm/helm/main/src/helm/benchmark/static/schema_medhelm.yaml
-helm-summarize --suite my-medhelm-suite --schema schema_medhelm.yaml
-helm-server --suite my-medhelm-suite
+SCHEMA="schema_medhelm.yaml"
+
+curl -L -o $SCHEMA \
+   https://raw.githubusercontent.com/stanford-crfm/helm/main/src/helm/benchmark/static/schema_medhelm.yaml
+
+# Create the leaderboard
+helm-summarize \
+  --suite $SUITE \
+  --schema $SCHEMA \
+  --output-path $OUTPUT_PATH
+
+# Load the leaderboard
+helm-server \
+  --suite $SUITE \
+  --output-path $OUTPUT_PATH
 ```
 
 **Expected outcome:**
@@ -170,11 +188,18 @@ The example below evaluates **Qwen2.5‑7B‑Instruct** on the **MedCalc‑Bench
 The following command runs **MedCalc-Bench** on **Qwen2.5‑7B‑Instruct** for 10 instances and stores the results under `./benchmark_output/runs/my-medhelm-suite`. 
 
 ```bash
+# Set variables
+RUN_ENTRIES="medcalc_bench:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct"
+SUITE="my-medhelm-suite"
+MAX_EVAL_INSTANCES=10
+OUTPUT_PATH="./benchmark_output"
+
+# Run evaluation
 helm-run \
-   --run-entries medcalc_bench:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct \
-   --suite my-medhelm-suite \
-   --max-eval-instances 10 \
-   --output-path ./benchmark_output
+   --run-entries $RUN_ENTRIES \
+   --suite $SUITE \
+   --max-eval-instances $MAX_EVAL_INSTANCES \
+   --output-path $OUTPUT_PATH
 ```
 
 *Flags explained:*
@@ -192,12 +217,14 @@ If the directory does not exist, it will be created automatically.
 The following commands convert the results from step 1 into an interactive leaderboard.
 
 ```bash
-curl -L -o schema_medhelm.yaml \
+SCHEMA="schema_medhelm.yaml"
+
+curl -L -o $SCHEMA \
    https://raw.githubusercontent.com/stanford-crfm/helm/main/src/helm/benchmark/static/schema_medhelm.yaml
 helm-summarize \
-  --suite my-medhelm-suite \
-  --schema ./schema_medhelm.yaml \
-  --output-path ./benchmark_output
+  --suite $SUITE \
+  --schema $SCHEMA \
+  --output-path $OUTPUT_PATH
 ```
 
 *Flags explained:*
@@ -213,8 +240,8 @@ This command runs the leaderboard on a local server. The exact address and port 
 
 ```bash
 helm-server \
-  --suite my-medhelm-suite \
-  --output-path ./benchmark_output
+  --suite $SUITE \
+  --output-path $OUTPUT_PATH
 ```
 
 *Flags explained:*
