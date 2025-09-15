@@ -20,7 +20,7 @@ MedHELM extends the HELM framework to evaluate **large language models (LLMs) in
 
     Required for downloading MedHELM results stored on Google Cloud.
 
-    **Note:** During installation, the installer will recommend Python 3.12 for full feature support. These features are not needed for MedHELM. We recommend Python 3.10 for best compatibility.
+    **Note:** During installation, the installer will recommend Python 3.12 for full feature support. These features are not needed for MedHELM. We recommend using Python 3.10 for best compatibilitywith MedHELM.
 
 3. GPU Access
 
