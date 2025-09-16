@@ -282,17 +282,38 @@ You can interact with MedHELM results by **viewing** pre‑computed results loca
 
 ### View the official leaderboard locally
 
-#### 1. Download raw results
-   
-Follow the instructions under [Downloading Raw Results](downloading_raw_results.md) up until the *Download a whole project* section to download the MedHELM leaderboard. Make sure to specify the GCS path corresponding to **MedHELM** when downloading the results.
+#### 1. Create a local directory to store leaderboard results
 
-#### 2. Launch the local leaderboard
+Run the following commands to create the local directory where leaderboard results will be stored. Adjust the directory path as needed.
+
+```bash
+export LOCAL_BENCHMARK_OUTPUT_PATH=./benchmark_output
+mkdir $LOCAL_BENCHMARK_OUTPUT_PATH
+```
+
+#### 2. Download leaderboard results
+
+Run the following commands to download the leaderboard results to the `LOCAL_BENCHMARK_OUTPUT_PATH` created in the previous step.
+
+```bash
+# Set the GCS path to the MedHELM results
+export GCS_BENCHMARK_OUTPUT_PATH=gs://crfm-helm-public/medhelm/benchmark_output
+
+# (Optional): Check the leaderboard results size before downloading
+# gcloud storage du -sr $GCS_BENCHMARK_OUTPUT_PATH
+
+# Download the results
+gcloud storage rsync -r $GCS_BENCHMARK_OUTPUT_PATH $LOCAL_BENCHMARK_OUTPUT_PATH
+```
+
+
+#### 3. Launch the local leaderboard
    
 Run the following command to launch the MedHELM leaderboard locally. Use the numbered `release` version you want to display. Check out all release versions on the upper right corner of the official [leaderboard website](https://crfm.stanford.edu/helm/medhelm/latest).
 
 ```bash
 # Sample command to launch the MedHELM leaderboard version 2.0.0.
-helm-server --release v2.0.0
+helm-server --release v2.0.0 --output-path $LOCAL_BENCHMARK_OUTPUT_PATH
 ```
 
 ### Reproduce leaderboard results
