@@ -3,8 +3,9 @@ import os
 import random
 from typing import List, Dict
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
-from helm.benchmark.scenarios.scenario import Scenario, Instance, TEST_SPLIT, Input
+from helm.benchmark.scenarios.scenario import Scenario, Instance, TEST_SPLIT, Input, ScenarioMetadata
 
 
 DATA_REPO_HASH = "38972f6ccbf376a8d0660babafb4d2b3b9cca3f4"
@@ -76,3 +77,14 @@ class DecodingTrustToxicityPromptsScenario(Scenario):
         random.shuffle(instances)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="decodingtrust_toxicity_prompts",
+            display_name="DecodingTrust - Toxicity",
+            short_display_name="Toxicity",
+            description="Evaluation of the privacy understanding and privacy preserving properties of " "LLMs",
+            taxonomy=TaxonomyInfo(task="?", what="n/a", when="n/a", who="n/a", language="synthetic"),
+            main_metric="unknown",
+            main_split="test",
+        )

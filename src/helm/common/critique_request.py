@@ -6,7 +6,6 @@ from helm.common.media_object import MediaObject
 class QuestionType:
     """String enum of question types."""
 
-    # TODO: Make this a StrEnum after upgrading to Python 3.11
     MULTIPLE_CHOICE: str = "multiple_choice"
     CHECKBOX: str = "checkbox"
     FREE_RESPONSE: str = "free_response"

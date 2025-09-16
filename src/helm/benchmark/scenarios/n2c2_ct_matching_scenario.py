@@ -4,6 +4,7 @@ import re
 from typing import Any, Dict, List, Tuple, Optional
 import xml.etree.ElementTree as ET
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
@@ -14,6 +15,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Reference,
     Output,
+    ScenarioMetadata,
 )
 
 ORIGINAL_DEFINITIONS = {
@@ -188,8 +190,13 @@ class N2C2CTMatchingScenario(Scenario):
     """
 
     name = "n2c2_ct_matching"
-    description = "A dataset that provides clinical notes and asks the model to classify whether the \
-    patient is a valid candidate for a provided clinical trial."
+    description = (
+        "N2C2-CT is a benchmark designed to evaluate a model's ability to match patients to"
+        "appropriate clinical trials based on eligibility criteria. Each example includes a clinical"
+        "note and a trial description. The model is tasked with determining whether the patient"
+        "is a valid candidate for the trial. This benchmark supports automation and decision"
+        "support in clinical research enrollment."
+    )
     tags = []  # TODO
 
     POSSIBLE_ANSWER_CHOICES: List[str] = [
@@ -270,3 +277,21 @@ class N2C2CTMatchingScenario(Scenario):
                     )
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="n2c2_ct_matching",
+            display_name="N2C2-CT Matching",
+            short_display_name="N2C2-CT",
+            description="A dataset that provides clinical notes and asks the model to classify whether "
+            "the patient is a valid candidate for a provided clinical trial.",
+            taxonomy=TaxonomyInfo(
+                task="Classification",
+                what="Classify whether a patient is a valid candidate for a clinical " "trial based on clinical notes",
+                when="Pre-Trial",
+                who="Researcher",
+                language="English",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )

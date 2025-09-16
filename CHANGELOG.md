@@ -2,11 +2,227 @@
 
 ## [Upcoming]
 
+## [v0.5.8] - 2025-08-29
+
+### Models
+
+- Add GLM-4.5-AIR-FP8 model (#3785)
+- Add Qwen3 235B A22B Instruct 2507 FP8 (#3788)
+- Add Gemini 2.5 Flash-Lite GA (#3776)
+- Add gpt-oss (#3789, #3794)
+- Add GPT-5 (#3793, #3797)
+- Handle safety and usage guidelines errors from Grok API (#3770)
+- Handle Gemini responses with max tokens reached during thinking (#3804)
+- Add OpenRouterClient (#3811)
+
+### Scenarios
+
+- Fix instructions and prompt formatting for InfiniteBench En.MC (#3790)
+- Add MedQA and MedMCQA to MedHELM (#3781)
+- Add or modify Arabic language scenarios:
+    - ALRAGE (#3806, #3721, #3831, #3831)
+    - MadinahQA (#3806, #3800, #3817)
+    - ArabicMMLU (#3806, #3817, #3838)
+    - AraTrust (#3806, #3819)
+    - Arabic EXAMS (#3806, #3818, #3825)
+    - AlGhafa (#3806, #3821)
+    - MBZUAI Human-Translated Arabic MMLU (#3822)
+- Add run expander for Arabic language instructions for Arabic MCQA scenarios (#3833)
+- Allow configuration of LLM-as-a-judge models in MedHELM scenarios (#3812)
+- Add user-configurable MedHELM scenario (#3844)
+
+### Frontend
+
+- Display Arabic text in RTL direction in frontend (#3807)
+- Fix regular expression query handling in run predictions (#3826)
+- Fix invalid sort column index error in leaderboard (#3845)
+
+### Framework
+
+- Migrate to pyproject.toml (#3767)
+- Various fixes for proxy server (#3801, #3802, #3803)
+- Raise error if helm-summarize is given a non-existent suite (#3805)
+- Allow setting reference prefix characters (#3809)
+- Auto-generate schema in helm-summarize if `--auto-generate-schema` is specified (#3813, #3814, #3828, #3839, #3842, #3848, #3850)
+- Omit empty tables for metric groups in helm-summarize (#3851)
+- Add `get_metadata()` method for many scenarios and metrics (#3815, #3829, #3832, #3834, #3841, #3843, #3849, #3840, #3830)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @chakravarthik27
+- @Erotemic
+- @MiguelAFH
+- @patelfagun1998
+- @yifanmai
+
+## [v0.5.7] - 2025-07-31
+
+### Breaking Changes
+
+- In v0.5.6, `HuggingFaceClient` would call `apply_chat_template` with `add_generation_prompt()` unspecified, which caused it to default to `False`. In v0.5.7, `HuggingFaceClient` now calls `add_generation_prompt()` with `apply_chat_template=True`. (#3703)
+- Previously, in the `model_deployments.yaml` configuration files, when determining the default model deployment for a model, the first model deployment in the file would be preferred, and model deployments in the package would be preferred over those in `prod_env/`. Now, the last model deployment in the file will be preferred, and model deployments in `prod_env` will be preferred over those in the package. (#3694)
+
+### Models
+
+- Add o3-pro (#3671)
+- Allow passing initialization kwargs to VLLMClient and OpenAIClient (#3690)
+- Add support for Granite thinking on vLLM (#3692)
+- Add some Brazilian models (#3686)
+- Always set `add_generation_prompt` to `True` in `apply_chat_template` in `HuggingFaceClient` (#3703)
+- Add support for chat models on vLLM (#3729)
+- Add Kimi K2 (#3758)
+- Add Grok 4 (#3759)
+
+### Scenarios
+
+- Add LMKT (Language model cultural alignment transfer) (#3682)
+- Modify SLPHelm (#3679)
+- Add InfiniteBench En.MC (#3687)
+- Add MMMLU (#3699)
+- Add Arabic MMLU, AlGhafa (#3700)
+- Add AlGhafa (#3706)
+- Add EXAMS (#3714)
+- Add AraTrust (#3715)
+- Add HEALTHQA-BR (#3711)
+- Add BLEUX (#3711)
+- Remove numeracy scenario (#3733)
+- Fixes to HEIM (#3765)
+
+### Framework
+
+- Improvements to logging (#3683, #3696, #3744)
+- Change logic for default model deployments (#3694)
+- Loosen various dependency version specifiers (#3725, #3726)
+- Add short_description field to RunGroup in schema (#3755)
+- Add support for configuring the number of retries using environment variables (#3766)
+
+### Frontend
+
+- Show run group name and description from schema on run page (#3753)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @Erotemic
+- @Gum-Joe
+- @IriedsonSouto
+- @Kazf28
+- @ledong0110
+- @lucas-s-p
+- @martinakaduc
+- @MiguelAFH
+- @RonalddMatias
+- @samirunni
+- @sangttruong
+- @sashimono-san
+- @yifanmai
+
+## [v0.5.6] - 2025-06-20
+
+### Breaking Changes
+
+- Previously, HuggingFaceClient did not apply the chat template for chat models. `HuggingFaceClient` will now automatically apply the chat template if the tokenizer contains one. This may result in incorrect behavior for some non-chat models that have tokenizers with chat templates e.g. Qwen2, Qwen 2.5. For these models, the default behavior can be overridden by explicitly setting `apply_chat_template` in `args`. (#3678)
+
+### Models
+
+- Fixed bug regarding `reasoning_effort` not being set correct for OpenAI models (#3501)
+- Add Llama 4 Scout and Maverick on Together AI (#3504)
+- Add Qwen2.5 Omni 7B (#3505, #3530)
+- Add Grok 3 models (#3518, #3529, #3534)
+- Add GPT-4.1 models (#3527, #3528)
+- Add Gemini 2.5 models (#3538, #3614)
+- Add OpenAI o3 and o4 series models (#3539, #3617)
+- Adjust max_tokens restriction for Anthropic models (#3555)
+- Add Vietnamese LLMs (#3563)
+- Add Qwen3 235B on Together (#3579)
+- Add Palmyra X5 (#3580)
+- Add COREBench v0 audio scenario (#3567, #3610)
+- Add Anthropic Claude 4 models (#3607)
+- Add extended thinking to Claude 3.7 and Claude 4 (#3622)
+- Support streaming in Anthropic client (#3624)
+- Added support for reasoning content (#3632, #3650)
+- Add DeepSeek-R1-0528 on Together AI (#3636)
+- Add Amazon Nova Premier model (#3656)
+- Add Marin 8B Instruct (#3658, #3666)
+- Add HuggingFacePipelineClient (#3665)
+- Add SmolLM2 (#3665, #3668)
+- Add OLMo 2 and OLMoE models (#3667, #3676)
+- Add Granite 3.3 8B Instruct (#3675)
+- Add Mistral Medium 3 (#3674)
+- Add Gemini 2.5 Flash-Lite (#3677)
+- Apply chat template in HuggingFaceClient and make chat template usage configurable (#3678)
+- Add support for OpenAI Responses API (#3652)
+
+### Scenarios
+
+- Improvements to VHELM (#3500)
+- Improvements to audio scenarios (#3500, #3523,)
+- Improvements to MedHELM scnearios (#3507, #3499, #3506, #3496, #3509, #3503, #3522, #3508, #3540, #3535, #3548, #3545, #3560, #3565, #3557, #3566, #3577, #3625, #3631)
+- Add Vietnamese language scenarios (#3464, #3511, #3594, #3536, #3556, #3551, #3611, #3634)
+- Add KPI Edgar scneario (#3495)
+- Add run entries with additional instructions for MMLU-Winogrande-Afr (#3497)
+- Add run entries for reasoning models (#3541, #3544)
+- Fix bug with AIR-Bench handling of empty responses (#3543)
+- Fix bug regarding the MMLU-Pro computer science subject (#3547)
+- Add InfiniteBench En.QA (#3588)
+- Add speech pathology scenarios (#3553, #3558)
+- Bugfix for Image2Struct: EMS metric fails when the inputs are identical homogenous images files (#3576)
+- Fix download URL for TruthfulQA CSV file (#3601)
+- Use Python logging library in hlog (#3598, #3606)
+- Add OpenAI-MRCR scenario (#3653)
+- Rename InfiniteBench Sum to InfiniteBench En.Sum (#3657)
+- Change metrics for long context scenarios (#3659)
+
+### Framework
+
+- Avoid accessing SQLite accounts file in helm-run (#3573)
+- Support video understanding (#3578)
+- Use Python logging library (#3598)
+
+### Frontend
+
+- Support displaying nested objects in annotations (#3513)
+- Add displaying nested objects in annotations (#3512)
+- Fix mobile menu z-index (#3514)
+- Change favicon URL (#3597)
+- Set MIME type for config.js in server (#3605)
+- Fixes pagination of metrics displayed on the front-end (#3646)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @asillycat
+- @aunell
+- @chiheem
+- @Erotemic
+- @Gum-Joe
+- @haoqiu1
+- @HennyJie
+- @ImKeTT
+- @jmbanda
+- @Joey-Ji
+- @lucas-s-p
+- @martinakaduc
+- @MiguelAFH
+- @mtake
+- @patelfagun1998
+- @raulista1997
+- @ryokawajp
+- @sangttruong
+- @suhana13
+- @tcz
+- @teetone
+- @yifanmai
+
 ## [v0.5.5] - 2025-04-04
 
 ### Breaking Changes
 
--  Optimum Intel OpenVINO is no longer supported (#3153)
+- Optimum Intel OpenVINO is no longer supported (#3153)
 
 ### Scenarios
 
@@ -921,7 +1137,10 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.5...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.8...HEAD
+[v0.5.8]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.8
+[v0.5.7]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.7
+[v0.5.6]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.6
 [v0.5.5]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.5
 [v0.5.4]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.4
 [v0.5.3]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.3

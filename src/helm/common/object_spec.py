@@ -55,14 +55,23 @@ def inject_object_spec_args(
     This is loosely based on instance (constant) bindings and provider bindings in Guice dependency injection.
 
     Example:
-
-    class MyClass:
-        def __init__(a: int, b: int, c: int, d: int = 0):
-            pass
-
-    old_object_spec = ObjectSpec(class_name="MyClass", args={"a": 11})
-    new_object_spec = inject_object_spec_args(old_object_spec, {"b": 12}, {"c": lambda: 13})
-    # new_object_spec is now ObjectSpec(class_name="MyClass", args={"a": 11, "b": 12, "c": 13})
+        >>> from helm.common.object_spec import *  # NOQA
+        >>> import sys, types
+        >>> # Given a custom class with hashable arguments
+        >>> class MyClass:
+        ...     def __init__(a: int, b: int, c: int, d: int = 0):
+        ...         pass
+        >>> #
+        >>> # <boilerplate>: make a dummy module for MyClass to make this doctest exectuable
+        >>> sys.modules["my_module"] = type("MyModule", (types.ModuleType,), {"MyClass": MyClass})("my_module")
+        >>> # </boilerplate>
+        >>> #
+        >>> # Define new style and old style object specs
+        >>> old_object_spec = ObjectSpec(class_name="my_module.MyClass", args={"a": 11})
+        >>> new_object_spec = inject_object_spec_args(old_object_spec, {"b": 12}, {"c": lambda: 13})
+        >>> # new_object_spec is now
+        >>> print(new_object_spec)
+        ObjectSpec(class_name='my_module.MyClass', args={'a': 11, 'b': 12, 'c': 13})
     """
     cls = get_class_by_name(spec.class_name)
     init_signature = inspect.signature(cls.__init__)
@@ -93,6 +102,12 @@ def parse_object_spec(description: str) -> ObjectSpec:
         <class_name>:<key>=<value>,<key>=<value>
     Usually, the description is something that's succinct and can be typed on the command-line.
     Here, value defaults to string.
+
+    Example:
+        >>> from helm.common.object_spec import *  # NOQA
+        >>> description = 'mscoco:model=huggingface_stable-diffusion-v1-4'
+        >>> parse_object_spec(description)
+        ObjectSpec(class_name='mscoco', args={'model': 'huggingface_stable-diffusion-v1-4'})
     """
 
     def parse_arg(arg: str) -> Tuple[str, Any]:

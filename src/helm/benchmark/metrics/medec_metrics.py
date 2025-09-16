@@ -1,12 +1,13 @@
 from typing import List
+import re
+
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 from helm.common.hierarchical_logger import hlog
-import re
 from helm.benchmark.scenarios.scenario import CORRECT_TAG
 
 
@@ -98,4 +99,26 @@ class MedecMetric(Metric):
         return [
             Stat(MetricName("medec_error_flag_accuracy")).add(flag_accuracy),
             Stat(MetricName("medec_error_sentence_accuracy")).add(sentence_accuracy),
+        ]
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="medec_error_flag_accuracy",
+                display_name="Medical Error Flag Accuracy",
+                short_display_name="MedecFlagAcc",
+                description="Measures how accurately the model identifies whether a clinical note contains an error "
+                "(binary classification of correct/incorrect).",
+                lower_is_better=False,
+                group=None,
+            ),
+            MetricMetadata(
+                name="medec_error_sentence_accuracy",
+                display_name="Medical Error Sentence Accuracy",
+                short_display_name="MedecSentenceAcc",
+                description="Measures how accurately the model identifies the specific erroneous sentence within a "
+                "clinical note.",
+                lower_is_better=False,
+                group=None,
+            ),
         ]

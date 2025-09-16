@@ -19,7 +19,7 @@ from helm.common.general import ensure_directory_exists, ensure_file_downloaded
 
 
 class MUStARDScenario(Scenario):
-    """
+    r"""
     MUStARD: Multimodal Sarcasm Detection Dataset
 
     A multimodal video corpus for research in automated sarcasm discovery. The dataset is compiled from popular

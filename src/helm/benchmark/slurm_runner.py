@@ -26,7 +26,7 @@ from helm.benchmark.slurm_jobs import (
     FAILURE_SLURM_JOB_STATES,
 )
 from helm.common.general import ensure_directory_exists
-from helm.common.hierarchical_logger import hlog, htrack_block
+from helm.common.hierarchical_logger import hlog, htrack_block, setup_default_logging
 
 from helm.benchmark.runner_config_registry import RUNNER_CONFIG
 
@@ -343,7 +343,14 @@ def main():
         help="Path to the RunSpec JSON file",
         required=True,
     )
+    parser.add_argument(
+        "--log-config",
+        type=str,
+        default=None,
+        help="PATH to a YAML file to customize logging",
+    )
     args = parser.parse_args()
+    setup_default_logging(args.log_config)
 
     # Deserialize SlurmRunner and RunSpec from the given files, then run the RunSpec with the SlurmRunner.
     with open(args.slurm_runner_spec_path, "r") as f:

@@ -24,6 +24,7 @@ import LongContextLanding from "@/components/Landing/LongContextLanding";
 import SQLLanding from "@/components/Landing/SQLLanding";
 import ViLLMLanding from "@/components/Landing/ViLLMLanding";
 import SLPHelmLanding from "@/components/Landing/SLPHelmLanding";
+import AudioLanding from "@/components/Landing/AudioLanding";
 
 export default function Home() {
   // TODO consider a more streamlined way to do this?
@@ -77,6 +78,8 @@ export default function Home() {
     return <ViLLMLanding />;
   } else if (window.PROJECT_ID === "slphelm") {
     return <SLPHelmLanding />;
+  } else if (window.PROJECT_ID === "audio") {
+    return <AudioLanding />;
   } else if (window.PROJECT_ID === "home") {
     return <HomeLanding />;
   } else {

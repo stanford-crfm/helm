@@ -62,19 +62,15 @@ class Qwen2_5OmniVisionEncoderConfig(PretrainedConfig):
             The size used for patches along the temporal dimension.
 
     Example:
-
-    ```python
-    >>> from transformers import Qwen2_5OmniVisionEncoderConfig, Qwen2_5OmniVisionEncoder
-
-    >>> # Initializing a Qwen2_5OmniVisionEncoderConfig
-    >>> configuration = Qwen2_5OmniVisionEncoderConfig()
-
-    >>> # Initializing a Qwen2_5OmniVisionEncoder (with random weights)
-    >>> model = Qwen2_5OmniVisionEncoder(configuration)
-
-    >>> # Accessing the model configuration
-    >>> configuration = model.config
-    ```"""
+        >>> # xdoctest: +SKIP
+        >>> from transformers import Qwen2_5OmniVisionEncoderConfig, Qwen2_5OmniVisionEncoder
+        >>> # Initializing a Qwen2_5OmniVisionEncoderConfig
+        >>> configuration = Qwen2_5OmniVisionEncoderConfig()
+        >>> # Initializing a Qwen2_5OmniVisionEncoder (with random weights)
+        >>> model = Qwen2_5OmniVisionEncoder(configuration)
+        >>> # Accessing the model configuration
+        >>> configuration = model.config
+    """
 
     model_type = "qwen2_5_omni_vision_encoder"
     base_config_key = "vision_config"

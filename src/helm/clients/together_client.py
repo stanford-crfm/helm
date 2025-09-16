@@ -25,8 +25,6 @@ except ModuleNotFoundError as e:
 class _RewriteRequestTags:
     """Tags that indicate that the request for the model must be rewritten before sending to Together."""
 
-    # TODO: Convert to StrEnum after upgrading to Python 3.11
-
     ADD_EOS_TOKEN_AS_STOP_SEQUENCE = "ADD_EOS_TOKEN_AS_STOP_SEQUENCE"
     """Indicates that the EOS token should be added as an extra stop sequence.
 
@@ -101,17 +99,55 @@ class JobNotFinishedError(TogetherClientError):
     pass
 
 
-def _parse_thinking(input: str) -> Tuple[str, str]:
+def _parse_thinking_deepseek_r1(input: str) -> Tuple[str, str]:
     """Return a tuple of thinking text and output text."""
     match = re.match(r"<think>\n(.*)\n</think>\n{0,2}(.*)", input, re.DOTALL)
     if match:
         return (match.group(1), match.group(2))
 
-    match = re.match(r"<think>\n?(.*)", input)
+    match = re.match(r"<think>\n?(.*)", input, re.DOTALL)
     if match:
         return (match.group(1), "")
 
     return (input, "")
+
+
+def _parse_thinking_qwen3(input: str) -> Tuple[str, str]:
+    """Return a tuple of thinking text and output text."""
+    match = re.match(r"<think>\n(.*)\n</think>\n{0,2}(.*)", input, re.DOTALL)
+    if match:
+        return (match.group(1), match.group(2))
+
+    match = re.match(r"<think>\n?(.*)", input, re.DOTALL)
+    if match:
+        return (match.group(1), "")
+
+    return (input, "")
+
+
+def _parse_thinking_glm_4_5(input: str) -> Tuple[str, str]:
+    """Return a tuple of thinking text and output text."""
+    match = re.match(r"\n<think>(.*)</think>(.*)", input, re.DOTALL)
+    if match:
+        return (match.group(1), match.group(2))
+
+    match = re.match(r"\n<think>(.*)", input, re.DOTALL)
+    if match:
+        return (match.group(1), "")
+
+    return (input, "")
+
+
+def _parse_thinking(input: str, model_name: str) -> Tuple[str, str]:
+    # TODO: Come up with a more sustainable extensible way of doing this.
+    if "deepseek-r1" in model_name:
+        return _parse_thinking_deepseek_r1(input)
+    elif "qwen3" in model_name:
+        return _parse_thinking_qwen3(input)
+    elif "glm-4.5" in model_name:
+        return _parse_thinking_glm_4_5(input)
+    else:
+        raise Exception(f"No thinking parser available for model {model_name}")
 
 
 class TogetherClient(CachingClient):
@@ -348,9 +384,8 @@ class TogetherChatClient(CachingClient):
         self._client = Together(api_key=api_key)
         self._together_model = together_model
         self._disable_logprobs = bool(disable_logprobs)
-        # self.output_processor is actually a function, not a class
         self._parse_thinking = bool(parse_thinking)
-
+        # self.output_processor is actually a function, not a class
         self.output_processor: Optional[Callable[[str], str]] = (
             get_class_by_name(output_processor) if output_processor else None
         )
@@ -446,15 +481,15 @@ class TogetherChatClient(CachingClient):
             if self.output_processor:
                 output_text = self.output_processor(output_text)
 
+            thinking: Optional[Thinking] = None
             if self._parse_thinking:
-                thinking_text, output_text = _parse_thinking(output_text)
-                generated_outputs.append(
-                    GeneratedOutput(
-                        text=output_text, logprob=logprob, tokens=tokens, thinking=Thinking(text=thinking_text)
-                    )
-                )
-            else:
-                generated_outputs.append(GeneratedOutput(text=output_text, logprob=logprob, tokens=tokens))
+                thinking_text, output_text = _parse_thinking(output_text, request.model)
+                thinking = Thinking(text=thinking_text)
+            elif hasattr(choice.message, "reasoning_content"):
+                thinking = Thinking(text=choice.message.reasoning_content)
+            generated_outputs.append(
+                GeneratedOutput(text=output_text, logprob=logprob, tokens=tokens, thinking=thinking)
+            )
         return RequestResult(
             success=True,
             cached=cached,

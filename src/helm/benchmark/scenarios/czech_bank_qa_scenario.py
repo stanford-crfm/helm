@@ -2,6 +2,7 @@ import datasets
 import os
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Scenario,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.general import ensure_directory_exists
 
@@ -128,3 +130,19 @@ CREATE TABLE "trans" (
             instance = Instance(input=input, references=references, split=TEST_SPLIT)
             instances.append(instance)
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="czech_bank_qa",
+            display_name="CzechBankQA",
+            description="The CzechBankQA",
+            taxonomy=TaxonomyInfo(
+                task="text-to-SQL",
+                what="queries from financial experts",
+                when="1999",
+                who="financial experts",
+                language="English",
+            ),
+            main_metric="error_rate",
+            main_split="test",
+        )

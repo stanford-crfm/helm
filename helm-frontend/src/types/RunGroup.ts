@@ -19,4 +19,5 @@ export default interface RunGroup {
   category?: string;
   subgroups?: string[];
   visibility?: string;
+  short_description?: string;
 }

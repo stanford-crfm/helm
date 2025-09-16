@@ -11,12 +11,12 @@ and follows provided instructions in terms of accuracy, structure, and clarity.
 
 The user's request will be provided in these tags:
 <user_request>
-{{QUESTION}}
+{QUESTION}
 </user_request>
 
 The response will be provided in these tags:
 <response>
-{{RESPONSE}}
+{RESPONSE}
 </response>
 
 Carefully analyze the <response>.
@@ -63,31 +63,20 @@ ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
     "clarity": {"score", "explanation"},
 }
 
-ANNOTATOR_MODELS: Dict[str, AnnotatorModelInfo] = {
-    "gpt": AnnotatorModelInfo(
-        model_name="openai/gpt-4o-2024-05-13",
-        model_deployment="stanfordhealthcare/gpt-4o-2024-05-13",
-    ),
-    "llama": AnnotatorModelInfo(
-        model_name="meta/llama-3.3-70b-instruct",
-        model_deployment="stanfordhealthcare/llama-3.3-70b-instruct",
-    ),
-    "claude": AnnotatorModelInfo(
-        model_name="anthropic/claude-3-7-sonnet-20250219",
-        model_deployment="stanfordhealthcare/claude-3-7-sonnet-20250219",
-    ),
-}
-
 
 class CHWCarePlanAnnotator(LLMAsJuryAnnotator):
     """The CHWCarePlan autograder."""
 
-    name = "chw_care_plan"
-
-    def __init__(self, auto_client: AutoClient, template_name: Optional[str] = None):
+    def __init__(
+        self,
+        auto_client: AutoClient,
+        annotator_models: Dict[str, AnnotatorModelInfo],
+        template_name: Optional[str] = None,
+    ):
         super().__init__(
+            name="chw_care_plan",
             auto_client=auto_client,
             prompt_template=PROMPT_TEMPLATE,
             annotation_criteria=ANNOTATION_CRITERIA,
-            annotator_models=ANNOTATOR_MODELS,
+            annotator_models=annotator_models,
         )

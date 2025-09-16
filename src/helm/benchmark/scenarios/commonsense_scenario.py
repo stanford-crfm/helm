@@ -2,6 +2,7 @@ import json
 import os
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.scenarios.scenario import (
@@ -14,6 +15,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -72,6 +74,19 @@ class HellaSwagScenario(Scenario):
         assert len(answers) == 4
         return _make_instance(question=question, answers=answers, correct_answer=correct_answer, split=split)
 
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="hellaswag",
+            display_name="HellaSwag",
+            description="The HellaSwag benchmark for commonsense reasoning in question answering "
+            "[(Zellers et al., 2019)](https://aclanthology.org/P19-1472/).",
+            taxonomy=TaxonomyInfo(
+                task="question answering", what="commonsense reasoning", when="?", who="?", language="English"
+            ),
+            main_metric="exact_match",
+            main_split="valid",
+        )
+
 
 class OpenBookQA(Scenario):
     name = "openbookqa"
@@ -112,6 +127,23 @@ class OpenBookQA(Scenario):
         assert len(answers) == 4
         assert item["question"]["choices"][correct_choice]["label"] == item["answerKey"]
         return _make_instance(question=question, answers=answers, correct_answer=correct_answer, split=split)
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="openbookqa",
+            display_name="OpenbookQA",
+            description="The OpenbookQA benchmark for commonsense-intensive open book question "
+            "answering [(Mihaylov et al., 2018)](https://aclanthology.org/D18-1260/).",
+            taxonomy=TaxonomyInfo(
+                task="multiple-choice question answering",
+                what="elementary science",
+                when="2018",
+                who="Amazon Mechnical Turk workers",
+                language="English",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )
 
 
 class CommonSenseQAScenario(Scenario):

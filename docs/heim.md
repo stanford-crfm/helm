@@ -66,3 +66,7 @@ helm-run --run-entries mscoco:model=huggingface/stable-diffusion-v1-4 --suite my
 ## Reproducing the Leaderboard
 
 To reproduce the [entire HEIM leaderboard](https://crfm.stanford.edu/helm/heim/latest/), refer to the instructions for HEIM on the [Reproducing Leaderboards](reproducing_leaderboards.md) documentation.
+
+### Note:
+
+The full HEIM leaderboard is not currently reproducible with these instructions. We are working to resolve this. In the meantime we have disabled the NSFWMetric to allow for the rest of the evaluation suite to run.

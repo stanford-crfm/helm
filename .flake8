@@ -1,0 +1,20 @@
+# .flake8
+
+[flake8]
+max-line-length = 120
+exclude =
+    venv/*
+    src/helm/clients/image_generation/dalle_mini/*
+    src/helm/clients/image_generation/mindalle/*
+    src/helm/clients/vision_language/open_flamingo/*
+    src/helm/clients/audio_language/llama_omni/*
+    src/helm/clients/audio_language/qwen_omni/*
+
+# Ignore completely:
+# E203 - whitespace before ':', conflicts with Black
+# E231 - missing whitespace after ',', ';', or ':'
+# E731 - do not assign a lambda expression, use a def
+# W503 - line break before binary operator, conflicts with Black
+# W605 - invalid escape sequence '\', causes failures
+# E501 - line too long
+ignore = E203,E231,E731,W503,W605,E501

@@ -9,7 +9,7 @@ from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 class TestHuggingFaceClient:
     def test_gpt2(self):
         tokenizer = HuggingFaceTokenizer(
-            BlackHoleCacheConfig(), "huggingface/gpt2", pretrained_model_name_or_path="openai/gpt2"
+            BlackHoleCacheConfig(), "huggingface/gpt2", pretrained_model_name_or_path="openai-community/gpt2"
         )
         client = HuggingFaceClient(
             cache_config=BlackHoleCacheConfig(),
@@ -36,7 +36,7 @@ class TestHuggingFaceClient:
     @pytest.mark.skip(reason="GPT-J 6B is 22 GB and extremely slow without a GPU.")
     def test_gptj_6b(self):
         tokenizer = HuggingFaceTokenizer(
-            BlackHoleCacheConfig(), "huggingface/gpt2", pretrained_model_name_or_path="openai/gpt2"
+            BlackHoleCacheConfig(), "huggingface/gpt2", pretrained_model_name_or_path="openai-community/gpt2"
         )
         client = HuggingFaceClient(
             cache_config=BlackHoleCacheConfig(),
@@ -57,7 +57,7 @@ class TestHuggingFaceClient:
 
     def test_logprob(self):
         tokenizer = HuggingFaceTokenizer(
-            BlackHoleCacheConfig(), "huggingface/gpt2", pretrained_model_name_or_path="openai/gpt2"
+            BlackHoleCacheConfig(), "huggingface/gpt2", pretrained_model_name_or_path="openai-community/gpt2"
         )
         client = HuggingFaceClient(
             cache_config=BlackHoleCacheConfig(),
