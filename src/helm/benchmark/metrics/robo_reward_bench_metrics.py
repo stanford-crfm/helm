@@ -98,11 +98,12 @@ class RoboRewardBenchProgressPredictionMetric(Metric):
 
         if predicted_score is None:
             hlog(f"Could not extract answer for instance {instance.id}: {prediction}")
-            return []
-
-        # compute absolute error and squared error
-        abs_err = abs(predicted_score - correct_answer)
-        sq_err = (predicted_score - correct_answer) ** 2
+            abs_err = 4.0
+            sq_err = 16.0
+        else:
+            # compute absolute error and squared error
+            abs_err = abs(predicted_score - correct_answer)
+            sq_err = (predicted_score - correct_answer) ** 2
 
         return [
             Stat(MetricName("abs_error", split="test")).add(abs_err),
