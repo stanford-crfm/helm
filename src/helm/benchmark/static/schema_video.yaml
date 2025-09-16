@@ -210,43 +210,43 @@ run_groups:
     description: All scenarios across capabilities
     category: All scenarios
     subgroups:
-      - robo_reward_bench_preference_ranking
-      - robo_reward_bench_progress_prediction
-      - robo_reward_bench_discrete
+      - austin_buds_dataset_converted_externally_to_rlds
+      - austin_sirius_dataset_converted_externally_to_rlds
+      - berkeley_autolab_ur5
+      - berkeley_cable_routing
+      - berkeley_fanuc_manipulation
+      - berkeley_mvp_converted_externally_to_rlds
+      - berkeley_rpt_converted_externally_to_rlds
+      - bridge
+      - cmu_play_fusion
+      - dlr_edan_shared_control_converted_externally_to_rlds
+      - dlr_sara_grid_clamp_converted_externally_to_rlds
+      - droid_perspective
+      - droid_wrist
+      - fractal20220817_data
+      - iamlab_cmu_pickup_insert_converted_externally_to_rlds
+      - imperialcollege_sawyer_wrist_cam
+      - jaco_play
+      - kaist_nonprehensile_converted_externally_to_rlds
+      - nyu_door_opening_surprising_effectiveness
+      - nyu_rot_dataset_converted_externally_to_rlds
+      - robo_arena
+      - roboturk
+      - stanford_hydra_dataset_converted_externally_to_rlds
+      - taco_play
+      - tokyo_u_lsmo_converted_externally_to_rlds
+      - toto
+      - ucsd_kitchen_dataset_converted_externally_to_rlds
+      - ucsd_pick_and_place_dataset_converted_externally_to_rlds
+      - utaustin_mutex
+      - utokyo_pr2_opening_fridge_converted_externally_to_rlds
+      - utokyo_pr2_tabletop_manipulation_converted_externally_to_rlds
+      - utokyo_xarm_bimanual_converted_externally_to_rlds
+      - utokyo_xarm_pick_and_place_converted_externally_to_rlds
+      - viola
 
-  - name: msr_vtt
-    display_name: MST-VTT
-    description: A large-scale video benchmark for video understanding, especially the emerging task of translating video to text.
-    metric_groups:
-      - accuracy
-      - general_information
-    environment:
-      main_name: f1_score
-      main_split: test
-    taxonomy:
-      task: captioning
-      what: Real-world videos
-      who: Human experts
-      when: "2016"
-      language: English
-
-  - name: robo_reward_bench_preference_ranking
-    display_name: Robo Reward Bench
-    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
-    metric_groups:
-      - accuracy
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: judging
-      what: Real-world robot videos
-      who: Human experts
-      when: "2025"
-      language: English
-
-  - name: robo_reward_bench_progress_prediction
-    display_name: Robo Reward Bench
+  - name: austin_buds_dataset_converted_externally_to_rlds
+    display_name: Robo Reward Bench (austin_buds_dataset_converted_externally_to_rlds)
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -260,8 +260,488 @@ run_groups:
       when: "2025"
       language: English
 
-  - name: robo_reward_bench_discrete
-    display_name: Robo Reward Bench
+  - name: austin_sirius_dataset_converted_externally_to_rlds
+    display_name: Robo Reward Bench (austin_sirius_dataset_converted_externally_to_rlds)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: berkeley_autolab_ur5
+    display_name: Robo Reward Bench (berkeley_autolab_ur5)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: berkeley_cable_routing
+    display_name: Robo Reward Bench (berkeley_cable_routing)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: berkeley_fanuc_manipulation
+    display_name: Robo Reward Bench (berkeley_fanuc_manipulation)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: berkeley_mvp_converted_externally_to_rlds
+    display_name: Robo Reward Bench (berkeley_mvp_converted_externally_to_rlds)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: berkeley_rpt_converted_externally_to_rlds
+    display_name: Robo Reward Bench (berkeley_rpt_converted_externally_to_rlds)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: bridge
+    display_name: Robo Reward Bench (bridge)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: cmu_play_fusion
+    display_name: Robo Reward Bench (cmu_play_fusion)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: dlr_edan_shared_control_converted_externally_to_rlds
+    display_name: Robo Reward Bench (dlr_edan_shared_control_converted_externally_to_rlds)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: dlr_sara_grid_clamp_converted_externally_to_rlds
+    display_name: Robo Reward Bench (dlr_sara_grid_clamp_converted_externally_to_rlds)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: droid_perspective
+    display_name: Robo Reward Bench (droid_perspective)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: droid_wrist
+    display_name: Robo Reward Bench (droid_wrist)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: fractal20220817_data
+    display_name: Robo Reward Bench (fractal20220817_data)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: iamlab_cmu_pickup_insert_converted_externally_to_rlds
+    display_name: Robo Reward Bench (iamlab_cmu_pickup_insert_converted_externally_to_rlds)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: imperialcollege_sawyer_wrist_cam
+    display_name: Robo Reward Bench (imperialcollege_sawyer_wrist_cam)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: jaco_play
+    display_name: Robo Reward Bench (jaco_play)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: kaist_nonprehensile_converted_externally_to_rlds
+    display_name: Robo Reward Bench (kaist_nonprehensile_converted_externally_to_rlds)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: nyu_door_opening_surprising_effectiveness
+    display_name: Robo Reward Bench (nyu_door_opening_surprising_effectiveness)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: nyu_rot_dataset_converted_externally_to_rlds
+    display_name: Robo Reward Bench (nyu_rot_dataset_converted_externally_to_rlds)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: robo_arena
+    display_name: Robo Reward Bench (robo_arena)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: roboturk
+    display_name: Robo Reward Bench (roboturk)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: stanford_hydra_dataset_converted_externally_to_rlds
+    display_name: Robo Reward Bench (stanford_hydra_dataset_converted_externally_to_rlds)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: taco_play
+    display_name: Robo Reward Bench (taco_play)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: tokyo_u_lsmo_converted_externally_to_rlds
+    display_name: Robo Reward Bench (tokyo_u_lsmo_converted_externally_to_rlds)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: toto
+    display_name: Robo Reward Bench (toto)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: ucsd_kitchen_dataset_converted_externally_to_rlds
+    display_name: Robo Reward Bench (ucsd_kitchen_dataset_converted_externally_to_rlds)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: ucsd_pick_and_place_dataset_converted_externally_to_rlds
+    display_name: Robo Reward Bench (ucsd_pick_and_place_dataset_converted_externally_to_rlds)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: utaustin_mutex
+    display_name: Robo Reward Bench (utaustin_mutex)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: utokyo_pr2_opening_fridge_converted_externally_to_rlds
+    display_name: Robo Reward Bench (utokyo_pr2_opening_fridge_converted_externally_to_rlds)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: utokyo_pr2_tabletop_manipulation_converted_externally_to_rlds
+    display_name: Robo Reward Bench (utokyo_pr2_tabletop_manipulation_converted_externally_to_rlds)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: utokyo_xarm_bimanual_converted_externally_to_rlds
+    display_name: Robo Reward Bench (utokyo_xarm_bimanual_converted_externally_to_rlds)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: utokyo_xarm_pick_and_place_converted_externally_to_rlds
+    display_name: Robo Reward Bench (utokyo_xarm_pick_and_place_converted_externally_to_rlds)
+    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: abs_error
+      main_split: test
+    taxonomy:
+      task: judging
+      what: Real-world robot videos
+      who: Human experts
+      when: "2025"
+      language: English
+
+  - name: viola
+    display_name: Robo Reward Bench (viola)
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy

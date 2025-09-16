@@ -155,22 +155,18 @@ class RoboRewardBenchProgressPredictionScenario(RoboRewardBenchPreferenceRanking
         return instances
 
 
-class RoboRewardBenchDiscreteScenario(Scenario):
-    name = "robo_reward_bench_discrete"
+class RoboRewardBenchScenario(Scenario):
+    name = "robo_reward_bench"
     description = "Rate robot task completion on a discrete 1-5 scale from a single video."
     tags = ["vision-language", "video"]
 
-    @staticmethod
-    def _get_full_video_path(output_path: str, episode_video_path: str) -> str:
-        if os.path.isabs(episode_video_path):
-            full_path: str = episode_video_path
-        else:
-            full_path = os.path.join(output_path, episode_video_path.replace("collected_smaller/", ""))
-        assert os.path.exists(full_path), f"Episode video path does not exist: {full_path}"
-        return full_path
+    def __init__(self, subset: str) -> None:
+        super().__init__()
+        self._subset: str = subset
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        annotation_path: str = os.path.join(output_path, "test.json")
+        subset_path: str = os.path.join(output_path, "collected", self._subset)
+        annotation_path: str = os.path.join(subset_path, "test_corrected.json")
         assert os.path.exists(annotation_path), f"Annotation file does not exist at path: {annotation_path}"
 
         with open(annotation_path, "r") as f:
@@ -178,21 +174,21 @@ class RoboRewardBenchDiscreteScenario(Scenario):
 
         instances: List[Instance] = []
         for idx, ex in enumerate(examples):
-            original_id: str = str(ex.get("original_id"))
-            task: str = ex.get("task", "")
-            episode_video_path: str = ex.get("episode_video_path", "")
-            reward: int = int(ex.get("reward"))  # Ground-truth discrete score in [1, 5]
+            task: str = ex["task"]
+            video_path: str = os.path.join(output_path, ex["episode_video_path"])
+            assert os.path.exists(video_path), f"Video path does not exist: {video_path}"
+
+            reward: int = ex["reward"]
+            assert 1 <= reward <= 5, f"Invalid reward: {reward}"
 
             # Prompt header shown to the model alongside the video. Detailed rubric lives in adapter instructions.
             prompt: str = f"Task: {task}"
-
-            video_full_path: str = self._get_full_video_path(output_path, episode_video_path)
-
             content: List[MediaObject] = [
-                MediaObject(text=prompt + "\n", content_type="text/plain"),
-                MediaObject(location=video_full_path, content_type="video/mp4"),
+                MediaObject(text=prompt, content_type="text/plain"),
+                MediaObject(location=video_path, content_type="video/mp4"),
             ]
 
+            original_id: str = ex["original_id"]
             instances.append(
                 Instance(
                     id=f"{original_id}:{idx}",
