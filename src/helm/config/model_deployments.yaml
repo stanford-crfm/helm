@@ -4325,7 +4325,6 @@ model_deployments:
         args:
             pretrained_model_name_or_path: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
 
-
 # deepseek-ai/deepseek-coder-6.7b-instruct
   - name: huggingface/deepseek-coder-6.7b-instruct
     model_name: deepseek-ai/deepseek-coder-6.7b-instruct
