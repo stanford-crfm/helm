@@ -123,6 +123,7 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
         instructions=f"The following are multiple choice questions (with answers) about {subject.replace('_', ' ')}.",
         input_noun="Question",
         output_noun="Answer",
+        output_mapping_pattern="[ABCD]"
     )
 
     return RunSpec(
