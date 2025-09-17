@@ -3873,6 +3873,15 @@ model_deployments:
       args:
         parse_thinking: true
 
+  - name: together/qwen3-next-80b-a3b-thinking
+    model_name: qwen/qwen3-next-80b-a3b-thinking
+    tokenizer_name: qwen/qwen3-next-80b-a3b-thinking
+    max_sequence_length: 262144
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        parse_thinking: true
+
   - name: together/qwen3-235b-a22b-instruct-2507-fp8
     model_name: qwen/qwen3-235b-a22b-instruct-2507-fp8
     tokenizer_name: qwen/qwen3-235b-a22b-instruct-2507-fp8
