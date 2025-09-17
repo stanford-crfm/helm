@@ -401,10 +401,10 @@ def _apply_output_mapping_pattern(pattern: str, prediction: str) -> str:
     match = re.search(pattern, prediction)
     if not match:
         return ""
-    elif not match.groups():
-        return match.string
-    else:
+    elif match.groups():
         return match.group(0)
+    else:
+        return match.string
 
 
 # TODO This should probably be made into an implementation of MetricInterface. For now it lives here
