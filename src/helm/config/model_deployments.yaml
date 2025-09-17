@@ -1144,7 +1144,6 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
 
-<<<<<<< HEAD
   - name: google/gemini-2.5-pro-preview-06-05
     model_name: google/gemini-2.5-pro-preview-06-05
     tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
@@ -1153,8 +1152,6 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
 
-=======
->>>>>>> 83686ced2fb65e4438732cc58dd00089f6a7962c
   - name: google/gemini-2.5-pro
     model_name: google/gemini-2.5-pro
     tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.

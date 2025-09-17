@@ -209,20 +209,14 @@ class Qwen2VLMClient(CachingClient):
                         processor = loaded.processor
 
                         # Prepare text and vision inputs.
-<<<<<<< HEAD
-                        text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+                        text = processor.apply_chat_template(   # type: ignore
+                            messages, tokenize=False, add_generation_prompt=True
+                        )
                         # Return video kwargs for fps, max_pixels, etc.
                         image_inputs, video_inputs, video_kwargs = process_vision_info(
                             messages, return_video_kwargs=True
                         )
-                        inputs = processor(
-=======
-                        text = processor.apply_chat_template(  # type: ignore
-                            messages, tokenize=False, add_generation_prompt=True
-                        )
-                        image_inputs, video_inputs = process_vision_info(messages)
-                        inputs = processor(  # type: ignore
->>>>>>> 83686ced2fb65e4438732cc58dd00089f6a7962c
+                        inputs = processor(     # type: ignore
                             text=[text],
                             images=image_inputs,
                             videos=video_inputs,
