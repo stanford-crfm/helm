@@ -48,6 +48,7 @@ class UltraSuiteASRClassificationScenario(Scenario):
         for idx, row in enumerate(tqdm(dataset["train"])):
 
             label = row["disorder_class"]
+            transcription = row["transcription"]
 
             unique_id = str(idx)
             local_audio_name = f"{label}_{unique_id}.mp3"
