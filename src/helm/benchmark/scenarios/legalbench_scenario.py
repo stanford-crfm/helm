@@ -149,15 +149,14 @@ class LegalBenchScenario(Scenario):
 
     def get_metadata(self) -> ScenarioMetadata:
         return ScenarioMetadata(
-            name="legalbench",
+            name=self.name,
             display_name="LegalBench",
-            description="LegalBench is a large collaboratively constructed benchmark of legal "
-            "reasoning. Five representative tasks are included here. See [(Guha et al, "
-            "2023)[https://arxiv.org/abs/2308.11462] for more details.",
+            description="LegalBench is a large collaboratively constructed benchmark of legal reasoning "
+            "tasks [(Guha et al, 2023)](https://arxiv.org/pdf/2308.11462.pdf).",
             taxonomy=TaxonomyInfo(
-                task="text classification",
-                what="fact patterns, questions, and legal documents",
-                when="n/a",
+                task="multiple-choice question answering",
+                what="public legal and admininstrative documents, manually " "constructed questions",
+                when="before 2023",
                 who="lawyers",
                 language="English",
             ),

@@ -15,19 +15,19 @@ gold response in terms of accuracy, completeness, and clarity.
 The target task of either generating a discharge instruction or brief hospital course along with
 the patient discharge text and radiology report will be provided in these tags:
 <patient_information>
-{{QUESTION}}
+{QUESTION}
 </patient_information>
 
 
 The document will be provided in these tags:
 <response>
-{{RESPONSE}}
+{RESPONSE}
 </response>
 
 The gold standard target document (either discharge instructions or a brief hospital course)
 will be provided in these tags:
 <gold_response>
-{{GOLD_RESPONSE}}
+{GOLD_RESPONSE}
 </gold_response>
 
 Carefully analyze the <response> based on the <patient_information> and compare
@@ -77,31 +77,20 @@ ANNOTATION_CRITERIA: Dict[str, Set[str]] = {
     "clarity": {"score", "explanation"},
 }
 
-ANNOTATOR_MODELS: Dict[str, AnnotatorModelInfo] = {
-    "gpt": AnnotatorModelInfo(
-        model_name="openai/gpt-4o-2024-05-13",
-        model_deployment="stanfordhealthcare/gpt-4o-2024-05-13",
-    ),
-    "llama": AnnotatorModelInfo(
-        model_name="meta/llama-3.3-70b-instruct",
-        model_deployment="stanfordhealthcare/llama-3.3-70b-instruct",
-    ),
-    "claude": AnnotatorModelInfo(
-        model_name="anthropic/claude-3-7-sonnet-20250219",
-        model_deployment="stanfordhealthcare/claude-3-7-sonnet-20250219",
-    ),
-}
-
 
 class DischargeMeAnnotator(LLMAsJuryAnnotator):
     """The DischargeMe autograder."""
 
-    name = "dischargeme"
-
-    def __init__(self, auto_client: AutoClient, template_name: Optional[str] = None):
+    def __init__(
+        self,
+        auto_client: AutoClient,
+        annotator_models: Dict[str, AnnotatorModelInfo],
+        template_name: Optional[str] = None,
+    ):
         super().__init__(
+            name="dischargeme",
             auto_client=auto_client,
             prompt_template=PROMPT_TEMPLATE,
             annotation_criteria=ANNOTATION_CRITERIA,
-            annotator_models=ANNOTATOR_MODELS,
+            annotator_models=annotator_models,
         )

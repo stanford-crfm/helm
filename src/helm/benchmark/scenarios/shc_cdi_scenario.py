@@ -2,6 +2,7 @@ import sys
 import csv
 from typing import Dict, List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Input,
     Scenario,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Reference,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.general import check_file_exists
 
@@ -73,3 +75,21 @@ class SHCCDIMedScenario(Scenario):
             )
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="shc_cdi_med",
+            display_name="CDI-QA",
+            description="CDI-QA is a benchmark constructed from Clinical Documentation Integrity (CDI) "
+            "notes. It is used to evaluate a model's ability to verify clinical conditions "
+            "based on documented evidence in patient records.",
+            taxonomy=TaxonomyInfo(
+                task="Classification",
+                what="Answer verification questions from CDI notes",
+                when="Any",
+                who="Hospital Admistrator",
+                language="English",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )

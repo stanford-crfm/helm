@@ -1203,3 +1203,36 @@ tokenizer_configs:
         pretrained_model_name_or_path: nicholasKluge/TeenyTinyLlama-460m
     end_of_text_token: "</s>"
     prefix_token: "<s>"
+
+  # AceGPT-v2
+  - name: freedomintelligence/acegpt-v2-8b-chat
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|end_of_text|>"
+    prefix_token: "<|begin_of_text|>"
+
+  - name: freedomintelligence/acegpt-v2-32b-chat
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: ""
+
+  - name: freedomintelligence/acegpt-v2-70b-chat
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|end_of_text|>"
+    prefix_token: "<|begin_of_text|>"
+
+  # ALLaM
+  - name: allam-ai/allam-7b-instruct-preview
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+
+  # SILMA
+  - name: silma-ai/silma-9b-instruct-v1.0
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<eos>"
+    prefix_token: "<bos>"

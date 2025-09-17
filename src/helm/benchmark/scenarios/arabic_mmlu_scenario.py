@@ -19,8 +19,6 @@ from helm.benchmark.scenarios.scenario import (
 class ArabicMMLUScenario(Scenario):
     """ArabicMMLU
 
-    EXPERIMENTAL: This scenario may have future reverse incompatible changes.
-
     ArabicMMLU is the first multi-task language understanding benchmark
     for Arabic language, sourced from school exams across diverse educational
     levels in different countries spanning North Africa, the Levant, and the
@@ -39,12 +37,16 @@ class ArabicMMLUScenario(Scenario):
     OPTIONS = ["A", "B", "C", "D"]
     HF_SPLIT_TO_HELM_SPLIT = {"dev": TRAIN_SPLIT, "test": TEST_SPLIT}
 
+    def __init__(self, subset: str):
+        super().__init__()
+        self.subset = subset.replace("_", " ")
+
     def get_instances(self, output_path: str) -> List[Instance]:
         cache_dir = os.path.join(output_path, "data")
         ensure_directory_exists(cache_dir)
         dataset_splits: Dict[str, datasets.Dataset] = datasets.load_dataset(
             "MBZUAI/ArabicMMLU",
-            "All",
+            self.subset,
             revision="7aa530e2893ac420352b3f5c1a1310c010e9758b",
             cache_dir=cache_dir,
         )
@@ -63,7 +65,9 @@ class ArabicMMLUScenario(Scenario):
                         continue
                     references.append(
                         Reference(
-                            output=Output(text=row[column_name]),
+                            # Need to convert column to string because the references are floats
+                            # for the subject "Math (Primary School)"
+                            output=Output(text=str(row[column_name])),
                             tags=[CORRECT_TAG] if option_index == correct_option_index else [],
                         )
                     )

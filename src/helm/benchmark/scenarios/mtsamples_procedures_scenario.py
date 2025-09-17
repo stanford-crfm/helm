@@ -1,6 +1,7 @@
 import os
 import requests
 from typing import List
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -9,6 +10,7 @@ from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.general import ensure_directory_exists
 
@@ -142,3 +144,23 @@ class MTSamplesProceduresScenario(Scenario):
                 print(f"Error processing {file_name}: {e}")
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="mtsamples_procedures",
+            display_name="MTSamples Procedures",
+            description="MTSamples Procedures is a benchmark composed of transcribed operative notes, "
+            "focused on documenting surgical procedures. Each example presents a brief "
+            "patient case involving a surgical intervention, and the model is tasked with "
+            "generating a coherent and clinically accurate procedural summary or treatment "
+            "plan.",
+            taxonomy=TaxonomyInfo(
+                task="Text generation",
+                what="Document and extract information about medical procedures",
+                when="Post-procedure",
+                who="Clinician, Researcher",
+                language="English",
+            ),
+            main_metric="mtsamples_procedures_accuracy",
+            main_split="test",
+        )

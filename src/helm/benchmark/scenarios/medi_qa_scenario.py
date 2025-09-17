@@ -1,6 +1,7 @@
 from typing import Dict, List
 from datasets import load_dataset
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -49,7 +51,7 @@ class MediQAScenario(Scenario):
 
     name = "medi_qa"
     description = (
-        "MEDIQA is a benchmark designed to evaluate a model's ability to retrieve and generate"
+        "MEDIQA is a benchmark designed to evaluate a model's ability to generate"
         "medically accurate answers to patient-generated questions. Each instance includes a"
         "consumer health question, a set of candidate answers (used in ranking tasks), relevance"
         "annotations, and optionally, additional context. The benchmark focuses on supporting"
@@ -109,3 +111,24 @@ class MediQAScenario(Scenario):
             instances.extend(self.process_csv(data, split))
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="medi_qa",
+            display_name="MEDIQA",
+            description="MEDIQA is a benchmark designed to evaluate a model's ability to retrieve and "
+            "generate medically accurate answers to patient-generated questions. Each "
+            "instance includes a consumer health question, a set of candidate answers (used "
+            "in ranking tasks), relevance annotations, and optionally, additional context. "
+            "The benchmark focuses on supporting patient understanding and accessibility in "
+            "health communication.",
+            taxonomy=TaxonomyInfo(
+                task="Text generation",
+                what="Generate medically accurate answers to patient-generated questions.",
+                when="Any",
+                who="Clinician, Medical Student",
+                language="English",
+            ),
+            main_metric="medi_qa_accuracy",
+            main_split="test",
+        )

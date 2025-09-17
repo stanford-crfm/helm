@@ -39,5 +39,6 @@ class OmniMATHMetric(Metric):
                 short_display_name="Acc",
                 description="Accuracy of the AI output judged by GPT-4.",
                 lower_is_better=False,
-            )
+                group="accuracy",
+            ),
         ]

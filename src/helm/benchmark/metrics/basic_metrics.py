@@ -8,7 +8,7 @@ import numpy as np
 import scipy  # type: ignore
 import calibration as cal  # type: ignore
 from helm.benchmark.adaptation.scenario_state import ScenarioState
-from helm.benchmark.metrics.evaluate_reference_metrics import compute_reference_metrics
+from helm.benchmark.metrics.evaluate_reference_metrics import compute_reference_metrics, get_reference_metrics_metadata
 from helm.benchmark.metrics.efficiency_metrics import EfficiencyMetric
 from helm.benchmark.metrics.reference_metric import ReferenceMetric
 
@@ -111,6 +111,35 @@ def compute_perplexity_metrics(stats: Dict[MetricName, Stat]) -> List[Stat]:
     return derived_stats
 
 
+def _get_perplexity_metrics_metadata() -> List[MetricMetadata]:
+    return [
+        MetricMetadata(
+            name="perplexity",
+            display_name="Perplexity",
+            short_display_name="PPL",
+            description="Perplexity of the output completion (effective branching factor per output token).",
+            lower_is_better=True,
+            group=None,
+        ),
+        MetricMetadata(
+            name="logprob_per_byte",
+            display_name="Log probability / byte",
+            short_display_name="Logprob/byte",
+            description="Predicted output's average log probability normalized by the number of bytes.",
+            lower_is_better=False,
+            group=None,
+        ),
+        MetricMetadata(
+            name="bits_per_byte",
+            display_name="Bits/byte",
+            short_display_name="BPB",
+            description="Average number of bits per byte according to model probabilities.",
+            lower_is_better=True,
+            group=None,
+        ),
+    ]
+
+
 class InstancesPerSplitMetric(MetricInterface):
     """Report the average num_instances in each MetricContext across train_trials."""
 
@@ -200,7 +229,9 @@ class BasicGenerationMetric(Metric):
     def get_metadata(self) -> List[MetricMetadata]:
         return (
             get_request_state_metrics_metadata(self.efficiency_metric)
+            + get_reference_metrics_metadata(self.names)
             + _get_language_modeling_metrics_metadata()
+            + _get_perplexity_metrics_metadata()
             + _get_calibration_metrics_metadata()
         )
 
@@ -326,6 +357,7 @@ class BasicReferenceMetric(ReferenceMetric):
                 display_name="Max prob",
                 description="Model's average confidence in its prediction (only computed for classification tasks)",
                 lower_is_better=False,
+                group="calibration_detailed",
             ),
             MetricMetadata(
                 name="exact_match",
@@ -333,6 +365,7 @@ class BasicReferenceMetric(ReferenceMetric):
                 short_display_name="EM",
                 description="Fraction of instances that the predicted output matches a correct reference exactly.",
                 lower_is_better=False,
+                group="accuracy",
             ),
             MetricMetadata(
                 name="predicted_index",
@@ -340,6 +373,7 @@ class BasicReferenceMetric(ReferenceMetric):
                 description="Integer index of the reference (0, 1, ...) that was predicted by the model (for "
                 "multiple-choice).",
                 lower_is_better=None,
+                group=None,
             ),
         ]
 
@@ -376,6 +410,7 @@ def get_request_state_metrics_metadata(
             display_name="# ref",
             description="Number of references.",
             lower_is_better=None,
+            group=None,
         ),
         MetricMetadata(
             name="num_train_trials",
@@ -383,6 +418,7 @@ def get_request_state_metrics_metadata(
             description="Number of trials, where in each trial we choose an independent, random set of training "
             "instances.",
             lower_is_better=None,
+            group="general_information",
         ),
     ]
     return (
@@ -423,24 +459,28 @@ def _get_finish_reason_metrics_metadata():
             description="Fraction of instances where the the output was terminated because the end of text token "
             "was generated.",
             lower_is_better=None,
+            group=None,
         ),
         MetricMetadata(
             name="finish_reason_length",
             display_name="finish b/c length",
             description="Fraction of instances where the the output was terminated because of the max tokens limit.",
             lower_is_better=None,
+            group=None,
         ),
         MetricMetadata(
             name="finish_reason_stop",
             display_name="finish b/c stop",
             description="Fraction of instances where the the output was terminated because of the stop sequences.",
             lower_is_better=None,
+            group=None,
         ),
         MetricMetadata(
             name="finish_reason_unknown",
             display_name="finish b/c unknown",
             description="Fraction of instances where the the output was terminated for unknown reasons.",
             lower_is_better=None,
+            group=None,
         ),
     ]
 
@@ -609,6 +649,7 @@ def _get_calibration_metrics_metadata() -> List[MetricMetadata]:
             "tasks). Warning - not reliable for small datasets (e.g., with < 300 examples) because "
             "each bin will have very few examples.",
             lower_is_better=True,
+            group="calibration",
         ),
         MetricMetadata(
             name="ece_1_bin",
@@ -617,6 +658,7 @@ def _get_calibration_metrics_metadata() -> List[MetricMetadata]:
             description="The (absolute value) difference between the model's average confidence and accuracy "
             "(only computed for classification tasks).",
             lower_is_better=True,
+            group="calibration_detailed",
         ),
         MetricMetadata(
             name="selective_acc@10",
@@ -625,6 +667,7 @@ def _get_calibration_metrics_metadata() -> List[MetricMetadata]:
             description="The accuracy for the 10% of predictions that the model is most confident on (only "
             "computed for classification tasks).",
             lower_is_better=False,
+            group="calibration_detailed",
         ),
         MetricMetadata(
             name="selective_cov_acc_area",
@@ -633,6 +676,7 @@ def _get_calibration_metrics_metadata() -> List[MetricMetadata]:
             description="The area under the coverage-accuracy curve, a standard selective classification metric "
             "(only computed for classification tasks).",
             lower_is_better=False,
+            group="calibration_detailed",
         ),
         MetricMetadata(
             name="platt_coef",
@@ -640,13 +684,15 @@ def _get_calibration_metrics_metadata() -> List[MetricMetadata]:
             short_display_name="Platt Coef",
             description="Coefficient of the Platt scaling classifier (can compare this across tasks).",
             lower_is_better=False,
+            group="calibration_detailed",
         ),
         MetricMetadata(
             name="platt_intercept",
             display_name="Platt Scaling Intercept",
             short_display_name="Platt Intercept",
-            description="Coefficient of the Platt scaling classifier (can compare this across tasks).",
+            description="Intercept of the Platt scaling classifier (can compare this across tasks).",
             lower_is_better=False,
+            group="calibration_detailed",
         ),
         MetricMetadata(
             name="platt_ece_10_bin",
@@ -655,6 +701,7 @@ def _get_calibration_metrics_metadata() -> List[MetricMetadata]:
             description="10-bin ECE computed after applying Platt scaling to recalibrate the model's predicted "
             "probabilities.",
             lower_is_better=True,
+            group="calibration_detailed",
         ),
         MetricMetadata(
             name="platt_ece_1_bin",
@@ -663,5 +710,6 @@ def _get_calibration_metrics_metadata() -> List[MetricMetadata]:
             description="1-bin ECE computed after applying Platt scaling to recalibrate the model's predicted "
             "probabilities.",
             lower_is_better=True,
+            group="calibration_detailed",
         ),
     ]

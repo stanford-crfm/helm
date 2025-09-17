@@ -113,7 +113,13 @@ class MedQAScenario(Scenario):
             description="MedQA is an open domain question answering dataset composed of questions from "
             "professional medical board exams ([Jin et al. "
             "2020](https://arxiv.org/pdf/2009.13081.pdf)).",
-            taxonomy=TaxonomyInfo(task="question answering", what="n/a", when="n/a", who="n/a", language="English"),
+            taxonomy=TaxonomyInfo(
+                task="multiple-choice question answering",
+                what="US medical licensing exams",
+                when="before 2020",
+                who="problem setters",
+                language="English",
+            ),
             main_metric="quasi_exact_match",
             main_split="test",
         )
