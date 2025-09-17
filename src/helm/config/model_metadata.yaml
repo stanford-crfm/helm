@@ -1237,7 +1237,6 @@ models:
     release_date: 2025-01-21
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-<<<<<<< HEAD
   - name: google/gemini-2.5-pro-preview-03-25
     display_name: Gemini 2.5 Pro (03-25 preview)
     description: Gemini 2.5 Pro (03-25 preview) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
@@ -1270,8 +1269,6 @@ models:
     release_date: 2025-06-17  # source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-=======
->>>>>>> 83686ced2fb65e4438732cc58dd00089f6a7962c
   - name: google/gemini-2.0-pro-exp-02-05
     display_name: Gemini 2.0 Pro (02-05 preview)
     description: Gemini 2.0 Pro (02-05 preview) ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
@@ -4244,7 +4241,6 @@ models:
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: upstage/solar-pro-241126
-    display_name: Solar Pro
     display_name: Solar Pro
     description: Solar Pro is a LLM designed for instruction-following and processing structured formats like HTML and Markdown. It supports English, Korean, and Japanese and has domain expertise in Finance, Healthcare, and Legal. ([blog](https://www.upstage.ai/blog/press/solar-pro-aws)).
     creator_organization_name: Upstage
