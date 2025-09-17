@@ -4,7 +4,7 @@
 
 **What you’ll do here:** Install MedHELM, run a small evaluation locally, understand access levels, view leaderboards, and learn how to contribute new scenarios/models.
 
-**Time required:** ~10 minutes for the Quickstart.
+**Time required:** ~15 minutes for the Quickstart.
 
 MedHELM extends the HELM framework to evaluate **large language models (LLMs) in medical applications**, focusing on realistic tasks, safety, and reproducibility.
 
@@ -28,9 +28,9 @@ MedHELM extends the HELM framework to evaluate **large language models (LLMs) in
 
 ---
 
-## Quickstart (10 minutes)
+## Quickstart (15 minutes)
 
-**Goal:** Install MedHELM, run a 10-instance evaluation on a public scenario, and open a local leaderboard.
+**Goal:** Install MedHELM, download the live leaderboard, run a 10-instance evaluation on a public scenario, and create a local leaderboard.
 
 #### 1. Install (Python 3.10 recommended)
 
@@ -55,14 +55,35 @@ Run the following commands to install the necessary MedHELM extensions:
 pip install "crfm-helm[summarization,medhelm]"
 ```
 
-#### 2. Run a tiny evaluation
+#### 2. Download leaderboard results
+
+Create the directory where the downloaded results will be stored:
+
+```bash
+export OUTPUT_PATH="./benchmark_output"
+mkdir $OUTPUT_PATH
+```
+
+Download the results:
+
+```
+# Set the GCS path to the MedHELM results
+export GCS_BENCHMARK_OUTPUT_PATH=gs://crfm-helm-public/medhelm/benchmark_output
+
+# (Optional): Check the leaderboard results size before downloading
+# gcloud storage du -sr $GCS_BENCHMARK_OUTPUT_PATH
+
+# Download the results
+gcloud storage rsync -r $GCS_BENCHMARK_OUTPUT_PATH $OUTPUT_PATH
+```
+
+#### 3. Run a tiny evaluation
 
 ```bash
 # Set variables
 RUN_ENTRIES="medcalc_bench:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct"
 SUITE="my-medhelm-suite"
 MAX_EVAL_INSTANCES=10
-OUTPUT_PATH="./benchmark_output"
 
 # Run evaluation
 helm-run \
@@ -72,30 +93,33 @@ helm-run \
    --output-path $OUTPUT_PATH
 ```
 
-#### 3. Build and open the local leaderboard
+#### 4. Build and open the local leaderboard
 
 ```bash
 SCHEMA="schema_medhelm.yaml"
+RELEASE="my-medhelm-release"
+LIVE_LEADERBOARD_SUITE="v2.0.0"
 
 curl -L -o $SCHEMA \
-   https://raw.githubusercontent.com/stanford-crfm/helm/main/src/helm/benchmark/static/schema_medhelm.yaml
+   https://raw.githubusercontent.com/stanford-crfm/helm/v0.5.7/src/helm/benchmark/static/schema_medhelm.yaml
 
 # Create the leaderboard
 helm-summarize \
-  --suite $SUITE \
+  --suites $SUITE $LIVE_LEADERBOARD_SUITE \
   --schema $SCHEMA \
+  --release $RELEASE \
   --output-path $OUTPUT_PATH
 
 # Load the leaderboard
 helm-server \
-  --suite $SUITE \
+  --release $RELEASE \
   --output-path $OUTPUT_PATH
 ```
 
 **Expected outcome:**
 
-* A local URL for the leaderboard (printed in the terminal)
-* Benchmark results at `./benchmark_output/runs/my-medhelm-suite/`
+* Benchmark results for the tiny evaluation at `$OUTPUT_PATH/runs/$SUITE`
+* A local leaderboard combining results from the live leaderboard and the tiny evaluation (the URL will be printed in the terminal).
 
 > ⚠️ **PHI & compliance:** Only run **gated** or **private** data on infrastructure approved by your organization. Use the **redaction** steps in *Sharing Results* before sending outputs externally.
 
@@ -108,7 +132,7 @@ helm-server \
 * **Suite:** Named collection of runs; appears as a tab/section in the leaderboard.
 * **Annotator:** Optional post‑processing (e.g., LLM‑as‑a‑judge).
 * **Schema:** Task taxonomy + metrics configuration powering `helm-summarize` and the UI.
-* **Release:** The version of leaderboard results.
+* **Release:** The tag name of the leaderboard.
 
 ---
 
@@ -218,20 +242,22 @@ The following commands convert the results from step 1 into an interactive leade
 
 ```bash
 SCHEMA="schema_medhelm.yaml"
+RELEASE="my-medhelm-release"
 
 curl -L -o $SCHEMA \
-   https://raw.githubusercontent.com/stanford-crfm/helm/main/src/helm/benchmark/static/schema_medhelm.yaml
+   https://raw.githubusercontent.com/stanford-crfm/helm/v0.5.7/src/helm/benchmark/static/schema_medhelm.yaml
 helm-summarize \
-  --suite $SUITE \
+  --suites $SUITE \
   --schema $SCHEMA \
+  --release $RELEASE \
   --output-path $OUTPUT_PATH
 ```
 
 *Flags explained:*
 
-* `--suite`: Names the suite where results from this leaderboard creation will be stored.
-This allows grouping multiple runs under a common label (e.g., my-medhelm-suite).
+* `--suites`: Space-separated list of suites from which the results will be taken to create the leaderboard (e.g., my-medhelm-suite).
 * `--schema`: Path to the schema file.
+* `--release`: The tag name given to the leaderboard created with this command.
 * `--output-path`: Path to the directory where benchmark results from `helm-run` are stored.
 
 #### 3. Run the leaderboard locally
@@ -240,14 +266,13 @@ This command runs the leaderboard on a local server. The exact address and port 
 
 ```bash
 helm-server \
-  --suite $SUITE \
+  --release $RELEASE \
   --output-path $OUTPUT_PATH
 ```
 
 *Flags explained:*
 
-* `--suite`: Names the suite where results are stored.
-This allows grouping multiple runs under a common label (e.g., my-medhelm-suite).
+* `--release`: The tag name of the leaderboard to host locally and display in the browser.
 * `--output-path`: Path to the directory where benchmark results from `helm-run` are stored.
 
 ---
@@ -287,13 +312,13 @@ You can interact with MedHELM results by **viewing** pre‑computed results loca
 Run the following commands to create the local directory where leaderboard results will be stored. Adjust the directory path as needed.
 
 ```bash
-export LOCAL_BENCHMARK_OUTPUT_PATH=./benchmark_output
-mkdir $LOCAL_BENCHMARK_OUTPUT_PATH
+export OUTPUT_PATH=./benchmark_output
+mkdir $OUTPUT_PATH
 ```
 
 #### 2. Download leaderboard results
 
-Run the following commands to download the leaderboard results to the `LOCAL_BENCHMARK_OUTPUT_PATH` created in the previous step.
+Run the following commands to download the leaderboard results to the `OUTPUT_PATH` created in the previous step.
 
 ```bash
 # Set the GCS path to the MedHELM results
@@ -303,7 +328,7 @@ export GCS_BENCHMARK_OUTPUT_PATH=gs://crfm-helm-public/medhelm/benchmark_output
 # gcloud storage du -sr $GCS_BENCHMARK_OUTPUT_PATH
 
 # Download the results
-gcloud storage rsync -r $GCS_BENCHMARK_OUTPUT_PATH $LOCAL_BENCHMARK_OUTPUT_PATH
+gcloud storage rsync -r $GCS_BENCHMARK_OUTPUT_PATH $OUTPUT_PATH
 ```
 
 
@@ -313,7 +338,7 @@ Run the following command to launch the MedHELM leaderboard locally. Use the num
 
 ```bash
 # Sample command to launch the MedHELM leaderboard version 2.0.0.
-helm-server --release v2.0.0 --output-path $LOCAL_BENCHMARK_OUTPUT_PATH
+helm-server --release v2.0.0 --output-path $OUTPUT_PATH
 ```
 
 ### Reproduce leaderboard results
