@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List
 import os
 
 from datasets import load_dataset
@@ -49,7 +49,6 @@ class UltraSuiteASRClassificationScenario(Scenario):
 
             label = row["disorder_class"]
 
-            audio_path = row["audio"]
             unique_id = str(idx)
             local_audio_name = f"{label}_{unique_id}.mp3"
             local_audio_path = os.path.join(audio_save_dir, local_audio_name)
@@ -67,6 +66,8 @@ class UltraSuiteASRClassificationScenario(Scenario):
             ]
 
             input = Input(multimedia_content=MultimediaObject(content))
-            instances.append(Instance(input=input, references=references, split=split, extra_data={"transcription": transcription}))
+            instances.append(
+                Instance(input=input, references=references, split=split, extra_data={"transcription": transcription})
+            )
 
         return instances

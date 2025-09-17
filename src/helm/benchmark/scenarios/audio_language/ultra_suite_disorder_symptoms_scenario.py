@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List
 import os
 
 from datasets import load_dataset
@@ -52,7 +52,6 @@ class UltraSuiteDisorderSymptomsScenario(Scenario):
             label = row["disorder_symptom"]
             transcription = row["transcription"]
 
-            audio_path = row["audio"]
             unique_id = str(idx)
             local_audio_name = f"{label}_{unique_id}.mp3"
             local_audio_path = os.path.join(audio_save_dir, local_audio_name)
@@ -60,7 +59,7 @@ class UltraSuiteDisorderSymptomsScenario(Scenario):
 
             # Create references for each option
             references: List[Reference] = []
-            options = ['substitution', 'omission', 'addition', 'typically_developing', 'stuttering']
+            options = ["substitution", "omission", "addition", "typically_developing", "stuttering"]
             if label not in options:
                 continue
             for option in options:

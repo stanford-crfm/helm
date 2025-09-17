@@ -53,7 +53,6 @@ class UltraSuiteClassificationScenario(Scenario):
             label = row["disorder_class"]
             transcription = row["transcription"]
 
-            audio_path = row["audio"]
             unique_id = str(idx)
             local_audio_name = f"{label}_{unique_id}.mp3"
             local_audio_path = os.path.join(audio_save_dir, local_audio_name)
@@ -61,7 +60,7 @@ class UltraSuiteClassificationScenario(Scenario):
 
             # Create references for each option
             references: List[Reference] = []
-            options = ['typically_developing', 'speech_disorder']
+            options = ["typically_developing", "speech_disorder"]
             if label not in options:
                 continue
             for option in options:
