@@ -1163,7 +1163,7 @@ def get_robo_reward_bench_discrete_spec(subset: str) -> RunSpec:
     )
     adapter_spec: AdapterSpec = _get_generation_adapter_spec(
         instructions=instructions,
-        max_tokens=100,
+        max_tokens=200,
         max_train_instances=0,
     )
     metric_specs: List[MetricSpec] = [
