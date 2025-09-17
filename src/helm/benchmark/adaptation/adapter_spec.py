@@ -147,6 +147,5 @@ class AdapterSpec:
 
     output_mapping_pattern: Optional[str] = None
     """Pattern to apply to the output before applying the output mapping for the joint multiple choice adapter.
-    
     If the pattern has no group, the output mapping will be applied to the first match.
     If the pattern has a group, the output mapping will be applied to the group of the first match."""

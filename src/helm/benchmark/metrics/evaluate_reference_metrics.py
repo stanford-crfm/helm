@@ -401,7 +401,7 @@ def _apply_output_mapping_pattern(pattern: str, prediction: str) -> str:
     match = re.search(pattern, prediction)
     if not match:
         return ""
-    elif not match.groups:
+    elif not match.groups():
         return match.string
     else:
         return match.group(0)

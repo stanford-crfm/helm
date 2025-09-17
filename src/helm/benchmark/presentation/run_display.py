@@ -270,7 +270,7 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
                 match = re.search(run_spec.adapter_spec.output_mapping_pattern, output_to_map)
                 if not match:
                     output_to_map = ""
-                elif not match.groups:
+                elif not match.groups():
                     output_to_map = match.string
                 else:
                     output_to_map = match.group(0)
