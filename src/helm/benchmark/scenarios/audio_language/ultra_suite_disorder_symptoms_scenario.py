@@ -14,7 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
-from helm.common.file_utils import ensure_audio_file_exists_from_array
+from helm.common.audio_utils import ensure_audio_file_exists_from_array
 
 
 class UltraSuiteDisorderSymptomsScenario(Scenario):
@@ -50,7 +50,7 @@ class UltraSuiteDisorderSymptomsScenario(Scenario):
 
         for idx, row in enumerate(tqdm(dataset["train"])):
             label = row["disorder_symptom"]
-            prompt = row["transcription"]
+            transcription = row["transcription"]
 
             audio_path = row["audio"]
             unique_id = str(idx)
@@ -60,19 +60,17 @@ class UltraSuiteDisorderSymptomsScenario(Scenario):
 
             # Create references for each option
             references: List[Reference] = []
-            correct_label = 0
-            for option in ["substitution", "omission", "addition", "typically_developing", "stuttering"]:
+            options = ['substitution', 'omission', 'addition', 'typically_developing', 'stuttering']
+            if label not in options:
+                continue
+            for option in options:
                 reference = Reference(Output(text=option), tags=[CORRECT_TAG] if option == label else [])
                 references.append(reference)
-                if option == label:
-                    correct_label += 1
-            if correct_label == 0:
-                continue
 
             # Create the input with audio and instruction
             content = [
                 MediaObject(content_type="audio/mpeg", location=local_audio_path),
-                MediaObject(content_type="text/plain", text=self.get_instruction(prompt)),
+                MediaObject(content_type="text/plain", text=self.get_instruction(transcription)),
             ]
 
             input = Input(multimedia_content=MultimediaObject(content))

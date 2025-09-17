@@ -14,7 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
-from helm.common.file_utils import ensure_audio_file_exists_from_array
+from helm.common.audio_utils import ensure_audio_file_exists_from_array
 
 
 class UltraSuiteASRTranscriptionScenario(Scenario):
