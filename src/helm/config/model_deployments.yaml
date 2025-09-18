@@ -4337,8 +4337,6 @@ model_deployments:
     max_sequence_length: 8192
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
-      args:
-        device_map: auto
 
   - name: huggingface/acegpt-v2-32b-chat
     model_name: freedomintelligence/acegpt-v2-32b-chat
@@ -4346,8 +4344,6 @@ model_deployments:
     max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
-      args:
-        device_map: auto
 
   - name: huggingface/acegpt-v2-70b-chat
     model_name: freedomintelligence/acegpt-v2-70b-chat
@@ -4355,8 +4351,6 @@ model_deployments:
     max_sequence_length: 8192
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
-      args:
-        device_map: auto
 
   # ALLaM
   - name: huggingface/allam-7b-instruct-preview
@@ -4365,8 +4359,6 @@ model_deployments:
     max_sequence_length: 4096
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
-      args:
-        device_map: auto
 
   # SILMA
   - name: huggingface/silma-9b-instruct-v1.0
@@ -4375,8 +4367,6 @@ model_deployments:
     max_sequence_length: 8192
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
-      args:
-        device_map: auto
 
   # Jais Family
   #
@@ -4398,7 +4388,6 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
-        device_map: auto
         trust_remote_code: true
         revision: 90ac4769212b4964c6e81e183140224628228365
 
@@ -4409,7 +4398,6 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
-        device_map: auto
         trust_remote_code: true
         revision: 4b93176e2cb00f369b3bc0a8786e4cf16260c804
 
@@ -4420,7 +4408,6 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
-        device_map: auto
         trust_remote_code: true
         revision: b2bf5d1bcd969ce868f66fb1ad8c3480289ea6b2
 
@@ -4431,7 +4418,6 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
-        device_map: auto
         trust_remote_code: true
         revision: 683805efe6126c6536feb4aa23317e70222ac94c
 
@@ -4442,7 +4428,6 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
-        device_map: auto
         trust_remote_code: true
         revision: 0ef8b4f80429609890816d912b331d3b95864707
 
