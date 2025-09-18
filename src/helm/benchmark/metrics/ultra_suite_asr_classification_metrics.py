@@ -5,7 +5,9 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.metrics.evaluate_reference_metrics import normalize_text
 from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
-
+from helm.benchmark.scenarios.scenario import (
+    CORRECT_TAG,
+)
 from sklearn.metrics import f1_score, accuracy_score
 
 
@@ -17,7 +19,11 @@ class UltraSuiteASRMetric(EvaluateInstancesMetric):
         y_pred_quasi: List[str] = []
         y_true: List[str] = []
         for request_state in request_states:  # one request state per instance
-            true_label = request_state.instance.references[0].output.text
+
+            for reference in request_state.instance.references:
+                if reference.tags == [CORRECT_TAG]:
+                    true_label = reference.output.text
+                    break
 
             model_output_text = request_state.result.completions[0].text.strip().lower()
             ground_truth_text = request_state.instance.extra_data["transcription"].strip().lower()
