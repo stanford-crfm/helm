@@ -1,4 +1,6 @@
 from typing import Optional, List
+import re
+
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.metric import Metric
@@ -62,18 +64,28 @@ class RoboRewardBenchPreferenceRankingMetric(Metric):
 class RoboRewardBenchProgressPredictionMetric(Metric):
     @staticmethod
     def extract_answer(raw_completion: str) -> Optional[float]:
-        # Expected format: "ANSWER: <float>"
-        text = raw_completion
-        if "ANSWER:" in text:
-            text = text.split("ANSWER:", 1)[1]
-        elif "Answer:" in text:
-            text = text.split("Answer:", 1)[1]
-        text = text.strip()
-
-        try:
-            return float(text)
-        except ValueError:
+        """
+        Extracts the first numeric score from model output.
+        Supports:
+          - 'ANSWER: 2. Explanation...'
+          - 'ANSWER: 2'
+          - '5. Explanation...' (number at start of output)
+        """
+        if not raw_completion:
             return None
+        text = str(raw_completion).strip()
+
+        # Case 1 & 2: explicit 'ANSWER: <number>' (case-insensitive), possibly followed by explanation
+        m = re.search(r'(?i)\banswer\b\s*:\s*(-?\d+(?:\.\d+)?)', text)
+        if m:
+            return float(m.group(1))
+
+        # Case 3: output starts with a number like "5. ..." or "5 "
+        m = re.search(r'^\s*(-?\d+(?:\.\d+)?)\b', text)
+        if m:
+            return float(m.group(1))
+
+        return None
 
     def __repr__(self):
         return "RoboRewardBenchProgressPredictionMetric"
