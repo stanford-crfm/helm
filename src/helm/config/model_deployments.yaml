@@ -4337,6 +4337,8 @@ model_deployments:
     max_sequence_length: 8192
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
 
   - name: huggingface/acegpt-v2-32b-chat
     model_name: freedomintelligence/acegpt-v2-32b-chat
@@ -4344,6 +4346,8 @@ model_deployments:
     max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
 
   - name: huggingface/acegpt-v2-70b-chat
     model_name: freedomintelligence/acegpt-v2-70b-chat
@@ -4351,6 +4355,8 @@ model_deployments:
     max_sequence_length: 8192
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
 
   # ALLaM
   - name: huggingface/allam-7b-instruct-preview
@@ -4359,6 +4365,8 @@ model_deployments:
     max_sequence_length: 4096
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
 
   # SILMA
   - name: huggingface/silma-9b-instruct-v1.0
@@ -4367,6 +4375,45 @@ model_deployments:
     max_sequence_length: 8192
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+
+  # Jais Family
+  - name: huggingface/jais-family-6p7b-chat
+    model_name: inceptionai/jais-family-6p7b-chat
+    tokenizer_name: inceptionai/jais-family-30b-16k-chat
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+
+  - name: huggingface/jais-family-13b-chat
+    model_name: inceptionai/jais-family-13b-chat
+    tokenizer_name: inceptionai/jais-family-30b-16k-chat
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+
+  - name: huggingface/jais-family-30b-8k-chat
+    model_name: inceptionai/jais-family-30b-8k-chat
+    tokenizer_name: inceptionai/jais-family-30b-16k-chat
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+
+  - name: huggingface/jais-family-30b-16k-chat
+    model_name: inceptionai/jais-family-30b-16k-chat
+    tokenizer_name: inceptionai/jais-family-30b-16k-chat
+    max_sequence_length: 16384
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
 
 # IBM WatsonX
   - name: ibm/llama-3.3-70b-instruct
