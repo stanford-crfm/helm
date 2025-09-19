@@ -4097,6 +4097,32 @@ models:
     release_date: 2023-08-30
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: inceptionai/jais-adapted-7b-chat
+    display_name: Jais-adapted-7b-chat
+    description: The Jais adapted models are bilingual English-Arabic large language models (LLMs) that are trained adaptively from Llama-2 and optimized to excel in Arabic while having strong English capabilities. ([website](https://inceptionai.ai/jaisfamily/index.html), [blog](https://mbzuai.ac.ae/news/meet-jais-the-worlds-most-advanced-arabic-large-language-model-open-sourced-by-g42s-inception/))
+    creator_organization_name: Inception
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-08-30
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: inceptionai/jais-adapted-13b-chat
+    display_name: Jais-adapted-13b-chat
+    description: The Jais adapted models are bilingual English-Arabic large language models (LLMs) that are trained adaptively from Llama-2 and optimized to excel in Arabic while having strong English capabilities. ([website](https://inceptionai.ai/jaisfamily/index.html), [blog](https://mbzuai.ac.ae/news/meet-jais-the-worlds-most-advanced-arabic-large-language-model-open-sourced-by-g42s-inception/))
+    creator_organization_name: Inception
+    access: open
+    num_parameters: 13300000000
+    release_date: 2023-08-30
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: inceptionai/jais-adapted-70b-chat
+    display_name: Jais-adapted-70b-chat
+    description: The Jais adapted models are bilingual English-Arabic large language models (LLMs) that are trained adaptively from Llama-2 and optimized to excel in Arabic while having strong English capabilities. ([website](https://inceptionai.ai/jaisfamily/index.html), [blog](https://mbzuai.ac.ae/news/meet-jais-the-worlds-most-advanced-arabic-large-language-model-open-sourced-by-g42s-inception/))
+    creator_organization_name: Inception
+    access: open
+    num_parameters: 69500000000
+    release_date: 2023-08-30
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # Together
   - name: together/gpt-jt-6b-v1
