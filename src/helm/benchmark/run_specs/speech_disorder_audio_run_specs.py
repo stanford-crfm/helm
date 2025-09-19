@@ -112,9 +112,13 @@ def get_ultra_suite_asr_classification_run_spec() -> RunSpec:
     )
     adapter_spec = _get_generation_adapter_spec(
         instructions="""You are a highly experienced Speech-Language Pathologist (SLP). An audio recording is provided to you, typically consisting of a speech prompt from a pathologist followed by a child's repetition. Based on your expertise transcribe the child's speech into text. Do not make any assumptions about the words the child is expected to say. Only transcribe based on the words that the child actually says. Only respond with the text transcription, no other text or commentary.""",  # noqa: E501
-        max_tokens=10,
+        max_tokens=50,
     )
-    metric_specs: List[MetricSpec] = audio_classification_metric_specs()
+    metric_specs: List[MetricSpec] = [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.ultra_suite_asr_classification_metrics.UltraSuiteASRMetric", args={}
+        )
+    ]
     run_spec_name: str = "ultra_suite_asr_classification"
     return RunSpec(
         name=run_spec_name,
