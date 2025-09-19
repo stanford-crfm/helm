@@ -4351,6 +4351,8 @@ model_deployments:
     max_sequence_length: 8192
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
 
   - name: huggingface/acegpt-v2-32b-chat
     model_name: freedomintelligence/acegpt-v2-32b-chat
@@ -4358,6 +4360,8 @@ model_deployments:
     max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
 
   - name: huggingface/acegpt-v2-70b-chat
     model_name: freedomintelligence/acegpt-v2-70b-chat
@@ -4365,6 +4369,8 @@ model_deployments:
     max_sequence_length: 8192
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
 
   # ALLaM
   - name: huggingface/allam-7b-instruct-preview
@@ -4373,6 +4379,8 @@ model_deployments:
     max_sequence_length: 4096
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
 
   # SILMA
   - name: huggingface/silma-9b-instruct-v1.0
@@ -4381,6 +4389,8 @@ model_deployments:
     max_sequence_length: 8192
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
 
   # Jais Family
   #
@@ -4432,6 +4442,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
+        device_map: auto
         trust_remote_code: true
         revision: 683805efe6126c6536feb4aa23317e70222ac94c
 
@@ -4442,6 +4453,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
+        device_map: auto
         trust_remote_code: true
         revision: 0ef8b4f80429609890816d912b331d3b95864707
 
@@ -4466,6 +4478,34 @@ model_deployments:
         device_map: auto
         trust_remote_code: true
         revision: 369f88eeee4d313155f1b1dca4ebec90f9f9f2a4
+
+  # Jais Adapter
+  - name: huggingface/jais-adapted-7b-chat
+    model_name: inceptionai/jais-adapted-7b-chat
+    tokenizer_name: inceptionai/jais-adapted-7b-chat
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+
+  - name: huggingface/jais-adapted-13b-chat
+    model_name: inceptionai/jais-adapted-13b-chat
+    tokenizer_name: inceptionai/jais-adapted-7b-chat
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+
+  - name: huggingface/jais-adapted-70b-chat
+    model_name: inceptionai/jais-adapted-70b-chat
+    tokenizer_name: inceptionai/jais-adapted-7b-chat
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
 
 # IBM WatsonX
   - name: ibm/llama-3.3-70b-instruct
