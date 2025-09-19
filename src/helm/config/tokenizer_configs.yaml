@@ -1081,14 +1081,26 @@ tokenizer_configs:
     end_of_text_token: "<|endoftext|>"
     prefix_token: ""
 
-  
-
   # DeepSeek-R1-Distill-Llama-3.1-8b
   - name: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
     tokenizer_spec:
         class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
         args:
             pretrained_model_name_or_path: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+    end_of_text_token: "<｜end▁of▁sentence｜>"
+    prefix_token: "<｜begin▁of▁sentence｜>"
+
+  # DeepSeek-R1-Distill-Llama-3.1-8b
+  - name: deepseek-ai/deepseek-r1-distill-llama-70b
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<｜end▁of▁sentence｜>"
+    prefix_token: "<｜begin▁of▁sentence｜>"
+
+  # DeepSeek-R1-Distill-Qwen-14B
+  - name: deepseek-ai/deepseek-r1-distill-qwen-14b
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "<｜end▁of▁sentence｜>"
     prefix_token: "<｜begin▁of▁sentence｜>"
 
@@ -1100,7 +1112,6 @@ tokenizer_configs:
             pretrained_model_name_or_path: deepseek-ai/deepseek-coder-6.7b-instruct
     end_of_text_token: "<｜end▁of▁sentence｜>"
     prefix_token: "<｜begin▁of▁sentence｜>"
-
 
 # vilm/vinallama-2.7b-chat
   - name: vilm/vinallama-2.7b-chat
