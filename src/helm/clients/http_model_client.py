@@ -3,6 +3,7 @@ from dataclasses import asdict
 from typing import Any, Dict
 
 from helm.common.cache import CacheConfig
+from helm.common.hierarchical_logger import hexception
 from helm.common.request import (
     wrap_request_time,
     Request,
@@ -76,5 +77,6 @@ class HTTPModelClient(CachingClient):
                 request_time=response["request_time"],
             )
         except requests.exceptions.RequestException as e:
+            hexception(e)
             error: str = f"Request error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
