@@ -260,7 +260,7 @@ preshed==3.0.10
 progressbar2==4.5.0
 propcache==0.3.2
 proto-plus==1.26.1
-protobuf==3.19.6 ; python_full_version >= '3.13'
+protobuf==4.25.8 ; python_full_version >= '3.13'
 protobuf==5.29.5 ; python_full_version < '3.13'
 psutil==7.0.0
 pyarrow==21.0.0
@@ -352,7 +352,7 @@ tensorboard-data-server==0.7.2 ; python_full_version < '3.13'
 tensorboard-plugin-wit==1.8.1 ; python_full_version >= '3.13'
 tensorflow==2.11.1 ; python_full_version >= '3.13'
 tensorflow==2.18.1 ; python_full_version < '3.10' or (python_full_version >= '3.11' and python_full_version < '3.13')
-tensorflow==2.20.0 ; python_full_version == '3.10.*'
+tensorflow==2.12.1 ; python_full_version == '3.10.*'
 tensorflow-estimator==2.11.0 ; python_full_version >= '3.13'
 tensorflow-hub==0.16.1 ; python_full_version >= '3.13' and sys_platform != 'darwin'
 tensorflow-io-gcs-filesystem==0.37.1 ; python_full_version < '3.10' or python_full_version == '3.11.*' or (python_full_version >= '3.13' and platform_machine != 'arm64') or (python_full_version >= '3.13' and sys_platform != 'darwin')
@@ -374,12 +374,12 @@ tokenizers==0.21.2
 toml==0.10.2
 tomli==2.2.1 ; python_full_version < '3.11'
 toolz==1.0.0
-torch==2.5.1
+torch==2.8.0
 torch-fidelity==0.3.0
 torchmetrics==0.11.4
 torchvision==0.20.1
 tqdm==4.67.1
-transformers==4.52.4
+transformers==4.53.0
 transformers-stream-generator==0.0.5
 treescope==0.1.9 ; python_full_version >= '3.10'
 trio==0.30.0
