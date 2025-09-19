@@ -460,7 +460,7 @@ tokenizer_configs:
 
   # Allen Institute for AI
   # The allenai/olmo-7b requires Python 3.9 or newer.
-  # To use the allenai/olmo-7b tokenizer, run `pip install crfm-helm[allenai]` first.
+  # To use the allenai/olmo-7b tokenizer, run `pip install "crfm-helm[allenai]"` first.
   - name: allenai/olmo-7b
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
