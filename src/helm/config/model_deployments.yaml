@@ -4368,6 +4368,91 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
 
+  # Jais Family
+  #
+  # NOTE: Jais Family models require `transformers<=4.52.3`.
+  # On more recent versions of transformers, one of the following errors might occur:
+  #
+  #   File "/path/to//site-packages/transformers/models/gemma3n/configuration_gemma3n.py", line 31, in <module>
+  #     from timm.data import ImageNetInfo, infer_imagenet_subset
+  # ImportError: cannot import name 'ImageNetInfo' from 'timm.data' (/path/to/site-packages/timm/data/__init__.py)
+  #
+  #   File "/path/to/.cache/huggingface/modules/transformers_modules/inceptionai/jais-family-590m-chat/90ac4769212b4964c6e81e183140224628228365/modeling_jais.py", line 899, in forward
+  #     past_length = past_key_values[0][0].size(-2)
+  # AttributeError: 'NoneType' object has no attribute 'size'
+
+  - name: huggingface/jais-family-590m-chat
+    model_name: inceptionai/jais-family-590m-chat
+    tokenizer_name: inceptionai/jais-family-590m-chat
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        trust_remote_code: true
+        revision: 90ac4769212b4964c6e81e183140224628228365
+
+  - name: huggingface/jais-family-1p3b-chat
+    model_name: inceptionai/jais-family-1p3b-chat
+    tokenizer_name: inceptionai/jais-family-590m-chat
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        trust_remote_code: true
+        revision: 4b93176e2cb00f369b3bc0a8786e4cf16260c804
+
+  - name: huggingface/jais-family-2p7b-chat
+    model_name: inceptionai/jais-family-2p7b-chat
+    tokenizer_name: inceptionai/jais-family-590m-chat
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        trust_remote_code: true
+        revision: b2bf5d1bcd969ce868f66fb1ad8c3480289ea6b2
+
+  - name: huggingface/jais-family-6p7b-chat
+    model_name: inceptionai/jais-family-6p7b-chat
+    tokenizer_name: inceptionai/jais-family-590m-chat
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        trust_remote_code: true
+        revision: 683805efe6126c6536feb4aa23317e70222ac94c
+
+  - name: huggingface/jais-family-13b-chat
+    model_name: inceptionai/jais-family-13b-chat
+    tokenizer_name: inceptionai/jais-family-590m-chat
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        trust_remote_code: true
+        revision: 0ef8b4f80429609890816d912b331d3b95864707
+
+  - name: huggingface/jais-family-30b-8k-chat
+    model_name: inceptionai/jais-family-30b-8k-chat
+    tokenizer_name: inceptionai/jais-family-590m-chat
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        trust_remote_code: true
+        revision: dab185164dd3b79ec9201d7f4cf878ce91ae7e14
+
+  - name: huggingface/jais-family-30b-16k-chat
+    model_name: inceptionai/jais-family-30b-16k-chat
+    tokenizer_name: inceptionai/jais-family-590m-chat
+    max_sequence_length: 16384
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        trust_remote_code: true
+        revision: 369f88eeee4d313155f1b1dca4ebec90f9f9f2a4
+
 # IBM WatsonX
   - name: ibm/llama-3.3-70b-instruct
     model_name: meta/llama-3.3-70b-instruct

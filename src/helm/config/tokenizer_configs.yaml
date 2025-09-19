@@ -1242,3 +1242,10 @@ tokenizer_configs:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "<eos>"
     prefix_token: "<bos>"
+
+  # Jais Family
+  - name: inceptionai/jais-family-590m-chat
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|endoftext|>"

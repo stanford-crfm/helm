@@ -4005,6 +4005,81 @@ models:
     release_date: 2024-08-17
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  # Jais Family
+
+  - name: inceptionai/jais-family-590m-chat
+    display_name: Jais-family-590m-chat
+    description: The Jais family of models is a series of bilingual English-Arabic large language models (LLMs) that are trained from scratch and optimized to excel in Arabic while having strong English capabilities. ([website](https://inceptionai.ai/jaisfamily/index.html), [blog](https://mbzuai.ac.ae/news/meet-jais-the-worlds-most-advanced-arabic-large-language-model-open-sourced-by-g42s-inception/))
+    creator_organization_name: Inception
+    access: open
+    num_parameters: 771000000
+    release_date: 2023-08-30
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: inceptionai/jais-family-1p3b-chat
+    display_name: Jais-family-1p3b-chat
+    description: The Jais family of models is a series of bilingual English-Arabic large language models (LLMs) that are trained from scratch and optimized to excel in Arabic while having strong English capabilities. ([website](https://inceptionai.ai/jaisfamily/index.html), [blog](https://mbzuai.ac.ae/news/meet-jais-the-worlds-most-advanced-arabic-large-language-model-open-sourced-by-g42s-inception/))
+    creator_organization_name: Inception
+    access: open
+    num_parameters: 1560000000
+    release_date: 2023-08-30
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: inceptionai/jais-family-2p7b-chat
+    display_name: Jais-family-2p7b-chat
+    description: The Jais family of models is a series of bilingual English-Arabic large language models (LLMs) that are trained from scratch and optimized to excel in Arabic while having strong English capabilities. ([website](https://inceptionai.ai/jaisfamily/index.html), [blog](https://mbzuai.ac.ae/news/meet-jais-the-worlds-most-advanced-arabic-large-language-model-open-sourced-by-g42s-inception/))
+    creator_organization_name: Inception
+    access: open
+    num_parameters: 2950000000
+    release_date: 2023-08-30
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: inceptionai/jais-family-6p7b-chat
+    display_name: Jais-family-6p7b-chat
+    description: The Jais family of models is a series of bilingual English-Arabic large language models (LLMs) that are trained from scratch and optimized to excel in Arabic while having strong English capabilities. ([website](https://inceptionai.ai/jaisfamily/index.html), [blog](https://mbzuai.ac.ae/news/meet-jais-the-worlds-most-advanced-arabic-large-language-model-open-sourced-by-g42s-inception/))
+    creator_organization_name: Inception
+    access: open
+    num_parameters: 7140000000
+    release_date: 2023-08-30
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: inceptionai/jais-family-6p7b-chat
+    display_name: Jais-family-6p7b-chat
+    description: The Jais family of models is a series of bilingual English-Arabic large language models (LLMs) that are trained from scratch and optimized to excel in Arabic while having strong English capabilities. ([website](https://inceptionai.ai/jaisfamily/index.html), [blog](https://mbzuai.ac.ae/news/meet-jais-the-worlds-most-advanced-arabic-large-language-model-open-sourced-by-g42s-inception/))
+    creator_organization_name: Inception
+    access: open
+    num_parameters: 7140000000
+    release_date: 2023-08-30
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: inceptionai/jais-family-13b-chat
+    display_name: Jais-family-13b-chat
+    description: The Jais family of models is a series of bilingual English-Arabic large language models (LLMs) that are trained from scratch and optimized to excel in Arabic while having strong English capabilities. ([website](https://inceptionai.ai/jaisfamily/index.html), [blog](https://mbzuai.ac.ae/news/meet-jais-the-worlds-most-advanced-arabic-large-language-model-open-sourced-by-g42s-inception/))
+    creator_organization_name: Inception
+    access: open
+    num_parameters: 13500000000
+    release_date: 2023-08-30
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: inceptionai/jais-family-30b-8k-chat
+    display_name: Jais-family-30b-8k-chat
+    description: The Jais family of models is a series of bilingual English-Arabic large language models (LLMs) that are trained from scratch and optimized to excel in Arabic while having strong English capabilities. ([website](https://inceptionai.ai/jaisfamily/index.html), [blog](https://mbzuai.ac.ae/news/meet-jais-the-worlds-most-advanced-arabic-large-language-model-open-sourced-by-g42s-inception/))
+    creator_organization_name: Inception
+    access: open
+    num_parameters: 30800000000
+    release_date: 2023-08-30
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: inceptionai/jais-family-30b-16k-chat
+    display_name: Jais-family-30b-16k-chat
+    description: The Jais family of models is a series of bilingual English-Arabic large language models (LLMs) that are trained from scratch and optimized to excel in Arabic while having strong English capabilities. ([website](https://inceptionai.ai/jaisfamily/index.html), [blog](https://mbzuai.ac.ae/news/meet-jais-the-worlds-most-advanced-arabic-large-language-model-open-sourced-by-g42s-inception/))
+    creator_organization_name: Inception
+    access: open
+    num_parameters: 30800000000
+    release_date: 2023-08-30
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+
   # Together
   - name: together/gpt-jt-6b-v1
     display_name: GPT-JT (6B)
