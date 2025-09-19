@@ -12,6 +12,7 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 
 _ARABIC_REFERENCE_PREFIX_CHARACTERS = ["أ", "ب", "ج", "د", "هـ"]
+_ARABIC_OUTPUT_MAPPING_PATTERN = "[أبجدهـ]"
 
 
 @run_spec_function("arabic_mmlu")
@@ -29,6 +30,7 @@ def get_arabic_mmlu_spec(subset: str) -> RunSpec:
         output_noun="الإجابة",
         max_tokens=100,
         reference_prefix_characters=_ARABIC_REFERENCE_PREFIX_CHARACTERS,
+        output_mapping_patterh=_ARABIC_OUTPUT_MAPPING_PATTERN,
     )
 
     return RunSpec(
@@ -54,6 +56,7 @@ def get_alghafa_spec(subset: str) -> RunSpec:
         output_noun="الإجابة",
         max_tokens=100,
         reference_prefix_characters=_ARABIC_REFERENCE_PREFIX_CHARACTERS,
+        output_mapping_patterh=_ARABIC_OUTPUT_MAPPING_PATTERN,
     )
 
     return RunSpec(
@@ -130,6 +133,7 @@ def get_madinah_qa_spec(subset: str) -> RunSpec:
         output_noun="الإجابة",
         max_tokens=100,
         reference_prefix_characters=_ARABIC_REFERENCE_PREFIX_CHARACTERS,
+        output_mapping_patterh=_ARABIC_OUTPUT_MAPPING_PATTERN,
     )
 
     return RunSpec(
@@ -155,6 +159,7 @@ def get_arabic_mmmlu_spec(subject: str) -> RunSpec:
         output_noun="الإجابة",
         max_tokens=100,
         reference_prefix_characters=_ARABIC_REFERENCE_PREFIX_CHARACTERS,
+        output_mapping_patterh=_ARABIC_OUTPUT_MAPPING_PATTERN,
     )
 
     return RunSpec(
@@ -180,6 +185,7 @@ def get_arabic_exams_spec(subject: str) -> RunSpec:
         output_noun="الإجابة",
         max_tokens=100,
         reference_prefix_characters=_ARABIC_REFERENCE_PREFIX_CHARACTERS,
+        output_mapping_patterh=_ARABIC_OUTPUT_MAPPING_PATTERN,
     )
 
     return RunSpec(
