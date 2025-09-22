@@ -397,6 +397,16 @@ def code_eval(gold: Tuple[str, Optional[Dict]], pred: str) -> float:
     return float(code_metrics_helper.check_correctness(gold[1], pred, 3.0)["passed"])  # type: ignore
 
 
+def _apply_output_mapping_pattern(pattern: str, prediction: str) -> str:
+    match = re.search(pattern, prediction)
+    if not match:
+        return ""
+    elif match.groups():
+        return match.group(0)
+    else:
+        return match.string
+
+
 # TODO This should probably be made into an implementation of MetricInterface. For now it lives here
 # just to separate it from basic_metrics.py.
 def compute_reference_metrics(
@@ -498,6 +508,8 @@ def compute_reference_metrics(
     # Note: If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
     # sometimes predict a random letter like 'M'.
     if request_state.output_mapping is not None:
+        if adapter_spec.output_mapping_pattern:
+            preds = [_apply_output_mapping_pattern(adapter_spec.output_mapping_pattern, pred) for pred in preds]
         preds = [request_state.output_mapping.get(pred) for pred in preds]  # type: ignore
 
     # Compute max_prob, the probability that the model assigns to its generated text.
