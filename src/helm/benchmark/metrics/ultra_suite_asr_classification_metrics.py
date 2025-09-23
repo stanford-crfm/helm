@@ -25,7 +25,9 @@ class UltraSuiteASRMetric(EvaluateInstancesMetric):
                     true_label = reference.output.text
                     break
 
+            assert request_state.result
             model_output_text = request_state.result.completions[0].text.strip().lower()
+            assert request_state.instance.extra_data
             ground_truth_text = request_state.instance.extra_data["transcription"].strip().lower()
 
             if model_output_text == ground_truth_text:
