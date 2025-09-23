@@ -1,6 +1,7 @@
 from typing import List
-import json
+import os
 
+from datasets import load_dataset
 from tqdm import tqdm
 
 from helm.benchmark.scenarios.scenario import (
@@ -13,8 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
-from huggingface_hub import snapshot_download
-from .ultra_suite_classification_scenario import find_audio_json_pairs
+from helm.common.audio_utils import ensure_audio_file_exists_from_array
 
 
 class UltraSuiteDisorderBreakdownScenario(Scenario):
@@ -38,46 +38,38 @@ class UltraSuiteDisorderBreakdownScenario(Scenario):
         - Audio files (e.g., .mp3)
         - A JSON file with annotations containing 'disorder_class' field
         """
-        print("Downloading SAA-Lab/SLPHelmManualLabels dataset...")
-        data_path = snapshot_download(
-            repo_id="SAA-Lab/SLPHelmManualLabels",
-            repo_type="dataset",
-            revision="38c2d7dab831acf8ccff0ca6f6463d6a8a0184ed",
-        )
+        audio_save_dir = os.path.join(output_path, "audio_files")
+        os.makedirs(audio_save_dir, exist_ok=True)
+
+        print("Downloading SAA-Lab/SLPHelmUltraSuitePlus dataset...")
+        dataset = load_dataset("SAA-Lab/SLPHelmUltraSuitePlus")
 
         instances: List[Instance] = []
         split: str = TEST_SPLIT
 
-        # Find all pairs of audio and JSON files
-        pairs = find_audio_json_pairs(data_path)
-        print(f"Num pairs: {len(pairs)}")
-
-        for audio_path, json_path in tqdm(pairs):
+        for idx, row in enumerate(tqdm(dataset["train"])):
             # Load the annotation
-            with open(json_path, "r") as f:
-                annotation = json.load(f)
+            label = row["disorder_type"]
+            transcription = row["transcription"]
 
-            # Get the correct answer and convert to label
-            if "disorder_type" not in annotation or "transcription" not in annotation:
-                continue
-            label = annotation["disorder_type"]
-            prompt = annotation["transcription"]
+            unique_id = str(idx)
+            local_audio_name = f"{label}_{unique_id}.mp3"
+            local_audio_path = os.path.join(audio_save_dir, local_audio_name)
+            ensure_audio_file_exists_from_array(local_audio_path, row["audio"]["array"], row["audio"]["sampling_rate"])
 
             # Create references for each option
             references: List[Reference] = []
-            correct_label = 0
-            for option in ["typically_developing", "articulation", "phonological"]:
+            options = ["typically_developing", "articulation", "phonological"]
+            if label not in options:
+                continue
+            for option in options:
                 reference = Reference(Output(text=option), tags=[CORRECT_TAG] if option == label else [])
                 references.append(reference)
-                if option == label:
-                    correct_label += 1
-            if correct_label == 0:
-                continue
 
             # Create the input with audio and instruction
             content = [
-                MediaObject(content_type="audio/mpeg", location=audio_path),
-                MediaObject(content_type="text/plain", text=self.get_instruction(prompt)),
+                MediaObject(content_type="audio/mpeg", location=local_audio_path),
+                MediaObject(content_type="text/plain", text=self.get_instruction(transcription)),
             ]
 
             input = Input(multimedia_content=MultimediaObject(content))
