@@ -68,7 +68,7 @@ Download the results:
 
 ```
 # Set the GCS path to the MedHELM results
-export GCS_BENCHMARK_OUTPUT_PATH=gs://crfm-helm-public/medhelm/benchmark_output
+export GCS_BENCHMARK_OUTPUT_PATH="gs://crfm-helm-public/medhelm/benchmark_output"
 
 # (Optional): Check the leaderboard results size before downloading
 # gcloud storage du -sr $GCS_BENCHMARK_OUTPUT_PATH
@@ -312,7 +312,7 @@ You can interact with MedHELM results by **viewing** pre‑computed results loca
 Run the following commands to create the local directory where leaderboard results will be stored. Adjust the directory path as needed.
 
 ```bash
-export OUTPUT_PATH=./benchmark_output
+export OUTPUT_PATH="./benchmark_output"
 mkdir $OUTPUT_PATH
 ```
 
@@ -322,7 +322,7 @@ Run the following commands to download the leaderboard results to the `OUTPUT_PA
 
 ```bash
 # Set the GCS path to the MedHELM results
-export GCS_BENCHMARK_OUTPUT_PATH=gs://crfm-helm-public/medhelm/benchmark_output
+export GCS_BENCHMARK_OUTPUT_PATH="gs://crfm-helm-public/medhelm/benchmark_output"
 
 # (Optional): Check the leaderboard results size before downloading
 # gcloud storage du -sr $GCS_BENCHMARK_OUTPUT_PATH
@@ -567,6 +567,9 @@ export RUN_ENTRIES_CONF_PATH="./exact_match_demo.conf"
 
 # Maximum number of evaluation instances to run (useful for quick testing)
 export MAX_EVAL_INSTANCES=2
+
+# Path to the directory where the results will be stored. (helm-run will create it if it doesn't exist)
+export OUTPUT_PATH="./benchmark_output"
 ```
 
 Then, run the benchmark with:
@@ -576,7 +579,7 @@ helm-run \
   --conf-paths $RUN_ENTRIES_CONF_PATH \
   --max-eval-instances $MAX_EVAL_INSTANCES \
   --suite $SUITE_NAME \
-  --output-path ./benchmark_output
+  --output-path $OUTPUT_PATH
 ```
 
 #### 6. Recreate the leaderboard
@@ -587,7 +590,7 @@ With the benchmarks results from step 5, run the following command to recreate t
 helm-summarize \
   --auto-generate-schema \
   --suite $SUITE_NAME \
-  --output-path ./benchmark_output
+  --output-path $OUTPUT_PATH
 ```
 
 #### 7. Launch the leaderboard
@@ -597,7 +600,7 @@ Once the leaderboard is created, launch the leaderboard to see it live.
 ```bash
 helm-server \
   --suite $SUITE_NAME \
-  --output-path ./benchmark_output
+  --output-path $OUTPUT_PATH
 ```
 
 ---
@@ -770,15 +773,16 @@ entries: [
 #### 5. Run the benchmark
 
 ```bash
-export SUITE_NAME=DEMO
+export SUITE_NAME="DEMO"
 export RUN_ENTRIES_CONF_PATH="./llm_jury_score_demo.conf"
 export MAX_EVAL_INSTANCES=2
+export OUTPUT_PATH="./benchmark_output"
 
 helm-run \
   --conf-paths $RUN_ENTRIES_CONF_PATH \
   --max-eval-instances $MAX_EVAL_INSTANCES \
   --suite $SUITE_NAME \
-  --output-path ./benchmark_output
+  --output-path $OUTPUT_PATH
 ```
 
 #### 6. Recreate the leaderboard
@@ -787,7 +791,7 @@ helm-run \
 helm-summarize \
   --auto-generate-schema \
   --suite $SUITE_NAME \
-  --output-path ./benchmark_output
+  --output-path $OUTPUT_PATH
 ```
 
 ---
@@ -797,7 +801,7 @@ helm-summarize \
 ```bash
 helm-server \
   --suite $SUITE_NAME \
-  --output-path ./benchmark_output
+  --output-path $OUTPUT_PATH
 ```
 
 #### Key Differences from the Exact Match Demo
