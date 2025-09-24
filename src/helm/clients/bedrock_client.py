@@ -7,6 +7,7 @@ from datetime import datetime
 
 from helm.common.cache import CacheConfig
 from helm.clients.client import CachingClient, truncate_and_tokenize_response_text
+from helm.common.hierarchical_logger import hexception
 from helm.common.request import Request, RequestResult, GeneratedOutput, wrap_request_time
 from helm.clients.bedrock_utils import get_bedrock_client, get_bedrock_client_v1
 from helm.tokenizers.tokenizer import Tokenizer
@@ -75,6 +76,7 @@ class BedrockClient(CachingClient):
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
 
         except Exception as error:
+            hexception(error)
             return RequestResult(
                 success=False,
                 cached=False,

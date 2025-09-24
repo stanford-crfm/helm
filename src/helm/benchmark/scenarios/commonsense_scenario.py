@@ -134,7 +134,13 @@ class OpenBookQA(Scenario):
             display_name="OpenbookQA",
             description="The OpenbookQA benchmark for commonsense-intensive open book question "
             "answering [(Mihaylov et al., 2018)](https://aclanthology.org/D18-1260/).",
-            taxonomy=TaxonomyInfo(task="question answering", what="?", when="?", who="?", language="English"),
+            taxonomy=TaxonomyInfo(
+                task="multiple-choice question answering",
+                what="elementary science",
+                when="2018",
+                who="Amazon Mechnical Turk workers",
+                language="English",
+            ),
             main_metric="exact_match",
             main_split="test",
         )

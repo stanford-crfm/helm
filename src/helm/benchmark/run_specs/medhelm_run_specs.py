@@ -1527,7 +1527,7 @@ def get_shc_ent_spec(data_path: str) -> RunSpec:
 @run_spec_function("shc_privacy_med")
 def get_shc_privacy_spec(data_path: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.shc_cdi_scenario.SHCPRIVACYMedScenario",
+        class_name="helm.benchmark.scenarios.shc_privacy_scenario.SHCPRIVACYMedScenario",
         args={"data_path": data_path},
     )
 
@@ -1550,7 +1550,7 @@ def get_shc_privacy_spec(data_path: str) -> RunSpec:
 @run_spec_function("shc_proxy_med")
 def get_shc_proxy_spec(data_path: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.shc_cdi_scenario.SHCPROXYMedScenario",
+        class_name="helm.benchmark.scenarios.shc_proxy_scenario.SHCPROXYMedScenario",
         args={"data_path": data_path},
     )
 

@@ -113,8 +113,15 @@ class WMT14Scenario(Scenario):
         return ScenarioMetadata(
             name="wmt_14",
             display_name="WMT 2014",
-            description="WMT 2014 is a collection of machine translation datasets.",
-            taxonomy=TaxonomyInfo(task="machine translation", what="n/a", when="n/a", who="n/a", language="English"),
+            description="WMT 2014 is a collection of machine translation datasets "
+            "[(website)](https://www.statmt.org/wmt14/index.html).",
+            taxonomy=TaxonomyInfo(
+                task="machine translation",
+                what="multilingual sentences",
+                when="before 2014",
+                who="Europarl, news, Common Crawl, etc.",
+                language="English, French, Czech, etc.",
+            ),
             main_metric="bleu_4",
             main_split="test",
         )

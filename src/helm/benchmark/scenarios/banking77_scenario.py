@@ -2,6 +2,7 @@ import datasets
 import os
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TEST_SPLIT,
@@ -11,6 +12,7 @@ from helm.benchmark.scenarios.scenario import (
     Reference,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.general import ensure_directory_exists
 
@@ -54,3 +56,22 @@ class Banking77Scenario(Scenario):
                 instance = Instance(input=input, references=references, split=split_name)
                 instances.append(instance)
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="banking77",
+            display_name="BANKING77",
+            short_display_name="BANKING77",
+            description="BANKING77 is a benchmark for intent classification of customer service queries "
+            "in the banking domain [(Casanueva et al., "
+            "2020)](https://aclanthology.org/2020.nlp4convai-1.5/).",
+            taxonomy=TaxonomyInfo(
+                task="text classification",
+                what="customer service queries in the banking domain",
+                when="During or before 2020",
+                who="banking customers",
+                language="English",
+            ),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )

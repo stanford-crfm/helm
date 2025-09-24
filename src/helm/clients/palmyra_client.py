@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 
 from helm.clients.openai_client import OpenAIClient
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import hwarn
+from helm.common.hierarchical_logger import hexception, hwarn
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token, ErrorFlags
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -99,6 +99,7 @@ class PalmyraClient(CachingClient):
 
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             except (requests.exceptions.RequestException, AssertionError) as e:
+                hexception(e)
                 error: str = f"PalmyraClient error: {e}"
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 

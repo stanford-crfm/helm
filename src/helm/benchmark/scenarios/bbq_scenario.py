@@ -249,6 +249,6 @@ class BBQScenario(Scenario):
             "question answering in ambiguous and unambigous context [(Parrish et al., "
             "2022)](https://aclanthology.org/2022.findings-acl.165/).",
             taxonomy=TaxonomyInfo(task="?", what="n/a", when="n/a", who="n/a", language="synthetic"),
-            main_metric="quasi_exact_match",
+            main_metric="bbq_accuracy",
             main_split="test",
         )

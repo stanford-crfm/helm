@@ -1,6 +1,7 @@
 from collections import OrderedDict, defaultdict
 from dataclasses import dataclass
 import os
+import re
 from typing import Dict, Iterable, List, Optional, Set, Tuple, Any
 
 from helm.benchmark.adaptation.adapter_spec import (
@@ -262,9 +263,18 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
             if request_state.result is not None and request_state.result.completions
             else ""
         )
-        mapped_output = (
-            request_state.output_mapping.get(predicted_text.strip()) if request_state.output_mapping else None
-        )
+        mapped_output: Optional[str] = None
+        if request_state.output_mapping is not None:
+            output_to_map = predicted_text.strip()
+            if run_spec.adapter_spec.output_mapping_pattern:
+                match = re.search(run_spec.adapter_spec.output_mapping_pattern, output_to_map)
+                if not match:
+                    output_to_map = ""
+                elif match.groups():
+                    output_to_map = match.group(0)
+                else:
+                    output_to_map = match.string
+            mapped_output = request_state.output_mapping.get(output_to_map)
         instance_id_to_instance[(request_state.instance.id, request_state.instance.perturbation)] = (
             request_state.instance
         )

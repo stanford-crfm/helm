@@ -1,6 +1,7 @@
 import os
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded
 from helm.benchmark.scenarios.ruler_qa_scenario_helper import generate_samples  # type: ignore
 from helm.benchmark.scenarios.scenario import (
@@ -11,6 +12,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -78,6 +80,25 @@ class RULERHotpotQAScenario(_RULERQAScenario):
     def __init__(self, max_num_words: int):
         super().__init__("hotpotqa", max_num_words)
 
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="ruler_hotpotqa",
+            display_name="RULER HotPotQA",
+            description="RULER HotPotQA is an augmented version of HotPotQA ([Yang et al., "
+            "2018](https://arxiv.org/abs/1809.09600)) introduced by [Hsieh et al., "
+            "2024](https://arxiv.org/abs/2404.06654) to simulate a multi-hop question "
+            "answering as a long-context scenario.",
+            taxonomy=TaxonomyInfo(
+                task="question answering with retrieval-augmented generation",
+                what="Wikipedia articles",
+                when="Before 2018",
+                who="Wikipedia authors",
+                language="English",
+            ),
+            main_metric="ruler_string_match_part",
+            main_split="valid",
+        )
+
 
 class RULERSQuADScenario(_RULERQAScenario):
     name = "ruler_squad"
@@ -86,3 +107,22 @@ class RULERSQuADScenario(_RULERQAScenario):
 
     def __init__(self, max_num_words: int):
         super().__init__("squad", max_num_words)
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="ruler_squad",
+            display_name="RULER SQuAD",
+            description="RULER SQuAD is an augmented version of SQuAD ([Rajpurkar et al., "
+            "2018](https://arxiv.org/abs/1806.03822)) introduced by [Hsieh et al., "
+            "2024](https://arxiv.org/abs/2404.06654) to simulate a single-hop question "
+            "answering as a long-context scenario.",
+            taxonomy=TaxonomyInfo(
+                task="question answering",
+                what="Wikipedia articles",
+                when="Before 2018",
+                who="Wikipedia authors and crowdworkers",
+                language="English",
+            ),
+            main_metric="ruler_string_match_part",
+            main_split="valid",
+        )

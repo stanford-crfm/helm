@@ -5,6 +5,7 @@ from transformers import pipeline
 from transformers.pipelines import ImageToTextPipeline
 
 from helm.common.cache import CacheConfig
+from helm.common.hierarchical_logger import hexception
 from helm.common.images_utils import open_image
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -93,6 +94,7 @@ class HuggingFaceVLMClient(CachingClient):
             )
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except RuntimeError as e:
+            hexception(e)
             return RequestResult(success=False, cached=False, error=str(e), completions=[], embedding=[])
 
         output: str = result["generated_text"]

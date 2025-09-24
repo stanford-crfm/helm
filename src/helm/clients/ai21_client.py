@@ -2,6 +2,7 @@ from typing import Dict, List, Optional, TypedDict
 import requests
 
 from helm.common.cache import CacheConfig
+from helm.common.hierarchical_logger import hexception
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import (
     wrap_request_time,
@@ -76,6 +77,7 @@ class AI21Client(CachingClient):
             cache_key = CachingClient.make_cache_key({"engine": request.model_engine, **raw_request}, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except AI21RequestError as e:
+            hexception(e)
             return RequestResult(success=False, cached=False, error=str(e), completions=[], embedding=[])
 
         def fix_text(x: str, first: bool) -> str:
