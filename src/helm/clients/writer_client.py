@@ -2,6 +2,7 @@ from typing import Any, Dict, List, Mapping, Optional
 
 from helm.clients.client import CachingClient
 from helm.common.cache import CacheConfig
+from helm.common.hierarchical_logger import hexception
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
 
@@ -82,6 +83,7 @@ class WriterClient(CachingClient):
             raw_response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             chat_completion: ChatCompletion = ChatCompletion.model_validate(raw_response)
         except Exception as error:
+            hexception(error)
             return RequestResult(
                 success=False,
                 cached=False,
