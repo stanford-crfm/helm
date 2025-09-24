@@ -222,7 +222,6 @@ run_groups:
       - dlr_edan_shared_control_converted_externally_to_rlds
       - dlr_sara_grid_clamp_converted_externally_to_rlds
       - droid_perspective
-      - droid_wrist
       - fractal20220817_data
       - iamlab_cmu_pickup_insert_converted_externally_to_rlds
       - imperialcollege_sawyer_wrist_cam
