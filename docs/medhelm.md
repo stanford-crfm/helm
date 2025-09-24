@@ -351,7 +351,7 @@ helm-server --release v2.0.0 --output-path $OUTPUT_PATH
 
 ---
 
-## Adding a New Benchmark
+## Creating a New Benchmark
 
 MedHELM allows you to define and run custom LLM benchmarks by combining a few simple configuration files:
 
@@ -377,7 +377,7 @@ A text file containing the task instructions with placeholders for dataset field
 - At runtime, they will be replaced with values from the dataset.  
 - Only columns explicitly referenced in the template will appear in the final prompt.  
 
-Example (`exact_match_demo_prompt.txt`):  
+Example:  
 ```txt
 You are a clinical assistant. Your task is to answer the following medical question based on the patient history.
 
@@ -402,14 +402,7 @@ A CSV file with one row per benchmark instance.
     - `correct_answer`: The reference answer against which model outputs are compared. 
     - `incorrect_answers`: JSON-serialized list of incorrect alternatives.
 
-Example format:  
-
-```csv
-"[""incorrect 1"", ""incorrect 2""]"
-```
-
-
-Example snippet (`exact_match_demo_dataset.csv`):  
+Example:  
 ```csv
 patient_id,note,question,correct_answer,incorrect_answers
 001,"Patient with hypertension.","Does the patient have hypertension?","Yes","[""No""]"
@@ -427,7 +420,7 @@ The benchmark config file must contain the following details of the benchmark:
 5. **Max tokens:** The maximum number of tokens allowed for model responses. 
 6. **Metrics:** A list of all metrics to evaluate and their required arguments (if any). The first metric in the list will be considered the **main metric** for the leaderboard.
 
-Example (`exact_match_demo.yaml`):
+Example:
 
 ```yaml
 # Name of your benchmark
@@ -463,7 +456,7 @@ metrics:
 
 ---
 
-### Steps to Add Your Own Benchmark
+### Steps to Create Your Own Benchmark
 
 We’ll illustrate each step with `EXACT-MATCH-DEMO`, a benchmark that measures LLMs performance on answering yes/no questions based on clinical notes. You can find this example, along with several others, in the **[examples.zip](./medhelm_examples.zip)** archive. After downloading and unzipping, look for the `exact_match_demo/` directory.
 
@@ -500,6 +493,7 @@ Build a CSV file where each row represents one benchmark instance.
 patient_id,note,question,correct_answer,incorrect_answers
 001,"Patient with hypertension.","Does the patient have hypertension?","Yes","[""No""]"
 002,"Patient denies smoking.","Does the patient smoke?","No","[""Yes""]"
+...
 ```
 
 #### 3. Write a benchmark config (`.yaml`)  
@@ -617,10 +611,14 @@ To follow along, navigate to the `llm_jury_score_demo/` directory from the unzip
 ```txt
 You are a clinical assistant. Your task is to write a plain-language discharge summary for patients.
 
+Patient ID: {patient_id}
+
 Patient Note:
 {note}
 
-Constraints: {constraints}
+Constraints:
+- The summary's length should be at most 120 words.
+- The summary should include diagnosis, medications, warning signs, and follow-up.
 
 Please provide your response below:
 ```
@@ -629,9 +627,10 @@ Please provide your response below:
 
 **Example — `llm_jury_score_demo_dataset.csv`:**
 ```csv
-patient_id,note,constraints
-4001,"67-year-old with cough and fever; chest X-ray shows pneumonia. Current meds: metformin 500 mg BID, atorvastatin 20 mg QHS. New Rx: amoxicillin-clavulanate 875/125 mg PO BID x7 days. Return if worse. Follow-up PCP in 3 days.","<=120 words; bullet points allowed; use lay terms; include diagnosis, meds, warning signs, and follow-up."
-4002,"58-year-old with CKD stage 3. Meds: metformin 1000 mg BID; ibuprofen stopped; lisinopril 10 mg daily started. Cr 1.8 mg/dL. Counsel to avoid NSAIDs.","<=100 words; use headings; avoid jargon; include medication changes and safety advice."
+patient_id,note
+4001,"67-year-old with cough and fever; chest X-ray shows pneumonia. Current meds: metformin 500 mg BID, atorvastatin 20 mg QHS. New Rx: amoxicillin-clavulanate 875/125 mg PO BID x7 days. Return if worse. Follow-up PCP in 3 days."
+4002,"58-year-old with CKD stage 3. Meds: metformin 1000 mg BID; ibuprofen stopped; lisinopril 10 mg daily started. Cr 1.8 mg/dL. Counsel to avoid NSAIDs."
+...
 ```
 
 #### 3. Define the benchmark config (`.yaml`)
