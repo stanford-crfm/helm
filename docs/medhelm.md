@@ -599,7 +599,7 @@ helm-server \
 
 In some healthcare tasks, standard accuracy or overlap metrics (like `exact_match` or `rouge`) may fail to capture the quality of an LLM’s response. To handle these cases, MedHELM supports **rubric-based evaluation**, where a set of LLMs — called *judges* — evaluate model responses according to predefined criteria.  
 
-This example, `LLM-JURY-SCORE-DEMO`, demonstrates how to create a benchmark that uses the `jury_score` metric to evaluate patient-friendly discharge summaries based on clinical notes. The setup is similar to the [Exact Match Demo](#example-1-exact-match-demo-beginner); here we only highlight the differences where necessary.  
+This example, `LLM-JURY-SCORE-DEMO`, demonstrates how to create a benchmark that uses the `jury_score` metric to evaluate patient-friendly discharge summaries based on clinical notes. The setup is similar to the Exact Match Demo; here we only highlight the differences where necessary.  
 
 To follow along, navigate to the `llm_jury_score_demo/` directory from the unzipped [examples.zip](./medhelm_examples.zip).
 
