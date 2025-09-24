@@ -465,7 +465,7 @@ metrics:
 
 ### Steps to Add Your Own Benchmark
 
-We’ll illustrate each step with `EXACT-MATCH-DEMO`, a benchmark that measures LLMs performance on answering yes/no questions based on clinical notes.
+We’ll illustrate each step with `EXACT-MATCH-DEMO`, a benchmark that measures LLMs performance on answering yes/no questions based on clinical notes. You can find this example, along with several others, in the **[examples.zip](./medhelm_examples.zip)** archive. After downloading and unzipping, look for the `exact_match_demo/` directory.
 
 #### 1. Create a prompt template (`.txt`)  
 
@@ -554,9 +554,9 @@ The only part that changes between benchmarks is the `config_path`, which should
 
 #### 5. Run the benchmark  
 
-With your prompt template, dataset, YAML config, and run configuration ready, you can now execute the benchmark.  
+With the prompt template, dataset, YAML config, and run configuration prepared, you can now run the benchmark. The following steps are bundled into the `run.sh` script.
 
-First, set a few environment variables to control the run:  
+First, set a few environment variables to configure the run:  
 
 ```bash
 # Name of the benchmark suite (used to group results)
@@ -582,9 +582,7 @@ helm-run \
   --output-path $OUTPUT_PATH
 ```
 
-#### 6. Recreate the leaderboard
-
-With the benchmarks results from step 5, run the following command to recreate the leaderboard:
+With the benchmarks results from `helm-run`, run the following command to recreate the leaderboard:
 
 ```bash
 helm-summarize \
@@ -593,9 +591,7 @@ helm-summarize \
   --output-path $OUTPUT_PATH
 ```
 
-#### 7. Launch the leaderboard
-
-Once the leaderboard is created, launch the leaderboard to see it live.
+Once the leaderboard is created with `helm-summarize`, launch the leaderboard to see it live.
 
 ```bash
 helm-server \
@@ -610,6 +606,8 @@ helm-server \
 In some healthcare tasks, standard accuracy or overlap metrics (like `exact_match` or `rouge`) may fail to capture the quality of an LLM’s response. To handle these cases, MedHELM supports **rubric-based evaluation**, where a set of LLMs — called *judges* — evaluate model responses according to predefined criteria.  
 
 This example, `LLM-JURY-SCORE-DEMO`, demonstrates how to create a benchmark that uses the `jury_score` metric to evaluate patient-friendly discharge summaries based on clinical notes. The setup is similar to the [Exact Match Demo](#example-1-exact-match-demo-beginner); here we only highlight the differences where necessary.  
+
+To follow along, navigate to the `llm_jury_score_demo/` directory from the unzipped [examples.zip](./medhelm_examples.zip).
 
 ---
 
@@ -772,12 +770,20 @@ entries: [
 
 #### 5. Run the benchmark
 
+The following steps are bundled into the `run.sh` script.
+
+Configure the run:
+
 ```bash
 export SUITE_NAME="DEMO"
 export RUN_ENTRIES_CONF_PATH="./llm_jury_score_demo.conf"
 export MAX_EVAL_INSTANCES=2
 export OUTPUT_PATH="./benchmark_output"
+```
 
+Run the benchmark:
+
+```bash
 helm-run \
   --conf-paths $RUN_ENTRIES_CONF_PATH \
   --max-eval-instances $MAX_EVAL_INSTANCES \
@@ -785,7 +791,7 @@ helm-run \
   --output-path $OUTPUT_PATH
 ```
 
-#### 6. Recreate the leaderboard
+Recreate the leaderboard:
 
 ```bash
 helm-summarize \
@@ -794,9 +800,7 @@ helm-summarize \
   --output-path $OUTPUT_PATH
 ```
 
----
-
-#### 7. Launch the leaderboard
+Launch the leaderboard:
 
 ```bash
 helm-server \
