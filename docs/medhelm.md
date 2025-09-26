@@ -458,7 +458,7 @@ metrics:
 
 ### Steps to Create Your Own Benchmark
 
-We’ll illustrate each step with `EXACT-MATCH-DEMO`, a benchmark that measures LLMs performance on answering yes/no questions based on clinical notes. You can find this example, along with several others, in the **[examples.zip](./medhelm_examples.zip)** archive. After downloading and unzipping, look for the `exact_match_demo/` directory.
+We’ll illustrate each step with `EXACT-MATCH-DEMO`, a benchmark that measures LLMs performance on answering yes/no questions based on clinical notes. You can find this example, along with several others, in the **[examples.zip](https://drive.google.com/uc?export=download&id=1Y8aT6O3cpGPcZ9KPDz99D5lyoP7qZdgU)** archive. After downloading and unzipping, look for the `exact_match_demo/` directory.
 
 #### 1. Create a prompt template (`.txt`)  
 
@@ -601,7 +601,7 @@ In some healthcare tasks, standard accuracy or overlap metrics (like `exact_matc
 
 This example, `LLM-JURY-SCORE-DEMO`, demonstrates how to create a benchmark that uses the `jury_score` metric to evaluate patient-friendly discharge summaries based on clinical notes. The setup is similar to the Exact Match Demo; here we only highlight the differences where necessary.  
 
-To follow along, navigate to the `llm_jury_score_demo/` directory from the unzipped [examples.zip](./medhelm_examples.zip).
+To follow along, navigate to the `llm_jury_score_demo/` directory from the unzipped [examples.zip](https://drive.google.com/uc?export=download&id=1Y8aT6O3cpGPcZ9KPDz99D5lyoP7qZdgU).
 
 ---
 
