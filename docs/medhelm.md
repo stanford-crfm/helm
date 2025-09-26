@@ -20,7 +20,7 @@ MedHELM extends the HELM framework to evaluate **large language models (LLMs) in
 
     Required for downloading MedHELM results stored on Google Cloud.
 
-    **Note:** During installation, the installer will recommend Python 3.12 for full feature support. These features are not needed for MedHELM. We recommend using Python 3.10 for best compatibilitywith MedHELM.
+    **Note:** During installation, the installer will recommend Python 3.12 for full feature support. These features are not needed for MedHELM. We recommend using Python 3.10 for best compatibility with MedHELM.
 
 3. GPU Access
 
@@ -43,16 +43,9 @@ conda activate crfm-helm
 pip install -U setuptools
 ```
 
-Run the following command to install HELM:
+Run the following command to install HELM and the necessary MedHELM extensions:
 ```
-pip install -U crfm-helm
-```
-
-Run the following commands to install the necessary MedHELM extensions:
-
-```
-# Install MedHELM extras
-pip install "crfm-helm[summarization,medhelm]"
+pip install -U "crfm-helm[summarization,medhelm]"
 ```
 
 #### 2. Download leaderboard results
@@ -132,7 +125,7 @@ helm-server \
 * **Suite:** Named collection of runs; appears as a tab/section in the leaderboard.
 * **Annotator:** Optional post‑processing (e.g., LLM‑as‑a‑judge).
 * **Schema:** Task taxonomy + metrics configuration powering `helm-summarize` and the UI.
-* **Release:** The tag name of the leaderboard.
+* **Release:** The release name of the leaderboard.
 
 ---
 
