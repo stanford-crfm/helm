@@ -1,0 +1,3 @@
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+ENTRYPOINT ["helm-summarize"]
