@@ -225,6 +225,8 @@ class Runner:
             raise RunnerError(f"Failed runs: [{failed_runs_str}]")
 
     def run_one(self, run_spec: RunSpec):
+        scenario_name = run_spec.name.split(':')[0]
+        os.environ['HELM_CURRENT_SCENARIO'] = scenario_name
         run_path: str = self._get_run_path(run_spec)
         if self.skip_completed_runs and self._is_run_completed(run_path):
             hlog(f"Skipping run {run_spec.name} because run is completed and all output files exist.")
