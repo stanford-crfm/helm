@@ -3975,6 +3975,42 @@ models:
     release_date: 2023-05-25
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: tiiuae/falcon3-1b-instruct
+    display_name: Falcon3-1B-Instruct
+    description: Falcon3-1B-Instruct is an open-weights foundation model that supports 4 languages (English, French, Spanish, Portuguese) that was trained on 14T tokens.
+    creator_organization_name: TII UAE
+    access: open
+    num_parameters: 1670000000
+    release_date: 2024-12-17  # https://huggingface.co/docs/transformers/main/en/model_doc/falcon3
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: tiiuae/falcon3-3b-instruct
+    display_name: Falcon3-3B-Instruct
+    description: Falcon3-3B-Instruct is an open-weights foundation model that supports 4 languages (English, French, Spanish, Portuguese) that was trained on 14T tokens.
+    creator_organization_name: TII UAE
+    access: open
+    num_parameters: 3230000000
+    release_date: 2024-12-17  # https://huggingface.co/docs/transformers/main/en/model_doc/falcon3
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: tiiuae/falcon3-7b-instruct
+    display_name: Falcon3-7B-Instruct
+    description: Falcon3-7B-Instruct is an open-weights foundation model that supports 4 languages (English, French, Spanish, Portuguese) that was trained on 14T tokens.
+    creator_organization_name: TII UAE
+    access: open
+    num_parameters: 7460000000
+    release_date: 2024-12-17  # https://huggingface.co/docs/transformers/main/en/model_doc/falcon3
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: tiiuae/falcon3-10b-instruct
+    display_name: Falcon3-10B-Instruct
+    description: Falcon3-10B-Instruct is an open-weights foundation model that supports 4 languages (English, French, Spanish, Portuguese) that was trained on 14T tokens.
+    creator_organization_name: TII UAE
+    access: open
+    num_parameters: 10300000000
+    release_date: 2024-12-17  # https://huggingface.co/docs/transformers/main/en/model_doc/falcon3
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   # AceGPT-v2
   - name: freedomintelligence/acegpt-v2-8b-chat
     display_name: AceGPT-v2-8B-Chat
