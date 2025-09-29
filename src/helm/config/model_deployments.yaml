@@ -4507,6 +4507,38 @@ model_deployments:
       args:
         device_map: auto
 
+  - name: huggingface/falcon3-1b-instruct
+    model_name: tiiuae/falcon3-1b-instruct
+    tokenizer_name: tiiuae/falcon3-1b-instruct
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/falcon3-3b-instruct
+    model_name: tiiuae/falcon3-3b-instruct
+    tokenizer_name: tiiuae/falcon3-1b-instruct
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/falcon3-7b-instruct
+    model_name: tiiuae/falcon3-7b-instruct
+    tokenizer_name: tiiuae/falcon3-7b-instruct
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+
+  - name: huggingface/falcon3-10b-instruct
+    model_name: tiiuae/falcon3-10b-instruct
+    tokenizer_name: tiiuae/falcon3-1b-instruct
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+
 # IBM WatsonX
   - name: ibm/llama-3.3-70b-instruct
     model_name: meta/llama-3.3-70b-instruct
