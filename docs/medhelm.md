@@ -38,7 +38,7 @@ Run the following commands to create and activate a new python virtual environme
 
 ```
 # Create and activate a clean environment
-conda create -n crfm-helm python=3.10 pip
+conda create -n crfm-helm python=3.10 pip wget
 conda activate crfm-helm
 pip install -U setuptools
 ```
@@ -74,7 +74,7 @@ gcloud storage rsync -r $GCS_BENCHMARK_OUTPUT_PATH $OUTPUT_PATH
 
 ```bash
 # Set variables
-RUN_ENTRIES="medcalc_bench:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct"
+RUN_ENTRIES="pubmed_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct"
 SUITE="my-medhelm-suite"
 MAX_EVAL_INSTANCES=10
 
@@ -93,7 +93,7 @@ SCHEMA="schema_medhelm.yaml"
 RELEASE="my-medhelm-release"
 LIVE_LEADERBOARD_SUITE="v2.0.0"
 
-curl -L -o $SCHEMA \
+wget -O $SCHEMA \
    https://raw.githubusercontent.com/stanford-crfm/helm/v0.5.7/src/helm/benchmark/static/schema_medhelm.yaml
 
 # Create the leaderboard
@@ -175,38 +175,31 @@ Run the following commands to create and activate a new python virtual environme
 
 ```bash
 # Create and activate a clean environment
-conda create -n crfm-helm python=3.10 pip
+conda create -n crfm-helm python=3.10 pip wget
 conda activate crfm-helm
+pip install -U setuptools
 ```
 
-#### 2. Install HELM in your virtual environment:
+#### 2. Install HELM in your virtual environment and MedHELM-specific dependencies:
 
 ```bash
-pip install crfm-helm
-```
-
-#### 3. Install the MedHELM-specific dependencies 
-
-On the same python virtual environment from step 1, run the following command to install the MedHELM-specific dependencies.
-
-```bash
-pip install "crfm-helm[summarization,medhelm]"
+pip install -U "crfm-helm[summarization,medhelm]"
 ```
 
 ---
 
 ## Run Your First Evaluation
 
-The example below evaluates **Qwen2.5‑7B‑Instruct** on the **MedCalc‑Bench** scenario using 10 instances.
+The example below evaluates **Qwen2.5‑7B‑Instruct** on the **PubMedQA** scenario using 10 instances.
 
 
 #### 1. Run the benchmark 
 
-The following command runs **MedCalc-Bench** on **Qwen2.5‑7B‑Instruct** for 10 instances and stores the results under `./benchmark_output/runs/my-medhelm-suite`. 
+The following command runs **PubMedQA** on **Qwen2.5‑7B‑Instruct** for 10 instances and stores the results under `./benchmark_output/runs/my-medhelm-suite`. 
 
 ```bash
 # Set variables
-RUN_ENTRIES="medcalc_bench:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct"
+RUN_ENTRIES="pubmed_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct"
 SUITE="my-medhelm-suite"
 MAX_EVAL_INSTANCES=10
 OUTPUT_PATH="./benchmark_output"
@@ -222,7 +215,7 @@ helm-run \
 *Flags explained:*
 
 * `--run-entries`: Specifies which benchmark(s) and model(s) to run.
-In this example, the benchmark is medcalc_bench and the model is qwen/qwen2.5-7b-instruct, deployed via Hugging Face.
+In this example, the benchmark is pubmed_qa and the model is qwen/qwen2.5-7b-instruct, deployed via Hugging Face.
 * `--suite`: Assigns the run to a suite, which acts as a collection of results.
 Using the same suite name across multiple runs groups their results together.
 * `--max-eval-instances`: Limits the number of benchmark instances evaluated. 
@@ -237,7 +230,7 @@ The following commands convert the results from step 1 into an interactive leade
 SCHEMA="schema_medhelm.yaml"
 RELEASE="my-medhelm-release"
 
-curl -L -o $SCHEMA \
+wget -O $SCHEMA \
    https://raw.githubusercontent.com/stanford-crfm/helm/v0.5.7/src/helm/benchmark/static/schema_medhelm.yaml
 helm-summarize \
   --suites $SUITE \
