@@ -4993,7 +4993,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.dspy_client.DSPyClient"
       args:
-        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/helm-optimizer/main/agents/{scenario}/claude-3.7-sonnet/BootstrapFewShotWithRandomSearch.json
+        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/dspy-helm/main/agents/{scenario}/claude-3.7-sonnet/BootstrapFewShotWithRandomSearch.json
         dspy_module: ChainOfThought
         api_model: anthropic/claude-3-7-sonnet-20250219
         api_base: null
@@ -5005,7 +5005,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.dspy_client.DSPyClient"
       args:
-        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/helm-optimizer/main/agents/{scenario}/gemini-2.0-flash/BootstrapFewShotWithRandomSearch.json
+        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/dspy-helm/main/agents/{scenario}/gemini-2.0-flash/BootstrapFewShotWithRandomSearch.json
         dspy_module: ChainOfThought
         api_model: google/gemini-2.0-flash-001
         api_base: null
@@ -5017,7 +5017,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.dspy_client.DSPyClient"
       args:
-        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/helm-optimizer/main/agents/{scenario}/gpt-4o/BootstrapFewShotWithRandomSearch.json
+        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/dspy-helm/main/agents/{scenario}/gpt-4o/BootstrapFewShotWithRandomSearch.json
         dspy_module: ChainOfThought
         api_model: openai/gpt-4o-2024-05-13
         api_base: null
@@ -5029,7 +5029,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.dspy_client.DSPyClient"
       args:
-        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/helm-optimizer/main/agents/{scenario}/o3-mini/BootstrapFewShotWithRandomSearch.json
+        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/dspy-helm/main/agents/{scenario}/o3-mini/BootstrapFewShotWithRandomSearch.json
         dspy_module: ChainOfThought
         api_model: openai/o3-mini-2025-01-31
         api_base: null
@@ -5041,7 +5041,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.dspy_client.DSPyClient"
       args:
-        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/helm-optimizer/main/agents/{scenario}/claude-3.7-sonnet/MIPROv2.json
+        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/dspy-helm/main/agents/{scenario}/claude-3.7-sonnet/MIPROv2.json
         dspy_module: ChainOfThought
         api_model: anthropic/claude-3-7-sonnet-20250219
         api_base: null
@@ -5053,7 +5053,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.dspy_client.DSPyClient"
       args:
-        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/helm-optimizer/main/agents/{scenario}/gemini-2.0-flash/MIPROv2.json
+        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/dspy-helm/main/agents/{scenario}/gemini-2.0-flash/MIPROv2.json
         dspy_module: ChainOfThought
         api_model: google/gemini-2.0-flash-001
         api_base: null
@@ -5065,7 +5065,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.dspy_client.DSPyClient"
       args:
-        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/helm-optimizer/main/agents/{scenario}/gpt-4o/MIPROv2.json
+        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/dspy-helm/main/agents/{scenario}/gpt-4o/MIPROv2.json
         dspy_module: ChainOfThought
         api_model: openai/gpt-4o-2024-05-13
         api_base: null
@@ -5077,7 +5077,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.dspy_client.DSPyClient"
       args:
-        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/helm-optimizer/main/agents/{scenario}/o3-mini/MIPROv2.json
+        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/dspy-helm/main/agents/{scenario}/o3-mini/MIPROv2.json
         dspy_module: ChainOfThought
         api_model: openai/o3-mini-2025-01-31
         api_base: null
