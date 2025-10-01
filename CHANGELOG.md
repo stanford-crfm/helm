@@ -18,7 +18,7 @@
 
 ### Scenarios
 
-- Fix breakages in `shc_privacy_med` and `shc_proxy_med`
+- Fix breakages in `shc_privacy_med` and `shc_proxy_med` (#3876)
 - Allow applying regular expression pattern before mapping output (#3882)
 - Add output mapping patterns for Arabic MCQA scenarios (#3885)
 - Update speech language pathology scenarios to use Hugging Face Datasets (#3835)
