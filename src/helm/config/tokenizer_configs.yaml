@@ -803,6 +803,12 @@ tokenizer_configs:
     end_of_text_token: "<|endoftext|>"
     prefix_token: ""
 
+  - name: tiiuae/falcon3-1b-instruct
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: ""
+
   # TsinghuaKEG
   - name: TsinghuaKEG/ice
     tokenizer_spec:

@@ -555,6 +555,14 @@ models:
     release_date: 2025-05-14
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: anthropic/claude-sonnet-4-5-20250929
+    display_name: Claude 4.5 Sonnet (20250929)
+    description: Claude 4.5 Sonnet is a model from Anthropic that shows particular strengths in software coding, in agentic tasks where it runs in a loop and uses tools, and in using computers. ([blog](https://www.anthropic.com/news/claude-sonnet-4-5), [system card](https://assets.anthropic.com/m/12f214efcc2f457a/original/Claude-Sonnet-4-5-System-Card.pdf))
+    creator_organization_name: Anthropic
+    access: limited
+    release_date: 2025-09-29
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: anthropic/stanford-online-all-v4-s3
     display_name: Anthropic-LM v4-s3 (52B)
     description: A 52B parameter language model, trained using reinforcement learning from human feedback [paper](https://arxiv.org/pdf/2204.05862.pdf).
@@ -3974,6 +3982,42 @@ models:
     num_parameters: 40000000000
     release_date: 2023-05-25
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: tiiuae/falcon3-1b-instruct
+    display_name: Falcon3-1B-Instruct
+    description: Falcon3-1B-Instruct is an open-weights foundation model that supports 4 languages (English, French, Spanish, Portuguese) that was trained on 14T tokens.
+    creator_organization_name: TII UAE
+    access: open
+    num_parameters: 1670000000
+    release_date: 2024-12-17  # https://huggingface.co/docs/transformers/main/en/model_doc/falcon3
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: tiiuae/falcon3-3b-instruct
+    display_name: Falcon3-3B-Instruct
+    description: Falcon3-3B-Instruct is an open-weights foundation model that supports 4 languages (English, French, Spanish, Portuguese) that was trained on 14T tokens.
+    creator_organization_name: TII UAE
+    access: open
+    num_parameters: 3230000000
+    release_date: 2024-12-17  # https://huggingface.co/docs/transformers/main/en/model_doc/falcon3
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: tiiuae/falcon3-7b-instruct
+    display_name: Falcon3-7B-Instruct
+    description: Falcon3-7B-Instruct is an open-weights foundation model that supports 4 languages (English, French, Spanish, Portuguese) that was trained on 14T tokens.
+    creator_organization_name: TII UAE
+    access: open
+    num_parameters: 7460000000
+    release_date: 2024-12-17  # https://huggingface.co/docs/transformers/main/en/model_doc/falcon3
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: tiiuae/falcon3-10b-instruct
+    display_name: Falcon3-10B-Instruct
+    description: Falcon3-10B-Instruct is an open-weights foundation model that supports 4 languages (English, French, Spanish, Portuguese) that was trained on 14T tokens.
+    creator_organization_name: TII UAE
+    access: open
+    num_parameters: 10300000000
+    release_date: 2024-12-17  # https://huggingface.co/docs/transformers/main/en/model_doc/falcon3
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # AceGPT-v2
   - name: freedomintelligence/acegpt-v2-8b-chat

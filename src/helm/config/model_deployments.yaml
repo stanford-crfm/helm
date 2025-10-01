@@ -730,6 +730,13 @@ model_deployments:
         thinking_budget_tokens: 10000
         stream: true
 
+  - name: anthropic/claude-sonnet-4-5-20250929
+    model_name: anthropic/claude-sonnet-4-5-20250929
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.anthropic_client.AnthropicMessagesClient"
+
   - name: anthropic/stanford-online-all-v4-s3
     deprecated: true # Closed model, not accessible via API
     model_name: anthropic/stanford-online-all-v4-s3
@@ -4502,6 +4509,38 @@ model_deployments:
     model_name: inceptionai/jais-adapted-70b-chat
     tokenizer_name: inceptionai/jais-adapted-7b-chat
     max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+
+  - name: huggingface/falcon3-1b-instruct
+    model_name: tiiuae/falcon3-1b-instruct
+    tokenizer_name: tiiuae/falcon3-1b-instruct
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/falcon3-3b-instruct
+    model_name: tiiuae/falcon3-3b-instruct
+    tokenizer_name: tiiuae/falcon3-1b-instruct
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/falcon3-7b-instruct
+    model_name: tiiuae/falcon3-7b-instruct
+    tokenizer_name: tiiuae/falcon3-7b-instruct
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+
+  - name: huggingface/falcon3-10b-instruct
+    model_name: tiiuae/falcon3-10b-instruct
+    tokenizer_name: tiiuae/falcon3-1b-instruct
+    max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
