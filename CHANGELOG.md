@@ -2,6 +2,8 @@
 
 ## [Upcoming]
 
+## [v0.5.9] - 2025-10-01
+
 ### Models
 
 - Add Arabic language models
@@ -1173,7 +1175,8 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.8...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.9...HEAD
+[v0.5.9]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.9
 [v0.5.8]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.8
 [v0.5.7]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.7
 [v0.5.6]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.6
