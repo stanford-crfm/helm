@@ -1,6 +1,5 @@
 import os
 import requests
-from urllib.parse import quote
 from typing import List
 from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
@@ -60,8 +59,7 @@ class MTSamplesReplicateScenario(Scenario):
         """
         Downloads a text file from GitHub and saves it locally.
         """
-        encoded_file_name = quote(file_name)
-        file_url = self.RAW_BASE_URL + encoded_file_name
+        file_url = self.RAW_BASE_URL + file_name
         file_path = os.path.join(output_dir, file_name)
 
         if not os.path.exists(file_path):

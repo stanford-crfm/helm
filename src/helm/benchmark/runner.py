@@ -39,8 +39,13 @@ from helm.benchmark.window_services.tokenizer_service import TokenizerService
 
 
 LATEST_SYMLINK: str = "latest"
+_CURRENT_RUN_SPEC_NAME: typing.Optional[str] = None
 _BENCHMARK_OUTPUT_PATH: str = "benchmark_output"
 _CACHED_MODELS_FOLDER: str = "models"
+
+
+def _get_current_run_spec_name() -> typing.Optional[str]:
+    return _CURRENT_RUN_SPEC_NAME
 
 
 def get_benchmark_output_path() -> str:
@@ -225,8 +230,8 @@ class Runner:
             raise RunnerError(f"Failed runs: [{failed_runs_str}]")
 
     def run_one(self, run_spec: RunSpec):
-        scenario_name = run_spec.name.split(":")[0]
-        os.environ["HELM_CURRENT_SCENARIO"] = scenario_name
+        global _CURRENT_RUN_SPEC_NAME
+        _CURRENT_RUN_SPEC_NAME = run_spec.name
         run_path: str = self._get_run_path(run_spec)
         if self.skip_completed_runs and self._is_run_completed(run_path):
             hlog(f"Skipping run {run_spec.name} because run is completed and all output files exist.")

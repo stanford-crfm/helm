@@ -419,10 +419,3 @@ xxhash==3.5.0
 yarl==1.20.1
 zipp==3.23.0
 zstandard==0.18.0
-dspy==3.0.3
-fastapi==0.118.0
-apscheduler==3.11.0
-cryptography==43.0.3
-python-multipart==0.0.20
-email-validator==2.3.0
-fastapi_sso==0.18.0
