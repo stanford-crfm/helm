@@ -2,7 +2,7 @@
 # See: https://docs.astral.sh/uv/pip/compile/#adding-constraints
 
 # Constrain PyTorch versions to the same versions in install-dev.sh
-torch==2.5.1
+torch==2.8.0
 torchvision==0.20.1
 
 # Security upgrades
