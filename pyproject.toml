@@ -15,14 +15,11 @@ license = { text = "Apache License 2.0" }
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "License :: OSI Approved :: Apache Software License",
 ]
 urls = { "Homepage" = "https://github.com/stanford-crfm/helm" }
 
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 
 dependencies = [
     # Common
@@ -210,7 +207,8 @@ models = [
     "crfm-helm[yandex]",
     "crfm-helm[writer]",
     "crfm-helm[ibm-enterprise-scenarios]",
-    # crfm-helm[ibm] is excluded because it does not support Python 3.9
+    # TODO: Uncomment this after dependency resolution is stable
+    # "crfm-helm[ibm]",
 ]
 
 reka = [
@@ -323,9 +321,8 @@ heim = [
 
     # Transitive dependency of NudeNet
     # This needs to be a version that provides wheels for all Python versions
-    # supported by crfm-helm i.e. Python 3.9, 3.10, 3.11, 3.12
-    # Disallow version 0.23.* because it has no Python 3.9 wheels.
-    "scikit-image>=0.22,==0.*,!=0.23.*",
+    # supported by crfm-helm i.e. 3.10, 3.11, 3.12
+    "scikit-image>=0.22,==0.*",
 
     # Shared image dependencies
     "crfm-helm[images]",
