@@ -10,21 +10,23 @@ MedHELM extends the HELM framework to evaluate **large language models (LLMs) in
 
 ---
 
-## Requirements 
+## Requirements
 
-1. [Conda](https://www.anaconda.com/docs/getting-started/getting-started) (~30 min to intall)
+Before you install MedHELM, make sure your system meets the following requirements:
+
+1. [Conda](https://www.anaconda.com/docs/getting-started/getting-started) (~30 minutes to install)
   
     Used to manage the Python virtual environment for MedHELM.
 
-2. [Google Cloud CLI](https://cloud.google.com/sdk/docs/install) (~30 min to install)
+2. [Google Cloud CLI](https://cloud.google.com/sdk/docs/install) (~30 minutes to install)
 
-    Required for downloading MedHELM results stored on Google Cloud.
+    Required for downloading MedHELM results stored in Google Cloud.
 
-    **Note:** During installation, the installer will recommend Python 3.12 for full feature support. These features are not needed for MedHELM. We recommend using Python 3.10 for best compatibility with MedHELM.
+    **Note:** During installation, the installer will recommend Python 3.12 for full feature support. These features are not needed. MedHELM is **only** compatible with `Python 3.10`.
 
 3. GPU Access
 
-    Needed for running models locally. The exact GPU requirements depend on the model and context length.
+    Needed for running models locally. The exact GPU requirements depend on the model size and benchmark.
 
 ---
 
@@ -32,7 +34,7 @@ MedHELM extends the HELM framework to evaluate **large language models (LLMs) in
 
 **Goal:** Install MedHELM, download the live leaderboard, run a 10-instance evaluation on a public scenario, and create a local leaderboard.
 
-#### 1. Install (Python 3.10 recommended)
+#### 1. Install Dependencies
 
 Run the following commands to create and activate a new python virtual environment:
 
@@ -48,7 +50,7 @@ Run the following command to install HELM and the necessary MedHELM extensions:
 pip install -U "crfm-helm[summarization,medhelm]"
 ```
 
-#### 2. Download leaderboard results
+#### 2. Download Leaderboard Results
 
 Create the directory where the downloaded results will be stored:
 
@@ -70,7 +72,7 @@ export GCS_BENCHMARK_OUTPUT_PATH="gs://crfm-helm-public/medhelm/benchmark_output
 gcloud storage rsync -r $GCS_BENCHMARK_OUTPUT_PATH $OUTPUT_PATH
 ```
 
-#### 3. Run a tiny evaluation
+#### 3. Run a Tiny Evaluation
 
 ```bash
 # Set variables
@@ -86,7 +88,7 @@ helm-run \
    --output-path $OUTPUT_PATH
 ```
 
-#### 4. Build and open the local leaderboard
+#### 4. Build and Open the Local Leaderboard
 
 ```bash
 SCHEMA="schema_medhelm.yaml"
@@ -111,10 +113,8 @@ helm-server \
 
 **Expected outcome:**
 
-* Benchmark results for the tiny evaluation at `$OUTPUT_PATH/runs/$SUITE`
+* Benchmark results for the tiny evaluation at `$OUTPUT_PATH/runs/$SUITE`.
 * A local leaderboard combining results from the live leaderboard and the tiny evaluation (the URL will be printed in the terminal).
-
-> ⚠️ **PHI & compliance:** Only run **gated** or **private** data on infrastructure approved by your organization. Use the **redaction** steps in *Sharing Results* before sending outputs externally.
 
 ---
 
@@ -129,7 +129,7 @@ helm-server \
 
 ---
 
-## Clinician‑Validated Taxonomy (overview)
+## Clinician‑Validated Taxonomy
 
 MedHELM evaluates models across a clinician‑validated taxonomy: **5 categories**, **22 subcategories**, **121 tasks**.
 
@@ -169,7 +169,9 @@ MedHELM evaluates models across a clinician‑validated taxonomy: **5 categories
 
 ## Installation
 
-#### 1. Create a virtual environment (Python 3.10 recommended)
+**NOTE**: MedHELM is compatible **only** with `Python 3.10`. Other Python versions are not supported.
+
+#### 1. Create a Virtual Environment
 
 Run the following commands to create and activate a new python virtual environment:
 
@@ -180,7 +182,7 @@ conda activate crfm-helm
 pip install -U setuptools
 ```
 
-#### 2. Install HELM in your virtual environment and MedHELM-specific dependencies:
+#### 2. Install HELM and MedHELM-specific Dependencies:
 
 ```bash
 pip install -U "crfm-helm[summarization,medhelm]"
@@ -193,7 +195,7 @@ pip install -U "crfm-helm[summarization,medhelm]"
 The example below evaluates **Qwen2.5‑7B‑Instruct** on the **PubMedQA** scenario using 10 instances.
 
 
-#### 1. Run the benchmark 
+#### 1. Run the Benchmark 
 
 The following command runs **PubMedQA** on **Qwen2.5‑7B‑Instruct** for 10 instances and stores the results under `./benchmark_output/runs/my-medhelm-suite`. 
 
@@ -212,17 +214,9 @@ helm-run \
    --output-path $OUTPUT_PATH
 ```
 
-*Flags explained:*
+For more information about `helm-run`, refer to the [Using helm-run](./tutorial.md#using-helm-run) page.
 
-* `--run-entries`: Specifies which benchmark(s) and model(s) to run.
-In this example, the benchmark is pubmed_qa and the model is qwen/qwen2.5-7b-instruct, deployed via Hugging Face.
-* `--suite`: Assigns the run to a suite, which acts as a collection of results.
-Using the same suite name across multiple runs groups their results together.
-* `--max-eval-instances`: Limits the number of benchmark instances evaluated. 
-* `--output-path`: Path to the directory where output files and results will be written.
-If the directory does not exist, it will be created automatically.
-
-#### 2. Create the leaderboard
+#### 2. Create the Leaderboard
 
 The following commands convert the results from step 1 into an interactive leaderboard.
 
@@ -239,14 +233,9 @@ helm-summarize \
   --output-path $OUTPUT_PATH
 ```
 
-*Flags explained:*
+For more information about `helm-summarize`, refer to the [Using helm-summarize](./tutorial.md#using-helm-summarize) page.
 
-* `--suites`: Space-separated list of suites from which the results will be taken to create the leaderboard (e.g., my-medhelm-suite).
-* `--schema`: Path to the schema file.
-* `--release`: The tag name given to the leaderboard created with this command.
-* `--output-path`: Path to the directory where benchmark results from `helm-run` are stored.
-
-#### 3. Run the leaderboard locally
+#### 3. Run the Leaderboard Locally
 
 This command runs the leaderboard on a local server. The exact address and port will show on the command output.
 
@@ -256,10 +245,7 @@ helm-server \
   --output-path $OUTPUT_PATH
 ```
 
-*Flags explained:*
-
-* `--release`: The tag name of the leaderboard to host locally and display in the browser.
-* `--output-path`: Path to the directory where benchmark results from `helm-run` are stored.
+For more information about `helm-run`, refer to the [Using helm-server](./tutorial.md#using-helm-server) page.
 
 ---
 
@@ -267,23 +253,15 @@ helm-server \
 
 MedHELM scenarios fall into three access patterns. Use the right **run entries** file to register new runs and to reproduce results.
 
-### Quick decision guide
+### Quick Decision Guide
 
-* Dataset **fully public** → use `run_entries_medhelm_public.conf`
-* Dataset **gated/public with credential** (e.g., PhysioNet) → `run_entries_medhelm_gated.conf`
-* Dataset **private/organization‑only** → `run_entries_medhelm_private_{organization}.conf`
-
-### Summary table
-
-| Access type | Example sources                | Run entries file                         | Who can reproduce      |
+| Data Access | Example Sources                | Run Entries File                         | Who can Reproduce?      |
 | ----------- | ------------------------------ | ---------------------------------------- | ---------------------- |
 | Public      | Hugging Face, GitHub           | `run_entries_medhelm_public.conf`        | Anyone                 |
 | Gated       | PhysioNet, Redivis             | `run_entries_medhelm_gated.conf`         | Credentialed users     |
-| Private     | Org‑internal clinical datasets | `run_entries_medhelm_private_{org}.conf` | Authorized org members |
+| Private     | Internal clinical datasets | `run_entries_medhelm_private_{org}.conf` | Authorized org members |
 
 When contributing or reproducing results, ensure you’re using the correct file for the benchmark’s access level.
-
-For **private** benchmarks and organization‑specific configurations, contact the MedHELM team at **[migufuen@stanford.edu](mailto:migufuen@stanford.edu)**.
 
 ---
 
@@ -291,9 +269,9 @@ For **private** benchmarks and organization‑specific configurations, contact t
 
 You can interact with MedHELM results by **viewing** pre‑computed results locally or by **reproducing** evaluations from scratch.
 
-### View the official leaderboard locally
+### View the Official Leaderboard Locally
 
-#### 1. Create a local directory to store leaderboard results
+#### 1. Create a Local Directory to Store Leaderboard Results
 
 Run the following commands to create the local directory where leaderboard results will be stored. Adjust the directory path as needed.
 
@@ -302,7 +280,7 @@ export OUTPUT_PATH="./benchmark_output"
 mkdir $OUTPUT_PATH
 ```
 
-#### 2. Download leaderboard results
+#### 2. Download Leaderboard Results
 
 Run the following commands to download the leaderboard results to the `OUTPUT_PATH` created in the previous step.
 
@@ -318,7 +296,7 @@ gcloud storage rsync -r $GCS_BENCHMARK_OUTPUT_PATH $OUTPUT_PATH
 ```
 
 
-#### 3. Launch the local leaderboard
+#### 3. Launch the Local Leaderboard
    
 Run the following command to launch the MedHELM leaderboard locally. Use the numbered `release` version you want to display. Check out all release versions on the upper right corner of the official [leaderboard website](https://crfm.stanford.edu/helm/medhelm/latest).
 
@@ -327,13 +305,13 @@ Run the following command to launch the MedHELM leaderboard locally. Use the num
 helm-server --release v2.0.0 --output-path $OUTPUT_PATH
 ```
 
-### Reproduce leaderboard results
+### Reproduce Leaderboard Results
 
 * **Public benchmarks:** Anyone can reproduce the **public subset** using entries in `run_entries_medhelm_public.conf`.
 * **Gated benchmarks:** Require credentials/approval (e.g., EHRSHOT); entries live in `run_entries_medhelm_gated.conf`.
 * **Private benchmarks:** Org‑specific; entries follow `run_entries_medhelm_private_{organization}.conf`.
 
-> **Note:** The `model_deployments` of the models listed in these run entries are specific to Stanford Healthcare, please change them for the appropriate deployments as needed. For more information on model_deployments, refer to [Adding New Models](adding_new_models.md).
+> **Note:** The `model_deployments` of the models listed in these run entries are specific to Stanford Healthcare, please change them for the appropriate deployments as needed. For more information on model_deployments, refer to the [Adding New Models](adding_new_models.md) page.
 
 ---
 
@@ -348,7 +326,7 @@ MedHELM allows you to define and run custom LLM benchmarks by combining a few si
 > **Note:** This feature requires **crfm-helm >= 0.5.8**.  
 > Make sure you upgrade before continuing:  
 ```bash
-pip install --upgrade crfm-helm
+pip install -U crfm-helm
 ```
 
 ---
@@ -446,7 +424,7 @@ metrics:
 
 We’ll illustrate each step with `EXACT-MATCH-DEMO`, a benchmark that measures LLMs performance on answering yes/no questions based on clinical notes. You can find this example, along with several others, in the **[examples.zip](https://drive.google.com/uc?export=download&id=1Y8aT6O3cpGPcZ9KPDz99D5lyoP7qZdgU)** archive. After downloading and unzipping, look for the `exact_match_demo/` directory.
 
-#### 1. Create a prompt template (`.txt`)  
+#### 1. Create a Prompt Template (`.txt`)  
 
 Write the task instructions in plain text, and use `{column_name}` placeholders wherever you want values from the dataset to be inserted. Every placeholder must match a column name in your dataset exactly.
 
@@ -465,7 +443,7 @@ Question:
 Answer with a single token: "Yes" or "No"
 ```
 
-#### 2. Prepare a dataset (`.csv`)  
+#### 2. Prepare a Dataset (`.csv`)  
 
 Build a CSV file where each row represents one benchmark instance.  
 
@@ -482,7 +460,7 @@ patient_id,note,question,correct_answer,incorrect_answers
 ...
 ```
 
-#### 3. Write a benchmark config (`.yaml`)  
+#### 3. Congifure the Benchmark (`.yaml`)  
 
 Create a YAML file that defines:
 
@@ -517,7 +495,7 @@ metrics:
   - name: exact_match
 ```
 
-#### 4. Define a run configuration (`.conf`)  
+#### 4. Define a Run Configuration (`.conf`)  
 
 List the models you want to evaluate on your benchmark. Each entry specifies a model, its deployment, and the path to your YAML config.
 
@@ -532,7 +510,7 @@ entries: [
 **Note:**  All benchmarks defined this way must begin with the prefix `medhelm_configurable_benchmark`.  
 The only part that changes between benchmarks is the `config_path`, which should point to the YAML config file for the specific benchmark you want to run.
 
-#### 5. Run the benchmark  
+#### 5. Run the Benchmark  
 
 With the prompt template, dataset, YAML config, and run configuration prepared, you can now run the benchmark. The following steps are bundled into the `run.sh` script.
 
@@ -591,7 +569,7 @@ To follow along, navigate to the `llm_jury_score_demo/` directory from the unzip
 
 ---
 
-#### 1. Create a prompt template (`.txt`)
+#### 1. Create a Prompt Template (`.txt`)
 
 **Example — `llm_jury_score_demo_prompt.txt`:**
 ```txt
@@ -609,7 +587,7 @@ Constraints:
 Please provide your response below:
 ```
 
-#### 2. Prepare a dataset (`.csv`)
+#### 2. Prepare a Dataset (`.csv`)
 
 **Example — `llm_jury_score_demo_dataset.csv`:**
 ```csv
@@ -619,7 +597,7 @@ patient_id,note
 ...
 ```
 
-#### 3. Define the benchmark config (`.yaml`)
+#### 3. Congifure the Benchmark (`.yaml`)
 
 The key difference in this example is the **metrics list**, where we define a `jury_score` metric. This requires a *judge prompt* and a list of judge models.  
 
@@ -744,7 +722,7 @@ For each instance, every judge model evaluates the output using the rubric crite
 This ensures that all judges and all criteria contribute equally to the final evaluation.
 
 
-#### 4. Define a run configuration (`.conf`)
+#### 4. Define a Run Configuration (`.conf`)
 
 **Example — `llm_jury_score_demo.conf`:**
 ```yaml
@@ -753,7 +731,7 @@ entries: [
 ]
 ```
 
-#### 5. Run the benchmark
+#### 5. Run the Benchmark
 
 The following steps are bundled into the `run.sh` script.
 
