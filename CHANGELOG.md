@@ -2,6 +2,44 @@
 
 ## [Upcoming]
 
+## [v0.5.9] - 2025-10-01
+
+### Models
+
+- Add Arabic language models
+    - AceGPT-v2 (#3867)
+    - ALLaM (#3867)
+    - SILMA (#3867)
+    - Jais Family (#3878)
+    - Jais Adapted (#3881)
+- Add Qwen3-Next 80B A3B Thinking model (#3875)
+- Add DeepSeek-R1-Distill-Llama-70B and DeepSeek-R1-Distill-Qwen-14B (#3873)
+- Add Qwen3-Next 80B A3B Thinking model (#3891)
+- Add Falcon3 models (#3894)
+- Add Claude 4.5 Sonnet (#3897)
+
+### Scenarios
+
+- Fix breakages in `shc_privacy_med` and `shc_proxy_med` (#3876)
+- Allow applying regular expression pattern before mapping output (#3882)
+- Add output mapping patterns for Arabic MCQA scenarios (#3885)
+- Update speech language pathology scenarios to use Hugging Face Datasets (#3835)
+
+### Framework
+
+- Make priority optional for run entries (#3865)
+- Add `herror()` and `hexception()` to logger (#3789)
+- Log error stack traces from within various clients (#3880)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @chakravarthik27
+- @MiguelAFH
+- @patelfagun1998
+- @yifanmai
+
 ## [v0.5.8] - 2025-08-29
 
 ### Models
@@ -1137,7 +1175,8 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.8...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.9...HEAD
+[v0.5.9]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.9
 [v0.5.8]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.8
 [v0.5.7]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.7
 [v0.5.6]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.6

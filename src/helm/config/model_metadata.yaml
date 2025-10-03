@@ -2607,6 +2607,14 @@ models:
     release_date: 2025-05-07
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: mistralai/mistral-medium-3.1
+    display_name: Mistral Medium 3.1
+    description: Mistral Medium 3.1 is a language model that is intended to to deliver state-of-the-art performance at lower cost. ([blog](https://mistral.ai/news/mistral-medium-3))
+    creator_organization_name: Mistral AI
+    access: limited
+    release_date: 2025-05-07
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: mistralai/mistral-large-2402
     display_name: Mistral Large (2402)
     description: Mistral Large is a multilingual model with a 32K tokens context window and function-calling capabilities. ([blog](https://mistral.ai/news/mistral-large/))
