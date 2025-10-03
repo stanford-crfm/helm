@@ -5075,6 +5075,9 @@ models:
     release_date: 2024-01-30
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  # DSPy Models (EXPERIMENTAL)
+  # The following model configurations use the DSPyClient for inference with DSPy modules.
+  
   - name: anthropic/claude-3-7-sonnet-20250219-dspy-zs-predict
     display_name: Claude 3.7 Sonnet (20250219) (DSPy Zero-Shot Predict)
     description: Claude 3.7 Sonnet is a Claude 3 family hybrid reasoning model that can produce near-instant responses or extended, step-by-step thinking that is made visible to the user ([blog](https://www.anthropic.com/news/claude-3-7-sonnet)).

@@ -4,7 +4,12 @@ import tempfile
 from pathlib import Path
 from typing import Optional
 
-import dspy
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+try:
+    import dspy
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["dspy"])
 
 from helm.benchmark.runner import _get_current_run_spec_name
 from helm.clients.client import Client
