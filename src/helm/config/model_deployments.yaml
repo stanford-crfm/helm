@@ -4889,3 +4889,198 @@ model_deployments:
       class_name: "helm.clients.openrouter_client.OpenRouterClient"
       args:
         model_name: mistralai/mistral-medium-3.1
+
+  # DSPy Models (EXPERIMENTAL)
+  # The following model configurations use the DSPyClient for inference with DSPy modules.
+  
+  - name: anthropic/claude-3-7-sonnet-20250219-dspy-zs-predict
+    model_name: anthropic/claude-3-7-sonnet-20250219-dspy-zs-predict
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: null
+        dspy_module: Predict
+        dspy_api_model: anthropic/claude-3-7-sonnet-20250219
+        dspy_api_base: null
+
+  - name: google/gemini-2.0-flash-001-dspy-zs-predict
+    model_name: google/gemini-2.0-flash-001-dspy-zs-predict
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: null
+        dspy_module: Predict
+        dspy_api_model: google/gemini-2.0-flash-001
+        dspy_api_base: null
+
+  - name: openai/gpt-4o-2024-05-13-dspy-zs-predict
+    model_name: openai/gpt-4o-2024-05-13-dspy-zs-predict
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: null
+        dspy_module: Predict
+        dspy_api_model: openai/gpt-4o-2024-05-13
+        dspy_api_base: null
+
+  - name: openai/o3-mini-2025-01-31-dspy-zs-predict
+    model_name: openai/o3-mini-2025-01-31-dspy-zs-predict
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: null
+        dspy_module: Predict
+        dspy_api_model: openai/o3-mini-2025-01-31
+        dspy_api_base: null
+
+  - name: anthropic/claude-3-7-sonnet-20250219-dspy-zs-cot
+    model_name: anthropic/claude-3-7-sonnet-20250219-dspy-zs-cot
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: null
+        dspy_module: ChainOfThought
+        dspy_api_model: anthropic/claude-3-7-sonnet-20250219
+        dspy_api_base: null
+
+  - name: google/gemini-2.0-flash-001-dspy-zs-cot
+    model_name: google/gemini-2.0-flash-001-dspy-zs-cot
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: null
+        dspy_module: ChainOfThought
+        dspy_api_model: google/gemini-2.0-flash-001
+        dspy_api_base: null
+
+  - name: openai/gpt-4o-2024-05-13-dspy-zs-cot
+    model_name: openai/gpt-4o-2024-05-13-dspy-zs-cot
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: null
+        dspy_module: ChainOfThought
+        dspy_api_model: openai/gpt-4o-2024-05-13
+        dspy_api_base: null
+
+  - name: openai/o3-mini-2025-01-31-dspy-zs-cot
+    model_name: openai/o3-mini-2025-01-31-dspy-zs-cot
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: null
+        dspy_module: ChainOfThought
+        dspy_api_model: openai/o3-mini-2025-01-31
+        dspy_api_base: null
+
+  - name: anthropic/claude-3-7-sonnet-20250219-dspy-fs-bfrs
+    model_name: anthropic/claude-3-7-sonnet-20250219-dspy-fs-bfrs
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/dspy-helm/cecc4e742ec0d342d6349c80625afdd238df7fd4/agents/{scenario}/claude-3.7-sonnet/BootstrapFewShotWithRandomSearch.json
+        dspy_module: ChainOfThought
+        dspy_api_model: anthropic/claude-3-7-sonnet-20250219
+        dspy_api_base: null
+
+  - name: google/gemini-2.0-flash-001-dspy-fs-bfrs
+    model_name: google/gemini-2.0-flash-001-dspy-fs-bfrs
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/dspy-helm/cecc4e742ec0d342d6349c80625afdd238df7fd4/agents/{scenario}/gemini-2.0-flash/BootstrapFewShotWithRandomSearch.json
+        dspy_module: ChainOfThought
+        dspy_api_model: google/gemini-2.0-flash-001
+        dspy_api_base: null
+
+  - name: openai/gpt-4o-2024-05-13-dspy-fs-bfrs
+    model_name: openai/gpt-4o-2024-05-13-dspy-fs-bfrs
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/dspy-helm/cecc4e742ec0d342d6349c80625afdd238df7fd4/agents/{scenario}/gpt-4o/BootstrapFewShotWithRandomSearch.json
+        dspy_module: ChainOfThought
+        dspy_api_model: openai/gpt-4o-2024-05-13
+        dspy_api_base: null
+
+  - name: openai/o3-mini-2025-01-31-dspy-fs-bfrs
+    model_name: openai/o3-mini-2025-01-31-dspy-fs-bfrs
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/dspy-helm/cecc4e742ec0d342d6349c80625afdd238df7fd4/agents/{scenario}/o3-mini/BootstrapFewShotWithRandomSearch.json
+        dspy_module: ChainOfThought
+        dspy_api_model: openai/o3-mini-2025-01-31
+        dspy_api_base: null
+
+  - name: anthropic/claude-3-7-sonnet-20250219-dspy-fs-miprov2
+    model_name: anthropic/claude-3-7-sonnet-20250219-dspy-fs-miprov2
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/dspy-helm/cecc4e742ec0d342d6349c80625afdd238df7fd4/agents/{scenario}/claude-3.7-sonnet/MIPROv2.json
+        dspy_module: ChainOfThought
+        dspy_api_model: anthropic/claude-3-7-sonnet-20250219
+        dspy_api_base: null
+
+  - name: google/gemini-2.0-flash-001-dspy-fs-miprov2
+    model_name: google/gemini-2.0-flash-001-dspy-fs-miprov2
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/dspy-helm/cecc4e742ec0d342d6349c80625afdd238df7fd4/agents/{scenario}/gemini-2.0-flash/MIPROv2.json
+        dspy_module: ChainOfThought
+        dspy_api_model: google/gemini-2.0-flash-001
+        dspy_api_base: null
+
+  - name: openai/gpt-4o-2024-05-13-dspy-fs-miprov2
+    model_name: openai/gpt-4o-2024-05-13-dspy-fs-miprov2
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/dspy-helm/cecc4e742ec0d342d6349c80625afdd238df7fd4/agents/{scenario}/gpt-4o/MIPROv2.json
+        dspy_module: ChainOfThought
+        dspy_api_model: openai/gpt-4o-2024-05-13
+        dspy_api_base: null
+
+  - name: openai/o3-mini-2025-01-31-dspy-fs-miprov2
+    model_name: openai/o3-mini-2025-01-31-dspy-fs-miprov2
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/dspy-helm/cecc4e742ec0d342d6349c80625afdd238df7fd4/agents/{scenario}/o3-mini/MIPROv2.json
+        dspy_module: ChainOfThought
+        dspy_api_model: openai/o3-mini-2025-01-31
+        dspy_api_base: null

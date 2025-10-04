@@ -70,6 +70,16 @@ human-evaluation = [
     "surge-api~=1.1",
 ]
 
+dspy = [
+    "dspy~=3.0.3",
+    "fastapi~=0.118.0",
+    "apscheduler~=3.11.0",
+    "cryptography~=43.0.3",
+    "python-multipart~=0.0.20",
+    "email-validator~=2.3.0",
+    "fastapi_sso~=0.18.0",
+]
+
 scenarios = [
     "gdown~=5.1",  # For disinformation_scenario, med_mcqa_scenario, med_qa_scenario: used by ensure_file_downloaded()
     "xlrd~=2.0",  # For ice_scenario: used by pandas.read_excel()
