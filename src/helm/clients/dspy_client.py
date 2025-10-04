@@ -1,5 +1,4 @@
 import hashlib
-import os
 import tempfile
 from pathlib import Path
 from typing import Optional
@@ -124,10 +123,6 @@ class DSPyClient(Client):
         prompt_text = request.prompt
         if request.messages:
             prompt_text = " ".join(msg["content"] for msg in request.messages if msg.get("role") != "system")
-
-        current_agent_url = (
-            self.dspy_agent_url_template.format(scenario=self.scenario_name) if self.dspy_agent_url_template else None
-        )
 
         try:
             with dspy.context(lm=self.lm):
