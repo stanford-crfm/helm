@@ -4509,7 +4509,7 @@ model_deployments:
 
   - name: huggingface/jais-adapted-13b-chat
     model_name: inceptionai/jais-adapted-13b-chat
-    tokenizer_name: inceptionai/jais-adapted-7b-chat
+    tokenizer_name: inceptionai/jais-adapted-13b-chat
     max_sequence_length: 4096
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
@@ -4541,7 +4541,7 @@ model_deployments:
 
   - name: huggingface/falcon3-7b-instruct
     model_name: tiiuae/falcon3-7b-instruct
-    tokenizer_name: tiiuae/falcon3-7b-instruct
+    tokenizer_name: tiiuae/falcon3-1b-instruct
     max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
