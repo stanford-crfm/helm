@@ -1,7 +1,7 @@
 from typing import List
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
@@ -93,4 +93,35 @@ class MIMICIVBillingCodeMetric(Metric):
             Stat(MetricName("mimiciv_billing_code_precision")).add(precision),
             Stat(MetricName("mimiciv_billing_code_recall")).add(recall),
             Stat(MetricName("mimiciv_billing_code_f1")).add(f1),
+        ]
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="mimiciv_billing_code_precision",
+                display_name="Precision for MIMIC Billing Codes",
+                short_display_name="MIMICBillingPre",
+                description="Measures the proportion of correctly predicted ICD codes among all ICD codes predicted by "
+                "the model.",
+                lower_is_better=False,
+                group=None,
+            ),
+            MetricMetadata(
+                name="mimiciv_billing_code_recall",
+                display_name="Recall for MIMIC Billing Codes",
+                short_display_name="MIMICBillingRec",
+                description="Measures the proportion of correctly predicted ICD codes among all ICD codes present in "
+                "the gold standard.",
+                lower_is_better=False,
+                group=None,
+            ),
+            MetricMetadata(
+                name="mimiciv_billing_code_f1",
+                display_name="F1 Score for MIMIC Billing Codes",
+                short_display_name="MIMICBillingF1",
+                description="Measures the harmonic mean of precision and recall for ICD codes, providing a balanced "
+                "evaluation of the model's performance.",
+                lower_is_better=False,
+                group=None,
+            ),
         ]

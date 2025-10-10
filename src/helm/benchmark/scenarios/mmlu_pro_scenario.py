@@ -2,6 +2,7 @@ from typing import Dict, List
 from datasets import Dataset, load_dataset
 
 from helm.common.hierarchical_logger import hlog
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -11,6 +12,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -93,3 +95,19 @@ class MMLUProScenario(Scenario):
             instances.extend(self.process_dataset(data, split))
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name=self.name,
+            display_name="MMLU-Pro",
+            description=self.description,
+            main_metric="chain_of_thought_correctness",
+            main_split="test",
+            taxonomy=TaxonomyInfo(
+                task="question answering",
+                what="graduate-level questions in biology, physics, and chemistry",
+                who="domain experts",
+                when="2023",
+                language="English",
+            ),
+        )

@@ -47,7 +47,14 @@ export default function Runs() {
     return <Loading />;
   }
 
-  const regex = useRegex ? new RegExp(searchQuery) : null;
+  let regex: RegExp | null = null;
+  if (useRegex) {
+    try {
+      regex = new RegExp(searchQuery);
+    } catch {
+      regex = null;
+    }
+  }
   const filteredRunSpecs = runSpecs.filter((runSpec) =>
     regex ? regex.test(runSpec.name) : runSpec.name.includes(searchQuery),
   );

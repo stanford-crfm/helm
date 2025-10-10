@@ -5,7 +5,7 @@ import torch
 from huggingface_hub import hf_hub_download
 
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import hlog, htrack_block
+from helm.common.hierarchical_logger import hexception, hlog, htrack_block
 from helm.common.images_utils import open_image
 from helm.common.gpu_utils import get_torch_device_name
 from helm.common.media_object import TEXT_TYPE
@@ -131,6 +131,7 @@ class OpenFlamingoClient(CachingClient):
             )
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except RuntimeError as ex:
+            hexception(ex)
             return RequestResult(success=False, cached=False, error=str(ex), completions=[], embedding=[])
 
         completions: List[GeneratedOutput] = []

@@ -7,7 +7,7 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 @run_spec_function("bluex")
 def get_bluex_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bluex_scenario.BLUEX_Scenario", args={})
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.bluex_scenario.BLUEXScenario", args={})
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,

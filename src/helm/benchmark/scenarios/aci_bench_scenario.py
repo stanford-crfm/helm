@@ -1,6 +1,7 @@
 import json
 import os
 from typing import List
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.general import ensure_file_downloaded
 
@@ -124,3 +126,24 @@ class ACIBenchScenario(Scenario):
             instances.extend(self.process_json(test_json, TEST_SPLIT))
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="aci_bench",
+            display_name="ACI-Bench",
+            description="ACI-Bench is a benchmark of real-world patient-doctor conversations paired "
+            "with structured clinical notes. The benchmark evaluates a model's ability to "
+            "understand spoken medical dialogue and convert it into formal clinical "
+            "documentation, covering sections such as history of present illness, physical "
+            "exam findings, results, and assessment and plan [(Yim et al., "
+            "2024)](https://www.nature.com/articles/s41597-023-02487-3).",
+            taxonomy=TaxonomyInfo(
+                task="Text generation",
+                what="Extract and structure information from patient-doctor " "conversations",
+                when="Any",
+                who="Clinician",
+                language="English",
+            ),
+            main_metric="aci_bench_accuracy",
+            main_split="test",
+        )

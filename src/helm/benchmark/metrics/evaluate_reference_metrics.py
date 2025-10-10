@@ -14,6 +14,7 @@ from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics import code_metrics_helper
 from helm.benchmark.metrics.cleva_metrics_helper import ChineseTokenizer
+from helm.benchmark.metrics.metric import MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.nltk_helper import install_nltk_resources
@@ -396,6 +397,16 @@ def code_eval(gold: Tuple[str, Optional[Dict]], pred: str) -> float:
     return float(code_metrics_helper.check_correctness(gold[1], pred, 3.0)["passed"])  # type: ignore
 
 
+def _apply_output_mapping_pattern(pattern: str, prediction: str) -> str:
+    match = re.search(pattern, prediction)
+    if not match:
+        return ""
+    elif match.groups():
+        return match.group(0)
+    else:
+        return match.string
+
+
 # TODO This should probably be made into an implementation of MetricInterface. For now it lives here
 # just to separate it from basic_metrics.py.
 def compute_reference_metrics(
@@ -497,6 +508,8 @@ def compute_reference_metrics(
     # Note: If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
     # sometimes predict a random letter like 'M'.
     if request_state.output_mapping is not None:
+        if adapter_spec.output_mapping_pattern:
+            preds = [_apply_output_mapping_pattern(adapter_spec.output_mapping_pattern, pred) for pred in preds]
         preds = [request_state.output_mapping.get(pred) for pred in preds]  # type: ignore
 
     # Compute max_prob, the probability that the model assigns to its generated text.
@@ -518,3 +531,301 @@ def compute_reference_metrics(
             raise NameError(f"{metric_name} is not in the list of metric functions.")
 
     return stats
+
+
+_METRIC_METADATA_MAPPING: Dict[str, MetricMetadata] = {
+    "exact_match": MetricMetadata(
+        name="exact_match",
+        display_name="Exact match",
+        short_display_name="EM",
+        description="Fraction of instances that the predicted output matches a correct reference exactly.",
+        lower_is_better=False,
+        group="accuracy",
+    ),
+    "quasi_exact_match": MetricMetadata(
+        name="quasi_exact_match",
+        display_name="Quasi-exact match",
+        short_display_name="EM",
+        description="Fraction of instances that the predicted output matches a correct reference up to light "
+        "processing.",
+        lower_is_better=False,
+        group=None,
+    ),
+    "quasi_leave_articles_exact_match": MetricMetadata(
+        name="quasi_leave_articles_exact_match",
+        display_name="Quasi-exact match",
+        short_display_name="EM",
+        description="Fraction of instances that the predicted output matches a correct reference up to light "
+        "processing.",
+        lower_is_better=False,
+        group=None,
+    ),
+    "prefix_exact_match": MetricMetadata(
+        name="prefix_exact_match",
+        display_name="Prefix exact match",
+        short_display_name="PEM",
+        description="Fraction of instances that the predicted output matches the prefix of a correct reference "
+        "exactly.",
+        lower_is_better=False,
+        group=None,
+    ),
+    "quasi_prefix_exact_match": MetricMetadata(
+        name="quasi_prefix_exact_match",
+        display_name="Prefix quasi-exact match",
+        short_display_name="PEM",
+        description="Fraction of instances that the predicted output matches the prefix of a correct reference "
+        "up to light processing.",
+        lower_is_better=False,
+        group=None,
+    ),
+    "exact_match_indicator": MetricMetadata(
+        name="exact_match_indicator",
+        display_name="Exact match (final)",
+        short_display_name="EM",
+        description="Fraction of instances that the predicted output matches a correct reference exactly, "
+        "ignoring text preceding the specified indicator (e.g., space).",
+        lower_is_better=False,
+        group=None,
+    ),
+    "final_number_exact_match": MetricMetadata(
+        name="final_number_exact_match",
+        display_name="Exact match (final number)",
+        short_display_name="EM",
+        description="Fraction of instances that the predicted output matches a correct reference exactly, "
+        "ignoring text preceding the specified indicator.",
+        lower_is_better=False,
+        group=None,
+    ),
+    "exact_set_match": MetricMetadata(
+        name="exact_set_match",
+        display_name="Exact match (at sets)",
+        short_display_name="EM",
+        description="Fraction of instances that the predicted output matches a correct reference exactly as " "sets.",
+        lower_is_better=False,
+        group=None,
+    ),
+    "iou_set_match": MetricMetadata(
+        name="iou_set_match",
+        display_name="Intersection over union (as sets)",
+        short_display_name="IoU",
+        description="Intersection over union in terms of set overlap between the model predicted set and "
+        "correct reference set.",
+        lower_is_better=False,
+        group=None,
+    ),
+    "f1_set_match": MetricMetadata(
+        name="f1_set_match",
+        display_name="F1 (set match)",
+        short_display_name="F1",
+        description="Average F1 score in terms of set overlap between the model predicted set and correct "
+        "reference set.",
+        lower_is_better=False,
+        group=None,
+    ),
+    "math_equiv": MetricMetadata(
+        name="math_equiv",
+        display_name="Equivalent",
+        description="Fraction of model outputs that are mathematically equivalent to the correct reference.",
+        lower_is_better=False,
+        group=None,
+    ),
+    "math_equiv_chain_of_thought": MetricMetadata(
+        name="math_equiv_chain_of_thought",
+        display_name="Equivalent (CoT)",
+        description="Fraction of model outputs that are mathematically equivalent to the correct reference "
+        "when using chain-of-thought prompting.",
+        lower_is_better=False,
+        group=None,
+    ),
+    "code_eval_acc": MetricMetadata(
+        name="code_eval_acc",
+        display_name="Correctness",
+        short_display_name="Correctness",
+        description="Fraction of instances that the model output evaluates to the correct answer.",
+        lower_is_better=False,
+        group=None,
+    ),
+    "pass": MetricMetadata(
+        name="pass",
+        display_name="pass@1",
+        description="Fraction of model outputs that pass the associated test cases.",
+        lower_is_better=False,
+        group=None,
+    ),
+    "cider": MetricMetadata(
+        name="cider",
+        display_name="CIDEr",
+        description="Evaluates the quality of generated caption by measuring the weighted similarity of "
+        "n-grams between the captions and a set of human-written reference captions, emphasizing "
+        "informativeness and consensus.",
+        lower_is_better=False,
+        group=None,
+    ),
+    "f1_score": MetricMetadata(
+        name="f1_score",
+        display_name="F1",
+        description="Average F1 score in terms of word overlap between the model output and correct reference.",
+        lower_is_better=False,
+        group=None,
+    ),
+    "rouge_1": MetricMetadata(
+        name="rouge_1",
+        display_name="ROUGE-1",
+        description="Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 1-gram " "overlap.",
+        lower_is_better=False,
+        group=None,
+    ),
+    "rouge_2": MetricMetadata(
+        name="rouge_2",
+        display_name="ROUGE-2",
+        description="Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 2-gram " "overlap.",
+        lower_is_better=False,
+        group=None,
+    ),
+    "rouge_l": MetricMetadata(
+        name="rouge_l",
+        display_name="ROUGE-L",
+        description="Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on longest "
+        "common subsequence overlap.",
+        lower_is_better=False,
+        group=None,
+    ),
+    "bleu_1": MetricMetadata(
+        name="bleu_1",
+        display_name="BLEU-1",
+        description="Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on "
+        "1-gram overlap.",
+        lower_is_better=False,
+        group=None,
+    ),
+    "bleu_4": MetricMetadata(
+        name="bleu_4",
+        display_name="BLEU-4",
+        description="Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on "
+        "4-gram overlap.",
+        lower_is_better=False,
+        group=None,
+    ),
+    "chinese_bleu_1": MetricMetadata(
+        name="chinese_bleu_1",
+        display_name="Chinese BLEU-1 score",
+        short_display_name="BLEU-1 (Chinese)",
+        description="BLEU-1 score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on a "
+        "Chinese tokenizer that segments Chinese strings by character.",
+        lower_is_better=False,
+        group=None,
+        # Group could be one of:
+        # "cleva_pinyin_transliteration_metrics"
+        # "cleva_dialogue_generation_metrics"
+        # "cleva_data_to_text_generation_metrics"
+    ),
+    "chinese_rouge_1": MetricMetadata(
+        name="chinese_rouge_1",
+        display_name="Chinese ROUGE-1 score",
+        short_display_name="ROUGE-1 (Chinese)",
+        description="ROUGE-1 score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on a Chinese "
+        "tokenizer that segments Chinese strings by character.",
+        lower_is_better=False,
+        group="cleva_summarization_metrics",
+    ),
+    "chinese_rouge_2": MetricMetadata(
+        name="chinese_rouge_2",
+        display_name="Chinese ROUGE-2 score",
+        short_display_name="ROUGE-2 (Chinese)",
+        description="ROUGE-2 score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on a Chinese "
+        "tokenizer that segments Chinese strings by character.",
+        lower_is_better=False,
+        group="cleva_summarization_metrics",
+    ),
+    "cleva_math_result_match": MetricMetadata(
+        name="cleva_math_result_match",
+        display_name="CLEVA Math Exact Match",
+        short_display_name="EM (Math)",
+        description="Exact match that cares only the last math expression (numbers and fractions) in the "
+        "model's prediction.",
+        lower_is_better=False,
+        group="cleva_mathematical_reasoning_metrics",
+    ),
+    "absolute_value_difference": MetricMetadata(
+        name="absolute_value_difference",
+        display_name="Absolute difference",
+        short_display_name="Diff.",
+        description="Average absolute difference between the model output (converted to a number) and the "
+        "correct reference.",
+        lower_is_better=True,
+        group=None,
+    ),
+    "wer_score": MetricMetadata(
+        name="wer_score",
+        display_name="Word Error Rate",
+        short_display_name="WER",
+        description="Word error rate between model predictions and ground truth answers for ASR tasks.",
+        lower_is_better=True,
+        group=None,
+    ),
+    "mer_score": MetricMetadata(
+        name="mer_score",
+        display_name="Match Error Rate",
+        short_display_name="MER",
+        description="Word match error rate between model predictions and ground truth answers.",
+        lower_is_better=True,
+        group=None,
+    ),
+    "wip_score": MetricMetadata(
+        name="wip_score",
+        display_name="Word Information Preservation",
+        short_display_name="WIP",
+        description="Word information preservation (WIP) for evaluating the preserved information of ASR.",
+        lower_is_better=False,
+        group=None,
+    ),
+    "cer_score": MetricMetadata(
+        name="cer_score",
+        display_name="Character Error Rate",
+        short_display_name="CER",
+        description="Character error rate (CER) for evaluating the accuracy of ASR.",
+        lower_is_better=True,
+        group=None,
+    ),
+    "chinese_wer_score": MetricMetadata(
+        name="chinese_wer_score",
+        display_name="Chinese Word Error Rate",
+        short_display_name="Chinese WER",
+        description="Chinese word error rate between model predictions and ground truth answers for ASR tasks.",
+        lower_is_better=True,
+        group=None,
+    ),
+    "chinese_mer_score": MetricMetadata(
+        name="chinese_mer_score",
+        display_name="Chinese Match Error Rate",
+        short_display_name="Chinese MER",
+        description="Chinese word match error rate between model predictions and ground truth answers.",
+        lower_is_better=True,
+        group=None,
+    ),
+    "chinese_wip_score": MetricMetadata(
+        name="chinese_wip_score",
+        display_name="Chinese Word Information Preservation",
+        short_display_name="Chinese WIP",
+        description="Chinese word information preservation (WIP) for evaluating the preserved information of " "ASR.",
+        lower_is_better=False,
+        group=None,
+    ),
+    "chinese_cer_score": MetricMetadata(
+        name="chinese_cer_score",
+        display_name="Chinese Character Error Rate",
+        short_display_name="Chinese CER",
+        description="Chinese character error rate (CER) for evaluating the accuracy of Chiese ASR.",
+        lower_is_better=True,
+        group=None,
+    ),
+}
+
+
+def get_reference_metrics_metadata(names: List[str]) -> List[MetricMetadata]:
+    metadata_list: List[MetricMetadata] = []
+    for name in names:
+        metadata = _METRIC_METADATA_MAPPING.get(name)
+        if metadata:
+            metadata_list.append(metadata)
+    return metadata_list

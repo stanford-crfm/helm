@@ -2,6 +2,7 @@ import pandas as pd
 from pathlib import Path
 from typing import Dict, List, Tuple
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.hierarchical_logger import hlog
 from helm.common.general import ensure_file_downloaded
 from helm.benchmark.scenarios.scenario import (
@@ -14,6 +15,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from helm.benchmark.scenarios.entity_matching_scenario_fixed_random_state import set_fixed_random_state_for_dataset
 
@@ -155,3 +157,15 @@ class EntityMatchingScenario(Scenario):
                 instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="entity_matching",
+            display_name="Entity matching",
+            description="Scenario from Magellan [(Konda et al., "
+            "2016)](https://dl.acm.org/doi/10.14778/3007263.3007314) that tests the ability "
+            "to determine if two entities match.",
+            taxonomy=TaxonomyInfo(task="?", what="n/a", when="n/a", who="n/a", language="synthetic"),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )

@@ -1484,6 +1484,8 @@ class OutputFormatInstructions(RunExpander):
                 instructions = "Answer with only a single letter. Do not include a period in your answer."
             elif self.scenario == "mcqa_only_last_question":
                 instructions = "Answer only the last question with only a single letter."
+            elif self.scenario == "arabic_mcqa":
+                instructions = "اكتب حرف الإجابة فقط، دون أي إضافات أخرى."
             else:
                 instructions = "Answer with only a single letter."
         elif run_spec.adapter_spec.method == ADAPT_GENERATION:
@@ -1525,6 +1527,8 @@ class OutputFormatInstructions(RunExpander):
                     "Answer only the last question with a short answer. "
                     "Avoid extra, unnecessary information in the answer."
                 )
+            elif self.scenario == "arabic_mcqa":
+                instructions = "اكتب حرف الإجابة فقط، دون أي إضافات أخرى."
             else:
                 raise ValueError(f"Unknown scenario {self.scenario}")
         elif run_spec.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT:

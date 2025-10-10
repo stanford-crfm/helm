@@ -105,8 +105,14 @@ export default function Run() {
     return <Loading />;
   }
 
+  // Add a class that is used by CSS to control the LTR / RTL direction of the text based on the language
+  const scenarioLanguage = runGroup?.taxonomy?.language;
+  const scenarioLanguageClassName = scenarioLanguage
+    ? "scenario-language-" + scenarioLanguage.toLowerCase()
+    : "";
+
   return (
-    <>
+    <div className={scenarioLanguageClassName}>
       <div className="flex justify-between gap-8 mb-12">
         <div>
           <h1 className="text-3xl flex items-center">
@@ -216,6 +222,6 @@ export default function Run() {
           metricFieldMap={metricFieldMap}
         />
       )}
-    </>
+    </div>
   );
 }

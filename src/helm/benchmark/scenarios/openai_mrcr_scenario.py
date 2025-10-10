@@ -6,6 +6,7 @@ from typing import List, Optional
 import datasets
 import tiktoken
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Output,
@@ -14,6 +15,7 @@ from helm.benchmark.scenarios.scenario import (
     Instance,
     TEST_SPLIT,
     Input,
+    ScenarioMetadata,
 )
 from helm.common.general import ensure_directory_exists
 
@@ -77,3 +79,16 @@ class OpenAIMRCRScenario(Scenario):
             instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="openai_mrcr",
+            display_name="OpenAI MRCR",
+            description="OpenAI MRCR (Multi-round co-reference resolution) is a long context dataset "
+            "for benchmarking an LLM's ability to distinguish between multiple needles "
+            "hidden in context. This eval is inspired by the MRCR eval first introduced by "
+            "[Vodrahalli et al., 2024](https://arxiv.org/pdf/2409.12640v2).",
+            taxonomy=TaxonomyInfo(task="MRCR", what="Synthetic data", when="2025", who="None", language="English"),
+            main_metric="openai_mrcr_accuracy",
+            main_split="test",
+        )

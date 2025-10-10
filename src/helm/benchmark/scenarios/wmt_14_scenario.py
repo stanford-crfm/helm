@@ -1,5 +1,6 @@
 from typing import List, Any
 from datasets import load_dataset
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.hierarchical_logger import htrack_block
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -11,6 +12,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -106,3 +108,20 @@ class WMT14Scenario(Scenario):
                     )
                 )
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="wmt_14",
+            display_name="WMT 2014",
+            description="WMT 2014 is a collection of machine translation datasets "
+            "[(website)](https://www.statmt.org/wmt14/index.html).",
+            taxonomy=TaxonomyInfo(
+                task="machine translation",
+                what="multilingual sentences",
+                when="before 2014",
+                who="Europarl, news, Common Crawl, etc.",
+                language="English, French, Czech, etc.",
+            ),
+            main_metric="bleu_4",
+            main_split="test",
+        )

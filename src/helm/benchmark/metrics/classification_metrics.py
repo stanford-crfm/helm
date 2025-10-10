@@ -6,7 +6,7 @@ from sklearn.preprocessing import MultiLabelBinarizer
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
 from helm.benchmark.metrics.evaluate_reference_metrics import normalize_text
-from helm.benchmark.metrics.metric import MetricName
+from helm.benchmark.metrics.metric import MetricMetadata, MetricName
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.scenarios.scenario import Reference
 from helm.common.hierarchical_logger import hwarn
@@ -167,4 +167,22 @@ class MultipleChoiceClassificationMetric(EvaluateInstancesMetric):
         return [
             Stat(MetricName("classification_macro_f1")).add(f1_score(y_pred=y_pred, y_true=y_true, average="macro")),
             Stat(MetricName("classification_micro_f1")).add(f1_score(y_pred=y_pred, y_true=y_true, average="micro")),
+        ]
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="classification_macro_f1",
+                display_name="Macro F1",
+                description="Macro F1",
+                lower_is_better=False,
+                group="classification_metrics",
+            ),
+            MetricMetadata(
+                name="classification_micro_f1",
+                display_name="Micro F1",
+                description="Population-level micro-averaged F1 score.",
+                lower_is_better=False,
+                group="classification_metrics",
+            ),
         ]

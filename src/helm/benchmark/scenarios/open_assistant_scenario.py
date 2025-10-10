@@ -2,6 +2,7 @@ from typing import List, Dict, Any, DefaultDict
 from datasets import load_dataset, Dataset
 from collections import defaultdict
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Reference,
@@ -11,6 +12,7 @@ from helm.benchmark.scenarios.scenario import (
     TRAIN_SPLIT,
     VALID_SPLIT,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -126,3 +128,23 @@ class OpenAssistantScenario(Scenario):
         valid_instances = get_split_instances(dataset["validation"], VALID_SPLIT)
 
         return train_instances + valid_instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="open_assistant",
+            display_name="Open Assistant",
+            short_display_name="Open Assistant",
+            description="LAION’s OpenAssistant Conversations Dataset (OASST1) that consists of 66,497 "
+            "conversation trees ([Köpf et al., "
+            "2023](https://openreview.net/forum?id=VSJotgbPHF)). We only use the initial "
+            "prompt in each conversation.",
+            taxonomy=TaxonomyInfo(
+                task="open-ended instruction following",
+                what="Human-written dialogues and response rankings",
+                when="2023",
+                who="Open Assistant participants",
+                language="35 languages",
+            ),
+            main_metric="Helpfulness",
+            main_split="valid",
+        )

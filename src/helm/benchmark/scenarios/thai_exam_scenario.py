@@ -2,6 +2,7 @@ import os
 from typing import Dict, List
 import json
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.scenarios.scenario import (
@@ -13,6 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -142,3 +144,96 @@ class ThaiExamScenario(Scenario):
             instances.extend(self.process_jsonl(jsonl_path, splits[split]))
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        if self.exam == "onet":
+            return ScenarioMetadata(
+                name="thai_exam_onet",
+                display_name="ONET",
+                description="The Ordinary National Educational Test (ONET) is an examination for students "
+                "in Thailand. We select the grade-12 ONET exam, which comprises 5 subjects and "
+                "each question has 5 choices. These subjects are Thai, English, Mathematics, "
+                "Social Studies, and Science. Amounting to a total of 170 questions and "
+                "options.\n",
+                taxonomy=TaxonomyInfo(
+                    task="question answering",
+                    what="high school / medical school academic knowledge",
+                    when="?",
+                    who="n/a",
+                    language="Thai and English",
+                ),
+                main_metric="exact_match",
+                main_split="test",
+            )
+        elif self.exam == "ic":
+            return ScenarioMetadata(
+                name="thai_exam_ic",
+                display_name="IC",
+                description="The Investment Consultant (IC) examination, a licensing test for investment "
+                "professionals in Thailand. Developed by the Stock Exchange of Thailand (SET), "
+                "features 4 choices per question. We extracted questions for levels 1, 2, and 3 "
+                "resulting in a total of 95 questions and options.\n",
+                taxonomy=TaxonomyInfo(
+                    task="question answering",
+                    what="licensing for investment professionals",
+                    when="?",
+                    who="n/a",
+                    language="Thai",
+                ),
+                main_metric="exact_match",
+                main_split="test",
+            )
+        elif self.exam == "tgat":
+            return ScenarioMetadata(
+                name="thai_exam_tgat",
+                display_name="TGAT",
+                description="The Thai General Aptitude Test (TGAT), a national high school examination in "
+                "Thailand. Focuses on critical and logical thinking skills. We collected a "
+                "total of 90 questions and answers. The TGAT consists of four choices per "
+                "question.\n",
+                taxonomy=TaxonomyInfo(
+                    task="question answering",
+                    what="high school level questions on reasoning",
+                    when="?",
+                    who="n/a",
+                    language="English",
+                ),
+                main_metric="exact_match",
+                main_split="test",
+            )
+        elif self.exam == "tpat1":
+            return ScenarioMetadata(
+                name="thai_exam_tpat1",
+                display_name="TPAT-1",
+                description="TBD",
+                taxonomy=TaxonomyInfo(
+                    task="question answering",
+                    what="high school / medical school academic knowledge",
+                    when="?",
+                    who="n/a",
+                    language="Thai",
+                ),
+                main_metric="exact_match",
+                main_split="test",
+            )
+        elif self.exam == "a_level":
+            return ScenarioMetadata(
+                name="thai_exam_a_level",
+                display_name="A-Level",
+                description="An academic knowledge assessment examination (Applied Knowledge Level) that "
+                "covers general foundational subjects taught in schools. The content assessed "
+                "in this examination aligns with the curriculum guidelines and emphasizes the "
+                "practical application of knowledge in daily life. We collected a total of 175 "
+                "questions and answers.\n",
+                taxonomy=TaxonomyInfo(
+                    task="question answering",
+                    what="high school academic knowledge",
+                    when="?",
+                    who="n/a",
+                    language="Thai and English",
+                ),
+                main_metric="exact_match",
+                main_split="test",
+            )
+        else:
+            raise ValueError(f"Unknown exam: {self.exam}")

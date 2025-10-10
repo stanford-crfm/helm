@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
@@ -101,3 +101,15 @@ class GPQAChainOfThoughtMetric(Metric):
         # Compare extracted answer with the correct answer and compute the score
         score = 1 if extracted_answer == correct_answer else 0
         return [Stat(MetricName("chain_of_thought_correctness")).add(score)]
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="chain_of_thought_correctness",
+                display_name="COT correct",
+                short_display_name="COT correct",
+                description="Fraction of correct answers after chain of thought",
+                lower_is_better=False,
+                group="accuracy",
+            ),
+        ]

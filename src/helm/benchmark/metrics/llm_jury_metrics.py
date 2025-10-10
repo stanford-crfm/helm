@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
@@ -43,4 +43,16 @@ class LLMJuryMetric(Metric):
             score = sum(scores) / len(scores)
         return [
             Stat(MetricName(self.metric_name)).add(score),
+        ]
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name=self.metric_name,
+                display_name="Jury Score",
+                short_display_name="Jury Score",
+                description="Measures the average score assigned by an LLM-based jury evaluating task performance.",
+                lower_is_better=False,
+                group=None,
+            ),
         ]

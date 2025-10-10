@@ -3,6 +3,7 @@ import pandas as pd
 from pathlib import Path
 from typing import List, Tuple
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.hierarchical_logger import hlog
 from helm.common.general import ensure_file_downloaded
 from helm.benchmark.scenarios.scenario import (
@@ -15,6 +16,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -160,3 +162,15 @@ class EntityDataImputationScenario(Scenario):
                 instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="entity_data_imputation",
+            display_name="Data imputation",
+            description="Scenario from [Mei et al. "
+            "(2021)](https://ieeexplore.ieee.org/document/9458712/) that tests the ability "
+            "to impute missing entities in a data table.",
+            taxonomy=TaxonomyInfo(task="?", what="n/a", when="n/a", who="n/a", language="synthetic"),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )

@@ -2,6 +2,7 @@ from typing import List, Any
 from pathlib import Path
 from datasets import load_dataset
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -56,3 +58,20 @@ class ENEMChallengeScenario(Scenario):
             )
             instances.append(instance)
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="enem_challenge",
+            display_name="ENEM Challenge",
+            short_display_name=None,
+            description="ENEM Challenge",
+            taxonomy=TaxonomyInfo(
+                task="multiple-choice question answering",
+                what="general academic subjects",
+                when="between 2009 and 2023",
+                who="brazilian ministry of education",
+                language="Portuguese",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )

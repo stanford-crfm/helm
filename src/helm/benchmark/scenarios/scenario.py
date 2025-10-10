@@ -5,6 +5,7 @@ import os
 from pathlib import PurePath
 import inspect
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.media_object import MultimediaObject
 from helm.common.object_spec import ObjectSpec, create_object
 from helm.common.general import ensure_directory_exists, format_text, format_split, format_tags, indent_lines
@@ -189,6 +190,33 @@ class Instance:
         return info
 
 
+@dataclass(frozen=True)
+class ScenarioMetadata:
+    name: str
+    """Internal name (usually no spaces, etc.)"""
+
+    main_metric: str
+
+    main_split: str
+
+    display_name: Optional[str] = None
+    """What is displayed to the user"""
+
+    short_display_name: Optional[str] = None
+    """What is displayed to the user (e.g., in a table header)"""
+
+    description: Optional[str] = None
+    """Description of the scenario"""
+
+    short_description: Optional[str] = None
+    """Optional short description of the scenario.
+    This description is used in some space-constrained places in frontend tables.
+    If unset, the description field will be used instead."""
+
+    taxonomy: Optional[TaxonomyInfo] = None
+    """Optional taxonomy"""
+
+
 # TODO(#1212): Scenario should not be a dataclass.
 @dataclass
 class Scenario(ABC):
@@ -248,6 +276,9 @@ class Scenario(ABC):
             output.extend(indent_lines(instance.render_lines()))
             output.append("}")
         return output
+
+    def get_metadata(self) -> ScenarioMetadata:
+        raise NotImplementedError()
 
 
 def with_instance_ids(instances: List[Instance]) -> List[Instance]:

@@ -8,7 +8,7 @@ import numpy as np
 import scipy  # type: ignore
 import calibration as cal  # type: ignore
 from helm.benchmark.adaptation.scenario_state import ScenarioState
-from helm.benchmark.metrics.evaluate_reference_metrics import compute_reference_metrics
+from helm.benchmark.metrics.evaluate_reference_metrics import compute_reference_metrics, get_reference_metrics_metadata
 from helm.benchmark.metrics.efficiency_metrics import EfficiencyMetric
 from helm.benchmark.metrics.reference_metric import ReferenceMetric
 
@@ -25,7 +25,14 @@ from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.benchmark.scenarios.scenario import CORRECT_TAG, Instance
-from helm.benchmark.metrics.metric import Metric, MetricInterface, MetricResult, add_context, get_unique_stat_by_name
+from helm.benchmark.metrics.metric import (
+    Metric,
+    MetricInterface,
+    MetricMetadata,
+    MetricResult,
+    add_context,
+    get_unique_stat_by_name,
+)
 from helm.benchmark.metrics.metric_name import MetricContext, MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat, merge_stat
@@ -104,6 +111,35 @@ def compute_perplexity_metrics(stats: Dict[MetricName, Stat]) -> List[Stat]:
     return derived_stats
 
 
+def _get_perplexity_metrics_metadata() -> List[MetricMetadata]:
+    return [
+        MetricMetadata(
+            name="perplexity",
+            display_name="Perplexity",
+            short_display_name="PPL",
+            description="Perplexity of the output completion (effective branching factor per output token).",
+            lower_is_better=True,
+            group=None,
+        ),
+        MetricMetadata(
+            name="logprob_per_byte",
+            display_name="Log probability / byte",
+            short_display_name="Logprob/byte",
+            description="Predicted output's average log probability normalized by the number of bytes.",
+            lower_is_better=False,
+            group=None,
+        ),
+        MetricMetadata(
+            name="bits_per_byte",
+            display_name="Bits/byte",
+            short_display_name="BPB",
+            description="Average number of bits per byte according to model probabilities.",
+            lower_is_better=True,
+            group=None,
+        ),
+    ]
+
+
 class InstancesPerSplitMetric(MetricInterface):
     """Report the average num_instances in each MetricContext across train_trials."""
 
@@ -132,6 +168,16 @@ class InstancesPerSplitMetric(MetricInterface):
 
         # There are no per-instance Stats.
         return MetricResult(list(global_stats.values()), [])
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="num_instances",
+                display_name="# eval",
+                description="Number of evaluation instances.",
+                lower_is_better=None,
+            )
+        ]
 
 
 class BasicGenerationMetric(Metric):
@@ -179,6 +225,15 @@ class BasicGenerationMetric(Metric):
         derived_stats: List[Stat] = []
         derived_stats.extend(compute_calibration_metrics(per_instance_stats))
         return derived_stats
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return (
+            get_request_state_metrics_metadata(self.efficiency_metric)
+            + get_reference_metrics_metadata(self.names)
+            + _get_language_modeling_metrics_metadata()
+            + _get_perplexity_metrics_metadata()
+            + _get_calibration_metrics_metadata()
+        )
 
 
 class BasicReferenceMetric(ReferenceMetric):
@@ -295,6 +350,33 @@ class BasicReferenceMetric(ReferenceMetric):
         )
         return stats
 
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="max_prob",
+                display_name="Max prob",
+                description="Model's average confidence in its prediction (only computed for classification tasks)",
+                lower_is_better=False,
+                group="calibration_detailed",
+            ),
+            MetricMetadata(
+                name="exact_match",
+                display_name="Exact match",
+                short_display_name="EM",
+                description="Fraction of instances that the predicted output matches a correct reference exactly.",
+                lower_is_better=False,
+                group="accuracy",
+            ),
+            MetricMetadata(
+                name="predicted_index",
+                display_name="Predicted index",
+                description="Integer index of the reference (0, 1, ...) that was predicted by the model (for "
+                "multiple-choice).",
+                lower_is_better=None,
+                group=None,
+            ),
+        ]
+
 
 def compute_request_state_metrics(
     efficiency_metric: EfficiencyMetric,
@@ -319,6 +401,34 @@ def compute_request_state_metrics(
     return stats
 
 
+def get_request_state_metrics_metadata(
+    efficiency_metric: EfficiencyMetric,
+) -> List[MetricMetadata]:
+    metric_metadata = [
+        MetricMetadata(
+            name="num_references",
+            display_name="# ref",
+            description="Number of references.",
+            lower_is_better=None,
+            group=None,
+        ),
+        MetricMetadata(
+            name="num_train_trials",
+            display_name="# trials",
+            description="Number of trials, where in each trial we choose an independent, random set of training "
+            "instances.",
+            lower_is_better=None,
+            group="general_information",
+        ),
+    ]
+    return (
+        metric_metadata
+        + efficiency_metric.get_metadata()
+        + _get_finish_reason_metrics_metadata()
+        + _get_truncation_metrics_metadata()
+    )
+
+
 def _compute_finish_reason_metrics(
     adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
 ) -> List[Stat]:
@@ -341,6 +451,40 @@ def _compute_finish_reason_metrics(
     ]
 
 
+def _get_finish_reason_metrics_metadata():
+    return [
+        MetricMetadata(
+            name="finish_reason_endoftext",
+            display_name="finish b/c endoftext",
+            description="Fraction of instances where the the output was terminated because the end of text token "
+            "was generated.",
+            lower_is_better=None,
+            group=None,
+        ),
+        MetricMetadata(
+            name="finish_reason_length",
+            display_name="finish b/c length",
+            description="Fraction of instances where the the output was terminated because of the max tokens limit.",
+            lower_is_better=None,
+            group=None,
+        ),
+        MetricMetadata(
+            name="finish_reason_stop",
+            display_name="finish b/c stop",
+            description="Fraction of instances where the the output was terminated because of the stop sequences.",
+            lower_is_better=None,
+            group=None,
+        ),
+        MetricMetadata(
+            name="finish_reason_unknown",
+            display_name="finish b/c unknown",
+            description="Fraction of instances where the the output was terminated for unknown reasons.",
+            lower_is_better=None,
+            group=None,
+        ),
+    ]
+
+
 def _compute_truncation_metrics(
     adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
 ) -> List[Stat]:
@@ -351,6 +495,26 @@ def _compute_truncation_metrics(
     return [
         Stat(MetricName("num_train_instances")).add(request_state.num_train_instances),
         Stat(MetricName("prompt_truncated")).add(request_state.prompt_truncated),
+    ]
+
+
+def _get_truncation_metrics_metadata() -> List[MetricMetadata]:
+    return [
+        MetricMetadata(
+            name="num_train_instances",
+            display_name="# train",
+            description="Number of training instances (e.g., in-context examples).",
+            lower_is_better=None,
+        ),
+        MetricMetadata(
+            name="prompt_truncated",
+            display_name="truncated",
+            description="Fraction of instances where the "
+            "prompt itself was truncated (implies "
+            "that there were no in-context "
+            "examples).",
+            lower_is_better=None,
+        ),
     ]
 
 
@@ -384,6 +548,30 @@ def compute_language_modeling_metrics(
         Stat(MetricName("logprob")).add(logprob),
         Stat(MetricName("num_perplexity_tokens")).add(num_perplexity_tokens),
         Stat(MetricName("num_bytes")).add(num_bytes),
+    ]
+
+
+def _get_language_modeling_metrics_metadata() -> List[MetricMetadata]:
+    return [
+        MetricMetadata(
+            name="logprob",
+            display_name="Log probability",
+            short_display_name="Logprob",
+            description="Predicted output's average log probability (input's log prob for language modeling).",
+            lower_is_better=False,
+        ),
+        MetricMetadata(
+            name="num_perplexity_tokens",
+            display_name="# tokens",
+            description="Average number of tokens in the predicted output (for language modeling, the input too).",
+            lower_is_better=None,
+        ),
+        MetricMetadata(
+            name="num_bytes",
+            display_name="# bytes",
+            description="Average number of bytes in the predicted output (for language modeling, the input too).",
+            lower_is_better=None,
+        ),
     ]
 
 
@@ -448,3 +636,80 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]) 
             stats.append(Stat(MetricName("platt_ece_1_bin")).add(platt_ece_1_bin))
 
     return stats
+
+
+def _get_calibration_metrics_metadata() -> List[MetricMetadata]:
+    return [
+        MetricMetadata(
+            name="ece_10_bin",
+            display_name="10-bin expected calibration error",
+            short_display_name="ECE (10-bin)",
+            description="The average difference between the model's confidence and accuracy, averaged across 10 "
+            "bins where each bin contains an equal number of points (only computed for classification "
+            "tasks). Warning - not reliable for small datasets (e.g., with < 300 examples) because "
+            "each bin will have very few examples.",
+            lower_is_better=True,
+            group="calibration",
+        ),
+        MetricMetadata(
+            name="ece_1_bin",
+            display_name="1-bin expected calibration error",
+            short_display_name="ECE (1-bin)",
+            description="The (absolute value) difference between the model's average confidence and accuracy "
+            "(only computed for classification tasks).",
+            lower_is_better=True,
+            group="calibration_detailed",
+        ),
+        MetricMetadata(
+            name="selective_acc@10",
+            display_name="Accuracy at 10% coverage",
+            short_display_name="Acc@10%",
+            description="The accuracy for the 10% of predictions that the model is most confident on (only "
+            "computed for classification tasks).",
+            lower_is_better=False,
+            group="calibration_detailed",
+        ),
+        MetricMetadata(
+            name="selective_cov_acc_area",
+            display_name="Selective coverage-accuracy area",
+            short_display_name="Selective Acc",
+            description="The area under the coverage-accuracy curve, a standard selective classification metric "
+            "(only computed for classification tasks).",
+            lower_is_better=False,
+            group="calibration_detailed",
+        ),
+        MetricMetadata(
+            name="platt_coef",
+            display_name="Platt Scaling Coefficient",
+            short_display_name="Platt Coef",
+            description="Coefficient of the Platt scaling classifier (can compare this across tasks).",
+            lower_is_better=False,
+            group="calibration_detailed",
+        ),
+        MetricMetadata(
+            name="platt_intercept",
+            display_name="Platt Scaling Intercept",
+            short_display_name="Platt Intercept",
+            description="Intercept of the Platt scaling classifier (can compare this across tasks).",
+            lower_is_better=False,
+            group="calibration_detailed",
+        ),
+        MetricMetadata(
+            name="platt_ece_10_bin",
+            display_name="10-bin Expected Calibration Error (after Platt scaling)",
+            short_display_name="Platt-scaled ECE (10-bin)",
+            description="10-bin ECE computed after applying Platt scaling to recalibrate the model's predicted "
+            "probabilities.",
+            lower_is_better=True,
+            group="calibration_detailed",
+        ),
+        MetricMetadata(
+            name="platt_ece_1_bin",
+            display_name="1-bin expected calibration error (after Platt scaling)",
+            short_display_name="Platt-scaled ECE (1-bin)",
+            description="1-bin ECE computed after applying Platt scaling to recalibrate the model's predicted "
+            "probabilities.",
+            lower_is_better=True,
+            group="calibration_detailed",
+        ),
+    ]

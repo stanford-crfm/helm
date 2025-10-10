@@ -12,7 +12,7 @@ from helm.benchmark.scenarios.scenario import (
 )
 
 
-class BLUEX_Scenario(Scenario):
+class BLUEXScenario(Scenario):
     """
     The BLUEX dataset is a benchmark used for evaluating natural language processing models in Brazilian Portuguese.
     It consists of multiple-choice questions taken from official entrance exams of Unicamp (Convest) and USP (Fuvest),
@@ -32,7 +32,11 @@ class BLUEX_Scenario(Scenario):
         instances: List[Instance] = []
         cache_dir = str(Path(output_path) / "data")
 
-        dataset = load_dataset("portuguese-benchmark-datasets/BLUEX", cache_dir=cache_dir)
+        dataset = load_dataset(
+            "portuguese-benchmark-datasets/BLUEX",
+            revision="d99cf6d05b50db7c42a605e5e2924cbd46f076c7",
+            cache_dir=cache_dir,
+        )
         for example in dataset["questions"]:
             # This scenario disregards issues with images
             if example["has_associated_images"]:

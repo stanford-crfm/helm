@@ -6,6 +6,7 @@ import os
 import re
 import html
 import random
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.hierarchical_logger import htrack_block, hlog
 from typing import List, Dict
 
@@ -20,6 +21,7 @@ from helm.benchmark.scenarios.scenario import (
     PassageQuestionInput,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -324,3 +326,33 @@ class NaturalQAScenario(Scenario):
             instances.extend(self.get_file_instances(target_path))
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        if self.context_mode == "closedbook":
+            name = "natural_qa_closedbook"
+            display_name = "NaturalQuestions (closed-book)"
+        elif self.context_mode == "openbook_longans":
+            name = "natural_qa_openbook_longans"
+            display_name = "NaturalQuestions (open-book)"
+        elif self.context_mode == "openbook_wiki":
+            name = "natural_qa_openbook_wiki"
+            display_name = "NaturalQuestions (open-book Wiki)"
+        else:
+            raise Exception(f"Unknown context_mode {self.context_mode}")
+        return ScenarioMetadata(
+            name=name,
+            display_name=display_name,
+            description="The NaturalQuestions [(Kwiatkowski et al., "
+            "2019)](https://aclanthology.org/Q19-1026/) benchmark for question answering "
+            "based on naturally-occurring queries through Google Search. The input does not "
+            "include the Wikipedia page with the answer.",
+            taxonomy=TaxonomyInfo(
+                task="question answering",
+                what="passages from Wikipedia, questions from search queries",
+                when="2010s",
+                who="web users",
+                language="English",
+            ),
+            main_metric="f1_score",
+            main_split="valid",
+        )

@@ -1,6 +1,7 @@
 from typing import List, Dict
 
 from helm.common.cache import CacheConfig
+from helm.common.hierarchical_logger import hexception
 from helm.common.request import Request, RequestResult, GeneratedOutput, Token
 from helm.clients.client import CachingClient, truncate_sequence
 
@@ -44,6 +45,7 @@ class GoogleClient(CachingClient):
             # If results are not cached for a given query, fail fast
             response, cached = self.cache.get(cache_key, fail)
         except RuntimeError as e:
+            hexception(e)
             error: str = f"GoogleClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 

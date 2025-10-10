@@ -1,6 +1,7 @@
 import os
 import json
 from typing import List, Dict
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -11,6 +12,7 @@ from helm.benchmark.scenarios.scenario import (
     Reference,
     Output,
     CORRECT_TAG,
+    ScenarioMetadata,
 )
 
 TASK = {
@@ -202,3 +204,14 @@ class DecodingTrustOODRobustnessScenario(Scenario):
             instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="decodingtrust_adv_demonstration",
+            display_name="DecodingTrust - Adversarial Demonstrations",
+            short_display_name="AdvDemo",
+            description="Robustness analysis of LM generations when facing adversarial demonstrations",
+            taxonomy=TaxonomyInfo(task="text classification", what="?", when="?", who="?", language="English"),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )

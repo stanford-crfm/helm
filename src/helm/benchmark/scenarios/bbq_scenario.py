@@ -3,6 +3,7 @@ import os
 import random
 from typing import List, Dict, Tuple
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -14,6 +15,7 @@ from helm.benchmark.scenarios.scenario import (
     DEFAULT_TEST_SIZE,
     PassageQuestionInput,
     Output,
+    ScenarioMetadata,
 )
 
 AMBIGUOUS_TAG = "ambiguous"
@@ -237,3 +239,16 @@ class BBQScenario(Scenario):
             instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="bbq",
+            display_name="BBQ (Bias Benchmark for Question Answering)",
+            short_display_name="BBQ",
+            description="The Bias Benchmark for Question Answering (BBQ) for measuring social bias in "
+            "question answering in ambiguous and unambigous context [(Parrish et al., "
+            "2022)](https://aclanthology.org/2022.findings-acl.165/).",
+            taxonomy=TaxonomyInfo(task="?", what="n/a", when="n/a", who="n/a", language="synthetic"),
+            main_metric="bbq_accuracy",
+            main_split="test",
+        )

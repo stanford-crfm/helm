@@ -11,7 +11,7 @@ from helm.benchmark.metrics.efficiency_metrics import EfficiencyMetric
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.benchmark.metrics.metric import MetricInterface, MetricResult, PerInstanceStats, add_context
+from helm.benchmark.metrics.metric import MetricInterface, MetricMetadata, MetricResult, PerInstanceStats, add_context
 from helm.benchmark.metrics.metric_name import MetricContext, MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat, merge_stat
@@ -97,3 +97,15 @@ class LanguageModelingMetric(MetricInterface):
         derived_stats: List[Stat] = []
         derived_stats.extend(compute_perplexity_metrics(stats_dict))
         return derived_stats
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="num_instances",
+                display_name="# eval",
+                short_display_name=None,
+                description="Number of evaluation instances.",
+                lower_is_better=None,
+                group="general_information",
+            ),
+        ]

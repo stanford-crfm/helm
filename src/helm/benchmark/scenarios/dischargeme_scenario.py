@@ -1,4 +1,5 @@
 from typing import List
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import check_file_exists
 from helm.benchmark.scenarios.scenario import (
     Input,
@@ -8,6 +9,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Reference,
     Output,
+    ScenarioMetadata,
 )
 import pandas as pd
 
@@ -170,3 +172,25 @@ class DischargeMeScenario(Scenario):
             lines = file.readlines()
         lines = [line.strip() for line in lines]
         return lines
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="dischargeme",
+            display_name="DischargeMe",
+            short_display_name="DischargeMe",
+            description="DischargeMe is a benchmark designed to evaluate clinical text generation. It "
+            "pairs discharge summaries and radiology reports from MIMIC-IV with generation "
+            "tasks such as writing discharge instructions or summarizing the brief hospital "
+            "course. The benchmark assesses a model's ability to generate patient-facing "
+            "documentation that is complete, empathetic, and clinically accurate [(Xu, "
+            "2024)](https://physionet.org/content/discharge-me/1.3/).",
+            taxonomy=TaxonomyInfo(
+                task="Text generation",
+                what="Generate discharge instructions from hospital notes",
+                when="Upon hospital discharge",
+                who="Clinician",
+                language="English",
+            ),
+            main_metric="dischargeme_accuracy",
+            main_split="test",
+        )

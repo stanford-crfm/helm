@@ -3,8 +3,9 @@ import os
 import random
 from typing import List, Dict, Optional
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
-from helm.benchmark.scenarios.scenario import Scenario, Instance, TEST_SPLIT, Input
+from helm.benchmark.scenarios.scenario import Scenario, Instance, TEST_SPLIT, Input, ScenarioMetadata
 
 TOXIC_SUB_SPLIT: str = "toxic"
 NONTOXIC_SUB_SPLIT: str = "non-toxic"
@@ -57,3 +58,15 @@ class RealToxicityPromptsScenario(Scenario):
         random.shuffle(instances)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="real_toxicity_prompts",
+            display_name="RealToxicityPrompts",
+            description="The RealToxicityPrompts dataset for measuring toxicity in prompted model "
+            "generations [(Gehman et al., "
+            "2020)](https://aclanthology.org/2020.findings-emnlp.301/).",
+            taxonomy=TaxonomyInfo(task="?", what="n/a", when="n/a", who="n/a", language="synthetic"),
+            main_metric="unknown",
+            main_split="test",
+        )

@@ -2,6 +2,7 @@ import sys
 import csv
 from typing import Dict, List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Input,
     Scenario,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Reference,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.general import check_file_exists
 
@@ -79,3 +81,24 @@ class SHCPTBMMedScenario(Scenario):
             )
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="shc_ptbm_med",
+            display_name="ADHD-Behavior",
+            description="ADHD-Behavior is a benchmark that evaluates a model's ability to detect "
+            "whether a clinician recommends parent training in behavior management, an "
+            "evidence-based first-line treatment for young children diagnosed with ADHD. "
+            "Each instance includes a clinical note from a pediatric visit and a binary "
+            "classification task [(Pillai et al., "
+            "2024)](https://doi.org/10.1093/jamia/ocae001).",
+            taxonomy=TaxonomyInfo(
+                task="Classification",
+                what="Detect ADHD medication side effect monitoring",
+                when="During Treatment",
+                who="Clinician, Researcher",
+                language="English",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )

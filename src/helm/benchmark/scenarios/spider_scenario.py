@@ -4,6 +4,7 @@ from typing import Dict, List
 
 from filelock import FileLock
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded, shell
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.scenarios.bird_sql_scenario_helper import (  # type: ignore
@@ -17,6 +18,7 @@ from helm.benchmark.scenarios.scenario import (
     VALID_SPLIT,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -89,3 +91,19 @@ INSERT_YOUR_SQL_QUERY_HERE
             )
             instances.append(instance)
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="spider",
+            display_name="Spider 1.0 (Test)",
+            description="Spider 1.0 (Test)",
+            taxonomy=TaxonomyInfo(
+                task="text-to-SQL",
+                what="databases from various domains",
+                when="?",
+                who="expert data scientists",
+                language="English",
+            ),
+            main_metric="execution_accuracy",
+            main_split="valid",
+        )

@@ -2,6 +2,7 @@ import csv
 import os
 from typing import List, Dict, Any
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -154,3 +156,15 @@ class TruthfulQAScenario(Scenario):
         valid_instances: List[Instance] = get_split_instances(VALID_SPLIT, data[split_k:])
 
         return train_instances + valid_instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="truthful_qa",
+            display_name="TruthfulQA",
+            description="The TruthfulQA benchmarking for measuring model truthfulness and commonsense "
+            "knowledge in question answering [(Lin et al., "
+            "2022)](https://aclanthology.org/2022.acl-long.229/).",
+            taxonomy=TaxonomyInfo(task="question answering", what="?", when="?", who="?", language="English"),
+            main_metric="exact_match",
+            main_split="valid",
+        )

@@ -9,6 +9,7 @@ from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
+from helm.benchmark.metrics.metric import MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
@@ -161,6 +162,79 @@ class EfficiencyMetric:
         if idealized_runtime is not None:
             stats.append(Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime))
         return stats
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="num_prompt_tokens",
+                display_name="# prompt tokens",
+                short_display_name=None,
+                description="Number of tokens in the prompt.",
+                lower_is_better=None,
+                group="general_information",
+            ),
+            MetricMetadata(
+                name="num_completion_tokens",
+                display_name="# completion tokens",
+                description="Actual number of completion tokens (over all completions).",
+                lower_is_better=None,
+            ),
+            MetricMetadata(
+                name="num_output_tokens",
+                display_name="# output tokens",
+                description="Actual number of output tokens.",
+                lower_is_better=None,
+            ),
+            MetricMetadata(
+                name="training_co2_cost",
+                display_name="Estimated training emissions (kg CO2)",
+                short_display_name="Training emissions (kg CO2)",
+                description="Estimate of the CO2 emissions from training the model.",
+                lower_is_better=True,
+                group="efficiency_detailed",
+            ),
+            MetricMetadata(
+                name="training_energy_cost",
+                display_name="Estimated training energy cost (MWh)",
+                short_display_name="Training energy (MWh)",
+                description="Estimate of the amount of energy used to train the model.",
+                lower_is_better=True,
+                group="efficiency_detailed",
+            ),
+            MetricMetadata(
+                name="inference_runtime",
+                display_name="Observed inference runtime (s)",
+                short_display_name="Observed inference time (s)",
+                description="Average observed time to process a request to the model (via an API, and thus depends on "
+                "particular deployment).",
+                lower_is_better=True,
+                group="efficiency_detailed",
+            ),
+            MetricMetadata(
+                name="batch_size",
+                display_name="Batch size",
+                description="For batch jobs, how many requests are in a batch.",
+                lower_is_better=None,
+            ),
+            MetricMetadata(
+                name="inference_denoised_runtime",
+                display_name="Denoised inference runtime (s)",
+                short_display_name="Denoised inference time (s)",
+                description="Average time to process a request to the model minus performance contention by using "
+                "profiled runtimes from multiple trials of SyntheticEfficiencyScenario.",
+                lower_is_better=True,
+                group="efficiency_detailed",
+            ),
+            MetricMetadata(
+                name="inference_idealized_runtime",
+                display_name="Idealized inference runtime (s)",
+                short_display_name="Idealized inference time (s)",
+                description="Average time to process a request to the model based solely on the model architecture "
+                "(using Megatron-LM).",
+                lower_is_better=True,
+                group="efficiency_detailed",
+            ),
+        ]
 
 
 def _compute_estimated_time_from_prompt_size_and_num_output_tokens(

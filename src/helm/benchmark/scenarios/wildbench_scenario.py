@@ -2,11 +2,13 @@ import datasets
 import os
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
     TEST_SPLIT,
     Input,
+    ScenarioMetadata,
 )
 from helm.common.general import ensure_directory_exists
 
@@ -81,3 +83,19 @@ class WildBenchScenario(Scenario):
             instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name=self.name,
+            display_name="WildBench",
+            description=self.description,
+            main_metric="wildbench_score_rescaled",
+            main_split="test",
+            taxonomy=TaxonomyInfo(
+                task="instruction following",
+                what="GPT-judged instruction following with instructions collected from real-user conversations",
+                who="real-world users",
+                when="2024",
+                language="English",
+            ),
+        )

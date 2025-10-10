@@ -2,6 +2,7 @@ import json
 import os
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -13,6 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -102,3 +104,14 @@ class LegalSupportScenario(Scenario):
                 instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="legal_support",
+            display_name="LegalSupport",
+            description="Scenario introduced in this work to measure fine-grained legal reasoning "
+            "through reverse entailment.",
+            taxonomy=TaxonomyInfo(task="?", what="n/a", when="n/a", who="n/a", language="synthetic"),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )

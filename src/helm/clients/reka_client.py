@@ -6,7 +6,7 @@ from helm.proxy.retry import NonRetriableException
 from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput
-from helm.common.hierarchical_logger import hwarn
+from helm.common.hierarchical_logger import hexception, hwarn
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.tokenizers.tokenizer import Tokenizer
 from helm.clients.client import CachingClient, truncate_and_tokenize_response_text
@@ -167,6 +167,7 @@ class RekaClient(CachingClient):
 
                 response, cached = self.cache.get(raw_request, wrap_request_time(do_it))
             except (requests.exceptions.RequestException, AssertionError) as e:
+                hexception(e)
                 error: str = f"RekaClient error: {e}"
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 

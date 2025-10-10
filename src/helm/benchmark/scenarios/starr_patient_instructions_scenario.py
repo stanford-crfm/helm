@@ -1,6 +1,7 @@
 import csv
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import check_file_exists
 from helm.benchmark.scenarios.scenario import (
     Input,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Reference,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -95,3 +97,23 @@ class StarrPatientInstructionsScenario(Scenario):
                 )
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="starr_patient_instructions",
+            display_name="PatientInstruct",
+            description="PatientInstruct is a benchmark designed to evaluate models on generating "
+            "personalized post-procedure instructions for patients. It includes real-world "
+            "clinical case details, such as diagnosis, planned procedures, and history and "
+            "physical notes, from which models must produce clear, actionable instructions "
+            "appropriate for patients recovering from medical interventions.",
+            taxonomy=TaxonomyInfo(
+                task="Text generation",
+                what="Generate customized post-procedure patient instructions",
+                when="Post-procedure",
+                who="Clinician",
+                language="English",
+            ),
+            main_metric="starr_patient_instructions_accuracy",
+            main_split="test",
+        )

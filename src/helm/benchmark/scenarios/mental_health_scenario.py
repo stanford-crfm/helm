@@ -1,5 +1,6 @@
 import pandas as pd
 from typing import List
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -8,6 +9,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     PassageQuestionInput,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.general import check_file_exists
 
@@ -121,3 +123,24 @@ class MentalHealthScenario(Scenario):
         instances = self.process_dialogue_data(dialogue_data)
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="mental_health",
+            display_name="MentalHealth",
+            description="MentalHealth is a benchmark focused on evaluating empathetic communication in "
+            "mental health counseling. It includes real or simulated conversations between "
+            "patients and counselors, where the task is to generate compassionate and "
+            "appropriate counselor responses. The benchmark assesses a model's ability to "
+            "support patients emotionally and meaningfully engage in therapeutic "
+            "conversations.",
+            taxonomy=TaxonomyInfo(
+                task="Text generation",
+                what="Generate empathetic counseling responses in mental health " "conversations",
+                when="Any",
+                who="Counselors, Patients",
+                language="English",
+            ),
+            main_metric="mental_health_accuracy",
+            main_split="test",
+        )

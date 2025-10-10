@@ -6,6 +6,7 @@ import numpy as np
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
+from helm.benchmark.metrics.metric import MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.scenarios.kpi_edgar_scenario import KPIEDGARScenario
@@ -119,3 +120,23 @@ class KPIEdgarMetric(EvaluateInstancesMetric):
 
     def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         return _compute_stats(_request_states_to_pred_gold_pairs(request_states))
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="word_macro_f1_score",
+                display_name="Word F1 Score",
+                description="Word F1 Score",
+                lower_is_better=None,
+                group=None,
+            ),
+            MetricMetadata(
+                name="adjusted_macro_f1_score",
+                display_name="Adjusted Macro F1 Score",
+                short_display_name="Adjusted Macro F1 Score",
+                description="Entity type classification F1 score, adjusted for partial matches following the KPI-Edgar "
+                "paper, macro-averaged across entity types",
+                lower_is_better=None,
+                group=None,
+            ),
+        ]

@@ -1,7 +1,8 @@
 from typing import List
 from datasets import load_dataset
 
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT, Reference, Output
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT, Reference, Output, ScenarioMetadata
 
 
 class SimpleSafetyTestsScenario(Scenario):
@@ -31,3 +32,13 @@ class SimpleSafetyTestsScenario(Scenario):
             instance = Instance(input=input, references=references, split=TEST_SPLIT)
             instances.append(instance)
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="simple_safety_tests",
+            display_name="SimpleSafetyTests",
+            description="SimpleSafetyTests",
+            taxonomy=TaxonomyInfo(task="question answering", what="n/a", when="n/a", who="n/a", language="English"),
+            main_metric="safety_score",
+            main_split="test",
+        )

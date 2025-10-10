@@ -1,6 +1,7 @@
 from typing import List
 
 from helm.common.cache import CacheConfig
+from helm.common.hierarchical_logger import hexception
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
@@ -76,6 +77,7 @@ class AlephAlphaClient(CachingClient):
             cache_key = CachingClient.make_cache_key({"model": model, "prompt": prompt_key, **parameters}, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except Exception as e:
+            hexception(e)
             error: str = f"AlephAlphaClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 

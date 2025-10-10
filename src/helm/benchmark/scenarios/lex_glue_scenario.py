@@ -16,6 +16,7 @@ from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 ECTHR_A = "ecthr_a"
@@ -261,3 +262,13 @@ class LexGLUEScenario(Scenario):
         for subset in self.subsets:
             instances.extend(self.get_instances_for_subset(subset, output_path))
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="lex_glue",
+            display_name="LexGLUE",
+            description="A Benchmark Dataset for Legal Language Understanding in English",
+            taxonomy=None,
+            main_metric="classification_macro_f1",
+            main_split="test",
+        )

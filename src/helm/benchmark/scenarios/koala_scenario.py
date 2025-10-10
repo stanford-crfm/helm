@@ -2,8 +2,9 @@ import json
 import os
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT, ScenarioMetadata
 
 
 class KoalaScenario(Scenario):
@@ -39,3 +40,22 @@ class KoalaScenario(Scenario):
             )
             instances.append(instance)
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="koala",
+            display_name="Koala test dataset",
+            short_display_name="Koala test dataset",
+            description="The test dataset from the [Koala "
+            "paper](https://bair.berkeley.edu/blog/2023/04/03/koala/) for evaluating "
+            "instruction-following models.",
+            taxonomy=TaxonomyInfo(
+                task="open-ended instruction following",
+                what="Instructions for LLMs",
+                when="Before 2023",
+                who="Web users",
+                language="English",
+            ),
+            main_metric="Helpfulness",
+            main_split="test",
+        )

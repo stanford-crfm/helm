@@ -460,7 +460,7 @@ tokenizer_configs:
 
   # Allen Institute for AI
   # The allenai/olmo-7b requires Python 3.9 or newer.
-  # To use the allenai/olmo-7b tokenizer, run `pip install crfm-helm[allenai]` first.
+  # To use the allenai/olmo-7b tokenizer, run `pip install "crfm-helm[allenai]"` first.
   - name: allenai/olmo-7b
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
@@ -717,6 +717,12 @@ tokenizer_configs:
     end_of_text_token: "<|im_end|>"
     prefix_token: ""
 
+  - name: qwen/qwen3-next-80b-a3b-thinking
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|im_end|>"
+    prefix_token: ""
+
   - name: qwen/qwq-32b-preview
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
@@ -792,6 +798,12 @@ tokenizer_configs:
 
   # Tiiuae
   - name: tiiuae/falcon-7b
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: ""
+
+  - name: tiiuae/falcon3-1b-instruct
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "<|endoftext|>"
@@ -1075,14 +1087,26 @@ tokenizer_configs:
     end_of_text_token: "<|endoftext|>"
     prefix_token: ""
 
-  
-
   # DeepSeek-R1-Distill-Llama-3.1-8b
   - name: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
     tokenizer_spec:
         class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
         args:
             pretrained_model_name_or_path: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+    end_of_text_token: "<｜end▁of▁sentence｜>"
+    prefix_token: "<｜begin▁of▁sentence｜>"
+
+  # DeepSeek-R1-Distill-Llama-3.1-8b
+  - name: deepseek-ai/deepseek-r1-distill-llama-70b
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<｜end▁of▁sentence｜>"
+    prefix_token: "<｜begin▁of▁sentence｜>"
+
+  # DeepSeek-R1-Distill-Qwen-14B
+  - name: deepseek-ai/deepseek-r1-distill-qwen-14b
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "<｜end▁of▁sentence｜>"
     prefix_token: "<｜begin▁of▁sentence｜>"
 
@@ -1094,7 +1118,6 @@ tokenizer_configs:
             pretrained_model_name_or_path: deepseek-ai/deepseek-coder-6.7b-instruct
     end_of_text_token: "<｜end▁of▁sentence｜>"
     prefix_token: "<｜begin▁of▁sentence｜>"
-
 
 # vilm/vinallama-2.7b-chat
   - name: vilm/vinallama-2.7b-chat
@@ -1201,5 +1224,52 @@ tokenizer_configs:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
       args:
         pretrained_model_name_or_path: nicholasKluge/TeenyTinyLlama-460m
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+
+  # AceGPT-v2
+  - name: freedomintelligence/acegpt-v2-8b-chat
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|end_of_text|>"
+    prefix_token: "<|begin_of_text|>"
+
+  - name: freedomintelligence/acegpt-v2-32b-chat
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: ""
+
+  - name: freedomintelligence/acegpt-v2-70b-chat
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|end_of_text|>"
+    prefix_token: "<|begin_of_text|>"
+
+  # ALLaM
+  - name: allam-ai/allam-7b-instruct-preview
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+
+  # SILMA
+  - name: silma-ai/silma-9b-instruct-v1.0
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<eos>"
+    prefix_token: "<bos>"
+
+  # Jais Family
+  - name: inceptionai/jais-family-590m-chat
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|endoftext|>"
+
+  # Jais Adapted
+  - name: inceptionai/jais-adapted-7b-chat
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "</s>"
     prefix_token: "<s>"

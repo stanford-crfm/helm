@@ -2,6 +2,7 @@ import json
 import os
 from typing import Dict, List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     VALID_SPLIT,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -103,3 +105,21 @@ class MedQAScenario(Scenario):
                     instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="med_qa",
+            display_name="MedQA",
+            description="MedQA is an open domain question answering dataset composed of questions from "
+            "professional medical board exams ([Jin et al. "
+            "2020](https://arxiv.org/pdf/2009.13081.pdf)).",
+            taxonomy=TaxonomyInfo(
+                task="multiple-choice question answering",
+                what="US medical licensing exams",
+                when="before 2020",
+                who="problem setters",
+                language="English",
+            ),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )

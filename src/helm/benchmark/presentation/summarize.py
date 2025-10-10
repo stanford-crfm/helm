@@ -9,6 +9,7 @@ Usage:
 """
 
 import argparse
+import dataclasses
 import os
 import datetime
 import urllib.parse
@@ -31,18 +32,26 @@ from helm.common.general import (
 )
 from helm.common.codec import from_json
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block, hwarn, setup_default_logging
-from helm.benchmark.scenarios.scenario import ScenarioSpec
+from helm.benchmark.scenarios.scenario import Scenario, ScenarioMetadata, ScenarioSpec, create_scenario
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.metric_name import MetricName
-from helm.benchmark.metrics.metric import get_all_stats_by_name
+from helm.benchmark.metrics.metric import (
+    MetricInterface,
+    MetricMetadata,
+    MetricSpec,
+    create_metric,
+    get_all_stats_by_name,
+)
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.benchmark.run_spec import RunSpec
 from helm.benchmark.runner import LATEST_SYMLINK
 from helm.benchmark.presentation.table import Cell, HeaderCell, Table, Hyperlink, table_to_latex
 from helm.benchmark.presentation.schema import (
+    MetricGroup,
     MetricNameMatcher,
     RunGroup,
     Field,
+    Schema,
     read_schema,
     get_default_schema_path,
     BY_GROUP,
@@ -341,7 +350,7 @@ class Summarizer:
         release: Optional[str],
         suites: Optional[List[str]],
         suite: Optional[str],
-        schema_path: str,
+        schema_path: Optional[str],
         output_path: str,
         verbose: bool,
         num_threads: int,
@@ -376,10 +385,8 @@ class Summarizer:
         self.verbose: bool = verbose
         self.num_threads: int = num_threads
         self.allow_unknown_models: bool = allow_unknown_models
-
-        ensure_directory_exists(self.run_release_path)
-
-        self.schema = read_schema(schema_path)
+        self.schema = read_schema(schema_path) if schema_path else Schema()
+        self.metric_metadata: List[MetricMetadata] = []
 
     def read_run(self, run_path: str) -> Run:
         """Load the `Run` object from `run_path`."""
@@ -426,6 +433,8 @@ class Summarizer:
 
     def read_runs_for_suite(self, suite, run_suite_path):
         """Load the runs in the run suite path."""
+        if not os.path.exists(run_suite_path):
+            raise Exception(f"Suite {suite} does not exist at {run_suite_path}")
         # run_suite_path can contain subdirectories that are not runs (e.g. eval_cache, groups)
         # so filter them out.
         run_dir_names = sorted(
@@ -508,6 +517,150 @@ class Summarizer:
             )
             model_field_dicts.append(asdict_without_nones(model_field))
         return model_field_dicts
+
+    def get_metric_metadata(self) -> List[MetricMetadata]:
+        if self.metric_metadata:
+            return self.metric_metadata
+        metric_specs: List[MetricSpec] = []
+        for run in self.runs:
+            metric_specs.extend(run.run_spec.metric_specs)
+        metric_specs = list(set(metric_specs))
+        metric_name_to_metadata: Dict[str, MetricMetadata] = {}
+        for metric_spec in metric_specs:
+            try:
+                metric: MetricInterface = create_metric(metric_spec)
+                metric_metadata_list = metric.get_metadata()
+                for metric_metadata in metric_metadata_list:
+                    metric_name_to_metadata[metric_metadata.name] = metric_metadata
+            except NotImplementedError:
+                pass
+            except (ModuleNotFoundError, AttributeError, TypeError):
+                pass
+
+        run_stat_names: Set[str] = set()
+        for run in self.runs:
+            for stat in run.stats:
+                run_stat_names.add(stat.name.name)
+
+        metric_names_to_prune = set(metric_name_to_metadata.keys()) - run_stat_names
+        for metric_name_to_prune in metric_names_to_prune:
+            del metric_name_to_metadata[metric_name_to_prune]
+        self.metric_metadata = list(metric_name_to_metadata.values())
+        return self.metric_metadata
+
+    def metric_metadata_to_field(self, metric_metadata: MetricMetadata) -> Field:
+        return Field(
+            name=metric_metadata.name,
+            display_name=metric_metadata.display_name,
+            short_display_name=metric_metadata.short_display_name,
+            description=metric_metadata.description,
+            lower_is_better=metric_metadata.lower_is_better,
+        )
+
+    def auto_generate_metric_fields(self) -> List[Field]:
+        return [self.metric_metadata_to_field(metric_metadata) for metric_metadata in self.get_metric_metadata()]
+
+    def auto_generate_metric_groups(self) -> List[MetricGroup]:
+        metric_groups = [
+            MetricGroup(
+                name="main_metric",
+                display_name="Main Metric",
+                description="Main Metric",
+                metrics=[MetricNameMatcher(name="${main_name}", split="${main_split}")],
+            )
+        ]
+        metric_group_to_metrics: Dict[str, List[str]] = {}
+        for metric_metadata in self.metric_metadata:
+            if metric_metadata.group:
+                if metric_metadata.group not in metric_group_to_metrics:
+                    metric_group_to_metrics[metric_metadata.group] = []
+                metric_group_to_metrics[metric_metadata.group].append(metric_metadata.name)
+        for metric_group, metric_names in metric_group_to_metrics.items():
+            display_name = metric_group.replace("_", " ").capitalize()
+            metric_groups.append(
+                MetricGroup(
+                    name=metric_group,
+                    # TODO: Make display_name and description nicer
+                    display_name=display_name,
+                    description=display_name,
+                    aggregation_strategies=[],
+                    metrics=[
+                        MetricNameMatcher(name=metric_name, split="${main_split}") for metric_name in metric_names
+                    ],
+                )
+            )
+        return metric_groups
+
+    def get_scenario_metadata(self) -> List[ScenarioMetadata]:
+        scenario_specs = [run.run_spec.scenario_spec for run in self.runs]
+        scenario_specs = list(set(scenario_specs))
+        scenario_name_to_metadata: Dict[str, ScenarioMetadata] = {}
+        for scenario_spec in scenario_specs:
+            try:
+                scenario: Scenario = create_scenario(scenario_spec)
+                scenario_metadata = scenario.get_metadata()
+                scenario_name_to_metadata[scenario_metadata.name] = scenario_metadata
+            except NotImplementedError:
+                pass
+            except (ModuleNotFoundError, AttributeError, TypeError):
+                pass
+
+        run_groups: Set[str] = set()
+        for run in self.runs:
+            for run_group in run.run_spec.groups:
+                run_groups.add(run_group)
+
+        scenario_names_to_prune = set(scenario_name_to_metadata.keys()) - run_groups
+        for scenario_name_to_prune in scenario_names_to_prune:
+            del scenario_name_to_metadata[scenario_name_to_prune]
+        return list(scenario_name_to_metadata.values())
+
+    def scenario_metadata_to_run_group(self, scenario_metadata: ScenarioMetadata) -> RunGroup:
+        metric_group_names = [metric_group.name for metric_group in self.schema.metric_groups]
+        return RunGroup(
+            name=scenario_metadata.name,
+            display_name=scenario_metadata.display_name,
+            short_display_name=scenario_metadata.short_display_name,
+            description=scenario_metadata.description,
+            metric_groups=metric_group_names,
+            environment={
+                "main_name": scenario_metadata.main_metric,
+                "main_split": scenario_metadata.main_split,
+            },
+            taxonomy=scenario_metadata.taxonomy,
+        )
+
+    def auto_generate_all_scenarios_run_group(self) -> RunGroup:
+        return RunGroup(
+            name="all_scenarios",
+            display_name="All Scenarios",
+            description="All scenarios",
+            category="Scenario Groups",
+            subgroups=[run_group.name for run_group in self.schema.run_groups if len(run_group.subgroups) == 0],
+        )
+
+    def auto_generate_scenario_run_groups(self) -> List[RunGroup]:
+        return [
+            self.scenario_metadata_to_run_group(scenario_metadata) for scenario_metadata in self.get_scenario_metadata()
+        ]
+
+    def fix_up_schema(self) -> None:
+        # if not self.schema.run_groups:
+        if not self.schema.metrics:
+            self.schema = dataclasses.replace(self.schema, metrics=self.auto_generate_metric_fields())
+            # Can only auto-generate metric groups if metrics were also auto-generated
+            # because auto_generate_metric_groups() requires self.metric_metadata()
+            # which is populated by auto_generate_metric_fields()
+            if not self.schema.metric_groups:
+                self.schema = dataclasses.replace(self.schema, metric_groups=self.auto_generate_metric_groups())
+        if not any([len(run_group.subgroups) == 0 for run_group in self.schema.run_groups]):
+            self.schema = dataclasses.replace(
+                self.schema, run_groups=self.schema.run_groups + self.auto_generate_scenario_run_groups()
+            )
+        if not any([len(run_group.subgroups) > 0 for run_group in self.schema.run_groups]):
+            self.schema = dataclasses.replace(
+                self.schema, run_groups=[self.auto_generate_all_scenarios_run_group()] + self.schema.run_groups
+            )
 
     def write_schema(self) -> None:
         """Write the schema file to benchmark_output so the frontend knows about it."""
@@ -1070,7 +1223,8 @@ class Summarizer:
                     is_scenario_table=False,
                     aggregation_strategies=aggregate_strategies,
                 )
-                tables.append(table)
+                if len(table.header) > 1:
+                    tables.append(table)
         return tables
 
     def create_group_tables_by_subgroup(self, group: RunGroup) -> List[Table]:
@@ -1213,14 +1367,16 @@ class Summarizer:
         """Run the entire summarization pipeline."""
         self.read_runs()
         self.group_runs()
-        self.check_metrics_defined()
 
-        self.write_run_display_json(skip_completed)
+        ensure_directory_exists(self.run_release_path)
 
         # Must happen after self.read_runs()
         # because it uses self.runs
+        self.fix_up_schema()
+        self.check_metrics_defined()
         self.write_schema()
 
+        self.write_run_display_json(skip_completed)
         self.write_executive_summary()
         self.write_runs()
         self.write_run_specs()
@@ -1254,7 +1410,15 @@ def summarize(args):
     else:
         raise ValueError("Exactly one of --release or --suite must be specified.")
 
-    schema_path = args.schema_path if args.schema_path else get_default_schema_path()
+    schema_path: Optional[str]
+    if args.auto_generate_schema:
+        if args.schema_path:
+            raise ValueError("--schema-path must be unset if --auto-generate-schema is set")
+        schema_path = None
+    elif args.schema_path:
+        schema_path = args.schema_path
+    else:
+        schema_path = get_default_schema_path()
 
     register_builtin_configs_from_helm_package()
     register_configs_from_directory(args.local_path)
@@ -1345,6 +1509,11 @@ def main():
         type=str,
         default=None,
         help="PATH to a YAML file to customize logging",
+    )
+    parser.add_argument(
+        "--auto-generate-schema",
+        action="store_true",
+        help="EXPERIMENTAL: Auto-generate schema",
     )
     args = parser.parse_args()
     setup_default_logging(args.log_config)

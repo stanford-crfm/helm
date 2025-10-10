@@ -2,11 +2,13 @@ import csv
 import os
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
     TEST_SPLIT,
     Input,
+    ScenarioMetadata,
 )
 
 
@@ -35,3 +37,14 @@ class HelpdeskCallSummarizationScenario(Scenario):
             instance = Instance(id=instance_id, input=input, references=[], split=TEST_SPLIT)
             instances.append(instance)
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="helpdesk_call_summarization",
+            display_name="Helpdesk Call summarization",
+            short_display_name=None,
+            description="Helpdesk Call summarization",
+            taxonomy=TaxonomyInfo(task="summarization", what="n/a", when="?", who="n/a", language="English"),
+            main_metric="unknown",
+            main_split="test",
+        )

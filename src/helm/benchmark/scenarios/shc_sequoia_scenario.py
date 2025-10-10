@@ -2,6 +2,7 @@ import sys
 import csv
 from typing import Dict, List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Input,
     Scenario,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Reference,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.general import check_file_exists
 
@@ -75,3 +77,22 @@ class SHCSequoiaMedScenario(Scenario):
             )
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="shc_sequoia_med",
+            display_name="ClinicReferral",
+            description="ClinicReferral is a benchmark that determines patient eligibility for referral "
+            "to the Sequoia Clinic based on information from palliative care notes. The "
+            "dataset provides curated decisions on referral appropriateness to assist in "
+            "automating clinic workflows.",
+            taxonomy=TaxonomyInfo(
+                task="Classification",
+                what="Provide answers on clinic referrals",
+                when="Pre-referral",
+                who="Hospital Admistrator",
+                language="English",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )

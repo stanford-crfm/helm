@@ -55,6 +55,7 @@ import os
 import sys
 from typing import List, Dict, Iterable, Optional, cast
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.scenarios.code_scenario_helper import run as run_reindent
@@ -69,6 +70,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -331,3 +333,29 @@ class CodeScenario(Scenario):
             raise ValueError(f"Unknown dataset: {self.dataset}")
 
         return cast(List[Instance], instances)
+
+    def get_metadata(self) -> ScenarioMetadata:
+        if self.dataset == "humaneval":
+            return ScenarioMetadata(
+                name="code_humaneval",
+                display_name="HumanEval (Code)",
+                description="The HumanEval benchmark for measuring functional correctness for synthesizing "
+                "programs from docstrings [(Chen et al., "
+                "2021)](https://arxiv.org/pdf/2107.03374.pdf).",
+                taxonomy=TaxonomyInfo(task="?", what="n/a", when="n/a", who="n/a", language="synthetic"),
+                main_metric="pass",
+                main_split="test",
+            )
+        elif self.dataset == "apps":
+            return ScenarioMetadata(
+                name="code_apps",
+                display_name="APPS (Code)",
+                description="The APPS benchmark for measuring competence on code challenges [(Hendrycks et "
+                "al., "
+                "2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/c24cd76e1ce41366a4bbe8a49b02a028-Abstract-round2.html).",
+                taxonomy=TaxonomyInfo(task="?", what="n/a", when="n/a", who="n/a", language="synthetic"),
+                main_metric="test_avg",
+                main_split="test",
+            )
+        else:
+            raise Exception(f"Unknown dataset {self.dataset}")

@@ -2,6 +2,7 @@ import sys
 import csv
 from typing import Dict, List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Input,
     Scenario,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Reference,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.general import check_file_exists
 
@@ -75,3 +77,22 @@ class SHCENTMedScenario(Scenario):
             )
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="shc_ent_med",
+            display_name="ENT-Referral",
+            description="ENT-Referral is a benchmark designed to evaluate whether a patient's clinical "
+            "note supports a referral to an Ear, Nose, and Throat (ENT) specialist. It "
+            "helps assess models' abilities to make referral decisions based on "
+            "unstructured clinical text",
+            taxonomy=TaxonomyInfo(
+                task="Classification",
+                what="Identify referrals for ENT specialists",
+                when="Any",
+                who="Hospital Admistrator",
+                language="English",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )

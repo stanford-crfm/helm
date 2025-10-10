@@ -1,13 +1,13 @@
 import pytest
 from tempfile import TemporaryDirectory
 
-from helm.benchmark.scenarios.bluex_scenario import BLUEX_Scenario
+from helm.benchmark.scenarios.bluex_scenario import BLUEXScenario
 from helm.benchmark.scenarios.scenario import TEST_SPLIT, CORRECT_TAG, Output, Reference
 
 
 @pytest.mark.scenarios
 def test_bluex_scenario():
-    scenario = BLUEX_Scenario()
+    scenario = BLUEXScenario()
     with TemporaryDirectory() as tmpdir:
         instances = scenario.get_instances(tmpdir)
 

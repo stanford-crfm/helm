@@ -2,8 +2,9 @@ import json
 import os
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT, ScenarioMetadata
 
 
 class VicunaScenario(Scenario):
@@ -47,3 +48,22 @@ class VicunaScenario(Scenario):
                 )
                 instances.append(instance)
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="vicuna",
+            display_name="Vicuna",
+            short_display_name="Vicuna",
+            description="The set of prompts used by the "
+            "[Vicuna](https://lmsys.org/blog/2023-03-30-vicuna/) team to evaluate "
+            "instruction-following models.",
+            taxonomy=TaxonomyInfo(
+                task="open-ended instruction following",
+                what="Instructions for LLMs",
+                when="Before 2023",
+                who="Unknown",
+                language="English",
+            ),
+            main_metric="Helpfulness",
+            main_split="test",
+        )

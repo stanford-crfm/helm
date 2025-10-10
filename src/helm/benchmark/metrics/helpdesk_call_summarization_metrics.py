@@ -2,7 +2,7 @@ from typing import Any, Dict, List
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
@@ -33,4 +33,16 @@ class HelpdeskCallSummarizationMetric(Metric):
         score = (score - 1) / 9
         return [
             Stat(MetricName("call_summarization_score")).add(score),
+        ]
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="call_summarization_score",
+                display_name="Score",
+                short_display_name="Score",
+                description="Score",
+                lower_is_better=False,
+                group="summarization_metrics",
+            ),
         ]

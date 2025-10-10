@@ -23,11 +23,15 @@ Locations of the `benchmark_output` folders for each project:
 - Safety: `gs://crfm-helm-public/safety/benchmark_output`
 - AIR-Bench: `gs://crfm-helm-public/air-bench/benchmark_output`
 - Lite: `gs://crfm-helm-public/lite/benchmark_output`
+- MMLU: `gs://crfm-helm-public/mmlu/benchmark_output`
 - Classic: `gs://crfm-helm-public/benchmark_output` (see warning above)
 - HEIM: `gs://crfm-helm-public/heim/benchmark_output`
 - Instruct: `gs://crfm-helm-public/instruct/benchmark_output`
 - MedHELM: `gs://crfm-helm-public/medhelm/benchmark_output`
 - ToRR: `gs://crfm-helm-public/torr/benchmark_output`
+- VHELM: `gs://crfm-helm-public/vhelm/benchmark_output`
+- AHELM: `gs://crfm-helm-public/audio/benchmark_output`
+- Image2Struct: `gs://crfm-helm-public/image2struct/benchmark_output`
 
 ## Download a whole project
 
@@ -46,10 +50,14 @@ gcloud storage rsync -r $GCS_BENCHMARK_OUTPUT_PATH $LOCAL_BENCHMARK_OUTPUT_PATH
 
 You can also download a specific version to save local disk space. The instructions differ depending on which version you are downloading. Check if your version is in the following list:
 
-- Lite: all versions
-- Classic: v0.3.0 or later
+- Classic: before v0.3.0
+- VHELM
+- AHELM
+- Image2Struct
 
-If you are downloading one of the above versions, then you must follow the instructions in _both_ **Download a specific releases** and **Download a specific suite**. Otherwise, you should _skip_ **Download a specific releases** and _only_ follow the instructions in **Download a specific suite**.
+If you are downloading one of the above versions, then you should _skip_ **Download a specific releases** and _only_ follow the instructions in **Download a specific suite**.
+
+Otherwise, you should follow the instructions in _both_ **Download a specific releases** and **Download a specific suite**.
 
 ## Download a specific release
 

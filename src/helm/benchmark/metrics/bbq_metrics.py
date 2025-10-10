@@ -1,6 +1,7 @@
 from typing import List
 from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
 
+from helm.benchmark.metrics.metric import MetricMetadata
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.metric_name import MetricName
@@ -145,3 +146,14 @@ class BBQMetric(EvaluateInstancesMetric):
         stats = [acc, amb_bias_stat, disamb_bias_stat]
 
         return stats
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="bbq_accuracy",
+                display_name="BBQ accuracy",
+                description="BBQ accuracy",
+                lower_is_better=False,
+                group=None,
+            ),
+        ]

@@ -1,6 +1,7 @@
 import json
 import re
 from dataclasses import dataclass
+from string import Template
 from typing import Dict, Optional, TypedDict, Union, Callable, Any, Set
 
 from helm.benchmark.adaptation.request_state import RequestState
@@ -113,6 +114,7 @@ class LLMAsJuryAnnotator(Annotator):
 
     def __init__(
         self,
+        name: str,
         auto_client: AutoClient,
         prompt_template: str,
         annotation_criteria: Dict[str, Set[str]],
@@ -128,6 +130,7 @@ class LLMAsJuryAnnotator(Annotator):
         :param annotator_models: Dictionary of models to use for annotation
         :param preprocessor: Optional function to preprocess model responses
         """
+        self.name = name
         self._auto_client = auto_client
         self._prompt_template = prompt_template
         self._annotation_criteria = annotation_criteria
@@ -147,32 +150,34 @@ class LLMAsJuryAnnotator(Annotator):
     def _interpolate_prompt(
         self, request_state: RequestState, custom_replacements: Optional[Dict[str, str]] = None
     ) -> str:
-        """
-        Interpolate prompt template with request state information.
-
-        :param request_state: The current request state
-        :param custom_replacements: Optional dictionary of additional replacements
-        :return: Interpolated prompt
-        """
-        base_replacements = {
-            "{{QUESTION}}": request_state.instance.input.text,
-            "{{RESPONSE}}": (
+        """Interpolate prompt templates safely, supporting {{QUESTION}}-style files."""
+        # Build required/optional fields
+        replacements: Dict[str, str] = {
+            "QUESTION": request_state.instance.input.text,
+            "RESPONSE": (
                 request_state.result.completions[0].text
                 if request_state.result and request_state.result.completions
                 else ""
             ),
-            "{{GOLD_RESPONSE}}": request_state.instance.references[0].output.text,
+            # GOLD is optional; keep empty if not present
+            "GOLD_RESPONSE": (
+                request_state.instance.references[0].output.text
+                if getattr(request_state.instance, "references", None)
+                else ""
+            ),
         }
-
-        # Allow custom replacements to override base replacements
         if custom_replacements:
-            base_replacements.update(custom_replacements)
+            replacements.update(custom_replacements)
 
-        prompt = self._prompt_template
-        for key, value in base_replacements.items():
-            prompt = prompt.replace(key, str(value))
+        tmpl_text = self._prompt_template
 
-        return prompt
+        tmpl_text = (
+            tmpl_text.replace("{QUESTION}", "$QUESTION")
+            .replace("{RESPONSE}", "$RESPONSE")
+            .replace("{GOLD_RESPONSE}", "$GOLD_RESPONSE")
+        )
+
+        return Template(tmpl_text).substitute(replacements)
 
     def _validate_annotation(self, annotator_criteria: Dict[str, Any], annotator_name: str) -> bool:
         """

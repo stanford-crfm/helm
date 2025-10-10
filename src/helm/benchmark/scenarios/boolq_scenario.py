@@ -2,6 +2,7 @@ import json
 import os
 from typing import List, Dict, Optional
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -13,6 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     PassageQuestionInput,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -188,3 +190,21 @@ class BoolQScenario(Scenario):
             split_path: str = os.path.join(data_path, filename)
             instances.extend(self.get_split_instances(split, split_path, contrast_map if split == VALID_SPLIT else {}))
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="boolq",
+            display_name="BoolQ",
+            short_display_name=None,
+            description="The BoolQ benchmark for binary (yes/no) question answering [(Clark et al., "
+            "2019)](https://aclanthology.org/N19-1300/).",
+            taxonomy=TaxonomyInfo(
+                task="question answering",
+                what="passages from Wikipedia, questions from search queries",
+                when="2010s",
+                who="web users",
+                language="English",
+            ),
+            main_metric="quasi_exact_match",
+            main_split="valid",
+        )

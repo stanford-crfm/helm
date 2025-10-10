@@ -1,6 +1,7 @@
 import requests
 from typing import Any, Dict, List, Optional, TypedDict, Union
 
+from helm.common.hierarchical_logger import hexception
 from helm.proxy.retry import NonRetriableException
 from helm.common.cache import CacheConfig
 from helm.common.media_object import IMAGE_TYPE, TEXT_TYPE
@@ -156,6 +157,7 @@ class MistralAIClient(CachingClient):
 
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             except (requests.exceptions.RequestException, AssertionError) as e:
+                hexception(e)
                 error: str = f"MistralClient error: {e}"
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 

@@ -8,7 +8,7 @@ from transformers.generation.stopping_criteria import (
 from typing import Any, Dict, List, Optional, TypedDict
 
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import htrack_block, hlog, hwarn
+from helm.common.hierarchical_logger import hexception, htrack_block, hlog, hwarn
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import (
     wrap_request_time,
@@ -345,6 +345,7 @@ class HuggingFaceClient(CachingClient):
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except Exception as e:  # Do something if error is encountered.
             error: str = f"HuggingFace error: {e}"
+            hexception(e)
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions = []

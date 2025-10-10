@@ -2,6 +2,7 @@ import sys
 import csv
 from typing import Dict, List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Input,
     Scenario,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Reference,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.general import check_file_exists
 
@@ -74,3 +76,24 @@ class SHCCONFMedScenario(Scenario):
             )
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="shc_conf_med",
+            display_name="MedConfInfo",
+            description="MedConfInfo is a benchmark comprising clinical notes from adolescent patients. "
+            "It is used to evaluate whether the content contains sensitive protected health "
+            "information (PHI) that should be restricted from parental access, in "
+            "accordance with adolescent confidentiality policies in clinical care. "
+            "[(Rabbani et al., "
+            "2024)](https://jamanetwork.com/journals/jamapediatrics/fullarticle/2814109).",
+            taxonomy=TaxonomyInfo(
+                task="Classification",
+                what="Identify sensitive health info in adolescent notes",
+                when="Any",
+                who="Clinician",
+                language="English",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )

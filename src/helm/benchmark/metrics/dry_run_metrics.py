@@ -8,7 +8,7 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
-from helm.benchmark.metrics.metric import MetricInterface, MetricResult, PerInstanceStats
+from helm.benchmark.metrics.metric import MetricInterface, MetricMetadata, MetricResult, PerInstanceStats
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.tokens.auto_token_cost_estimator import AutoTokenCostEstimator
@@ -93,3 +93,32 @@ class DryRunMetric(MetricInterface):
         merge_stat(stats, Stat(MetricName("num_requests")).add(len(scenario_state.request_states)))
 
         return MetricResult(list(stats.values()), per_instance_stats)
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="estimated_num_tokens_cost",
+                display_name="cost",
+                short_display_name=None,
+                description="An estimate of the number of tokens (including prompt and output completions) needed to "
+                "perform the request.",
+                lower_is_better=None,
+                group=None,
+            ),
+            MetricMetadata(
+                name="num_completions",
+                display_name="# completions",
+                short_display_name=None,
+                description="Number of completions.",
+                lower_is_better=None,
+                group=None,
+            ),
+            MetricMetadata(
+                name="num_prompt_tokens",
+                display_name="# prompt tokens",
+                short_display_name=None,
+                description="Number of tokens in the prompt.",
+                lower_is_better=None,
+                group="general_information",
+            ),
+        ]

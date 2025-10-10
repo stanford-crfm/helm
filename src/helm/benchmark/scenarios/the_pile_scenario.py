@@ -5,9 +5,10 @@ import sys
 import requests
 from typing import Dict, List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
-from helm.benchmark.scenarios.scenario import Scenario, Instance, TEST_SPLIT, Input
+from helm.benchmark.scenarios.scenario import Scenario, Instance, TEST_SPLIT, Input, ScenarioMetadata
 
 
 class ThePileScenario(Scenario):
@@ -146,3 +147,14 @@ class ThePileScenario(Scenario):
             instances = [instances[i] for i in indices]
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="the_pile",
+            display_name="The Pile",
+            description="The Pile corpus for measuring lanugage model performance across various "
+            "domains [(Gao et al., 2020)](https://arxiv.org/pdf/2101.00027.pdf).",
+            taxonomy=TaxonomyInfo(task="language modeling", what="?", when="?", who="?", language="English, code"),
+            main_metric="bits_per_byte",
+            main_split="test",
+        )

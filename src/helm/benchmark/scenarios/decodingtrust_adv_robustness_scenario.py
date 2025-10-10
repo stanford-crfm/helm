@@ -1,8 +1,18 @@
 import os
 import json
 from typing import List, Dict
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, VALID_SPLIT, Reference, Output, CORRECT_TAG
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Input,
+    VALID_SPLIT,
+    Reference,
+    Output,
+    CORRECT_TAG,
+    ScenarioMetadata,
+)
 
 TASK_DESCRIPTIONS = {
     "sst2": "For the given sentence, label the sentiment of the sentence as positive or negative. The answer should be "
@@ -119,3 +129,15 @@ class DecodingTrustAdvRobustnessScenario(Scenario):
             instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="decodingtrust_adv_robustness",
+            display_name="DecodingTrust - AdvGLUE++",
+            short_display_name="AdvGLUE++",
+            description="Adversarial perturbations of the GLUE dataset generated against open-source "
+            "LLMs including Alpaca, Vicuna, and Stable-Vicuna",
+            taxonomy=TaxonomyInfo(task="text classification", what="?", when="?", who="?", language="English"),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )

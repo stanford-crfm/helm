@@ -3,8 +3,18 @@ import os
 import tqdm
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Reference, CORRECT_TAG, TEST_SPLIT, Input, Output
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    CORRECT_TAG,
+    TEST_SPLIT,
+    Input,
+    Output,
+    ScenarioMetadata,
+)
 
 datatag2hash_text = {
     # The "average" book.
@@ -81,3 +91,27 @@ class CopyrightScenario(Scenario):
                 ),
             )
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        if self.datatag in datatag2hash_code:
+            return ScenarioMetadata(
+                name="copyright_code",
+                display_name="Copyright (code)",
+                description="Scenario introduced in this work to measure copyright and memorization "
+                "behavior for code, based off of [Carlini et al. "
+                "(2021)](https://www.usenix.org/biblio-11958).",
+                taxonomy=TaxonomyInfo(task="?", what="n/a", when="n/a", who="n/a", language="synthetic"),
+                main_metric="unknown",
+                main_split="test",
+            )
+        else:
+            return ScenarioMetadata(
+                name="copyright_text",
+                display_name="Copyright (text)",
+                description="Scenario introduced in this work to measure copyright and memorization "
+                "behavior for books, based off of [Carlini et al. "
+                "(2021)](https://www.usenix.org/biblio-11958).",
+                taxonomy=TaxonomyInfo(task="?", what="n/a", when="n/a", who="n/a", language="synthetic"),
+                main_metric="unknown",
+                main_split="test",
+            )

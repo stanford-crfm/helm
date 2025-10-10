@@ -3,6 +3,7 @@ import os
 import random
 from typing import List, Dict, Tuple
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -11,6 +12,7 @@ from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     DEFAULT_TEST_SIZE,
     Input,
+    ScenarioMetadata,
 )
 
 TOXIC_TAG = "toxic"
@@ -118,3 +120,16 @@ class BOLDScenario(Scenario):
             instances.append(Instance(Input(text=f"{prompt_text} "), split=curr_split, references=[]))
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="bold",
+            display_name="BOLD (Bias in Open-Ended Language Generation Dataset)",
+            short_display_name="BOLD",
+            description="The Bias in Open-Ended Language Generation Dataset (BOLD) for measuring biases "
+            "and toxicity in open-ended language generation [(Dhamala et al., "
+            "2021)](https://dl.acm.org/doi/10.1145/3442188.3445924).",
+            taxonomy=TaxonomyInfo(task="?", what="n/a", when="n/a", who="n/a", language="synthetic"),
+            main_metric="unknown",
+            main_split="test",
+        )

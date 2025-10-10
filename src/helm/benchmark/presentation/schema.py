@@ -8,6 +8,7 @@ import mako.template
 import yaml
 import importlib_resources as resources
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import hlog
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.augmentations.perturbation_description import PERTURBATION_WORST
@@ -132,24 +133,6 @@ NO_GROUPS = "no_groups"
 
 
 @dataclass(frozen=True)
-class TaxonomyInfo:
-    # Task (e.g., question answering)
-    task: Optional[str] = None
-
-    # Domain - genre (e.g., Wikipedia)
-    what: Optional[str] = None
-
-    # Domain - when it was written (e.g., 2010s)
-    when: Optional[str] = None
-
-    # Domain - demographics (e.g., web users)
-    who: Optional[str] = None
-
-    # Language (e.g., English)
-    language: Optional[str] = None
-
-
-@dataclass(frozen=True)
 class RunGroup(Field):
     """
     Defines information about how a group of runs is displayed.
@@ -216,16 +199,16 @@ class Schema:
     """Specifies information about what to display on the frontend."""
 
     # Information about each field
-    metrics: List[Field]
+    metrics: List[Field] = field(default_factory=list)
 
     # Information about each perturbation
-    perturbations: List[Field]
+    perturbations: List[Field] = field(default_factory=list)
 
     # Group the metrics
-    metric_groups: List[MetricGroup]
+    metric_groups: List[MetricGroup] = field(default_factory=list)
 
     # Group the scenarios
-    run_groups: List[RunGroup]
+    run_groups: List[RunGroup] = field(default_factory=list)
 
     # Adapter fields (e.g., temperature)
     # Automatically populated from the docstrings in the AdapterSpec class definition.

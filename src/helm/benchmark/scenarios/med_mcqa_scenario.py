@@ -2,6 +2,7 @@ import json
 import os
 from typing import Dict, List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     VALID_SPLIT,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -109,3 +111,15 @@ class MedMCQAScenario(Scenario):
                     instances.append(instance)
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="med_mcqa",
+            display_name="MedMCQA",
+            description='MedMCQA is a "multiple-choice question answering (MCQA) dataset designed to '
+            "address real-world medical entrance exam questions ([Flores et al. "
+            "2020](https://arxiv.org/abs/2203.14371)).",
+            taxonomy=TaxonomyInfo(task="question answering", what="n/a", when="n/a", who="n/a", language="English"),
+            main_metric="exact_match",
+            main_split="valid",
+        )

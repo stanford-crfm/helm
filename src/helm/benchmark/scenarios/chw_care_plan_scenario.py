@@ -1,6 +1,7 @@
 import pandas as pd
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import check_file_exists
 from helm.benchmark.scenarios.scenario import (
     Input,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Reference,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -104,3 +106,24 @@ class CHWCarePlanScenario(Scenario):
             )
             instances.append(instance)
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="chw_care_plan",
+            display_name="NoteExtract",
+            description="NoteExtract is a benchmark that focuses on the structured extraction of "
+            "information from free-form clinical text. It provides care plan notes authored "
+            "by health workers and evaluates a model's ability to convert them into a "
+            "predefined structured format, such as fields for Chief Complaint and History "
+            "of Present Illness. The benchmark emphasizes faithful extraction without "
+            "hallucination or inference.",
+            taxonomy=TaxonomyInfo(
+                task="Text generation",
+                what="Convert general text care plans into structured formats",
+                when="Any",
+                who="Clinician, Researcher",
+                language="English",
+            ),
+            main_metric="chw_care_plan_accuracy",
+            main_split="test",
+        )

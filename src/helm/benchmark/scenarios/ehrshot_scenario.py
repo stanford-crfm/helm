@@ -7,6 +7,7 @@ from functools import partial
 from tqdm import tqdm
 from typing import Any, Dict, List, Optional, Mapping
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import check_file_exists, ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
@@ -16,6 +17,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Reference,
     Output,
+    ScenarioMetadata,
 )
 
 ##################################
@@ -1517,3 +1519,23 @@ class EHRSHOTScenario(Scenario):
             )
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="ehrshot",
+            display_name="EHRSHOT",
+            description="EHRSHOT is a benchmark designed to evaluate a model's ability to predict "
+            "future clinical events using structured EHR code sequences. Each instance "
+            "contains a patient's historical EHR data and a forward-looking clinical "
+            "question about whether a particular diagnosis, lab result, or hospital event "
+            "will occur [(Wornow et al., 2023)](https://arxiv.org/abs/2307.02028).",
+            taxonomy=TaxonomyInfo(
+                task="Classification",
+                what="Predict whether a medical event will occur in the future based " "on EHR codes",
+                when="Future prediction",
+                who="Clinician, Insurer",
+                language="English",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )

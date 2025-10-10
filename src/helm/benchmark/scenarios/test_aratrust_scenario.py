@@ -7,7 +7,7 @@ from helm.benchmark.scenarios.scenario import CORRECT_TAG, Input
 
 @pytest.mark.scenarios
 def test_aratrust_get_instances():
-    scenario = AraTrustScenario()
+    scenario = AraTrustScenario(category="all")
     with TemporaryDirectory() as tmpdir:
         actual_instances = scenario.get_instances(tmpdir)
     assert len(actual_instances) == 522

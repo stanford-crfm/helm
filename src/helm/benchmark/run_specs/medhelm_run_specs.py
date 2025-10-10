@@ -3,7 +3,12 @@
 Website: https://crfm.stanford.edu/helm/medhelm/
 """
 
-from typing import Union
+import importlib.resources as pkg_resources
+
+import os
+from typing import Dict, Union, Optional
+
+import yaml
 
 from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -13,6 +18,7 @@ from helm.benchmark.adaptation.common_adapter_specs import (
     get_multiple_choice_adapter_spec,
 )
 from helm.benchmark.annotation.annotator import AnnotatorSpec
+from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo
 from helm.benchmark.metrics.common_metric_specs import (
     get_basic_metric_specs,
     get_exact_match_metric_specs,
@@ -22,8 +28,67 @@ from helm.benchmark.metrics.common_metric_specs import (
 )
 from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
+from helm.benchmark.run_specs.medhelm.benchmark_config import get_benchmark_config_from_path
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.common.gpu_utils import get_torch_device_name
+
+
+def get_judges_config(jury_config_path: Optional[str]) -> dict:
+    package = "helm.benchmark.scenarios.medhelm"
+    default_config_path = str(pkg_resources.files(package).joinpath("judges.yaml"))
+
+    if jury_config_path is None:
+        # Use the default config bundled with the package
+        jury_config_path = default_config_path
+
+    assert os.path.exists(jury_config_path), (
+        f"Judges config file not found: {jury_config_path}. "
+        f"If you are providing a custom config, make sure it follows the format specified in "
+        f"the default file: {default_config_path}"
+    )
+
+    with open(jury_config_path, "r") as f:
+        config = yaml.safe_load(f)
+
+    return config
+
+
+def get_annotator_models_from_config(jury_config_path: Optional[str]) -> Dict[str, AnnotatorModelInfo]:
+    config = get_judges_config(jury_config_path)
+    annotator_models = {
+        judge["name"]: AnnotatorModelInfo(
+            model_name=judge["model"],
+            model_deployment=judge["model_deployment"],
+        )
+        for judge in config["judges"]
+    }
+    return annotator_models
+
+
+@run_spec_function("medhelm_configurable_benchmark")
+def get_medhelm_configurable_benchmark_spec(config_path: str) -> RunSpec:
+    benchmark_config = get_benchmark_config_from_path(config_path)
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.medhelm_configurable_scenario.MedHELMConfigurableScenario",
+        args={"name": benchmark_config.name, "config_path": config_path},
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        max_tokens=benchmark_config.max_tokens,
+        max_train_instances=0,
+        stop_sequences=[],
+    )
+    annotator_specs = benchmark_config.get_annotator_specs()
+    metric_specs = benchmark_config.get_metric_specs()
+
+    return RunSpec(
+        name=benchmark_config.name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        annotators=annotator_specs,
+        metric_specs=metric_specs,
+        groups=[benchmark_config.name],
+    )
 
 
 @run_spec_function("medcalc_bench")
@@ -91,7 +156,7 @@ def get_clear_spec(condition: str, data_path: str) -> RunSpec:
 
 
 @run_spec_function("mtsamples_replicate")
-def get_mtsamples_spec() -> RunSpec:
+def get_mtsamples_spec(jury_config_path: Optional[str] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mtsamples_replicate_scenario.MTSamplesReplicateScenario"
     )
@@ -106,8 +171,15 @@ def get_mtsamples_spec() -> RunSpec:
         stop_sequences=[],
     )
 
+    annotator_models = get_annotator_models_from_config(jury_config_path)
+
     annotator_specs = [
-        AnnotatorSpec(class_name="helm.benchmark.annotation.mtsamples_replicate_annotator.MTSamplesReplicateAnnotator")
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.mtsamples_replicate_annotator.MTSamplesReplicateAnnotator",
+            args={
+                "annotator_models": annotator_models,
+            },
+        )
     ]
 
     metric_args = {
@@ -118,7 +190,15 @@ def get_mtsamples_spec() -> RunSpec:
     }
 
     metric_specs = get_summarization_metric_specs(metric_args) + [
-        MetricSpec(class_name="helm.benchmark.metrics.mtsamples_replicate_metrics.MTSamplesReplicateMetric", args={})
+        MetricSpec(
+            class_name="helm.benchmark.metrics.llm_jury_metrics.LLMJuryMetric",
+            args={
+                "metric_name": "mtsamples_replicate_accuracy",
+                "scenario_name": "mtsamples_replicate",
+                "annotator_models": annotator_models,
+                "default_score": 1.0,
+            },
+        )
     ]
 
     return RunSpec(
@@ -374,7 +454,7 @@ def get_medbullets_freetext_run_spec() -> RunSpec:
 
 
 @run_spec_function("medalign")
-def get_medalign_spec(data_path: str, max_length: int = 40000) -> RunSpec:
+def get_medalign_spec(data_path: str, jury_config_path: Optional[str] = None, max_length: int = 100000) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.medalign_scenario.MedalignScenario",
         args={
@@ -393,7 +473,16 @@ def get_medalign_spec(data_path: str, max_length: int = 40000) -> RunSpec:
         max_train_instances=0,
     )
 
-    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.medalign_annotator.MedalignAnnotator")]
+    annotator_models = get_annotator_models_from_config(jury_config_path)
+
+    annotator_specs = [
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.medalign_annotator.MedalignAnnotator",
+            args={
+                "annotator_models": annotator_models,
+            },
+        )
+    ]
 
     metric_args = {
         "task": "medalign",
@@ -402,7 +491,15 @@ def get_medalign_spec(data_path: str, max_length: int = 40000) -> RunSpec:
         "rescale_with_baseline": False,
     }
     metric_specs = get_summarization_metric_specs(metric_args) + [
-        MetricSpec(class_name="helm.benchmark.metrics.medalign_metrics.MedalignMetric", args={})
+        MetricSpec(
+            class_name="helm.benchmark.metrics.llm_jury_metrics.LLMJuryMetric",
+            args={
+                "metric_name": "medalign_accuracy",
+                "scenario_name": "medalign",
+                "annotator_models": annotator_models,
+                "default_score": 1.0,
+            },
+        )
     ]
 
     return RunSpec(
@@ -462,7 +559,7 @@ def get_shc_sei_spec(data_path: str) -> RunSpec:
 
 
 @run_spec_function("dischargeme")
-def get_dischargeme_spec(data_path: str) -> RunSpec:
+def get_dischargeme_spec(data_path: str, jury_config_path: Optional[str] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.dischargeme_scenario.DischargeMeScenario",
         args={
@@ -484,7 +581,16 @@ def get_dischargeme_spec(data_path: str) -> RunSpec:
         max_train_instances=0,
     )
 
-    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.dischargeme_annotator.DischargeMeAnnotator")]
+    annotator_models = get_annotator_models_from_config(jury_config_path)
+
+    annotator_specs = [
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.dischargeme_annotator.DischargeMeAnnotator",
+            args={
+                "annotator_models": annotator_models,
+            },
+        )
+    ]
 
     metric_args = {
         "task": "dischargeme",
@@ -493,7 +599,15 @@ def get_dischargeme_spec(data_path: str) -> RunSpec:
         "rescale_with_baseline": False,
     }
     metric_specs = get_summarization_metric_specs(metric_args) + [
-        MetricSpec(class_name="helm.benchmark.metrics.dischargeme_metrics.DischargeMeMetric", args={})
+        MetricSpec(
+            class_name="helm.benchmark.metrics.llm_jury_metrics.LLMJuryMetric",
+            args={
+                "metric_name": "dischargeme_accuracy",
+                "scenario_name": "dischargeme",
+                "annotator_models": annotator_models,
+                "default_score": 1.0,
+            },
+        )
     ]
     return RunSpec(
         name="dischargeme",
@@ -506,13 +620,12 @@ def get_dischargeme_spec(data_path: str) -> RunSpec:
 
 
 @run_spec_function("aci_bench")
-def get_aci_bench_run_spec() -> RunSpec:
+def get_aci_bench_run_spec(jury_config_path: Optional[str] = None) -> RunSpec:
     """
     RunSpec for the ACI-Bench dataset.
     This configuration evaluates the model's ability to summarize
     doctor-patient dialogues into structured clinical notes.
     """
-    # Define the scenario
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.aci_bench_scenario.ACIBenchScenario",
         args={},
@@ -535,7 +648,16 @@ def get_aci_bench_run_spec() -> RunSpec:
         stop_sequences=[],
     )
 
-    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.aci_bench_annotator.ACIBenchAnnotator")]
+    annotator_models = get_annotator_models_from_config(jury_config_path)
+
+    annotator_specs = [
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.aci_bench_annotator.ACIBenchAnnotator",
+            args={
+                "annotator_models": annotator_models,
+            },
+        )
+    ]
 
     # Define the metrics
     metric_args = {
@@ -545,7 +667,15 @@ def get_aci_bench_run_spec() -> RunSpec:
         "rescale_with_baseline": False,
     }
     metric_specs = get_summarization_metric_specs(metric_args) + [
-        MetricSpec(class_name="helm.benchmark.metrics.aci_bench_metrics.ACIBenchMetric", args={})
+        MetricSpec(
+            class_name="helm.benchmark.metrics.llm_jury_metrics.LLMJuryMetric",
+            args={
+                "metric_name": "aci_bench_accuracy",
+                "scenario_name": "aci_bench",
+                "annotator_models": annotator_models,
+                "default_score": 1.0,
+            },
+        )
     ]
 
     # Return the RunSpec
@@ -560,7 +690,7 @@ def get_aci_bench_run_spec() -> RunSpec:
 
 
 @run_spec_function("mtsamples_procedures")
-def get_mtsamples_procedures_spec() -> RunSpec:
+def get_mtsamples_procedures_spec(jury_config_path: Optional[str] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mtsamples_procedures_scenario.MTSamplesProceduresScenario"
     )
@@ -574,10 +704,14 @@ def get_mtsamples_procedures_spec() -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
+    annotator_models = get_annotator_models_from_config(jury_config_path)
 
     annotator_specs = [
         AnnotatorSpec(
-            class_name="helm.benchmark.annotation.mtsamples_procedures_annotator.MTSamplesProceduresAnnotator"
+            class_name="helm.benchmark.annotation.mtsamples_procedures_annotator.MTSamplesProceduresAnnotator",
+            args={
+                "annotator_models": annotator_models,
+            },
         )
     ]
 
@@ -589,7 +723,15 @@ def get_mtsamples_procedures_spec() -> RunSpec:
     }
 
     metric_specs = get_summarization_metric_specs(metric_args) + [
-        MetricSpec(class_name="helm.benchmark.metrics.mtsamples_procedures_metrics.MTSamplesProceduresMetric", args={})
+        MetricSpec(
+            class_name="helm.benchmark.metrics.llm_jury_metrics.LLMJuryMetric",
+            args={
+                "metric_name": "mtsamples_procedures_accuracy",
+                "scenario_name": "mtsamples_procedures",
+                "annotator_models": annotator_models,
+                "default_score": 1.0,
+            },
+        )
     ]
 
     return RunSpec(
@@ -603,7 +745,7 @@ def get_mtsamples_procedures_spec() -> RunSpec:
 
 
 @run_spec_function("mimic_rrs")
-def get_mimic_rrs_spec(data_path: str) -> RunSpec:
+def get_mimic_rrs_spec(data_path: str, jury_config_path: Optional[str] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mimic_rrs_scenario.MIMICRRSScenario",
         args={"data_path": data_path},
@@ -622,7 +764,17 @@ def get_mimic_rrs_spec(data_path: str) -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
-    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.mimic_rrs_annotator.MIMICRRSAnnotator")]
+
+    annotator_models = get_annotator_models_from_config(jury_config_path)
+
+    annotator_specs = [
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.mimic_rrs_annotator.MIMICRRSAnnotator",
+            args={
+                "annotator_models": annotator_models,
+            },
+        )
+    ]
 
     metric_args = {
         "task": "mimic_rrs",
@@ -631,7 +783,15 @@ def get_mimic_rrs_spec(data_path: str) -> RunSpec:
         "rescale_with_baseline": False,
     }
     metric_specs = get_summarization_metric_specs(metric_args) + [
-        MetricSpec(class_name="helm.benchmark.metrics.mimic_rrs_metrics.MIMICRRSMetric", args={})
+        MetricSpec(
+            class_name="helm.benchmark.metrics.llm_jury_metrics.LLMJuryMetric",
+            args={
+                "metric_name": "mimic_rrs_accuracy",
+                "scenario_name": "mimic_rrs",
+                "annotator_models": annotator_models,
+                "default_score": 1.0,
+            },
+        )
     ]
     return RunSpec(
         name="mimic_rrs",
@@ -644,7 +804,7 @@ def get_mimic_rrs_spec(data_path: str) -> RunSpec:
 
 
 @run_spec_function("mimic_bhc")
-def get_mimic_bhc_spec(data_path: str) -> RunSpec:
+def get_mimic_bhc_spec(data_path: str, jury_config_path: Optional[str] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mimic_bhc_scenario.MIMICBHCScenario",
         args={"data_path": data_path},
@@ -660,7 +820,17 @@ def get_mimic_bhc_spec(data_path: str) -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
-    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.mimic_bhc_annotator.MIMICBHCAnnotator")]
+
+    annotator_models = get_annotator_models_from_config(jury_config_path)
+
+    annotator_specs = [
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.mimic_bhc_annotator.MIMICBHCAnnotator",
+            args={
+                "annotator_models": annotator_models,
+            },
+        )
+    ]
 
     metric_args = {
         "task": "mimic_bhc",
@@ -669,7 +839,15 @@ def get_mimic_bhc_spec(data_path: str) -> RunSpec:
         "rescale_with_baseline": False,
     }
     metric_specs = get_summarization_metric_specs(metric_args) + [
-        MetricSpec(class_name="helm.benchmark.metrics.mimic_bhc_metrics.MIMICBHCMetric", args={})
+        MetricSpec(
+            class_name="helm.benchmark.metrics.llm_jury_metrics.LLMJuryMetric",
+            args={
+                "metric_name": "mimic_bhc_accuracy",
+                "scenario_name": "mimic_bhc",
+                "annotator_models": annotator_models,
+                "default_score": 1.0,
+            },
+        )
     ]
     return RunSpec(
         name="mimic_bhc",
@@ -682,7 +860,7 @@ def get_mimic_bhc_spec(data_path: str) -> RunSpec:
 
 
 @run_spec_function("chw_care_plan")
-def get_chw_care_plan_run_spec(data_path: str) -> RunSpec:
+def get_chw_care_plan_run_spec(data_path: str, jury_config_path: Optional[str] = None) -> RunSpec:
     """
     RunSpec for the chw_care_plan dataset.
     This configuration evaluates the model's ability to summarize
@@ -703,8 +881,16 @@ def get_chw_care_plan_run_spec(data_path: str) -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
+
+    annotator_models = get_annotator_models_from_config(jury_config_path)
+
     annotator_specs = [
-        AnnotatorSpec(class_name="helm.benchmark.annotation.chw_care_plan_annotator.CHWCarePlanAnnotator")
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.chw_care_plan_annotator.CHWCarePlanAnnotator",
+            args={
+                "annotator_models": annotator_models,
+            },
+        )
     ]
 
     metric_args = {
@@ -714,7 +900,15 @@ def get_chw_care_plan_run_spec(data_path: str) -> RunSpec:
         "rescale_with_baseline": False,
     }
     metric_specs = get_summarization_metric_specs(metric_args) + [
-        MetricSpec(class_name="helm.benchmark.metrics.chw_care_plan_metrics.CHWCarePlanMetric", args={})
+        MetricSpec(
+            class_name="helm.benchmark.metrics.llm_jury_metrics.LLMJuryMetric",
+            args={
+                "metric_name": "chw_care_plan_accuracy",
+                "scenario_name": "chw_care_plan",
+                "annotator_models": annotator_models,
+                "default_score": 1.0,
+            },
+        )
     ]
     # Return the RunSpec
     return RunSpec(
@@ -728,7 +922,7 @@ def get_chw_care_plan_run_spec(data_path: str) -> RunSpec:
 
 
 @run_spec_function("medication_qa")
-def get_medication_qa_spec() -> RunSpec:
+def get_medication_qa_spec(jury_config_path: Optional[str] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.medication_qa_scenario.MedicationQAScenario")
 
     adapter_spec = get_generation_adapter_spec(
@@ -739,8 +933,15 @@ def get_medication_qa_spec() -> RunSpec:
         max_tokens=512,
         stop_sequences=[],
     )
+    annotator_models = get_annotator_models_from_config(jury_config_path)
+
     annotator_specs = [
-        AnnotatorSpec(class_name="helm.benchmark.annotation.medication_qa_annotator.MedicationQAAnnotator")
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.medication_qa_annotator.MedicationQAAnnotator",
+            args={
+                "annotator_models": annotator_models,
+            },
+        )
     ]
     metric_args = {
         "task": "medication_qa",
@@ -749,7 +950,15 @@ def get_medication_qa_spec() -> RunSpec:
         "rescale_with_baseline": False,
     }
     metric_specs = get_summarization_metric_specs(metric_args) + [
-        MetricSpec(class_name="helm.benchmark.metrics.medication_qa_metrics.MedicationQAMetric", args={})
+        MetricSpec(
+            class_name="helm.benchmark.metrics.llm_jury_metrics.LLMJuryMetric",
+            args={
+                "metric_name": "medication_qa_accuracy",
+                "scenario_name": "medication_qa",
+                "annotator_models": annotator_models,
+                "default_score": 1.0,
+            },
+        )
     ]
     return RunSpec(
         name="medication_qa",
@@ -762,7 +971,7 @@ def get_medication_qa_spec() -> RunSpec:
 
 
 @run_spec_function("starr_patient_instructions")
-def get_starr_patient_instructions_run_spec(data_path: str) -> RunSpec:
+def get_starr_patient_instructions_run_spec(data_path: str, jury_config_path: Optional[str] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.starr_patient_instructions_scenario.StarrPatientInstructionsScenario",
         args={"data_path": data_path},
@@ -783,11 +992,16 @@ def get_starr_patient_instructions_run_spec(data_path: str) -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
+    annotator_models = get_annotator_models_from_config(jury_config_path)
+
     annotator_specs = [
         AnnotatorSpec(
             class_name=(
                 "helm.benchmark.annotation.starr_patient_instructions_annotator.StarrPatientInstructionsAnnotator"
-            )
+            ),
+            args={
+                "annotator_models": annotator_models,
+            },
         )
     ]
 
@@ -797,16 +1011,17 @@ def get_starr_patient_instructions_run_spec(data_path: str) -> RunSpec:
         "bertscore_model": "distilbert-base-uncased",
         "rescale_with_baseline": False,
     }
-    metric_specs = (
-        get_summarization_metric_specs(metric_args)
-        + [
-            MetricSpec(
-                class_name="helm.benchmark.metrics.starr_patient_instructions_metrics.StarrPatientInstructionsMetric",
-                args={},
-            )
-        ]
-        + get_basic_metric_specs([])
-    )
+    metric_specs = get_summarization_metric_specs(metric_args) + [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.llm_jury_metrics.LLMJuryMetric",
+            args={
+                "metric_name": "starr_patient_instructions_accuracy",
+                "scenario_name": "starr_patient_instructions",
+                "annotator_models": annotator_models,
+                "default_score": 1.0,
+            },
+        )
+    ]
     return RunSpec(
         name="starr_patient_instructions",
         scenario_spec=scenario_spec,
@@ -818,7 +1033,7 @@ def get_starr_patient_instructions_run_spec(data_path: str) -> RunSpec:
 
 
 @run_spec_function("med_dialog")
-def get_med_dialog_spec(subset: str) -> RunSpec:
+def get_med_dialog_spec(subset: str, jury_config_path: Optional[str] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.med_dialog_scenario.MedDialogScenario", args={"subset": subset}
     )
@@ -831,7 +1046,17 @@ def get_med_dialog_spec(subset: str) -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
-    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.med_dialog_annotator.MedDialogAnnotator")]
+
+    annotator_models = get_annotator_models_from_config(jury_config_path)
+
+    annotator_specs = [
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.med_dialog_annotator.MedDialogAnnotator",
+            args={
+                "annotator_models": annotator_models,
+            },
+        )
+    ]
 
     metric_args = {
         "task": "med_dialog",
@@ -840,7 +1065,15 @@ def get_med_dialog_spec(subset: str) -> RunSpec:
         "rescale_with_baseline": False,
     }
     metric_specs = get_summarization_metric_specs(metric_args) + [
-        MetricSpec(class_name="helm.benchmark.metrics.med_dialog_metrics.MedDialogMetric", args={})
+        MetricSpec(
+            class_name="helm.benchmark.metrics.llm_jury_metrics.LLMJuryMetric",
+            args={
+                "metric_name": "med_dialog_accuracy",
+                "scenario_name": "med_dialog",
+                "annotator_models": annotator_models,
+                "default_score": 1.0,
+            },
+        )
     ]
     return RunSpec(
         name=f"med_dialog,subset={subset}",
@@ -876,7 +1109,7 @@ def get_shc_conf_spec(data_path: str) -> RunSpec:
 
 
 @run_spec_function("medi_qa")
-def get_medi_qa_spec() -> RunSpec:
+def get_medi_qa_spec(jury_config_path: Optional[str] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.medi_qa_scenario.MediQAScenario", args={})
 
     adapter_spec = get_generation_adapter_spec(
@@ -887,7 +1120,17 @@ def get_medi_qa_spec() -> RunSpec:
         max_train_instances=0,
         stop_sequences=[],
     )
-    annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.medi_qa_annotator.MediQAAnnotator")]
+
+    annotator_models = get_annotator_models_from_config(jury_config_path)
+
+    annotator_specs = [
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.medi_qa_annotator.MediQAAnnotator",
+            args={
+                "annotator_models": annotator_models,
+            },
+        )
+    ]
 
     metric_args = {
         "task": "medi_qa",
@@ -896,7 +1139,15 @@ def get_medi_qa_spec() -> RunSpec:
         "rescale_with_baseline": False,
     }
     metric_specs = get_summarization_metric_specs(metric_args) + [
-        MetricSpec(class_name="helm.benchmark.metrics.medi_qa_metrics.MediQAMetric", args={})
+        MetricSpec(
+            class_name="helm.benchmark.metrics.llm_jury_metrics.LLMJuryMetric",
+            args={
+                "metric_name": "medi_qa_accuracy",
+                "scenario_name": "medi_qa",
+                "annotator_models": annotator_models,
+                "default_score": 1.0,
+            },
+        )
     ]
     return RunSpec(
         name="medi_qa",
@@ -909,7 +1160,7 @@ def get_medi_qa_spec() -> RunSpec:
 
 
 @run_spec_function("mental_health")
-def get_mental_health_spec(data_path: str) -> RunSpec:
+def get_mental_health_spec(data_path: str, jury_config_path: Optional[str] = None) -> RunSpec:
     """
     Returns the run specification for the mental health counseling scenario.
     This scenario evaluates a model's ability to generate appropriate counseling responses
@@ -930,8 +1181,15 @@ def get_mental_health_spec(data_path: str) -> RunSpec:
         max_tokens=512,
         stop_sequences=[],
     )
+    annotator_models = get_annotator_models_from_config(jury_config_path)
+
     annotator_specs = [
-        AnnotatorSpec(class_name="helm.benchmark.annotation.mental_health_annotator.MentalHealthAnnotator")
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.mental_health_annotator.MentalHealthAnnotator",
+            args={
+                "annotator_models": annotator_models,
+            },
+        )
     ]
 
     metric_args = {
@@ -941,7 +1199,15 @@ def get_mental_health_spec(data_path: str) -> RunSpec:
         "rescale_with_baseline": False,
     }
     metric_specs = get_summarization_metric_specs(metric_args) + [
-        MetricSpec(class_name="helm.benchmark.metrics.mental_health_metrics.MentalHealthMetric", args={})
+        MetricSpec(
+            class_name="helm.benchmark.metrics.llm_jury_metrics.LLMJuryMetric",
+            args={
+                "metric_name": "mental_health_accuracy",
+                "scenario_name": "mental_health",
+                "annotator_models": annotator_models,
+                "default_score": 1.0,
+            },
+        )
     ]
 
     return RunSpec(
@@ -1261,7 +1527,7 @@ def get_shc_ent_spec(data_path: str) -> RunSpec:
 @run_spec_function("shc_privacy_med")
 def get_shc_privacy_spec(data_path: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.shc_cdi_scenario.SHCPRIVACYMedScenario",
+        class_name="helm.benchmark.scenarios.shc_privacy_scenario.SHCPRIVACYMedScenario",
         args={"data_path": data_path},
     )
 
@@ -1284,7 +1550,7 @@ def get_shc_privacy_spec(data_path: str) -> RunSpec:
 @run_spec_function("shc_proxy_med")
 def get_shc_proxy_spec(data_path: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.shc_cdi_scenario.SHCPROXYMedScenario",
+        class_name="helm.benchmark.scenarios.shc_proxy_scenario.SHCPROXYMedScenario",
         args={"data_path": data_path},
     )
 

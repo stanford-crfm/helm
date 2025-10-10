@@ -2,7 +2,8 @@ import re
 from typing import List, Any, Dict
 from datasets import load_dataset
 
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TRAIN_SPLIT, TEST_SPLIT
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TRAIN_SPLIT, TEST_SPLIT, ScenarioMetadata
 
 
 class AnthropicRedTeamScenario(Scenario):
@@ -69,3 +70,13 @@ class AnthropicRedTeamScenario(Scenario):
                 )
                 instances.append(instance)
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="anthropic_red_team",
+            display_name="Anthropic Red Team",
+            description="Anthropic Red Team",
+            taxonomy=TaxonomyInfo(task="instruction following sfaety", what="?", when="?", who="?", language="English"),
+            main_metric="safety_score",
+            main_split="test",
+        )

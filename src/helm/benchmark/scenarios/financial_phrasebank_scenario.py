@@ -2,6 +2,7 @@ import os
 import random
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -92,3 +94,22 @@ Possible labels:\n1. positive\n2. neutral\n3. negative"""  # noqa: E501
             )
             instances.append(instance)
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="financial_phrasebank",
+            display_name="Financial Phrasebank (Sentiment Classification)",
+            short_display_name=None,
+            description="A sentiment classification benchmark based on the dataset from Good Debt or "
+            "Bad Debt - Detecting Semantic Orientations in Economic Texts [(Malo et al., "
+            "2013)](https://arxiv.org/abs/1307.5336).",
+            taxonomy=TaxonomyInfo(
+                task="sentiment analysis",
+                what="phrases from financial news texts and company press releases",
+                when="before 2013",
+                who="annotators with adequate business education background",
+                language="English",
+            ),
+            main_metric="classification_weighted_f1",
+            main_split="test",
+        )

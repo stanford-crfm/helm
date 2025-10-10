@@ -2,6 +2,7 @@ import os
 import pickle
 
 from typing import List, Optional
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -13,6 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -171,3 +173,38 @@ class SummarizationScenario(Scenario):
                 )
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        if self.dataset_name == "xsum":
+            return ScenarioMetadata(
+                name="summarization_xsum",
+                display_name="XSUM",
+                description="The XSUM benchmark for text summarization of BBC news articles [(Narayan et "
+                "al., 2018)](https://aclanthology.org/D18-1206/).",
+                taxonomy=TaxonomyInfo(task="summarization", what="?", when="?", who="?", language="English"),
+                main_metric="rouge_2",
+                main_split="test",
+            )
+        elif self.dataset_name == "xsum-sampled":
+            return ScenarioMetadata(
+                name="summarization_xsum_sampled",
+                display_name="XSUM (Sampled)",
+                description="The XSUM benchmark for text summarization of BBC news articles [(Narayan et "
+                "al., 2018)](https://aclanthology.org/D18-1206/).",
+                taxonomy=TaxonomyInfo(task="summarization", what="?", when="?", who="?", language="English"),
+                main_metric="rouge_2",
+                main_split="test",
+            )
+        elif self.dataset_name == "cnn-dm":
+            return ScenarioMetadata(
+                name="summarization_cnndm",
+                display_name="CNN/DailyMail",
+                description="The CNN/DailyMail benchmark for text summarization ([Hermann et al., "
+                "2015](https://papers.nips.cc/paper/2015/hash/afdec7005cc9f14302cd0474fd0f3c96-Abstract.html); "
+                "[Nallapati et al.,2016](https://aclanthology.org/K16-1028/)).",
+                taxonomy=TaxonomyInfo(task="summarization", what="?", when="?", who="?", language="English"),
+                main_metric="rouge_2",
+                main_split="test",
+            )
+        else:
+            raise Exception(f"Unknown dataset {self.dataset_name}")

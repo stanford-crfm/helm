@@ -1,6 +1,7 @@
 import os
 from typing import List, Dict, Optional
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -11,6 +12,7 @@ from helm.benchmark.scenarios.scenario import (
     VALID_SPLIT,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from helm.benchmark.scenarios.imdb_scenario_pinned_file_order import listdir_with_pinned_file_order
 
@@ -143,3 +145,16 @@ class IMDBScenario(Scenario):
         for split in [TRAIN_SPLIT, VALID_SPLIT]:
             instances.extend(self.get_split_instances(target_path, split, contrast_map))
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="imdb",
+            display_name="IMDB",
+            description="The IMDB benchmark for sentiment analysis in movie review [(Maas et al., "
+            "2011)](https://aclanthology.org/P11-1015/).",
+            taxonomy=TaxonomyInfo(
+                task="sentiment analysis", what="movie reviews", when="?", who="?", language="English"
+            ),
+            main_metric="quasi_exact_match",
+            main_split="valid",
+        )
