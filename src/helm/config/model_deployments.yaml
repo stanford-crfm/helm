@@ -1570,6 +1570,18 @@ model_deployments:
       args:
         device_map: auto
         torch_dtype: torch.bfloat16
+      
+  ## Google
+  - name: huggingface/medgemma-4b-it
+    model_name: google/medgemma-4b-it
+    tokenizer_name: google/medgemma-4b-it
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        trust_remote_code: true
+        torch_dtype: torch.bfloat16
 
   ## LMSYS
   - name: huggingface/vicuna-7b-v1.3
