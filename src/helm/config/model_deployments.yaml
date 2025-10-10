@@ -3722,6 +3722,17 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.writer_client.WriterClient"
 
+  - name: amazon/palmyra-x5-v1-bedrock
+    model_name: writer/palmyra-x5-v1-bedrock
+    # See tokenizer comment for writer/palmyra-x-004
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 1040000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockPalmyraClient"
+      args:
+        bedrock_model_id: us.writer.palmyra-x5-v1:0
+        region: us-west-2
+
   - name: writer/palmyra-med-32k
     model_name: writer/palmyra-med-32k
     # Palmyra-Med uses the "<|end_of_text|>" as the end of text token, which is used by meta/llama-3-8b,
