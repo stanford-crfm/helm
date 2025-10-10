@@ -4407,7 +4407,15 @@ models:
     description: Palmyra X5 is a language model for enterprise that uses a Mixture of Experts (MoE) architecture and a hybrid attention mechanism that blends linear and softmax attention. ([blog](https://writer.com/engineering/long-context-palmyra-x5/))
     creator_organization_name: Writer
     access: limited
-    release_date: 2024-04-28
+    release_date: 2025-04-28
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: writer/palmyra-x5-v1-bedrock
+    display_name: Palmyra X5 (Bedrock)
+    description: Palmyra X5 is a language model for enterprise that uses a Mixture of Experts (MoE) architecture and a hybrid attention mechanism that blends linear and softmax attention. ([blog](https://writer.com/engineering/long-context-palmyra-x5/)) This is the model verison that is hosted on Bedrock. ([blog](https://aws.amazon.com/blogs/aws/writer-palmyra-x5-and-x4-foundation-models-are-now-available-in-amazon-bedrock/))
+    creator_organization_name: Writer
+    access: limited
+    release_date: 2025-04-28
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: writer/palmyra-med-32k

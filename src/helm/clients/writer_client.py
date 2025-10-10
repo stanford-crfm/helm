@@ -5,6 +5,7 @@ from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import hexception
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
+from helm.proxy.retry import NonRetriableException
 
 try:
     from writerai import Writer
@@ -20,9 +21,9 @@ class WriterClient(CachingClient):
 
     def _get_messages_from_request(self, request: Request) -> List[Dict]:
         if request.prompt and request.messages:
-            raise ValueError(f"Only one of `prompt` and `messages` may be set in request: {request}")
+            raise NonRetriableException(f"Only one of `prompt` and `messages` may be set in request: {request}")
         if request.multimodal_prompt:
-            raise ValueError("`multimodal_prompt` is not supported by WriterClient")
+            raise NonRetriableException("`multimodal_prompt` is not supported by WriterClient")
         if request.messages:
             return [{"role": message["role"], "content": message["content"]} for message in request.messages]
         else:
