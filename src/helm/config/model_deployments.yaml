@@ -1596,7 +1596,7 @@ model_deployments:
   - name: huggingface/medgemma-4b-it
     model_name: google/medgemma-4b-it
     tokenizer_name: google/medgemma-4b-it
-    max_sequence_length: 8192
+    max_sequence_length: 128000
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:

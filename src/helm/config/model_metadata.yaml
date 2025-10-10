@@ -1412,7 +1412,7 @@ models:
     description: Gemma is a family of lightweight, open models built from the research and technology that Google used to create the Gemini models. ([model card](https://www.kaggle.com/models/google/gemma), [blog post](https://blog.google/technology/developers/gemma-open-models/))
     creator_organization_name: Google
     access: open
-    release_date: 2024-02-21
+    release_date: 2025-05-20
     tags: [TEXT_MODEL_TAG, GOOGLE_GEMMA_INSTRUCT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/paligemma-3b-mix-224
