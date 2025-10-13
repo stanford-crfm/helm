@@ -4247,7 +4247,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
-        pretrained_model_name_or_path: ibm-granite/granite-4.0-micro
+        pretrained_model_name_or_path: ibm-granite/granite-4.0-h-small
 
 # Maritaca AI
   - name: huggingface/sabia-7b
