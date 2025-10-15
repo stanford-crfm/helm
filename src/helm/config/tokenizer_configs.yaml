@@ -251,6 +251,13 @@ tokenizer_configs:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "<eos>"
     prefix_token: "<bos>"
+  - name: google/medgemma-4b-it
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        trust_remote_code: true
+    end_of_text_token: "<eos>"
+    prefix_token: "<bos>"
 
   # Grok
   - name: xai/grok-3-beta
