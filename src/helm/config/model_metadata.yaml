@@ -5230,52 +5230,94 @@ models:
     release_date: 2025-01-31
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  - name: proxy_tuning/qwen3-30b_mellama-13b-chat_llama-13b-base_0.7_logprobs_20
-    model_name: proxy_tuning/qwen3-30b_mellama-13b-chat_llama-13b-base_0.7_logprobs_20
-    tokenizer_name: proxy_tuning/qwen3-30b
-    max_sequence_length: 128000
-    client_spec:
-      class_name: "helm.clients.proxy_tuning_client.ProxyTuningClient"
+# proxy tuning 
 
+  - name: proxy_tuning/qwen3-30b_mellama-13b-chat_llama-13b-base_0.7_logprobs_20
+    display_name: proxy_tuning/qwen3-30b_mellama-13b-chat_llama-13b-base_0.7_logprobs_20
+    description: Proxy tuned Qwen3-30b with mellama-13b-chat expert and llama-13b-base antiexpert. 
+    creator_organization_name: Sasha Ronaghi
+    access: open
+    num_parameters: 30000000000
+    release_date: 2025-10-15
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    
   - name: proxy_tuning/llama-70b-chat_mellama-13b-base_llama-13b-base_1.0_logits_20
-    model_name: proxy_tuning/llama-70b-chat_mellama-13b-base_llama-13b-base_1.0_logits_20
-    tokenizer_name: proxy_tuning/llama-7b-chat
-    max_sequence_length: 128000
-    client_spec:
-      class_name: "helm.clients.proxy_tuning_client.ProxyTuningClient"
+    display_name: proxy_tuning/llama-70b-chat_mellama-13b-base_llama-13b-base_1.0_logits_20
+    description: Proxy tuned Llama2-70b-chat with mellama-13b-chat expert and llama-13b-base antiexpert. 
+    creator_organization_name: Sasha Ronaghi
+    access: open
+    num_parameters: 70000000000
+    release_date: 2025-10-15
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+# unite
+
+  - name: proxy_tuning/qwen3-30b_mellama-13b-chat_none_0.7_logprobs_20
+    display_name: proxy_tuning/qwen3-30b_mellama-13b-chat_llama-13b-base_0.7_logprobs_20
+    description: Unite of Qwen3-30b with mellama-13b-chat expert. 
+    creator_organization_name: Sasha Ronaghi
+    access: open
+    num_parameters: 30000000000
+    release_date: 2025-10-15
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    
+  - name: proxy_tuning/llama-70b-chat_mellama-13b-base_none_1.0_logits_20
+    display_name: proxy_tuning/llama-70b-chat_mellama-13b-base_llama-13b-base_1.0_logits_20
+    description: Unite of llama-70b-chat with mellama-13b-base. 
+    creator_organization_name: Sasha Ronaghi
+    access: open
+    num_parameters: 70000000000
+    release_date: 2025-10-15
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+# base models 
 
   - name: proxy_tuning/qwen3-30b_none_none_0.7_logprobs_20
-    model_name: proxy_tuning/qwen3-30b_none_none_0.7_logprobs_20
-    tokenizer_name: proxy_tuning/qwen3-30b
-    max_sequence_length: 128000
-    client_spec:
-      class_name: "helm.clients.proxy_tuning_client.ProxyTuningClient"
-
+    display_name: proxy_tuning/qwen3-30b_none_none_0.7_logprobs_20
+    description: Qwen3-30b. 
+    creator_organization_name: Sasha Ronaghi
+    access: open
+    num_parameters: 30000000000
+    release_date: 2025-10-15
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    
   - name: proxy_tuning/llama-70b-chat_none_none_1.0_logits_20
-    model_name: proxy_tuning/llama-70b-chat_none_none_1.0_logits_20
-    tokenizer_name: proxy_tuning/llama-7b-chat
-    max_sequence_length: 128000
-    client_spec:
-      class_name: "helm.clients.proxy_tuning_client.ProxyTuningClient"
-      
-  - name: proxy_tuning/mellama-70b-chat_none_none_0.7_logprobs_20
-    model_name: proxy_tuning/mellama-70b-chat_none_none_0.7_logprobs_20
-    tokenizer_name: proxy_tuning/llama-7b-chat
-    max_sequence_length: 128000
-    client_spec:
-      class_name: "helm.clients.proxy_tuning_client.ProxyTuningClient"
+    display_name: proxy_tuning/llama-70b-chat_none_none_1.0_logits_20
+    description: llama-70b-chat. 
+    creator_organization_name: Sasha Ronaghi
+    access: open
+    num_parameters: 70000000000
+    release_date: 2025-10-15
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    
 
+# mellama models 
+
+  - name: proxy_tuning/mellama-70b-chat_none_none_0.7_logprobs_20
+    display_name: proxy_tuning/mellama-70b-chat_none_none_0.7_logprobs_20
+    description: mellama-70b-chat.
+    creator_organization_name: Sasha Ronaghi
+    access: open
+    num_parameters: 70000000000
+    release_date: 2025-10-15
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    
   - name: proxy_tuning/mellama-13b-chat_none_none_0.7_logprobs_20
-    model_name: proxy_tuning/mellama-13b-chat_none_none_0.7_logprobs_20
-    tokenizer_name: proxy_tuning/llama-7b-chat
-    max_sequence_length: 128000
-    client_spec:
-      class_name: "helm.clients.proxy_tuning_client.ProxyTuningClient"
-      
+    display_name: proxy_tuning/mellama-13b-chat_none_none_0.7_logprobs_20
+    description: mellama-13b-chat. 
+    creator_organization_name: Sasha Ronaghi
+    access: open
+    num_parameters: 13000000000
+    release_date: 2025-10-15
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    
   - name: proxy_tuning/mellama-13b-base_none_none_0.7_logprobs_20
-    model_name: proxy_tuning/mellama-13b-base_none_none_0.7_logprobs_20
-    tokenizer_name: proxy_tuning/llama-7b-chat
-    max_sequence_length: 128000
-    client_spec:
-      class_name: "helm.clients.proxy_tuning_client.ProxyTuningClient"
- 
+    display_name: proxy_tuning/mellama-13b-base_none_none_0.7_logprobs_20
+    description: mellama-13b-base.
+    creator_organization_name: Sasha Ronaghi
+    access: open
+    num_parameters: 13000000000
+    release_date: 2025-10-15
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+
