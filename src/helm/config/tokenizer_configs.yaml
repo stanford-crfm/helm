@@ -1286,3 +1286,20 @@ tokenizer_configs:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "</s>"
     prefix_token: "<s>"
+
+  - name: proxy_tuning/llama-7b-chat
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: [PATH TO Llama-2-7b-chat]
+    end_of_text_token: "<s>"
+    prefix_token: "</s>"
+
+  - name: proxy_tuning/qwen3-30b
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: [PATH TO Qwen3-30B-A3B-Instruct-2507]
+    end_of_text_token: "<s>"
+    prefix_token: "</s>"
+
