@@ -5229,3 +5229,53 @@ models:
     access: limited
     release_date: 2025-01-31
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: proxy_tuning/qwen3-30b_mellama-13b-chat_llama-13b-base_0.7_logprobs_20
+    model_name: proxy_tuning/qwen3-30b_mellama-13b-chat_llama-13b-base_0.7_logprobs_20
+    tokenizer_name: proxy_tuning/qwen3-30b
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.proxy_tuning_client.ProxyTuningClient"
+
+  - name: proxy_tuning/llama-70b-chat_mellama-13b-base_llama-13b-base_1.0_logits_20
+    model_name: proxy_tuning/llama-70b-chat_mellama-13b-base_llama-13b-base_1.0_logits_20
+    tokenizer_name: proxy_tuning/llama-7b-chat
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.proxy_tuning_client.ProxyTuningClient"
+
+  - name: proxy_tuning/qwen3-30b_none_none_0.7_logprobs_20
+    model_name: proxy_tuning/qwen3-30b_none_none_0.7_logprobs_20
+    tokenizer_name: proxy_tuning/qwen3-30b
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.proxy_tuning_client.ProxyTuningClient"
+
+  - name: proxy_tuning/llama-70b-chat_none_none_1.0_logits_20
+    model_name: proxy_tuning/llama-70b-chat_none_none_1.0_logits_20
+    tokenizer_name: proxy_tuning/llama-7b-chat
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.proxy_tuning_client.ProxyTuningClient"
+      
+  - name: proxy_tuning/mellama-70b-chat_none_none_0.7_logprobs_20
+    model_name: proxy_tuning/mellama-70b-chat_none_none_0.7_logprobs_20
+    tokenizer_name: proxy_tuning/llama-7b-chat
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.proxy_tuning_client.ProxyTuningClient"
+
+  - name: proxy_tuning/mellama-13b-chat_none_none_0.7_logprobs_20
+    model_name: proxy_tuning/mellama-13b-chat_none_none_0.7_logprobs_20
+    tokenizer_name: proxy_tuning/llama-7b-chat
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.proxy_tuning_client.ProxyTuningClient"
+      
+  - name: proxy_tuning/mellama-13b-base_none_none_0.7_logprobs_20
+    model_name: proxy_tuning/mellama-13b-base_none_none_0.7_logprobs_20
+    tokenizer_name: proxy_tuning/llama-7b-chat
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.proxy_tuning_client.ProxyTuningClient"
+ 
