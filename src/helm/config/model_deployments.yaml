@@ -4170,7 +4170,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.audio_language.llama_omni_client.LlamaOmniAudioLMClient"
 
-# IBM - Granite 3.0
+# IBM Granite
   - name: huggingface/granite-3.0-2b-base
     model_name: ibm-granite/granite-3.0-2b-base
     tokenizer_name: ibm-granite/granite-3.0-2b-base
@@ -4242,6 +4242,24 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         pretrained_model_name_or_path: ibm-granite/granite-3.0-1b-a400m-base
+
+  - name: huggingface/granite-4.0-micro
+    model_name: ibm/granite-4.0-micro
+    tokenizer_name: ibm/granite-4.0-micro
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: ibm-granite/granite-4.0-micro
+
+  - name: huggingface/granite-4.0-h-small
+    model_name: ibm/granite-4.0-h-small
+    tokenizer_name: ibm/granite-4.0-h-small
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: ibm-granite/granite-4.0-h-small
 
 # Maritaca AI
   - name: huggingface/sabia-7b

@@ -4853,8 +4853,46 @@ models:
     access: open
     num_parameters: 8170000000
     release_date: 2025-04-16
-    # Unfortunately this setup is not easily reproducible, so we mark it with DEPRECATED_MODEL_TAG
+    # Unfortunately this setup used a IBM internal API endpoint that is not publicly available, so we mark it with DEPRECATED_MODEL_TAG
     tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: ibm/granite-4.0-h-small
+    display_name: IBM Granite 4.0 Small
+    description: IBM Granite 4.0 Small is a hybrid model with 32B total parameters and 9B active parameters that uses the Mixture of Experts (MoE) routing strategy with Mamba-2 and Transformer-based self-attention components.
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 32200000000
+    release: 2025-10-02
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: ibm/granite-4.0-micro
+    display_name: IBM Granite 4.0 Micro
+    description: IBM Granite 4.0 Micro is a dense Transformer model with 3B total parameters that provides an alternative option for users when Mamba2 support is not yet optimized.
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 3400000000
+    release: 2025-10-02
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: ibm/granite-4.0-h-small-with-guardian
+    display_name: IBM Granite 4.0 Small (with guardian)
+    description: IBM Granite 4.0 Small is a hybrid model with 32B total parameters and 9B active parameters that uses the Mixture of Experts (MoE) routing strategy with Mamba-2 and Transformer-based self-attention components.
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 32200000000
+    release: 2025-10-02
+    # Unfortunately this setup used a IBM internal API endpoint that is not publicly available, so we mark it with DEPRECATED_MODEL_TAG
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: ibm/granite-4.0-micro-with-guardian
+    display_name: IBM Granite 4.0 Micro (with guardian)
+    description: IBM Granite 4.0 Micro is a dense Transformer model with 3B total parameters that provides an alternative option for users when Mamba2 support is not yet optimized.
+    creator_organization_name: IBM
+    access: open
+    num_parameters: 3400000000
+    release: 2025-10-02
+    # Unfortunately this setup used a IBM internal API endpoint that is not publicly available, so we mark it with DEPRECATED_MODEL_TAG
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: ura-hcmut/ura-llama-2.1-8b
     display_name: URA-Llama 2.1 (8B)
