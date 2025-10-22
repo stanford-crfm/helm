@@ -150,7 +150,7 @@ def get_clear_spec(condition: str, data_path: str) -> RunSpec:
         name=f"clear:condition={condition}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs(),
+        metric_specs=get_f1_metric_specs(),
         groups=["clear"],
     )
 
