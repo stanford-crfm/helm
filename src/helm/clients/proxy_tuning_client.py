@@ -24,13 +24,14 @@ from typing import Literal
 from datetime import datetime
 
 MODEL_PATHS = {
+    # download from huggingface 
     "llama-70b-chat": "/share/pi/ema2016/models/meta-llama/Llama-2-70b-chat-hf",
-    "llama-7b-chat": "/share/pi/ema2016/models/meta-llama/Llama-2-7b-chat-hf",
     "llama-13b-base": "/share/pi/ema2016/models/meta-llama/Llama-2-13b-hf",
-    "mellama-13b-chat": "/share/pi/ema2016/models/me-llama/MeLLaMA-13B-chat",
-    "mellama-13b-base": "/share/pi/ema2016/models/me-llama/MeLLaMA-13B", 
-    "mellama-70b-chat": "/share/pi/ema2016/models/me-llama/MeLLaMA-70B-chat",    
     "qwen3-30b": "/share/pi/ema2016/models/Qwen3-30B-A3B-Instruct-2507", 
+    # download from physionet -- https://physionet.org/content/me-llama/1.0.0/
+    "mellama-13b-chat": "/share/pi/ema2016/models/me-llama/MeLLaMA-13B-chat",
+    "mellama-70b-chat": "/share/pi/ema2016/models/me-llama/MeLLaMA-70B-chat",    
+    
 }
 
 LOCAL_RESULTS_DIR = "/share/pi/ema2016/users/sronaghi/proxy_tuning/results/medhelm"
@@ -199,9 +200,9 @@ def add_pad_token(tok, padding_side="left"):
 class AnyModel:
     def __init__(
         self,
-        base_model,
-        expert_model,
-        antiexpert_model,
+        base_name,
+        expert_name,
+        antiexpert_name,
         base_tokenizer, 
         expert_tokenizer, 
         anti_tokenizer,
@@ -211,22 +212,35 @@ class AnyModel:
         model_kwargs: Dict[str, Any] = None
     ):
         
-        self.base = base_model
-        self.expert = expert_model
-        self.antiexpert = antiexpert_model
-        self.tok_base = base_tokenizer
-        self.tok_exp = expert_tokenizer
-        self.tok_anti = anti_tokenizer
-    
-        if self.base is not None:
-            self.base.eval()
-        if self.expert is not None:
+        self.expert = None  
+        self.tok_exp = None
+        self.antiexpert = None  
+        self.tok_anti = None
+        
+        print("loading base")
+        
+        self.base = AutoModelForCausalLM.from_pretrained(MODEL_PATHS[base_name], **model_kwargs)
+        self.base.eval()
+        self.tok_base  = base_tokenizer
+        print("done loading base")
+        
+        if proxy or unite:
+            print("loading exp")
+            self.expert = AutoModelForCausalLM.from_pretrained(MODEL_PATHS[expert_name], **model_kwargs)
             self.expert.eval()
-        if self.antiexpert is not None:
-            self.antiexpert.eval()
+            self.tok_exp   = expert_tokenizer
+            print("done loading exp")
+            
+            if proxy:
+                print("loading anti")
+                self.antiexpert = AutoModelForCausalLM.from_pretrained(MODEL_PATHS[antiexpert_name], **model_kwargs)
+                self.antiexpert.eval()
+                self.tok_anti  = anti_tokenizer
+                print("done loading anti")
+        
         
         self.alpha = alpha
-        self.device = getattr(self.base, "device", None)
+        self.device = self.base.device
 
     
     def _encode_for_gen(self, tok, prompt: str, device=None):
@@ -296,7 +310,7 @@ class AnyModel:
         base_kwargs["attention_mask"] = base_attn
         base_kwargs["use_cache"] = True
         original_prompt_len = base_input_ids.shape[1]
-
+        print("1")
         
 #         if not proxy and not unite:
 #             gen = self.base.generate(
@@ -326,7 +340,7 @@ class AnyModel:
         # keep track of which sequences are already finished
         unfinished_sequences = torch.ones(1, dtype=torch.long, device=base_input_ids.device)
         eos_token_id_tensor = torch.tensor([self.tok_base.eos_token_id], device=base_input_ids.device)
-        
+        print("2")
         
         if return_logits_for_analysis:
             T = max_new_tokens
@@ -344,7 +358,7 @@ class AnyModel:
 
             token_ids_out  = torch.empty(T, device=device, dtype=torch.int32)
             t_write = 0
-        
+        print("3")
  
         for step in range(max_new_tokens):      
             base_inputs = self.base.prepare_inputs_for_generation(base_input_ids, **base_kwargs)
@@ -439,7 +453,7 @@ class AnyModel:
             if unfinished_sequences.max() == 0:
                 break
 
-   
+        print("4")
         gen_ids = base_input_ids[0, original_prompt_len:]
         generation = self.tok_base.decode(gen_ids, skip_special_tokens=True)
         
@@ -459,7 +473,7 @@ class AnyModel:
             }]
             return generation, results
         
-      
+        print("5")
         return generation
 
 def ensure_dir(d):
@@ -492,35 +506,38 @@ def load_model_and_tokenizer(
         'low_cpu_mem_usage': True,
         'trust_remote_code': True,
     }
-     
-    base_model = AutoModelForCausalLM.from_pretrained(MODEL_PATHS[base_name], **model_kwargs)
+    
+    print("loading base tok", flush=True)
+
     
     if base_name in ["mellama-13b-chat", "mellama-13b-base", "mellama-70b-chat"]:
-        tok_base = AutoTokenizer.from_pretrained(MODEL_PATHS["llama-13b-base"], use_fast=use_fast_tokenizer)   
-        #tok_base = AutoTokenizer.from_pretrained(MODEL_PATHS["llama-7b-chat"], use_fast=use_fast_tokenizer)   
+        tok_base = AutoTokenizer.from_pretrained(MODEL_PATHS["llama-13b-base"], use_fast=use_fast_tokenizer)     
     else:
         tok_base = AutoTokenizer.from_pretrained(MODEL_PATHS[base_name], use_fast=use_fast_tokenizer)   
 
     tok_base = add_pad_token(tok_base, padding_side)
     
-    expert_model = antiexpert_model = tok_exp = tok_anti = None
-
+    print("done loading base tok", flush=True)
     
-    # expert and anti expert will always be mellama or llama --> mellama models use llama-13b-base as tokenizer.  
-    if expert_name != "none":
-        tok_exp = AutoTokenizer.from_pretrained(MODEL_PATHS["llama-13b-base"], use_fast=use_fast_tokenizer)       
+    tok_exp = tok_anti = None
+    
+    if proxy or unite: 
+        print("loading exp tok", flush=True)
+        tok_exp = AutoTokenizer.from_pretrained(MODEL_PATHS["llama-13b-base"], use_fast=use_fast_tokenizer) 
         tok_exp = add_pad_token(tok_exp, padding_side)
-        expert_model = AutoModelForCausalLM.from_pretrained(MODEL_PATHS[expert_name], **model_kwargs)
-        
-    if antiexpert_name != "none":
-        tok_anti = AutoTokenizer.from_pretrained(MODEL_PATHS["llama-13b-base"], use_fast=use_fast_tokenizer)       
-        tok_anti = add_pad_token(tok_anti, padding_side)
-        antiexpert_model = AutoModelForCausalLM.from_pretrained(MODEL_PATHS[antiexpert_name], **model_kwargs)
-
+        print("done loading exp tok")
+        if proxy:
+            print("loading anti tok", flush=True)
+            tok_anti = AutoTokenizer.from_pretrained(MODEL_PATHS["llama-13b-base"], use_fast=use_fast_tokenizer) 
+            tok_anti = add_pad_token(tok_anti, padding_side)
+            print("done loading anti tok", flush=True)
+    
+    
+    print ("creating any model", flush=True)
     model = AnyModel(
-        base_model=base_model,
-        expert_model=expert_model,
-        antiexpert_model=antiexpert_model,
+        base_name=base_name,
+        expert_name=expert_name,
+        antiexpert_name=antiexpert_name,
         base_tokenizer=tok_base,
         expert_tokenizer=tok_exp,
         anti_tokenizer=tok_anti,
@@ -529,11 +546,11 @@ def load_model_and_tokenizer(
         unite=unite,
         model_kwargs=model_kwargs,
     )
-
+    print ("created any model", flush=True)
     
-    print(f"[Loader] Base   : {base_name}")
-    print(f"[Loader] Expert : {expert_name}")
-    print(f"[Loader] Anti   : {antiexpert_name}")
+    print(f"[Loader] Base   : {base_name}", flush=True)
+    print(f"[Loader] Expert : {expert_name}", flush=True)
+    print(f"[Loader] Anti   : {antiexpert_name}", flush=True)
         
     return model, tok_base
 
@@ -609,10 +626,7 @@ class ProxyTuningClient(Client):
         self.run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
         self.req_seq = 0
         tag = model_name.split("/")[-1]
-        # strip optional "proxy_tuning_" prefix
-        if tag.startswith("proxy_tuning_"):
-            print("doing tag change")
-            tag = tag[len("proxy_tuning_"):]
+
 
         parts = tag.split("_")
         base_name, expert_name, antiexpert_name, self.alpha, self.score_type, k_str  = (
@@ -632,7 +646,7 @@ class ProxyTuningClient(Client):
             else:
                 self.is_proxy = True
         
-        print ("loading model")
+        print ("loading model", flush=True)
         self.any_model, self.hf_tokenizer = load_model_and_tokenizer(
             base_name=base_name,
             expert_name=expert_name,
@@ -642,7 +656,7 @@ class ProxyTuningClient(Client):
             unite=self.is_unite
                 
         )
-        print ("loaded model")
+        print ("loaded model", flush=True)
     
     def make_request(self, request: Request) -> RequestResult:
     
@@ -652,6 +666,7 @@ class ProxyTuningClient(Client):
             prompt_text = " ".join(msg["content"] for msg in request.messages if msg.get("role") != "system")
             
         # progress = tqdm.tqdm(total=1, desc="Generating Completions")
+        print("doing a generation", flush=True)
         generation = self.any_model.generate(
             prompt = prompt_text,
             max_new_tokens = 700,
@@ -665,7 +680,7 @@ class ProxyTuningClient(Client):
             prefix_allowed_tokens_fn_exp=None,
         )
 
-        print("generation: ", generation)
+        print("generation: ", generation, flush=True)
         
         self.req_seq += 1
         request_id = f"{self.run_id}_r{self.req_seq:04d}"
