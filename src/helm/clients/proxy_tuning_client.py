@@ -24,14 +24,14 @@ from typing import Literal
 from datetime import datetime
 
 MODEL_PATHS = {
-    # download from huggingface 
     "llama-70b-chat": "/share/pi/ema2016/models/meta-llama/Llama-2-70b-chat-hf",
+    "llama-7b-chat": "/share/pi/ema2016/models/meta-llama/Llama-2-7b-chat-hf",
+    "llama-7b-base": "/share/pi/ema2016/models/meta-llama/Llama-2-7b-hf",
     "llama-13b-base": "/share/pi/ema2016/models/meta-llama/Llama-2-13b-hf",
-    "qwen3-30b": "/share/pi/ema2016/models/Qwen3-30B-A3B-Instruct-2507", 
-    # download from physionet -- https://physionet.org/content/me-llama/1.0.0/
     "mellama-13b-chat": "/share/pi/ema2016/models/me-llama/MeLLaMA-13B-chat",
+    "mellama-13b-base": "/share/pi/ema2016/models/me-llama/MeLLaMA-13B", 
     "mellama-70b-chat": "/share/pi/ema2016/models/me-llama/MeLLaMA-70B-chat",    
-    
+    "qwen3-30b": "/share/pi/ema2016/models/Qwen3-30B-A3B-Instruct-2507", 
 }
 
 LOCAL_RESULTS_DIR = "/share/pi/ema2016/users/sronaghi/proxy_tuning/results/medhelm"
@@ -103,7 +103,6 @@ def get_union_vocab(v1, v2):
         unique_tokens = []
         for v1_tokens, v2_tokens in zip(v1,v2):
             unique_tokens.append(list(set(v1_tokens.keys()) | set(v2_tokens.keys())))
-
         return unique_tokens
     
 
@@ -217,26 +216,26 @@ class AnyModel:
         self.antiexpert = None  
         self.tok_anti = None
         
-        print("loading base")
+        print("loading base model")
         
         self.base = AutoModelForCausalLM.from_pretrained(MODEL_PATHS[base_name], **model_kwargs)
         self.base.eval()
         self.tok_base  = base_tokenizer
-        print("done loading base")
+        print("done loading base model")
         
         if proxy or unite:
-            print("loading exp")
+            print("loading exp model")
             self.expert = AutoModelForCausalLM.from_pretrained(MODEL_PATHS[expert_name], **model_kwargs)
             self.expert.eval()
             self.tok_exp   = expert_tokenizer
-            print("done loading exp")
+            print("done loading exp model")
             
             if proxy:
-                print("loading anti")
+                print("loading anti model")
                 self.antiexpert = AutoModelForCausalLM.from_pretrained(MODEL_PATHS[antiexpert_name], **model_kwargs)
                 self.antiexpert.eval()
                 self.tok_anti  = anti_tokenizer
-                print("done loading anti")
+                print("done loading anti model")
         
         
         self.alpha = alpha
@@ -310,8 +309,9 @@ class AnyModel:
         base_kwargs["attention_mask"] = base_attn
         base_kwargs["use_cache"] = True
         original_prompt_len = base_input_ids.shape[1]
-        print("1")
         
+        # this allows for generation using huggingface's generate function -- 
+        # it doesn't make a difference, but since i do manual generation in classification tasks in order to implement constrained decoding, i don't do this. 
 #         if not proxy and not unite:
 #             gen = self.base.generate(
 #                 input_ids=base_input_ids,
@@ -330,12 +330,22 @@ class AnyModel:
             expert_input_ids, expert_attn, expert_text = self._encode_for_gen(self.tok_exp, prompt, device=self.expert.device)
             expert_kwargs = kwargs.copy()
             expert_kwargs["attention_mask"] = expert_attn
-            expert_kwargs["use_cache"] = True
+            expert_kwargs["use_cache"] = False
+            original_prompt_len_expert = expert_input_ids.shape[1]
+            expert_prompt_ids = expert_input_ids[0, :original_prompt_len_expert]
+            expert_prompt_decoded = self.tok_exp.decode(expert_prompt_ids, skip_special_tokens=True)
             if proxy:
                 antiexpert_input_ids, anti_attn, anto = self._encode_for_gen(self.tok_anti, prompt, device=self.antiexpert.device)
                 antiexpert_kwargs = kwargs.copy()
                 antiexpert_kwargs["attention_mask"] = anti_attn
-                antiexpert_kwargs["use_cache"] = True
+                antiexpert_kwargs["use_cache"] = False
+                original_prompt_len_antiexpert = antiexpert_input_ids.shape[1]
+                antiexpert_prompt_ids = antiexpert_input_ids[0, :original_prompt_len_antiexpert]
+                antiexpert_prompt_decoded = self.tok_anti.decode(antiexpert_prompt_ids, skip_special_tokens=True)
+                
+        if proxy and score_type == "logits":
+            expert_kwargs["use_cache"] = True
+            antiexpert_kwargs["use_cache"] = True
 
         # keep track of which sequences are already finished
         unfinished_sequences = torch.ones(1, dtype=torch.long, device=base_input_ids.device)
@@ -359,8 +369,10 @@ class AnyModel:
             token_ids_out  = torch.empty(T, device=device, dtype=torch.int32)
             t_write = 0
         print("3")
- 
-        for step in range(max_new_tokens):      
+         
+        for step in range(max_new_tokens): 
+            if step == max_new_tokens - 1:
+                print("hit max tokens")
             base_inputs = self.base.prepare_inputs_for_generation(base_input_ids, **base_kwargs)
             base_outputs = self.base(**base_inputs, return_dict=True)
             base_next_token_logits = base_outputs.logits[..., -1, :]
@@ -432,28 +444,43 @@ class AnyModel:
                         next_token_id1 = next_tokens.tolist()
                         next_token_id2 = list(next_token_id1)
                         next_token_id3 = list(next_token_id1)
-                       
             
+                        exp_step_ids = torch.as_tensor([next_token_id2],  device=expert_input_ids.device,   dtype=torch.long)
+                        expert_input_ids = torch.cat([expert_input_ids,     exp_step_ids[:,  None]], dim=-1)
+                        expert_kwargs = self._update_model_kwargs_for_generation(expert_outputs, expert_kwargs)
+                        anti_step_ids = torch.as_tensor([next_token_id3], device=antiexpert_input_ids.device, dtype=torch.long)
+                        antiexpert_input_ids = torch.cat([antiexpert_input_ids, anti_step_ids[:, None]], dim=-1)
+                        antiexpert_kwargs= self._update_model_kwargs_for_generation(antiexpert_outputs,antiexpert_kwargs)
+
             step_ids = torch.as_tensor(next_token_id1, device=base_input_ids.device, dtype=torch.long)
             base_input_ids = torch.cat([base_input_ids, step_ids[:, None]], dim=-1)
             base_kwargs = self._update_model_kwargs_for_generation(base_outputs, base_kwargs)
+            
+            if (proxy and score_type == "logprobs") or unite:
+                base_gen_ids = base_input_ids[0, original_prompt_len:]
+                base_gen_decoded = self.tok_base.decode(base_gen_ids, skip_special_tokens=True)
+                expert_input_decoded = expert_prompt_decoded + base_gen_decoded
+                expert_input_ids, expert_kwargs["attention_mask"], expert_text = self._encode_for_gen(self.tok_exp, expert_input_decoded, device=self.expert.device)
+                if proxy:              
+                    antiexpert_input_decoded = antiexpert_prompt_decoded + base_gen_decoded
+                    antiexpert_input_ids, antiexpert_kwargs["attention_mask"], antiexpert_text = self._encode_for_gen(self.tok_exp, antiexpert_input_decoded, device=self.expert.device)
+                    
+                if step < 10:
+                    print(f"\n=== Step {step} ===")
+                    print(f"Base decoded: {self.tok_base.decode(base_input_ids[0], skip_special_tokens=False)}")
+                    if proxy or unite:
+                        print(f"Expert decoded: {self.tok_exp.decode(expert_input_ids[0], skip_special_tokens=False)}")
+                    if proxy:
+                        print(f"Anti-expert decoded: {self.tok_exp.decode(antiexpert_input_ids[0], skip_special_tokens=False)}")
+                    print(f"---")
+                
 
-            if proxy or unite:
-                exp_step_ids = torch.as_tensor(next_token_id2,  device=expert_input_ids.device,   dtype=torch.long)
-                expert_input_ids = torch.cat([expert_input_ids,     exp_step_ids[:,  None]], dim=-1)
-                expert_kwargs = self._update_model_kwargs_for_generation(expert_outputs, expert_kwargs)
-                if proxy:
-                    anti_step_ids = torch.as_tensor(next_token_id3, device=antiexpert_input_ids.device, dtype=torch.long)
-                    antiexpert_input_ids = torch.cat([antiexpert_input_ids, anti_step_ids[:, None]], dim=-1)
-                    antiexpert_kwargs= self._update_model_kwargs_for_generation(antiexpert_outputs,antiexpert_kwargs)
-            
-            
+
             at_eos = (step_ids == eos_token_id_tensor[0]).long()
             unfinished_sequences = unfinished_sequences * (1 - at_eos)
             if unfinished_sequences.max() == 0:
                 break
 
-        print("4")
         gen_ids = base_input_ids[0, original_prompt_len:]
         generation = self.tok_base.decode(gen_ids, skip_special_tokens=True)
         
@@ -473,7 +500,6 @@ class AnyModel:
             }]
             return generation, results
         
-        print("5")
         return generation
 
 def ensure_dir(d):
@@ -661,15 +687,22 @@ class ProxyTuningClient(Client):
     def make_request(self, request: Request) -> RequestResult:
     
         prompt_text = request.prompt
+        max_new_tokens=750
+        
+
+        if request.max_tokens:
+            max_new_tokens=request.max_tokens
+            print("max_new_tokens: ", max_new_tokens)
 
         if request.messages:
+            print(request.messages)
             prompt_text = " ".join(msg["content"] for msg in request.messages if msg.get("role") != "system")
             
         # progress = tqdm.tqdm(total=1, desc="Generating Completions")
         print("doing a generation", flush=True)
         generation = self.any_model.generate(
             prompt = prompt_text,
-            max_new_tokens = 700,
+            max_new_tokens = max_new_tokens,
             alpha = self.alpha, 
             return_logits_for_analysis = False,
             score_type = self.score_type,
