@@ -1,4 +1,67 @@
 # File: helm/clients/proxy_tuning_client.py
+"""
+Proxy-tuned HELM client
+=======================
+
+This module implements a HELM Client that routes generation through
+decoding-time strategies for domain-level adaptation. 
+It runs multiple models (base, expert, anti-expert).
+This is experimental code to test different decoding-time strategies. 
+
+Main classes
+------------
+- AnyModel: Thin wrapper that loads one or more HF models/tokenizers and
+  performs step-wise generation under three modes:
+  1) **Base** (single base model, runs using HF generate() function),
+  2) **Unite** (merge base + expert via vocabulary union arithmetic):
+    - adapted in from [this codebase](https://github.com/starrYYxuan/UniTE/)
+  3) **Proxy**:
+     - Original method adapted from [this codebase](https://github.com/alisawuffles/proxy-tuning/tree/main):
+         - base + alpha(expert − anti-expert) at the logit level with models of same vocabulary.
+     - Cross-Architecture Proxy Tuning (our novel method) 
+         - same formula as above using log-probs with models of differing vocabulary
+
+- ProxyTuningClient: A HELM client that parses the deployment tag to
+  configure `AnyModel`, runs generation for a given `Request`, and logs
+  per-request outputs and token-wise outputs for the proxy tuning method.
+
+Deployment/tag format
+---------------------
+The `model_name` (a.k.a. deployment tag) is expected to be of the form:
+    "proxy_tuning/{base}_{expert}_{antiexpert}_{alpha}_{score_type}_{k}"
+
+Examples:
+    proxy_tuning/mellama-13b-chat_none_none_1.0_logits_20 (base)         
+    proxy_tuning/qwen3-30b_mellama-13b-chat_none_1.0_logprobs_20 (unite)
+    proxy_tuning/llama-70b-chat_mellama-13b-chat_llama-13b-base_0.7_logits_10 (Original proxy, logits) 
+    proxy_tuning/qwen3-30b_mellama-13b-chat_llama-13b-base_0.7_logits_10 (CAPT proxy, logprobs) 
+
+Each sub-tag meaning:
+- base / expert / antiexpert: keys that must exist in `MODEL_PATHS` below
+  (use "none" to disable that role).
+  - if only base is not "none" --> base method
+  - if base and expert are not "none" --> unite method
+  - if base, expert, and antiexpert are not "none"  --> proxy method
+- alpha: float, strength of expert vs anti-expert adjustment.
+- score_type: "logits" (original proxy tuning) or "logprobs" (CAPT).
+- k: top-k token pool size when building the union vocabulary (for Unite
+  and CAPT).
+
+Artifacts & logging
+-------------------
+A results directory is created under:
+
+    LOCAL_RESULTS_DIR/<safe_tag>_<YYYYMMDD_HHMMSS>/
+
+Files inside:
+- `<safe_tag>_<stamp>.csv`  : One row per HELM request with columns:
+    timestamp, request_id, model_name, prompt, output, logits_path
+- `logits_analysis/`        : Optional per-request tensors (when
+  `return_logits_for_analysis=True`) saved via `torch.save(...)` as:
+    logits_<runid>_r####.pt
+    
+"""
+
 from helm.clients.client import Client
 from helm.common.request import Request, RequestResult, GeneratedOutput
 
