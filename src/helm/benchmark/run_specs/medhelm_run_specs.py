@@ -122,7 +122,7 @@ def get_medcalc_bench_spec() -> RunSpec:
 
 
 @run_spec_function("clear")
-def get_clear_spec(condition: str, data_path: str) -> RunSpec:
+def get_clear_spec(condition: str, data_path: str, f1: bool) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.clear_scenario.CLEARScenario",
         args={
@@ -146,13 +146,22 @@ def get_clear_spec(condition: str, data_path: str) -> RunSpec:
         max_tokens=1,
     )
 
-    return RunSpec(
-        name=f"clear:condition={condition}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_f1_metric_specs(),
-        groups=["clear"],
-    )
+    if f1:
+        return RunSpec(
+            name=f"clear:condition={condition}",
+            scenario_spec=scenario_spec,
+            adapter_spec=adapter_spec,
+            metric_specs=get_f1_metric_specs(),
+            groups=["clear"],
+        )
+    else:
+        return RunSpec(
+            name=f"clear:condition={condition}",
+            scenario_spec=scenario_spec,
+            adapter_spec=adapter_spec,
+            metric_specs=get_exact_match_metric_specs(),
+            groups=["clear"],
+        )
 
 
 @run_spec_function("mtsamples_replicate")
