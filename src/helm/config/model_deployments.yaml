@@ -8,6 +8,8 @@
 #    # This file defines all the model deployments that you do not want to be public.
 #    model_deployments: [] # Leave empty to disable private model deployments
 
+# This file contains deployments for the Proxy Tuning class.
+
 model_deployments:
   - name: simple/model1
     model_name: simple/model1
@@ -5107,7 +5109,6 @@ model_deployments:
         dspy_module: ChainOfThought
         dspy_api_model: openai/o3-mini-2025-01-31
         dspy_api_base: null
- 
         
   - name: proxy_tuning/llama-70b-chat_none_none_1.0_logits_20
     model_name: proxy_tuning/llama-70b-chat_none_none_1.0_logits_20
