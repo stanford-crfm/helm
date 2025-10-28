@@ -5232,7 +5232,6 @@ models:
     release_date: 2025-01-31
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-
   - name: proxy_tuning/llama-70b-chat_none_none_1.0_logits_20
     display_name: proxy_tuning/llama-70b-chat_none_none_1.0_logits_20
     description: llama-70b-chat. 
