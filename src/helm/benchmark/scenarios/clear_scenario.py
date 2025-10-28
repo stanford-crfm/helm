@@ -78,7 +78,7 @@ class CLEARScenario(Scenario):
         "unemployment": "unemployment",
     }
 
-    def __init__(self, condition: str, data_path: str):
+    def __init__(self, condition: str, data_path: str, f1: bool):
         """Initialize the scenario with a specific medical condition"""
         super().__init__()
 
