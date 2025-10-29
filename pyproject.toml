@@ -352,6 +352,20 @@ medhelm = [
     "transformers~=4.45,<4.50",
 ]
 
+proxy_tuning = [
+    "transformers~=4.51.0,<4.53.0", #for qwen MoE models
+    "bitsandbytes>=0.43",
+    "accelerate~=0.25",
+    
+    "crfm-helm[openai]",
+    "crfm-helm[yandex]",
+    "crfm-helm[scenarios]",
+    "lxml~=5.3",
+    "openpyxl~=3.1",
+    "python-docx~=1.1",
+    "lm-format-enforcer~=0.11.3"
+] 
+
 audiolm = [
     "crfm-helm[openai]",
     "crfm-helm[google]",
