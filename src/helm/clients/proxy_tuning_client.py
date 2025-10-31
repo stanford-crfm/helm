@@ -65,8 +65,8 @@ from helm.common.request import Request, RequestResult, GeneratedOutput
 import os
 import sys
 import torch
+from typing import Optional
 from datetime import datetime
-from typing import Optional 
 
 # Make the top-level proxy_tuning dir importable
 sys.path.insert(0, "/share/pi/ema2016/users/sronaghi/proxy_tuning")
@@ -82,8 +82,6 @@ def ensure_dir(d):
 
 
 # proxy tuning helpers
-
-
 def _safe_tag(model_name: str) -> str:
     # e.g. "proxy_tuning/llama70b_mellama13bchat" -> "proxy_tuning_llama70b_mellama13bchat"
     return model_name.replace("/", "_").replace(" ", "").replace(".", "").replace("-", "")
