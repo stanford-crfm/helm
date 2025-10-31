@@ -66,6 +66,7 @@ import os
 import sys
 import torch
 from datetime import datetime
+from typing import Optional 
 
 # Make the top-level proxy_tuning dir importable
 sys.path.insert(0, "/share/pi/ema2016/users/sronaghi/proxy_tuning")
