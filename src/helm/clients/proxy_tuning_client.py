@@ -3,9 +3,9 @@ Proxy-tuned HELM client
 =======================
 
 This module implements a HELM Client that routes generation through
-decoding-time strategies for domain-level adaptation. 
+decoding-time strategies for domain-level adaptation.
 It runs multiple models (base, expert, anti-expert).
-This is experimental code to test different decoding-time strategies. 
+This is experimental code to test different decoding-time strategies.
 
 Main classes
 ------------
@@ -16,7 +16,7 @@ Main classes
   3) **Proxy**:
      - Original method adapted from [this codebase](https://github.com/alisawuffles/proxy-tuning/tree/main):
          - base + alpha(expert − anti-expert) at the logit level with models of same vocabulary.
-     - Cross-Architecture Proxy Tuning (our novel method) 
+     - Cross-Architecture Proxy Tuning (our novel method)
          - same formula as above using log-probs with models of differing vocabulary
 
 - ProxyTuningClient: A HELM client that parses the deployment tag to
@@ -57,7 +57,7 @@ Files inside:
 - `logits_analysis/`        : Optional per-request tensors (when
   `return_logits_for_analysis=True`) saved via `torch.save(...)` as:
     logits_<runid>_r####.pt
-    
+
 """
 
 from helm.clients.client import Client
@@ -65,12 +65,11 @@ from helm.common.request import Request, RequestResult, GeneratedOutput
 import os
 import sys
 import torch
-from typing import Optional
 from datetime import datetime
 
 sys.path.insert(0, "/share/pi/ema2016/users/sronaghi/proxy_tuning")
 
-from any_model import load_any_model
+from any_model import load_any_model # noqa: E402
 
 LOCAL_RESULTS_DIR = "/share/pi/ema2016/users/sronaghi/proxy_tuning/results/medhelm"
 
