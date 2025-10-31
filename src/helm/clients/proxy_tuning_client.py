@@ -68,7 +68,6 @@ import torch
 from typing import Optional
 from datetime import datetime
 
-# Make the top-level proxy_tuning dir importable
 sys.path.insert(0, "/share/pi/ema2016/users/sronaghi/proxy_tuning")
 
 from any_model import load_any_model
@@ -136,7 +135,7 @@ class ProxyTuningClient(Client):
 
     def __init__(
         self,
-        model_name: str = None,
+        model_name: str,
     ):
         """
         Initializes the ProxyTuningClient.
