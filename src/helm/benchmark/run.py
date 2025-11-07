@@ -9,7 +9,7 @@ from helm.benchmark import model_metadata_registry
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
 from helm.common.cache_backend_config import MongoCacheBackendConfig, SqliteCacheBackendConfig
 from helm.common.general import ensure_directory_exists
-from helm.common.hierarchical_logger import hlog, htrack, htrack_block, setup_default_logging, hwarn
+from helm.common.hierarchical_logger import hlog, htrack, htrack_block, setup_default_logging, hwarn, hdebug
 from helm.common.authentication import Authentication
 from helm.common.object_spec import parse_object_spec, get_class_by_name
 from helm.proxy.services.remote_service import create_authentication, add_service_args
@@ -69,6 +69,34 @@ def run_entries_to_run_specs(
             run_specs.append(run_spec)
 
     return run_specs
+
+
+def import_user_plugins(paths_or_names) -> List:
+    """
+    User plugins are python files that call helm registration functions.
+
+    Args:
+        paths_or_names (List[str]):
+            importable module names or paths to modules that contain custom
+            registration code.
+
+    Returns:
+        List: the imported modules
+    """
+    import importlib
+    from helm.common.import_utils import import_module_from_path
+    modules = []
+    for modpath_or_name in paths_or_names:
+        if '/' in modpath_or_name or '\\' in modpath_or_name or os.path.exists(modpath_or_name):
+            # The input is a path to a module
+            hdebug(f'Import plugin {modpath_or_name!r} from its path')
+            module = import_module_from_path(modpath_or_name)
+        else:
+            # The input is the name of a module
+            hdebug(f'Import plugin {modpath_or_name!r} as a module')
+            module = importlib.import_module(modpath_or_name)
+        modules.append(module)
+    return modules
 
 
 def run_benchmarking(
@@ -205,6 +233,10 @@ def helm_run(args):
     validate_args(args)
     register_builtin_configs_from_helm_package()
     register_configs_from_directory(args.local_path)
+
+    if args.plugins:
+        from helm.benchmark.run_spec import register_custom_run_specs
+        register_custom_run_specs(args.plugins)
 
     if args.enable_huggingface_models:
         from helm.benchmark.huggingface_registration import register_huggingface_hub_model_from_flag_value
@@ -369,6 +401,12 @@ def build_parser():
         type=str,
         default=None,
         help="PATH to a YAML file to customize logging",
+    )
+    parser.add_argument(
+        "--plugins",
+        nargs="+",
+        help="Paths to importable module names that register custom run specs / scenarios / datasets",
+        default=None,
     )
     add_run_args(parser)
     return parser
