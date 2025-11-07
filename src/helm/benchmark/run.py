@@ -235,8 +235,7 @@ def helm_run(args):
     register_configs_from_directory(args.local_path)
 
     if args.plugins:
-        from helm.benchmark.run_spec import register_custom_run_specs
-        register_custom_run_specs(args.plugins)
+        import_user_plugins(args.plugins)
 
     if args.enable_huggingface_models:
         from helm.benchmark.huggingface_registration import register_huggingface_hub_model_from_flag_value
