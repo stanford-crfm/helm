@@ -2,6 +2,38 @@
 
 ## [Upcoming]
 
+## [v0.5.10] - 2025-11-10
+
+### Breaking Changes
+
+- Python 3.9 is no longer supported as it reached end-of-life in October 2025. (#3903)
+
+### Models
+
+- Add Palmyra X5 on Bedrock (#3905)
+- Add IBM Granite 4 models on Hugging Face (#3906)
+- Fix incorrect Arabig model configs (#3907)
+
+### Scenarios
+
+- Fix `shc_privacy_med` scenario in MedHELM (#3911)
+
+### Framework
+
+- Remove Python 3.9 support (#3903)
+- Separate the definition of the ArgumentParser from its usage (#3908)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @asad-aali
+- @aunell
+- @Erotemic
+- @MiguelAFH
+- @patelfagun1998
+- @yifanmai
+
 ## [v0.5.9] - 2025-10-01
 
 ### Models
@@ -1175,7 +1207,8 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.9...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.10...HEAD
+[v0.5.10]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.10
 [v0.5.9]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.9
 [v0.5.8]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.8
 [v0.5.7]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.7
