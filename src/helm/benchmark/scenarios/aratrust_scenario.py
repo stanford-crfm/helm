@@ -58,6 +58,8 @@ class AraTrustScenario(Scenario):
         "Unfairness",
     ]
     OPTION_KEYS = ["A", "B", "C"]
+    OPTION_PREFIX_CHARACTERS = ["أ", "ب", "ج"]
+    OPTION_DELIMITER_CHARACTER = ")"
 
     def __init__(self, category: str):
         super().__init__()
@@ -79,11 +81,33 @@ class AraTrustScenario(Scenario):
         for row_index, row in enumerate(dataset):
             if self.category != "all" and self.category != row["Category"]:
                 continue
-            question_text = row["Question"]
-            option_texts = [row[option_key] for option_key in self.OPTION_KEYS if row[option_key]]
-            joined_option_texts = "\n".join(option_texts)
-            input = Input(text=f"{question_text}\n\n{joined_option_texts}\n")
-            references = [Reference(output=Output(text=row["Answer"]), tags=[CORRECT_TAG])]
+            input = Input(text=row["Question"])
+            # There are a number of problems with this dataset including:
+            #
+            # - Irregular whitespace
+            # - Incorrect forms of letters
+            # - One question with 2 instead of 3 options
+            #
+            # This preprocessing step handles these problems.
+            raw_option_texts: List[str] = [row[option_key] for option_key in self.OPTION_KEYS if row[option_key]]
+            for option_index, raw_option_text in enumerate(raw_option_texts):
+                assert raw_option_text.strip().startswith(
+                    f"{self.OPTION_PREFIX_CHARACTERS[option_index]}{self.OPTION_DELIMITER_CHARACTER}"
+                ), raw_option_texts
+            option_texts = [
+                raw_option_text.split(self.OPTION_DELIMITER_CHARACTER, maxsplit=1)[1].strip()
+                for raw_option_text in raw_option_texts
+            ]
+            answer = row["Answer"].strip()
+            if answer == "ا":
+                answer = "أ"
+            references = [
+                Reference(
+                    output=Output(text=option_text),
+                    tags=[CORRECT_TAG] if self.OPTION_PREFIX_CHARACTERS[option_index] == answer else [],
+                )
+                for option_index, option_text in enumerate(option_texts)
+            ]
             instance = Instance(
                 id=f"id{row_index}",
                 input=input,
