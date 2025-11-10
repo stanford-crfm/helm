@@ -5,8 +5,8 @@
 name: Upgrade requirements.txt
 
 on:
-  schedule:
-    - cron: "30 15 * * 1"
+  # schedule:
+  #   - cron: "30 15 * * 1"
   workflow_dispatch:
 
 jobs:

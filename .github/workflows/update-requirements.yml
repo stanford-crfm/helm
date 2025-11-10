@@ -5,13 +5,13 @@
 name: Update requirements.txt
 
 on:
-  push:
-    branches:
-      - "main"
-    paths:
-      - "pyproject.toml"
-      - "constraints.txt"
-      - '.github/workflows/update-requirements.yml'
+  # push:
+  #   branches:
+  #     - "main"
+  #   paths:
+  #     - "pyproject.toml"
+  #     - "constraints.txt"
+  #     - '.github/workflows/update-requirements.yml'
   workflow_dispatch:
 
 jobs:
