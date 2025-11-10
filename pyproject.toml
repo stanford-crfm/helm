@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "crfm-helm"
-version = "0.5.9"
+version = "0.5.10"
 authors = [
     { name = "Stanford CRFM", email = "contact-crfm@stanford.edu" }
 ]
