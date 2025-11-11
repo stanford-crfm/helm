@@ -15,7 +15,7 @@ from helm.common.cache import (
 )
 from helm.common.key_value_store import request_to_key
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
-from helm.clients.google_client import GoogleClient
+from helm.clients.google_legacy_offline_client import GoogleLegacyOfflineClient
 from helm.clients.together_client import TogetherClient
 from helm.clients.microsoft_client import MicrosoftClient
 
@@ -48,7 +48,7 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
         if organization == "together":
             return TogetherClient
         elif organization == "google":
-            return GoogleClient
+            return GoogleLegacyOfflineClient
         else:
             raise ValueError(f"Invalid organization: {organization}")
 

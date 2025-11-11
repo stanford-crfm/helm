@@ -6,7 +6,7 @@ from helm.common.request import Request, RequestResult, GeneratedOutput, Token
 from helm.clients.client import CachingClient, truncate_sequence
 
 
-class GoogleClient(CachingClient):
+class GoogleLegacyOfflineClient(CachingClient):
     """
     Client for the Google models. There isn't an API for their language models.
     We receive and process completions offline.
@@ -32,7 +32,7 @@ class GoogleClient(CachingClient):
         super().__init__(cache_config=cache_config)
 
     def make_request(self, request: Request) -> RequestResult:
-        raw_request = GoogleClient.convert_to_raw_request(request)
+        raw_request = GoogleLegacyOfflineClient.convert_to_raw_request(request)
         cache_key = CachingClient.make_cache_key(raw_request, request)
 
         try:
@@ -46,7 +46,7 @@ class GoogleClient(CachingClient):
             response, cached = self.cache.get(cache_key, fail)
         except RuntimeError as e:
             hexception(e)
-            error: str = f"GoogleClient error: {e}"
+            error: str = f"GoogleLegacyOfflineClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         # Expect the result to be structured the same way as a response from OpenAI API.
