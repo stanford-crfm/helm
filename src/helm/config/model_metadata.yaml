@@ -563,6 +563,14 @@ models:
     release_date: 2025-09-29
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: anthropic/claude-haiku-4-5-20251001
+    display_name: Claude 4.5 Haiku (20251001)
+    description: Claude 4.5 Haiku is a hybrid model from Anthropic in their small, fast model class that is particularly effective at coding tasks and computer use. ([blog](https://www.anthropic.com/news/claude-haiku-4-5), [system card](https://assets.anthropic.com/m/99128ddd009bdcb/Claude-Haiku-4-5-System-Card.pdf))
+    creator_organization_name: Anthropic
+    access: limited
+    release_date: 2025-10-15
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: anthropic/stanford-online-all-v4-s3
     display_name: Anthropic-LM v4-s3 (52B)
     description: A 52B parameter language model, trained using reinforcement learning from human feedback [paper](https://arxiv.org/pdf/2204.05862.pdf).
