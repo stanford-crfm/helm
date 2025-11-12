@@ -8,13 +8,13 @@ Check your system verison of Python by running:
 python --version
 ```
 
-If your version of Python is older than 3.9, you _must_ use either **Conda** or **pyenv** to install a version of Python >=3.9 when setting up your virtual environment.
+If your version of Python is older than 3.10, you _must_ use either **Conda** or **pyenv** to install a version of Python >=3.10 when setting up your virtual environment.
 
 ## Set up the Python virtual environment
 
-First, create a Python virtual environment with Python version >= 3.9 and activate it.
+First, create a Python virtual environment with Python version >= 3.10 and activate it.
 
-Using [**Virtualenv**](https://docs.python.org/3/library/venv.html#creating-virtual-environments) (*requires* system Python version >=3.9):
+Using [**Virtualenv**](https://docs.python.org/3/library/venv.html#creating-virtual-environments) (*requires* system Python version >=3.10):
 
 ```bash
 # Create a virtual environment.

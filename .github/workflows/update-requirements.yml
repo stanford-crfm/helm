@@ -5,13 +5,13 @@
 name: Update requirements.txt
 
 on:
-  push:
-    branches:
-      - "main"
-    paths:
-      - "pyproject.toml"
-      - "constraints.txt"
-      - '.github/workflows/update-requirements.yml'
+  # push:
+  #   branches:
+  #     - "main"
+  #   paths:
+  #     - "pyproject.toml"
+  #     - "constraints.txt"
+  #     - '.github/workflows/update-requirements.yml'
   workflow_dispatch:
 
 jobs:
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9"]
+        python-version: ["3.10"]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4

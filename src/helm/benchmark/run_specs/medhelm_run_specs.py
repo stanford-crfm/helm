@@ -1556,7 +1556,7 @@ def get_shc_proxy_spec(data_path: str) -> RunSpec:
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="Answer A or B.",
+        instructions="Answer A, B, or C.",
         input_noun="",
         output_noun="",
     )

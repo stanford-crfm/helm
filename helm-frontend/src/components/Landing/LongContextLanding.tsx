@@ -106,7 +106,7 @@ export default function LongContextLanding() {
           <div className="flex flex-row justify-center mt-4">
             <a
               className="px-10 btn rounded-md mx-4"
-              href="https://crfm.stanford.edu/2025/09/09/helm-long-context.html"
+              href="https://crfm.stanford.edu/2025/09/29/helm-long-context.html"
             >
               Blog Post
             </a>

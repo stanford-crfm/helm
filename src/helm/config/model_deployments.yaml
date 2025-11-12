@@ -730,6 +730,13 @@ model_deployments:
         thinking_budget_tokens: 10000
         stream: true
 
+  - name: anthropic/claude-sonnet-4-5-20250929
+    model_name: anthropic/claude-sonnet-4-5-20250929
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.anthropic_client.AnthropicMessagesClient"
+
   - name: anthropic/stanford-online-all-v4-s3
     deprecated: true # Closed model, not accessible via API
     model_name: anthropic/stanford-online-all-v4-s3
@@ -1583,6 +1590,18 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         device_map: auto
+        torch_dtype: torch.bfloat16
+      
+  ## Google
+  - name: huggingface/medgemma-4b-it
+    model_name: google/medgemma-4b-it
+    tokenizer_name: google/medgemma-4b-it
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+        trust_remote_code: true
         torch_dtype: torch.bfloat16
 
   ## LMSYS
@@ -3715,6 +3734,17 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.writer_client.WriterClient"
 
+  - name: amazon/palmyra-x5-v1-bedrock
+    model_name: writer/palmyra-x5-v1-bedrock
+    # See tokenizer comment for writer/palmyra-x-004
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 1040000
+    client_spec:
+      class_name: "helm.clients.bedrock_client.BedrockPalmyraClient"
+      args:
+        bedrock_model_id: us.writer.palmyra-x5-v1:0
+        region: us-west-2
+
   - name: writer/palmyra-med-32k
     model_name: writer/palmyra-med-32k
     # Palmyra-Med uses the "<|end_of_text|>" as the end of text token, which is used by meta/llama-3-8b,
@@ -4140,7 +4170,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.audio_language.llama_omni_client.LlamaOmniAudioLMClient"
 
-# IBM - Granite 3.0
+# IBM Granite
   - name: huggingface/granite-3.0-2b-base
     model_name: ibm-granite/granite-3.0-2b-base
     tokenizer_name: ibm-granite/granite-3.0-2b-base
@@ -4212,6 +4242,24 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         pretrained_model_name_or_path: ibm-granite/granite-3.0-1b-a400m-base
+
+  - name: huggingface/granite-4.0-micro
+    model_name: ibm/granite-4.0-micro
+    tokenizer_name: ibm/granite-4.0-micro
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: ibm-granite/granite-4.0-micro
+
+  - name: huggingface/granite-4.0-h-small
+    model_name: ibm/granite-4.0-h-small
+    tokenizer_name: ibm/granite-4.0-h-small
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: ibm-granite/granite-4.0-h-small
 
 # Maritaca AI
   - name: huggingface/sabia-7b
@@ -4408,7 +4456,7 @@ model_deployments:
   - name: huggingface/jais-family-590m-chat
     model_name: inceptionai/jais-family-590m-chat
     tokenizer_name: inceptionai/jais-family-590m-chat
-    max_sequence_length: 2048
+    max_sequence_length: 2000  # Reduced from 2048 to account for chat template tokens
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
@@ -4418,7 +4466,7 @@ model_deployments:
   - name: huggingface/jais-family-1p3b-chat
     model_name: inceptionai/jais-family-1p3b-chat
     tokenizer_name: inceptionai/jais-family-590m-chat
-    max_sequence_length: 2048
+    max_sequence_length: 2000  # Reduced from 2048 to account for chat template tokens
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
@@ -4428,7 +4476,7 @@ model_deployments:
   - name: huggingface/jais-family-2p7b-chat
     model_name: inceptionai/jais-family-2p7b-chat
     tokenizer_name: inceptionai/jais-family-590m-chat
-    max_sequence_length: 2048
+    max_sequence_length: 2000  # Reduced from 2048 to account for chat template tokens
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
@@ -4438,7 +4486,7 @@ model_deployments:
   - name: huggingface/jais-family-6p7b-chat
     model_name: inceptionai/jais-family-6p7b-chat
     tokenizer_name: inceptionai/jais-family-590m-chat
-    max_sequence_length: 2048
+    max_sequence_length: 2000  # Reduced from 2048 to account for chat template tokens
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
@@ -4449,7 +4497,7 @@ model_deployments:
   - name: huggingface/jais-family-13b-chat
     model_name: inceptionai/jais-family-13b-chat
     tokenizer_name: inceptionai/jais-family-590m-chat
-    max_sequence_length: 2048
+    max_sequence_length: 2000  # Reduced from 2048 to account for chat template tokens
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
@@ -4491,7 +4539,7 @@ model_deployments:
 
   - name: huggingface/jais-adapted-13b-chat
     model_name: inceptionai/jais-adapted-13b-chat
-    tokenizer_name: inceptionai/jais-adapted-7b-chat
+    tokenizer_name: inceptionai/jais-adapted-13b-chat
     max_sequence_length: 4096
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
@@ -4502,6 +4550,38 @@ model_deployments:
     model_name: inceptionai/jais-adapted-70b-chat
     tokenizer_name: inceptionai/jais-adapted-7b-chat
     max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+
+  - name: huggingface/falcon3-1b-instruct
+    model_name: tiiuae/falcon3-1b-instruct
+    tokenizer_name: tiiuae/falcon3-1b-instruct
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/falcon3-3b-instruct
+    model_name: tiiuae/falcon3-3b-instruct
+    tokenizer_name: tiiuae/falcon3-1b-instruct
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/falcon3-7b-instruct
+    model_name: tiiuae/falcon3-7b-instruct
+    tokenizer_name: tiiuae/falcon3-1b-instruct
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        device_map: auto
+
+  - name: huggingface/falcon3-10b-instruct
+    model_name: tiiuae/falcon3-10b-instruct
+    tokenizer_name: tiiuae/falcon3-1b-instruct
+    max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
@@ -4850,3 +4930,198 @@ model_deployments:
       class_name: "helm.clients.openrouter_client.OpenRouterClient"
       args:
         model_name: mistralai/mistral-medium-3.1
+
+  # DSPy Models (EXPERIMENTAL)
+  # The following model configurations use the DSPyClient for inference with DSPy modules.
+  
+  - name: anthropic/claude-3-7-sonnet-20250219-dspy-zs-predict
+    model_name: anthropic/claude-3-7-sonnet-20250219-dspy-zs-predict
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: null
+        dspy_module: Predict
+        dspy_api_model: anthropic/claude-3-7-sonnet-20250219
+        dspy_api_base: null
+
+  - name: google/gemini-2.0-flash-001-dspy-zs-predict
+    model_name: google/gemini-2.0-flash-001-dspy-zs-predict
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: null
+        dspy_module: Predict
+        dspy_api_model: google/gemini-2.0-flash-001
+        dspy_api_base: null
+
+  - name: openai/gpt-4o-2024-05-13-dspy-zs-predict
+    model_name: openai/gpt-4o-2024-05-13-dspy-zs-predict
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: null
+        dspy_module: Predict
+        dspy_api_model: openai/gpt-4o-2024-05-13
+        dspy_api_base: null
+
+  - name: openai/o3-mini-2025-01-31-dspy-zs-predict
+    model_name: openai/o3-mini-2025-01-31-dspy-zs-predict
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: null
+        dspy_module: Predict
+        dspy_api_model: openai/o3-mini-2025-01-31
+        dspy_api_base: null
+
+  - name: anthropic/claude-3-7-sonnet-20250219-dspy-zs-cot
+    model_name: anthropic/claude-3-7-sonnet-20250219-dspy-zs-cot
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: null
+        dspy_module: ChainOfThought
+        dspy_api_model: anthropic/claude-3-7-sonnet-20250219
+        dspy_api_base: null
+
+  - name: google/gemini-2.0-flash-001-dspy-zs-cot
+    model_name: google/gemini-2.0-flash-001-dspy-zs-cot
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: null
+        dspy_module: ChainOfThought
+        dspy_api_model: google/gemini-2.0-flash-001
+        dspy_api_base: null
+
+  - name: openai/gpt-4o-2024-05-13-dspy-zs-cot
+    model_name: openai/gpt-4o-2024-05-13-dspy-zs-cot
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: null
+        dspy_module: ChainOfThought
+        dspy_api_model: openai/gpt-4o-2024-05-13
+        dspy_api_base: null
+
+  - name: openai/o3-mini-2025-01-31-dspy-zs-cot
+    model_name: openai/o3-mini-2025-01-31-dspy-zs-cot
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: null
+        dspy_module: ChainOfThought
+        dspy_api_model: openai/o3-mini-2025-01-31
+        dspy_api_base: null
+
+  - name: anthropic/claude-3-7-sonnet-20250219-dspy-fs-bfrs
+    model_name: anthropic/claude-3-7-sonnet-20250219-dspy-fs-bfrs
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/dspy-helm/cecc4e742ec0d342d6349c80625afdd238df7fd4/agents/{scenario}/claude-3.7-sonnet/BootstrapFewShotWithRandomSearch.json
+        dspy_module: ChainOfThought
+        dspy_api_model: anthropic/claude-3-7-sonnet-20250219
+        dspy_api_base: null
+
+  - name: google/gemini-2.0-flash-001-dspy-fs-bfrs
+    model_name: google/gemini-2.0-flash-001-dspy-fs-bfrs
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/dspy-helm/cecc4e742ec0d342d6349c80625afdd238df7fd4/agents/{scenario}/gemini-2.0-flash/BootstrapFewShotWithRandomSearch.json
+        dspy_module: ChainOfThought
+        dspy_api_model: google/gemini-2.0-flash-001
+        dspy_api_base: null
+
+  - name: openai/gpt-4o-2024-05-13-dspy-fs-bfrs
+    model_name: openai/gpt-4o-2024-05-13-dspy-fs-bfrs
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/dspy-helm/cecc4e742ec0d342d6349c80625afdd238df7fd4/agents/{scenario}/gpt-4o/BootstrapFewShotWithRandomSearch.json
+        dspy_module: ChainOfThought
+        dspy_api_model: openai/gpt-4o-2024-05-13
+        dspy_api_base: null
+
+  - name: openai/o3-mini-2025-01-31-dspy-fs-bfrs
+    model_name: openai/o3-mini-2025-01-31-dspy-fs-bfrs
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/dspy-helm/cecc4e742ec0d342d6349c80625afdd238df7fd4/agents/{scenario}/o3-mini/BootstrapFewShotWithRandomSearch.json
+        dspy_module: ChainOfThought
+        dspy_api_model: openai/o3-mini-2025-01-31
+        dspy_api_base: null
+
+  - name: anthropic/claude-3-7-sonnet-20250219-dspy-fs-miprov2
+    model_name: anthropic/claude-3-7-sonnet-20250219-dspy-fs-miprov2
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/dspy-helm/cecc4e742ec0d342d6349c80625afdd238df7fd4/agents/{scenario}/claude-3.7-sonnet/MIPROv2.json
+        dspy_module: ChainOfThought
+        dspy_api_model: anthropic/claude-3-7-sonnet-20250219
+        dspy_api_base: null
+
+  - name: google/gemini-2.0-flash-001-dspy-fs-miprov2
+    model_name: google/gemini-2.0-flash-001-dspy-fs-miprov2
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/dspy-helm/cecc4e742ec0d342d6349c80625afdd238df7fd4/agents/{scenario}/gemini-2.0-flash/MIPROv2.json
+        dspy_module: ChainOfThought
+        dspy_api_model: google/gemini-2.0-flash-001
+        dspy_api_base: null
+
+  - name: openai/gpt-4o-2024-05-13-dspy-fs-miprov2
+    model_name: openai/gpt-4o-2024-05-13-dspy-fs-miprov2
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/dspy-helm/cecc4e742ec0d342d6349c80625afdd238df7fd4/agents/{scenario}/gpt-4o/MIPROv2.json
+        dspy_module: ChainOfThought
+        dspy_api_model: openai/gpt-4o-2024-05-13
+        dspy_api_base: null
+
+  - name: openai/o3-mini-2025-01-31-dspy-fs-miprov2
+    model_name: openai/o3-mini-2025-01-31-dspy-fs-miprov2
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.dspy_client.DSPyClient"
+      args:
+        dspy_agent_url: https://raw.githubusercontent.com/StanfordMIMI/dspy-helm/cecc4e742ec0d342d6349c80625afdd238df7fd4/agents/{scenario}/o3-mini/MIPROv2.json
+        dspy_module: ChainOfThought
+        dspy_api_model: openai/o3-mini-2025-01-31
+        dspy_api_base: null

@@ -5,8 +5,8 @@
 name: Upgrade requirements.txt
 
 on:
-  schedule:
-    - cron: "30 15 * * 1"
+  # schedule:
+  #   - cron: "30 15 * * 1"
   workflow_dispatch:
 
 jobs:
@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9"]
+        python-version: ["3.10"]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4

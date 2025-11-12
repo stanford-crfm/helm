@@ -10,6 +10,7 @@ from helm.clients.client import CachingClient, truncate_and_tokenize_response_te
 from helm.common.hierarchical_logger import hexception
 from helm.common.request import Request, RequestResult, GeneratedOutput, wrap_request_time
 from helm.clients.bedrock_utils import get_bedrock_client, get_bedrock_client_v1
+from helm.proxy.retry import NonRetriableException
 from helm.tokenizers.tokenizer import Tokenizer
 
 
@@ -42,6 +43,7 @@ class BedrockClient(CachingClient):
         tokenizer_name: str,
         assumed_role: Optional[str] = None,
         region: Optional[str] = None,
+        bedrock_model_id: Optional[str] = None,
     ):
         super().__init__(cache_config=cache_config)
         self.tokenizer = tokenizer
@@ -50,15 +52,19 @@ class BedrockClient(CachingClient):
             assumed_role=assumed_role or os.environ.get("BEDROCK_ASSUME_ROLE", None),
             region=region,
         )
+        self.bedrock_model_id = bedrock_model_id
 
     def make_request(self, request: Request) -> RequestResult:
-        # model_id should be something like "amazon.titan-tg1-large", replace amazon- prefix with model creator name
-        model_name = request.model.split("/")[-1]
-        # check if model_name starts with "amazon-"
-        if self.model_provider == "amazon":
-            model_id = f"{self.model_provider}.{model_name}"
+        if self.bedrock_model_id:
+            model_id = self.bedrock_model_id
         else:
-            model_id = model_name.replace("amazon-", f"{self.model_provider}.")
+            # model_id should be something like "amazon.titan-tg1-large", replace amazon- prefix with model creator name
+            model_name = request.model.split("/")[-1]
+            # check if model_name starts with "amazon-"
+            if self.model_provider == "amazon":
+                model_id = f"{self.model_provider}.{model_name}"
+            else:
+                model_id = model_name.replace("amazon-", f"{self.model_provider}.")
 
         raw_request = self.convert_request_to_raw_request(request)
 
@@ -323,4 +329,53 @@ class BedrockLlamaClient(BedrockClient):
         )
         completions.append(completion)
 
+        return completions
+
+
+class BedrockPalmyraClient(BedrockClient):
+    """Amazon Bedrock model for Palmyra models"""
+
+    _COMPLETION_REASON_TO_FINISH_REASON = {
+        "length": "length",
+        "stop": "endoftext",
+    }
+
+    model_provider = "writer"
+
+    def _get_messages_from_request(self, request: Request) -> List[Dict]:
+        if request.prompt and request.messages:
+            raise NonRetriableException(f"Only one of `prompt` and `messages` may be set in request: {request}")
+        if request.multimodal_prompt:
+            raise NonRetriableException("`multimodal_prompt` is not supported by WriterClient")
+        if request.messages:
+            return [{"role": message["role"], "content": message["content"]} for message in request.messages]
+        else:
+            return [{"role": "user", "content": request.prompt}]
+
+    def convert_request_to_raw_request(self, request: Request) -> Dict:
+        return {
+            "messages": self._get_messages_from_request(request),
+            "temperature": request.temperature,
+            "top_p": request.top_p,
+            "max_tokens": request.max_tokens,
+            "stop": request.stop_sequences,
+            "seed": request.random,
+            "presence_penalty": request.presence_penalty,
+            "frequency_penalty": request.frequency_penalty,
+        }
+
+    def convert_raw_response_to_completions(self, response: Dict, request: Request) -> List[GeneratedOutput]:
+        completions: List[GeneratedOutput] = []
+        if response.get("object") == "error":
+            raise Exception(f"BedrockPalmyraClient request failed: {response['message']}")
+        for choice in response["choices"]:
+            assert choice["message"]["role"] == "assistant"
+            output_text = choice["message"]["content"]
+            finish_reason = BedrockPalmyraClient._COMPLETION_REASON_TO_FINISH_REASON.get(
+                choice["finish_reason"], choice["finish_reason"].lower()
+            )
+            completion = truncate_and_tokenize_response_text(
+                output_text, request, self.tokenizer, self.tokenizer_name, finish_reason
+            )
+            completions.append(completion)
         return completions

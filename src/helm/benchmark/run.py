@@ -298,8 +298,7 @@ def helm_run(args):
     hlog("Done.")
 
 
-# Separate parsing from starting HELM so we can setup logging
-def main():
+def build_parser():
     parser = argparse.ArgumentParser()
     add_service_args(parser)
     parser.add_argument(
@@ -372,6 +371,12 @@ def main():
         help="PATH to a YAML file to customize logging",
     )
     add_run_args(parser)
+    return parser
+
+
+# Separate parsing from starting HELM so we can setup logging
+def main():
+    parser = build_parser()
     args = parser.parse_args()
     setup_default_logging(args.log_config)
     return helm_run(args)

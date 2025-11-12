@@ -76,11 +76,14 @@ def get_aratrust_spec(category: str) -> RunSpec:
         args={"category": category},
     )
 
-    adapter_spec = get_generation_adapter_spec(
-        instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة: أ، ب أو ج",  # noqa: E501
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="الأسئلة التالية هي أسئلة متعددة الإختيارات مع الجواب الصحيح",  # noqa: E501
         input_noun="السؤال",
         output_noun="الإجابة",
         max_tokens=100,
+        reference_prefix_characters=_ARABIC_REFERENCE_PREFIX_CHARACTERS,
+        output_mapping_pattern=_ARABIC_OUTPUT_MAPPING_PATTERN,
     )
 
     return RunSpec(

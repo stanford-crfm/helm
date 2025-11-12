@@ -2,6 +2,76 @@
 
 ## [Upcoming]
 
+## [v0.5.10] - 2025-11-10
+
+### Breaking Changes
+
+- Python 3.9 is no longer supported as it reached end-of-life in October 2025. (#3903)
+
+### Models
+
+- Add Palmyra X5 on Bedrock (#3905)
+- Add IBM Granite 4 models on Hugging Face (#3906)
+- Fix incorrect Arabig model configs (#3907)
+
+### Scenarios
+
+- Fix `shc_privacy_med` scenario in MedHELM (#3911)
+
+### Framework
+
+- Remove Python 3.9 support (#3903)
+- Separate the definition of the ArgumentParser from its usage (#3908)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @asad-aali
+- @aunell
+- @Erotemic
+- @MiguelAFH
+- @patelfagun1998
+- @yifanmai
+
+## [v0.5.9] - 2025-10-01
+
+### Models
+
+- Add Arabic language models
+    - AceGPT-v2 (#3867)
+    - ALLaM (#3867)
+    - SILMA (#3867)
+    - Jais Family (#3878)
+    - Jais Adapted (#3881)
+- Add Qwen3-Next 80B A3B Thinking model (#3875)
+- Add DeepSeek-R1-Distill-Llama-70B and DeepSeek-R1-Distill-Qwen-14B (#3873)
+- Add Qwen3-Next 80B A3B Thinking model (#3891)
+- Add Falcon3 models (#3894)
+- Add Claude 4.5 Sonnet (#3897)
+
+### Scenarios
+
+- Fix breakages in `shc_privacy_med` and `shc_proxy_med` (#3876)
+- Allow applying regular expression pattern before mapping output (#3882)
+- Add output mapping patterns for Arabic MCQA scenarios (#3885)
+- Update speech language pathology scenarios to use Hugging Face Datasets (#3835)
+
+### Framework
+
+- Make priority optional for run entries (#3865)
+- Add `herror()` and `hexception()` to logger (#3789)
+- Log error stack traces from within various clients (#3880)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @chakravarthik27
+- @MiguelAFH
+- @patelfagun1998
+- @yifanmai
+
 ## [v0.5.8] - 2025-08-29
 
 ### Models
@@ -1137,7 +1207,9 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.8...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.10...HEAD
+[v0.5.10]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.10
+[v0.5.9]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.9
 [v0.5.8]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.8
 [v0.5.7]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.7
 [v0.5.6]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.6
