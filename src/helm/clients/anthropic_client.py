@@ -386,7 +386,7 @@ class AnthropicMessagesClient(CachingClient):
             # Avoid error:
             # `top_k` must be unset when thinking is enabled. Please consult our documentation at https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking#important-considerations-when-using-extended-thinking  # noqa: E501
             del raw_request["top_k"]
-        if raw_request["model"].startswith("claude-sonnet-4-5"):
+        if (raw_request["model"].startswith("claude-sonnet-4-5") or raw_request["model"].startswith("claude-haiku-4-5")):
             # Avoid error:
             # `temperature` and `top_p` cannot both be specified for this model. Please use only one.
             del raw_request["top_p"]
