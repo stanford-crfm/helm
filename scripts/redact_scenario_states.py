@@ -14,12 +14,12 @@ update other JSON files used by the web frontend."""
 import argparse
 import dataclasses
 import os
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 from tqdm import tqdm
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
-from helm.benchmark.scenarios.scenario import Instance, Reference
+from helm.benchmark.scenarios.scenario import Input, Instance, Output, Reference
 from helm.common.codec import from_json, to_json
 from helm.common.hierarchical_logger import hwarn
 from helm.common.request import Request, RequestResult, GeneratedOutput, Token
@@ -42,12 +42,12 @@ def write_scenario_state(scenario_state_path: str, scenario_state: ScenarioState
 
 
 def redact_reference(reference: Reference) -> Reference:
-    redacted_output = dataclasses.replace(reference.output, text=REDACTED_STRING)
+    redacted_output = Output(text=REDACTED_STRING)
     return dataclasses.replace(reference, output=redacted_output)
 
 
 def redact_instance(instance: Instance) -> Instance:
-    redacted_input = dataclasses.replace(instance.input, text=REDACTED_STRING)
+    redacted_input = Input(text=REDACTED_STRING)
     redacted_references = [redact_reference(reference) for reference in instance.references]
     return dataclasses.replace(instance, input=redacted_input, references=redacted_references)
 
@@ -68,7 +68,7 @@ def redact_token(token: Token) -> Token:
 
 def redact_completion(completion: GeneratedOutput) -> GeneratedOutput:
     # Replacing tokens for empty list in case length of completion reveals information about the prompt
-    return dataclasses.replace(completion, text=REDACTED_STRING, tokens=[])
+    return dataclasses.replace(completion, text=REDACTED_STRING, tokens=[], multimodal_content=None, thinking=None)
 
 
 def redact_result(result: RequestResult) -> RequestResult:
@@ -76,33 +76,53 @@ def redact_result(result: RequestResult) -> RequestResult:
     return dataclasses.replace(result, completions=redacted_completions)
 
 
-def redact_request_state(request_state: RequestState, redact_output: bool) -> RequestState:
+def redact_request_state_annotations(annotation: Any) -> Any:
+    if isinstance(annotation, dict):
+        return {key: redact_request_state_annotations(value) for key, value in annotation.items()}
+    if isinstance(annotation, list):
+        return [redact_request_state_annotations(elem) for elem in annotation]
+    elif isinstance(annotation, str):
+        return REDACTED_STRING
+    else:
+        return annotation
+
+
+def redact_request_state(request_state: RequestState, redact_output: bool, redact_annotations: bool) -> RequestState:
     assert request_state.result is not None
     result = redact_result(request_state.result) if redact_output else request_state.result
+    annotations = (
+        redact_request_state_annotations(request_state.annotations)
+        if redact_annotations and request_state.annotations
+        else request_state.annotations
+    )
     return dataclasses.replace(
         request_state,
         instance=redact_instance(request_state.instance),
         request=redact_request(request_state.request),
         output_mapping=redact_output_mapping(request_state.output_mapping),
         result=result,
+        annotations=annotations,
     )
 
 
-def redact_scenario_state(scenario_state: ScenarioState, redact_output: bool) -> ScenarioState:
+def redact_scenario_state(
+    scenario_state: ScenarioState, redact_output: bool, redact_annotations: bool
+) -> ScenarioState:
     redacted_request_states = [
-        redact_request_state(request_state, redact_output) for request_state in scenario_state.request_states
+        redact_request_state(request_state, redact_output, redact_annotations)
+        for request_state in scenario_state.request_states
     ]
     return dataclasses.replace(scenario_state, request_states=redacted_request_states)
 
 
-def modify_scenario_state_for_run(run_path: str, redact_output: bool) -> None:
+def modify_scenario_state_for_run(run_path: str, redact_output: bool, redact_annotations: bool) -> None:
     scenario_state_path = os.path.join(run_path, SCENARIO_STATE_FILE_NAME)
     scenario_state = read_scenario_state(scenario_state_path)
-    redacted_scenario_state = redact_scenario_state(scenario_state, redact_output)
+    redacted_scenario_state = redact_scenario_state(scenario_state, redact_output, redact_annotations)
     write_scenario_state(scenario_state_path, redacted_scenario_state)
 
 
-def modify_scenario_states_for_suite(run_suite_path: str, redact_output: bool) -> None:
+def modify_scenario_states_for_suite(run_suite_path: str, redact_output: bool, redact_annotations: bool) -> None:
     """Load the runs in the run suite path."""
     # run_suite_path can contain subdirectories that are not runs (e.g. eval_cache, groups)
     # so filter them out.
@@ -119,7 +139,7 @@ def modify_scenario_states_for_suite(run_suite_path: str, redact_output: bool) -
             hwarn(f"{run_dir_name} doesn't have {SCENARIO_STATE_FILE_NAME}, skipping")
             continue
         run_path: str = os.path.join(run_suite_path, run_dir_name)
-        modify_scenario_state_for_run(run_path, redact_output)
+        modify_scenario_state_for_run(run_path, redact_output, redact_annotations)
 
 
 def main():
@@ -133,12 +153,14 @@ def main():
         help="Name of the suite this summarization should go under.",
     )
     parser.add_argument("--redact-output", action="store_true", help="Whether to redact the generated outputs.")
+    parser.add_argument("--redact-annotations", action="store_true", help="Whether to redact annotations.")
     args = parser.parse_args()
     output_path = args.output_path
     suite = args.suite
     redact_output = args.redact_output
+    redact_annotations = args.redact_annotations
     run_suite_path = os.path.join(output_path, "runs", suite)
-    modify_scenario_states_for_suite(run_suite_path, redact_output)
+    modify_scenario_states_for_suite(run_suite_path, redact_output, redact_annotations)
 
 
 if __name__ == "__main__":
