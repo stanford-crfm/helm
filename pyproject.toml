@@ -187,6 +187,7 @@ openai = [
 
 google = [
     "google-cloud-aiplatform~=1.48",
+    "google-genai~=1.48",
 ]
 
 together = [
