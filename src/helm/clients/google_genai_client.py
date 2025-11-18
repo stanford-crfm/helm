@@ -83,9 +83,6 @@ class GoogleGenAIClient(CachingClient):
         return contents
 
     def _convert_request_to_generate_content_config(self, request: Request) -> GenerateContentConfig:
-        # TODO: implement system prompt
-        # random_seed = hashlib.sha1('hello world'.encode('utf-8')).hexdigest()
-
         # JSON Schema
         response_mime_type: Optional[str] = None
         response_json_schema: Optional[Dict[str, Any]] = None
@@ -104,7 +101,7 @@ class GoogleGenAIClient(CachingClient):
             stop_sequences=request.stop_sequences,
             presence_penalty=request.presence_penalty,
             frequency_penalty=request.frequency_penalty,
-            # TODO: implement system prompt
+            # TODO: implement random seed
             # seed=request.random,
             response_mime_type=response_mime_type,
             response_json_schema=response_json_schema,
@@ -170,7 +167,6 @@ class GoogleGenAIClient(CachingClient):
                     thinking=Thinking(text=thinking_text) if thinking_text else None,
                 )
             )
-            # TODO: Extract more information from the response
         return generated_outputs
 
     def _get_model_name_for_request(self, request: Request) -> str:
@@ -191,8 +187,10 @@ class GoogleGenAIClient(CachingClient):
         contents = self._convert_request_to_contents(request)
         generate_content_config = self._convert_request_to_generate_content_config(request)
 
-        # TODO: Add safety settings to parameters
         def do_it() -> Dict[str, Any]:
+            # NOTE: The type signature of `config` in `generate_content()` is wrong.
+            # It should be `Sequence[Content | ...]` but instead it is `list[Content | ...]`
+            # which is a problem because `list`` is type invariant.
             response: GenerateContentResponse = self.client.models.generate_content(
                 model=model_name, contents=contents, config=generate_content_config  # type: ignore
             )
