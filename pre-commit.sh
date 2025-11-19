@@ -3,6 +3,15 @@
 # This script fails when any of its commands fail.
 set -e
 
+if command -v uv >/dev/null 2>&1; then
+  echo 'Running pre-commit with uv...'
+  uv sync
+  source ".venv/bin/activate"
+else
+  echo 'Running pre-commit without uv...'
+  pip check
+fi
+
 # Python style checks and linting
 black --check --diff src scripts || (
   echo ""

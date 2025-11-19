@@ -76,10 +76,10 @@ class AttentionMixin(BaseMixin):
         assert start_layer >= 0
         for layer_id in range(self.num_layers):
             old_attention = self.transformer.layers[start_layer + layer_id].attention
-            self.query_key_value[layer_id].weight.data.copy_(old_attention.query_key_value.weight.data)
-            self.query_key_value[layer_id].bias.data.copy_(old_attention.query_key_value.bias.data)
-            self.dense[layer_id].weight.data.copy_(old_attention.dense.weight.data)
-            self.dense[layer_id].bias.data.copy_(old_attention.dense.bias.data)
+            self.query_key_value[layer_id].weight.data.copy_(old_attention.query_key_value.weight.data)  # type: ignore
+            self.query_key_value[layer_id].bias.data.copy_(old_attention.query_key_value.bias.data)  # type: ignore
+            self.dense[layer_id].weight.data.copy_(old_attention.dense.weight.data)  # type: ignore
+            self.dense[layer_id].bias.data.copy_(old_attention.dense.bias.data)  # type: ignore
 
 
 class DsrModel(BaseModel):

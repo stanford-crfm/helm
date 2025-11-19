@@ -411,6 +411,8 @@ all = [
     # TODO(#2280): Add crfm-helm[summarize] back.
 ]
 
+[dependency-groups]
+
 dev = [
     "pytest~=7.2.0",
     "xdoctest~=1.2.0",
@@ -420,6 +422,12 @@ dev = [
     "black==24.3.0",
     "mypy==1.16.0",
     "flake8==5.0.4",
+    {include-group = "types"}
+]
+
+types = [
+    "types-requests",
+    "types-PyYAML",
 ]
 
 [project.scripts]

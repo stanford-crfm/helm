@@ -1,8 +1,8 @@
 # This GitHub Actions workflow automatically upgrades the pinned versions
-# in requirements.txt for all Python dependencies (including transitive dependencies)
+# for all Python dependencies (including transitive dependencies)
 # every Monday or whenever the workflow is manually triggered.
 
-name: Upgrade requirements.txt
+name: Upgrade requirements
 
 on:
   # schedule:
@@ -11,7 +11,7 @@ on:
 
 jobs:
   upgrade-requirements:
-    name: Upgrade requirements.txt
+    name: Upgrade requirements
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -19,15 +19,16 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: pip
       - name: Install uv
-        run: pip install uv
-      - name: Resolve dependencies
-        run: uv pip compile pyproject.toml --upgrade --extra all --extra dev --universal --no-annotate --constraints constraints.txt -o requirements.txt
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.9.4"
+      - name: Upgrade dependencies
+        run: uv lock --upgrade
         # Need to manually run tests here because the pull request opened later will not
         # run the test workflow.
         #
@@ -38,21 +39,17 @@ jobs:
         #     if a workflow run pushes code using the repository's GITHUB_TOKEN, a new workflow
         #     will not run even when the repository contains a workflow configured to run when
         #     push events occur.
-      - name: Install HELM 
-        run: ./install-dev.sh
-      - name: Verify dependencies
-        run: pip check
       - name: Run linter
         run: ./pre-commit.sh
       - name: Run tests
-        run: pytest
+        run: uv run pytest
       - name: Run helm-run
-        run: helm-run --suite test --run-entries simple1:model=simple/model1 --max-eval-instances 10 --exit-on-error
+        run: uv run helm-run --suite test --run-entries simple1:model=simple/model1 --max-eval-instances 10 --exit-on-error
       - name: Create pull request
         uses: peter-evans/create-pull-request@v6
         with:
-          commit-message: Upgrade requirements.txt
-          title: "Upgrade requirements.txt"
+          commit-message: Upgrade requirements
+          title: "Upgrade requirements"
           branch: actions/upgrade-requirements
           delete-branch: true
           body: Auto-generated from GitHub Actions.

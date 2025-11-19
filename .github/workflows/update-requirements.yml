@@ -1,8 +1,8 @@
 # This GitHub Actions workflow automatically resolves and updates the pinned versions
-# in requirements.txt for all Python dependencies (including transitive dependencies)
+# for all Python dependencies (including transitive dependencies)
 # whenever pyproject.toml is modified or the workflow is manually triggered.
 
-name: Update requirements.txt
+name: Update requirements
 
 on:
   # push:
@@ -16,7 +16,7 @@ on:
 
 jobs:
   update-requirements:
-    name: Update requirements.txt
+    name: Update requirements
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -24,15 +24,16 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: pip
       - name: Install uv
-        run: pip install uv
-      - name: Resolve dependencies
-        run: uv pip compile pyproject.toml --extra all --extra dev --universal --no-annotate --constraints constraints.txt -o requirements.txt
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.9.4"
+      - name: Lock dependencies
+        run: uv lock
         # Need to manually run tests here because the pull request opened later will not
         # run the test workflow.
         #
@@ -43,21 +44,17 @@ jobs:
         #     if a workflow run pushes code using the repository's GITHUB_TOKEN, a new workflow
         #     will not run even when the repository contains a workflow configured to run when
         #     push events occur.
-      - name: Install HELM 
-        run: ./install-dev.sh
-      - name: Verify dependencies
-        run: pip check
       - name: Run linter
         run: ./pre-commit.sh
       - name: Run tests
-        run: pytest
+        run: uv run pytest
       - name: Run helm-run
-        run: helm-run --suite test --run-entries simple1:model=simple/model1 --max-eval-instances 10 --exit-on-error
+        run: uv run helm-run --suite test --run-entries simple1:model=simple/model1 --max-eval-instances 10 --exit-on-error
       - name: Create pull request
         uses: peter-evans/create-pull-request@v6
         with:
-          commit-message: Update requirements.txt
-          title: "Update requirements.txt"
+          commit-message: Update requirements
+          title: "Update requirements"
           branch: actions/update-requirements
           delete-branch: true
           body: Auto-generated from GitHub Actions.
