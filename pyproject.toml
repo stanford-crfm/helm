@@ -434,8 +434,10 @@ dev = [
 ]
 
 types = [
-    "types-requests",
+    "types-cachetools",
+    "types-pyOpenSSL",
     "types-PyYAML",
+    "types-requests",
     "types-simplejson",
     "types-tabulate",
 ]

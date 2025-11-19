@@ -24,7 +24,7 @@ black --check --diff src scripts || (
   exit 1
 )
 
-mypy --install-types --non-interactive src scripts
+mypy src scripts
 
 PYTHON_VERSION=$(python3 --version 2>&1 | cut -d' ' -f2)
 if [[ $PYTHON_VERSION == 3.12* ]]; then

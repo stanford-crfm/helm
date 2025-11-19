@@ -1505,6 +1505,7 @@ audiolm = [
     { name = "transformers-stream-generator" },
 ]
 ci = [
+    { name = "cohere" },
     { name = "colorcet" },
     { name = "google-api-python-client" },
     { name = "gradio-client" },
@@ -1516,6 +1517,7 @@ ci = [
     { name = "pydantic" },
     { name = "sacrebleu" },
     { name = "seaborn" },
+    { name = "sentencepiece" },
     { name = "tiktoken" },
     { name = "together" },
 ]
@@ -1742,11 +1744,15 @@ dev = [
     { name = "pytest" },
     { name = "types-pyyaml" },
     { name = "types-requests" },
+    { name = "types-simplejson" },
+    { name = "types-tabulate" },
     { name = "xdoctest" },
 ]
 types = [
     { name = "types-pyyaml" },
     { name = "types-requests" },
+    { name = "types-simplejson" },
+    { name = "types-tabulate" },
 ]
 
 [package.metadata]
@@ -1779,6 +1785,7 @@ requires-dist = [
     { name = "crfm-helm", extras = ["anthropic"], marker = "extra == 'models'" },
     { name = "crfm-helm", extras = ["cleva"], marker = "extra == 'all'" },
     { name = "crfm-helm", extras = ["codeinsights"], marker = "extra == 'all'" },
+    { name = "crfm-helm", extras = ["cohere"], marker = "extra == 'ci'" },
     { name = "crfm-helm", extras = ["cohere"], marker = "extra == 'models'" },
     { name = "crfm-helm", extras = ["decodingtrust"], marker = "extra == 'all'" },
     { name = "crfm-helm", extras = ["google"], marker = "extra == 'audiolm'" },
@@ -1814,6 +1821,7 @@ requires-dist = [
     { name = "crfm-helm", extras = ["together"], marker = "extra == 'models'" },
     { name = "crfm-helm", extras = ["vlm"], marker = "extra == 'all'" },
     { name = "crfm-helm", extras = ["writer"], marker = "extra == 'models'" },
+    { name = "crfm-helm", extras = ["yandex"], marker = "extra == 'ci'" },
     { name = "crfm-helm", extras = ["yandex"], marker = "extra == 'medhelm'" },
     { name = "crfm-helm", extras = ["yandex"], marker = "extra == 'models'" },
     { name = "cryptography", marker = "extra == 'dspy'", specifier = "~=43.0.3" },
@@ -1965,11 +1973,15 @@ dev = [
     { name = "pytest", specifier = "~=7.2.0" },
     { name = "types-pyyaml" },
     { name = "types-requests" },
+    { name = "types-simplejson" },
+    { name = "types-tabulate" },
     { name = "xdoctest", specifier = "~=1.2.0" },
 ]
 types = [
     { name = "types-pyyaml" },
     { name = "types-requests" },
+    { name = "types-simplejson" },
+    { name = "types-tabulate" },
 ]
 
 [[package]]
@@ -9802,6 +9814,24 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/36/27/489922f4505975b11de2b5ad07b4fe1dca0bca9be81a703f26c5f3acfce5/types_requests-2.32.4.20250913.tar.gz", hash = "sha256:abd6d4f9ce3a9383f269775a9835a4c24e5cd6b9f647d64f88aa4613c33def5d", size = 23113, upload-time = "2025-09-13T02:40:02.309Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2a/20/9a227ea57c1285986c4cf78400d0a91615d25b24e257fd9e2969606bdfae/types_requests-2.32.4.20250913-py3-none-any.whl", hash = "sha256:78c9c1fffebbe0fa487a418e0fa5252017e9c60d1a2da394077f1780f655d7e1", size = 20658, upload-time = "2025-09-13T02:40:01.115Z" },
+]
+
+[[package]]
+name = "types-simplejson"
+version = "3.20.0.20250822"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/df/6b/96d43a90cd202bd552cdd871858a11c138fe5ef11aeb4ed8e8dc51389257/types_simplejson-3.20.0.20250822.tar.gz", hash = "sha256:2b0bfd57a6beed3b932fd2c3c7f8e2f48a7df3978c9bba43023a32b3741a95b0", size = 10608, upload-time = "2025-08-22T03:03:35.36Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3c/9f/8e2c9e6aee9a2ff34f2ffce6ccd9c26edeef6dfd366fde611dc2e2c00ab9/types_simplejson-3.20.0.20250822-py3-none-any.whl", hash = "sha256:b5e63ae220ac7a1b0bb9af43b9cb8652237c947981b2708b0c776d3b5d8fa169", size = 10417, upload-time = "2025-08-22T03:03:34.485Z" },
+]
+
+[[package]]
+name = "types-tabulate"
+version = "0.9.0.20241207"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/3f/43/16030404a327e4ff8c692f2273854019ed36718667b2993609dc37d14dd4/types_tabulate-0.9.0.20241207.tar.gz", hash = "sha256:ac1ac174750c0a385dfd248edc6279fa328aaf4ea317915ab879a2ec47833230", size = 8195, upload-time = "2024-12-07T02:54:42.554Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5e/86/a9ebfd509cbe74471106dffed320e208c72537f9aeb0a55eaa6b1b5e4d17/types_tabulate-0.9.0.20241207-py3-none-any.whl", hash = "sha256:b8dad1343c2a8ba5861c5441370c3e35908edd234ff036d4298708a1d4cf8a85", size = 8307, upload-time = "2024-12-07T02:54:41.031Z" },
 ]
 
 [[package]]
