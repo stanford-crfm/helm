@@ -3,6 +3,14 @@
 # This script fails when any of its commands fail.
 set -e
 
+if command -v uv >/dev/null 2>&1 && [[ -f .venv/bin/activate ]]; then
+  echo 'Running pre-commit with uv...'
+  source ".venv/bin/activate"
+else
+  echo 'Running pre-commit without uv...'
+  pip check
+fi
+
 # Python style checks and linting
 black --check --diff src scripts || (
   echo ""
@@ -15,7 +23,7 @@ black --check --diff src scripts || (
   exit 1
 )
 
-mypy --install-types --non-interactive src scripts
+mypy src scripts
 
 PYTHON_VERSION=$(python3 --version 2>&1 | cut -d' ' -f2)
 if [[ $PYTHON_VERSION == 3.12* ]]; then

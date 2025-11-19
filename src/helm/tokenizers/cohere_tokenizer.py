@@ -1,14 +1,18 @@
 from typing import Any, Dict, List, Optional
 
-import cohere
-from cohere.manually_maintained.tokenizers import get_hf_tokenizer
-
 from helm.common.cache import CacheConfig
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationToken,
 )
 from helm.tokenizers.caching_tokenizer import CachingTokenizer
+
+try:
+    import cohere
+    from cohere.manually_maintained.tokenizers import get_hf_tokenizer
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["cohere"])
 
 
 class CohereLocalTokenizer(CachingTokenizer):
