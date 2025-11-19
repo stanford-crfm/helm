@@ -32,7 +32,7 @@ jobs:
       - name: Install dependencies
         run: uv sync --extra ci
       - name: Write requirements.txt
-        run: uv pip freeze > requirements.txt
+        run: uv pip freeze --exclude-editable > requirements.txt
         # Need to manually run tests here because the pull request opened later will not
         # run the test workflow.
         #
