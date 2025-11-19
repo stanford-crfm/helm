@@ -408,7 +408,13 @@ all = [
     # crfm-helm[dev] is excluded because end-users don't need it.
     # crfm-helm[summarization] is excluded because it requires torch<2.0 and numpy<2.0
     # crfm-helm[ranking] is excluded because pytrec_eval causes build errors (see #3470)
-    # TODO(#2280): Add crfm-helm[summarize] back.
+]
+
+ci = [
+  "crfm-helm[metrics],
+  "crfm-helm[openai],
+  "crfm-helm[plots],
+  "crfm-helm[together],
 ]
 
 [dependency-groups]

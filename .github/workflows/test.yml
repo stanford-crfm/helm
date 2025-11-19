@@ -55,7 +55,7 @@ jobs:
         with:
           version: "0.9.4"
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --extra ci
       - name: Run pre-commit
         run: ./pre-commit.sh
       - name: Run tests
