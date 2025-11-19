@@ -1403,10 +1403,10 @@ all = [
     { name = "google-cloud-aiplatform" },
     { name = "google-cloud-storage" },
     { name = "google-cloud-translate" },
+    { name = "google-genai" },
     { name = "gradio-client" },
     { name = "gunicorn" },
     { name = "html2text" },
-    { name = "httpx" },
     { name = "icetk" },
     { name = "imagehash" },
     { name = "immutabledict" },
@@ -1478,7 +1478,6 @@ amazon = [
 ]
 anthropic = [
     { name = "anthropic" },
-    { name = "httpx" },
     { name = "websocket-client" },
 ]
 audiolm = [
@@ -1487,6 +1486,7 @@ audiolm = [
     { name = "ffmpeg-python" },
     { name = "flash-attn" },
     { name = "google-cloud-aiplatform" },
+    { name = "google-genai" },
     { name = "jieba" },
     { name = "jiwer" },
     { name = "librosa" },
@@ -1550,6 +1550,7 @@ dspy = [
 ]
 google = [
     { name = "google-cloud-aiplatform" },
+    { name = "google-genai" },
 ]
 heim = [
     { name = "accelerate" },
@@ -1650,7 +1651,7 @@ models = [
     { name = "botocore" },
     { name = "cohere" },
     { name = "google-cloud-aiplatform" },
-    { name = "httpx" },
+    { name = "google-genai" },
     { name = "mistralai" },
     { name = "openai" },
     { name = "pydantic" },
@@ -1767,7 +1768,7 @@ requires-dist = [
     { name = "accelerate", marker = "extra == 'medhelm'", specifier = "~=0.25" },
     { name = "ai2-olmo", marker = "extra == 'allenai'", specifier = "~=0.2" },
     { name = "aleph-alpha-client", marker = "extra == 'aleph-alpha'", specifier = "~=2.14" },
-    { name = "anthropic", marker = "extra == 'anthropic'", specifier = "~=0.48" },
+    { name = "anthropic", marker = "extra == 'anthropic'", specifier = "~=0.41" },
     { name = "apscheduler", marker = "extra == 'dspy'", specifier = "~=3.11.0" },
     { name = "autokeras", marker = "extra == 'heim'", specifier = "~=1.0" },
     { name = "av", marker = "extra == 'audiolm'", specifier = "~=14.3" },
@@ -1856,10 +1857,10 @@ requires-dist = [
     { name = "google-cloud-aiplatform", marker = "extra == 'google'", specifier = "~=1.48" },
     { name = "google-cloud-storage", marker = "extra == 'heim'", specifier = "~=2.9" },
     { name = "google-cloud-translate", marker = "extra == 'heim'", specifier = "~=3.11" },
+    { name = "google-genai", marker = "extra == 'google'", specifier = "~=1.48" },
     { name = "gradio-client", marker = "extra == 'metrics'", specifier = "~=1.3" },
     { name = "gunicorn", marker = "extra == 'proxy-server'", specifier = ">=20.1" },
     { name = "html2text", marker = "extra == 'image2struct'", specifier = "~=2024.2.26" },
-    { name = "httpx", marker = "extra == 'anthropic'", specifier = "<0.28.0" },
     { name = "ibm-watsonx-ai", marker = "extra == 'ibm'", specifier = "~=1.2" },
     { name = "icetk", marker = "extra == 'heim'", specifier = "~=0.0.4" },
     { name = "imagehash", marker = "extra == 'image2struct'", specifier = "~=4.3" },
@@ -3145,17 +3146,21 @@ wheels = [
 
 [[package]]
 name = "google-genai"
-version = "1.2.0"
+version = "1.51.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
+    { name = "anyio" },
     { name = "google-auth" },
+    { name = "httpx" },
     { name = "pydantic" },
     { name = "requests" },
+    { name = "tenacity" },
     { name = "typing-extensions" },
     { name = "websockets" },
 ]
+sdist = { url = "https://files.pythonhosted.org/packages/c3/1c/29245699c7c274ed5709b33b6a5192af2d57da5da3d2f189f222d1895336/google_genai-1.51.0.tar.gz", hash = "sha256:596c1ec964b70fec17a6ccfe6ee4edede31022584e8b1d33371d93037c4001b1", size = 258060, upload-time = "2025-11-18T05:32:47.068Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0d/ed/985f2d2e2b5fbd912ab0fdb11d6dc48c22553a6c4edffabb8146d53b974a/google_genai-1.2.0-py3-none-any.whl", hash = "sha256:609d61bee73f1a6ae5b47e9c7dd4b469d50318f050c5ceacf835b0f80f79d2d9", size = 130744, upload-time = "2025-02-12T16:40:03.601Z" },
+    { url = "https://files.pythonhosted.org/packages/c6/28/0185dcda66f1994171067cfdb0e44a166450239d5b11b3a8a281dd2da459/google_genai-1.51.0-py3-none-any.whl", hash = "sha256:bfb7d0c6ba48ba9bda539f0d5e69dad827d8735a8b1e4703bafa0a2945d293e1", size = 260483, upload-time = "2025-11-18T05:32:45.938Z" },
 ]
 
 [[package]]
@@ -3500,18 +3505,17 @@ wheels = [
 
 [[package]]
 name = "httpx"
-version = "0.27.2"
+version = "0.28.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
     { name = "certifi" },
     { name = "httpcore" },
     { name = "idna" },
-    { name = "sniffio" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/78/82/08f8c936781f67d9e6b9eeb8a0c8b4e406136ea4c3d1f89a5db71d42e0e6/httpx-0.27.2.tar.gz", hash = "sha256:f7c2be1d2f3c3c3160d441802406b206c2b76f5947b11115e6df10c6c65e66c2", size = 144189, upload-time = "2024-08-27T12:54:01.334Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b1/df/48c586a5fe32a0f01324ee087459e112ebb7224f646c0b5023f5e79e9956/httpx-0.28.1.tar.gz", hash = "sha256:75e98c5f16b0f35b567856f597f06ff2270a374470a5c2392242528e3e3e42fc", size = 141406, upload-time = "2024-12-06T15:37:23.222Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/56/95/9377bcb415797e44274b51d46e3249eba641711cf3348050f76ee7b15ffc/httpx-0.27.2-py3-none-any.whl", hash = "sha256:7bb2708e112d8fdd7829cd4243970f0c223274051cb35ee80c03301ee29a3df0", size = 76395, upload-time = "2024-08-27T12:53:59.653Z" },
+    { url = "https://files.pythonhosted.org/packages/2a/39/e50c7c3a983047577ee07d2a9e53faf5a69493943ec3f6a384bdc792deb2/httpx-0.28.1-py3-none-any.whl", hash = "sha256:d909fcccc110f8c7faf814ca82a9a4d816bc5a6dbfea25d6591d6985b8ba59ad", size = 73517, upload-time = "2024-12-06T15:37:21.509Z" },
 ]
 
 [[package]]

@@ -162,9 +162,8 @@ amazon = [
 ]
 
 anthropic = [
-    "anthropic~=0.48",
+    "anthropic~=0.41",
     "websocket-client~=1.3",  # For legacy stanford-online-all-v4-s3
-    "httpx<0.28.0",  # TODO(#3324): Remove this tepmorary workaround
 ]
 
 cohere = [
@@ -187,6 +186,7 @@ openai = [
 
 google = [
     "google-cloud-aiplatform~=1.48",
+    "google-genai~=1.48",
 ]
 
 together = [
