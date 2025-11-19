@@ -98,10 +98,6 @@ ranking = [
     "pytrec_eval==0.5",  # For ranking_metrics
 ]
 
-summarization = [
-    "summ-eval~=0.892",  # For summarization_metrics
-    "bert-score~=0.3",  # For summarization_metrics
-]
 
 plots = [
     "colorcet~=3.0",
@@ -216,9 +212,6 @@ models = [
     "crfm-helm[together]",
     "crfm-helm[yandex]",
     "crfm-helm[writer]",
-    "crfm-helm[ibm-enterprise-scenarios]",
-    # TODO: Uncomment this after dependency resolution is stable
-    # "crfm-helm[ibm]",
 ]
 
 reka = [
@@ -320,7 +313,7 @@ heim = [
     "lpips~=0.1.4",
     "multilingual-clip~=1.0",
     "NudeNet~=2.0",
-    "numpy>=1.26,<2",
+    "numpy>=1.26",
     "opencv-python>=4.7.0.68,<4.8.2.0; python_version >= '3.10'",
     "opencv-python-headless>=4.7.0.68,<=4.11.0.86; python_version < '3.10'",
     "pytorch-fid~=0.3.0",
@@ -394,7 +387,6 @@ lmkt = [
     "sentence_transformers~=4.1",
 ]
 
-# Install everything
 all = [
     "crfm-helm[proxy-server]",
     "crfm-helm[human-evaluation]",
@@ -414,7 +406,7 @@ all = [
     # crfm-helm[audiolm] is excluded because it requires transformers~=4.48
     # crfm-helm[seahelm] is excluded because pyonmttok does not support Python 3.12
     # crfm-helm[dev] is excluded because end-users don't need it.
-    # crfm-helm[summarize] is excluded because it requires torch<2.0
+    # crfm-helm[summarization] is excluded because it requires torch<2.0 and numpy<2.0
     # crfm-helm[ranking] is excluded because pytrec_eval causes build errors (see #3470)
     # TODO(#2280): Add crfm-helm[summarize] back.
 ]
@@ -437,6 +429,14 @@ helm-server = "helm.benchmark.server:main"
 helm-create-plots = "helm.benchmark.presentation.create_plots:main"
 crfm-proxy-server = "helm.proxy.server:main"
 crfm-proxy-cli = "helm.proxy.cli:main"
+
+[tool.uv]
+conflicts = [
+    [
+      { extra = "all" },
+      { extra = "summarization" },
+    ],
+]
 
 [tool.setuptools]
 package-dir = { "" = "src" }
