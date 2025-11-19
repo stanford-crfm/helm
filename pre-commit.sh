@@ -3,9 +3,8 @@
 # This script fails when any of its commands fail.
 set -e
 
-if command -v uv >/dev/null 2>&1; then
+if command -v uv >/dev/null 2>&1 && [[ -f .venv/bin/activate ]]; then
   echo 'Running pre-commit with uv...'
-  uv sync --extra ci
   source ".venv/bin/activate"
 else
   echo 'Running pre-commit without uv...'
