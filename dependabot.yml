@@ -1,0 +1,11 @@
+version: 2
+updates:
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "yarn"
+    directory: "/helm-frontend/"
+    schedule:
+      interval: "weekly"
