@@ -416,6 +416,7 @@ ci = [
   "crfm-helm[plots]",
   "crfm-helm[together]",
   "crfm-helm[yandex]",
+  "crfm-helm[cohere]",
 ]
 
 [dependency-groups]
