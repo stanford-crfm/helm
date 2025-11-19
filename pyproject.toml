@@ -431,6 +431,7 @@ dev = [
     "black==24.3.0",
     "mypy==1.16.0",
     "flake8==5.0.4",
+    "en_core_web_sm@https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl",
     {include-group = "types"}
 ]
 

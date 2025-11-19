@@ -1509,6 +1509,7 @@ ci = [
     { name = "colorcet" },
     { name = "google-api-python-client" },
     { name = "gradio-client" },
+    { name = "gunicorn" },
     { name = "immutabledict" },
     { name = "langdetect" },
     { name = "matplotlib" },
@@ -1738,6 +1739,7 @@ yandex = [
 [package.dev-dependencies]
 dev = [
     { name = "black" },
+    { name = "en-core-web-sm" },
     { name = "flake8" },
     { name = "mypy" },
     { name = "pre-commit" },
@@ -1816,6 +1818,7 @@ requires-dist = [
     { name = "crfm-helm", extras = ["plots"], marker = "extra == 'all'" },
     { name = "crfm-helm", extras = ["plots"], marker = "extra == 'ci'" },
     { name = "crfm-helm", extras = ["proxy-server"], marker = "extra == 'all'" },
+    { name = "crfm-helm", extras = ["proxy-server"], marker = "extra == 'ci'" },
     { name = "crfm-helm", extras = ["reka"], marker = "extra == 'models'" },
     { name = "crfm-helm", extras = ["reka"], marker = "extra == 'vlm'" },
     { name = "crfm-helm", extras = ["scenarios"], marker = "extra == 'all'" },
@@ -1971,6 +1974,7 @@ provides-extras = ["proxy-server", "human-evaluation", "dspy", "scenarios", "met
 [package.metadata.requires-dev]
 dev = [
     { name = "black", specifier = "==24.3.0" },
+    { name = "en-core-web-sm", url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl" },
     { name = "flake8", specifier = "==5.0.4" },
     { name = "mypy", specifier = "==1.16.0" },
     { name = "pre-commit", specifier = "~=2.20.0" },
@@ -2311,6 +2315,14 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/f5/22/900cb125c76b7aaa450ce02fd727f452243f2e91a61af068b40adba60ea9/email_validator-2.3.0.tar.gz", hash = "sha256:9fc05c37f2f6cf439ff414f8fc46d917929974a82244c20eb10231ba60c54426", size = 51238, upload-time = "2025-08-26T13:09:06.831Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/de/15/545e2b6cf2e3be84bc1ed85613edd75b8aea69807a71c26f4ca6a9258e82/email_validator-2.3.0-py3-none-any.whl", hash = "sha256:80f13f623413e6b197ae73bb10bf4eb0908faf509ad8362c5edeb0be7fd450b4", size = 35604, upload-time = "2025-08-26T13:09:05.858Z" },
+]
+
+[[package]]
+name = "en-core-web-sm"
+version = "3.8.0"
+source = { url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl" }
+wheels = [
+    { url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl", hash = "sha256:1932429db727d4bff3deed6b34cfc05df17794f4a52eeb26cf8928f7c1a0fb85" },
 ]
 
 [[package]]
