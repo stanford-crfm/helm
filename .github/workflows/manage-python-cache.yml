@@ -10,7 +10,7 @@ on: workflow_dispatch
 
 jobs:
   info:
-    name: Show pip cache info and package list
+    name: Show cache info and package list
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -30,7 +30,7 @@ jobs:
         run: uv cache size
 
   purge:
-    name: Purge and rebuild pip cache
+    name: Purge and rebuild cache
     runs-on: ubuntu-latest
     strategy:
       matrix:
