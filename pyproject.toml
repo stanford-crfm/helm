@@ -431,7 +431,6 @@ dev = [
     "black==24.3.0",
     "mypy==1.16.0",
     "flake8==5.0.4",
-    "en_core_web_sm@https://huggingface.co/spacy/en_core_web_sm/resolve/main/en_core_web_sm-any-py3-none-any.whl",
     {include-group = "types"}
 ]
 
