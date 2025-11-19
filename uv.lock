@@ -1504,6 +1504,21 @@ audiolm = [
     { name = "transformers" },
     { name = "transformers-stream-generator" },
 ]
+ci = [
+    { name = "colorcet" },
+    { name = "google-api-python-client" },
+    { name = "gradio-client" },
+    { name = "immutabledict" },
+    { name = "langdetect" },
+    { name = "matplotlib" },
+    { name = "numba" },
+    { name = "openai" },
+    { name = "pydantic" },
+    { name = "sacrebleu" },
+    { name = "seaborn" },
+    { name = "tiktoken" },
+    { name = "together" },
+]
 cleva = [
     { name = "jieba" },
     { name = "langdetect" },
@@ -1777,21 +1792,25 @@ requires-dist = [
     { name = "crfm-helm", extras = ["images"], marker = "extra == 'vlm'" },
     { name = "crfm-helm", extras = ["lmkt"], marker = "extra == 'all'" },
     { name = "crfm-helm", extras = ["metrics"], marker = "extra == 'all'" },
+    { name = "crfm-helm", extras = ["metrics"], marker = "extra == 'ci'" },
     { name = "crfm-helm", extras = ["mistral"], marker = "extra == 'models'" },
     { name = "crfm-helm", extras = ["models"], marker = "extra == 'all'" },
     { name = "crfm-helm", extras = ["mongo"], marker = "extra == 'all'" },
     { name = "crfm-helm", extras = ["openai"], marker = "extra == 'audiolm'" },
+    { name = "crfm-helm", extras = ["openai"], marker = "extra == 'ci'" },
     { name = "crfm-helm", extras = ["openai"], marker = "extra == 'heim'" },
     { name = "crfm-helm", extras = ["openai"], marker = "extra == 'medhelm'" },
     { name = "crfm-helm", extras = ["openai"], marker = "extra == 'models'" },
     { name = "crfm-helm", extras = ["openai"], marker = "extra == 'vlm'" },
     { name = "crfm-helm", extras = ["plots"], marker = "extra == 'all'" },
+    { name = "crfm-helm", extras = ["plots"], marker = "extra == 'ci'" },
     { name = "crfm-helm", extras = ["proxy-server"], marker = "extra == 'all'" },
     { name = "crfm-helm", extras = ["reka"], marker = "extra == 'models'" },
     { name = "crfm-helm", extras = ["reka"], marker = "extra == 'vlm'" },
     { name = "crfm-helm", extras = ["scenarios"], marker = "extra == 'all'" },
     { name = "crfm-helm", extras = ["scenarios"], marker = "extra == 'medhelm'" },
     { name = "crfm-helm", extras = ["slurm"], marker = "extra == 'all'" },
+    { name = "crfm-helm", extras = ["together"], marker = "extra == 'ci'" },
     { name = "crfm-helm", extras = ["together"], marker = "extra == 'models'" },
     { name = "crfm-helm", extras = ["vlm"], marker = "extra == 'all'" },
     { name = "crfm-helm", extras = ["writer"], marker = "extra == 'models'" },
@@ -1935,7 +1954,7 @@ requires-dist = [
     { name = "xlrd", marker = "extra == 'scenarios'", specifier = "~=2.0" },
     { name = "zstandard", specifier = "~=0.18.0" },
 ]
-provides-extras = ["proxy-server", "human-evaluation", "dspy", "scenarios", "metrics", "ranking", "plots", "decodingtrust", "slurm", "cleva", "images", "mongo", "unitxt", "seahelm", "accelerate", "aleph-alpha", "allenai", "amazon", "anthropic", "cohere", "writer", "mistral", "openai", "google", "together", "yandex", "models", "reka", "vlm", "ibm-enterprise-scenarios", "ibm", "image2struct", "heim", "medhelm", "audiolm", "codeinsights", "lmkt", "all"]
+provides-extras = ["proxy-server", "human-evaluation", "dspy", "scenarios", "metrics", "ranking", "plots", "decodingtrust", "slurm", "cleva", "images", "mongo", "unitxt", "seahelm", "accelerate", "aleph-alpha", "allenai", "amazon", "anthropic", "cohere", "writer", "mistral", "openai", "google", "together", "yandex", "models", "reka", "vlm", "ibm-enterprise-scenarios", "ibm", "image2struct", "heim", "medhelm", "audiolm", "codeinsights", "lmkt", "all", "ci"]
 
 [package.metadata.requires-dev]
 dev = [

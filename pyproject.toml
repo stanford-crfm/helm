@@ -411,10 +411,10 @@ all = [
 ]
 
 ci = [
-  "crfm-helm[metrics],
-  "crfm-helm[openai],
-  "crfm-helm[plots],
-  "crfm-helm[together],
+  "crfm-helm[metrics]",
+  "crfm-helm[openai]",
+  "crfm-helm[plots]",
+  "crfm-helm[together]",
 ]
 
 [dependency-groups]
