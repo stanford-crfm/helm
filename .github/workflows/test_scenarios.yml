@@ -33,4 +33,4 @@ jobs:
       - name: Run scenario tests
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: uv run pytest -m scenarios
+        run: uv run --extra ci -m scenarios

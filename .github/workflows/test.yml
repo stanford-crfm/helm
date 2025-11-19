@@ -59,7 +59,7 @@ jobs:
       - name: Run pre-commit
         run: ./pre-commit.sh
       - name: Run tests
-        run: uv run pytest --durations=20
+        run: uv run --extra ci pytest --durations=20
         env:
           TEST: ${{ matrix.test }}
           VERSION: ${{ github.head_ref || 'main' }}
