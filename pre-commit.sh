@@ -5,7 +5,7 @@ set -e
 
 if command -v uv >/dev/null 2>&1; then
   echo 'Running pre-commit with uv...'
-  uv sync
+  uv sync --extra ci
   source ".venv/bin/activate"
 else
   echo 'Running pre-commit without uv...'

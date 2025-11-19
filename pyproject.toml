@@ -415,6 +415,7 @@ ci = [
   "crfm-helm[openai]",
   "crfm-helm[plots]",
   "crfm-helm[together]",
+  "crfm-helm[yandex]",
 ]
 
 [dependency-groups]
@@ -434,6 +435,8 @@ dev = [
 types = [
     "types-requests",
     "types-PyYAML",
+    "types-simplejson",
+    'types-tabulate",
 ]
 
 [project.scripts]

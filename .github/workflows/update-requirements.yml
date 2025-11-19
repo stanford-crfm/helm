@@ -51,7 +51,7 @@ jobs:
       - name: Run linter
         run: ./pre-commit.sh
       - name: Run tests
-        run: uv run --extra ci pytest
+        run: uv run
       - name: Run helm-run
         run: uv run helm-run --suite test --run-entries simple1:model=simple/model1 --max-eval-instances 10 --exit-on-error
       - name: Create pull request
