@@ -34,6 +34,8 @@ jobs:
           version: "0.9.4"
       - name: Lock dependencies
         run: uv lock
+      - name: Write requirements.txt
+        run: uv pip freeze > requirements.txt
         # Need to manually run tests here because the pull request opened later will not
         # run the test workflow.
         #
