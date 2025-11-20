@@ -256,7 +256,6 @@ class GoogleGenAIClient(CachingClient):
         generate_content_response = GenerateContentResponse.model_validate(response)
 
         try:
-            print(generate_content_response)
             completions = self._convert_generate_content_response_to_generated_outputs(generate_content_response)
         except GoogleGenAIContentBlockedError as e:
             hwarn(f"Content blocked: {str(e)}")
