@@ -261,7 +261,7 @@ def get_adapter_fields() -> List[Field]:
 
 
 def get_default_schema_path() -> str:
-    return resources.files(SCHEMA_YAML_PACKAGE).joinpath(SCHEMA_CLASSIC_YAML_FILENAME)
+    return str(resources.files(SCHEMA_YAML_PACKAGE).joinpath(SCHEMA_CLASSIC_YAML_FILENAME))
 
 
 def read_schema(schema_path: str) -> Schema:
