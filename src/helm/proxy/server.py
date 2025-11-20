@@ -6,7 +6,7 @@ Look at `index.js` to see how the functionality is invoked.
 from urllib.parse import unquote_plus
 import argparse
 import dataclasses
-import importlib_resources as resources
+from importlib import resources
 import json
 import os
 import sys

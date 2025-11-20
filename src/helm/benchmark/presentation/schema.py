@@ -7,7 +7,7 @@ import dacite
 from inspect import cleandoc
 import mako.template
 import yaml
-import importlib_resources as resources
+from importlib import resources
 
 from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import hlog
@@ -227,9 +227,7 @@ def get_adapter_fields() -> List[Field]:
     """Generate the adapter fields from the docstrings in the AdapterSpec class definition."""
     # Unfortunately there is no standard library support for getting docstrings of class fields,
     # so we have to do the parsing outselves. Fortunately, the parsing is quite straightforward.
-    adapter_spec_path = resources.files(_ADAPTER_SPEC_PACKAGE).joinpath(_ADAPTER_SPEC_FILENAME)
-    with open(adapter_spec_path, "r") as f:
-        contents = f.read()
+    contents = resources.files(_ADAPTER_SPEC_PACKAGE).joinpath(_ADAPTER_SPEC_FILENAME).read_text()
     module_node = ast.parse(contents)
     adapter_spec_node = [
         node

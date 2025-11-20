@@ -26,7 +26,6 @@ dependencies = [
     "cattrs~=22.2",
     "colorlog~=6.9",
     "dacite~=1.6",
-    "importlib-resources~=5.10",
     "Mako~=1.2",
     "numpy>=1.26,<3",
     "pandas~=2.0",

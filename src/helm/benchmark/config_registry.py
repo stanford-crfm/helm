@@ -1,5 +1,5 @@
 import os
-import importlib_resources as resources
+from importlib import resources
 
 from helm.benchmark.model_deployment_registry import register_model_deployments_from_path
 from helm.benchmark.model_metadata_registry import register_model_metadata_from_path
