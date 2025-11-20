@@ -73,31 +73,49 @@ class GoogleGenAIClient(CachingClient):
         contents: List[Content] = []
         if request.messages is not None:
             if request.multimodal_prompt or request.prompt:
-                raise NonRetriableException("Only one of Request.prompt, Request.messages or Request.multimodal_prompt may be set")
+                raise NonRetriableException(
+                    "Only one of Request.prompt, Request.messages or Request.multimodal_prompt may be set"
+                )
             for message in request.messages:
+                if message["role"] == "system":
+                    continue
                 contents.append(
                     Content(
-                        role=self._ROLE_MAPPING.get(message["role"], "user"),
+                        role=self._ROLE_MAPPING[message["role"]],
                         parts=[Part.from_text(text=message["content"])],
                     )
                 )
         elif request.multimodal_prompt is not None:
             if request.messages or request.prompt:
-                raise NonRetriableException("Only one of Request.prompt, Request.messages or Request.multimodal_prompt may be set")
+                raise NonRetriableException(
+                    "Only one of Request.prompt, Request.messages or Request.multimodal_prompt may be set"
+                )
             for media_object in request.multimodal_prompt.media_objects:
-                if media_object.is_type(IMAGE_TYPE) or media_object.is_type(AUDIO_TYPE) or media_object.is_type(VIDEO_TYPE):
+                if (
+                    media_object.is_type(IMAGE_TYPE)
+                    or media_object.is_type(AUDIO_TYPE)
+                    or media_object.is_type(VIDEO_TYPE)
+                ):
                     if not media_object.location:
-                        raise NonRetriableException(f"MediaObject.location must be set in MediaObject {media_object}")
+                        raise NonRetriableException(f"MediaObject.location must be set in MediaObject: {media_object}")
                     with open(media_object.location, "rb") as fp:
                         media_object_bytes = fp.read()
-                    contents.append(Content(role="user", parts=[Part.from_bytes(data=media_object_bytes, mime_type=media_object.content_type)]))
+                    contents.append(
+                        Content(
+                            role="user",
+                            parts=[Part.from_bytes(data=media_object_bytes, mime_type=media_object.content_type)],
+                        )
+                    )
                 elif media_object.is_type(TEXT_TYPE):
+                    if not media_object.text:
+                        raise NonRetriableException(
+                            f"MediaObject.text must be set in for MediaObject of type text: {media_object}"
+                        )
                     contents.append(Content(role="user", parts=[Part.from_text(text=media_object.text)]))
                 else:
                     raise Exception(f"MediaObject {media_object} has unknown type {media_object.type}")
         else:
             contents.append(Content(role=self._ROLE_MAPPING.get("user"), parts=[Part.from_text(text=request.prompt)]))
-            request.prompt
         return contents
 
     def _convert_request_to_generate_content_config(self, request: Request) -> GenerateContentConfig:
@@ -219,7 +237,11 @@ class GoogleGenAIClient(CachingClient):
             )
             return response.model_dump()
 
-        cache_key_contents = generate_uid_for_multimodal_prompt(request.multimodal_prompt) if request.multimodal_prompt else [c.model_dump() for c in contents]
+        cache_key_contents = (
+            generate_uid_for_multimodal_prompt(request.multimodal_prompt)
+            if request.multimodal_prompt
+            else [c.model_dump() for c in contents]
+        )
         cache_key = {
             "model": model_name,
             "contents": cache_key_contents,
