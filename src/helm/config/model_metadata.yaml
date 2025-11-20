@@ -1353,10 +1353,10 @@ models:
 
   - name: google/gemini-3-pro-preview
     display_name: Gemini 3 Pro (Preview)
-    description: Gemini 3.0 models are thinking models, capable of reasoning through their thoughts before responding, resulting in enhanced performance and improved accuracy. ([blog](https://blog.google/products/gemini/gemini-3/))
+    description: Gemini 3.0 models are thinking models, capable of reasoning through their thoughts before responding, resulting in enhanced performance and improved accuracy. ([blog](https://blog.google/products/gemini/gemini-3/), [blog](https://blog.google/technology/developers/gemini-3-developers/))
     creator_organization_name: Google
     access: limited
-    release_date: 2025-06-17
+    release_date: 2025-11-18
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemma-2b
