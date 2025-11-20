@@ -1,6 +1,7 @@
 import ast
 import dataclasses
 from dataclasses import dataclass, field
+import json
 from typing import List, Optional, Dict
 import dacite
 from inspect import cleandoc
@@ -260,14 +261,16 @@ def get_adapter_fields() -> List[Field]:
 
 
 def get_default_schema_path() -> str:
-    return resources.files(SCHEMA_YAML_PACKAGE).joinpath(SCHEMA_CLASSIC_YAML_FILENAME)
+    return str(resources.files(SCHEMA_YAML_PACKAGE).joinpath(SCHEMA_CLASSIC_YAML_FILENAME))
 
 
 def read_schema(schema_path: str) -> Schema:
-    # TODO: merge in model metadata from `model_metadata.yaml`
     hlog(f"Reading schema file {schema_path}...")
     with open(schema_path, "r") as f:
-        raw = yaml.safe_load(f)
+        if schema_path.endswith(".json"):
+            raw = json.load(f)
+        else:
+            raw = yaml.safe_load(f)
     schema = dacite.from_dict(Schema, raw)
     if schema.adapter:
         hwarn(f"The `adapter` field is deprecated and should be removed from schema file {schema_path}")
