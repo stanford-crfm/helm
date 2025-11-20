@@ -1186,7 +1186,7 @@ model_deployments:
     max_sequence_length: 1048576  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/3-pro
     # TODO: Max output tokens: 65536
     client_spec:
-      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+      class_name: "helm.clients.google_genai_client.GoogleGenAIClient"
 
   - name: google/gemini-1.5-flash-8b-001
     model_name: google/gemini-1.5-flash-8b-001
