@@ -1,10 +1,12 @@
 from typing import Any, Dict, Optional, List
 
-from helm.clients.client import CachingClient
+from helm.clients.client import CachingClient, generate_uid_for_multimodal_prompt
 from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import hlog, hwarn
+from helm.common.media_object import AUDIO_TYPE, IMAGE_TYPE, TEXT_TYPE, VIDEO_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, ErrorFlags, Thinking
+from helm.proxy.retry import NonRetriableException
 
 try:
     from google.genai import Client
@@ -70,16 +72,50 @@ class GoogleGenAIClient(CachingClient):
     def _convert_request_to_contents(self, request: Request) -> List[Content]:
         contents: List[Content] = []
         if request.messages is not None:
+            if request.multimodal_prompt or request.prompt:
+                raise NonRetriableException(
+                    "Only one of Request.prompt, Request.messages or Request.multimodal_prompt may be set"
+                )
             for message in request.messages:
+                if message["role"] == "system":
+                    continue
                 contents.append(
                     Content(
-                        role=self._ROLE_MAPPING.get(message["role"], "user"),
+                        role=self._ROLE_MAPPING[message["role"]],
                         parts=[Part.from_text(text=message["content"])],
                     )
                 )
+        elif request.multimodal_prompt is not None:
+            if request.messages or request.prompt:
+                raise NonRetriableException(
+                    "Only one of Request.prompt, Request.messages or Request.multimodal_prompt may be set"
+                )
+            for media_object in request.multimodal_prompt.media_objects:
+                if (
+                    media_object.is_type(IMAGE_TYPE)
+                    or media_object.is_type(AUDIO_TYPE)
+                    or media_object.is_type(VIDEO_TYPE)
+                ):
+                    if not media_object.location:
+                        raise NonRetriableException(f"MediaObject.location must be set in MediaObject: {media_object}")
+                    with open(media_object.location, "rb") as fp:
+                        media_object_bytes = fp.read()
+                    contents.append(
+                        Content(
+                            role="user",
+                            parts=[Part.from_bytes(data=media_object_bytes, mime_type=media_object.content_type)],
+                        )
+                    )
+                elif media_object.is_type(TEXT_TYPE):
+                    if not media_object.text:
+                        raise NonRetriableException(
+                            f"MediaObject.text must be set in for MediaObject of type text: {media_object}"
+                        )
+                    contents.append(Content(role="user", parts=[Part.from_text(text=media_object.text)]))
+                else:
+                    raise Exception(f"MediaObject {media_object} has unknown type {media_object.type}")
         else:
             contents.append(Content(role=self._ROLE_MAPPING.get("user"), parts=[Part.from_text(text=request.prompt)]))
-            request.prompt
         return contents
 
     def _convert_request_to_generate_content_config(self, request: Request) -> GenerateContentConfig:
@@ -90,9 +126,20 @@ class GoogleGenAIClient(CachingClient):
             response_mime_type = "application/json"
             response_json_schema = request.response_format.json_schema
 
+        system_instruction: Optional[str] = None
+        if request.messages is not None:
+            if request.messages[0]["role"] == "system":
+                system_instruction = request.messages[0]["content"]
+
+        seed: Optional[int] = None
+        if request.random is not None:
+            try:
+                seed = int(request.random)
+            except ValueError as e:
+                raise NonRetriableException("Request.random must be an int for GoogleGenAIClient") from e
+
         return GenerateContentConfig(
-            # TODO: implement system prompt
-            # system_instruction="",
+            system_instruction=system_instruction,
             temperature=request.temperature,
             top_p=request.top_p,
             top_k=request.top_k_per_token,
@@ -101,8 +148,7 @@ class GoogleGenAIClient(CachingClient):
             stop_sequences=request.stop_sequences,
             presence_penalty=request.presence_penalty,
             frequency_penalty=request.frequency_penalty,
-            # TODO: implement random seed
-            # seed=request.random,
+            seed=seed,
             response_mime_type=response_mime_type,
             response_json_schema=response_json_schema,
             thinking_config=ThinkingConfig(thinking_budget=self.thinking_budget, include_thoughts=True),
@@ -128,7 +174,7 @@ class GoogleGenAIClient(CachingClient):
         for candidate in candidates:
             assert isinstance(candidate, Candidate)
             assert candidate.content
-            assert candidate.content.role == "model"
+            assert candidate.content.role == "model" or candidate.content.role is None
 
             # Content blocking can show up in many ways, so this defensively handles a few of these ways
             if candidate.finish_reason in self._CONTENT_BLOCKED_FINISH_REASONS:
@@ -141,7 +187,6 @@ class GoogleGenAIClient(CachingClient):
 
             thinking_text_parts: List[str] = []
             output_text_parts: List[str] = []
-            print(candidate.content)
             if candidate.content.parts:
                 for part in candidate.content.parts:
                     if part.text is not None:
@@ -179,10 +224,6 @@ class GoogleGenAIClient(CachingClient):
         if request.echo_prompt:
             raise NotImplementedError("GoogleGenAIClient does not support Request.echo_prompt")
 
-        if request.multimodal_prompt is not None:
-            # TODO: Implement Request.multimodal_prompt
-            raise NotImplementedError("GoogleGenAIClient does not support Request.multimodal_prompt yet")
-
         model_name = self._get_model_name_for_request(request)
         contents = self._convert_request_to_contents(request)
         generate_content_config = self._convert_request_to_generate_content_config(request)
@@ -196,9 +237,14 @@ class GoogleGenAIClient(CachingClient):
             )
             return response.model_dump()
 
+        cache_key_contents = (
+            generate_uid_for_multimodal_prompt(request.multimodal_prompt)
+            if request.multimodal_prompt
+            else [c.model_dump() for c in contents]
+        )
         cache_key = {
             "model": model_name,
-            "contents": [c.model_dump() for c in contents],
+            "contents": cache_key_contents,
             "config": generate_content_config.model_dump(),
         }
 
