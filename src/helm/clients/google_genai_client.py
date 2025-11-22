@@ -161,17 +161,14 @@ class GoogleGenAIClient(CachingClient):
     def _convert_generate_content_response_to_generated_outputs(
         self, response: GenerateContentResponse
     ) -> List[GeneratedOutput]:
-        assert response.candidates
-        candidates: List[Candidate] = response.candidates
-
         # Content blocking can show up in many ways, so this defensively handles a few of these ways
         if response.prompt_feedback and response.prompt_feedback.block_reason:
             raise GoogleGenAIContentBlockedError(f"Prompt blocked with reason: {response.prompt_feedback.block_reason}")
-        if not candidates:
+        if not response.candidates:
             raise GoogleGenAIContentBlockedError(f"No candidates in response: {response}")
 
         generated_outputs: List[GeneratedOutput] = []
-        for candidate in candidates:
+        for candidate in response.candidates:
             assert isinstance(candidate, Candidate)
             assert candidate.content
             assert candidate.content.role == "model" or candidate.content.role is None
