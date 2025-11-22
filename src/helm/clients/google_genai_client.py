@@ -53,20 +53,27 @@ class GoogleGenAIClient(CachingClient):
         location: Optional[str] = None,
         thinking_budget: Optional[int] = None,
         genai_model: Optional[str] = None,
+        genai_use_vertexai: Optional[bool] = None,
     ) -> None:
         super().__init__(cache_config=cache_config)
         self.project_id = project_id
         self.location = location
         self.genai_model = genai_model
         self.thinking_budget = thinking_budget
-        if api_key:
+        if genai_use_vertexai is True:
+            hlog("GoogleGenAIClient using Vertex AI API with configured project ID and location")
+            self.client = Client(vertexai=True, project=project_id, location=location)
+        elif genai_use_vertexai is False:
             hlog("GoogleGenAIClient using Gemini API with configured API key")
             self.client = Client(api_key=api_key)
         elif project_id and location:
             hlog("GoogleGenAIClient using Vertex AI API with configured project ID and location")
             self.client = Client(vertexai=True, project=project_id, location=location)
+        elif api_key:
+            hlog("GoogleGenAIClient using Gemini API with configured API key")
+            self.client = Client(api_key=api_key)
         else:
-            hlog("GoogleGenAIClient using Gemini API")
+            hlog("GoogleGenAIClient using default google.genai.Client")
             self.client = Client()
 
     def _convert_request_to_contents(self, request: Request) -> List[Content]:
