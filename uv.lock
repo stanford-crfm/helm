@@ -1744,12 +1744,6 @@ dev = [
     { name = "mypy" },
     { name = "pre-commit" },
     { name = "pytest" },
-    { name = "types-cachetools" },
-    { name = "types-pyopenssl" },
-    { name = "types-pyyaml" },
-    { name = "types-requests" },
-    { name = "types-simplejson" },
-    { name = "types-tabulate" },
     { name = "xdoctest" },
 ]
 types = [
@@ -1978,12 +1972,6 @@ dev = [
     { name = "mypy", specifier = "==1.16.0" },
     { name = "pre-commit", specifier = "~=2.20.0" },
     { name = "pytest", specifier = "~=7.2.0" },
-    { name = "types-cachetools" },
-    { name = "types-pyopenssl" },
-    { name = "types-pyyaml" },
-    { name = "types-requests" },
-    { name = "types-simplejson" },
-    { name = "types-tabulate" },
     { name = "xdoctest", specifier = "~=1.2.0" },
 ]
 types = [
