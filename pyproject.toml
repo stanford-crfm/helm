@@ -431,7 +431,6 @@ dev = [
     "mypy==1.16.0",
     "flake8==5.0.4",
     "en_core_web_sm@https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl",
-    {include-group = "types"}
 ]
 
 types = [
@@ -452,6 +451,7 @@ crfm-proxy-server = "helm.proxy.server:main"
 crfm-proxy-cli = "helm.proxy.cli:main"
 
 [tool.uv]
+default-groups = ["dev", "types"]
 conflicts = [
     [
       { extra = "all" },
