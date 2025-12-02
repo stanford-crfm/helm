@@ -60,7 +60,6 @@ class GoogleGenAIClient(CachingClient):
         self.location = location
         self.genai_model = genai_model
         self.thinking_config = ThinkingConfig.model_validate(thinking_config) if thinking_config else None
-        print(self.thinking_config)
         if genai_use_vertexai is True:
             hlog("GoogleGenAIClient using Vertex AI API with configured project ID and location")
             self.client = Client(vertexai=True, project=project_id, location=location)
