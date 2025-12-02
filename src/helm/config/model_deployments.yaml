@@ -39,6 +39,16 @@ model_deployments:
         model: arn:aws:bedrock:us-west-2:679683451337:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0
         deployment: awssig4claude37/aswsig4claude37
 
+  - name: stanfordhealthcare/claude-sonnet-4-20250514
+    model_name: anthropic/claude-sonnet-4-20250514
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_claude_client.StanfordHealthCareClaudeClient"
+      args:
+        model: us.anthropic.claude-sonnet-4-20250514-v1:0
+        deployment: aws-claude4-sonnet/aws-claude4-sonnet
+
   - name: stanfordhealthcare/gemini-1.5-pro-001
     model_name: google/gemini-1.5-pro-001
     tokenizer_name: google/gemma-2b
@@ -56,6 +66,16 @@ model_deployments:
       class_name: "helm.clients.stanfordhealthcare_google_client.StanfordHealthCareGoogleClient"
       args:
         deployment: gcp-gem20flash-fa/apim-gcp-gem20flash-fa
+
+  - name: stanfordhealthcare/gemini-2.5-pro-preview-05-06
+    model_name: google/gemini-2.5-pro-preview-05-06
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1048576   # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
+    # TODO: Max output tokens: 65536
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_google_client.StanfordHealthCareGoogleClient"
+      args:
+        deployment: gemini-25-pro/gemini-25-pro
 
   - name: stanfordhealthcare/gpt-4o-mini-2024-07-18
     model_name: openai/gpt-4o-mini-2024-07-18
@@ -118,6 +138,40 @@ model_deployments:
         openai_model_name: o3-mini
         api_version: 2024-12-01-preview
         base_url: "{endpoint}/openai-eastus2"
+  
+  - name: stanfordhealthcare/gpt-5-2025-08-07
+    model_name: openai/gpt-5-2025-08-07
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 400000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
+      args:
+        openai_model_name: gpt-5
+        api_version: 2024-12-01-preview
+        base_url: "{endpoint}/openai-eastus2"
+
+  - name: stanfordhealthcare/gpt-5-mini-2025-08-07
+    model_name: openai/gpt-5-mini-2025-08-07
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 400000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
+      args:
+        openai_model_name: gpt-5-mini
+        api_version: 2024-12-01-preview
+        base_url: "{endpoint}/openai-eastus2"
+
+  - name: stanfordhealthcare/o4-mini-2025-04-16
+    model_name: openai/o4-mini-2025-04-16
+    tokenizer_name: openai/cl100k_base
+    # Source: https://platform.openai.com/docs/models/o4-mini
+    max_sequence_length: 200000
+    # TODO: max_output_tokens: 100000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
+      args:
+        openai_model_name: o4-mini
+        api_version: 2024-12-01-preview
 
   - name: stanfordhealthcare/o1-2024-12-17
     model_name: openai/o1-2024-12-17
@@ -229,15 +283,6 @@ model_deployments:
       class_name: "helm.clients.stanfordhealthcare_google_client.StanfordHealthCareGoogleClient"
       args:
         deployment: gcpgemini/apim-gcp-oauth-fa
-
-  - name: stanfordhealthcare/gemini-2.0-flash-001
-    model_name: google/gemini-2.0-flash-001
-    tokenizer_name: google/gemma-2b
-    max_sequence_length: 1000000
-    client_spec:
-      class_name: "helm.clients.stanfordhealthcare_google_client.StanfordHealthCareGoogleClient"
-      args:
-        deployment: gcp-gem20flash-fa/apim-gcp-gem20flash-fa
 
   - name: stanfordhealthcare/gpt-4o-mini-2024-07-18
     model_name: openai/gpt-4o-mini-2024-07-18
