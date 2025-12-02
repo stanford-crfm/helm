@@ -488,8 +488,10 @@ class TogetherChatClient(CachingClient):
             if self._parse_thinking:
                 thinking_text, output_text = _parse_thinking(output_text, request.model)
                 thinking = Thinking(text=thinking_text)
-            elif hasattr(choice.message, "reasoning_content"):
+            elif hasattr(choice.message, "reasoning_content") and choice.message.reasoning_content is not None:
                 thinking = Thinking(text=choice.message.reasoning_content)
+            elif hasattr(choice.message, "reasoning") and choice.message.reasoning is not None:
+                thinking = Thinking(text=choice.message.reasoning)
             generated_outputs.append(
                 GeneratedOutput(text=output_text, logprob=logprob, tokens=tokens, thinking=thinking)
             )

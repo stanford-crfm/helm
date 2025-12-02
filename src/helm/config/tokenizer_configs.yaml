@@ -606,6 +606,18 @@ tokenizer_configs:
     end_of_text_token: "[EOS]"
     prefix_token: "[BOS]"
 
+  # Moonshot AI
+  - name: moonshotai/kimi-k2-thinking
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: moonshotai/Kimi-K2-Thinking
+        trust_remote_code: true
+        revision: 612681931a8c906ddb349f8ad0f582cb552189cd
+    end_of_text_token: "[EOS]"
+    prefix_token: "[BOS]"
+
+
   # Nectec
   - name: nectec/OpenThaiLLM-Prebuilt-7B
     tokenizer_spec:
