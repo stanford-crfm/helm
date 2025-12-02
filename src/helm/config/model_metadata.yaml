@@ -308,6 +308,22 @@ models:
     release_date: 2024-12-03
     tags: [NOVA_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: amazon/nova-2-pro-v1:0
+    display_name: Amazon Nova 2 Pro
+    description: Amazon Nova 2 Pro is a highly advanced reasoning model for complex agentic tasks such as multi-document analysis, video reasoning, and software migrations with extended thinking capabilities. ([blog](https://aws.amazon.com/about-aws/whats-new/2025/12/nova-2-foundation-models-amazon-bedrock/))
+    creator_organization_name: Amazon
+    access: limited
+    release_date: 2025-12-02
+    tags: [NOVA_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: amazon/nova-2-lite-v1:0
+    display_name: Amazon Nova 2 Lite
+    description: Amazon Nova 2 Lite is a fast, cost-effective reasoning model for everyday workloads that can process text, images, and videos to generate text. It supports a one million-token context window, enabling expanded reasoning and richer in-context learning. ([blog](https://aws.amazon.com/blogs/aws/introducing-amazon-nova-2-lite-a-fast-cost-effective-reasoning-model/))
+    creator_organization_name: Amazon
+    access: limited
+    release_date: 2025-12-02
+    tags: [NOVA_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
   # Titan Models
   # References for Amazon Titan models:
   # - https://aws.amazon.com/bedrock/titan/
@@ -569,6 +585,14 @@ models:
     creator_organization_name: Anthropic
     access: limited
     release_date: 2025-10-15
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: anthropic/claude-opus-4-5-20251124
+    display_name: Claude 4.5 Opus (20251124)
+    description: Claude 4.5 Opus is Anthropic's most intelligent model to date and sets a new standard across coding, agents, computer use, and enterprise workflows. ([blog](https://www.anthropic.com/claude/opus))
+    creator_organization_name: Anthropic
+    access: limited
+    release_date: 2025-11-24
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: anthropic/stanford-online-all-v4-s3
