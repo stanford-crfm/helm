@@ -39,6 +39,56 @@ model_deployments:
         model: arn:aws:bedrock:us-west-2:679683451337:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0
         deployment: awssig4claude37/aswsig4claude37
 
+  - name: stanfordhealthcare/claude-sonnet-4-5-20250929
+    model_name: anthropic/claude-sonnet-4-5-20250929
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_claude_client.StanfordHealthCareClaudeClient"
+      args:
+        model: arn:aws:bedrock:us-west-2:679683451337:inference-profile/us.anthropic.claude-sonnet-4-5-20250929-v1:0
+        deployment: awssig4claude45sonnet/awssig4claude45sonnet
+
+  - name: stanfordhealthcare/claude-haiku-4-5-20251001
+    model_name: anthropic/claude-haiku-4-5-20251001
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_claude_client.StanfordHealthCareClaudeClient"
+      args:
+        model: arn:aws:bedrock:us-west-2:679683451337:inference-profile/us.anthropic.claude-haiku-4-5-20251001-v1:0
+        deployment: awssig4claude45haiku/awssig4claude45haiku
+
+  - name: stanfordhealthcare/claude-opus-4-5-20251124
+    model_name: anthropic/claude-opus-4-5-20251124
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_claude_client.StanfordHealthCareClaudeClient"
+      args:
+        model: arn:aws:bedrock:us-west-2:679683451337:inference-profile/us.anthropic.claude-opus-4-5-20251124-v1:0
+        deployment: awssig4claude45opus/awssig4claude45opus
+
+  - name: stanfordhealthcare/nova-2-pro-v1:0
+    model_name: amazon/nova-2-pro-v1:0
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 1000000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_claude_client.StanfordHealthCareClaudeClient"
+      args:
+        model: arn:aws:bedrock:us-west-2:679683451337:inference-profile/us.amazon.nova-2-pro-v1:0
+        deployment: awssig4nova2pro/awssig4nova2pro
+
+  - name: stanfordhealthcare/nova-2-lite-v1:0
+    model_name: amazon/nova-2-lite-v1:0
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 1000000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_claude_client.StanfordHealthCareClaudeClient"
+      args:
+        model: arn:aws:bedrock:us-west-2:679683451337:inference-profile/us.amazon.nova-2-lite-v1:0
+        deployment: awssig4nova2lite/awssig4nova2lite
+
   - name: stanfordhealthcare/gemini-1.5-pro-001
     model_name: google/gemini-1.5-pro-001
     tokenizer_name: google/gemma-2b
