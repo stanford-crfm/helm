@@ -20,10 +20,9 @@
 
 ### Scenarios
 
-- Bugfixes and improvements for Arabic language scenarios
-    - AraTrust (#3920)
-    -  (#3920)
+- Convert AraTrust to use multiple_choice_joint adapter (#3920)
 - Remove deprecated Claude 3.5 model from LLM juries (#3926)
+- Remove stop sequences in ALRAGE scenario (#3948)
 
 ### Framework
 
@@ -35,6 +34,8 @@
 Thank you to the following contributors for your work on this HELM release!
 
 - @beyandbey
+- @chaudhariatul
+- @kiro-agent
 - @yifanmai
 
 ## [v0.5.10] - 2025-11-10
