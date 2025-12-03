@@ -2,6 +2,40 @@
 
 ## [Upcoming]
 
+### Breaking Changes
+
+- Remove deprecated Claude 3.5 model from LLM juries (#3926)
+- Switch Gemini 2.5 to use GoogleGenAIClient (#3944)
+
+### Models
+
+- Add Claude Haiku 4.5 (#3922)
+- Add GPT-5.1 model (#3927, 3937)
+- Add `GoogleGenAIClient` (#3925)
+- Add Gemini 3 Pro (#3936, 3937)
+- Add Gemini Robotics-ER 1.5 (#3939)
+- Add Kimi K2 model on Together (#3943)
+- Switch Gemini 2.5 to use GoogleGenAIClient (#3944)
+
+### Scenarios
+
+- Bugfixes and improvements for Arabic language scenarios
+    - AraTrust (#3920)
+    -  (#3920)
+- Remove deprecated Claude 3.5 model from LLM juries (#3926)
+
+### Framework
+
+- Add support for uv (#3929, #3932)
+- Support schema files in JSON format in helm-summarize (#3924)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @beyandbey
+- @yifanmai
+
 ## [v0.5.10] - 2025-11-10
 
 ### Breaking Changes
