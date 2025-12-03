@@ -5,7 +5,7 @@
 ### Breaking Changes
 
 - Remove deprecated Claude 3.5 model from LLM juries (#3926)
-- Switch Gemini 2.5 to use GoogleGenAIClient (#3944)
+- Switch Gemini 2.5 to use `GoogleGenAIClient` (#3944)
 
 ### Models
 
@@ -15,7 +15,7 @@
 - Add Gemini 3 Pro (#3936, 3937)
 - Add Gemini Robotics-ER 1.5 (#3939)
 - Add Kimi K2 model on Together (#3943)
-- Switch Gemini 2.5 to use GoogleGenAIClient (#3944)
+- Switch Gemini 2.5 to use `GoogleGenAIClient` (#3944)
 - Add more Qwen3 and Qwen3-Next models on Together AI (#3947)
 
 ### Scenarios
