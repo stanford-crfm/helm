@@ -3696,12 +3696,22 @@ models:
     release_date: 2025-04-29
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: qwen/qwen3-next-80b-a3b-instruct
+    display_name: Qwen3-Next 80B A3B Instruct
+    description: Qwen3-Next is a new model architecture for improving training and inference efficiency under long-context and large-parameter settings. Compared to the MoE structure of Qwen3, Qwen3-Next introduces a hybrid attention mechanism, a highly sparse Mixture-of-Experts (MoE) structure, training-stability-friendly optimizations, and a multi-token prediction mechanism for faster inference. ([blog](https://qwen.ai/blog?id=4074cca80393150c248e508aa62983f9cb7d27cd&from=research.latest-advancements-list))
+    creator_organization_name: Qwen
+    access: open
+    num_parameters: 81000000000
+    release_date: 2025-09-10
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: qwen/qwen3-next-80b-a3b-thinking
     display_name: Qwen3-Next 80B A3B Thinking
     description: Qwen3-Next is a new model architecture for improving training and inference efficiency under long-context and large-parameter settings. Compared to the MoE structure of Qwen3, Qwen3-Next introduces a hybrid attention mechanism, a highly sparse Mixture-of-Experts (MoE) structure, training-stability-friendly optimizations, and a multi-token prediction mechanism for faster inference. ([blog](https://qwen.ai/blog?id=4074cca80393150c248e508aa62983f9cb7d27cd&from=research.latest-advancements-list))
     creator_organization_name: Qwen
     access: open
-    release_date: 2025-07-21  # https://x.com/Alibaba_Qwen/status/1947344511988076547
+    num_parameters: 81000000000
+    release_date: 2025-09-10
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: qwen/qwen3-235b-a22b-instruct-2507-fp8
@@ -3709,6 +3719,16 @@ models:
     description: Qwen3 235B A22B Instruct 2507 FP8 is an updated version of the non-thinking mode of Qwen3 235B A22B FP8.
     creator_organization_name: Qwen
     access: open
+    num_parameters: 235000000000
+    release_date: 2025-07-21  # https://x.com/Alibaba_Qwen/status/1947344511988076547
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: qwen/qwen3-235b-a22b-thinking-2507
+    display_name: Qwen3 235B A22B Thinking 2507
+    description: Qwen3 235B A22B Thinking 2507 is an updated version of the thinking mode of Qwen3 235B A22B.
+    creator_organization_name: Qwen
+    access: open
+    num_parameters: 235000000000
     release_date: 2025-07-21  # https://x.com/Alibaba_Qwen/status/1947344511988076547
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 

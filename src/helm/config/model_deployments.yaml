@@ -3935,6 +3935,13 @@ model_deployments:
       args:
         parse_thinking: true
 
+  - name: together/qwen3-next-80b-a3b-instruct
+    model_name: qwen/qwen3-next-80b-a3b-instruct
+    tokenizer_name: qwen/qwen3-next-80b-a3b-instruct
+    max_sequence_length: 262144
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+
   - name: together/qwen3-next-80b-a3b-thinking
     model_name: qwen/qwen3-next-80b-a3b-thinking
     tokenizer_name: qwen/qwen3-next-80b-a3b-thinking
@@ -3952,6 +3959,16 @@ model_deployments:
       class_name: "helm.clients.together_client.TogetherChatClient"
       args:
         together_model: Qwen/Qwen3-235B-A22B-Instruct-2507-tput
+
+  - name: together/qwen3-235b-a22b-thinking-2507
+    model_name: qwen/qwen3-235b-a22b-thinking-2507
+    tokenizer_name: qwen/qwen3-235b-a22b-thinking-2507
+    max_sequence_length: 262144
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        # For some reason, the model name is case sensitive on Together AI for this model only
+        together_model: Qwen/Qwen3-235B-A22B-Thinking-2507
 
   - name: huggingface/qwen2.5-7b-instruct-4bit
     model_name: qwen/qwen2.5-7b-instruct
