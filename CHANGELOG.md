@@ -16,6 +16,7 @@
 - Add Gemini Robotics-ER 1.5 (#3939)
 - Add Kimi K2 model on Together (#3943)
 - Switch Gemini 2.5 to use GoogleGenAIClient (#3944)
+- Add more Qwen3 and Qwen3-Next models on Together AI (#3947)
 
 ### Scenarios
 
@@ -46,7 +47,7 @@ Thank you to the following contributors for your work on this HELM release!
 
 - Add Palmyra X5 on Bedrock (#3905)
 - Add IBM Granite 4 models on Hugging Face (#3906)
-- Fix incorrect Arabig model configs (#3907)
+- Fix incorrect Arabic model configs (#3907)
 
 ### Scenarios
 
