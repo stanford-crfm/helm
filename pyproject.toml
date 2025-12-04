@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "crfm-helm"
-version = "0.5.10"
+version = "0.5.11"
 authors = [
     { name = "Stanford CRFM", email = "contact-crfm@stanford.edu" }
 ]
-description = "Benchmark for language models"
+description = "Framework for evaluation of foundation models"
 readme = { file = "README.md", content-type = "text/markdown" }
 keywords = ["language", "models", "benchmarking"]
 license = { text = "Apache License 2.0" }
