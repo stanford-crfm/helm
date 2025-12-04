@@ -2,6 +2,8 @@
 
 ## [Upcoming]
 
+## [v0.5.11] - 2025-12-04
+
 ### Breaking Changes
 
 - Remove deprecated Claude 3.5 model from LLM juries (#3926)
@@ -1243,7 +1245,8 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.10...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.11...HEAD
+[v0.5.11]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.11
 [v0.5.10]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.10
 [v0.5.9]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.9
 [v0.5.8]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.8
