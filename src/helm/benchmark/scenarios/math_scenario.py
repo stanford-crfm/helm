@@ -294,7 +294,7 @@ def is_equiv_chain_of_thought(str1: str, str2: str) -> float:
 
 
 class MATHScenario(Scenario):
-    """
+    r"""
     The MATH dataset from the paper
     "Measuring Mathematical Problem Solving With the MATH Dataset"
     by Hendrycks et al. (2021):
