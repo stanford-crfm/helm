@@ -8,7 +8,7 @@ version = "0.5.11"
 authors = [
     { name = "Stanford CRFM", email = "contact-crfm@stanford.edu" }
 ]
-description = "Evaluation framework for evaluation of foundation models"
+description = "Framework for evaluation of foundation models"
 readme = { file = "README.md", content-type = "text/markdown" }
 keywords = ["language", "models", "benchmarking"]
 license = { text = "Apache License 2.0" }
