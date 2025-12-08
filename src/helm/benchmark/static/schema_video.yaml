@@ -221,7 +221,7 @@ run_groups:
       - cmu_play_fusion
       - dlr_edan_shared_control_converted_externally_to_rlds
       - dlr_sara_grid_clamp_converted_externally_to_rlds
-      - droid_perspective
+      - droid
       - fractal20220817_data
       - iamlab_cmu_pickup_insert_converted_externally_to_rlds
       - imperialcollege_sawyer_wrist_cam
@@ -409,23 +409,8 @@ run_groups:
       when: "2025"
       language: English
 
-  - name: droid_perspective
-    display_name: Robo Reward Bench (droid_perspective)
-    description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
-    metric_groups:
-      - accuracy
-    environment:
-      main_name: abs_error
-      main_split: test
-    taxonomy:
-      task: judging
-      what: Real-world robot videos
-      who: Human experts
-      when: "2025"
-      language: English
-
-  - name: droid_wrist
-    display_name: Robo Reward Bench (droid_wrist)
+  - name: droid
+    display_name: Robo Reward Bench (droid)
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy

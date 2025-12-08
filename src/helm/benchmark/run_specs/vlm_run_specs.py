@@ -1148,22 +1148,8 @@ def get_robo_reward_bench_discrete_spec(subset: str) -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.robo_reward_bench_scenario.RoboRewardBenchScenario",
         args={"subset": subset},
     )
-
-    instructions: str = (
-        "Given the task, assign a discrete progress score reward (1,2,3,4,5) for the robot in video "
-        "in the format: ANSWER: <score>\n"
-        "Scoring rubric:\n"
-        "1 - No Success: Final state shows no goal-relevant change for the command.\n"
-        "2 - Minimal Progress: Final state shows a small but insufficient change toward the goal.\n"
-        "3 - Partial Completion: Final state is in the general goal region but violates requirements "
-        "that makes success false.\n"
-        "4 - Near Completion: Final state is correct in region and intent but misses "
-        "a precise tolerance or requirement.\n"
-        "5 - Perfect Completion: Final state satisfies all requirements within tolerances.\n"
-    )
     adapter_spec: AdapterSpec = _get_generation_adapter_spec(
-        instructions=instructions,
-        max_tokens=200,
+        max_tokens=5000,
         max_train_instances=0,
     )
     metric_specs: List[MetricSpec] = [

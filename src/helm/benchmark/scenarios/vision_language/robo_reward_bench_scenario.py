@@ -160,13 +160,15 @@ class RoboRewardBenchScenario(Scenario):
     description = "Rate robot task completion on a discrete 1-5 scale from a single video."
     tags = ["vision-language", "video"]
 
+    output_path: str = "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/roboreward/roboreward"
+
     def __init__(self, subset: str) -> None:
         super().__init__()
         self._subset: str = subset
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        subset_path: str = os.path.join(output_path, "collected", self._subset)
-        annotation_path: str = os.path.join(subset_path, "test_corrected.json")
+        output_path = os.path.join(self.output_path, "collected")
+        annotation_path: str = os.path.join(output_path, "final_test.json")
         assert os.path.exists(annotation_path), f"Annotation file does not exist at path: {annotation_path}"
 
         with open(annotation_path, "r") as f:
@@ -174,21 +176,29 @@ class RoboRewardBenchScenario(Scenario):
 
         instances: List[Instance] = []
         for idx, ex in enumerate(examples):
-            task: str = ex["task"]
-            video_path: str = os.path.join(output_path, ex["episode_video_path"])
+            subset: str = ex["subset"]
+            if subset != self._subset:
+                continue
+
+            conversations: dict = ex["conversations"]
+            user_turn: dict = conversations[0]
+            assert user_turn["from"] == "human"
+            prompt = user_turn["value"].replace("<video>", "")
+
+            video_path: str = os.path.join(output_path, ex["video"][0])
             assert os.path.exists(video_path), f"Video path does not exist: {video_path}"
 
-            reward: int = ex["reward"]
+            reward: int = ex["metadata"]["reward"]
             assert 1 <= reward <= 5, f"Invalid reward: {reward}"
+            gpt_response: str = conversations[1]["value"]
+            assert str(reward) in gpt_response, f"Rewards do not match: {reward} vs {gpt_response}"
 
-            # Prompt header shown to the model alongside the video. Detailed rubric lives in adapter instructions.
-            prompt: str = f"Task: {task}"
             content: List[MediaObject] = [
                 MediaObject(text=prompt, content_type="text/plain"),
                 MediaObject(location=video_path, content_type="video/mp4"),
             ]
 
-            original_id: str = ex["original_id"]
+            original_id: str = ex["metadata"]["original_id"]
             instances.append(
                 Instance(
                     id=f"{original_id}:{idx}",
@@ -197,5 +207,4 @@ class RoboRewardBenchScenario(Scenario):
                     split=TEST_SPLIT,
                 )
             )
-
         return instances
