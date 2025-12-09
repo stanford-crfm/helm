@@ -145,6 +145,7 @@ class Qwen3VLMClient(CachingClient):
                         )
                         completion = output_text[0]
                         tokens = completion.split()
+                        hlog(f"Generated: {text_out}")
                         return {"output": (completion, tokens)}
 
                     raw_request = {
