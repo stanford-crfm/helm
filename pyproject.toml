@@ -4,32 +4,28 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "crfm-helm"
-version = "0.5.8"
+version = "0.5.11"
 authors = [
     { name = "Stanford CRFM", email = "contact-crfm@stanford.edu" }
 ]
-description = "Benchmark for language models"
+description = "Framework for evaluation of foundation models"
 readme = { file = "README.md", content-type = "text/markdown" }
 keywords = ["language", "models", "benchmarking"]
 license = { text = "Apache License 2.0" }
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "License :: OSI Approved :: Apache Software License",
 ]
 urls = { "Homepage" = "https://github.com/stanford-crfm/helm" }
 
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 
 dependencies = [
     # Common
     "cattrs~=22.2",
     "colorlog~=6.9",
     "dacite~=1.6",
-    "importlib-resources~=5.10",
     "Mako~=1.2",
     "numpy>=1.26,<3",
     "pandas~=2.0",
@@ -73,6 +69,16 @@ human-evaluation = [
     "surge-api~=1.1",
 ]
 
+dspy = [
+    "dspy~=3.0.3",
+    "fastapi~=0.118.0",
+    "apscheduler~=3.11.0",
+    "cryptography~=43.0.3",
+    "python-multipart~=0.0.20",
+    "email-validator~=2.3.0",
+    "fastapi_sso~=0.18.0",
+]
+
 scenarios = [
     "gdown~=5.1",  # For disinformation_scenario, med_mcqa_scenario, med_qa_scenario: used by ensure_file_downloaded()
     "xlrd~=2.0",  # For ice_scenario: used by pandas.read_excel()
@@ -91,10 +97,6 @@ ranking = [
     "pytrec_eval==0.5",  # For ranking_metrics
 ]
 
-summarization = [
-    "summ-eval~=0.892",  # For summarization_metrics
-    "bert-score~=0.3",  # For summarization_metrics
-]
 
 plots = [
     "colorcet~=3.0",
@@ -120,7 +122,7 @@ cleva = [
 
 images = [
     "crfm-helm[accelerate]",
-    "pillow~=10.2",
+    "pillow>=10.2",
 ]
 
 mongo = [
@@ -159,9 +161,8 @@ amazon = [
 ]
 
 anthropic = [
-    "anthropic~=0.48",
+    "anthropic~=0.41",
     "websocket-client~=1.3",  # For legacy stanford-online-all-v4-s3
-    "httpx<0.28.0",  # TODO(#3324): Remove this tepmorary workaround
 ]
 
 cohere = [
@@ -184,6 +185,7 @@ openai = [
 
 google = [
     "google-cloud-aiplatform~=1.48",
+    "google-genai~=1.48",
 ]
 
 together = [
@@ -209,8 +211,6 @@ models = [
     "crfm-helm[together]",
     "crfm-helm[yandex]",
     "crfm-helm[writer]",
-    "crfm-helm[ibm-enterprise-scenarios]",
-    # crfm-helm[ibm] is excluded because it does not support Python 3.9
 ]
 
 reka = [
@@ -312,7 +312,7 @@ heim = [
     "lpips~=0.1.4",
     "multilingual-clip~=1.0",
     "NudeNet~=2.0",
-    "numpy>=1.26,<2",
+    "numpy>=1.26",
     "opencv-python>=4.7.0.68,<4.8.2.0; python_version >= '3.10'",
     "opencv-python-headless>=4.7.0.68,<=4.11.0.86; python_version < '3.10'",
     "pytorch-fid~=0.3.0",
@@ -323,9 +323,8 @@ heim = [
 
     # Transitive dependency of NudeNet
     # This needs to be a version that provides wheels for all Python versions
-    # supported by crfm-helm i.e. Python 3.9, 3.10, 3.11, 3.12
-    # Disallow version 0.23.* because it has no Python 3.9 wheels.
-    "scikit-image>=0.22,==0.*,!=0.23.*",
+    # supported by crfm-helm i.e. 3.10, 3.11, 3.12
+    "scikit-image>=0.22,==0.*",
 
     # Shared image dependencies
     "crfm-helm[images]",
@@ -387,7 +386,6 @@ lmkt = [
     "sentence_transformers~=4.1",
 ]
 
-# Install everything
 all = [
     "crfm-helm[proxy-server]",
     "crfm-helm[human-evaluation]",
@@ -407,10 +405,21 @@ all = [
     # crfm-helm[audiolm] is excluded because it requires transformers~=4.48
     # crfm-helm[seahelm] is excluded because pyonmttok does not support Python 3.12
     # crfm-helm[dev] is excluded because end-users don't need it.
-    # crfm-helm[summarize] is excluded because it requires torch<2.0
+    # crfm-helm[summarization] is excluded because it requires torch<2.0 and numpy<2.0
     # crfm-helm[ranking] is excluded because pytrec_eval causes build errors (see #3470)
-    # TODO(#2280): Add crfm-helm[summarize] back.
 ]
+
+ci = [
+  "crfm-helm[metrics]",
+  "crfm-helm[openai]",
+  "crfm-helm[plots]",
+  "crfm-helm[together]",
+  "crfm-helm[yandex]",
+  "crfm-helm[cohere]",
+  "crfm-helm[proxy-server]",
+]
+
+[dependency-groups]
 
 dev = [
     "pytest~=7.2.0",
@@ -421,6 +430,16 @@ dev = [
     "black==24.3.0",
     "mypy==1.16.0",
     "flake8==5.0.4",
+    "en_core_web_sm@https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl",
+]
+
+types = [
+    "types-cachetools",
+    "types-pyOpenSSL",
+    "types-PyYAML",
+    "types-requests",
+    "types-simplejson",
+    "types-tabulate",
 ]
 
 [project.scripts]
@@ -430,6 +449,15 @@ helm-server = "helm.benchmark.server:main"
 helm-create-plots = "helm.benchmark.presentation.create_plots:main"
 crfm-proxy-server = "helm.proxy.server:main"
 crfm-proxy-cli = "helm.proxy.cli:main"
+
+[tool.uv]
+default-groups = ["dev", "types"]
+conflicts = [
+    [
+      { extra = "all" },
+      { extra = "summarization" },
+    ],
+]
 
 [tool.setuptools]
 package-dir = { "" = "src" }

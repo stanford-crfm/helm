@@ -8,7 +8,7 @@ from transformers import AutoProcessor, PaliGemmaForConditionalGeneration
 from helm.common.cache import CacheConfig
 from helm.common.images_utils import open_image
 from helm.common.gpu_utils import get_torch_device_name
-from helm.common.hierarchical_logger import hlog, htrack_block
+from helm.common.hierarchical_logger import hexception, hlog, htrack_block
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request, RequestResult, GeneratedOutput, Token
@@ -126,6 +126,7 @@ class PaliGemmaClient(CachingClient):
                     result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
                     concat_results.append(result)
             except RuntimeError as model_error:
+                hexception(model_error)
                 return RequestResult(success=False, cached=False, error=str(model_error), completions=[], embedding=[])
 
             for result in concat_results:

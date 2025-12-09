@@ -64,10 +64,13 @@ class OmniMATHAnnotator(Annotator):
                 model_name="meta/llama-3.1-405b-instruct-turbo",
                 model_deployment="together/llama-3.1-405b-instruct-turbo",
             ),
-            "claude": AnnotatorModelInfo(
-                model_name="anthropic/claude-3-5-sonnet-20241022",
-                model_deployment="anthropic/claude-3-5-sonnet-20241022",
-            ),
+            # NOTE: anthropic/claude-3-5-sonnet-20241022 was deprecated on October 28, 2025.
+            # See: https://docs.claude.com/en/docs/about-claude/model-deprecations
+            #
+            # "claude": AnnotatorModelInfo(
+            #     model_name="anthropic/claude-3-5-sonnet-20241022",
+            #     model_deployment="anthropic/claude-3-5-sonnet-20241022",
+            # ),
         }
         annotations: Dict[str, Union[Optional[str], Optional[bool]]] = {"prompt_text": annotator_prompt}
 

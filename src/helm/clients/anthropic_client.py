@@ -8,7 +8,7 @@ import time
 import urllib.parse
 
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import htrack_block, hlog, hwarn
+from helm.common.hierarchical_logger import hexception, htrack_block, hlog, hwarn
 from helm.common.media_object import IMAGE_TYPE, TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import (
@@ -184,6 +184,7 @@ class AnthropicClient(CachingClient):
                         embedding=[],
                         error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
                     )
+                hexception(error)
                 return RequestResult(success=False, cached=False, error=str(error), completions=[], embedding=[])
 
             # Post process the completion.
@@ -385,6 +386,10 @@ class AnthropicMessagesClient(CachingClient):
             # Avoid error:
             # `top_k` must be unset when thinking is enabled. Please consult our documentation at https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking#important-considerations-when-using-extended-thinking  # noqa: E501
             del raw_request["top_k"]
+        if raw_request["model"].startswith("claude-sonnet-4-5") or raw_request["model"].startswith("claude-haiku-4-5"):
+            # Avoid error:
+            # `temperature` and `top_p` cannot both be specified for this model. Please use only one.
+            del raw_request["top_p"]
 
         completions: List[GeneratedOutput] = []
 
@@ -696,6 +701,7 @@ class AnthropicLegacyClient(CachingClient):
                 )
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             except AnthropicRequestError as error:
+                hexception(error)
                 return RequestResult(success=False, cached=False, error=str(error), completions=[], embedding=[])
 
             sequence_logprob: float = 0

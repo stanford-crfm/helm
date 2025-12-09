@@ -5,6 +5,7 @@ import requests
 
 from helm.common.cache import CacheConfig
 from helm.common.images_utils import encode_base64
+from helm.common.hierarchical_logger import hexception
 from helm.common.media_object import TEXT_TYPE
 from helm.common.request import Request, RequestResult, GeneratedOutput, ErrorFlags
 from helm.common.request import wrap_request_time
@@ -76,6 +77,7 @@ class PalmyraVisionClient(CachingClient):
             )
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except PalmyraVisionContentBlockedError as ex:
+            hexception(ex)
             return RequestResult(
                 success=False,
                 cached=False,

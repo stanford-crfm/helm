@@ -1,12 +1,13 @@
 import ast
 import dataclasses
 from dataclasses import dataclass, field
+import json
 from typing import List, Optional, Dict
 import dacite
 from inspect import cleandoc
 import mako.template
 import yaml
-import importlib_resources as resources
+from importlib import resources
 
 from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import hlog
@@ -226,9 +227,7 @@ def get_adapter_fields() -> List[Field]:
     """Generate the adapter fields from the docstrings in the AdapterSpec class definition."""
     # Unfortunately there is no standard library support for getting docstrings of class fields,
     # so we have to do the parsing outselves. Fortunately, the parsing is quite straightforward.
-    adapter_spec_path = resources.files(_ADAPTER_SPEC_PACKAGE).joinpath(_ADAPTER_SPEC_FILENAME)
-    with open(adapter_spec_path, "r") as f:
-        contents = f.read()
+    contents = resources.files(_ADAPTER_SPEC_PACKAGE).joinpath(_ADAPTER_SPEC_FILENAME).read_text()
     module_node = ast.parse(contents)
     adapter_spec_node = [
         node
@@ -260,14 +259,16 @@ def get_adapter_fields() -> List[Field]:
 
 
 def get_default_schema_path() -> str:
-    return resources.files(SCHEMA_YAML_PACKAGE).joinpath(SCHEMA_CLASSIC_YAML_FILENAME)
+    return str(resources.files(SCHEMA_YAML_PACKAGE).joinpath(SCHEMA_CLASSIC_YAML_FILENAME))
 
 
 def read_schema(schema_path: str) -> Schema:
-    # TODO: merge in model metadata from `model_metadata.yaml`
     hlog(f"Reading schema file {schema_path}...")
     with open(schema_path, "r") as f:
-        raw = yaml.safe_load(f)
+        if schema_path.endswith(".json"):
+            raw = json.load(f)
+        else:
+            raw = yaml.safe_load(f)
     schema = dacite.from_dict(Schema, raw)
     if schema.adapter:
         hwarn(f"The `adapter` field is deprecated and should be removed from schema file {schema_path}")

@@ -9,6 +9,7 @@ import requests
 from retrying import retry
 
 from helm.common.cache import CacheConfig
+from helm.common.hierarchical_logger import hexception
 from helm.common.media_object import IMAGE_TYPE, TEXT_TYPE
 from helm.common.object_spec import get_class_by_name
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -273,6 +274,7 @@ class TogetherClient(CachingClient):
             try:
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it_sync))
             except Exception as error:
+                hexception(error)
                 return RequestResult(
                     success=False,
                     cached=False,
@@ -455,6 +457,7 @@ class TogetherChatClient(CachingClient):
             raw_response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             response = ChatCompletionResponse.model_validate(raw_response)
         except Exception as error:
+            hexception(error)
             return RequestResult(
                 success=False,
                 cached=False,
@@ -485,8 +488,10 @@ class TogetherChatClient(CachingClient):
             if self._parse_thinking:
                 thinking_text, output_text = _parse_thinking(output_text, request.model)
                 thinking = Thinking(text=thinking_text)
-            elif hasattr(choice.message, "reasoning_content"):
+            elif hasattr(choice.message, "reasoning_content") and choice.message.reasoning_content is not None:
                 thinking = Thinking(text=choice.message.reasoning_content)
+            elif hasattr(choice.message, "reasoning") and choice.message.reasoning is not None:
+                thinking = Thinking(text=choice.message.reasoning)
             generated_outputs.append(
                 GeneratedOutput(text=output_text, logprob=logprob, tokens=tokens, thinking=thinking)
             )
@@ -562,6 +567,7 @@ class TogetherCompletionClient(CachingClient):
             raw_response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             response = CompletionResponse.model_validate(raw_response)
         except Exception as error:
+            hexception(error)
             return RequestResult(
                 success=False,
                 cached=False,

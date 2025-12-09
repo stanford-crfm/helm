@@ -12,6 +12,7 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 
 _ARABIC_REFERENCE_PREFIX_CHARACTERS = ["أ", "ب", "ج", "د", "هـ"]
+_ARABIC_OUTPUT_MAPPING_PATTERN = "(أ|ب|ج|د|هـ)"
 
 
 @run_spec_function("arabic_mmlu")
@@ -29,6 +30,7 @@ def get_arabic_mmlu_spec(subset: str) -> RunSpec:
         output_noun="الإجابة",
         max_tokens=100,
         reference_prefix_characters=_ARABIC_REFERENCE_PREFIX_CHARACTERS,
+        output_mapping_pattern=_ARABIC_OUTPUT_MAPPING_PATTERN,
     )
 
     return RunSpec(
@@ -54,6 +56,7 @@ def get_alghafa_spec(subset: str) -> RunSpec:
         output_noun="الإجابة",
         max_tokens=100,
         reference_prefix_characters=_ARABIC_REFERENCE_PREFIX_CHARACTERS,
+        output_mapping_pattern=_ARABIC_OUTPUT_MAPPING_PATTERN,
     )
 
     return RunSpec(
@@ -73,11 +76,14 @@ def get_aratrust_spec(category: str) -> RunSpec:
         args={"category": category},
     )
 
-    adapter_spec = get_generation_adapter_spec(
-        instructions="السؤال التالي هو سؤال متعدد الإختيارات. اختر الإجابة الصحيحة: أ، ب أو ج",  # noqa: E501
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="الأسئلة التالية هي أسئلة متعددة الإختيارات مع الجواب الصحيح",  # noqa: E501
         input_noun="السؤال",
         output_noun="الإجابة",
         max_tokens=100,
+        reference_prefix_characters=_ARABIC_REFERENCE_PREFIX_CHARACTERS,
+        output_mapping_pattern=_ARABIC_OUTPUT_MAPPING_PATTERN,
     )
 
     return RunSpec(
@@ -99,6 +105,7 @@ def get_alrage_spec() -> RunSpec:
         input_noun="السؤال",
         output_noun="الإجابة",
         max_tokens=100,
+        stop_sequences=[],
     )
 
     annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.alrage_annotator.ALRAGEAnnotator")]
@@ -130,6 +137,7 @@ def get_madinah_qa_spec(subset: str) -> RunSpec:
         output_noun="الإجابة",
         max_tokens=100,
         reference_prefix_characters=_ARABIC_REFERENCE_PREFIX_CHARACTERS,
+        output_mapping_pattern=_ARABIC_OUTPUT_MAPPING_PATTERN,
     )
 
     return RunSpec(
@@ -155,6 +163,7 @@ def get_arabic_mmmlu_spec(subject: str) -> RunSpec:
         output_noun="الإجابة",
         max_tokens=100,
         reference_prefix_characters=_ARABIC_REFERENCE_PREFIX_CHARACTERS,
+        output_mapping_pattern=_ARABIC_OUTPUT_MAPPING_PATTERN,
     )
 
     return RunSpec(
@@ -180,6 +189,7 @@ def get_arabic_exams_spec(subject: str) -> RunSpec:
         output_noun="الإجابة",
         max_tokens=100,
         reference_prefix_characters=_ARABIC_REFERENCE_PREFIX_CHARACTERS,
+        output_mapping_pattern=_ARABIC_OUTPUT_MAPPING_PATTERN,
     )
 
     return RunSpec(

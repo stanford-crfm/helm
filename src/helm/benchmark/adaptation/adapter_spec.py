@@ -148,3 +148,8 @@ class AdapterSpec:
     # Set hash=False to make `AdapterSpec` hashable
     eval_splits: Optional[List[str]] = field(default=None, hash=False)
     """The splits from which evaluation instances will be drawn."""
+
+    output_mapping_pattern: Optional[str] = None
+    """Pattern to apply to the output before applying the output mapping for the joint multiple choice adapter.
+    If the pattern has no group, the output mapping will be applied to the first match.
+    If the pattern has a group, the output mapping will be applied to the group of the first match."""

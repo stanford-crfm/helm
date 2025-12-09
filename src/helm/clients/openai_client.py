@@ -10,7 +10,7 @@ from helm.common import multimodal_request_utils
 from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE, MultimediaObject, MediaObject
 from helm.common.request import ErrorFlags, Thinking, wrap_request_time, Request, RequestResult, GeneratedOutput, Token
-from helm.common.hierarchical_logger import hlog, hwarn
+from helm.common.hierarchical_logger import hlog, hwarn, hexception
 from helm.common.object_spec import get_class_by_name
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.tokenization_request import (
@@ -112,6 +112,7 @@ class OpenAIClientUtils:
                 error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
             )
 
+        hexception(e)
         error: str = f"OpenAI error: {e}"
         return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
@@ -170,6 +171,7 @@ class OpenAIClient(CachingClient):
             cache_key = self._get_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except openai.OpenAIError as e:
+            hexception(e)
             error: str = f"OpenAI error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
@@ -436,6 +438,7 @@ class OpenAIClient(CachingClient):
             cache_key = self._get_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except openai.OpenAIError as e:
+            hexception(e)
             error: str = f"OpenAI error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
@@ -491,6 +494,7 @@ class OpenAIClient(CachingClient):
             cache_key = self._get_cache_key({"audio": audio_path, "model": model}, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except openai.OpenAIError as e:
+            hexception(e)
             error: str = f"OpenAI error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 

@@ -4,7 +4,7 @@ from threading import Lock
 from typing import Any, Dict, Mapping, Optional, List, Union, cast
 
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import hwarn
+from helm.common.hierarchical_logger import hexception, hwarn
 from helm.common.multimodal_request_utils import get_contents_as_bytes
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -153,6 +153,7 @@ class VertexAITextClient(VertexAIClient):
 
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except (requests.exceptions.RequestException, AssertionError) as e:
+            hexception(e)
             error: str = f"VertexAITextClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
@@ -311,6 +312,7 @@ class VertexAIChatClient(VertexAIClient):
                 error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
             )
         except (requests.exceptions.RequestException, AssertionError) as e:
+            hexception(e)
             error: str = f"VertexAITextClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
@@ -447,6 +449,7 @@ class VertexAIChatClient(VertexAIClient):
                 cache_key = self.make_cache_key_with_safety_settings_preset(raw_cache_key, request)
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             except requests.exceptions.RequestException as e:
+                hexception(e)
                 error: str = f"Gemini Vision error: {e}"
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
             except VertexAIContentBlockedError as e:

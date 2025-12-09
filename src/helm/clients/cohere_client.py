@@ -3,6 +3,7 @@ import requests
 from typing import List, Optional, Sequence, TypedDict
 
 from helm.common.cache import CacheConfig
+from helm.common.hierarchical_logger import hexception
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import (
     wrap_request_time,
@@ -123,6 +124,7 @@ class CohereClient(CachingClient):
 
             response, cached = self.cache.get(raw_request, wrap_request_time(do_it))
         except (requests.exceptions.RequestException, AssertionError) as e:
+            hexception(e)
             error: str = f"CohereClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
@@ -232,6 +234,7 @@ class CohereChatClient(CachingClient):
 
             response, cached = self.cache.get(raw_request, wrap_request_time(do_it))
         except (requests.exceptions.RequestException, AssertionError) as e:
+            hexception(e)
             error: str = f"CohereClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 

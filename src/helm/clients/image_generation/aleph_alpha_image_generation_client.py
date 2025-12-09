@@ -1,6 +1,7 @@
 from typing import List, Dict
 
 from helm.common.cache import Cache, CacheConfig
+from helm.common.hierarchical_logger import hexception
 from helm.common.request import Request, RequestResult, GeneratedOutput
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -74,6 +75,7 @@ class AlephAlphaImageGenerationClient(Client):
 
             response, cached = self._cache.get(cache_key, fail)
         except RuntimeError as e:
+            hexception(e)
             error: str = f"AlephAlphaVisionClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 

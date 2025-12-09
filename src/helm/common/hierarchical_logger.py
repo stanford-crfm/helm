@@ -64,6 +64,16 @@ class HierarchicalLogger(object):
         self.logger.warning(self.indent() + str(x), **kwargs)
         sys.stdout.flush()
 
+    def error(self, x: Any, **kwargs) -> None:
+        kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
+        self.logger.error(self.indent() + str(x), **kwargs)
+        sys.stdout.flush()
+
+    def exception(self, x: Any, **kwargs) -> None:
+        kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
+        self.logger.exception(self.indent() + str(x), **kwargs)
+        sys.stdout.flush()
+
 
 def format_time(s: float) -> str:
     """Return a nice string representation of `s` seconds."""
@@ -94,6 +104,16 @@ def hlog(x: Any, **kwargs) -> None:
 def hwarn(x: Any, **kwargs) -> None:
     kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
     singleton.warn(x, **kwargs)
+
+
+def herror(x: Any, **kwargs) -> None:
+    kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
+    singleton.error(x, **kwargs)
+
+
+def hexception(x: Any, **kwargs) -> None:
+    kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + 1
+    singleton.exception(x, **kwargs)
 
 
 class htrack_block:

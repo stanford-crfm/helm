@@ -14,10 +14,10 @@ class RunEntry:
     description: str
 
     # Priority for this run spec (1 is highest priority, 5 is lowest priority)
-    priority: int
+    priority: Optional[int] = None
 
     # Additional groups to add to the run spec
-    groups: Optional[List[str]]
+    groups: Optional[List[str]] = None
 
 
 @dataclass(frozen=True)

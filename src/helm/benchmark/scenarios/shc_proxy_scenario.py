@@ -33,7 +33,7 @@ class SHCPROXYMedScenario(Scenario):
     )
     tags = ["knowledge", "reasoning", "biomedical"]
 
-    POSSIBLE_ANSWER_CHOICES: List[str] = ["A", "B"]
+    POSSIBLE_ANSWER_CHOICES: List[str] = ["A", "B", "C"]
 
     def __init__(self, data_path: str):
         super().__init__()

@@ -12,6 +12,7 @@ www
 proxy_api_key*.txt
 microsoft_client.lock
 *.lock
+!uv.lock
 *.log
 *.out
 *.jsonl

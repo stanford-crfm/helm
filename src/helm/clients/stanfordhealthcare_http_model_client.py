@@ -5,6 +5,7 @@ from dataclasses import asdict
 from typing import Any, Dict, List, Optional
 
 from helm.common.cache import CacheConfig
+from helm.common.hierarchical_logger import hexception
 from helm.common.request import (
     wrap_request_time,
     Request,
@@ -82,6 +83,7 @@ class StanfordHealthCareHTTPModelClient(CachingClient, ABC):
                 request_time=response["request_time"],
             )
         except requests.exceptions.RequestException as e:
+            hexception(e)
             return RequestResult(success=False, cached=False, error=f"Request error: {e}", completions=[], embedding=[])
 
     @abstractmethod

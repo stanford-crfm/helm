@@ -16,47 +16,53 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12"]
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: pip
-      - run: python3 -m pip install --upgrade build
-      - run: python3 -m build
-      - run: python3 -m pip install dist/crfm_helm-*.whl
-      - run: helm-run --run-entries simple1:model=simple/model1 --max-eval-instances 10 --suite test
-      - run: helm-summarize --suite test
-      - run: helm-server --help
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.9.4"
+      - name: Build
+        run: uv build
+      - name: helm-run
+        run: uv run --isolated --no-project --with dist/*.whl helm-run --run-entries simple1:model=simple/model1 --max-eval-instances 10 --suite test
+      - name: helm-summarize
+        run: uv run --isolated --no-project --with dist/*.whl helm-summarize --suite test
+      - name: helm-server
+        run: uv run --isolated --no-project --with dist/*.whl helm-server --help
  
   test:
     name: Run all tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12"]
     steps:
-      - name: Clear free space
-        run: |
-            sudo rm -rf /opt/ghc
-            df -h
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: pip
-
-      # Installs dependencies and performs static code checks
-      - run: ./install-dev.sh
-      - run: ./pre-commit.sh
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.9.4"
+      - name: Install dependencies
+        run: uv sync --extra ci
+      - name: Run pre-commit
+        run: ./pre-commit.sh
       - name: Run tests
-        run: pytest --durations=20
+        run: uv run pytest --durations=20
         env:
           TEST: ${{ matrix.test }}
           VERSION: ${{ github.head_ref || 'main' }}
       - name: Run entire pipeline quickly without any data
         # Checking RunSpecs with openai/davinci should be comprehensive enough
-        run: helm-run --suite test -m 100 --skip-instances --models-to-run openai/davinci --exit-on-error
-        
+        run: uv run helm-run --suite test -m 100 --skip-instances --models-to-run openai/davinci --exit-on-error

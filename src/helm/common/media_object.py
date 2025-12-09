@@ -6,6 +6,8 @@ from typing import Any, Dict, List, Optional
 
 
 IMAGE_TYPE = "image"
+AUDIO_TYPE = "audio"
+VIDEO_TYPE = "video"
 TEXT_TYPE = "text"
 
 
