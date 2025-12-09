@@ -4098,7 +4098,48 @@ model_deployments:
     max_sequence_length: 8191
     client_spec:
       class_name: "helm.clients.vision_language.qwen2_vlm_client.Qwen2VLMClient"
+ 
+  - name: huggingface/qwen3-vl-4b-instruct
+    model_name: qwen/qwen3-vl-4b-instruct
+    tokenizer_name: qwen/qwen-vl-chat
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.vision_language.qwen3_vlm_client.Qwen3VLMClient"
 
+  - name: huggingface/qwen3-vl-8b-instruct
+    model_name: qwen/qwen3-vl-8b-instruct
+    tokenizer_name: qwen/qwen-vl-chat
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.vision_language.qwen3_vlm_client.Qwen3VLMClient"
+
+  - name: huggingface/qwen3-vl-30b-a3b-instruct
+    model_name: qwen/qwen3-vl-30b-a3b-instruct
+    tokenizer_name: qwen/qwen-vl-chat
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.vision_language.qwen3_vlm_client.Qwen3VLMClient"
+
+  - name: huggingface/qwen3-vl-235b-a22b-instruct
+    model_name: qwen/qwen3-vl-235b-a22b-instruct
+    tokenizer_name: qwen/qwen-vl-chat
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.vision_language.qwen3_vlm_client.Qwen3VLMClient"
+
+  - name: huggingface/qwen3-vl-4b-instruct-robo-reward
+    model_name: qwen/qwen3-vl-4b-instruct-robo-reward
+    tokenizer_name: qwen/qwen-vl-chat
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.vision_language.qwen3_vlm_client.Qwen3VLMClient"
+
+  - name: huggingface/qwen3-vl-8b-instruct-robo-reward
+    model_name: qwen/qwen3-vl-8b-instruct-robo-reward
+    tokenizer_name: qwen/qwen-vl-chat
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.vision_language.qwen3_vlm_client.Qwen3VLMClient"
 
   - name: huggingface/qwen2.5-vl-3b-instruct
     model_name: qwen/qwen2.5-vl-3b-instruct

@@ -3791,6 +3791,54 @@ models:
     release_date: 2025-07-01
     tags: [VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
 
+  - name: qwen/qwen3-vl-4b-instruct
+    display_name: Qwen3-VL Instruct (4B)
+    description: The third generation of Qwen multimodal vision-language models ([blog](https://qwenlm.github.io/blog/qwen3/)).
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2025-04-29
+    tags: [VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
+
+  - name: qwen/qwen3-vl-8b-instruct
+    display_name: Qwen3-VL Instruct (8B)
+    description: The third generation of Qwen multimodal vision-language models ([blog](https://qwenlm.github.io/blog/qwen3/)).
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2025-04-29
+    tags: [VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
+
+  - name: qwen/qwen3-vl-30b-a3b-instruct
+    display_name: Qwen3-VL Instruct (30B A3B)
+    description: The third generation of Qwen multimodal vision-language models ([blog](https://qwenlm.github.io/blog/qwen3/)).
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2025-04-29
+    tags: [VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
+
+  - name: qwen/qwen3-vl-235b-a22b-instruct
+    display_name: Qwen3-VL Instruct (235B A22B)
+    description: The third generation of Qwen multimodal vision-language models ([blog](https://qwenlm.github.io/blog/qwen3/)).
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2025-04-29
+    tags: [VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
+
+  - name: qwen/qwen3-vl-4b-instruct-robo-reward
+    display_name: Qwen3-VL Instruct Robo Reward (4B)
+    description: Qwen3-VL Instruct (4B) finetuned on RoboReward data for robotics evaluation.
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2025-12-08
+    tags: [VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
+
+  - name: qwen/qwen3-vl-8b-instruct-robo-reward
+    display_name: Qwen3-VL Instruct Robo Reward (8B)
+    description: Qwen3-VL Instruct (8B) finetuned on RoboReward data for robotics evaluation.
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2025-12-08
+    tags: [VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
+
   - name: qwen/qwen2.5-vl-3b-instruct
     display_name: Qwen2.5-VL Instruct (3B)
     description: The second generation of Qwen2.5-VL models ([blog](https://qwenlm.github.io/blog/qwen2.5-vl/)).
