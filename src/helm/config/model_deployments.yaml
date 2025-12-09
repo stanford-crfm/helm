@@ -914,6 +914,15 @@ model_deployments:
       args:
         disable_logprobs: True
 
+  - name: together/deepseek-v3.1
+    model_name: deepseek-ai/deepseek-v3.1
+    tokenizer_name: deepseek-ai/deepseek-v3.1
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        together_model: deepseek-ai/DeepSeek-V3.1
+
   - name: together/deepseek-r1-0528
     model_name: deepseek-ai/deepseek-r1-0528
     tokenizer_name: deepseek-ai/deepseek-r1
