@@ -5161,8 +5161,6 @@ model_deployments:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         pretrained_model_name_or_path: nicholasKluge/TeenyTinyLlama-460m
-=======
-        pretrained_model_name_or_path: nicholasKluge/TeenyTinyLlama-460m
 
   - name: openrouter/mistral-medium-3.1
     model_name: mistralai/mistral-medium-3.1
