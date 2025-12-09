@@ -2750,11 +2750,11 @@ models:
 
   - name: moonshotai/kimi-k2-instruct-0905
     display_name: Kimi K2 Instruct 0905
-    description:  Kimi K2 Instruct 0905 is a mixture-of-experts (MoE) language model with 32 billion activated parameters and 1 trillion total parameters trained with the Muon optimizer on 15.5T tokens. ([blog](https://moonshotai.github.io/Kimi-K2/))
+    description:  Kimi K2 Instruct 0905 is the latest, most capable version of Kimi K2. It is a state-of-the-art mixture-of-experts (MoE) language model, featuring 32 billion activated parameters and a total of 1 trillion parameters. ([model card](https://huggingface.co/moonshotai/Kimi-K2-Instruct-0905))
     creator_organization_name: Moonshot AI
     access: open
     num_parameters: 1029173256720
-    release_date: 2024-07-14  # Blog post has no date, so use the date from this news article https://www.cnbc.com/2025/07/14/alibaba-backed-moonshot-releases-kimi-k2-ai-rivaling-chatgpt-claude.html
+    release_date: 2024-09-05  # https://en.wikipedia.org/wiki/Kimi_(chatbot)
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: moonshotai/kimi-k2-thinking
