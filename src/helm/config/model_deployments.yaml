@@ -1908,6 +1908,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
 
+  - name: together/kimi-k2-instruct-0905
+    model_name: moonshotai/kimi-k2-instruct-0905
+    tokenizer_name: moonshotai/kimi-k2-instruct
+    max_sequence_length: 262144
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+
   - name: together/kimi-k2-thinking
     model_name: moonshotai/kimi-k2-thinking
     tokenizer_name: moonshotai/kimi-k2-thinking
