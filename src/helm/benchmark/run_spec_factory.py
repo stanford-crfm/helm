@@ -146,14 +146,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             run_spec = singleton(IncreaseMaxTokensRunExpander(value=1).expand(run_spec))
 
         # TODO: find a better solution for this
-        if model.name.startswith("openai/o"):
-            # From https://platform.openai.com/docs/guides/reasoning,
-            # "OpenAI recommends reserving at least 25,000 tokens for reasoning and outputs when you start
-            # experimenting with these models. As you become familiar with the number of reasoning tokens your
-            # prompts require, you can adjust this buffer accordingly."
-            run_spec = singleton(IncreaseMaxTokensRunExpander(value=25_000).expand(run_spec))
-
-        if model.name.startswith("google/gemini-2.5"):
+        if model.name.startswith("openai") or model.name.startswith("google/gemini"):
             run_spec = singleton(IncreaseMaxTokensRunExpander(value=60_000).expand(run_spec))
 
         # IDEFICS special handling
