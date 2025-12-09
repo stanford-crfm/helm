@@ -80,7 +80,7 @@ class Qwen3VLMClient(CachingClient):
                     model_name,
                     torch_dtype=torch.bfloat16,
                     device_map="auto",
-                    attn_implementation="flash_attention_2",
+                    # attn_implementation="flash_attention_2",
                 ).eval()
                 processor = AutoProcessor.from_pretrained(model_name)
                 if not getattr(processor, "chat_template", None):
