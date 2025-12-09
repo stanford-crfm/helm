@@ -914,6 +914,16 @@ model_deployments:
       args:
         disable_logprobs: True
 
+  - name: together/deepseek-v3.1
+    model_name: deepseek-ai/deepseek-v3.1
+    tokenizer_name: deepseek-ai/deepseek-v3.1
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        # The model name is case sensitive on Together AI for this model
+        together_model: deepseek-ai/DeepSeek-V3.1
+
   - name: together/deepseek-r1-0528
     model_name: deepseek-ai/deepseek-r1-0528
     tokenizer_name: deepseek-ai/deepseek-r1
@@ -4024,7 +4034,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
       args:
-        # For some reason, the model name is case sensitive on Together AI for this model only
+        # The model name is case sensitive on Together AI for this model
         together_model: Qwen/Qwen3-235B-A22B-Thinking-2507
 
   - name: huggingface/qwen2.5-7b-instruct-4bit

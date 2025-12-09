@@ -948,6 +948,16 @@ models:
     release_date: 2024-12-24
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: deepseek-ai/deepseek-v3.1
+    display_name: DeepSeek v3.1
+    description: DeepSeek v3.1 is a hybrid model that supports both thinking mode and non-thinking mode. ([blog](https://api-docs.deepseek.com/news/news250821))
+    creator_organization_name: DeepSeek
+    access: open
+    # NOTE: The total size of DeepSeek-V3 models on HuggingFace is 685B, which includes 671B of the Main Model weights and 14B of the Multi-Token Prediction (MTP) Module weights.
+    num_parameters: 685000000000
+    release_date: 2025-08-21
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: deepseek-ai/deepseek-r1
     display_name: DeepSeek R1
     description: DeepSeek R1 is DeepSeek's first-generation reasoning model which incoporates which incorporates multi-stage training and cold-start data before RL. ([paper](https://arxiv.org/abs/2501.12948))
