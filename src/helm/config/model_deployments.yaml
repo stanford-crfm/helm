@@ -914,6 +914,13 @@ model_deployments:
       args:
         disable_logprobs: True
 
+  - name: together/deepseek-v3.1
+    model_name: deepseek-ai/deepseek-v3.1
+    tokenizer_name: deepseek-ai/deepseek-v3.1
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+
   - name: together/deepseek-r1-0528
     model_name: deepseek-ai/deepseek-r1-0528
     tokenizer_name: deepseek-ai/deepseek-r1
@@ -1905,6 +1912,13 @@ model_deployments:
     model_name: moonshotai/kimi-k2-instruct
     tokenizer_name: moonshotai/kimi-k2-instruct
     max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+
+  - name: together/kimi-k2-instruct-0905
+    model_name: moonshotai/kimi-k2-instruct-0905
+    tokenizer_name: moonshotai/kimi-k2-instruct
+    max_sequence_length: 262144
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
 
