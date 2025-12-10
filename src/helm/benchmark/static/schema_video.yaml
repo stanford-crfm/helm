@@ -218,17 +218,17 @@ run_groups:
       - berkeley_mvp_converted_externally_to_rlds
       - berkeley_rpt_converted_externally_to_rlds
       - bridge
-      - cmu_play_fusion
-      - dlr_edan_shared_control_converted_externally_to_rlds
-      - dlr_sara_grid_clamp_converted_externally_to_rlds
+      # - cmu_play_fusion
+      #- dlr_edan_shared_control_converted_externally_to_rlds
+      # - dlr_sara_grid_clamp_converted_externally_to_rlds
       - droid
       - fractal20220817_data
-      - iamlab_cmu_pickup_insert_converted_externally_to_rlds
-      - imperialcollege_sawyer_wrist_cam
-      - jaco_play
-      - kaist_nonprehensile_converted_externally_to_rlds
-      - nyu_door_opening_surprising_effectiveness
-      - nyu_rot_dataset_converted_externally_to_rlds
+      # - iamlab_cmu_pickup_insert_converted_externally_to_rlds
+      # - imperialcollege_sawyer_wrist_cam
+      # - jaco_play
+      # - kaist_nonprehensile_converted_externally_to_rlds
+      # - nyu_door_opening_surprising_effectiveness
+      # - nyu_rot_dataset_converted_externally_to_rlds
       - robo_arena
       - roboturk
       - stanford_hydra_dataset_converted_externally_to_rlds
