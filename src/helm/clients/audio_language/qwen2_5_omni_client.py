@@ -67,7 +67,7 @@ class Qwen2_5OmniClient(CachingClient):
                     # Use flash attention 2 for A100 and H100 GPUs
                     model = Qwen2_5OmniModel.from_pretrained(
                         model_name,
-                        attn_implementation="flash_attention_2",
+                        # attn_implementation="flash_attention_2",
                         torch_dtype=torch.bfloat16,
                         device_map=self._device,
                     ).eval()
