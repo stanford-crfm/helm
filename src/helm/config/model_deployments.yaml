@@ -838,12 +838,12 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.cohere_client.CohereChatClient"
 
-  - name: huggingface/c4ai-command-a-03-2025
-    model_name: cohere/c4ai-command-a-03-2025
-    tokenizer_name: cohere/c4ai-command-a-03-2025
+  - name: huggingface/command-a-03-2025
+    model_name: cohere/command-a-03-2025
+    tokenizer_name: cohere/command-a-03-2025
     max_sequence_length: 131072
     client_spec:
-      class_name: "helm.clients.cohere_client.CohereChatClient"
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
       args:
         pretrained_model_name_or_path: CohereLabs/c4ai-command-a-03-2025
 

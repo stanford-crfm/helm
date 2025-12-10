@@ -157,7 +157,7 @@ tokenizer_configs:
     end_of_text_token: "<EOS_TOKEN>"
     prefix_token: "<BOS_TOKEN>"
 
-  - name: cohere/c4ai-command-a-03-2025
+  - name: cohere/command-a-03-2025
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
       args:

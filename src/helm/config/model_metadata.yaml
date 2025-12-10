@@ -822,7 +822,7 @@ models:
     release_date: 2024-04-04
     tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  - name: cohere/c4ai-command-a-03-2025
+  - name: cohere/command-a-03-2025
     display_name: Cohere Labs Command A
     description: Cohere Labs Command A is an open weights research release of a 111 billion parameter model optimized for enterprise use-cases. ([blog](https://cohere.com/blog/command-a), [paper](https://arxiv.org/abs/2504.00698))
     creator_organization_name: Cohere
