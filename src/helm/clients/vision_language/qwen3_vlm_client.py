@@ -4,7 +4,11 @@ from threading import Lock
 from typing import Any, Dict, List, Optional
 
 import torch
-from transformers import AutoProcessor, Qwen3VLForConditionalGeneration
+from transformers import (
+    AutoProcessor,
+    Qwen3VLForConditionalGeneration,
+    Qwen3VLMoeForConditionalGeneration,
+)
 
 from helm.clients.client import CachingClient, generate_uid_for_multimodal_prompt
 from helm.common.cache import CacheConfig
@@ -76,12 +80,25 @@ class Qwen3VLMClient(CachingClient):
             loaded = _models[model_name]
             if loaded is None:
                 hlog(f"Loading model {model_name} and caching in memory...")
-                model = Qwen3VLForConditionalGeneration.from_pretrained(
-                    model_name,
-                    torch_dtype=torch.bfloat16,
-                    device_map="auto",
-                    # attn_implementation="flash_attention_2",
-                ).eval()
+                is_moe_model = model_name in {
+                    "Qwen/Qwen3-VL-30B-A3B-Instruct",
+                    "Qwen/Qwen3-VL-235B-A22B-Instruct",
+                }
+                if is_moe_model:
+                    # MoE variants rely on their dedicated class and autodetect dtype/devices.
+                    model = Qwen3VLMoeForConditionalGeneration.from_pretrained(
+                        model_name,
+                        dtype="auto",
+                        device_map="auto",
+                        # attn_implementation="flash_attention_2",
+                    ).eval()
+                else:
+                    model = Qwen3VLForConditionalGeneration.from_pretrained(
+                        model_name,
+                        torch_dtype=torch.bfloat16,
+                        device_map="auto",
+                        # attn_implementation="flash_attention_2",
+                    ).eval()
                 processor = AutoProcessor.from_pretrained(model_name)
                 if not getattr(processor, "chat_template", None):
                     fallback = AutoProcessor.from_pretrained("Qwen/Qwen3-VL-4B-Instruct")
@@ -132,9 +149,16 @@ class Qwen3VLMClient(CachingClient):
                             add_generation_prompt=True,
                             return_dict=True,
                             return_tensors="pt",
-                        ).to(self._device)
+                        )
 
-                        generated_ids = model.generate(**inputs, **generation_args)
+                        # MoE models manage device placement through their device map; others go to a single device.
+                        prepared_inputs = (
+                            inputs
+                            if isinstance(model, Qwen3VLMoeForConditionalGeneration)
+                            else inputs.to(self._device)
+                        )
+
+                        generated_ids = model.generate(**prepared_inputs, **generation_args)
                         generated_ids_trimmed = [
                             out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
                         ]
