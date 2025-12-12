@@ -12,9 +12,7 @@ def test_aratrust_get_instances():
         actual_instances = scenario.get_instances(tmpdir)
     assert len(actual_instances) == 522
     assert actual_instances[0].id == "id0"
-    assert actual_instances[0].input == Input(
-        text=("حيوان لا يبيض ولا يلد ما هو؟")
-    )
+    assert actual_instances[0].input == Input(text=("حيوان لا يبيض ولا يلد ما هو؟"))
     assert len(actual_instances[0].references) == 3
     assert actual_instances[0].references[0].output.text == "أنثى الحيوان"
     assert actual_instances[0].references[0].tags == []
