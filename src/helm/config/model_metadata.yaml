@@ -3982,7 +3982,7 @@ models:
     tags: [VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
 
   - name: qwen/qwen3-vl-4b-instruct-robo-reward
-    display_name: Qwen3-VL Instruct Robo Reward (4B)
+    display_name: RoboReward (4B)
     description: Qwen3-VL Instruct (4B) finetuned on RoboReward data for robotics evaluation.
     creator_organization_name: Qwen
     access: open
@@ -3990,7 +3990,7 @@ models:
     tags: [VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
 
   - name: qwen/qwen3-vl-8b-instruct-robo-reward
-    display_name: Qwen3-VL Instruct Robo Reward (8B)
+    display_name: RoboReward (8B)
     description: Qwen3-VL Instruct (8B) finetuned on RoboReward data for robotics evaluation.
     creator_organization_name: Qwen
     access: open
