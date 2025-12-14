@@ -72,6 +72,12 @@ class Qwen3VLMClient(CachingClient):
             return LOCAL_ROBOREWARD_QWEN3_8B
         raise ValueError(f"Unhandled model name: {helm_model_name}")
 
+    def _is_moe_model(self, model_name: str) -> bool:
+        return model_name in {
+            "Qwen/Qwen3-VL-30B-A3B-Instruct",
+            "Qwen/Qwen3-VL-235B-A22B-Instruct",
+        }
+
     def _get_model(self, helm_model_name: str) -> LoadedModelProcessor:
         global _models_lock, _models
 
@@ -80,10 +86,7 @@ class Qwen3VLMClient(CachingClient):
             loaded = _models[model_name]
             if loaded is None:
                 hlog(f"Loading model {model_name} and caching in memory...")
-                is_moe_model = model_name in {
-                    "Qwen/Qwen3-VL-30B-A3B-Instruct",
-                    "Qwen/Qwen3-VL-235B-A22B-Instruct",
-                }
+                is_moe_model = self._is_moe_model(model_name)
                 if is_moe_model:
                     # MoE variants rely on their dedicated class and autodetect dtype/devices.
                     model = Qwen3VLMoeForConditionalGeneration.from_pretrained(
@@ -178,6 +181,8 @@ class Qwen3VLMClient(CachingClient):
                         **generation_args,
                     }
                     local_model_name_or_path = self._get_model_name(request.model_engine)
+                    if self._is_moe_model(local_model_name_or_path):
+                        raw_request["moe"] = True
                     if os.path.exists(local_model_name_or_path):
                         raw_request["local_model_name_or_path"] = local_model_name_or_path
 

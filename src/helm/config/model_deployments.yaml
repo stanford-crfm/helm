@@ -2754,6 +2754,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.openai_responses_client.OpenAIResponseClient"
 
+  - name: openai/gpt-5.2-2025-12-11
+    model_name: openai/gpt-5.2-2025-12-11
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 400000
+    client_spec:
+      class_name: "helm.clients.openai_responses_client.OpenAIResponseClient"
+
   - name: openai/whisper-1_gpt-4o-2024-11-20
     model_name: openai/whisper-1_gpt-4o-2024-11-20
     tokenizer_name: openai/o200k_base
