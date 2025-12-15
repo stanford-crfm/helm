@@ -18,7 +18,7 @@ export default function ArabicLanding() {
               className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
               href="https://arabic.ai/"
             >
-              Arabic.ai
+              Arabic.AI
             </a>
             .
           </p>
