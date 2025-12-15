@@ -345,6 +345,21 @@ models:
     release_date: 2023-11-29
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  # Arabic.ai
+  - name: arabicai/llm-x
+    display_name: Arabic.AI LLM-X
+    description: Arabic.AI LLM-X
+    creator_organization_name: Tarjama
+    access: limited
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: arabicai/llm-s
+    display_name: Arabic.AI LLM-S
+    description: Arabic.AI LLM-S
+    creator_organization_name: Tarjama
+    access: limited
+    tags: [DEPRECATED_MODEL_TAG,TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
 # Mistral Models on Bedrock
 # References for Mistral on Amazon Bedrock
 # https://aws.amazon.com/bedrock/mistral/
