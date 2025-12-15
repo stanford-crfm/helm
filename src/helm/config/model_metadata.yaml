@@ -3840,7 +3840,7 @@ models:
   - name: qwen/qwen2.5-vl-3b-instruct-robo-reward
     display_name: Qwen2.5-VL Instruct Robo Reward (3B)
     description: The second generation of Qwen2.5-VL models ([blog](https://qwenlm.github.io/blog/qwen2.5-vl/)).
-    creator_organization_name: Alibaba Group
+    creator_organization_name: Stanford
     access: open
     release_date: 2025-07-01
     tags: [VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
@@ -3848,7 +3848,7 @@ models:
   - name: qwen/qwen2.5-vl-3b-instruct-robo-reward-iclr
     display_name: Qwen2.5-VL Instruct Robo Reward (3B)
     description: The second generation of Qwen2.5-VL models ([blog](https://qwenlm.github.io/blog/qwen2.5-vl/)).
-    creator_organization_name: Alibaba Group
+    creator_organization_name: Stanford
     access: open
     release_date: 2025-07-01
     tags: [ VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG ]
@@ -3856,7 +3856,7 @@ models:
   - name: qwen/qwen2.5-vl-7b-instruct-robo-reward
     display_name: Qwen2.5-VL Instruct Robo Reward (7B)
     description: The second generation of Qwen2.5-VL models ([blog](https://qwenlm.github.io/blog/qwen2.5-vl/)).
-    creator_organization_name: Alibaba Group
+    creator_organization_name: Stanford
     access: open
     release_date: 2025-07-01
     tags: [VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
@@ -3864,7 +3864,7 @@ models:
   - name: qwen/qwen2.5-vl-7b-instruct-robo-reward-iclr
     display_name: Qwen2.5-VL Instruct Robo Reward (7B)
     description: The second generation of Qwen2.5-VL models ([blog](https://qwenlm.github.io/blog/qwen2.5-vl/)).
-    creator_organization_name: Alibaba Group
+    creator_organization_name: Stanford
     access: open
     release_date: 2025-07-01
     tags: [ VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG ]
@@ -3872,7 +3872,7 @@ models:
   - name: qwen/qwen2.5-vl-3b-instruct-robo-reward-robomimic
     display_name: Qwen2.5-VL Instruct Robo Reward robomimic (3B)
     description: The second generation of Qwen2.5-VL models ([blog](https://qwenlm.github.io/blog/qwen2.5-vl/)).
-    creator_organization_name: Alibaba Group
+    creator_organization_name: Stanford
     access: open
     release_date: 2025-07-01
     tags: [VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
@@ -3880,7 +3880,7 @@ models:
   - name: qwen/qwen2.5-vl-3b-instruct-robo-reward-robomimic-can-weak
     display_name: Qwen2.5-VL Instruct Robo Reward robomimic can weak (3B)
     description: The second generation of Qwen2.5-VL models ([blog](https://qwenlm.github.io/blog/qwen2.5-vl/)).
-    creator_organization_name: Alibaba Group
+    creator_organization_name: Stanford
     access: open
     release_date: 2025-07-01
     tags: [VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
@@ -3888,7 +3888,7 @@ models:
   - name: qwen/qwen2.5-vl-3b-instruct-robo-reward-robomimic-lift-weak
     display_name: Qwen2.5-VL Instruct Robo Reward robomimic lift weak (3B)
     description: The second generation of Qwen2.5-VL models ([blog](https://qwenlm.github.io/blog/qwen2.5-vl/)).
-    creator_organization_name: Alibaba Group
+    creator_organization_name: Stanford
     access: open
     release_date: 2025-07-01
     tags: [ VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG ]
@@ -3896,7 +3896,7 @@ models:
   - name: qwen/qwen2.5-vl-3b-instruct-robo-reward-robomimic-square-weak
     display_name: Qwen2.5-VL Instruct Robo Reward robomimic square weak (3B)
     description: The second generation of Qwen2.5-VL models ([blog](https://qwenlm.github.io/blog/qwen2.5-vl/)).
-    creator_organization_name: Alibaba Group
+    creator_organization_name: Stanford
     access: open
     release_date: 2025-07-01
     tags: [ VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG ]
@@ -3904,7 +3904,7 @@ models:
   - name: qwen/qwen2.5-vl-3b-instruct-robo-reward-robomimic-lift
     display_name: Qwen2.5-VL Instruct Robo Reward robomimic lift (3B)
     description: The second generation of Qwen2.5-VL models ([blog](https://qwenlm.github.io/blog/qwen2.5-vl/)).
-    creator_organization_name: Alibaba Group
+    creator_organization_name: Stanford
     access: open
     release_date: 2025-07-01
     tags: [ VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG ]
@@ -3912,7 +3912,7 @@ models:
   - name: qwen/qwen2.5-vl-3b-instruct-robo-reward-robomimic-square
     display_name: Qwen2.5-VL Instruct Robo Reward robomimic square (3B)
     description: The second generation of Qwen2.5-VL models ([blog](https://qwenlm.github.io/blog/qwen2.5-vl/)).
-    creator_organization_name: Alibaba Group
+    creator_organization_name: Stanford
     access: open
     release_date: 2025-07-01
     tags: [ VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG ]
@@ -3920,7 +3920,7 @@ models:
   - name: qwen/qwen2.5-vl-3b-instruct-robo-reward-robomimic-transport
     display_name: Qwen2.5-VL Instruct Robo Reward robomimic transport (3B)
     description: The second generation of Qwen2.5-VL models ([blog](https://qwenlm.github.io/blog/qwen2.5-vl/)).
-    creator_organization_name: Alibaba Group
+    creator_organization_name: Stanford
     access: open
     release_date: 2025-07-01
     tags: [ VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG ]
@@ -3928,7 +3928,7 @@ models:
   - name: qwen/qwen2.5-vl-7b-instruct-robo-reward-robomimic
     display_name: Qwen2.5-VL Instruct Robo Reward robomimic (7B)
     description: The second generation of Qwen2.5-VL models ([blog](https://qwenlm.github.io/blog/qwen2.5-vl/)).
-    creator_organization_name: Alibaba Group
+    creator_organization_name: Stanford
     access: open
     release_date: 2025-07-01
     tags: [VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
@@ -3936,7 +3936,7 @@ models:
   - name: qwen/qwen2.5-vl-3b-instruct-robo-reward-robomimic-mixed
     display_name: Qwen2.5-VL Instruct Robo Reward robomimic mixed (3B)
     description: The second generation of Qwen2.5-VL models ([blog](https://qwenlm.github.io/blog/qwen2.5-vl/)).
-    creator_organization_name: Alibaba Group
+    creator_organization_name: Stanford
     access: open
     release_date: 2025-07-01
     tags: [VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
@@ -3952,7 +3952,7 @@ models:
   - name: qwen/qwen3-vl-4b-instruct
     display_name: Qwen3-VL Instruct (4B)
     description: The third generation of Qwen multimodal vision-language models ([blog](https://qwenlm.github.io/blog/qwen3/)).
-    creator_organization_name: Qwen
+    creator_organization_name: Alibaba Group
     access: open
     release_date: 2025-04-29
     tags: [VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
@@ -3960,7 +3960,7 @@ models:
   - name: qwen/qwen3-vl-8b-instruct
     display_name: Qwen3-VL Instruct (8B)
     description: The third generation of Qwen multimodal vision-language models ([blog](https://qwenlm.github.io/blog/qwen3/)).
-    creator_organization_name: Qwen
+    creator_organization_name: Alibaba Group
     access: open
     release_date: 2025-04-29
     tags: [VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
@@ -3968,7 +3968,7 @@ models:
   - name: qwen/qwen3-vl-30b-a3b-instruct
     display_name: Qwen3-VL Instruct (30B A3B)
     description: The third generation of Qwen multimodal vision-language models ([blog](https://qwenlm.github.io/blog/qwen3/)).
-    creator_organization_name: Qwen
+    creator_organization_name: Alibaba Group
     access: open
     release_date: 2025-04-29
     tags: [VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
@@ -3976,7 +3976,7 @@ models:
   - name: qwen/qwen3-vl-235b-a22b-instruct
     display_name: Qwen3-VL Instruct (235B A22B)
     description: The third generation of Qwen multimodal vision-language models ([blog](https://qwenlm.github.io/blog/qwen3/)).
-    creator_organization_name: Qwen
+    creator_organization_name: Alibaba Group
     access: open
     release_date: 2025-04-29
     tags: [VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
