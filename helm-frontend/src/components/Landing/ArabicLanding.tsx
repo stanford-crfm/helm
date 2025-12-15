@@ -16,9 +16,9 @@ export default function ArabicLanding() {
             with and financially supported by{" "}
             <a
               className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
-              href="https://tarjama.com/"
+              href="https://arabic.ai/"
             >
-              Tarjama
+              Arabic.ai
             </a>
             .
           </p>
