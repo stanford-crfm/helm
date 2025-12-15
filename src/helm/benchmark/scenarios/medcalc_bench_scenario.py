@@ -28,7 +28,7 @@ class MedCalcBenchScenario(Scenario):
     This dataset contains a training dataset of 10,053 instances and a testing
     dataset of 1,047 instances.
 
-    Dataset: https://huggingface.co/datasets/ncbi/MedCalc-Bench-v1.0
+    Dataset: https://huggingface.co/datasets/ncbi/MedCalc-Bench
     Paper: https://arxiv.org/abs/2406.12036
 
     Sample Prompt:
@@ -151,7 +151,7 @@ class MedCalcBenchScenario(Scenario):
 
 class MedCalcBenchV1_0Scenario(MedCalcBenchScenario):
     """
-    MedCalc-Bench v1.0 is the original version of the MedCalc-Bench dataset designed to
+    MedCalc-Bench v1.0 is an updated the version of the MedCalc-Bench dataset designed to
     evaluate LLMs' capabilities in medical calculations. This version serves as a baseline
     for assessing the performance of language models in computing clinically relevant values
     from patient notes.
