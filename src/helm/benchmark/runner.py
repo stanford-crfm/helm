@@ -367,7 +367,14 @@ class Runner:
             return
 
         # Output benchmarking information and results to files
-        write(os.path.join(run_path, "run_spec.json"), json.dumps(asdict_without_nones(run_spec), indent=2))
+        run_spec_dict = asdict_without_nones(run_spec)
+        adapter_spec_dict = run_spec_dict.get("adapter_spec")
+        if isinstance(adapter_spec_dict, dict):
+            vip = adapter_spec_dict.get("video_understanding_parameters")
+            # Flatten complex objects to keep downstream renderers happy
+            if vip is not None and not isinstance(vip, (str, int, float, bool)):
+                adapter_spec_dict["video_understanding_parameters"] = json.dumps(vip)
+        write(os.path.join(run_path, "run_spec.json"), json.dumps(run_spec_dict, indent=2))
 
         # Write out scenario
         write(os.path.join(run_path, "scenario.json"), json.dumps(asdict_without_nones(scenario), indent=2))
