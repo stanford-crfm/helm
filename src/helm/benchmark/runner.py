@@ -367,7 +367,11 @@ class Runner:
             return
 
         # Output benchmarking information and results to files
-        write(os.path.join(run_path, "run_spec.json"), json.dumps(asdict_without_nones(run_spec), indent=2))
+        run_spec_dict = asdict_without_nones(run_spec)
+        adapter_spec_dict = run_spec_dict.get("adapter_spec")
+        if isinstance(adapter_spec_dict, dict):
+            adapter_spec_dict.pop("video_understanding_parameters", None)
+        write(os.path.join(run_path, "run_spec.json"), json.dumps(run_spec_dict, indent=2))
 
         # Write out scenario
         write(os.path.join(run_path, "scenario.json"), json.dumps(asdict_without_nones(scenario), indent=2))
