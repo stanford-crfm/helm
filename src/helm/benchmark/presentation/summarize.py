@@ -392,7 +392,17 @@ class Summarizer:
         """Load the `Run` object from `run_path`."""
 
         with open(os.path.join(run_path, "run_spec.json")) as f:
-            run_spec = from_json(f.read(), RunSpec)
+            raw_spec_text = f.read()
+            try:
+                run_spec_dict = json.loads(raw_spec_text)
+            except json.JSONDecodeError:
+                # Fall back to the existing parser if the file is not valid JSON.
+                run_spec = from_json(raw_spec_text, RunSpec)
+            else:
+                adapter_spec_dict = run_spec_dict.get("adapter_spec")
+                if isinstance(adapter_spec_dict, dict):
+                    adapter_spec_dict.pop("video_understanding_parameters", None)
+                run_spec = from_json(json.dumps(run_spec_dict), RunSpec)
 
         with open(os.path.join(run_path, "stats.json")) as f:
             stats = from_json(f.read(), List[Stat])
