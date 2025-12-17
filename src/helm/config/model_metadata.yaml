@@ -349,14 +349,14 @@ models:
   - name: arabicai/llm-x
     display_name: Arabic.AI LLM-X
     description: Arabic.AI LLM-X
-    creator_organization_name: Tarjama
+    creator_organization_name: Arabic.AI
     access: limited
     tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: arabicai/llm-s
     display_name: Arabic.AI LLM-S
     description: Arabic.AI LLM-S
-    creator_organization_name: Tarjama
+    creator_organization_name: Arabic.AI
     access: limited
     tags: [DEPRECATED_MODEL_TAG,TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
