@@ -2740,7 +2740,7 @@ models:
 
   - name: mistralai/mistral-large-2411
     display_name: Mistral Large (2411)
-    description: Mistral Large (2411) is a 123B parameter model that has a 128k context window. ([blog](https://mistral.ai/news/pixtral-large/))
+    description: Mistral Large (2411) is a 123B parameter model that has a 128k context window. ([blog](https://mistral.ai/news/mistral-large-2407))
     creator_organization_name: Mistral AI
     access: open
     num_parameters: 123000000000
