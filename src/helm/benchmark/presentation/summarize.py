@@ -1153,7 +1153,7 @@ class Summarizer:
                 # HACK for RoboReward
                 aggregate_header_cells.append(
                     HeaderCell(
-                        "Mean Absolute Error (lower is better)",
+                        "Mean Abs. Error (↓ better)",
                         description="Mean Absolute Error (lower is better).",
                         lower_is_better=True,
                     )
