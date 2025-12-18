@@ -13,7 +13,7 @@ export default function ArabicLanding() {
             <strong className="font-bold">HELM Arabic</strong>, a leaderboard
             for transparent and reproducible evaluation of LLMs on Arabic
             language benchmarks. This leaderboard was produced in collaboration
-            with and financially supported by{" "}
+            with {" "}
             <a
               className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
               href="https://arabic.ai/"
@@ -40,7 +40,7 @@ export default function ArabicLanding() {
             <li>
               <a
                 className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
-                href="https://aclanthology.org/2023.arabicnlp-1.21/"
+                href="https://huggingface.co/datasets/OALL/AlGhafa-Arabic-LLM-Benchmark-Native"
               >
                 AlGhafa
               </a>{" "}
@@ -62,7 +62,7 @@ export default function ArabicLanding() {
             <li>
               <a
                 className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
-                href="https://aclanthology.org/2020.emnlp-main.438/"
+                href="https://huggingface.co/datasets/mhardalov/exams"
               >
                 Arabic EXAMS
               </a>{" "}
@@ -83,7 +83,7 @@ export default function ArabicLanding() {
             <li>
               <a
                 className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
-                href="https://arxiv.org/abs/2410.17040"
+                href="https://huggingface.co/datasets/asas-ai/AraTrust"
               >
                 AraTrust
               </a>{" "}
