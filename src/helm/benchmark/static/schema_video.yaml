@@ -179,18 +179,15 @@ run_groups:
     subgroups:
       - austin_sirius_dataset_converted_externally_to_rlds
       - berkeley_autolab_ur5
-      - berkeley_cable_routing
       - berkeley_fanuc_manipulation
       - berkeley_mvp_converted_externally_to_rlds
       - berkeley_rpt_converted_externally_to_rlds
       - bridge
       - cmu_play_fusion
       - dlr_edan_shared_control_converted_externally_to_rlds
-      - dlr_sara_grid_clamp_converted_externally_to_rlds
       - droid
       - fractal20220817_data
       - iamlab_cmu_pickup_insert_converted_externally_to_rlds
-      - imperialcollege_sawyer_wrist_cam
       - jaco_play
       - kaist_nonprehensile_converted_externally_to_rlds
       - robo_arena
@@ -200,13 +197,12 @@ run_groups:
       - tokyo_u_lsmo_converted_externally_to_rlds
       - ucsd_kitchen_dataset_converted_externally_to_rlds
       - ucsd_pick_and_place_dataset_converted_externally_to_rlds
-      - utaustin_mutex
       - utokyo_pr2_tabletop_manipulation_converted_externally_to_rlds
       - utokyo_xarm_bimanual_converted_externally_to_rlds
       - viola
 
   - name: austin_buds_dataset_converted_externally_to_rlds
-    display_name: Robo Reward Bench (austin_buds_dataset_converted_externally_to_rlds)
+    display_name: austin_buds_dataset_converted_externally_to_rlds
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -221,7 +217,7 @@ run_groups:
       language: English
 
   - name: austin_sirius_dataset_converted_externally_to_rlds
-    display_name: Robo Reward Bench (austin_sirius_dataset_converted_externally_to_rlds)
+    display_name: austin_sirius_dataset_converted_externally_to_rlds
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -236,7 +232,7 @@ run_groups:
       language: English
 
   - name: berkeley_autolab_ur5
-    display_name: Robo Reward Bench (berkeley_autolab_ur5)
+    display_name: berkeley_autolab_ur5
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -251,7 +247,7 @@ run_groups:
       language: English
 
   - name: berkeley_cable_routing
-    display_name: Robo Reward Bench (berkeley_cable_routing)
+    display_name: berkeley_cable_routing
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -266,7 +262,7 @@ run_groups:
       language: English
 
   - name: berkeley_fanuc_manipulation
-    display_name: Robo Reward Bench (berkeley_fanuc_manipulation)
+    display_name: berkeley_fanuc_manipulation
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -281,7 +277,7 @@ run_groups:
       language: English
 
   - name: berkeley_mvp_converted_externally_to_rlds
-    display_name: Robo Reward Bench (berkeley_mvp_converted_externally_to_rlds)
+    display_name: berkeley_mvp_converted_externally_to_rlds
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -296,7 +292,7 @@ run_groups:
       language: English
 
   - name: berkeley_rpt_converted_externally_to_rlds
-    display_name: Robo Reward Bench (berkeley_rpt_converted_externally_to_rlds)
+    display_name: berkeley_rpt_converted_externally_to_rlds
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -311,7 +307,7 @@ run_groups:
       language: English
 
   - name: bridge
-    display_name: Robo Reward Bench (bridge)
+    display_name: bridge
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -326,7 +322,7 @@ run_groups:
       language: English
 
   - name: cmu_play_fusion
-    display_name: Robo Reward Bench (cmu_play_fusion)
+    display_name: cmu_play_fusion
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -341,7 +337,7 @@ run_groups:
       language: English
 
   - name: dlr_edan_shared_control_converted_externally_to_rlds
-    display_name: Robo Reward Bench (dlr_edan_shared_control_converted_externally_to_rlds)
+    display_name: dlr_edan_shared_control_converted_externally_to_rlds
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -356,7 +352,7 @@ run_groups:
       language: English
 
   - name: dlr_sara_grid_clamp_converted_externally_to_rlds
-    display_name: Robo Reward Bench (dlr_sara_grid_clamp_converted_externally_to_rlds)
+    display_name: dlr_sara_grid_clamp_converted_externally_to_rlds
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -371,7 +367,7 @@ run_groups:
       language: English
 
   - name: droid
-    display_name: Robo Reward Bench (droid)
+    display_name: droid
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -386,7 +382,7 @@ run_groups:
       language: English
 
   - name: fractal20220817_data
-    display_name: Robo Reward Bench (fractal20220817_data)
+    display_name: fractal20220817_data
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -401,7 +397,7 @@ run_groups:
       language: English
 
   - name: iamlab_cmu_pickup_insert_converted_externally_to_rlds
-    display_name: Robo Reward Bench (iamlab_cmu_pickup_insert_converted_externally_to_rlds)
+    display_name: iamlab_cmu_pickup_insert_converted_externally_to_rlds
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -416,7 +412,7 @@ run_groups:
       language: English
 
   - name: imperialcollege_sawyer_wrist_cam
-    display_name: Robo Reward Bench (imperialcollege_sawyer_wrist_cam)
+    display_name: imperialcollege_sawyer_wrist_cam
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -431,7 +427,7 @@ run_groups:
       language: English
 
   - name: jaco_play
-    display_name: Robo Reward Bench (jaco_play)
+    display_name: jaco_play
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -446,7 +442,7 @@ run_groups:
       language: English
 
   - name: kaist_nonprehensile_converted_externally_to_rlds
-    display_name: Robo Reward Bench (kaist_nonprehensile_converted_externally_to_rlds)
+    display_name: kaist_nonprehensile_converted_externally_to_rlds
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -461,7 +457,7 @@ run_groups:
       language: English
 
   - name: nyu_door_opening_surprising_effectiveness
-    display_name: Robo Reward Bench (nyu_door_opening_surprising_effectiveness)
+    display_name: nyu_door_opening_surprising_effectiveness
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -476,7 +472,7 @@ run_groups:
       language: English
 
   - name: nyu_rot_dataset_converted_externally_to_rlds
-    display_name: Robo Reward Bench (nyu_rot_dataset_converted_externally_to_rlds)
+    display_name: nyu_rot_dataset_converted_externally_to_rlds
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -491,7 +487,7 @@ run_groups:
       language: English
 
   - name: robo_arena
-    display_name: Robo Reward Bench (robo_arena)
+    display_name: robo_arena
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -506,7 +502,7 @@ run_groups:
       language: English
 
   - name: roboturk
-    display_name: Robo Reward Bench (roboturk)
+    display_name: roboturk
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -521,7 +517,7 @@ run_groups:
       language: English
 
   - name: stanford_hydra_dataset_converted_externally_to_rlds
-    display_name: Robo Reward Bench (stanford_hydra_dataset_converted_externally_to_rlds)
+    display_name: stanford_hydra_dataset_converted_externally_to_rlds
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -536,7 +532,7 @@ run_groups:
       language: English
 
   - name: taco_play
-    display_name: Robo Reward Bench (taco_play)
+    display_name: taco_play
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -551,7 +547,7 @@ run_groups:
       language: English
 
   - name: tokyo_u_lsmo_converted_externally_to_rlds
-    display_name: Robo Reward Bench (tokyo_u_lsmo_converted_externally_to_rlds)
+    display_name: tokyo_u_lsmo_converted_externally_to_rlds
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -566,7 +562,7 @@ run_groups:
       language: English
 
   - name: toto
-    display_name: Robo Reward Bench (toto)
+    display_name: toto
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -581,7 +577,7 @@ run_groups:
       language: English
 
   - name: ucsd_kitchen_dataset_converted_externally_to_rlds
-    display_name: Robo Reward Bench (ucsd_kitchen_dataset_converted_externally_to_rlds)
+    display_name: ucsd_kitchen_dataset_converted_externally_to_rlds
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -596,7 +592,7 @@ run_groups:
       language: English
 
   - name: ucsd_pick_and_place_dataset_converted_externally_to_rlds
-    display_name: Robo Reward Bench (ucsd_pick_and_place_dataset_converted_externally_to_rlds)
+    display_name: ucsd_pick_and_place_dataset_converted_externally_to_rlds
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -611,7 +607,7 @@ run_groups:
       language: English
 
   - name: utaustin_mutex
-    display_name: Robo Reward Bench (utaustin_mutex)
+    display_name: utaustin_mutex
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -626,7 +622,7 @@ run_groups:
       language: English
 
   - name: utokyo_pr2_opening_fridge_converted_externally_to_rlds
-    display_name: Robo Reward Bench (utokyo_pr2_opening_fridge_converted_externally_to_rlds)
+    display_name: utokyo_pr2_opening_fridge_converted_externally_to_rlds
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -641,7 +637,7 @@ run_groups:
       language: English
 
   - name: utokyo_pr2_tabletop_manipulation_converted_externally_to_rlds
-    display_name: Robo Reward Bench (utokyo_pr2_tabletop_manipulation_converted_externally_to_rlds)
+    display_name: utokyo_pr2_tabletop_manipulation_converted_externally_to_rlds
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -656,7 +652,7 @@ run_groups:
       language: English
 
   - name: utokyo_xarm_bimanual_converted_externally_to_rlds
-    display_name: Robo Reward Bench (utokyo_xarm_bimanual_converted_externally_to_rlds)
+    display_name: utokyo_xarm_bimanual_converted_externally_to_rlds
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -671,7 +667,7 @@ run_groups:
       language: English
 
   - name: utokyo_xarm_pick_and_place_converted_externally_to_rlds
-    display_name: Robo Reward Bench (utokyo_xarm_pick_and_place_converted_externally_to_rlds)
+    display_name: utokyo_xarm_pick_and_place_converted_externally_to_rlds
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -686,7 +682,7 @@ run_groups:
       language: English
 
   - name: viola
-    display_name: Robo Reward Bench (viola)
+    display_name: viola
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
