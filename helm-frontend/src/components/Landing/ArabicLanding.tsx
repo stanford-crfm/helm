@@ -13,7 +13,7 @@ export default function ArabicLanding() {
             <strong className="font-bold">HELM Arabic</strong>, a leaderboard
             for transparent and reproducible evaluation of LLMs on Arabic
             language benchmarks. This leaderboard was produced in collaboration
-            with {" "}
+            with{" "}
             <a
               className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
               href="https://arabic.ai/"
