@@ -1150,11 +1150,12 @@ class Summarizer:
                 aggregate_row_values.append(win_rates)
             elif strategy == AggregationStrategy.MEAN:
                 means = compute_aggregate_row_means(table)
+                # HACK for RoboReward
                 aggregate_header_cells.append(
                     HeaderCell(
-                        "Mean score",
-                        description="The mean of the scores from all columns.",
-                        lower_is_better=table.header[0].lower_is_better,
+                        "Mean Absolute Error (lower is better)",
+                        description="Mean Absolute Error (lower is better).",
+                        lower_is_better=True,
                     )
                 )
                 aggregate_row_values.append(means)
