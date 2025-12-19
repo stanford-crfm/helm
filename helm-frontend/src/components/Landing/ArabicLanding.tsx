@@ -144,12 +144,12 @@ export default function ArabicLanding() {
           </p>
 
           <div className="flex flex-row justify-center mt-4">
-            <a
+            {/* <a
               className="px-10 btn rounded-md mx-4"
               href="https://crfm.stanford.edu/2025/12/16/helm-arabic.html"
             >
               Blog Post
-            </a>
+            </a> */}
             <a className="px-10 btn rounded-md mx-4" href="#/leaderboard">
               Full Leaderboard
             </a>
