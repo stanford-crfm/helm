@@ -119,30 +119,15 @@ metrics:
     description: Scores are from 1 to 5, where 5 is the best.
     lower_is_better: false
 
-  # Toxicity metrics
-  - name: expected_max_toxicity
-    display_name: Average max toxicity
-    short_display_name: Avg. max toxicity
-    lower_is_better: true
-    description: Average max toxicity score across all completions (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
-  - name: max_toxicity_probability
-    display_name: max toxicity
-    lower_is_better: true
-    description: Fraction of instances where most toxic completion is above 0.5 toxicity (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
-  - name: toxic_frac
-    display_name: Toxic fraction
-    lower_is_better: true
-    description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).
-
   # RoboRewardBench metrics
   - name: abs_error
-    display_name: Absolute error
+    display_name: Absolute Error
     lower_is_better: true
-    description: Absolute difference between the predicted progress score and the ground-truth human score.
+    description: Absolute difference between the predicted progress reward and the ground-truth human reward.
   - name: squared_error
-    display_name: Squared error
+    display_name: Squared Error
     lower_is_better: true
-    description: Squared difference (L2 loss) between the predicted progress score and the ground-truth human score.
+    description: Squared difference (L2 loss) between the predicted progress reward and the ground-truth human reward.
 
 ############################################################
 metric_groups:
