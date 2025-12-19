@@ -1433,7 +1433,7 @@ models:
 
   - name: google/gemini-3-flash-preview
     display_name: Gemini 3 Flash (Preview)
-    description: Gemini 3.0 models are thinking models, capable of reasoning through their thoughts before responding, resulting in enhanced performance and improved accuracy. ([blog](https://blog.google/products/gemini/gemini-3/), [blog](https://blog.google/technology/developers/gemini-3-developers/))
+    description: Gemini 3.0 models are thinking models, capable of reasoning through their thoughts before responding, resulting in enhanced performance and improved accuracy. ([blog](https://blog.google/products/gemini/gemini-3/), [blog](https://blog.google/products/gemini/gemini-3-flash/))
     creator_organization_name: Google
     access: limited
     release_date: 2025-12-17
