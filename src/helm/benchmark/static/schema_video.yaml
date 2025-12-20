@@ -162,6 +162,7 @@ run_groups:
     description: All scenarios across capabilities
     category: All scenarios
     subgroups:
+      - robo_arena
       - austin_sirius_dataset_converted_externally_to_rlds
       - berkeley_autolab_ur5
       - berkeley_fanuc_manipulation
@@ -175,7 +176,6 @@ run_groups:
       - iamlab_cmu_pickup_insert_converted_externally_to_rlds
       - jaco_play
       - kaist_nonprehensile_converted_externally_to_rlds
-      - robo_arena
       - roboturk
       - stanford_hydra_dataset_converted_externally_to_rlds
       - taco_play
