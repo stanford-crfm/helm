@@ -35,6 +35,16 @@ LOCAL_ROBOREWARD_QWEN3_4B = (
     "Qwen2.5-VL/qwen-vl-finetune/output_qwen3vl_4b_roboreward_validated/hf_checkpoints/step-3000"
 )
 
+LOCAL_ROBOREWARD_QWEN3_4B_ABLATION_RA_OXE_STEP2000 = (
+    "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/"
+    "Qwen2.5-VL/qwen-vl-finetune/output_qwen3vl_4b_roboreward_roboarena_oxe_12_20_2025/hf_checkpoints/step-2000"
+)
+
+LOCAL_ROBOREWARD_QWEN3_4B_ABLATION_NO_CUT_STEP1400 = (
+    "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/"
+    "Qwen2.5-VL/qwen-vl-finetune/output_qwen3vl_4b_roboreward_no_cut_12_20_2025/hf_checkpoints/step-1400"
+)
+
 LOCAL_ROBOREWARD_QWEN3_8B = (
     "/nlp/scr4/nlp/crfm/text2image/text2image-rlhf/robotics/"
     "Qwen2.5-VL/qwen-vl-finetune/output_qwen3vl_8b_roboreward_validated_127/hf_checkpoints/step-4200"
@@ -48,6 +58,8 @@ _models: Dict[str, Optional[LoadedModelProcessor]] = {
     "Qwen/Qwen3-VL-30B-A3B-Instruct": None,
     "Qwen/Qwen3-VL-235B-A22B-Instruct": None,
     LOCAL_ROBOREWARD_QWEN3_4B: None,
+    LOCAL_ROBOREWARD_QWEN3_4B_ABLATION_RA_OXE_STEP2000: None,
+    LOCAL_ROBOREWARD_QWEN3_4B_ABLATION_NO_CUT_STEP1400: None,
     LOCAL_ROBOREWARD_QWEN3_8B: None,
 }
 
@@ -68,6 +80,10 @@ class Qwen3VLMClient(CachingClient):
             return "Qwen/Qwen3-VL-235B-A22B-Instruct"
         if helm_model_name == "qwen3-vl-4b-instruct-robo-reward":
             return LOCAL_ROBOREWARD_QWEN3_4B
+        if helm_model_name == "qwen3-vl-4b-instruct-robo-reward-ablation-ra-oxe-step2000":
+            return LOCAL_ROBOREWARD_QWEN3_4B_ABLATION_RA_OXE_STEP2000
+        if helm_model_name == "qwen3-vl-4b-instruct-robo-reward-ablation-no-cut-step1400":
+            return LOCAL_ROBOREWARD_QWEN3_4B_ABLATION_NO_CUT_STEP1400
         if helm_model_name == "qwen3-vl-8b-instruct-robo-reward":
             return LOCAL_ROBOREWARD_QWEN3_8B
         raise ValueError(f"Unhandled model name: {helm_model_name}")
