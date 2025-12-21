@@ -121,6 +121,96 @@ def get_medcalc_bench_spec() -> RunSpec:
     )
 
 
+@run_spec_function("medcalc_bench_v1_0")
+def get_medcalc_bench_v1_0_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.medcalc_bench_scenario.MedCalcBenchV1_0Scenario")
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Given a patient note and a clinical question, compute the requested medical value.",
+        input_noun=None,
+        newline_after_input_noun=False,
+        output_noun="Answer only the requested quantity without units. No explanation needed",
+        max_tokens=10,
+        max_train_instances=0,
+        stop_sequences=[],
+    )
+
+    metric_specs = [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.medcalc_bench_metrics.MedCalcBenchMetric",
+            args={},
+        )
+    ] + get_exact_match_metric_specs()
+
+    return RunSpec(
+        name="medcalc_bench_v1_0",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["medcalc_bench"],
+    )
+
+
+@run_spec_function("medcalc_bench_v1_1")
+def get_medcalc_bench_v1_1_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.medcalc_bench_scenario.MedCalcBenchV1_1Scenario")
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Given a patient note and a clinical question, compute the requested medical value.",
+        input_noun=None,
+        newline_after_input_noun=False,
+        output_noun="Answer only the requested quantity without units. No explanation needed",
+        max_tokens=10,
+        max_train_instances=0,
+        stop_sequences=[],
+    )
+
+    metric_specs = [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.medcalc_bench_metrics.MedCalcBenchMetric",
+            args={},
+        )
+    ] + get_exact_match_metric_specs()
+
+    return RunSpec(
+        name="medcalc_bench_v1_1",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["medcalc_bench"],
+    )
+
+
+@run_spec_function("medcalc_bench_v1_2")
+def get_medcalc_bench_v1_2_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.medcalc_bench_scenario.MedCalcBenchV1_2Scenario")
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Given a patient note and a clinical question, compute the requested medical value.",
+        input_noun=None,
+        newline_after_input_noun=False,
+        output_noun="Answer only the requested quantity without units. No explanation needed",
+        max_tokens=10,
+        max_train_instances=0,
+        stop_sequences=[],
+    )
+
+    metric_specs = [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.medcalc_bench_metrics.MedCalcBenchMetric",
+            args={},
+        )
+    ] + get_exact_match_metric_specs()
+
+    return RunSpec(
+        name="medcalc_bench_v1_2",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["medcalc_bench"],
+    )
+
+
 @run_spec_function("clear")
 def get_clear_spec(condition: str, data_path: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
