@@ -1354,15 +1354,16 @@ class Summarizer:
             # Additional LaTeX: full leaderboard sorted by Mean Abs. Error (RoboRewardBench).
             # This is intentionally additive and does not alter existing outputs.
             if group.name == "core_scenarios":
-                # Use the first table that contains a Mean column.
+                # Use the first table that contains a Mean column and has subgroup columns.
                 base_table: Optional[Table] = None
                 mean_idx: Optional[int] = None
                 for candidate in tables:
                     for idx, header_cell in enumerate(candidate.header):
                         if isinstance(header_cell.value, str) and "Mean" in header_cell.value:
-                            base_table = candidate
-                            mean_idx = idx
-                            break
+                            if len(candidate.header) > 2:
+                                base_table = candidate
+                                mean_idx = idx
+                                break
                     if base_table is not None:
                         break
 
@@ -1371,27 +1372,13 @@ class Summarizer:
                     model_idx = 0
                     robo_idx = header_value_to_index.get("robo_arena")
 
-                    # Determine subgroup order from schema (preserves schema ordering).
-                    subgroup_order: List[str] = []
-                    for subgroup_name in group.subgroups:
-                        if subgroup_name not in subgroup_order:
-                            subgroup_order.append(subgroup_name)
-
-                    ordered_metric_indices: List[int] = []
-                    for name in subgroup_order:
-                        idx = header_value_to_index.get(name)
-                        if idx is not None and idx not in ordered_metric_indices:
-                            ordered_metric_indices.append(idx)
-
-                    # Column order: Model, Mean, robo_arena, then the rest in schema order.
-                    column_order: List[int] = []
-                    column_order.append(model_idx)
-                    column_order.append(mean_idx)
-                    if robo_idx is not None and robo_idx not in column_order:
-                        column_order.append(robo_idx)
-                    for idx in ordered_metric_indices:
-                        if idx not in column_order:
-                            column_order.append(idx)
+                    # Column order: Model, Mean, robo_arena (if present), then all remaining columns in their existing order.
+                    all_indices = list(range(len(base_table.header)))
+                    rest_indices = [i for i in all_indices if i not in (model_idx, mean_idx)]
+                    if robo_idx is not None and robo_idx in rest_indices:
+                        rest_indices.remove(robo_idx)
+                        rest_indices.insert(0, robo_idx)
+                    column_order: List[int] = [model_idx, mean_idx] + rest_indices
 
                     # Rebuild header and rows with the chosen order.
                     new_header = [base_table.header[i] for i in column_order]
