@@ -1351,6 +1351,99 @@ class Summarizer:
                 table.links.append(Hyperlink(text="JSON", href=json_path))
                 write(json_path, json.dumps(asdict_without_nones(table), indent=2))
 
+            # Additional LaTeX: full leaderboard sorted by Mean Abs. Error (RoboRewardBench).
+            # This is intentionally additive and does not alter existing outputs.
+            if group.name == "core_scenarios":
+                # Use the first table that contains a Mean column.
+                base_table: Optional[Table] = None
+                mean_idx: Optional[int] = None
+                for candidate in tables:
+                    for idx, header_cell in enumerate(candidate.header):
+                        if isinstance(header_cell.value, str) and "Mean" in header_cell.value:
+                            base_table = candidate
+                            mean_idx = idx
+                            break
+                    if base_table is not None:
+                        break
+
+                if base_table is not None and mean_idx is not None:
+                    header_value_to_index = {str(h.value): i for i, h in enumerate(base_table.header)}
+                    model_idx = 0
+                    robo_idx = header_value_to_index.get("robo_arena")
+
+                    # Determine subgroup order from schema (preserves schema ordering).
+                    subgroup_order: List[str] = []
+                    for subgroup_name in group.subgroups:
+                        if subgroup_name not in subgroup_order:
+                            subgroup_order.append(subgroup_name)
+
+                    ordered_metric_indices: List[int] = []
+                    for name in subgroup_order:
+                        idx = header_value_to_index.get(name)
+                        if idx is not None and idx not in ordered_metric_indices:
+                            ordered_metric_indices.append(idx)
+
+                    # Column order: Model, Mean, robo_arena, then the rest in schema order.
+                    column_order: List[int] = []
+                    column_order.append(model_idx)
+                    column_order.append(mean_idx)
+                    if robo_idx is not None and robo_idx not in column_order:
+                        column_order.append(robo_idx)
+                    for idx in ordered_metric_indices:
+                        if idx not in column_order:
+                            column_order.append(idx)
+
+                    # Rebuild header and rows with the chosen order.
+                    new_header = [base_table.header[i] for i in column_order]
+                    new_rows: List[List[Cell]] = []
+                    for row in base_table.rows:
+                        new_row = [row[i] for i in column_order]
+                        new_rows.append(new_row)
+
+                    # Sort rows by Mean Abs. Error (ascending).
+                    def _mean_value(r: List[Cell]) -> float:
+                        val = r[1].value
+                        try:
+                            return float(val)
+                        except Exception:
+                            return float("inf")
+
+                    new_rows = sorted(new_rows, key=_mean_value)
+
+                    # Custom LaTeX rendering: landscape, small font, custom caption.
+                    cols = "l" + "r" * (len(new_header) - 1)
+                    latex_lines: List[str] = []
+                    latex_lines.append("\\begin{landscape}")
+                    latex_lines.append("\\begin{table}[p]")
+                    latex_lines.append("\\centering")
+                    latex_lines.append("\\scriptsize")
+                    latex_lines.append("\\resizebox{\\textwidth}{!}{")
+                    latex_lines.append(f"\\begin{{tabular}}{{{cols}}}")
+                    latex_lines.append("\\toprule")
+                    latex_lines.append(" & ".join(str(h.value) for h in new_header) + " \\\\")
+                    latex_lines.append("\\midrule")
+                    
+                    def _fmt(cell: Cell) -> str:
+                        if cell.display_value is not None:
+                            return str(cell.display_value)
+                        try:
+                            return f"{float(cell.value):.3f}"
+                        except Exception:
+                            return "" if cell.value is None else str(cell.value)
+
+                    for row in new_rows:
+                        latex_lines.append(" & ".join(_fmt(cell) for cell in row) + " \\\\")
+                    latex_lines.append("\\bottomrule")
+                    latex_lines.append("\\end{tabular}}")
+                    latex_lines.append("\\caption{Ranking of models by their performance on RoboRewardBench.}")
+                    latex_lines.append("\\label{fig:all}")
+                    latex_lines.append("\\end{table}")
+                    latex_lines.append("\\end{landscape}")
+                    all_latex = "\n".join(latex_lines).replace("%", "\\%")
+
+                    all_latex_path = os.path.join(groups_path, "latex", "all.tex")
+                    write(all_latex_path, all_latex)
+
             # Write master JSON file
             write(
                 os.path.join(groups_path, group.name + ".json"),
