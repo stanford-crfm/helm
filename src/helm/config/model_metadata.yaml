@@ -3997,7 +3997,7 @@ models:
     release_date: 2025-12-08
     tags: [VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
 
-  - name: qwen/qwen3-vl-4b-instruct-robo-reward-ablation-ra-oxe-step2000
+  - name: qwen/qwen3-vl-4b-instruct-robo-reward-ablation-ra-oxe-step1800
     display_name: RoboReward Ablation RA-OXE (4B)
     description: Qwen3-VL Instruct (4B) RoboReward ablation trained on RoboArena + original OXE data.
     creator_organization_name: Stanford
@@ -4005,7 +4005,7 @@ models:
     release_date: 2025-12-08
     tags: [VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
 
-  - name: qwen/qwen3-vl-4b-instruct-robo-reward-ablation-no-cut-step1400
+  - name: qwen/qwen3-vl-4b-instruct-robo-reward-ablation-no-cut-step3000
     display_name: RoboReward Ablation No-Cut (4B)
     description: Qwen3-VL Instruct (4B) RoboReward ablation without cut filtering.
     creator_organization_name: Stanford

@@ -4290,15 +4290,15 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.vision_language.qwen3_vlm_client.Qwen3VLMClient"
 
-  - name: huggingface/qwen3-vl-4b-instruct-robo-reward-ablation-ra-oxe-step2000
-    model_name: qwen/qwen3-vl-4b-instruct-robo-reward-ablation-ra-oxe-step2000
+  - name: huggingface/qwen3-vl-4b-instruct-robo-reward-ablation-ra-oxe-step1800
+    model_name: qwen/qwen3-vl-4b-instruct-robo-reward-ablation-ra-oxe-step1800
     tokenizer_name: qwen/qwen-vl-chat
     max_sequence_length: 8191
     client_spec:
       class_name: "helm.clients.vision_language.qwen3_vlm_client.Qwen3VLMClient"
 
-  - name: huggingface/qwen3-vl-4b-instruct-robo-reward-ablation-no-cut-step1400
-    model_name: qwen/qwen3-vl-4b-instruct-robo-reward-ablation-no-cut-step1400
+  - name: huggingface/qwen3-vl-4b-instruct-robo-reward-ablation-no-cut-step3000
+    model_name: qwen/qwen3-vl-4b-instruct-robo-reward-ablation-no-cut-step3000
     tokenizer_name: qwen/qwen-vl-chat
     max_sequence_length: 8191
     client_spec:
