@@ -1398,19 +1398,21 @@ class Summarizer:
                     new_rows = sorted(new_rows, key=_mean_value)
 
                     # Custom LaTeX rendering: landscape, tiny font, fixed column widths.
-                    widths = ["2.5cm", "1.5cm"] + ["0.6cm"] * max(0, len(new_header) - 2)
+                    widths = ["2.5cm", "0.6cm"] + ["0.4cm"] * max(0, len(new_header) - 2)
                     col_specs = "".join(f"p{{{w}}}" for w in widths)
                     latex_lines: List[str] = []
                     latex_lines.append("\\begin{landscape}")
                     latex_lines.append("\\begin{table}[p]")
                     latex_lines.append("\\centering")
                     latex_lines.append("\\tiny")
-                    latex_lines.append("\\resizebox{\\textwidth}{!}{")
                     latex_lines.append(f"\\begin{{tabular}}{{{col_specs}}}")
                     latex_lines.append("\\toprule")
                     header_cells = []
                     for i, h in enumerate(new_header):
-                        header_cells.append(f"\\parbox[t]{{{widths[i]}}}{{{h.value}}}")
+                        header_text = str(h.value).replace(" - Absolute Error", "")
+                        if i == 1:
+                            header_text = f"\\textbf{{{header_text}}}"
+                        header_cells.append(f"\\parbox[t]{{{widths[i]}}}{{{header_text}}}")
                     latex_lines.append(" & ".join(header_cells) + " \\\\")
                     latex_lines.append("\\midrule")
                     
@@ -1425,7 +1427,7 @@ class Summarizer:
                     for row in new_rows:
                         latex_lines.append(" & ".join(_fmt(cell) for cell in row) + " \\\\")
                     latex_lines.append("\\bottomrule")
-                    latex_lines.append("\\end{tabular}}")
+                    latex_lines.append("\\end{tabular}")
                     latex_lines.append(
                         "\\caption{RoboRewardBench results. Models are ranked by mean absolute error (lower is better); columns report absolute error for each dataset subset.}"
                     )
