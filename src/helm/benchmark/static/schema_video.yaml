@@ -187,7 +187,7 @@ run_groups:
       - viola
 
   - name: austin_buds_dataset_converted_externally_to_rlds
-    display_name: austin_buds_dataset_converted_externally_to_rlds
+    display_name: Austin BUDS
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -202,7 +202,7 @@ run_groups:
       language: English
 
   - name: austin_sirius_dataset_converted_externally_to_rlds
-    display_name: austin_sirius_dataset_converted_externally_to_rlds
+    display_name: Austin Sirius
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -217,7 +217,7 @@ run_groups:
       language: English
 
   - name: berkeley_autolab_ur5
-    display_name: berkeley_autolab_ur5
+    display_name: Berkeley Autolab UR5
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -232,7 +232,7 @@ run_groups:
       language: English
 
   - name: berkeley_cable_routing
-    display_name: berkeley_cable_routing
+    display_name: Berkeley Cable Routing
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -262,7 +262,7 @@ run_groups:
       language: English
 
   - name: berkeley_mvp_converted_externally_to_rlds
-    display_name: berkeley_mvp_converted_externally_to_rlds
+    display_name: Berkeley MVP
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -277,7 +277,7 @@ run_groups:
       language: English
 
   - name: berkeley_rpt_converted_externally_to_rlds
-    display_name: berkeley_rpt_converted_externally_to_rlds
+    display_name: Berkeley RPT
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -292,7 +292,7 @@ run_groups:
       language: English
 
   - name: bridge
-    display_name: bridge
+    display_name: Berkeley Bridge
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -307,7 +307,7 @@ run_groups:
       language: English
 
   - name: cmu_play_fusion
-    display_name: cmu_play_fusion
+    display_name: CMU Play Fusion
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -337,7 +337,7 @@ run_groups:
       language: English
 
   - name: dlr_sara_grid_clamp_converted_externally_to_rlds
-    display_name: dlr_sara_grid_clamp_converted_externally_to_rlds
+    display_name: DLR Sara Grid Clamp
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -352,7 +352,7 @@ run_groups:
       language: English
 
   - name: droid
-    display_name: droid
+    display_name: DROID
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -367,7 +367,7 @@ run_groups:
       language: English
 
   - name: fractal20220817_data
-    display_name: fractal20220817_data
+    display_name: RT-1 Robot Action
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -382,7 +382,7 @@ run_groups:
       language: English
 
   - name: iamlab_cmu_pickup_insert_converted_externally_to_rlds
-    display_name: iamlab_cmu_pickup_insert_converted_externally_to_rlds
+    display_name: CMU Franka Pick-Insert
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -397,7 +397,7 @@ run_groups:
       language: English
 
   - name: imperialcollege_sawyer_wrist_cam
-    display_name: imperialcollege_sawyer_wrist_cam
+    display_name: Imperial Wrist Cam
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -412,7 +412,7 @@ run_groups:
       language: English
 
   - name: jaco_play
-    display_name: jaco_play
+    display_name: USC Jaco Play
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -427,7 +427,7 @@ run_groups:
       language: English
 
   - name: kaist_nonprehensile_converted_externally_to_rlds
-    display_name: kaist_nonprehensile_converted_externally_to_rlds
+    display_name: KAIST Nonprehensile Objects
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -442,7 +442,7 @@ run_groups:
       language: English
 
   - name: nyu_door_opening_surprising_effectiveness
-    display_name: nyu_door_opening_surprising_effectiveness
+    display_name: NYU VINN
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -457,7 +457,7 @@ run_groups:
       language: English
 
   - name: nyu_rot_dataset_converted_externally_to_rlds
-    display_name: nyu_rot_dataset_converted_externally_to_rlds
+    display_name: NYU ROT
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -472,7 +472,7 @@ run_groups:
       language: English
 
   - name: robo_arena
-    display_name: robo_arena
+    display_name: RoboArena
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -487,7 +487,7 @@ run_groups:
       language: English
 
   - name: roboturk
-    display_name: roboturk
+    display_name: Roboturk
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -502,7 +502,7 @@ run_groups:
       language: English
 
   - name: stanford_hydra_dataset_converted_externally_to_rlds
-    display_name: stanford_hydra_dataset_converted_externally_to_rlds
+    display_name: Stanford HYDRA
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -517,7 +517,7 @@ run_groups:
       language: English
 
   - name: taco_play
-    display_name: taco_play
+    display_name: Freiburg Franka Play
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -532,7 +532,7 @@ run_groups:
       language: English
 
   - name: tokyo_u_lsmo_converted_externally_to_rlds
-    display_name: tokyo_u_lsmo_converted_externally_to_rlds
+    display_name: LSMO
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -547,7 +547,7 @@ run_groups:
       language: English
 
   - name: toto
-    display_name: toto
+    display_name: TOTO
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -562,7 +562,7 @@ run_groups:
       language: English
 
   - name: ucsd_kitchen_dataset_converted_externally_to_rlds
-    display_name: ucsd_kitchen_dataset_converted_externally_to_rlds
+    display_name: UCSD Kitchen
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -577,7 +577,7 @@ run_groups:
       language: English
 
   - name: ucsd_pick_and_place_dataset_converted_externally_to_rlds
-    display_name: ucsd_pick_and_place_dataset_converted_externally_to_rlds
+    display_name: UCSD Pick Place
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -592,7 +592,7 @@ run_groups:
       language: English
 
   - name: utaustin_mutex
-    display_name: utaustin_mutex
+    display_name: Austin Mutex
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -607,7 +607,7 @@ run_groups:
       language: English
 
   - name: utokyo_pr2_opening_fridge_converted_externally_to_rlds
-    display_name: utokyo_pr2_opening_fridge_converted_externally_to_rlds
+    display_name: Tokyo PR2 Fridge Opening
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -622,7 +622,7 @@ run_groups:
       language: English
 
   - name: utokyo_pr2_tabletop_manipulation_converted_externally_to_rlds
-    display_name: utokyo_pr2_tabletop_manipulation_converted_externally_to_rlds
+    display_name: Tokyo PR2 Tabletop Manipulation
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -637,7 +637,7 @@ run_groups:
       language: English
 
   - name: utokyo_xarm_bimanual_converted_externally_to_rlds
-    display_name: utokyo_xarm_bimanual_converted_externally_to_rlds
+    display_name: UTokyo xArm Bimanual
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -652,7 +652,7 @@ run_groups:
       language: English
 
   - name: utokyo_xarm_pick_and_place_converted_externally_to_rlds
-    display_name: utokyo_xarm_pick_and_place_converted_externally_to_rlds
+    display_name: UTokyo xArm PickPlace
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -667,7 +667,7 @@ run_groups:
       language: English
 
   - name: viola
-    display_name: viola
+    display_name: Austin VIOLA
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy

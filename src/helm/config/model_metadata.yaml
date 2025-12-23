@@ -2233,7 +2233,7 @@ models:
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: meta/llama-4-scout-17b-16e-instruct
-    display_name: Llama 4 Scout (17Bx16E) Instruct
+    display_name: Llama 4 Scout Instruct
     description: Llama 4 Scout (17Bx16E) Instruct is part of the Llama 4 collection of models are natively multimodal AI models that enable text and multimodal experiences using a mixture-of-experts architecture. ([blog](https://ai.meta.com/blog/llama-4-multimodal-intelligence/))
     creator_organization_name: Meta
     access: open
@@ -2242,7 +2242,7 @@ models:
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG]
 
   - name: meta/llama-4-maverick-17b-128e-instruct-fp8
-    display_name: Llama 4 Maverick (17Bx128E) Instruct FP8
+    display_name: Llama 4 Maverick Instruct
     description: Llama 4 Maverick (17Bx128E) Instruct FP8 is part of the Llama 4 collection of models are natively multimodal AI models that enable text and multimodal experiences using a mixture-of-experts architecture. ([blog](https://ai.meta.com/blog/llama-4-multimodal-intelligence/))
     creator_organization_name: Meta
     access: open
@@ -3974,7 +3974,7 @@ models:
     tags: [VISION_LANGUAGE_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
 
   - name: qwen/qwen3-vl-30b-a3b-instruct
-    display_name: Qwen3-VL Instruct (30B A3B)
+    display_name: Qwen3-VL Instruct (30B)
     description: The third generation of Qwen multimodal vision-language models ([blog](https://qwenlm.github.io/blog/qwen3/)).
     creator_organization_name: Alibaba Group
     access: open
