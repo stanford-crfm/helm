@@ -472,7 +472,7 @@ run_groups:
       language: English
 
   - name: robo_arena
-    display_name: RoboArena
+    display_name: Robo Arena
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy

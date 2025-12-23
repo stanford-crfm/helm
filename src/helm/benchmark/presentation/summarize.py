@@ -1398,7 +1398,7 @@ class Summarizer:
                     new_rows = sorted(new_rows, key=_mean_value)
 
                     # Custom LaTeX rendering: landscape, tiny font, fixed column widths.
-                    widths = ["2.5cm", "0.6cm"] + ["0.4cm"] * max(0, len(new_header) - 2)
+                    widths = ["2.4cm", "0.8cm"] + ["0.48cm"] * max(0, len(new_header) - 2)
                     col_specs = "".join(f"p{{{w}}}" for w in widths)
                     latex_lines: List[str] = []
                     latex_lines.append("\\begin{landscape}")
