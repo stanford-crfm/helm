@@ -1397,17 +1397,21 @@ class Summarizer:
 
                     new_rows = sorted(new_rows, key=_mean_value)
 
-                    # Custom LaTeX rendering: landscape, small font, custom caption.
-                    cols = "l" + "r" * (len(new_header) - 1)
+                    # Custom LaTeX rendering: landscape, tiny font, fixed column widths.
+                    widths = ["2.5cm", "1.5cm"] + ["0.6cm"] * max(0, len(new_header) - 2)
+                    col_specs = "".join(f"p{{{w}}}" for w in widths)
                     latex_lines: List[str] = []
                     latex_lines.append("\\begin{landscape}")
                     latex_lines.append("\\begin{table}[p]")
                     latex_lines.append("\\centering")
-                    latex_lines.append("\\scriptsize")
+                    latex_lines.append("\\tiny")
                     latex_lines.append("\\resizebox{\\textwidth}{!}{")
-                    latex_lines.append(f"\\begin{{tabular}}{{{cols}}}")
+                    latex_lines.append(f"\\begin{{tabular}}{{{col_specs}}}")
                     latex_lines.append("\\toprule")
-                    latex_lines.append(" & ".join(str(h.value) for h in new_header) + " \\\\")
+                    header_cells = []
+                    for i, h in enumerate(new_header):
+                        header_cells.append(f"\\parbox[t]{{{widths[i]}}}{{{h.value}}}")
+                    latex_lines.append(" & ".join(header_cells) + " \\\\")
                     latex_lines.append("\\midrule")
                     
                     def _fmt(cell: Cell) -> str:
@@ -1422,7 +1426,9 @@ class Summarizer:
                         latex_lines.append(" & ".join(_fmt(cell) for cell in row) + " \\\\")
                     latex_lines.append("\\bottomrule")
                     latex_lines.append("\\end{tabular}}")
-                    latex_lines.append("\\caption{Ranking of models by their performance on RoboRewardBench.}")
+                    latex_lines.append(
+                        "\\caption{RoboRewardBench results. Models are ranked by mean absolute error (lower is better); columns report absolute error for each dataset subset.}"
+                    )
                     latex_lines.append("\\label{fig:all}")
                     latex_lines.append("\\end{table}")
                     latex_lines.append("\\end{landscape}")
