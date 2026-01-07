@@ -6,8 +6,8 @@ export default function RoboRewardLanding() {
   return (
     <div className="container mx-auto px-16">
       <h1 className="text-3xl mt-16 my-8 font-bold text-center">
-        <strong>RoboReward</strong>: General-purpose Vision-Language Reward Models for
-        Robotics
+        <strong>RoboReward</strong>: General-purpose Vision-Language Reward
+        Models for Robotics
       </h1>
 
       <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 md:gap-8 my-8">
