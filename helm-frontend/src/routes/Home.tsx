@@ -26,6 +26,7 @@ import ViLLMLanding from "@/components/Landing/ViLLMLanding";
 import SLPHelmLanding from "@/components/Landing/SLPHelmLanding";
 import AudioLanding from "@/components/Landing/AudioLanding";
 import ArabicLanding from "@/components/Landing/ArabicLanding";
+import RoboRewardLanding from "@/components/Landing/RoboRewardLanding";
 
 export default function Home() {
   // TODO consider a more streamlined way to do this?
@@ -83,6 +84,8 @@ export default function Home() {
     return <AudioLanding />;
   } else if (window.PROJECT_ID === "arabic") {
     return <ArabicLanding />;
+  } else if (window.PROJECT_ID === "roboreward") {
+    return <RoboRewardLanding />;
   } else if (window.PROJECT_ID === "home") {
     return <HomeLanding />;
   } else {
