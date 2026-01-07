@@ -1,18 +1,22 @@
 from typing import List, Optional
-from helm.benchmark.window_services.local_window_service import LocalWindowService
-from helm.benchmark.window_services.window_service import EncodeResult
+from helm.benchmark.window_services.window_service import EncodeResult, WindowService
 from helm.common.tokenization_request import TokenizationToken
 
 
 _INT_MAX: int = 2**31 - 1
 
 
-class NoTokenizerWindowService(LocalWindowService):
-    _MAX_LENGTH = 1_000_000_000
+class NoTokenizerWindowService(WindowService):
+    """Window service for models without a tokenizer.
+
+    This is essentially a no-op window service.
+    It assumes that all requests fit within the model's context window.
+    It does not support encoding, decoding or tokenization or truncation.
+    """
 
     @property
     def tokenizer_name(self) -> str:
-        return "tokenizer/no-op"
+        raise NotImplementedError("Not supported")
 
     @property
     def max_sequence_length(self) -> int:
@@ -31,10 +35,10 @@ class NoTokenizerWindowService(LocalWindowService):
         return ""
 
     def encode(self, text: str, truncation: bool = False, max_length: Optional[int] = None) -> EncodeResult:
-        raise NotImplementedError("NoOpWindowService.encode is not supported")
+        raise NotImplementedError("Not supported")
 
     def decode(self, tokens: List[TokenizationToken], normalized_text: Optional[str] = None) -> str:
-        raise NotImplementedError("NoOpWindowService.decode is not supported")
+        raise NotImplementedError("Not supported")
 
     def tokenize(self, text: str) -> List[str]:
         return [text]

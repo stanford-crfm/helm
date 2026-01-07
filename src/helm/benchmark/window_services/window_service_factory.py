@@ -9,14 +9,6 @@ from helm.common.object_spec import create_object, inject_object_spec_args
 
 class WindowServiceFactory:
     @staticmethod
-    def _is_sequence_length_unset(model_deployment: ModelDeployment):
-        return (
-            model_deployment.max_request_length is None
-            and model_deployment.max_sequence_length is None
-            and model_deployment.max_sequence_and_generated_tokens_length is None
-        )
-
-    @staticmethod
     def get_window_service(model_deployment_name: str, service: TokenizerService) -> WindowService:
         """
         Returns a `WindowService` given the name of the model.
@@ -29,7 +21,12 @@ class WindowServiceFactory:
             if model_deployment.window_service_spec:
                 window_service_spec = model_deployment.window_service_spec
             else:
-                if WindowServiceFactory._is_sequence_length_unset(model_deployment):
+                if (
+                    model_deployment.max_request_length is None
+                    and model_deployment.max_sequence_length is None
+                    and model_deployment.max_sequence_and_generated_tokens_length is None
+                    and model_deployment.tokenizer_name is None
+                ):
                     window_service_spec = WindowServiceSpec(
                         class_name="helm.benchmark.window_services.no_tokenizer_window_service.NoTokenizerWindowService",
                         args={},
