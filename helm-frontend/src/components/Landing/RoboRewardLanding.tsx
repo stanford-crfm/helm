@@ -79,14 +79,14 @@ export default function RoboRewardLanding() {
       </p>
 
       <div className="my-12 flex flex-col lg:flex-row gap-8 items-start">
-        <div className="flex-1">
+        <div className="flex-[2]">
           <img
             src={roborewardOverview}
             alt="RoboReward overview"
             className="w-full max-w-full rounded-lg shadow"
           />
         </div>
-        <div className="flex-1">
+        <div className="flex-[1]">
           <MiniLeaderboard />
           <Link
             to="leaderboard"
