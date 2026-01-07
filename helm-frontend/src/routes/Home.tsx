@@ -84,7 +84,7 @@ export default function Home() {
     return <AudioLanding />;
   } else if (window.PROJECT_ID === "arabic") {
     return <ArabicLanding />;
-  } else if (window.PROJECT_ID === "roboreward") {
+  } else if (window.PROJECT_ID === "robo-reward-bench") {
     return <RoboRewardLanding />;
   } else if (window.PROJECT_ID === "home") {
     return <HomeLanding />;
