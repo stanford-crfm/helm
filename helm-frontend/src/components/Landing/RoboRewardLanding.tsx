@@ -56,12 +56,12 @@ export default function RoboRewardLanding() {
         <strong>RoboReward</strong>, a robotics reward dataset and benchmark
         built on large-scale real-robot corpora from Open X-Embodiment (OXE) and
         RoboArena, and (2) vision-language reward models trained on this dataset
-        (<strong>RoboReward 4B/8B</strong>). Because OXE is success-heavy and lacks failure
-        examples, we propose a <em>negative examples data augmentation</em>{" "}
-        pipeline that generates calibrated <em>negatives</em> and{" "}
-        <em>near-misses</em> via counterfactual relabeling of successful
-        episodes and temporal clipping to create partial-progress outcomes from
-        the same videos.
+        (<strong>RoboReward 4B/8B</strong>). Because OXE is success-heavy and
+        lacks failure examples, we propose a{" "}
+        <em>negative examples data augmentation</em> pipeline that generates
+        calibrated <em>negatives</em> and <em>near-misses</em> via
+        counterfactual relabeling of successful episodes and temporal clipping
+        to create partial-progress outcomes from the same videos.
       </p>
       <p className="my-4">
         Using this framework, we produce an extensive training and evaluation
@@ -69,14 +69,13 @@ export default function RoboRewardLanding() {
         evaluation of whether state-of-the-art VLMs can reliably provide rewards
         for robotics. Our evaluation of leading open-weight and proprietary VLMs
         reveals that no model excels across all tasks, underscoring substantial
-        room for improvement. We then train general-purpose 4B- and
-        8B-parameter models that outperform much larger VLMs in assigning
-        rewards for short-horizon robotic tasks. Finally, we deploy the 8B
-        reward VLM in real-robot reinforcement learning and find that it
-        improves policy learning over Gemini Robotics-ER 1.5, a frontier
-        physical reasoning VLM trained on robotics data, by a large margin,
-        while substantially narrowing the gap to RL training with
-        human-provided rewards.
+        room for improvement. We then train general-purpose 4B- and 8B-parameter
+        models that outperform much larger VLMs in assigning rewards for
+        short-horizon robotic tasks. Finally, we deploy the 8B reward VLM in
+        real-robot reinforcement learning and find that it improves policy
+        learning over Gemini Robotics-ER 1.5, a frontier physical reasoning VLM
+        trained on robotics data, by a large margin, while substantially
+        narrowing the gap to RL training with human-provided rewards.
       </p>
 
       <div className="my-12 flex flex-col lg:flex-row gap-8 items-start">
