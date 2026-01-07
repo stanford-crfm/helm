@@ -322,7 +322,7 @@ run_groups:
       language: English
 
   - name: dlr_edan_shared_control_converted_externally_to_rlds
-    display_name: DLR Wheelchari Shared Control
+    display_name: DLR Wheelchair Shared Control
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
@@ -472,7 +472,7 @@ run_groups:
       language: English
 
   - name: robo_arena
-    display_name: Robo Arena
+    display_name: RoboArena
     description: To evaluate how well VLMs can judge rollouts of robot actions in videos.
     metric_groups:
       - accuracy
