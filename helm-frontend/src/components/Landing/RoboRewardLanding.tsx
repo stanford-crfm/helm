@@ -10,7 +10,7 @@ export default function RoboRewardLanding() {
         Robotics
       </h1>
 
-      <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-8 md:gap-32 my-8">
+      <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 md:gap-8 my-8">
         <a
           className="px-10 btn rounded-md"
           href="https://arxiv.org/abs/2601.00675"
@@ -21,13 +21,13 @@ export default function RoboRewardLanding() {
           className="px-10 btn rounded-md"
           href="https://crfm.stanford.edu/helm/robo-reward-bench/latest/#/leaderboard"
         >
-          Leaderboard
+          Full Leaderboard
         </a>
         <a
           className="px-10 btn rounded-md"
           href="https://huggingface.co/datasets/teetone/RoboReward"
         >
-          Dataset
+          RoboReward Dataset
         </a>
         <a
           className="px-10 btn rounded-md"
@@ -56,7 +56,7 @@ export default function RoboRewardLanding() {
         <strong>RoboReward</strong>, a robotics reward dataset and benchmark
         built on large-scale real-robot corpora from Open X-Embodiment (OXE) and
         RoboArena, and (2) vision-language reward models trained on this dataset
-        (RoboReward 4B/8B). Because OXE is success-heavy and lacks failure
+        (<strong>RoboReward 4B/8B</strong>). Because OXE is success-heavy and lacks failure
         examples, we propose a <em>negative examples data augmentation</em>{" "}
         pipeline that generates calibrated <em>negatives</em> and{" "}
         <em>near-misses</em> via counterfactual relabeling of successful
@@ -79,22 +79,23 @@ export default function RoboRewardLanding() {
         human-provided rewards.
       </p>
 
-      <div className="my-12">
-        <img
-          src={roborewardOverview}
-          alt="RoboReward overview"
-          className="w-full rounded-lg shadow"
-        />
-      </div>
-
-      <div className="flex flex-col items-center my-12">
-         <MiniLeaderboard />
+      <div className="my-12 flex flex-col lg:flex-row gap-8 items-start">
+        <div className="flex-1">
+          <img
+            src={roborewardOverview}
+            alt="RoboReward overview"
+            className="w-full max-w-full rounded-lg shadow"
+          />
+        </div>
+        <div className="flex-1">
+          <MiniLeaderboard />
           <Link
             to="leaderboard"
-            className="px-4 mx-3 mt-1 btn bg-white rounded-md"
+            className="px-4 mx-3 mt-3 btn bg-white rounded-md"
           >
-            <span>See More</span>
+            <span>See more</span>
           </Link>
+        </div>
       </div>
     </div>
   );
