@@ -159,7 +159,7 @@ metric_groups:
 run_groups:
   - name: core_scenarios
     display_name: RoboReward
-    description: "The full leaderboard for **RoboReward** ([paper](https://arxiv.org/abs/2601.00675)). **RoboRewardBench** is our *human-verified* evaluation suite: a clean test split of 2,831 real-robot rollouts spanning 14 robot embodiments, diverse scenes/tasks, and a mix of egocentric and exocentric viewpoints. Each model is evaluated as an episodic reward model: given a task instruction and the full rollout video, it outputs a discrete end-of-episode progress score in {1,2,3,4,5} under a fixed rubric (1=no success, 5=perfect completion). The main metric is **MAE (Mean Absolute Error; lower is better)** between the predicted score and the human-verified label. The overall ranking is determined by overall group-wise MAE computed by averaging MAE across the different subsets."
+    description: "The full leaderboard for **RoboReward** ([paper](https://arxiv.org/abs/2601.00675)). **RoboRewardBench** is our *human-verified* evaluation suite: a clean test split of 2,831 real-robot rollouts spanning 14 robot embodiments, diverse scenes/tasks, and a mix of egocentric and exocentric viewpoints. Each model is evaluated as an episodic reward model: given a task instruction and the full rollout video, the model has to output a discrete end-of-episode progress score in {1,2,3,4,5} under a fixed rubric (1=no success, 5=perfect completion). The main metric is **MAE (Mean Absolute Error; lower is better)** between the predicted score and the human-verified label. The overall ranking is determined by overall group-wise MAE computed by averaging MAE across the different subsets."
     category: All scenarios
     subgroups:
       - robo_arena
