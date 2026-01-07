@@ -24,92 +24,140 @@ export default function ArabicLanding() {
           </p>
 
           <p className="my-4">
-            HELM Arabic is based on{" "}
+            HELM Arabic builds on a collection of established Arabic-language
+            evaluation tasks that are widely used in the research community (
             <a
               className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
               href="https://huggingface.co/blog/leaderboard-arabic-v2"
             >
-              version 2 of the Open Arabic LLM Leaderboard (OALL)
+              El Filali et al., 2025
             </a>
-            , a widely used leaderboard for Arabic LLMs introduced by Technology
-            Innovation Institute (TII) in 2025. HELM Arabic uses the same 7
-            tasks from OALL:
+            ). It includes the following seven benchmarks:
           </p>
 
           <ul className="list-disc pl-6">
             <li>
               <a
-                className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+                className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
                 href="https://huggingface.co/datasets/OALL/AlGhafa-Arabic-LLM-Benchmark-Native"
               >
                 AlGhafa
               </a>{" "}
-              &mdash; an Arabic language multiple choice evaluation benchmark
+              (
+              <a
+                className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+                href="https://aclanthology.org/2023.arabicnlp-1.21/"
+              >
+                Almazrouei et al., 2023
+              </a>
+              ) &mdash; an Arabic language multiple choice evaluation benchmark
               derived from publicly available NLP datasets
             </li>
             <li>
               <a
-                className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+                className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
                 href="https://huggingface.co/datasets/MBZUAI/ArabicMMLU"
               >
                 ArabicMMLU
               </a>{" "}
-              &mdash; a native Arabic language question answering benchmark
+              (
+              <a
+                className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+                href="https://aclanthology.org/2024.findings-acl.334/"
+              >
+                Koto et al., 2024
+              </a>
+              ) &mdash; a native Arabic language question answering benchmark
               using questions sourced from school exams across diverse
               educational levels in different countries spanning North Africa,
               the Levant, and the Gulf regions
             </li>
             <li>
               <a
-                className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+                className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
                 href="https://huggingface.co/datasets/mhardalov/exams"
               >
                 Arabic EXAMS
               </a>{" "}
-              &mdash; the Arabic language subset of the EXAMS multilingual
+              (
+              <a
+                className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+                href="https://aclanthology.org/2020.emnlp-main.438/"
+              >
+                Hardalov et al., 2020
+              </a>
+              ) &mdash; the Arabic language subset of the EXAMS multilingual
               question answering benchmark, which consists of high school exam
               questions across various school subjects
             </li>
             <li>
               <a
-                className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+                className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
                 href="https://huggingface.co/datasets/MBZUAI/MadinahQA"
               >
                 MadinahQA
               </a>{" "}
-              &mdash; a question answering benchmark published by MBZUAI that
+              (
+              <a
+                className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+                href="https://aclanthology.org/2024.findings-acl.334/"
+              >
+                Koto et al., 2024
+              </a>
+              ) &mdash; a question answering benchmark published by MBZUAI that
               tests knowledge of Arabic language and grammar
             </li>
             <li>
               <a
-                className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+                className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
                 href="https://huggingface.co/datasets/asas-ai/AraTrust"
               >
                 AraTrust
               </a>{" "}
-              &mdash; an Arab-region-specific safety evaluation dataset
+              (
+              <a
+                className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+                href="https://huggingface.co/blog/leaderboard-arabic-v2"
+              >
+                Alghamdi et al., 2025
+              </a>
+              ) &mdash; an Arab-region-specific safety evaluation dataset
               consisting of human-written questions including direct attacks,
               indirect attacks, and harmless requests with sensitive words
             </li>
             <li>
               <a
-                className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+                className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
                 href="https://huggingface.co/datasets/OALL/ALRAGE"
               >
                 ALRAGE
               </a>{" "}
-              &mdash; an Arabic language passage-based open-ended model-graded
+              (
+              <a
+                className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+                href="https://huggingface.co/blog/leaderboard-arabic-v2"
+              >
+                El Filali et al., 2025
+              </a>
+              ) &mdash; an Arabic language passage-based open-ended model-graded
               question answering benchmark that reflects retrieval-augmented
               generation use cases
             </li>
             <li>
               <a
-                className="font-bold underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+                className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
                 href="https://huggingface.co/datasets/MBZUAI/human_translated_arabic_mmlu"
               >
                 ArbMMLU-HT
               </a>{" "}
-              &mdash; a translation of MMLU to Arabic by human translators
+              (
+              <a
+                className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+                href="https://arxiv.org/abs/2308.16149"
+              >
+                Sengupta et al., 2023
+              </a>
+              ) &mdash; a translation of MMLU to Arabic by human translators
               published by MBZUAI
             </li>
           </ul>
@@ -146,7 +194,7 @@ export default function ArabicLanding() {
           <div className="flex flex-row justify-center mt-4">
             <a
               className="px-10 btn rounded-md mx-4"
-              href="https://crfm.stanford.edu/2025/12/16/helm-arabic.html"
+              href="https://crfm.stanford.edu/2025/12/18/helm-arabic.html"
             >
               Blog Post
             </a>
