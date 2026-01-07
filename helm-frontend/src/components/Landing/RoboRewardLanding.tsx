@@ -6,7 +6,7 @@ export default function RoboRewardLanding() {
   return (
     <div className="container mx-auto px-16">
       <h1 className="text-3xl mt-16 my-8 font-bold text-center">
-        <strong>RoboReward</strong>: General-purpose Vision-Language Models for
+        <strong>RoboReward</strong>: General-purpose Vision-Language Reward Models for
         Robotics
       </h1>
 
