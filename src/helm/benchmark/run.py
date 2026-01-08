@@ -5,6 +5,7 @@ import re
 from typing import List, Optional
 
 
+import ubelt as ub
 from helm.benchmark import model_metadata_registry
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
 from helm.common.cache_backend_config import MongoCacheBackendConfig, SqliteCacheBackendConfig
@@ -73,29 +74,55 @@ def run_entries_to_run_specs(
 
 def import_user_plugins(paths_or_names) -> List:
     """
-    User plugins are python files that call helm registration functions.
+    Import user-provided plugin modules that register HELM components.
 
     Args:
-        paths_or_names (List[str]):
-            importable module names or paths to modules that contain custom
-            registration code.
+        paths_or_names (List[str]): Importable module names or paths to modules
+            containing custom registration code.
 
     Returns:
         List: the imported modules
     """
+
     import importlib
-    from helm.common.import_utils import import_module_from_path
+
     modules = []
     for modpath_or_name in paths_or_names:
-        if '/' in modpath_or_name or '\\' in modpath_or_name or os.path.exists(modpath_or_name):
+        if "/" in modpath_or_name or "\\" in modpath_or_name or os.path.exists(modpath_or_name):
             # The input is a path to a module
-            hdebug(f'Import plugin {modpath_or_name!r} from its path')
-            module = import_module_from_path(modpath_or_name)
+            hdebug(f"Import plugin {modpath_or_name!r} from its path")
+            module = ub.import_module_from_path(modpath_or_name)
         else:
             # The input is the name of a module
-            hdebug(f'Import plugin {modpath_or_name!r} as a module')
+            hdebug(f"Import plugin {modpath_or_name!r} as a module")
             module = importlib.import_module(modpath_or_name)
         modules.append(module)
+    return modules
+
+
+def load_entry_point_plugins(group: str = "helm") -> List:
+    """Load plugins registered via Python entry points.
+
+    Plugins can be registered by adding a ``[project.entry-points.helm]``
+    table to ``pyproject.toml`` where each entry maps a name to an importable
+    module or object. Each entry is imported eagerly to trigger registration
+    side effects.
+
+    Returns:
+        List: the loaded entry point objects
+    """
+
+    from importlib.metadata import entry_points
+
+    modules = []
+    eps = entry_points()
+    selected = eps.select(group=group) if hasattr(eps, "select") else eps.get(group, [])
+    for ep in selected:
+        try:
+            hdebug(f"Loading plugin entry point {ep.name!r} -> {ep.value!r}")
+            modules.append(ep.load())
+        except Exception:
+            hwarn(f"Failed to load plugin entry point: {ep.name}", exc_info=True)
     return modules
 
 
@@ -233,6 +260,8 @@ def helm_run(args):
     validate_args(args)
     register_builtin_configs_from_helm_package()
     register_configs_from_directory(args.local_path)
+
+    load_entry_point_plugins()
 
     if args.plugins:
         import_user_plugins(args.plugins)
@@ -404,7 +433,7 @@ def build_parser():
     parser.add_argument(
         "--plugins",
         nargs="+",
-        help="Paths to importable module names that register custom run specs / scenarios / datasets",
+        help="Importable module names or filesystem paths that register custom run specs / scenarios / datasets",
         default=None,
     )
     add_run_args(parser)
