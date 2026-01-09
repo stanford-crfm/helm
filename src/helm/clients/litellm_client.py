@@ -122,7 +122,11 @@ class LiteLLMCompletionClient(CachingClient):
                 if output_text is None:
                     raise ValueError("Response content was `None`, possibly due to content blocking")
                 completion = GeneratedOutput(
-                    text=output_text, logprob=0.0, tokens=[], finish_reason={"reason": choice.finish_reason}, thinking=thinking,
+                    text=output_text,
+                    logprob=0.0,
+                    tokens=[],
+                    finish_reason={"reason": choice.finish_reason},
+                    thinking=thinking,
                 )
                 completions.append(completion)
 
