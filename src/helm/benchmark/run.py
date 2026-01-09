@@ -40,10 +40,13 @@ def run_entries_to_run_specs(
         if priority is not None and entry.priority is not None and entry.priority > priority:
             continue
 
-        # Handle models_to_run
         parsed_entry = parse_object_spec(entry.description)
         parsed_entries_with_models: List[ObjectSpec]
-        if models_to_run:
+
+        # Rewrite the model arg in the run entry description based on models_to_run,
+        # but only do this if the models arg was unspecified or if the model arg is a group
+        # in the run entry description.
+        if models_to_run and "/" not in parsed_entry.args.get("model", ""):
             parsed_entries_with_models = [
                 replace(parsed_entry, args={**parsed_entry.args, **{"model": model_to_run}})
                 for model_to_run in models_to_run
@@ -57,6 +60,10 @@ def run_entries_to_run_specs(
             for run_spec in construct_run_specs(parsed_entry_with_model)
         ]
         for run_spec in run_specs_for_entry:
+            # Filter by models
+            if models_to_run and run_spec.adapter_spec.model not in models_to_run and run_spec.adapter_spec.model_deployment not in models_to_run:
+                continue
+
             # Filter by groups
             if groups_to_run and not any(group in groups_to_run for group in run_spec.groups):
                 continue
