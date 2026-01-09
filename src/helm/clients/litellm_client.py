@@ -13,7 +13,7 @@ from helm.clients.client import CachingClient
 
 try:
     import litellm
-    from litellm.types.utils import ModelResponse
+    from litellm.types.utils import Choices, ModelResponse
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["litellm"])
 
@@ -22,15 +22,14 @@ class LiteLLMCompletionRequest(TypedDict):
     model: str
     messages: List
     temperature: Optional[float]
-    top_p: Optional[float] = None,
-    n: Optional[int] = None,
-    stream: Optional[bool] = None,
-    stream_options: Optional[dict] = None,
-    stop=None,
-    max_tokens: Optional[int] = None,
-    logprobs: Optional[bool] = None,
-    presence_penalty: Optional[float] = None,
-    frequency_penalty: Optional[float] = None,
+    top_p: Optional[float]
+    n: Optional[int]
+    stop: Optional[List[str]]
+    max_tokens: Optional[int]
+    logprobs: Optional[bool]
+    presence_penalty: Optional[float]
+    frequency_penalty: Optional[float]
+
 
 class LiteLLMCompletionClient(CachingClient):
 
@@ -46,14 +45,10 @@ class LiteLLMCompletionClient(CachingClient):
         input_messages: List[Dict[str, Any]]
 
         if request.multimodal_prompt:
-            raise ValueError(
-                f"`multimodal_prompt` is not supported by `LiteLLMClient`"
-            )
+            raise ValueError("`multimodal_prompt` is not supported by `LiteLLMClient`")
 
         if request.prompt and request.messages:
-            raise ValueError(
-                f"More than one of `prompt` and `messages` was set in request"
-            )
+            raise ValueError("More than one of `prompt` and `messages` was set in request")
 
         if request.messages is not None:
             # Checks that all messages have a role and some content
@@ -67,7 +62,7 @@ class LiteLLMCompletionClient(CachingClient):
         else:
             input_messages = [{"role": "user", "content": request.prompt}]
 
-        raw_request: Dict[str, Any] = {
+        return {
             "model": self._get_model_for_request(request),
             "messages": input_messages,
             "temperature": request.temperature,
@@ -75,21 +70,19 @@ class LiteLLMCompletionClient(CachingClient):
             "n": request.num_completions,
             "stop": request.stop_sequences,
             "max_tokens": request.max_tokens,
-            "logprobs": request.top_k_per_token,
+            "logprobs": bool(request.top_k_per_token),
             "presence_penalty": request.presence_penalty,
             "frequency_penalty": request.frequency_penalty,
         }
-
-        return raw_request
 
     def _get_model_for_request(self, request: Request) -> str:
         return self._litellm_model or request.model_engine
 
     def make_request(self, request: Request) -> RequestResult:
         if request.echo_prompt:
-            return "`echo_prompt` is not supported"
+            raise NotImplementedError("`echo_prompt` is not supported")
         if request.embedding:
-            return "`embedding` is not supported"
+            raise NotImplementedError("`embedding` is not supported")
 
         # Content can either be text or a list of multimodal content made up of text and images:
         # https://platform.openai.com/docs/api-reference/responses/create
@@ -112,16 +105,17 @@ class LiteLLMCompletionClient(CachingClient):
             request_datetime = helm_raw_response["request_datetime"]
             del helm_raw_response["request_datetime"]
             response = ModelResponse.model_validate(helm_raw_response)
-
             for choice in response.choices:
+                assert isinstance(response.choices, Choices)
                 output_text = choice.message.content
                 if output_text is None:
                     raise ValueError("Response content was `None`, possibly due to content blocking")
-                completion = GeneratedOutput(text=output_text, logprob=0.0, tokens=[], finish_reason={"reason": choice.finish_reason})
+                completion = GeneratedOutput(
+                    text=output_text, logprob=0.0, tokens=[], finish_reason={"reason": choice.finish_reason}
+                )
                 completions.append(completion)
             #     choice.logprobs
             #     choice.message
-                
 
             #     # The OpenAI chat completion API doesn't support echo.
             #     # If `echo_prompt` is true, combine the prompt and completion.
@@ -153,8 +147,6 @@ class LiteLLMCompletionClient(CachingClient):
             #         thinking=thinking,
             #     )
             #     completions.append(truncate_sequence(completion, request))  # Truncate the text by stop sequences
-
-            
 
             # # We can only return one completition really,
             # # but we get an array of messages back, so we need to handle them

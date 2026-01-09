@@ -133,7 +133,11 @@ def auto_generate_model_deployment(name: str) -> ModelDeployment:
         )
     elif model_deployment_base == "litellm":
         return ModelDeployment(
-            name=name, model_name=model_name, client_spec=ClientSpec("helm.clients.litellm_client.LiteLLMCompletionClient", args={"litellm_model": "/".join(name_parts[1:])})
+            name=name,
+            model_name=model_name,
+            client_spec=ClientSpec(
+                "helm.clients.litellm_client.LiteLLMCompletionClient", args={"litellm_model": "/".join(name_parts[1:])}
+            ),
         )
     else:
         raise NotImplementedError(f"Unknown model deployment base {model_deployment_base}")
