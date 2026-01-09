@@ -418,6 +418,9 @@ ci = [
   "crfm-helm[cohere]",
   "crfm-helm[proxy-server]",
 ]
+litellm = [
+    "litellm>=1.80.0",
+]
 
 [dependency-groups]
 
