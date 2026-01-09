@@ -125,14 +125,14 @@ def register_model_deployments_from_path(path: str) -> None:
 
 def auto_generate_model_deployment(name: str) -> ModelDeployment:
     name_parts = name.split("/")
-    router_name = name_parts[0]
+    model_deployment_base = name_parts[0]
     model_name = "/".join(name_parts[-2:])
-    if router_name == "together":
+    if model_deployment_base == "together":
         return ModelDeployment(
             name=name, model_name=model_name, client_spec=ClientSpec("helm.clients.together_client.TogetherClient")
         )
     else:
-        raise NotImplementedError(f"Unknown model router {router_name}")
+        raise NotImplementedError(f"Unknown model router {model_deployment_base}")
 
 
 def get_model_deployment(name: str, warn_deprecated: bool = False) -> ModelDeployment:
