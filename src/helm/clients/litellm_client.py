@@ -1,6 +1,7 @@
 # mypy: check_untyped_defs = False
 from typing import Any, Dict, List, Optional, TypedDict
 
+from helm.common.cache import CacheConfig
 from helm.common.request import (
     wrap_request_time,
     Request,
@@ -32,6 +33,15 @@ class LiteLLMCompletionRequest(TypedDict):
     frequency_penalty: Optional[float] = None,
 
 class LiteLLMCompletionClient(CachingClient):
+
+    def __init__(
+        self,
+        cache_config: CacheConfig,
+        litellm_model: Optional[str] = None,
+    ):
+        super().__init__(cache_config=cache_config)
+        self._litellm_model = litellm_model
+
     def _make_raw_request(self, request: Request) -> LiteLLMCompletionRequest:
         input_messages: List[Dict[str, Any]]
 
@@ -73,7 +83,7 @@ class LiteLLMCompletionClient(CachingClient):
         return raw_request
 
     def _get_model_for_request(self, request: Request) -> str:
-        return request.model_engine
+        return self._litellm_model or request.model_engine
 
     def make_request(self, request: Request) -> RequestResult:
         if request.echo_prompt:
