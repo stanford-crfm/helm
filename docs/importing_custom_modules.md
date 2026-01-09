@@ -27,3 +27,26 @@ If your custom classes are located in a Python package, you can simply install y
 If you are using a Python wrapper script that calls `helm.benchmark.run.run_benchmark()` instead of using `helm-run`, Python will automatically add the directory containing that script to the Python module search path. If your custom classes live in a Python module under that directory, they will automatically be importable by Python. See [Python's documentation](https://docs.python.org/3/library/sys_path_init.html) for more details.
 
 For example, suppose you implemented a custom `Client` subclass named `MyClient` in the `my_client.py` file under your current working directory, and you have a `ClientSpec` specifying the `class_name` as `my_client.MyClient`. Suppose you added a script called `run_helm.py` that calls `helm.benchmark.run.run_benchmark()` directly. When run using `python run_helm.py`, HELM will be able to import your modules without any additional changes.
+
+## Plugin-style registration
+
+Many extensions register themselves at import time (for example, by calling `register_builtin_configs_from_helm_package`). HELM supports three ways to import such plugins without modifying the main codebase:
+
+1. **Namespace packages under the `helm` module (existing behavior).** HELM automatically discovers run specs placed in the `helm.benchmark.run_specs` namespace (via [`pkgutil.iter_modules`](https://docs.python.org/3/library/pkgutil.html#pkgutil.iter_modules)). You can ship a separate package that contributes modules to this namespace (for example, `helm/benchmark/run_specs/my_run_spec.py`) and registers additional run spec functions when imported.
+
+2. **Python entry points (recommended for reusable plugins).** If your package is distributed as a wheel or editable install, declare a `helm` entry-point group in your `pyproject.toml`:
+
+   ```toml
+   [project.entry-points.helm]
+   my_plugin = "my_package.helm_plugin"
+   ```
+
+   Running `helm-run` will automatically import each entry in this group, which should execute any registration code inside `my_package.helm_plugin`.
+
+3. **Explicit imports via `--plugins` (for ad-hoc or local code).** You can pass either importable module names or filesystem paths to Python files:
+
+   ```bash
+   helm-run --plugins my_package.helm_plugin /path/to/local_plugin.py ...
+   ```
+
+   HELM resolves module names with `importlib.import_module` and file paths with `ubelt.import_module_from_path`, so you can load quick experiments without packaging them. Paths are interpreted literally; module names still need to be importable (for example, by adjusting `PYTHONPATH` as described above).
