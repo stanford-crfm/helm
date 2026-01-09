@@ -103,3 +103,109 @@ def build_run_spec():
 
     assert get_run_spec_function("custom_namespace_run") is not None
 
+
+def test_import_user_plugins_supports_object_spec_plugins(tmp_path, monkeypatch):
+    module_name = "custom_component_plugin"
+    module_file = tmp_path / f"{module_name}.py"
+    module_file.write_text(
+        """
+from typing import List
+
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.metrics.metric import Metric, MetricSpec
+from helm.benchmark.metrics.metric_service import MetricService
+from helm.benchmark.metrics.statistic import Stat
+from helm.benchmark.run_spec import RunSpec, run_spec_function
+from helm.benchmark.scenarios.scenario import Scenario, ScenarioMetadata, ScenarioSpec, Instance
+from helm.clients.client import Client
+from helm.common.request import Request, RequestResult
+from helm.common.tokenization_request import (
+    TokenizationRequest,
+    TokenizationRequestResult,
+    DecodeRequest,
+    DecodeRequestResult,
+    TokenizationToken,
+)
+from helm.tokenizers.tokenizer import Tokenizer
+
+
+@run_spec_function("custom_plugin_run_spec")
+def build_run_spec() -> RunSpec:
+    return RunSpec(
+        name="custom_plugin_run_spec",
+        scenario_spec=ScenarioSpec(class_name="custom_component_plugin.CustomScenario"),
+        adapter_spec=AdapterSpec(model="dummy"),
+        metric_specs=[MetricSpec(class_name="custom_component_plugin.CustomMetric")],
+    )
+
+
+class CustomScenario(Scenario):
+    name = "custom_plugin_scenario"
+    description = "A custom scenario for plugin tests."
+    tags = ["custom"]
+
+    def get_instances(self, output_path: str) -> List[Instance]:
+        return []
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(name=self.name, main_metric="custom_metric", main_split="test")
+
+
+class CustomMetric(Metric):
+    def evaluate_generation(
+        self,
+        adapter_spec: AdapterSpec,
+        request_state: RequestState,
+        metric_service: MetricService,
+        eval_cache_path: str,
+    ) -> List[Stat]:
+        return []
+
+
+class CustomClient(Client):
+    def make_request(self, request: Request) -> RequestResult:
+        return RequestResult(success=True, cached=False, embedding=[], completions=[])
+
+
+class CustomTokenizer(Tokenizer):
+    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
+        return TokenizationRequestResult(
+            success=True,
+            cached=False,
+            text=request.text,
+            tokens=[TokenizationToken(value=request.text)],
+        )
+
+    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
+        return DecodeRequestResult(success=True, cached=False, text="".join(map(str, request.tokens)))
+"""
+    )
+
+    monkeypatch.syspath_prepend(tmp_path)
+
+    if module_name in sys.modules:
+        importlib.invalidate_caches()
+        del sys.modules[module_name]
+
+    import_user_plugins([module_name])
+
+    from helm.benchmark.metrics.metric import Metric, MetricSpec, create_metric
+    from helm.benchmark.model_deployment_registry import ClientSpec
+    from helm.benchmark.scenarios.scenario import Scenario, ScenarioSpec, create_scenario
+    from helm.benchmark.run_spec import get_run_spec_function
+    from helm.benchmark.tokenizer_config_registry import TokenizerSpec
+    from helm.clients.client import Client
+    from helm.common.object_spec import create_object
+    from helm.tokenizers.tokenizer import Tokenizer
+
+    scenario = create_scenario(ScenarioSpec(class_name=f"{module_name}.CustomScenario"))
+    metric = create_metric(MetricSpec(class_name=f"{module_name}.CustomMetric"))
+    client = create_object(ClientSpec(class_name=f"{module_name}.CustomClient"))
+    tokenizer = create_object(TokenizerSpec(class_name=f"{module_name}.CustomTokenizer"))
+
+    assert isinstance(scenario, Scenario)
+    assert isinstance(metric, Metric)
+    assert isinstance(client, Client)
+    assert isinstance(tokenizer, Tokenizer)
+    assert get_run_spec_function("custom_plugin_run_spec") is not None
