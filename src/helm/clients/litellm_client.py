@@ -1,23 +1,14 @@
 # mypy: check_untyped_defs = False
-import dataclasses
-from typing import Any, Dict, List, Optional, TypedDict, Union
+from typing import Any, Dict, List, Optional, TypedDict
 
-from helm.clients.openai_client import OpenAIClientUtils
-from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import hwarn
-from helm.common.media_object import TEXT_TYPE
 from helm.common.request import (
-    Thinking,
     wrap_request_time,
     Request,
     RequestResult,
     GeneratedOutput,
 )
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.clients.client import (
-    CachingClient,
-    generate_uid_for_multimodal_prompt,
-)
+from helm.clients.client import CachingClient
 
 try:
     import litellm
