@@ -61,7 +61,11 @@ def run_entries_to_run_specs(
         ]
         for run_spec in run_specs_for_entry:
             # Filter by models
-            if models_to_run and run_spec.adapter_spec.model not in models_to_run and run_spec.adapter_spec.model_deployment not in models_to_run:
+            if (
+                models_to_run
+                and run_spec.adapter_spec.model not in models_to_run
+                and run_spec.adapter_spec.model_deployment not in models_to_run
+            ):
                 continue
 
             # Filter by groups
