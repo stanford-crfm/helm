@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional, TypedDict
 
 from helm.common.cache import CacheConfig
 from helm.common.request import (
+    Thinking,
     wrap_request_time,
     Request,
     RequestResult,
@@ -13,7 +14,7 @@ from helm.clients.client import CachingClient
 
 try:
     import litellm
-    from litellm.types.utils import Choices, ModelResponse
+    from litellm import Choices, ModelResponse
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["litellm"])
 
@@ -66,11 +67,11 @@ class LiteLLMCompletionClient(CachingClient):
             "model": self._get_model_for_request(request),
             "messages": input_messages,
             "temperature": request.temperature,
-            "top_p": request.top_p,
+            "top_p": None,  # disabled because many models don't support this
             "n": request.num_completions,
             "stop": request.stop_sequences,
             "max_tokens": request.max_tokens,
-            "logprobs": bool(request.top_k_per_token),
+            "logprobs": False,  # disabled because many models don't support this
             "presence_penalty": request.presence_penalty,
             "frequency_penalty": request.frequency_penalty,
         }
@@ -92,7 +93,7 @@ class LiteLLMCompletionClient(CachingClient):
         for _ in range(request.num_completions):
 
             def do_it() -> Dict[str, Any]:
-                litellm_raw_response = litellm.completion(**raw_request).model_dump(mode="json")
+                litellm_raw_response = litellm.completion(drop_params=True, **raw_request).model_dump(mode="json")
                 assert not litellm_raw_response.get("error", None), f"Error in response: {litellm_raw_response}"
                 return litellm_raw_response
 
@@ -104,12 +105,28 @@ class LiteLLMCompletionClient(CachingClient):
             del helm_raw_response["request_datetime"]
             response = ModelResponse.model_validate(helm_raw_response)
             for choice in response.choices:
-                assert isinstance(response.choices, Choices)
+                assert isinstance(choice, Choices)
+
+                thinking_parts: List[str] = []
+                if hasattr(choice.message, "reasoning_content") and isinstance(choice.message.reasoning_content, str):
+                    thinking_parts.append(choice.message.reasoning_content)
+                if hasattr(choice.message, "thinking_blocks") and choice.message.thinking_blocks:
+                    for thinking_block in choice.message.thinking_blocks:
+                        if thinking_block["type"] == "thinking":
+                            thinking_parts.append(thinking_block["thinking"])
+                        elif thinking_block["type"] == "redacted_thinking":
+                            thinking_parts.append("[redacted_thinking]")
+                thinking = Thinking(text="\n\n".join(thinking_parts)) if thinking_parts else None
+
                 output_text = choice.message.content
                 if output_text is None:
                     raise ValueError("Response content was `None`, possibly due to content blocking")
                 completion = GeneratedOutput(
-                    text=output_text, logprob=0.0, tokens=[], finish_reason={"reason": choice.finish_reason}
+                    text=output_text,
+                    logprob=0.0,
+                    tokens=[],
+                    finish_reason={"reason": choice.finish_reason},
+                    thinking=thinking,
                 )
                 completions.append(completion)
 
