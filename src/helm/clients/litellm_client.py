@@ -84,8 +84,6 @@ class LiteLLMCompletionClient(CachingClient):
         if request.embedding:
             raise NotImplementedError("`embedding` is not supported")
 
-        # Content can either be text or a list of multimodal content made up of text and images:
-        # https://platform.openai.com/docs/api-reference/responses/create
         raw_request = self._make_raw_request(request)
 
         # The responses API does not support a "num_completions" parameter,
