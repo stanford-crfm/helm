@@ -11,7 +11,7 @@ from helm.common.cache_backend_config import MongoCacheBackendConfig, SqliteCach
 from helm.common.general import ensure_directory_exists
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block, setup_default_logging, hwarn
 from helm.common.authentication import Authentication
-from helm.common.object_spec import parse_object_spec, get_class_by_name
+from helm.common.object_spec import ObjectSpec, parse_object_spec, get_class_by_name
 from helm.proxy.services.remote_service import create_authentication, add_service_args
 from helm.proxy.services.service import CACHE_DIR
 
@@ -33,16 +33,39 @@ def run_entries_to_run_specs(
     groups_to_run: Optional[List[str]] = None,
     priority: Optional[int] = None,
 ) -> List[RunSpec]:
-    """Runs RunSpecs given a list of RunSpec descriptions."""
+    """Returns RunSpecs given a list of RunSpec descriptions."""
     run_specs: List[RunSpec] = []
     for entry in run_entries:
         # Filter by priority
         if priority is not None and entry.priority is not None and entry.priority > priority:
             continue
 
-        for run_spec in construct_run_specs(parse_object_spec(entry.description)):
+        parsed_entry = parse_object_spec(entry.description)
+        parsed_entries_with_models: List[ObjectSpec]
+
+        # Rewrite the model arg in the run entry description based on models_to_run,
+        # but only do this if the models arg was unspecified or if the model arg is a group
+        # in the run entry description.
+        if models_to_run and "/" not in parsed_entry.args.get("model", ""):
+            parsed_entries_with_models = [
+                replace(parsed_entry, args={**parsed_entry.args, **{"model": model_to_run}})
+                for model_to_run in models_to_run
+            ]
+        else:
+            parsed_entries_with_models = [parsed_entry]
+
+        run_specs_for_entry = [
+            run_spec
+            for parsed_entry_with_model in parsed_entries_with_models
+            for run_spec in construct_run_specs(parsed_entry_with_model)
+        ]
+        for run_spec in run_specs_for_entry:
             # Filter by models
-            if models_to_run and run_spec.adapter_spec.model not in models_to_run:
+            if (
+                models_to_run
+                and run_spec.adapter_spec.model not in models_to_run
+                and run_spec.adapter_spec.model_deployment not in models_to_run
+            ):
                 continue
 
             # Filter by groups
@@ -241,17 +264,21 @@ def helm_run(args):
         all_models = set(model_metadata_registry.get_all_models())
         for model_to_run in args.models_to_run:
             if model_to_run not in all_models:
-                raise Exception(f"Unknown model '{model_to_run}' passed to --models-to-run")
+                name_parts = model_to_run.split("/")
+                if len(name_parts) <= 2:
+                    raise Exception(f"Unknown model '{model_to_run}' passed to --models-to-run")
     else:
         model_expander_wildcard_pattern = re.compile(
             r"\bmodel=(?:all|text_code|text|code|instruction_following|full_functionality_text|limited_functionality_text)\b"  # noqa: E501
         )
         if any(model_expander_wildcard_pattern.search(run_entry.description) for run_entry in run_entries):
-            raise Exception("--models-to-run must be set if the `models=` run expander expands to multiple models")
+            raise Exception(
+                "--models-to-run must be set (because the `model=` run expander expands to multiple models)"
+            )
 
         model_expander_pattern = re.compile(r"\bmodel=\b")
         if not any(model_expander_pattern.search(run_entry.description) for run_entry in run_entries):
-            raise Exception("--models-to-run must be set if the `models=` run expander is omitted")
+            raise Exception("--models-to-run must be set (because the `model=` run expander is omitted)")
 
     run_specs = run_entries_to_run_specs(
         run_entries=run_entries,
