@@ -2,7 +2,7 @@ import importlib
 import importlib.metadata
 import logging
 import sys
-
+from textwrap import dedent
 from helm.benchmark.run import import_user_plugins, load_entry_point_plugins
 
 
@@ -34,16 +34,18 @@ def test_load_entry_point_plugins_handles_failures(tmp_path, monkeypatch, caplog
 
     dist_info = plugin_dir / "entrypoint-0.0.0.dist-info"
     dist_info.mkdir()
-    (dist_info / "METADATA").write_text("""\
-Metadata-Version: 2.1
-Name: entrypoint
-Version: 0.0.0
-""")
-    (dist_info / "entry_points.txt").write_text("""\
-[helm_test]
-good = good_plugin:FLAG
-bad = bad_plugin:FLAG
-""")
+    (dist_info / "METADATA").write_text(dedent(
+        """
+        Metadata-Version: 2.1
+        Name: entrypoint
+        Version: 0.0.0
+        """))
+    (dist_info / "entry_points.txt").write_text(dedent(
+        """
+        [helm_test]
+        good = good_plugin:FLAG
+        bad = bad_plugin:FLAG
+        """))
 
     monkeypatch.syspath_prepend(str(plugin_dir))
     importlib.invalidate_caches()
@@ -64,24 +66,23 @@ def test_import_user_plugins_supports_namespace_packages(tmp_path, monkeypatch):
     (plugin_root / "helm" / "benchmark" / "__init__.py").write_text("")
     (run_specs_dir / "__init__.py").write_text("")
 
-    (run_specs_dir / "custom.py").write_text(
+    (run_specs_dir / "custom.py").write_text(dedent(
         """
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.benchmark.metrics.metric import MetricSpec
-from helm.benchmark.run_spec import RunSpec, run_spec_function
-from helm.benchmark.scenarios.scenario import ScenarioSpec
+        from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+        from helm.benchmark.metrics.metric import MetricSpec
+        from helm.benchmark.run_spec import RunSpec, run_spec_function
+        from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 
-@run_spec_function("custom_namespace_run")
-def build_run_spec():
-    return RunSpec(
-        name="custom_namespace_run",
-        scenario_spec=ScenarioSpec(class_name="helm.benchmark.scenarios.scenario.Scenario"),
-        adapter_spec=AdapterSpec(model="dummy"),
-        metric_specs=[MetricSpec(class_name="helm.benchmark.metrics.metric.Metric")],
-    )
-"""
-    )
+        @run_spec_function("custom_namespace_run")
+        def build_run_spec():
+            return RunSpec(
+                name="custom_namespace_run",
+                scenario_spec=ScenarioSpec(class_name="helm.benchmark.scenarios.scenario.Scenario"),
+                adapter_spec=AdapterSpec(model="dummy"),
+                metric_specs=[MetricSpec(class_name="helm.benchmark.metrics.metric.Metric")],
+            )
+        """))
 
     import helm
     import helm.benchmark
@@ -107,80 +108,79 @@ def build_run_spec():
 def test_import_user_plugins_supports_object_spec_plugins(tmp_path, monkeypatch):
     module_name = "custom_component_plugin"
     module_file = tmp_path / f"{module_name}.py"
-    module_file.write_text(
+    module_file.write_text(dedent(
         """
-from typing import List
+        from typing import List
 
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.metrics.metric import Metric, MetricSpec
-from helm.benchmark.metrics.metric_service import MetricService
-from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.run_spec import RunSpec, run_spec_function
-from helm.benchmark.scenarios.scenario import Scenario, ScenarioMetadata, ScenarioSpec, Instance
-from helm.clients.client import Client
-from helm.common.request import Request, RequestResult
-from helm.common.tokenization_request import (
-    TokenizationRequest,
-    TokenizationRequestResult,
-    DecodeRequest,
-    DecodeRequestResult,
-    TokenizationToken,
-)
-from helm.tokenizers.tokenizer import Tokenizer
-
-
-@run_spec_function("custom_plugin_run_spec")
-def build_run_spec() -> RunSpec:
-    return RunSpec(
-        name="custom_plugin_run_spec",
-        scenario_spec=ScenarioSpec(class_name="custom_component_plugin.CustomScenario"),
-        adapter_spec=AdapterSpec(model="dummy"),
-        metric_specs=[MetricSpec(class_name="custom_component_plugin.CustomMetric")],
-    )
-
-
-class CustomScenario(Scenario):
-    name = "custom_plugin_scenario"
-    description = "A custom scenario for plugin tests."
-    tags = ["custom"]
-
-    def get_instances(self, output_path: str) -> List[Instance]:
-        return []
-
-    def get_metadata(self) -> ScenarioMetadata:
-        return ScenarioMetadata(name=self.name, main_metric="custom_metric", main_split="test")
-
-
-class CustomMetric(Metric):
-    def evaluate_generation(
-        self,
-        adapter_spec: AdapterSpec,
-        request_state: RequestState,
-        metric_service: MetricService,
-        eval_cache_path: str,
-    ) -> List[Stat]:
-        return []
-
-
-class CustomClient(Client):
-    def make_request(self, request: Request) -> RequestResult:
-        return RequestResult(success=True, cached=False, embedding=[], completions=[])
-
-
-class CustomTokenizer(Tokenizer):
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        return TokenizationRequestResult(
-            success=True,
-            cached=False,
-            text=request.text,
-            tokens=[TokenizationToken(value=request.text)],
+        from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+        from helm.benchmark.adaptation.request_state import RequestState
+        from helm.benchmark.metrics.metric import Metric, MetricSpec
+        from helm.benchmark.metrics.metric_service import MetricService
+        from helm.benchmark.metrics.statistic import Stat
+        from helm.benchmark.run_spec import RunSpec, run_spec_function
+        from helm.benchmark.scenarios.scenario import Scenario, ScenarioMetadata, ScenarioSpec, Instance
+        from helm.clients.client import Client
+        from helm.common.request import Request, RequestResult
+        from helm.common.tokenization_request import (
+            TokenizationRequest,
+            TokenizationRequestResult,
+            DecodeRequest,
+            DecodeRequestResult,
+            TokenizationToken,
         )
+        from helm.tokenizers.tokenizer import Tokenizer
 
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        return DecodeRequestResult(success=True, cached=False, text="".join(map(str, request.tokens)))
-"""
-    )
+
+        @run_spec_function("custom_plugin_run_spec")
+        def build_run_spec() -> RunSpec:
+            return RunSpec(
+                name="custom_plugin_run_spec",
+                scenario_spec=ScenarioSpec(class_name="custom_component_plugin.CustomScenario"),
+                adapter_spec=AdapterSpec(model="dummy"),
+                metric_specs=[MetricSpec(class_name="custom_component_plugin.CustomMetric")],
+            )
+
+
+        class CustomScenario(Scenario):
+            name = "custom_plugin_scenario"
+            description = "A custom scenario for plugin tests."
+            tags = ["custom"]
+
+            def get_instances(self, output_path: str) -> List[Instance]:
+                return []
+
+            def get_metadata(self) -> ScenarioMetadata:
+                return ScenarioMetadata(name=self.name, main_metric="custom_metric", main_split="test")
+
+
+        class CustomMetric(Metric):
+            def evaluate_generation(
+                self,
+                adapter_spec: AdapterSpec,
+                request_state: RequestState,
+                metric_service: MetricService,
+                eval_cache_path: str,
+            ) -> List[Stat]:
+                return []
+
+
+        class CustomClient(Client):
+            def make_request(self, request: Request) -> RequestResult:
+                return RequestResult(success=True, cached=False, embedding=[], completions=[])
+
+
+        class CustomTokenizer(Tokenizer):
+            def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
+                return TokenizationRequestResult(
+                    success=True,
+                    cached=False,
+                    text=request.text,
+                    tokens=[TokenizationToken(value=request.text)],
+                )
+
+            def decode(self, request: DecodeRequest) -> DecodeRequestResult:
+                return DecodeRequestResult(success=True, cached=False, text="".join(map(str, request.tokens)))
+        """))
 
     monkeypatch.syspath_prepend(tmp_path)
 
