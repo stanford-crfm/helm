@@ -6,7 +6,9 @@ Starts a local HTTP server to display benchmarking assets.
 import argparse
 from importlib import resources
 import json
+import os
 from os import path
+from typing import List, Tuple
 import urllib
 
 from bottle import Bottle, static_file, HTTPResponse, response
@@ -88,6 +90,18 @@ def serve_static(filename="index.html"):
     return response
 
 
+def _get_last_modified_suite(output_path: str) -> str:
+    runs_path = path.join(output_path, "runs")
+    last_modified_and_suite: List[Tuple[float, str]] = []
+    for suite in os.listdir(runs_path):
+        summary_path = os.path.join(runs_path, suite, "summary.json")
+        if os.path.exists(summary_path):
+            last_modified_and_suite.append((path.getmtime(summary_path), suite))
+    if not last_modified_and_suite:
+        raise ValueError(f"No suites found in output path {output_path}")
+    return max(last_modified_and_suite)[1]
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--port", type=int, help="What port to listen on", default=8000)
@@ -151,7 +165,7 @@ def main():
         app.config["helm.cacheoutputpath"] = path.abspath(args.cache_output_path)
         app.config["helm.outputurl"] = "benchmark_output"
 
-    app.config["helm.suite"] = args.suite or "latest"
+    app.config["helm.suite"] = args.suite or _get_last_modified_suite(app.config["helm.outputpath"])
     app.config["helm.release"] = args.release
     app.config["helm.release"] = args.release
     app.config["helm.project"] = args.project or "lite"

@@ -97,7 +97,6 @@ class WebpageCompilerAnnotator(ImageCompilerAnnotator):
             # Make sure the parent directory exists
             os.makedirs(os.path.dirname(dest_path), exist_ok=True)
             shutil.copyfile(asset_path, dest_path)
-            # os.symlink(asset_path, dest_path)
 
         # Create each file in a temporary directory
         if not isinstance(structure, list):

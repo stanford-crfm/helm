@@ -44,7 +44,6 @@ from helm.benchmark.metrics.metric import (
 )
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.benchmark.run_spec import RunSpec
-from helm.benchmark.runner import LATEST_SYMLINK
 from helm.benchmark.presentation.table import Cell, HeaderCell, Table, Hyperlink, table_to_latex
 from helm.benchmark.presentation.schema import (
     MetricGroup,
@@ -1352,17 +1351,6 @@ class Summarizer:
 
         parallel_map(process, self.runs, parallelism=self.num_threads)
 
-    def symlink_latest(self) -> None:
-        # Create a symlink runs/latest -> runs/<name_of_suite>,
-        # so runs/latest always points to the latest run suite.
-        releases_dir: str = os.path.dirname(self.run_release_path)
-        symlink_path: str = os.path.abspath(os.path.join(releases_dir, LATEST_SYMLINK))
-        hlog(f"Symlinking {self.run_release_path} to {LATEST_SYMLINK}.")
-        if os.path.islink(symlink_path):
-            # Remove the previous symlink if it exists.
-            os.unlink(symlink_path)
-        os.symlink(os.path.basename(self.run_release_path), symlink_path)
-
     def run_pipeline(self, skip_completed: bool) -> None:
         """Run the entire summarization pipeline."""
         self.read_runs()
@@ -1383,8 +1371,6 @@ class Summarizer:
         self.write_runs_to_run_suites()
         self.write_groups()
         self.write_cost_report()
-
-        self.symlink_latest()
 
 
 @htrack("summarize")
