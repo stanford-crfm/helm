@@ -139,6 +139,27 @@ def auto_generate_model_deployment(name: str) -> ModelDeployment:
                 "helm.clients.litellm_client.LiteLLMCompletionClient", args={"litellm_model": "/".join(name_parts[1:])}
             ),
         )
+    elif model_deployment_base == "huggingface":
+        from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
+
+        pretrained_model_name_or_path = "/".join(name_parts[1:])
+        with HuggingFaceTokenizer.create_tokenizer(pretrained_model_name_or_path) as tokenizer:
+            max_sequence_length = tokenizer.model_max_length
+            if max_sequence_length > 1_000_000_000:
+                hwarn(
+                    f"Hugging Face model {pretrained_model_name_or_path} does not have a configured model_max_length; "
+                    "input truncation may not work correctly; errors may result from exceeding the model's max length"
+                )
+        return ModelDeployment(
+            name=name,
+            model_name=model_name,
+            client_spec=ClientSpec(
+                "helm.clients.huggingface_client.HuggingFaceClient",
+                args={"pretrained_model_name_or_path": pretrained_model_name_or_path},
+            ),
+            tokenizer_name=name,
+            max_sequence_length=max_sequence_length,
+        )
     else:
         raise NotImplementedError(f"Unknown model deployment base {model_deployment_base}")
 
