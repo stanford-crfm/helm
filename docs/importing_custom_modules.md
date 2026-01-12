@@ -1,6 +1,6 @@
 # Importing Custom Modules
 
-HELM is a modular framework with a plug-in architecture. You can write your own implementation for run specs, clients, tokenizers, scenarios, metrics, annotators, perturbations, and window services and use them in HELM with HELM installed as a library, without needing to modify HELM itself.
+HELM is a modular framework with a plug-in architecture. You can write your own implementation for run specs, clients, tokenizers, scenarios, or metrics and use them in HELM with HELM installed as a library, without needing to modify HELM itself.
 
 This guide explains:
 
@@ -16,12 +16,12 @@ This guide explains:
 Custom extensions generally work in one of two ways:
 
 1. **Run specs (registered by decorator).**  
-   Run specs are registered *at import time* via `@run_spec_function(...)` and are discoverable by name when you invoke `helm-run`.
+   Run specs are registered *at import time* via `@helm.benchmark.run_spec.run_spec_function(...)` and are discoverable by name when you invoke `helm-run`.
 
 2. **ObjectSpec-backed classes (loaded by class name).**  
-   Scenarios, metrics, clients, tokenizers, annotators, perturbations, and window services are defined as classes. HELM loads them by:
+   Scenarios, metrics, clients, and tokenizers are defined as classes. HELM loads them by:
    - importing the module portion of your fully qualified name, and then
-   - looking up the class name you specify in the relevant `ObjectSpec` (e.g., `ScenarioSpec`, `MetricSpec`, `ClientSpec`, `TokenizerSpec`, `AnnotatorSpec`, `PerturbationSpec`, `WindowServiceSpec`).
+   - looking up the class name you specify in the relevant `ObjectSpec` (e.g., `ScenarioSpec`, `MetricSpec`, `ClientSpec`, `TokenizerSpec`).
 
 **Key idea:** your module must be importable by Python, and (for run specs) it must be imported so registration code runs.
 
@@ -71,7 +71,7 @@ When you run `python your_script.py`, Python automatically adds the script's dir
 
 This compact example shows both registration styles in a single module:
 
-- a **run spec** registered via `@run_spec_function(...)`
+- a **run spec** registered via `@helm.benchmark.run_spec.run_spec_function(...)`
 - a **scenario** and **metric** referenced via `class_name=...` in `ScenarioSpec`/`MetricSpec`
 
 We'll use the entry point approach because it's the most robust for repeated runs.
