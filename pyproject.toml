@@ -73,7 +73,7 @@ dspy = [
     "dspy~=3.0.3",
     "fastapi~=0.118.0",
     "apscheduler~=3.11.0",
-    "cryptography~=43.0.3",
+    "cryptography>=43.0.3,<44.1.0",
     "python-multipart~=0.0.20",
     "email-validator~=2.3.0",
     "fastapi_sso~=0.18.0",
@@ -341,7 +341,7 @@ medhelm = [
     "lxml~=5.3",
     "openpyxl~=3.1",
     "python-docx~=1.1",
-    "transformers~=4.45,<4.50",
+    "transformers>=4.45,<5.0",
 ]
 
 audiolm = [
