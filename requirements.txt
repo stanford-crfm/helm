@@ -160,7 +160,7 @@ tomli==2.3.0
 torch==2.9.1
 torchvision==0.24.1
 tqdm==4.67.1
-transformers==4.49.0
+transformers==4.57.5
 triton==3.5.1
 typer==0.19.2
 typer-slim==0.21.1
