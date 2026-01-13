@@ -93,11 +93,12 @@ def get_medhelm_configurable_benchmark_spec(config_path: str) -> RunSpec:
 
 @run_spec_function("medcalc_bench")
 def get_medcalc_bench_spec(version: Optional[str] = None) -> RunSpec:
+
+    scenario_args = {} if version is None else {"version": version}
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.medcalc_bench_scenario.MedCalcBenchScenario",
-        args={
-            "version": version,
-        },
+        args=scenario_args,
     )
 
     adapter_spec = get_generation_adapter_spec(
@@ -117,8 +118,10 @@ def get_medcalc_bench_spec(version: Optional[str] = None) -> RunSpec:
         )
     ] + get_exact_match_metric_specs()
 
+    run_spec_name = "medcalc_bench" if version is None else f"medcalc_bench:version={version}"
+
     return RunSpec(
-        name="medcalc_bench",
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
