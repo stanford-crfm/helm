@@ -23,7 +23,7 @@ requires-python = ">=3.10"
 
 dependencies = [
     # Common
-    "cattrs~=22.2",
+    "cattrs>=22.2,<26.0",
     "colorlog~=6.9",
     "dacite~=1.6",
     "Mako~=1.2",

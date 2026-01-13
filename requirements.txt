@@ -10,7 +10,7 @@ black==24.3.0
 blis==1.3.3
 bottle==0.12.25
 catalogue==2.0.10
-cattrs==22.2.0
+cattrs==25.3.0
 certifi==2026.1.4
 cffi==2.0.0
 cfgv==3.5.0
