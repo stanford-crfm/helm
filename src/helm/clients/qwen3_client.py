@@ -7,7 +7,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from helm.common.cache import CacheConfig
 from helm.common.gpu_utils import get_torch_device_name
-from helm.common.hierarchical_logger import hexception, hlog
+from helm.common.hierarchical_logger import hexception, hlog, htrack_block
 from helm.common.request import Request, RequestResult, GeneratedOutput, Token, wrap_request_time
 from helm.clients.client import CachingClient
 
@@ -96,14 +96,19 @@ class Qwen3Client(CachingClient):
             if generation_args["temperature"] is None:
                 generation_args.pop("temperature")
 
-            output = model.generate(**inputs, **generation_args, return_dict_in_generate=True)
-            sequences = output.sequences
-            prompt_length = inputs.input_ids.shape[1]
-            generated = sequences[:, prompt_length:]
+            with htrack_block(f"Generating for prompt={chat_text}"):
+                output = model.generate(**inputs, **generation_args, return_dict_in_generate=True)
+                sequences = output.sequences
+                prompt_length = inputs.input_ids.shape[1]
+                generated = sequences[:, prompt_length:]
 
-            decoded = tokenizer.batch_decode(generated, skip_special_tokens=True, clean_up_tokenization_spaces=False)
-            trimmed = [_trim_by_stop(text, request.stop_sequences) for text in decoded]
-            return {"completions": trimmed}
+                decoded = tokenizer.batch_decode(
+                    generated, skip_special_tokens=True, clean_up_tokenization_spaces=False
+                )
+                trimmed = [_trim_by_stop(text, request.stop_sequences) for text in decoded]
+                for idx, t in enumerate(trimmed):
+                    hlog(f"Generated completion {idx}: {t}")
+                return {"completions": trimmed}
 
         try:
             cache_key = CachingClient.make_cache_key(raw_request, request)
