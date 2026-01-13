@@ -317,7 +317,7 @@ heim = [
     "opencv-python-headless>=4.7.0.68,<=4.11.0.86; python_version < '3.10'",
     "pytorch-fid~=0.3.0",
     "tensorflow~=2.11",
-    "timm~=0.6.12",
+    "timm>=0.6.12,<1.1.0",
     "torch-fidelity~=0.3.0",
     "torchmetrics~=0.11.1",
 
