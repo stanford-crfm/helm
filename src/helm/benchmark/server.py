@@ -153,8 +153,8 @@ def main():
         static_path = str(resource_filename.parent)
 
     app.config["helm.staticpath"] = static_path
-
     app.config["helm.project"] = args.project or "lite"
+
     if urllib.parse.urlparse(args.output_path).scheme in ["http", "https"]:
         # Output path is a URL, so set the output path base URL in the frontend to that URL
         # so that the frontend reads from that URL directly.
