@@ -91,10 +91,12 @@ def serve_static(filename="index.html"):
 
 
 def _get_latest_summary(runs_or_releases_path: str) -> Optional[Tuple[str, float]]:
+    if not path.isdir(runs_or_releases_path):
+        return None
     modified_and_name: List[Tuple[float, str]] = []
     for suite in os.listdir(runs_or_releases_path):
-        summary_path = os.path.join(runs_or_releases_path, suite, "summary.json")
-        if os.path.exists(summary_path):
+        summary_path = path.join(runs_or_releases_path, suite, "summary.json")
+        if path.isfile(summary_path):
             modified_and_name.append((path.getmtime(summary_path), suite))
     if not modified_and_name:
         return None
@@ -152,6 +154,7 @@ def main():
 
     app.config["helm.staticpath"] = static_path
 
+    app.config["helm.project"] = args.project or "lite"
     if urllib.parse.urlparse(args.output_path).scheme in ["http", "https"]:
         # Output path is a URL, so set the output path base URL in the frontend to that URL
         # so that the frontend reads from that URL directly.
@@ -174,9 +177,9 @@ def main():
     else:
         if not app.config["helm.outputpath"]:
             raise ValueError("One of `--suite` or `--release` must be set if `--output_path` is a URL")
-        latest_suite_and_modified_time = _get_latest_summary(os.path.join(app.config["helm.outputpath"], "runs"))
-        latest_release_and_modified_time = _get_latest_summary(os.path.join(app.config["helm.outputpath"], "releases"))
-        
+        latest_suite_and_modified_time = _get_latest_summary(path.join(app.config["helm.outputpath"], "runs"))
+        latest_release_and_modified_time = _get_latest_summary(path.join(app.config["helm.outputpath"], "releases"))
+
         if latest_suite_and_modified_time and latest_release_and_modified_time:
             if latest_suite_and_modified_time[1] > latest_release_and_modified_time[1]:
                 app.config["helm.suite"] = latest_suite_and_modified_time[0]
@@ -192,13 +195,11 @@ def main():
             app.config["helm.release"] = latest_release_and_modified_time[0]
         else:
             raise ValueError(f"No suites or releases found in {app.config['helm.outputpath']}")
-        
+
     if app.config["helm.suite"]:
         print(f"Serving suite '{app.config['helm.suite']}'")
     if app.config["helm.release"]:
         print(f"Serving release '{app.config['helm.release']}'")
-
-    app.config["helm.project"] = app.config["helm.suite"] or app.config["helm.release"]
 
     print(f"After the web server has started, go to http://localhost:{args.port} to view your website.\n")
     app.run(host="0.0.0.0", port=args.port)

@@ -1447,13 +1447,13 @@ def main():
     parser.add_argument(
         "--release",
         type=str,
-        help="Experimental: Name of the release this summarization should go under.",
+        help="Name of the release this summarization should go under.",
     )
     parser.add_argument(
         "--suites",
         type=str,
         nargs="+",
-        help="Experimental: List of suites to summarize for this this release.",
+        help="List of suites to summarize for this this release.",
     )
     parser.add_argument(
         "-n",
