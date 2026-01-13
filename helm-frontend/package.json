@@ -28,7 +28,7 @@
     "serve-static": "^1.16.2"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/node": "^20.4.4",
