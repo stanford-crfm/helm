@@ -1,7 +1,8 @@
 import time
-
-from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+PROMPT = r"""Convert the point $(0,3)$ in rectangular coordinates to polar coordinates. Enter your answer in the form $(r,\theta),$ where $r > 0$ and $0 \le \theta < 2 \pi.$"""
 
 def probe(name):
     tok = AutoTokenizer.from_pretrained(name)
@@ -16,20 +17,35 @@ def probe(name):
     print("use_cache:", model.config.use_cache)
     print("attn_impl:", getattr(model.config, "_attn_implementation", None))
     print("device_map has cpu?:", any(v == "cpu" for v in (getattr(model, "hf_device_map", {}) or {}).values()))
-    # prompt length
-    messages = [{"role":"user","content":"Give me a short introduction to large language model."}]
+
+    # Build prompt/messages
+    messages = [{"role": "user", "content": PROMPT}]
     text = tok.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
     enc = tok([text], return_tensors="pt").to(model.device)
     print("prompt_tokens:", enc["input_ids"].shape[1])
 
-    # short decode speed
+    # Generate + time
     torch.cuda.synchronize()
     t0 = time.time()
-    out = model.generate(**enc, max_new_tokens=32_000, do_sample=False, use_cache=True)
+    out = model.generate(
+        **enc,
+        max_new_tokens=32_000,
+        do_sample=False,
+        use_cache=True,
+        return_dict_in_generate=True,
+    )
     torch.cuda.synchronize()
     dt = time.time() - t0
-    gen = out.shape[1] - enc["input_ids"].shape[1]
-    print("gen_tokens:", gen, "sec:", dt, "tok/s:", gen/dt)
+
+    sequences = out.sequences
+    prompt_len = enc["input_ids"].shape[1]
+    gen_ids = sequences[0][prompt_len:]
+    gen_text = tok.decode(gen_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False)
+
+    gen = gen_ids.shape[0]
+    print("gen_tokens:", gen, "sec:", dt, "tok/s:", gen / dt if dt > 0 else float("inf"))
+    print("\n--- generated text ---")
+    print(gen_text)
 
 probe("Qwen/Qwen3-4B-Thinking-2507")
 probe("teetone/OpenR1-Distill-Qwen3-1.7B-Math")
