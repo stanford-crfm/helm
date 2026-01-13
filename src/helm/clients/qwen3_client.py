@@ -97,7 +97,7 @@ class Qwen3Client(CachingClient):
                 generation_args.pop("temperature")
 
             with htrack_block(f"Generating for prompt={chat_text}"):
-                output = model.generate(**inputs, **generation_args, return_dict_in_generate=True)
+                output = model.generate(**inputs, **generation_args, return_dict_in_generate=True, use_cache=True)
                 sequences = output.sequences
                 prompt_length = inputs.input_ids.shape[1]
                 generated = sequences[:, prompt_length:]

@@ -25,7 +25,7 @@ def probe(name):
     # short decode speed
     torch.cuda.synchronize()
     t0 = time.time()
-    out = model.generate(**enc, max_new_tokens=256, do_sample=False, use_cache=True)
+    out = model.generate(**enc, max_new_tokens=32_000, do_sample=False, use_cache=True)
     torch.cuda.synchronize()
     dt = time.time() - t0
     gen = out.shape[1] - enc["input_ids"].shape[1]
