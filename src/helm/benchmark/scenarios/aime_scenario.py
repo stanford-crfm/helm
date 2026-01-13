@@ -1,0 +1,69 @@
+import datasets
+import os
+import re
+from typing import List
+
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TEST_SPLIT,
+    Input,
+    Output,
+    CORRECT_TAG,
+    ScenarioMetadata,
+)
+from helm.common.general import ensure_directory_exists
+
+
+class AIMEScenario(Scenario):
+    """AIME 2024 benchmark from https://huggingface.co/datasets/math-ai/aime24."""
+
+    name = "aime"
+    description = "AIME 2024 mathematics problems"
+    tags = ["math"]
+
+    @staticmethod
+    def _extract_boxed(text: str) -> str:
+        """Return the last \\boxed{} content if present, otherwise the stripped text."""
+        matches = re.findall(r"\\boxed\\s*{([^}]*)}", text)
+        if matches:
+            return matches[-1].strip()
+        return text.strip()
+
+    def get_instances(self, output_path: str) -> List[Instance]:
+        cache_dir = os.path.join(output_path, "data")
+        ensure_directory_exists(cache_dir)
+        dataset = datasets.load_dataset("math-ai/aime24", cache_dir=cache_dir, split="test")
+        assert isinstance(dataset, datasets.Dataset)
+
+        instances: List[Instance] = []
+        for row in dataset:
+            input = Input(text=row["problem"])
+            solution = self._extract_boxed(row["solution"])
+            instance = Instance(
+                input=input,
+                references=[Reference(Output(text=solution), tags=[CORRECT_TAG])],
+                split=TEST_SPLIT,
+            )
+            instances.append(instance)
+
+        return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name=self.name,
+            display_name="AIME 2024",
+            description=self.description,
+            main_metric="math_accuracy",
+            main_split="test",
+            taxonomy=TaxonomyInfo(
+                task="mathematics",
+                what="American Invitational Mathematics Examination 2024 problems",
+                who="competition authors",
+                when="2024",
+                language="English",
+            ),
+        )
+
