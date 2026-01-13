@@ -24,14 +24,6 @@ class AIMEScenario(Scenario):
     description = "AIME 2024 mathematics problems"
     tags = ["math"]
 
-    @staticmethod
-    def _extract_boxed(text: str) -> str:
-        """Return the last \\boxed{} content if present, otherwise the stripped text."""
-        matches = re.findall(r"\\boxed\\s*{([^}]*)}", text)
-        if matches:
-            return matches[-1].strip()
-        return text.strip()
-
     def get_instances(self, output_path: str) -> List[Instance]:
         cache_dir = os.path.join(output_path, "data")
         ensure_directory_exists(cache_dir)
@@ -41,7 +33,7 @@ class AIMEScenario(Scenario):
         instances: List[Instance] = []
         for row in dataset:
             input = Input(text=row["problem"])
-            solution = self._extract_boxed(row["solution"])
+            solution: str = row["solution"]
             instance = Instance(
                 input=input,
                 references=[Reference(Output(text=solution), tags=[CORRECT_TAG])],

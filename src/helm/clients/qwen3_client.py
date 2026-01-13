@@ -1,0 +1,140 @@
+from dataclasses import dataclass
+from threading import Lock
+from typing import Any, Dict, List, Optional
+
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+from helm.common.cache import CacheConfig
+from helm.common.gpu_utils import get_torch_device_name
+from helm.common.hierarchical_logger import hexception, hlog
+from helm.common.request import Request, RequestResult, GeneratedOutput, Token, wrap_request_time
+from helm.clients.client import CachingClient
+
+
+QWEN3_MODEL_MAP: Dict[str, str] = {
+    "qwen3-4b-instruct-2507": "Qwen/Qwen3-4B-Instruct-2507",
+    "openr1-distill-qwen3-1.7b-math": "teetone/OpenR1-Distill-Qwen3-1.7B-Math",
+}
+
+
+@dataclass(frozen=True)
+class LoadedQwen3Model:
+    model: Any
+    tokenizer: Any
+
+
+_models_lock: Lock = Lock()
+_loaded_models: Dict[str, Optional[LoadedQwen3Model]] = {hf_name: None for hf_name in QWEN3_MODEL_MAP.values()}
+
+
+def _trim_by_stop(text: str, stop_sequences: List[str]) -> str:
+    for stop in stop_sequences:
+        if stop and stop in text:
+            text = text.split(stop)[0]
+    return text
+
+
+class Qwen3Client(CachingClient):
+    """Client for Qwen3 text-only Hugging Face models."""
+
+    def __init__(self, cache_config: CacheConfig):
+        super().__init__(cache_config=cache_config)
+        self._device: str = get_torch_device_name()
+
+    def _get_model_name(self, helm_model_name: str) -> str:
+        if helm_model_name in QWEN3_MODEL_MAP:
+            return QWEN3_MODEL_MAP[helm_model_name]
+        raise ValueError(f"Unhandled Qwen3 model name: {helm_model_name}")
+
+    def _get_model(self, helm_model_name: str) -> LoadedQwen3Model:
+        hf_name = self._get_model_name(helm_model_name)
+        with _models_lock:
+            loaded = _loaded_models[hf_name]
+            if loaded is None:
+                hlog(f"Loading Qwen3 model {hf_name}...")
+                tokenizer = AutoTokenizer.from_pretrained(hf_name, trust_remote_code=True)
+                model = AutoModelForCausalLM.from_pretrained(
+                    hf_name, torch_dtype=torch.float16 if torch.cuda.is_available() else "auto", device_map="auto"
+                )
+                loaded = LoadedQwen3Model(model=model.eval(), tokenizer=tokenizer)
+                _loaded_models[hf_name] = loaded
+        return loaded
+
+    def make_request(self, request: Request) -> RequestResult:
+        # Build messages
+        if request.messages is not None:
+            messages = request.messages
+        else:
+            messages = [{"role": "user", "content": request.prompt}]
+
+        raw_request: Dict[str, Any] = {
+            "engine": request.model_engine,
+            "messages": messages,
+            "temperature": request.temperature,
+            "top_p": request.top_p,
+            "max_new_tokens": request.max_tokens,
+            "num_completions": request.num_completions,
+            "stop_sequences": request.stop_sequences,
+        }
+
+        def do_it() -> Dict[str, Any]:
+            loaded = self._get_model(request.model_engine)
+            tokenizer = loaded.tokenizer
+            model = loaded.model
+
+            chat_text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+            inputs = tokenizer([chat_text], return_tensors="pt").to(model.device)
+
+            generation_args: Dict[str, Any] = {
+                "max_new_tokens": request.max_tokens,
+                "num_return_sequences": request.num_completions,
+                "do_sample": request.temperature > 0,
+                "temperature": request.temperature if request.temperature > 0 else None,
+                "top_p": request.top_p,
+            }
+            if generation_args["temperature"] is None:
+                generation_args.pop("temperature")
+
+            output = model.generate(**inputs, **generation_args, return_dict_in_generate=True)
+            sequences = output.sequences
+            prompt_length = inputs.input_ids.shape[1]
+            generated = sequences[:, prompt_length:]
+
+            decoded = tokenizer.batch_decode(generated, skip_special_tokens=True, clean_up_tokenization_spaces=False)
+            trimmed = [_trim_by_stop(text, request.stop_sequences) for text in decoded]
+            return {"completions": trimmed}
+
+        try:
+            cache_key = CachingClient.make_cache_key(raw_request, request)
+            result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+        except RuntimeError as model_error:
+            hexception(model_error)
+            return RequestResult(
+                success=False,
+                cached=False,
+                error=str(model_error),
+                completions=[],
+                embedding=[],
+            )
+
+        completions: List[GeneratedOutput] = []
+        for text in result["completions"]:
+            tokens = text.split()
+            completions.append(
+                GeneratedOutput(
+                    text=text,
+                    logprob=0.0,
+                    tokens=[Token(text=token, logprob=0.0) for token in tokens],
+                )
+            )
+
+        return RequestResult(
+            success=True,
+            cached=cached,
+            request_time=result["request_time"],
+            request_datetime=result.get("request_datetime"),
+            completions=completions,
+            embedding=[],
+        )
+

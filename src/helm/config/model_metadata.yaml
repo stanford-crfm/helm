@@ -3799,6 +3799,22 @@ models:
     release_date: 2025-07-21  # https://x.com/Alibaba_Qwen/status/1947344511988076547
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: qwen/qwen3-4b-instruct-2507
+    display_name: Qwen3 Instruct (4B 2507)
+    description: Qwen3-4B-Instruct-2507 is an updated non-thinking chat model with improved reasoning, math, coding, and 262K context length. ([model card](https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507))
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2025-07-21
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: qwen/openr1-distill-qwen3-1.7b-math
+    display_name: OpenR1-Distill-Qwen3 Math (1.7B)
+    description: Math-specialized distilled Qwen3 model released on Hugging Face for open math reasoning benchmarks. ([model card](https://huggingface.co/teetone/OpenR1-Distill-Qwen3-1.7B-Math))
+    creator_organization_name: teetone
+    access: open
+    release_date: 2025-01-01
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: qwen/qwq-32b-preview
     display_name: QwQ (32B Preview)
     description: QwQ-32B-Preview is an experimental research model developed by the Qwen Team, focused on advancing AI reasoning capabilities. ([blog post](https://qwenlm.github.io/blog/qwq-32b-preview/)).

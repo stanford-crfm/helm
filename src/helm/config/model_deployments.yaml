@@ -4069,6 +4069,20 @@ model_deployments:
       args:
         pretrained_model_name_or_path: Qwen/Qwen2.5-7B-Instruct
 
+  - name: huggingface/qwen3-4b-instruct-2507
+    model_name: qwen/qwen3-4b-instruct-2507
+    tokenizer_name: qwen/qwen3-4b-instruct-2507
+    max_sequence_length: 262144
+    client_spec:
+      class_name: "helm.clients.qwen3_client.Qwen3Client"
+
+  - name: huggingface/openr1-distill-qwen3-1.7b-math
+    model_name: qwen/openr1-distill-qwen3-1.7b-math
+    tokenizer_name: qwen/openr1-distill-qwen3-1.7b-math
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.qwen3_client.Qwen3Client"
+
   - name: huggingface/smollm2-135m
     model_name: huggingface/smollm2-135m
     tokenizer_name: huggingface/smollm2-135m
