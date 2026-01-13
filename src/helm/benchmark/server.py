@@ -6,7 +6,9 @@ Starts a local HTTP server to display benchmarking assets.
 import argparse
 from importlib import resources
 import json
+import os
 from os import path
+from typing import List, Optional, Tuple
 import urllib
 
 from bottle import Bottle, static_file, HTTPResponse, response
@@ -88,6 +90,20 @@ def serve_static(filename="index.html"):
     return response
 
 
+def _get_latest_summary(runs_or_releases_path: str) -> Optional[Tuple[str, float]]:
+    if not path.isdir(runs_or_releases_path):
+        return None
+    modified_and_name: List[Tuple[float, str]] = []
+    for suite in os.listdir(runs_or_releases_path):
+        summary_path = path.join(runs_or_releases_path, suite, "summary.json")
+        if path.isfile(summary_path):
+            modified_and_name.append((path.getmtime(summary_path), suite))
+    if not modified_and_name:
+        return None
+    latest_modified_and_name = max(modified_and_name)
+    return (latest_modified_and_name[1], latest_modified_and_name[0])
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--port", type=int, help="What port to listen on", default=8000)
@@ -108,13 +124,13 @@ def main():
         "--suite",
         type=str,
         default=None,
-        help="Name of the suite to serve (default is latest).",
+        help="Name of the suite to serve.",
     )
     parser.add_argument(
         "--release",
         type=str,
         default=None,
-        help="Experimental: The release to serve. If unset, don't serve a release, and serve the latest suite instead.",
+        help="Name of the release to serve.",
     )
 
     parser.add_argument(
@@ -137,6 +153,7 @@ def main():
         static_path = str(resource_filename.parent)
 
     app.config["helm.staticpath"] = static_path
+    app.config["helm.project"] = args.project or "lite"
 
     if urllib.parse.urlparse(args.output_path).scheme in ["http", "https"]:
         # Output path is a URL, so set the output path base URL in the frontend to that URL
@@ -151,10 +168,38 @@ def main():
         app.config["helm.cacheoutputpath"] = path.abspath(args.cache_output_path)
         app.config["helm.outputurl"] = "benchmark_output"
 
-    app.config["helm.suite"] = args.suite or "latest"
-    app.config["helm.release"] = args.release
-    app.config["helm.release"] = args.release
-    app.config["helm.project"] = args.project or "lite"
+    if args.suite:
+        app.config["helm.suite"] = args.suite
+        app.config["helm.release"] = None
+    elif args.release:
+        app.config["helm.suite"] = None
+        app.config["helm.release"] = args.release
+    else:
+        if not app.config["helm.outputpath"]:
+            raise ValueError("One of `--suite` or `--release` must be set if `--output_path` is a URL")
+        latest_suite_and_modified_time = _get_latest_summary(path.join(app.config["helm.outputpath"], "runs"))
+        latest_release_and_modified_time = _get_latest_summary(path.join(app.config["helm.outputpath"], "releases"))
+
+        if latest_suite_and_modified_time and latest_release_and_modified_time:
+            if latest_suite_and_modified_time[1] > latest_release_and_modified_time[1]:
+                app.config["helm.suite"] = latest_suite_and_modified_time[0]
+                app.config["helm.release"] = None
+            else:
+                app.config["helm.suite"] = None
+                app.config["helm.release"] = latest_release_and_modified_time[0]
+        elif latest_suite_and_modified_time and not latest_release_and_modified_time:
+            app.config["helm.suite"] = latest_suite_and_modified_time[0]
+            app.config["helm.release"] = None
+        elif not latest_suite_and_modified_time and latest_release_and_modified_time:
+            app.config["helm.suite"] = None
+            app.config["helm.release"] = latest_release_and_modified_time[0]
+        else:
+            raise ValueError(f"No suites or releases found in {app.config['helm.outputpath']}")
+
+    if app.config["helm.suite"]:
+        print(f"Serving suite '{app.config['helm.suite']}'")
+    if app.config["helm.release"]:
+        print(f"Serving release '{app.config['helm.release']}'")
 
     print(f"After the web server has started, go to http://localhost:{args.port} to view your website.\n")
     app.run(host="0.0.0.0", port=args.port)

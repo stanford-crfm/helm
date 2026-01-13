@@ -315,17 +315,6 @@ def get_file_name(path: str) -> str:
     return os.path.split(path)[-1]
 
 
-def safe_symlink(src: str, dest: str) -> None:
-    """
-    Creates a symlink at `dest`. `src` and `dest` can be relative paths.
-    """
-    src = os.path.abspath(src)
-    dest = os.path.abspath(dest)
-
-    if not os.path.exists(dest):
-        os.symlink(src, dest)
-
-
 def is_url(location: str) -> bool:
     """Return True if `location` is a url. False otherwise."""
     return urllib.parse.urlparse(location).scheme in ["http", "https"]
