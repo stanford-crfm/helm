@@ -20,7 +20,7 @@ from helm.benchmark.scenarios.scenario import (
 
 
 def remove_boxed(string: str) -> Optional[str]:
-    r"""Source: https://github.com/hendrycks/math
+    """Source: https://github.com/hendrycks/math
 
     Extract the text within a \boxed{...} environment.
 
