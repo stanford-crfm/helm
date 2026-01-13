@@ -88,16 +88,13 @@ class Qwen3Client(CachingClient):
 
             generation_args: Dict[str, Any] = {
                 "max_new_tokens": request.max_tokens,
-                "num_return_sequences": request.num_completions,
-                "do_sample": request.temperature > 0,
-                "temperature": request.temperature if request.temperature > 0 else None,
-                "top_p": request.top_p,
+                "do_sample": False,
+                "use_cache": True,
+                "return_dict_in_generate": True,
             }
-            if generation_args["temperature"] is None:
-                generation_args.pop("temperature")
 
             with htrack_block(f"Generating for prompt={chat_text}"):
-                output = model.generate(**inputs, **generation_args, return_dict_in_generate=True, use_cache=True)
+                output = model.generate(**inputs, **generation_args)
                 sequences = output.sequences
                 prompt_length = inputs.input_ids.shape[1]
                 generated = sequences[:, prompt_length:]

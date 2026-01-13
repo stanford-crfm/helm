@@ -10,7 +10,7 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 def _math_reasoning_adapter_spec() -> AdapterSpec:
     return AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions="Answer the question, giving your reasoning beforehand. Wrap the final answer with the \\boxed{} command.",  # noqa: E501
+        instructions="Wrap your final answer in \\boxed{}.",
         input_prefix="",
         output_prefix="",
         max_tokens=4096,
