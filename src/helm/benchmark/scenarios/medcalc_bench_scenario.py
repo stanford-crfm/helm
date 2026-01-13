@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 from datasets import load_dataset
 
 from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
@@ -112,9 +112,10 @@ class MedCalcBenchScenario(Scenario):
             instances.append(instance)
         return instances
 
-    def get_instances(self, output_path: str) -> List[Instance]:
+    def get_instances(self, output_path: str, version: Optional[str] = None) -> List[Instance]:
         # Load the MedCalc-Bench dataset from Hugging Face
-        dataset = load_dataset("ncbi/MedCalc-Bench")
+        dataset_path = f"ncbi/MedCalc-Bench{('-' + version) if version else ''}"
+        dataset = load_dataset(dataset_path)
 
         # Process all the instances - limit to zero shot setting
         instances: List[Instance] = []
@@ -147,92 +148,3 @@ class MedCalcBenchScenario(Scenario):
             main_metric="medcalc_bench_accuracy",
             main_split="test",
         )
-
-
-class MedCalcBenchV1_0Scenario(MedCalcBenchScenario):
-    """
-    MedCalc-Bench v1.0 is an updated the version of the MedCalc-Bench dataset designed to
-    evaluate LLMs' capabilities in medical calculations. This version serves as a baseline
-    for assessing the performance of language models in computing clinically relevant values
-    from patient notes.
-
-    Dataset: https://huggingface.co/datasets/ncbi/MedCalc-Bench-v1.0
-    Paper: https://arxiv.org/abs/2406.12036
-    """
-
-    name = "medcalc_bench_v1_0"
-
-    def get_instances(self, output_path: str) -> List[Instance]:
-        # Load the MedCalc-Bench v1.0 dataset from Hugging Face
-        dataset = load_dataset("ncbi/MedCalc-Bench-v1.0")
-
-        # Process all the instances - limit to zero shot setting
-        instances: List[Instance] = []
-        splits: Dict[str, str] = {
-            # "train": TRAIN_SPLIT,
-            "test": TEST_SPLIT,
-        }
-        for hf_split, split in splits.items():
-            data = dataset[hf_split]
-            instances.extend(self.process_csv(data, split))
-
-        return instances
-
-
-class MedCalcBenchV1_1Scenario(MedCalcBenchScenario):
-    """
-    MedCalc-Bench v1.1 is an updated version of the MedCalc-Bench dataset with minor
-    corrections and clarifications to improve the quality of the questions and answers.
-    This version aims to provide a more accurate assessment of LLMs' capabilities in
-    medical calculations.
-
-    Dataset: https://huggingface.co/datasets/ncbi/MedCalc-Bench-v1.1
-    Paper: https://arxiv.org/abs/2406.12036
-    """
-
-    name = "medcalc_bench_v1_1"
-
-    def get_instances(self, output_path: str) -> List[Instance]:
-        # Load the MedCalc-Bench v1.1 dataset from Hugging Face
-        dataset = load_dataset("ncbi/MedCalc-Bench-v1.1")
-
-        # Process all the instances - limit to zero shot setting
-        instances: List[Instance] = []
-        splits: Dict[str, str] = {
-            # "train": TRAIN_SPLIT,
-            "test": TEST_SPLIT,
-        }
-        for hf_split, split in splits.items():
-            data = dataset[hf_split]
-            instances.extend(self.process_csv(data, split))
-
-        return instances
-
-
-class MedCalcBenchV1_2Scenario(MedCalcBenchScenario):
-    """
-    MedCalc-Bench v1.2 is an updated version of the MedCalc-Bench dataset with improved
-    question clarity and answer accuracy. This version addresses ambiguities in the original
-    dataset to enhance the evaluation of LLMs' capabilities in medical calculations.
-
-    Dataset: https://huggingface.co/datasets/ncbi/MedCalc-Bench-v1.2
-    Paper: https://arxiv.org/abs/2406.12036
-    """
-
-    name = "medcalc_bench_v1_2"
-
-    def get_instances(self, output_path: str) -> List[Instance]:
-        # Load the MedCalc-Bench v1.2 dataset from Hugging Face
-        dataset = load_dataset("ncbi/MedCalc-Bench-v1.2")
-
-        # Process all the instances - limit to zero shot setting
-        instances: List[Instance] = []
-        splits: Dict[str, str] = {
-            # "train": TRAIN_SPLIT,
-            "test": TEST_SPLIT,
-        }
-        for hf_split, split in splits.items():
-            data = dataset[hf_split]
-            instances.extend(self.process_csv(data, split))
-
-        return instances
