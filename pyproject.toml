@@ -272,7 +272,7 @@ image2struct = [
     "html2text~=2024.2.26",
 
     # Metrics
-    "opencv-python-headless>=4.7.0.68,<=4.11.0.86",
+    "opencv-python-headless>=4.7.0.68,<=4.12.0.88",
     "lpips~=0.1.4",
     "imagehash~=4.3"  # for caching
 ]
@@ -314,7 +314,7 @@ heim = [
     "NudeNet~=2.0",
     "numpy>=1.26",
     "opencv-python>=4.7.0.68,<4.8.2.0; python_version >= '3.10'",
-    "opencv-python-headless>=4.7.0.68,<=4.11.0.86; python_version < '3.10'",
+    "opencv-python-headless>=4.7.0.68,<=4.12.0.88; python_version < '3.10'",
     "pytorch-fid~=0.3.0",
     "tensorflow~=2.11",
     "timm~=0.6.12",
