@@ -28,13 +28,6 @@ _models_lock: Lock = Lock()
 _loaded_models: Dict[str, Optional[LoadedQwen3Model]] = {hf_name: None for hf_name in QWEN3_MODEL_MAP.values()}
 
 
-def _trim_by_stop(text: str, stop_sequences: List[str]) -> str:
-    for stop in stop_sequences:
-        if stop and stop in text:
-            text = text.split(stop)[0]
-    return text
-
-
 class Qwen3Client(CachingClient):
     """Client for Qwen3 text-only Hugging Face models."""
 
@@ -71,11 +64,7 @@ class Qwen3Client(CachingClient):
         raw_request: Dict[str, Any] = {
             "engine": request.model_engine,
             "messages": messages,
-            "temperature": request.temperature,
-            "top_p": request.top_p,
             "max_new_tokens": request.max_tokens,
-            "num_completions": request.num_completions,
-            "stop_sequences": request.stop_sequences,
         }
 
         def do_it() -> Dict[str, Any]:
@@ -86,15 +75,13 @@ class Qwen3Client(CachingClient):
             chat_text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
             inputs = tokenizer([chat_text], return_tensors="pt").to(model.device)
 
-            generation_args: Dict[str, Any] = {
-                "max_new_tokens": request.max_tokens,
-                "do_sample": False,
-                "use_cache": True,
-                "return_dict_in_generate": True,
-            }
-
             with htrack_block(f"Generating for prompt={chat_text}"):
-                output = model.generate(**inputs, **generation_args)
+                output = model.generate(
+                    max_new_tokens=request.max_tokens,
+                    do_sample=False,
+                    use_cache=True,
+                    return_dict_in_generate=True,
+                )
                 sequences = output.sequences
                 prompt_length = inputs.input_ids.shape[1]
                 generated = sequences[:, prompt_length:]
@@ -102,10 +89,7 @@ class Qwen3Client(CachingClient):
                 decoded = tokenizer.batch_decode(
                     generated, skip_special_tokens=True, clean_up_tokenization_spaces=False
                 )
-                trimmed = [_trim_by_stop(text, request.stop_sequences) for text in decoded]
-                for idx, t in enumerate(trimmed):
-                    hlog(f"Generated completion {idx}: {t}")
-                return {"completions": trimmed}
+                return {"completions": decoded}
 
         try:
             cache_key = CachingClient.make_cache_key(raw_request, request)
