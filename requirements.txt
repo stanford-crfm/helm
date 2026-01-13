@@ -114,7 +114,7 @@ pyarrow==22.0.0
 pyarrow-hotfix==0.7
 pyasn1==0.6.1
 pyasn1-modules==0.4.2
-pycodestyle==2.9.1
+pycodestyle==2.14.0
 pycparser==2.23
 pydantic==2.12.5
 pydantic-core==2.41.5
