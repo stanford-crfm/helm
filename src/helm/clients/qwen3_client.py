@@ -67,11 +67,12 @@ class Qwen3Client(CachingClient):
             "max_new_tokens": request.max_tokens,
         }
 
-        def do_it() -> Dict[str, Any]:
-            loaded = self._get_model(request.model_engine)
-            tokenizer = loaded.tokenizer
-            model = loaded.model
+        # Load model/tokenizer once per request
+        loaded = self._get_model(request.model_engine)
+        tokenizer = loaded.tokenizer
+        model = loaded.model
 
+        def do_it() -> Dict[str, Any]:
             chat_text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
             inputs = tokenizer([chat_text], return_tensors="pt").to(model.device)
 
@@ -109,12 +110,12 @@ class Qwen3Client(CachingClient):
 
         completions: List[GeneratedOutput] = []
         for text in result["completions"]:
-            tokens = text.split()
+            token_strs: List[str] = tokenizer.tokenize(text)
             completions.append(
                 GeneratedOutput(
                     text=text,
                     logprob=0.0,
-                    tokens=[Token(text=token, logprob=0.0) for token in tokens],
+                    tokens=[Token(text=token, logprob=0.0) for token in token_strs],
                 )
             )
 
