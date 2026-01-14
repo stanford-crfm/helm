@@ -11,7 +11,7 @@ def probe(name):
         torch_dtype=torch.float16,
         device_map="auto",
         attn_implementation="flash_attention_2",
-    )
+    ).eval()
 
     print("\n==", name, "==")
     print("param dtype/device:", next(model.parameters()).dtype, next(model.parameters()).device)
@@ -49,6 +49,7 @@ def probe(name):
     print(gen_text[-100:])
 
 # gen_tokens: 1324 sec: 23.93214511871338 tok/s: 55.32308087855937
+# gen_tokens: 1347 sec: 40.55997443199158 tok/s: 33.21008010640059
 probe("Qwen/Qwen3-4B-Thinking-2507")
 # gen_tokens: 32000 sec: 518.032811164856 tok/s: 61.77214900354351
 probe("teetone/OpenR1-Distill-Qwen3-1.7B-Math")
