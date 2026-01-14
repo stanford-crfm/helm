@@ -43,6 +43,7 @@ class Qwen3Client(CachingClient):
     def _get_model(self, helm_model_name: str) -> LoadedQwen3Model:
         hf_name = self._get_model_name(helm_model_name)
         force_download = "openr1" in hf_name.lower()
+        force_download = False
         hlog(f"Loading Qwen3 model {hf_name}...")
         with _models_lock:
             loaded = _loaded_models[hf_name]
