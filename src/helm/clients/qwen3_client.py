@@ -42,13 +42,19 @@ class Qwen3Client(CachingClient):
 
     def _get_model(self, helm_model_name: str) -> LoadedQwen3Model:
         hf_name = self._get_model_name(helm_model_name)
+        force_download = "openr1" in hf_name.lower()
         with _models_lock:
             loaded = _loaded_models[hf_name]
             if loaded is None:
                 hlog(f"Loading Qwen3 model {hf_name}...")
-                tokenizer = AutoTokenizer.from_pretrained(hf_name, trust_remote_code=True)
+                tokenizer = AutoTokenizer.from_pretrained(
+                    hf_name, trust_remote_code=True, force_download=force_download
+                )
                 model = AutoModelForCausalLM.from_pretrained(
-                    hf_name, torch_dtype=torch.float16 if torch.cuda.is_available() else "auto", device_map="auto"
+                    hf_name,
+                    torch_dtype=torch.float16 if torch.cuda.is_available() else "auto",
+                    device_map="auto",
+                    force_download=force_download,
                 )
                 loaded = LoadedQwen3Model(model=model.eval(), tokenizer=tokenizer)
                 _loaded_models[hf_name] = loaded
