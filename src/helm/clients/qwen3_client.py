@@ -77,6 +77,7 @@ class Qwen3Client(CachingClient):
 
             with htrack_block(f"Generating for prompt={chat_text}"):
                 output = model.generate(
+                    **inputs,
                     max_new_tokens=request.max_tokens,
                     do_sample=False,
                     use_cache=True,
@@ -89,6 +90,7 @@ class Qwen3Client(CachingClient):
                 decoded = tokenizer.batch_decode(
                     generated, skip_special_tokens=True, clean_up_tokenization_spaces=False
                 )
+                # Print last 100 characters of the decoded text
                 hlog(f"Decoded: {decoded[0][-100:]}")
                 return {"completions": decoded}
 
