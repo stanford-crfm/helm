@@ -11,7 +11,7 @@ def probe(name):
         torch_dtype=torch.float16,
         device_map="auto",
         attn_implementation="flash_attention_2",
-    )
+    ).eval()
 
     print("\n==", name, "==")
     print("param dtype/device:", next(model.parameters()).dtype, next(model.parameters()).device)
