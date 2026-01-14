@@ -10,7 +10,7 @@ def probe(name):
         name,
         torch_dtype=torch.float16,
         device_map="auto",
-        # attn_implementation="flash_attention_2",
+        attn_implementation="flash_attention_2",
     )
 
     print("\n==", name, "==")
@@ -48,5 +48,7 @@ def probe(name):
     print("\n--- generated text ---")
     print(gen_text[-100:])
 
+# gen_tokens: 1324 sec: 23.93214511871338 tok/s: 55.32308087855937
 probe("Qwen/Qwen3-4B-Thinking-2507")
+# gen_tokens: 32000 sec: 518.032811164856 tok/s: 61.77214900354351
 probe("teetone/OpenR1-Distill-Qwen3-1.7B-Math")
