@@ -1,16 +1,17 @@
 import time
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import Qwen3VLForConditionalGeneration, AutoTokenizer
 
 PROMPT = r"""Convert the point $(0,3)$ in rectangular coordinates to polar coordinates. Enter your answer in the form $(r,\theta),$ where $r > 0$ and $0 \le \theta < 2 \pi.$"""
 
 def probe(name):
     tok = AutoTokenizer.from_pretrained(name)
-    model = AutoModelForCausalLM.from_pretrained(
+    model = Qwen3VLForConditionalGeneration.from_pretrained(
         name,
         torch_dtype=torch.float16,
         device_map="auto",
-    ).eval()
+        # attn_implementation="flash_attention_2",
+    )
 
     print("\n==", name, "==")
     print("param dtype/device:", next(model.parameters()).dtype, next(model.parameters()).device)

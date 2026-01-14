@@ -89,6 +89,7 @@ class Qwen3Client(CachingClient):
                 decoded = tokenizer.batch_decode(
                     generated, skip_special_tokens=True, clean_up_tokenization_spaces=False
                 )
+                hlog(f"Decoded: {decoded[0][-100:]}")
                 return {"completions": decoded}
 
         try:
