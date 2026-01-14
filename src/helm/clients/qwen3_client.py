@@ -52,7 +52,7 @@ class Qwen3Client(CachingClient):
                 )
                 model = AutoModelForCausalLM.from_pretrained(
                     hf_name,
-                    torch_dtype=torch.float16 if torch.cuda.is_available() else "auto",
+                    torch_dtype=torch.bfloat16 if torch.cuda.is_available() else "auto",
                     device_map="auto",
                     force_download=force_download,
                 )
