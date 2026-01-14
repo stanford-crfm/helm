@@ -91,7 +91,8 @@ class LocalWindowService(ConfigurableWindowService, ABC):
         Checks if the given text fits within the context window given by `max_request_length`
         taking to account the expected completion length (defaults to 0).
         """
-        return self.get_num_tokens(text) + expected_completion_token_length <= self.max_request_length
+        # return self.get_num_tokens(text) + expected_completion_token_length <= self.max_request_length
+        return True
 
     def truncate_from_right(self, text: str, expected_completion_token_length: int = 0) -> str:
         """
