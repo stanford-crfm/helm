@@ -4,8 +4,22 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    ignore:
+      update-types: "version-update:semver-major"
+    groups:
+      version-updates:
+        applies-to: "version-updates"
+      security-updates:
+        applies-to: "security-updates"
 
   - package-ecosystem: "npm"
     directory: "/helm-frontend/"
     schedule:
       interval: "weekly"
+    ignore:
+      update-types: "version-update:semver-major"
+    groups:
+      version-updates:
+        applies-to: "version-updates"
+      security-updates:
+        applies-to: "security-updates"
