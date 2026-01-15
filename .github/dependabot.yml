@@ -5,7 +5,8 @@ updates:
     schedule:
       interval: "weekly"
     ignore:
-      - update-types: "version-update:semver-major"
+      - dependency-name: ["*"]
+        update-types: ["version-update:semver-major"]
     groups:
       uv:
         patterns: ["*"]
@@ -15,7 +16,8 @@ updates:
     schedule:
       interval: "weekly"
     ignore:
-      - update-types: "version-update:semver-major"
+      - dependency-name: ["*"]
+        update-types: "version-update:semver-major"
     groups:
       npm:
         patterns: ["*"]
