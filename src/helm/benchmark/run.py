@@ -4,8 +4,8 @@ import os
 import re
 from typing import List, Optional
 
+import ubelt
 
-import ubelt as ub
 from helm.benchmark import model_metadata_registry
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
 from helm.common.cache_backend_config import MongoCacheBackendConfig, SqliteCacheBackendConfig
@@ -91,7 +91,7 @@ def import_user_plugins(paths_or_names) -> List:
         if "/" in modpath_or_name or "\\" in modpath_or_name or os.path.exists(modpath_or_name):
             # The input is a path to a module
             hdebug(f"Import plugin {modpath_or_name!r} from its path")
-            module = ub.import_module_from_path(modpath_or_name)
+            module = ubelt.import_module_from_path(modpath_or_name)
         else:
             # The input is the name of a module
             hdebug(f"Import plugin {modpath_or_name!r} as a module")
