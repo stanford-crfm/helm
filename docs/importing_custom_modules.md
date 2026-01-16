@@ -2,12 +2,46 @@
 
 HELM is a modular framework with a plug-in architecture. You can write your own implementation for run specs, clients, tokenizers, scenarios, or metrics and use them in HELM with HELM installed as a library, without needing to modify HELM itself.
 
+In this document, a **plugin** means **user-provided Python code that extends HELM**. Practically, a plugin is a Python *module* that either:
+
+- defines classes that HELM can load by fully-qualified name (e.g., `my_pkg.my_metric.CustomMetric`), and/or
+- registers run specs when the module is imported (via a decorator).
+
 This guide explains:
 
+- how Python importability affects HELM
 - how HELM discovers custom code
-- your options for loading plugins
+- your options for loading plugin modules
 - a complete end-to-end example using Python entry points (recommended)
-- when you may need to set `PYTHONPATH`
+
+---
+
+## Making your code importable (Python basics)
+
+HELM will only be able to use custom code that can be imported by Python. In this guide, there are two main ways to make your code importable:
+
+1. **Install it as a Python package** (optionally in editable mode).
+2. **Add a directory to `PYTHONPATH`** so Python searches it for modules.
+
+### Add the current working directory to PYTHONPATH
+
+If the custom code lives in a Python module under the current working directory, you may need to modify `PYTHONPATH` to make that module importable.
+
+This is required because Python does not add the current working directory to the Python module search path when using command line commands / Python entry points such as `helm-run`. See [Python's documentation](https://docs.python.org/3/library/sys_path_init.html) for more details.
+
+For example, suppose you implemented a custom `Client` subclass named `MyClient` in the `my_client.py` file under your current working directory, and you have a `ClientSpec` specifying the `class_name` as `my_client.MyClient`.
+
+To make your file importable by Python, you have to add `.` to your `PYTHONPATH` so that Python will search in your current working directory for your custom Python modules.
+
+In Bash, you can do this by running `export PYTHONPATH=".:$PYTHONPATH"` before running `helm-run`, or by prefixing `helm-run` with `PYTHONPATH=".:$PYTHONPATH"`.
+
+### Put your custom code in a Python package
+
+If your custom code is located in a Python package, you can simply install your package (optionally in editable mode) and it will automatically be importable by Python. Be sure to install your Python package in the same Python environment as HELM.
+
+### Write a Python wrapper script
+
+If you are using a Python wrapper script that calls `helm.benchmark.run.run_benchmark()` instead of using `helm-run`, Python will automatically add the directory containing that script to the Python module search path. If your custom code lives in a Python module under that directory, it will automatically be importable by Python. See [Python's documentation](https://docs.python.org/3/library/sys_path_init.html) for more details.
 
 ---
 
@@ -15,21 +49,23 @@ This guide explains:
 
 Custom extensions generally work in one of two ways:
 
-1. **Run specs (registered by decorator).**  
-   Run specs are registered *at import time* via `@helm.benchmark.run_spec.run_spec_function(...)` and are discoverable by name when you invoke `helm-run`.
-
-2. **ObjectSpec-backed classes (loaded by class name).**  
-   Scenarios, metrics, clients, and tokenizers are defined as classes. HELM loads them by:
+1. **ObjectSpec-backed classes (loaded by class name).**
+   Clients, tokenizers, scenarios, and metrics are defined as classes. HELM loads them by:
    - importing the module portion of your fully qualified name, and then
    - looking up the class name you specify in the relevant `ObjectSpec` (e.g., `ScenarioSpec`, `MetricSpec`, `ClientSpec`, `TokenizerSpec`).
 
-**Key idea:** your module must be importable by Python, and (for run specs) it must be imported so registration code runs.
+   **Key idea:** these modules only need to be *importable* by Python. They do not need to be imported ahead of time.
+
+2. **Run specs (registered by decorator).**
+   Run specs are registered *at import time* via `@helm.benchmark.run_spec.run_spec_function(...)` and are discoverable by name when you invoke `helm-run`.
+
+   **Key idea:** the module containing the run spec function must be imported so registration code runs. Only modules that define run spec functions need to be imported for discovery.
 
 ---
 
-## Ways to load plugins
+## Ways to load plugin modules
 
-HELM supports four common approaches. Pick the one that matches how "production" vs. "experimental" your plugin is.
+The approaches below are mostly about ensuring that modules containing run spec functions get imported (so run specs register). They may also be useful for importing other code early (for example, to fail fast on syntax errors), but only run specs *require* this.
 
 ### 1) Python entry points (recommended for reusable plugins)
 
@@ -40,41 +76,54 @@ If your custom code is an installable Python package, declare a `helm` entry-poi
 my_plugin = "my_package.helm_plugin"
 ```
 
-When your package is installed (e.g., as a wheel or with `pip install -e .`), `helm-run` can automatically import the entry point module, making your run specs and classes available without manually tweaking `PYTHONPATH`.
+When your package is installed (e.g., as a wheel or with `pip install -e .`), `helm-run` can automatically import the entry point module.
+
+With this method, `project.entry-points.helm` only needs to include modules that contain run spec functions (and any other modules you explicitly want imported up front).
 
 ### 2) Explicit imports via `--plugins` (best for quick experiments)
 
-You can explicitly tell `helm-run` what to import, using either an importable module name or a filesystem path to a `.py` file:
+You can explicitly tell `helm-run` what to import. Each `--plugins` argument can be either an importable module name or a filesystem path to a `.py` file.
+
+Importable module names (modules must already be importable, e.g., installed or on `PYTHONPATH`):
 
 ```bash
-helm-run --plugins my_package.helm_plugin /path/to/local_plugin.py ...
+helm-run --plugins my_package.helm_plugin_a my_package.helm_plugin_b ...
 ```
 
-- **Module names** must already be importable (e.g., installed or on `PYTHONPATH`).
-- **File paths** are loaded directly, which is convenient for one-off local experiments.
+Filesystem paths (loaded from the given `.py` files):
+
+```bash
+helm-run --plugins /path/to/local_plugin_a.py /path/to/local_plugin_b.py ...
+```
+
+How file paths work: HELM loads each `.py` file as a module. In general, the directory containing the file determines what sibling modules can be imported from that file. If your plugin file imports other local modules, ensure those modules are importable (for example, place them next to the plugin file or set `PYTHONPATH`).
 
 ### 3) Namespace packages under `helm.benchmark.run_specs` (legacy name-based method)
 
-HELM automatically discovers run specs placed in the `helm.benchmark.run_specs` namespace (via [`pkgutil.iter_modules`](https://docs.python.org/3/library/pkgutil.html#pkgutil.iter_modules)). You can ship a separate package that contributes modules to this namespace (for example, `helm/benchmark/run_specs/my_run_spec.py`) and registers additional run spec functions when imported. In this case your module must be available in the `PYTHONPATH` as described below.
+HELM automatically discovers run specs placed in the `helm.benchmark.run_specs` namespace (via [`pkgutil.iter_modules`](https://docs.python.org/3/library/pkgutil.html#pkgutil.iter_modules)).
+
+You can ship a separate package that contributes modules to this namespace (for example, `helm/benchmark/run_specs/my_run_spec.py`) and registers additional run spec functions when imported.
+
+This method requires that your package is importable (typically by installing it, or by ensuring it is on `PYTHONPATH`).
 
 ### 4) A Python wrapper script (when you don't want to use `helm-run`)
 
-There is no need to use the `helm-run` entry point. You can instead write a Python wrapper script that calls `helm.benchmark.run.run_benchmark()`. Python will automatically add the directory containing that script to the Python module search path. If your custom classes live in a Python module under that directory, they will automatically be importable by Python. See [Python's documentation](https://docs.python.org/3/library/sys_path_init.html) for more details.
+There is no need to use the `helm-run` entry point. You can instead write a Python wrapper script that calls `helm.benchmark.run.run_benchmark()`.
 
-For example, suppose you implemented a custom `Client` subclass named `MyClient` in the `my_client.py` file under your current working directory, and you have a `ClientSpec` specifying the `class_name` as `my_client.MyClient`. Suppose you added a script called `run_helm.py` that calls `helm.benchmark.run.run_benchmark()` directly. When run using `python run_helm.py`, HELM will be able to import your modules without any additional changes.
-
-When you run `python your_script.py`, Python automatically adds the script's directory to the module search path, so modules under that directory are importable without extra `PYTHONPATH` changes.
+When you run `python your_script.py`, Python automatically adds the script's directory to the module search path. This implicitly changes import behavior in the same way as adding that directory to `PYTHONPATH`.
 
 ---
 
 ## Example plugin (entry points + run spec + ObjectSpec classes)
 
-This compact example shows both registration styles in a single module:
+This compact example shows both mechanisms:
 
-- a **run spec** registered via `@helm.benchmark.run_spec.run_spec_function(...)`
-- a **scenario** and **metric** referenced via `class_name=...` in `ScenarioSpec`/`MetricSpec`
+- a run spec registered via `@helm.benchmark.run_spec.run_spec_function(...)`
+- a scenario and metric referenced via `class_name=...` in `ScenarioSpec`/`MetricSpec`
 
-We'll use the entry point approach because it's the most robust for repeated runs.
+We use the entry point approach because it's the most robust for repeated runs.
+
+Note: For a small tutorial, we put the run spec and the classes in one file. In larger projects you may prefer to keep your run specs in a dedicated module (the only part that must be imported up front), and keep scenarios/metrics in separate modules.
 
 ### Prerequisites
 
@@ -111,7 +160,7 @@ my_example_helm_module
         └── my_submodule_plugin_code.py
 ```
 
-Paste the following into `src/my_example_helm_module/my_submodule_plugin_code.py`:
+Write the following into `src/my_example_helm_module/my_submodule_plugin_code.py`:
 
 ```python
 from typing import List, Optional
@@ -211,7 +260,7 @@ def build_custom_run_spec() -> RunSpec:
 
 Two things to notice:
 
-- The run spec is registered by the decorator **when the module is imported**.
+- The run spec is registered by the decorator when the module is imported.
 - The scenario and metric are referenced via fully qualified `class_name` strings.
 
 ### Step 3 - Register the plugin via entry points
@@ -229,27 +278,10 @@ Then install your package in editable mode:
 uv pip install -e .
 ```
 
-### Step 4 - Run with your custom plugin
+### Step 4 - Run with your custom run spec
 
 Now `helm-run` should discover your plugin through the entry point:
 
 ```bash
 helm-run --run-entries my_custom_run_spec:model=openai/gpt2 --suite tutorial --max-eval-instances 10
 ```
-
----
-
-
-## Adding the current working directory to PYTHONPATH
-
-HELM will only be able to use custom classes that can be imported by Python. Depending which plugin strategy you use, you may need to do additional steps. This is not necessary with python entry points or path based explicit plugin specification.
-
-If the custom classes live in a Python module under the current working directory, you should modify `PYTHONPATH` to make that Python module importable.
-
-This is required because - in some environments - Python does not add the current working directory to the Python module search path when running command line commands / Python entry points such as `helm-run`. See [Python's documentation](https://docs.python.org/3/library/sys_path_init.html) for more details.
-
-For example, suppose you implemented a custom `Client` subclass named `MyClient` in the `my_client.py` file under your current working directory, and you have a `ClientSpec` specifying the `class_name` as `my_client.MyClient`.
-
-To make your file importable by Python, you have to add `.` to your `PYTHONPATH` so that Python will search in your current working directory for your custom Python modules.
-
-In Bash, you can do this by running `export PYTHONPATH=".:$PYTHONPATH"` before running `helm-run`, or by prefixing `helm-run` with `PYTHONPATH=".:$PYTHONPATH"`.
