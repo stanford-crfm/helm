@@ -49,8 +49,10 @@ def probe(name):
     print("\n--- generated text ---")
     print(gen_text[-100:])
 
+probe("Qwen/Qwen3-0.6B-Base")
+probe("Qwen/Qwen3-0.6B")
 # gen_tokens: 1324 sec: 23.93214511871338 tok/s: 55.32308087855937
 # gen_tokens: 1042 sec: 18.24250555038452 tok/s: 57.11934674335546
-probe("Qwen/Qwen3-4B-Thinking-2507")
+# probe("Qwen/Qwen3-4B-Thinking-2507")
 # gen_tokens: 32000 sec: 518.032811164856 tok/s: 61.77214900354351
-probe("teetone/OpenR1-Distill-Qwen3-1.7B-Math")
+# probe("teetone/OpenR1-Distill-Qwen3-1.7B-Math")
