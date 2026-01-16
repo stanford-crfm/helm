@@ -20,8 +20,12 @@ def probe(name):
     print("device_map has cpu?:", any(v == "cpu" for v in (getattr(model, "hf_device_map", {}) or {}).values()))
 
     # Build prompt/messages
-    messages = [{"role": "user", "content": PROMPT}]
-    text = tok.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+    if "Base" not in name:
+        messages = [{"role": "user", "content": PROMPT}]
+        text = tok.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+    else:
+        text = PROMPT
+    
     print(f"\nPrompt: {text}")
     enc = tok([text], return_tensors="pt").to(model.device)
     print("prompt_tokens:", enc["input_ids"].shape[1])
