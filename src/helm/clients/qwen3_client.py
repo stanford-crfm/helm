@@ -15,6 +15,7 @@ from helm.clients.client import CachingClient
 QWEN3_MODEL_MAP: Dict[str, str] = {
     "qwen3-4b-instruct-2507": "Qwen/Qwen3-4B-Instruct-2507",
     "qwen3-0.6b": "Qwen/Qwen3-0.6B",
+    "qwen3-0.6b-base": "Qwen/Qwen3-0.6B-Base",
     "qwen3-1.7b": "Qwen/Qwen3-1.7B",
     "openr1-distill-qwen3-1.7b-math": "teetone/OpenR1-Distill-Qwen3-1.7B-Math",
 }
@@ -84,7 +85,9 @@ class Qwen3Client(CachingClient):
         model = loaded.model
 
         def do_it() -> Dict[str, Any]:
-            if request.model_engine in {"qwen3-0.6b", "qwen3-1.7b"}:
+            if request.model_engine == "qwen3-0.6b-base":
+                chat_text = request.prompt
+            elif request.model_engine in {"qwen3-0.6b", "qwen3-1.7b"}:
                 chat_text = tokenizer.apply_chat_template(
                     messages,
                     tokenize=False,

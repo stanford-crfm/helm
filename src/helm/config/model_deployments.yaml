@@ -4083,6 +4083,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.qwen3_client.Qwen3Client"
 
+  - name: huggingface/qwen3-0.6b-base
+    model_name: qwen/qwen3-0.6b-base
+    tokenizer_name: qwen/qwen3-0.6b-base
+    max_sequence_length: 262144
+    client_spec:
+      class_name: "helm.clients.qwen3_client.Qwen3Client"
+
   - name: huggingface/qwen3-1.7b
     model_name: qwen/qwen3-1.7b
     tokenizer_name: qwen/qwen3-1.7b

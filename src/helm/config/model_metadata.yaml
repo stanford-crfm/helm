@@ -3815,6 +3815,14 @@ models:
     release_date: 2025-07-21
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: qwen/qwen3-0.6b-base
+    display_name: Qwen3 Base (0.6B)
+    description: Qwen3 0.6B base model. ([model card](https://huggingface.co/Qwen/Qwen3-0.6B-Base))
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2025-07-21
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
   - name: qwen/qwen3-1.7b
     display_name: Qwen3 (1.7B)
     description: Qwen3 1.7B base model. ([model card](https://huggingface.co/Qwen/Qwen3-1.7B))
