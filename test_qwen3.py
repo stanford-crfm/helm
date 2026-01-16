@@ -36,7 +36,7 @@ def probe(name):
     t0 = time.time()
     out = model.generate(
         **enc,
-        max_new_tokens=1_000,
+        max_new_tokens=32_000,
         do_sample=False,
         use_cache=True,
         return_dict_in_generate=True,
