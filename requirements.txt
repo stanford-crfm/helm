@@ -112,7 +112,7 @@ proto-plus==1.27.0
 protobuf==6.33.2
 pyarrow==22.0.0
 pyarrow-hotfix==0.7
-pyasn1==0.6.1
+pyasn1==0.6.2
 pyasn1-modules==0.4.2
 pycodestyle==2.14.0
 pycparser==2.23
