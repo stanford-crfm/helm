@@ -47,7 +47,7 @@ def probe(name):
     gen = gen_ids.shape[0]
     print("gen_tokens:", gen, "sec:", dt, "tok/s:", gen / dt if dt > 0 else float("inf"))
     print("\n--- generated text ---")
-    print(gen_text[-100:])
+    print(gen_text)
 
 probe("Qwen/Qwen3-0.6B-Base")
 probe("Qwen/Qwen3-0.6B")
