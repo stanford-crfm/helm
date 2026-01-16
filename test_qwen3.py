@@ -2,8 +2,8 @@ import time
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-# Answer: 70
-PROMPT = r"""Find the sum of all integer bases $b>9$ for which $17_{b}$ is a divisor of $97_{b}$."""
+# Answer: (3, π/2)
+PROMPT = r"""Convert the point $(0,3)$ in rectangular coordinates to polar coordinates. Enter your answer in the form $(r,\theta),$ where $r > 0$ and $0 \le \theta < 2 \pi.$"""
 
 def probe(name):
     tok = AutoTokenizer.from_pretrained(name)
