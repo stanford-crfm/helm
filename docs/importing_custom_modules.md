@@ -96,7 +96,8 @@ Filesystem paths (loaded from the given `.py` files):
 helm-run --plugins /path/to/local_plugin_a.py /path/to/local_plugin_b.py ...
 ```
 
-How file paths work: HELM loads each `.py` file as a module. In general, the directory containing the file determines what sibling modules can be imported from that file. If your plugin file imports other local modules, ensure those modules are importable (for example, place them next to the plugin file or set `PYTHONPATH`).
+**How file paths work:** HELM loads plugin paths via [`ubelt.import_module_from_path`](https://ubelt.readthedocs.io/en/latest/auto/ubelt.util_import.html#ubelt.util_import.import_module_from_path). Single-file plugins (a standalone `.py`) are the simplest and most reliable. If your plugin lives in a package, it's usually best to pass the **module name** and make sure it is installed or on `PYTHONPATH`. Path-based loading can also work for packaged plugins, as long as the package is an explicit package (i.e., package directories include `__init__.py`, including parent packages).
+
 
 ### 3) Namespace packages under `helm.benchmark.run_specs` (legacy name-based method)
 
@@ -284,4 +285,3 @@ Now `helm-run` should discover your plugin through the entry point:
 
 ```bash
 helm-run --run-entries my_custom_run_spec:model=openai/gpt2 --suite tutorial --max-eval-instances 10
-```
