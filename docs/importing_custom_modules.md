@@ -59,7 +59,7 @@ HELM automatically discovers run specs placed in the `helm.benchmark.run_specs` 
 
 ### 4) A Python wrapper script (when you don't want to use `helm-run`)
 
-There is no need to use the `helm-run` entry point, you can instead write a Python wrapper script that calls `helm.benchmark.run.run_benchmark()`. Python will automatically add the directory containing that script to the Python module search path. If your custom classes live in a Python module under that directory, they will automatically be importable by Python. See [Python's documentation](https://docs.python.org/3/library/sys_path_init.html) for more details.
+There is no need to use the `helm-run` entry point. You can instead write a Python wrapper script that calls `helm.benchmark.run.run_benchmark()`. Python will automatically add the directory containing that script to the Python module search path. If your custom classes live in a Python module under that directory, they will automatically be importable by Python. See [Python's documentation](https://docs.python.org/3/library/sys_path_init.html) for more details.
 
 For example, suppose you implemented a custom `Client` subclass named `MyClient` in the `my_client.py` file under your current working directory, and you have a `ClientSpec` specifying the `class_name` as `my_client.MyClient`. Suppose you added a script called `run_helm.py` that calls `helm.benchmark.run.run_benchmark()` directly. When run using `python run_helm.py`, HELM will be able to import your modules without any additional changes.
 
