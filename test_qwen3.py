@@ -22,7 +22,7 @@ def probe(name):
     # Build prompt/messages
     messages = [{"role": "user", "content": PROMPT}]
     text = tok.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-    print(f"\nPrompt: {text")
+    print(f"\nPrompt: {text}")
     enc = tok([text], return_tensors="pt").to(model.device)
     print("prompt_tokens:", enc["input_ids"].shape[1])
 
