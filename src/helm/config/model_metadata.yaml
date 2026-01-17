@@ -3831,6 +3831,46 @@ models:
     release_date: 2025-07-21
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: qwen/qwen3-1.7b-base
+    display_name: Qwen3 Base (1.7B)
+    description: Qwen3 1.7B base model. ([model card](https://huggingface.co/Qwen/Qwen3-1.7B-Base))
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2025-07-21
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: qwen/qwen3-4b
+    display_name: Qwen3 (4B)
+    description: Qwen3 4B base model. ([model card](https://huggingface.co/Qwen/Qwen3-4B))
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2025-07-21
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: qwen/qwen3-4b-base
+    display_name: Qwen3 Base (4B)
+    description: Qwen3 4B base model. ([model card](https://huggingface.co/Qwen/Qwen3-4B-Base))
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2025-07-21
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: qwen/qwen3-8b
+    display_name: Qwen3 (8B)
+    description: Qwen3 8B base model. ([model card](https://huggingface.co/Qwen/Qwen3-8B))
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2025-07-21
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: qwen/qwen3-8b-base
+    display_name: Qwen3 Base (8B)
+    description: Qwen3 8B base model. ([model card](https://huggingface.co/Qwen/Qwen3-8B-Base))
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2025-07-21
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
   - name: qwen/openr1-distill-qwen3-1.7b-math
     display_name: OpenR1-Distill-Qwen3 Math (1.7B)
     description: Math-specialized distilled Qwen3 model released on Hugging Face for open math reasoning benchmarks. ([model card](https://huggingface.co/teetone/OpenR1-Distill-Qwen3-1.7B-Math))

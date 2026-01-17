@@ -4072,28 +4072,63 @@ model_deployments:
   - name: huggingface/qwen3-4b-instruct-2507
     model_name: qwen/qwen3-4b-instruct-2507
     tokenizer_name: qwen/qwen3-4b-instruct-2507
-    max_sequence_length: 262144
+    max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.qwen3_client.Qwen3Client"
 
   - name: huggingface/qwen3-0.6b
     model_name: qwen/qwen3-0.6b
     tokenizer_name: qwen/qwen3-0.6b
-    max_sequence_length: 262144
+    max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.qwen3_client.Qwen3Client"
 
   - name: huggingface/qwen3-0.6b-base
     model_name: qwen/qwen3-0.6b-base
     tokenizer_name: qwen/qwen3-0.6b-base
-    max_sequence_length: 262144
+    max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.qwen3_client.Qwen3Client"
 
   - name: huggingface/qwen3-1.7b
     model_name: qwen/qwen3-1.7b
     tokenizer_name: qwen/qwen3-1.7b
-    max_sequence_length: 262144
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.qwen3_client.Qwen3Client"
+
+  - name: huggingface/qwen3-1.7b-base
+    model_name: qwen/qwen3-1.7b-base
+    tokenizer_name: qwen/qwen3-1.7b-base
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.qwen3_client.Qwen3Client"
+
+  - name: huggingface/qwen3-4b
+    model_name: qwen/qwen3-4b
+    tokenizer_name: qwen/qwen3-4b
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.qwen3_client.Qwen3Client"
+
+  - name: huggingface/qwen3-4b-base
+    model_name: qwen/qwen3-4b-base
+    tokenizer_name: qwen/qwen3-4b-base
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.qwen3_client.Qwen3Client"
+
+  - name: huggingface/qwen3-8b
+    model_name: qwen/qwen3-8b
+    tokenizer_name: qwen/qwen3-8b
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.qwen3_client.Qwen3Client"
+
+  - name: huggingface/qwen3-8b-base
+    model_name: qwen/qwen3-8b-base
+    tokenizer_name: qwen/qwen3-8b-base
+    max_sequence_length: 32768
     client_spec:
       class_name: "helm.clients.qwen3_client.Qwen3Client"
 
