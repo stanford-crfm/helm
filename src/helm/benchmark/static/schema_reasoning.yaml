@@ -144,6 +144,7 @@ run_groups:
     subgroups:
       - math500
       - aime
+      - aime25
 
   - name: math500
     display_name: MATH-500
@@ -177,5 +178,22 @@ run_groups:
       what: "American Invitational Mathematics Examination 2024 problems"
       who: "competition authors"
       when: "2024"
+      language: English
+
+  - name: aime25
+    display_name: AIME 2025
+    description: AIME 2025
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: math_accuracy
+      main_split: test
+    taxonomy:
+      task: "mathematics"
+      what: "American Invitational Mathematics Examination 2025 problems"
+      who: "competition authors"
+      when: "2025"
       language: English
 

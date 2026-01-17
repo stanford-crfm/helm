@@ -52,3 +52,18 @@ def get_aime_spec() -> RunSpec:
         groups=["aime"],
     )
 
+
+@run_spec_function("aime25")
+def get_aime25_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.aime_scenario.AIME25Scenario")
+    adapter_spec = _math_reasoning_adapter_spec()
+    metric_specs = get_basic_metric_specs([]) + [_math_metric_spec()]
+
+    return RunSpec(
+        name="aime25",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["aime25"],
+    )
+
