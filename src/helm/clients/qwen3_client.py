@@ -23,6 +23,7 @@ QWEN3_MODEL_MAP: Dict[str, str] = {
     "qwen3-8b": "Qwen/Qwen3-8B",
     "qwen3-8b-base": "Qwen/Qwen3-8B-Base",
     "openr1-distill-qwen3-1.7b-math": "teetone/OpenR1-Distill-Qwen3-1.7B-Math",
+    "openr1-distill-7b-math": "teetone/OpenR1-Distill-7B-Math",
 }
 
 

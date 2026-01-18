@@ -4139,6 +4139,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.qwen3_client.Qwen3Client"
 
+  - name: huggingface/openr1-distill-7b-math
+    model_name: qwen/openr1-distill-7b-math
+    tokenizer_name: qwen/openr1-distill-7b-math
+    max_sequence_length: 32768
+    client_spec:
+      class_name: "helm.clients.qwen3_client.Qwen3Client"
+
   - name: huggingface/smollm2-135m
     model_name: huggingface/smollm2-135m
     tokenizer_name: huggingface/smollm2-135m
