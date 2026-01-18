@@ -4,6 +4,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 # Answer: (3, π/2)
 PROMPT = r"""Convert the point $(0,3)$ in rectangular coordinates to polar coordinates. Enter your answer in the form $(r,\theta),$ where $r > 0$ and $0 \le \theta < 2 \pi.$"""
+PROMPT = r"""Describe self-training to me."""
 
 def probe(name):
     tok = AutoTokenizer.from_pretrained(name)
@@ -36,7 +37,7 @@ def probe(name):
     t0 = time.time()
     out = model.generate(
         **enc,
-        max_new_tokens=32_000,
+        max_new_tokens=1_000,
         do_sample=False,
         use_cache=True,
         return_dict_in_generate=True,
