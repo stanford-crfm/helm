@@ -3880,7 +3880,7 @@ models:
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: qwen/openr1-distill-7b-math
-    display_name: OpenR1-Distill Math (7B)
+    display_name: OpenR1-Distill-Qwen2.5-extra-math-pretraining Math (7B)
     description: Math-specialized distilled model released on Hugging Face. ([model card](https://huggingface.co/teetone/OpenR1-Distill-7B-Math))
     creator_organization_name: teetone
     access: open
