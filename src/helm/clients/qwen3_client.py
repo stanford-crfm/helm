@@ -13,6 +13,7 @@ from helm.clients.client import CachingClient
 
 
 QWEN3_MODEL_MAP: Dict[str, str] = {
+    # Original open models (base pretrained models and pretrained + post-trained models)
     "qwen3-0.6b": "Qwen/Qwen3-0.6B",
     "qwen3-0.6b-base": "Qwen/Qwen3-0.6B-Base",
     "qwen3-1.7b": "Qwen/Qwen3-1.7B",
@@ -22,6 +23,7 @@ QWEN3_MODEL_MAP: Dict[str, str] = {
     "qwen3-4b-instruct-2507": "Qwen/Qwen3-4B-Instruct-2507",
     "qwen3-8b": "Qwen/Qwen3-8B",
     "qwen3-8b-base": "Qwen/Qwen3-8B-Base",
+    # Distilled models
     "openr1-distill-qwen3-1.7b-math": "teetone/OpenR1-Distill-Qwen3-1.7B-Math",
     "openr1-distill-7b-math": "teetone/OpenR1-Distill-7B-Math",
 }
@@ -44,14 +46,19 @@ class Qwen3Client(CachingClient):
         super().__init__(cache_config=cache_config)
         self._device: str = get_torch_device_name()
 
-    def _get_model_name(self, helm_model_name: str) -> str:
+    @staticmethod
+    def get_hf_model_name(helm_model_name: str) -> str:
         if helm_model_name in QWEN3_MODEL_MAP:
             return QWEN3_MODEL_MAP[helm_model_name]
-        raise ValueError(f"Unhandled Qwen3 model name: {helm_model_name}")
+        raise ValueError(f"Invalid model name: {helm_model_name}")
+
+    @staticmethod
+    def is_distilled_model(model_name: str) -> bool:
+        return "openr1" in model_name.lower()
 
     def _get_model(self, helm_model_name: str) -> LoadedQwen3Model:
-        hf_name = self._get_model_name(helm_model_name)
-        force_download = "openr1" in hf_name.lower()
+        hf_name: str = self.get_hf_model_name(helm_model_name)
+        force_download: bool = self.is_distilled_model(hf_name)
         
         with htrack_block(f"Loading Qwen3 model {hf_name}"):
             with _models_lock:
@@ -78,12 +85,6 @@ class Qwen3Client(CachingClient):
             messages = request.messages
         else:
             messages = [{"role": "user", "content": request.prompt}]
-
-        raw_request: Dict[str, Any] = {
-            "engine": request.model_engine,
-            "messages": messages,
-            "max_new_tokens": request.max_tokens,
-        }
 
         # Load model/tokenizer once per request
         loaded = self._get_model(request.model_engine)
@@ -124,7 +125,15 @@ class Qwen3Client(CachingClient):
                 return {"completions": decoded}
 
         try:
-            cache_key = CachingClient.make_cache_key(raw_request, request)
+            cache_key_values: Dict[str, Any] = {
+                "engine": request.model_engine,
+                "messages": messages,
+                "max_new_tokens": request.max_tokens,
+            }
+            if self.is_distilled_model(request.model_engine):
+                cache_key_values["date"] = "1-18-2026"
+
+            cache_key = CachingClient.make_cache_key(cache_key_values, request)
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except RuntimeError as model_error:
             hexception(model_error)
@@ -155,4 +164,3 @@ class Qwen3Client(CachingClient):
             completions=completions,
             embedding=[],
         )
-
