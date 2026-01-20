@@ -2,7 +2,6 @@ import requests
 
 from abc import ABC, abstractmethod
 from dataclasses import asdict
-from collections import defaultdict
 from typing import Any, Dict, List, Optional
 
 from helm.common.cache import CacheConfig
