@@ -76,7 +76,7 @@ dspy = [
     "cryptography~=43.0.3",
     "python-multipart~=0.0.20",
     "email-validator~=2.3.0",
-    "fastapi_sso~=0.18.0",
+    "fastapi_sso>=0.18,<0.20",
 ]
 
 scenarios = [
