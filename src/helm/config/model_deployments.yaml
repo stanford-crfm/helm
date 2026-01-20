@@ -98,7 +98,6 @@ model_deployments:
       args:
         model: arn:aws:bedrock:us-west-2:679683451337:inference-profile/us.amazon.nova-2-lite-v1:0
         deployment: awssig4nova2lite/awssig4nova2lite
->>>>>>> main
 
   - name: stanfordhealthcare/gemini-1.5-pro-001
     model_name: google/gemini-1.5-pro-001
