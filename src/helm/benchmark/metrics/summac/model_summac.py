@@ -90,11 +90,6 @@ class SummaCImager:
             self.model.to(self.device).half()
 
     def split_sentences(self, text):
-        sentences = nltk.tokenize.sent_tokenize(text)
-        sentences = [sent for sent in sentences if len(sent) > 10]
-        return sentences
-
-    def split_sentences(self, text):
         lines = text.split("\n")
 
         all_sentences = []
