@@ -1,13 +1,11 @@
-# mypy: check_untyped_defs = False
-import dataclasses
 from typing import Any, Dict, List, Optional, Union
-
 
 from helm.clients.openai_client import OpenAIClientUtils
 from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import hwarn
 from helm.common.media_object import TEXT_TYPE
 from helm.common.request import (
+    ErrorFlags,
     Thinking,
     wrap_request_time,
     Request,
@@ -17,14 +15,13 @@ from helm.common.request import (
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.clients.client import (
     CachingClient,
-    truncate_and_tokenize_response_text,
     generate_uid_for_multimodal_prompt,
 )
-from helm.tokenizers.tokenizer import Tokenizer
 
 try:
     import openai
     from openai import OpenAI
+    from openai.types.responses.response import Response
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["openai"])
 
@@ -32,8 +29,6 @@ except ModuleNotFoundError as e:
 class OpenAIResponseClient(CachingClient):
     def __init__(
         self,
-        tokenizer: Tokenizer,
-        tokenizer_name: str,
         cache_config: CacheConfig,
         api_key: Optional[str] = None,
         org_id: Optional[str] = None,
@@ -42,8 +37,6 @@ class OpenAIResponseClient(CachingClient):
         openai_model_name: Optional[str] = None,
     ):
         super().__init__(cache_config=cache_config)
-        self.tokenizer = tokenizer
-        self.tokenizer_name = tokenizer_name
         self.client = OpenAI(
             api_key=api_key,
             organization=org_id,
@@ -157,44 +150,62 @@ class OpenAIResponseClient(CachingClient):
 
             try:
                 cache_key = self._get_cache_key(raw_request, request)
-                response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+                helm_raw_response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             except openai.OpenAIError as e:
                 return OpenAIClientUtils.handle_openai_error(e, request)
 
-            # We can only return one completition really,
-            # but we get an array of messages back, so we need to contact them
-            reasoning_output = ""
-            text_output = ""
+            request_time = helm_raw_response["request_time"]
+            del helm_raw_response["request_time"]
+            request_datetime = helm_raw_response["request_datetime"]
+            del helm_raw_response["request_datetime"]
+            response = Response.model_validate(helm_raw_response)
+
+            reasoning_output_parts: List[str] = []
+            text_output_parts: List[str] = []
 
             if request.echo_prompt:
-                text_output += request.prompt
-            for output in response["output"]:
-                output_type = output[
-                    "type"
-                ]  # one of "message" or "reasoning" from API observation, but can also include tool calls
+                text_output_parts.append(request.prompt)
+            for output in response.output:
 
-                if output_type == "reasoning":
-                    reasoning_output += "\n\n".join([raw_output["text"] for raw_output in output["summary"]])
-                elif output_type == "message":
-                    text_output += "\n\n".join([raw_output["text"] for raw_output in output["content"]])
-                # (Other output types are ignored)
+                if output.type == "reasoning":
+                    for summary in output.summary:
+                        reasoning_output_parts.append(summary.text)
+                    if output.content:
+                        for reasoning_content in output.content:
+                            reasoning_output_parts.append(reasoning_content.text)
+                elif output.type == "message":
+                    for content in output.content:
+                        if content.type == "output_text":
+                            text_output_parts.append(content.text)
+                        elif content.type == "refusal":
+                            return RequestResult(
+                                success=False,
+                                cached=False,
+                                error=f"Received refusal from OpenAI API: {content.refusal}",
+                                completions=[],
+                                embedding=[],
+                                error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                            )
+                else:
+                    raise ValueError(f"Unknown output type {output.type}")
 
-            completion = truncate_and_tokenize_response_text(
-                text_output,
-                request,
-                self.tokenizer,
-                self.tokenizer_name,
-                original_finish_reason="",
+            thinking = Thinking(text="\n\n".join(reasoning_output_parts)) if reasoning_output_parts else None
+            text_output = "\n\n".join(text_output_parts)
+
+            completions.append(
+                GeneratedOutput(
+                    text=text_output,
+                    logprob=0.0,
+                    tokens=[],
+                    thinking=thinking,
+                )
             )
-            if reasoning_output:
-                completion = dataclasses.replace(completion, thinking=Thinking(text=reasoning_output))
-            completions.append(completion)
 
         return RequestResult(
             success=True,
             cached=cached,
-            request_time=response["request_time"],
-            request_datetime=response.get("request_datetime"),
+            request_time=request_time,
+            request_datetime=request_datetime,
             completions=completions,
             embedding=[],
         )
