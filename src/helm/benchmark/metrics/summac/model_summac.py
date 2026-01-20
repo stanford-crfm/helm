@@ -93,10 +93,10 @@ class SummaCImager:
         sentences = nltk.tokenize.sent_tokenize(text)
         sentences = [sent for sent in sentences if len(sent) > 10]
         return sentences
-    
+
     def split_sentences(self, text):
-        lines = text.split('\n')
-        
+        lines = text.split("\n")
+
         all_sentences = []
         for line in lines:
             line = line.strip()
@@ -110,7 +110,7 @@ class SummaCImager:
             sent = sent.strip()
             if len(sent) > 10:
                 final_sentences.append(sent)
-                
+
         return final_sentences
 
     def split_2sents(self, text):
