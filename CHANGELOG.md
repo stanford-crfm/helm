@@ -2,6 +2,44 @@
 
 ## [Upcoming]
 
+## [v0.5.11] - 2025-12-04
+
+### Breaking Changes
+
+- Remove deprecated Claude 3.5 model from LLM juries (#3926)
+- Switch Gemini 2.5 to use `GoogleGenAIClient` (#3944)
+
+### Models
+
+- Add Claude Haiku 4.5 (#3922)
+- Add GPT-5.1 model (#3927, 3937)
+- Add `GoogleGenAIClient` (#3925)
+- Add Gemini 3 Pro (#3936, 3937)
+- Add Gemini Robotics-ER 1.5 (#3939)
+- Add Kimi K2 model on Together (#3943)
+- Switch Gemini 2.5 to use `GoogleGenAIClient` (#3944)
+- Add more Qwen3 and Qwen3-Next models on Together AI (#3947)
+
+### Scenarios
+
+- Convert AraTrust to use multiple_choice_joint adapter (#3920)
+- Remove deprecated Claude 3.5 model from LLM juries (#3926)
+- Remove stop sequences in ALRAGE scenario (#3948)
+
+### Framework
+
+- Add support for uv (#3929, #3932)
+- Support schema files in JSON format in helm-summarize (#3924)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @beyandbey
+- @chaudhariatul
+- @kiro-agent
+- @yifanmai
+
 ## [v0.5.10] - 2025-11-10
 
 ### Breaking Changes
@@ -12,7 +50,7 @@
 
 - Add Palmyra X5 on Bedrock (#3905)
 - Add IBM Granite 4 models on Hugging Face (#3906)
-- Fix incorrect Arabig model configs (#3907)
+- Fix incorrect Arabic model configs (#3907)
 
 ### Scenarios
 
@@ -1207,7 +1245,8 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.10...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.11...HEAD
+[v0.5.11]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.11
 [v0.5.10]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.10
 [v0.5.9]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.9
 [v0.5.8]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.8

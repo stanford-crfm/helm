@@ -20,7 +20,7 @@ from helm.benchmark.scenarios.scenario import (
 
 
 def remove_boxed(string: str) -> Optional[str]:
-    r"""Source: https://github.com/hendrycks/math
+    """Source: https://github.com/hendrycks/math
 
     Extract the text within a \boxed{...} environment.
 
@@ -294,7 +294,7 @@ def is_equiv_chain_of_thought(str1: str, str2: str) -> float:
 
 
 class MATHScenario(Scenario):
-    """
+    r"""
     The MATH dataset from the paper
     "Measuring Mathematical Problem Solving With the MATH Dataset"
     by Hendrycks et al. (2021):

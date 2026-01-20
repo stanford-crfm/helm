@@ -123,8 +123,52 @@ def register_model_deployments_from_path(path: str) -> None:
         register_model_deployment(model_deployment)
 
 
+def auto_generate_model_deployment(name: str) -> ModelDeployment:
+    name_parts = name.split("/")
+    model_deployment_base = name_parts[0]
+    model_name = "/".join(name_parts[-2:])
+    if model_deployment_base == "together":
+        return ModelDeployment(
+            name=name, model_name=model_name, client_spec=ClientSpec("helm.clients.together_client.TogetherClient")
+        )
+    elif model_deployment_base == "litellm":
+        return ModelDeployment(
+            name=name,
+            model_name=model_name,
+            client_spec=ClientSpec(
+                "helm.clients.litellm_client.LiteLLMCompletionClient", args={"litellm_model": "/".join(name_parts[1:])}
+            ),
+        )
+    elif model_deployment_base == "huggingface":
+        from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
+
+        pretrained_model_name_or_path = "/".join(name_parts[1:])
+        with HuggingFaceTokenizer.create_tokenizer(pretrained_model_name_or_path) as tokenizer:
+            max_sequence_length = tokenizer.model_max_length
+            if max_sequence_length > 1_000_000_000:
+                hwarn(
+                    f"Hugging Face model {pretrained_model_name_or_path} does not have a configured model_max_length; "
+                    "input truncation may not work correctly; errors may result from exceeding the model's max length"
+                )
+        return ModelDeployment(
+            name=name,
+            model_name=model_name,
+            client_spec=ClientSpec(
+                "helm.clients.huggingface_client.HuggingFaceClient",
+                args={"pretrained_model_name_or_path": pretrained_model_name_or_path},
+            ),
+            tokenizer_name=name,
+            max_sequence_length=max_sequence_length,
+        )
+    else:
+        raise NotImplementedError(f"Unknown model deployment base {model_deployment_base}")
+
+
 def get_model_deployment(name: str, warn_deprecated: bool = False) -> ModelDeployment:
     if name not in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT:
+        name_parts = name.split("/")
+        if len(name_parts) > 2:
+            return auto_generate_model_deployment(name)
         raise ValueError(f"Model deployment {name} not found")
     deployment: ModelDeployment = DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[name]
     if deployment.deprecated and warn_deprecated:

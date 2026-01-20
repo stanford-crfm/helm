@@ -308,6 +308,22 @@ models:
     release_date: 2024-12-03
     tags: [NOVA_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: amazon/nova-2-pro-v1:0
+    display_name: Amazon Nova 2 Pro
+    description: Amazon Nova 2 Pro is a highly advanced reasoning model for complex agentic tasks such as multi-document analysis, video reasoning, and software migrations with extended thinking capabilities. ([blog](https://aws.amazon.com/about-aws/whats-new/2025/12/nova-2-foundation-models-amazon-bedrock/))
+    creator_organization_name: Amazon
+    access: limited
+    release_date: 2025-12-02
+    tags: [NOVA_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: amazon/nova-2-lite-v1:0
+    display_name: Amazon Nova 2 Lite
+    description: Amazon Nova 2 Lite is a fast, cost-effective reasoning model for everyday workloads that can process text, images, and videos to generate text. It supports a one million-token context window, enabling expanded reasoning and richer in-context learning. ([blog](https://aws.amazon.com/blogs/aws/introducing-amazon-nova-2-lite-a-fast-cost-effective-reasoning-model/))
+    creator_organization_name: Amazon
+    access: limited
+    release_date: 2025-12-02
+    tags: [NOVA_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
   # Titan Models
   # References for Amazon Titan models:
   # - https://aws.amazon.com/bedrock/titan/
@@ -328,6 +344,21 @@ models:
     access: limited
     release_date: 2023-11-29
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  # Arabic.ai
+  - name: arabicai/llm-x
+    display_name: Arabic.AI LLM-X
+    description: Arabic.AI LLM-X
+    creator_organization_name: Arabic.AI
+    access: limited
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: arabicai/llm-s
+    display_name: Arabic.AI LLM-S
+    description: Arabic.AI LLM-S
+    creator_organization_name: Arabic.AI
+    access: limited
+    tags: [DEPRECATED_MODEL_TAG,TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
 # Mistral Models on Bedrock
 # References for Mistral on Amazon Bedrock
@@ -571,6 +602,14 @@ models:
     release_date: 2025-10-15
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: anthropic/claude-opus-4-5-20251124
+    display_name: Claude 4.5 Opus (20251124)
+    description: Claude 4.5 Opus is Anthropic's most intelligent model to date and sets a new standard across coding, agents, computer use, and enterprise workflows. ([blog](https://www.anthropic.com/claude/opus))
+    creator_organization_name: Anthropic
+    access: limited
+    release_date: 2025-11-24
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: anthropic/stanford-online-all-v4-s3
     display_name: Anthropic-LM v4-s3 (52B)
     description: A 52B parameter language model, trained using reinforcement learning from human feedback [paper](https://arxiv.org/pdf/2204.05862.pdf).
@@ -798,6 +837,15 @@ models:
     release_date: 2024-04-04
     tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: cohere/command-a-03-2025
+    display_name: Cohere Labs Command A
+    description: Cohere Labs Command A is an open weights research release of a 111 billion parameter model optimized for enterprise use-cases. ([blog](https://cohere.com/blog/command-a), [paper](https://arxiv.org/abs/2504.00698))
+    creator_organization_name: Cohere
+    access: open
+    num_parameters: 111000000000
+    release_date: 2025-03-13
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   # Craiyon
   - name: craiyon/dalle-mini
     display_name: DALL-E mini (0.4B)
@@ -924,6 +972,16 @@ models:
     release_date: 2024-12-24
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: deepseek-ai/deepseek-v3.1
+    display_name: DeepSeek v3.1
+    description: DeepSeek v3.1 is a hybrid model that supports both thinking mode and non-thinking mode. ([blog](https://api-docs.deepseek.com/news/news250821))
+    creator_organization_name: DeepSeek
+    access: open
+    # NOTE: The total size of DeepSeek-V3 models on HuggingFace is 685B, which includes 671B of the Main Model weights and 14B of the Multi-Token Prediction (MTP) Module weights.
+    num_parameters: 685000000000
+    release_date: 2025-08-21
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: deepseek-ai/deepseek-r1
     display_name: DeepSeek R1
     description: DeepSeek R1 is DeepSeek's first-generation reasoning model which incoporates which incorporates multi-stage training and cold-start data before RL. ([paper](https://arxiv.org/abs/2501.12948))
@@ -964,7 +1022,7 @@ models:
 
   - name: deepseek-ai/deepseek-r1-distill-llama-70b
     display_name: DeepSeek-R1-Distill-Llama-70B
-    description: DeepSeek-R1-Distill-Llama-70B is a fine-tuned open-source models based on Llama-3.3-70B-Instruct using samples generated by DeepSeek-R1.
+    description: DeepSeek-R1-Distill-Llama-70B is a fine-tuned open-source models based on Llama-3.3-70B-Instruct using samples generated by DeepSeek-R1. ([documentation](https://www.llama.com/docs/model-cards-and-prompt-formats/llama3_3/))
     creator_organization_name: DeepSeek
     access: open
     num_parameters: 70600000000
@@ -1285,6 +1343,14 @@ models:
     creator_organization_name: Google
     access: limited
     release_date: 2025-06-17
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-2.5-flash-lite-thinking-disabled
+    display_name: Gemini 2.5 Flash-Lite (thinking disabled)
+    description: Gemini 2.5 Flash-Lite with thinking disabled ([blog](https://blog.google/products/gemini/gemini-2-5-model-family-expands/))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-07-22
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemini-2.5-flash-lite
@@ -1301,7 +1367,7 @@ models:
     creator_organization_name: Google
     access: limited
     release_date: 2025-04-17
-    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemini-2.5-flash-preview-05-20
     display_name: Gemini 2.5 Flash (05-20 preview)
@@ -1309,6 +1375,14 @@ models:
     creator_organization_name: Google
     access: limited
     release_date: 2025-04-17
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/gemini-2.5-flash-thinking-disabled
+    display_name: Gemini 2.5 Flash (thinking disabled)
+    description: Gemini 2.5 Flash with thinking disabled ([documentation](https://ai.google.dev/gemini-api/docs/models/gemini))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2025-06-17
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemini-2.5-flash
@@ -1325,7 +1399,7 @@ models:
     creator_organization_name: Google
     access: limited
     release_date: 2025-03-25
-    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemini-2.5-pro-preview-03-25
     display_name: Gemini 2.5 Pro (03-25 preview)
@@ -1333,7 +1407,7 @@ models:
     creator_organization_name: Google
     access: limited
     release_date: 2025-04-09  # source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
-    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemini-2.5-pro-preview-05-06
     display_name: Gemini 2.5 Pro (05-06 preview)
@@ -1341,7 +1415,7 @@ models:
     creator_organization_name: Google
     access: limited
     release_date: 2025-05-06  # source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
-    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [DEPRECATED_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemini-2.5-pro
     display_name: Gemini 2.5 Pro
@@ -2136,7 +2210,7 @@ models:
 
   - name: meta/llama-3.3-70b-instruct-turbo
     display_name: Llama 3.3 Instruct Turbo (70B)
-    description: Llama 3.3 (70B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
+    description: Llama 3.3 (70B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/), [documentation](https://www.llama.com/docs/model-cards-and-prompt-formats/llama3_3/), [model card](https://github.com/meta-llama/llama-models/blob/main/models/llama3_3/MODEL_CARD.md)) Turbo is Together's implementation, providing a near negligible difference in quality from the reference implementation with faster performance and lower cost, currently using FP8 quantization. ([blog](https://www.together.ai/blog/llama-31-quality))
     creator_organization_name: Meta
     access: open
     num_parameters: 70000000000
@@ -2145,7 +2219,7 @@ models:
   
   - name: meta/llama-3.3-70b-instruct
     display_name: Llama 3.3 Instruct (70B)
-    description: Llama 3.3 (70B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/))
+    description: Llama 3.3 (70B) is part of the Llama 3 family of dense Transformer models that that natively support multilinguality, coding, reasoning, and tool usage. ([paper](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/), [documentation](https://www.llama.com/docs/model-cards-and-prompt-formats/llama3_3/), [model card](https://github.com/meta-llama/llama-models/blob/main/models/llama3_3/MODEL_CARD.md))
     creator_organization_name: Meta
     access: open
     num_parameters: 70000000000
@@ -2706,6 +2780,23 @@ models:
     access: open
     num_parameters: 1029173256720
     release_date: 2024-07-14  # Blog post has no date, so use the date from this news article https://www.cnbc.com/2025/07/14/alibaba-backed-moonshot-releases-kimi-k2-ai-rivaling-chatgpt-claude.html
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: moonshotai/kimi-k2-instruct-0905
+    display_name: Kimi K2 Instruct 0905
+    description:  Kimi K2 Instruct 0905 is the latest, most capable version of Kimi K2. It is a state-of-the-art mixture-of-experts (MoE) language model, featuring 32 billion activated parameters and a total of 1 trillion parameters. ([model card](https://huggingface.co/moonshotai/Kimi-K2-Instruct-0905))
+    creator_organization_name: Moonshot AI
+    access: open
+    num_parameters: 1029173256720
+    release_date: 2024-09-05  # https://en.wikipedia.org/wiki/Kimi_(chatbot)
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: moonshotai/kimi-k2-thinking
+    display_name: Kimi K2 Thinking
+    description:  Kimi K2 Thinking is an open-weights thinking model that uses native INT4 quantization and maintains coherent goal-directed behavior across up to 200–300 consecutive tool invocations. ([blog](https://moonshotai.github.io/Kimi-K2/thinking.html))
+    creator_organization_name: Moonshot AI
+    access: open
+    release_date: 2024-11-06  # Blog post has no date, so use the date from Hacker News https://news.ycombinator.com/item?id=45836070
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # MosaicML
@@ -3672,12 +3763,22 @@ models:
     release_date: 2025-04-29
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: qwen/qwen3-next-80b-a3b-instruct
+    display_name: Qwen3-Next 80B A3B Instruct
+    description: Qwen3-Next is a new model architecture for improving training and inference efficiency under long-context and large-parameter settings. Compared to the MoE structure of Qwen3, Qwen3-Next introduces a hybrid attention mechanism, a highly sparse Mixture-of-Experts (MoE) structure, training-stability-friendly optimizations, and a multi-token prediction mechanism for faster inference. ([blog](https://qwen.ai/blog?id=4074cca80393150c248e508aa62983f9cb7d27cd&from=research.latest-advancements-list))
+    creator_organization_name: Qwen
+    access: open
+    num_parameters: 81000000000
+    release_date: 2025-09-10
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: qwen/qwen3-next-80b-a3b-thinking
     display_name: Qwen3-Next 80B A3B Thinking
     description: Qwen3-Next is a new model architecture for improving training and inference efficiency under long-context and large-parameter settings. Compared to the MoE structure of Qwen3, Qwen3-Next introduces a hybrid attention mechanism, a highly sparse Mixture-of-Experts (MoE) structure, training-stability-friendly optimizations, and a multi-token prediction mechanism for faster inference. ([blog](https://qwen.ai/blog?id=4074cca80393150c248e508aa62983f9cb7d27cd&from=research.latest-advancements-list))
     creator_organization_name: Qwen
     access: open
-    release_date: 2025-07-21  # https://x.com/Alibaba_Qwen/status/1947344511988076547
+    num_parameters: 81000000000
+    release_date: 2025-09-10
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: qwen/qwen3-235b-a22b-instruct-2507-fp8
@@ -3685,6 +3786,16 @@ models:
     description: Qwen3 235B A22B Instruct 2507 FP8 is an updated version of the non-thinking mode of Qwen3 235B A22B FP8.
     creator_organization_name: Qwen
     access: open
+    num_parameters: 235000000000
+    release_date: 2025-07-21  # https://x.com/Alibaba_Qwen/status/1947344511988076547
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: qwen/qwen3-235b-a22b-thinking-2507
+    display_name: Qwen3 235B A22B Thinking 2507
+    description: Qwen3 235B A22B Thinking 2507 is an updated version of the thinking mode of Qwen3 235B A22B.
+    creator_organization_name: Qwen
+    access: open
+    num_parameters: 235000000000
     release_date: 2025-07-21  # https://x.com/Alibaba_Qwen/status/1947344511988076547
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
@@ -4033,7 +4144,7 @@ models:
 
   - name: tiiuae/falcon3-1b-instruct
     display_name: Falcon3-1B-Instruct
-    description: Falcon3-1B-Instruct is an open-weights foundation model that supports 4 languages (English, French, Spanish, Portuguese) that was trained on 14T tokens.
+    description: Falcon3-1B-Instruct is an open-weights foundation model that supports 4 languages (English, French, Spanish, Portuguese) that was trained on 14T tokens. ([blog](https://falconllm.tii.ae/falcon3/index.html))
     creator_organization_name: TII UAE
     access: open
     num_parameters: 1670000000
@@ -4042,7 +4153,7 @@ models:
 
   - name: tiiuae/falcon3-3b-instruct
     display_name: Falcon3-3B-Instruct
-    description: Falcon3-3B-Instruct is an open-weights foundation model that supports 4 languages (English, French, Spanish, Portuguese) that was trained on 14T tokens.
+    description: Falcon3-3B-Instruct is an open-weights foundation model that supports 4 languages (English, French, Spanish, Portuguese) that was trained on 14T tokens. ([blog](https://falconllm.tii.ae/falcon3/index.html))
     creator_organization_name: TII UAE
     access: open
     num_parameters: 3230000000
@@ -4051,7 +4162,7 @@ models:
 
   - name: tiiuae/falcon3-7b-instruct
     display_name: Falcon3-7B-Instruct
-    description: Falcon3-7B-Instruct is an open-weights foundation model that supports 4 languages (English, French, Spanish, Portuguese) that was trained on 14T tokens.
+    description: Falcon3-7B-Instruct is an open-weights foundation model that supports 4 languages (English, French, Spanish, Portuguese) that was trained on 14T tokens. ([blog](https://falconllm.tii.ae/falcon3/index.html))
     creator_organization_name: TII UAE
     access: open
     num_parameters: 7460000000
@@ -4060,7 +4171,7 @@ models:
 
   - name: tiiuae/falcon3-10b-instruct
     display_name: Falcon3-10B-Instruct
-    description: Falcon3-10B-Instruct is an open-weights foundation model that supports 4 languages (English, French, Spanish, Portuguese) that was trained on 14T tokens.
+    description: Falcon3-10B-Instruct is an open-weights foundation model that supports 4 languages (English, French, Spanish, Portuguese) that was trained on 14T tokens. ([blog](https://falconllm.tii.ae/falcon3/index.html))
     creator_organization_name: TII UAE
     access: open
     num_parameters: 10300000000
@@ -4070,7 +4181,7 @@ models:
   # AceGPT-v2
   - name: freedomintelligence/acegpt-v2-8b-chat
     display_name: AceGPT-v2-8B-Chat
-    description: AceGPT is a fully fine-tuned generative text model collection, particularly focused on the Arabic language domain. AceGPT-v2-8B-Chat is based on Meta-Llama-3-8B. ([paper](https://arxiv.org/abs/2412.12310))
+    description: AceGPT is a fully fine-tuned generative text model collection, particularly focused on the Arabic language domain. AceGPT-v2-8B-Chat is based on Meta-Llama-3-8B. ([paper](https://arxiv.org/abs/2412.03253))
     creator_organization_name: FreedomAI
     access: open
     num_parameters: 8030000000
@@ -4079,7 +4190,7 @@ models:
 
   - name: freedomintelligence/acegpt-v2-32b-chat
     display_name: AceGPT-v2-32B-Chat
-    description: AceGPT is a fully fine-tuned generative text model collection, particularly focused on the Arabic language domain. AceGPT-v2-32B-Chat is based on Qwen1.5-32B. ([paper](https://arxiv.org/abs/2412.12310))
+    description: AceGPT is a fully fine-tuned generative text model collection, particularly focused on the Arabic language domain. AceGPT-v2-32B-Chat is based on Qwen1.5-32B. ([paper](https://arxiv.org/abs/2412.03253))
     creator_organization_name: FreedomAI
     access: open
     num_parameters: 32500000000
@@ -4088,7 +4199,7 @@ models:
 
   - name: freedomintelligence/acegpt-v2-70b-chat
     display_name: AceGPT-v2-70B-Chat
-    description: AceGPT is a fully fine-tuned generative text model collection, particularly focused on the Arabic language domain. AceGPT-v2-70B-Chat is based on Meta-Llama-3-70B. ([paper](https://arxiv.org/abs/2412.12310))
+    description: AceGPT is a fully fine-tuned generative text model collection, particularly focused on the Arabic language domain. AceGPT-v2-70B-Chat is based on Meta-Llama-3-70B. ([paper](https://arxiv.org/abs/2412.03253))
     creator_organization_name: FreedomAI
     access: open
     num_parameters: 70600000000

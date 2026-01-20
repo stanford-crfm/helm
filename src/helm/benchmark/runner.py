@@ -38,7 +38,6 @@ from helm.benchmark.metrics.metric import MetricInterface, MetricResult, PerInst
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 
 
-LATEST_SYMLINK: str = "latest"
 _CURRENT_RUN_SPEC_NAME: typing.Optional[str] = None
 _BENCHMARK_OUTPUT_PATH: str = "benchmark_output"
 _CACHED_MODELS_FOLDER: str = "models"

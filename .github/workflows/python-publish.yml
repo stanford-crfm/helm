@@ -44,5 +44,5 @@ jobs:
       run: uv run --isolated --no-project --with dist/*.tar.gz helm-summarize --suite test
     - name: helm-server (source distribution)
       run: uv run --isolated --no-project --with dist/*.tar.gz helm-server --help
-    - name: Publish
-      run: uv publish
+    - name: Publish package
+      uses: pypa/gh-action-pypi-publish@release/v1
