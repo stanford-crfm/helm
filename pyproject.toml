@@ -382,7 +382,6 @@ lmkt = [
 
 all = [
     "crfm-helm[proxy-server]",
-    "crfm-helm[human-evaluation]",
     "crfm-helm[scenarios]",
     "crfm-helm[metrics]",
     "crfm-helm[plots]",
@@ -396,6 +395,7 @@ all = [
     "crfm-helm[vlm]",
     "crfm-helm[codeinsights]",
     "crfm-helm[lmkt]",
+    # crfm-helm[human-evaluation] is excluded because it conflicts with crfm-helm[ibm]
     # crfm-helm[audiolm] is excluded because it requires transformers~=4.48
     # crfm-helm[seahelm] is excluded because pyonmttok does not support Python 3.12
     # crfm-helm[dev] is excluded because end-users don't need it.
@@ -453,6 +453,10 @@ conflicts = [
     [
       { extra = "all" },
       { extra = "summarization" },
+    ],
+    [
+      { extra = "ibm" },
+      { extra = "human-evaluation" },
     ],
 ]
 
