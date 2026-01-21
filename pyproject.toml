@@ -241,7 +241,6 @@ vlm = [
     "pycocoevalcap~=1.2",
 
     # For Qwen2
-    "transformers~=4.45",
     "qwen-vl-utils~=0.0.8",
 ]
 
@@ -338,7 +337,6 @@ medhelm = [
     "lxml~=5.3",
     "openpyxl~=3.1",
     "python-docx~=1.1",
-    "transformers>=4.45,<5.0",
 ]
 
 audiolm = [
@@ -360,7 +358,6 @@ audiolm = [
     "openai-whisper==20240930",
 
     # For Qwen2.5-Omni
-    "transformers~=4.48",
     "transformers_stream_generator~=0.0.4",
     "av~=14.3",
     "scipy~=1.10",
