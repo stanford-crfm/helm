@@ -1806,7 +1806,7 @@ requires-dist = [
     { name = "evaluate", marker = "extra == 'unitxt'", specifier = "~=0.4.1" },
     { name = "fairlearn", marker = "extra == 'decodingtrust'", specifier = "~=0.9.0" },
     { name = "fastapi", marker = "extra == 'dspy'", specifier = "~=0.118.0" },
-    { name = "fastapi-sso", marker = "extra == 'dspy'", specifier = "~=0.18.0" },
+    { name = "fastapi-sso", marker = "extra == 'dspy'", specifier = ">=0.18,<0.20" },
     { name = "ffmpeg-python", marker = "extra == 'audiolm'", specifier = "~=0.2.0" },
     { name = "flash-attn", marker = "extra == 'audiolm'", specifier = "~=2.7" },
     { name = "flax", marker = "python_full_version >= '3.10' and extra == 'heim'", specifier = "~=0.10.7" },
@@ -2400,7 +2400,7 @@ wheels = [
 
 [[package]]
 name = "fastapi-sso"
-version = "0.18.0"
+version = "0.19.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "fastapi" },
@@ -2409,9 +2409,9 @@ dependencies = [
     { name = "pydantic", extra = ["email"] },
     { name = "pyjwt" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d2/57/cc971c018af5d09eb5f8d1cd12abdd99ab4c59ea5c0b0b1b96349ffe117d/fastapi_sso-0.18.0.tar.gz", hash = "sha256:d8df5a686af7a6a7be248817544b405cf77f7e9ffcd5d0d7d2a196fd071964bc", size = 16811, upload-time = "2025-03-20T17:09:09.958Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/74/fc/644bc8f82fc887fffcf9a3eab8eb3dea06ee9ea160ef20441455ed7a0001/fastapi_sso-0.19.0.tar.gz", hash = "sha256:629f00581f72ea7e57f7b8775f8d2c425629c428c194359a2b4ebaa6bcb8e12b", size = 17278, upload-time = "2025-12-17T15:18:06.721Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6e/03/70ca13994f5569d343a9f99dba2930c8ae3471171f161b8887d44b6c526f/fastapi_sso-0.18.0-py3-none-any.whl", hash = "sha256:727754ad770b70690f1471f7b0a9e17c6dfd8ebd6e477616d3bde1eaf62e53dc", size = 26103, upload-time = "2025-03-20T17:09:08.656Z" },
+    { url = "https://files.pythonhosted.org/packages/d7/61/d2ac0800cb1f390ec2aad464ea4cc5944de285fabc8f987327da4633f17d/fastapi_sso-0.19.0-py3-none-any.whl", hash = "sha256:d958c46cd9996234c7b162e192168b4c0807a248224a55b0f877d3a82a16a930", size = 26419, upload-time = "2025-12-17T15:18:05.439Z" },
 ]
 
 [[package]]
