@@ -26,6 +26,9 @@ resolution-markers = [
 conflicts = [[
     { package = "crfm-helm", extra = "all" },
     { package = "crfm-helm", extra = "summarization" },
+], [
+    { package = "crfm-helm", extra = "human-evaluation" },
+    { package = "crfm-helm", extra = "ibm" },
 ]]
 
 [[package]]
@@ -43,8 +46,8 @@ version = "0.34.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "huggingface-hub" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "packaging" },
     { name = "psutil" },
     { name = "pyyaml" },
@@ -69,13 +72,13 @@ dependencies = [
     { name = "google-cloud-storage" },
     { name = "logzio-python-handler" },
     { name = "msgspec" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "omegaconf" },
     { name = "packaging" },
     { name = "rich" },
-    { name = "scikit-learn", version = "1.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scikit-learn", version = "1.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "scikit-learn", version = "1.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scikit-learn", version = "1.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "smashed", extra = ["remote"] },
     { name = "tokenizers" },
     { name = "torch" },
@@ -125,7 +128,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohappyeyeballs" },
     { name = "aiosignal" },
-    { name = "async-timeout", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "async-timeout", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "attrs" },
     { name = "frozenlist" },
     { name = "multidict" },
@@ -256,7 +259,7 @@ version = "1.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "frozenlist" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/61/62/06741b579156360248d1ec624842ad0edf697050bbaf7c3e46394e106ad1/aiosignal-1.4.0.tar.gz", hash = "sha256:f47eecd9468083c2029cc99945502cb7708b082c232f9aca65da147157b251c7", size = 25007, upload-time = "2025-07-03T22:54:43.528Z" }
 wheels = [
@@ -270,7 +273,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "mako" },
     { name = "sqlalchemy" },
-    { name = "tomli", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "tomli", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "typing-extensions" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/49/cc/aca263693b2ece99fa99a09b6d092acb89973eb2bb575faef1777e04f8b4/alembic-1.18.1.tar.gz", hash = "sha256:83ac6b81359596816fb3b893099841a0862f2117b2963258e965d70dc62fb866", size = 2044319, upload-time = "2026-01-14T18:53:14.907Z" }
@@ -336,9 +339,9 @@ name = "anyio"
 version = "4.12.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "exceptiongroup", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "exceptiongroup", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "idna" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/96/f0/5eb65b2bb0d09ac6776f2eb54adee6abe8228ea05b20a5ad0e4945de8aac/anyio-4.12.1.tar.gz", hash = "sha256:41cfcc3a4c85d3f05c932da7c26d0201ac36f72abd4435ba90d0464a3ffed703", size = 228685, upload-time = "2026-01-06T11:45:21.246Z" }
 wheels = [
@@ -461,8 +464,8 @@ name = "audioread"
 version = "3.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "standard-aifc", marker = "python_full_version >= '3.13' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "standard-sunau", marker = "python_full_version >= '3.13' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "standard-aifc", marker = "python_full_version >= '3.13' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "standard-sunau", marker = "python_full_version >= '3.13' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a1/4a/874ecf9b472f998130c2b5e145dcdb9f6131e84786111489103b66772143/audioread-3.1.0.tar.gz", hash = "sha256:1c4ab2f2972764c896a8ac61ac53e261c8d29f0c6ccd652f84e18f08a4cab190", size = 20082, upload-time = "2025-10-26T19:44:13.484Z" }
 wheels = [
@@ -576,8 +579,8 @@ version = "0.3.13"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "matplotlib" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "packaging" },
     { name = "pandas" },
     { name = "requests" },
@@ -600,8 +603,8 @@ dependencies = [
     { name = "packaging" },
     { name = "pathspec" },
     { name = "platformdirs" },
-    { name = "tomli", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "tomli", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/8f/5f/bac24a952668c7482cfdb4ebf91ba57a796c9da8829363a772040c1a3312/black-24.3.0.tar.gz", hash = "sha256:a0c9c4a0771afc6919578cec71ce82a3e31e054904e7197deacbc9382671c41f", size = 634292, upload-time = "2024-03-15T19:35:43.699Z" }
 wheels = [
@@ -625,8 +628,8 @@ name = "blis"
 version = "1.3.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/d0/d0/d8cc8c9a4488a787e7fa430f6055e5bd1ddb22c340a751d9e901b82e2efe/blis-1.3.3.tar.gz", hash = "sha256:034d4560ff3cc43e8aa37e188451b0440e3261d989bb8a42ceee865607715ecd", size = 2644873, upload-time = "2025-11-17T12:28:30.511Z" }
 wheels = [
@@ -755,7 +758,7 @@ version = "22.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
-    { name = "exceptiongroup", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "exceptiongroup", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/fc/da/ff3239eb4241cbc6f8b69f53d4ca27a178d51f9e5a954f1a3588c8227dc5/cattrs-22.2.0.tar.gz", hash = "sha256:f0eed5642399423cf656e7b66ce92cdc5b963ecafd041d1b24d136fdde7acf6d", size = 30050, upload-time = "2022-10-03T11:00:37.889Z" }
 wheels = [
@@ -776,7 +779,7 @@ name = "cffi"
 version = "2.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pycparser", marker = "implementation_name != 'PyPy' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "pycparser", marker = "implementation_name != 'PyPy' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/eb/56/b1ba7935a17738ae8453301356628e8147c79dbb825bcbc73dc7401f9846/cffi-2.0.0.tar.gz", hash = "sha256:44d1b5909021139fe36001ae048dbdde8214afa20200eda0f64c068cac5d5529", size = 523588, upload-time = "2025-09-08T23:24:04.541Z" }
 wheels = [
@@ -959,9 +962,9 @@ dependencies = [
     { name = "absl-py" },
     { name = "jax" },
     { name = "jaxlib" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "setuptools", marker = "python_full_version >= '3.12' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "setuptools", marker = "python_full_version >= '3.12' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "toolz" },
     { name = "typing-extensions" },
 ]
@@ -984,7 +987,7 @@ name = "click"
 version = "8.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/3d/fa/656b739db8587d7b5dfa22e22ed02566950fbfbcdc20311993483657a5c0/click-8.3.1.tar.gz", hash = "sha256:12ff4785d337a1bb490bb7e9c2b1ee5da3112e94a8622f26a6c77f5d2fc6842a", size = 295065, upload-time = "2025-11-15T20:45:42.706Z" }
 wheels = [
@@ -1036,7 +1039,7 @@ name = "cloudpathlib"
 version = "0.23.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/f4/18/2ac35d6b3015a0c74e923d94fc69baf8307f7c3233de015d69f99e17afa8/cloudpathlib-0.23.0.tar.gz", hash = "sha256:eb38a34c6b8a048ecfd2b2f60917f7cbad4a105b7c979196450c2f541f4d6b4b", size = 53126, upload-time = "2025-10-07T22:47:56.278Z" }
 wheels = [
@@ -1106,7 +1109,7 @@ name = "colorlog"
 version = "6.10.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a2/61/f083b5ac52e505dfc1c624eafbf8c7589a0d7f32daa398d2e7590efa5fda/colorlog-6.10.1.tar.gz", hash = "sha256:eb4ae5cb65fe7fec7773c2306061a8e63e02efc2c72eba9d27b0fa23c94f1321", size = 17162, upload-time = "2025-10-16T16:14:11.978Z" }
 wheels = [
@@ -1137,7 +1140,7 @@ resolution-markers = [
     "python_full_version < '3.11' and sys_platform != 'darwin' and sys_platform != 'linux'",
 ]
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/66/54/eb9bfc647b19f2009dd5c7f5ec51c4e6ca831725f1aea7a993034f483147/contourpy-1.3.2.tar.gz", hash = "sha256:b6945942715a034c671b7fc54f9588126b0b8bf23db2696e3ca8328f3ff0ab54", size = 13466130, upload-time = "2025-04-15T17:47:53.79Z" }
 wheels = [
@@ -1222,7 +1225,7 @@ resolution-markers = [
     "python_full_version == '3.11.*' and sys_platform != 'darwin' and sys_platform != 'linux'",
 ]
 dependencies = [
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/58/01/1253e6698a07380cd31a736d248a3f2a50a7c88779a1813da27503cadc2a/contourpy-1.3.3.tar.gz", hash = "sha256:083e12155b210502d0bca491432bb04d56dc3432f95a979b429f2848c3dbe880", size = 13466174, upload-time = "2025-07-26T12:03:12.549Z" }
 wheels = [
@@ -1311,18 +1314,18 @@ dependencies = [
     { name = "datasets" },
     { name = "mako" },
     { name = "nltk" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "pandas" },
     { name = "pyarrow" },
     { name = "pyarrow-hotfix" },
     { name = "pyhocon" },
     { name = "retrying" },
     { name = "rouge-score" },
-    { name = "scikit-learn", version = "1.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scikit-learn", version = "1.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "scikit-learn", version = "1.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scikit-learn", version = "1.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "spacy" },
     { name = "sqlitedict" },
     { name = "torch" },
@@ -1384,8 +1387,8 @@ all = [
     { name = "multilingual-clip" },
     { name = "nudenet" },
     { name = "numba" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.11' and extra == 'extra-9-crfm-helm-all') or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and extra == 'extra-9-crfm-helm-all') or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.11' and extra == 'extra-9-crfm-helm-all') or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and extra == 'extra-9-crfm-helm-all') or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "omegaconf" },
     { name = "open-clip-torch" },
     { name = "openai" },
@@ -1403,17 +1406,15 @@ all = [
     { name = "qwen-vl-utils" },
     { name = "reka-api" },
     { name = "sacrebleu" },
-    { name = "scaleapi" },
-    { name = "scikit-image", version = "0.25.2", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.11' and extra == 'extra-9-crfm-helm-all') or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scikit-image", version = "0.26.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and extra == 'extra-9-crfm-helm-all') or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.11' and extra == 'extra-9-crfm-helm-all') or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and extra == 'extra-9-crfm-helm-all') or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "scikit-image", version = "0.25.2", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.11' and extra == 'extra-9-crfm-helm-all') or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scikit-image", version = "0.26.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and extra == 'extra-9-crfm-helm-all') or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.11' and extra == 'extra-9-crfm-helm-all') or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and extra == 'extra-9-crfm-helm-all') or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "seaborn" },
     { name = "selenium" },
     { name = "sentence-transformers" },
     { name = "sentencepiece" },
     { name = "simple-slurm" },
-    { name = "surge-api" },
     { name = "tensorflow" },
     { name = "tiktoken" },
     { name = "timm" },
@@ -1423,7 +1424,6 @@ all = [
     { name = "torch-fidelity" },
     { name = "torchmetrics" },
     { name = "torchvision" },
-    { name = "transformers" },
     { name = "transformers-stream-generator" },
     { name = "unidecode" },
     { name = "wandb" },
@@ -1459,12 +1459,11 @@ audiolm = [
     { name = "pydantic" },
     { name = "pydub" },
     { name = "rapidfuzz" },
-    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "soundfile" },
     { name = "tiktoken" },
     { name = "torchvision" },
-    { name = "transformers" },
     { name = "transformers-stream-generator" },
 ]
 ci = [
@@ -1532,8 +1531,8 @@ heim = [
     { name = "lpips" },
     { name = "multilingual-clip" },
     { name = "nudenet" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "omegaconf" },
     { name = "openai" },
     { name = "opencv-python" },
@@ -1541,8 +1540,8 @@ heim = [
     { name = "pydantic" },
     { name = "pytorch-fid" },
     { name = "pytorch-lightning" },
-    { name = "scikit-image", version = "0.25.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scikit-image", version = "0.26.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "scikit-image", version = "0.25.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scikit-image", version = "0.26.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "tensorflow" },
     { name = "tiktoken" },
     { name = "timm" },
@@ -1556,8 +1555,8 @@ human-evaluation = [
     { name = "surge-api" },
 ]
 ibm = [
-    { name = "ibm-watsonx-ai", version = "1.3.42", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "ibm-watsonx-ai", version = "1.5.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "ibm-watsonx-ai", version = "1.3.42", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.11' and extra == 'extra-9-crfm-helm-ibm') or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "ibm-watsonx-ai", version = "1.5.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and extra == 'extra-9-crfm-helm-ibm') or (python_full_version < '3.11' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-ibm' and extra == 'extra-9-crfm-helm-summarization')" },
 ]
 ibm-enterprise-scenarios = [
     { name = "openpyxl" },
@@ -1594,7 +1593,6 @@ medhelm = [
     { name = "python-docx" },
     { name = "sentencepiece" },
     { name = "tiktoken" },
-    { name = "transformers" },
     { name = "xlrd" },
 ]
 metrics = [
@@ -1688,13 +1686,12 @@ vlm = [
     { name = "pydantic" },
     { name = "qwen-vl-utils" },
     { name = "reka-api" },
-    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "selenium" },
     { name = "tiktoken" },
     { name = "torch" },
     { name = "torchvision" },
-    { name = "transformers" },
     { name = "transformers-stream-generator" },
 ]
 writer = [
@@ -1759,7 +1756,6 @@ requires-dist = [
     { name = "crfm-helm", extras = ["google"], marker = "extra == 'audiolm'" },
     { name = "crfm-helm", extras = ["google"], marker = "extra == 'models'" },
     { name = "crfm-helm", extras = ["heim"], marker = "extra == 'all'" },
-    { name = "crfm-helm", extras = ["human-evaluation"], marker = "extra == 'all'" },
     { name = "crfm-helm", extras = ["image2struct"], marker = "extra == 'vlm'" },
     { name = "crfm-helm", extras = ["images"], marker = "extra == 'all'" },
     { name = "crfm-helm", extras = ["images"], marker = "extra == 'heim'" },
@@ -1793,7 +1789,7 @@ requires-dist = [
     { name = "crfm-helm", extras = ["yandex"], marker = "extra == 'ci'" },
     { name = "crfm-helm", extras = ["yandex"], marker = "extra == 'medhelm'" },
     { name = "crfm-helm", extras = ["yandex"], marker = "extra == 'models'" },
-    { name = "cryptography", marker = "extra == 'dspy'", specifier = ">=43,<45" },
+    { name = "cryptography", marker = "extra == 'dspy'", specifier = ">=43" },
     { name = "dacite", specifier = "~=1.6" },
     { name = "datasets", specifier = "~=3.1" },
     { name = "diffusers", marker = "extra == 'heim'", specifier = "~=0.34.0" },
@@ -1916,10 +1912,7 @@ requires-dist = [
     { name = "torchvision", marker = "extra == 'audiolm'", specifier = ">=0.14.1,<3.0.0" },
     { name = "torchvision", marker = "extra == 'vlm'", specifier = ">=0.14.1,<3.0.0" },
     { name = "tqdm", specifier = "~=4.64" },
-    { name = "transformers", specifier = ">=4.40,<5.0" },
-    { name = "transformers", marker = "extra == 'audiolm'", specifier = "~=4.48" },
-    { name = "transformers", marker = "extra == 'medhelm'", specifier = ">=4.45,<5.0" },
-    { name = "transformers", marker = "extra == 'vlm'", specifier = "~=4.45" },
+    { name = "transformers", specifier = "~=4.53" },
     { name = "transformers-stream-generator", marker = "extra == 'audiolm'", specifier = "~=0.0.4" },
     { name = "transformers-stream-generator", marker = "extra == 'vlm'", specifier = "~=0.0.4" },
     { name = "uncertainty-calibration", specifier = "~=0.1.4" },
@@ -1957,7 +1950,7 @@ name = "cryptography"
 version = "44.0.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cffi", marker = "platform_python_implementation != 'PyPy' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "cffi", marker = "platform_python_implementation != 'PyPy' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c7/67/545c79fe50f7af51dbad56d16b23fe33f63ee6a5d956b3cb68ea110cbe64/cryptography-44.0.1.tar.gz", hash = "sha256:f51f5705ab27898afda1aaa430f34ad90dc117421057782022edf0600bec5f14", size = 710819, upload-time = "2025-02-11T15:50:58.39Z" }
 wheels = [
@@ -2105,8 +2098,8 @@ dependencies = [
     { name = "fsspec", extra = ["http"] },
     { name = "huggingface-hub" },
     { name = "multiprocess" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "packaging" },
     { name = "pandas" },
     { name = "pyarrow" },
@@ -2137,8 +2130,8 @@ dependencies = [
     { name = "filelock" },
     { name = "huggingface-hub" },
     { name = "importlib-metadata" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "pillow" },
     { name = "regex" },
     { name = "requests" },
@@ -2228,8 +2221,8 @@ dependencies = [
     { name = "json-repair" },
     { name = "litellm" },
     { name = "magicattr" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "openai" },
     { name = "optuna" },
     { name = "orjson" },
@@ -2337,8 +2330,8 @@ dependencies = [
     { name = "fsspec", extra = ["http"] },
     { name = "huggingface-hub" },
     { name = "multiprocess" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "packaging" },
     { name = "pandas" },
     { name = "requests" },
@@ -2355,7 +2348,7 @@ name = "exceptiongroup"
 version = "1.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/50/79/66800aadf48771f6b62f7eb014e352e5d06856655206165d775e675a02c9/exceptiongroup-1.3.1.tar.gz", hash = "sha256:8b412432c6055b0b7d14c310000ae93352ed6754f70fa8f7c34141f91c4e3219", size = 30371, upload-time = "2025-11-21T23:01:54.787Z" }
 wheels = [
@@ -2379,13 +2372,13 @@ name = "fairlearn"
 version = "0.9.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "pandas" },
-    { name = "scikit-learn", version = "1.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scikit-learn", version = "1.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "scikit-learn", version = "1.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scikit-learn", version = "1.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/92/36/e05471d51c17601f4cf2a2697d8f15fdecf239b1ff966b641b43481c9686/fairlearn-0.9.0.tar.gz", hash = "sha256:34ae33bc9330f7cf47014f2f9ed99ede451ade33e6a9108e2524fef71e0c8c08", size = 165900, upload-time = "2023-07-27T16:36:26.733Z" }
 wheels = [
@@ -2592,13 +2585,13 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jax" },
     { name = "msgpack" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "optax" },
     { name = "orbax-checkpoint" },
     { name = "pyyaml" },
     { name = "rich" },
-    { name = "tensorstore", version = "0.1.78", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "tensorstore", version = "0.1.80", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "tensorstore", version = "0.1.78", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "tensorstore", version = "0.1.80", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "treescope" },
     { name = "typing-extensions" },
 ]
@@ -3358,8 +3351,8 @@ name = "h5py"
 version = "3.15.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/4d/6a/0d79de0b025aa85dc8864de8e97659c94cf3d23148394a954dc5ca52f8c8/h5py-3.15.1.tar.gz", hash = "sha256:c86e3ed45c4473564de55aa83b6fc9e5ead86578773dfbd93047380042e26b69", size = 426236, upload-time = "2025-10-16T10:35:27.404Z" }
 wheels = [
@@ -3486,7 +3479,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "filelock" },
     { name = "fsspec" },
-    { name = "hf-xet", marker = "platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "hf-xet", marker = "platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "packaging" },
     { name = "pyyaml" },
     { name = "requests" },
@@ -3503,7 +3496,7 @@ name = "humanfriendly"
 version = "10.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pyreadline3", marker = "sys_platform == 'win32' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "pyreadline3", marker = "sys_platform == 'win32' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/cc/3f/2c29224acb2e2df4d2046e4c73ee2662023c58ff5b113c4c1adac0886c43/humanfriendly-10.0.tar.gz", hash = "sha256:6b0b831ce8f15f7300721aa49829fc4e83921a9a301cc7f606be6686a2288ddc", size = 360702, upload-time = "2021-09-17T21:40:43.31Z" }
 wheels = [
@@ -3656,13 +3649,13 @@ name = "imagehash"
 version = "4.3.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "pillow" },
-    { name = "pywavelets", version = "1.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "pywavelets", version = "1.9.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "pywavelets", version = "1.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "pywavelets", version = "1.9.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/cd/de/5c0189b0582e21583c2a213081c35a2501c0f9e51f21f6a52f55fbb9a4ff/ImageHash-4.3.2.tar.gz", hash = "sha256:e54a79805afb82a34acde4746a16540503a9636fd1ffb31d8e099b29bbbf8156", size = 303190, upload-time = "2025-02-01T08:45:39.328Z" }
 wheels = [
@@ -3674,8 +3667,8 @@ name = "imageio"
 version = "2.37.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "pillow" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a3/6f/606be632e37bf8d05b253e8626c2291d74c691ddc7bcdf7d6aaf33b32f6a/imageio-2.37.2.tar.gz", hash = "sha256:0212ef2727ac9caa5ca4b2c75ae89454312f440a756fcfc8ef1993e718f50f8a", size = 389600, upload-time = "2025-11-04T14:29:39.898Z" }
@@ -3738,11 +3731,11 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jaxlib" },
     { name = "ml-dtypes" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "opt-einsum" },
-    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/cf/1e/267f59c8fb7f143c3f778c76cb7ef1389db3fd7e4540f04b9f42ca90764d/jax-0.6.2.tar.gz", hash = "sha256:a437d29038cbc8300334119692744704ca7941490867b9665406b7f90665cd96", size = 2334091, upload-time = "2025-06-17T23:10:27.186Z" }
 wheels = [
@@ -3755,10 +3748,10 @@ version = "0.6.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ml-dtypes" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/15/c5/41598634c99cbebba46e6777286fb76abc449d33d50aeae5d36128ca8803/jaxlib-0.6.2-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:da4601b2b5dc8c23d6afb293eacfb9aec4e1d1871cb2f29c5a151d103e73b0f8", size = 54298019, upload-time = "2025-06-17T23:10:36.916Z" },
@@ -4003,14 +3996,14 @@ resolution-markers = [
     "python_full_version < '3.11' and sys_platform != 'darwin' and sys_platform != 'linux'",
 ]
 dependencies = [
-    { name = "absl-py", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "h5py", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "ml-dtypes", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "namex", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "optree", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "packaging", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "rich", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "absl-py", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "h5py", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "ml-dtypes", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "namex", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "optree", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "packaging", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "rich", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9b/b8/8df141314a64a31d3a21762658826f716cdf4c261c7fcdb3f729958def55/keras-3.12.0.tar.gz", hash = "sha256:536e3f8385a05ae04e82e08715a1a59988578087e187b04cb0a6fad11743f07f", size = 1129187, upload-time = "2025-10-27T20:23:11.574Z" }
 wheels = [
@@ -4040,14 +4033,14 @@ resolution-markers = [
     "python_full_version == '3.11.*' and sys_platform != 'darwin' and sys_platform != 'linux'",
 ]
 dependencies = [
-    { name = "absl-py", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "h5py", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "ml-dtypes", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "namex", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "optree", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "packaging", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "rich", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "absl-py", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "h5py", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "ml-dtypes", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "namex", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "optree", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "packaging", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "rich", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/0c/79/721253a7b1618487a901f08c913af7cf4f60caab764ef06bfc9702280b50/keras-3.13.1.tar.gz", hash = "sha256:670c726dfc9c357fe7ae5ef1c15d8f61ee7fbb40ae9a091a458ec6444a772480", size = 1154466, upload-time = "2026-01-14T18:58:26.809Z" }
 wheels = [
@@ -4061,10 +4054,10 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "absl-py" },
     { name = "kagglehub" },
-    { name = "keras", version = "3.12.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "keras", version = "3.13.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "keras", version = "3.12.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "keras", version = "3.13.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "packaging" },
     { name = "regex" },
     { name = "rich" },
@@ -4092,8 +4085,8 @@ version = "1.4.8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "grpcio" },
-    { name = "keras", version = "3.12.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "keras", version = "3.13.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "keras", version = "3.12.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "keras", version = "3.13.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "kt-legacy" },
     { name = "packaging" },
     { name = "protobuf" },
@@ -4375,17 +4368,17 @@ dependencies = [
     { name = "lazy-loader" },
     { name = "msgpack" },
     { name = "numba" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "pooch" },
-    { name = "scikit-learn", version = "1.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scikit-learn", version = "1.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "scikit-learn", version = "1.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scikit-learn", version = "1.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "soundfile" },
     { name = "soxr" },
-    { name = "standard-aifc", marker = "python_full_version >= '3.13' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "standard-sunau", marker = "python_full_version >= '3.13' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "standard-aifc", marker = "python_full_version >= '3.13' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "standard-sunau", marker = "python_full_version >= '3.13' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "typing-extensions" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/64/36/360b5aafa0238e29758729e9486c6ed92a6f37fa403b7875e06c115cdf4a/librosa-0.11.0.tar.gz", hash = "sha256:f5ed951ca189b375bbe2e33b2abd7e040ceeee302b9bbaeeffdfddb8d0ace908", size = 327001, upload-time = "2025-03-11T15:09:54.884Z" }
@@ -4488,10 +4481,10 @@ name = "lpips"
 version = "0.1.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "torch" },
     { name = "torchvision" },
     { name = "tqdm" },
@@ -4714,13 +4707,13 @@ name = "matplotlib"
 version = "3.10.8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "contourpy", version = "1.3.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "contourpy", version = "1.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "contourpy", version = "1.3.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "contourpy", version = "1.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "cycler" },
     { name = "fonttools" },
     { name = "kiwisolver" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "packaging" },
     { name = "pillow" },
     { name = "pyparsing" },
@@ -4829,8 +4822,8 @@ name = "ml-dtypes"
 version = "0.5.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/0e/4a/c27b42ed9b1c7d13d9ba8b6905dece787d6259152f2309338aed29b2447b/ml_dtypes-0.5.4.tar.gz", hash = "sha256:8ab06a50fb9bf9666dd0fe5dfb4676fa2b0ac0f31ecff72a6c3af8e22c063453", size = 692314, upload-time = "2025-11-17T22:32:31.031Z" }
 wheels = [
@@ -5010,7 +5003,7 @@ name = "multidict"
 version = "6.7.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/80/1e/5492c365f222f907de1039b91f922b93fa4f764c713ee858d235495d8f50/multidict-6.7.0.tar.gz", hash = "sha256:c6e99d9a65ca282e578dfea819cfa9c0a62b2499d8677392e09feaf305e9e6f5", size = 101834, upload-time = "2025-10-06T14:52:30.657Z" }
 wheels = [
@@ -5244,7 +5237,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "mypy-extensions" },
     { name = "pathspec" },
-    { name = "tomli", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "tomli", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "typing-extensions" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/d4/38/13c2f1abae94d5ea0354e146b95a1be9b2137a0d506728e0da037c4276f6/mypy-1.16.0.tar.gz", hash = "sha256:84b94283f817e2aa6350a14b4a8fb2a35a53c286f97c9d30f53b63620e7af8ab", size = 3323139, upload-time = "2025-05-29T13:46:12.532Z" }
@@ -5392,8 +5385,8 @@ dependencies = [
     { name = "opencv-python-headless" },
     { name = "pillow" },
     { name = "pydload" },
-    { name = "scikit-image", version = "0.25.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scikit-image", version = "0.26.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "scikit-image", version = "0.25.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scikit-image", version = "0.26.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/d4/dc/efe7618feb71cc833ce3e208f0acde41c3b883815ebe382db5b9f0d7dee7/NudeNet-2.0.9.tar.gz", hash = "sha256:296883cc7b218b4a9181aca55257e44ac0de9aceafa91ce5f82197a053deeaf8", size = 11295, upload-time = "2021-02-22T14:49:42.529Z" }
 wheels = [
@@ -5406,8 +5399,8 @@ version = "0.63.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "llvmlite" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/dc/60/0145d479b2209bd8fdae5f44201eceb8ce5a23e0ed54c71f57db24618665/numba-0.63.1.tar.gz", hash = "sha256:b320aa675d0e3b17b40364935ea52a7b1c670c9037c39cf92c49502a75902f4b", size = 2761666, upload-time = "2025-12-10T02:57:39.002Z" }
 wheels = [
@@ -5645,7 +5638,7 @@ name = "nvidia-cudnn-cu12"
 version = "9.10.2.21"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-cublas-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (platform_machine == 'aarch64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "nvidia-cublas-cu12" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/fa/41/e79269ce215c857c935fd86bcfe91a451a584dfc27f1e068f568b9ad1ab7/nvidia_cudnn_cu12-9.10.2.21-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:c9132cc3f8958447b4910a1720036d9eff5928cc3179b0a51fb6d167c6cc87d8", size = 705026878, upload-time = "2025-06-06T21:52:51.348Z" },
@@ -5658,7 +5651,7 @@ name = "nvidia-cufft-cu12"
 version = "11.3.3.83"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (platform_machine == 'aarch64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "nvidia-nvjitlink-cu12" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/60/bc/7771846d3a0272026c416fbb7e5f4c1f146d6d80704534d0b187dd6f4800/nvidia_cufft_cu12-11.3.3.83-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:848ef7224d6305cdb2a4df928759dca7b1201874787083b6e7550dd6765ce69a", size = 193109211, upload-time = "2025-03-07T01:44:56.873Z" },
@@ -5690,9 +5683,9 @@ name = "nvidia-cusolver-cu12"
 version = "11.7.3.90"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-cublas-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (platform_machine == 'aarch64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "nvidia-cusparse-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (platform_machine == 'aarch64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (platform_machine == 'aarch64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "nvidia-cublas-cu12" },
+    { name = "nvidia-cusparse-cu12" },
+    { name = "nvidia-nvjitlink-cu12" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c8/32/f7cd6ce8a7690544d084ea21c26e910a97e077c9b7f07bf5de623ee19981/nvidia_cusolver_cu12-11.7.3.90-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:db9ed69dbef9715071232caa9b69c52ac7de3a95773c2db65bdba85916e4e5c0", size = 267229841, upload-time = "2025-03-07T01:46:54.356Z" },
@@ -5705,7 +5698,7 @@ name = "nvidia-cusparse-cu12"
 version = "12.5.8.93"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (platform_machine == 'aarch64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "nvidia-nvjitlink-cu12" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/bc/f7/cd777c4109681367721b00a106f491e0d0d15cfa1fd59672ce580ce42a97/nvidia_cusparse_cu12-12.5.8.93-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:9b6c161cb130be1a07a27ea6923df8141f3c295852f4b260c65f18f3e0a091dc", size = 288117129, upload-time = "2025-03-07T01:47:40.407Z" },
@@ -5790,8 +5783,8 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "coloredlogs" },
     { name = "flatbuffers" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "packaging" },
     { name = "protobuf" },
     { name = "sympy" },
@@ -5866,12 +5859,12 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "more-itertools" },
     { name = "numba" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "tiktoken" },
     { name = "torch" },
     { name = "tqdm" },
-    { name = "triton", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or sys_platform == 'linux2' or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "triton", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or sys_platform == 'linux2' or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/f5/77/952ca71515f81919bd8a6a4a3f89a27b09e73880cebf90957eda8f2f8545/openai-whisper-20240930.tar.gz", hash = "sha256:b7178e9c1615576807a300024f4daa6353f7e1a815dac5e38c33f1ef055dd2d2", size = 800544, upload-time = "2024-09-30T18:21:22.596Z" }
 
@@ -5897,8 +5890,8 @@ name = "opencv-python"
 version = "4.8.1.78"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c0/52/9fe76a56e01078a612812b40764a7b138f528b503f7653996c6cfadfa8ec/opencv-python-4.8.1.78.tar.gz", hash = "sha256:cc7adbbcd1112877a39274106cb2752e04984bc01a031162952e97450d6117f6", size = 92094255, upload-time = "2023-09-28T11:10:40.539Z" }
 wheels = [
@@ -5915,8 +5908,8 @@ name = "opencv-python-headless"
 version = "4.11.0.86"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/36/2f/5b2b3ba52c864848885ba988f24b7f105052f68da9ab0e693cc7c25b0b30/opencv-python-headless-4.11.0.86.tar.gz", hash = "sha256:996eb282ca4b43ec6a3972414de0e2331f5d9cda2b41091a49739c19fb843798", size = 95177929, upload-time = "2025-01-16T13:53:40.22Z" }
 wheels = [
@@ -6040,8 +6033,8 @@ dependencies = [
     { name = "chex" },
     { name = "jax" },
     { name = "jaxlib" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/6d/3b/90c11f740a3538200b61cd2b7d9346959cb9e31e0bdea3d2f886b7262203/optax-0.2.6.tar.gz", hash = "sha256:ba8d1e12678eba2657484d6feeca4fb281b8066bdfd5efbfc0f41b87663109c0", size = 269660, upload-time = "2025-09-15T22:41:24.76Z" }
 wheels = [
@@ -6155,8 +6148,8 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "alembic" },
     { name = "colorlog" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "packaging" },
     { name = "pyyaml" },
     { name = "sqlalchemy" },
@@ -6179,14 +6172,14 @@ dependencies = [
     { name = "jax" },
     { name = "msgpack" },
     { name = "nest-asyncio" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "protobuf" },
     { name = "psutil" },
     { name = "pyyaml" },
     { name = "simplejson" },
-    { name = "tensorstore", version = "0.1.78", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "tensorstore", version = "0.1.80", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "tensorstore", version = "0.1.78", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "tensorstore", version = "0.1.80", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "typing-extensions" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/6c/5f/1733e1143696319f311bc4de48da2e306a1f62f0925f9fe9d797b8ba8abe/orbax_checkpoint-0.11.32.tar.gz", hash = "sha256:523dcf61e93c7187c6b80fd50f3177114c0b957ea62cbb5c869c0b3e3d1a7dfc", size = 431601, upload-time = "2026-01-20T16:46:06.307Z" }
@@ -6301,8 +6294,8 @@ name = "pandas"
 version = "2.2.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "python-dateutil" },
     { name = "pytz" },
     { name = "tzdata" },
@@ -6520,7 +6513,7 @@ name = "portalocker"
 version = "3.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pywin32", marker = "sys_platform == 'win32' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "pywin32", marker = "sys_platform == 'win32' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/5e/77/65b857a69ed876e1951e88aaba60f5ce6120c33703f7cb61a3c894b8c1b6/portalocker-3.2.0.tar.gz", hash = "sha256:1f3002956a54a8c3730586c5c77bf18fae4149e07eaf1c29fc3faf4d5a3f89ac", size = 95644, upload-time = "2025-06-14T13:20:40.03Z" }
 wheels = [
@@ -6972,8 +6965,8 @@ name = "pycocotools"
 version = "2.0.11"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a2/df/32354b5dda963ffdfc8f75c9acf8828ef7890723a4ed57bb3ff2dc1d6f7e/pycocotools-2.0.11.tar.gz", hash = "sha256:34254d76da85576fcaf5c1f3aa9aae16b8cb15418334ba4283b800796bd1993d", size = 25381, upload-time = "2025-12-15T22:31:46.148Z" }
 wheels = [
@@ -7360,12 +7353,12 @@ version = "7.2.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
-    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "exceptiongroup", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "exceptiongroup", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "iniconfig" },
     { name = "packaging" },
     { name = "pluggy" },
-    { name = "tomli", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "tomli", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/b9/29/311895d9cd3f003dd58e8fdea36dd895ba2da5c0c90601836f7de79f76fe/pytest-7.2.2.tar.gz", hash = "sha256:c99ab0c73aceb050f68929bc93af19ab6db0558791c6a0715723abe9d0ade9d4", size = 1320028, upload-time = "2023-03-03T19:12:29.775Z" }
 wheels = [
@@ -7378,7 +7371,7 @@ version = "5.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "requests" },
-    { name = "tzdata", marker = "sys_platform == 'win32' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "tzdata", marker = "sys_platform == 'win32' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ba/ed/251fb5cde1fa70451d51cf7ce7240f1264c403800cfea6e55cf12618a716/pythainlp-5.0.0.tar.gz", hash = "sha256:2d0de856e21b198714e9109a4134e16357c9131daf02b3ec90a6ac7dff27815f", size = 250079, upload-time = "2024-02-10T05:32:11.688Z" }
 wheels = [
@@ -7495,11 +7488,11 @@ name = "pytorch-fid"
 version = "0.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "pillow" },
-    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "torch" },
     { name = "torchvision" },
 ]
@@ -7553,7 +7546,7 @@ resolution-markers = [
     "python_full_version < '3.11' and sys_platform != 'darwin' and sys_platform != 'linux'",
 ]
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/48/45/bfaaab38545a33a9f06c61211fc3bea2e23e8a8e00fedeb8e57feda722ff/pywavelets-1.8.0.tar.gz", hash = "sha256:f3800245754840adc143cbc29534a1b8fc4b8cff6e9d403326bd52b7bb5c35aa", size = 3935274, upload-time = "2024-12-04T19:54:20.593Z" }
 wheels = [
@@ -7619,7 +7612,7 @@ resolution-markers = [
     "python_full_version == '3.11.*' and sys_platform != 'darwin' and sys_platform != 'linux'",
 ]
 dependencies = [
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/5a/75/50581633d199812205ea8cdd0f6d52f12a624886b74bf1486335b67f01ff/pywavelets-1.9.0.tar.gz", hash = "sha256:148d12203377772bea452a59211d98649c8ee4a05eff019a9021853a36babdc8", size = 3938340, upload-time = "2025-08-04T16:20:04.978Z" }
 wheels = [
@@ -7871,7 +7864,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
     { name = "rpds-py" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/22/f5/df4e9027acead3ecc63e50fe1e36aca1523e1719559c499951bb4b53188f/referencing-0.37.0.tar.gz", hash = "sha256:44aefc3142c5b842538163acb373e24cce6632bd54bdb01b21ad5863489f50d8", size = 78036, upload-time = "2025-10-13T15:30:48.871Z" }
 wheels = [
@@ -8059,7 +8052,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "markdown-it-py" },
     { name = "pygments" },
-    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ab/3a/0316b28d0761c6734d6bc14e770d85506c986c85ffb239e688eeaab2c2bc/rich-13.9.4.tar.gz", hash = "sha256:439594978a49a09530cff7ebc4b5c7103ef57baf48d5ea3184f21d9a2befa098", size = 223149, upload-time = "2024-11-01T16:43:57.873Z" }
 wheels = [
@@ -8073,8 +8066,8 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "absl-py" },
     { name = "nltk" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "six" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/e2/c5/9136736c37022a6ad27fea38f3111eb8f02fe75d067f9a985cc358653102/rouge_score-0.1.2.tar.gz", hash = "sha256:c7d4da2683e68c9abf0135ef915d63a46643666f848e558a1b9f7ead17ff0f04", size = 17400, upload-time = "2022-07-22T22:46:22.909Z" }
@@ -8232,8 +8225,8 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "colorama" },
     { name = "lxml" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "portalocker" },
     { name = "regex" },
     { name = "tabulate" },
@@ -8296,14 +8289,14 @@ resolution-markers = [
     "python_full_version < '3.11' and sys_platform != 'darwin' and sys_platform != 'linux'",
 ]
 dependencies = [
-    { name = "imageio", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "lazy-loader", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "networkx", version = "3.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "packaging", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "pillow", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "tifffile", version = "2025.5.10", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "imageio", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "lazy-loader", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "networkx", version = "3.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "packaging", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "pillow", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "tifffile", version = "2025.5.10", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c7/a8/3c0f256012b93dd2cb6fda9245e9f4bff7dc0486880b248005f15ea2255e/scikit_image-0.25.2.tar.gz", hash = "sha256:e5a37e6cd4d0c018a7a55b9d601357e3382826d3888c10d0213fc63bff977dde", size = 22693594, upload-time = "2025-02-18T18:05:24.538Z" }
 wheels = [
@@ -8353,14 +8346,14 @@ resolution-markers = [
     "python_full_version == '3.11.*' and sys_platform != 'darwin' and sys_platform != 'linux'",
 ]
 dependencies = [
-    { name = "imageio", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "lazy-loader", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "networkx", version = "3.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "packaging", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "pillow", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "tifffile", version = "2026.1.14", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "imageio", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "lazy-loader", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "networkx", version = "3.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "packaging", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "pillow", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "tifffile", version = "2026.1.14", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a1/b4/2528bb43c67d48053a7a649a9666432dc307d66ba02e3a6d5c40f46655df/scikit_image-0.26.0.tar.gz", hash = "sha256:f5f970ab04efad85c24714321fcc91613fcb64ef2a892a13167df2f3e59199fa", size = 22729739, upload-time = "2025-12-20T17:12:21.824Z" }
 wheels = [
@@ -8425,10 +8418,10 @@ resolution-markers = [
     "python_full_version < '3.11' and sys_platform != 'darwin' and sys_platform != 'linux'",
 ]
 dependencies = [
-    { name = "joblib", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "threadpoolctl", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "joblib", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "threadpoolctl", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/98/c2/a7855e41c9d285dfe86dc50b250978105dce513d6e459ea66a6aeb0e1e0c/scikit_learn-1.7.2.tar.gz", hash = "sha256:20e9e49ecd130598f1ca38a1d85090e1a600147b9c02fa6f15d69cb53d968fda", size = 7193136, upload-time = "2025-09-09T08:21:29.075Z" }
 wheels = [
@@ -8487,10 +8480,10 @@ resolution-markers = [
     "python_full_version == '3.11.*' and sys_platform != 'darwin' and sys_platform != 'linux'",
 ]
 dependencies = [
-    { name = "joblib", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "threadpoolctl", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "joblib", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "threadpoolctl", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/0e/d4/40988bf3b8e34feec1d0e6a051446b1f66225f8529b9309becaeef62b6c4/scikit_learn-1.8.0.tar.gz", hash = "sha256:9bccbb3b40e3de10351f8f5068e105d0f4083b1a65fa07b6634fbc401a6287fd", size = 7335585, upload-time = "2025-12-10T07:08:53.618Z" }
 wheels = [
@@ -8543,7 +8536,7 @@ resolution-markers = [
     "python_full_version < '3.11' and sys_platform != 'darwin' and sys_platform != 'linux'",
 ]
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/0f/37/6964b830433e654ec7485e45a00fc9a27cf868d622838f6b6d9c5ec0d532/scipy-1.15.3.tar.gz", hash = "sha256:eae3cf522bc7df64b42cad3925c876e1b0b6c35c1337c93e12c0f366f55b0eaf", size = 59419214, upload-time = "2025-05-08T16:13:05.955Z" }
 wheels = [
@@ -8617,7 +8610,7 @@ resolution-markers = [
     "python_full_version == '3.11.*' and sys_platform != 'darwin' and sys_platform != 'linux'",
 ]
 dependencies = [
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/56/3e/9cca699f3486ce6bc12ff46dc2031f1ec8eb9ccc9a320fdaf925f1417426/scipy-1.17.0.tar.gz", hash = "sha256:2591060c8e648d8b96439e111ac41fd8342fdeff1876be2e19dea3fe8930454e", size = 30396830, upload-time = "2026-01-10T21:34:23.009Z" }
 wheels = [
@@ -8689,8 +8682,8 @@ version = "0.13.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "matplotlib" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "pandas" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/86/59/a451d7420a77ab0b98f7affa3a1d78a313d2f7281a57afb1a34bae8ab412/seaborn-0.13.2.tar.gz", hash = "sha256:93e60a40988f4d65e9f4885df477e2fdaff6b73a9ded434c1ab356dd57eefff7", size = 1457696, upload-time = "2024-01-25T13:21:52.551Z" }
@@ -8722,10 +8715,10 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "huggingface-hub" },
     { name = "pillow" },
-    { name = "scikit-learn", version = "1.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scikit-learn", version = "1.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "scikit-learn", version = "1.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scikit-learn", version = "1.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "torch" },
     { name = "tqdm" },
     { name = "transformers" },
@@ -8937,8 +8930,8 @@ dependencies = [
     { name = "glom" },
     { name = "jinja2" },
     { name = "necessary" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "platformdirs" },
     { name = "trouting" },
 ]
@@ -8986,8 +8979,8 @@ version = "0.13.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cffi" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/e1/41/9b873a8c055582859b239be17902a85339bec6a30ad162f98c9b0288a2cc/soundfile-0.13.1.tar.gz", hash = "sha256:b2c68dab1e30297317080a5b43df57e302584c49e2942defdde0acccc53f0e5b", size = 46156, upload-time = "2025-01-25T09:17:04.831Z" }
 wheels = [
@@ -9014,8 +9007,8 @@ name = "soxr"
 version = "1.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/42/7e/f4b461944662ad75036df65277d6130f9411002bfb79e9df7dff40a31db9/soxr-1.0.0.tar.gz", hash = "sha256:e07ee6c1d659bc6957034f4800c60cb8b98de798823e34d2a2bba1caa85a4509", size = 171415, upload-time = "2025-09-07T13:22:21.317Z" }
 wheels = [
@@ -9050,8 +9043,8 @@ dependencies = [
     { name = "cymem" },
     { name = "jinja2" },
     { name = "murmurhash" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "packaging" },
     { name = "preshed" },
     { name = "pydantic" },
@@ -9132,7 +9125,7 @@ name = "sqlalchemy"
 version = "2.0.45"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "greenlet", marker = "platform_machine == 'AMD64' or platform_machine == 'WIN32' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'ppc64le' or platform_machine == 'win32' or platform_machine == 'x86_64' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "greenlet", marker = "platform_machine == 'AMD64' or platform_machine == 'WIN32' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'ppc64le' or platform_machine == 'win32' or platform_machine == 'x86_64' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "typing-extensions" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/be/f9/5e4491e5ccf42f5d9cfc663741d261b3e6e1683ae7812114e7636409fcc6/sqlalchemy-2.0.45.tar.gz", hash = "sha256:1632a4bda8d2d25703fdad6363058d882541bdaaee0e5e3ddfa0cd3229efce88", size = 9869912, upload-time = "2025-12-09T21:05:16.737Z" }
@@ -9240,8 +9233,8 @@ name = "standard-aifc"
 version = "3.13.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "audioop-lts", marker = "python_full_version >= '3.13' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "standard-chunk", marker = "python_full_version >= '3.13' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "audioop-lts", marker = "python_full_version >= '3.13' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "standard-chunk", marker = "python_full_version >= '3.13' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c4/53/6050dc3dde1671eb3db592c13b55a8005e5040131f7509cef0215212cb84/standard_aifc-3.13.0.tar.gz", hash = "sha256:64e249c7cb4b3daf2fdba4e95721f811bde8bdfc43ad9f936589b7bb2fae2e43", size = 15240, upload-time = "2024-10-30T16:01:31.772Z" }
 wheels = [
@@ -9262,7 +9255,7 @@ name = "standard-sunau"
 version = "3.13.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "audioop-lts", marker = "python_full_version >= '3.13' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "audioop-lts", marker = "python_full_version >= '3.13' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/66/e3/ce8d38cb2d70e05ffeddc28bb09bad77cfef979eb0a299c9117f7ed4e6a9/standard_sunau-3.13.0.tar.gz", hash = "sha256:b319a1ac95a09a2378a8442f403c66f4fd4b36616d6df6ae82b8e536ee790908", size = 9368, upload-time = "2024-10-30T16:01:41.626Z" }
 wheels = [
@@ -9275,7 +9268,7 @@ version = "0.48.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a7/a5/d6f429d43394057b67a6b5bbe6eae2f77a6bf7459d961fdb224bf206eee6/starlette-0.48.0.tar.gz", hash = "sha256:7e8cee469a8ab2352911528110ce9088fdc6a37d9876926e73da7ce4aa4c7a46", size = 2652949, upload-time = "2025-09-13T08:41:05.699Z" }
 wheels = [
@@ -9338,8 +9331,8 @@ dependencies = [
     { name = "absl-py" },
     { name = "grpcio" },
     { name = "markdown" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "packaging" },
     { name = "pillow" },
     { name = "protobuf" },
@@ -9373,12 +9366,12 @@ dependencies = [
     { name = "google-pasta" },
     { name = "grpcio" },
     { name = "h5py" },
-    { name = "keras", version = "3.12.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "keras", version = "3.13.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "keras", version = "3.12.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "keras", version = "3.13.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "libclang" },
     { name = "ml-dtypes" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "opt-einsum" },
     { name = "packaging" },
     { name = "protobuf" },
@@ -9420,8 +9413,8 @@ resolution-markers = [
     "python_full_version < '3.11' and sys_platform != 'darwin' and sys_platform != 'linux'",
 ]
 dependencies = [
-    { name = "ml-dtypes", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "ml-dtypes", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9f/ee/05eb424437f4db63331c90e4605025eedc0f71da3faff97161d5d7b405af/tensorstore-0.1.78.tar.gz", hash = "sha256:e26074ffe462394cf54197eb76d6569b500f347573cd74da3f4dd5f510a4ad7c", size = 6913502, upload-time = "2025-10-06T17:44:29.649Z" }
 wheels = [
@@ -9470,8 +9463,8 @@ resolution-markers = [
     "python_full_version == '3.11.*' and sys_platform != 'darwin' and sys_platform != 'linux'",
 ]
 dependencies = [
-    { name = "ml-dtypes", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "ml-dtypes", marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/88/18/7b91daa9cf29dbb6bfdd603154f355c9069a9cd8c757038fe52b0f613611/tensorstore-0.1.80.tar.gz", hash = "sha256:4158fe76b96f62d12a37d7868150d836e089b5280b2bdd363c43c5d651f10e26", size = 7090032, upload-time = "2025-12-10T21:35:10.941Z" }
 wheels = [
@@ -9520,8 +9513,8 @@ dependencies = [
     { name = "confection" },
     { name = "cymem" },
     { name = "murmurhash" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "packaging" },
     { name = "preshed" },
     { name = "pydantic" },
@@ -9592,7 +9585,7 @@ resolution-markers = [
     "python_full_version < '3.11' and sys_platform != 'darwin' and sys_platform != 'linux'",
 ]
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/44/d0/18fed0fc0916578a4463f775b0fbd9c5fed2392152d039df2fb533bfdd5d/tifffile-2025.5.10.tar.gz", hash = "sha256:018335d34283aa3fd8c263bae5c3c2b661ebc45548fde31504016fcae7bf1103", size = 365290, upload-time = "2025-05-10T19:22:34.386Z" }
 wheels = [
@@ -9622,7 +9615,7 @@ resolution-markers = [
     "python_full_version == '3.11.*' and sys_platform != 'darwin' and sys_platform != 'linux'",
 ]
 dependencies = [
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/5d/19/a41ab0dc1b314da952d99957289944c3b8b76021399c72693e4c1fddc6c3/tifffile-2026.1.14.tar.gz", hash = "sha256:a423c583e1eecd9ca255642d47f463efa8d7f2365a0e110eb0167570493e0c8c", size = 373639, upload-time = "2026-01-14T22:40:43.551Z" }
 wheels = [
@@ -9714,8 +9707,8 @@ dependencies = [
     { name = "click" },
     { name = "eval-type-backport" },
     { name = "filelock" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "pillow" },
     { name = "pydantic" },
     { name = "requests" },
@@ -9834,26 +9827,26 @@ dependencies = [
     { name = "filelock" },
     { name = "fsspec" },
     { name = "jinja2" },
-    { name = "networkx", version = "3.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "networkx", version = "3.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "nvidia-cublas-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "nvidia-cuda-cupti-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "nvidia-cuda-nvrtc-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "nvidia-cuda-runtime-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "nvidia-cudnn-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "nvidia-cufft-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "nvidia-cufile-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "nvidia-curand-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "nvidia-cusolver-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "nvidia-cusparse-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "nvidia-cusparselt-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "nvidia-nccl-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "nvidia-nvshmem-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "nvidia-nvtx-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "setuptools", marker = "python_full_version >= '3.12' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "networkx", version = "3.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "networkx", version = "3.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "nvidia-cublas-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-ibm' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "nvidia-cuda-cupti-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-ibm' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "nvidia-cuda-nvrtc-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-ibm' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "nvidia-cuda-runtime-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-ibm' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "nvidia-cudnn-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-ibm' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "nvidia-cufft-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-ibm' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "nvidia-cufile-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-ibm' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "nvidia-curand-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-ibm' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "nvidia-cusolver-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-ibm' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "nvidia-cusparse-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-ibm' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "nvidia-cusparselt-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-ibm' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "nvidia-nccl-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-ibm' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-ibm' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "nvidia-nvshmem-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-ibm' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "nvidia-nvtx-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-ibm' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "setuptools", marker = "python_full_version >= '3.12' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "sympy" },
-    { name = "triton", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "triton", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (platform_machine != 'x86_64' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-ibm' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-summarization')" },
     { name = "typing-extensions" },
 ]
 wheels = [
@@ -9892,11 +9885,11 @@ name = "torch-fidelity"
 version = "0.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "pillow" },
-    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "torch" },
     { name = "torchvision" },
     { name = "tqdm" },
@@ -9911,8 +9904,8 @@ name = "torchmetrics"
 version = "0.11.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "packaging" },
     { name = "torch" },
 ]
@@ -9926,8 +9919,8 @@ name = "torchvision"
 version = "0.24.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "pillow" },
     { name = "torch" },
 ]
@@ -9967,7 +9960,7 @@ name = "tqdm"
 version = "4.67.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a8/4b/29b4ef32e036bb34e4ab51796dd745cdba7ed47ad142a9f4a1eb8e0c744d/tqdm-4.67.1.tar.gz", hash = "sha256:f8aef9c52c08c13a65f30ea34f4e5aac3fd1a34959879d7e59e63027286627f2", size = 169737, upload-time = "2024-11-24T20:12:22.481Z" }
 wheels = [
@@ -9981,8 +9974,8 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "filelock" },
     { name = "huggingface-hub" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "packaging" },
     { name = "pyyaml" },
     { name = "regex" },
@@ -10010,8 +10003,8 @@ name = "treescope"
 version = "0.1.10"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/f0/2a/d13d3c38862632742d2fe2f7ae307c431db06538fd05ca03020d207b5dcc/treescope-0.1.10.tar.gz", hash = "sha256:20f74656f34ab2d8716715013e8163a0da79bdc2554c16d5023172c50d27ea95", size = 138870, upload-time = "2025-08-08T05:43:48.048Z" }
 wheels = [
@@ -10024,8 +10017,8 @@ version = "0.32.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
-    { name = "cffi", marker = "(implementation_name != 'pypy' and os_name == 'nt' and sys_platform != 'darwin' and sys_platform != 'linux') or (implementation_name == 'pypy' and sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (os_name != 'nt' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform == 'darwin' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform == 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "exceptiongroup", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "cffi", marker = "(implementation_name != 'pypy' and os_name == 'nt' and sys_platform != 'darwin' and sys_platform != 'linux') or (implementation_name == 'pypy' and sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (implementation_name == 'pypy' and sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (os_name != 'nt' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (os_name != 'nt' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-ibm' and extra == 'extra-9-crfm-helm-summarization') or (os_name != 'nt' and extra == 'extra-9-crfm-helm-all' and extra != 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform == 'darwin' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform == 'darwin' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm') or (sys_platform == 'linux' and extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (sys_platform == 'linux' and extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "exceptiongroup", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "idna" },
     { name = "outcome" },
     { name = "sniffio" },
@@ -10041,7 +10034,7 @@ name = "trio-websocket"
 version = "0.12.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "exceptiongroup", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "exceptiongroup", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "outcome" },
     { name = "trio" },
     { name = "wsproto" },
@@ -10229,7 +10222,7 @@ name = "tzlocal"
 version = "5.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "tzdata", marker = "sys_platform == 'win32' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "tzdata", marker = "sys_platform == 'win32' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/8b/2e/c14812d3d4d9cd1773c6be938f89e5735a1f11a9f184ac3639b93cef35d5/tzlocal-5.3.1.tar.gz", hash = "sha256:cceffc7edecefea1f595541dbd6e990cb1ea3d19bf01b2809f362a03dd7921fd", size = 30761, upload-time = "2025-03-05T21:17:41.549Z" }
 wheels = [
@@ -10241,11 +10234,11 @@ name = "uncertainty-calibration"
 version = "0.1.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
     { name = "parameterized" },
-    { name = "scikit-learn", version = "1.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
-    { name = "scikit-learn", version = "1.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "scikit-learn", version = "1.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
+    { name = "scikit-learn", version = "1.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/28/7a/a9b8f063fca2b3d339bd10d38363d58983e8c79095b81c4c87f3a124e211/uncertainty-calibration-0.1.4.tar.gz", hash = "sha256:e99baf2f2ced29b852eb47c25852e4bcc3fff183befef6c35cc239165c6e2634", size = 15949, upload-time = "2022-11-11T20:52:04.295Z" }
 
@@ -10289,7 +10282,7 @@ dependencies = [
     { name = "distlib" },
     { name = "filelock" },
     { name = "platformdirs" },
-    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/aa/a3/4d310fa5f00863544e1d0f4de93bddec248499ccf97d4791bc3122c9d4f3/virtualenv-20.36.1.tar.gz", hash = "sha256:8befb5c81842c641f8ee658481e42641c68b5eab3521d8e092d18320902466ba", size = 6032239, upload-time = "2026-01-09T18:21:01.296Z" }
 wheels = [
@@ -10330,7 +10323,7 @@ name = "wasabi"
 version = "1.1.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ac/f9/054e6e2f1071e963b5e746b48d1e3727470b2a490834d18ad92364929db3/wasabi-1.1.3.tar.gz", hash = "sha256:4bb3008f003809db0c3e28b4daf20906ea871a2bb43f9914197d540f4f2e0878", size = 30391, upload-time = "2024-05-31T16:56:18.99Z" }
 wheels = [
@@ -10866,7 +10859,7 @@ name = "zstandard"
 version = "0.18.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cffi", marker = "platform_python_implementation == 'PyPy' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization')" },
+    { name = "cffi", marker = "platform_python_implementation == 'PyPy' or (extra == 'extra-9-crfm-helm-all' and extra == 'extra-9-crfm-helm-summarization') or (extra == 'extra-9-crfm-helm-human-evaluation' and extra == 'extra-9-crfm-helm-ibm')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a7/b7/0fe8fb6390309f29a3a76c439dd08a73c05473bbaafa7117596ded319f84/zstandard-0.18.0.tar.gz", hash = "sha256:0ac0357a0d985b4ff31a854744040d7b5754385d1f98f7145c30e02c6865cb6f", size = 631544, upload-time = "2022-06-21T17:23:58.489Z" }
 wheels = [
