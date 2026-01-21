@@ -50,7 +50,7 @@ dependencies = [
     "scikit-learn>=1.1",
     # Models and Metrics Extras
     # TODO(#3731): Remove the bounds on transformers version after #3731 is resolved.
-    "transformers~=4.53" # For anthropic_client, vision_language.huggingface_vlm_client, huggingface_client, huggingface_tokenizer, test_openai_token_cost_estimator, model_summac (via summarization_metrics)
+    "transformers~=4.53", # For anthropic_client, vision_language.huggingface_vlm_client, huggingface_client, huggingface_tokenizer, test_openai_token_cost_estimator, model_summac (via summarization_metrics)
     # TODO: Upgrade torch - we need > 2.0.0 for newer versions of transformers
     "torch>=1.13.1,<3.0.0", # For huggingface_client, yalm_tokenizer, model_summac (via summarization_metrics)
     "torchvision>=0.14.1,<3.0.0", # For huggingface_client, yalm_tokenizer, model_summac (via summarization_metrics)
