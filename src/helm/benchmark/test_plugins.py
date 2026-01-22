@@ -34,18 +34,24 @@ def test_load_entry_point_plugins_handles_failures(tmp_path, monkeypatch, caplog
 
     dist_info = plugin_dir / "entrypoint-0.0.0.dist-info"
     dist_info.mkdir()
-    (dist_info / "METADATA").write_text(dedent(
-        """
+    (dist_info / "METADATA").write_text(
+        dedent(
+            """
         Metadata-Version: 2.1
         Name: entrypoint
         Version: 0.0.0
-        """))
-    (dist_info / "entry_points.txt").write_text(dedent(
         """
+        )
+    )
+    (dist_info / "entry_points.txt").write_text(
+        dedent(
+            """
         [helm_test]
         good = good_plugin:FLAG
         bad = bad_plugin:FLAG
-        """))
+        """
+        )
+    )
 
     monkeypatch.syspath_prepend(str(plugin_dir))
     importlib.invalidate_caches()
@@ -66,8 +72,9 @@ def test_import_user_plugins_supports_namespace_packages(tmp_path, monkeypatch):
     (plugin_root / "helm" / "benchmark" / "__init__.py").write_text("")
     (run_specs_dir / "__init__.py").write_text("")
 
-    (run_specs_dir / "custom.py").write_text(dedent(
-        """
+    (run_specs_dir / "custom.py").write_text(
+        dedent(
+            """
         from helm.benchmark.adaptation.adapter_spec import AdapterSpec
         from helm.benchmark.metrics.metric import MetricSpec
         from helm.benchmark.run_spec import RunSpec, run_spec_function
@@ -82,7 +89,9 @@ def test_import_user_plugins_supports_namespace_packages(tmp_path, monkeypatch):
                 adapter_spec=AdapterSpec(model="dummy"),
                 metric_specs=[MetricSpec(class_name="helm.benchmark.metrics.metric.Metric")],
             )
-        """))
+        """
+        )
+    )
 
     import helm
     import helm.benchmark
@@ -108,8 +117,9 @@ def test_import_user_plugins_supports_namespace_packages(tmp_path, monkeypatch):
 def test_import_user_plugins_supports_object_spec_plugins(tmp_path, monkeypatch):
     module_name = "custom_component_plugin"
     module_file = tmp_path / f"{module_name}.py"
-    module_file.write_text(dedent(
-        """
+    module_file.write_text(
+        dedent(
+            """
         from typing import List
 
         from helm.benchmark.adaptation.adapter_spec import AdapterSpec
@@ -180,7 +190,9 @@ def test_import_user_plugins_supports_object_spec_plugins(tmp_path, monkeypatch)
 
             def decode(self, request: DecodeRequest) -> DecodeRequestResult:
                 return DecodeRequestResult(success=True, cached=False, text="".join(map(str, request.tokens)))
-        """))
+        """
+        )
+    )
 
     monkeypatch.syspath_prepend(tmp_path)
 

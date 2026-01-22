@@ -139,7 +139,7 @@ def load_entry_point_plugins(group: str = "helm") -> List:
 
     modules = []
     eps = entry_points()
-    selected = eps.select(group=group) if hasattr(eps, "select") else eps.get(group, [])
+    selected = eps.select(group=group)
     for ep in selected:
         try:
             hdebug(f"Loading plugin entry point {ep.name!r} -> {ep.value!r}")
