@@ -131,7 +131,7 @@ class Qwen3Client(CachingClient):
                 "max_new_tokens": request.max_tokens,
             }
             if self.is_distilled_model(request.model_engine):
-                cache_key_values["date"] = "1-20-2026"
+                cache_key_values["date"] = "1-21-2026"
 
             cache_key = CachingClient.make_cache_key(cache_key_values, request)
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
