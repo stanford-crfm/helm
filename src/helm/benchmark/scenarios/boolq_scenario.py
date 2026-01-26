@@ -146,15 +146,9 @@ class BoolQScenario(Scenario):
         instances: List[Instance] = []
         split_to_filename: Dict[str, str] = {TRAIN_SPLIT: "train", VALID_SPLIT: "dev"}
 
-        # NOTE: As of 2026-01-15, the google storage URL no longer works. We
-        # are now pointing at an IPFS mirror, which has advantages but also
-        # relies on peers hosting the dataset. A better solution may be to use
-        # the huggingface version of the dataset, and use IPFS as a fallback.
-        # For now we just use the IPFS url as a simple fix.  For details see:
-        # https://github.com/stanford-crfm/helm/issues/4019
-
-        # base_url = "https://storage.googleapis.com/boolq"
-        base_url = "https://ipfs.io/ipfs/bafybeido2w4vlhmnzj5hyzimaviby7bozsipgrkcf4unkkf5me4tivunwq"
+        # base_url = "https://storage.googleapis.com/boolq"  # Original URL is broken as of 2026-01-15
+        # base_url = "https://ipfs.io/ipfs/bafybeido2w4vlhmnzj5hyzimaviby7bozsipgrkcf4unkkf5me4tivunwq"  # IPFS URL could be used as a fallback
+        base_url = "https://huggingface.co/datasets/stanford-crfm/helm-scenarios/resolve/main/boolq"
 
         # First, ensure all splits are downloaded
         for split, filename in split_to_filename.items():
