@@ -88,7 +88,11 @@ class SummarizationMetric(Metric):
             # Need GPU for faithfulness metrics since they are model-based.
             self.compute_faithfulness = True
             self.summac = SummaCZS(
-                granularity="sentence", model_name="vitc", imager_load_cache=False, device=device, new_line_split=summac_new_line_split
+                granularity="sentence",
+                model_name="vitc",
+                imager_load_cache=False,
+                device=device,
+                new_line_split=summac_new_line_split,
             )
 
     def _load_qafacteval(self, eval_cache_path: str):

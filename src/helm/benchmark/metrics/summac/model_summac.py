@@ -55,7 +55,7 @@ class SummaCImager:
         max_doc_sents=100,
         device="cuda",
         new_line_split: bool = False,
-        **kwargs
+        **kwargs,
     ):
         self.grans = granularity.split("-")
 
@@ -425,8 +425,7 @@ class SummaCZS:
         use_con=True,
         imager_load_cache=True,
         device="cuda",
-        new_line_split: bool = False
-        **kwargs,
+        new_line_split: bool = False**kwargs,
     ):
         assert op2 in ["min", "mean", "max"], "Unrecognized `op2`"
         assert op1 in ["max", "mean", "min"], "Unrecognized `op1`"
