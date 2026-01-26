@@ -54,6 +54,7 @@ class SummarizationMetric(Metric):
         device: str = "cpu",
         bertscore_model: str = "microsoft/deberta-large-mnli",
         rescale_with_baseline: bool = True,
+        summac_new_line_split: bool = False,
     ):
         self.rouge_fns = {
             "rouge_1": get_rouge_function("rouge1"),
@@ -86,7 +87,9 @@ class SummarizationMetric(Metric):
             )
             # Need GPU for faithfulness metrics since they are model-based.
             self.compute_faithfulness = True
-            self.summac = SummaCZS(granularity="sentence", model_name="vitc", imager_load_cache=False, device=device)
+            self.summac = SummaCZS(
+                granularity="sentence", model_name="vitc", imager_load_cache=False, device=device, new_line_split=summac_new_line_split
+            )
 
     def _load_qafacteval(self, eval_cache_path: str):
         target_path: str = os.path.join(eval_cache_path, "qafacteval.pk")
