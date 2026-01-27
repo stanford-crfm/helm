@@ -44,7 +44,7 @@ export default function MedHELMLanding() {
           <div className="flex flex-row justify-center mt-4">
             <a
               className="px-10 btn rounded-md mx-4"
-              href="https://arxiv.org/abs/2505.23802"
+              href="https://www.nature.com/articles/s41591-025-04151-2"
             >
               Paper
             </a>
