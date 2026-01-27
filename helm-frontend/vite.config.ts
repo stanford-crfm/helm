@@ -39,9 +39,9 @@ export default () => {
         output: {
           // Manually chunk large libraries to keep chunk size under 500 KB
           manualChunks: {
-            react: ["react", "react-dom", "react-markdown", "react-router-dom", "react-spinners"],
+            react: ["react", "react-dom", "react-router-dom", "react-spinners", "recharts"],
             tremor: ["@tremor/react"],
-            recharts: ["recharts"],
+            "react-markdown": ["react-markdown"],
           }
         }
       }
