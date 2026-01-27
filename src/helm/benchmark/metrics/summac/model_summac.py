@@ -48,7 +48,14 @@ def get_neutral_idx(ent_idx, con_idx):
 
 class SummaCImager:
     def __init__(
-        self, model_name="mnli", granularity="paragraph", use_cache=True, max_doc_sents=100, device="cuda", **kwargs
+        self,
+        model_name="mnli",
+        granularity="paragraph",
+        use_cache=True,
+        max_doc_sents=100,
+        device="cuda",
+        new_line_split=False,
+        **kwargs,
     ):
         self.grans = granularity.split("-")
 
@@ -74,6 +81,7 @@ class SummaCImager:
         self.device = device
         self.cache = {}
         self.model = None  # Lazy loader
+        self.new_line_split = new_line_split
 
     def load_nli(self):
         if self.model_name == "decomp":
@@ -90,8 +98,20 @@ class SummaCImager:
             self.model.to(self.device).half()
 
     def split_sentences(self, text):
-        sentences = nltk.tokenize.sent_tokenize(text)
-        sentences = [sent for sent in sentences if len(sent) > 10]
+        lines = text.split("\n")
+        if self.new_line_split:
+            sentences = []
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                for sentence in nltk.tokenize.sent_tokenize(line):
+                    sentence = sentence.strip()
+                    if len(sentence) > 10:
+                        sentences.append(sentence)
+        else:
+            sentences = nltk.tokenize.sent_tokenize(text)
+            sentences = [sent for sent in sentences if len(sent) > 10]
         return sentences
 
     def split_2sents(self, text):
@@ -405,12 +425,15 @@ class SummaCZS:
         use_con=True,
         imager_load_cache=True,
         device="cuda",
+        new_line_split=False,
         **kwargs,
     ):
         assert op2 in ["min", "mean", "max"], "Unrecognized `op2`"
         assert op1 in ["max", "mean", "min"], "Unrecognized `op1`"
 
-        self.imager = SummaCImager(model_name=model_name, granularity=granularity, device=device, **kwargs)
+        self.imager = SummaCImager(
+            model_name=model_name, granularity=granularity, device=device, new_line_split=new_line_split, **kwargs
+        )
         if imager_load_cache:
             self.imager.load_cache()
         self.op2 = op2

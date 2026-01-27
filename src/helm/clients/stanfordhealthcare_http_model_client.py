@@ -8,6 +8,7 @@ from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import hexception
 from helm.common.request import (
     wrap_request_time,
+    ErrorFlags,
     Request,
     RequestResult,
     GeneratedOutput,
@@ -84,7 +85,14 @@ class StanfordHealthCareHTTPModelClient(CachingClient, ABC):
             )
         except requests.exceptions.RequestException as e:
             hexception(e)
-            return RequestResult(success=False, cached=False, error=f"Request error: {e}", completions=[], embedding=[])
+            return RequestResult(
+                success=False,
+                cached=False,
+                error=f"Request error: {e}, Raw Request: {raw_request}",
+                completions=[],
+                embedding=[],
+                error_flags=ErrorFlags(is_retriable=True, is_fatal=False),
+            )
 
     @abstractmethod
     def get_request(self, request: Request) -> Dict[str, Any]:
