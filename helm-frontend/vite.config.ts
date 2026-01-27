@@ -35,11 +35,13 @@ export default () => {
       environment: "jsdom",
     },
     build: {
+      chunkSizeWarningLimit: 600,
       rollupOptions: {
         output: {
-          // Manually chunk large libraries to keep chunk size under 500 KB
+          // Manually chunk large libraries to keep chunk size under 600 KB
           manualChunks: {
-            react: ["react", "react-dom", "react-router-dom", "react-spinners", "recharts"],
+            react: ["react", "react-dom", "react-router-dom", "react-spinners"],
+            recharts: ["recharts"],
             tremor: ["@tremor/react"],
             "react-markdown": ["react-markdown"],
           }
