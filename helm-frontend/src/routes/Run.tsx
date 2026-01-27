@@ -80,8 +80,8 @@ export default function Run() {
       );
 
       setRunGroup(
-        schema.run_groups.find(
-          (runGroup) => runSpecResp?.groups.includes(runGroup.name),
+        schema.run_groups.find((runGroup) =>
+          runSpecResp?.groups.includes(runGroup.name),
         ),
       );
 
