@@ -2,6 +2,43 @@
 
 ## [Upcoming]
 
+## [v0.5.12] - 2026-01-27
+
+### Models
+
+- Add Kimi K2 Instruct 0905 (#3955)
+- Add DeepSeek v3.1 (#3956)
+- Add Cohere Labs Command A (#3957)
+- Allow using Together models without configuration (#3980)
+- Allow using LiteLLM models without configuration (#3981, #3982)
+- Allow using Hugging Face Hub models without configuration (#3983)
+- Remove tokenizer from OpenAIResponseClient (#4020)
+
+### Scenarios
+
+- Update schema, model metadata and scenario metadata for HELM Arabic (#3959)
+- Set subject to all by default for MMLU-Pro (#3975)
+- Add missing language entry for MMLU-Winogrande-Afr (#3973)
+- Fix scenario description in ThaiExam (#3972)
+- Support newer versions of MedCalc-Bench (#3921)
+- Fix broken BoolQ file download URLs (#4039)
+
+### Framework
+
+- Allow omitting the tokenizer and disabling request truncation (#3974)
+- Support plugins that use `--plugin` or `project.entry-points.helm` (#3916)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @chakravarthik27
+- @Erotemic
+- @frogcat
+- @MiguelAFH
+- @teetone
+- @yifanmai
+
 ## [v0.5.11] - 2025-12-04
 
 ### Breaking Changes
@@ -1245,7 +1282,8 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.11...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.12...HEAD
+[v0.5.12]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.12
 [v0.5.11]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.11
 [v0.5.10]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.10
 [v0.5.9]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.9
