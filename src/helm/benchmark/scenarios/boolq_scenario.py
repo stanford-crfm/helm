@@ -146,9 +146,13 @@ class BoolQScenario(Scenario):
         instances: List[Instance] = []
         split_to_filename: Dict[str, str] = {TRAIN_SPLIT: "train", VALID_SPLIT: "dev"}
 
+        # base_url = "https://storage.googleapis.com/boolq"  # Original URL is broken as of 2026-01-15
+        # base_url = "https://ipfs.io/ipfs/bafybeido2w4vlhmnzj5hyzimaviby7bozsipgrkcf4unkkf5me4tivunwq"  # IPFS URL could be used as a fallback
+        base_url = "https://huggingface.co/datasets/stanford-crfm/helm-scenarios/resolve/main/boolq"
+
         # First, ensure all splits are downloaded
         for split, filename in split_to_filename.items():
-            url: str = f"https://storage.googleapis.com/boolq/{filename}.jsonl"
+            url: str = f"{base_url}/{filename}.jsonl"
             target_path: str = os.path.join(data_path, filename)
             ensure_file_downloaded(source_url=url, target_path=target_path, unpack=False)
 
