@@ -114,11 +114,8 @@ def export_website(export_path: str) -> None:
 
     shutil.copytree(app.config["helm.staticpath"], export_path)
 
-    config_contents = serve_config()
-    config_export_path = os.path.join(export_path, "config.js")
-
-    with open(config_export_path, "w") as f:
-        f.write(config_contents)
+    with open(os.path.join(export_path, "config.js"), "w") as f:
+        f.write(serve_config())
 
     benchmark_output_export_path = os.path.join(export_path, "benchmark_output")
     ensure_directory_exists(benchmark_output_export_path)
@@ -143,7 +140,6 @@ def export_website(export_path: str) -> None:
         shutil.copytree(suite_path, suite_export_path)
 
     if app.config["helm.release"]:
-
         release_path = os.path.join(releases_path, app.config["helm.release"])
         release_export_path = os.path.join(releases_export_path, app.config["helm.release"])
         shutil.copytree(release_path, release_export_path)
