@@ -8,6 +8,7 @@ from importlib import resources
 import json
 import os
 from os import path
+import shutil
 from typing import List, Optional, Tuple
 import urllib
 
@@ -15,7 +16,7 @@ from bottle import Bottle, static_file, HTTPResponse, response
 import yaml
 
 from helm.benchmark.presentation.schema import SCHEMA_CLASSIC_YAML_FILENAME
-from helm.common.general import serialize_dates
+from helm.common.general import ensure_directory_exists, serialize_dates
 
 
 app = Bottle()
@@ -104,6 +105,50 @@ def _get_latest_summary(runs_or_releases_path: str) -> Optional[Tuple[str, float
     return (latest_modified_and_name[1], latest_modified_and_name[0])
 
 
+def export_website(export_path: str) -> None:
+    if os.path.exists(export_path):
+        if os.path.isdir(export_path) and not os.listdir(export_path):
+            os.rmdir(export_path)
+        else:
+            raise Exception(f"Output path {export_path} already exists")
+
+    shutil.copytree(app.config["helm.staticpath"], export_path)
+
+    config_contents = serve_config()
+    config_export_path = os.path.join(export_path, "config.js")
+
+    with open(config_export_path, "w") as f:
+        f.write(config_contents)
+
+    benchmark_output_export_path = os.path.join(export_path, "benchmark_output")
+    ensure_directory_exists(benchmark_output_export_path)
+
+    runs_path = os.path.join(app.config["helm.outputpath"], "runs")
+    runs_export_path = os.path.join(benchmark_output_export_path, "runs")
+
+    releases_path = os.path.join(app.config["helm.outputpath"], "releases")
+    releases_export_path = os.path.join(benchmark_output_export_path, "releases")
+
+    suites = []
+    if app.config["helm.suite"]:
+        suites = [app.config["helm.suite"]]
+    elif app.config["helm.release"]:
+        release_summary_path = os.path.join(releases_path, app.config["helm.release"], "summary.json")
+        with open(release_summary_path, "r") as f:
+            suites = json.load(f)["suites"]
+
+    for suite in suites:
+        suite_path = os.path.join(runs_path, suite)
+        suite_export_path = os.path.join(runs_export_path, suite)
+        shutil.copytree(suite_path, suite_export_path)
+
+    if app.config["helm.release"]:
+
+        release_path = os.path.join(releases_path, app.config["helm.release"])
+        release_export_path = os.path.join(releases_export_path, app.config["helm.release"])
+        shutil.copytree(release_path, release_export_path)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--port", type=int, help="What port to listen on", default=8000)
@@ -138,6 +183,12 @@ def main():
         type=str,
         default=None,
         help="Experimental: The name of the project to display on the landing page.",
+    )
+    parser.add_argument(
+        "--export-path",
+        type=str,
+        default=None,
+        help="Export to the location as a static website.",
     )
     args = parser.parse_args()
 
@@ -200,6 +251,14 @@ def main():
         print(f"Serving suite '{app.config['helm.suite']}'")
     if app.config["helm.release"]:
         print(f"Serving release '{app.config['helm.release']}'")
+
+    if args.export_path:
+        print(f"Exporting static website to '{args.export_path}'...")
+        export_website(args.export_path)
+        print(f"Exported static website to '{args.export_path}'")
+        print(f"To deploy your website, upload the '{args.export_path}' directory to your web server")
+        print(f"To preview your website, run `python -m http.server -d '{args.export_path}'`")
+        return
 
     print(f"After the web server has started, go to http://localhost:{args.port} to view your website.\n")
     app.run(host="0.0.0.0", port=args.port)
