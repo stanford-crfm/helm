@@ -56,6 +56,9 @@ from helm.benchmark.presentation.schema import (
     BY_GROUP,
     THIS_GROUP_ONLY,
     NO_GROUPS,
+    validate_schema,
+    SchemaValidationError,
+    ValidationSeverity,
 )
 from helm.benchmark.config_registry import register_builtin_configs_from_helm_package, register_configs_from_directory
 from helm.benchmark.presentation.run_display import write_run_display_json
@@ -354,6 +357,7 @@ class Summarizer:
         verbose: bool,
         num_threads: int,
         allow_unknown_models: bool,
+        schema_validation: str = "warn",
     ):
         """
         A note on the relation between `release`, `suites`, and `suite`:
@@ -371,6 +375,7 @@ class Summarizer:
         self.suite: Optional[str] = None
         self.schema_path = schema_path
         self.release: Optional[str] = None
+        self.schema_validation = schema_validation
         if suite:
             self.suite = suite
             self.run_release_path = os.path.join(output_path, "runs", suite)
@@ -1351,6 +1356,35 @@ class Summarizer:
 
         parallel_map(process, self.runs, parallelism=self.num_threads)
 
+    def _run_schema_validation(self) -> None:
+        """Run schema validation based on the schema_validation setting."""
+        if self.schema_validation == "off":
+            return
+
+        try:
+            messages = validate_schema(
+                self.schema,
+                schema_path=self.schema_path,
+                strict=(self.schema_validation == "error"),
+            )
+
+            for msg in messages:
+                if msg.severity == ValidationSeverity.ERROR:
+                    hlog(f"Schema validation error: {msg}")
+                else:
+                    hwarn(f"Schema validation warning: {msg}")
+
+            if messages:
+                error_count = sum(1 for m in messages if m.severity == ValidationSeverity.ERROR)
+                warning_count = sum(1 for m in messages if m.severity == ValidationSeverity.WARNING)
+                hlog(f"Schema validation complete: {error_count} error(s), {warning_count} warning(s)")
+
+        except SchemaValidationError as e:
+            hlog(f"Schema validation failed with {len(e.messages)} issue(s)")
+            for msg in e.messages:
+                hlog(f"  {msg}")
+            raise
+
     def run_pipeline(self, skip_completed: bool) -> None:
         """Run the entire summarization pipeline."""
         self.read_runs()
@@ -1362,6 +1396,7 @@ class Summarizer:
         # because it uses self.runs
         self.fix_up_schema()
         self.check_metrics_defined()
+        self._run_schema_validation()
         self.write_schema()
 
         self.write_run_display_json(skip_completed)
@@ -1420,6 +1455,7 @@ def summarize(args):
         verbose=args.debug,
         num_threads=args.num_threads,
         allow_unknown_models=args.allow_unknown_models,
+        schema_validation=args.schema_validation,
     )
     summarizer.run_pipeline(skip_completed=args.skip_completed_run_display_json)
     hlog("Done.")
@@ -1438,6 +1474,13 @@ def main():
         "--schema-path",
         type=str,
         help="Path to the schema file (e.g., schema_classic.yaml).",
+    )
+    parser.add_argument(
+        "--schema-validation",
+        type=str,
+        choices=["error", "warn", "off"],
+        default="warn",
+        help="Schema validation mode: 'error' (fail on errors), 'warn' (log warnings), or 'off' (skip validation).",
     )
     parser.add_argument(
         "--suite",
