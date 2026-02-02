@@ -69,12 +69,6 @@ human-evaluation = [
 
 dspy = [
     "dspy~=3.0",
-    "fastapi~=0.118.0",
-    "apscheduler~=3.11",
-    "cryptography>=43",
-    "python-multipart~=0.0.20",
-    "email-validator~=2.3",
-    "fastapi-sso~=0.18",
 ]
 
 scenarios = [
