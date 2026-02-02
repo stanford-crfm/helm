@@ -109,7 +109,7 @@ pre-commit==2.20.0
 preshed==3.0.12
 propcache==0.4.1
 proto-plus==1.27.0
-protobuf==6.33.5
+protobuf==6.33.4
 pyarrow==23.0.0
 pyarrow-hotfix==0.7
 pyasn1==0.6.2
