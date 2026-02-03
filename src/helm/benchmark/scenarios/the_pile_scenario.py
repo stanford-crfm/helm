@@ -80,7 +80,6 @@ class ThePileScenario(Scenario):
         ensure_file_downloaded(
             source_url="https://the-eye.eu/public/AI/pile/test.jsonl.zst",
             target_path=data_jsonl,
-            unpack=True,
         )
 
         subset_path = os.path.join(output_path, self.subset + ".csv")

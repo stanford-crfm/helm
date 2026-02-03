@@ -1,3 +1,5 @@
+import gzip
+import shutil
 from filelock import FileLock
 import json
 import os
@@ -103,44 +105,49 @@ def ensure_file_downloaded(
         # Unpack (if needed) and put it in the right location
         if unpack:
             if unpack_type is None:
-                if source_url.endswith(".tar") or source_url.endswith(".tar.gz"):
-                    unpack_type = "untar"
+                if source_url.endswith(".tar"):
+                    unpack_format = "tar"
+                elif source_url.endswith(".tar.gz") or source_url.endswith(".tgz"):
+                    unpack_format = "gztar"
                 elif source_url.endswith(".zip"):
-                    unpack_type = "unzip"
-                elif source_url.endswith(".zst"):
-                    unpack_type = "unzstd"
+                    unpack_format = "zip"
                 else:
                     raise Exception("Failed to infer the file format from source_url. Please specify unpack_type.")
-
+            else:
+                if unpack_type == "untar":
+                    unpack_format = "tar"
+                elif unpack_type == "unzip":
+                    unpack_format = "zip"
+                else:
+                    raise Exception(f"Unsupported unpack_type {unpack_type}")
             tmp2_path = target_path + ".tmp2"
             ensure_directory_exists(tmp2_path)
-            if unpack_type == "untar":
-                shell(["tar", "xf", tmp_path, "-C", tmp2_path])
-            elif unpack_type == "unzip":
-                shell(["unzip", tmp_path, "-d", tmp2_path])
-            elif unpack_type == "unzstd":
-                dctx = zstandard.ZstdDecompressor()
-                with open(tmp_path, "rb") as ifh, open(os.path.join(tmp2_path, "data"), "wb") as ofh:
-                    dctx.copy_stream(ifh, ofh)
-            else:
-                raise Exception("Invalid unpack_type")
+
+            shutil.unpack_archive(
+                tmp_path,
+                tmp2_path,
+                format=unpack_format,
+                filter="data" if unpack_format == "tar" else None,
+            )
             files = os.listdir(tmp2_path)
             if len(files) == 1:
                 # If contains one file, just get that one file
-                shell(["mv", os.path.join(tmp2_path, files[0]), target_path])
+                os.rename(os.path.join(tmp2_path, files[0]), target_path)
                 os.rmdir(tmp2_path)
             else:
-                shell(["mv", tmp2_path, target_path])
+                os.rename(tmp2_path, target_path)
             os.unlink(tmp_path)
         else:
             # Don't decompress if desired `target_path` ends with `.gz`.
             if source_url.endswith(".gz") and not target_path.endswith(".gz"):
-                gzip_path = f"{target_path}.gz"
-                shell(["mv", tmp_path, gzip_path])
-                # gzip writes its output to a file named the same as the input file, omitting the .gz extension
-                shell(["gzip", "-d", gzip_path])
+                with gzip.open(tmp_path, "rb") as in_file, open(target_path, "wb") as out_file:
+                    shutil.copyfileobj(in_file, out_file)
+            elif source_url.endswith(".zst") and not target_path.endswith(".zst"):
+                zstd_decompresser = zstandard.ZstdDecompressor()
+                with open(tmp_path, "rb") as in_file, open(target_path, "wb") as out_file:
+                    zstd_decompresser.copy_stream(in_file, out_file)
             else:
-                shell(["mv", tmp_path, target_path])
+                os.rename(tmp_path, target_path)
         hlog(f"Finished downloading {source_url} to {target_path}")
 
 
