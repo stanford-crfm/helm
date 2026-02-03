@@ -4,6 +4,7 @@ import os
 import shlex
 import subprocess
 import urllib
+import urllib.request
 import uuid
 import zstandard
 from typing import Any, Callable, Dict, List, Optional, TypeVar
@@ -78,7 +79,7 @@ def ensure_file_downloaded(
     source_url: str,
     target_path: str,
     unpack: bool = False,
-    downloader_executable: str = "wget",
+    downloader_executable: Optional[str] = None,
     unpack_type: Optional[str] = None,
 ):
     """Download `source_url` to `target_path` if it doesn't exist."""
@@ -98,7 +99,20 @@ def ensure_file_downloaded(
                 handle_module_not_found_error(e, ["scenarios"])
             downloader_executable = "gdown"
         tmp_path: str = f"{target_path}.tmp"
-        shell([downloader_executable, source_url, "-O", tmp_path])
+        if downloader_executable:
+            if downloader_executable != "wget" and downloader_executable != "gdown":
+                raise ValueError(f"Unsupported downloader_executable: '{downloader_executable}'")
+            shell([downloader_executable, source_url, "-O", tmp_path])
+        else:
+            try:
+                print("Downloading source_url")
+                urllib.request.urlretrieve(source_url, tmp_path)
+            except Exception as e:
+                if os.path.isfile(tmp_path):
+                    os.remove(tmp_path)
+                raise e
+            finally:
+                urllib.request.urlcleanup()
 
         # Unpack (if needed) and put it in the right location
         if unpack:
