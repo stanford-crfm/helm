@@ -2,11 +2,8 @@ import json
 import os
 from typing import Dict, List
 
-from filelock import FileLock
-
 from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
-from helm.common.general import ensure_directory_exists, ensure_file_downloaded, shell
-from helm.common.hierarchical_logger import hlog
+from helm.common.general import ensure_file_downloaded
 from helm.benchmark.scenarios.bird_sql_scenario_helper import (  # type: ignore
     generate_schema_prompt,
 )
@@ -20,17 +17,6 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     ScenarioMetadata,
 )
-
-
-def _ensure_file_unzipped(source_path: str, target_path: str):
-    with FileLock(f"{target_path}.lock"):
-        if os.path.exists(target_path):
-            hlog(f"Not decompressing {source_path} because {target_path} already exists")
-            return
-        tmp_path = target_path + ".tmp"
-        ensure_directory_exists(tmp_path)
-        shell(["unzip", source_path, "-d", tmp_path])
-        shell(["mv", tmp_path, target_path])
 
 
 class SpiderScenario(Scenario):
