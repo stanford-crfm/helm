@@ -84,12 +84,6 @@ class HuggingFaceServer:
             hlog('Hugging Face device set to "cpu" because CUDA is unavailable.')
             self.device = "cpu"
 
-        # Security issue: currently we trust remote code by default.
-        # We retain this temporarily to maintain reverse compatibility.
-        # TODO: Delete if-else and don't set trust_remote_code=True
-        if "trust_remote_code" not in kwargs:
-            kwargs["trust_remote_code"] = True
-
         with htrack_block(f"Loading Hugging Face model {pretrained_model_name_or_path}"):
             # WARNING this may fail if your GPU does not have enough memory
             if self.device is None:
