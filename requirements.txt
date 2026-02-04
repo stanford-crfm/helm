@@ -36,7 +36,7 @@ eval-type-backport==0.2.2
 exceptiongroup==1.3.1
 fastavro==1.12.1
 filelock==3.20.3
-flake8==5.0.4
+flake8==7.3.0
 fonttools==4.61.1
 frozenlist==1.8.0
 fsspec==2025.3.0
@@ -114,11 +114,11 @@ pyarrow==23.0.0
 pyarrow-hotfix==0.7
 pyasn1==0.6.2
 pyasn1-modules==0.4.2
-pycodestyle==2.9.1
+pycodestyle==2.14.0
 pycparser==2.23
 pydantic==2.12.5
 pydantic-core==2.41.5
-pyflakes==2.5.0
+pyflakes==3.4.0
 pygments==2.19.2
 pyhocon==0.3.61
 pyparsing==3.3.1
