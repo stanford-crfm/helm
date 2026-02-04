@@ -350,7 +350,7 @@ class MELTSummarizationWikilinguaScenario(MELTSummarizationScenario):
 
 
 class MELTMATHScenario(Scenario):
-    """
+    r"""
     The MATH dataset from the paper
     "Measuring Mathematical Problem Solving With the MATH Dataset"
     by Hendrycks et al. (2021):

@@ -64,7 +64,7 @@ class StanfordHealthCareHTTPModelClient(CachingClient, ABC):
                 response = requests.post(url, json=raw_request, headers=self.default_headers, timeout=self.timeout)
                 response.raise_for_status()
                 response_json = response.json()
-                if type(response_json) == list:
+                if isinstance(response_json, list):
                     response_json = {"content": response_json}
                 return response_json
 

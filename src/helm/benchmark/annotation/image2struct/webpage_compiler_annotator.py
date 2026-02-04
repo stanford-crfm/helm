@@ -83,13 +83,13 @@ class WebpageCompilerAnnotator(ImageCompilerAnnotator):
                 for media_object in reference.output.multimedia_content.media_objects:
                     assert media_object.is_local_file
                     assert media_object.is_type("image")
-                    assert type(media_object.location) == str
+                    assert isinstance(media_object.location, str)
                     assets_paths.append(media_object.location)
             if ASSET_NAME_TAG in reference.tags:
                 assert reference.output.multimedia_content is not None
                 for media_object in reference.output.multimedia_content.media_objects:
                     assert media_object.is_type("text")
-                    assert type(media_object.text) == str
+                    assert isinstance(media_object.text, str)
                     assets_names.append(media_object.text)
         assert len(assets_paths) == len(assets_names)
         for asset_path, asset_name in zip(assets_paths, assets_names):

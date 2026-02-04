@@ -22,12 +22,12 @@ def fix(mongo_uri: str):
         for i, (request, response) in enumerate(store.get_all()):
             # Responses from the API have "request_time" set to a float,
             # while batch requests have batch information in their responses.
-            if type(response["request_time"]) == float:
+            if isinstance(response["request_time"], float):
                 store.remove(request)
                 count += 1
 
             if (i + 1) % 10_000 == 0:
-                hlog(f"Processed {i+1} entries")
+                hlog(f"Processed {i + 1} entries")
 
     hlog(f"Removed {count} entries.")
 
