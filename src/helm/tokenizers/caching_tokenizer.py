@@ -100,12 +100,12 @@ class CachingTokenizer(Tokenizer):
             # Internal check of the type of the first token
             # This is to make sure that the tokenization is correct
             if request.encode and len(tokens) > 0:
-                assert type(tokens[0].value) == int, (
+                assert isinstance(tokens[0].value, int), (
                     f"tokenize() returned strings instead of integers when encode is True: "
                     f"request={request} repsonse={response}"
                 )
             elif not request.encode and len(tokens) > 0:
-                assert type(tokens[0].value) == str, (
+                assert isinstance(tokens[0].value, str), (
                     f"tokenize() returned integers instead of strings when encode is False: "
                     f"request={request} repsonse={response}"
                 )
@@ -142,7 +142,7 @@ class CachingTokenizer(Tokenizer):
 
             # Internal check of the type of the text
             # This is to make sure that the decoding is correct
-            assert type(text) == str
+            assert isinstance(text, str)
 
             return DecodeRequestResult(
                 success=True,
