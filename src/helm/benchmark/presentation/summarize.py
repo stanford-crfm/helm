@@ -1361,29 +1361,30 @@ class Summarizer:
         if self.schema_validation == "off":
             return
 
-        try:
-            messages = validate_schema(
-                self.schema,
-                schema_path=self.schema_path,
-                strict=(self.schema_validation == "error"),
-            )
+        # Always use strict=False so we can log all messages (including warnings)
+        # before potentially raising an error
+        messages = validate_schema(
+            self.schema,
+            schema_path=self.schema_path,
+            strict=False,
+        )
 
-            for msg in messages:
-                if msg.severity == ValidationSeverity.ERROR:
-                    hlog(f"Schema validation error: {msg}")
-                else:
-                    hwarn(f"Schema validation warning: {msg}")
+        # Log all messages - warnings first, then errors
+        warnings = [m for m in messages if m.severity == ValidationSeverity.WARNING]
+        errors = [m for m in messages if m.severity == ValidationSeverity.ERROR]
 
-            if messages:
-                error_count = sum(1 for m in messages if m.severity == ValidationSeverity.ERROR)
-                warning_count = sum(1 for m in messages if m.severity == ValidationSeverity.WARNING)
-                hlog(f"Schema validation complete: {error_count} error(s), {warning_count} warning(s)")
+        for msg in warnings:
+            hwarn(f"Schema validation warning: {msg}")
 
-        except SchemaValidationError as e:
-            hlog(f"Schema validation failed with {len(e.messages)} issue(s)")
-            for msg in e.messages:
-                hlog(f"  {msg}")
-            raise
+        for msg in errors:
+            hlog(f"Schema validation error: {msg}")
+
+        if messages:
+            hlog(f"Schema validation complete: {len(errors)} error(s), {len(warnings)} warning(s)")
+
+        # Raise error if in "error" mode and there are errors
+        if self.schema_validation == "error" and errors:
+            raise SchemaValidationError(messages)
 
     def run_pipeline(self, skip_completed: bool) -> None:
         """Run the entire summarization pipeline."""

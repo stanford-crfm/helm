@@ -331,19 +331,19 @@ def _detect_cycles_in_subgroups(
     name_to_run_group: Dict[str, RunGroup],
 ) -> List[Tuple[str, List[str]]]:
     """Detect all cycles in the subgroup graph using 3-color DFS."""
-    WHITE, GRAY, BLACK = 0, 1, 2
+    UNVISITED, VISITING, VISITED = 0, 1, 2
 
     valid_run_groups = [rg for rg in run_groups if rg.name and rg.name.strip()]
-    color: Dict[str, int] = {rg.name: WHITE for rg in valid_run_groups}
+    visit_status: Dict[str, int] = {rg.name: UNVISITED for rg in valid_run_groups}
 
     cycles: List[Tuple[str, List[str]]] = []
     reported_cycle_nodes: Set[FrozenSet[str]] = set()
 
     def dfs(node_name: str, path: List[str]) -> None:
-        if not node_name or node_name not in color:
+        if not node_name or node_name not in visit_status:
             return
 
-        if color[node_name] == GRAY:
+        if visit_status[node_name] == VISITING:
             if node_name in path:
                 cycle_start_idx = path.index(node_name)
                 cycle_path = path[cycle_start_idx:] + [node_name]
@@ -354,10 +354,10 @@ def _detect_cycles_in_subgroups(
                     cycles.append((node_name, cycle_path))
             return
 
-        if color[node_name] == BLACK:
+        if visit_status[node_name] == VISITED:
             return
 
-        color[node_name] = GRAY
+        visit_status[node_name] = VISITING
         path.append(node_name)
 
         if node_name in name_to_run_group:
@@ -367,10 +367,10 @@ def _detect_cycles_in_subgroups(
                 dfs(subgroup_name, path)
 
         path.pop()
-        color[node_name] = BLACK
+        visit_status[node_name] = VISITED
 
     for run_group in valid_run_groups:
-        if color.get(run_group.name) == WHITE:
+        if visit_status.get(run_group.name) == UNVISITED:
             dfs(run_group.name, [])
 
     return cycles
@@ -415,10 +415,10 @@ def validate_schema(
     metrics = schema.metrics or []
     perturbations = schema.perturbations or []
 
-    defined_run_group_names: Set[str] = set(getattr(schema, "name_to_run_group", {}).keys())
-    defined_metric_group_names: Set[str] = set(getattr(schema, "name_to_metric_group", {}).keys())
-    defined_metric_names: Set[str] = set(getattr(schema, "name_to_metric", {}).keys())
-    defined_perturbation_names: Set[str] = set(getattr(schema, "name_to_perturbation", {}).keys())
+    defined_run_group_names: Set[str] = set(schema.name_to_run_group.keys())
+    defined_metric_group_names: Set[str] = set(schema.name_to_metric_group.keys())
+    defined_metric_names: Set[str] = set(schema.name_to_metric.keys())
+    defined_perturbation_names: Set[str] = set(schema.name_to_perturbation.keys())
 
     # Check for empty names
     for i, run_group in enumerate(run_groups):
@@ -542,7 +542,7 @@ def validate_schema(
                     add_error(f"Perturbation '{pert_name}' is not defined", location=f"{location}.perturbation_name")
 
     # Detect circular references
-    cycles = _detect_cycles_in_subgroups(run_groups, getattr(schema, "name_to_run_group", {}))
+    cycles = _detect_cycles_in_subgroups(run_groups, schema.name_to_run_group)
     for cycle_start, cycle_path in cycles:
         cycle_str = " -> ".join(cycle_path)
         add_error(
