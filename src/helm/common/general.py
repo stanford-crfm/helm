@@ -107,7 +107,7 @@ def ensure_file_downloaded(
             shell([downloader_executable, source_url, "-O", tmp_path])
         else:
             try:
-                print("Downloading source_url")
+                hlog(f"Downloading {source_url}")
                 urllib.request.urlretrieve(source_url, tmp_path)
             except Exception as e:
                 if os.path.isfile(tmp_path):
@@ -126,7 +126,9 @@ def ensure_file_downloaded(
                 elif source_url.endswith(".zip"):
                     unpack_format = "zip"
                 else:
-                    raise Exception("Failed to infer the file format from source_url. Please specify unpack_type.")
+                    raise Exception(
+                        "Failed to infer the file format from file extension of source_url. Please specify unpack_type."
+                    )
             else:
                 if unpack_type == "untar":
                     unpack_format = "tar"
