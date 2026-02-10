@@ -846,6 +846,16 @@ models:
     release_date: 2025-03-13
     tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+# Corporation of Light
+  - name: corporation-of-light/ech0-unified-14b
+    display_name: ECH0 Unified 14B
+    description: ECH0 Unified 14B is an instruction-following large language model with 14 billion parameters developed by the Corporation of Light.
+    creator_organization_name: Corporation of Light
+    access: open
+    num_parameters: 14000000000
+    release_date: 2025-12-01
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   # Craiyon
   - name: craiyon/dalle-mini
     display_name: DALL-E mini (0.4B)
