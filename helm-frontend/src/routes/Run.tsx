@@ -178,7 +178,7 @@ export default function Run() {
                       : undefined
                   }
                 >{`${key}: `}</strong>
-                <span className="overflow-x-auto">{value}</span>
+                <span className="overflow-x-auto pre-wrap">{value}</span>
               </ListItem>
             ))}
           </List>
