@@ -1223,7 +1223,7 @@ run_groups:
   display_name: Relational Understanding
   description: Based on existing cognitive, linguistic, and developmental literature,
     the authors created a set of 15 relations (8 physical, 7 agentic) and a set of
-    12 entities (6 objects, 6 agents)
+    12 entities (6 objects, 6 agents) ([paper](https://arxiv.org/abs/2208.00005))
   metric_groups:
   - heim_alignment_human_metrics
   - heim_alignment_clip_metrics
