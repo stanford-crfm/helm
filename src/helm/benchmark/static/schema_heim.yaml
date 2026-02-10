@@ -1074,7 +1074,7 @@ run_groups:
   display_name: PartiPrompts (image quality categories)
   description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow
     us to more comprehensively evaluate and test the limits of text-to-image synthesis
-    models.
+    models. ([paper](https://arxiv.org/abs/2206.10789))
   metric_groups:
   - heim_alignment_human_metrics
   - heim_alignment_clip_metrics
@@ -1204,7 +1204,7 @@ run_groups:
   display_name: PartiPrompts (reasoning categories)
   description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow
     us to more comprehensively evaluate and test the limits of text-to-image synthesis
-    models.
+    models. ([paper](https://arxiv.org/abs/2206.10789))
   metric_groups:
   - heim_alignment_human_metrics
   - heim_alignment_clip_metrics
@@ -1281,7 +1281,7 @@ run_groups:
   display_name: PartiPrompts (knowledge categories)
   description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow
     us to more comprehensively evaluate and test the limits of text-to-image synthesis
-    models.
+    models. ([paper](https://arxiv.org/abs/2206.10789))
   metric_groups:
   - heim_alignment_human_metrics
   - heim_alignment_clip_metrics
