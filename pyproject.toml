@@ -452,20 +452,18 @@ crfm-proxy-cli = "helm.proxy.cli:main"
 [tool.uv]
 default-groups = ["dev", "types"]
 
-# This dependency override is needed because:
-# - summ-eval depends on blanc 
-# - blanc depends on torch<2.0
-override-dependencies = ["torch~=2.1"]
+override-dependencies = [
+    # override torch dependency for summ-eval in "summarization" extra:
+    # - summ-eval depends on blanc 
+    # - blanc depends on torch<2.0
+    "torch~=2.1",
+    # override torch dependency for summ-eval in "summarization" extra:
+    # - summ-eval depends on blanc 
+    # - blanc depends on numpy<2.0
+    "numpy>=1.26,<3",
+]
 
 conflicts = [
-    [
-      { extra = "all" },
-      { extra = "summarization" },
-    ],
-    [
-      { extra = "heim" },
-      { extra = "summarization" },
-    ],
     [
       { extra = "ibm" },
       { extra = "human-evaluation" },
