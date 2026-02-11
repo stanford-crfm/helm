@@ -89,6 +89,13 @@ ranking = [
     "pytrec_eval==0.5",  # For ranking_metrics
 ]
 
+summarization = [
+    # For summarization_metrics
+    "summ-eval~=0.892",
+    "bert-score~=0.3",
+    "sentencepiece~=0.2.0",
+    "protobuf",
+]
 
 plots = [
     "colorcet~=3.0",
@@ -444,9 +451,19 @@ crfm-proxy-cli = "helm.proxy.cli:main"
 
 [tool.uv]
 default-groups = ["dev", "types"]
+
+# This dependency override is needed because:
+# - summ-eval depends on blanc 
+# - blanc depends on torch<2.0
+override-dependencies = ["torch~=2.1"]
+
 conflicts = [
     [
       { extra = "all" },
+      { extra = "summarization" },
+    ],
+    [
+      { extra = "heim" },
       { extra = "summarization" },
     ],
     [
