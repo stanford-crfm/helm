@@ -13,7 +13,9 @@ import json
 from helm.benchmark.metrics.summac import utils_misc
 
 model_map = {
+    # boychaboy/SNLI_roberta-base no longer exists
     "snli-base": {"model_card": "boychaboy/SNLI_roberta-base", "entailment_idx": 0, "contradiction_idx": 2},
+    # boychaboy/SNLI_roberta-large no longer exists
     "snli-large": {"model_card": "boychaboy/SNLI_roberta-large", "entailment_idx": 0, "contradiction_idx": 2},
     "mnli-base": {"model_card": "microsoft/deberta-base-mnli", "entailment_idx": 2, "contradiction_idx": 0},
     "mnli": {"model_card": "roberta-large-mnli", "entailment_idx": 2, "contradiction_idx": 0},
@@ -22,8 +24,11 @@ model_map = {
         "entailment_idx": 0,
         "contradiction_idx": 2,
     },
+    # tals/albert-base-vitaminc-mnli depends on sentencepiece and protobuf
     "vitc-base": {"model_card": "tals/albert-base-vitaminc-mnli", "entailment_idx": 0, "contradiction_idx": 1},
+    # tals/albert-xlarge-vitaminc-mnli depends on sentencepiece and protobuf
     "vitc": {"model_card": "tals/albert-xlarge-vitaminc-mnli", "entailment_idx": 0, "contradiction_idx": 1},
+    # tals/albert-xlarge-vitaminc depends on sentencepiece and protobuf
     "vitc-only": {"model_card": "tals/albert-xlarge-vitaminc", "entailment_idx": 0, "contradiction_idx": 1},
     # "decomp": 0,
 }
