@@ -10,7 +10,7 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 def _math_reasoning_adapter_spec() -> AdapterSpec:
     return AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions="Wrap your final answer in \\boxed{}.",
+        instructions="Please reason step by step, and put your final answer within \\boxed{}.",
         input_prefix="",
         output_prefix="",
         max_tokens=4096,
@@ -50,6 +50,21 @@ def get_aime_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
         groups=["aime"],
+    )
+
+
+@run_spec_function("amc23")
+def get_amc23_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.aime_scenario.AMC23Scenario")
+    adapter_spec = _math_reasoning_adapter_spec()
+    metric_specs = get_basic_metric_specs([]) + [_math_metric_spec()]
+
+    return RunSpec(
+        name="amc23",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["amc23"],
     )
 
 

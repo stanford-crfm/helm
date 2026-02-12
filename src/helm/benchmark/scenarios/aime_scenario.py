@@ -60,6 +60,49 @@ class AIMEScenario(Scenario):
         )
 
 
+class AMC23Scenario(Scenario):
+    """AMC 2023 benchmark from https://huggingface.co/datasets/math-ai/amc23."""
+
+    name = "amc23"
+    description = "AMC 2023 mathematics problems"
+    tags = ["math"]
+
+    def get_instances(self, output_path: str) -> List[Instance]:
+        cache_dir = os.path.join(output_path, "data")
+        ensure_directory_exists(cache_dir)
+        dataset = datasets.load_dataset("math-ai/amc23", cache_dir=cache_dir, split="test")
+        assert isinstance(dataset, datasets.Dataset)
+
+        instances: List[Instance] = []
+        for row in dataset:
+            input = Input(text=row["question"])
+            answer: str = row["answer"]
+            instance = Instance(
+                input=input,
+                references=[Reference(Output(text=answer), tags=[CORRECT_TAG])],
+                split=TEST_SPLIT,
+            )
+            instances.append(instance)
+
+        return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name=self.name,
+            display_name="AMC 2023",
+            description=self.description,
+            main_metric="math_accuracy",
+            main_split="test",
+            taxonomy=TaxonomyInfo(
+                task="mathematics",
+                what="American Mathematics Competition 2023 problems",
+                who="competition authors",
+                when="2023",
+                language="English",
+            ),
+        )
+
+
 class AIME25Scenario(Scenario):
     """AIME 2025 benchmark from https://huggingface.co/datasets/opencompass/AIME2025."""
 

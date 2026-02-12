@@ -145,6 +145,7 @@ run_groups:
       - math500
       - aime
       - aime25
+      - amc23
 
   - name: math500
     display_name: MATH-500
@@ -195,5 +196,22 @@ run_groups:
       what: "American Invitational Mathematics Examination 2025 problems"
       who: "competition authors"
       when: "2025"
+      language: English
+
+  - name: amc23
+    display_name: AMC 2023
+    description: AMC 2023
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: math_accuracy
+      main_split: test
+    taxonomy:
+      task: "mathematics"
+      what: "American Mathematics Competition 2023 problems"
+      who: "competition authors"
+      when: "2023"
       language: English
 
