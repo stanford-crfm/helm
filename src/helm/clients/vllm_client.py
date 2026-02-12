@@ -3,7 +3,6 @@ from typing import Any, Dict, Optional
 from helm.common.cache import CacheConfig
 from helm.common.request import Request
 from helm.clients.openai_client import OpenAIClient, OpenAILegacyCompletionsClient
-from helm.tokenizers.tokenizer import Tokenizer
 
 
 class VLLMClient(OpenAILegacyCompletionsClient):
@@ -15,16 +14,12 @@ class VLLMClient(OpenAILegacyCompletionsClient):
 
     def __init__(
         self,
-        tokenizer: Tokenizer,
-        tokenizer_name: str,
         cache_config: CacheConfig,
         base_url: Optional[str] = None,
         vllm_model_name: Optional[str] = None,
         **kwargs,
     ):
         super().__init__(
-            tokenizer=tokenizer,
-            tokenizer_name=tokenizer_name,
             cache_config=cache_config,
             api_key="EMPTY",
             org_id=None,
@@ -32,8 +27,6 @@ class VLLMClient(OpenAILegacyCompletionsClient):
             openai_model_name=vllm_model_name,
             **kwargs,
         )
-        self.tokenizer = tokenizer
-        self.tokenizer_name = tokenizer_name
         self.vllm_model_name = vllm_model_name
 
     def _to_raw_completion_request(self, request: Request) -> Dict[str, Any]:
@@ -58,16 +51,12 @@ class VLLMChatClient(OpenAIClient):
 
     def __init__(
         self,
-        tokenizer: Tokenizer,
-        tokenizer_name: str,
         cache_config: CacheConfig,
         base_url: Optional[str] = None,
         vllm_model_name: Optional[str] = None,
         **kwargs,
     ):
         super().__init__(
-            tokenizer=tokenizer,
-            tokenizer_name=tokenizer_name,
             cache_config=cache_config,
             api_key="EMPTY",
             org_id=None,
@@ -75,6 +64,4 @@ class VLLMChatClient(OpenAIClient):
             openai_model_name=vllm_model_name,
             **kwargs,
         )
-        self.tokenizer = tokenizer
-        self.tokenizer_name = tokenizer_name
         self.vllm_model_name = vllm_model_name
