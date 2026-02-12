@@ -3945,6 +3945,42 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
 
+  - name: xai/grok-4-fast-reasoning
+    model_name: xai/grok-4-fast-reasoning
+    tokenizer_name: xai/grok-4-fast-reasoning
+    max_sequence_length: 2000000
+    client_spec:
+      class_name: "helm.clients.grok_client.GrokChatClient"
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
+
+  - name: xai/grok-4-fast-non-reasoning
+    model_name: xai/grok-4-fast-non-reasoning
+    tokenizer_name: xai/grok-4-fast-non-reasoning
+    max_sequence_length: 2000000
+    client_spec:
+      class_name: "helm.clients.grok_client.GrokChatClient"
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
+
+  - name: xai/grok-4-1-fast-reasoning
+    model_name: xai/grok-4-1-fast-reasoning
+    tokenizer_name: xai/grok-4-1-fast-reasoning
+    max_sequence_length: 2000000
+    client_spec:
+      class_name: "helm.clients.grok_client.GrokChatClient"
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
+
+  - name: xai/grok-4-1-fast-non-reasoning
+    model_name: xai/grok-4-1-fast-non-reasoning
+    tokenizer_name: xai/grok-4-1-fast-non-reasoning
+    max_sequence_length: 2000000
+    client_spec:
+      class_name: "helm.clients.grok_client.GrokChatClient"
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
+
   # Qwen
 
   - name: together/qwen-7b

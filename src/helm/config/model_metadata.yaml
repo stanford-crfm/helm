@@ -4629,6 +4629,38 @@ models:
     release_date: 2025-07-09
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: xai/grok-4-fast-reasoning
+    display_name: Grok 4 Fast (Reasoning)
+    description: Grok 4 Fast (Reasoning) ([blog](https://x.ai/news/grok-4-fast))
+    creator_organization_name: xAI
+    access: limited
+    release_date: 2025-09-19
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: xai/grok-4-fast-non-reasoning
+    display_name: Grok 4 Fast (Non-Reasoning)
+    description: Grok 4 Fast (Non-Reasoning) ([blog](https://x.ai/news/grok-4-fast))
+    creator_organization_name: xAI
+    access: limited
+    release_date: 2025-09-19
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: xai/grok-4-1-fast-reasoning
+    display_name: Grok 4.1 Fast (Reasoning)
+    description: Grok 4.1 Fast (Reasoning) ([blog](https://x.ai/news/grok-4-1-fast))
+    creator_organization_name: xAI
+    access: limited
+    release_date: 2025-11-19
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: xai/grok-4-1-fast-non-reasoning
+    display_name: Grok 4.1 Fast (Non-Reasoning)
+    description: Grok 4.1 Fast (Non-Reasoning) ([blog](https://x.ai/news/grok-4-1-fast))
+    creator_organization_name: xAI
+    access: limited
+    release_date: 2025-11-19
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   # Yandex
   - name: yandex/yalm
     display_name: YaLM (100B)
