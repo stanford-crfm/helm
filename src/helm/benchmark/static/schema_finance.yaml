@@ -82,6 +82,11 @@ metrics:
     short_display_name: EM
     description: Fraction of instances that the predicted output matches a correct reference up to light processing.
     lower_is_better: false
+  - name: float_equiv
+    display_name: Float Equivalence
+    short_display_name: Float Equiv
+    description: Fraction of instances where the predicted numeric value matches the gold value within a small tolerance.
+    lower_is_better: false
 
   # Efficiency metrics:
   - name: inference_runtime
@@ -135,6 +140,7 @@ run_groups:
     category: All scenarios
     subgroups:
       - fin_qa
+      - jfinqa
       - financebench
       - banking77
 
@@ -171,6 +177,24 @@ run_groups:
       who: financial experts
       when: 2015 to 2023
       language: English
+
+  - name: jfinqa
+    display_name: JFinQA
+    short_display_name: JFinQA
+    description: JFinQA is a benchmark for numerical reasoning over Japanese corporate financial disclosures (EDINET filings). It contains 1,000 questions across numerical reasoning, consistency checking, and temporal reasoning from 68 companies.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: float_equiv
+      main_split: test
+    taxonomy:
+      task: question answering with numeric reasoning
+      what: Japanese corporate financial reports (EDINET/XBRL)
+      who: financial experts
+      when: 2023 to 2024
+      language: Japanese
 
   - name: banking77
     display_name: BANKING77

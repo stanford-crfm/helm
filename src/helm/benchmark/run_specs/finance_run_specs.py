@@ -82,6 +82,30 @@ def get_financebench_spec() -> RunSpec:
     )
 
 
+@run_spec_function("jfinqa")
+def get_jfinqa_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.jfinqa_scenario.JFinQAScenario", args={})
+    adapter_spec = get_generation_adapter_spec(
+        instructions=(
+            "以下の財務データを読み、質問に正確な数値で答えてください。\n"
+            "Read the following financial data and answer the question with the exact numeric value.\n"
+        ),
+        input_noun=None,
+        output_noun="Answer",
+        max_tokens=50,
+    )
+    metric_specs = get_basic_metric_specs([]) + [
+        MetricSpec(class_name="helm.benchmark.metrics.conv_fin_qa_calc_metrics.ConvFinQACalcMetric")
+    ]
+    return RunSpec(
+        name="jfinqa",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["jfinqa"],
+    )
+
+
 @run_spec_function("banking77")
 def get_banking77_spec() -> RunSpec:
     from helm.benchmark.scenarios.raft_scenario import get_raft_instructions
