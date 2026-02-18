@@ -8,6 +8,8 @@
 #    # This file defines all the model deployments that you do not want to be public.
 #    model_deployments: [] # Leave empty to disable private model deployments
 
+# This file contains deployments for the Proxy Tuning class.
+
 model_deployments:
   - name: simple/model1
     model_name: simple/model1
@@ -5318,3 +5320,66 @@ model_deployments:
         dspy_module: ChainOfThought
         dspy_api_model: openai/o3-mini-2025-01-31
         dspy_api_base: null
+        
+  - name: proxy_tuning/llama-70b-chat_none_none_1.0_logits_20
+    model_name: proxy_tuning/llama-70b-chat_none_none_1.0_logits_20
+    tokenizer_name: meta-llama/Llama-2-7b-hf
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.proxy_tuning_client.ProxyTuningClient"
+
+  - name: proxy_tuning/mellama-70b-chat_none_none_1.0_logprobs_20
+    model_name: proxy_tuning/mellama-70b-chat_none_none_1.0_logprobs_20
+    tokenizer_name: meta-llama/Llama-2-7b-hf
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.proxy_tuning_client.ProxyTuningClient"
+
+  - name: proxy_tuning/mellama-13b-chat_none_none_1.0_logprobs_20
+    model_name: proxy_tuning/mellama-13b-chat_none_none_1.0_logprobs_20
+    tokenizer_name: meta-llama/Llama-2-7b-hf
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.proxy_tuning_client.ProxyTuningClient"
+      
+  - name: proxy_tuning/qwen3-30b_none_none_1.0_logprobs_20
+    model_name: proxy_tuning/qwen3-30b_none_none_1.0_logprobs_20
+    tokenizer_name: qwen/qwen2.5-7b-instruct
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.proxy_tuning_client.ProxyTuningClient"
+     
+  - name: proxy_tuning/qwen3-30b_mellama-13b-chat_llama-13b-base_1.0_logprobs_20
+    model_name: proxy_tuning/qwen3-30b_mellama-13b-chat_llama-13b-base_1.0_logprobs_20
+    tokenizer_name: qwen/qwen2.5-7b-instruct
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.proxy_tuning_client.ProxyTuningClient"
+
+  - name: proxy_tuning/qwen3-30b_mellama-13b-base_llama-13b-base_1.0_logprobs_20
+    model_name: proxy_tuning/qwen3-30b_mellama-13b-base_llama-13b-base_1.0_logprobs_20
+    tokenizer_name: qwen/qwen2.5-7b-instruct
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.proxy_tuning_client.ProxyTuningClient"
+
+  - name: proxy_tuning/qwen3-30b_mellama-13b-chat_mellama-13b-base_1.0_logprobs_20
+    model_name: proxy_tuning/qwen3-30b_mellama-13b-chat_mellama-13b-base_1.0_logprobs_20
+    tokenizer_name: qwen/qwen2.5-7b-instruct
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.proxy_tuning_client.ProxyTuningClient"
+
+  - name: proxy_tuning/llama-70b-chat_mellama-13b-chat_llama-13b-base_1.0_logits_20
+    model_name: proxy_tuning/llama-70b-chat_mellama-13b-chat_llama-13b-base_1.0_logits_20
+    tokenizer_name: meta-llama/Llama-2-7b-hf
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.proxy_tuning_client.ProxyTuningClient"
+
+  - name: proxy_tuning/qwen3-30b_mellama-13b-chat_none_1.0_logprobs_20
+    model_name: proxy_tuning/qwen3-30b_mellama-13b-chat_none_1.0_logprobs_20
+    tokenizer_name: qwen/qwen2.5-7b-instruct
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.proxy_tuning_client.ProxyTuningClient"
