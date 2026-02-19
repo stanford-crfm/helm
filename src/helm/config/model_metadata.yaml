@@ -3241,6 +3241,14 @@ models:
     release_date: 2025-08-07
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: openai/gpt-5.2-2025-12-11
+    display_name: GPT-5.2 (2025-12-11)
+    description: GPT-5.2 (2025-12-11) is a model in the GPT-5 model family that is intended for coding and agentic tasks across industries. ([blog](https://openai.com/index/introducing-gpt-5-2/))
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2025-12-11
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: openai/gpt-5.1-2025-11-13
     display_name: GPT-5.1 (2025-11-13)
     description: GPT-5.1 (2025-11-13) is a model in the GPT-5 model family, and has similar training for code generation, bug fixing, refactoring, instruction following, long context and tool calling. ([blog](https://openai.com/index/gpt-5-1-for-developers/))
