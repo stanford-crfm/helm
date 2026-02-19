@@ -1055,7 +1055,7 @@ run_groups:
 - name: draw_bench_image_quality
   display_name: DrawBench (image quality categories)
   description: A comprehensive and challenging set of prompts that support the evaluation
-    and comparison of text-to-image models.
+    and comparison of text-to-image models ([paper](https://arxiv.org/abs/2205.11487)).
   metric_groups:
   - heim_alignment_human_metrics
   - heim_alignment_clip_metrics
@@ -1185,7 +1185,7 @@ run_groups:
 - name: draw_bench_reasoning
   display_name: DrawBench (reasoning categories)
   description: A comprehensive and challenging set of prompts that support the evaluation
-    and comparison of text-to-image models.
+    and comparison of text-to-image models ([paper](https://arxiv.org/abs/2205.11487)).
   metric_groups:
   - heim_alignment_human_metrics
   - heim_alignment_clip_metrics
@@ -1299,7 +1299,7 @@ run_groups:
 - name: draw_bench_knowledge
   display_name: DrawBench (knowledge categories)
   description: A comprehensive and challenging set of prompts that support the evaluation
-    and comparison of text-to-image models.
+    and comparison of text-to-image models ([paper](https://arxiv.org/abs/2205.11487)).
   metric_groups:
   - heim_alignment_human_metrics
   - heim_alignment_clip_metrics
