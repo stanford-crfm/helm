@@ -6,8 +6,6 @@ import ThaiExamLanding from "@/components/Landing/ThaiExamLanding";
 import FinanceLanding from "@/components/Landing/FinanceLanding";
 import HEIMLanding from "@/components/Landing/HEIMLanding";
 import VHELMLanding from "@/components/VHELMLanding";
-import CallCenterLanding from "@/components/Landing/CallCenterLanding";
-import CallTranscriptSummarizationLanding from "@/components/Landing/CallTranscriptSummarizationLanding";
 import CLEVALanding from "@/components/Landing/CLEVALanding";
 import ToRRLanding from "@/components/Landing/ToRRLanding";
 import HomeLanding from "@/components/Landing/HomeLanding";
@@ -48,10 +46,6 @@ export default function Home() {
     return <ThaiExamLanding />;
   } else if (window.PROJECT_ID === "finance") {
     return <FinanceLanding />;
-  } else if (window.PROJECT_ID === "call-center") {
-    return <CallCenterLanding />;
-  } else if (window.PROJECT_ID === "call-transcript-summarization") {
-    return <CallTranscriptSummarizationLanding />;
   } else if (window.PROJECT_ID === "cleva") {
     return <CLEVALanding />;
   } else if (window.PROJECT_ID === "torr") {
