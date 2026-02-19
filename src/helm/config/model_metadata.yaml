@@ -1433,6 +1433,14 @@ models:
     release_date: 2025-11-18
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: google/gemini-3.1-pro-preview
+    display_name: Gemini 3.1 Pro (Preview)
+    description: Gemini 3.1 Pro is the next iteration in the Gemini 3 series of models, a suite of highly capable, natively multimodal reasoning models. ([blog](https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-pro/), [model card](https://deepmind.google/models/model-cards/gemini-3-1-pro/))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2026-02-19
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, AUDIO_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: google/gemini-robotics-er-1.5-preview
     display_name: Gemini Robotics-ER 1.5
     description: Gemini Robotics-ER 1.5 is a vision-language model (VLM) designed for advanced reasoning in the physical world, allowing robots to interpret complex visual data, perform spatial reasoning, and plan actions from natural language commands.
