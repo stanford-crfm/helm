@@ -1480,6 +1480,25 @@ model_deployments:
 
   # HuggingFace
 
+  ## Polyguard 
+  - name: huggingface/polyguard-qwen-smol
+    model_name: toxicityprompts/polyguard-qwen-smol
+    tokenizer_name: toxicityprompts/polyguard-qwen-smol
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        trust_remote_code: true
+
+  - name: huggingface/polyguard-qwen
+    model_name: toxicityprompts/polyguard-qwen
+    tokenizer_name: toxicityprompts/polyguard-qwen
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        trust_remote_code: true
+
   ## AI Singapore
   - name: huggingface/sea-lion-7b
     model_name: aisingapore/sea-lion-7b
@@ -4141,6 +4160,15 @@ model_deployments:
           load_in_4bit: true
         attn_implementation: "flash_attention_2"
 
+  - name: huggingface/qwen2.5-0.5b-instruct
+    model_name: qwen/qwen2.5-0.5b-instruct
+    tokenizer_name: qwen/qwen2.5-0.5b-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: Qwen/Qwen2.5-0.5B-Instruct
+        
   - name: huggingface/qwen2.5-7b-instruct
     model_name: qwen/qwen2.5-7b-instruct
     tokenizer_name: qwen/qwen2.5-7b-instruct

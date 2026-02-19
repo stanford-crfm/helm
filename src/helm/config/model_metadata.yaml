@@ -3641,6 +3641,23 @@ models:
     release_date: 2024-04-08
     tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  # PolyGuard
+  - name: toxicityprompts/polyguard-qwen-smol
+    display_name: PolyGuard Qwen Smol (0.5B)
+    description: PolyGuard, a new state-of-the-art multilingual safety model for safeguarding LLM generations.
+    creator_organization_name: ToxicityPrompts
+    access: open
+    release_date: 2025-04-06
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: toxicityprompts/polyguard-qwen
+    display_name: PolyGuard Qwen (8B)
+    description: PolyGuard, a new state-of-the-art multilingual safety model for safeguarding LLM generations.
+    creator_organization_name: ToxicityPrompts
+    access: open
+    release_date: 2025-04-06
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   # Qwen
 
   - name: qwen/qwen-7b
@@ -3734,6 +3751,14 @@ models:
   - name: qwen/qwen2.5-7b-instruct-turbo
     display_name: Qwen2.5 Instruct Turbo (7B)
     description: Qwen2.5 Instruct Turbo (7B) was trained on 18 trillion tokens and supports 29 languages, and shows improvements over Qwen2 in knowledge, coding, mathematics, instruction following, generating long texts, and processing structure data. ([blog](https://qwenlm.github.io/blog/qwen2.5/)) Turbo is Together's cost-efficient implementation, providing fast FP8 performance while maintaining quality, closely matching FP16 reference models. ([blog](https://www.together.ai/blog/together-inference-engine-2))
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2024-09-19
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: qwen/qwen2.5-0.5b-instruct
+    display_name: Qwen2.5 Instruct (0.5B)
+    description: Qwen2.5 Instruct (0.5B) was trained on 18 trillion tokens and supports 29 languages, and shows improvements over Qwen2 in knowledge, coding, mathematics, instruction following, generating long texts, and processing structure data. ([blog](https://qwenlm.github.io/blog/qwen2.5/))
     creator_organization_name: Qwen
     access: open
     release_date: 2024-09-19
