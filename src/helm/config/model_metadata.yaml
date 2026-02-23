@@ -610,6 +610,22 @@ models:
     release_date: 2025-11-24
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: anthropic/claude-sonnet-4-6
+    display_name: Claude 4.6 Sonnet
+    description: Claude 4.6 Sonnet is a Sonnet model from Anthropic that upgrades Sonnet's skills across coding, computer use, long-context reasoning, agent planning, knowledge work, and design. ([blog](https://www.anthropic.com/news/claude-sonnet-4-6), [system card](https://www-cdn.anthropic.com/78073f739564e986ff3e28522761a7a0b4484f84.pdf))
+    creator_organization_name: Anthropic
+    access: limited
+    release_date: 2026-02-17
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: anthropic/claude-opus-4-6
+    display_name: Claude 4.6 Opus
+    description: Claude 4.6 Opus is a large language model from Anthropic with strong capabilities in software engineering, agentic tasks, and long context reasoning, as well as in knowledge work. ([blog](https://www.anthropic.com/news/claude-opus-4-6), [system card](https://www-cdn.anthropic.com/c788cbc0a3da9135112f97cdf6dcd06f2c16cee2.pdf))
+    creator_organization_name: Anthropic
+    access: limited
+    release_date: 2026-02-05
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: anthropic/stanford-online-all-v4-s3
     display_name: Anthropic-LM v4-s3 (52B)
     description: A 52B parameter language model, trained using reinforcement learning from human feedback [paper](https://arxiv.org/pdf/2204.05862.pdf).
