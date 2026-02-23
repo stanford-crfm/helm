@@ -2,6 +2,7 @@ import dataclasses
 from typing import Any, Dict, List, Optional, TypedDict, Union, cast
 import json
 import os
+import re
 import requests
 import tempfile
 import time
@@ -386,8 +387,8 @@ class AnthropicMessagesClient(CachingClient):
             # Avoid error:
             # `top_k` must be unset when thinking is enabled. Please consult our documentation at https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking#important-considerations-when-using-extended-thinking  # noqa: E501
             del raw_request["top_k"]
-        if raw_request["model"].startswith("claude-sonnet-4-5") or raw_request["model"].startswith("claude-haiku-4-5"):
-            # Avoid error:
+        if re.match(r"^claude-[^-]+-4-[56]", raw_request["model"]):
+            # Avoid error for Claude 4.5 / 4.6:
             # `temperature` and `top_p` cannot both be specified for this model. Please use only one.
             del raw_request["top_p"]
 
