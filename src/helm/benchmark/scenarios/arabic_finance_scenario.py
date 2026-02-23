@@ -69,9 +69,9 @@ class ArabicFinanceBoolScenario(ArabicFinanceScenario):
 
     def get_references(self, row: Dict[str, str]) -> List[Reference]:
         if float(row[self.ground_truth_key]) == 1.0:
-            return [Reference(output=Output(text="Yes"), tags=[CORRECT_TAG])]
+            return [Reference(output=Output(text="نعم" if self.lang == "ar" else "Yes"), tags=[CORRECT_TAG])]
         elif float(row[self.ground_truth_key]) == 0.0:
-            return [Reference(output=Output(text="No"), tags=[CORRECT_TAG])]
+            return [Reference(output=Output(text="لا" if self.lang == "ar" else "No"), tags=[CORRECT_TAG])]
         else:
             raise ValueError(f"Unknown ground truth value {row[self.ground_truth_key]}")
 

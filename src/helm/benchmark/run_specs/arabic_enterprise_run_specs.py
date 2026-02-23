@@ -5,6 +5,7 @@ EXPERIMENTAL: Run specs here may have future reverse incompatible changes."""
 from helm.benchmark.adaptation.common_adapter_specs import get_generation_adapter_spec
 from helm.benchmark.annotation.annotator import AnnotatorSpec
 from helm.benchmark.metrics.common_metric_specs import get_basic_metric_specs
+from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
@@ -45,7 +46,9 @@ def get_arabic_content_generation_spec(category: str, annotator_type: str = "abs
         ]
     else:
         raise ValueError(f"Unknown annotator_type {annotator_type}")
-    metric_specs = get_basic_metric_specs([])
+    metric_specs = get_basic_metric_specs([]) + [
+        MetricSpec(class_name="helm.benchmark.metrics.arabic_content_generation_metric.ArabicContentGenerationMetric")
+    ]
 
     return RunSpec(
         name=f"arabic_content_generation:category={category},annotator_type={annotator_type}",
