@@ -8,7 +8,7 @@ from transformers.generation.stopping_criteria import (
 from typing import Any, Dict, List, Optional, TypedDict
 
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import hexception, htrack_block, hlog, hwarn
+from helm.common.hierarchical_logger import hexception, htrack_block, hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import (
     wrap_request_time,
@@ -101,6 +101,7 @@ class HuggingFaceServer:
             encoded_input = tokenizer(raw_request["prompt"], return_tensors="pt", return_token_type_ids=False).to(
                 0 if self.device is None else self.device
             )
+            pad_token_id = tokenizer.eos_token_id
         stopping_criteria: Optional[StoppingCriteriaList] = None
         optional_args = {}
         if len(raw_request["stop_sequences"]) > 0:
@@ -140,6 +141,7 @@ class HuggingFaceServer:
                 output_scores=True,
                 **optional_args,
                 stopping_criteria=stopping_criteria,
+                pad_token_id=pad_token_id,
             )
             sequences = output.sequences
             scores = output.scores
@@ -274,7 +276,7 @@ class HuggingFaceClient(CachingClient):
         else:
             with self._wrapped_tokenizer as hf_tokenizer:
                 self._apply_chat_template = bool(hf_tokenizer.chat_template)
-                hwarn(
+                hlog(
                     f"Automatically set `apply_chat_template` to {self._apply_chat_template} based on "
                     "whether the tokenizer has a chat template. "
                     "If this is incorrect, please explicitly set `apply_chat_template`."
