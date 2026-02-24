@@ -7,8 +7,7 @@ from helm.common.cache import CacheConfig
 from helm.common.media_object import IMAGE_TYPE, TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput
-from helm.tokenizers.tokenizer import Tokenizer
-from helm.clients.client import CachingClient, truncate_and_tokenize_response_text
+from helm.clients.client import CachingClient
 
 try:
     from mistralai import Mistral
@@ -38,16 +37,12 @@ class MistralAIClient(CachingClient):
 
     def __init__(
         self,
-        tokenizer: Tokenizer,
-        tokenizer_name: str,
         cache_config: CacheConfig,
         api_key: str,
         mistral_model: Optional[str] = None,
     ):
         super().__init__(cache_config=cache_config)
         self.api_key: str = api_key
-        self.tokenizer = tokenizer
-        self.tokenizer_name = tokenizer_name
         self._client = Mistral(api_key=self.api_key)
         self.mistral_model = mistral_model
 
@@ -161,20 +156,35 @@ class MistralAIClient(CachingClient):
                 error: str = f"MistralClient error: {e}"
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
-            response_message: Dict[str, Any] = response["choices"][0]["message"]
-            assert response_message["role"] == "assistant"
-            response_text: str = response_message["content"]
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            request_time = response["request_time"]
+            del response["request_time"]
+            request_datetime = response["request_datetime"]
+            del response["request_datetime"]
+            chat_completion_response = ChatCompletionResponse.model_validate(response)
+            assert len(chat_completion_response.choices) == 1
+            choice = chat_completion_response.choices[0]
+            response_message = choice.message
+            assert response_message.role == "assistant"
+            response_text = str(response_message.content)
+            finish_reason = choice.finish_reason
 
             # The Mistral API doesn't support echo. If `echo_prompt` is true, combine the prompt and completion.
-            text: str = request.prompt + response_text if request.echo_prompt else response_text
-            sequence = truncate_and_tokenize_response_text(text, request, self.tokenizer, self.tokenizer_name)
-            completions.append(sequence)
+            output_text = request.prompt + response_text if request.echo_prompt else response_text
+            completions.append(
+                GeneratedOutput(
+                    text=output_text,
+                    logprob=0.0,  # API doesn't support logprobs or tokens
+                    tokens=[],  # API doesn't support logprobs or tokens
+                    finish_reason={"reason": finish_reason},
+                )
+            )
 
         return RequestResult(
             success=True,
             cached=cached,
-            request_time=response["request_time"],
-            request_datetime=response["request_datetime"],
+            request_time=request_time,
+            request_datetime=request_datetime,
             completions=completions,
             embedding=[],
         )
