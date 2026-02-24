@@ -1,6 +1,8 @@
 import dataclasses
 from typing import Any, Dict, List, Optional, TypedDict
 
+from huggingface_hub import ChatCompletionOutput, InferenceClient
+
 from helm.common.cache import CacheConfig
 from helm.common.request import (
     Thinking,
@@ -10,7 +12,6 @@ from helm.common.request import (
     GeneratedOutput,
 )
 from helm.clients.client import CachingClient
-from huggingface_hub import ChatCompletionOutput, InferenceClient
 
 
 class HuggingFaceInferenceProvidersChatCompletionRequest(TypedDict):
