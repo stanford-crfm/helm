@@ -164,6 +164,7 @@ def auto_generate_model_deployment(name: str) -> ModelDeployment:
         from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 
         pretrained_model_name_or_path = "/".join(name_parts[1:])
+        pretrained_model_name_or_path = pretrained_model_name_or_path.split(":")[0]
         with HuggingFaceTokenizer.create_tokenizer(pretrained_model_name_or_path) as tokenizer:
             max_sequence_length = tokenizer.model_max_length
             if max_sequence_length > 1_000_000_000:
