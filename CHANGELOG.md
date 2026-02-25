@@ -4,6 +4,8 @@
 
 ## [v0.5.13] - 2026-02-25
 
+### Breaking Changes
+
 - Previously, in `HuggingFaceClient`, Hugging Face models were loaded with `trust_remote_code=True` by default. This was a security risk as it permitted executing arbitrary code from the model repositories. This will no longer be done. If needed, `trust_remote_code` must be explicitly set in the `args` field in `model_deployments.yaml` for Hugging Face models. (#4054)
 - Previously, responses from models on the Mistral AI API were tokenized locally locally. These responses will no longer be tokenized. (#4084)
 
