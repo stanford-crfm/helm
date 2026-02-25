@@ -172,3 +172,72 @@ def get_disinformation_metric_specs(args: Optional[Dict] = None) -> List[MetricS
 
 def get_open_ended_generation_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(["exact_match", "quasi_exact_match", "f1_score", "rouge_l", "bleu_1", "bleu_4"])
+
+
+def get_uncertainty_quantification_metric_specs(
+    num_bins: int = 10,
+    confidence_levels: Optional[List[float]] = None,
+    compute_uncertainty_decomposition: bool = True,
+) -> List[MetricSpec]:
+    """Get metric specs for uncertainty quantification metrics."""
+    args: Dict[str, Any] = {
+        "num_bins": num_bins,
+        "compute_uncertainty_decomposition": compute_uncertainty_decomposition,
+    }
+    if confidence_levels is not None:
+        args["confidence_levels"] = confidence_levels
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.uncertainty_quantification_metrics.UncertaintyQuantificationMetric",
+            args=args,
+        )
+    ]
+
+
+def get_robustness_metric_specs(
+    compute_sensitivity: bool = True,
+    compute_stability: bool = True,
+    compute_adversarial: bool = True,
+) -> List[MetricSpec]:
+    """Get metric specs for robustness metrics."""
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.robustness_metrics.RobustnessMetric",
+            args={
+                "compute_sensitivity": compute_sensitivity,
+                "compute_stability": compute_stability,
+                "compute_adversarial": compute_adversarial,
+            },
+        )
+    ]
+
+
+def get_cross_model_consistency_metric_specs(
+    compute_agreement: bool = True,
+    compute_consensus: bool = True,
+    compute_disagreement: bool = True,
+) -> List[MetricSpec]:
+    """Get metric specs for cross-model consistency metrics."""
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.cross_model_consistency_metrics.CrossModelConsistencyMetric",
+            args={
+                "compute_agreement": compute_agreement,
+                "compute_consensus": compute_consensus,
+                "compute_disagreement": compute_disagreement,
+            },
+        )
+    ]
+
+
+def get_research_metrics_specs() -> List[MetricSpec]:
+    """
+    Get all research-level metrics (uncertainty, robustness, cross-model consistency).
+    
+    This is a convenience function that returns all research metrics together.
+    """
+    return (
+        get_uncertainty_quantification_metric_specs()
+        + get_robustness_metric_specs()
+        + get_cross_model_consistency_metric_specs()
+    )
