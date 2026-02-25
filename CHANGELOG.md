@@ -2,6 +2,45 @@
 
 ## [Upcoming]
 
+## [v0.5.13] - 2026-02-25
+
+- Previously, in `HuggingFaceClient`, Hugging Face models were loaded with `trust_remote_code=True` by default. This was a security risk as it permitted executing arbitrary code from the model repositories. This will no longer be done. If needed, `trust_remote_code` must be explicitly set in the `args` field in `model_deployments.yaml` for Hugging Face models. (#4054)
+- Previously, responses from models on the Mistral AI API were tokenized locally locally. These responses will no longer be tokenized. (#4084)
+
+### Models
+
+- Do not set `trust_remote_code=True` by default in HuggingFaceClient (#4054)
+- Add Grok 4 Fast and Grok 4.1 Fast (#4071)
+- Add GPT-5.2 (#4075)
+- Add Claude Sonnet 4.6 and Opus 4.6 (#4083)
+- Add Gemini 3.1 Pro (#4076)
+- Explicitly set `pad_token_id` for Hugging Face generations (#4087)
+- Support models on HuggingFace Inference Providers (#4086)
+
+### Scenarios
+
+- Add links to the cited papers in the schema for HEIM (#4063, #4074)
+
+### Framework
+
+- Add `--export-path` arg to helm-server for exporting a static website (#4047)
+- Use Python standard library for downloading files (#4052)
+- Use Python standard library for decompressing archives (#4051)
+- Add validation for schema YAML files (#4049)
+- Add optional dependencies for summarization metrics (#4067)
+
+### Frontend
+
+- Render whitespace in adapter values in frontend using CSS pre-wrap (#4062)
+- Render whitespace in model responses in proxy server frontend using CSS pre-wrap (#4085)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @HetanshWaghela
+- @yifanmai
+
 ## [v0.5.12] - 2026-01-27
 
 ### Models
@@ -1282,7 +1321,8 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.12...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.13...HEAD
+[v0.5.13]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.13
 [v0.5.12]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.12
 [v0.5.11]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.11
 [v0.5.10]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.10
