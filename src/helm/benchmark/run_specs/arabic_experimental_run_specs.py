@@ -6,7 +6,6 @@ from helm.benchmark.adaptation.adapter_spec import ADAPT_MULTIPLE_CHOICE_JOINT
 from helm.benchmark.adaptation.common_adapter_specs import (
     get_generation_adapter_spec,
     get_multiple_choice_adapter_spec,
-    get_multiple_choice_joint_adapter_spec,
 )
 from helm.benchmark.annotation.annotator import AnnotatorSpec
 from helm.benchmark.metrics.common_metric_specs import get_basic_metric_specs, get_exact_match_metric_specs
@@ -61,14 +60,13 @@ def get_arabic_finance_mcq_spec(lang: str) -> RunSpec:
 
         adapter_spec = get_multiple_choice_adapter_spec(
             method=ADAPT_MULTIPLE_CHOICE_JOINT,
-            instructions="الأسئلة التالية هي أسئلة متعددة الإختيارات مع الجواب الصحيح",  # noqa: E501
+            instructions="Answer the following multiple-choice question with only a single letter.",  # noqa: E501
             input_noun="السؤال",
             output_noun="الإجابة",
             max_tokens=100,
             reference_prefix_characters=_ARABIC_REFERENCE_PREFIX_CHARACTERS,
             output_mapping_pattern=_ARABIC_OUTPUT_MAPPING_PATTERN,
         )
-        instructions = "Answer the following multiple-choice question with only a single letter."
     elif lang == "ar":
         adapter_spec = get_multiple_choice_adapter_spec(
             method=ADAPT_MULTIPLE_CHOICE_JOINT,

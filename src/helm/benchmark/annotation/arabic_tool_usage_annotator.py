@@ -1,11 +1,9 @@
-import re
 from typing import Any
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
 from helm.clients.auto_client import AutoClient
 from helm.common.request import Request
-from helm.proxy.retry import NonRetriableException
 
 
 class ArabicToolUsageAnnotator(Annotator):

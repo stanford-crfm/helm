@@ -4,11 +4,8 @@ from typing import List
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
-    Reference,
     TEST_SPLIT,
-    CORRECT_TAG,
     Input,
-    Output,
 )
 
 

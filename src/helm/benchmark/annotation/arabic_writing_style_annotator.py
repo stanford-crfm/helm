@@ -1,4 +1,3 @@
-import re
 from typing import Any
 
 from helm.benchmark.adaptation.request_state import RequestState
