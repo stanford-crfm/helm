@@ -1,5 +1,7 @@
-import csv
-from typing import Any, Dict, List
+import os
+from typing import Dict, List
+
+import datasets
 
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -10,6 +12,7 @@ from helm.benchmark.scenarios.scenario import (
     Input,
     Output,
 )
+from helm.common.general import ensure_directory_exists
 
 
 class ArabicFinanceScenario(Scenario):
@@ -37,24 +40,31 @@ class ArabicFinanceScenario(Scenario):
         raise NotImplementedError()
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        instances: List[Instance] = []
-        csv_path = "/home/yifanmai/oss/helm/arabic-bench/finance/validation_set_ar.csv"
+        cache_dir = os.path.join(output_path, "data")
+        ensure_directory_exists(cache_dir)
+        dataset = datasets.load_dataset(
+            "yifanmai/arabic-enterprise",
+            "content_generation",
+            cache_dir=cache_dir,
+            split="test",
+            revision="c48672228754ee2c2c752468e47e8c9ed205f7e3",
+        )
+        assert isinstance(dataset, datasets.Dataset)
 
-        with open(csv_path, "r") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                if row["task"] != self.task:
-                    continue
-                input = Input(text=row[self.question_key])
-                references = self.get_references(row)
-                instances.append(
-                    Instance(
-                        id=row["id"],
-                        input=input,
-                        references=references,
-                        split=TEST_SPLIT,
-                    )
+        instances: List[Instance] = []
+        for row in dataset:
+            if row["task"] != self.task:
+                continue
+            input = Input(text=row[self.question_key])
+            references = self.get_references(row)
+            instances.append(
+                Instance(
+                    id=row["id"],
+                    input=input,
+                    references=references,
+                    split=TEST_SPLIT,
                 )
+            )
 
         return instances
 

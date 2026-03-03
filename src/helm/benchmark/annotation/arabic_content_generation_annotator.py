@@ -43,7 +43,6 @@ _CRITERIA = {
 3. The model includes several important facts from the user-provided content but omits at least one significant detail or key element.
 4. The model includes nearly all important facts from the user-provided content, with only minor or non-essential details missing.
 5. The model includes all important facts from the user-provided content with no meaningful omissions.""",
-
     "style": """Does the model output follow the requested style, while keeping the facts intact?
 
 1. The output fails to follow the requested style and significantly distorts, omits, or introduces incorrect facts.
@@ -51,7 +50,6 @@ _CRITERIA = {
 3. The output generally follows the requested style with minor deviations and preserves most key facts, though small inaccuracies or slight distortions may appear.
 4. The output closely adheres to the requested style and maintains factual accuracy, with only minimal stylistic or factual imperfections.
 5. The output fully embodies the requested style while preserving all facts accurately, with no distortions, omissions, or inconsistencies.""",
-
     "tone_and_intent": """Does the output follow the requested tone and intent i.e. what the text is trying to do emotionally/strategically?
 
 1. The output clearly fails to match the requested tone and intent, conveying an emotional or strategic approach that is inappropriate, contradictory, or entirely misaligned with what was asked.
@@ -59,7 +57,6 @@ _CRITERIA = {
 3. The output generally reflects the requested tone and intent but lacks consistency, nuance, or strength in fully delivering the intended emotional or strategic impact.
 4. The output closely follows the requested tone and intent, maintaining consistent alignment and effectively supporting the intended emotional or strategic objective.
 5. The output precisely and skillfully embodies the requested tone and intent throughout, enhancing the emotional or strategic purpose in a clear, cohesive, and compelling way.""",
-
     "formality_and_register": """Does the output follow the requested formality and register i.e. how “corporate” vs “casual” the language is?
 
 1. The output completely ignores the requested formality and register, using language that is clearly inappropriate for the intended corporate or casual context.
@@ -67,7 +64,6 @@ _CRITERIA = {
 3. The output partially follows the requested formality and register, but contains noticeable inconsistencies that weaken the overall tonal fit.
 4. The output largely matches the requested formality and register, with only minor lapses in tone or phrasing that do not significantly affect appropriateness.
 5. The output consistently and precisely matches the requested formality and register, demonstrating clear control over tone, word choice, and level of professionalism throughout.""",
-
     "point_of_view_and_voice": """Does the output follow the requested point of view and voice i.e. who is “speaking” and how direct it is?
 
 1. The output completely ignores the requested formality and register, using a tone that is clearly inappropriate (e.g., highly casual when corporate was requested, or overly formal when casual was requested).
@@ -75,7 +71,6 @@ _CRITERIA = {
 3. The output generally reflects the requested formality and register, though there are occasional lapses in tone, word choice, or phrasing that slightly weaken alignment.
 4. The output closely follows the requested formality and register, with only minor inconsistencies that do not significantly affect overall tone.
 5. The output fully and consistently matches the requested formality and register, demonstrating precise, intentional control of tone throughout.""",
-
     "structure_and_formatting_habits": """Does the output follow the requested structure and formatting habits i.e. how the text is organized?
 
 1. The output ignores the requested structure and formatting habits entirely, showing no clear organization or adherence to the specified format.
