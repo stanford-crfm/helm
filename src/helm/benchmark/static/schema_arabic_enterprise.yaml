@@ -92,28 +92,17 @@ metrics:
     short_display_name: PEM
     description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
     lower_is_better: false
-  - name: alrage_score
-    # TODO: should call this prefix_quasi_exact_match
-    display_name: ALRAGE Score
-    short_display_name: Score
-    description: Score of the output judged by GPT-4o.
-    lower_is_better: false
   - name: calculation_accuracy
     display_name: Calculation accuracy
     short_display_name: Accuracy
     description: Fraction of instances that had final answer that was mathematically equivalent to the reference answer.
     lower_is_better: false
-  - name: model_judged_score
-    display_name: Model Judged Score
-    short_display_name: Score
-    description: Model-judged score.
-    lower_is_better: false
-    
   - name: arabic_content_generation_score
     display_name: Model Judged Score
     short_display_name: Score
     description: Model-judged score.
     lower_is_better: false
+
 ############################################################
 perturbations: []
 

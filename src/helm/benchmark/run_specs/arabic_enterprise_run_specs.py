@@ -68,7 +68,7 @@ def get_arabic_content_generation_spec(category: str, annotator_type: str = "abs
 
 
 @run_spec_function("arabic_finance_mcq")
-def get_arabic_finance_mcq_spec(lang: str) -> RunSpec:
+def get_arabic_finance_mcq_spec(lang: str = "ar") -> RunSpec:
     """EXPERIMENTAL: This run spec here may have future reverse incompatible changes."""
 
     scenario_spec = ScenarioSpec(
@@ -96,8 +96,13 @@ def get_arabic_finance_mcq_spec(lang: str) -> RunSpec:
     else:
         raise ValueError(f"Unknown value for `lang`: {lang}")
 
+    if lang == "ar":
+        run_spec_name = "arabic_finance_mcq"
+    else:
+        run_spec_name = f"arabic_finance_mcq:lang={lang}"
+
     return RunSpec(
-        name=f"arabic_finance_mcq:lang={lang}",
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
@@ -106,7 +111,7 @@ def get_arabic_finance_mcq_spec(lang: str) -> RunSpec:
 
 
 @run_spec_function("arabic_finance_bool")
-def get_arabic_finance_bool_spec(lang: str) -> RunSpec:
+def get_arabic_finance_bool_spec(lang: str = "ar") -> RunSpec:
     """EXPERIMENTAL: This run spec here may have future reverse incompatible changes."""
 
     scenario_spec = ScenarioSpec(
@@ -126,8 +131,13 @@ def get_arabic_finance_bool_spec(lang: str) -> RunSpec:
         stop_sequences=[],
     )
 
+    if lang == "ar":
+        run_spec_name = "arabic_finance_bool"
+    else:
+        run_spec_name = f"arabic_finance_bool:lang={lang}"
+
     return RunSpec(
-        name=f"arabic_finance_bool:lang={lang}",
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
@@ -136,7 +146,7 @@ def get_arabic_finance_bool_spec(lang: str) -> RunSpec:
 
 
 @run_spec_function("arabic_finance_calculation")
-def get_arabic_finance_calculation_spec(lang: str) -> RunSpec:
+def get_arabic_finance_calculation_spec(lang: str = "ar") -> RunSpec:
     """EXPERIMENTAL: This run spec here may have future reverse incompatible changes."""
 
     scenario_spec = ScenarioSpec(
@@ -149,7 +159,7 @@ def get_arabic_finance_calculation_spec(lang: str) -> RunSpec:
             "Answer the question, giving your reasoning beforehand. Wrap the final answer with the \\boxed{} command."
         )
     elif lang == "ar":
-        instructions = "أجب عن السؤال، مع تقديم تعليلك مسبقًا. ضع الإجابة النهائية داخل الأمر \boxed{}."
+        instructions = "أجب عن السؤال، مع تقديم تعليلك مسبقًا. ضع الإجابة النهائية داخل الأمر \\boxed{}."
     else:
         raise ValueError(f"Unknown value for `lang`: {lang}")
 
@@ -167,9 +177,13 @@ def get_arabic_finance_calculation_spec(lang: str) -> RunSpec:
     metric_specs = get_basic_metric_specs([]) + [
         MetricSpec(class_name="helm.benchmark.metrics.arabic_finance_calculation_metric.ArabicFinanceCalculationMetric")
     ]
+    if lang == "ar":
+        run_spec_name = "arabic_finance_calculation"
+    else:
+        run_spec_name = f"arabic_finance_calculation:lang={lang}"
 
     return RunSpec(
-        name=f"arabic_finance_calculation:lang={lang}",
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,

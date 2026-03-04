@@ -44,10 +44,10 @@ class ArabicFinanceScenario(Scenario):
         ensure_directory_exists(cache_dir)
         dataset = datasets.load_dataset(
             "yifanmai/arabic-enterprise",
-            "content_generation",
+            "finance",
             cache_dir=cache_dir,
             split="test",
-            revision="c48672228754ee2c2c752468e47e8c9ed205f7e3",
+            # TODO: Set revision
         )
         assert isinstance(dataset, datasets.Dataset)
 

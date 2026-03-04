@@ -34,7 +34,7 @@ class ArabicContentGenerationScenario(Scenario):
             "content_generation",
             cache_dir=cache_dir,
             split="test",
-            revision="c48672228754ee2c2c752468e47e8c9ed205f7e3",
+            # TODO: Set revision
         )
         assert isinstance(dataset, datasets.Dataset)
 
@@ -42,7 +42,7 @@ class ArabicContentGenerationScenario(Scenario):
         for row in dataset:
             if self.category != "all" and self.category != row["category"]:
                 continue
-            prompt = f"## Facts\n\n{row['facts']}\n\n##Style\n\n{row['style']}"
+            prompt = f"## Facts\n\n{row['facts']}\n\n## Style\n\n{row['style']}"
             instance = Instance(
                 id=f"id{row['id']}",
                 input=Input(text=prompt),
