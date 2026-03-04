@@ -150,7 +150,6 @@ run_groups:
       - arabic_finance_calculation
       - arabic_finance_mcq
       - arabic_finance_bool
-      # - arabic_tool_usage
 
   - name: arabic_content_generation
     display_name: Content Generation
@@ -217,22 +216,5 @@ run_groups:
       task: "?"
       what: "?"
       who: "?"
-      when: "2025"
-      language: English
-
-  - name: arabic_tool_usage
-    display_name: Tool Usage
-    description: Tool Usage
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: model_judged_score
-      main_split: test
-    taxonomy:
-      task: tool usage
-      what: web browsing
-      who: web users
       when: "2025"
       language: English
