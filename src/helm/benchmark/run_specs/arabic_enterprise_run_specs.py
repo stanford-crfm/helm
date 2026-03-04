@@ -145,7 +145,9 @@ def get_arabic_finance_calculation_spec(lang: str) -> RunSpec:
     )
 
     if lang == "en":
-        instructions = "Answer the question, giving your reasoning beforehand. Wrap the final answer with the \\boxed{} command."
+        instructions = (
+            "Answer the question, giving your reasoning beforehand. Wrap the final answer with the \\boxed{} command."
+        )
     elif lang == "ar":
         instructions = "أجب عن السؤال، مع تقديم تعليلك مسبقًا. ضع الإجابة النهائية داخل الأمر \boxed{}."
     else:
