@@ -33,7 +33,6 @@ def get_arabic_content_generation_spec(category: str, annotator_type: str = "abs
         stop_sequences=[],
     )
 
-    # annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.arabic_content_generation_annotator.ArabicContentGenerationAnnotator")]
     if annotator_type == "absolute":
         annotator_specs = [
             AnnotatorSpec(
@@ -77,15 +76,12 @@ def get_arabic_finance_mcq_spec(lang: str) -> RunSpec:
     )
 
     if lang == "en":
-
         adapter_spec = get_multiple_choice_adapter_spec(
             method=ADAPT_MULTIPLE_CHOICE_JOINT,
             instructions="Answer the following multiple-choice question with only a single letter.",  # noqa: E501
-            input_noun="السؤال",
-            output_noun="الإجابة",
-            max_tokens=100,
-            reference_prefix_characters=_ARABIC_REFERENCE_PREFIX_CHARACTERS,
-            output_mapping_pattern=_ARABIC_OUTPUT_MAPPING_PATTERN,
+            input_noun="Question",
+            output_noun="Answer",
+            max_tokens=10,
         )
     elif lang == "ar":
         adapter_spec = get_multiple_choice_adapter_spec(
@@ -93,7 +89,7 @@ def get_arabic_finance_mcq_spec(lang: str) -> RunSpec:
             instructions="السؤال التالي هو سؤال متعدد الاختيارات. اختر الإجابة الصحيحة اكتب حرف الإجابة فقط، دون أي إضافات أخرى.",  # noqa: E501
             input_noun="السؤال",
             output_noun="الإجابة",
-            max_tokens=100,
+            max_tokens=10,
             reference_prefix_characters=_ARABIC_REFERENCE_PREFIX_CHARACTERS,
             output_mapping_pattern=_ARABIC_OUTPUT_MAPPING_PATTERN,
         )
@@ -148,8 +144,15 @@ def get_arabic_finance_calculation_spec(lang: str) -> RunSpec:
         args={"lang": lang},
     )
 
+    if lang == "en":
+        instructions = "Answer the question, giving your reasoning beforehand. Wrap the final answer with the \\boxed{} command."
+    elif lang == "ar":
+        instructions = "أجب عن السؤال، مع تقديم تعليلك مسبقًا. ضع الإجابة النهائية داخل الأمر \boxed{}."
+    else:
+        raise ValueError(f"Unknown value for `lang`: {lang}")
+
     adapter_spec = get_generation_adapter_spec(
-        instructions="Answer the question, giving your reasoning beforehand. Wrap the final answer with the \\boxed{} command.",
+        instructions=instructions,
         max_tokens=2000,
         stop_sequences=[],
     )
