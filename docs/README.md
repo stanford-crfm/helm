@@ -1,6 +1,6 @@
 # MedHELM documentation (Jekyll)
 
-This folder is the source for [medhelm.org](https://medhelm.org). The site is built with **Jekyll** and published via **GitHub Pages** (repository setting: use **main** branch, **/docs** folder).
+This folder is the source for [medhelm.org](https://medhelm.org). The site is built with **Jekyll**. Deployment is from the **gh-pages** branch: a **GitHub Action** runs on push to **main** (when `docs/**` or this workflow change), builds the site, and pushes the output to **gh-pages**. Configure GitHub Pages to serve from the **gh-pages** branch (Settings → Pages → Source: Deploy from a branch → Branch: gh-pages, / (root)).
 
 ## Local build
 
