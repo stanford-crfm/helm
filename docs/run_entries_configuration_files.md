@@ -1,3 +1,6 @@
+---
+title: Run Entries Configuration Files
+---
 # Run Entries Configuration Files
 
 In the tutorial, we have been using `--run-entries` to specify run entries for `helm-run`. However, we can also put the run entries into a **run entries configuration file**, and then pass the file to `helm-run` using the `--conf-file` flag.

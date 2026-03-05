@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Downloading Raw Results | MedHELM</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body class="docs-page">
+  <header class="site-header">
+  <div class="header-inner">
+    <a href="/" class="header-logo" aria-label="MedHELM">
+      <img src="https://raw.githubusercontent.com/Pacific-AI-Corp/langtest/main/docs/assets/images/logo.png" alt="Pacific AI" height="56" width="auto">
+    </a>
+    <nav class="header-nav">
+      <a href="/">Home</a>
+      <a href="/installation">Docs</a>
+      <a href="/tutorial">Tutorials</a>
+      <a href="/benchmark">Tests</a>
+      <a href="/reproducing_leaderboards">Benchmarks</a>
+      <div class="widget widget-lg">
+        <a class="btn btn-gh" href="https://github.com/Pacific-AI-Corp/medhelm" rel="noopener" target="_blank" aria-label="Star Pacific-AI-Corp/medhelm on GitHub">
+          <svg viewBox="0 0 16 16" width="16" height="16" class="octicon octicon-mark-github" aria-hidden="true"><path fill="currentColor" d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.47 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.1 1.5.07.09.45.68.1 1.5-.01.24-.01.47-.01.71 0 .21.15.46.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>&nbsp;<span>Star on GitHub</span>
+        </a>
+        <a class="social-count" href="https://github.com/Pacific-AI-Corp/medhelm/stargazers" rel="noopener" target="_blank" aria-label="Stargazers on GitHub" id="github-stars-count">—</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+  <div class="docs-wrapper">
+    <nav class="docs-sidebar" aria-label="Documentation">
+  <div class="docs-sidebar-inner">
+    
+    <a href="/installation" class="docs-sidebar-title">Docs</a>
+    <ul class="docs-nav-list">
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">User Guide</span>
+        <ul>
+          <li><a href="/installation" class="">Installation</a></li>
+          <li><a href="/quick_start" class="">Quick Start</a></li>
+          <li><a href="/tutorial" class="">Tutorial</a></li>
+          <li><a href="/run_entries_configuration_files" class="">Run Entries Configuration Files</a></li>
+          <li><a href="/run_entries" class="">Run Entries</a></li>
+          <li><a href="/credentials" class="">Credentials</a></li>
+          <li><a href="/importing_custom_modules" class="">Importing Custom Modules</a></li>
+          <li><a href="/adding_new_models" class="">Adding New Models</a></li>
+          <li><a href="/adding_new_scenarios" class="">Adding New Scenarios</a></li>
+          <li><a href="/adding_new_tokenizers" class="">Adding New Tokenizers</a></li>
+          <li><a href="/downloading_raw_results" class="is-active">Downloading Raw Results</a></li>
+          <li><a href="/reproducing_leaderboards" class="">Reproducing Leaderboards</a></li>
+          <li><a href="/get_helm_rank" class="">Efficient-HELM</a></li>
+          <li><a href="/benchmark" class="">Advanced Benchmarking Guide</a></li>
+          <li><a href="/huggingface_models" class="">Hugging Face Model Hub</a></li>
+        </ul>
+      </li>
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">Papers</span>
+        <ul>
+          <li><a href="/heim" class="">HEIM (Text-to-image)</a></li>
+          <li><a href="/vhelm" class="">VHELM (Vision-Language)</a></li>
+          <li><a href="/enterprise_benchmark" class="">Enterprise Benchmark</a></li>
+          <li><a href="/reeval" class="">Reliable and Efficient Amortized Evaluation</a></li>
+          <li><a href="/medhelm" class="">MedHELM</a></li>
+        </ul>
+      </li>
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">Reference</span>
+        <ul>
+          <li><a href="/models" class="">Models</a></li>
+          <li><a href="/metrics" class="">Metrics</a></li>
+          <li><a href="/perturbations" class="">Perturbations</a></li>
+          <li><a href="/scenarios" class="">Scenarios</a></li>
+          <li><a href="/schemas" class="">Schemas</a></li>
+        </ul>
+      </li>
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">Developer Guide</span>
+        <ul>
+          <li><a href="/developer_setup" class="">Developer Setup</a></li>
+          <li><a href="/code" class="">Code Structure</a></li>
+          <li><a href="/developer_adding_new_models" class="">Adding New Clients</a></li>
+          <li><a href="/proxy_server" class="">Proxy Server</a></li>
+          <li><a href="/editing_documentation" class="">Editing Documentation</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+    <main class="site-main docs-main">
+      <div class="main-inner">
+        <h1 id="downloading-raw-results">Downloading Raw Results</h1>
+
+<p>All of HELM’s raw result data is stored in Google Cloud Storage (GCS) in the public <code class="language-plaintext highlighter-rouge">crfm-helm-public</code> bucket. If you wish to download the raw result data, you can use the Google Cloud Platform (GCP) tools to do so. The following walks through how to use the <code class="language-plaintext highlighter-rouge">gcloud storage</code> command line tool (<a href="https://cloud.google.com/sdk/gcloud/reference/storage">documentation</a>) to download the data.</p>
+
+<h2 id="setup">Setup</h2>
+
+<ol>
+  <li>Follow <a href="https://cloud.google.com/sdk/docs/install">Google’s installation instructions</a> to install <code class="language-plaintext highlighter-rouge">gcloud</code>. If the installer prompts you to log in, you may skip this step because the HELM GCS bucket allows public unauthenticated access.</li>
+  <li>Create a local directory to store the data:
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">export </span><span class="nv">LOCAL_BENCHMARK_OUTPUT_PATH</span><span class="o">=</span>./benchmark_output
+<span class="nb">mkdir</span> <span class="nv">$LOCAL_BENCHMARK_OUTPUT_PATH</span>
+</code></pre></div>    </div>
+  </li>
+  <li>Set the GCS path to the appropriate path:
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">export </span><span class="nv">GCS_BENCHMARK_OUTPUT_PATH</span><span class="o">=</span>gs://crfm-helm-public/lite/benchmark_output
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="paths">Paths</h2>
+
+<p>Locations of the <code class="language-plaintext highlighter-rouge">benchmark_output</code> folders for each project:</p>
+
+<ul>
+  <li>Capabilities: <code class="language-plaintext highlighter-rouge">gs://crfm-helm-public/capabilities/benchmark_output</code></li>
+  <li>Safety: <code class="language-plaintext highlighter-rouge">gs://crfm-helm-public/safety/benchmark_output</code></li>
+  <li>AIR-Bench: <code class="language-plaintext highlighter-rouge">gs://crfm-helm-public/air-bench/benchmark_output</code></li>
+  <li>Lite: <code class="language-plaintext highlighter-rouge">gs://crfm-helm-public/lite/benchmark_output</code></li>
+  <li>MMLU: <code class="language-plaintext highlighter-rouge">gs://crfm-helm-public/mmlu/benchmark_output</code></li>
+  <li>Classic: <code class="language-plaintext highlighter-rouge">gs://crfm-helm-public/benchmark_output</code> (see warning above)</li>
+  <li>HEIM: <code class="language-plaintext highlighter-rouge">gs://crfm-helm-public/heim/benchmark_output</code></li>
+  <li>Instruct: <code class="language-plaintext highlighter-rouge">gs://crfm-helm-public/instruct/benchmark_output</code></li>
+  <li>MedHELM: <code class="language-plaintext highlighter-rouge">gs://crfm-helm-public/medhelm/benchmark_output</code></li>
+  <li>ToRR: <code class="language-plaintext highlighter-rouge">gs://crfm-helm-public/torr/benchmark_output</code></li>
+  <li>VHELM: <code class="language-plaintext highlighter-rouge">gs://crfm-helm-public/vhelm/benchmark_output</code></li>
+  <li>AHELM: <code class="language-plaintext highlighter-rouge">gs://crfm-helm-public/audio/benchmark_output</code></li>
+  <li>Image2Struct: <code class="language-plaintext highlighter-rouge">gs://crfm-helm-public/image2struct/benchmark_output</code></li>
+</ul>
+
+<h2 id="download-a-whole-project">Download a whole project</h2>
+
+<p>Warning: Downloading a whole HELM project requires a very large amounts of disk space - a few hundred GB for most projects, and more than 1 TB for Classic. Ensure that you have enough local disk space before downloading these projects.</p>
+
+<ol>
+  <li>(Optional) Use the <code class="language-plaintext highlighter-rouge">gcloud storage du</code> (<a href="https://cloud.google.com/sdk/gcloud/reference/storage/du">documentation</a>) command to compute the size of the download and ensure you have enough space on your local disk:
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gcloud storage <span class="nb">du</span> <span class="nt">-sh</span> <span class="nv">$GCS_BENCHMARK_OUTPUT_PATH</span>
+</code></pre></div>    </div>
+  </li>
+  <li>Run <code class="language-plaintext highlighter-rouge">gcloud storage rsync</code> (<a href="https://cloud.google.com/sdk/gcloud/reference/storage/rsync">documentation</a>) to download the data to the folder created in the previous step:
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gcloud storage rsync <span class="nt">-r</span> <span class="nv">$GCS_BENCHMARK_OUTPUT_PATH</span> <span class="nv">$LOCAL_BENCHMARK_OUTPUT_PATH</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="download-a-specific-version">Download a specific version</h2>
+
+<p>You can also download a specific version to save local disk space. The instructions differ depending on which version you are downloading. Check if your version is in the following list:</p>
+
+<ul>
+  <li>Classic: before v0.3.0</li>
+  <li>VHELM</li>
+  <li>AHELM</li>
+  <li>Image2Struct</li>
+</ul>
+
+<p>If you are downloading one of the above versions, then you should <em>skip</em> <strong>Download a specific releases</strong> and <em>only</em> follow the instructions in <strong>Download a specific suite</strong>.</p>
+
+<p>Otherwise, you should follow the instructions in <em>both</em> <strong>Download a specific releases</strong> and <strong>Download a specific suite</strong>.</p>
+
+<h2 id="download-a-specific-release">Download a specific release</h2>
+
+<ol>
+  <li>Set the release version:
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">export </span><span class="nv">RELEASE_VERSION</span><span class="o">=</span>v1.0.0
+</code></pre></div>    </div>
+  </li>
+  <li>Create a local directory to store the data:
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir</span> <span class="nv">$LOCAL_BENCHMARK_OUTPUT_PATH</span>/releases/<span class="nv">$RELEASE_VERSION</span>
+</code></pre></div>    </div>
+  </li>
+  <li>Run <code class="language-plaintext highlighter-rouge">gcloud storage rsync</code> (<a href="https://cloud.google.com/sdk/gcloud/reference/storage/du">documentation</a>) to download the data to the folder created in the previous step:
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gcloud storage rsync <span class="nt">-r</span> <span class="nv">$GCS_BENCHMARK_OUTPUT_PATH</span>/releases/<span class="nv">$RELEASE_VERSION</span> <span class="nv">$LOCAL_BENCHMARK_OUTPUT_PATH</span>/releases/<span class="nv">$RELEASE_VERSION</span>
+</code></pre></div>    </div>
+  </li>
+  <li>Inspect the file contents of <code class="language-plaintext highlighter-rouge">$LOCAL_BENCHMARK_OUTPUT_PATH/releases/$RELEASE_VERSION/summary.json</code>. For <em>each</em> suite listed in the <code class="language-plaintext highlighter-rouge">suites</code> array field, repeat the steps in <strong>Download a specific suite</strong> for that suite.</li>
+</ol>
+
+<h2 id="download-a-specific-suite">Download a specific suite</h2>
+
+<ol>
+  <li>Set the suite version:
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">export </span><span class="nv">SUITE_VERSION</span><span class="o">=</span>v1.0.0
+</code></pre></div>    </div>
+  </li>
+  <li>Create a local directory to store the data:
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir</span> <span class="nv">$LOCAL_BENCHMARK_OUTPUT_PATH</span>/runs/<span class="nv">$SUITE_VERSION</span>
+</code></pre></div>    </div>
+  </li>
+  <li>Run <code class="language-plaintext highlighter-rouge">gcloud storage rsync</code> (<a href="https://cloud.google.com/sdk/gcloud/reference/storage/du">documentation</a>) to download the data to the folder created in the previous step:
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gcloud storage rsync <span class="nt">-r</span> <span class="nv">$GCS_BENCHMARK_OUTPUT_PATH</span>/runs/<span class="nv">$SUITE_VERSION</span> <span class="nv">$LOCAL_BENCHMARK_OUTPUT_PATH</span>/runs/<span class="nv">$SUITE_VERSION</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="troubleshooting">Troubleshooting</h2>
+
+<p>If you are on an older version of <code class="language-plaintext highlighter-rouge">gcloud</code>, you may encounter the error messages <code class="language-plaintext highlighter-rouge">(gcloud) Invalid choice: 'du'.</code> or <code class="language-plaintext highlighter-rouge">(gcloud) Invalid choice: 'rsync'.</code>. If so, you should either upgrade your <code class="language-plaintext highlighter-rouge">gcloud</code> installation to the latest version, or you may use the deprecated <code class="language-plaintext highlighter-rouge">gsutil</code> CLI tool (<a href="https://cloud.google.com/storage/docs/gsutil">documentation</a>) instead.</p>
+
+<p>To use <code class="language-plaintext highlighter-rouge">gsutil</code>, install gsutil following <a href="https://cloud.google.com/storage/docs/gsutil_install">Google’s instructions</a>, then use the above command with <code class="language-plaintext highlighter-rouge">gcloud storage du</code> replaced with <code class="language-plaintext highlighter-rouge">gsutil du</code> (<a href="https://cloud.google.com/storage/docs/gsutil/commands/du">documentation</a>) and <code class="language-plaintext highlighter-rouge">gcloud storage rsync</code> replaced with <code class="language-plaintext highlighter-rouge">gsutil rsync</code> (<a href="https://cloud.google.com/storage/docs/gsutil/commands/rsync">documentation</a>).</p>
+
+<h2 id="gcs-browser">GCS browser</h2>
+
+<p>If you wish to explore the raw data files in the web browser without downloading it, you can use the <a href="https://console.cloud.google.com/storage/browser/crfm-helm-public">GCS browser</a>. Note that this requires logging into any Google account and agreeing to the GCP Terms of Service.</p>
+
+      </div>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <a href="https://github.com/Pacific-AI-Corp/medhelm">GitHub</a>
+      <span>MedHELM – Holistic Evaluation of Language Models</span>
+    </div>
+  </footer>
+  <script>
+(function() {
+  var el = document.getElementById('github-stars-count');
+  if (!el) return;
+  fetch('https://api.github.com/repos/Pacific-AI-Corp/medhelm')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.stargazers_count != null) el.textContent = d.stargazers_count;
+    })
+    .catch(function() {});
+})();
+</script>
+
+</body>
+</html>

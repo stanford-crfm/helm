@@ -1,3 +1,7 @@
+---
+title: Credentials
+---
+
 # Credentials
 
 ## Credentials file

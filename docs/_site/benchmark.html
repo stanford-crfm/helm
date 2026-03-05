@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Advanced Benchmarking Guide | MedHELM</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body class="docs-page">
+  <header class="site-header">
+  <div class="header-inner">
+    <a href="/" class="header-logo" aria-label="MedHELM">
+      <img src="https://raw.githubusercontent.com/Pacific-AI-Corp/langtest/main/docs/assets/images/logo.png" alt="Pacific AI" height="56" width="auto">
+    </a>
+    <nav class="header-nav">
+      <a href="/">Home</a>
+      <a href="/installation">Docs</a>
+      <a href="/tutorial">Tutorials</a>
+      <a href="/benchmark">Tests</a>
+      <a href="/reproducing_leaderboards">Benchmarks</a>
+      <div class="widget widget-lg">
+        <a class="btn btn-gh" href="https://github.com/Pacific-AI-Corp/medhelm" rel="noopener" target="_blank" aria-label="Star Pacific-AI-Corp/medhelm on GitHub">
+          <svg viewBox="0 0 16 16" width="16" height="16" class="octicon octicon-mark-github" aria-hidden="true"><path fill="currentColor" d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.47 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.1 1.5.07.09.45.68.1 1.5-.01.24-.01.47-.01.71 0 .21.15.46.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>&nbsp;<span>Star on GitHub</span>
+        </a>
+        <a class="social-count" href="https://github.com/Pacific-AI-Corp/medhelm/stargazers" rel="noopener" target="_blank" aria-label="Stargazers on GitHub" id="github-stars-count">—</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+  <div class="docs-wrapper">
+    <nav class="docs-sidebar" aria-label="Documentation">
+  <div class="docs-sidebar-inner">
+    
+    <a href="/installation" class="docs-sidebar-title">Docs</a>
+    <ul class="docs-nav-list">
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">User Guide</span>
+        <ul>
+          <li><a href="/installation" class="">Installation</a></li>
+          <li><a href="/quick_start" class="">Quick Start</a></li>
+          <li><a href="/tutorial" class="">Tutorial</a></li>
+          <li><a href="/run_entries_configuration_files" class="">Run Entries Configuration Files</a></li>
+          <li><a href="/run_entries" class="">Run Entries</a></li>
+          <li><a href="/credentials" class="">Credentials</a></li>
+          <li><a href="/importing_custom_modules" class="">Importing Custom Modules</a></li>
+          <li><a href="/adding_new_models" class="">Adding New Models</a></li>
+          <li><a href="/adding_new_scenarios" class="">Adding New Scenarios</a></li>
+          <li><a href="/adding_new_tokenizers" class="">Adding New Tokenizers</a></li>
+          <li><a href="/downloading_raw_results" class="">Downloading Raw Results</a></li>
+          <li><a href="/reproducing_leaderboards" class="">Reproducing Leaderboards</a></li>
+          <li><a href="/get_helm_rank" class="">Efficient-HELM</a></li>
+          <li><a href="/benchmark" class="is-active">Advanced Benchmarking Guide</a></li>
+          <li><a href="/huggingface_models" class="">Hugging Face Model Hub</a></li>
+        </ul>
+      </li>
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">Papers</span>
+        <ul>
+          <li><a href="/heim" class="">HEIM (Text-to-image)</a></li>
+          <li><a href="/vhelm" class="">VHELM (Vision-Language)</a></li>
+          <li><a href="/enterprise_benchmark" class="">Enterprise Benchmark</a></li>
+          <li><a href="/reeval" class="">Reliable and Efficient Amortized Evaluation</a></li>
+          <li><a href="/medhelm" class="">MedHELM</a></li>
+        </ul>
+      </li>
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">Reference</span>
+        <ul>
+          <li><a href="/models" class="">Models</a></li>
+          <li><a href="/metrics" class="">Metrics</a></li>
+          <li><a href="/perturbations" class="">Perturbations</a></li>
+          <li><a href="/scenarios" class="">Scenarios</a></li>
+          <li><a href="/schemas" class="">Schemas</a></li>
+        </ul>
+      </li>
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">Developer Guide</span>
+        <ul>
+          <li><a href="/developer_setup" class="">Developer Setup</a></li>
+          <li><a href="/code" class="">Code Structure</a></li>
+          <li><a href="/developer_adding_new_models" class="">Adding New Clients</a></li>
+          <li><a href="/proxy_server" class="">Proxy Server</a></li>
+          <li><a href="/editing_documentation" class="">Editing Documentation</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+    <main class="site-main docs-main">
+      <div class="main-inner">
+        <h1 id="advanced-benchmarking-guide">Advanced Benchmarking Guide</h1>
+
+<h2 id="running-restricted-benchmarks">Running Restricted Benchmarks</h2>
+
+<p>Some of the benchmarks (NewsQA) depend on data that’s not public: all such data
+will be stored in the <code class="language-plaintext highlighter-rouge">restricted</code> directory.  You need to make sure that
+directory exists.</p>
+
+<h2 id="dry-runs">Dry Runs</h2>
+
+<p>The <code class="language-plaintext highlighter-rouge">helm-run</code> provides several flags that can be used to test that the configuration and scenario are working correctly without actually sending requests to the model</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Just load the config file
+helm-run --conf src/helm/benchmark/presentation/run_entries_small.conf --max-eval-instances 10 --suite v1 --skip-instances
+
+# Create the instances and the requests, but don't send requests to the model
+helm-run --conf src/helm/benchmark/presentation/run_entries_small.conf --max-eval-instances 10  --suite v1 --dry-run
+</code></pre></div></div>
+
+<h2 id="estimating-token-usage">Estimating Token Usage</h2>
+
+<p>To estimate token usage without making any requests, append the <code class="language-plaintext highlighter-rouge">--dry-run</code> option:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>helm-run -r &lt;RunSpec to estimate token usage&gt; --suite $SUITE --max-eval-instances &lt;Number of eval instances&gt; --dry-run
+</code></pre></div></div>
+
+<p>and check the output in <code class="language-plaintext highlighter-rouge">benchmark_output/runs/$SUITE</code>.</p>
+
+<p><code class="language-plaintext highlighter-rouge">sum</code> indicates the estimated total number of tokens used for the specific <code class="language-plaintext highlighter-rouge">RunSpec</code>.</p>
+
+<p>For the OpenAI models, we use a
+<a href="https://github.com/stanford-crfm/benchmarking/blob/master/src/helm/proxy/tokenizer/openai_token_counter.py#L12">GPT-2 Tokenizer</a>
+to estimate the token usage. The tokenizer will be downloaded and cached when running a dry run.</p>
+
+<h2 id="perspective-api">Perspective API</h2>
+
+<p>We use Google’s <a href="https://www.perspectiveapi.com">Perspective API</a> to calculate the toxicity of completions.
+To send requests to PerspectiveAPI, we need to generate an API key from GCP. Follow the
+<a href="https://developers.perspectiveapi.com/s/docs-get-started">Get Started guide</a>
+to request the service and the <a href="https://developers.perspectiveapi.com/s/docs-enable-the-api">Enable the API guide</a>
+to generate the API key. Once you have a valid API key, add an entry to <code class="language-plaintext highlighter-rouge">credentials.conf</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>perspectiveApiKey: &lt;Generated API key&gt;
+</code></pre></div></div>
+
+<p>By default, Perspective API allows only 1 query per second. Fill out this
+<a href="https://developers.perspectiveapi.com/s/request-quota-increase">form</a> to increase the request quota.</p>
+
+      </div>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <a href="https://github.com/Pacific-AI-Corp/medhelm">GitHub</a>
+      <span>MedHELM – Holistic Evaluation of Language Models</span>
+    </div>
+  </footer>
+  <script>
+(function() {
+  var el = document.getElementById('github-stars-count');
+  if (!el) return;
+  fetch('https://api.github.com/repos/Pacific-AI-Corp/medhelm')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.stargazers_count != null) el.textContent = d.stargazers_count;
+    })
+    .catch(function() {});
+})();
+</script>
+
+</body>
+</html>

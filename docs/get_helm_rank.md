@@ -1,3 +1,6 @@
+---
+title: Efficient-HELM
+---
 # Efficient-HELM
 
 This tutorial will show you how to locally add your model into the HELM Classic leaderboard at a fraction of the cost of performing a full run, using a techinque from IBM Resarch described in [Efficient Benchmarking (of Language Models)](https://arxiv.org/pdf/2308.11696.pdf) a paper from IBM Research.

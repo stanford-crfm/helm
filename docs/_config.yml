@@ -1,0 +1,38 @@
+title: MedHELM
+description: Holistic Evaluation of Language Models (HELM) for medical applications
+baseurl: ""
+url: "https://medhelm.org"
+repo_url: "https://github.com/Pacific-AI-Corp/medhelm"
+cname: medhelm.org
+
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - .venv
+  - .venv-docs
+  - mkdocs_macros.py
+  - mkdocs_hooks.py
+  - docstrings.css
+  - overrides
+  - stylesheets
+  - requirements.txt
+  - README.md
+  - mkdocs.yml
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: docs
+  - scope:
+      path: "index.md"
+    values:
+      layout: default
+
+plugins: []

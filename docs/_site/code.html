@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Code Structure | MedHELM</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body class="docs-page">
+  <header class="site-header">
+  <div class="header-inner">
+    <a href="/" class="header-logo" aria-label="MedHELM">
+      <img src="https://raw.githubusercontent.com/Pacific-AI-Corp/langtest/main/docs/assets/images/logo.png" alt="Pacific AI" height="56" width="auto">
+    </a>
+    <nav class="header-nav">
+      <a href="/">Home</a>
+      <a href="/installation">Docs</a>
+      <a href="/tutorial">Tutorials</a>
+      <a href="/benchmark">Tests</a>
+      <a href="/reproducing_leaderboards">Benchmarks</a>
+      <div class="widget widget-lg">
+        <a class="btn btn-gh" href="https://github.com/Pacific-AI-Corp/medhelm" rel="noopener" target="_blank" aria-label="Star Pacific-AI-Corp/medhelm on GitHub">
+          <svg viewBox="0 0 16 16" width="16" height="16" class="octicon octicon-mark-github" aria-hidden="true"><path fill="currentColor" d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.47 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.1 1.5.07.09.45.68.1 1.5-.01.24-.01.47-.01.71 0 .21.15.46.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>&nbsp;<span>Star on GitHub</span>
+        </a>
+        <a class="social-count" href="https://github.com/Pacific-AI-Corp/medhelm/stargazers" rel="noopener" target="_blank" aria-label="Stargazers on GitHub" id="github-stars-count">—</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+  <div class="docs-wrapper">
+    <nav class="docs-sidebar" aria-label="Documentation">
+  <div class="docs-sidebar-inner">
+    
+    <a href="/installation" class="docs-sidebar-title">Docs</a>
+    <ul class="docs-nav-list">
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">User Guide</span>
+        <ul>
+          <li><a href="/installation" class="">Installation</a></li>
+          <li><a href="/quick_start" class="">Quick Start</a></li>
+          <li><a href="/tutorial" class="">Tutorial</a></li>
+          <li><a href="/run_entries_configuration_files" class="">Run Entries Configuration Files</a></li>
+          <li><a href="/run_entries" class="">Run Entries</a></li>
+          <li><a href="/credentials" class="">Credentials</a></li>
+          <li><a href="/importing_custom_modules" class="">Importing Custom Modules</a></li>
+          <li><a href="/adding_new_models" class="">Adding New Models</a></li>
+          <li><a href="/adding_new_scenarios" class="">Adding New Scenarios</a></li>
+          <li><a href="/adding_new_tokenizers" class="">Adding New Tokenizers</a></li>
+          <li><a href="/downloading_raw_results" class="">Downloading Raw Results</a></li>
+          <li><a href="/reproducing_leaderboards" class="">Reproducing Leaderboards</a></li>
+          <li><a href="/get_helm_rank" class="">Efficient-HELM</a></li>
+          <li><a href="/benchmark" class="">Advanced Benchmarking Guide</a></li>
+          <li><a href="/huggingface_models" class="">Hugging Face Model Hub</a></li>
+        </ul>
+      </li>
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">Papers</span>
+        <ul>
+          <li><a href="/heim" class="">HEIM (Text-to-image)</a></li>
+          <li><a href="/vhelm" class="">VHELM (Vision-Language)</a></li>
+          <li><a href="/enterprise_benchmark" class="">Enterprise Benchmark</a></li>
+          <li><a href="/reeval" class="">Reliable and Efficient Amortized Evaluation</a></li>
+          <li><a href="/medhelm" class="">MedHELM</a></li>
+        </ul>
+      </li>
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">Reference</span>
+        <ul>
+          <li><a href="/models" class="">Models</a></li>
+          <li><a href="/metrics" class="">Metrics</a></li>
+          <li><a href="/perturbations" class="">Perturbations</a></li>
+          <li><a href="/scenarios" class="">Scenarios</a></li>
+          <li><a href="/schemas" class="">Schemas</a></li>
+        </ul>
+      </li>
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">Developer Guide</span>
+        <ul>
+          <li><a href="/developer_setup" class="">Developer Setup</a></li>
+          <li><a href="/code" class="is-active">Code Structure</a></li>
+          <li><a href="/developer_adding_new_models" class="">Adding New Clients</a></li>
+          <li><a href="/proxy_server" class="">Proxy Server</a></li>
+          <li><a href="/editing_documentation" class="">Editing Documentation</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+    <main class="site-main docs-main">
+      <div class="main-inner">
+        <h1 id="code-structure">Code Structure</h1>
+
+<p><strong>Warning</strong> — The document is stale and was last modified more than ten months ago. The information below may be outdated and incorrect. Please proceed with caution!</p>
+
+<h2 id="birds-eye-view">Birds-Eye View</h2>
+
+<p>Here’s a birds-eye view of how the benchmarking process interacts with the main
+classes (see <code class="language-plaintext highlighter-rouge">benchmark</code>):</p>
+
+<ul>
+  <li>
+    <p>A <code class="language-plaintext highlighter-rouge">Scenario</code> (given by a <code class="language-plaintext highlighter-rouge">ScenarioSpec</code>) specifies a task and a data
+distribution.  It specifies a set of <code class="language-plaintext highlighter-rouge">Instance</code>s, where each <code class="language-plaintext highlighter-rouge">Instance</code> has
+an input (e.g., question) and a set of <code class="language-plaintext highlighter-rouge">Reference</code> outputs (e.g., multiple
+choice answers).</p>
+  </li>
+  <li>
+    <p>A <code class="language-plaintext highlighter-rouge">DataPreprocessor</code> takes in a <code class="language-plaintext highlighter-rouge">Scenario</code> and produces a list of <code class="language-plaintext highlighter-rouge">Instance</code>s.
+Each <code class="language-plaintext highlighter-rouge">Instance</code> is given a unique ID. The set of <code class="language-plaintext highlighter-rouge">Instance</code>s is augmented
+according to <code class="language-plaintext highlighter-rouge">DataAugmenterSpec</code>.</p>
+  </li>
+  <li>
+    <p>An <code class="language-plaintext highlighter-rouge">Adapter</code> (given by an <code class="language-plaintext highlighter-rouge">AdaptationSpec</code>) takes a list of <code class="language-plaintext highlighter-rouge">Instance</code>s and
+adapts it to a set of <code class="language-plaintext highlighter-rouge">Request</code>s to the API (e.g., the model, temperature,
+number of in-context training examples).  Formally, the output
+is a <code class="language-plaintext highlighter-rouge">ScenarioState</code> containing a set of <code class="language-plaintext highlighter-rouge">RequestState</code>s, where each
+<code class="language-plaintext highlighter-rouge">RequestState</code> consists of a <code class="language-plaintext highlighter-rouge">Request</code> and any metadata used to track the
+role of this <code class="language-plaintext highlighter-rouge">Request</code> (e.g., the relevant <code class="language-plaintext highlighter-rouge">Instance</code> and <code class="language-plaintext highlighter-rouge">Reference</code>).</p>
+  </li>
+  <li>
+    <p>An <code class="language-plaintext highlighter-rouge">Executor</code> (given by an <code class="language-plaintext highlighter-rouge">ExecutionSpec</code>) executes each <code class="language-plaintext highlighter-rouge">Request</code> in the
+<code class="language-plaintext highlighter-rouge">RequestState</code> to produce a <code class="language-plaintext highlighter-rouge">RequestResult</code> for each one; everything is
+encapsulated in a <code class="language-plaintext highlighter-rouge">ScenarioState</code>.</p>
+  </li>
+  <li>
+    <p>A <code class="language-plaintext highlighter-rouge">Metric</code> (given by a <code class="language-plaintext highlighter-rouge">MetricSpec</code>) takes a <code class="language-plaintext highlighter-rouge">ScenarioState</code> containing
+<code class="language-plaintext highlighter-rouge">RequestResults</code>s and produces a set of <code class="language-plaintext highlighter-rouge">Stat</code>s (e.g., accuracy, accuracy@5,
+toxicity, bias, etc.).</p>
+  </li>
+  <li>
+    <p>A <code class="language-plaintext highlighter-rouge">Runner</code> is the top-level controller that runs the above steps and is
+driven by a set of <code class="language-plaintext highlighter-rouge">RunSpec</code>s.</p>
+  </li>
+</ul>
+
+<p>There are three types of classes:</p>
+
+<ul>
+  <li>Specifications (e.g., <code class="language-plaintext highlighter-rouge">AdapterSpec</code>, <code class="language-plaintext highlighter-rouge">ExecutionSpec</code>, <code class="language-plaintext highlighter-rouge">RunSpec</code>):
+specified manually by the user.  Note that <code class="language-plaintext highlighter-rouge">Scenario</code> and <code class="language-plaintext highlighter-rouge">Metric</code> are
+subclassed, so they are constructed by <code class="language-plaintext highlighter-rouge">ObjectSpec</code>, which specifies the
+subclass name and a free-form dictionary of arguments.</li>
+  <li>States (e.g., <code class="language-plaintext highlighter-rouge">Instance</code>, <code class="language-plaintext highlighter-rouge">ScenarioState</code>, <code class="language-plaintext highlighter-rouge">Request</code>, <code class="language-plaintext highlighter-rouge">RequestResult</code>): these
+are automatically generated and can be serialized.</li>
+  <li>Controllers (e.g., <code class="language-plaintext highlighter-rouge">Scenario</code>, <code class="language-plaintext highlighter-rouge">Adapter</code>, <code class="language-plaintext highlighter-rouge">Executor</code>, <code class="language-plaintext highlighter-rouge">Metric</code>, <code class="language-plaintext highlighter-rouge">Runner</code>):
+these have the bulk of the code and should not be serialized.</li>
+</ul>
+
+<h2 id="adding-new-scenarios">Adding new scenarios</h2>
+
+<p>In order to implement new scenarios:</p>
+
+<ol>
+  <li>Create a new Python file in the <code class="language-plaintext highlighter-rouge">scenarios</code> folder.</li>
+  <li>Within the scenario file, create a <code class="language-plaintext highlighter-rouge">Scenario</code> class, e.g. <code class="language-plaintext highlighter-rouge">YourScenario</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">YourScenario</code> should implement <code class="language-plaintext highlighter-rouge">get_instances</code>, a method that downloads the 
+dataset files if they don’t already exist and returns a list of <code class="language-plaintext highlighter-rouge">Instance</code>s. 
+Each <code class="language-plaintext highlighter-rouge">Instance</code> must have a list of (potentially one)
+<code class="language-plaintext highlighter-rouge">Reference</code> answers: a correct answer may be indicated with a <code class="language-plaintext highlighter-rouge">CORRECT_TAG</code> in 
+a <code class="language-plaintext highlighter-rouge">Reference</code> instance’s <code class="language-plaintext highlighter-rouge">tags</code> argument. In addition, you 
+must specify the <code class="language-plaintext highlighter-rouge">split</code> of the <code class="language-plaintext highlighter-rouge">Instance</code> as one of <code class="language-plaintext highlighter-rouge">TRAIN_SPLIT</code>,
+<code class="language-plaintext highlighter-rouge">VALID_SPLIT</code>, or <code class="language-plaintext highlighter-rouge">TEST_SPLIT</code> constants as in <code class="language-plaintext highlighter-rouge">scenario.py</code>.
+    <ol>
+      <li>For <code class="language-plaintext highlighter-rouge">Scenario</code>s with datasets that cannot be publicly shared, place a copy of the
+dataset at path <code class="language-plaintext highlighter-rouge">restricted/&lt;Name of the Scenario&gt;</code> and read from that path.
+See <code class="language-plaintext highlighter-rouge">NewsQAScenario</code> and <code class="language-plaintext highlighter-rouge">ICEScenario</code> for some examples.</li>
+    </ol>
+  </li>
+  <li>Note that you need not enumerate every possible correct answer (nor must
+there even necessarily be a correct answer).</li>
+  <li>Make sure to document your scenario well with a clear docstring.</li>
+  <li>In addition, specify its <code class="language-plaintext highlighter-rouge">name</code>, <code class="language-plaintext highlighter-rouge">description</code>, and <code class="language-plaintext highlighter-rouge">tags</code>.</li>
+  <li>Identify the appropriate metric for your task in one of the <code class="language-plaintext highlighter-rouge">*_metrics.py</code> files.
+If the metric you’d like to use does not exist, follow the directions in <a href="#adding-new-metrics">Adding new metrics</a>.
+Many will be in <code class="language-plaintext highlighter-rouge">basic_metrics.py</code>.</li>
+  <li>Define a function in <code class="language-plaintext highlighter-rouge">run_specs.py</code> annotated with <code class="language-plaintext highlighter-rouge">run_spec_function</code> to:
+    <ol>
+      <li>Construct a <code class="language-plaintext highlighter-rouge">ScenarioSpec</code> 
+for your scenario using a class name corresponding to the Python path of 
+the class (e.g. <code class="language-plaintext highlighter-rouge">helm.benchmark.scenarios.your_scenario.YourScenario</code>) and any 
+arguments which must be passed as a dictionary of <code class="language-plaintext highlighter-rouge">args</code>.</li>
+      <li>Construct an <code class="language-plaintext highlighter-rouge">AdapterSpec</code> for your
+scenario specifying the type of language model generation which must be 
+performed for the task.</li>
+      <li>Construct one or more <code class="language-plaintext highlighter-rouge">MetricSpec</code>
+objects for your task, specifying the classname with the Python path of
+the object, with the same arguments as the <code class="language-plaintext highlighter-rouge">ScenarioSpec</code> constructor.</li>
+      <li>Construct and return <code class="language-plaintext highlighter-rouge">RunSpec</code> object, with a 
+<code class="language-plaintext highlighter-rouge">name</code> corresponding to the scenario name and any patterns to match in 
+curly braces, a <code class="language-plaintext highlighter-rouge">scenario_spec</code>, an <code class="language-plaintext highlighter-rouge">adapter_spec</code>, <code class="language-plaintext highlighter-rouge">metric_specs</code>, 
+and <code class="language-plaintext highlighter-rouge">groups</code>.</li>
+    </ol>
+  </li>
+  <li>Attempt to run your task with
+<code class="language-plaintext highlighter-rouge">venv/bin/helm-run -r yourscenarioname:arg=value</code> where 
+<code class="language-plaintext highlighter-rouge">yourscenarioname</code> matches the <code class="language-plaintext highlighter-rouge">name</code> specified in YourScenario</li>
+  <li>Update <code class="language-plaintext highlighter-rouge">src/helm/benchmark/static/contamination.yaml</code> with models that were trained on your scenario (i.e. contaminated).</li>
+  <li>Add a schema to <code class="language-plaintext highlighter-rouge">src/helm/benchmark/static/schema.yaml</code> and add the scenario to <code class="language-plaintext highlighter-rouge">subgroups</code> as needed.</li>
+</ol>
+
+<h2 id="adding-new-metrics">Adding new metrics</h2>
+
+<p>To add a new metric, first determine if your metric is generic and likely to be widely used, or specific to your task.</p>
+
+<ul>
+  <li>For generic metrics:
+    <ol>
+      <li>Add a method to <code class="language-plaintext highlighter-rouge">basic_metrics.py</code> which takes two arguments: the <code class="language-plaintext highlighter-rouge">gold</code> answer and the model’s <code class="language-plaintext highlighter-rouge">pred</code>iction.</li>
+      <li>Add your method to the <code class="language-plaintext highlighter-rouge">metric_fn_mapping</code> lookup.</li>
+    </ol>
+  </li>
+  <li>For task specific metrics:
+    <ol>
+      <li>Create a new <code class="language-plaintext highlighter-rouge">yourtask_metrics.py</code> file for class <code class="language-plaintext highlighter-rouge">YourTaskMetric</code> 
+which inherits from <code class="language-plaintext highlighter-rouge">Metric</code> in <code class="language-plaintext highlighter-rouge">metric.py</code>.</li>
+      <li>Define methods <code class="language-plaintext highlighter-rouge">__init__</code> and <code class="language-plaintext highlighter-rouge">evaluate_generation</code> returning a list of <code class="language-plaintext highlighter-rouge">Stat</code> objects.</li>
+    </ol>
+  </li>
+</ul>
+
+<p>Your metric is responsible for producing <code class="language-plaintext highlighter-rouge">Stat</code> objects:</p>
+
+<ul>
+  <li>Each <code class="language-plaintext highlighter-rouge">Stat</code> should correspond to a distinct aggregate measurement over the generated examples. 
+Some may have one metric (e.g. accuracy), while others may quantify multiple aspects
+(e.g. multiple distance metrics).</li>
+  <li>For each <code class="language-plaintext highlighter-rouge">value</code> generated for a <code class="language-plaintext highlighter-rouge">Stat</code>, add it to <code class="language-plaintext highlighter-rouge">yourstat</code> using <code class="language-plaintext highlighter-rouge">yourstat.add(value)</code>. 
+Usually, there will only be one value for each <code class="language-plaintext highlighter-rouge">Stat</code>, but multiple can be used, e.g. to show variance.</li>
+</ul>
+
+<h2 id="data-augmentations">Data augmentations</h2>
+
+<p>To apply data augmentation, create a <code class="language-plaintext highlighter-rouge">DataAugmenterSpec</code> with a list of
+<code class="language-plaintext highlighter-rouge">PerturbationSpec</code>s and pass it into <code class="language-plaintext highlighter-rouge">RunSpec</code>. The following is an
+example:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="n">data_augmenter_spec</span> <span class="o">=</span> <span class="nc">DataAugmenterSpec</span><span class="p">(</span>
+        <span class="n">perturbation_specs</span><span class="o">=</span><span class="p">[</span>
+            <span class="nc">PerturbationSpec</span><span class="p">(</span>
+                <span class="n">class_name</span><span class="o">=</span><span class="sh">"</span><span class="s">helm.benchmark.augmentations.perturbation.ExtraSpacePerturbation</span><span class="sh">"</span><span class="p">,</span>
+                <span class="n">args</span><span class="o">=</span><span class="p">{</span><span class="sh">"</span><span class="s">num_spaces</span><span class="sh">"</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span>
+            <span class="p">)</span>
+        <span class="p">],</span>
+        <span class="n">should_perturb_references</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="n">should_augment_train_instances</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="n">should_include_original_train</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="n">should_augment_eval_instances</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">should_include_original_eval</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">run_spec</span> <span class="o">=</span> <span class="nc">RunSpec</span><span class="p">(</span>
+        <span class="bp">...</span>
+        <span class="n">data_augmenter_spec</span><span class="o">=</span><span class="n">data_augmenter_spec</span>
+    <span class="p">)</span>
+</code></pre></div></div>
+
+<p>In the example above, the <code class="language-plaintext highlighter-rouge">DataPreprocessor</code> will augment the set of evaluation instances by perturbing
+the original set of instances with the <code class="language-plaintext highlighter-rouge">ExtraSpacePerturbation</code>, where spaces in the text are
+replaced with <code class="language-plaintext highlighter-rouge">num_spaces</code> number of spaces.</p>
+
+<p>We currently only support applying a single perturbation to an instance instead of chaining
+multiple perturbations and applying it onto a single instance.</p>
+
+<h3 id="adding-a-new-perturbation">Adding a new perturbation</h3>
+
+<ol>
+  <li>To add a new perturbation to the framework, create a new file at <code class="language-plaintext highlighter-rouge">src/helm/benchmark/augmentations</code> with the name
+<code class="language-plaintext highlighter-rouge">&lt;Name of perturbation&gt;_perturbation.py</code> e.g., <code class="language-plaintext highlighter-rouge">typo_perturbation.py</code>. Inside the file, create a new class
+(name it <code class="language-plaintext highlighter-rouge">&lt;Name of the perturbation&gt;Perturbation</code> e.g., <code class="language-plaintext highlighter-rouge">TypoPerturbation</code>)
+that extends the abstract class <code class="language-plaintext highlighter-rouge">Perturbation</code> and implement the <code class="language-plaintext highlighter-rouge">perturb</code> method which
+takes in text and outputs the perturbed text.</li>
+  <li>Add a test for the new perturbation in <code class="language-plaintext highlighter-rouge">test_perturbation.py</code>.</li>
+</ol>
+
+<h2 id="supporting-new-hugging-face-tokenizers">Supporting new Hugging Face tokenizers</h2>
+
+<ol>
+  <li>Give the tokenizer a name. Use the same name that’s used in Hugging Face (e.g., “EleutherAI/gpt-j-6B”).</li>
+  <li>In <code class="language-plaintext highlighter-rouge">HuggingFaceTokenizers</code>, we load and cache tokenizers in memory. Add logic to handle
+the tokenizer in the <code class="language-plaintext highlighter-rouge">load_tokenizer</code> method.</li>
+  <li>Add a test in <code class="language-plaintext highlighter-rouge">test_huggingface_tokenizer.py</code> to make sure we can load the tokenizer from Hugging Face.</li>
+  <li>Add a new class <code class="language-plaintext highlighter-rouge">&lt;Name of tokenizer&gt;WindowService</code> in file <code class="language-plaintext highlighter-rouge">&lt;Name of tokenizer&gt;_window_service.py</code>.
+Follow what we did for <code class="language-plaintext highlighter-rouge">GPTJWindowService</code>.</li>
+  <li>Import the new <code class="language-plaintext highlighter-rouge">WindowService</code> and map the model(s) to it in <code class="language-plaintext highlighter-rouge">WindowServiceFactory</code>.</li>
+</ol>
+
+<h2 id="heim-text-to-image-evaluation">HEIM (text-to-image evaluation)</h2>
+
+<p>The overall code structure is the same as HELM’s.</p>
+
+<p>When adding new scenarios and metrics for image generation, place the Python files under the <code class="language-plaintext highlighter-rouge">image_generation</code> package 
+(e.g., <code class="language-plaintext highlighter-rouge">src/helm/benchmark/scenarios/image_generation</code>).</p>
+
+      </div>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <a href="https://github.com/Pacific-AI-Corp/medhelm">GitHub</a>
+      <span>MedHELM – Holistic Evaluation of Language Models</span>
+    </div>
+  </footer>
+  <script>
+(function() {
+  var el = document.getElementById('github-stars-count');
+  if (!el) return;
+  fetch('https://api.github.com/repos/Pacific-AI-Corp/medhelm')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.stargazers_count != null) el.textContent = d.stargazers_count;
+    })
+    .catch(function() {});
+})();
+</script>
+
+</body>
+</html>

@@ -1,10 +1,13 @@
+---
+title: Hugging Face Model Hub Integration
+---
 # Hugging Face Model Hub Integration
 
 HELM can be used to evaluate `AutoModelForCausalLM` models (e.g. [`BioMedLM`](https://huggingface.co/stanford-crfm/BioMedLM)) on [Hugging Face Model Hub](https://huggingface.co/models) or local disk. Note that only `AutoModelForCausalLM` models are supported; other classes such as `AutoModelForSeq2SeqLM` may be supported in the future.
 
 ## Using `model_deployments.yaml`
 
-You can add Hugging Face models using the method discussed in [Adding New Models](adding_new_models.md). This can be used for both models on Hugging Face Hub and local disk. Please refer to that page for instructions for how to do so.
+You can add Hugging Face models using the method discussed in [Adding New Models](adding_new_models/). This can be used for both models on Hugging Face Hub and local disk. Please refer to that page for instructions for how to do so.
 
 ## Using command-line flags
 

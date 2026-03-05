@@ -1,3 +1,6 @@
+---
+title: Importing Custom Modules
+---
 # Importing Custom Modules
 
 HELM is a modular framework with a plug-in architecture. You can write your own implementation for run specs, clients, tokenizers, scenarios, or metrics and use them in HELM with HELM installed as a library, without needing to modify HELM itself.

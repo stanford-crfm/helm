@@ -1,3 +1,6 @@
+---
+title: HEIM (Text-to-image Model Evaluation)
+---
 # HEIM (Text-to-image Model Evaluation)
 
 **Holistic Evaluation of Text-To-Image Models (HEIM)** is an extension of the HELM framework for evaluating **text-to-image models**.
@@ -39,7 +42,7 @@ demonstrating strengths in different aspects.
 
 ## Installation
 
-First, follow the [installation instructions](installation.md) to install the base HELM Python page.
+First, follow the [installation instructions](installation/) to install the base HELM Python page.
 
 To install the additional dependencies to run HEIM, run:
 
@@ -65,7 +68,7 @@ helm-run --run-entries mscoco:model=huggingface/stable-diffusion-v1-4 --suite my
 
 ## Reproducing the Leaderboard
 
-To reproduce the [entire HEIM leaderboard](https://crfm.stanford.edu/helm/heim/latest/), refer to the instructions for HEIM on the [Reproducing Leaderboards](reproducing_leaderboards.md) documentation.
+To reproduce the [entire HEIM leaderboard](https://crfm.stanford.edu/helm/heim/latest/), refer to the instructions for HEIM on the [Reproducing Leaderboards](reproducing_leaderboards/) documentation.
 
 ### Note:
 

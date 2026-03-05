@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+</head>
+<body class="docs-page">
+  {% include header.html %}
+  <div class="docs-wrapper">
+    {% include docs_sidebar.html %}
+    <main class="site-main docs-main">
+      <div class="main-inner">
+        {{ content }}
+      </div>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <a href="{{ site.repo_url }}">GitHub</a>
+      <span>MedHELM – Holistic Evaluation of Language Models</span>
+    </div>
+  </footer>
+  {% include github_stars.html %}
+</body>
+</html>

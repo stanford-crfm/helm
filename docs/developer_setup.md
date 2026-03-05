@@ -1,3 +1,6 @@
+---
+title: Developer Setup
+---
 # Developer Setup
 
 ## Check your system Python version

@@ -1,3 +1,6 @@
+---
+title: Reproducing Leaderboards
+---
 # Reproducing Leaderboards
 
 You can use the HELM package to rerun evaluation runs and recreate a specific public leaderboard.
@@ -211,7 +214,7 @@ export PRIORITY=2
 ### MedHELM
 
 > Benchmarks in MedHELM fall under three types of data access: **public**, **gated**, and **private**.  
-> See the [Benchmark Access Levels](medhelm.md#benchmark-access-levels) section in `medhelm.md` to learn more about each access type and example sources.
+> See the [Benchmark Access Levels](medhelm/#benchmark-access-levels) section in the MedHELM page to learn more about each access type and example sources.
 
 #### Public Benchmarks
 

@@ -1,3 +1,6 @@
+---
+title: Adding New Scenarios
+---
 # Adding New Scenarios
 
 HELM comes with more than a hundred built-in scenarios. However, you may want to run HELM on a scenario that is not built into HELM yet, or you may want to run HELM on scenarios that use your private datasets. Because HELM is a modular framework with a plug-in architecture, you can run evaluations with your custom scenarios on HELM without needing to modify HELM code.

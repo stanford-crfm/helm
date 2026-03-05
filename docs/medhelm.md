@@ -1,3 +1,6 @@
+---
+title: MedHELM
+---
 # MedHELM: Holistic Evaluation of Large Language Models for Medical Applications
 
 **Who it’s for:** Data scientists at health systems benchmarking LLMs for medical use cases.
@@ -214,7 +217,7 @@ helm-run \
    --output-path $OUTPUT_PATH
 ```
 
-For more information about `helm-run`, refer to the [Using helm-run](./tutorial.md#using-helm-run) page.
+For more information about `helm-run`, refer to the [Using helm-run](tutorial/#using-helm-run) page.
 
 #### 2. Create the Leaderboard
 
@@ -233,7 +236,7 @@ helm-summarize \
   --output-path $OUTPUT_PATH
 ```
 
-For more information about `helm-summarize`, refer to the [Using helm-summarize](./tutorial.md#using-helm-summarize) page.
+For more information about `helm-summarize`, refer to the [Using helm-summarize](tutorial/#using-helm-summarize) page.
 
 #### 3. Run the Leaderboard Locally
 
@@ -245,7 +248,7 @@ helm-server \
   --output-path $OUTPUT_PATH
 ```
 
-For more information about `helm-run`, refer to the [Using helm-server](./tutorial.md#using-helm-server) page.
+For more information about `helm-run`, refer to the [Using helm-server](tutorial/#using-helm-server) page.
 
 ---
 
@@ -311,7 +314,7 @@ helm-server --release v2.0.0 --output-path $OUTPUT_PATH
 * **Gated benchmarks:** Require credentials/approval (e.g., EHRSHOT); entries live in `run_entries_medhelm_gated.conf`.
 * **Private benchmarks:** Org‑specific; entries follow `run_entries_medhelm_private_{organization}.conf`.
 
-> **Note:** The `model_deployments` of the models listed in these run entries are specific to Stanford Healthcare, please change them for the appropriate deployments as needed. For more information on model_deployments, refer to the [Adding New Models](adding_new_models.md) page.
+> **Note:** The `model_deployments` of the models listed in these run entries are specific to Stanford Healthcare, please change them for the appropriate deployments as needed. For more information on model_deployments, refer to the [Adding New Models](adding_new_models/) page.
 
 ---
 

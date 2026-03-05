@@ -1,3 +1,6 @@
+---
+title: Proxy Server
+---
 # Proxy Server
 
 **Warning** &mdash; The document is stale. The information below may be outdated and incorrect. Please proceed with caution!

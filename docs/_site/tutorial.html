@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tutorial | MedHELM</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body class="docs-page">
+  <header class="site-header">
+  <div class="header-inner">
+    <a href="/" class="header-logo" aria-label="MedHELM">
+      <img src="https://raw.githubusercontent.com/Pacific-AI-Corp/langtest/main/docs/assets/images/logo.png" alt="Pacific AI" height="56" width="auto">
+    </a>
+    <nav class="header-nav">
+      <a href="/">Home</a>
+      <a href="/installation">Docs</a>
+      <a href="/tutorial">Tutorials</a>
+      <a href="/benchmark">Tests</a>
+      <a href="/reproducing_leaderboards">Benchmarks</a>
+      <div class="widget widget-lg">
+        <a class="btn btn-gh" href="https://github.com/Pacific-AI-Corp/medhelm" rel="noopener" target="_blank" aria-label="Star Pacific-AI-Corp/medhelm on GitHub">
+          <svg viewBox="0 0 16 16" width="16" height="16" class="octicon octicon-mark-github" aria-hidden="true"><path fill="currentColor" d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.47 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.1 1.5.07.09.45.68.1 1.5-.01.24-.01.47-.01.71 0 .21.15.46.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>&nbsp;<span>Star on GitHub</span>
+        </a>
+        <a class="social-count" href="https://github.com/Pacific-AI-Corp/medhelm/stargazers" rel="noopener" target="_blank" aria-label="Stargazers on GitHub" id="github-stars-count">—</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+  <div class="docs-wrapper">
+    <nav class="docs-sidebar" aria-label="Documentation">
+  <div class="docs-sidebar-inner">
+    
+    <a href="/installation" class="docs-sidebar-title">Docs</a>
+    <ul class="docs-nav-list">
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">User Guide</span>
+        <ul>
+          <li><a href="/installation" class="">Installation</a></li>
+          <li><a href="/quick_start" class="">Quick Start</a></li>
+          <li><a href="/tutorial" class="is-active">Tutorial</a></li>
+          <li><a href="/run_entries_configuration_files" class="">Run Entries Configuration Files</a></li>
+          <li><a href="/run_entries" class="">Run Entries</a></li>
+          <li><a href="/credentials" class="">Credentials</a></li>
+          <li><a href="/importing_custom_modules" class="">Importing Custom Modules</a></li>
+          <li><a href="/adding_new_models" class="">Adding New Models</a></li>
+          <li><a href="/adding_new_scenarios" class="">Adding New Scenarios</a></li>
+          <li><a href="/adding_new_tokenizers" class="">Adding New Tokenizers</a></li>
+          <li><a href="/downloading_raw_results" class="">Downloading Raw Results</a></li>
+          <li><a href="/reproducing_leaderboards" class="">Reproducing Leaderboards</a></li>
+          <li><a href="/get_helm_rank" class="">Efficient-HELM</a></li>
+          <li><a href="/benchmark" class="">Advanced Benchmarking Guide</a></li>
+          <li><a href="/huggingface_models" class="">Hugging Face Model Hub</a></li>
+        </ul>
+      </li>
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">Papers</span>
+        <ul>
+          <li><a href="/heim" class="">HEIM (Text-to-image)</a></li>
+          <li><a href="/vhelm" class="">VHELM (Vision-Language)</a></li>
+          <li><a href="/enterprise_benchmark" class="">Enterprise Benchmark</a></li>
+          <li><a href="/reeval" class="">Reliable and Efficient Amortized Evaluation</a></li>
+          <li><a href="/medhelm" class="">MedHELM</a></li>
+        </ul>
+      </li>
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">Reference</span>
+        <ul>
+          <li><a href="/models" class="">Models</a></li>
+          <li><a href="/metrics" class="">Metrics</a></li>
+          <li><a href="/perturbations" class="">Perturbations</a></li>
+          <li><a href="/scenarios" class="">Scenarios</a></li>
+          <li><a href="/schemas" class="">Schemas</a></li>
+        </ul>
+      </li>
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">Developer Guide</span>
+        <ul>
+          <li><a href="/developer_setup" class="">Developer Setup</a></li>
+          <li><a href="/code" class="">Code Structure</a></li>
+          <li><a href="/developer_adding_new_models" class="">Adding New Clients</a></li>
+          <li><a href="/proxy_server" class="">Proxy Server</a></li>
+          <li><a href="/editing_documentation" class="">Editing Documentation</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+    <main class="site-main docs-main">
+      <div class="main-inner">
+        <h1 id="tutorial">Tutorial</h1>
+
+<p>This tutorial will explain how to use the HELM command line tools to run benchmarks, aggregate statistics, and visualize results.</p>
+
+<p>We will run two runs using the <code class="language-plaintext highlighter-rouge">mmlu</code> scenario on the <code class="language-plaintext highlighter-rouge">openai/gpt2</code> model. The <code class="language-plaintext highlighter-rouge">mmlu</code> scenario implements the <strong>Massive Multitask Language (MMLU)</strong> benchmark from <a href="https://arxiv.org/pdf/2009.03300.pdf">this paper</a>, and consists of a Question Answering (QA) task using a dataset with questions from 57 subjects such as elementary mathematics, US history, computer science, law, and more. Note that GPT-2 performs poorly on MMLU, so this is just a proof of concept. We will run two runs: the first using questions about anatomy, and the second using questions about philosophy.</p>
+
+<h2 id="using-helm-run">Using <code class="language-plaintext highlighter-rouge">helm-run</code></h2>
+
+<p><code class="language-plaintext highlighter-rouge">helm-run</code> is a command line tool for running benchmarks.</p>
+
+<p>To run this benchmark using the HELM command-line tools, we need to specify <strong>run entries</strong> that describes the desired runs. For this example, the run entries are <code class="language-plaintext highlighter-rouge">mmlu:subject=anatomy,model=openai/gpt2</code> (for anatomy) and <code class="language-plaintext highlighter-rouge">mmlu:subject=philosophy,model=openai/gpt2</code> (for philosophy).</p>
+
+<p>We will now use <code class="language-plaintext highlighter-rouge">helm-run</code> to execute the runs. Run this command:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>helm-run <span class="nt">--run-entries</span> mmlu:subject<span class="o">=</span>anatomy,model<span class="o">=</span>openai/gpt2 mmlu:subject<span class="o">=</span>philosophy,model<span class="o">=</span>openai/gpt2 <span class="nt">--suite</span> my-suite <span class="nt">--max-eval-instances</span> 10
+</code></pre></div></div>
+
+<p>The meaning of the arguments are as follows:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">--run-entries</code> specifies the run entries from the desired runs.</li>
+  <li><code class="language-plaintext highlighter-rouge">--suite</code> specifies a subdirectory under the output directory in which all the output will be placed.</li>
+  <li><code class="language-plaintext highlighter-rouge">--max-eval-instances</code> limits evaluation to only <em>N</em> instances (i.e. items) from the benchmark, using a randomly shuffled order of instances.</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">helm-run</code> creates an environment directory environment and an output directory by default.</p>
+
+<ul>
+  <li>The environment directory is <code class="language-plaintext highlighter-rouge">prod_env/</code> by default and can be set using <code class="language-plaintext highlighter-rouge">--local-path</code>. Credentials for making API calls should be added to a <code class="language-plaintext highlighter-rouge">credentials.conf</code> file in this directory.</li>
+  <li>The output directory is <code class="language-plaintext highlighter-rouge">benchmark_output/</code> by default and can be set using <code class="language-plaintext highlighter-rouge">--output-path</code>.</li>
+</ul>
+
+<p>After running this command, navigate to the <code class="language-plaintext highlighter-rouge">benchmark_output/runs/my-suite/</code> directory. This should contain a two sub-directories named <code class="language-plaintext highlighter-rouge">mmlu:subject=anatomy,model=openai_gpt2</code> and <code class="language-plaintext highlighter-rouge">mmlu:subject=philosophy,model=openai_gpt2</code>. Note that the names of these sub-directories is based on the run entries we used earlier, but with <code class="language-plaintext highlighter-rouge">/</code> replaced with <code class="language-plaintext highlighter-rouge">_</code>.</p>
+
+<p>Each output sub-directory will contain several JSON files that were generated during the corresponding run:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">run_spec.json</code> contains the <code class="language-plaintext highlighter-rouge">RunSpec</code>, which specifies the scenario, adapter and metrics for the run.</li>
+  <li><code class="language-plaintext highlighter-rouge">scenario.json</code> contains a serialized <code class="language-plaintext highlighter-rouge">Scenario</code>, which contains the scenario for the run and specifies the instances (i.e. inputs) used.</li>
+  <li><code class="language-plaintext highlighter-rouge">scenario_state.json</code> contains a serialized <code class="language-plaintext highlighter-rouge">ScenarioState</code>, which contains every request to and response from the model.</li>
+  <li><code class="language-plaintext highlighter-rouge">per_instance_stats.json</code> contains a serialized list of <code class="language-plaintext highlighter-rouge">PerInstanceStats</code>, which contains the statistics produced for the metrics for each instance (i.e. input).</li>
+  <li><code class="language-plaintext highlighter-rouge">stats.json</code> contains a serialized list of <code class="language-plaintext highlighter-rouge">PerInstanceStats</code>, which contains the statistics produced for the metrics, aggregated across all instances (i.e. inputs).</li>
+</ul>
+
+<h2 id="using-helm-summarize">Using <code class="language-plaintext highlighter-rouge">helm-summarize</code></h2>
+
+<p>The <code class="language-plaintext highlighter-rouge">helm-summarize</code> reads the output files of <code class="language-plaintext highlighter-rouge">helm-run</code> and computes aggregate statistics across runs. Run the following:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>helm-summarize <span class="nt">--suite</span> my-suite
+</code></pre></div></div>
+
+<p>This reads the pre-existing files in <code class="language-plaintext highlighter-rouge">benchmark_output/runs/my-suite/</code> that were written by <code class="language-plaintext highlighter-rouge">helm-run</code> previously, and writes the following new files back to <code class="language-plaintext highlighter-rouge">benchmark_output/runs/my-suite/</code>:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">summary.json</code> contains a serialized <code class="language-plaintext highlighter-rouge">ExecutiveSummary</code> with a date and suite name.</li>
+  <li><code class="language-plaintext highlighter-rouge">run_specs.json</code> contains the run entries for all the runs.</li>
+  <li><code class="language-plaintext highlighter-rouge">runs.json</code> contains serialized list of <code class="language-plaintext highlighter-rouge">Run</code>, which contains the run path, run spec and adapter spec and statistics for each run.</li>
+  <li><code class="language-plaintext highlighter-rouge">groups.json</code> contains a serialized list of <code class="language-plaintext highlighter-rouge">Table</code>, each containing information about groups in a group category.</li>
+  <li><code class="language-plaintext highlighter-rouge">groups_metadata.json</code> contains a list of all the groups along with a human-readable description and a taxonomy.</li>
+</ul>
+
+<p>Additionally, for each group and group-relavent metric, it will output a pair of files: <code class="language-plaintext highlighter-rouge">benchmark_output/runs/my-suite/groups/latex/&lt;group_name&gt;_&lt;metric_name&gt;.tex</code> and <code class="language-plaintext highlighter-rouge">benchmark_output/runs/my-suite/groups/json/&lt;group_name&gt;_&lt;metric_name&gt;.json</code>. These files contain the statistics for that metric from each run within the group.</p>
+
+<h2 id="using-helm-server">Using <code class="language-plaintext highlighter-rouge">helm-server</code></h2>
+
+<p>Finally, the <code class="language-plaintext highlighter-rouge">helm-server</code> command launches a web server to visualize the output files of <code class="language-plaintext highlighter-rouge">helm-run</code> and <code class="language-plaintext highlighter-rouge">helm-benchmark</code>. Run:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>helm-server <span class="nt">--suite</span> my-suite
+</code></pre></div></div>
+
+<p>Open a browser and go to http://localhost:8000/ to view the visualization. You should see a similar view as <a href="https://crfm.stanford.edu/helm/classic/latest/">live website for the paper</a>, but for the data from your benchmark runs. The website has the following sections accessible from the top menu bar:</p>
+
+<ul>
+  <li><strong>Leaderboards</strong> contains the leaderboards with aggregate metrics.</li>
+  <li><strong>Models</strong> contains a list of models and their descriptions</li>
+  <li><strong>Scenarios</strong> contains a list of scenarios and their descriptions.</li>
+  <li><strong>Predictions</strong> contains a searchable list of runs.</li>
+</ul>
+
+      </div>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <a href="https://github.com/Pacific-AI-Corp/medhelm">GitHub</a>
+      <span>MedHELM – Holistic Evaluation of Language Models</span>
+    </div>
+  </footer>
+  <script>
+(function() {
+  var el = document.getElementById('github-stars-count');
+  if (!el) return;
+  fetch('https://api.github.com/repos/Pacific-AI-Corp/medhelm')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.stargazers_count != null) el.textContent = d.stargazers_count;
+    })
+    .catch(function() {});
+})();
+</script>
+
+</body>
+</html>

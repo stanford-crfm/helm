@@ -1,3 +1,6 @@
+---
+title: Tutorial
+---
 # Tutorial
 
 This tutorial will explain how to use the HELM command line tools to run benchmarks, aggregate statistics, and visualize results.

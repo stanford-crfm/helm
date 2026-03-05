@@ -1,3 +1,6 @@
+---
+title: VHELM (Vision-Language Models)
+---
 # VHELM (Vision-Language Models)
 
 **Holistic Evaluation of Vision-Language Models (VHELM)** is an extension of the HELM framework for evaluating **Vision-Language Models (VLMs)**.
@@ -11,7 +14,7 @@ VHELM aggregates various datasets to cover one or more of the 9 aspects: visual 
 
 ## Installation
 
-First, follow the [installation instructions](installation.md) to install the base HELM Python page.
+First, follow the [installation instructions](installation/) to install the base HELM Python page.
 
 To install the additional dependencies to run VHELM, run:
 
@@ -44,4 +47,4 @@ Then go to http://localhost:8000/ in your browser.
 
 ## Reproducing the Leaderboard
 
-To reproduce the [entire VHELM leaderboard](https://crfm.stanford.edu/helm/vhelm/latest/), refer to the instructions for VHELM on the [Reproducing Leaderboards](reproducing_leaderboards.md) documentation.
+To reproduce the [entire VHELM leaderboard](https://crfm.stanford.edu/helm/vhelm/latest/), refer to the instructions for VHELM on the [Reproducing Leaderboards](reproducing_leaderboards/) documentation.

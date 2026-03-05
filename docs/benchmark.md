@@ -1,3 +1,6 @@
+---
+title: Advanced Benchmarking Guide
+---
 # Advanced Benchmarking Guide
 
 ## Running Restricted Benchmarks

@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MedHELM | MedHELM</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body class="docs-page">
+  <header class="site-header">
+  <div class="header-inner">
+    <a href="/" class="header-logo" aria-label="MedHELM">
+      <img src="https://raw.githubusercontent.com/Pacific-AI-Corp/langtest/main/docs/assets/images/logo.png" alt="Pacific AI" height="56" width="auto">
+    </a>
+    <nav class="header-nav">
+      <a href="/">Home</a>
+      <a href="/installation">Docs</a>
+      <a href="/tutorial">Tutorials</a>
+      <a href="/benchmark">Tests</a>
+      <a href="/reproducing_leaderboards">Benchmarks</a>
+      <div class="widget widget-lg">
+        <a class="btn btn-gh" href="https://github.com/Pacific-AI-Corp/medhelm" rel="noopener" target="_blank" aria-label="Star Pacific-AI-Corp/medhelm on GitHub">
+          <svg viewBox="0 0 16 16" width="16" height="16" class="octicon octicon-mark-github" aria-hidden="true"><path fill="currentColor" d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.47 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.1 1.5.07.09.45.68.1 1.5-.01.24-.01.47-.01.71 0 .21.15.46.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>&nbsp;<span>Star on GitHub</span>
+        </a>
+        <a class="social-count" href="https://github.com/Pacific-AI-Corp/medhelm/stargazers" rel="noopener" target="_blank" aria-label="Stargazers on GitHub" id="github-stars-count">—</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+  <div class="docs-wrapper">
+    <nav class="docs-sidebar" aria-label="Documentation">
+  <div class="docs-sidebar-inner">
+    
+    <a href="/installation" class="docs-sidebar-title">Docs</a>
+    <ul class="docs-nav-list">
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">User Guide</span>
+        <ul>
+          <li><a href="/installation" class="">Installation</a></li>
+          <li><a href="/quick_start" class="">Quick Start</a></li>
+          <li><a href="/tutorial" class="">Tutorial</a></li>
+          <li><a href="/run_entries_configuration_files" class="">Run Entries Configuration Files</a></li>
+          <li><a href="/run_entries" class="">Run Entries</a></li>
+          <li><a href="/credentials" class="">Credentials</a></li>
+          <li><a href="/importing_custom_modules" class="">Importing Custom Modules</a></li>
+          <li><a href="/adding_new_models" class="">Adding New Models</a></li>
+          <li><a href="/adding_new_scenarios" class="">Adding New Scenarios</a></li>
+          <li><a href="/adding_new_tokenizers" class="">Adding New Tokenizers</a></li>
+          <li><a href="/downloading_raw_results" class="">Downloading Raw Results</a></li>
+          <li><a href="/reproducing_leaderboards" class="">Reproducing Leaderboards</a></li>
+          <li><a href="/get_helm_rank" class="">Efficient-HELM</a></li>
+          <li><a href="/benchmark" class="">Advanced Benchmarking Guide</a></li>
+          <li><a href="/huggingface_models" class="">Hugging Face Model Hub</a></li>
+        </ul>
+      </li>
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">Papers</span>
+        <ul>
+          <li><a href="/heim" class="">HEIM (Text-to-image)</a></li>
+          <li><a href="/vhelm" class="">VHELM (Vision-Language)</a></li>
+          <li><a href="/enterprise_benchmark" class="">Enterprise Benchmark</a></li>
+          <li><a href="/reeval" class="">Reliable and Efficient Amortized Evaluation</a></li>
+          <li><a href="/medhelm" class="is-active">MedHELM</a></li>
+        </ul>
+      </li>
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">Reference</span>
+        <ul>
+          <li><a href="/models" class="">Models</a></li>
+          <li><a href="/metrics" class="">Metrics</a></li>
+          <li><a href="/perturbations" class="">Perturbations</a></li>
+          <li><a href="/scenarios" class="">Scenarios</a></li>
+          <li><a href="/schemas" class="">Schemas</a></li>
+        </ul>
+      </li>
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">Developer Guide</span>
+        <ul>
+          <li><a href="/developer_setup" class="">Developer Setup</a></li>
+          <li><a href="/code" class="">Code Structure</a></li>
+          <li><a href="/developer_adding_new_models" class="">Adding New Clients</a></li>
+          <li><a href="/proxy_server" class="">Proxy Server</a></li>
+          <li><a href="/editing_documentation" class="">Editing Documentation</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+    <main class="site-main docs-main">
+      <div class="main-inner">
+        <h1 id="medhelm-holistic-evaluation-of-large-language-models-for-medical-applications">MedHELM: Holistic Evaluation of Large Language Models for Medical Applications</h1>
+
+<p><strong>Who it’s for:</strong> Data scientists at health systems benchmarking LLMs for medical use cases.</p>
+
+<p><strong>What you’ll do here:</strong> Install MedHELM, run a small evaluation locally, understand access levels, view leaderboards, and learn how to contribute new scenarios/models.</p>
+
+<p><strong>Time required:</strong> ~15 minutes for the Quickstart.</p>
+
+<p>MedHELM extends the HELM framework to evaluate <strong>large language models (LLMs) in medical applications</strong>, focusing on realistic tasks, safety, and reproducibility.</p>
+
+<hr />
+
+<h2 id="requirements">Requirements</h2>
+
+<p>Before you install MedHELM, make sure your system meets the following requirements:</p>
+
+<ol>
+  <li>
+    <p><a href="https://www.anaconda.com/docs/getting-started/getting-started">Conda</a> (~30 minutes to install)</p>
+
+    <p>Used to manage the Python virtual environment for MedHELM.</p>
+  </li>
+  <li>
+    <p><a href="https://cloud.google.com/sdk/docs/install">Google Cloud CLI</a> (~30 minutes to install)</p>
+
+    <p>Required for downloading MedHELM results stored in Google Cloud.</p>
+
+    <p><strong>Note:</strong> During installation, the installer will recommend Python 3.12 for full feature support. These features are not needed. MedHELM is <strong>only</strong> compatible with <code class="language-plaintext highlighter-rouge">Python 3.10</code>.</p>
+  </li>
+  <li>
+    <p>GPU Access</p>
+
+    <p>Needed for running models locally. The exact GPU requirements depend on the model size and benchmark.</p>
+  </li>
+</ol>
+
+<hr />
+
+<h2 id="quickstart-15-minutes">Quickstart (15 minutes)</h2>
+
+<p><strong>Goal:</strong> Install MedHELM, download the live leaderboard, run a 10-instance evaluation on a public scenario, and create a local leaderboard.</p>
+
+<h4 id="1-install-dependencies">1. Install Dependencies</h4>
+
+<p>Run the following commands to create and activate a new python virtual environment:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Create and activate a clean environment
+conda create -n crfm-helm python=3.10 pip wget
+conda activate crfm-helm
+pip install -U setuptools
+</code></pre></div></div>
+
+<p>Run the following command to install HELM and the necessary MedHELM extensions:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pip install -U "crfm-helm[summarization,medhelm]"
+</code></pre></div></div>
+
+<h4 id="2-download-leaderboard-results">2. Download Leaderboard Results</h4>
+
+<p>Create the directory where the downloaded results will be stored:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">export </span><span class="nv">OUTPUT_PATH</span><span class="o">=</span><span class="s2">"./benchmark_output"</span>
+<span class="nb">mkdir</span> <span class="nv">$OUTPUT_PATH</span>
+</code></pre></div></div>
+
+<p>Download the results:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Set the GCS path to the MedHELM results
+export GCS_BENCHMARK_OUTPUT_PATH="gs://crfm-helm-public/medhelm/benchmark_output"
+
+# (Optional): Check the leaderboard results size before downloading
+# gcloud storage du -sr $GCS_BENCHMARK_OUTPUT_PATH
+
+# Download the results
+gcloud storage rsync -r $GCS_BENCHMARK_OUTPUT_PATH $OUTPUT_PATH
+</code></pre></div></div>
+
+<h4 id="3-run-a-tiny-evaluation">3. Run a Tiny Evaluation</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Set variables</span>
+<span class="nv">RUN_ENTRIES</span><span class="o">=</span><span class="s2">"pubmed_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct"</span>
+<span class="nv">SUITE</span><span class="o">=</span><span class="s2">"my-medhelm-suite"</span>
+<span class="nv">MAX_EVAL_INSTANCES</span><span class="o">=</span>10
+
+<span class="c"># Run evaluation</span>
+helm-run <span class="se">\</span>
+   <span class="nt">--run-entries</span> <span class="nv">$RUN_ENTRIES</span> <span class="se">\</span>
+   <span class="nt">--suite</span> <span class="nv">$SUITE</span> <span class="se">\</span>
+   <span class="nt">--max-eval-instances</span> <span class="nv">$MAX_EVAL_INSTANCES</span> <span class="se">\</span>
+   <span class="nt">--output-path</span> <span class="nv">$OUTPUT_PATH</span>
+</code></pre></div></div>
+
+<h4 id="4-build-and-open-the-local-leaderboard">4. Build and Open the Local Leaderboard</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">SCHEMA</span><span class="o">=</span><span class="s2">"schema_medhelm.yaml"</span>
+<span class="nv">RELEASE</span><span class="o">=</span><span class="s2">"my-medhelm-release"</span>
+<span class="nv">LIVE_LEADERBOARD_SUITE</span><span class="o">=</span><span class="s2">"v2.0.0"</span>
+
+wget <span class="nt">-O</span> <span class="nv">$SCHEMA</span> <span class="se">\</span>
+   https://raw.githubusercontent.com/stanford-crfm/helm/v0.5.7/src/helm/benchmark/static/schema_medhelm.yaml
+
+<span class="c"># Create the leaderboard</span>
+helm-summarize <span class="se">\</span>
+  <span class="nt">--suites</span> <span class="nv">$SUITE</span> <span class="nv">$LIVE_LEADERBOARD_SUITE</span> <span class="se">\</span>
+  <span class="nt">--schema</span> <span class="nv">$SCHEMA</span> <span class="se">\</span>
+  <span class="nt">--release</span> <span class="nv">$RELEASE</span> <span class="se">\</span>
+  <span class="nt">--output-path</span> <span class="nv">$OUTPUT_PATH</span>
+
+<span class="c"># Load the leaderboard</span>
+helm-server <span class="se">\</span>
+  <span class="nt">--release</span> <span class="nv">$RELEASE</span> <span class="se">\</span>
+  <span class="nt">--output-path</span> <span class="nv">$OUTPUT_PATH</span>
+</code></pre></div></div>
+
+<p><strong>Expected outcome:</strong></p>
+
+<ul>
+  <li>Benchmark results for the tiny evaluation at <code class="language-plaintext highlighter-rouge">$OUTPUT_PATH/runs/$SUITE</code>.</li>
+  <li>A local leaderboard combining results from the live leaderboard and the tiny evaluation (the URL will be printed in the terminal).</li>
+</ul>
+
+<hr />
+
+<h2 id="core-concepts">Core Concepts</h2>
+
+<ul>
+  <li><strong>Scenario:</strong> Dataset + prompt/response formatting logic.</li>
+  <li><strong>Run entry:</strong> A <code class="language-plaintext highlighter-rouge">(model, scenario)</code> pair given to <code class="language-plaintext highlighter-rouge">helm-run</code>.</li>
+  <li><strong>Suite:</strong> Named collection of runs; appears as a tab/section in the leaderboard.</li>
+  <li><strong>Annotator:</strong> Optional post‑processing (e.g., LLM‑as‑a‑judge).</li>
+  <li><strong>Schema:</strong> Task taxonomy + metrics configuration powering <code class="language-plaintext highlighter-rouge">helm-summarize</code> and the UI.</li>
+  <li><strong>Release:</strong> The release name of the leaderboard.</li>
+</ul>
+
+<hr />
+
+<h2 id="clinicianvalidated-taxonomy">Clinician‑Validated Taxonomy</h2>
+
+<p>MedHELM evaluates models across a clinician‑validated taxonomy: <strong>5 categories</strong>, <strong>22 subcategories</strong>, <strong>121 tasks</strong>.</p>
+
+<ul>
+  <li><strong>Clinical Decision Support</strong>
+    <ul>
+      <li>Supporting Diagnostic Decisions</li>
+      <li>Planning Treatments</li>
+      <li>Predicting Patient Risks and Outcomes</li>
+      <li>Providing Clinical Knowledge Support</li>
+    </ul>
+  </li>
+  <li><strong>Clinical Note Generation</strong>
+    <ul>
+      <li>Documenting Patient Visits</li>
+      <li>Recording Procedures</li>
+      <li>Documenting Diagnostic Reports</li>
+      <li>Documenting Care Plans</li>
+    </ul>
+  </li>
+  <li><strong>Patient Communication and Education</strong>
+    <ul>
+      <li>Providing Patient Education Resources</li>
+      <li>Delivering Personalized Care Instructions</li>
+      <li>Patient-Provider Messaging</li>
+      <li>Enhancing Patient Understanding and Accessibility in Health Communication</li>
+      <li>Facilitating Patient Engagement and Support</li>
+    </ul>
+  </li>
+  <li><strong>Medical Research Assistance</strong>
+    <ul>
+      <li>Conducting Literature Research</li>
+      <li>Analyzing Clinical Research Data</li>
+      <li>Recording Research Processes</li>
+      <li>Ensuring Clinical Research Quality</li>
+      <li>Managing Research Enrollment</li>
+    </ul>
+  </li>
+  <li><strong>Administration and Workflow</strong>
+    <ul>
+      <li>Scheduling Resources and Staff</li>
+      <li>Overseeing Financial Activities</li>
+      <li>Organizing Workflow Processes</li>
+      <li>Care Coordination and Planning</li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
+<h2 id="installation">Installation</h2>
+
+<p><strong>NOTE</strong>: MedHELM is compatible <strong>only</strong> with <code class="language-plaintext highlighter-rouge">Python 3.10</code>. Other Python versions are not supported.</p>
+
+<h4 id="1-create-a-virtual-environment">1. Create a Virtual Environment</h4>
+
+<p>Run the following commands to create and activate a new python virtual environment:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Create and activate a clean environment</span>
+conda create <span class="nt">-n</span> crfm-helm <span class="nv">python</span><span class="o">=</span>3.10 pip wget
+conda activate crfm-helm
+pip <span class="nb">install</span> <span class="nt">-U</span> setuptools
+</code></pre></div></div>
+
+<h4 id="2-install-helm-and-medhelm-specific-dependencies">2. Install HELM and MedHELM-specific Dependencies:</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pip <span class="nb">install</span> <span class="nt">-U</span> <span class="s2">"crfm-helm[summarization,medhelm]"</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="run-your-first-evaluation">Run Your First Evaluation</h2>
+
+<p>The example below evaluates <strong>Qwen2.5‑7B‑Instruct</strong> on the <strong>PubMedQA</strong> scenario using 10 instances.</p>
+
+<h4 id="1-run-the-benchmark">1. Run the Benchmark</h4>
+
+<p>The following command runs <strong>PubMedQA</strong> on <strong>Qwen2.5‑7B‑Instruct</strong> for 10 instances and stores the results under <code class="language-plaintext highlighter-rouge">./benchmark_output/runs/my-medhelm-suite</code>.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Set variables</span>
+<span class="nv">RUN_ENTRIES</span><span class="o">=</span><span class="s2">"pubmed_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct"</span>
+<span class="nv">SUITE</span><span class="o">=</span><span class="s2">"my-medhelm-suite"</span>
+<span class="nv">MAX_EVAL_INSTANCES</span><span class="o">=</span>10
+<span class="nv">OUTPUT_PATH</span><span class="o">=</span><span class="s2">"./benchmark_output"</span>
+
+<span class="c"># Run evaluation</span>
+helm-run <span class="se">\</span>
+   <span class="nt">--run-entries</span> <span class="nv">$RUN_ENTRIES</span> <span class="se">\</span>
+   <span class="nt">--suite</span> <span class="nv">$SUITE</span> <span class="se">\</span>
+   <span class="nt">--max-eval-instances</span> <span class="nv">$MAX_EVAL_INSTANCES</span> <span class="se">\</span>
+   <span class="nt">--output-path</span> <span class="nv">$OUTPUT_PATH</span>
+</code></pre></div></div>
+
+<p>For more information about <code class="language-plaintext highlighter-rouge">helm-run</code>, refer to the <a href="tutorial/#using-helm-run">Using helm-run</a> page.</p>
+
+<h4 id="2-create-the-leaderboard">2. Create the Leaderboard</h4>
+
+<p>The following commands convert the results from step 1 into an interactive leaderboard.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">SCHEMA</span><span class="o">=</span><span class="s2">"schema_medhelm.yaml"</span>
+<span class="nv">RELEASE</span><span class="o">=</span><span class="s2">"my-medhelm-release"</span>
+
+wget <span class="nt">-O</span> <span class="nv">$SCHEMA</span> <span class="se">\</span>
+   https://raw.githubusercontent.com/stanford-crfm/helm/v0.5.7/src/helm/benchmark/static/schema_medhelm.yaml
+helm-summarize <span class="se">\</span>
+  <span class="nt">--suites</span> <span class="nv">$SUITE</span> <span class="se">\</span>
+  <span class="nt">--schema</span> <span class="nv">$SCHEMA</span> <span class="se">\</span>
+  <span class="nt">--release</span> <span class="nv">$RELEASE</span> <span class="se">\</span>
+  <span class="nt">--output-path</span> <span class="nv">$OUTPUT_PATH</span>
+</code></pre></div></div>
+
+<p>For more information about <code class="language-plaintext highlighter-rouge">helm-summarize</code>, refer to the <a href="tutorial/#using-helm-summarize">Using helm-summarize</a> page.</p>
+
+<h4 id="3-run-the-leaderboard-locally">3. Run the Leaderboard Locally</h4>
+
+<p>This command runs the leaderboard on a local server. The exact address and port will show on the command output.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>helm-server <span class="se">\</span>
+  <span class="nt">--release</span> <span class="nv">$RELEASE</span> <span class="se">\</span>
+  <span class="nt">--output-path</span> <span class="nv">$OUTPUT_PATH</span>
+</code></pre></div></div>
+
+<p>For more information about <code class="language-plaintext highlighter-rouge">helm-run</code>, refer to the <a href="tutorial/#using-helm-server">Using helm-server</a> page.</p>
+
+<hr />
+
+<h2 id="benchmark-access-levels">Benchmark Access Levels</h2>
+
+<p>MedHELM scenarios fall into three access patterns. Use the right <strong>run entries</strong> file to register new runs and to reproduce results.</p>
+
+<h3 id="quick-decision-guide">Quick Decision Guide</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Data Access</th>
+      <th>Example Sources</th>
+      <th>Run Entries File</th>
+      <th>Who can Reproduce?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Public</td>
+      <td>Hugging Face, GitHub</td>
+      <td><code class="language-plaintext highlighter-rouge">run_entries_medhelm_public.conf</code></td>
+      <td>Anyone</td>
+    </tr>
+    <tr>
+      <td>Gated</td>
+      <td>PhysioNet, Redivis</td>
+      <td><code class="language-plaintext highlighter-rouge">run_entries_medhelm_gated.conf</code></td>
+      <td>Credentialed users</td>
+    </tr>
+    <tr>
+      <td>Private</td>
+      <td>Internal clinical datasets</td>
+      <td><code class="language-plaintext highlighter-rouge">run_entries_medhelm_private_{org}.conf</code></td>
+      <td>Authorized org members</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>When contributing or reproducing results, ensure you’re using the correct file for the benchmark’s access level.</p>
+
+<hr />
+
+<h2 id="viewing-and-reproducing-leaderboard-results">Viewing and Reproducing Leaderboard Results</h2>
+
+<p>You can interact with MedHELM results by <strong>viewing</strong> pre‑computed results locally or by <strong>reproducing</strong> evaluations from scratch.</p>
+
+<h3 id="view-the-official-leaderboard-locally">View the Official Leaderboard Locally</h3>
+
+<h4 id="1-create-a-local-directory-to-store-leaderboard-results">1. Create a Local Directory to Store Leaderboard Results</h4>
+
+<p>Run the following commands to create the local directory where leaderboard results will be stored. Adjust the directory path as needed.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">export </span><span class="nv">OUTPUT_PATH</span><span class="o">=</span><span class="s2">"./benchmark_output"</span>
+<span class="nb">mkdir</span> <span class="nv">$OUTPUT_PATH</span>
+</code></pre></div></div>
+
+<h4 id="2-download-leaderboard-results-1">2. Download Leaderboard Results</h4>
+
+<p>Run the following commands to download the leaderboard results to the <code class="language-plaintext highlighter-rouge">OUTPUT_PATH</code> created in the previous step.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Set the GCS path to the MedHELM results</span>
+<span class="nb">export </span><span class="nv">GCS_BENCHMARK_OUTPUT_PATH</span><span class="o">=</span><span class="s2">"gs://crfm-helm-public/medhelm/benchmark_output"</span>
+
+<span class="c"># (Optional): Check the leaderboard results size before downloading</span>
+<span class="c"># gcloud storage du -sr $GCS_BENCHMARK_OUTPUT_PATH</span>
+
+<span class="c"># Download the results</span>
+gcloud storage rsync <span class="nt">-r</span> <span class="nv">$GCS_BENCHMARK_OUTPUT_PATH</span> <span class="nv">$OUTPUT_PATH</span>
+</code></pre></div></div>
+
+<h4 id="3-launch-the-local-leaderboard">3. Launch the Local Leaderboard</h4>
+
+<p>Run the following command to launch the MedHELM leaderboard locally. Use the numbered <code class="language-plaintext highlighter-rouge">release</code> version you want to display. Check out all release versions on the upper right corner of the official <a href="https://crfm.stanford.edu/helm/medhelm/latest">leaderboard website</a>.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Sample command to launch the MedHELM leaderboard version 2.0.0.</span>
+helm-server <span class="nt">--release</span> v2.0.0 <span class="nt">--output-path</span> <span class="nv">$OUTPUT_PATH</span>
+</code></pre></div></div>
+
+<h3 id="reproduce-leaderboard-results">Reproduce Leaderboard Results</h3>
+
+<ul>
+  <li><strong>Public benchmarks:</strong> Anyone can reproduce the <strong>public subset</strong> using entries in <code class="language-plaintext highlighter-rouge">run_entries_medhelm_public.conf</code>.</li>
+  <li><strong>Gated benchmarks:</strong> Require credentials/approval (e.g., EHRSHOT); entries live in <code class="language-plaintext highlighter-rouge">run_entries_medhelm_gated.conf</code>.</li>
+  <li><strong>Private benchmarks:</strong> Org‑specific; entries follow <code class="language-plaintext highlighter-rouge">run_entries_medhelm_private_{organization}.conf</code>.</li>
+</ul>
+
+<blockquote>
+  <p><strong>Note:</strong> The <code class="language-plaintext highlighter-rouge">model_deployments</code> of the models listed in these run entries are specific to Stanford Healthcare, please change them for the appropriate deployments as needed. For more information on model_deployments, refer to the <a href="adding_new_models/">Adding New Models</a> page.</p>
+</blockquote>
+
+<hr />
+
+<h2 id="creating-a-new-benchmark">Creating a New Benchmark</h2>
+
+<p>MedHELM allows you to define and run custom LLM benchmarks by combining a few simple configuration files:</p>
+
+<ol>
+  <li><strong>Prompt template (<code class="language-plaintext highlighter-rouge">.txt</code>)</strong> — contains the instructions shown to the model, with placeholders (e.g., <code class="language-plaintext highlighter-rouge">{column_name}</code>) that will be filled in from the dataset.</li>
+  <li><strong>Dataset (<code class="language-plaintext highlighter-rouge">.csv</code>)</strong> — provides the data for each benchmark instance. Each row populates the prompt template and must include required columns like <code class="language-plaintext highlighter-rouge">correct_answer</code>.</li>
+  <li><strong>Benchmark config (<code class="language-plaintext highlighter-rouge">.yaml</code>)</strong> — specifies the benchmark metadata (name, description), file paths (prompt, dataset), evaluation settings (e.g., max tokens), and the list of metrics to compute.</li>
+</ol>
+
+<blockquote>
+  <p><strong>Note:</strong> This feature requires <strong>crfm-helm &gt;= 0.5.8</strong>.<br />
+Make sure you upgrade before continuing:</p>
+  <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pip <span class="nb">install</span> <span class="nt">-U</span> crfm-helm
+</code></pre></div>  </div>
+</blockquote>
+
+<hr />
+
+<h3 id="benchmark-components">Benchmark Components</h3>
+
+<h4 id="1-prompt-template-txt">1. Prompt Template (<code class="language-plaintext highlighter-rouge">.txt</code>)</h4>
+
+<p>A text file containing the task instructions with placeholders for dataset fields.</p>
+
+<ul>
+  <li>Placeholders are written as <code class="language-plaintext highlighter-rouge">{column_name}</code>.</li>
+  <li>At runtime, they will be replaced with values from the dataset.</li>
+  <li>Only columns explicitly referenced in the template will appear in the final prompt.</li>
+</ul>
+
+<p>Example:</p>
+<pre><code class="language-txt">You are a clinical assistant. Your task is to answer the following medical question based on the patient history.
+
+Patient ID: {patient_id}
+
+Patient Note:
+{note}
+
+Question:
+{question}
+
+Answer with a single token: "Yes" or "No"
+</code></pre>
+
+<h4 id="2-dataset-csv">2. <strong>Dataset</strong> (<code class="language-plaintext highlighter-rouge">.csv</code>)</h4>
+
+<p>A CSV file with one row per benchmark instance.</p>
+
+<ul>
+  <li>
+    <p>Must contain all columns referenced in the prompt.</p>
+  </li>
+  <li>
+    <p>Must include the following columns:</p>
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">correct_answer</code>: The reference answer against which model outputs are compared.</li>
+      <li><code class="language-plaintext highlighter-rouge">incorrect_answers</code>: JSON-serialized list of incorrect alternatives.</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Example:</p>
+<pre><code class="language-csv">patient_id,note,question,correct_answer,incorrect_answers
+001,"Patient with hypertension.","Does the patient have hypertension?","Yes","[""No""]"
+002,"Patient denies smoking.","Does the patient smoke?","No","[""Yes""]"
+</code></pre>
+
+<h4 id="3-benchmark-config-yaml">3. <strong>Benchmark Config</strong> (<code class="language-plaintext highlighter-rouge">.yaml</code>)</h4>
+
+<p>The benchmark config file must contain the following details of the benchmark:</p>
+
+<ol>
+  <li><strong>Name:</strong> A unique identifier for the benchmark.</li>
+  <li><strong>Description:</strong> A concise description of what the benchmark measures.</li>
+  <li><strong>Prompt Template Path:</strong> The path to the prompt template file.</li>
+  <li><strong>Dataset Path:</strong> The path to the csv dataset.</li>
+  <li><strong>Max tokens:</strong> The maximum number of tokens allowed for model responses.</li>
+  <li><strong>Metrics:</strong> A list of all metrics to evaluate and their required arguments (if any). The first metric in the list will be considered the <strong>main metric</strong> for the leaderboard.</li>
+</ol>
+
+<p>Example:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Name of your benchmark</span>
+<span class="na">name</span><span class="pi">:</span> <span class="s">EXACT-MATCH-DEMO</span>
+
+<span class="c1"># Description of your benchmark</span>
+<span class="na">description</span><span class="pi">:</span> <span class="s">EXACT-MATCH-DEMO measures LLMs performance on answering yes/no questions based on clinical notes.</span>
+
+<span class="c1"># Path to the prompt template</span>
+<span class="na">prompt_file</span><span class="pi">:</span> <span class="s">exact_match_demo_prompt.txt</span>
+
+<span class="c1"># Path to the dataset</span>
+<span class="na">dataset_file</span><span class="pi">:</span> <span class="s">exact_match_demo_dataset.csv</span>
+
+<span class="c1"># Max tokens to generate</span>
+<span class="na">max_tokens</span><span class="pi">:</span> <span class="m">1</span>
+
+<span class="c1"># Metrics list</span>
+<span class="c1"># The main metric will be the first one in the list.</span>
+<span class="na">metrics</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">exact_match</span>
+</code></pre></div></div>
+
+<h5 id="supported-metrics">Supported Metrics</h5>
+
+<table>
+  <thead>
+    <tr>
+      <th>Category</th>
+      <th>Metric(s)</th>
+      <th>Description</th>
+      <th>Requirements</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Accuracy Metrics</strong></td>
+      <td><code class="language-plaintext highlighter-rouge">exact_match</code></td>
+      <td>Checks if the model output matches the reference exactly.</td>
+      <td>CPU only (light)</td>
+    </tr>
+    <tr>
+      <td><strong>Summarization Metrics</strong></td>
+      <td><code class="language-plaintext highlighter-rouge">rouge_1</code>, <code class="language-plaintext highlighter-rouge">rouge_2</code>, <code class="language-plaintext highlighter-rouge">rouge_l</code></td>
+      <td>N-gram overlap metrics commonly used for text comparison.</td>
+      <td>CPU only</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td><code class="language-plaintext highlighter-rouge">BERTScore-P</code>, <code class="language-plaintext highlighter-rouge">BERTScore-R</code>, <code class="language-plaintext highlighter-rouge">BERTScore-F</code></td>
+      <td>Precision, Recall, and F1 based on semantic similarity.</td>
+      <td>GPU required</td>
+    </tr>
+    <tr>
+      <td><strong>LLM-as-Judge Metrics</strong></td>
+      <td><code class="language-plaintext highlighter-rouge">jury_score</code></td>
+      <td>Uses one or more judge models (LLMs) to evaluate correctness/quality.</td>
+      <td>LLM API or GPU</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h3 id="steps-to-create-your-own-benchmark">Steps to Create Your Own Benchmark</h3>
+
+<p>We’ll illustrate each step with <code class="language-plaintext highlighter-rouge">EXACT-MATCH-DEMO</code>, a benchmark that measures LLMs performance on answering yes/no questions based on clinical notes. You can find this example, along with several others, in the <strong><a href="https://drive.google.com/uc?export=download&amp;id=1Y8aT6O3cpGPcZ9KPDz99D5lyoP7qZdgU">examples.zip</a></strong> archive. After downloading and unzipping, look for the <code class="language-plaintext highlighter-rouge">exact_match_demo/</code> directory.</p>
+
+<h4 id="1-create-a-prompt-template-txt">1. Create a Prompt Template (<code class="language-plaintext highlighter-rouge">.txt</code>)</h4>
+
+<p>Write the task instructions in plain text, and use <code class="language-plaintext highlighter-rouge">{column_name}</code> placeholders wherever you want values from the dataset to be inserted. Every placeholder must match a column name in your dataset exactly.</p>
+
+<p><strong>Example — <code class="language-plaintext highlighter-rouge">exact_match_demo_prompt.txt</code>:</strong></p>
+<pre><code class="language-txt">You are a clinical assistant. Your task is to answer the following medical question based on the patient history.
+
+Patient ID: {patient_id}
+
+Patient Note:
+{note}
+
+Question:
+{question}
+
+Answer with a single token: "Yes" or "No"
+</code></pre>
+
+<h4 id="2-prepare-a-dataset-csv">2. Prepare a Dataset (<code class="language-plaintext highlighter-rouge">.csv</code>)</h4>
+
+<p>Build a CSV file where each row represents one benchmark instance.</p>
+
+<ul>
+  <li>Include all columns referenced in your prompt template.</li>
+  <li>Add a <code class="language-plaintext highlighter-rouge">correct_answer</code> column (required).</li>
+  <li>Add an <code class="language-plaintext highlighter-rouge">incorrect_answers</code> column containing a JSON-serialized list of alternative answers.</li>
+</ul>
+
+<p><strong>Example — <code class="language-plaintext highlighter-rouge">exact_match_demo_dataset.csv</code>:</strong></p>
+
+<pre><code class="language-csv">patient_id,note,question,correct_answer,incorrect_answers
+001,"Patient with hypertension.","Does the patient have hypertension?","Yes","[""No""]"
+002,"Patient denies smoking.","Does the patient smoke?","No","[""Yes""]"
+...
+</code></pre>
+
+<h4 id="3-congifure-the-benchmark-yaml">3. Congifure the Benchmark (<code class="language-plaintext highlighter-rouge">.yaml</code>)</h4>
+
+<p>Create a YAML file that defines:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">name:</code> The name of the benchmark. This will appear on the leaderboard.</li>
+  <li><code class="language-plaintext highlighter-rouge">description:</code> A short description of the benchmark. This will also be shown on the leaderboard.</li>
+  <li><code class="language-plaintext highlighter-rouge">prompt_file:</code> Path to the prompt template file for your benchmark.</li>
+  <li><code class="language-plaintext highlighter-rouge">dataset_file:</code> Path to the dataset file for your benchmark.</li>
+  <li><code class="language-plaintext highlighter-rouge">max_tokens:</code> The maximum number of tokens that models are allowed to generate in response to your benchmark prompts. Choose this value based on the expected response length.</li>
+  <li><code class="language-plaintext highlighter-rouge">metrics:</code> A list of evaluation metrics to be used for your benchmark.</li>
+</ul>
+
+<p><strong>Example — <code class="language-plaintext highlighter-rouge">exact_match_demo.yaml</code>:</strong></p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Name of your benchmark</span>
+<span class="na">name</span><span class="pi">:</span> <span class="s">EXACT-MATCH-DEMO</span>
+
+<span class="c1"># Description of your benchmark</span>
+<span class="na">description</span><span class="pi">:</span> <span class="s">EXACT-MATCH-DEMO measures LLMs performance on answering yes/no questions based on clinical notes.</span>
+
+<span class="c1"># Path to the prompt template</span>
+<span class="na">prompt_file</span><span class="pi">:</span> <span class="s">exact_match_demo_prompt.txt</span>
+
+<span class="c1"># Path to the dataset</span>
+<span class="na">dataset_file</span><span class="pi">:</span> <span class="s">exact_match_demo_dataset.csv</span>
+
+<span class="c1"># Max tokens to generate</span>
+<span class="na">max_tokens</span><span class="pi">:</span> <span class="m">1</span>
+
+<span class="c1"># Metrics list</span>
+<span class="c1"># The main metric will be the first one in the list.</span>
+<span class="na">metrics</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">exact_match</span>
+</code></pre></div></div>
+
+<h4 id="4-define-a-run-configuration-conf">4. Define a Run Configuration (<code class="language-plaintext highlighter-rouge">.conf</code>)</h4>
+
+<p>List the models you want to evaluate on your benchmark. Each entry specifies a model, its deployment, and the path to your YAML config.</p>
+
+<p><strong>Example — <code class="language-plaintext highlighter-rouge">exact_match_demo.conf</code>:</strong></p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">entries</span><span class="pi">:</span> <span class="pi">[</span>
+  <span class="pi">{</span><span class="nv">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">medhelm_configurable_benchmark:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct,config_path=exact_match_demo.yaml"</span><span class="pi">,</span> <span class="nv">priority</span><span class="pi">:</span> <span class="nv">1</span><span class="pi">},</span>
+<span class="pi">]</span>
+</code></pre></div></div>
+
+<p><strong>Note:</strong>  All benchmarks defined this way must begin with the prefix <code class="language-plaintext highlighter-rouge">medhelm_configurable_benchmark</code>.<br />
+The only part that changes between benchmarks is the <code class="language-plaintext highlighter-rouge">config_path</code>, which should point to the YAML config file for the specific benchmark you want to run.</p>
+
+<h4 id="5-run-the-benchmark">5. Run the Benchmark</h4>
+
+<p>With the prompt template, dataset, YAML config, and run configuration prepared, you can now run the benchmark. The following steps are bundled into the <code class="language-plaintext highlighter-rouge">run.sh</code> script.</p>
+
+<p>First, set a few environment variables to configure the run:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Name of the benchmark suite (used to group results)</span>
+<span class="nb">export </span><span class="nv">SUITE_NAME</span><span class="o">=</span>DEMO
+
+<span class="c"># Path to your run configuration file (.conf)</span>
+<span class="nb">export </span><span class="nv">RUN_ENTRIES_CONF_PATH</span><span class="o">=</span><span class="s2">"./exact_match_demo.conf"</span>
+
+<span class="c"># Maximum number of evaluation instances to run (useful for quick testing)</span>
+<span class="nb">export </span><span class="nv">MAX_EVAL_INSTANCES</span><span class="o">=</span>2
+
+<span class="c"># Path to the directory where the results will be stored. (helm-run will create it if it doesn't exist)</span>
+<span class="nb">export </span><span class="nv">OUTPUT_PATH</span><span class="o">=</span><span class="s2">"./benchmark_output"</span>
+</code></pre></div></div>
+
+<p>Then, run the benchmark with:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>helm-run <span class="se">\</span>
+  <span class="nt">--conf-paths</span> <span class="nv">$RUN_ENTRIES_CONF_PATH</span> <span class="se">\</span>
+  <span class="nt">--max-eval-instances</span> <span class="nv">$MAX_EVAL_INSTANCES</span> <span class="se">\</span>
+  <span class="nt">--suite</span> <span class="nv">$SUITE_NAME</span> <span class="se">\</span>
+  <span class="nt">--output-path</span> <span class="nv">$OUTPUT_PATH</span>
+</code></pre></div></div>
+
+<p>With the benchmarks results from <code class="language-plaintext highlighter-rouge">helm-run</code>, run the following command to recreate the leaderboard:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>helm-summarize <span class="se">\</span>
+  <span class="nt">--auto-generate-schema</span> <span class="se">\</span>
+  <span class="nt">--suite</span> <span class="nv">$SUITE_NAME</span> <span class="se">\</span>
+  <span class="nt">--output-path</span> <span class="nv">$OUTPUT_PATH</span>
+</code></pre></div></div>
+
+<p>Once the leaderboard is created with <code class="language-plaintext highlighter-rouge">helm-summarize</code>, launch the leaderboard to see it live.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>helm-server <span class="se">\</span>
+  <span class="nt">--suite</span> <span class="nv">$SUITE_NAME</span> <span class="se">\</span>
+  <span class="nt">--output-path</span> <span class="nv">$OUTPUT_PATH</span>
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="advanced-example-jury-score-benchmark">Advanced Example: Jury Score Benchmark</h3>
+
+<p>In some healthcare tasks, standard accuracy or overlap metrics (like <code class="language-plaintext highlighter-rouge">exact_match</code> or <code class="language-plaintext highlighter-rouge">rouge</code>) may fail to capture the quality of an LLM’s response. To handle these cases, MedHELM supports <strong>rubric-based evaluation</strong>, where a set of LLMs — called <em>judges</em> — evaluate model responses according to predefined criteria.</p>
+
+<p>This example, <code class="language-plaintext highlighter-rouge">LLM-JURY-SCORE-DEMO</code>, demonstrates how to create a benchmark that uses the <code class="language-plaintext highlighter-rouge">jury_score</code> metric to evaluate patient-friendly discharge summaries based on clinical notes. The setup is similar to the Exact Match Demo; here we only highlight the differences where necessary.</p>
+
+<p>To follow along, navigate to the <code class="language-plaintext highlighter-rouge">llm_jury_score_demo/</code> directory from the unzipped <a href="https://drive.google.com/uc?export=download&amp;id=1Y8aT6O3cpGPcZ9KPDz99D5lyoP7qZdgU">examples.zip</a>.</p>
+
+<hr />
+
+<h4 id="1-create-a-prompt-template-txt-1">1. Create a Prompt Template (<code class="language-plaintext highlighter-rouge">.txt</code>)</h4>
+
+<p><strong>Example — <code class="language-plaintext highlighter-rouge">llm_jury_score_demo_prompt.txt</code>:</strong></p>
+<pre><code class="language-txt">You are a clinical assistant. Your task is to write a plain-language discharge summary for patients.
+
+Patient ID: {patient_id}
+
+Patient Note:
+{note}
+
+Constraints:
+- The summary's length should be at most 120 words.
+- The summary should include diagnosis, medications, warning signs, and follow-up.
+
+Please provide your response below:
+</code></pre>
+
+<h4 id="2-prepare-a-dataset-csv-1">2. Prepare a Dataset (<code class="language-plaintext highlighter-rouge">.csv</code>)</h4>
+
+<p><strong>Example — <code class="language-plaintext highlighter-rouge">llm_jury_score_demo_dataset.csv</code>:</strong></p>
+<pre><code class="language-csv">patient_id,note
+4001,"67-year-old with cough and fever; chest X-ray shows pneumonia. Current meds: metformin 500 mg BID, atorvastatin 20 mg QHS. New Rx: amoxicillin-clavulanate 875/125 mg PO BID x7 days. Return if worse. Follow-up PCP in 3 days."
+4002,"58-year-old with CKD stage 3. Meds: metformin 1000 mg BID; ibuprofen stopped; lisinopril 10 mg daily started. Cr 1.8 mg/dL. Counsel to avoid NSAIDs."
+...
+</code></pre>
+
+<h4 id="3-congifure-the-benchmark-yaml-1">3. Congifure the Benchmark (<code class="language-plaintext highlighter-rouge">.yaml</code>)</h4>
+
+<p>The key difference in this example is the <strong>metrics list</strong>, where we define a <code class="language-plaintext highlighter-rouge">jury_score</code> metric. This requires a <em>judge prompt</em> and a list of judge models.</p>
+
+<h5 id="31-judge-prompt-txt">3.1 Judge Prompt (<code class="language-plaintext highlighter-rouge">.txt</code>)</h5>
+
+<p>The judge prompt instructs the judge models on how to evaluate outputs. It must include:</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">{QUESTION}</code> — the original prompt shown to the evaluated model.</li>
+  <li><code class="language-plaintext highlighter-rouge">{RESPONSE}</code> — the evaluated model’s output.</li>
+  <li><code class="language-plaintext highlighter-rouge">{GOLD_RESPONSE}</code> <em>(optional)</em> — the gold answer from the dataset.</li>
+  <li><code class="language-plaintext highlighter-rouge">&lt;rubric_criteria&gt;</code> — the evaluation rubric in JSON format, where each criterion is a JSON object with a <code class="language-plaintext highlighter-rouge">score</code> (0–5) and an explanation.</li>
+</ol>
+
+<p><strong>Example — <code class="language-plaintext highlighter-rouge">llm_jury_score_demo_judge_prompt.txt</code>:</strong></p>
+
+<pre><code class="language-txt">You are an expert in clinical communication. Your task is to evaluate the quality of the following discharge summary written for a patient.
+
+&lt;QUESTION&gt;
+{QUESTION}
+&lt;/QUESTION&gt;
+
+The response given to the above question is:
+
+&lt;RESPONSE&gt;
+{RESPONSE}
+&lt;/RESPONSE&gt;
+
+Evaluate the model under the following criteria (assign a score from 0 to 5 for each):
+
+Faithfulness (0 = completely inaccurate; 5 = entirely accurate).  
+Completeness (0 = missing required elements; 5 = fully covers diagnosis, meds, follow-up, warning signs).  
+Safety (0 = harmful advice; 5 = completely safe).  
+Clarity (0 = incomprehensible; 5 = crystal clear for patients).  
+Conciseness (0 = too short/verbose; 5 = meets length and avoids repetition).  
+
+Output Format:  
+Generate a valid JSON object inside &lt;rubric_criteria&gt;:  
+
+&lt;rubric_criteria&gt;
+{
+  "faithfulness": { 
+    "score": 0,
+    "explanation": "Explain why this score was given." 
+  },
+  "completeness": {
+    "score": 0,
+    "explanation": "Explain why this score was given."
+  },
+  "safety": {
+    "score": 0,
+    "explanation": "Explain why this score was given."
+  },
+  "clarity": {
+    "score": 0,
+    "explanation": "Explain why this score was given."
+  },
+  "conciseness": {
+    "score": 0,
+    "explanation": "Explain why this score was given."
+  }
+}
+&lt;/rubric_criteria&gt;
+
+Ensure the output is valid JSON:
+- Use double quotes (") for all keys and values.  
+- Escape quotes inside explanations (e.g., \"like this\").  
+- Do not include any text outside the JSON.
+</code></pre>
+
+<p><strong>Notes:</strong></p>
+
+<ol>
+  <li>Judge responses must be a valid JSON in the specified format. Invalid responses are ignored.</li>
+  <li>Score scales must start at 0.</li>
+  <li>Currently, we only support criteria where a higher value means better performance.</li>
+</ol>
+
+<h5 id="32-selecting-judges">3.2 Selecting Judges</h5>
+
+<p>Each judge must be defined with:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">name</code>: The deployment identifier (must match <code class="language-plaintext highlighter-rouge">name</code> in <code class="language-plaintext highlighter-rouge">model_deployments.yaml</code>).</li>
+  <li><code class="language-plaintext highlighter-rouge">model_name</code>: The model name (must match <code class="language-plaintext highlighter-rouge">model_name</code> in <code class="language-plaintext highlighter-rouge">model_deployments.yaml</code>).</li>
+</ul>
+
+<h5 id="33-full-benchmark-config">3.3 Full Benchmark Config</h5>
+
+<p>With the judge prompt defined (3.1) and the judges selected (3.2), you can now put everything together into the full benchmark configuration file.</p>
+
+<p><strong>Example — <code class="language-plaintext highlighter-rouge">llm_jury_score_demo.yaml</code>:</strong></p>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Name of your benchmark</span>
+<span class="na">name</span><span class="pi">:</span> <span class="s">LLM-JURY-SCORE-DEMO</span>
+
+<span class="c1"># Description of your benchmark</span>
+<span class="na">description</span><span class="pi">:</span> <span class="s">LLM-JURY-SCORE-DEMO measures LLM performance on creating patient-friendly discharge summaries.</span>
+
+<span class="c1"># Path to the prompt template</span>
+<span class="na">prompt_file</span><span class="pi">:</span> <span class="s">llm_jury_score_demo_prompt.txt</span>
+
+<span class="c1"># Path to the dataset</span>
+<span class="na">dataset_file</span><span class="pi">:</span> <span class="s">llm_jury_score_demo_dataset.csv</span>
+
+<span class="c1"># Max tokens to generate</span>
+<span class="na">max_tokens</span><span class="pi">:</span> <span class="m">1024</span>
+
+<span class="c1"># Metrics list</span>
+<span class="c1"># The main metric will be the first one in the list.</span>
+<span class="na">metrics</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s2">"</span><span class="s">jury_score"</span>
+    <span class="c1"># Path to the judge prompt</span>
+    <span class="na">prompt_file</span><span class="pi">:</span> <span class="s">llm_jury_score_demo_judge_prompt.txt</span>
+    <span class="c1"># List of LLM judges</span>
+    <span class="na">judges</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s2">"</span><span class="s">huggingface/qwen2.5-7b-instruct"</span>
+        <span class="na">model_name</span><span class="pi">:</span> <span class="s2">"</span><span class="s">qwen/qwen2.5-7b-instruct"</span>
+</code></pre></div></div>
+
+<p><strong>How the Jury Score is Calculated</strong></p>
+
+<p>For each instance, every judge model evaluates the output using the rubric criteria.</p>
+
+<ul>
+  <li>If your rubric has 4 criteria and you specify 3 judges, there will be <strong>12 individual scores</strong> (4 × 3).</li>
+  <li>The final <code class="language-plaintext highlighter-rouge">jury_score</code> is the <strong>simple mean</strong> of all these scores.</li>
+</ul>
+
+<p>This ensures that all judges and all criteria contribute equally to the final evaluation.</p>
+
+<h4 id="4-define-a-run-configuration-conf-1">4. Define a Run Configuration (<code class="language-plaintext highlighter-rouge">.conf</code>)</h4>
+
+<p><strong>Example — <code class="language-plaintext highlighter-rouge">llm_jury_score_demo.conf</code>:</strong></p>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">entries</span><span class="pi">:</span> <span class="pi">[</span>
+  <span class="pi">{</span><span class="nv">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">medhelm_configurable_benchmark:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct,config_path=llm_jury_score_demo.yaml"</span><span class="pi">,</span> <span class="nv">priority</span><span class="pi">:</span> <span class="nv">1</span><span class="pi">},</span>
+<span class="pi">]</span>
+</code></pre></div></div>
+
+<h4 id="5-run-the-benchmark-1">5. Run the Benchmark</h4>
+
+<p>The following steps are bundled into the <code class="language-plaintext highlighter-rouge">run.sh</code> script.</p>
+
+<p>Configure the run:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">export </span><span class="nv">SUITE_NAME</span><span class="o">=</span><span class="s2">"DEMO"</span>
+<span class="nb">export </span><span class="nv">RUN_ENTRIES_CONF_PATH</span><span class="o">=</span><span class="s2">"./llm_jury_score_demo.conf"</span>
+<span class="nb">export </span><span class="nv">MAX_EVAL_INSTANCES</span><span class="o">=</span>2
+<span class="nb">export </span><span class="nv">OUTPUT_PATH</span><span class="o">=</span><span class="s2">"./benchmark_output"</span>
+</code></pre></div></div>
+
+<p>Run the benchmark:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>helm-run <span class="se">\</span>
+  <span class="nt">--conf-paths</span> <span class="nv">$RUN_ENTRIES_CONF_PATH</span> <span class="se">\</span>
+  <span class="nt">--max-eval-instances</span> <span class="nv">$MAX_EVAL_INSTANCES</span> <span class="se">\</span>
+  <span class="nt">--suite</span> <span class="nv">$SUITE_NAME</span> <span class="se">\</span>
+  <span class="nt">--output-path</span> <span class="nv">$OUTPUT_PATH</span>
+</code></pre></div></div>
+
+<p>Recreate the leaderboard:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>helm-summarize <span class="se">\</span>
+  <span class="nt">--auto-generate-schema</span> <span class="se">\</span>
+  <span class="nt">--suite</span> <span class="nv">$SUITE_NAME</span> <span class="se">\</span>
+  <span class="nt">--output-path</span> <span class="nv">$OUTPUT_PATH</span>
+</code></pre></div></div>
+
+<p>Launch the leaderboard:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>helm-server <span class="se">\</span>
+  <span class="nt">--suite</span> <span class="nv">$SUITE_NAME</span> <span class="se">\</span>
+  <span class="nt">--output-path</span> <span class="nv">$OUTPUT_PATH</span>
+</code></pre></div></div>
+
+<h4 id="key-differences-from-the-exact-match-demo">Key Differences from the Exact Match Demo</h4>
+<ul>
+  <li>The <strong>prompt</strong> produces longer, free-text outputs (summaries).</li>
+  <li>The <strong>metric</strong> is <code class="language-plaintext highlighter-rouge">jury_score</code>, which requires a judge prompt and judge models.</li>
+  <li>The <strong>evaluation</strong> uses LLMs as judges rather than string overlap metrics.</li>
+</ul>
+
+<h2 id="references">References</h2>
+
+<ul>
+  <li><a href="https://hai.stanford.edu/news/holistic-evaluation-of-large-language-models-for-medical-applications">Stanford HAI Article</a></li>
+  <li><a href="https://crfm.stanford.edu/helm/medhelm/latest/">MedHELM Website (latest leaderboard)</a></li>
+  <li><a href="https://arxiv.org/abs/2505.23802">ArXiv Preprint</a></li>
+</ul>
+
+      </div>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <a href="https://github.com/Pacific-AI-Corp/medhelm">GitHub</a>
+      <span>MedHELM – Holistic Evaluation of Language Models</span>
+    </div>
+  </footer>
+  <script>
+(function() {
+  var el = document.getElementById('github-stars-count');
+  if (!el) return;
+  fetch('https://api.github.com/repos/Pacific-AI-Corp/medhelm')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.stargazers_count != null) el.textContent = d.stargazers_count;
+    })
+    .catch(function() {});
+})();
+</script>
+
+</body>
+</html>

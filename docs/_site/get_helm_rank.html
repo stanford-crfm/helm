@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Efficient-HELM | MedHELM</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body class="docs-page">
+  <header class="site-header">
+  <div class="header-inner">
+    <a href="/" class="header-logo" aria-label="MedHELM">
+      <img src="https://raw.githubusercontent.com/Pacific-AI-Corp/langtest/main/docs/assets/images/logo.png" alt="Pacific AI" height="56" width="auto">
+    </a>
+    <nav class="header-nav">
+      <a href="/">Home</a>
+      <a href="/installation">Docs</a>
+      <a href="/tutorial">Tutorials</a>
+      <a href="/benchmark">Tests</a>
+      <a href="/reproducing_leaderboards">Benchmarks</a>
+      <div class="widget widget-lg">
+        <a class="btn btn-gh" href="https://github.com/Pacific-AI-Corp/medhelm" rel="noopener" target="_blank" aria-label="Star Pacific-AI-Corp/medhelm on GitHub">
+          <svg viewBox="0 0 16 16" width="16" height="16" class="octicon octicon-mark-github" aria-hidden="true"><path fill="currentColor" d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.47 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.1 1.5.07.09.45.68.1 1.5-.01.24-.01.47-.01.71 0 .21.15.46.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>&nbsp;<span>Star on GitHub</span>
+        </a>
+        <a class="social-count" href="https://github.com/Pacific-AI-Corp/medhelm/stargazers" rel="noopener" target="_blank" aria-label="Stargazers on GitHub" id="github-stars-count">—</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+  <div class="docs-wrapper">
+    <nav class="docs-sidebar" aria-label="Documentation">
+  <div class="docs-sidebar-inner">
+    
+    <a href="/installation" class="docs-sidebar-title">Docs</a>
+    <ul class="docs-nav-list">
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">User Guide</span>
+        <ul>
+          <li><a href="/installation" class="">Installation</a></li>
+          <li><a href="/quick_start" class="">Quick Start</a></li>
+          <li><a href="/tutorial" class="">Tutorial</a></li>
+          <li><a href="/run_entries_configuration_files" class="">Run Entries Configuration Files</a></li>
+          <li><a href="/run_entries" class="">Run Entries</a></li>
+          <li><a href="/credentials" class="">Credentials</a></li>
+          <li><a href="/importing_custom_modules" class="">Importing Custom Modules</a></li>
+          <li><a href="/adding_new_models" class="">Adding New Models</a></li>
+          <li><a href="/adding_new_scenarios" class="">Adding New Scenarios</a></li>
+          <li><a href="/adding_new_tokenizers" class="">Adding New Tokenizers</a></li>
+          <li><a href="/downloading_raw_results" class="">Downloading Raw Results</a></li>
+          <li><a href="/reproducing_leaderboards" class="">Reproducing Leaderboards</a></li>
+          <li><a href="/get_helm_rank" class="is-active">Efficient-HELM</a></li>
+          <li><a href="/benchmark" class="">Advanced Benchmarking Guide</a></li>
+          <li><a href="/huggingface_models" class="">Hugging Face Model Hub</a></li>
+        </ul>
+      </li>
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">Papers</span>
+        <ul>
+          <li><a href="/heim" class="">HEIM (Text-to-image)</a></li>
+          <li><a href="/vhelm" class="">VHELM (Vision-Language)</a></li>
+          <li><a href="/enterprise_benchmark" class="">Enterprise Benchmark</a></li>
+          <li><a href="/reeval" class="">Reliable and Efficient Amortized Evaluation</a></li>
+          <li><a href="/medhelm" class="">MedHELM</a></li>
+        </ul>
+      </li>
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">Reference</span>
+        <ul>
+          <li><a href="/models" class="">Models</a></li>
+          <li><a href="/metrics" class="">Metrics</a></li>
+          <li><a href="/perturbations" class="">Perturbations</a></li>
+          <li><a href="/scenarios" class="">Scenarios</a></li>
+          <li><a href="/schemas" class="">Schemas</a></li>
+        </ul>
+      </li>
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">Developer Guide</span>
+        <ul>
+          <li><a href="/developer_setup" class="">Developer Setup</a></li>
+          <li><a href="/code" class="">Code Structure</a></li>
+          <li><a href="/developer_adding_new_models" class="">Adding New Clients</a></li>
+          <li><a href="/proxy_server" class="">Proxy Server</a></li>
+          <li><a href="/editing_documentation" class="">Editing Documentation</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+    <main class="site-main docs-main">
+      <div class="main-inner">
+        <h1 id="efficient-helm">Efficient-HELM</h1>
+
+<p>This tutorial will show you how to locally add your model into the HELM Classic leaderboard at a fraction of the cost of performing a full run, using a techinque from IBM Resarch described in <a href="https://arxiv.org/pdf/2308.11696.pdf">Efficient Benchmarking (of Language Models)</a> a paper from IBM Research.</p>
+
+<p><strong>Warning</strong> — The tutorial will currently only work for the HELM Classic leaderboard. Other leaderboards are not yet supported.</p>
+
+<h2 id="download-helm-leaderboard-results">Download HELM leaderboard results</h2>
+
+<p>First, in order to compare your model to the latest and greatest models found in the <a href="https://crfm.stanford.edu/helm/classic/latest/?group=core_scenarios">HELM Classic leaderboard</a>, use the following command to obtain a zip file of all previous HELM Classic results</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">export </span><span class="nv">LEADERBOARD_VERSION</span><span class="o">=</span>v0.3.0
+</code></pre></div></div>
+
+<p>Downloaded, expand the file into HELMs results dir:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-O</span> https://storage.googleapis.com/crfm-helm-public/benchmark_output/archives/<span class="nv">$LEADERBOARD_VERSION</span>/run_stats.zip <span class="o">&amp;&amp;</span><span class="se">\</span>
+<span class="nb">mkdir</span> <span class="nt">-p</span> benchmark_output/runs/<span class="nv">$LEADERBOARD_VERSION</span> <span class="o">&amp;&amp;</span> unzip run_stats.zip <span class="nt">-d</span> benchmark_output/runs/<span class="nv">$LEADERBOARD_VERSION</span>
+</code></pre></div></div>
+
+<p>Now that the files are in your results directory, all HELM models will be shown in your UI along with your model.</p>
+
+<h2 id="run-efficient-helm">Run Efficient-HELM</h2>
+
+<p>According to <a href="https://arxiv.org/pdf/2308.11696.pdf">Efficient Benchmarking (of Language Models)</a> a paper from IBM Research, which systematically analysed benchmark design choices using the HELM benchmark as an example, one can run the HELM benchmark with a fraction of the examples and still get a reliable estimation of a full run (Perlitz et al., 2023).</p>
+
+<p>Specifically, the authors calculated the CI 95% of Rank Location from the real ranks as a function of the number of examples used per scenario and came up with the following tradeoffs<sup id="fnref:1"><a href="#fn:1" class="footnote" rel="footnote" role="doc-noteref">1</a></sup>:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Examples Per Scenario</th>
+      <th style="text-align: center">CI 95% of Rank Location</th>
+      <th style="text-align: center">Compute saved</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">10</td>
+      <td style="text-align: center">±5</td>
+      <td style="text-align: center">X400</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">20</td>
+      <td style="text-align: center">±4</td>
+      <td style="text-align: center">X200</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">50</td>
+      <td style="text-align: center">±3</td>
+      <td style="text-align: center">X80</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">200</td>
+      <td style="text-align: center">±2</td>
+      <td style="text-align: center">X20</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">1000</td>
+      <td style="text-align: center">±1</td>
+      <td style="text-align: center">X4</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">All</td>
+      <td style="text-align: center">±1</td>
+      <td style="text-align: center">X1</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Choose your point on your tradeoff, how accurate do you need your rank? how much time do you want to wait? Once you have chosen, download the config and define your model</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">export </span><span class="nv">EXAMPLES_PER_SCENARIO</span><span class="o">=</span>10 <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">export </span><span class="nv">MODEL_TO_RUN</span><span class="o">=</span>openai/gpt2
+</code></pre></div></div>
+
+<p>That’s it, run the following to get the config file:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget https://raw.githubusercontent.com/stanford-crfm/helm/main/src/helm/benchmark/presentation/run_entries_core_scenarios_<span class="nv">$EXAMPLES_PER_SCENARIO</span>.conf <span class="nt">-O</span> run_entries_<span class="nv">$EXAMPLES_PER_SCENARIO</span>.conf
+</code></pre></div></div>
+
+<p>and this one to run the benchmark (will take some time in the first time since all the data has to be prepared):</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>helm-run <span class="se">\</span>
+<span class="nt">--conf-paths</span> run_entries_<span class="nv">$EXAMPLES_PER_SCENARIO</span>.conf <span class="se">\</span>
+<span class="nt">--suite</span> <span class="nv">$LEADERBOARD_VERSION</span> <span class="se">\</span>
+<span class="nt">--max-eval-instances</span> <span class="nv">$EXAMPLES_PER_SCENARIO</span> <span class="se">\</span>
+<span class="nt">--models-to-run</span> <span class="nv">$MODEL_TO_RUN</span> <span class="se">\</span>
+<span class="nt">--cache-instances</span> <span class="se">\</span>
+<span class="nt">--num-train-trials</span> 1 <span class="se">\</span>
+<span class="nt">--skip-completed-runs</span>
+</code></pre></div></div>
+
+<p>This will take some time the first time running since all the data (regardless of the number of examples chosen) is downloaded and prepared.</p>
+
+<h2 id="summarize-and-serve-your-results">Summarize and serve your results</h2>
+
+<p>To view how your model fits in with the latest leaderboard, process and aggregate your results with:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>helm-summarize <span class="nt">--suite</span> <span class="nv">$LEADERBOARD_VERSION</span>
+</code></pre></div></div>
+
+<p>And serve with:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>helm-server
+</code></pre></div></div>
+
+<h2 id="references-list">References List:</h2>
+
+<p><code class="language-plaintext highlighter-rouge">Perlitz, Y., Bandel, E., Gera, A., Arviv, O., Ein-Dor, L., Shnarch, E., Slonim, N., Shmueli-Scheuer, M. and Choshen, L., 2023. Efficient Benchmarking (of Language Models). arXiv preprint arXiv:2308.11696.</code></p>
+
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:1">
+      <p>Note that the quantities below are the CI 95% of the rank location and are thus very conservative estimates. In our experiments, we did not experience deviations above ±2 for any of the options above.]: <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+      </div>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <a href="https://github.com/Pacific-AI-Corp/medhelm">GitHub</a>
+      <span>MedHELM – Holistic Evaluation of Language Models</span>
+    </div>
+  </footer>
+  <script>
+(function() {
+  var el = document.getElementById('github-stars-count');
+  if (!el) return;
+  fetch('https://api.github.com/repos/Pacific-AI-Corp/medhelm')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.stargazers_count != null) el.textContent = d.stargazers_count;
+    })
+    .catch(function() {});
+})();
+</script>
+
+</body>
+</html>

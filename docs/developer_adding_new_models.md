@@ -1,3 +1,6 @@
+---
+title: Adding New Clients
+---
 # Adding New Clients
 
 **Warning** &mdash; The document is stale. The information below may be outdated and incorrect. Please proceed with caution!

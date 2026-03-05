@@ -1,3 +1,6 @@
+---
+title: Installation
+---
 # Installation
 
 ## Create a virtual environment
@@ -39,5 +42,5 @@ pip install crfm-helm
 
 Additional steps are required for multimodal evaluations:
 
-- **HEIM (Text-to-image Model Evaluation)** - to install the additional dependencies to run HEIM (text-to-image evaluation), refer to the [HEIM documentation](heim.md).
-- **VHELM (Vision-Language Models)** - To install the additional dependencies to run VHELM (Vision-Language Models), refer to the [VHELM documentation](vhelm.md).
+- **HEIM (Text-to-image Model Evaluation)** - to install the additional dependencies to run HEIM (text-to-image evaluation), refer to the [HEIM documentation](heim/).
+- **VHELM (Vision-Language Models)** - To install the additional dependencies to run VHELM (Vision-Language Models), refer to the [VHELM documentation](vhelm/).

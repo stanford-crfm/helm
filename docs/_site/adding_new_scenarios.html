@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Adding New Scenarios | MedHELM</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body class="docs-page">
+  <header class="site-header">
+  <div class="header-inner">
+    <a href="/" class="header-logo" aria-label="MedHELM">
+      <img src="https://raw.githubusercontent.com/Pacific-AI-Corp/langtest/main/docs/assets/images/logo.png" alt="Pacific AI" height="56" width="auto">
+    </a>
+    <nav class="header-nav">
+      <a href="/">Home</a>
+      <a href="/installation">Docs</a>
+      <a href="/tutorial">Tutorials</a>
+      <a href="/benchmark">Tests</a>
+      <a href="/reproducing_leaderboards">Benchmarks</a>
+      <div class="widget widget-lg">
+        <a class="btn btn-gh" href="https://github.com/Pacific-AI-Corp/medhelm" rel="noopener" target="_blank" aria-label="Star Pacific-AI-Corp/medhelm on GitHub">
+          <svg viewBox="0 0 16 16" width="16" height="16" class="octicon octicon-mark-github" aria-hidden="true"><path fill="currentColor" d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.47 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.1 1.5.07.09.45.68.1 1.5-.01.24-.01.47-.01.71 0 .21.15.46.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>&nbsp;<span>Star on GitHub</span>
+        </a>
+        <a class="social-count" href="https://github.com/Pacific-AI-Corp/medhelm/stargazers" rel="noopener" target="_blank" aria-label="Stargazers on GitHub" id="github-stars-count">—</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+  <div class="docs-wrapper">
+    <nav class="docs-sidebar" aria-label="Documentation">
+  <div class="docs-sidebar-inner">
+    
+    <a href="/installation" class="docs-sidebar-title">Docs</a>
+    <ul class="docs-nav-list">
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">User Guide</span>
+        <ul>
+          <li><a href="/installation" class="">Installation</a></li>
+          <li><a href="/quick_start" class="">Quick Start</a></li>
+          <li><a href="/tutorial" class="">Tutorial</a></li>
+          <li><a href="/run_entries_configuration_files" class="">Run Entries Configuration Files</a></li>
+          <li><a href="/run_entries" class="">Run Entries</a></li>
+          <li><a href="/credentials" class="">Credentials</a></li>
+          <li><a href="/importing_custom_modules" class="">Importing Custom Modules</a></li>
+          <li><a href="/adding_new_models" class="">Adding New Models</a></li>
+          <li><a href="/adding_new_scenarios" class="is-active">Adding New Scenarios</a></li>
+          <li><a href="/adding_new_tokenizers" class="">Adding New Tokenizers</a></li>
+          <li><a href="/downloading_raw_results" class="">Downloading Raw Results</a></li>
+          <li><a href="/reproducing_leaderboards" class="">Reproducing Leaderboards</a></li>
+          <li><a href="/get_helm_rank" class="">Efficient-HELM</a></li>
+          <li><a href="/benchmark" class="">Advanced Benchmarking Guide</a></li>
+          <li><a href="/huggingface_models" class="">Hugging Face Model Hub</a></li>
+        </ul>
+      </li>
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">Papers</span>
+        <ul>
+          <li><a href="/heim" class="">HEIM (Text-to-image)</a></li>
+          <li><a href="/vhelm" class="">VHELM (Vision-Language)</a></li>
+          <li><a href="/enterprise_benchmark" class="">Enterprise Benchmark</a></li>
+          <li><a href="/reeval" class="">Reliable and Efficient Amortized Evaluation</a></li>
+          <li><a href="/medhelm" class="">MedHELM</a></li>
+        </ul>
+      </li>
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">Reference</span>
+        <ul>
+          <li><a href="/models" class="">Models</a></li>
+          <li><a href="/metrics" class="">Metrics</a></li>
+          <li><a href="/perturbations" class="">Perturbations</a></li>
+          <li><a href="/scenarios" class="">Scenarios</a></li>
+          <li><a href="/schemas" class="">Schemas</a></li>
+        </ul>
+      </li>
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">Developer Guide</span>
+        <ul>
+          <li><a href="/developer_setup" class="">Developer Setup</a></li>
+          <li><a href="/code" class="">Code Structure</a></li>
+          <li><a href="/developer_adding_new_models" class="">Adding New Clients</a></li>
+          <li><a href="/proxy_server" class="">Proxy Server</a></li>
+          <li><a href="/editing_documentation" class="">Editing Documentation</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+    <main class="site-main docs-main">
+      <div class="main-inner">
+        <h1 id="adding-new-scenarios">Adding New Scenarios</h1>
+
+<p>HELM comes with more than a hundred built-in scenarios. However, you may want to run HELM on a scenario that is not built into HELM yet, or you may want to run HELM on scenarios that use your private datasets. Because HELM is a modular framework with a plug-in architecture, you can run evaluations with your custom scenarios on HELM without needing to modify HELM code.</p>
+
+<p>There are two steps to adding a custom scenario: adding the custom <code class="language-plaintext highlighter-rouge">Scenario</code> subclass, and adding a custom run spec function.</p>
+
+<p>The easiest way to implement the custom <code class="language-plaintext highlighter-rouge">Scenario</code> subclass and the custom run spec function would be to copy from an appropriate example and then make the appropriate modifications. Determine the <strong>task</strong> of your scenario, then find the corresponding example <code class="language-plaintext highlighter-rouge">Scenario</code> subclass and run spec function from the list below from the <code class="language-plaintext highlighter-rouge">simple_scenarios.py</code> and <code class="language-plaintext highlighter-rouge">simple_run_specs.py</code> files:</p>
+
+<ul>
+  <li><strong>Multiple-choice question answering</strong>: <code class="language-plaintext highlighter-rouge">SimpleMCQAScenario</code> and <code class="language-plaintext highlighter-rouge">get_simple_mcqa_run_spec()</code></li>
+  <li><strong>Short-answer question answering</strong>: <code class="language-plaintext highlighter-rouge">SimpleShortAnswerQAScenario</code> and <code class="language-plaintext highlighter-rouge">get_simple_short_answer_qa_run_spec()</code></li>
+  <li><strong>Open-ended question answering</strong>: This is similar to short-answer question answering, but overlap-based automated metrics may be unsuitable for long generations.</li>
+  <li><strong>Summarization</strong>: This is similar to short-answer question answering, but overlap-based automated metrics may be unsuitable for long generations.</li>
+  <li><strong>Multi-class classification</strong>: <code class="language-plaintext highlighter-rouge">SimpleClassificationScenario</code> and <code class="language-plaintext highlighter-rouge">get_simple_classification_run_spec()</code></li>
+  <li><strong>Sentiment analysis</strong>: This a sub-type of the Classification task. Set <code class="language-plaintext highlighter-rouge">input_noun</code>, <code class="language-plaintext highlighter-rouge">output_noun</code> and <code class="language-plaintext highlighter-rouge">instructions</code> appropriately.</li>
+  <li><strong>Toxicity detection</strong>: This a sub-type of the Classification task. Set <code class="language-plaintext highlighter-rouge">input_noun</code>, <code class="language-plaintext highlighter-rouge">output_noun</code> and <code class="language-plaintext highlighter-rouge">instructions</code> appropriately.</li>
+  <li><strong>Multi-label classification</strong>: This is currently unsupported by HELM.</li>
+  <li><strong>Named entity recognition</strong>: This is currently unsupported by HELM.</li>
+</ul>
+
+<p>If your task is not listed, you may still implement your task using custom adapters and metrics, but there is limited official support for doing so.</p>
+
+<h2 id="custom-scenario-subclass">Custom <code class="language-plaintext highlighter-rouge">Scenario</code> subclass</h2>
+
+<p>For this tutorial, we will create a <code class="language-plaintext highlighter-rouge">MyScenario</code> class in the the <code class="language-plaintext highlighter-rouge">my_scenario</code> module. Make a file called <code class="language-plaintext highlighter-rouge">./my_scenario.py</code> under the my_scenario directory. Create a new class called <code class="language-plaintext highlighter-rouge">MyScenario</code>. Find the appropriate example scenario and copy its implementation into <code class="language-plaintext highlighter-rouge">MyScenario</code>, making sure to also copy all the required imports.</p>
+
+<p>Now we will create a test for the scenario to make sure that it is working correctly. Create a file called <code class="language-plaintext highlighter-rouge">./my_scenario_test.py</code> under the my_scenario directory. Create a <code class="language-plaintext highlighter-rouge">test_my_scenario()</code> function in this file. Find the appropriate example scenario test from <code class="language-plaintext highlighter-rouge">test_simple_scenarios.py</code> and copy its implementation into <code class="language-plaintext highlighter-rouge">test_my_scenario()</code>.</p>
+
+<p>You can now run <code class="language-plaintext highlighter-rouge">python3 -m pytest test_my_scenario.py</code> to test the example scenario. The test should pass. If you get a <code class="language-plaintext highlighter-rouge">ModuleNotFound</code> error, you should set up your <code class="language-plaintext highlighter-rouge">PYTHONPATH</code> as explained above, and then try again.</p>
+
+<p>Now, modify <code class="language-plaintext highlighter-rouge">MyScenario</code> to include the actual logic to load the instances from your dataset. Modify the test accordingly. Use the test to ensure that your implementation is working.</p>
+
+<h3 id="downloading-data-to-local-disk">Downloading data to local disk</h3>
+
+<p>Frequently, your <code class="language-plaintext highlighter-rouge">Scenario</code> will want to download and cache data onto the local disk, rather than downloading it from the internet every time. The <code class="language-plaintext highlighter-rouge">output_path</code> argument passed into the <code class="language-plaintext highlighter-rouge">get_instances()</code> method will contain a file path to a scenario-specific download folder that you should download these files to. The folder will be under the <code class="language-plaintext highlighter-rouge">scenarios</code> subdirectory under the <code class="language-plaintext highlighter-rouge">benchmark_output/</code> folder (or the path specified by the <code class="language-plaintext highlighter-rouge">--output-path</code> flag for <code class="language-plaintext highlighter-rouge">helm-run</code>). You can use the <code class="language-plaintext highlighter-rouge">ensure_directory_exists()</code> and <code class="language-plaintext highlighter-rouge">ensure_file_downloaded()</code> helper functions to download files, which has the advantage of skipping the download if the file already exists. You can also use set <code class="language-plaintext highlighter-rouge">unpack=True</code> in <code class="language-plaintext highlighter-rouge">ensure_file_downloaded()</code> to automatically unpack most archive files (e.g. <code class="language-plaintext highlighter-rouge">.tar.gz</code> and <code class="language-plaintext highlighter-rouge">.zip</code> files).</p>
+
+<p>For examples, refer to:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">gsm_scenario.py</code> - download a JSONL files</li>
+  <li><code class="language-plaintext highlighter-rouge">mmlu_scenario.py</code> - download CSV files</li>
+  <li><code class="language-plaintext highlighter-rouge">narrativeqa_scenario.py</code> - download a zip file containing CSV files</li>
+</ul>
+
+<h3 id="working-with-hugging-face-datasets">Working with Hugging Face datasets</h3>
+
+<p>Another frequent use case is downloading data from Hugging Face datasets. You can use <code class="language-plaintext highlighter-rouge">load_dataset()</code> to do so. It is recommended that you set the <code class="language-plaintext highlighter-rouge">cache_dir</code> parameter to a subdirectory within <code class="language-plaintext highlighter-rouge">output_path</code>. This ensures hermeticity by ensuring that the data is downloaded into the scenario-specific download folder.</p>
+
+<p>For an example, refer to:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">math_scenario.py</code></li>
+  <li><code class="language-plaintext highlighter-rouge">legalbench_scenario.py</code></li>
+</ul>
+
+<h2 id="custom-run-spec-function">Custom run spec function</h2>
+
+<p>A run spec function is the entry point to the scenario. A run spec function produces a <code class="language-plaintext highlighter-rouge">RunSpec</code> (a configuration for an evaluation run). <code class="language-plaintext highlighter-rouge">helm-run</code> will run the run spec function to get the <code class="language-plaintext highlighter-rouge">RunSpec</code>, and then it will run the evaluation defined by that <code class="language-plaintext highlighter-rouge">RunSpec</code>.</p>
+
+<p>HELM will search for modules with names matching these patterns for run spec functions:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">helm.benchmark.run_specs.*_run_specs</code></li>
+  <li><code class="language-plaintext highlighter-rouge">helm_*_run_specs</code> (i.e. a root module)</li>
+</ul>
+
+<p>For this tutorial, we will create a <code class="language-plaintext highlighter-rouge">get_my_run_spec()</code> function in the <code class="language-plaintext highlighter-rouge">helm_my_run_specs</code> module. Under the <code class="language-plaintext highlighter-rouge">src/helm/benchmark/scenarios/</code> directory, create a file called <code class="language-plaintext highlighter-rouge">helm_my_run_specs.py</code>. Then, create a <code class="language-plaintext highlighter-rouge">get_my_run_spec()</code> function in this file and find the appropriate example run spec function from <code class="language-plaintext highlighter-rouge">simple_run_specs.py</code> to copy its implementation into <code class="language-plaintext highlighter-rouge">get_my_run_spec()</code>. Change the file accordingly to the needs of your scenario.</p>
+
+<p>Now run:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>helm-run --run-entries custom:model=openai/gpt2 --suite custom --max-eval-instances 5
+</code></pre></div></div>
+
+<p>If you get a <code class="language-plaintext highlighter-rouge">ValueError: Unknown run spec name</code> error, you should set up your <code class="language-plaintext highlighter-rouge">PYTHONPATH</code> as explained above, and then try again.</p>
+
+<h3 id="debugging-with-models">Debugging with models</h3>
+
+<p>The above run entry uses the <code class="language-plaintext highlighter-rouge">openai/gpt2</code> model, which is a lightweight model that is reasonably fast, even when using only CPU inference without a GPU.</p>
+
+<p>However, you might want to avoid waiting for model inference when implementing a scenario in order to speed up your iteration times. To do so, you can use the <code class="language-plaintext highlighter-rouge">simple/model1</code>, which simply echoes the last word in the prompt. Example <code class="language-plaintext highlighter-rouge">helm-run</code> command:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>helm-run --run-entries custom:model=simple/model1 --suite custom --max-eval-instances 5
+</code></pre></div></div>
+
+<p>Note: Both the custom <code class="language-plaintext highlighter-rouge">Scenario</code> subclass and the custom run spec function will be added to custom Python modules that have to be importable by Python. The easiest way to do this is to place your custom Python modules under the current working directory and then run <code class="language-plaintext highlighter-rouge">export PYTHONPATH=".:$PYTHONPATH"</code> in your shell. Refer to the Importing Custom Modules documentation for other ways to do this.</p>
+
+<h2 id="contributing-your-scenario">Contributing your scenario</h2>
+
+<p>We welcome scenario contributions to HELM if they fit the following criteria:</p>
+
+<ul>
+  <li>It is commonly-used or notable benchmark (e.g. it has a published paper).</li>
+  <li>It uses publicly available datasets.</li>
+  <li>It fills a gap in coverage by HELM’s existing scenarios.</li>
+</ul>
+
+<p>If your scenario fits this criteria, you should move the files to the conventional HELM locations, and open a pull request. Your <code class="language-plaintext highlighter-rouge">*_scenario.py</code> file should be placed in <code class="language-plaintext highlighter-rouge">src/helm/benchmark/scenarios/</code> and  your <code class="language-plaintext highlighter-rouge">*_run_specs.py</code> file should be placed in <code class="language-plaintext highlighter-rouge">src/helm/benchmark/scenarios/</code>. More documentation on the contributor workflow will be added later.</p>
+
+      </div>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <a href="https://github.com/Pacific-AI-Corp/medhelm">GitHub</a>
+      <span>MedHELM – Holistic Evaluation of Language Models</span>
+    </div>
+  </footer>
+  <script>
+(function() {
+  var el = document.getElementById('github-stars-count');
+  if (!el) return;
+  fetch('https://api.github.com/repos/Pacific-AI-Corp/medhelm')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.stargazers_count != null) el.textContent = d.stargazers_count;
+    })
+    .catch(function() {});
+})();
+</script>
+
+</body>
+</html>

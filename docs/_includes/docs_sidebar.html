@@ -1,0 +1,58 @@
+<nav class="docs-sidebar" aria-label="Documentation">
+  <div class="docs-sidebar-inner">
+    {% assign cur = page.url | replace: '.html', '' | split: '/' | last %}
+    <a href="{{ '/installation' | relative_url }}" class="docs-sidebar-title">Docs</a>
+    <ul class="docs-nav-list">
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">User Guide</span>
+        <ul>
+          <li><a href="{{ '/installation' | relative_url }}" class="{% if cur == 'installation' %}is-active{% endif %}">Installation</a></li>
+          <li><a href="{{ '/quick_start' | relative_url }}" class="{% if cur == 'quick_start' %}is-active{% endif %}">Quick Start</a></li>
+          <li><a href="{{ '/tutorial' | relative_url }}" class="{% if cur == 'tutorial' %}is-active{% endif %}">Tutorial</a></li>
+          <li><a href="{{ '/run_entries_configuration_files' | relative_url }}" class="{% if cur == 'run_entries_configuration_files' %}is-active{% endif %}">Run Entries Configuration Files</a></li>
+          <li><a href="{{ '/run_entries' | relative_url }}" class="{% if cur == 'run_entries' %}is-active{% endif %}">Run Entries</a></li>
+          <li><a href="{{ '/credentials' | relative_url }}" class="{% if cur == 'credentials' %}is-active{% endif %}">Credentials</a></li>
+          <li><a href="{{ '/importing_custom_modules' | relative_url }}" class="{% if cur == 'importing_custom_modules' %}is-active{% endif %}">Importing Custom Modules</a></li>
+          <li><a href="{{ '/adding_new_models' | relative_url }}" class="{% if cur == 'adding_new_models' %}is-active{% endif %}">Adding New Models</a></li>
+          <li><a href="{{ '/adding_new_scenarios' | relative_url }}" class="{% if cur == 'adding_new_scenarios' %}is-active{% endif %}">Adding New Scenarios</a></li>
+          <li><a href="{{ '/adding_new_tokenizers' | relative_url }}" class="{% if cur == 'adding_new_tokenizers' %}is-active{% endif %}">Adding New Tokenizers</a></li>
+          <li><a href="{{ '/downloading_raw_results' | relative_url }}" class="{% if cur == 'downloading_raw_results' %}is-active{% endif %}">Downloading Raw Results</a></li>
+          <li><a href="{{ '/reproducing_leaderboards' | relative_url }}" class="{% if cur == 'reproducing_leaderboards' %}is-active{% endif %}">Reproducing Leaderboards</a></li>
+          <li><a href="{{ '/get_helm_rank' | relative_url }}" class="{% if cur == 'get_helm_rank' %}is-active{% endif %}">Efficient-HELM</a></li>
+          <li><a href="{{ '/benchmark' | relative_url }}" class="{% if cur == 'benchmark' %}is-active{% endif %}">Advanced Benchmarking Guide</a></li>
+          <li><a href="{{ '/huggingface_models' | relative_url }}" class="{% if cur == 'huggingface_models' %}is-active{% endif %}">Hugging Face Model Hub</a></li>
+        </ul>
+      </li>
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">Papers</span>
+        <ul>
+          <li><a href="{{ '/heim' | relative_url }}" class="{% if cur == 'heim' %}is-active{% endif %}">HEIM (Text-to-image)</a></li>
+          <li><a href="{{ '/vhelm' | relative_url }}" class="{% if cur == 'vhelm' %}is-active{% endif %}">VHELM (Vision-Language)</a></li>
+          <li><a href="{{ '/enterprise_benchmark' | relative_url }}" class="{% if cur == 'enterprise_benchmark' %}is-active{% endif %}">Enterprise Benchmark</a></li>
+          <li><a href="{{ '/reeval' | relative_url }}" class="{% if cur == 'reeval' %}is-active{% endif %}">Reliable and Efficient Amortized Evaluation</a></li>
+          <li><a href="{{ '/medhelm' | relative_url }}" class="{% if cur == 'medhelm' %}is-active{% endif %}">MedHELM</a></li>
+        </ul>
+      </li>
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">Reference</span>
+        <ul>
+          <li><a href="{{ '/models' | relative_url }}" class="{% if cur == 'models' %}is-active{% endif %}">Models</a></li>
+          <li><a href="{{ '/metrics' | relative_url }}" class="{% if cur == 'metrics' %}is-active{% endif %}">Metrics</a></li>
+          <li><a href="{{ '/perturbations' | relative_url }}" class="{% if cur == 'perturbations' %}is-active{% endif %}">Perturbations</a></li>
+          <li><a href="{{ '/scenarios' | relative_url }}" class="{% if cur == 'scenarios' %}is-active{% endif %}">Scenarios</a></li>
+          <li><a href="{{ '/schemas' | relative_url }}" class="{% if cur == 'schemas' %}is-active{% endif %}">Schemas</a></li>
+        </ul>
+      </li>
+      <li class="docs-nav-section">
+        <span class="docs-nav-section-title">Developer Guide</span>
+        <ul>
+          <li><a href="{{ '/developer_setup' | relative_url }}" class="{% if cur == 'developer_setup' %}is-active{% endif %}">Developer Setup</a></li>
+          <li><a href="{{ '/code' | relative_url }}" class="{% if cur == 'code' %}is-active{% endif %}">Code Structure</a></li>
+          <li><a href="{{ '/developer_adding_new_models' | relative_url }}" class="{% if cur == 'developer_adding_new_models' %}is-active{% endif %}">Adding New Clients</a></li>
+          <li><a href="{{ '/proxy_server' | relative_url }}" class="{% if cur == 'proxy_server' %}is-active{% endif %}">Proxy Server</a></li>
+          <li><a href="{{ '/editing_documentation' | relative_url }}" class="{% if cur == 'editing_documentation' %}is-active{% endif %}">Editing Documentation</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</nav>
