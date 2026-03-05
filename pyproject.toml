@@ -3,21 +3,21 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "crfm-helm"
+name = "medhelm"
 version = "0.5.13"
 authors = [
-    { name = "Stanford CRFM", email = "contact-crfm@stanford.edu" }
+    { name = "Pacific AI", email = "david@pacific.ai" }
 ]
-description = "Framework for evaluation of foundation models"
+description = "Holistic evaluation of language models for medical applications (HELM for medicine)"
 readme = { file = "README.md", content-type = "text/markdown" }
-keywords = ["language", "models", "benchmarking"]
+keywords = ["language", "models", "benchmarking", "medical", "healthcare", "evaluation"]
 license = { text = "Apache License 2.0" }
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
     "License :: OSI Approved :: Apache Software License",
 ]
-urls = { "Homepage" = "https://github.com/Pacific-AI-Corp/medhelm" }
+urls = { "Homepage" = "https://github.com/Pacific-AI-Corp/medhelm", "Documentation" = "https://medhelm.org" }
 
 requires-python = ">=3.10"
 
@@ -90,9 +90,12 @@ ranking = [
 ]
 
 summarization = [
-    # For summarization_metrics
+    # For summarization_metrics and MedHELM Clinical NLP tier (DischargeMe, ACI-Bench, Patient-Edu)
+    # Use: pip install "medhelm[summarization]" — install can take 2–3 minutes
     "summ-eval~=0.892",
     "bert-score~=0.3",
+    "rouge-score~=0.1.2",
+    "nltk~=3.7,!=3.9.0",
     "sentencepiece~=0.2.0",
     "protobuf",
 ]
@@ -120,7 +123,7 @@ cleva = [
 ]
 
 images = [
-    "crfm-helm[accelerate]",
+    "medhelm[accelerate]",
     "pillow>=10.2",
 ]
 
@@ -196,20 +199,20 @@ yandex = [
 ]
 
 models = [
-    "crfm-helm[ai21]",
-    "crfm-helm[accelerate]",
-    "crfm-helm[aleph-alpha]",
-    "crfm-helm[allenai]",
-    "crfm-helm[amazon]",
-    "crfm-helm[anthropic]",
-    "crfm-helm[cohere]",
-    "crfm-helm[google]",
-    "crfm-helm[mistral]",
-    "crfm-helm[openai]",
-    "crfm-helm[reka]",
-    "crfm-helm[together]",
-    "crfm-helm[yandex]",
-    "crfm-helm[writer]",
+    "medhelm[ai21]",
+    "medhelm[accelerate]",
+    "medhelm[aleph-alpha]",
+    "medhelm[allenai]",
+    "medhelm[amazon]",
+    "medhelm[anthropic]",
+    "medhelm[cohere]",
+    "medhelm[google]",
+    "medhelm[mistral]",
+    "medhelm[openai]",
+    "medhelm[reka]",
+    "medhelm[together]",
+    "medhelm[yandex]",
+    "medhelm[writer]",
 ]
 
 reka = [
@@ -217,7 +220,7 @@ reka = [
 ]
 
 vlm = [
-    "crfm-helm[openai]",
+    "medhelm[openai]",
 
     # For OpenFlamingo
     "einops~=0.7.0",
@@ -233,11 +236,11 @@ vlm = [
     "torchvision>=0.14.1,<3.0.0",
 
     # For Reka AI
-    "crfm-helm[reka]",
+    "medhelm[reka]",
 
     # VLM scenarios
-    "crfm-helm[images]",
-    "crfm-helm[image2struct]",
+    "medhelm[images]",
+    "medhelm[image2struct]",
 
     # For metrics
     "pycocoevalcap~=1.2",
@@ -256,7 +259,7 @@ ibm = [
 ]
 
 image2struct = [
-    "crfm-helm[images]",
+    "medhelm[images]",
 
     # Latex
     # You will need to install LaTeX separately.
@@ -286,7 +289,7 @@ heim = [
     "jax~=0.4.30; python_version < '3.10'",
     "jaxlib~=0.6.2; python_version >= '3.10'",
     "jaxlib~=0.4.30; python_version < '3.10'",
-    "crfm-helm[openai]",
+    "medhelm[openai]",
 
     # For model, kakaobrain/mindall-e
     "einops~=0.7.0",
@@ -321,18 +324,18 @@ heim = [
 
     # Transitive dependency of NudeNet
     # This needs to be a version that provides wheels for all Python versions
-    # supported by crfm-helm i.e. 3.10, 3.11, 3.12
+    # supported by medhelm i.e. 3.10, 3.11, 3.12
     "scikit-image>=0.22,==0.*",
 
     # Shared image dependencies
-    "crfm-helm[images]",
+    "medhelm[images]",
 ]
 
 medhelm = [
     "accelerate~=0.25",
-    "crfm-helm[openai]",
-    "crfm-helm[yandex]",
-    "crfm-helm[scenarios]",
+    "medhelm[openai]",
+    "medhelm[yandex]",
+    "medhelm[scenarios]",
 
     #MedHELM scenarios
     "bert_score~=0.3.13",
@@ -341,9 +344,14 @@ medhelm = [
     "python-docx~=1.1",
 ]
 
+# MedHELM gated tier: Google Drive scenarios (MedQA, MedMCQA). Use: pip install "medhelm[gated]"
+gated = [
+    "gdown~=5.1",
+]
+
 audiolm = [
-    "crfm-helm[openai]",
-    "crfm-helm[google]",
+    "medhelm[openai]",
+    "medhelm[google]",
 
     # For clipping and converting audio
     "pydub~=0.25.1",
@@ -383,36 +391,36 @@ lmkt = [
 ]
 
 all = [
-    "crfm-helm[proxy-server]",
-    "crfm-helm[scenarios]",
-    "crfm-helm[metrics]",
-    "crfm-helm[plots]",
-    "crfm-helm[decodingtrust]",
-    "crfm-helm[slurm]",
-    "crfm-helm[cleva]",
-    "crfm-helm[images]",
-    "crfm-helm[models]",
-    "crfm-helm[mongo]",
-    "crfm-helm[heim]",
-    "crfm-helm[vlm]",
-    "crfm-helm[codeinsights]",
-    "crfm-helm[lmkt]",
-    # crfm-helm[human-evaluation] is excluded because it conflicts with crfm-helm[ibm]
-    # crfm-helm[audiolm] is excluded because it requires transformers~=4.48
-    # crfm-helm[seahelm] is excluded because pyonmttok does not support Python 3.12
-    # crfm-helm[dev] is excluded because end-users don't need it.
-    # crfm-helm[summarization] is excluded because it requires torch<2.0 and numpy<2.0
-    # crfm-helm[ranking] is excluded because pytrec_eval causes build errors (see #3470)
+    "medhelm[proxy-server]",
+    "medhelm[scenarios]",
+    "medhelm[metrics]",
+    "medhelm[plots]",
+    "medhelm[decodingtrust]",
+    "medhelm[slurm]",
+    "medhelm[cleva]",
+    "medhelm[images]",
+    "medhelm[models]",
+    "medhelm[mongo]",
+    "medhelm[heim]",
+    "medhelm[vlm]",
+    "medhelm[codeinsights]",
+    "medhelm[lmkt]",
+    # medhelm[human-evaluation] is excluded because it conflicts with medhelm[ibm]
+    # medhelm[audiolm] is excluded because it requires transformers~=4.48
+    # medhelm[seahelm] is excluded because pyonmttok does not support Python 3.12
+    # medhelm[dev] is excluded because end-users don't need it.
+    # medhelm[summarization] is excluded because it requires torch<2.0 and numpy<2.0
+    # medhelm[ranking] is excluded because pytrec_eval causes build errors (see #3470)
 ]
 
 ci = [
-  "crfm-helm[metrics]",
-  "crfm-helm[openai]",
-  "crfm-helm[plots]",
-  "crfm-helm[together]",
-  "crfm-helm[yandex]",
-  "crfm-helm[cohere]",
-  "crfm-helm[proxy-server]",
+  "medhelm[metrics]",
+  "medhelm[openai]",
+  "medhelm[plots]",
+  "medhelm[together]",
+  "medhelm[yandex]",
+  "medhelm[cohere]",
+  "medhelm[proxy-server]",
 ]
 litellm = [
     "litellm>=1.80.0",
@@ -443,6 +451,7 @@ types = [
 
 [project.scripts]
 helm-run = "helm.benchmark.run:main"
+medhelm-run = "helm.benchmark.run:main"
 helm-summarize = "helm.benchmark.presentation.summarize:main"
 helm-server = "helm.benchmark.server:main"
 helm-create-plots = "helm.benchmark.presentation.create_plots:main"

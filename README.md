@@ -3,23 +3,14 @@
 [comment]: <> (When using the img tag, which allows us to specify size, src has to be a URL.)
 <img src="https://github.com/stanford-crfm/helm/raw/v0.5.4/helm-frontend/src/assets/helm-logo.png" alt="HELM logo"  width="480"/>
 
-<a href="https://github.com/stanford-crfm/helm">
-    <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/stanford-crfm/helm">
+<a href="https://github.com/Pacific-AI-Corp/medhelm">
+    <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/Pacific-AI-Corp/medhelm">
 </a>
-<a href="https://github.com/stanford-crfm/helm/graphs/contributors">
-    <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/stanford-crfm/helm">
+<a href="https://github.com/Pacific-AI-Corp/medhelm/blob/main/LICENSE">
+    <img alt="License" src="https://img.shields.io/github/license/Pacific-AI-Corp/medhelm?color=blue" />
 </a>
-<a href="https://github.com/stanford-crfm/helm/actions/workflows/test.yml?query=branch%3Amain">
-    <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/stanford-crfm/helm/test.yml">
-</a>
-<a href="https://crfm-helm.readthedocs.io/en/latest/">
-    <img alt="Documentation Status" src="https://readthedocs.org/projects/helm/badge/?version=latest">
-</a>
-<a href="https://github.com/stanford-crfm/helm/blob/main/LICENSE">
-    <img alt="License" src="https://img.shields.io/github/license/stanford-crfm/helm?color=blue" />
-</a>
-<a href="https://pypi.org/project/crfm-helm/">
-    <img alt="PyPI" src="https://img.shields.io/pypi/v/crfm-helm?color=blue" />
+<a href="https://pypi.org/project/medhelm/">
+    <img alt="PyPI" src="https://img.shields.io/pypi/v/medhelm?color=blue" />
 </a>
 
 **Holistic Evaluation of Language Models (HELM)** is an open source Python framework created by the [Center for Research on Foundation Models (CRFM) at Stanford](https://crfm.stanford.edu/) for holistic, reproducible and transparent evaluation of foundation models, including large language models (LLMs) and multimodal models. This framework includes the following features:
@@ -32,32 +23,44 @@
 
 ## Documentation
 
-Please refer to [the documentation on Read the Docs](https://crfm-helm.readthedocs.io/) for instructions on how to install and run HELM.
+Documentation: [medhelm.org](https://medhelm.org)
 
 ## Quick Start
 
 <!--quick-start-begin-->
 
-Install the package from PyPI:
+**Standard install** (PubMedQA, MedCalc-Bench, MedicationQA, MedHallu):
 
 ```sh
-pip install crfm-helm
+pip install medhelm
+# or with uv:
+uv pip install medhelm
 ```
 
-Run the following in your shell:
+**Optional tiers:**
+
+- **Clinical NLP** (DischargeMe, ACI-Bench, Patient-Edu; install may take 2–3 minutes):
+  ```sh
+  pip install "medhelm[summarization]"
+  ```
+- **Gated/Drive scenarios** (MedQA, MedMCQA):
+  ```sh
+  pip install "medhelm[gated]"
+  ```
+
+Run a benchmark:
 
 ```sh
-# Run benchmark
+# With uv (recommended)
+uv run medhelm-run --run-entries "pubmed_qa:model=huggingface/qwen2.5-7b" --suite my_med_test --max-eval-instances 10
+
+# Or classic
 helm-run --run-entries mmlu:subject=philosophy,model=openai/gpt2 --suite my-suite --max-eval-instances 10
-
-# Summarize benchmark results
 helm-summarize --suite my-suite
-
-# Start a web server to display benchmark results
 helm-server --suite my-suite
 ```
 
-Then go to http://localhost:8000/ in your browser.
+Then open http://localhost:8000/ in your browser.
 
 <!--quick-start-end-->
 

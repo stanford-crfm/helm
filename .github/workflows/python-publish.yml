@@ -1,5 +1,8 @@
-# This workflow will upload a Python Package using Twine when a release is created
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python#publishing-to-package-registries
+# This workflow publishes the medhelm package to PyPI when a release is created.
+# Prerequisites:
+#   1. Create project "medhelm" on PyPI (https://pypi.org/manage/account/ or org).
+#   2. In PyPI: Add trusted publisher for this repo (Settings → Publishing → Add new publisher).
+#   3. No secrets required; PyPI trusted publishing uses OIDC (id-token: write).
 
 name: Publish Python package to PyPI
 
@@ -12,11 +15,11 @@ permissions:
 
 jobs:
   pypi-publish:
-    name: Publish Python package to PyPI
+    name: Publish medhelm to PyPI
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/crfm-helm
+      url: https://pypi.org/p/medhelm
     permissions:
       id-token: write
     steps:
@@ -32,17 +35,11 @@ jobs:
         version: "0.9.4"
     - name: Build
       run: uv build
-    - name: helm-run (wheel)
-      run: uv run --isolated --no-project --with dist/*.whl helm-run --run-entries simple1:model=simple/model1 --max-eval-instances 10 --suite test
-    - name: helm-summarize (wheel)
+    - name: Test medhelm-run (wheel)
+      run: uv run --isolated --no-project --with dist/*.whl medhelm-run --run-entries simple1:model=simple/model1 --max-eval-instances 10 --suite test
+    - name: Test helm-summarize (wheel)
       run: uv run --isolated --no-project --with dist/*.whl helm-summarize --suite test
-    - name: helm-server (wheel)
+    - name: Test helm-server (wheel)
       run: uv run --isolated --no-project --with dist/*.whl helm-server --help
-    - name: helm-run (source distribution)
-      run: uv run --isolated --no-project --with dist/*.tar.gz helm-run --run-entries simple1:model=simple/model1 --max-eval-instances 10 --suite test
-    - name: helm-summarize (source distribution)
-      run: uv run --isolated --no-project --with dist/*.tar.gz helm-summarize --suite test
-    - name: helm-server (source distribution)
-      run: uv run --isolated --no-project --with dist/*.tar.gz helm-server --help
-    - name: Publish package
+    - name: Publish package to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
