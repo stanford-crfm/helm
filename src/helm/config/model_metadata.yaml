@@ -2771,6 +2771,59 @@ models:
     release_date: 2024-11-18
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: mistralai/mistral-large-2512
+    display_name: Mistral Large 3 (2512) 
+    description: Mistral Large 3 is a open-weight, general-purpose multimodal model with a granular Mixture-of-Experts architecture with 41B active parameters and 675B total parameters. ([doc](https://docs.mistral.ai/models/mistral-large-3-25-12), [blog](https://mistral.ai/news/mistral-3))
+    creator_organization_name: Mistral AI
+    access: open
+    num_parameters: 675000000000
+    release_date: 2025-12-02
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/mistral-medium-2508
+    display_name: Mistral Medium 3.1 (2508)
+    description: Mistral Medium 3.1 is a Mistral multimodal model. ([doc](https://docs.mistral.ai/models/mistral-medium-3-1-25-08))
+    creator_organization_name: Mistral AI
+    access: limited
+    release_date: 2025-08-12
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/mistral-small-2506
+    display_name: Mistral Small 3.2 (2506)
+    description: Mistral Small 3.2 is a Mistral multimodal model. ([doc](https://docs.mistral.ai/models/mistral-small-3-2-25-06))
+    creator_organization_name: Mistral AI
+    access: open
+    num_parameters: 24000000000
+    release_date: 2025-06-20
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/ministral-14b-2512
+    display_name: Ministral 3 (14B 2512)
+    description: Ministral 3 is a family of parameter-efficient dense language models designed for compute and memory constrained applications. ([doc](https://docs.mistral.ai/models/ministral-3-14b-25-12), [blog](https://mistral.ai/news/mistral-3), [paper](https://arxiv.org/abs/2601.08584))
+    creator_organization_name: Mistral AI
+    access: open
+    num_parameters: 14000000000
+    release_date: 2025-12-02
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/ministral-8b-2512
+    display_name: Ministral 3 (8B 2512)
+    description: Ministral 3 is a family of parameter-efficient dense language models designed for compute and memory constrained applications. ([doc](https://docs.mistral.ai/models/ministral-3-8b-25-12), [blog](https://mistral.ai/news/mistral-3), [paper](https://arxiv.org/abs/2601.08584))
+    creator_organization_name: Mistral AI
+    access: open
+    num_parameters: 8000000000
+    release_date: 2025-12-02
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/ministral-3b-2512
+    display_name: Ministral 3 (3B 2512)
+    description: Ministral 3 is a family of parameter-efficient dense language models designed for compute and memory constrained applications. ([doc](https://docs.mistral.ai/models/ministral-3-3b-25-12), [blog](https://mistral.ai/news/mistral-3), [paper](https://arxiv.org/abs/2601.08584))
+    creator_organization_name: Mistral AI
+    access: open
+    num_parameters: 3000000000
+    release_date: 2025-12-02
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: mistralai/open-mistral-nemo-2407
     display_name: Mistral NeMo (2402)
     description: Mistral NeMo is a multilingual 12B model with a large context window of 128K tokens. ([blog](https://mistral.ai/news/mistral-nemo/))
