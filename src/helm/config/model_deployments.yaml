@@ -2623,6 +2623,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.mistral_client.MistralAIClient"
 
+
   # Neurips
   - name: neurips/local
     model_name: neurips/local
