@@ -51,4 +51,4 @@ source .venv/bin/activate   # or .venv\Scripts\activate on Windows
 pip install -e .
 ```
 
-Jekyll does not use the Python venv; it uses Bundler (Ruby).
+Jekyll does not use the Python venv; it uses Bundler (Ruby). 
