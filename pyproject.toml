@@ -461,6 +461,10 @@ crfm-proxy-cli = "helm.proxy.cli:main"
 [tool.uv]
 default-groups = ["dev", "types"]
 
+# openai-whisper's build needs pkg_resources (setuptools) but doesn't declare it
+[tool.uv.extra-build-dependencies]
+openai-whisper = ["setuptools"]
+
 override-dependencies = [
     # override torch dependency for summ-eval in "summarization" extra:
     # - summ-eval depends on blanc 

@@ -23,13 +23,15 @@
 
 ## Documentation
 
-Documentation: [medhelm.org](https://medhelm.org)
+Documentation: **[medhelm.org](https://medhelm.org)**
 
-## Quick Start
+## Install & run (MedHELM library)
 
-<!--quick-start-begin-->
+MedHELM uses the HELM core engine and adds medical benchmarks. Install from PyPI:
 
-**Standard install** (PubMedQA, MedCalc-Bench, MedicationQA, MedHallu):
+### Standard (recommended to start)
+
+Scenarios: **PubMedQA**, **MedCalc-Bench**, **MedicationQA**, **MedHallu**.
 
 ```sh
 pip install medhelm
@@ -37,30 +39,75 @@ pip install medhelm
 uv pip install medhelm
 ```
 
-**Optional tiers:**
-
-- **Clinical NLP** (DischargeMe, ACI-Bench, Patient-Edu; install may take 2–3 minutes):
-  ```sh
-  pip install "medhelm[summarization]"
-  ```
-- **Gated/Drive scenarios** (MedQA, MedMCQA):
-  ```sh
-  pip install "medhelm[gated]"
-  ```
-
 Run a benchmark:
 
 ```sh
-# With uv (recommended)
 uv run medhelm-run --run-entries "pubmed_qa:model=huggingface/qwen2.5-7b" --suite my_med_test --max-eval-instances 10
+uv run helm-summarize --suite my_med_test
+uv run helm-server --suite my_med_test
+```
 
-# Or classic
+Then open http://localhost:8000/ in your browser.
+
+### Clinical NLP tier (`[summarization]`)
+
+Adds heavy libraries (bert-score, rouge-score, nltk). **Install can take 2–3 minutes.**
+
+Scenarios: **DischargeMe** (hospital course summaries), **ACI-Bench** (clinical transcripts), **Patient-Edu** (simplifying medical jargon).
+
+```sh
+pip install "medhelm[summarization]"
+# or: uv pip install "medhelm[summarization]"
+```
+
+Example:
+
+```sh
+uv run medhelm-run --run-entries "discharge_summaries:model=huggingface/qwen2.5-7b" --suite med_summaries --max-eval-instances 5
+uv run helm-summarize --suite med_summaries
+uv run helm-server --suite med_summaries
+```
+
+### Gated / licensing tier (`[gated]`)
+
+Adds **gdown** for scenarios that use Google Drive. Install can also take longer.
+
+Scenarios: **MedQA** (USMLE/Board exams), **MedMCQA** (AIIMS/NEET exams).
+
+```sh
+pip install "medhelm[gated]"
+# or: uv pip install "medhelm[gated]"
+```
+
+Example:
+
+```sh
+uv run medhelm-run --run-entries "med_qa:model=huggingface/qwen2.5-7b" --suite board_exams --max-eval-instances 10
+uv run helm-summarize --suite board_exams
+uv run helm-server --suite board_exams
+```
+
+### Classic HELM commands
+
+You can still use `helm-run`, `helm-summarize`, and `helm-server`; `medhelm-run` is an alias for `helm-run`.
+
+```sh
 helm-run --run-entries mmlu:subject=philosophy,model=openai/gpt2 --suite my-suite --max-eval-instances 10
 helm-summarize --suite my-suite
 helm-server --suite my-suite
 ```
 
-Then open http://localhost:8000/ in your browser.
+## Quick Start (summary)
+
+<!--quick-start-begin-->
+
+| Tier | Install | Scenarios |
+|------|--------|-----------|
+| **Standard** | `pip install medhelm` or `uv pip install medhelm` | PubMedQA, MedCalc-Bench, MedicationQA, MedHallu |
+| **Summarization** | `pip install "medhelm[summarization]"` | DischargeMe, ACI-Bench, Patient-Edu (2–3 min install) |
+| **Gated** | `pip install "medhelm[gated]"` | MedQA, MedMCQA (Drive) |
+
+Run: `uv run medhelm-run --run-entries "<scenario>:model=<model>" --suite <name> --max-eval-instances <n>` then `helm-summarize` and `helm-server`. See [medhelm.org](https://medhelm.org) for full docs.
 
 <!--quick-start-end-->
 
@@ -88,7 +135,7 @@ The HELM framework was used in the following papers for evaluating models.
 - **MedHELM** - paper in progress, [leaderboard](https://crfm.stanford.edu/helm/medhelm/latest/), [documentation](https://crfm-helm.readthedocs.io/en/latest/reeval/)
 - **Holistic Evaluation of Audio-Language Models** - [paper](https://arxiv.org/abs/2508.21376), [leaderboard](https://crfm.stanford.edu/helm/audio/latest/)
 
-The HELM framework can be used to reproduce the published model evaluation results from these papers. To get started, refer to the documentation links above for the corresponding paper, or the [main Reproducing Leaderboards documentation](https://crfm-helm.readthedocs.io/en/latest/reproducing_leaderboards/).
+The HELM framework can be used to reproduce the published model evaluation results from these papers. To get started, refer to the documentation links above for the corresponding paper, or the [Reproducing Leaderboards](https://medhelm.org/reproducing_leaderboards/) documentation on medhelm.org.
 
 ## Citation
 
