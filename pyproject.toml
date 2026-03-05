@@ -479,9 +479,9 @@ conflicts = [
     ],
 ]
 
-# openai-whisper's build needs pkg_resources (setuptools) but doesn't declare it
+# openai-whisper build needs setuptools + wheel; it doesn't declare them (CI uses --no-build-isolation-package + venv with both)
 [tool.uv.extra-build-dependencies]
-openai-whisper = ["setuptools"]
+openai-whisper = ["setuptools", "wheel"]
 
 [tool.setuptools]
 package-dir = { "" = "src" }

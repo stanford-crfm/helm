@@ -27,10 +27,14 @@ jobs:
         uses: astral-sh/setup-uv@v6
         with:
           version: "0.9.4"
+      - name: Create build env with setuptools (for openai-whisper)
+        run: |
+          python -m venv .build-venv
+          .build-venv/bin/pip install setuptools wheel --quiet
       - name: Upgrade dependencies
-        run: uv lock --upgrade
+        run: UV_PYTHON=".build-venv/bin/python" uv lock --upgrade --no-build-isolation-package openai-whisper
       - name: Install dependencies
-        run: uv sync --extra ci
+        run: UV_PYTHON=".build-venv/bin/python" uv sync --extra ci --no-build-isolation-package openai-whisper
       - name: Write requirements.txt
         run: uv pip freeze --exclude-editable > requirements.txt
         # Need to manually run tests here because the pull request opened later will not
