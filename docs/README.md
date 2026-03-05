@@ -1,8 +1,30 @@
 # MedHELM documentation (Jekyll)
 
-This folder is the source for [medhelm.org](https://medhelm.org). The site is built with **Jekyll**. Deployment is from the **gh-pages** branch: a **GitHub Action** runs on push to **main** (when `docs/**` or this workflow change), builds the site, and pushes the output to **gh-pages**. Configure GitHub Pages to serve from the **gh-pages** branch (Settings → Pages → Source: Deploy from a branch → Branch: gh-pages, / (root)).
+**Live documentation:** [medhelm.org](https://medhelm.org)
 
-## Local build
+This folder is the source for the site. It is built with **Jekyll** and deployed to **gh-pages** via a GitHub Action on push to **main** (when `docs/**` or the workflow file changes). Configure GitHub Pages to serve from the **gh-pages** branch (Settings → Pages → Source: Deploy from a branch → Branch: gh-pages, / (root)).
+
+## MedHELM library (quick reference)
+
+Documentation on [medhelm.org](https://medhelm.org) covers the full workflow. Summary:
+
+| Tier | Install | Scenarios |
+|------|--------|-----------|
+| **Standard** | `pip install medhelm` or `uv pip install medhelm` | PubMedQA, MedCalc-Bench, MedicationQA, MedHallu |
+| **Summarization** | `pip install "medhelm[summarization]"` | DischargeMe, ACI-Bench, Patient-Edu (install may take 2–3 min) |
+| **Gated** | `pip install "medhelm[gated]"` | MedQA, MedMCQA (Google Drive) |
+
+Run a benchmark:
+
+```bash
+uv run medhelm-run --run-entries "<scenario>:model=<model>" --suite <name> --max-eval-instances <n>
+uv run helm-summarize --suite <name>
+uv run helm-server --suite <name>
+```
+
+Example (standard): `uv run medhelm-run --run-entries "pubmed_qa:model=huggingface/qwen2.5-7b" --suite my_med_test --max-eval-instances 10`
+
+## Local build (Jekyll)
 
 **Ruby >= 3.0 is required** (Ruby 3.x and Ruby 4.x are supported). macOS ships with Ruby 2.6; install a newer Ruby with Homebrew:
 
