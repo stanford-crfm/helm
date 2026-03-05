@@ -1,12 +1,12 @@
 name: Deploy Documentation
+
 on:
   push:
     branches:
       - main
     paths:
       - 'docs/**'
-      - 'mkdocs.yml'
-      - 'src/**'
+      - '.github/workflows/deploy-docs.yml'
 
 permissions:
   contents: write
@@ -15,23 +15,24 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          working-directory: docs
 
-      - name: Set up Python
-        run: uv python install 3.11
-
-      - name: Install MedHELM and Docs Dependencies
-        run: |
-          uv venv
-          uv pip install -e . 
-          uv pip install \
-            mkdocs-material \
-            mkdocs-macros-plugin \
-            mkdocstrings[python] \
-            mkdocs-include-markdown-plugin
+      - name: Build Jekyll site
+        run: bundle exec jekyll build
+        working-directory: docs
 
       - name: Deploy to GitHub Pages
-        run: uv run mkdocs gh-deploy --force
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/_site
+          publish_branch: gh-pages
+          cname: medhelm.org
