@@ -18,6 +18,8 @@ jobs:
   update-requirements:
     name: Update requirements
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     strategy:
       matrix:
         python-version: ["3.10"]
@@ -32,6 +34,7 @@ jobs:
         uses: astral-sh/setup-uv@v6
         with:
           version: "0.9.4"
+          enable-cache: true
       - name: Create build env with setuptools (for openai-whisper)
         run: |
           python -m venv .build-venv
@@ -58,6 +61,8 @@ jobs:
         run: uv run pytest
       - name: Run helm-run
         run: uv run helm-run --suite test --run-entries simple1:model=simple/model1 --max-eval-instances 10 --exit-on-error
+      - name: Remove build venv before PR (do not commit)
+        run: rm -rf .build-venv
       - name: Create pull request
         uses: peter-evans/create-pull-request@v6
         with:

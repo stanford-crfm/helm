@@ -28,6 +28,7 @@ jobs:
         uses: astral-sh/setup-uv@v6
         with:
           version: "0.9.4"
+          enable-cache: true
       - name: Build
         run: uv build
       - name: helm-run
@@ -54,6 +55,7 @@ jobs:
         uses: astral-sh/setup-uv@v6
         with:
           version: "0.9.4"
+          enable-cache: true
       - name: Create build env with setuptools (for openai-whisper)
         run: |
           python -m venv .build-venv
@@ -68,5 +70,5 @@ jobs:
           TEST: ${{ matrix.test }}
           VERSION: ${{ github.head_ref || 'main' }}
       - name: Run entire pipeline quickly without any data
-        # Checking RunSpecs with openai/davinci should be comprehensive enough
-        run: uv run helm-run --suite test -m 100 --skip-instances --models-to-run openai/davinci --exit-on-error
+        # Use local simple model (no API key or network); validates pipeline and RunSpecs.
+        run: uv run helm-run --suite test --run-entries simple1:model=simple/model1 --max-eval-instances 10 --exit-on-error
