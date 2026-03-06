@@ -109,6 +109,7 @@ class ArabicFinanceMCQScenario(ArabicFinanceScenario):
                     tags=[CORRECT_TAG] if choice_letter == correct_choice_letter else [],
                 )
             )
+        assert len(references) == 3
         return references
 
 

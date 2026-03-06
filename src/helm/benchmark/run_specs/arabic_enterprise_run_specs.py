@@ -14,8 +14,8 @@ from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 
-_ARABIC_REFERENCE_PREFIX_CHARACTERS = ["أ", "ب", "ج", "د", "هـ"]
-_ARABIC_OUTPUT_MAPPING_PATTERN = "(أ|ب|ج|د|هـ)"
+_ARABIC_REFERENCE_PREFIX_CHARACTERS = ["أ", "ب", "ج"]
+_ARABIC_OUTPUT_MAPPING_PATTERN = "(أ|ب|ج)"
 
 
 @run_spec_function("arabic_content_generation")
