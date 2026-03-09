@@ -43,41 +43,13 @@ _CRITERIA = {
 3. The model includes several important facts from the user-provided content but omits at least one significant detail or key element.
 4. The model includes nearly all important facts from the user-provided content, with only minor or non-essential details missing.
 5. The model includes all important facts from the user-provided content with no meaningful omissions.""",
-    "style": """Does the model output follow the requested style, while keeping the facts intact?
+    "style": """"Did the model output follow the requested style, including the specified tone, intent, level of formality, register, point of view, and voice?
 
-1. The output fails to follow the requested style and significantly distorts, omits, or introduces incorrect facts.
-2. The output loosely reflects the requested style but contains noticeable stylistic inconsistencies and includes factual errors or misleading alterations.
-3. The output generally follows the requested style with minor deviations and preserves most key facts, though small inaccuracies or slight distortions may appear.
-4. The output closely adheres to the requested style and maintains factual accuracy, with only minimal stylistic or factual imperfections.
-5. The output fully embodies the requested style while preserving all facts accurately, with no distortions, omissions, or inconsistencies.""",
-    "tone_and_intent": """Does the output follow the requested tone and intent i.e. what the text is trying to do emotionally/strategically?
-
-1. The output clearly fails to match the requested tone and intent, conveying an emotional or strategic approach that is inappropriate, contradictory, or entirely misaligned with what was asked.
-2. The output shows minimal awareness of the requested tone and intent, with inconsistent or weak alignment that frequently undermines the desired emotional or strategic effect.
-3. The output generally reflects the requested tone and intent but lacks consistency, nuance, or strength in fully delivering the intended emotional or strategic impact.
-4. The output closely follows the requested tone and intent, maintaining consistent alignment and effectively supporting the intended emotional or strategic objective.
-5. The output precisely and skillfully embodies the requested tone and intent throughout, enhancing the emotional or strategic purpose in a clear, cohesive, and compelling way.""",
-    "formality_and_register": """Does the output follow the requested formality and register i.e. how “corporate” vs “casual” the language is?
-
-1. The output completely ignores the requested formality and register, using language that is clearly inappropriate for the intended corporate or casual context.
-2. The output shows minimal alignment with the requested formality and register, with frequent mismatches in tone, word choice, or level of professionalism.
-3. The output partially follows the requested formality and register, but contains noticeable inconsistencies that weaken the overall tonal fit.
-4. The output largely matches the requested formality and register, with only minor lapses in tone or phrasing that do not significantly affect appropriateness.
-5. The output consistently and precisely matches the requested formality and register, demonstrating clear control over tone, word choice, and level of professionalism throughout.""",
-    "point_of_view_and_voice": """Does the output follow the requested point of view and voice i.e. who is “speaking” and how direct it is?
-
-1. The output completely ignores the requested formality and register, using a tone that is clearly inappropriate (e.g., highly casual when corporate was requested, or overly formal when casual was requested).
-2. The output shows limited awareness of the requested formality and register, but the tone is frequently inconsistent or noticeably misaligned with expectations.
-3. The output generally reflects the requested formality and register, though there are occasional lapses in tone, word choice, or phrasing that slightly weaken alignment.
-4. The output closely follows the requested formality and register, with only minor inconsistencies that do not significantly affect overall tone.
-5. The output fully and consistently matches the requested formality and register, demonstrating precise, intentional control of tone throughout.""",
-    "structure_and_formatting_habits": """Does the output follow the requested structure and formatting habits i.e. how the text is organized?
-
-1. The output ignores the requested structure and formatting habits entirely, showing no clear organization or adherence to the specified format.
-2. The output attempts to follow the requested structure and formatting but does so inconsistently, with major organizational issues or missing required elements.
-3. The output generally follows the requested structure and formatting, but includes noticeable inconsistencies, minor omissions, or organizational weaknesses.
-4. The output closely follows the requested structure and formatting habits, with only minor deviations that do not significantly impact clarity or organization.
-5. The output fully adheres to the requested structure and formatting habits, demonstrating clear, consistent, and well-organized presentation throughout.""",
+1. The output clearly ignores or contradicts the requested style, failing to match the specified tone, intent, formality, register, point of view, or voice.
+2. The output shows minimal alignment with the requested style, with major inconsistencies or frequent deviations from the specified tone, formality, point of view, or voice.
+3. The output generally reflects the requested style but includes noticeable inconsistencies or partial mismatches in tone, formality, register, point of view, or voice.
+4. The output closely follows the requested style with only minor or occasional deviations in tone, intent, formality, register, point of view, or voice.
+5. The output fully and consistently matches the requested style, accurately maintaining the specified tone, intent, level of formality, register, point of view, and voice throughout.""",
 }
 
 
@@ -105,8 +77,8 @@ class ArabicContentGenerationAnnotator(Annotator):
             )
 
             annotator_request = Request(
-                model="openai/gpt-5.1-2025-11-13",
-                model_deployment="openai/gpt-5.1-2025-11-13",
+                model="openai/gpt-4.1-nano-2025-04-14",
+                model_deployment="openai/gpt-4.1-nano-2025-04-14",
                 prompt=annotator_prompt,
                 temperature=0.0,
                 max_tokens=2000,
@@ -115,10 +87,7 @@ class ArabicContentGenerationAnnotator(Annotator):
             assert len(annotator_response.completions) == 1
             annotator_response_text = annotator_response.completions[0].text
 
-            annotations[criterion_id] = {
-                "prompt": annotator_prompt,
-                **self._parse_annotator_response(annotator_response_text),
-            }
+            annotations[criterion_id] = self._parse_annotator_response(annotator_response_text)
         return annotations
 
     def _parse_annotator_response(self, annotator_response_text: str) -> Dict[str, Union[int, str]]:
