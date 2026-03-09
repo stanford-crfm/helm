@@ -43,7 +43,7 @@ PRs to our libraries are always welcome and can be a quick way to get your fix o
 
 For changes that address core functionality or would require breaking changes (e.g. a major release), it's best to open an Issue to discuss your proposal first. This is not required but can save time creating and reviewing changes.
 
-In general, we follow the ["fork-and-pull" Git workflow](https://github.com/Pacific-AI-Corp/helm)
+In general, we follow the ["fork-and-pull" Git workflow](https://github.com/PacificAI/medhelm)
 
 1. Fork the repository to your own Github account
 2. Clone the project to your machine

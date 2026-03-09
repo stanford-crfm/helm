@@ -41,7 +41,7 @@ class TestScenario:
     def test_definition_path(self):
         assert (
             self.scenario.definition_path
-            == "https://github.com/Pacific-AI-Corp/medhelm/blob/main/src/helm/benchmark/scenarios/simple_scenarios.py"
+            == "https://github.com/PacificAI/medhelm/blob/main/src/helm/benchmark/scenarios/simple_scenarios.py"
         )
 
 

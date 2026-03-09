@@ -2,7 +2,7 @@ title: MedHELM
 description: Holistic Evaluation of Language Models (HELM) for medical applications
 baseurl: ""
 url: "https://medhelm.org"
-repo_url: "https://github.com/Pacific-AI-Corp/medhelm"
+repo_url: "https://github.com/PacificAI/medhelm"
 cname: medhelm.org
 
 markdown: kramdown

@@ -1,6 +1,6 @@
 site_name: MedHELM
 site_url: https://medhelm.org
-repo_url: https://github.com/Pacific-AI-Corp/medhelm/
+repo_url: https://github.com/PacificAI/medhelm/
 edit_uri: edit/main/docs/
 theme:
   name: material

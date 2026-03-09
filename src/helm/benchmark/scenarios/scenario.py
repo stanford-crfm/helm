@@ -252,7 +252,7 @@ class Scenario(ABC):
             path = part + "/" + path
             if part == "helm":
                 break
-        self.definition_path = "https://github.com/Pacific-AI-Corp/medhelm/blob/main/src/" + path
+        self.definition_path = "https://github.com/PacificAI/medhelm/blob/main/src/" + path
 
     @abstractmethod
     def get_instances(self, output_path: str) -> List[Instance]:

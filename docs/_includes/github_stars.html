@@ -2,7 +2,7 @@
 (function() {
   var el = document.getElementById('github-stars-count');
   if (!el) return;
-  fetch('https://api.github.com/repos/Pacific-AI-Corp/medhelm')
+  fetch('https://api.github.com/repos/PacificAI/medhelm')
     .then(function(r) { return r.json(); })
     .then(function(d) {
       if (d.stargazers_count != null) el.textContent = d.stargazers_count;

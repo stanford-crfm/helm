@@ -8,9 +8,9 @@ title: MedHELM
 [comment]: <> (When using the img tag, which allows us to specify size, src has to be a URL.)
 <img src="https://github.com/stanford-crfm/helm/raw/v0.5.4/helm-frontend/src/assets/helm-logo.png" alt="HELM logo" width="480"/>
 
-<a href="https://github.com/Pacific-AI-Corp/medhelm"><img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/Pacific-AI-Corp/medhelm"></a>
-<a href="https://github.com/Pacific-AI-Corp/medhelm/graphs/contributors"><img alt="GitHub contributors" src="https://img.shields.io/github/contributors/Pacific-AI-Corp/medhelm"></a>
-<a href="https://github.com/Pacific-AI-Corp/medhelm/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/Pacific-AI-Corp/medhelm?color=blue" /></a>
+<a href="https://github.com/PacificAI/medhelm"><img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/PacificAI/medhelm"></a>
+<a href="https://github.com/PacificAI/medhelm/graphs/contributors"><img alt="GitHub contributors" src="https://img.shields.io/github/contributors/PacificAI/medhelm"></a>
+<a href="https://github.com/PacificAI/medhelm/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/PacificAI/medhelm?color=blue" /></a>
 <a href="https://pypi.org/project/crfm-helm/"><img alt="PyPI" src="https://img.shields.io/pypi/v/crfm-helm?color=blue" /></a>
 
 **Holistic Evaluation of Language Models (HELM)** is an open source Python framework created by the [Center for Research on Foundation Models (CRFM) at Stanford](https://crfm.stanford.edu/) for holistic, reproducible and transparent evaluation of foundation models, including large language models (LLMs) and multimodal models. This framework includes the following features:
