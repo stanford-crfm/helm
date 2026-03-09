@@ -2,7 +2,9 @@
 # Prerequisites:
 #   1. Create project "medhelm" on PyPI (https://pypi.org/manage/account/ or org).
 #   2. In PyPI: Add trusted publisher for this repo (Settings → Publishing → Add new publisher).
-#   3. No secrets required; PyPI trusted publishing uses OIDC (id-token: write).
+#      Use: Owner PacificAI, Repository medhelm, Workflow name publish.yml, Environment pypi.
+#   3. In GitHub: Create environment "pypi" (Settings → Environments).
+#   4. No secrets required; PyPI trusted publishing uses OIDC (id-token: write).
 
 name: Publish Python package to PyPI
 
