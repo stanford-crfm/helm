@@ -8,7 +8,7 @@ title: Quick Start
 Install the package from PyPI:
 
 ```sh
-pip install crfm-helm
+pip install medhelm
 ```
 
 Run the following in your shell:

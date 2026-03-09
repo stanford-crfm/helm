@@ -43,14 +43,14 @@ Run the following commands to create and activate a new python virtual environme
 
 ```
 # Create and activate a clean environment
-conda create -n crfm-helm python=3.10 pip wget
-conda activate crfm-helm
+conda create -n medhelm python=3.10 pip wget
+conda activate medhelm
 pip install -U setuptools
 ```
 
 Run the following command to install HELM and the necessary MedHELM extensions:
 ```
-pip install -U "crfm-helm[summarization,medhelm]"
+pip install -U "medhelm[summarization]"
 ```
 
 #### 2. Download Leaderboard Results
@@ -180,15 +180,15 @@ Run the following commands to create and activate a new python virtual environme
 
 ```bash
 # Create and activate a clean environment
-conda create -n crfm-helm python=3.10 pip wget
-conda activate crfm-helm
+conda create -n medhelm python=3.10 pip wget
+conda activate medhelm
 pip install -U setuptools
 ```
 
 #### 2. Install HELM and MedHELM-specific Dependencies:
 
 ```bash
-pip install -U "crfm-helm[summarization,medhelm]"
+pip install -U "medhelm[summarization]"
 ```
 
 ---
@@ -326,10 +326,10 @@ MedHELM allows you to define and run custom LLM benchmarks by combining a few si
 2. **Dataset (`.csv`)** — provides the data for each benchmark instance. Each row populates the prompt template and must include required columns like `correct_answer`.  
 3. **Benchmark config (`.yaml`)** — specifies the benchmark metadata (name, description), file paths (prompt, dataset), evaluation settings (e.g., max tokens), and the list of metrics to compute.
 
-> **Note:** This feature requires **crfm-helm >= 0.5.8**.  
+> **Note:** This feature requires **medhelm >= 0.5.8**.  
 > Make sure you upgrade before continuing:  
 ```bash
-pip install -U crfm-helm
+pip install -U medhelm
 ```
 
 ---

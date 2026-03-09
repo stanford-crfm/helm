@@ -35,11 +35,11 @@ Using [**Conda**](https://conda.io/projects/conda/en/latest/user-guide/tasks/man
 ```bash
 # Create a virtual environment.
 # Only run this the first time.
-conda create -n crfm-helm python=3.10 pip
+conda create -n medhelm python=3.10 pip
 
 # Activate the virtual environment.
 # Run this every time you open your shell.
-conda activate crfm-helm
+conda activate medhelm
 ```
 
 Using [**pyenv**](https://github.com/pyenv/pyenv) and [**pyenv-virtualenv**](https://github.com/pyenv/pyenv-virtualenv):
@@ -47,11 +47,11 @@ Using [**pyenv**](https://github.com/pyenv/pyenv) and [**pyenv-virtualenv**](htt
 ```bash
 # Create a virtual environment.
 # Only run this the first time.
-pyenv virtualenv 3.10 crfm-helm
+pyenv virtualenv 3.10 medhelm
 
 # Activate the virtual environment.
 # Run this every time you open your shell.
-pyenv activate crfm-helm
+pyenv activate medhelm
 ```
 
 ## Install Python dependencies
@@ -115,7 +115,7 @@ The recommended way to execute `helm-run`, `helm-summarize`, `helm-server`, etc,
 
 1. Activate your virtual environment.
 1. Change directory to the repository root (contains pyproject.toml).
-1. Make sure you don't have an existing helm installation for that environment with `pip uninstall crfm-helm`
+1. Make sure you don't have an existing helm installation for that environment with `pip uninstall medhelm`
 1. Run `pip install -e .`
 
 Now calling `helm-run` while the environment is activated will read from your local source.

@@ -24,10 +24,10 @@ Using [Anaconda](https://conda.io/projects/conda/en/latest/user-guide/tasks/mana
 ```
 # Create a virtual environment.
 # Only run this the first time.
-conda create -n crfm-helm python=3.10 pip
+conda create -n medhelm python=3.10 pip
 
 # Activate the virtual environment.
-conda activate crfm-helm
+conda activate medhelm
 ```
 
 ## Install HELM
@@ -35,7 +35,7 @@ conda activate crfm-helm
 Within this virtual environment, run:
 
 ```
-pip install crfm-helm
+pip install medhelm
 ```
 
 ## Install Multimodal Support

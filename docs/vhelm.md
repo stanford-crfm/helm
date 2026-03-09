@@ -14,13 +14,15 @@ VHELM aggregates various datasets to cover one or more of the 9 aspects: visual 
 
 ## Installation
 
-First, follow the [installation instructions](installation/) to install the base HELM Python page.
+First, follow the [installation instructions](installation/) to install the base MedHELM Python package.
 
 To install the additional dependencies to run VHELM, run:
 
 ```sh
-pip install "crfm-helm[vlm]"
+pip install medhelm
 ```
+
+**Note:** The VHELM (vision-language) extension is from the upstream [HELM project](https://github.com/stanford-crfm/helm). For VHELM-specific extras (e.g. `[vlm]`), see the upstream repository.
 
 ## Quick Start
 

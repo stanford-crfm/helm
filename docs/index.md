@@ -11,7 +11,7 @@ title: MedHELM
 <a href="https://github.com/PacificAI/medhelm"><img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/PacificAI/medhelm"></a>
 <a href="https://github.com/PacificAI/medhelm/graphs/contributors"><img alt="GitHub contributors" src="https://img.shields.io/github/contributors/PacificAI/medhelm"></a>
 <a href="https://github.com/PacificAI/medhelm/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/PacificAI/medhelm?color=blue" /></a>
-<a href="https://pypi.org/project/crfm-helm/"><img alt="PyPI" src="https://img.shields.io/pypi/v/crfm-helm?color=blue" /></a>
+<a href="https://pypi.org/project/medhelm/"><img alt="PyPI" src="https://img.shields.io/pypi/v/medhelm?color=blue" /></a>
 
 **Holistic Evaluation of Language Models (HELM)** is an open source Python framework created by the [Center for Research on Foundation Models (CRFM) at Stanford](https://crfm.stanford.edu/) for holistic, reproducible and transparent evaluation of foundation models, including large language models (LLMs) and multimodal models. This framework includes the following features:
 
@@ -30,7 +30,7 @@ Please refer to the documentation on this site (see **Docs**, **Tutorials**, **B
 Install the package from PyPI:
 
 ```sh
-pip install crfm-helm
+pip install medhelm
 ```
 
 Run the following in your shell:

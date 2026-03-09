@@ -42,13 +42,15 @@ demonstrating strengths in different aspects.
 
 ## Installation
 
-First, follow the [installation instructions](installation/) to install the base HELM Python page.
+First, follow the [installation instructions](installation/) to install the base MedHELM Python package.
 
 To install the additional dependencies to run HEIM, run:
 
 ```sh
-pip install "crfm-helm[heim]"
+pip install "medhelm"
 ```
+
+**Note:** The HEIM (text-to-image) extension and its full leaderboard are from the upstream [HELM project](https://github.com/stanford-crfm/helm). For HEIM-specific extras (e.g. `[heim]`), see the upstream repository.
 
 Some models (e.g., DALLE-mini/mega) and metrics (`DetectionMetric`) require extra dependencies that are 
 not available on PyPI. To install these dependencies, download and run the 
