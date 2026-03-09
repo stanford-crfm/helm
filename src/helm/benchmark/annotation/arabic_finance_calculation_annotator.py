@@ -59,8 +59,8 @@ Please output your one-sentence concise reasoning within the "reasoning" tags an
             .replace("{{model_output}}", prediction_text)
         )
         annotator_request = Request(
-            model="openai/gpt-4o-2024-05-13",
-            model_deployment="openai/gpt-4o-2024-05-13",
+            model="openai/gpt-4.1-nano-2025-04-14",
+            model_deployment="openai/gpt-4.1-nano-2025-04-14",
             prompt=annotator_prompt,
             temperature=0.0,
             max_tokens=100,
