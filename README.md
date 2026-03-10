@@ -97,16 +97,24 @@ helm-server --suite my-suite
 | Tier | Install | Scenarios |
 |------|--------|-----------|
 | **Standard** | `pip install medhelm` or `uv pip install medhelm` | PubMedQA, MedCalc-Bench, MedicationQA, MedHallu |
-| **Summarization** | `pip install "medhelm[summarization]"` | DischargeMe, ACI-Bench, Patient-Edu (2–3 min install) |
-| **Gated** | `pip install "medhelm[gated]"` | MedQA, MedMCQA (Drive) |
+| **Summarization** (Clinical NLP tier) | `pip install "medhelm[summarization]"` | DischargeMe, ACI-Bench, Patient-Edu (2–3 min install; bert-score, rouge-score, nltk) |
+| **Gated** (licensing tier) | `pip install "medhelm[gated]"` | MedQA, MedMCQA (Drive; gdown) |
 
 Run: `uv run medhelm-run --run-entries "<scenario>:model=<model>" --suite <name> --max-eval-instances <n>` then `helm-summarize` and `helm-server`. See [medhelm.org](https://medhelm.org) for full docs.
 
 <!--quick-start-end-->
 
+## Goals & roadmap
+
+MedHELM aims to be a **new public repo** with **fewer dependencies**, **easier installation**, and **public documentation**. We welcome feedback on the following:
+
+- **HealthBench:** We are considering new subcategories to include HealthBench. Do you see value in adding HealthBench, and how would you use it?
+- **Non-gated alternatives:** We provide **7 non-gated datasets** (e.g. PubMedQA, MedCalc-Bench, MedicationQA, MedHallu, and others in the Standard and Summarization tiers) as free alternatives for the same kinds of tasks as gated benchmarks.
+- **Hospital & private data:** We want to make it **easier for hospital systems to contribute or add their own private datasets**. If your institution is interested in running or contributing benchmarks, we’d like to hear from you.
+
 ## Leaderboards
 
-We maintain offical leaderboards with results from evaluating recent models on notable benchmarks using this framework. Our current flagship leaderboards are:
+We maintain official leaderboards with results from evaluating recent models on notable benchmarks using this framework. Our current flagship leaderboards are:
 
 - [HELM Capabilities](https://crfm.stanford.edu/helm/capabilities/latest/)
 - [HELM Safety](https://crfm.stanford.edu/helm/safety/latest/)

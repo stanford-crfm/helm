@@ -26,26 +26,36 @@ Please refer to the documentation on this site (see **Docs**, **Tutorials**, **B
 
 ## Quick Start
 
-Install the package from PyPI:
+MedHELM is a public library with fewer dependencies and straightforward installation. Install from PyPI:
+
+**Standard** (PubMedQA, MedCalc-Bench, MedicationQA, MedHallu):
 
 ```sh
-pip install medhelm
+uv pip install medhelm
 ```
 
-Run the following in your shell:
+Run a benchmark:
 
 ```sh
-# Run benchmark
-helm-run --run-entries mmlu:subject=philosophy,model=openai/gpt2 --suite my-suite --max-eval-instances 10
-
-# Summarize benchmark results
-helm-summarize --suite my-suite
-
-# Start a web server to display benchmark results
-helm-server --suite my-suite
+uv run medhelm-run --run-entries "pubmed_qa:model=huggingface/qwen2.5-7b" --suite my_med_test --max-eval-instances 10
+uv run helm-summarize --suite my_med_test
+uv run helm-server --suite my_med_test
 ```
 
 Then go to <http://localhost:8000/> in your browser.
+
+- **Summarization tier** (DischargeMe, ACI-Bench, Patient-Edu): `uv pip install "medhelm[summarization]"` — install may take 2–3 min.
+- **Gated tier** (MedQA, MedMCQA, Drive): `uv pip install "medhelm[gated]"`.
+
+See [Quick Start](quick_start.html) and [Installation](installation.html) for full details.
+
+## Goals & roadmap
+
+MedHELM aims to be a **new public repo** with **fewer dependencies**, **easier installation**, and **public documentation**. We welcome feedback on:
+
+- **HealthBench:** We are considering new subcategories to include HealthBench. Do you see value in adding HealthBench, and how would you use it?
+- **Non-gated alternatives:** We provide **7 non-gated datasets** (e.g. PubMedQA, MedCalc-Bench, MedicationQA, MedHallu, and others in the Standard and Summarization tiers) as free alternatives for the same kinds of tasks as gated benchmarks.
+- **Hospital & private data:** We want to make it **easier for hospital systems to contribute or add their own private datasets**. If your institution is interested in running or contributing benchmarks, we’d like to hear from you.
 
 ## Leaderboards
 
