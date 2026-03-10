@@ -4,6 +4,10 @@
 
 name: Update requirements
 
+permissions:
+  contents: write
+  pull-requests: write
+
 on:
   push:
     branches:
@@ -67,6 +71,7 @@ jobs:
       - name: Create pull request
         uses: peter-evans/create-pull-request@v6
         with:
+          token: ${{ secrets.REPO_TOKEN || secrets.GITHUB_TOKEN }}
           commit-message: Update requirements
           title: "Update requirements"
           branch: actions/update-requirements

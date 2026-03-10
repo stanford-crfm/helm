@@ -1,17 +1,10 @@
-# Holistic Evaluation of Language Models (HELM)
+# MedHELM
 
-[comment]: <> (When using the img tag, which allows us to specify size, src has to be a URL.)
-<img src="https://github.com/stanford-crfm/helm/raw/v0.5.4/helm-frontend/src/assets/helm-logo.png" alt="HELM logo"  width="480"/>
+[![GitHub Repo stars](https://img.shields.io/github/stars/PacificAI/medhelm)](https://github.com/PacificAI/medhelm)
+[![License](https://img.shields.io/github/license/PacificAI/medhelm?color=blue)](https://github.com/PacificAI/medhelm/blob/main/LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/medhelm?color=blue)](https://pypi.org/project/medhelm/)
 
-<a href="https://github.com/PacificAI/medhelm">
-    <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/PacificAI/medhelm">
-</a>
-<a href="https://github.com/PacificAI/medhelm/blob/main/LICENSE">
-    <img alt="License" src="https://img.shields.io/github/license/PacificAI/medhelm?color=blue" />
-</a>
-<a href="https://pypi.org/project/medhelm/">
-    <img alt="PyPI" src="https://img.shields.io/pypi/v/medhelm?color=blue" />
-</a>
+<img src="https://github.com/PacificAI/medhelm/raw/main/docs/assets/images/medhelm_logo.jpg" alt="MedHELM" width="320"/>
 
 **Holistic Evaluation of Language Models (HELM)** is an open source Python framework created by the [Center for Research on Foundation Models (CRFM) at Stanford](https://crfm.stanford.edu/) for holistic, reproducible and transparent evaluation of foundation models, including large language models (LLMs) and multimodal models. This framework includes the following features:
 

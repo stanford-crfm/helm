@@ -3,10 +3,9 @@ layout: default
 title: MedHELM
 ---
 
-# Holistic Evaluation of Language Models (HELM)
+# MedHELM
 
-[comment]: <> (When using the img tag, which allows us to specify size, src has to be a URL.)
-<img src="https://github.com/stanford-crfm/helm/raw/v0.5.4/helm-frontend/src/assets/helm-logo.png" alt="HELM logo" width="480"/>
+<img src="{{ '/assets/images/medhelm_logo.jpg' | relative_url }}" alt="MedHELM" width="320"/>
 
 <a href="https://github.com/PacificAI/medhelm"><img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/PacificAI/medhelm"></a>
 <a href="https://github.com/PacificAI/medhelm/graphs/contributors"><img alt="GitHub contributors" src="https://img.shields.io/github/contributors/PacificAI/medhelm"></a>
