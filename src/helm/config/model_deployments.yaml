@@ -1360,6 +1360,7 @@ model_deployments:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
       args:
         vertexai_model: publishers/meta/models/llama-4-scout-17b-16e-instruct-maas
+        genai_use_vertexai: False
 
   ## Gemma
   - name: together/gemma-2b
